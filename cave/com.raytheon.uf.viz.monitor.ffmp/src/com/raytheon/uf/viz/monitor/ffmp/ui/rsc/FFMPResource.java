@@ -41,10 +41,10 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
@@ -63,7 +63,6 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPUtils;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPVirtualGageBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPVirtualGageBasinMetaData;
 import com.raytheon.uf.common.dataplugin.ffmp.HucLevelGeometriesFactory;
-import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -84,6 +83,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -102,7 +102,6 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormapShadedShapeExtension;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormapShadedShapeExtension.IColormapShadedShape;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
@@ -139,7 +138,6 @@ import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
 import com.raytheon.viz.ui.input.EditableManager;
 import com.raytheon.viz.ui.input.InputAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 
@@ -166,6 +164,10 @@ import com.vividsolutions.jts.geom.Point;
  * Apr 9, 2013   1890     dhladky    General cleanup.
  * Apr 10, 2013 1896       bsteffen    Make FFMPResource work better with D2D
  *                                     time matcher.
+ * Apr 25, 2013 1954       bsteffen    Skip extent checking for FFMP shape
+ *                                     generation.
+ * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -349,9 +351,6 @@ public class FFMPResource extends
     // complete reset
     public boolean isQuery = true;
 
-    /** the last extent **/
-    private PixelExtent lastExtent;
-
     /**
      * FFMP basin table dialog.
      */
@@ -459,14 +458,15 @@ public class FFMPResource extends
                     } else {
                         previousMostRecentTime = tok.get(0);
                     }
-
-                    updateTimeOrderedkeys(ffmpRec.getDataTime().getRefTime());
+                    Date refTime = ffmpRec.getDataTime().getRefTime();
+                    
+                    updateTimeOrderedkeys(refTime);
 
                     if (getResourceData().tableLoad) {
                         setTableTime();
                     }
 
-                    setRecord(ffmpRec);
+                    resourceData.populateRecord(ffmpRec);
 
                     statusHandler.handle(Priority.INFO, "Updating : Previous: "
                             + previousMostRecentTime + " New: "
@@ -475,8 +475,7 @@ public class FFMPResource extends
                     if (getResourceData().tableLoad) {
 
                         if (loader == null) {
-                            startLoader(previousMostRecentTime, ffmpRec
-                                    .getDataTime().getRefTime(),
+                            startLoader(previousMostRecentTime, refTime,
                                     LOADER_TYPE.GENERAL);
                         } else {
                             try {
@@ -486,8 +485,7 @@ public class FFMPResource extends
                                         e.getLocalizedMessage(), e);
                             }
 
-                            startLoader(previousMostRecentTime, ffmpRec
-                                    .getDataTime().getRefTime(),
+                            startLoader(previousMostRecentTime, refTime,
                                     LOADER_TYPE.GENERAL);
                             try {
                                 loader.waitFor();
@@ -497,7 +495,7 @@ public class FFMPResource extends
                             }
                         }
 
-                        purge(ffmpRec.getDataTime().getRefTime());
+                        purge(refTime);
                     }
 
                     resetRecords();
@@ -1063,16 +1061,6 @@ public class FFMPResource extends
         return null;
     }
 
-    /**
-     * Set the Record straight.
-     * 
-     * @throws VizException
-     * 
-     */
-    protected void setRecord(FFMPRecord ffmpRecord) throws VizException {
-        getResourceData().populateRecord(getProduct(), ffmpRecord, getHuc());
-    }
-
     @Override
     protected void disposeInternal() {
         IDisplayPaneContainer container = getResourceContainer();
@@ -1153,7 +1141,7 @@ public class FFMPResource extends
         }
 
         // DR 14522: use Display.getDefault().asyncExec() for GUI thread.
-        org.eclipse.swt.widgets.Display.getDefault().asyncExec(new Runnable() {
+        Display.getDefault().asyncExec(new Runnable() {
 
             @Override
             public void run() {
@@ -1209,246 +1197,208 @@ public class FFMPResource extends
     @Override
     protected void paintInternal(IGraphicsTarget aTarget,
             PaintProperties paintProps) throws VizException {
+        if (getTimeOrderedKeys() == null || getTimeOrderedKeys().isEmpty()
+                || getDomains() == null) {
+            return;
+        }
 
-        // clear the screen
         aTarget.clearClippingPlane();
 
-        if ((getTimeOrderedKeys() != null) && (getTimeOrderedKeys().size() > 0)
-                && (getDomains() != null)) {
+        paintTime = paintProps.getDataTime();
+        paintProps.setAlpha(getCapability(ImagingCapability.class).getAlpha());
 
-            paintTime = paintProps.getDataTime();
-            paintProps.setAlpha(getCapability(ImagingCapability.class)
-                    .getAlpha());
+        FFMPDrawable drawable = null;
 
-            boolean isShaded = true;
-            FFMPDrawable drawable = null;
+        if (paintTime != null) {
+            if (loader != null && !loader.isDone()
+                    && loader.loadType == LOADER_TYPE.GENERAL) {
+                return;
+            }
+            if (!drawables.containsKey(paintTime)) {
 
-            if (paintTime != null) {
-                if (loader != null && !loader.isDone()
-                        && loader.loadType == LOADER_TYPE.GENERAL) {
-                    return;
-                }
-                if (!drawables.containsKey(paintTime)) {
+                drawable = new FFMPDrawable(getDomains());
+                drawables.put(paintTime, drawable);
+            } else {
+                // we found it!
+                drawable = drawables.get(paintTime);
+                // System.out.println("Found the drawable");
 
-                    drawable = new FFMPDrawable(getDomains());
-                    drawables.put(paintTime, drawable);
-                } else {
-                    // we found it!
-                    drawable = drawables.get(paintTime);
-                    // System.out.println("Found the drawable");
-
-                    if (!paintTime.equals(drawable.getTime())) {
-                        drawable.setDirty(true);
-                    }
-
-                    if ((lastExtent == null)
-                            || !lastExtent.getEnvelope().contains(
-                                    drawable.getExt().getEnvelope())) {
-                        drawable.setDirty(true);
-                    }
-
-                    // auto refresh state
-                    if (isQuery) {
-                        drawable.setDirty(true);
-                    }
+                if (!paintTime.equals(drawable.getTime())) {
+                    drawable.setDirty(true);
                 }
 
-                if (getResourceData().tableLoad
-                        && !paintTime.getRefTime().equals(getMostRecentTime())) {
-                    setMostRecentTime(paintTime.getRefTime());
-                    setTableTime();
-                    // if (isLinkToFrame && loader != null && loader.loadType !=
-                    // LOADER_TYPE.GENERAL) {
-                    if (isLinkToFrame) {
-                        updateDialog();
+                // auto refresh state
+                if (isQuery) {
+                    drawable.setDirty(true);
+                }
+            }
+
+            if (getResourceData().tableLoad
+                    && !paintTime.getRefTime().equals(getMostRecentTime())) {
+                setMostRecentTime(paintTime.getRefTime());
+                setTableTime();
+                // if (isLinkToFrame && loader != null && loader.loadType !=
+                // LOADER_TYPE.GENERAL) {
+                if (isLinkToFrame) {
+                    updateDialog();
+                }
+            }
+        } else {
+            getResourceData().getMonitor().forceKillFFMPSplash();
+        }
+
+        if ((drawable != null) && drawable.isDirty()) {
+            // only need to do the query if extent changed, pfafs may be
+            // fine
+            if (!isFirst || queryJob.getState() == Job.NONE) {
+                queryJob.request(aTarget, drawable, paintTime);
+            }
+        }
+
+        if (drawable != null && isFfmpDataToggle()) {
+            IColormapShadedShapeExtension ext = aTarget
+                    .getExtension(IColormapShadedShapeExtension.class);
+            ImagingCapability imageCap = getCapability(ImagingCapability.class);
+            float brightness = imageCap.getBrightness();
+            float alpha = imageCap.getAlpha();
+            for (DomainXML domain : getDomains()) {
+                String cwa = domain.getCwa();
+                IColormapShadedShape shape = shadedShapes.getDrawableShape(cwa,
+                        drawable.getShadedHuc());
+                Map<Object, RGB> colorMap = drawable.getColorMap(cwa);
+                if (shape != null && colorMap != null) {
+                    ext.drawColormapShadedShape(shape, colorMap, alpha,
+                            brightness);
+                }
+            }
+        }
+
+        boolean isAllHuc = getHuc().equals(FFMPRecord.ALL);
+        if (getResourceData().tableLoad) {
+
+            int mapWidth = getDescriptor().getMapWidth() / 1000;
+            double zoom = getDescriptor().getRenderableDisplay().getZoom();
+
+            // determine whether or not to draw the small guys
+            if ((mapWidth * zoom) > 250.0) {
+                if (isSmallBasins) {
+                    isSmallBasins = false;
+                    refresh();
+                }
+
+            } else if ((mapWidth * zoom) < 250.0) {
+                if (!isSmallBasins) {
+                    isSmallBasins = true;
+                    if (smallBasinOverlayShape == null) {
+                        drawable.setDirty(true);
+                    } else {
+                        refresh();
+                    }
+                }
+            }
+
+            if (isSmallBasins && this.isBasinToggle()) {
+                OutlineCapability lineCap = getCapability(OutlineCapability.class);
+                if ((smallBasinOverlayShape != null)
+                        && smallBasinOverlayShape.isDrawable()) {
+
+                    if (basinBoundaryColor == null) {
+                        basinBoundaryColor = getCapability(
+                                ColorableCapability.class).getColor();
+                    }
+
+                    aTarget.drawWireframeShape(smallBasinOverlayShape,
+                            basinBoundaryColor, lineCap.getOutlineWidth(),
+                            lineCap.getLineStyle());
+                } else if ((smallBasinOverlayShape == null)
+                        && lineCap.isOutlineOn()) {
+                    issueRefresh();
+                }
+            }
+
+            // the product string
+            if (isFfmpDataToggle() && fieldDescString != null) {
+                paintProductString(aTarget, paintProps);
+            }
+        }
+        // re-centered ?
+        if (centeredAggregationKey != null) {
+            vgbDrawables.clear();
+            // create pixelCoverages for the VGB's
+            if (isAllHuc) {
+                for (DomainXML domain : getDomains()) {
+                    for (Long pfaf : monitor.getTemplates(getSiteKey())
+                            .getMap(getSiteKey(), domain.getCwa(), getHuc())
+                            .keySet()) {
+                        List<FFMPVirtualGageBasinMetaData> fvgmdList = monitor
+                                .getTemplates(getSiteKey())
+                                .getVirtualGageBasinMetaData(getSiteKey(),
+                                        domain.getCwa(), pfaf);
+                        if (fvgmdList != null) {
+                            for (FFMPVirtualGageBasinMetaData fvgmd : fvgmdList) {
+                                vgbDrawables.put(
+                                        fvgmd.getLid(),
+                                        getPixelCoverage(fvgmd.getCoordinate(),
+                                                paintProps));
+                            }
+                        }
                     }
                 }
             } else {
-                if (getResourceData().getMonitor().ffmpSplash != null) {
-                    getResourceData().getMonitor().ffmpSplash.close();
-                    getResourceData().getMonitor().ffmpSplash = null;
-                }
-            }
-
-            if ((drawable != null) && drawable.isDirty()) {
-                // only need to do the query if extent changed, pfafs may be
-                // fine
-                PixelExtent expandedExtent = getExpandedExtent((PixelExtent) paintProps
-                        .getView().getExtent());
-                drawable.setExt(expandedExtent);
-                queryJob.request(aTarget, descriptor, isShaded, drawable,
-                        expandedExtent, paintTime);
-                lastExtent = expandedExtent;
-            }
-
-            boolean isAllHuc = getHuc().equals(FFMPRecord.ALL);
-            for (DomainXML domain : getDomains()) {
-                String cwa = domain.getCwa();
-                if (isShaded) {
-                    if (drawable != null) {
-                        IColormapShadedShape shape = shadedShapes
-                                .getDrawableShape(cwa, drawable.getShadedHuc());
-                        Map<Object, RGB> colorMap = drawable.getColorMap(cwa);
-
-                        if (this.isFfmpDataToggle() && (shape != null)
-                                && (colorMap != null)) {
-
-                            aTarget.getExtension(
-                                    IColormapShadedShapeExtension.class)
-                                    .drawColormapShadedShape(
-                                            shape,
-                                            colorMap,
-                                            paintProps.getAlpha(),
-                                            getCapability(
-                                                    ImagingCapability.class)
-                                                    .getBrightness());
-                        }
-                    }
-                }
-
-                if (getResourceData().tableLoad) {
-
-                    int mapWidth = getDescriptor().getMapWidth() / 1000;
-                    double zoom = getDescriptor().getRenderableDisplay()
-                            .getZoom();
-
-                    // determine whether or not to draw the small guys
-                    if ((mapWidth * zoom) > 250.0) {
-                        if (isSmallBasins) {
-                            isSmallBasins = false;
-                            refresh();
-                        }
-
-                    } else if ((mapWidth * zoom) < 250.0) {
-                        if (!isSmallBasins) {
-                            isSmallBasins = true;
-                            if (smallBasinOverlayShape == null) {
-                                drawable.setDirty(true);
-                            } else {
-                                refresh();
-                            }
-                        }
-                    }
-
-                    if ((lowestCenter == ZOOM.AGGREGATE)
-                            || (lowestCenter == ZOOM.BASIN) || isAllHuc
-                            || this.isBasinToggle() || isSmallBasins) {
-
-                        if (isSmallBasins && this.isBasinToggle()) {
-                            if ((smallBasinOverlayShape != null)
-                                    && smallBasinOverlayShape.isDrawable()) {
-
-                                if (basinBoundaryColor == null) {
-                                    basinBoundaryColor = getCapability(
-                                            ColorableCapability.class)
-                                            .getColor();
-                                }
-
-                                aTarget.drawWireframeShape(
-                                        smallBasinOverlayShape,
-                                        basinBoundaryColor,
-                                        getCapability(OutlineCapability.class)
-                                                .getOutlineWidth(),
-                                        getCapability(OutlineCapability.class)
-                                                .getLineStyle());
-                            } else if ((smallBasinOverlayShape == null)
-                                    && getCapability(OutlineCapability.class)
-                                            .isOutlineOn()) {
-                                aTarget.setNeedsRefresh(true);
-                            }
-                        }
-                    }
-
-                    // the product string
-                    if (isFfmpDataToggle() && fieldDescString != null) {
-                        paintProductString(aTarget, paintProps);
-                    }
-                }
-            }
-            // re-centered ?
-            if (centeredAggregationKey != null) {
-                vgbDrawables.clear();
-                // create pixelCoverages for the VGB's
-                if (isAllHuc) {
-                    for (DomainXML domain : getDomains()) {
-                        for (Long pfaf : monitor
+                if (lowestCenter == FFMPRecord.ZOOM.AGGREGATE) {
+                    for (Long pfaf : monitor.getTemplates(getSiteKey())
+                            .getAllAggregatePfafs(centeredAggregationKey,
+                                    getHuc())) {
+                        List<FFMPVirtualGageBasinMetaData> fvgmdList = monitor
                                 .getTemplates(getSiteKey())
-                                .getMap(getSiteKey(), domain.getCwa(), getHuc())
-                                .keySet()) {
-                            ArrayList<FFMPVirtualGageBasinMetaData> fvgmdList = monitor
-                                    .getTemplates(getSiteKey())
-                                    .getVirtualGageBasinMetaData(getSiteKey(),
-                                            domain.getCwa(), pfaf);
-                            if (fvgmdList != null) {
-                                for (FFMPVirtualGageBasinMetaData fvgmd : fvgmdList) {
-                                    vgbDrawables.put(
-                                            fvgmd.getLid(),
-                                            getPixelCoverage(
-                                                    fvgmd.getCoordinate(),
-                                                    paintProps));
-                                }
+                                .getVirtualGageBasinMetaData(getSiteKey(),
+                                        null, pfaf);
+                        if (fvgmdList != null) {
+                            for (FFMPVirtualGageBasinMetaData fvgmd : fvgmdList) {
+                                vgbDrawables.put(
+                                        fvgmd.getLid(),
+                                        getPixelCoverage(fvgmd.getCoordinate(),
+                                                paintProps));
                             }
                         }
                     }
                 } else {
-                    if (lowestCenter == FFMPRecord.ZOOM.AGGREGATE) {
-                        for (Long pfaf : monitor.getTemplates(getSiteKey())
-                                .getAllAggregatePfafs(centeredAggregationKey,
-                                        getHuc())) {
-                            ArrayList<FFMPVirtualGageBasinMetaData> fvgmdList = monitor
-                                    .getTemplates(getSiteKey())
-                                    .getVirtualGageBasinMetaData(getSiteKey(),
-                                            null, pfaf);
-                            if (fvgmdList != null) {
-                                for (FFMPVirtualGageBasinMetaData fvgmd : fvgmdList) {
-                                    vgbDrawables.put(
-                                            fvgmd.getLid(),
-                                            getPixelCoverage(
-                                                    fvgmd.getCoordinate(),
-                                                    paintProps));
-                                }
-                            }
-                        }
-                    } else {
-                        for (DomainXML domain : getDomains()) {
-                            for (Entry<String, FFMPVirtualGageBasinMetaData> entry : monitor
-                                    .getTemplates(getSiteKey())
-                                    .getVirtualGageBasins(getSiteKey(),
-                                            domain.getCwa()).entrySet()) {
-                                if (entry.getValue() != null) {
-                                    vgbDrawables.put(
-                                            entry.getKey(),
-                                            getPixelCoverage(entry.getValue()
-                                                    .getCoordinate(),
-                                                    paintProps));
-                                }
+                    for (DomainXML domain : getDomains()) {
+                        for (Entry<String, FFMPVirtualGageBasinMetaData> entry : monitor
+                                .getTemplates(getSiteKey())
+                                .getVirtualGageBasins(getSiteKey(),
+                                        domain.getCwa()).entrySet()) {
+                            if (entry.getValue() != null) {
+                                vgbDrawables.put(
+                                        entry.getKey(),
+                                        getPixelCoverage(entry.getValue()
+                                                .getCoordinate(), paintProps));
                             }
                         }
                     }
                 }
-
-                paintCenter(aTarget, paintProps);
-                paintVGBs(aTarget, paintProps);
             }
 
-            // draw or clear the colorMap
-            if (!isFfmpDataToggle()) { // clear if ffmpDataToggle is false
-                getCapability(ColorMapCapability.class).setColorMapParameters(
-                        null);
-            } else if (getColorUtil().getColorMapParameters() != null) {
-                // restore if null
-                getCapability(ColorMapCapability.class).setColorMapParameters(
-                        getColorUtil().getColorMapParameters());
-            }
-
-            // draw stream trace?
-            if (isShowStream() && isStreamFollow()) {
-                paintUpAndDownStream(aTarget, paintProps, isShaded);
-            }
-
-            // always reset
-            isQuery = false;
+            paintCenter(aTarget, paintProps);
+            paintVGBs(aTarget, paintProps);
         }
+
+        // draw or clear the colorMap
+        if (!isFfmpDataToggle()) { // clear if ffmpDataToggle is false
+            getCapability(ColorMapCapability.class).setColorMapParameters(null);
+        } else if (getColorUtil().getColorMapParameters() != null) {
+            // restore if null
+            getCapability(ColorMapCapability.class).setColorMapParameters(
+                    getColorUtil().getColorMapParameters());
+        }
+
+        // draw stream trace?
+        if (isShowStream() && isStreamFollow()) {
+            paintUpAndDownStream(aTarget, paintProps);
+        }
+
+        // always reset
+        isQuery = false;
     }
 
     /**
@@ -1497,7 +1447,7 @@ public class FFMPResource extends
      * @throws VizException
      */
     private void paintUpAndDownStream(IGraphicsTarget target,
-            PaintProperties paintProps, boolean isShaded) throws VizException {
+            PaintProperties paintProps) throws VizException {
 
         if (basinTraceColor == null) {
             basinTraceColor = getCapability(ColorableCapability.class)
@@ -1505,7 +1455,7 @@ public class FFMPResource extends
         }
 
         if (isShowStream() && (streamShadedShape != null)
-                && streamShadedShape.isDrawable() && isShaded) {
+                && streamShadedShape.isDrawable()) {
             target.drawShadedShape(streamShadedShape, paintProps.getAlpha());
         }
         if (isShowStream() && (streamOutlineShape != null)
@@ -1834,10 +1784,8 @@ public class FFMPResource extends
 
             if (stream.equals(FFMPRecord.CLICK_TYPE.TREND)) {
                 monitor.basinTrend(newPfaf);
-            }
-
-            // only re-draw the screen for UP/DOWN
-            if (!stream.equals(FFMPRecord.CLICK_TYPE.TREND)) {
+            } else {
+                // only re-draw the screen for UP/DOWN
                 nextStreamPfaf = newPfaf;
                 dirty();
             }
@@ -2111,29 +2059,16 @@ public class FFMPResource extends
      */
     private void drawSquare(PixelCoverage pc, IGraphicsTarget target)
             throws VizException {
-
-        // target.drawLine(lines)
-        target.drawLine(pc.getLl().x, pc.getLl().y, 0.0, pc.getUl().x, pc
-                .getUl().y, 0.0, getCapability(ColorableCapability.class)
-                .getColor(), getCapability(OutlineCapability.class)
-                .getOutlineWidth(), getCapability(OutlineCapability.class)
-                .getLineStyle());
-        target.drawLine(pc.getUl().x, pc.getUl().y, 0.0, pc.getUr().x, pc
-                .getUr().y, 0.0, getCapability(ColorableCapability.class)
-                .getColor(), getCapability(OutlineCapability.class)
-                .getOutlineWidth(), getCapability(OutlineCapability.class)
-                .getLineStyle());
-        target.drawLine(pc.getUr().x, pc.getUr().y, 0.0, pc.getLr().x, pc
-                .getLr().y, 0.0, getCapability(ColorableCapability.class)
-                .getColor(), getCapability(OutlineCapability.class)
-                .getOutlineWidth(), getCapability(OutlineCapability.class)
-                .getLineStyle());
-        target.drawLine(pc.getLr().x, pc.getLr().y, 0.0, pc.getLl().x, pc
-                .getLl().y, 0.0, getCapability(ColorableCapability.class)
-                .getColor(), getCapability(OutlineCapability.class)
-                .getOutlineWidth(), getCapability(OutlineCapability.class)
-                .getLineStyle());
-
+        DrawableLine line = new DrawableLine();
+        line.lineStyle = getCapability(OutlineCapability.class).getLineStyle();
+        line.width = getCapability(OutlineCapability.class).getOutlineWidth();
+        line.basics.color = getCapability(ColorableCapability.class).getColor();
+        line.addPoint(pc.getLl().x, pc.getLl().y);
+        line.addPoint(pc.getUl().x, pc.getUl().y);
+        line.addPoint(pc.getUr().x, pc.getUr().y);
+        line.addPoint(pc.getLr().x, pc.getLr().y);
+        line.addPoint(pc.getLl().x, pc.getLl().y);
+        target.drawLine(line);
     }
 
     /**
@@ -2196,23 +2131,6 @@ public class FFMPResource extends
         for (String lid : vgbDrawables.keySet()) {
             drawSquare(vgbDrawables.get(lid), aTarget);
         }
-    }
-
-    /**
-     * See if you are in the coverage of this feature
-     * 
-     * @param c
-     * @return
-     */
-    private boolean contains(PixelCoverage pc, Coordinate c) {
-        boolean inside = false;
-        double[] center = descriptor.worldToPixel(new double[] { c.x, c.y });
-
-        if ((center[0] > pc.getMinX()) && (center[0] < pc.getMaxX())
-                && (center[1] > pc.getMinY()) && (center[1] < pc.getMaxY())) {
-            inside = true;
-        }
-        return inside;
     }
 
     /**
@@ -2363,56 +2281,6 @@ public class FFMPResource extends
         }
     }
 
-    /**
-     * Gets the VGB value when querried
-     * 
-     * @param pfaf
-     * @return
-     */
-    private float getVGBValue(Long pfaf, Date recentTime) {
-        float value = 0.0f;
-        if (getField() == FIELDS.RATE) {
-            value = getVirtualRecord().getBasinsMap().get(FFMPRecord.ALL)
-                    .get(pfaf).getValue(recentTime);
-        } else if (getField() == FIELDS.QPE) {
-            value = getVirtualRecord()
-                    .getBasinsMap()
-                    .get(FFMPRecord.ALL)
-                    .get(pfaf)
-                    .getAccumValue(getTableTime(), getMostRecentTime(),
-                            getQpeSourceExpiration(), isRate());
-        } else if (getField() == FIELDS.RATIO) {
-            float qpe = getVirtualRecord()
-                    .getBasinsMap()
-                    .get(FFMPRecord.ALL)
-                    .get(pfaf)
-                    .getAccumValue(getTableTime(), getMostRecentTime(),
-                            getQpeSourceExpiration(), isRate());
-            float guidance = getGuidanceValue(
-                    ((FFMPGuidanceBasin) getGuidanceRecord().getBasinsMap()
-                            .get(FFMPRecord.ALL).get(pfaf)), recentTime,
-                    getFFGName());
-            value = FFMPUtils.getRatioValue(qpe, guidance);
-        } else if (getField() == FIELDS.DIFF) {
-            float qpe = getVirtualRecord()
-                    .getBasinsMap()
-                    .get(FFMPRecord.ALL)
-                    .get(pfaf)
-                    .getAccumValue(getTableTime(), getMostRecentTime(),
-                            getQpeSourceExpiration(), isRate());
-            float guidance = getGuidanceValue(
-                    ((FFMPGuidanceBasin) getGuidanceRecord().getBasinsMap()
-                            .get(FFMPRecord.ALL).get(pfaf)), recentTime,
-                    getFFGName());
-            value = FFMPUtils.getDiffValue(qpe, guidance);
-        } else if (getField() == FIELDS.GUIDANCE) {
-            value = getGuidanceValue(((FFMPGuidanceBasin) getGuidanceRecord()
-                    .getBasinsMap().get(FFMPRecord.ALL).get(pfaf)), recentTime,
-                    getFFGName());
-        }
-        return value;
-    }
-
     private class FFMPDataRetrievalJob extends Job {
         private static final int QUEUE_LIMIT = 1;
 
@@ -2430,96 +2298,29 @@ public class FFMPResource extends
 
             IGraphicsTarget target;
 
-            IMapDescriptor descriptor;
-
-            boolean shaded;
-
             FFMPDrawable drawable;
-
-            PixelExtent extent;
 
             DataTime time;
 
-            Request(IGraphicsTarget target, IMapDescriptor descriptor,
-                    boolean shaded, FFMPDrawable drawable, PixelExtent extent,
-                    DataTime time) {
+            Request(IGraphicsTarget target, FFMPDrawable drawable, DataTime time) {
                 this.target = target;
-                this.descriptor = descriptor;
-                this.shaded = shaded;
                 this.drawable = drawable;
-                this.extent = extent;
                 this.time = time;
             }
         }
 
-        public void request(IGraphicsTarget target, IMapDescriptor descriptor,
-                boolean shaded, FFMPDrawable drawable, PixelExtent extent,
+        public void request(IGraphicsTarget target, FFMPDrawable drawable,
                 DataTime time) {
             if (drawable != null) {
                 if (requestQueue.size() == QUEUE_LIMIT) {
                     requestQueue.poll();
                 }
 
-                Request req = new Request(target, descriptor, shaded, drawable,
-                        extent, time);
+                Request req = new Request(target, drawable,
+                        time);
                 requestQueue.add(req);
                 this.schedule();
             }
-        }
-
-        /**
-         * Determines the area basins. Return true if they have changed, false
-         * otherwise.
-         * 
-         * @param req
-         * @param templates
-         * @param aggrHuc
-         * @return
-         * @throws VizException
-         */
-        private Set<Long> getAreaBasins(String cwa, Request req, String phuc) {
-            FFMPTemplates templates = monitor.getTemplates(getSiteKey());
-            FFMPDrawable drawable = req.drawable;
-            Set<Long> cwaBasins = drawable.getBasins(cwa);
-            if (cwaBasins == null) {
-                cwaBasins = new HashSet<Long>();
-                drawable.setBasins(cwa, cwaBasins);
-            }
-            if ((cwaBasins.size() == 0)
-                    || !req.extent.equals(drawable.getExt())
-                    || !phuc.equals(drawable.getHuc()) || restoreTable) {
-                Envelope env = null;
-                try {
-                    Envelope e = req.descriptor.pixelToWorld(req.extent,
-                            req.descriptor.getCRS());
-                    ReferencedEnvelope ref = new ReferencedEnvelope(e,
-                            req.descriptor.getCRS());
-                    env = ref.transform(MapUtil.LATLON_PROJECTION, true);
-                } catch (Exception e) {
-                    System.out.println("Error transforming extent");
-                }
-
-                cwaBasins.clear();
-
-                try {
-                    // use the envelopes from HUC0 to speed processing
-                    // if necessary
-                    Map<Long, Envelope> envMap = hucGeomFactory.getEnvelopes(
-                            templates, getSiteKey(), cwa, phuc);
-                    for (Entry<Long, Envelope> entry : envMap.entrySet()) {
-
-                        if (env.intersects(entry.getValue())
-                                || env.contains(entry.getValue())) {
-                            // add the individual basins
-                            cwaBasins.add(entry.getKey());
-                        }
-                    }
-                } catch (Exception e) {
-                    statusHandler.handle(Priority.DEBUG, "Domain: " + cwa
-                            + " Outside of site: " + getSiteKey() + " area...");
-                }
-            }
-            return cwaBasins;
         }
 
         /*
@@ -2543,14 +2344,13 @@ public class FFMPResource extends
                 }
 
             });
-
+            String siteKey = getSiteKey();
             Request req = requestQueue.poll();
             while (req != null) {
                 try {
                     // long t0 = System.currentTimeMillis();
                     FFMPDrawable drawable = req.drawable;
-                    FFMPTemplates templates = monitor
-                            .getTemplates(getSiteKey());
+                    FFMPTemplates templates = monitor.getTemplates(siteKey);
 
                     String phuc = getHuc();
                     boolean isAllPhuc = phuc.equals(FFMPRecord.ALL);
@@ -2564,8 +2364,6 @@ public class FFMPResource extends
 
                     boolean globalRegen = !(phuc.equals(drawable.getHuc())
                             && field.equals(drawable.getField())
-                            && lastExtent.getEnvelope().contains(
-                                    drawable.getExt().getEnvelope())
                             && req.time.equals(drawable.getTime())
                             && ((centeredAggregationKey == null) || !centeredAggregationKey
                                     .equals(drawable.getCenterAggrKey()))
@@ -2577,7 +2375,6 @@ public class FFMPResource extends
                     if (globalRegen) {
                         resetRecords();
                     }
-
                     for (DomainXML domain : getDomains()) {
                         String cwa = domain.getCwa();
 
@@ -2591,8 +2388,8 @@ public class FFMPResource extends
                             // + " Table:"
                             // + resourceData.tableLoad);
                             // get base aggr basins that are in screen area
-                            Set<Long> cwaPfafs = null;
-                            cwaPfafs = getAreaBasins(cwa, req, phuc);
+                            Set<Long> cwaPfafs = templates.getMap(getSiteKey(),
+                                    cwa, phuc).keySet();
                             Set<Long> pfafsToProcess = null;
                             Long centeredAggr = null;
 
@@ -2608,7 +2405,7 @@ public class FFMPResource extends
                                             centeredAggr = templates
                                                     .findAggregatedVGB(
                                                             (String) centeredAggregationKey,
-                                                            getSiteKey(), phuc);
+                                                            siteKey, phuc);
                                         } else {
                                             centeredAggr = (Long) drawable
                                                     .getCenterAggrKey();
@@ -2617,7 +2414,7 @@ public class FFMPResource extends
                                                 centeredAggr = templates
                                                         .findAggregatedVGB(
                                                                 (String) centeredAggregationKey,
-                                                                getSiteKey(),
+                                                                siteKey,
                                                                 phuc);
                                             }
                                         }
@@ -2632,7 +2429,7 @@ public class FFMPResource extends
                                                 centeredAggr = templates
                                                         .getAggregatedPfaf(
                                                                 (Long) centeredAggregationKey,
-                                                                getSiteKey(),
+                                                                siteKey,
                                                                 phuc);
                                             }
                                         }
@@ -2659,16 +2456,17 @@ public class FFMPResource extends
                             // long t1 = System.currentTimeMillis();
 
                             if ((pfafsToProcess != null)
-                                    && (pfafsToProcess.size() > 0)) {
+                                    && (!pfafsToProcess.isEmpty())) {
 
-                                HashMap<Object, RGB> colorMap = new HashMap<Object, RGB>();
+                                HashMap<Object, RGB> colorMap = new HashMap<Object, RGB>(
+                                        pfafsToProcess.size(), 1);
                                 String shadedHuc = null;
 
                                 if (!isAllPhuc) {
 
                                     Map<Long, Geometry> geomMap = hucGeomFactory
-                                            .getGeometries(templates,
-                                                    getSiteKey(), cwa, phuc);
+                                            .getGeometries(templates, siteKey,
+                                                    cwa, phuc);
 
                                     for (Long pfaf : pfafsToProcess) {
 
@@ -2679,12 +2477,12 @@ public class FFMPResource extends
 
                                             if (isParent()) {
                                                 allPfafs = templates.getMap(
-                                                        getSiteKey(), cwa,
+                                                        siteKey, cwa,
                                                         FFMPRecord.ALL)
                                                         .keySet();
                                             } else {
                                                 allPfafs = (List<Long>) (templates
-                                                        .getMap(getSiteKey(),
+                                                        .getMap(siteKey,
                                                                 cwa, phuc)
                                                         .get(centeredAggr));
                                             }
@@ -2693,7 +2491,7 @@ public class FFMPResource extends
                                                 Map<Long, Geometry> allGeomMap = hucGeomFactory
                                                         .getGeometries(
                                                                 templates,
-                                                                getSiteKey(),
+                                                                siteKey,
                                                                 cwa,
                                                                 FFMPRecord.ALL);
                                                 IColormapShadedShape shape = shadedShapes
@@ -2718,7 +2516,7 @@ public class FFMPResource extends
                                                 && pfaf.equals(centeredAggr)) {
 
                                             Collection<Long> allPfafs = templates
-                                                    .getMap(getSiteKey(), cwa,
+                                                    .getMap(siteKey, cwa,
                                                             FFMPRecord.ALL)
                                                     .keySet();
 
@@ -2727,7 +2525,7 @@ public class FFMPResource extends
                                                 Map<Long, Geometry> allGeomMap = hucGeomFactory
                                                         .getGeometries(
                                                                 templates,
-                                                                getSiteKey(),
+                                                                siteKey,
                                                                 cwa,
                                                                 FFMPRecord.ALL);
 
@@ -2765,26 +2563,19 @@ public class FFMPResource extends
                                         }
                                     }
                                 } else {
+                                    Map<Long, Geometry> allGeomMap = hucGeomFactory
+                                            .getGeometries(templates, siteKey,
+                                                    cwa, FFMPRecord.ALL);
+                                    IColormapShadedShape shape = shadedShapes
+                                            .getShape(cwa, FFMPRecord.ALL,
+                                                    req.target, descriptor);
 
-                                    if (pfafsToProcess != null) {
-
-                                        Map<Long, Geometry> allGeomMap = hucGeomFactory
-                                                .getGeometries(templates,
-                                                        getSiteKey(), cwa,
-                                                        FFMPRecord.ALL);
-
-                                        IColormapShadedShape shape = shadedShapes
-                                                .getShape(cwa, FFMPRecord.ALL,
-                                                        req.target, descriptor);
-
-                                        shadedHuc = FFMPRecord.ALL;
-
-                                        for (Long allPfaf : pfafsToProcess) {
-                                            generateShapes(templates,
-                                                    FFMPRecord.ALL, allPfaf,
-                                                    allGeomMap, req, shape,
-                                                    colorMap);
-                                        }
+                                    shadedHuc = FFMPRecord.ALL;
+                                    for (Long allPfaf : pfafsToProcess) {
+                                        generateShapes(templates,
+                                                FFMPRecord.ALL, allPfaf,
+                                                allGeomMap, req, shape,
+                                                colorMap);
                                     }
                                 }
 
@@ -2817,7 +2608,6 @@ public class FFMPResource extends
                     if (lowestCenter != ZOOM.BASIN) {
                         drawable.setCenterAggrKey(centeredAggregationKey);
                     }
-                    drawable.setExt(req.extent);
                     drawable.setField(field);
                     drawable.setHuc(phuc);
                     drawable.setMaintainLayer(isMaintainLayer());
@@ -2856,7 +2646,6 @@ public class FFMPResource extends
                 req = requestQueue.poll();
 
             }
-
             VizApp.runSync(new Runnable() {
 
                 @Override
@@ -2901,7 +2690,7 @@ public class FFMPResource extends
 
                     if (color != null) {
                         if (!shape.getColorKeys().contains(pfaf)) {
-                            shape.addGeometry((Geometry) g.clone(), pfaf);
+                            shape.addGeometry(g, pfaf);
                         }
 
                         colorMap.put(pfaf, color);
@@ -2952,10 +2741,8 @@ public class FFMPResource extends
                 // create the frames/shaded shapes here
                 localWireframeShape = req.target.createWireframeShape(false,
                         descriptor, 0.0f);
-                if (req.shaded) {
-                    localShadedShape = req.target.createShadedShape(false,
-                            descriptor.getGridGeometry(), true);
-                }
+                localShadedShape = req.target.createShadedShape(false,
+                        descriptor.getGridGeometry(), true);
 
                 JTSCompiler jtsCompiler2 = new JTSCompiler(localShadedShape,
                         localWireframeShape, descriptor, PointStyle.CROSS);
@@ -3001,7 +2788,7 @@ public class FFMPResource extends
                     }
                 }
 
-                if (req.shaded && (localShadedShape != null)) {
+                if (localShadedShape != null) {
                     localShadedShape.compile();
                     localShadedShape.setFillPattern(FFMPUtils.STREAM_FILL);
                     if (streamShadedShape != null) {
@@ -3718,7 +3505,7 @@ public class FFMPResource extends
      * 
      * @return list of Domains
      */
-    public ArrayList<DomainXML> getDomains() {
+    public List<DomainXML> getDomains() {
         return getResourceData().getDomains();
     }
 
@@ -3803,11 +3590,7 @@ public class FFMPResource extends
 
                 SortedSet<Date> keys = monitor.getAvailableUris(getSiteKey(),
                         getDataKey(), getPrimarySource(), oldestTime).keySet();
-
-                for (Date date : keys) {
-                    timeOrderedKeys.add(date);
-                }
-
+                timeOrderedKeys.addAll(keys);
             } catch (VizException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "No available times for the FFMPResource");
@@ -3921,33 +3704,27 @@ public class FFMPResource extends
                     basin.getPfaf());
             basin.setCountyFips(fips);
 
+            FFMPGuidanceInterpolation interp = getGuidanceInterpolation(guidType);
+            long sourceExpiration = getGuidSourceExpiration(guidType);
             if (getResourceData().tableLoad) {
                 // interpolating
-                if (getGuidanceInterpolation(guidType).isInterpolate()) {
+                if (interp.isInterpolate()) {
                     // Interpolating between sources
-                    String source1 = getGuidanceInterpolation(guidType)
-                            .getSource1();
-                    String source2 = getGuidanceInterpolation(guidType)
-                            .getSource2();
+                    String source1 = interp.getSource1();
+                    String source2 = interp.getSource2();
                     dvalue = basin.getInterpolatedValue(source1, source2,
-                            getGuidanceInterpolation(guidType)
-                                    .getInterpolationOffset(),
-                            getGuidanceInterpolation(guidType),
-                            getGuidSourceExpiration(guidType));
+                            interp.getInterpolationOffset(), interp,
+                            sourceExpiration);
                 } else {
-                    dvalue = basin.getValue(getGuidanceInterpolation(guidType)
-                            .getStandardSource(),
-                            getGuidanceInterpolation(guidType),
-                            getGuidSourceExpiration(guidType));
+                    dvalue = basin.getValue(interp.getStandardSource(), interp,
+                            sourceExpiration);
                 }
-
                 if (dvalue == FFMPUtils.MISSING) {
                     return Float.NaN;
                 }
             } else {
-                dvalue = basin.getValue(getPrimarySource(), recentTime,
-                        getGuidanceInterpolation(guidType),
-                        getGuidSourceExpiration(guidType));
+                dvalue = basin.getValue(getPrimarySource(), recentTime, interp,
+                        sourceExpiration);
             }
         }
 
@@ -4271,7 +4048,7 @@ public class FFMPResource extends
      */
     public FFMPDrawable getDrawable(DataTime time) {
         FFMPDrawable drawable = null;
-        if (drawables != null) {
+        if (drawables != null && time != null) {
             drawable = drawables.get(time);
         }
         return drawable;
