@@ -35,7 +35,6 @@ import com.raytheon.edex.plugin.bufrmos.common.BufrMosHpcData;
 import com.raytheon.edex.plugin.bufrmos.common.BufrMosLampData;
 import com.raytheon.edex.plugin.bufrmos.common.BufrMosMrfData;
 import com.raytheon.edex.plugin.bufrmos.common.BufrMosNgmData;
-import com.raytheon.uf.common.pointdata.PointDataConstants;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
@@ -58,7 +57,9 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080221            862 jkorman     Initial Coding.
+ * Feb 21, 2008 862        jkorman     Initial Coding.
+ * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
+ *                                     work without dataURI.
  * </pre>
  * 
  * @author jkorman
@@ -223,11 +224,6 @@ public class BufrMOSDataAdapter {
                         }
                         populateMOSElement(packet, element, pdv);
                     }
-
-                    // set the common metadata
-                    pdv.setLong(PointDataConstants.DATASET_FORECASTHR, fcstHour);
-                    pdv.setLong(PointDataConstants.DATASET_REFTIME,
-                            baseTime.getTimeInMillis());
 
                     fcstData.setPointDataView(pdv);
                 }

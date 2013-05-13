@@ -19,8 +19,6 @@
         further_licensing_information.
     -->
 <pointDataDescription>
-  <parameter name="refTime" numDims="1" type="LONG" />
-  <parameter name="forecastHr" numDims="1" type="INT" />
   <parameter name="snow12hr_cat2" numDims="1" type="INT" />
   <parameter name="precipType" numDims="1" type="INT" />
   <parameter name="ceiling_cat1" numDims="1" type="INT" />
