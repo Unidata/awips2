@@ -1,0 +1,93 @@
+<html>
+<head>
+<title>Execute Climate</title>
+</head>
+<BODY BGCOLOR="#FFFFFF">
+<IMG align=center SRC="awip_ban.gif"></A ><P>
+<center>
+<h3><b>EXECUTE CLIMATE HELP PAGE</b></h3>
+</center>
+<hr>
+<br> 
+<br><IMG align=left SRC="arrow.gif"></A > Please read <a href = execute_AM_PM_climate.html#execute_notes><b>NOTES/CAUTIONS</B></a> at the bottom of this page.<br>
+<br>
+<B>Select Climate Run</B> - <a href = select_climate_run.gif> (Click here to see GUI).</a><BR>
+This GUI allows the user to select the date, month, season, or year (whether current or past) for the
+climatology report. Climate can be executed for the most recent completed period 
+or any other chosen period.<BR><BR>
+<center><table width="80%">
+<tr><td><b>For example:</b> <i>Today is Feb. 7, 2000, selecting the Latest
+Climate period results in yesterday's climate for a daily morning run, 
+today's climate through the designated valid time for daily intermediate and 
+evening runs, Jan. 1-31 for a monthly run, Sept. 1-Nov. 30, 1999 for a seasonal
+run, and 1999 data for an annual run.</i></td></tr></table></center><br>
+<hr>
+<b>DAILY DISPLAY CLIMATE GUI</b> <a href = display.gif>(Click here to see GUI)</a><BR><BR>
+<b>Accept Values</b> - The displayed values are stored into the Verification database.<br><br>
+<b>Clear Values</b> - The displayed data is removed from the GUI so that the fields are blank.  This option does not affect data already stored in the Verification database.<br><br>
+<b>Station</b> - This field provides the user with the option to select the climatological station for which data is to be displayed in this GUI.  When this GUI is initiated, the first station in the list is automatically highlighted and its daily observations are loaded in the GUI.<br><br>
+<b>Date</b> - The field displays the observation date.<br><br>
+<b>Type of Summary</b> - This field displays either morning, intermediate, or evening daily climate summary.  <br><br>
+The forecaster can change the values if needed but he/she must select <b>Accept Values</b> for each 
+station edited before closing the GUI.<br><br>
+<hr>
+<b>PERIOD DISPLAY CLIMATE GUI</b> <a href = mon_disp.gif> (Click here to see GUI)</a><br><br>
+This GUI is used for monthly, seasonal, and annual climate runs. The type of summary
+and the dates of inclusion for the run are displayed in the upper right portion
+of the interface.<br><br>
+For monthly runs, data are retrieved/calculated from both the ASOS Monthly Summary 
+Message (MSM) and the existing daily database values. If an element does not
+display an option menu, it means that the value has been retrieved from the
+daily database. If an MSM exists, it will be the default value of choice. The
+daily database value can be chosen, but the <b>Save Station Values</b> button has
+to be selected to override the default. If both are missing, a value can be 
+entered and the option menu displays "Other". Again, the values then have to be 
+saved.
+
+Hopefully, the MSM and daily database values are equal. In the case that they 
+are not, the offending elements will be displayed in reverse color.<br><br>
+<center><IMG SRC="notequal.gif"></center><br>
+<center><i>Example where the MSM and daily database maximum temperatures do not agree
+<br>for Pittsburgh. Also, at least one of the precipitation elements do not agree.</i></center><br><br>
+
+<b><i>Do you want to update the daily database with the MSM values?</i></b><br>
+This warning appears when mismatched values are detected (as described above).
+Choosing <i>Yes</i> results in Climate replacing the maximum temperature, 
+minimum temperature, and snow depth values in the daily database with the MSM values 
+for the given dates of occurrence (where they do not equal the daily database values).
+Choosing <i>No</i> does not update the daily database.<br><br>
+Seasonal and annual values are compiled from the monthly records. Monthly,
+seasonal, and annual records are only saved to the database when a complete
+period is run. A monthly report for Jan.1-31 will be saved while a month to
+date run for Jan. 1-15 will not.<br><br>
+
+<hr>
+<b>EDIT NWWS PRODUCTS GUI</b> <a href = editNWWS.gif>(Click here to see GUI)</a><BR><BR>
+After display climate is closed, Climate formats the output products. If any NWWS
+products are set up, the <b><i>Review Climate Product</i></b> interface appears.
+This allows an opportunity to edit the report before it is sent over the Weather
+Wire.<br><br>
+<b>Clear</b> - This button simply clears the display field.<br><br>
+<b>Delete</b> - This button removes a product from the list of reports.<br><br>
+<b>Save</b> - This saves any changes made to a product in the edit window.<br><br>
+<b>Send</b> - Transmits the output products over the NOAA Weather Wire.<br><br>
+<hr>
+
+<h3><b>Treatment of Missing</h3></b>
+Click on <a href = missing.html> <b>MISSING</b></a> for more information on climate's handling of missing data.
+<a name="execute_notes">
+<h3><b>NOTES/CAUTIONS</h3></b>
+<IMG align=left SRC="dotblue.gif"></a ><b> Punctuation is very important, since the voice synthesizer will be confused by spaces preceding commas and periods.  Therefore, be sure to check the printout when initially setting up and testing your files.</b><br><br>
+<IMG align=left SRC="dotblue.gif"></a > <b>In the Daily Display Climate GUI, holding 
+the right mouse button in any field containing a measured element displays how 
+the value was obtained.<a href= retrieve.html>(More Detail)</a><br><br>
+<IMG align=left SRC="dotblue.gif"></a ><b> If a daily value ties or breaks a record,
+the record will automatically be updated in the historical database.</b><br><br>
+<IMG align=left SRC="dotblue.gif"></a ><b> If the forecaster wishes to view the NWWS product after it has been distributed for broadcast on the wide area network (WAN), the file will be located in a text window under the product ID of "WRKALTCLI".</b><br><br>
+<br><center>
+<a href= climo_help.html>Return to Main Climate Help Page</a><br>
+</center>
+<hr><p>
+</body>
+</HTML>
+

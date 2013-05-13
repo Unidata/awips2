@@ -31,27 +31,29 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
 
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.DescriptorMap;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.uf.viz.core.catalog.CatalogQuery;
-import com.raytheon.uf.viz.core.catalog.DbQuery;
+import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.procedures.Bundle;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.productbrowser.ProductBrowserPreference.PreferenceType;
-import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.BundleProductLoader;
+import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
@@ -66,6 +68,8 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 3, 2010            mnash     Initial creation
+ * May 02, 2013 1949       bsteffen    Switch Product Browser from uengine to
+ *                                     DbQueryRequest.
  * 
  * </pre>
  * 
@@ -103,23 +107,23 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
         if (!isEnabled()) {
             return null;
         }
-        List<Object[]> parameters = null;
+        Object[] parameters = null;
         if (order.length >= 1) {
             try {
-                DbQuery query = new DbQuery(productName);
-                query.setMaxResults(1);
-                parameters = query.performQuery();
+                DbQueryRequest request = new DbQueryRequest();
+                request.setEntityClass(RecordFactory.getInstance()
+                        .getPluginClass(productName));
+                request.setLimit(1);
+                DbQueryResponse response = (DbQueryResponse) ThriftClient
+                        .sendRequest(request);
+                parameters = response.getEntityObjects(Object.class);
             } catch (VizException e) {
                 statusHandler.handle(Priority.ERROR,
                         "Unable to populate initial product tree", e);
             }
 
-            if (parameters != null && !parameters.isEmpty()) {
-                if (parameters.get(0).length > 0) {
-                    return displayName;
-                } else {
-                    return null;
-                }
+            if (parameters != null && parameters.length != 0) {
+                return displayName;
             } else {
                 return null;
             }
@@ -172,9 +176,26 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
      * @return
      */
     protected String[] queryData(String param,
-            HashMap<String, RequestConstraint> queryList) {
+            Map<String, RequestConstraint> queryList) {
         try {
-            return CatalogQuery.performQuery(param, queryList);
+            DbQueryRequest request = new DbQueryRequest();
+            request.setEntityClass(RecordFactory.getInstance().getPluginClass(
+                    productName));
+            request.setConstraints(queryList);
+            request.addRequestField(param);
+            request.setDistinct(true);
+            DbQueryResponse response = (DbQueryResponse) ThriftClient
+                    .sendRequest(request);
+            Object[] paramObjs = response.getFieldObjects(param, Object.class);
+            if (paramObjs != null) {
+                String[] params = new String[paramObjs.length];
+                for (int i = 0; i < params.length; i += 1) {
+                    if (paramObjs[i] != null) {
+                        params[i] = paramObjs[i].toString();
+                    }
+                }
+                return params;
+            }
         } catch (VizException e) {
             statusHandler
                     .handle(Priority.PROBLEM, "Unable to perform query", e);
@@ -238,16 +259,14 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
         RequestConstraint contstraint = new RequestConstraint(productName);
         queryList.put(PLUGIN_NAME, contstraint);
         for (int i = 0; i < order.length; i++) {
-            try {
-                String[] items = CatalogQuery.performQuery(order[i], queryList);
+            String[] items = queryData(order[i], queryList);
+            if (items != null) {
                 List<ProductBrowserLabel> labels = formatData(order[i], items);
                 if (labels != null) {
                     for (int j = 0; j < labels.size(); j++) {
                         historyList.add(labels.get(j).getName());
                     }
                 }
-            } catch (VizException e) {
-                e.printStackTrace();
             }
         }
         return historyList;

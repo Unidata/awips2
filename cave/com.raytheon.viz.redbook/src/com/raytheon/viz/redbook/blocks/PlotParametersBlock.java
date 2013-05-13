@@ -22,6 +22,7 @@ package com.raytheon.viz.redbook.blocks;
 import java.nio.ByteBuffer;
 
 import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlock;
+import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlockHeader;
 
 /**
  * Implements the redbook plot parameter block
@@ -31,6 +32,7 @@ import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlock;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * May 22, 2008	#1162		chammack	Initial creation
+ * Apr 29, 2013 1958        bgonzale    New class RedbookBlockHeader.
  * 
  * </pre>
  * 
@@ -52,9 +54,9 @@ public class PlotParametersBlock extends RedbookBlock {
 
     private int lineWidth;
 
-    public PlotParametersBlock(ByteBuffer data) {
+    public PlotParametersBlock(RedbookBlockHeader header, ByteBuffer data) {
 
-        super(data);
+        super(header, data);
 
         // Set up some reasonable defaults
         this.lineWidth = 1;
