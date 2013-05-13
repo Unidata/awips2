@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
  *                                     Initial creation
  * Aug 25, 2011 10719      rferrel     Removed the no longer common ugcPtrn.
  * Aug  6, 2012 15219      Qinglu Lin  For tmlPtrn, changed d{1,3}DEG to d{3}DEG.
+ * May  1, 2013 15893	mgamazaychikov Changed listOfAreaNamePtrn.
 
  * </pre>
  * 
@@ -56,7 +57,7 @@ public interface IQCCheck {
             .compile("/[A-Za-z0-9]{5}.[0-3NU].(\\w{2}).\\d{6}T\\d{4}Z.\\d{6}T\\d{4}Z.\\d{6}T\\d{4}Z.\\w{2}/");
 
     public static final Pattern listOfAreaNamePtrn = Pattern
-            .compile("^((\\w{1,}\\s{1}\\w{2}-){1,})");
+    		.compile("^(\\w{1,}\\s{1}[\\w{1,}\\s{1}]*-{1,})");
 
     public static final Pattern firstBulletPtrn = Pattern
             .compile("\\*\\s(.*)\\s(WARNING|ADVISORY)(\\sFOR(.*)|...)");

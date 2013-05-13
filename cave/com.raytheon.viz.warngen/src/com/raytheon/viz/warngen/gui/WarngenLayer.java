@@ -172,6 +172,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 04/10/2013   DR 16044   D. Friedman Fix NPE in getAllFipsInArea.
  * 04/11/2013   1894       jsanchez    Kept tracked of the currently loaded custom maps.
  * 04/12/1013   DR 16045   Qinglu Lin  Updated AreaHatcher's run() by calling removeDuplicateCoordinate().
+ * 04/23/1013   DR 16064   Qinglu Lin  Added removeDuplicateGid() and applies it in populateStrings().
  * 04/24/2013   1943       jsanchez    Replaced used of areaConfig with areaSource.
  * </pre>
  * 
@@ -2649,6 +2650,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         Set<String> prefixes = new HashSet<String>(Arrays.asList(GeometryUtil
                 .getGID(state.getWarningArea())));
 
+        prefixes = removeDuplicateGid(prefixes);
+
         for (GeospatialData f : geoData.features) {
             Geometry geom = f.geometry;
             if (prefixes.contains(GeometryUtil.getPrefix(geom.getUserData()))) {
@@ -2954,4 +2957,46 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
         return slope;
     }
+    
+    /**
+     * Some counties/forecast zones have two GIDs, one is for the large portion of that
+     * county and the other is for the small portion, e.g., inlets of a bay. Prince William
+     * County, Virginia is such an example. As WarnGen needs to mark a hatched county with
+     * only one W, one of the GIDs needs to be filtered out. The approach in the method is
+     * to remove the GID for the area of smaller size.
+     */
+    private Set<String> removeDuplicateGid(Set<String> prefixes) {
+
+        if (prefixes.size() < 2)
+            return prefixes;
+
+        Map<String, Double> fipsSize = new HashMap<String, Double>();
+        Map<String, String> namePrefix = new HashMap<String, String>();
+        Iterator<String> iter = prefixes.iterator(); 
+        String fips = null;
+        String prefix = null;
+        while (iter.hasNext()) {
+            prefix = iter.next();
+            double size = 0.0d;
+            for (GeospatialData f : geoData.features) {
+                fips = getFips(f);
+                Geometry geom = f.geometry;
+                if(prefix.equals(GeometryUtil.getPrefix(geom.getUserData()))) {
+                    size = geom.getArea();
+                    if (fipsSize.containsKey(fips)) {
+                        if (fipsSize.get(fips) < size) {
+                            fipsSize.put(fips, size);
+                            namePrefix.put(fips, prefix);
+                            break;
+                        } 
+                    } else {
+                        fipsSize.put(fips, size);
+                        namePrefix.put(fips, prefix);
+                    }
+                }
+            }
+        }
+        return new HashSet<String>(namePrefix.values());
+    }
+
 }
