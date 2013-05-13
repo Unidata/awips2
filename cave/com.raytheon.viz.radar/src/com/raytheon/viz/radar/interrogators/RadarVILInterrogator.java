@@ -54,7 +54,7 @@ public class RadarVILInterrogator extends RadarRasterInterrogator implements
      * (int, java.util.Map)
      */
     @Override
-    public String decodeValues(int dataValue, Map<String, String> dataMap,
+    public String decodeValues(int dataValue, String baseName, Map<String, String> dataMap,
             RadarRecord radarRecord, ColorMapParameters params) {
         double decoded[] = new double[] { 0, 0, 0, 0, 0 };
         // TODO still doesn't return correct value
