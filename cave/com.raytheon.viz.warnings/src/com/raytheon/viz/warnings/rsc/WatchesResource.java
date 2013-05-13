@@ -48,6 +48,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 27, 2012  1149       jsanchez     Refactored methods from AbstractWarningsResource into this class.
+ * May 06, 2013 1930       bsteffen    Check for null in WatchesResource.
  * 
  * </pre>
  * 
@@ -186,16 +187,13 @@ public class WatchesResource extends AbstractWWAResource {
 
         if (record.getUgczones().size() > 0) {
             setGeometry(record);
-            if (record.getGeometry() != null) {
+            if (record.getGeometry() != null && record.getPhen() != null) {
                 IShadedShape ss = target.createShadedShape(false,
                         descriptor.getGridGeometry(), false);
                 geo = (Geometry) record.getGeometry().clone();
                 JTSCompiler jtsCompiler = new JTSCompiler(ss, null,
                         this.descriptor, PointStyle.CROSS);
                 jtsCompiler.handle(geo, color);
-                if (record.getPhen() == null) {
-                    return;
-                }
                 ss.setFillPattern(FillPatterns.getGLPattern(record.getPhen()
                         .equals("TO") ? "VERTICAL" : "HORIZONTAL"));
                 ss.compile();
@@ -272,7 +270,7 @@ public class WatchesResource extends AbstractWWAResource {
                     if (createShape != null) {
                         WarningEntry entry = entryMap.get(createShape
                                 .getDataURI());
-                        if (entry != null) {
+                        if (entry != null && entry.shadedShape != null) {
                             entry.shadedShape.dispose();
                         }
                         initShape(target, createShape);

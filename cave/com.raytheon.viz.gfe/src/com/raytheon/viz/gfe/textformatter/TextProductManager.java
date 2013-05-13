@@ -45,8 +45,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.DataManager;
 
 /**
@@ -59,6 +57,7 @@ import com.raytheon.viz.gfe.core.DataManager;
  * ------------ ---------- ----------- --------------------------
  * May 1, 2009            njensen     Initial creation
  * Jan 15, 2010  3395     ryu         Fix &quot;issued by&quot; functionality
+ * Apr 24, 2013  1936     dgilling    Remove unused imports.
  * 
  * </pre>
  * 
@@ -67,7 +66,8 @@ import com.raytheon.viz.gfe.core.DataManager;
  */
 
 public class TextProductManager {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(TextProductManager.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(TextProductManager.class);
 
     private String issuedBy = "";
 
@@ -224,8 +224,8 @@ public class TextProductManager {
         try {
             varDict = (String) script.execute("getVarDict", map);
         } catch (JepException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Exception getting VarDict", e);
+            statusHandler.handle(Priority.PROBLEM, "Exception getting VarDict",
+                    e);
         }
 
         return varDict;

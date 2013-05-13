@@ -87,22 +87,33 @@ diff -crB a/qpid/java/build.deps b/qpid/java/build.deps
   
   derby-db=lib/required/derby-10.8.2.2.jar
 ***************
+*** 35,38 ****
+  geronimo-openejb=lib/required/geronimo-ejb_3.0_spec-1.0.1.jar
+! geronimo-servlet=lib/required/geronimo-servlet_2.5_spec-1.2.jar
+
+  junit=lib/required/junit-3.8.1.jar
+--- 35,38 ----
+  geronimo-openejb=lib/required/geronimo-ejb_3.0_spec-1.0.1.jar
+! geronimo-servlet=lib/required/geronimo-servlet_2.5_spec-1.1.2.jar
+
+  junit=lib/required/junit-3.8.1.jar
+***************
 *** 45,51 ****
   slf4j-api=lib/required/slf4j-api-1.6.4.jar
   slf4j-log4j=lib/required/slf4j-log4j12-1.6.4.jar
   
 ! xalan=lib/required/xalan-2.7.0.jar
   
-  jetty=lib/required/jetty-server-7.6.3.v20120416.jar
-  jetty-continuation=lib/required/jetty-continuation-7.6.3.v20120416.jar
+ jetty=lib/required/jetty-server-7.6.3.v20120416.jar
+ jetty-continuation=lib/required/jetty-continuation-7.6.3.v20120416.jar
 --- 45,51 ----
   slf4j-api=lib/required/slf4j-api-1.6.4.jar
   slf4j-log4j=lib/required/slf4j-log4j12-1.6.4.jar
   
 ! xalan=lib/required/xalan-2.7.1.jar
   
-  jetty=lib/required/jetty-server-7.6.3.v20120416.jar
-  jetty-continuation=lib/required/jetty-continuation-7.6.3.v20120416.jar
+ jetty=lib/required/jetty-server-7.6.3.v20120416.jar
+ jetty-continuation=lib/required/jetty-continuation-7.6.3.v20120416.jar
 ***************
 *** 63,70 ****
   

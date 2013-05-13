@@ -61,6 +61,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *                         Jim Ramer   Original Code
  * Jun 18, 2007            chammack    Partial port to Java
  * Apr 12, 2013 1857       bgonzale    Added Index annotations to getter methods.
+ * Mar 02, 2013 1970       bgonzale    Removed Index annotations.
  * 
  * </pre>
  * 
