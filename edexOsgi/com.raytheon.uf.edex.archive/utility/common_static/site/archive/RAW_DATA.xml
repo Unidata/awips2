@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<archive>
+    <name>Raw</name>
+    <rootDir>/data_store/</rootDir>
+    <retentionHours>168</retentionHours>
+    <category>
+        <name>Model grib</name>
+        <retentionHours>0</retentionHours>
+        <dirPattern>grib/[^/]*/[^/]*/(.*\)</dirPattern>
+        <display>\1</display>
+        <saveDir>grib/${YYYY}${MM}${DD}/${HH}/(.*)</saveDir>
+        <saveFiles>.*</saveFiles>
+        <selectList>grib/${YYYY}${MM}${DD}/${HH}/NCEP_QPF/</selectList>
+    </category>
+    <category>
+        <name>Model grib2</name>
+        <retentionHours>0</retentionHours>
+        <dirPattern>grib2/[^/]*/[^/]*/(.*\)</dirPattern>
+        <display>\1</display>
+        <saveDir>grib2/${YYYY}${MM}${DD}/${HH}/.*</saveDir>
+        <saveFiles>.*</saveFiles>
+    </category>
+    <category>
+        <name>Model other</name>
+        <retentionHours>0</retentionHours>
+        <dirPattern>(acars|airmet|binlighting|bufrmos|bufrua|bufsigwx|convsigmet|goessndg|manual|mdlsndg|poessndg|profiler|shef|text)/[^/]*/[^/]*/(.*)</dirPattern>
+        <display>\1 - \2</display>
+        <saveDir>(acars|airmet|binlighting|bufrmos|bufrua|bufsigwx|convsigmet|goessndg|manual|mdlsndg|poessndg|profiler|shef|text)/YYYYMMDD/HH/.*</saveDir>
+        <saveFiles>.*</saveFiles>
+    </category>
+    <category>
+        <name>Satellilte</name>
+        <retentionHours>101</retentionHours>
+        <dirPattern>sat/[^/]*/[^/]*/(.*)</dirPattern>
+        <display>\1</display>
+        <saveDir>sat/${YYYY}${MM}${DD}/${HH}/.*</saveDir>
+        <saveFiles>.*</saveFiles>
+    </category>
+</archive>
