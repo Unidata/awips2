@@ -259,7 +259,7 @@ public class CoreDao extends HibernateDaoSupport {
      * @param obj
      *            The object to delete
      */
-    public <T> void delete(final PersistableDataObject<T> obj) {
+    public <T> void delete(final Object obj) {
         txTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
@@ -311,10 +311,11 @@ public class CoreDao extends HibernateDaoSupport {
                                         id.getDataURI()));
                         List<?> list = getHibernateTemplate().findByCriteria(
                                 criteria);
-                        if (list.size() > 0)
+                        if (list.size() > 0) {
                             return (PluginDataObject) list.get(0);
-                        else
+                        } else {
                             return null;
+                        }
                     }
                 });
         return retVal;
@@ -847,7 +848,7 @@ public class CoreDao extends HibernateDaoSupport {
             logger.error("Unable to close JDBC statement!", e1);
         }
 
-        if (exception == null && transactional) {
+        if ((exception == null) && transactional) {
             trans.commit();
         }
         try {

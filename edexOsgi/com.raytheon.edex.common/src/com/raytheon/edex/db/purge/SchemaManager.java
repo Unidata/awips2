@@ -50,8 +50,8 @@ import com.raytheon.uf.edex.database.DatabasePluginRegistry;
 import com.raytheon.uf.edex.database.DatabaseSessionFactoryBean;
 import com.raytheon.uf.edex.database.IDatabasePluginRegistryChanged;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
-import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
+import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.database.plugin.PluginVersion;
@@ -67,6 +67,8 @@ import com.raytheon.uf.edex.database.plugin.PluginVersionDao;
  * 10/8/2008    1532        bphillip    Initial checkin
  * 2/9/2009     1990       bphillip     Fixed index creation
  * 03/20/09                njensen     Implemented IPluginRegistryChanged
+ * Mar 02, 2013 1970       bgonzale    Updated createIndexTableNamePattern to match text preceeding
+ *                                     %TABLE%.
  * </pre>
  * 
  * @author bphillip
@@ -100,7 +102,7 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
             .compile("^create (?:table |index |sequence )(?:[A-Za-z_0-9]*\\.)?(.+?)(?: .*)?$");
 
     private Pattern createIndexTableNamePattern = Pattern
-            .compile("^create index %TABLE%.+? on (.+?) .*$");
+            .compile("^create index \\w*?%TABLE%.+? on (.+?) .*$");
 
     /**
      * Gets the singleton instance
@@ -294,8 +296,7 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
                     runPluginScripts(props);
                     String database = props.getDatabase();
                     PluginVersion pv = new PluginVersion(props.getPluginName(),
-                            true,
-                            props.getTableName(), database);
+                            true, props.getTableName(), database);
                     pvd.saveOrUpdate(pv);
                     logger.info(pluginName + " plugin initialization complete!");
                 } else if (initialized == false) {
@@ -343,9 +344,6 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
                 createSql.add(sql);
             }
 
-            // only truly want the sql for just this plugin
-            removeAllDependentCreateSql(props, sessFactory, createSql);
-
             for (int i = 0; i < createSql.size(); i++) {
                 String sql = createSql.get(i);
                 if (sql.startsWith("create index")) {
@@ -357,6 +355,9 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
                 }
             }
             createSql.trimToSize();
+
+            // only truly want the sql for just this plugin
+            removeAllDependentCreateSql(props, sessFactory, createSql);
 
             pluginCreateSql.put(fqn, createSql);
         }

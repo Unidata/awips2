@@ -32,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.plugin.redbook.common.RedbookRecord;
 import com.raytheon.edex.plugin.redbook.common.blocks.ProductIdBlock;
 import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlock;
-import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlockFactory;
+import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlockBuilder;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
@@ -51,12 +51,15 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 20080529           1131 jkorman     Added traceId, implemented in logger.
  * 20101022           6424 kshrestha   Added fcsttime
  * 20110516           8296 mhuang      fixed fcsttime problem
+ * Apr 29, 2013 1958       bgonzale    Refactored to improve performance.
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
 public class RedbookParser {
+
+    private static final RedbookBlockBuilder blockBuilder = new RedbookBlockBuilder();
 
     private final Log logger = LogFactory.getLog(getClass());
 
@@ -66,7 +69,7 @@ public class RedbookParser {
 
     private RedbookRecord rRecord;
 
-    private final RedbookBlockFactory blockFactory;
+    private RedbookFcstMap redbookFcstMap = RedbookFcstMap.getInstance();
 
     /**
      * 
@@ -75,8 +78,6 @@ public class RedbookParser {
      * @param hdr
      */
     public RedbookParser(String traceId, byte[] data, WMOHeader hdr) {
-        blockFactory = RedbookBlockFactory.getInstance();
-
         rRecord = internalParse(traceId, data, hdr);
         if (rRecord != null) {
 
@@ -137,13 +138,16 @@ public class RedbookParser {
 
         ByteBuffer dataBuf = ByteBuffer.wrap(redbookMsg);
 
+        ProductIdBlock productId = null;
+
         redbookDocument = new ArrayList<RedbookBlock>();
+
         while (dataBuf.hasRemaining()) {
 
             RedbookBlock currBlock = null;
 
             try {
-                currBlock = blockFactory.getBlock(dataBuf);
+                currBlock = blockBuilder.getBlock(dataBuf);
 
                 redbookDocument.add(currBlock);
 
@@ -154,7 +158,7 @@ public class RedbookParser {
                     System.arraycopy(redbookMsg, 0, redBookData, 0, endPos);
                     record.setRedBookData(redBookData);
                     break;
-                } else if (currBlock.getMode() == 2 && currBlock.getSubMode() == 3) {
+                } else if (currBlock.isUpperAirPlot()) {
                     /*
                      * Upper air plots are malformed and require special
                      * handling to extract the data. If we get this far, it is
@@ -166,35 +170,35 @@ public class RedbookParser {
                         break;
                     }
                 }
+
+                if (currBlock.isProductId()) {
+                    productId = (ProductIdBlock) currBlock;
+                }
+
             } catch (BufferUnderflowException bue) {
-                logger.error(traceId + "- Out of data");
+                logger.error(traceId + "- Out of data", bue);
                 return record;
             } catch (Exception e) {
                 logger.error(traceId + "- Error in parser", e);
                 return record;
             }
         }
+
         if (record != null) {
-            for (RedbookBlock block : redbookDocument) {
-                if ((block.getMode() == 1) && (block.getSubMode() == 1)) {
-                    ProductIdBlock id = (ProductIdBlock) block;
-                    record.setTimeObs(id.getProductFileTime());
-                    record.setRetentionHours(id.getRetentionHours());
+            if (productId != null) {
+                record.setTimeObs(productId.getProductFileTime());
+                record.setRetentionHours(productId.getRetentionHours());
 
-                    record.setFileId(id.getFileIndicator());
-                    record.setProductId(id.getProductId());
-                    record.setOriginatorId(id.getOriginatorId());
+                record.setFileId(productId.getFileIndicator());
+                record.setProductId(productId.getProductId());
+                record.setOriginatorId(productId.getOriginatorId());
 
-/*                    record.setFcstHours(id.getFcstHours()); */
-                    record.setFcstHours(getForecastTime(traceId, hdr));
-                    
-                    int fcstTime = this.getForecastTime(traceId, hdr);
-                    if (fcstTime == 0)
-                      record.setFcstHours(fcstTime); 
-                    
-                    record.setTraceId(traceId);
-                }
+                /* record.setFcstHours(id.getFcstHours()); */
+                record.setFcstHours(getForecastTime(traceId, hdr));
+
+                record.setTraceId(traceId);
             }
+
         } else {
             logger.info(traceId + "- No EndOfProductBlock found");
         }
@@ -202,41 +206,32 @@ public class RedbookParser {
         return record;
     }
     
-	public int getForecastTime(String traceId, WMOHeader hdr)
-    {
-     RedbookFcstMap map;
-        try {
-            map = RedbookFcstMap.load();           
-            if (map != null){
-            	RedbookFcstMap.MapFcstHr xmlInfo = map.mapping.get(hdr.getTtaaii());
-                if (xmlInfo != null && xmlInfo.fcstHR != null && !xmlInfo.fcstHR.isEmpty())
-                     return(Integer.parseInt(xmlInfo.fcstHR));
-             }
-            return 0;
-        } catch (Exception e) {
-        	logger.error(traceId + " - Error in parser - mappingFCST: ", e);
+    public int getForecastTime(String traceId, WMOHeader hdr) {
+        RedbookFcstMap.MapFcstHr xmlInfo = redbookFcstMap.get(hdr.getTtaaii());
+
+        if (xmlInfo != null && xmlInfo.fcstHR != null
+                && !xmlInfo.fcstHR.isEmpty()) {
+            return (Integer.parseInt(xmlInfo.fcstHR));
         }
-		return 0;
-	}
+        return 0;
+    }
 	
 	public long getBinnedTime(String traceId, WMOHeader hdr, long timeMillis) {
         try {
             long period = 43200 * 1000; // default period is 12 hours
             long offset = 0;
-            
-            RedbookFcstMap map = RedbookFcstMap.load();
-            if (map != null) {
-                RedbookFcstMap.MapFcstHr xmlInfo = map.mapping.get(hdr
-                        .getTtaaii());
-                if (xmlInfo != null) {
-                    /* Does not support AWIPS 1 semantics of "period < 0 means
-                     * apply offset first". 
-                     */
-                    if (xmlInfo.binPeriod != null && xmlInfo.binPeriod > 0)
-                        period = (long) xmlInfo.binPeriod * 1000;
-                    if (xmlInfo.binOffset != null)
-                        offset = (long) xmlInfo.binOffset * 1000;
-                }
+            RedbookFcstMap.MapFcstHr xmlInfo = redbookFcstMap.get(hdr
+                    .getTtaaii());
+
+            if (xmlInfo != null) {
+                /*
+                 * Does not support AWIPS 1 semantics of "period < 0 means apply
+                 * offset first".
+                 */
+                if (xmlInfo.binPeriod != null && xmlInfo.binPeriod > 0)
+                    period = (long) xmlInfo.binPeriod * 1000;
+                if (xmlInfo.binOffset != null)
+                    offset = (long) xmlInfo.binOffset * 1000;
             }
 
             timeMillis = (timeMillis / period) * period + offset;
