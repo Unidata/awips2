@@ -2555,6 +2555,7 @@ public class IFPGridDatabase extends GridDatabase {
     public ServerResponse<?> updatePublishTime(List<GridDataHistory> history,
             Date publishTime) {
         ServerResponse<?> sr = new ServerResponse<String>();
+
         GFEDao dao = null;
         try {
             dao = (GFEDao) PluginFactory.getInstance().getPluginDao("gfe");
@@ -2566,6 +2567,7 @@ public class IFPGridDatabase extends GridDatabase {
                     "Unable to update grid history!", e);
             sr.addMessage("Error updating history");
         }
+
         return sr;
     }
 
@@ -2591,5 +2593,36 @@ public class IFPGridDatabase extends GridDatabase {
         }
 
         return rval;
+    }
+
+    /**
+     * Updates the sent time for all histories of passed parmId during the
+     * timeRange. The histories are then returned in a map by timeRange.
+     * 
+     * @param parmId
+     *            the parmId to use
+     * @param tr
+     *            the time range to update sent time for
+     * @param sentTime
+     *            the sent time to update to
+     * @return
+     */
+    @Override
+    public ServerResponse<Map<TimeRange, List<GridDataHistory>>> updateSentTime(
+            final ParmID parmId, TimeRange tr, Date sentTime) {
+        ServerResponse<Map<TimeRange, List<GridDataHistory>>> sr = new ServerResponse<Map<TimeRange, List<GridDataHistory>>>();
+        try {
+            ParmID dbParmId = getCachedParmID(parmId);
+            GFEDao dao = new GFEDao();
+            sr.setPayload(dao.updateSentTime(dbParmId, tr, sentTime));
+        } catch (UnknownParmIdException e) {
+            sr.addMessage(e.getLocalizedMessage());
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to update grid history last sent time", e);
+            sr.addMessage("Unable to update grid history last sent time");
+        }
+
+        return sr;
     }
 }
