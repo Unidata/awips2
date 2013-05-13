@@ -79,6 +79,7 @@ import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
  * 30 Jul 2010  6719       jnjanga     Placed cursor at the end of inserted CTA
  * 26 Sep 2012  15423      ryu         Avoid resetting text when possible.
  * 03 Dec 2012  15620      ryu         Unlock framed cities list for editing.
+ * 30 APR 2013  16095      ryu         Modified updateTextStyle() to not lock edited text.
  *
  * </pre>
  *
@@ -742,15 +743,12 @@ public class StyledTextComp extends Composite {
             // .getStyleRangeAtOffset(event.start + event.length + 1);
 
             // if it's in a framing code, turn it red
-            // or if it's in a locked section (because a programmatic text
-            // update was made), turn it blue
             if (startRange != null
                     && endRange != null
                     && event.start > startRange.start
                     && event.start + event.length < endRange.start
                     && startRange.similarTo(endRange)
-                    && (startRange.foreground.equals(frameColor) || startRange.foreground
-                            .equals(lockColor))) {
+                    && startRange.foreground.equals(frameColor)) {
                 StyleRange style = (StyleRange) startRange.clone();
                 style.start = event.start;
                 style.length = event.length;
