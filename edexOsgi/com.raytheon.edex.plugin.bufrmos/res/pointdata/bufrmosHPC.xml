@@ -19,8 +19,6 @@
         further_licensing_information.
     -->
 <pointDataDescription>
-  <parameter name="refTime" numDims="1" type="LONG" />
-  <parameter name="forecastHr" numDims="1" type="INT" />
   <parameter name="minTempClim" numDims="1" type="FLOAT" />
   <parameter name="relFreqPrecip" numDims="1" type="INT" />
   <parameter name="proj_hour" numDims="1" type="INT" />
