@@ -79,6 +79,7 @@ import com.raytheon.uf.common.util.ConvertUtil;
  * Mar 29, 2013 1638        mschenke    Added methods for loading from data map and creating data map from 
  *                                      dataURI fields
  * Apr 15, 2013 1868        bsteffen    Improved performance of createDataURIMap
+ * Mar 02, 2013 1970        bgonzale    Moved Index annotation from getters to attributes.
  * </pre>
  * 
  */
@@ -117,6 +118,7 @@ public abstract class PluginDataObject extends PersistableDataObject implements
 
     /** The timestamp denoting when this record was inserted into the database */
     @Column(columnDefinition = "timestamp without time zone")
+    @Index(name = "%TABLE%_insertTimeIndex")
     @XmlAttribute
     @DynamicSerializeElement
     protected Calendar insertTime;
@@ -314,9 +316,9 @@ public abstract class PluginDataObject extends PersistableDataObject implements
 
         Field currentField = null;
         String currentUriToken = null;
-        for (int i = 0; i < dataURIFields.length; i++) {
+        for (Field dataURIField : dataURIFields) {
             currentUriToken = uriTokens[uriIndex];
-            currentField = dataURIFields[i];
+            currentField = dataURIField;
 
             if (currentField.getAnnotation(DataURI.class).embedded()) {
                 // The current dataURI token refers to a field in an embedded
@@ -484,7 +486,6 @@ public abstract class PluginDataObject extends PersistableDataObject implements
         return dataTime;
     }
 
-    @Index(name = "dataURI_idx")
     public String getDataURI() {
         return this.dataURI;
     }
@@ -493,7 +494,6 @@ public abstract class PluginDataObject extends PersistableDataObject implements
         return SerializationUtil.marshalToXml(this);
     }
 
-    @Index(name = "insertTimeIndex")
     public Calendar getInsertTime() {
         return insertTime;
     }

@@ -45,16 +45,11 @@ if [ $? -ne 0 ]; then
 fi
 
 # create the ldm directory
-/bin/mkdir -p %{_build_root}/usr/local/ldm-%{_ldm_version}/SOURCES
+/bin/mkdir -p %{_build_root}/usr/local/ldm/SOURCES
 if [ $? -ne 0 ]; then
    exit 1
 fi
 
-# create profile directory and ld directory
-/bin/mkdir -p %{_build_root}/etc/ld.so.conf.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 /bin/mkdir -p %{_build_root}/etc/profile.d
 if [ $? -ne 0 ]; then
    exit 1
@@ -63,7 +58,7 @@ fi
 %build
 
 %install
-_ldm_destination=%{_build_root}/usr/local/ldm-%{_ldm_version}
+_ldm_destination=%{_build_root}/usr/local/ldm
 _ldm_destination_source=${_ldm_destination}/SOURCES
 
 _NATIVELIB_PROJECTS=( 'edexBridge' 'decrypt_file' )
@@ -122,20 +117,6 @@ done
 if [ $? -ne 0 ]; then
    exit 1
 fi
-/bin/touch %{_build_root}/etc/ld.so.conf.d/awips2-ldm-noarch.conf
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-echo "/usr/local/ldm-%{_ldm_version}/lib" > \
-   %{_build_root}/etc/ld.so.conf.d/awips2-ldm-noarch.conf
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-echo "/awips2/qpid/lib" >> \
-   %{_build_root}/etc/ld.so.conf.d/awips2-ldm-noarch.conf
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 
 %pre
 if [ -d /tmp/ldm ]; then
@@ -144,14 +125,16 @@ fi
 mkdir -p /tmp/ldm
 for dir in etc .ssh;
 do
-   if [ -d /usr/local/ldm-%{_ldm_version}/${dir} ]; then
-      scp -qrp /usr/local/ldm-%{_ldm_version}/${dir} /tmp/ldm
+   if [ -d /usr/local/ldm/${dir} ]; then
+      scp -qrp /usr/local/${dir} /tmp/ldm
    fi
 done
 
 %post
-_ldm_dir=/usr/local/ldm-%{_ldm_version}
+_ldm_dir=/usr/local/ldm
 _ldm_root_dir=${_ldm_dir}/ldm-%{_ldm_version}
+_myHost=`hostname`
+_myHost=`echo ${_myHost} | cut -f1 -d'-'`
 
 pushd . > /dev/null 2>&1
 cd ${_ldm_dir}/SOURCES
@@ -184,42 +167,14 @@ if [ $? -ne 0 ]; then
 fi
 popd > /dev/null 2>&1
 
-# create the ldm directory link
-pushd . > /dev/null 2>&1
-cd /usr/local
-if [ -h /usr/local/ldm ]; then
-   # if this command fails, ldm may be a directory
-   # instead of a link.
-   rm -f /usr/local/ldm
-   if [ $? -ne 0 ]; then
-      echo "FATAL: failed to remove the /usr/local/ldm link!"
-      exit 1
-   fi
-else
-   if [ -d /usr/local/ldm ]; then
-      # archive the directory
-      _identifier=`date +"%s"`
-      mv /usr/local/ldm /usr/local/ldm.archive_${_identifier}
-      if [ $? -ne 0 ]; then
-         echo "FATAL: failed to archive the /usr/local/ldm directory!"
-         exit 1
-      fi
-      echo "INFO: archived /usr/local/ldm to /usr/local/ldm.archive_${_identifier}."
-   fi
-fi
-
-ln -s ${_ldm_dir} ldm
-if [ $? -ne 0 ]; then
-   echo "FATAL: failed to create the /usr/local/ldm link."
-   exit 1
-fi
-
 # create .bash_profile
-echo 'export PATH=$HOME/decoders:$HOME/util:$HOME/bin:$PATH' > \
-   /usr/local/ldm/.bash_profile
-echo 'export MANPATH=$HOME/share/man:/usr/share/man' >> \
-   /usr/local/ldm/.bash_profile
-popd > /dev/null 2>&1
+if [ ! -f /usr/local/ldm/.bash_profile ]; then
+   echo 'export PATH=$HOME/decoders:$HOME/util:$HOME/bin:$PATH' > \
+      /usr/local/ldm/.bash_profile
+   echo 'export MANPATH=$HOME/share/man:/usr/share/man' >> \
+      /usr/local/ldm/.bash_profile
+   /bin/chown ldm:fxalpha /usr/local/ldm/.bash_profile
+fi
 
 # construct pqact
 pushd . > /dev/null 2>&1
@@ -240,10 +195,13 @@ cp pqact.conf.template pqact.conf
 if [ $? -ne 0 ]; then
    exit 1
 fi
-cat pqact.conf.dev >> pqact.conf
-if [ $? -ne 0 ]; then
-   echo "ERROR: Unable to merge pqact.conf.dev and pqact.conf."
-   exit 1
+
+if [ ${_myHost} != "cpsbn1" -a ${_myHost} != "cpsbn2" -a ${_myHost} != "dx1" -a ${_myHost} != "dx2" ] ; then
+   cat pqact.conf.dev >> pqact.conf
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Unable to merge pqact.conf.dev and pqact.conf."
+      exit 1
+   fi
 fi
 popd > /dev/null 2>&1
 
@@ -254,7 +212,7 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 export _current_dir=`pwd`
-su ldm -lc "cd ${_current_dir}; ./configure --disable-max-size --with-noaaport --disable-root-actions" \
+su ldm -lc "cd ${_current_dir}; ./configure --disable-max-size --with-noaaport --disable-root-actions --prefix=${_ldm_dir}" \
    > configure.log 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: ldm configure has failed!"
@@ -353,50 +311,72 @@ cd ..
 
 popd > /dev/null 2>&1
 
-for dir in etc .ssh;
+if [ ! -d .ssh ] && 
+   [ -d /tmp/ldm/.ssh ]; then
+   scp -qrp /tmp/ldm/.ssh /usr/local/ldm
+fi
+
+for _file in $( ls /tmp/ldm/etc/pqact.conf.* | grep -wE "pqact.conf.[a-z]{3,4}" | grep -v pqact.conf.dev | xargs ) ;
 do
-   if [ -d /tmp/ldm/${dir} ]; then
-      scp -qrp /tmp/ldm/${dir} /usr/local/ldm-%{_ldm_version}
+   if [[ ! -f /usr/local/ldm/etc/${_file} ]]; then
+      scp -qp /tmp/ldm/etc/${_file} /usr/local/ldm/etc/
    fi
 done
 #if a remote CP site, copy over the filtered data configuration
-case $SITE_IDENTIFIER in gum|hfo|pbp|vrh)
-		echo -e "\nInstalling ldmd.conf for $SITE_IDENTIFIER."
-        if ! scp /usr/local/ldm-%{_ldm_version}/etc/ldmd.conf.$SITE_IDENTIFIER cpsbn1:/usr/local/ldm/etc/ldmd.conf
-        then
-            echo "ERROR: Failed copy of ldmd.conf to cpsbn1"
-        fi
+if [ ${_myHost} == "dx1" -o ${_myHost} == "dx2" ] ; then
+   case $SITE_IDENTIFIER in gum|hfo|pbp|vrh)
+      echo -e "\nInstalling ldmd.conf for $SITE_IDENTIFIER."
+      if ! scp /usr/local/ldm-%{_ldm_version}/etc/ldmd.conf.$SITE_IDENTIFIER cpsbn1:/usr/local/ldm/etc/ldmd.conf
+      then
+         echo "ERROR: Failed copy of ldmd.conf to cpsbn1"
+      fi
 
-        if ! scp /usr/local/ldm-%{_ldm_version}/etc/ldmd.conf.$SITE_IDENTIFIER cpsbn2:/usr/local/ldm/etc/ldmd.conf
-        then
-            echo "ERROR: Failed copy of ldmd.conf to cpsbn2"
-        fi
-        ;;
-esac
+      if ! scp /usr/local/ldm-%{_ldm_version}/etc/ldmd.conf.$SITE_IDENTIFIER cpsbn2:/usr/local/ldm/etc/ldmd.conf
+      then
+         echo "ERROR: Failed copy of ldmd.conf to cpsbn2"
+      fi
+      ;;
+   esac
+fi
 
 # remove the extra configuration files
-rm -f /usr/local/ldm-%{_ldm_version}/etc/ldmd.conf.*
+rm -f /usr/local/ldm/etc/ldmd.conf.*
 
 /sbin/ldconfig
 
 # create route-eth1, if it does not already exist.
-if [ ! -f /etc/sysconfig/network-scripts/route-eth1 ]; then
-   _route_eth1=/etc/sysconfig/network-scripts/route-eth1
+if [ ${_myHost} == "cpsbn1" -o ${_myHost} == "cpsbn2" ] ; then
+   if [ ! -f /etc/sysconfig/network-scripts/route-eth1 ]; then
+      _route_eth1=/etc/sysconfig/network-scripts/route-eth1
 
-   touch ${_route_eth1}
-   echo "ADDRESS0=224.0.1.1" > ${_route_eth1}
-   echo "NETMASK0=255.255.255.255" >> ${_route_eth1}
-   echo "ADDRESS1=224.0.1.2" >> ${_route_eth1}
-   echo "NETMASK1=255.255.255.255" >> ${_route_eth1}
-   echo "ADDRESS2=224.0.1.3" >> ${_route_eth1}
-   echo "NETMASK2=255.255.255.255" >> ${_route_eth1}
-   echo "ADDRESS3=224.0.1.4" >> ${_route_eth1}
-   echo "NETMASK3=255.255.255.255" >> ${_route_eth1}
-   echo "ADDRESS4=224.0.1.5" >> ${_route_eth1}
-   echo "NETMASK4=255.255.255.255" >> ${_route_eth1}
+      touch ${_route_eth1}
+      echo "ADDRESS0=224.0.1.1" > ${_route_eth1}
+      echo "NETMASK0=255.255.255.255" >> ${_route_eth1}
+      echo "ADDRESS1=224.0.1.2" >> ${_route_eth1}
+      echo "NETMASK1=255.255.255.255" >> ${_route_eth1}
+      echo "ADDRESS2=224.0.1.3" >> ${_route_eth1}
+      echo "NETMASK2=255.255.255.255" >> ${_route_eth1}
+      echo "ADDRESS3=224.0.1.4" >> ${_route_eth1}
+      echo "NETMASK3=255.255.255.255" >> ${_route_eth1}
+      echo "ADDRESS4=224.0.1.5" >> ${_route_eth1}
+      echo "NETMASK4=255.255.255.255" >> ${_route_eth1}
 
-   # restart networking
-   /sbin/service network restart
+      # restart networking
+      /sbin/service network restart
+   fi
+   
+   # check for some AWIPS specific links for the CP devices
+   for _dirs in data logs ; do
+      if [[ -h /usr/local/ldm/${_dirs} && $(readlink /usr/local/ldm/${_dirs}) != "/data/ldm/${_dirs}" ]] ; then
+         if ! rm -f /usr/local/ldm/${_dirs} ; then
+            echo "ERROR: Failed to remove /usr/local/ldm/${_dirs}"
+         else
+            if ! ln -s /data/ldm/${_dirs} /usr/local/ldm/${_dirs} ; then
+               echo "ERROR: Failed to create link from /usr/local/ldm/${_dirs} --> /data/ldm/${_dirs}"
+            fi
+         fi
+      fi
+   done
 fi
 
 rm -rf /tmp/ldm
@@ -416,9 +396,8 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(-,ldm,fxalpha,-)
-%dir /usr/local/ldm-%{_ldm_version}
-%dir /usr/local/ldm-%{_ldm_version}/SOURCES
-/usr/local/ldm-%{_ldm_version}/SOURCES/*
+%dir /usr/local/ldm
+%dir /usr/local/ldm/SOURCES
+/usr/local/ldm/SOURCES/*
 
-%attr(644,root,root) /etc/ld.so.conf.d/awips2-ldm-noarch.conf
 %attr(755,root,root) /etc/profile.d/awipsLDM.csh

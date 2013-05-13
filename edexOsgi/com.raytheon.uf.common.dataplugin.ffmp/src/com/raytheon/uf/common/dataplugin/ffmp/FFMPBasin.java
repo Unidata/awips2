@@ -47,6 +47,7 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * Apr 22, 2013 1912        bsteffen    optimized the creation of NavigableMaps
  *                                      from aggregate records and delayed
  *                                      TreeMap creation to the tertiary loader.
+ * Apr 26, 2013 1954        bsteffen    Minor code cleanup throughout FFMP.
  * 
  * </pre>
  * 
@@ -175,19 +176,12 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
 
             synchronized (values) {
 
-                ArrayList<Date> keys = new ArrayList<Date>();
-
-                for (Date date : values.keySet()) {
-                    if (date.before(beforeDate) && date.after(afterDate)) {
-                        keys.add(date);
-                    }
-                }
-                
                 float factor = 0.0f;
 
-                for (Date key : keys) {
-                    Date tdate = key;
-                    float val = values.get(key);
+                for (Entry<Date, Float> entry : values.subMap(beforeDate,
+                        false, afterDate, false).entrySet()) {
+                    Date tdate = entry.getKey();
+                    float val = entry.getValue();
 
                     if (!rate) {
 
@@ -215,7 +209,7 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
                     }
   
                     dvalue += val;
-                    prevDate = key;
+                    prevDate = tdate;
                 }
             }
         }

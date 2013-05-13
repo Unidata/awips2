@@ -19,9 +19,6 @@
  **/
 package com.raytheon.viz.hydro.timeseries;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.QualifiedName;
@@ -30,9 +27,8 @@ import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.core.runtime.jobs.Job;
 
 /**
- * The TimeSeriesDataJob Manager asynchronously retrieves 
- * Time Series Graph and Time Series Tabular Data via the
- * Eclipse Job capability.
+ * The TimeSeriesDataJob Manager asynchronously retrieves Time Series Graph and
+ * Time Series Tabular Data via the Eclipse Job capability.
  * 
  * <pre>
  * 
@@ -40,7 +36,8 @@ import org.eclipse.core.runtime.jobs.Job;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 28, 2011            bkowal     Initial creation
+ * Jan 28, 2011            bkowal      Initial creation
+ * May 06, 2013   1976     mpduff      Moved c.getDataForGraph() inside .runasync block
  * 
  * </pre>
  * 
@@ -71,11 +68,12 @@ public class TimeSeriesDataJobManager extends Job {
             TimeSeriesDisplayCanvas tsDisplayCanvas = (TimeSeriesDisplayCanvas) this
                     .getProperty(new QualifiedName(null,
                             "TimeSeriesDisplayCanvas"));
-            tsDisplayCanvas.getDataForGraph();
             final TimeSeriesDisplayCanvas c = tsDisplayCanvas;
             tsDisplayCanvas.getDisplay().asyncExec(new Runnable() {
+                @Override
                 public void run() {
-                    if(!c.isDisposed()) {
+                    if (!c.isDisposed()) {
+                        c.getDataForGraph();
                         c.redraw();
                     }
                 }
