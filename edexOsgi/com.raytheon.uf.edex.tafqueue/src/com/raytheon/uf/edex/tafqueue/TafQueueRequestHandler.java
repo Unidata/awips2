@@ -45,7 +45,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 1, 2012  14715      rferrel     Initial creation
- * 
+ * May 08, 2013 1814       rjpeter     Added time to live to topic
  * </pre>
  * 
  * @author rferrel
@@ -92,8 +92,7 @@ public class TafQueueRequestHandler implements IRequestHandler<TafQueueRequest> 
             case GET_TAFS:
                 response = new ServerResponse<String>();
                 idList = (List<String>) request.getArgument();
-                List<TafQueueRecord> records = (List<TafQueueRecord>) dao
-                        .getRecordsById(idList);
+                List<TafQueueRecord> records = dao.getRecordsById(idList);
                 makeTafs(records, response);
                 break;
             case REMOVE_SELECTED:
@@ -111,7 +110,7 @@ public class TafQueueRequestHandler implements IRequestHandler<TafQueueRequest> 
                             + " forecast(s) removed.");
                 }
                 makeList(state, dao, response);
-                if (state == TafQueueState.PENDING && numRemoved > 0) {
+                if ((state == TafQueueState.PENDING) && (numRemoved > 0)) {
                     sendNotification(Type.REMOVE_SELECTED);
                 }
                 break;
@@ -193,6 +192,6 @@ public class TafQueueRequestHandler implements IRequestHandler<TafQueueRequest> 
             throws SerializationException, EdexException {
         byte[] message = SerializationUtil.transformToThrift(type.toString());
         EDEXUtil.getMessageProducer().sendAsyncUri(
-                "jms-generic:topic:tafQueueChanged", message);
+                "jms-generic:topic:tafQueueChanged?timeToLive=60000", message);
     }
 }
