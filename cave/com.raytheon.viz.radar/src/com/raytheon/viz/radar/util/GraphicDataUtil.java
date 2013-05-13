@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.measure.converter.UnitConverter;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
@@ -53,6 +55,10 @@ import com.vividsolutions.jts.geom.Envelope;
  * Nov 09  2012	 15586	   Xiaochuan	In dataRowFormat, set MSI maximum  
  * 										size to 5.
  * MAR 05, 2013  15313     kshresth     Added sampling for DMD
+ * 
+ * MAY 01, 2013  15150     kshresth     Added logic to match DMD Radar Graphic
+ *                                      Display and SCAN DMD Table Display
+ *                                      
  * </pre>
  * 
  * @author mnash
@@ -154,9 +160,15 @@ public class GraphicDataUtil {
                                                 .toString());
 
                                 // Range @ Azimuth
-                                String range = setupConverter(currFeature,
-                                        DMDAttributeIDs.BASE_RANGE.toString(),
-                                        0, true);
+                                double range = Double
+                                .parseDouble(currFeature
+                                        .getValue(DMDAttributeIDs.BASE_RANGE
+                                                .toString()));
+                                UnitConverter converter = SI.KILOMETER
+                                        .getConverterTo(NonSI.NAUTICAL_MILE);
+                                int rangeNm = (int) Math
+                                        .round(converter.convert(range));
+                        
                                 String azimuth = currFeature
                                         .getValue(DMDAttributeIDs.BASE_AZIMUTH
                                                 .toString());
@@ -215,7 +227,7 @@ public class GraphicDataUtil {
                                 // put together the final string to display in
                                 // the table
                                 String fnlString = String.format(dataRowFormat,
-                                        mid, range, azimuth, baseHeight, depth,
+                                        mid, rangeNm, azimuth, baseHeight, depth,
                                         rank, msi, llrotv, llg2g, mxrotv,
                                         htmxrv);
 

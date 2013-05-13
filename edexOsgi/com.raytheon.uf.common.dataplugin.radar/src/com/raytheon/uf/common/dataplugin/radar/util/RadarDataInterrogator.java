@@ -35,6 +35,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 21, 2011            mschenke     Initial creation
+ * 05/02/2013   DR 14587   D. Friedman  Store base velocity
  * 
  * </pre>
  * 
@@ -43,6 +44,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class RadarDataInterrogator {
+
+    public enum DataType { BASE_VELOCITY }
 
     private double lastRange;
 
@@ -75,17 +78,29 @@ public class RadarDataInterrogator {
     }
 
     public int getDataValue(RadarRecord record, Coordinate latLon) {
+        return getDataValue(record, latLon, (DataType) null);
+    }
+
+    public int getDataValue(RadarRecord record, Coordinate latLon, DataType dataType) {
         this.record = record;
-        return getDataValue(latLon);
+        return getDataValue(latLon, dataType);
     }
 
     public int getDataValue(Coordinate latLon) {
-        int[] rval = getDataValues(new Coordinate[] { latLon });
+        return getDataValue(latLon, null);
+    }
+
+    public int getDataValue(Coordinate latLon, DataType dataType) {
+        int[] rval = getDataValues(new Coordinate[] { latLon }, dataType);
         if (rval != null && rval.length > 0) {
             return rval[0];
         }
 
         return 0;
+    }
+
+    public int[] getDataValues(Coordinate[] latLonArray) {
+        return getDataValues(latLonArray, null);
     }
 
     /**
@@ -95,7 +110,7 @@ public class RadarDataInterrogator {
      * @param latLon
      * @return
      */
-    public int[] getDataValues(Coordinate[] latLonArray) {
+    public int[] getDataValues(Coordinate[] latLonArray, DataType dataType) {
 
         double[] input = new double[latLonArray.length * 2];
         double[] output = new double[input.length];
@@ -207,7 +222,7 @@ public class RadarDataInterrogator {
                     if (this.lastRadialIndex >= 0 && this.lastBin >= startBin
                             && this.lastRadialIndex < record.getNumRadials()
                             && this.lastBin < endBin) {
-                        if (record.srmData != null) {
+                        if (record.srmData != null && dataType != DataType.BASE_VELOCITY) {
                             rval[index] = RadarRecordUtil.getSRMDataValue(
                                     record, this.lastRadialIndex, this.lastBin
                                             - startBin) & 0xFF;
