@@ -30,6 +30,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable.Amount;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -41,9 +43,11 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.viz.awipstools.capabilities.EAVCapability;
 import com.raytheon.viz.awipstools.common.EstimatedActualVelocity;
+import com.raytheon.viz.awipstools.common.IRadialVelocityToolSource;
 import com.raytheon.viz.radar.VizRadarRecord;
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
 import com.raytheon.viz.radar.rsc.RadarImageResource;
+import com.raytheon.viz.radar.rsc.RadarProductFactory;
 import com.raytheon.viz.radar.rsc.RadarResourceData;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -56,6 +60,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 29, 2010            mnash     Initial creation
+ * 05/02/2013   DR 14587   D. Friedman Implement IRadialVelocityToolSource
  * 
  * </pre>
  * 
@@ -63,7 +68,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-public class RadarRadialResource extends RadarImageResource<MapDescriptor> {
+public class RadarRadialResource extends RadarImageResource<MapDescriptor> implements IRadialVelocityToolSource {
 
     private static final String EAV_VALUE = "EAC.Value";
 
@@ -214,4 +219,24 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor> {
                 radarRecord, descriptor.getGridGeometry());
     }
 
+    @Override
+    public boolean isRadialVelocitySource() {
+        int productCode = -1;
+        try {
+            // TODO: This duplicates logic in RadarResourceData.constructResource
+            if (radarRecords != null && ! radarRecords.isEmpty()) {
+                RadarRecord r = radarRecords.values().iterator().next();
+                productCode = r.getProductCode();
+            } else {
+                RequestConstraint productCodeConstraint = getResourceData()
+                        .getMetadataMap().get("productCode");
+                if (productCodeConstraint.getConstraintType() == ConstraintType.EQUALS)
+                    productCode = Integer.parseInt(productCodeConstraint
+                            .getConstraintValue());
+            }
+        } catch (RuntimeException e) {
+            // ignore
+        }
+        return RadarProductFactory.isVelocityProductCode(productCode);
+    }
 }

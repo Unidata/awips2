@@ -205,7 +205,7 @@ public class GfeIngestNotificationFilter {
 
                             // if we don't have the other component for this
                             // fcstHour
-                            if (otherTimes == null
+                            if ((otherTimes == null)
                                     || !otherTimes.remove(fcstHour)) {
                                 // need to wait for other component
                                 ParmID compPid = new ParmID(d2dParamName,
@@ -372,7 +372,8 @@ public class GfeIngestNotificationFilter {
             throws Exception {
         byte[] message = SerializationUtil.transformToThrift(notifications);
         EDEXUtil.getMessageProducer().sendAsyncUri(
-                "jms-generic:topic:gfeGribNotification", message);
+                "jms-generic:topic:gfeGribNotification?timeToLive=60000",
+                message);
         SendNotifications.send(notifications);
     }
 

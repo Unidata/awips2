@@ -37,6 +37,7 @@ import org.apache.commons.logging.LogFactory;
  * 20080512           1131 jkorman     Initial implementation.
  * Apr 29, 2013 1958       bgonzale    Added class RedbookBlockHeader,
  *                                     and nested Factory interface.
+ * May 06, 2013 1979       bgonzale    Catch Header at the end of buffer.
  * 
  * </pre>
  * 
@@ -76,7 +77,7 @@ public abstract class RedbookBlock {
         
         this.header = header;
 
-        hasLength = (this.header.hdr & LEN_MASK) == 0;
+        hasLength = ((this.header.hdr & LEN_MASK) == 0 && data.hasRemaining());
 
         hasChkSum = (this.header.hdr & CHKSUM_MASK) == 0;
 

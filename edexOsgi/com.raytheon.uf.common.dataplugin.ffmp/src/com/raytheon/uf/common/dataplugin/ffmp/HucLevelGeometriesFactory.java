@@ -71,6 +71,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Dec 9, 2010            rjpeter     Initial creation
  * Apr 25, 2013 1954       bsteffen    Decompress ffmp geometries to save time
  *                                     loading them.
+ * Apr 25, 2013 1954       bsteffen    Undo last commit to avoid invalid geoms.
  * 
  * </pre>
  * 
