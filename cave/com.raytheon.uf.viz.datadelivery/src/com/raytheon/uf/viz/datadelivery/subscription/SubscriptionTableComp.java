@@ -99,6 +99,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Jan 07, 2013  1437      bgonzale     Added sort column direction updates.
  * Jan 28, 2013  1529      djohnson     Disable menu items if no subscriptions are selected.
  * Apr 08, 2013  1826      djohnson     Remove delivery options, move column value parsing to the columns themselves.
+ * May 29, 2013  2000      djohnson     Consolidate and remove duplicate code.
  * 
  * </pre>
  * 
@@ -197,26 +198,21 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
      * Handle subscription editing.
      */
     public void handleEdit() {
-        if (table.getSelectionCount() == 0) {
-            DataDeliveryUtils.showMessage(this.getShell(), SWT.ERROR,
-                    "No Rows Selected", "Please select a row to Edit");
+        if (!verifySingleRowSelected()) {
             return;
         }
 
-        if (table.getSelectionCount() > 1) {
-            int choice = DataDeliveryUtils
-                    .showMessage(
-                            this.getShell(),
-                            SWT.ERROR | SWT.YES | SWT.NO,
-                            "Single Selection Only",
-                            "Multiple subscriptions are selected.\n"
-                                    + "Only the first selected item will be edited.\n\n"
-                                    + "Continue with Edit?");
-            if (choice == SWT.NO) {
-                return;
-            }
-        }
+        editSubscription(getSelectedSubscription());
+    }
 
+    /**
+     * Bring up the edit screen with the given subscription. The user
+     * permissions will be verified prior to launching the dialog.
+     * 
+     * @param subscription
+     *            the subscription
+     */
+    public void editSubscription(Subscription subscription) {
         final DataDeliveryPermission permission = DataDeliveryPermission.SUBSCRIPTION_CREATE;
         IUser user = UserController.getUserObject();
         String msg = user.uniqueId()
@@ -226,12 +222,8 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
         try {
             if (DataDeliveryServices.getPermissionsService()
                     .checkPermissions(user, msg, permission).isAuthorized()) {
-                // Get the subscription data
-                int idx = table.getSelectionIndex();
-                SubscriptionManagerRowData row = subManagerData.getDataRow(idx);
                 SubsetManagerDlg<?, ?, ?> dlg = SubsetManagerDlg
-                        .fromSubscription(this.getShell(), true,
-                                row.getSubscription());
+                        .fromSubscription(this.getShell(), true, subscription);
 
                 dlg.open();
             }
@@ -242,15 +234,15 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
     }
 
     /**
-     * Open the Add To Group dialog.
+     * Verifies a single row is selected.
+     * 
+     * @return true if a single row is selected
      */
-    private void handleGroupAdd() {
-
-        // Ensure a row is selected
+    public boolean verifySingleRowSelected() {
         if (table.getSelectionCount() == 0) {
             DataDeliveryUtils.showMessage(this.getShell(), SWT.ERROR,
-                    "No Rows Selected", "Please select a row to Edit");
-            return;
+                    "No Rows Selected", "Please select a row.");
+            return false;
         }
 
         if (table.getSelectionCount() > 1) {
@@ -260,11 +252,21 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
                             SWT.ERROR | SWT.YES | SWT.NO,
                             "Single Selection Only",
                             "Multiple subscriptions are selected.\n"
-                                    + "Only the first selected item will be edited.\n\n"
-                                    + "Continue with Edit?");
-            if (choice == SWT.NO) {
-                return;
-            }
+                            + "Only the first selected item will be used.\n\n"
+                            + "Continue?");
+            return choice != SWT.NO;
+        }
+
+        return true;
+    }
+
+    /**
+     * Open the Add To Group dialog.
+     */
+    private void handleGroupAdd() {
+
+        if (!verifySingleRowSelected()) {
+            return;
         }
 
         // Check permissions
@@ -277,11 +279,9 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
         try {
             if (DataDeliveryServices.getPermissionsService()
                     .checkPermissions(user, msg, permission).isAuthorized()) {
-                // Get the subscription data
-                int idx = table.getSelectionIndex();
-                SubscriptionManagerRowData row = subManagerData.getDataRow(idx);
+
                 GroupAddDlg groupAdd = new GroupAddDlg(this.getShell(),
-                        row.getSubscription(), this);
+                        getSelectedSubscription(), this);
                 groupAdd.open();
             }
         } catch (VizException e) {
@@ -826,5 +826,17 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
      */
     public void setSubscriptionNameList(List<String> subscriptionNameList) {
         this.subscriptionNameList = subscriptionNameList;
+    }
+
+    /**
+     * Return the selected subscription.
+     * 
+     * @return the subscription
+     */
+    public Subscription getSelectedSubscription() {
+        int idx = this.getTable().getSelectionIndices()[0];
+        SubscriptionManagerRowData row = this.getSubscriptionData().getDataRow(
+                idx);
+        return row.getSubscription();
     }
 }
