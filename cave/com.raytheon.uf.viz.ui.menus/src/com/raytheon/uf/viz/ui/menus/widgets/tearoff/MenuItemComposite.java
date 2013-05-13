@@ -30,6 +30,8 @@ import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -43,6 +45,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.viz.ui.menus.widgets.tearoff.TearOffMenuDialog.MenuPathElement;
 
@@ -57,6 +60,8 @@ import com.raytheon.uf.viz.ui.menus.widgets.tearoff.TearOffMenuDialog.MenuPathEl
  * ------------ ---------- ----------- --------------------------
  * Sep 15, 2011            mnash     Initial creation
  * Apr 10, 2013 DR 15185   D. Friedman Preserve tear-offs over perspective switches.
+ * Apr 30, 2013 DR 15727   D. Friedman Try to make items that depend on an active
+ *                                     workbench window work correctly.
  * 
  * </pre>
  * 
@@ -378,7 +383,7 @@ public class MenuItemComposite extends Composite {
     private MouseAdapter getMouseAdapter() {
         MouseAdapter mouseAdapter = new MouseAdapter() {
             @Override
-            public void mouseDown(MouseEvent e) {
+            public void mouseDown(final MouseEvent e) {
                 MenuItem item = getItem();
 
                 if (item.getMenu() != null) {
@@ -394,71 +399,121 @@ public class MenuItemComposite extends Composite {
                     return;
                 }
 
-                // handle the selection event, so if it is able to load
-                // something, do it (by looping over ALL the selection
-                // listeners assigned to the item)
-                for (Listener list : item.getListeners(SWT.Selection)) {
-                    Event event = new Event();
-                    event.type = SWT.Selection;
-                    event.widget = item;
-                    list.handleEvent(event);
-                }
-
-                if (isDisposed()) {
-                    return;
-                }
-
-                // handles the check boxes, if clicking the check box
-                // need to not do this (because SWT does it already)
-                // otherwise do it
-                if (firstItem instanceof Button
-                        && firstItem.getStyle() == SWT.CHECK) {
-                    if (e.widget != firstItem) {
-                        ((Button) firstItem).setSelection(!((Button) firstItem)
-                                .getSelection());
-                    }
-                }
-
-                // Handle radio selection changing...
-                Control[] siblings = getParent().getChildren();
-                for (int i = 0; i < siblings.length; i++) {
-                    final MenuItemComposite mic = (MenuItemComposite) siblings[i];
-                    if (mic.separator == false
-                            && mic.getItem().getStyle() == SWT.RADIO) {
-                        try {
-                            MenuItemComposite parent = null;
-                            // check whether a Label is clicked or a
-                            // MenuItemComposite
-                            if (e.widget instanceof MenuItemComposite) {
-                                parent = (MenuItemComposite) e.widget;
-                            } else {
-                                parent = (MenuItemComposite) ((Control) e.widget)
-                                        .getParent();
-                            }
-                            // check that the radio groups match
-                            if (mic.getData("radioGroup").equals(
-                                    parent.getData("radioGroup"))) {
-                                if (!parent.getItem()
-                                        .getText()
-                                        .replaceAll("&", "")
-                                        .equals(mic.getItem().getText().replaceAll(
-                                                "&", ""))) {
-                                    mic.getItem().setSelection(false);
-                                    ((Button) mic.firstItem)
-                                            .setSelection(false);
-                                } else {
-                                    mic.getItem().setSelection(true);
-                                    ((Button) mic.firstItem).setSelection(true);
-                                }
-                            }
-                        } catch (NullPointerException e1) {
-                            e1.printStackTrace();
+                /*
+                 * Many menu items do not work unless there in an active
+                 * workbench window.
+                 * 
+                 * If not already active (and it probably will not be), make the
+                 * shell of the original menu item active and finish selecting
+                 * the item after receiving an activation event. Otherwise,
+                 * finish selecting the item immediately.
+                 * 
+                 * Also select immediately if the shell if not visible or is
+                 * minimized because we cannot exepect to get an activation
+                 * event.
+                 * 
+                 * TODO: This is all still a kludge and could cause unexpected
+                 * behavior.
+                 */
+                final Shell shell = item.getParent().getShell();
+                Display display = shell.getDisplay();
+                if (shell.isVisible() && !shell.getMinimized()
+                        && display.getActiveShell() != shell) {
+                    shell.addShellListener(new ShellAdapter() {
+                        @Override
+                        public void shellActivated(ShellEvent e2) {
+                            shell.removeShellListener(this);
+                            selectItem(e);
                         }
-                    }
+
+                        @Override
+                        public void shellDeiconified(ShellEvent e) {
+                            shell.removeShellListener(this);
+                        }
+
+                        @Override
+                        public void shellIconified(ShellEvent e) {
+                            shell.removeShellListener(this);
+                        }
+
+                        @Override
+                        public void shellClosed(ShellEvent e) {
+                            shell.removeShellListener(this);
+                        }
+                    });
+                    shell.setActive();
+                } else {
+                    selectItem(e);
                 }
             }
         };
         return mouseAdapter;
+    }
+
+    private void selectItem(MouseEvent e) {
+        MenuItem item = getItem();
+        // handle the selection event, so if it is able to load
+        // something, do it (by looping over ALL the selection
+        // listeners assigned to the item)
+        for (Listener list : item.getListeners(SWT.Selection)) {
+            Event event = new Event();
+            event.type = SWT.Selection;
+            event.widget = item;
+            list.handleEvent(event);
+        }
+
+        if (isDisposed()) {
+            return;
+        }
+
+        // handles the check boxes, if clicking the check box
+        // need to not do this (because SWT does it already)
+        // otherwise do it
+        if (firstItem instanceof Button
+                && firstItem.getStyle() == SWT.CHECK) {
+            if (e.widget != firstItem) {
+                ((Button) firstItem).setSelection(!((Button) firstItem)
+                        .getSelection());
+            }
+        }
+
+        // Handle radio selection changing...
+        Control[] siblings = getParent().getChildren();
+        for (int i = 0; i < siblings.length; i++) {
+            final MenuItemComposite mic = (MenuItemComposite) siblings[i];
+            if (mic.separator == false
+                    && mic.getItem().getStyle() == SWT.RADIO) {
+                try {
+                    MenuItemComposite parent = null;
+                    // check whether a Label is clicked or a
+                    // MenuItemComposite
+                    if (e.widget instanceof MenuItemComposite) {
+                        parent = (MenuItemComposite) e.widget;
+                    } else {
+                        parent = (MenuItemComposite) ((Control) e.widget)
+                                .getParent();
+                    }
+                    // check that the radio groups match
+                    if (mic.getData("radioGroup").equals(
+                            parent.getData("radioGroup"))) {
+                        if (!parent.getItem()
+                                .getText()
+                                .replaceAll("&", "")
+                                .equals(mic.getItem().getText().replaceAll(
+                                        "&", ""))) {
+                            mic.getItem().setSelection(false);
+                            ((Button) mic.firstItem)
+                                    .setSelection(false);
+                        } else {
+                            mic.getItem().setSelection(true);
+                            ((Button) mic.firstItem).setSelection(true);
+                        }
+                    }
+                } catch (NullPointerException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override

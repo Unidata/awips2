@@ -58,6 +58,8 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
+ * Apr 29, 2013 DR 15715   dhuffman    Near line 202; Transposed edex site and base precedence
+ *                                         per DR: loading was in reverse.
  * Apr 30, 2013            bsteffen    Initial javadoc
  * Apr 30, 2013 1961       bsteffen    Add ability to disable grib tables.
  * 
@@ -199,8 +201,8 @@ public class GribModelLookup {
 
         LocalizationFile[] modelFiles = PathManagerFactory.getPathManager()
                 .listFiles(
-                        new LocalizationContext[] { edexStaticSite,
-                                edexStaticBase },
+                        new LocalizationContext[] { edexStaticBase,
+                                edexStaticSite },
                         "grib" + IPathManager.SEPARATOR + "models", // Win32
                         new String[] { ".xml" }, false, true);
 
