@@ -23,13 +23,13 @@ import java.util.Collection;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Embedded;
-import javax.persistence.Entity;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -59,15 +59,17 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 20080221            862 jkorman     Initial Coding.
  * 02/06/09     1990       bphillip    removed populateDataStore method
  * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
+ * May 02, 2013 1970       bgonzale    Removed Table annotation, changed from Entity
+ *                                     annotation to MappedSuperClass.
  * 
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
-@Entity
-@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufrmosseq")
-@Table(name = "bufrmos", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@MappedSuperclass
+@SequenceGenerator(name = PluginDataObject.ID_GEN)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
