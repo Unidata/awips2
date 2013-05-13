@@ -22,8 +22,6 @@
   <dimension name="maxSkyCover" length="6"/>
   <dimension name="maxWeather" length="5"/>
   
-  <parameter name="timeNominal" numDims="1" type="DOUBLE" unit="seconds since 1-1-1970" />
-  <parameter name="timeObs" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
   <parameter name="autoStationType" numDims="1" type="STRING" size="3"/>
   <parameter name="wmoId" numDims="1" type="INT" />
   <parameter name="correction" numDims="1" type="INT" />
