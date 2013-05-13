@@ -59,6 +59,23 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.SCANAttributesDlg;
 import com.raytheon.uf.viz.monitor.scan.commondialogs.SCANColorThreshDlg;
 import com.raytheon.uf.viz.monitor.scan.data.ScanDataGenerator;
 
+/**
+ * 
+ * Dialog for the SCAN TVS table.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 29, 2013 #1945      lvenable    Code cleanup for SCAN performance.
+ * 
+ * </pre>
+ * 
+ * @author lvenable
+ * @version 1.0
+ */
 public class SCANTvsTableDlg extends AbstractTableDlg implements
         IAttributeUpdate, IThresholdUpdate {
     private Button configBtn;
@@ -91,6 +108,16 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
 
     private Date currentTime = null;
 
+    /**
+     * Constructor.
+     * 
+     * @param parentShell
+     *            Parent shell.
+     * @param site
+     *            Site name.
+     * @param tableData
+     *            Tabel data.
+     */
     public SCANTvsTableDlg(Shell parentShell, String site,
             SCANTableData tableData) {
         super(parentShell);
@@ -215,11 +242,16 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         vertChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
         vertChk.setSelection(tvsCfgMgr.getScanTvsCfgXML().getFilterOption());
         vertChk.setLayoutData(gd);
-        vertChk.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-            }
-        });
+
+        /*
+         * The vertical table is a techblocked DR. This selection listener will
+         * be commented out until it is needed.
+         */
+        // vertChk.addSelectionListener(new SelectionAdapter() {
+        // @Override
+        // public void widgetSelected(SelectionEvent e) {
+        // }
+        // });
         setupButtonMouseListeners(vertChk);
 
         gd = new GridData();
@@ -347,47 +379,6 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         configBtn.setMenu(configPopupMenu);
     }
 
-    // private void createRankPopupMenu() {
-    // rankPopupMenu = new Menu(rankBtn);
-
-    // TODO : need to handle default ranking in the list... MESO -- mdaSR
-
-    /*
-     * Default menu item
-     */
-    // MenuItem defaultMI = new MenuItem(rankPopupMenu, SWT.NONE);
-    // defaultMI.setText(SCANConfig.getInstance().getDefaultName());
-    // defaultMI.setData(SCANConfig.getInstance().getDefaultName());
-    // defaultMI.setEnabled(false);
-    // defaultMI.addSelectionListener(new SelectionAdapter()
-    // {
-    // @Override
-    // public void widgetSelected(SelectionEvent event)
-    // {
-    // handleRankMenuEvent(event);
-    // }
-    // });
-    //
-    /*
-     * Create the remaining rank menus from the configuration
-     */
-    // String[] ranks = SCANConfig.getInstance().getRankColumns(scanTable);
-    //
-    // for (String rankStr : ranks) {
-    // MenuItem mi = new MenuItem(rankPopupMenu, SWT.NONE);
-    // mi.setText(rankStr);
-    // mi.setData(rankStr);
-    // mi.addSelectionListener(new SelectionAdapter() {
-    // @Override
-    // public void widgetSelected(SelectionEvent event) {
-    // handleRankMenuEvent(event);
-    // }
-    // });
-    // }
-    //
-    // rankBtn.setMenu(rankPopupMenu);
-    // }
-
     private void displayAttributesDialog() {
         if ((attributeDlg == null)
                 || (attributeDlg.getParent().isDisposed() == true)) {
@@ -452,17 +443,10 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
     }
 
     @Override
-    protected void shellCloseAction() {
-        // TODO : this method may be deleted from the abstract
-        // class if it is not needed
-    }
-
-    @Override
     protected void shellDisposeAction() {
         shell.addDisposeListener(new DisposeListener() {
             @Override
             public void widgetDisposed(DisposeEvent e) {
-                System.out.println("TVS dialog DISPOSED");
                 unregisterDialogFromMonitor();
             }
         });
@@ -470,7 +454,6 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         shell.addShellListener(new ShellAdapter() {
             @Override
             public void shellClosed(ShellEvent e) {
-                System.out.println("TVS dialog SHELL CLOSED");
                 unregisterDialogFromMonitor();
             }
         });
@@ -496,33 +479,45 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
     @Override
     public void notify(IMonitorEvent me) {
         if (me.getSource() instanceof IMonitor) {
-            // System.out.println("SCAN TVS Table Notify Event Received");
             ScanMonitor scan = (ScanMonitor) me.getSource();
-            Date time = null;
-            try {
-                if (getLinkToFrame(scanTable.name())) {
-                    time = scan.getScanTime(scanTable, site);
-                } else {
-                    time = scan.getMostRecent(scan, scanTable.name(), site)
-                            .getRefTime();
-                }
-            } catch (Exception e) {
-            }
-            if (time != null && !scanTableComp.isDisposed()) {
-                ScanDataGenerator sdg = new ScanDataGenerator(site);
-                scanTableComp.setTableData(sdg.generateTVSData(scan
-                        .getTableData(ScanTables.TVS, site, time)));
 
-                setShellText();
+            // If scan is null or the scan table has been disposed then return
+            // since nothing will be done.
+            if (scan == null || scanTableComp.isDisposed()) {
+                return;
+            }
+
+            Date time = getScanTime(scan);
+
+            if (time != null) {
+
                 if (getLinkToFrame(scanTable.name())) {
                     currentTime = scan.getDialogTime(scanTable, site);
+                    updateTimeLabel();
+                    updateTable(scan, time);
                 } else {
-                    currentTime = time;
+                    if (currentTime == null || !currentTime.equals(time)) {
+                        currentTime = time;
+                        updateTimeLabel();
+                        updateTable(scan, time);
+                    }
                 }
-                updateTimeLabel();
-                // System.out.println("SCAN TVS Table Updated Time Label");
             }
         }
+    }
+
+    /**
+     * Update the table with new data.
+     * 
+     * @param scan
+     *            Scan Monitor.
+     * @param time
+     *            New time.
+     */
+    private void updateTable(ScanMonitor scan, Date time) {
+        ScanDataGenerator sdg = new ScanDataGenerator(site);
+        scanTableComp.setTableData(sdg.generateTVSData(scan.getTableData(
+                ScanTables.TVS, site, time)));
     }
 
     @Override
@@ -590,9 +585,11 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         // NOT USED
     }
 
+    /*
+     * Update the threshold in the composite contained in this dialog for the
+     * desired attribute in the dialog.
+     */
     @Override
-    // Update the threshold in the composite contained in this dialog for the
-    // desired attribute in the dialog.
     public void updateThresh(String attr) {
         this.scanTableComp.updateThresholds(attr);
     }
@@ -610,13 +607,13 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         return false;
     }
 
-	@Override
-	public void turnOffAlarm() {
-		mgr.setRing(false);
-	}
+    @Override
+    public void turnOffAlarm() {
+        mgr.setRing(false);
+    }
 
-	@Override
-	public void turnOnAlarm() {
-		mgr.setRing(true);
-	}
+    @Override
+    public void turnOnAlarm() {
+        mgr.setRing(true);
+    }
 }

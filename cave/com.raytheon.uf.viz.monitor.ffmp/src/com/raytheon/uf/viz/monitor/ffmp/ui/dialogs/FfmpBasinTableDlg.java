@@ -117,6 +117,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Feb 28, 2013  1729      dhladky      Adjusted the way in which the dialog load thread rejoins the main GUI thread.
  * Mar 01, 2013 13228      gzhang       Adding field rowName for VGB in County
  * Mar 24, 2013  1818      mpduff       Fixed Attributes dialog on multiple opens, needed an isDisposed check.
+ * Apr 25, 2013  1902      mpduff       Fixed Thresholds dialog on multiple opens, needed an isDisposed check.
  * </pre>
  * 
  * @author lvenable
@@ -319,8 +320,8 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
         dataLoadFont.dispose();
         timeDurFont.dispose();
-        //FFMPConfig.getInstance().disposeResources();
-        //FFMPConfig.unloadConfig();
+        // FFMPConfig.getInstance().disposeResources();
+        // FFMPConfig.unloadConfig();
 
         if (refreshColor != null) {
             refreshColor.dispose();
@@ -1313,18 +1314,18 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             attributeDlg = new AttributesDlg(shell, resource, attrData, this);
             attributeDlg.open();
         } else {
-        	attributeDlg.bringToTop();
+            attributeDlg.bringToTop();
         }
     }
 
     private void displayThresholdsDialog(ThreshColNames colName) {
-        if (attrThreshDlg == null) {
+        if (attrThreshDlg == null || attrThreshDlg.isDisposed()) {
             attrThreshDlg = new AttributeThresholdDlg(shell, colName, this);
             attrThreshDlg.open();
         } else {
-        	attrThreshDlg.bringToTop();
+            attrThreshDlg.bringToTop();
         }
-        
+
         attrThreshDlg.newThreshold(colName);
     }
 
@@ -2110,17 +2111,17 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             shell.pack();
         }
 
-		String prefix = null;
+        String prefix = null;
 
-		if (status.getLoaderType() == LOADER_TYPE.SECONDARY) {
-			prefix = " Secondary Data Load: ";
-		} else if (status.getLoaderType() == LOADER_TYPE.TERTIARY) {
-			prefix = " Tertiary Data Load: ";
-		} else if (status.getLoaderType() == LOADER_TYPE.GENERAL) {
-			prefix = " General Data Load: ";
-		} else {
-			prefix = " Tertiary Data Load: ";
-		}
+        if (status.getLoaderType() == LOADER_TYPE.SECONDARY) {
+            prefix = " Secondary Data Load: ";
+        } else if (status.getLoaderType() == LOADER_TYPE.TERTIARY) {
+            prefix = " Tertiary Data Load: ";
+        } else if (status.getLoaderType() == LOADER_TYPE.GENERAL) {
+            prefix = " General Data Load: ";
+        } else {
+            prefix = " Tertiary Data Load: ";
+        }
 
         if (status.isDone() == false) {
             dataLoadingLbl.setText(prefix + status.getMessage());
