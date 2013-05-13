@@ -1,6 +1,6 @@
 diff -crB a/qpid-java.spec b/qpid-java.spec
 *** a/qpid-java.spec	2013-04-15 16:19:49.000000000 -0500
---- b/qpid-java.spec	2013-04-15 16:23:28.000000000 -0500
+--- b/qpid-java.spec	2013-04-24 13:31:29.000000000 -0500
 ***************
 *** 1,6 ****
   Name:           qpid-java
@@ -14,7 +14,7 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
 + 
   Name:           qpid-java
   Version:        0.18
-! Release:        3%{?dist}
+! Release:        5%{?dist}
   Summary:        Java implementation of Apache Qpid
   License:        Apache Software License
   Group:          Development/Java
@@ -68,7 +68,7 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
 +    fi
 + done
 + # copy dependencies that are not native to the baseline to required
-+ cp -f %{_topdir}/SOURCES/awips2/*.jar java/lib/required
++ cp -f %{_topdir}/SOURCES/awips2/*.jar %{_topdir}/SOURCES/awips2/*.war  java/lib/required
 + if [ $? -ne 0 ]; then
 +    exit 1
 + fi
@@ -99,7 +99,7 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
 !            -Dmodules=${module}
 !     done
 !     ant -Dretrieve.dependencies=false \
-!        -Dmodules=common\ client\ amqp-1-0-common\ amqp-1-0-client\ amqp-1-0-client-jms\ management/common\ broker\ jca\ systests\ broker-plugins/management-jmx
+!        -Dmodules=common\ client\ amqp-1-0-common\ amqp-1-0-client\ amqp-1-0-client-jms\ management/common\ broker\ jca\ systests\ broker-plugins/access-control\ broker-plugins/firewall\ broker-plugins/management-http\ broker-plugins/management-jmx
 !     if [ $? -ne 0 ]; then
 !        exit 1
 !     fi
@@ -155,30 +155,26 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
   
   %changelog
   * Thu Sep  6 2012 Irina Boverman <iboverma@redhat.com> - 0.18-2
---- 122,239 ----
+--- 122,233 ----
   
   cd ..
   
 ! install -dm 755 %{buildroot}%{_awips2_directory}/lib/opt
 ! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-client-%{version}.jar \
 ! 	%{buildroot}%{_awips2_directory}/lib/opt
-! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-client-%{version}-sources.jar \
-! 	%{buildroot}%{_awips2_directory}/lib/opt
 ! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-common-%{version}.jar \
-! 	%{buildroot}%{_awips2_directory}/lib/opt
-! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-common-%{version}-sources.jar \
 ! 	%{buildroot}%{_awips2_directory}/lib/opt
 ! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-broker-%{version}.jar \
 ! 	%{buildroot}%{_awips2_directory}/lib/opt
-! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-broker-%{version}-sources.jar \
-! 	%{buildroot}%{_awips2_directory}/lib/opt
 ! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-management-common-%{version}.jar \
-!         %{buildroot}%{_awips2_directory}/lib/opt
-! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-management-common-%{version}-sources.jar \
 !         %{buildroot}%{_awips2_directory}/lib/opt
 ! install -pm 644 %{qpid_src_dir}/java/build/lib/plugins/qpid-broker-plugins-management-jmx-%{version}.jar \
 !         %{buildroot}%{_awips2_directory}/lib/opt
-! install -pm 644 %{qpid_src_dir}/java/build/lib/qpid-broker-plugins-management-jmx-%{version}-sources.jar \
+! install -pm 644 %{qpid_src_dir}/java/build/lib/plugins/qpid-broker-plugins-access-control-%{version}.jar \
+!         %{buildroot}%{_awips2_directory}/lib/opt
+! install -pm 644 %{qpid_src_dir}/java/build/lib/plugins/qpid-broker-plugins-firewall-%{version}.jar \
+!         %{buildroot}%{_awips2_directory}/lib/opt
+! install -pm 644 %{qpid_src_dir}/java/build/lib/plugins/qpid-broker-plugins-management-http-%{version}.jar \
 !         %{buildroot}%{_awips2_directory}/lib/opt
 ! 
 ! # scripts for broker
@@ -234,9 +230,7 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
 ! %dir /awips2/qpid/lib
 ! %dir /awips2/qpid/lib/opt
 ! /awips2/qpid/lib/opt/qpid-common-%{version}.jar
-! /awips2/qpid/lib/opt/qpid-common-%{version}-sources.jar
 ! /awips2/qpid/lib/opt/qpid-management-common-%{version}.jar
-! /awips2/qpid/lib/opt/qpid-management-common-%{version}-sources.jar
 ! %dir /awips2/qpid/lib/opt/qpid-deps
 ! /awips2/qpid/lib/opt/qpid-deps/*
 ! %doc /awips2/qpid/LICENSE
@@ -248,7 +242,6 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
 ! %dir /awips2/qpid/lib
 ! %dir /awips2/qpid/lib/opt
 ! /awips2/qpid/lib/opt/qpid-client-%{version}.jar
-! /awips2/qpid/lib/opt/qpid-client-%{version}-sources.jar
 ! 
 ! %files broker
 ! %defattr(-,awips,fxalpha,-)
@@ -256,9 +249,10 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
 ! %dir /awips2/qpid/lib
 ! %dir /awips2/qpid/lib/opt
 ! /awips2/qpid/lib/opt/qpid-broker-%{version}.jar
-! /awips2/qpid/lib/opt/qpid-broker-%{version}-sources.jar
 ! /awips2/qpid/lib/opt/qpid-broker-plugins-management-jmx-%{version}.jar
-! /awips2/qpid/lib/opt/qpid-broker-plugins-management-jmx-%{version}-sources.jar
+! /awips2/qpid/lib/opt/qpid-broker-plugins-access-control-%{version}.jar
+! /awips2/qpid/lib/opt/qpid-broker-plugins-firewall-%{version}.jar
+! /awips2/qpid/lib/opt/qpid-broker-plugins-management-http-%{version}.jar
 ! %dir /awips2/qpid/log
 ! %defattr(755,awips,fxalpha,755)
 ! %dir /awips2/qpid/bin

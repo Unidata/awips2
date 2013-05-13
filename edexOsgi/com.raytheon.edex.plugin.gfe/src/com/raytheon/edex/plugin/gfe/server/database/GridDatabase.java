@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
@@ -72,8 +73,9 @@ import com.raytheon.uf.common.time.TimeRange;
  *                                     in the gfeBaseDataDir.
  * 02/10/13     #1603      randerso    Moved removeFromDb, removeFromHDF5 and deleteModelHDF5
  *                                     methods down to IFPGridDatabase
- * 03/15/13      #1795     njensen      Added updatePublishTime()
- * 
+ * 03/15/13     #1795      njensen     Added updatePublishTime()
+ * 04/23/13     #1949      rjpeter     Added default implementations of history by time range
+ *                                     and cachedParmId
  * </pre>
  * 
  * @author bphillip
@@ -349,6 +351,29 @@ public abstract class GridDatabase {
     public abstract ServerResponse<List<TimeRange>> getGridInventory(ParmID id);
 
     /**
+     * Gets the inventory of time ranges currently for the specified ParmID that
+     * overlap the given time range.
+     * 
+     * @param id
+     *            The parmID to get the inventory for
+     * @return The server response
+     */
+    public ServerResponse<List<TimeRange>> getGridInventory(ParmID id,
+            TimeRange tr) {
+        // default to prior behavior with removing the extra inventories
+        ServerResponse<List<TimeRange>> sr = getGridInventory(id);
+        List<TimeRange> trs = sr.getPayload();
+        ListIterator<TimeRange> iter = trs.listIterator(trs.size());
+        while (iter.hasPrevious()) {
+            TimeRange curTr = iter.previous();
+            if (!curTr.overlaps(tr)) {
+                iter.remove();
+            }
+        }
+        return sr;
+    }
+
+    /**
      * Retrieves a sequence gridSlices from the database based on the specified
      * parameters and stores them in the data parameter. TimeRanges of the grids
      * stored in the database must exactly match those in timeRanges or no
@@ -438,12 +463,6 @@ public abstract class GridDatabase {
                 + this.getClass().getName());
     }
 
-    public ServerResponse<?> updateGridHistory(ParmID parmId,
-            Map<TimeRange, List<GridDataHistory>> history) {
-        throw new UnsupportedOperationException("Not implemented for class "
-                + this.getClass().getName());
-    }
-
     /**
      * Updates the publish times in the database of all provided
      * GridDataHistories. Does not alter the publish times in memory.
@@ -469,4 +488,16 @@ public abstract class GridDatabase {
     }
 
     public abstract void updateDbs();
+
+    /**
+     * Return the internally cache'd parmID for this database implementation.
+     * 
+     * @param parmID
+     * @return
+     * @throws GfeException
+     *             If the parm does not exist for this database.
+     */
+    public ParmID getCachedParmID(ParmID parmID) throws GfeException {
+        return parmID;
+    }
 }

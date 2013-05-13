@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.monitor.scan.resource;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -97,8 +96,8 @@ public class ScanResourceData extends AbstractRequestableResourceData {
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects)
             throws VizException {
-        List<String> uris = Arrays.asList(getScan().getAvailableUris(
-                ScanTables.valueOf(tableType), icao));
+        List<String> uris = getScan().getAvailableUris(
+                ScanTables.valueOf(tableType), icao);
         try {
             long t0 = System.currentTimeMillis();
             // Forces ScanMonitor to grab data back for one extra hour 1/2 past

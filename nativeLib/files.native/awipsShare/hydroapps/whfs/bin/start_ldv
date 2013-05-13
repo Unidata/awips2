@@ -1,0 +1,11 @@
+#!/bin/ksh
+# filename: start_ldv
+
+# This allows you to call this script from outside of ./standard/bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for WHFS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+export DB_NAME=$(get_apps_defaults db_name)
+
+xterm -T LiveDataViewer$OS_SUFFIX -iconic -e $RUN_FROM_DIR/ldv$OS_SUFFIX -d$DB_NAME &
