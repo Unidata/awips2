@@ -61,8 +61,8 @@ public class GriddedCoverageFixture extends AbstractFixture<GriddedCoverage> {
     public GriddedCoverage getInstance(long seedValue, Random random) {
         LatLonGridCoverage gridCoverage = new LatLonGridCoverage();
         gridCoverage.setCrsWKT("Polygon");
-        gridCoverage.setLa1(10);
-        gridCoverage.setLo1(-10);
+        gridCoverage.setLa1(10 + seedValue);
+        gridCoverage.setLo1(-10 - seedValue);
         gridCoverage.setDx(1.0);
         gridCoverage.setDy(1.0);
         gridCoverage.setNx(21);
