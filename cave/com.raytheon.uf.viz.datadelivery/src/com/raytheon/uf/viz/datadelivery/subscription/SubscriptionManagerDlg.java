@@ -114,8 +114,9 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  *                                    and SubscriptionConfigurationManager.
  * Jan 21, 2013 1501       djohnson   Only send notification if subscription was actually activated/deactivated,
  *                                    remove race condition of GUI thread updating the table after notification.
- * Jan 22, 2013  1520      mpduff     Removed menu accelerators.
+ * Jan 22, 2013 1520       mpduff     Removed menu accelerators.
  * Mar 29, 2013 1841       djohnson   Subscription implementations now provide a copy method.
+ * May 29, 2013 2000       djohnson   Copy subscription now requires editing first to prevent duplicates, and remove duplicate code.
  * </pre>
  * 
  * @author mpduff
@@ -680,31 +681,12 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
      * Handle the copy action.
      */
     private void handleCopy() {
-        if (tableComp.getTable().getSelectionCount() == 0) {
-            DataDeliveryUtils.showMessage(shell, SWT.ERROR, "No Rows Selected",
-                    "Please select a row to Copy");
+        if (!tableComp.verifySingleRowSelected()) {
             return;
         }
 
-        if (tableComp.getTable().getSelectionCount() > 1) {
-            int choice = DataDeliveryUtils
-                    .showMessage(
-                            shell,
-                            SWT.ERROR | SWT.YES | SWT.NO,
-                            "Single Selection Only",
-                            "Multiple subscriptions are selected.\n"
-                                    + "Only the first selected item will be copied.\n\n"
-                                    + "Continue with Copy?");
-            if (choice == SWT.NO) {
-                return;
-            }
-        }
-
         // Get the subscription data
-        int idx = tableComp.getTable().getSelectionIndices()[0];
-        SubscriptionManagerRowData row = tableComp.getSubscriptionData()
-                .getDataRow(idx);
-        Subscription sub = row.getSubscription();
+        Subscription sub = tableComp.getSelectedSubscription();
 
         FileNameDlg fnd = new FileNameDlg(getShell(), sub.getName());
         String newName = (String) fnd.open();
@@ -713,17 +695,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                 && !newName.equals(sub.getName())) {
             Subscription newSub = sub.copy(newName);
 
-            // Object is copied, now store it
-            try {
-                DataDeliveryServices.getSubscriptionService().store(
-                        newSub,
-                        new CancelForceApplyAndIncreaseLatencyDisplayText(
-                                "create", getShell()));
-                handleRefresh();
-            } catch (RegistryHandlerException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error saving subscription data to the registry.", e);
-            }
+            // Object is copied, now bring up the edit screen with the copy
+            tableComp.editSubscription(newSub);
         }
     }
 
