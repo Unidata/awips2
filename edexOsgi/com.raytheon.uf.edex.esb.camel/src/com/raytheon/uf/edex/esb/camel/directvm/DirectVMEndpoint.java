@@ -37,6 +37,7 @@ import org.apache.camel.impl.DefaultConsumer;
  * ------------ ---------- ----------- --------------------------
  * Nov 18, 2008            chammack     Initial creation
  * Jul 16, 2012 DR 15073   D. Friedman  Override correct methods
+ * May 09, 2013 1989       njensen      Camel 2.11 compatibility
  * 
  * </pre>
  * 
@@ -57,10 +58,6 @@ public class DirectVMEndpoint extends DirectEndpoint {
             CopyOnWriteArrayList<DefaultConsumer> consumers) {
         super(uri, component);
         this.consumers = consumers;
-    }
-
-    public DirectVMEndpoint(String endpointUri) {
-        super(endpointUri);
     }
 
     @Override
