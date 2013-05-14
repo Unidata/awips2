@@ -118,7 +118,7 @@
 		
 		<!-- Convert the topic into a queue so only one consumer gets each message and we still have competing consumers. -->
 		<route id="gfeDataURINotificationQueueRoute">
-			<from uri="jms-gfe-notify:topic:edex.alerts?durableSubscriptionName=gfeNotificationSubscription" />
+			<from uri="jms-gfe-notify:topic:edex.alerts?clientId=gfeNotify&amp;durableSubscriptionName=gfeNotificationSubscription" />
 			<doTry>
 				<to uri="jms-generic:queue:gfeDataURINotification"/>
 				<doCatch>
