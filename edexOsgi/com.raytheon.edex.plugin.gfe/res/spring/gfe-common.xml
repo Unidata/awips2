@@ -70,7 +70,7 @@
 			    <filter>
 				    <method bean="gfeNotifyFilter" method="isGfeNotification" />
 				    <bean ref="serializationUtil" method="transformToThrift" />
-				    <to uri="jms-generic:topic:edex.alerts.gfe" />
+				    <to uri="jms-generic:topic:edex.alerts.gfe?timeToLive=60000" />
 			    </filter>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
