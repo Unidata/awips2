@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 14, 2009            bwoodle     Initial creation
+ * May 08, 2013  #1842     dgilling    Add getPhensig() method.
  * 
  * </pre>
  * 
@@ -320,5 +321,9 @@ public class VtecObject {
     public String getMatchString() {
         return String.format(PARTIAL_MATCH_FORMAT, this.office, this.phenomena,
                 this.significance);
+    }
+
+    public String getPhensig() {
+        return phenomena + '.' + significance;
     }
 }
