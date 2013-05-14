@@ -32,9 +32,13 @@ import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.DataTime.FLAG;
+import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.interp.IInterpolation;
@@ -48,14 +52,17 @@ import com.raytheon.viz.core.slice.request.HeightScale.ScaleType;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Adapter for converting pdos that are compatible with the point data api into
+ * data that can be used for Cross Section graphs.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 4, 2009            mschenke     Initial creation
+ * Dec 04, 2009            mschenke    Initial creation
+ * May 13, 2013 1869       bsteffen    Modified D2D height Graphs to work
+ *                                     without dataURI column.
  * 
  * </pre>
  * 
@@ -98,25 +105,27 @@ public class PointCSAdapter extends
             CrossSectionGraph graph, GridGeometry2D geometry)
             throws VizException {
         HeightScale heightScale = descriptor.getHeightScale();
-        RequestConstraint uriConstraint = new RequestConstraint();
-        uriConstraint.setConstraintType(RequestConstraint.ConstraintType.IN);
-        // Perhaps this should just be done using the resource metadatamap
-        for (PluginDataObject pdo : records) {
-            DataTime pdoTime = pdo.getDataTime().clone();
-            pdoTime.setLevelValue(null);
-            if (resourceData.getBinOffset() != null) {
-                pdoTime = resourceData.getBinOffset()
-                        .getNormalizedTime(pdoTime);
-            }
-            DataTime cTime = currentTime.clone();
-            cTime.setLevelValue(null);
-            if (pdoTime.equals(cTime)) {
-                uriConstraint.addToConstraintValueList(pdo.getDataURI());
-            }
-        }
         String parameter = resourceData.getParameter();
-        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
-        constraints.put("dataURI", uriConstraint);
+        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>(
+                resourceData.getMetadataMap());
+        if (resourceData.getBinOffset() != null) {
+            TimeRange range = resourceData.getBinOffset().getTimeRange(
+                    currentTime);
+            RequestConstraint timeConstraint = new RequestConstraint();
+            timeConstraint.setConstraintType(ConstraintType.BETWEEN);
+            String start = TimeUtil.formatToSqlTimestamp(range.getStart());
+            String end = TimeUtil.formatToSqlTimestamp(range.getEnd());
+            timeConstraint.setBetweenValueList(new String[] { start, end });
+            constraints.put("dataTime.refTime", timeConstraint);
+        } else if (currentTime.getUtilityFlags().contains(FLAG.FCST_USED)) {
+            constraints.put("dataTime",
+                    new RequestConstraint(currentTime.toString()));
+        } else {
+            constraints.put(
+                    "dataTime.refTime",
+                    new RequestConstraint(TimeUtil
+                            .formatToSqlTimestamp(currentTime.getRefTime())));
+        }
         PointDataContainer pdc = DataCubeContainer.getPointData(records.get(0)
                 .getPluginName(), new String[] { parameter, "stationId",
                 heightScale.getParameter() }, constraints);
