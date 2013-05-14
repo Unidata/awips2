@@ -77,6 +77,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * Apr 15, 2013 1911      dhladky     Fixed forced FFG for centered aggregates.
  * Apr 24, 2013 1946      mpduff      Fixed FFFG value for ALL when an aggregate is forced
  * Apr 26, 2013 1954      bsteffen    Minor code cleanup throughout FFMP.
+ * May 7, 2013   1986     njensen     Removed unnecessary sort
  * 
  * </pre>
  * 
@@ -98,11 +99,9 @@ public class FFMPDataGenerator {
 
     private final Date paintRefTime;
 
-
     private final Object centeredAggregationKey;
 
     private final String huc;
-
 
     private final double sliderTime;
 
@@ -305,7 +304,6 @@ public class FFMPDataGenerator {
                         }
                     }
                 }
-                tData.sortData();
             }
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
@@ -583,7 +581,8 @@ public class FFMPDataGenerator {
             forced = forceUtil.isForced();
         }
 
-        if (!forcedPfafs.isEmpty() || !pfafList.isEmpty() && centeredAggregationKey == null) {
+        if (!forcedPfafs.isEmpty() || !pfafList.isEmpty()
+                && centeredAggregationKey == null) {
             FFMPBasinData basinData = guidRecords.get(guidType).getBasinData(
                     ALL);
             guidance = basinData.getAverageGuidanceValue(pfafList, resource
@@ -1013,7 +1012,6 @@ public class FFMPDataGenerator {
         }
 
         monitor.setQpeWindow(new FFMPTimeWindow(tableTime, qpeTime));
-
 
         if (isWorstCase || (centeredAggregationKey != null)) {
             // make sure that "ALL" is loaded

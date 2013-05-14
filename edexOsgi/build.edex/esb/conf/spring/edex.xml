@@ -18,7 +18,7 @@
     <!-- specify the connection to the broker (qpid) -->
     <!-- MaxPrefetch set at 0, due to DataPool routers getting messages backed up behind long running tasks -->
     <bean id="amqConnectionFactory" class="org.apache.qpid.client.AMQConnectionFactory">
-       <constructor-arg type="java.lang.String" value="amqp://guest:guest@/edex?brokerlist='tcp://${broker.addr}?retries='9999'&amp;connecttimeout='5000'&amp;connectdelay='5000''&amp;maxprefetch='0'&amp;sync_publish='all'&amp;sync_ack='true'"/>
+       <constructor-arg type="java.lang.String" value="amqp://guest:guest@/edex?brokerlist='tcp://${broker.addr}?retries='9999'&amp;connecttimeout='5000'&amp;connectdelay='5000'&amp;heartbeat='0''&amp;maxprefetch='0'&amp;sync_publish='all'&amp;sync_ack='true'"/>
     </bean>
 
     <bean id="jmsPooledConnectionFactory" class="com.raytheon.uf.common.jms.JmsPooledConnectionFactory">
@@ -239,14 +239,14 @@
 		<route id="alertVizNotify">
 			<from uri="vm:edex.alertVizNotification" />
 			<bean ref="serializationUtil" method="transformToThrift" />
-			<to uri="jms-generic:topic:edex.alerts.msg?deliveryPersistent=false" />
+			<to uri="jms-generic:topic:edex.alerts.msg?deliveryPersistent=false&amp;timeToLive=60000" />
 		</route>
 
 		<!-- Route to send text products to alarm/alert -->
 		<route id="alarmAlertNotify">
 			<from uri="vm:edex.alarmAlertNotification" />
 			<bean ref="serializationUtil" method="transformToThrift" />
-			<to uri="jms-generic:topic:edex.alarms.msg?deliveryPersistent=false" />
+			<to uri="jms-generic:topic:edex.alarms.msg?deliveryPersistent=false&amp;timeToLive=60000" />
 		</route>
 
         <route id="siteActivationRoute">
@@ -267,7 +267,7 @@
 				<method bean="siteActivateNotifyFilter" method="isSiteActivateNotification" />
 				<bean ref="siteActivationMonitor" method="handleNotification"/>
 				<bean ref="serializationUtil" method="transformToThrift" />
-				<to uri="jms-generic:topic:edex.alerts.siteActivate" />
+				<to uri="jms-generic:topic:edex.alerts.siteActivate?timeToLive=60000" />
 			</filter>
 		</route>
 
