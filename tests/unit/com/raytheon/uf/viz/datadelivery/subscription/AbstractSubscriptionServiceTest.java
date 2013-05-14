@@ -25,10 +25,12 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -49,8 +51,11 @@ import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
+import com.raytheon.uf.common.datadelivery.service.subscription.ISubscriptionOverlapService;
+import com.raytheon.uf.common.datadelivery.service.subscription.ISubscriptionOverlapService.ISubscriptionOverlapResponse;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
+import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.ForceApplyPromptResponse;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IDisplayForceApplyPrompt;
@@ -70,6 +75,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceA
  * Nov 7, 2012  1286       djohnson     Initial creation
  * Nov 20, 2012 1286       djohnson     Rewrite to support proposing subscription stores/updates and force applying.
  * Jan 02, 2012 1345       djohnson     Fix broken tests from using VizApp to move work off the UI thread.
+ * May 08, 2000 2013       djohnson     Allow checks for duplicate subscriptions.
  * 
  * </pre>
  * 
@@ -105,18 +111,20 @@ public abstract class AbstractSubscriptionServiceTest {
 
     final IPermissionsService permissionsService = mock(IPermissionsService.class);
 
+    final ISubscriptionOverlapService subscriptionOverlapService = mock(ISubscriptionOverlapService.class);
+
     final IDisplayForceApplyPrompt mockDisplay = mock(IDisplayForceApplyPrompt.class);
 
     final SubscriptionService service = new SubscriptionService(
             notificationService, mockBandwidthService, permissionsService,
-            mockDisplay);
+            subscriptionOverlapService, mockDisplay);
 
     final IProposeScheduleResponse mockProposeScheduleResponse = mock(IProposeScheduleResponse.class);
 
     final IForceApplyPromptDisplayText mockPromptDisplayText = mock(IForceApplyPromptDisplayText.class);
 
     @Before
-    public void setUp() {
+    public void setUp() throws RegistryHandlerException {
         RegistryObjectHandlersUtil.initMemory();
 
         when(
@@ -125,6 +133,14 @@ public abstract class AbstractSubscriptionServiceTest {
                 .thenReturn(mockProposeScheduleResponse);
         when(mockBandwidthService.proposeSchedule(any(Subscription.class)))
                 .thenReturn(mockProposeScheduleResponse);
+
+        // By default all tests will not find duplicate/overlapping
+        // subscriptions
+        final ISubscriptionOverlapResponse response = mock(ISubscriptionOverlapResponse.class);
+        when(
+                subscriptionOverlapService.isOverlapping(
+                        any(Subscription.class), any(Subscription.class)))
+                .thenReturn(response);
 
         setupForceApplyPromptDisplayTextValues();
     }
@@ -158,7 +174,7 @@ public abstract class AbstractSubscriptionServiceTest {
 
         performServiceInteraction();
 
-        verifyZeroInteractions(DataDeliveryHandlers.getSubscriptionHandler());
+        verifyOnlyCheckingForDuplicateSubscriptions();
     }
 
     @Test
@@ -295,9 +311,7 @@ public abstract class AbstractSubscriptionServiceTest {
 
         performServiceInteraction();
 
-        final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
-                .getSubscriptionHandler();
-        verifyZeroInteractions(subscriptionHandler);
+        verifyOnlyCheckingForDuplicateSubscriptions();
     }
 
     @Test
@@ -328,6 +342,45 @@ public abstract class AbstractSubscriptionServiceTest {
         }
 
         verifyBandwidthManagerReinitializeInvoked();
+    }
+
+    @Test
+    public void testOverlappingSubscriptionsNotifiesUser()
+            throws RegistryHandlerException {
+        final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
+                .getSubscriptionHandler();
+
+        // Store a duplicate subscription
+        Subscription duplicateSub = sub1.copy("duplicateSub");
+        subscriptionHandler.store(duplicateSub);
+
+        final ISubscriptionOverlapResponse response = mock(ISubscriptionOverlapResponse.class);
+        when(subscriptionOverlapService.isOverlapping(duplicateSub, sub1))
+                .thenReturn(response);
+        when(response.isOverlapping()).thenReturn(true);
+
+        performServiceInteraction();
+
+        verify(mockDisplay).displayMessage(
+                mockPromptDisplayText,
+                ISubscriptionOverlapService.OVERLAPPING_SUBSCRIPTIONS
+                        + FileUtil.EOL
+                        + duplicateSub.getName());
+    }
+
+    /**
+     * Verifies that the only interactions with the subscription handler are to
+     * check for duplicate/overlapping subscriptions.
+     * 
+     * @throws RegistryHandlerException
+     */
+    protected void verifyOnlyCheckingForDuplicateSubscriptions()
+            throws RegistryHandlerException {
+        final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
+                .getSubscriptionHandler();
+        verify(subscriptionHandler, atLeastOnce())
+                .getActiveByDataSetAndProvider(anyString(), anyString());
+        verifyNoMoreInteractions(subscriptionHandler);
     }
 
     /**
