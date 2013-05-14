@@ -1,7 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"    
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
     <bean id="jmsIngestHarvesterConfig" class="org.apache.camel.component.jms.JmsConfiguration"
@@ -13,14 +12,10 @@
         <property name="taskExecutor" ref="harvesterThreadPool" />      
     </bean>
 
-	<bean id="harvesterThreads" class="java.lang.Integer">
-		<constructor-arg value="${metadata-process.threads}" />
-	</bean>
-
 	<bean id="harvesterThreadPool"
         class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-        <property name="corePoolSize" ref="harvesterThreads" />
-        <property name="maxPoolSize" ref="harvesterThreads" />
+        <property name="corePoolSize" value="${metadata-process.threads}" />
+        <property name="maxPoolSize" value="${metadata-process.threads}" />
     </bean>
     
     <bean id="crawlerCommunicationStrategy" class="com.raytheon.uf.edex.datadelivery.harvester.crawler.FileCommunicationStrategy" />
@@ -34,6 +29,7 @@
 		errorHandlerRef="errorHandler">
 
 		<endpoint id="metaDataCron" uri="quartz://datadelivery/harvester/?cron=${metadata-process.cron}"/>
+		<endpoint id="harvesterProcessWorkEndpoint" uri="jms-harvester:queue:metaDataProcessWork?concurrentConsumers=${metadata-process.threads}&amp;destinationResolver=#qpidDurableResolver" />
 
 		<route id="metaDataProcess">
 			<from uri="metaDataCron" />
@@ -41,7 +37,7 @@
 		</route>
 				
 		<route id="metaDataProcessWork">
-		    <from uri="jms-harvester:queue:metaDataProcessWork?concurrentConsumers=#harvesterThreads&amp;destinationResolver=#qpidDurableResolver" />
+		    <from uri="harvesterProcessWorkEndpoint" />
             <doTry>
             	<pipeline>
     				<bean ref="MetaDataProcessor" method="metaDataCheck" />

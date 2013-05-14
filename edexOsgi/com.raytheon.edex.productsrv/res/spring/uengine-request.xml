@@ -15,9 +15,8 @@
 		init-method="start" destroy-method="stop">
 
 		<property name="threadPool">
-			<bean id="ThreadPool" class="org.eclipse.jetty.util.thread.OldQueuedThreadPool">
-				<property name="minThreads" value="25" />
-				<property name="lowThreads" value="25" />
+			<bean id="ThreadPool" class="org.eclipse.jetty.util.thread.QueuedThreadPool">
+				<property name="minThreads" value="25" />				
 				<property name="maxThreads" value="50" />
 			</bean>
 		</property>

@@ -41,8 +41,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 5, 2013    1580     mpduff      Initial creation.
+ * Feb 5, 2013  1580       mpduff      Initial creation.
  * 3/18/2013    1802       bphillip    Modified to use transaction synchronization
+ * May 9, 2013  1989       njensen     Spring 3.1.4 compatibility
  * 
  * </pre>
  * 
@@ -98,8 +99,10 @@ public class EdexEventBusHandler implements IEventBusHandler,
             }
             eventStorageList.get().add(event);
         } else {
-            statusHandler
-                    .info("Sending event from non-transactional operation");
+            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                statusHandler
+                        .debug("Sending event from non-transactional operation");
+            }
             this.googleEventBus.post(event);
         }
     }
@@ -157,5 +160,9 @@ public class EdexEventBusHandler implements IEventBusHandler,
                     + list.size() + " events.");
         }
         list.clear();
+    }
+
+    @Override
+    public void flush() {
     }
 }
