@@ -34,6 +34,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.CollectionUtil;
 
 /**
  * Performs subscription integrity verification.
@@ -46,7 +47,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * Dec 7, 2012  1104      djohnson     Initial creation
  * Feb 05, 2013 1580      mpduff       EventBus refactor.
- * 3/18/2013    1802       bphillip     Modified to use proper transaction boundaries
+ * 3/18/2013    1802      bphillip     Modified to use proper transaction boundaries
+ * May 08, 2013 2000      djohnson     Shortcut out if no subscriptions are returned for the dataset.
  * 
  * </pre>
  * 
@@ -170,6 +172,10 @@ public class SubscriptionIntegrityVerifier {
                     .getSubscriptionHandler()
                     .getActiveByDataSetAndProvider(dataSet.getDataSetName(),
                             dataSet.getProviderName());
+
+            if (CollectionUtil.isNullOrEmpty(subscriptions)) {
+                return;
+            }
 
             for (Subscription subscription : subscriptions) {
 
