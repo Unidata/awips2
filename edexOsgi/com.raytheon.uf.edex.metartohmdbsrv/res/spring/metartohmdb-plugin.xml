@@ -27,7 +27,7 @@
 
     <camelContext id="metarToHMDB-camel"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
+        errorHandlerRef="errorHandler" autoStartup="false">
         <endpoint id="metarToHMDBEndpoint" />
 
         <route id="metarToHMDBRoute">
