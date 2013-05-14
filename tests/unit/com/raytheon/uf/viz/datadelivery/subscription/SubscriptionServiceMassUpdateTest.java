@@ -28,7 +28,6 @@ import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -60,6 +59,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubsc
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 21, 2012 1286       djohnson     Initial creation
+ * May 08, 2000 2013       djohnson     Allow checks for duplicate subscriptions.
  *
  * </pre>
  *
@@ -86,7 +86,7 @@ public class SubscriptionServiceMassUpdateTest extends
 
         service.updateWithPendingCheck(subs, mockPromptDisplayText);
 
-        verifyZeroInteractions(DataDeliveryHandlers.getSubscriptionHandler());
+        verifyOnlyCheckingForDuplicateSubscriptions();
     }
 
     @Test
