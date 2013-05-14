@@ -28,9 +28,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
@@ -67,16 +64,19 @@ import com.raytheon.uf.common.time.TimeRange;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * --------            ---  randerso    Initial creation    
- * 20070914     379         jkorman     Added populateDataStore() and
- *                                      getPersistenceTime() from new IPersistable
- * 20071129     472         jkorman     Added IDecoderGettable interface.  
- * 06/17/08     940         bphillip    Implemented GFE Locking
- * Apr 4, 2013  1846        bkowal      Added an index on refTime and forecastTime 
+ *                          randerso    Initial creation
+ * Sep 14, 2007 379         jkorman     Added populateDataStore() and
+ *                                      getPersistenceTime() from new
+ *                                      IPersistable
+ * Nov 29, 2007 472         jkorman     Added IDecoderGettable interface.
+ * Jun 17, 2008 940         bphillip    Implemented GFE Locking
+ * Apr 04, 2013 1846        bkowal      Added an index on refTime and
+ *                                      forecastTime
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * Apr 23, 2013 1949        rjpeter     Normalized database structure.
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
+ * May 13, 2013 1869        bsteffen    Remove DataURI column from GFE.
  * 
  * </pre>
  * 
@@ -279,12 +279,5 @@ public class GFERecord extends PluginDataObject {
                 gridHistory.remove(i);
             }
         }
-    }
-    
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
     }
 }
