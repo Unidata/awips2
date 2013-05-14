@@ -37,6 +37,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang.Validate;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestableMetadataMarshaller;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -75,11 +77,13 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 10, 2009            chammack     Initial creation
- * Feb 26, 2009		2032   jsanchez		Added loadWithNoData condition.
- * April 6, 2011             njensen          Moved binning times to edex
- * April 13, 2011           njensen          Caching available times
- * Mar 29, 2013     1638   mschenke     Switched to create PDO from dataURI mapping instead of dataURI string
+ * Feb 10, 2009            chammack    Initial creation
+ * Feb 26, 2009 2032       jsanchez    Added loadWithNoData condition.
+ * Apr 06, 2011            njensen     Moved binning times to edex
+ * Apr 13, 2011            njensen     Caching available times
+ * Mar 29, 2013 1638       mschenke    Switched to create PDO from dataURI
+ *                                     mapping instead of dataURI string
+ * May 14, 2013 1869       bsteffen    Get dataURI map directly from PDO.
  * 
  * </pre>
  * 
@@ -240,10 +244,8 @@ public abstract class AbstractRequestableResourceData extends
 
     public static void checkMetadataMap(Map<String, RequestConstraint> map,
             PluginDataObject pdo) {
-        String dataURI = pdo.getDataURI();
-        RecordFactory factory = RecordFactory.getInstance();
         try {
-            Map<String, Object> dataURIMap = factory.loadMapFromUri(dataURI);
+            Map<String, Object> dataURIMap = DataURIUtil.createDataURIMap(pdo);
             for (String key : map.keySet()) {
                 if (dataURIMap.containsKey(key) == false) {
                     statusHandler
@@ -257,7 +259,7 @@ public abstract class AbstractRequestableResourceData extends
                                     + " is not in datauri, updates may not properly work for resource");
                 }
             }
-        } catch (VizException e) {
+        } catch (PluginException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error parsing datauri into map", e);
         }
@@ -289,9 +291,8 @@ public abstract class AbstractRequestableResourceData extends
                     }
                 }
             }
+            this.fireChangeListeners(ChangeType.DATA_UPDATE, updateData);
         }
-
-        this.fireChangeListeners(ChangeType.DATA_UPDATE, updateData);
     }
 
     protected void update(AlertMessage... messages) {
