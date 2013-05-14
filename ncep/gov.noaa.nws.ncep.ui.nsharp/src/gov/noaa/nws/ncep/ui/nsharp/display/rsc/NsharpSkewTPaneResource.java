@@ -10,6 +10,7 @@ package gov.noaa.nws.ncep.ui.nsharp.display.rsc;
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 04/23/2012	229			Chin Chen	Initial coding
+ * May 08, 2013 1847        bsteffen	Allow painting with no Wind Data.
  *
  * </pre>
  * 
@@ -797,6 +798,9 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
         		newEle.myState = eleState.RE_MAX_WIND;
         		//System.out.println( "layer#"+ i+ " RE_MAX_WIND =" + spd );
         	} 	
+        }
+        if (layerStateList.isEmpty()) {
+            return;
         }
         //#2: apply minimum distance rule, i.e no two wind layer closer than the minimum distance, also make sure
         // relative max wind layer is picked.
