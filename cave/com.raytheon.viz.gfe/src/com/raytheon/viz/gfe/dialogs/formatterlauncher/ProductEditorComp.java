@@ -113,7 +113,6 @@ import com.raytheon.uf.viz.spellchecker.dialogs.SpellCheckDlg;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEPreference;
-import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData.productStateEnum;
@@ -151,6 +150,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     Add mouselistener in createTextControl() for StyledText	                                     
  * 28 Feb 2013 15889       ryu         Removed detachAttributionPhrase and getVTECActionCodes
  * 02/12/2013        #1597 randerso    Code cleanup. Fixed possible widget disposed errors on shut down.
+ * 05/08/2013        #1842 dgilling    Add alternate setProductText(), fix
+ *                                     warnings.
  * 
  * </pre>
  * 
@@ -406,6 +407,8 @@ public class ProductEditorComp extends Composite implements
 
     private String prodEditorDirectory = null;
 
+    private final DataManager dm;
+
     /**
      * Constructor.
      * 
@@ -414,7 +417,8 @@ public class ProductEditorComp extends Composite implements
      */
     public ProductEditorComp(Composite parent,
             ProductDefinition productDefinition, String productName,
-            boolean editorCorrectionMode, ITransmissionState transmissionCB) {
+            boolean editorCorrectionMode, ITransmissionState transmissionCB,
+            DataManager dataMgr) {
         super(parent, SWT.BORDER);
 
         this.parent = parent;
@@ -422,6 +426,7 @@ public class ProductEditorComp extends Composite implements
         this.productName = productName;
         this.editorCorrectionMode = editorCorrectionMode;
         this.transmissionCB = transmissionCB;
+        this.dm = dataMgr;
 
         IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
 
@@ -454,8 +459,7 @@ public class ProductEditorComp extends Composite implements
         }
 
         testVTEC = GFEPreference.getBooleanPreference("TestVTECDecode");
-        DataManager dm = DataManager.getCurrentInstance();
-        if (dm.getOpMode().equals(CAVEMode.PRACTICE)) {
+        if (CAVEMode.getMode().equals(CAVEMode.PRACTICE)) {
             testVTEC = true;
         }
 
@@ -1063,7 +1067,7 @@ public class ProductEditorComp extends Composite implements
      * Set the transmission controls to reflect live or disabled transmission.
      */
     public void setLiveTransmission() {
-        CAVEMode mode = DataManager.getCurrentInstance().getOpMode();
+        CAVEMode mode = CAVEMode.getMode();
         if (mode.equals(CAVEMode.OPERATIONAL)) {
             transmitBtn.setImage(transLiveImg);
             transmitMI.setImage(transLiveImg);
@@ -1765,14 +1769,8 @@ public class ProductEditorComp extends Composite implements
      * @return
      */
     private TimeZone getLocalTimeZone() {
-        // get the time zone
-        DataManager dm = DataManager.getCurrentInstance();
-        TimeZone timeZone = TimeZone.getTimeZone("GMT");
-        try {
-            timeZone = TimeZone.getTimeZone(dm.getClient().getDBGridLocation()
-                    .getTimeZone());
-        } catch (GFEServerException e1) {/* do nothing, use GMT */
-        }
+        TimeZone timeZone = TimeZone.getTimeZone(dm.getParmManager()
+                .compositeGridLocation().getTimeZone());
         return timeZone;
     }
 
@@ -2646,9 +2644,15 @@ public class ProductEditorComp extends Composite implements
     }
 
     public void setProductText(String text) {
+        setProductText(text, true);
+    }
+
+    public void setProductText(String text, boolean reviveEditor) {
         textComp.setProductText(text);
-        revive();
-        setPurgeTime();
+        if (reviveEditor) {
+            revive();
+            setPurgeTime();
+        }
     }
 
     public String getProductText() {
