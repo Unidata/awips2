@@ -1,7 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean id="gribDecoder" class="com.raytheon.edex.plugin.grib.GribDecoder" />
@@ -15,14 +14,10 @@
 		factory-bean="jmsConfig" factory-method="copy">
 	</bean>
 	
-  	<bean id="gribDecodeThreads" class="java.lang.Integer">
-		<constructor-arg value="${grib-decode.count.threads}" />
-  	</bean>
-	
 	<bean id="gribThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" ref="gribDecodeThreads" />
-		<property name="maxPoolSize" ref="gribDecodeThreads" />
+		<property name="corePoolSize" value="${grib-decode.count.threads}" />
+		<property name="maxPoolSize" value="${grib-decode.count.threads}" />
 	</bean>
 
 	<bean id="largeFileChecker" class="com.raytheon.edex.plugin.grib.GribLargeFileChecker" />
@@ -63,6 +58,7 @@
 		autoStartup="false">
 		
 		<endpoint id="gribFileEndpoint" uri="file:${edex.home}/data/sbn/grib?noop=true&amp;idempotent=false" />
+		<endpoint id="gribJmsEndpoint" uri="ingest-grib:queue:Ingest.Grib?concurrentConsumers=${grib-decode.count.threads}&amp;destinationResolver=#qpidDurableResolver" />
 		
 	 	<route id="gribFileConsumerRoute">
 	 		<from ref="gribFileEndpoint" />
@@ -71,11 +67,11 @@
 	 				<constant>grid</constant> 
 				</setHeader>
 				<to uri="ingest-grib:queue:Ingest.Grib" />
-		</route>
+		</route>		   
 	
 		<!-- Begin Grib Decode Route -->
 		<route id="gribIngestRoute">
-			<from uri="ingest-grib:queue:Ingest.Grib?concurrentConsumers=#gribDecodeThreads&amp;destinationResolver=#qpidDurableResolver" />
+			<from ref="gribJmsEndpoint" />
 			<setHeader headerName="pluginName">
 				<constant>grid</constant>
 			</setHeader>

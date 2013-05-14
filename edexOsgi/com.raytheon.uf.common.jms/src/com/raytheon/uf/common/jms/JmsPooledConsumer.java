@@ -164,7 +164,7 @@ public class JmsPooledConsumer {
 
         if (close) {
             try {
-                statusHandler.info("Closing consumer " + consumer); // njensen
+                statusHandler.info("Closing consumer " + destKey); // njensen
                 consumer.close();
             } catch (Throwable e) {
                 statusHandler.handle(Priority.WARN, "Failed to close consumer "
