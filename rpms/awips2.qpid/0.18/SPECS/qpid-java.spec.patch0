@@ -3,7 +3,7 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
 --- b/qpid-java.spec	2013-04-24 13:31:29.000000000 -0500
 ***************
 *** 1,6 ****
-  Name:           qpid-java
+! Name:           qpid-java
   Version:        0.18
 ! Release:        2%{?dist}
   Summary:        Java implementation of Apache Qpid
@@ -12,9 +12,9 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
 --- 1,8 ----
 + %define _awips2_directory "/awips2/qpid"
 + 
-  Name:           qpid-java
+! Name:           awips2-qpid-java
   Version:        0.18
-! Release:        5%{?dist}
+! Release:        1%{?dist}
   Summary:        Java implementation of Apache Qpid
   License:        Apache Software License
   Group:          Development/Java
