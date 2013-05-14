@@ -83,7 +83,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                                      that sent notification to D2DParmIdCache.
  * 01/14/13     #1469       bkowal      Removed the hdf5 data directory
  * 04/08/13     #1293       bkowal      Removed references to hdffileid.
- * 
+ * 05/08/13     1814        rjpeter     Added time to live to topic message
  * </pre>
  * 
  * @author bphillip
@@ -101,7 +101,7 @@ public class GribDao extends PluginDao {
 
     private static final String THINNED_PTS = "thinnedPts";
 
-    private static final String PURGE_MODEL_CACHE_TOPIC = "jms-generic:topic:purgeGribModelCache";
+    private static final String PURGE_MODEL_CACHE_TOPIC = "jms-generic:topic:purgeGribModelCache?timeToLive=60000";
 
     /**
      * Creates a new GribPyDao object
@@ -171,7 +171,7 @@ public class GribDao extends PluginDao {
             IPersistable obj) throws Exception {
         GribRecord gribRec = (GribRecord) obj;
 
-        if (gribRec.getMessageData() != null
+        if ((gribRec.getMessageData() != null)
                 && !gribRec.getModelInfo().getParameterName().equals("Missing")) {
             AbstractStorageRecord storageRecord = null;
             AbstractStorageRecord localSection = null;
@@ -182,8 +182,8 @@ public class GribDao extends PluginDao {
              * Stores the binary data to the HDF5 data store
              */
             if (gribRec.getMessageData() instanceof float[]) {
-                if (gribRec.getSpatialObject() != null
-                        && gribRec.getMessageData() != null) {
+                if ((gribRec.getSpatialObject() != null)
+                        && (gribRec.getMessageData() != null)) {
                     long[] sizes = new long[] {
                             (gribRec.getSpatialObject()).getNx(),
                             (gribRec.getSpatialObject()).getNy() };
@@ -316,7 +316,7 @@ public class GribDao extends PluginDao {
         for (PluginDataObject record : records) {
             GribRecord rec = (GribRecord) record;
             GribModel model = rec.getModelInfo();
-            if (model.getParameterName() == null
+            if ((model.getParameterName() == null)
                     || model.getParameterName().equals("Missing")) {
                 logger.info("Discarding record due to missing or unknown parameter mapping: "
                         + record);
@@ -327,7 +327,7 @@ public class GribDao extends PluginDao {
                 if (level != null) {
                     MasterLevel ml = level.getMasterLevel();
 
-                    if (ml != null
+                    if ((ml != null)
                             && !LevelFactory.UNKNOWN_LEVEL.equals(ml.getName())) {
                         validLevel = true;
                     }
@@ -362,7 +362,7 @@ public class GribDao extends PluginDao {
         for (PluginDataObject record : records) {
             GribRecord rec = (GribRecord) record;
             GribModel model = rec.getModelInfo();
-            if (model.getParameterName() == null
+            if ((model.getParameterName() == null)
                     || model.getParameterName().equals("Missing")) {
                 logger.info("Discarding record due to missing or unknown parameter mapping: "
                         + record);
@@ -373,7 +373,7 @@ public class GribDao extends PluginDao {
                 if (level != null) {
                     MasterLevel ml = level.getMasterLevel();
 
-                    if (ml != null
+                    if ((ml != null)
                             && !LevelFactory.UNKNOWN_LEVEL.equals(ml.getName())) {
                         validLevel = true;
                     }
