@@ -12,7 +12,35 @@
            <property name="maxSaveThreads" value="3"/>
            <property name="gridSaveThreshold" value="33554432"/>
            <!-- threshold = 32*1024*1024 bytes (32 MB)-->
-        </bean> 
+        </bean>
+        
+        <bean id="gfeVtecConfig" class="com.raytheon.viz.gfe.vtec.GFEVtecConfig" factory-method="getInstance">
+           <property name="sitesIgnoreNationalEtn">
+              <set>
+                 <value>PGUM</value>
+              </set>
+           </property>
+           <property name="nationalEtnPhensigs">
+              <set>
+                 <value>TO.A</value>
+                 <value>SV.A</value>
+                 <value>HU.A</value>
+                 <value>HU.S</value>
+                 <value>HU.W</value>
+                 <value>TR.A</value>
+                 <value>TR.W</value>
+              </set>
+           </property>
+           <property name="tropicalEtnPhensigs">
+              <set>
+                 <value>HU.A</value>
+                 <value>HU.S</value>
+                 <value>HU.W</value>
+                 <value>TR.A</value>
+                 <value>TR.W</value>
+              </set>
+           </property>
+        </bean>
         
    	<!-- FIXME: Uncomment to re-enable cache at CAVE startup
         <bean id="gfeDiskCache" class="com.raytheon.uf.common.cache.disk.DiskCache" init-method="activateCache">
