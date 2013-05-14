@@ -55,8 +55,7 @@ public class IdftParser {
         File baseDir = null;
         String stnsFileName = null;
         baseContext = manager.getContext(EDEX_STATIC, LocalizationLevel.BASE);
-        baseContext.setContextName(NCEP_DIR);
-        baseDir = manager.getFile(baseContext, "");
+        baseDir = manager.getFile(baseContext, NCEP_DIR);
         stnsFileName = baseDir + File.separator + stnsDir + File.separator
                 + idftLocTableName;
         StationTable myloc = new StationTable(stnsFileName);
