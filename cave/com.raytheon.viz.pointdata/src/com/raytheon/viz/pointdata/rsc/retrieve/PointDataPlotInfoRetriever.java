@@ -37,6 +37,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.viz.pointdata.PlotInfo;
+import com.raytheon.viz.pointdata.rsc.PlotResourceData;
 
 /**
  * 
@@ -47,7 +48,8 @@ import com.raytheon.viz.pointdata.PlotInfo;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 9, 2009            bsteffen     Initial creation
+ * Oct 09, 2009            bsteffen    Initial creation
+ * May 14, 2013 1869       bsteffen    Get plots working without dataURI
  * 
  * </pre>
  * 
@@ -64,9 +66,10 @@ public class PointDataPlotInfoRetriever extends AbstractDbPlotInfoRetriever {
 
     protected boolean onlyRefTime = false;
 
+    protected boolean needsDataUri = true;
+
     @Override
     protected void addColumns(DbQuery dq) {
-        dq.addColumn("dataURI");
         dq.addColumn("location.latitude");
         dq.addColumn("location.longitude");
         dq.addColumn("location.stationId");
@@ -76,23 +79,26 @@ public class PointDataPlotInfoRetriever extends AbstractDbPlotInfoRetriever {
         } else {
             dq.addColumn("dataTime");
         }
+        if (needsDataUri) {
+            dq.addColumn("dataURI");
+        }
     }
 
     @Override
     protected PlotInfo getPlotInfo(Object[] data) {
         PlotInfo stationInfo = new PlotInfo();
-        stationInfo.dataURI = (String) data[0];
-        stationInfo.latitude = (Double) data[1];
-        stationInfo.longitude = (Double) data[2];
-        stationInfo.stationId = (String) data[3];
+        stationInfo.latitude = (Double) data[0];
+        stationInfo.longitude = (Double) data[1];
+        stationInfo.stationId = (String) data[2];
         if (stationInfo.stationId == null) {
-            stationInfo.stationId = "" + data[1] + "#" + data[2];
+            stationInfo.stationId = "" + stationInfo.latitude + "#"
+                    + stationInfo.longitude;
         }
 
-        if (data[4] instanceof DataTime) {
-            stationInfo.dataTime = (DataTime) data[4];
-        } else if (data[4] instanceof Timestamp) {
-            stationInfo.dataTime = new DataTime((Timestamp) data[4]);
+        if (data[3] instanceof DataTime) {
+            stationInfo.dataTime = (DataTime) data[3];
+        } else if (data[3] instanceof Timestamp) {
+            stationInfo.dataTime = new DataTime((Timestamp) data[3]);
         } else {
             String message = "Incorrect dataTime class type from database, expected "
                     + DataTime.class.getName()
@@ -103,7 +109,9 @@ public class PointDataPlotInfoRetriever extends AbstractDbPlotInfoRetriever {
             statusHandler.handle(Priority.CRITICAL, message, new Exception(
                     message));
         }
-
+        if (data.length == 5) {
+            stationInfo.dataURI = (String) data[4];
+        }
         return stationInfo;
     }
 
@@ -113,6 +121,7 @@ public class PointDataPlotInfoRetriever extends AbstractDbPlotInfoRetriever {
         DbQuery dq = null;
         synchronized (onlyRefTimeFlagLock) {
             onlyRefTime = !time.getUtilityFlags().contains(FLAG.FCST_USED);
+            needsDataUri = !PlotResourceData.getPluginProperties(metadataMap).hasDistinctStationId;
             dq = getQueryObject(metadataMap);
         }
         List<PlotInfo> info = runStationQuery(dq);
