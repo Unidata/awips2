@@ -72,7 +72,8 @@
 		<property name="maxMessagesPerTask" value="-1"/>
 		<property name="listenerConnectionFactory" ref="jmsPooledConnectionFactory" />
 		<property name="templateConnectionFactory" ref="jmsPooledConnectionFactory" />
-		<property name="destinationResolver" ref="qpidNoDurableResolver"/>
+		<property name="destinationResolver" ref="qpidNoDurableResolver" />
+		<property name="disableReplyTo" value="true" />
 		<!--
 		<property name="transacted" value="true" />
 		<property name="acknowledgementModeName" value="TRANSACTED"/>
