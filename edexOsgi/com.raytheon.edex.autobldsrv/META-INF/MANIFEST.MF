@@ -11,7 +11,8 @@ Require-Bundle: com.raytheon.edex.common,
  javax.persistence,
  com.raytheon.uf.common.status,
  com.raytheon.uf.edex.core,
- com.raytheon.uf.edex.database
+ com.raytheon.uf.edex.database,
+ org.quartz;bundle-version="1.8.6"
 Export-Package: com.raytheon.edex.services
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.message
