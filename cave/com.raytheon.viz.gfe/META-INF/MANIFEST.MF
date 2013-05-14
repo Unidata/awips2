@@ -30,7 +30,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.ui.personalities.awips;bundle-version="1.12.1174",
  com.raytheon.uf.common.auth;bundle-version="1.12.1174",
  com.raytheon.uf.common.python;bundle-version="1.12.1174",
- com.raytheon.uf.common.colormap;bundle-version="1.12.1174"
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
+ com.google.guava;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.gfe,
  com.raytheon.viz.gfe.constants,
@@ -63,6 +64,7 @@ Import-Package: com.raytheon.edex.meteoLib,
  com.raytheon.uf.viz.ui.menus.widgets.tearoff,
  com.raytheon.viz.core.gl,
  com.raytheon.viz.pointdata,
+ com.raytheon.viz.texteditor.util,
  com.raytheon.viz.ui.tools.map,
  junit.framework,
  org.eclipse.jdt.ui;resolution:=optional,
