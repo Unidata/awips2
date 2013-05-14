@@ -34,11 +34,10 @@ import jep.JepException;
 import com.raytheon.edex.plugin.gfe.config.GFESiteActivation;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
-import com.raytheon.edex.plugin.gfe.db.dao.GFEDao;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
+import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
@@ -48,7 +47,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.database.plugin.PluginFactory;
 
 /**
  * Class to for running the isc scripts
@@ -200,28 +198,25 @@ public class IscSendJob implements Runnable {
             }
 
             try {
-                // TODO: Interact with IFPGridDatabase
-                GFEDao dao = (GFEDao) PluginFactory.getInstance().getPluginDao(
-                        "gfe");
-
-                ServerResponse<List<TimeRange>> sr = GridParmManager
-                        .getGridInventory(id);
-                if (!sr.isOkay()) {
-                    statusHandler.error("Error getting inventory for " + id);
-                    return;
-                }
-
-                WsId wsId = new WsId(InetAddress.getLocalHost(), "ISC", "ISC");
-
-                List<GridHistoryUpdateNotification> notifications = new ArrayList<GridHistoryUpdateNotification>(
-                        1);
-                Map<TimeRange, List<GridDataHistory>> histories = dao
+                GridDatabase gridDb = GridParmManager.getDb(id.getDbId());
+                ServerResponse<Map<TimeRange, List<GridDataHistory>>> sr = gridDb
                         .updateSentTime(id, tr, new Date());
-                notifications.add(new GridHistoryUpdateNotification(id,
-                        histories, wsId, siteId));
-                SendNotifications.send(notifications);
-            } catch (PluginException e) {
-                statusHandler.error("Error creating GFE dao!", e);
+                if (sr.isOkay()) {
+                    WsId wsId = new WsId(InetAddress.getLocalHost(), "ISC",
+                            "ISC");
+                    List<GridHistoryUpdateNotification> notifications = new ArrayList<GridHistoryUpdateNotification>(
+                            1);
+                    Map<TimeRange, List<GridDataHistory>> histories = sr
+                            .getPayload();
+                    notifications.add(new GridHistoryUpdateNotification(id,
+                            histories, wsId, siteId));
+                    SendNotifications.send(notifications);
+
+                } else {
+                    statusHandler
+                            .error("Error updating last sent times in GFERecords: "
+                                    + sr.getMessages());
+                }
             } catch (Exception e) {
                 statusHandler.error(
                         "Error updating last sent times in GFERecords.", e);
