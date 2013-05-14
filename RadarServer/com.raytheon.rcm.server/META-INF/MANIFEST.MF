@@ -15,7 +15,8 @@ Export-Package: com.raytheon.rcm.coll,
 Require-Bundle: com.raytheon.rcm.lib;bundle-version="1.0.0",
  org.apache.commons.logging;bundle-version="1.0.4",
  org.springframework;bundle-version="2.5.6",
- org.itadaki.bzip2;bundle-version="0.9.1"
+ org.itadaki.bzip2;bundle-version="0.9.1",
+ org.quartz;bundle-version="1.8.6"
 Import-Package: com.raytheon.uf.common.util,
  org.apache.log4j,
  org.junit
