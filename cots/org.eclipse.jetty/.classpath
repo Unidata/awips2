@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="javax.servlet.jsp-2.1.0.v201105211820.jar"/>
 	<classpathentry exported="true" kind="lib" path="org.apache.jasper.glassfish-2.1.0.v201110031002.jar"/>
 	<classpathentry exported="true" kind="lib" path="jetty-client-7.6.9.v20130131.jar"/>
 	<classpathentry exported="true" kind="lib" path="jetty-continuation-7.6.9.v20130131.jar"/>
