@@ -69,6 +69,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Feb 12, 2013 1500       mschenke     Refactored to not request full records and only request full 
  *                                      record when actually retrieving for use
  * Apr 22, 2013            jsanchez     Set the issue time for follow up warnings.
+ * May 07, 2013 1973       rferrel      Corrections when getting Issue time.
  * 
  * </pre>
  * 
@@ -304,7 +305,7 @@ public class CurrentWarnings {
                     if (getAction(warning.getAct()) == WarningAction.EXT) {
                         if (rval != null) {
                             rval.setEndTime(warning.getEndTime());
-                            rval.setIssueTime(warning.getInsertTime());
+                            rval.setIssueTime(warning.getIssueTime());
                         }
                     }
                 }
@@ -319,7 +320,7 @@ public class CurrentWarnings {
                             rval.setUgczones(warning.getUgczones());
                             rval.setLoc(warning.getLoc());
                             rval.setRawmessage(warning.getRawmessage());
-                            rval.setIssueTime(warning.getInsertTime());
+                            rval.setIssueTime(warning.getIssueTime());
                         }
                     }
                 }
