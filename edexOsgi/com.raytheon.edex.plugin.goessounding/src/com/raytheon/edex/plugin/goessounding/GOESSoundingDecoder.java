@@ -35,7 +35,6 @@ import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.goessounding.dao.GOESSoundingDAO;
 import com.raytheon.edex.plugin.goessounding.decoder.GOESSoundingDataAdapter;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.goessounding.GOESSounding;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
@@ -59,8 +58,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080414           1077 jkorman     Initial implementation.
- * 11/25/08          #1684 chammack    Camel Refactor
+ * Apr 14, 2008 1077       jkorman     Initial implementation.
+ * Nov 25, 2008 1684       chammack    Camel Refactor
+ * May 15, 2013 1869       bsteffen    Remove DataURI from goes/poes soundings.
  * 
  * </pre>
  * 
@@ -154,17 +154,11 @@ public class GOESSoundingDecoder extends AbstractDecoder implements
                         if (soundingData != null) {
                             soundingData.setTraceId(traceId);
                             soundingData.setPluginName(PLUGIN_NAME);
-                            try {
-                                soundingData.constructDataURI();
-                                PointDataView pdv = soundingData
-                                        .getPointDataView();
-                                pdv.setString("wmoHeader",
-                                        soundingData.getWmoHeader());
-                                pdoList.add(soundingData);
-                            } catch (PluginException e) {
-                                logger.error(traceId
-                                        + "- Unable to construct dataURI", e);
-                            }
+                            PointDataView pdv = soundingData.getPointDataView();
+                            pdv.setString("wmoHeader",
+                                    soundingData.getWmoHeader());
+                            pdoList.add(soundingData);
+
                         }
                     }
 
