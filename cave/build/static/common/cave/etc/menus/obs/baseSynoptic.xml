@@ -30,7 +30,6 @@
 		<contribute xsi:type="bundleItem" file="bundles/SynSurfacePlot.xml" 
 				menuText="6 hr Precip" id="synoptic6hrPrecip" 
 				productInterval="3600" productOffset="1800">
-			<dataURI>/sfcobs/%/1001/%</dataURI>
 			<substitute key="svg" value="synopticPrcp6Design.svg"/>
 			<substitute key="legend" value="Synoptic 6hr Precip Plot"/>
 			<substitute key="posOffset" value="0"/>
@@ -39,7 +38,6 @@
 		<contribute xsi:type="bundleItem" file="bundles/SynSurfacePlot.xml" 
 				menuText="24 hr Precip" id="synoptic24hrPrecip" 
 				productInterval="3600" productOffset="1800">
-			<dataURI>/sfcobs/%/1001/%</dataURI>
 			<substitute key="svg" value="synopticPrcp24Design.svg"/>
 			<substitute key="legend" value="Synoptic 24hr Precip Plot"/>
 			<substitute key="posOffset" value="0"/>
