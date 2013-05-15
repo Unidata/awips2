@@ -39,10 +39,12 @@ import com.raytheon.uf.common.dataplugin.PluginException;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 10/07/2008   1533        bphillip   Initial Checkin
+ * Oct 07, 2008 1533       bphillip    Initial Checkin
  * Mar 29, 2013 1638       mschenke    Added method for recursively getting all
  *                                     dataURI fields for an object
- * Apr 18, 2013 1638        mschenke    Moved dataURI map generation into here from PluginDataObject
+ * Apr 18, 2013 1638       mschenke    Moved dataURI map generation into here
+ *                                     from PluginDataObject
+ * May 15, 2013 1869       bsteffen    Move uri map creation from RecordFactory.
  * 
  * </pre>
  * 
@@ -106,6 +108,32 @@ public class DataURIUtil {
         } catch (Exception e) {
             throw new PluginException("Error constructing dataURI mapping", e);
         }
+    }
+    
+    public static Map<String, Object> createDataURIMap(String dataURI, Class<PluginDataObject> clazz)
+            throws PluginException {
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        String[] tokens = dataURI.replaceAll("_", " ").split(DataURI.SEPARATOR);
+
+        map.put("pluginName", tokens[1]);
+        PluginDataObject obj = null;
+        try {
+            obj = clazz.newInstance();
+
+            for (int i = 2; i < tokens.length; i++) {
+                String fieldName = PluginDataObject.getDataURIFieldName(
+                        obj.getClass(), i - 2);
+                if (fieldName == null) {
+                    continue;
+                }
+                Object value = obj.getDataURIFieldValue(i - 2, tokens[i]);
+                map.put(fieldName, value);
+            }
+        } catch (Exception e) {
+            throw new PluginException("Error constructing dataURI mapping", e);
+        }
+        return map;
     }
 
     public Field[] getAllDataURIFields(Class<?> obj) {
