@@ -21,24 +21,17 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <contribute xsi:type="bundleItem" file="bundles/maritimeFixedBuoy.xml" 
 			menuText="Fixed Buoys" id="FixedBuoys" 
-			productInterval="3600" productOffset="1800">
-			<dataURI>/sfcobs/%/1005/%</dataURI>
-    </contribute>   
+			productInterval="3600" productOffset="1800" />
     <contribute xsi:type="bundleItem" file="bundles/maritimeMoving.xml" 
 			menuText="Moving Maritime" id="MovingMaritime" 
-			productInterval="3600" productOffset="1800">
-			<dataURI>/sfcobs/%/1003/%</dataURI>
-    </contribute>	
+			productInterval="3600" productOffset="1800" />
     <contribute xsi:type="bundleItem" file="bundles/maritimeMAROB.xml" 
 			menuText="MAROB" id="MAROB" 
-			productInterval="3600" productOffset="1800">
-			<dataURI>/sfcobs/%/1007/%</dataURI>
-    </contribute>
+			productInterval="3600" productOffset="1800" />
 	<contribute xsi:type="subMenu" menuText="Other Maritime Plots">
 		<contribute xsi:type="bundleItem" file="bundles/SeaStatePlot.xml" 
                menuText="Fixed Sea State" id="FixedSeaState"
                productInterval="3600" productOffset="1800">
-	        <dataURI>/sfcobs/%</dataURI>
 	        <substitute key="svg" value="seaStateDesign.svg"/>
 	        <substitute key="legend" value="Fixed Buoys Sea State"/>
 	        <substitute key="reportType" value="1004,1005"/>
@@ -46,7 +39,6 @@
 		<contribute xsi:type="bundleItem" file="bundles/SeaStatePlot.xml" 
                menuText="Moving Sea State" id="MovingSeaState"
                productInterval="3600" productOffset="1800">
-	        <dataURI>/sfcobs/%</dataURI>
 	        <substitute key="svg" value="seaStateDesign.svg"/>
 	        <substitute key="legend" value="Moving Buoys/Ships Sea State"/>
 	        <substitute key="reportType" value="1003,1006"/>
@@ -54,7 +46,6 @@
 		<contribute xsi:type="bundleItem" file="bundles/SeaStatePlot.xml" 
                menuText="MAROB Sea State" id="MAROBSeaState"
                productInterval="3600" productOffset="1800">
-	        <dataURI>/sfcobs/%/1007/%</dataURI>
 	        <substitute key="svg" value="seaStateDesign.svg"/>
 	        <substitute key="legend" value="MAROB Sea State"/>
 	        <substitute key="reportType" value="1007"/>
@@ -62,7 +53,6 @@
 		<contribute xsi:type="bundleItem" file="bundles/MaritimePlot.xml" 
                menuText="Maritime Clouds/Vis" id="MaritimeCloudVis"
                productInterval="3600" productOffset="1800">
-	        <dataURI>/sfcobs/%/1003/%</dataURI>
 	        <substitute key="svg" value="maritimeCvDesign.svg"/>
 	        <substitute key="legend" value="Maritime Clouds and Visibility"/>
 	        <substitute key="reportType" value="1003"/>
@@ -70,7 +60,6 @@
 		<contribute xsi:type="bundleItem" file="bundles/MaritimePlot.xml" 
                menuText="MAROB Clouds/Vis" id="MarobCloudsVis"
                productInterval="3600" productOffset="1800">
-	        <dataURI>/sfcobs/%/1007/%</dataURI>
 	        <substitute key="svg" value="maritimeCvDesign.svg"/>
 	        <substitute key="legend" value="MAROB Clouds and Visibility"/>
 	        <substitute key="reportType" value="1007"/>
@@ -91,7 +80,6 @@
 		    <contribute xsi:type="bundleItem" file="bundles/Scatterometer.xml" 
 	               menuText="ASCAT Winds 25 km" id="ASCATWinds"
 	               productInterval="3600" productOffset="1800">
-		        <dataURI>/bufrascat/%</dataURI>
 		        <substitute key="legend" value="ASCAT"/>
 		        <substitute key="svg" value="ascatPlotDesign.svg"/>
 		        <substitute key="plugin" value="bufrascat"/>

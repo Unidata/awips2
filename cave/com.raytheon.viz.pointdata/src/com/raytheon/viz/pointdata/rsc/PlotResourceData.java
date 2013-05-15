@@ -56,6 +56,7 @@ import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
  * Feb 17, 2009            njensen     Initial creation
  * Jun 29, 2009 2538       jsanchez    Implemented Metars.
  * May 14, 2013 1869       bsteffen    Get plots working without dataURI
+ * May 15, 2013 1869       bsteffen    Remove DataURI column from ldadmesonet.
  * 
  * </pre>
  * 
@@ -164,7 +165,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("lsr", new PluginPlotProperties(true, false));
         pluginProps.put("tcg", new PluginPlotProperties(true, false));
         pluginProps.put("svrwx", new PluginPlotProperties(true, false));
-        pluginProps.put("ldadmesonet", new PluginPlotProperties(true, false));
         pluginProps.put("ldadhydro", new PluginPlotProperties(true, false));
         pluginProps.put("qc", new PluginPlotProperties(true, false));
         pluginProps.put("textPoints", new PluginPlotProperties(true, false));
@@ -188,7 +188,7 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("bufrmosLAMP", new PluginPlotProperties());
         pluginProps.put("bufrmosMRF", new PluginPlotProperties());
         pluginProps.put("bufrmosNGM", new PluginPlotProperties());
-
+        pluginProps.put("ldadmesonet", new PluginPlotProperties());
 
         ParsedURL.registerHandler(new LocalizationParsedURLHandler());
     }
