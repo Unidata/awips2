@@ -44,10 +44,10 @@ import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.edex.database.dao.DatabaseUtil;
@@ -81,7 +81,8 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
         SpringFiles.EBXML_QUERYTYPES_XML, SpringFiles.EBXML_REGISTRY_DAO_XML,
         SpringFiles.UNIT_TEST_EBXML_BEANS_XML,
         SpringFiles.UNIT_TEST_LOCALIZATION_BEANS_XML })
-@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
+@TransactionConfiguration(transactionManager = "metadataTxManager", defaultRollback = true)
+@Transactional
 public class ValidatorImplTest extends AbstractRegistryTest {
 
     private static final String LOCAL_STATIC_REFERENCE = "urn:acme:person:Danyal";
