@@ -26,8 +26,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.http.security.Constraint;
-import org.eclipse.jetty.http.security.Credential;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
@@ -39,6 +37,8 @@ import org.eclipse.jetty.server.bio.SocketConnector;
 import org.eclipse.jetty.server.ssl.SslSocketConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.security.Constraint;
+import org.eclipse.jetty.util.security.Credential;
 
 import com.raytheon.uf.common.comm.HttpTestConstants;
 
