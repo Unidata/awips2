@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-    <!--
+<!--
         This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
         pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
         
@@ -49,7 +49,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-         
+
    <plugin
          id="com.raytheon.uf.common.util"
          download-size="0"
@@ -98,7 +98,7 @@
          version="0.0.0"
          unpack="false"/>
 
-  <plugin
+   <plugin
          id="org.slf4j"
          download-size="0"
          install-size="0"
@@ -151,6 +151,12 @@
 
    <plugin
          id="org.apache.log4j"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.quartz"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
