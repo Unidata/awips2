@@ -86,6 +86,9 @@
     			<copy todir="${buildDirectory}/plugins">
     		    	    	<fileset dir="${buildDirectory}/../../" includes="org.springframework*/**"/>
     			</copy>
+                        <copy todir="${buildDirectory}/plugins">
+                                <fileset dir="${buildDirectory}/../../" includes="org.quartz*/**"/>
+                        </copy>
 				<copy todir="${buildDirectory}/plugins">
 		    	    	<fileset dir="${buildDirectory}/../../" includes="com.raytheon.uf.common.util*/**"/>
 		    	    	<fileset dir="${buildDirectory}/../../" includes="com.raytheon.uf.common.status*/**"/>
