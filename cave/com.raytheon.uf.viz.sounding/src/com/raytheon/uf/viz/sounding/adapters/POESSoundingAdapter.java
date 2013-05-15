@@ -39,9 +39,8 @@ import com.raytheon.uf.common.sounding.adapter.AbstractVerticalSoundingAdapter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.uf.viz.sounding.Activator;
 import com.raytheon.viz.pointdata.PointDataRequest;
 
 /**
@@ -52,7 +51,8 @@ import com.raytheon.viz.pointdata.PointDataRequest;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 1, 2008        1747 jkorman     Initial creation
+ * Dec 01, 2008 1747       jkorman     Initial creation
+ * May 15, 2013 1869       bsteffen    Remove DataURI from goes/poes soundings.
  * 
  * </pre>
  * 
@@ -95,8 +95,12 @@ public class POESSoundingAdapter extends AbstractVerticalSoundingAdapter {
         if (obsData != null) {
 
             Map<String, RequestConstraint> rcMap = new HashMap<String, RequestConstraint>();
-            rcMap.put("dataURI", new RequestConstraint(""
-                    + obsData.getDataURI()));
+            rcMap.put("location.stationId", new RequestConstraint(obsData
+                    .getLocation().getStationId()));
+            rcMap.put(
+                    "dataTime.refTime",
+                    new RequestConstraint(TimeUtil.formatToSqlTimestamp(obsData
+                            .getDataTime().getRefTime())));
             PointDataContainer container;
             try {
                 container = PointDataRequest.requestPointDataAllLevels(null,
