@@ -21,15 +21,8 @@ package com.raytheon.uf.common.dataplugin.goessounding;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
-import javax.measure.quantity.Angle;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.Unit;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -37,16 +30,10 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -55,7 +42,6 @@ import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
-import com.raytheon.uf.common.serialization.adapters.GeometryAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
@@ -69,11 +55,13 @@ import com.vividsolutions.jts.geom.Geometry;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080414           1077 jkorman     Initial implementation.
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * Apr 14, 2008 1077       jkorman     Initial implementation.
+ * Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                     forecastTime
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * May 15, 2013 1869       bsteffen    Remove DataURI from goes/poes soundings.
  * 
  * </pre>
  * 
@@ -82,7 +70,8 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "goessoundingseq")
-@Table(name = "goessounding", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "goessounding", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "stationid", "reftime", "latitude", "longitude" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -94,31 +83,19 @@ import com.vividsolutions.jts.geom.Geometry;
 		}
 )
 @DynamicSerialize
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 public class GOESSounding extends PersistablePluginDataObject implements
-		ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
+        ISpatialEnabled, IPointData, IPersistable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
-
-	private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
-	static {
-		PARM_MAP.put("NLAT", STA_LAT);
-		PARM_MAP.put("NLON", STA_LON);
-	}
-
 	@Embedded
 	@DataURI(position = 1, embedded = true)
-	@XmlElement
 	@DynamicSerializeElement
 	private SurfaceObsLocation location;
 
 	// The bounding box that contains this observation.
 	@Column(name = "boxGeometry", columnDefinition = "geometry")
 	@Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
-	@XmlJavaTypeAdapter(value = GeometryAdapter.class)
 	@DynamicSerializeElement
 	private Geometry boxGeometry;
 
@@ -129,42 +106,34 @@ public class GOESSounding extends PersistablePluginDataObject implements
 	// Text of the WMO header
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private String wmoHeader;
 
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Integer satId;
 
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Integer satInstrument;
 
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Integer qualityInfo;
 
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Integer sounderChannels;
 
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Double solarElevation;
 
 	// The profiler observation time.
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Calendar timeObs;
 
 	@Transient
-	@XmlElement
 	@DynamicSerializeElement
 	private List<GOESSoundingLevel> soundingLevels;
 
@@ -428,83 +397,6 @@ public class GOESSounding extends PersistablePluginDataObject implements
 		soundingLevels.add(soundingLevel);
 	}
 
-	/**
-	 * Return this class reference as the IDecoderGettable interface
-	 * implementation.
-	 * 
-	 * @return Returns reference to this class.
-	 */
-	@Override
-	public IDecoderGettable getDecoderGettable() {
-		return this;
-	}
-
-	/**
-	 * Get the value of a parameter that is represented as a String.
-	 * 
-	 * @param paramName
-	 *            The name of the parameter value to retrieve.
-	 * @return The String value of the parameter. If the parameter is unknown, a
-	 *         null reference is returned.
-	 */
-	@Override
-	public String getString(String paramName) {
-		if ("STA".matches(paramName)) {
-			return this.getStationId();
-		}
-		return null;
-	}
-
-	/**
-	 * Get the value and units of a named parameter within this observation.
-	 * 
-	 * @param paramName
-	 *            The name of the parameter value to retrieve.
-	 * @return An Amount with value and units. If the parameter is unknown, a
-	 *         null reference is returned.
-	 */
-	@Override
-	public Amount getValue(String paramName) {
-		Amount a = null;
-
-		String pName = PARM_MAP.get(paramName);
-
-		if (STA_LAT.equals(pName)) {
-			a = new Amount(this.getLatitude(), LOCATION_UNIT);
-		} else if (STA_LON.equals(pName)) {
-			a = new Amount(this.getLongitude(), LOCATION_UNIT);
-		}
-		return a;
-	}
-
-	/**
-	 * Get the value of a parameter that is represented as a collection of
-	 * values.
-	 * 
-	 * @param paramName
-	 *            The name of the parameter value to retrieve.
-	 * @return The value of the parameter as an Amount. If the parameter is
-	 *         unknown, a null reference is returned.
-	 */
-	@Override
-	public Collection<Amount> getValues(String paramName) {
-		return null;
-	}
-
-	/**
-	 * Get the value of a parameter that is represented as a collection of
-	 * Strings.
-	 * 
-	 * @param paramName
-	 *            The name of the parameter value to retrieve.
-	 * @return The value of the parameter as an String. If the parameter is
-	 *         unknown, a null reference is returned.
-	 */
-	@Override
-	public String[] getStrings(String paramName) {
-		return null;
-	}
-
 	@Override
 	public SurfaceObsLocation getSpatialObject() {
 		return location;
@@ -527,10 +419,5 @@ public class GOESSounding extends PersistablePluginDataObject implements
 	public void setPointDataView(PointDataView pointDataView) {
 		this.pointDataView = pointDataView;
 	}
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
-    }
+
 }
