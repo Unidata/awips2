@@ -20,20 +20,8 @@
 package com.raytheon.uf.common.dataplugin.ldadmesonet;
 
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.TimeZone;
 
-import javax.measure.quantity.Angle;
-import javax.measure.quantity.Length;
-import javax.measure.quantity.Pressure;
-import javax.measure.quantity.Temperature;
-import javax.measure.quantity.Velocity;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -41,15 +29,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -71,11 +53,13 @@ import com.vividsolutions.jts.geom.Geometry;
  *                     
  * Date          Ticket#     Engineer    Description
  * -----------  ----------  ----------- --------------------------
- * 9/4/09                   vkorolev    Initial creation
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013       1857  bgonzale    Added SequenceGenerator annotation.
+ * Sep 04, 2009             vkorolev    Initial creation
+ * Apr 04, 2013 1846        bkowal      Added an index on refTime and
+ *                                      forecastTime
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
+ * May 15, 2013 1869        bsteffen    Remove DataURI column from ldadmesonet.
  * 
  * </pre>
  * 
@@ -85,7 +69,9 @@ import com.vividsolutions.jts.geom.Geometry;
 
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ldadmesonetseq")
-@Table(name = "ldadmesonet", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "ldadmesonet", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "stationid", "reftime", "reportType", "dataProvider", "latitude",
+        "longitude" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -96,51 +82,17 @@ import com.vividsolutions.jts.geom.Geometry;
 				@Index(name = "ldadmesonet_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
 		}
 )
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class MesonetLdadRecord extends PersistablePluginDataObject implements
-		ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
+        ISpatialEnabled, IPointData, IPersistable {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String OBS_TIME_FMT = "%1$tY/%<tm/%<td %<tH:%<tM:%<tS";
-
-	public static final String OBS_TEXT = "text";
-
-	public static final Unit<Length> LENGTH_UNIT = SI.METER;
-
-	public static final Unit<Temperature> TEMPERATURE_UNIT = SI.KELVIN;
-
-	public static final Unit<Velocity> WIND_SPEED_UNIT = SI.METERS_PER_SECOND;
-
-	public static final Unit<Angle> WIND_DIR_UNIT = NonSI.DEGREE_ANGLE;
-
-	public static final Unit<Pressure> PRESSURE_UNIT = SI.PASCAL;
-
-	public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
-
-	private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
-	static {
-		PARM_MAP.put("T", SFC_TEMP);
-		PARM_MAP.put("DpT", SFC_DWPT);
-		PARM_MAP.put("WS", SFC_WNDSPD);
-		PARM_MAP.put("WD", SFC_WNDDIR);
-		PARM_MAP.put("WGS", SFC_WNDGST);
-		PARM_MAP.put("ASET", "SFC.PRESS.ALTIMETER");
-		PARM_MAP.put("PMSL", PRES_SLP);
-		PARM_MAP.put("NLAT", STA_LAT);
-		PARM_MAP.put("NLON", STA_LON);
-		PARM_MAP.put("STA", "STA");
-		PARM_MAP.put("stationId", "STA");
-		PARM_MAP.put("message", OBS_TEXT);
-		PARM_MAP.put(OBS_TEXT, OBS_TEXT);
-	}
+    private static final String OBS_TIME_FMT = "%1$tY/%<tm/%<td %<tH:%<tM:%<tS";
 
 	//
 	@DataURI(position = 1)
 	@Column
-	@XmlAttribute
 	@DynamicSerializeElement
 	private String reportType;
 
@@ -148,26 +100,22 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 	@DataURI(position = 2)
 	@Column
 	@DynamicSerializeElement
-	@XmlAttribute
 	private String dataProvider; // Typical data providers: CDoT, KDoT, UDFCD,
 
 	// etc.
 
 	// Home WFO Id for the LDAD data
 	@Column
-	@XmlAttribute
 	@DynamicSerializeElement
 	private String homeWFO;
 
 	// Date and time of observation
 	@Column
-	@XmlAttribute
 	@DynamicSerializeElement
 	private Calendar observationTime; // observationTime
 
 	@Embedded
 	@DataURI(position = 3, embedded = true)
-	@XmlElement
 	@DynamicSerializeElement
 	private SurfaceObsLocation location; // latitude, longitude, elevation,
 
@@ -177,13 +125,11 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 	@Column
 	// @DataURI(position = 3)
 	@DynamicSerializeElement
-	@XmlElement
 	private String providerId; // * "110" "FA6026DA" Data Provider station Id
 
 	// Alphanumeric station name
 	@Column
 	@DynamicSerializeElement
-	@XmlElement
 	private String stationName; // * "Ralston_Res" "BEN CREEK AIRSTRIP"
 
 	// ?????????????????
@@ -191,19 +137,16 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 	// Handbook Id (AFOS id or SHEF id)
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private String handbook5Id; // * "" ????????????????
 
 	// LDAD mesonet station type.
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private String stationType; // * "STO" "RAWS" ????????????
 
 	// Date and time data was processed by the data provider (e.g ALERT)
 	@Column
 	@DynamicSerializeElement
-	@XmlElement
 	private Long reportTime; // * 1.247436157E9 time data was processed by the
 
 	// provider
@@ -211,7 +154,6 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 	// Date and time the data was received
 	@Column
 	@DynamicSerializeElement
-	@XmlElement
 	private Double receivedTime; // * time data was received - seconds since
 
 	// 1-1-1970
@@ -219,13 +161,11 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 	// numeric WMO identification number
 	@Column
 	@DynamicSerializeElement
-	@XmlElement
 	private Long numericWMOid; // numeric WMO identification
 
 	// Data platform type.
 	@Column
 	@DynamicSerializeElement
-	@XmlElement
 	private Short dataPlatformType; // short -32767 moving (e.g. floating buoy
 
 	// or ship)
@@ -233,19 +173,16 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 	// Data platform true direction.
 	@Column
 	@DynamicSerializeElement
-	@XmlElement
 	private Float platformTrueDirection; // data platform true direction degree
 
 	// Data platform true speed
 	@Column
 	@DynamicSerializeElement
-	@XmlElement
 	private Float platformTrueSpeed; // data platform true speed meter/sec
 
 	// Air temperature - time of last change (ALERT)
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Double tempChangeTime; // time of temperature last change - seconds
 
 	// since 1970-1-1 00:00:00.0
@@ -253,31 +190,26 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 	// Wet bulb temperature
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float wetBulbTemperature; // kelvin
 
 	// Relative humidity - time of last change (ALERT)
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Double rhChangeTime; // time of last relative humidity change
 
 	// Station pressure
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float stationPressure;
 
 	// Station pressure - time of last change (ALERT)
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Double stationPressChangeTime; // time of last station press change
 
 	// 3 Hour pressure change character
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Short pressChangeChar; // long_name =
 
 	// "character of pressure change";
@@ -294,73 +226,61 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 	// 3 Hour pressure change value
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float pressChange3Hour; // pascal 3 hour pressure change
 
 	// Wind direction - time of last change (ALERT)
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Double windDirChangeTime; // seconds since 1970-1-1 00:00:00.0
 
 	// Wind speed - time of last change (ALERT)
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Double windSpeedChangeTime;
 
 	// Wind gust - time of last change (ALERT)
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Double windGustChangeTime;
 
 	// Wind direction, "minimum", at mininum windspeed
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float windDirMin; // degree
 
 	// Wind direction, "maximum", at gust
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float windDirMax; // degree
 
 	// Sky Cover Group
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private String skyCover; // char ref FMH-1
 
 	// Altitude of the cloud bases of the cloud groups in "skyCover"
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float skyLayerBase; // sky cover layer base - meter
 
 	// Visibility
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float visibility; // meter
 
 	// not in cdl
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private String visibilityStatus;
 
 	// Fraction of sky covered by clouds, fraction of sky covered by clouds
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float totalCloudCover; // tenths
 
 	// Height of the lowest cloud layer
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Short cloudBaseHeight; // cloudBaseHeight:long_name =
 
 	// "height of the lowest cloud layer";
@@ -380,13 +300,11 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 	// Present Weather
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private String presWeather; // present weather ref FMH-1
 
 	// Low level cloud type
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Short lowLevelCloudType; // lowLevelCloudType:long_name =
 
 	// "low level cloud type";
@@ -407,7 +325,6 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 	// Middle level cloud type
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Short midLevelCloudType; // midLevelCloudType:long_name =
 
 	// "middle level cloud type";
@@ -427,7 +344,6 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 	// High level cloud type
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Short highLevelCloudType; // highLevelCloudType:long_name =
 
 	// "high level cloud type";
@@ -449,7 +365,6 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 	// Maximum temperature recording period
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Short maxTempRecordPeriod; // maxTempRecordPeriod:long_name =
 
 	// "maximum temperature recording period";
@@ -467,13 +382,11 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 	// Maximum temperature
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float maximumTemperature; // kelvin
 
 	// Minimum temperature recording period
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Short minTempRecordPeriod; // minTempRecordPeriod:long_name =
 
 	// "minimum temperature recording period";
@@ -491,7 +404,6 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 	// Minimum temperature
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float minimumTemperature; // kelvin
 
 	// precip accumulation unknown time
@@ -503,13 +415,11 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 	// difference in time of the stored report versus midnight.
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float precipAccum;
 
 	// Precipitation type
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Short precipType; // precipType:long_name = "precipitation type";
 
 	// precipType:value0 = "no precipitation";
@@ -522,7 +432,6 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 	// Precipitation intensity
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Short precipIntensity; // precipIntensity:long_name =
 
 	// "precipitation intensity";
@@ -535,127 +444,106 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 	// Time elapsed since last precipitation
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Double timeSinceLastPcp; // seconds
 
 	// Solar radiation
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float solarRadiation; // watt/meter2
 
 	// Solar radiation - time of last change (ALERT)
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Double solarRadChangeTime; // seconds since 1970-1-1 00:00:00.0
 
 	// Sea surface temperature
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float seaSurfaceTemp; // kelvin
 
 	// Wave period
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float wavePeriod; // second
 
 	// Wave height
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float waveHeight; // meter
 
 	// Raw text LDAD mesonet message
 	@Column
 	@DynamicSerializeElement
-	@XmlElement
 	private String rawMessage;
 
 	// Air Temperature in Kelvin
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float temperature; // temperature
 
 	// Dew point temperature in degrees Kelvin.
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float dewpoint; // dewpoint
 
 	// Relative Humidity in percent.
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float relHumidity; // relHumidity
 
 	// Wind direction in angular degrees. Integer
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float windDir;
 
 	// Observation wind speed in meters per second.
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float windSpeed; // float windSpeed
 
 	// Wind gust in meters per second.
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float windGust;
 
 	// Observation pressure in Pa.
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float pressure; // Float stationPressure
 
 	// Sea level pressure
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float seaLevelPressure; // Float seaLevelPressure
 
 	// Altimeter setting in Pa.
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float altimeter;
 
 	// Precipitation rate in m/sec.
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float precipRate; // float - precipitation rate
 
 	// not in cdl
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float fuelTemperature;
 
 	// not in cdl
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float fuelMoisture;
 
 	// not in cdl
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float soilTemperature;
 
 	// not in cdl
 	@Transient
 	@DynamicSerializeElement
-	@XmlElement
 	private Float soilMoisture;
 
 	@Embedded
@@ -924,73 +812,6 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 	@Override
 	public SurfaceObsLocation getSpatialObject() {
 		return location;
-	}
-
-	/**
-	 * This class implements IDecoderGettable so return this instance.
-	 * 
-	 * @return The reference to this instance.
-	 */
-	@Override
-	public IDecoderGettable getDecoderGettable() {
-		return this;
-	}
-
-	/**
-     * 
-     */
-	@Override
-	public String getString(String paramName) {
-		String retValue = null;
-		String pName = PARM_MAP.get(paramName);
-		if ("STA".matches(pName)) {
-			retValue = getStationId();
-		} else if (OBS_TEXT.equals(pName)) {
-			retValue = getStationId();
-		}
-
-		return retValue;
-	}
-
-	@Override
-	public String[] getStrings(String paramName) {
-		return null;
-	}
-
-	@Override
-	public Amount getValue(String paramName) {
-		Amount a = null;
-		String pName = PARM_MAP.get(paramName);
-
-		if (SFC_TEMP.equals(pName)) {
-			a = new Amount(temperature, TEMPERATURE_UNIT);
-		} else if (SFC_DWPT.equals(pName)) {
-			a = new Amount(dewpoint, TEMPERATURE_UNIT);
-		} else if (SFC_WNDSPD.equals(pName)) {
-			a = new Amount(windSpeed, WIND_SPEED_UNIT);
-		} else if (SFC_WNDGST.equals(pName)) {
-			a = new Amount(windGust, WIND_SPEED_UNIT);
-		} else if (SFC_WNDDIR.equals(pName)) {
-			a = new Amount(windDir, WIND_DIR_UNIT);
-		} else if (PRES_ALTSG.equals(pName)) {
-			a = new Amount(altimeter, PRESSURE_UNIT);
-		} else if (STA_LAT.equals(pName)) {
-			a = new Amount(getLatitude(), LOCATION_UNIT);
-		} else if (STA_LON.equals(pName)) {
-			a = new Amount(getLongitude(), LOCATION_UNIT);
-		} else if (PRES_SLP.equals(pName)) {
-			a = new Amount(seaLevelPressure, PRESSURE_UNIT);
-		}
-
-		return a;
-	}
-
-	/**
-     * 
-     */
-	@Override
-	public Collection<Amount> getValues(String paramName) {
-		return null;
 	}
 
 	/**
@@ -1841,10 +1662,4 @@ public class MesonetLdadRecord extends PersistablePluginDataObject implements
 
 	}
 
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
-    }
 }
