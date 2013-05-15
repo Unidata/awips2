@@ -30,14 +30,16 @@ function dropDatauriAndAddConstraint {
       echo "FATAL: The update has failed."
       exit 1
    fi
-   ${PSQL} -U awips -d metadata -c "VACUUM FULL $1"
+   ${PSQL} -U awips -d metadata -c "VACUUM FULL ANALYZE $1"
 }
 
 echo "INFO: Dropping dataURI columns."
 
 dropDatauri gfe
-${PSQL} -U awips -d metadata -c "VACUUM FULL gfe"
+${PSQL} -U awips -d metadata -c "VACUUM FULL ANALYZE gfe"
 dropDatauriAndAddConstraint bufrmosavn bufrmosavn_location_id_reftime_forecasttime_key "(location_id, reftime, forecasttime)"
 dropDatauriAndAddConstraint bufrmoshpc bufrmoshpc_location_id_reftime_forecasttime_key "(location_id, reftime, forecasttime)"
+dropDatauriAndAddConstraint goessounding goessounding_stationid_reftime_latitude_longitude_key "(stationid, reftime, latitude, longitude)"
+dropDatauriAndAddConstraint poessounding poessounding_stationid_reftime_latitude_longitude_key "(stationid, reftime, latitude, longitude)"
 
 echo "INFO: dataURI columns dropped successfully"
