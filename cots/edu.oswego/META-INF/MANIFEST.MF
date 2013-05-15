@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Oswego Plug-in
-Bundle-SymbolicName: edu.oswego
-Bundle-Version: 1.0.0.qualifier
-Bundle-ClassPath: utilConcurrent1.3.2.jar,
- .
-Export-Package: EDU.oswego.cs.dl.util.concurrent
