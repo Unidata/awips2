@@ -20,9 +20,9 @@
 package com.raytheon.uf.common.localization;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.raytheon.uf.common.localization.TestPathManager.TestLocalizationAdapter;
 
 /**
@@ -71,7 +71,21 @@ public class EclipseTestLocalizationAdapter extends TestLocalizationAdapter {
      */
     @Override
     List<File> getDirectoriesWithPlugins() {
-        return Arrays.asList(EDEX_OSGI_DIR, new File("..", "edexOsgi"));
+
+        List<File> retVal = Lists.newArrayList();
+        retVal.add(EDEX_OSGI_DIR);
+        
+        File commonBaseline = TestPathManager
+                .getCommonBaselineEnvironmentPath();
+
+        if (commonBaseline != null) {
+            File commonEdexOsgiDir = new File(commonBaseline, EDEX_OSGI);
+            if (!retVal.contains(commonEdexOsgiDir)) {
+                retVal.add(commonEdexOsgiDir);
+            }
+        }
+        
+        return retVal;
     }
 
     /**

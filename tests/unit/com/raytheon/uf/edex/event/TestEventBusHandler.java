@@ -49,4 +49,14 @@ public class TestEventBusHandler extends EdexEventBusHandler {
     public TestEventBusHandler() {
         super(new SynchronousEventBusFactory());
     }
+
+    /**
+     * Overridden to return false, because the transaction semantics are
+     * different with tests.
+     */
+    @Override
+    protected boolean isTransactionActive() {
+        return false;
+    }
+
 }
