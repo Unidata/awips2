@@ -21,7 +21,6 @@ package com.raytheon.uf.common.archive;
 
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -80,9 +79,9 @@ public class ArchiveManagerFactoryTest {
     @Ignore
     @Test
     public void testGetManagerNotNull() {
-        IArchiveManager manager = ArchiveManagerFactory.getManager();
-        Assert.assertNotNull("ArchiveManagerFactory returned a null manager",
-                manager);
+        // IArchiveManager manager = ArchiveManagerFactory.getManager();
+        // Assert.assertNotNull("ArchiveManagerFactory returned a null manager",
+        // manager);
     }
 
 }
