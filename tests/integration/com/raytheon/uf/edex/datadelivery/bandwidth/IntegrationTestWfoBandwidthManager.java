@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
+import com.raytheon.uf.common.util.JarUtil;
 import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.WfoBandwidthManagerCreator.WfoBandwidthManager;
@@ -39,6 +40,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * ------------ ---------- ----------- --------------------------
  * Oct 30, 2012 1286       djohnson     Initial creation
  * Feb 27, 2013 1644       djohnson     Extends WFO bandwidth manager.
+ * May 15, 2013 2000       djohnson     Include daos.
  * 
  * </pre>
  * 
@@ -50,6 +52,7 @@ public class IntegrationTestWfoBandwidthManager extends WfoBandwidthManager {
 
     static final String[] INTEGRATION_TEST_SPRING_FILES = new String[] {
             "/bandwidth/bandwidth-datadelivery-integrationtest-impl.xml",
+            JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-daos.xml"),
             TestUtil.getResResourcePath(SpringFiles.BANDWIDTH_DATADELIVERY_XML),
             TestUtil.getResResourcePath(SpringFiles.BANDWIDTH_DATADELIVERY_WFO_XML) };
 
