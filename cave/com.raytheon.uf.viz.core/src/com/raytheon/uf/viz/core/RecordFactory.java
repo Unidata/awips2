@@ -27,6 +27,7 @@ import java.util.TreeSet;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataplugin.request.GetPluginRecordMapRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -43,10 +44,12 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 7/24/07      353         bphillip    Initial creation  
- * 10/8/2008    1532        bphillip    Refactored to incorporate annotation support
- * Mar 5, 2013     1753     njensen     Improved debug message
+ * Jul 24, 2007 353         bphillip    Initial creation
+ * Oct 08, 2008 1532        bphillip    Refactored to incorporate annotation
+ *                                      support
+ * Mar 05, 2013 1753        njensen     Improved debug message
  * Mar 29, 2013 1638        mschenke    Added dataURI mapping methods
+ * May 15, 2013 1869        bsteffen    Move uri map creation to DataURIUtil.
  * 
  * </pre>
  * 
@@ -132,44 +135,20 @@ public class RecordFactory {
             return null;
         }
 
-        Map<String, Object> map = new HashMap<String, Object>();
-
-        String[] tokens = dataURI.replaceAll("_", " ").split(DataURI.SEPARATOR);
+        String[] tokens = dataURI.split(DataURI.SEPARATOR, 3);
         String pluginName = tokens[1];
 
-        map.put("pluginName", pluginName);
-        PluginDataObject obj = null;
         try {
-            obj = this.getPluginClass(pluginName).newInstance();
-
-            for (int i = 2; i < tokens.length; i++) {
-                if (!tokens[i].equals("%") && !tokens[i].trim().isEmpty()) {
-                    String fieldName = PluginDataObject.getDataURIFieldName(
-                            obj.getClass(), i - 2);
-                    if (fieldName == null) {
-                        continue;
-                    }
-                    // fieldName = fieldName
-                    // .substring(fieldName.lastIndexOf(".") + 1);
-                    Object value = obj.getDataURIFieldValue(i - 2, tokens[i]);
-                    map.put(fieldName, value);
-                } else if (tokens[i].equals("%")) {
-                    String fieldName = PluginDataObject.getDataURIFieldName(
-                            obj.getClass(), i - 2);
-                    // fieldName = fieldName
-                    // .substring(fieldName.lastIndexOf(".") + 1);
-                    map.put(fieldName, WILDCARD);
-                }
-
-            }
+            Map<String, Object> map = DataURIUtil.createDataURIMap(dataURI,
+                    getPluginClass(pluginName));
             map.put("dataURI", dataURI);
+            return map;
         } catch (NoPluginException e) {
             throw e;
         } catch (Exception e) {
             throw new VizException("Unable to create property map for "
                     + dataURI, e);
         }
-        return map;
     }
 
     /**
