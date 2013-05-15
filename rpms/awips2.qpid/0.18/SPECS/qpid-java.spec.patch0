@@ -1,6 +1,6 @@
 diff -crB a/qpid-java.spec b/qpid-java.spec
-*** a/qpid-java.spec	2013-04-15 16:19:49.000000000 -0500
---- b/qpid-java.spec	2013-04-24 13:31:29.000000000 -0500
+*** a/qpid-java.spec	2013-05-14 20:24:21.000000000 -0500
+--- b/qpid-java.spec	2013-05-14 20:23:49.000000000 -0500
 ***************
 *** 1,6 ****
 ! Name:           qpid-java
@@ -10,8 +10,8 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
   License:        Apache Software License
   Group:          Development/Java
 --- 1,8 ----
-+ %define _awips2_directory "/awips2/qpid"
-+ 
+! %define _awips2_directory "/awips2/qpid"
+! 
 ! Name:           awips2-qpid-java
   Version:        0.18
 ! Release:        1%{?dist}
@@ -37,8 +37,19 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
   BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
   BuildArch:      noarch
 ***************
-*** 35,40 ****
---- 42,55 ----
+*** 35,45 ****
+  %description common
+  Java implementation of Apache Qpid - common files
+  
+  %package client
+  Summary:	Java implementation of Apache Qpid - client
+  Group: 		Development/Java
+  BuildArch:	noarch
+! Requires:	qpid-java-common = %{version}-%{release}
+  Requires:	log4j >= 1.2.12
+  
+  %description client
+--- 42,61 ----
   %description common
   Java implementation of Apache Qpid - common files
   
@@ -46,6 +57,7 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
 + Summary:	Java implementation of Apache Qpid - broker files
 + Group: 		Development/Java
 + BuildArch:	noarch
++ Provides:       awips2-base-component
 + 
 + %description broker
 + Java implementation of Apache Qpid - broker files
@@ -53,9 +65,31 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
   %package client
   Summary:	Java implementation of Apache Qpid - client
   Group: 		Development/Java
+  BuildArch:	noarch
+! Requires:	awips2-qpid-java-common = %{version}-%{release}
+  Requires:	log4j >= 1.2.12
+  
+  %description client
+***************
+*** 49,55 ****
+  Summary:        Java implementation of Apache Qpid - example
+  Group:          Development/Java
+  BuildArch:      noarch
+! Requires:       qpid-java-client = %{version}-%{release}
+  
+  %description example
+  Java implementation of Apache Qpid - example
+--- 65,71 ----
+  Summary:        Java implementation of Apache Qpid - example
+  Group:          Development/Java
+  BuildArch:      noarch
+! Requires:       awips2-qpid-java-client = %{version}-%{release}
+  
+  %description example
+  Java implementation of Apache Qpid - example
 ***************
 *** 58,67 ****
---- 73,97 ----
+--- 74,98 ----
   %setup -q -n %{qpid_src_dir}
   mkdir -p java/lib/required
   tar -xvzf %SOURCE1 -C java/lib/required
@@ -90,7 +124,7 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
   
       # blacklisted jars are either provided by the Requires: or not needed.
       BLACKLIST="slf4j qpid-client-tests qpid-all qpid-common-tests"
---- 100,114 ----
+--- 101,115 ----
   
   (
       cd %{qpid_src_dir}/java
@@ -155,7 +189,7 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
   
   %changelog
   * Thu Sep  6 2012 Irina Boverman <iboverma@redhat.com> - 0.18-2
---- 122,233 ----
+--- 123,234 ----
   
   cd ..
   
