@@ -44,7 +44,6 @@ import org.hibernate.annotations.Index;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
@@ -191,11 +190,6 @@ public class GFERecord extends PluginDataObject {
      */
     public GFERecord(String uri) {
         super(uri);
-    }
-
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
     }
 
     public void setGridHistory(GridDataHistory[] history) {
