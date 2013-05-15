@@ -21,11 +21,16 @@ package com.raytheon.uf.edex.plugin.fssobs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 
 import com.raytheon.edex.site.SiteUtil;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.ISpatialQuery;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
 import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
@@ -35,6 +40,7 @@ import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.uf.edex.pointdata.PointDataQuery;
 
 /**
@@ -46,8 +52,9 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 12, 2010            skorolev     Initial creation
- * Nov 26, 2012 1297       skorolev     Changed ArrayList to List.Clean code
+ * Nov 12, 2010            skorolev    Initial creation
+ * Nov 26, 2012 1297       skorolev    Changed ArrayList to List.Clean code
+ * May 15, 2013 1869       bsteffen    Remove DataURI column from ldadmesonet.
  * 
  * </pre>
  * 
@@ -191,8 +198,20 @@ public class FSSObsUtils {
         PointDataQuery request = null;
         PointDataContainer result = null;
         try {
+            Class<PluginDataObject> clazz = PluginFactory.getInstance()
+                    .getPluginRecordClass(plgn.ldadmesonet.toString());
+            Map<String, RequestConstraint> rcMap = RequestConstraint
+                    .toConstraintMapping(DataURIUtil.createDataURIMap(uri,
+                            clazz));
+            // Not actually in db
+            rcMap.remove("pluginName");
             request = new PointDataQuery(plgn.ldadmesonet.toString());
-            request.addParameter(slct, uri, equ);
+            for (Entry<String, RequestConstraint> entry : rcMap.entrySet()) {
+                RequestConstraint rc = entry.getValue();
+                String value = rc.getConstraintValue();
+                String type = rc.getConstraintType().getOperand();
+                request.addParameter(entry.getKey(), value, type);
+            }
             request.setParameters(FSSObsDataTransform.MESOWEST_PARAMS_LIST);
             result = request.execute();
             if (result != null) {
