@@ -52,9 +52,10 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080221            862 jkorman     Initial Coding.
- * 20080408           1039 jkorman     Added traceId for tracing data.
- * 12/08/08                chammack    Camel Refactor
+ * Feb 21, 2008 862        jkorman     Initial Coding.
+ * Apr 08, 2008 1039       jkorman     Added traceId for tracing data.
+ * Dec 08, 2008            chammack    Camel Refactor
+ * May 14, 2013 1869       bsteffen    Remove DataURI column from bufrmos.
  * </pre>
  * 
  * @author jkorman
@@ -109,7 +110,6 @@ public class BufrMosDecoder extends AbstractDecoder {
                         if (fcstData != null) {
                             fcstData.setTraceId(traceId);
                             fcstData.setPersistenceTime(new Date());
-                            fcstData.constructDataURI();
                             pdoList.add(fcstData);
                         }
                     } catch (Exception e) {
