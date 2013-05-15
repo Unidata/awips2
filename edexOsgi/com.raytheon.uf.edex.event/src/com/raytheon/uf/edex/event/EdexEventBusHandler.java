@@ -88,7 +88,7 @@ public class EdexEventBusHandler implements IEventBusHandler,
      */
     @Override
     public void publish(Event event) {
-        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+        if (isTransactionActive()) {
 
             if (TransactionSynchronizationManager.isSynchronizationActive()) {
                 if (!TransactionSynchronizationManager.getSynchronizations()
@@ -105,6 +105,15 @@ public class EdexEventBusHandler implements IEventBusHandler,
             }
             this.googleEventBus.post(event);
         }
+    }
+
+    /**
+     * Check to see if a transaction is active.
+     * 
+     * @return true if a transaction is active
+     */
+    protected boolean isTransactionActive() {
+        return TransactionSynchronizationManager.isActualTransactionActive();
     }
 
     /**
