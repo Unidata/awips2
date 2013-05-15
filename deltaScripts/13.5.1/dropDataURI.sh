@@ -41,5 +41,6 @@ dropDatauriAndAddConstraint bufrmosavn bufrmosavn_location_id_reftime_forecastti
 dropDatauriAndAddConstraint bufrmoshpc bufrmoshpc_location_id_reftime_forecasttime_key "(location_id, reftime, forecasttime)"
 dropDatauriAndAddConstraint goessounding goessounding_stationid_reftime_latitude_longitude_key "(stationid, reftime, latitude, longitude)"
 dropDatauriAndAddConstraint poessounding poessounding_stationid_reftime_latitude_longitude_key "(stationid, reftime, latitude, longitude)"
+dropDatauriAndAddConstraint ldadmesonet ldadmesonet_stationid_reftime_reportType_dataProvider_latitude_longitude_key "(stationid, reftime, reportType, dataProvider, latitude, longitude)"
 
 echo "INFO: dataURI columns dropped successfully"
