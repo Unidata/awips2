@@ -150,6 +150,8 @@ public class PlotResourceData extends AbstractRequestableResourceData {
          */
         pluginProps.put("pirep", new PluginPlotProperties(false, false));
         pluginProps.put("airep", new PluginPlotProperties(false, false));
+        pluginProps.put("acars", new PluginPlotProperties(false, false));
+
 
         /*
          * These have a dependency on dataURI because they don't set stationId,
