@@ -18,7 +18,8 @@ import com.raytheon.uf.edex.datadelivery.harvester.crawler.CrawlLauncher;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 4, 2012  1038      dhladky     Initial creation
+ * Oct 04, 2012 1038       dhladky     Initial creation
+ * May 20, 2013 2000       djohnson    Scheduler must now be started since quartz upgrade.
  * 
  * </pre>
  * 
@@ -67,6 +68,10 @@ public class HarvesterJobController<T extends CrawlLauncher> {
                 CronTrigger trigger = new CronTrigger(name, "Crawler");
                 trigger.setCronExpression(cron);
                 schedular.scheduleJob(jobDetail, trigger);
+            }
+
+            if (!schedular.isStarted()) {
+                schedular.start();
             }
 
         } catch (Exception e) {
