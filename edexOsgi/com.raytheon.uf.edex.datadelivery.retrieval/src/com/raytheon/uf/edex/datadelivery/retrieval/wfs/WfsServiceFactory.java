@@ -36,6 +36,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.ServiceFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 25, 2012 955        djohnson     Initial creation
+ * May 12, 2013 753        dhladky      implementation
  * 
  * </pre>
  * 
@@ -75,7 +76,7 @@ public class WfsServiceFactory implements ServiceFactory {
      */
     @Override
     public RetrievalGenerator getRetrievalGenerator() {
-        return new WFSRetrievalGenerator();
+        return new WfsRetrievalGenerator();
     }
 
 }
