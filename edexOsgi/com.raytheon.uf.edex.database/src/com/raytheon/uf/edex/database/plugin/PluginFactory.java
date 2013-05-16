@@ -27,6 +27,7 @@ import javax.persistence.Table;
 
 import org.apache.commons.beanutils.ConstructorUtils;
 
+import com.raytheon.uf.common.dataplugin.IPluginClassMapper;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.PluginProperties;
@@ -44,17 +45,18 @@ import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 06/14/06                garmendariz Initial check-in 
- * 05/29/07     312         bphillip    Removed unused methods
- * 02/06/09     1990        bphillip   Refactored to use spring container
- * 03/20/09                njensen     Refactored to use PluginProperties
+ * Jun 14, 2006            garmendariz Initial check-in
+ * May 29, 2007 312        bphillip    Removed unused methods
+ * Feb 06, 2009 1990       bphillip    Refactored to use spring container
+ * Mar 20, 2009            njensen     Refactored to use PluginProperties
+ * May 16, 2013 1869       bsteffen    Rewrite dataURI property mappings.
  * 
  * </pre>
  * 
  * @author garmendariz
  * @version 1.0
  */
-public class PluginFactory {
+public class PluginFactory implements IPluginClassMapper {
 
     /** The instance of the PluginFactory class */
     private static final PluginFactory instance = new PluginFactory();
