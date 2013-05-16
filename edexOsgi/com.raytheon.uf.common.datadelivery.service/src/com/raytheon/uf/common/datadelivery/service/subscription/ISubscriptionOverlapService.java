@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.datadelivery.service.subscription;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 
 /**
  * Checks subscriptions to see if they would be considered duplicates.
@@ -76,4 +77,24 @@ public interface ISubscriptionOverlapService {
      */
     ISubscriptionOverlapResponse isOverlapping(Subscription sub1,
             Subscription sub2);
+
+    /**
+     * Writes the new configuration.
+     * 
+     * @param config
+     *            the configuration
+     * @throws LocalizationException
+     *             on error saving the configuration
+     */
+    void writeConfig(SubscriptionOverlapConfig config)
+            throws LocalizationException;
+
+    /**
+     * Read the configuration.
+     * 
+     * @return the configuration
+     * @throws LocalizationException
+     *             on error reading the configuration
+     */
+    SubscriptionOverlapConfig readConfig() throws LocalizationException;
 }
