@@ -26,8 +26,15 @@ import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Widget;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -53,6 +60,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * Dec 18, 2012  1439      mpduff     Change Regex to match invalid chars.
  * Jan 04, 2013  1420      mpduff     Change default priority to normal priority.
  * Jan 25, 2013  1528      djohnson   Subscription priority has moved up in the world to the Subscription class.
+ * May 20, 2013  2000      djohnson   Add methods for managing widget listeners.
  * 
  * </pre>
  * 
@@ -320,5 +328,73 @@ public class DataDeliveryGUIUtils {
         }
 
         return false;
+    }
+
+    /**
+     * Remove all listeners of the specified types from the widget.
+     * 
+     * @param widget
+     *            the widget
+     * @param listenerTypes
+     *            the listener types
+     */
+    public static void removeListeners(Widget widget, int... listenerTypes) {
+        // Remove any current listeners
+        for (int listenerType : listenerTypes) {
+            Listener[] listeners = widget.getListeners(listenerType);
+            for (Listener listener : listeners) {
+                widget.removeListener(listenerType, listener);
+            }
+        }
+    }
+
+    /**
+     * Creates a selection listener that will run the specified runnable if the
+     * current value does not equal the initial value.
+     * 
+     * @param initialValue
+     *            the initial value
+     * @param spinner
+     *            the spinner
+     * @param runnable
+     *            the runnable to run
+     * @return the selection listener
+     */
+    public static SelectionListener addValueChangedSelectionListener(
+            final int initialValue, final Spinner spinner,
+            final Runnable runnable) {
+        return new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                if (spinner.getSelection() != initialValue) {
+                    runnable.run();
+                }
+            }
+        };
+    }
+
+    /**
+     * Creates a selection listener that will run the specified runnable if the
+     * current value does not equal the initial value.
+     * 
+     * @param initialSelectionIndex
+     *            the initial selection index
+     * @param combo
+     *            the combo
+     * @param runnable
+     *            the runnable to run
+     * @return
+     */
+    public static SelectionListener addValueChangedSelectionListener(
+            final int initialSelectionIndex, final Combo combo,
+            final Runnable runnable) {
+        return new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                if (combo.getSelectionIndex() != initialSelectionIndex) {
+                    runnable.run();
+                }
+            }
+        };
     }
 }

@@ -40,50 +40,6 @@ import javax.xml.bind.annotation.XmlEnum;
  */
 @XmlEnum
 public enum SubscriptionOverlapMatchStrategy {
-    MATCH_ANY {
-        @Override
-        public boolean isOverlapping(SubscriptionOverlapConfig config,
-                int parameterDuplicationPercent,
-                int forecastHourDuplicationPercent,
-                int cycleDuplicationPercent, int spatialDuplicationPercent) {
-
-            final boolean exceedsAllowedParameterDuplication = parameterDuplicationPercent > config
-                    .getMaxAllowedParameterDuplication();
-            final boolean exceedsAllowedForecastHourDuplication = forecastHourDuplicationPercent > config
-                    .getMaxAllowedForecastHourDuplication();
-            final boolean exceedsAllowedCycleDuplication = cycleDuplicationPercent > config
-                    .getMaxAllowedCycleDuplication();
-            final boolean exceedsAllowedSpatialDuplication = spatialDuplicationPercent > config
-                    .getMaxAllowedSpatialDuplication();
-
-            return exceedsAllowedParameterDuplication
-                    || exceedsAllowedForecastHourDuplication
-                    || exceedsAllowedCycleDuplication
-                    || exceedsAllowedSpatialDuplication;
-        }
-    },
-    MATCH_ALL {
-        @Override
-        public boolean isOverlapping(SubscriptionOverlapConfig config,
-                int parameterDuplicationPercent,
-                int forecastHourDuplicationPercent,
-                int cycleDuplicationPercent, int spatialDuplicationPercent) {
-
-            final boolean exceedsAllowedParameterDuplication = parameterDuplicationPercent > config
-                    .getMaxAllowedParameterDuplication();
-            final boolean exceedsAllowedForecastHourDuplication = forecastHourDuplicationPercent > config
-                    .getMaxAllowedForecastHourDuplication();
-            final boolean exceedsAllowedCycleDuplication = cycleDuplicationPercent > config
-                    .getMaxAllowedCycleDuplication();
-            final boolean exceedsAllowedSpatialDuplication = spatialDuplicationPercent > config
-                    .getMaxAllowedSpatialDuplication();
-
-            return exceedsAllowedParameterDuplication
-                    && exceedsAllowedForecastHourDuplication
-                    && exceedsAllowedCycleDuplication
-                    && exceedsAllowedSpatialDuplication;
-        }
-    },
     AT_LEAST_HALF {
         @Override
         public boolean isOverlapping(SubscriptionOverlapConfig config,
@@ -118,6 +74,65 @@ public enum SubscriptionOverlapMatchStrategy {
             }
             return false;
         }
+
+        @Override
+        public String getDisplayString() {
+            return "At Least Half";
+        }
+    },
+    MATCH_ALL {
+        @Override
+        public boolean isOverlapping(SubscriptionOverlapConfig config,
+                int parameterDuplicationPercent,
+                int forecastHourDuplicationPercent,
+                int cycleDuplicationPercent, int spatialDuplicationPercent) {
+
+            final boolean exceedsAllowedParameterDuplication = parameterDuplicationPercent > config
+                    .getMaxAllowedParameterDuplication();
+            final boolean exceedsAllowedForecastHourDuplication = forecastHourDuplicationPercent > config
+                    .getMaxAllowedForecastHourDuplication();
+            final boolean exceedsAllowedCycleDuplication = cycleDuplicationPercent > config
+                    .getMaxAllowedCycleDuplication();
+            final boolean exceedsAllowedSpatialDuplication = spatialDuplicationPercent > config
+                    .getMaxAllowedSpatialDuplication();
+
+            return exceedsAllowedParameterDuplication
+                    && exceedsAllowedForecastHourDuplication
+                    && exceedsAllowedCycleDuplication
+                    && exceedsAllowedSpatialDuplication;
+        }
+
+        @Override
+        public String getDisplayString() {
+            return "Match All";
+        }
+    },
+    MATCH_ANY {
+        @Override
+        public boolean isOverlapping(SubscriptionOverlapConfig config,
+                int parameterDuplicationPercent,
+                int forecastHourDuplicationPercent,
+                int cycleDuplicationPercent, int spatialDuplicationPercent) {
+
+            final boolean exceedsAllowedParameterDuplication = parameterDuplicationPercent > config
+                    .getMaxAllowedParameterDuplication();
+            final boolean exceedsAllowedForecastHourDuplication = forecastHourDuplicationPercent > config
+                    .getMaxAllowedForecastHourDuplication();
+            final boolean exceedsAllowedCycleDuplication = cycleDuplicationPercent > config
+                    .getMaxAllowedCycleDuplication();
+            final boolean exceedsAllowedSpatialDuplication = spatialDuplicationPercent > config
+                    .getMaxAllowedSpatialDuplication();
+
+            return exceedsAllowedParameterDuplication
+                    || exceedsAllowedForecastHourDuplication
+                    || exceedsAllowedCycleDuplication
+                    || exceedsAllowedSpatialDuplication;
+        }
+
+        @Override
+        public String getDisplayString() {
+            return "Match Any";
+        }
     };
 
     /**
@@ -135,4 +150,11 @@ public enum SubscriptionOverlapMatchStrategy {
             int parameterDuplicationPercent,
             int forecastHourDuplicationPercent, int cycleDuplicationPercent,
             int spatialDuplicationPercent);
+
+    /**
+     * Get the display string.
+     * 
+     * @return the display string
+     */
+    public abstract String getDisplayString();
 }
