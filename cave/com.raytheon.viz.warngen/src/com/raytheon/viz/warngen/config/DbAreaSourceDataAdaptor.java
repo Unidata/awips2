@@ -2,7 +2,6 @@ package com.raytheon.viz.warngen.config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -10,8 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.measure.converter.UnitConverter;
-
-import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.uf.common.dataplugin.warning.config.PathcastConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.PointSourceConfiguration;
@@ -23,7 +20,6 @@ import com.raytheon.viz.warngen.gis.ClosestPoint;
 import com.raytheon.viz.warngen.gis.GisUtil;
 import com.raytheon.viz.warngen.gis.GisUtil.Direction;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
@@ -42,6 +38,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Mar 25, 2013  1810      jsanchez     Allowed other values to be accepted as a true value for useDirs.
  * Mar 25, 2013  1605      jsanchez     Set ClosestPoint's prepGeom.
  * Apr 24, 2013  1944      jsanchez     Updated calculateLocationPortion visibility to public.
+ * May  2, 2013  1963      jsanchez     Referenced calculatePortion from GisUtil.
  * 
  * </pre>
  * 
@@ -180,8 +177,8 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
             PreparedGeometry prepGeom = PreparedGeometryFactory.prepare(geom);
             if (prepGeom.intersects(searchArea) && !prepGeom.within(searchArea)) {
                 Geometry intersection = searchArea.intersection(geom);
-                partOfArea = GisUtil.asStringList(calculateLocationPortion(
-                        geom, null, intersection, gc));
+                partOfArea = GisUtil.asStringList(GisUtil.calculatePortion(
+                        geom, intersection, false, false));
 
                 if (attributes.get(suppressedDirectionsField) != null) {
                     String suppressedDirections = String.valueOf(
@@ -214,91 +211,6 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
         }
 
         return null;
-    }
-
-    /**
-     * Helper class to store cardinal ranges
-     * 
-     * @author jsanchez
-     * 
-     */
-    private static class CardinalRange {
-        public EnumSet<Direction> directions;
-
-        public double lowRange;
-
-        public double highRange;
-
-        public CardinalRange(EnumSet<Direction> directions, double lowRange,
-                double highRange) {
-            this.directions = directions;
-            this.lowRange = lowRange;
-            this.highRange = highRange;
-        }
-    }
-
-    private static CardinalRange[] ranges = new CardinalRange[] {
-            new CardinalRange(EnumSet.of(Direction.NORTH), 0, 22.5),
-            new CardinalRange(EnumSet.of(Direction.NORTH, Direction.EAST),
-                    22.5, 67.5),
-            new CardinalRange(EnumSet.of(Direction.EAST), 67.5, 112.5),
-            new CardinalRange(EnumSet.of(Direction.SOUTH, Direction.EAST),
-                    112.5, 157.5),
-            new CardinalRange(EnumSet.of(Direction.SOUTH), 157.5, 202.5),
-            new CardinalRange(EnumSet.of(Direction.SOUTH, Direction.WEST),
-                    202.5, 247.5),
-            new CardinalRange(EnumSet.of(Direction.WEST), 247.5, 292.5),
-            new CardinalRange(EnumSet.of(Direction.NORTH, Direction.WEST),
-                    292.5, 337.5),
-            new CardinalRange(EnumSet.of(Direction.NORTH), 337.5, 360) };
-
-    /**
-     * Calculates the cardinal directions of a location.
-     * 
-     * @param geom
-     * @param point
-     * @param intersection
-     * @param gc
-     * @return
-     */
-    public static EnumSet<Direction> calculateLocationPortion(Geometry geom,
-            Coordinate point, Geometry intersection, GeodeticCalculator gc) {
-        EnumSet<Direction> directions = EnumSet.noneOf(Direction.class);
-        Coordinate geomCentroid = null;
-        if (point != null) {
-            geomCentroid = point;
-        } else {
-            geomCentroid = geom.convexHull().getCentroid().getCoordinate();
-        }
-        Coordinate intersectCentroid = intersection.convexHull().getCentroid()
-                .getCoordinate();
-
-        gc.setStartingGeographicPoint(geomCentroid.x, geomCentroid.y);
-        gc.setDestinationGeographicPoint(intersectCentroid.x,
-                intersectCentroid.y);
-
-        Envelope envelope = geom.getEnvelopeInternal();
-        double centerThresholdX = envelope.getWidth() * 0.10;
-        double centerThresholdY = envelope.getHeight() * 0.10;
-        double distanceX = Math.abs(intersectCentroid.x - geomCentroid.x);
-        double distanceY = Math.abs(intersectCentroid.y - geomCentroid.y);
-
-        if (distanceX > centerThresholdX || distanceY > centerThresholdY) {
-            // Convert azimuth from -180/180 to 0/360
-            double degrees = gc.getAzimuth();
-            if (degrees < 0) {
-                degrees += 360;
-            }
-
-            for (CardinalRange range : ranges) {
-                if (degrees > range.lowRange && degrees <= range.highRange) {
-                    directions = range.directions;
-                    break;
-                }
-            }
-        }
-
-        return directions;
     }
 
     /**
