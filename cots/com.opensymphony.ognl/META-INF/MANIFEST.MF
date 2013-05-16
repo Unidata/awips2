@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Ognl Plug-in
-Bundle-SymbolicName: com.opensymphony.ognl
-Bundle-Version: 1.0.0.qualifier
-Bundle-ClassPath: ognl-2.7.3.jar,
- .
-Export-Package: ognl
