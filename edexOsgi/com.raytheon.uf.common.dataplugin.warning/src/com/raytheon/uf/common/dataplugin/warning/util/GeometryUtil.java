@@ -25,6 +25,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 15, 2010            mschenke     Initial creation
+ * Apr 28, 2013     1955   jsanchez     Added an ignoreUserData flag to intersection method.
  * 
  * </pre>
  * 
@@ -93,7 +94,7 @@ public class GeometryUtil {
         GeometryFactory gf = new GeometryFactory();
         List<Geometry> intersection = new ArrayList<Geometry>(
                 g1.getNumGeometries() + g2.getNumGeometries());
-        intersection(g1, g2, intersection);
+        intersection(g1, g2, intersection, false);
         Geometry rval = gf.createGeometryCollection(intersection
                 .toArray(new Geometry[intersection.size()]));
         rval.setUserData(g2.getUserData());
@@ -101,21 +102,24 @@ public class GeometryUtil {
     }
 
     private static void intersection(Geometry g1, Geometry g2,
-            List<Geometry> intersections) {
+            List<Geometry> intersections, boolean ignoreUserData) {
         if (g1 instanceof GeometryCollection) {
             for (int i = 0; i < g1.getNumGeometries(); ++i) {
-                intersection(g1.getGeometryN(i), g2, intersections);
+                intersection(g1.getGeometryN(i), g2, intersections,
+                        ignoreUserData);
             }
         } else {
             if (g2 instanceof GeometryCollection) {
                 for (int i = 0; i < g2.getNumGeometries(); ++i) {
-                    intersection(g1, g2.getGeometryN(i), intersections);
+                    intersection(g1, g2.getGeometryN(i), intersections,
+                            ignoreUserData);
                 }
             } else {
                 String g1Name = toString(g1.getUserData());
                 String g2Name = toString(g2.getUserData());
 
-                if ((g1Name == null || g2Name == null || g2Name.equals(g1Name))) {
+                if (g1Name == null || g2Name == null || g2Name.equals(g1Name)
+                        || ignoreUserData) {
                     Geometry section = g1.intersection(g2);
                     if (section.isEmpty() == false) {
                         if (g2.getUserData() != null) {
@@ -138,7 +142,8 @@ public class GeometryUtil {
 
     /**
      * Intersection between g1 and prepared geometry pg. Resulting Geometry will
-     * have user data from pg
+     * have user data from pg. Using this method assumes that g1 and pg come
+     * from the same area source (i.e County, Zone)
      * 
      * @param g1
      * @param g2
@@ -146,10 +151,25 @@ public class GeometryUtil {
      * @return the intersection between g1 and g2
      */
     public static Geometry intersection(Geometry g1, PreparedGeometry pg) {
+        return intersection(g1, pg, false);
+    }
+
+    /**
+     * Intersection between g1 and prepared geometry pg. Resulting Geometry will
+     * have user data from pg. Setting ignoreUserDate to 'true' will collect
+     * intersecting geometries although g1 and pg are from different sources.
+     * 
+     * @param g1
+     * @param pg
+     * @param ignoreUserData
+     * @return
+     */
+    public static Geometry intersection(Geometry g1, PreparedGeometry pg,
+            boolean ignoreUserData) {
         GeometryFactory gf = new GeometryFactory();
         List<Geometry> intersection = new ArrayList<Geometry>(
                 g1.getNumGeometries() + 1);
-        intersection(g1, pg, intersection);
+        intersection(g1, pg, intersection, ignoreUserData);
         Geometry rval = gf.createGeometryCollection(intersection
                 .toArray(new Geometry[intersection.size()]));
         rval.setUserData(pg.getGeometry().getUserData());
@@ -157,19 +177,21 @@ public class GeometryUtil {
     }
 
     private static void intersection(Geometry g1, PreparedGeometry pg,
-            List<Geometry> intersections) {
+            List<Geometry> intersections, boolean ignoreUserData) {
         if (g1 instanceof GeometryCollection) {
             for (int i = 0; i < g1.getNumGeometries(); ++i) {
-                intersection(g1.getGeometryN(i), pg, intersections);
+                intersection(g1.getGeometryN(i), pg, intersections,
+                        ignoreUserData);
             }
         } else {
             String g1Name = toString(g1.getUserData());
             String g2Name = toString(pg.getGeometry().getUserData());
 
             if ((g2Name != null && g2Name.equals(g1Name))
-                    || ((g1Name == null || g2Name == null) && pg.intersects(g1))) {
+                    || ((g1Name == null || g2Name == null || ignoreUserData) && pg
+                            .intersects(g1))) {
                 Geometry g2 = pg.getGeometry();
-                intersection(g1, g2, intersections);
+                intersection(g1, g2, intersections, ignoreUserData);
             }
         }
     }
