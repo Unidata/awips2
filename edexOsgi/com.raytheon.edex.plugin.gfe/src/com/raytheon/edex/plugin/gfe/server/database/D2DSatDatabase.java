@@ -54,6 +54,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * May 16, 2011            bphillip    Initial creation
  * May 04, 2012  #574      dgilling    Add unimplemented methods from GridDatabase.
  * Oct 10  2012     #1260  randerso    Added code to set valid flag
+ * 05/02/13         #1969  randerso    Removed unnecessary updateDbs method
  * 
  * </pre>
  * 
@@ -189,11 +190,6 @@ public class D2DSatDatabase extends VGridDatabase {
     @Override
     public String getProjectionId() {
         return null;
-    }
-
-    @Override
-    public void updateDbs() {
-        // no op
     }
 
     /*
