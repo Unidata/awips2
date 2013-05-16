@@ -118,6 +118,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 03/15/13     #1795      njensen      Added updatePublishTime()
  * 03/20/13     #1774      randerso    Cleanup code to use proper constructors
  * 04/08/13     #1949      rjpeter     Updated to work with normalized database.
+ * 05/02/13     #1969      randerso    Removed updateDbs from parent class
  * </pre>
  * 
  * @author bphillip
@@ -198,7 +199,6 @@ public class IFPGridDatabase extends GridDatabase {
      * Upon site activation, this method is called to calculate any changes to
      * parm info or grid locations
      */
-    @Override
     public void updateDbs() {
         Map<String, GridParmInfo> parmInfoUser = new HashMap<String, GridParmInfo>();
         Map<String, ParmStorageInfo> parmStorageInfoUser = new HashMap<String, ParmStorageInfo>();
