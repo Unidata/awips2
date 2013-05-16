@@ -54,9 +54,10 @@ import com.raytheon.uf.edex.plugin.qc.dao.QCDao;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 2010-12-03   #4775      D. Friedman Initial version
- * ...
- * 2013-03-07   DR 15842   D. Friedman Use Java NetCDF library instead of pupynere 
+ * Dec 03, 2010 4775       D. Friedman Initial version
+ * Mar 07, 2013 15842      D. Friedman Use Java NetCDF library instead of
+ *                                     pupynere
+ * May 16, 2013 1869       bsteffen    Remove DataURI column from qc.
  * 
  * </pre>
  * 
@@ -212,7 +213,6 @@ public class QCScanner {
                             r.setNcSet(fn);
                             r.setNcIndex(index);
                             r.setQcType(qcType);
-                            r.constructDataURI();
                             records[oi++] = r;
                         }
                         ++index;
