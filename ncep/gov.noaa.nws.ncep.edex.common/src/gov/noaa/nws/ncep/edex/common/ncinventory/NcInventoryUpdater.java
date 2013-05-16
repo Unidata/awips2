@@ -20,19 +20,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.raytheon.edex.uengine.tasks.query.MetadataCatalogQuery;
 import com.raytheon.edex.uengine.tasks.query.TableQuery;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginProperties;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
-import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.database.status.StatusConstants;
 
 /**
  * 
@@ -42,6 +36,7 @@ import com.raytheon.uf.edex.database.status.StatusConstants;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  *  02/20/12      #606       Greg Hull   Created
+ * May 16, 2013 1869        bsteffen    Rewrite dataURI property mappings.
  * 
  * </pre>
  * 
@@ -84,34 +79,7 @@ public class NcInventoryUpdater  {
 			PluginDataObject pdo = null;
 
 			try {
-		        PluginRegistry reg = PluginRegistry.getInstance();		       
-		        PluginProperties props = reg.getRegisteredObject(pluginName);
-
-		        if( props != null && props.getRecord() != null) {		        		
-		        	pdo = props.getRecord().newInstance();		        	
-		        }
-
-		        if( pdo == null ) {
-		        	throw new Exception( "Can't find PDO for plugin.");
-		        }
-
-				for( int i=2 ; i < tokens.length ; i++ ) {
-					if( !tokens[i].equals("%") && !tokens[i].trim().isEmpty() ) {
-						String fld = PluginDataObject.getDataURIFieldName( pdo.getClass(), i-2 );
-					
-						if( fld == null ) {
-							throw new Exception("Unable to get field name");
-						}
-						
-						Object value = pdo.getDataURIFieldValue( i-2, tokens[i] );
-						
-						attrsMap.put( fld, value );
-					} 
-					else if( tokens[i].equals("%") ) {
-						String fld = PluginDataObject.getDataURIFieldName( pdo.getClass(), i-2 );
-						attrsMap.put( fld, "%");
-					}
-				}
+                attrsMap.putAll(DataURIUtil.createDataURIMap(dataURI));
 				
 				attrsMap.put( "dataURI", dataURI );
 				
