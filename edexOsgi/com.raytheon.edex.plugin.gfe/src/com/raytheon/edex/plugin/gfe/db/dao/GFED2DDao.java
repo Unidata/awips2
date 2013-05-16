@@ -51,6 +51,8 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * 04/04/13     #1787      randerso    Fixed to support changes to D2D grid location
  *                                     Additional cleanup to move the D2D to GFE translation
  *                                     logic into D2DGridDatabase.
+ * 05/03/13     #1974      randerso    Changed queryByParmId to look for parm with duration
+ *                                     suffix first.
  * 
  * </pre>
  * 
@@ -163,14 +165,18 @@ public class GFED2DDao extends GridDao {
             Date refTime, String d2dParmName, Level d2dLevel, Session s)
             throws DataAccessLayerException {
 
-        DatabaseQuery query = new DatabaseQuery(GridRecord.class.getName());
+        DatabaseQuery query;
+        query = new DatabaseQuery(GridRecord.class.getName());
         query.addReturnedField(FCST_TIME);
         query.addReturnedField("id");
+        query.addReturnedField(GridConstants.PARAMETER_ABBREVIATION);
         query.addQueryParam(GridConstants.DATASET_ID, d2dModelName);
         query.addQueryParam(REF_TIME, refTime);
-        query.addQueryParam(GridConstants.PARAMETER_ABBREVIATION, d2dParmName);
+        query.addQueryParam(GridConstants.PARAMETER_ABBREVIATION, d2dParmName
+                + "%hr", QueryOperand.LIKE);
         query.addQueryParam(GridConstants.LEVEL_ID, d2dLevel.getId());
         query.addOrder(FCST_TIME, true);
+        query.addOrder(GridConstants.PARAMETER_ABBREVIATION, true);
 
         @SuppressWarnings("unchecked")
         List<Object[]> firstTry = (List<Object[]>) this.queryByCriteria(query);
@@ -180,23 +186,25 @@ public class GFED2DDao extends GridDao {
             query = new DatabaseQuery(GridRecord.class.getName());
             query.addReturnedField(FCST_TIME);
             query.addReturnedField("id");
-            query.addReturnedField(GridConstants.PARAMETER_ABBREVIATION);
             query.addQueryParam(GridConstants.DATASET_ID, d2dModelName);
             query.addQueryParam(REF_TIME, refTime);
             query.addQueryParam(GridConstants.PARAMETER_ABBREVIATION,
-                    d2dParmName + "%hr", QueryOperand.LIKE);
+                    d2dParmName);
             query.addQueryParam(GridConstants.LEVEL_ID, d2dLevel.getId());
             query.addOrder(FCST_TIME, true);
-            query.addOrder(GridConstants.PARAMETER_ABBREVIATION, true);
 
             @SuppressWarnings("unchecked")
             List<Object[]> secondTry = (List<Object[]>) this
                     .queryByCriteria(query);
 
+            for (Object[] row : secondTry) {
+                dataTimes.put((Integer) row[0], (Integer) row[1]);
+            }
+        } else {
             Pattern p = Pattern.compile("^" + d2dParmName + "(\\d+)hr$");
             int i = 0;
-            while (i < secondTry.size()) {
-                Object[] row = secondTry.get(i++);
+            while (i < firstTry.size()) {
+                Object[] row = firstTry.get(i++);
                 Integer fcstHr = (Integer) row[0];
                 Integer id = (Integer) row[1];
                 Matcher matcher = p.matcher((String) row[2]);
@@ -205,8 +213,8 @@ public class GFED2DDao extends GridDao {
                     dur = Integer.parseInt(matcher.group(1));
                 }
 
-                for (int j = i; j < secondTry.size(); j++) {
-                    Object[] nextRow = secondTry.get(j);
+                for (int j = i; j < firstTry.size(); j++) {
+                    Object[] nextRow = firstTry.get(j);
                     if (fcstHr.equals(nextRow[0])) {
                         i = j;
                         String nextParam = (String) nextRow[2];
@@ -223,10 +231,6 @@ public class GFED2DDao extends GridDao {
                     }
                 }
                 dataTimes.put(fcstHr, id);
-            }
-        } else {
-            for (Object[] row : firstTry) {
-                dataTimes.put((Integer) row[0], (Integer) row[1]);
             }
         }
         return dataTimes;
