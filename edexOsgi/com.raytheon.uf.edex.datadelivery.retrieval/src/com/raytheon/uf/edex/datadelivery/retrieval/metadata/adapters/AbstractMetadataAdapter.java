@@ -25,6 +25,7 @@ import java.util.Map;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.dataplugin.madis.MadisRecord;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
@@ -38,35 +39,49 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 19, 2012            bsteffen     Initial javadoc
+ * May 12, 2013  753       dhladky      Added support for Madis
  * 
  * </pre>
  * 
  * @author unknown
  * @version 1.0
  */
-public abstract class AbstractMetadataAdapter implements ISerializableObject {
+public abstract class AbstractMetadataAdapter<RecordKey> implements ISerializableObject {
 
     protected PluginDataObject[] pdos;
+    
+    protected RetrievalAttribute attXML;
 
     protected static Map<String, String[]> parameterMap = new HashMap<String, String[]>();
 
-    public static AbstractMetadataAdapter getMetadataAdapter(Class<?> clazz,
+    public static AbstractMetadataAdapter<?> getMetadataAdapter(Class<?> clazz,
             RetrievalAttribute attXML) throws InstantiationException {
 
-        AbstractMetadataAdapter adapter = null;
-
+        AbstractMetadataAdapter<?> adapter = null;
+        
         if (clazz == GridRecord.class) {
             adapter = new GridMetadataAdapter(attXML);
+        } else if (clazz == MadisRecord.class) {
+            adapter = new MadisMetadataAdapter(attXML);
+        } else {
+            throw new IllegalArgumentException("Did not receive a class recognzed for retreival.");
         }
 
         return adapter;
     }
 
-    public PluginDataObject getRecord(int index) {
-        if (pdos != null && index < pdos.length) {
-            return pdos[index];
-        }
-        return null;
+    // setup an individual record from the direct plugin translation
+    public abstract PluginDataObject getRecord(RecordKey o);
+    
+    // set the size of the PDO array to return
+    public abstract void setPdos(int size);
+    
+    /**
+     * get the PDO list
+     * @return
+     */
+    public PluginDataObject[] getPdos() {
+        return pdos;
     }
-
+  
 }
