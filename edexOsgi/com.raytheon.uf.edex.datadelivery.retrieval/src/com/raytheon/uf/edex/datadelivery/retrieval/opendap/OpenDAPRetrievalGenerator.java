@@ -490,30 +490,6 @@ class OpenDAPRetrievalGenerator extends RetrievalGenerator {
     }
 
     /**
-     * clone the param
-     * 
-     * @param original
-     *            parameter
-     * @return
-     */
-    private Parameter processParameter(Parameter origParm) {
-
-        Parameter param = new Parameter();
-        param.setName(origParm.getName());
-        param.setBaseType(origParm.getBaseType());
-        param.setDataType(origParm.getDataType());
-        param.setDefinition(origParm.getDefinition());
-        param.setFillValue(origParm.getFillValue());
-        param.setLevelType(origParm.getLevelType());
-        param.setMissingValue(origParm.getMissingValue());
-        param.setProviderName(origParm.getProviderName());
-        param.setUnits(origParm.getUnits());
-
-        return param;
-
-    }
-
-    /**
      * Process sequences of hours for separate retrieval
      * 
      * @param timeSequence
