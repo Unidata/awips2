@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * ------------ ---------- ----------- --------------------------
  * Aug 26, 2011            dgilling     Initial creation
  * May 04, 2012  #574      dgilling     Port getSiteID() method.
+ * May 2, 2013   #1969     randerso     Removed unnecessary updateDbs method
  * 
  * </pre>
  * 
@@ -67,17 +68,6 @@ public abstract class VGridDatabase extends GridDatabase {
         }
 
         return config.getSiteID().get(0);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.edex.plugin.gfe.server.database.GridDatabase#updateDbs()
-     */
-    @Override
-    public void updateDbs() {
-        // no-op
     }
 
     public abstract SortedSet<Date> getValidTimes() throws GfeException,
