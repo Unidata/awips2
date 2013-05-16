@@ -73,6 +73,9 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  *                                     a Parm.
  * 06/25/12     #766       dgilling    Fix NullPointerException from VCModules
  *                                     when running in practice mode.
+ * 05/02/13     #1969      randerso    Added code to explicitly create the mutable database
+ *                                     if it doesn't exist. Used to just happen by accident
+ *                                     when getParmList was called.
  * </pre>
  * 
  * @author bphillip
@@ -83,8 +86,6 @@ public class ParmManager extends AbstractParmManager {
             .getHandler(ParmManager.class);
 
     @SuppressWarnings("unused")
-    private final Set<ParmID> availableParmIDs;
-
     private final GridLocation gloc;
 
     private List<DatabaseID> availableServerDatabases;
@@ -106,9 +107,6 @@ public class ParmManager extends AbstractParmManager {
 
         // Get the composite grid location
         this.gloc = dataManager.getClient().getDBGridLocation();
-
-        List<ParmID> ids = dataManager.getClient().getParmList(mutableDb);
-        this.availableParmIDs = new HashSet<ParmID>(ids);
 
         this.systemTimeRange = recalcSystemTimeRange();
         this.parmIDCacheServer = new HashMap<DatabaseID, List<ParmID>>();
@@ -912,25 +910,39 @@ public class ParmManager extends AbstractParmManager {
         }
 
         Collections.sort(this.availableServerDatabases);
-        boolean containsMutable = availableServerDatabases
-                .contains(getMutableDatabase());
-        if (getMutableDatabase().isValid() && containsMutable) {
-            // order of isc databases is important, since ISCDataAccess will
-            // look for the first match. That's why we don't use availableDbs()
-            // and simplify the three loops into one.
-            for (DatabaseID dbid : availableVCParmDatabases) {
-                if (dbid.getModelName().equals("ISC") && !iscDbs.contains(dbid)) {
-                    iscDbs.add(dbid);
-                }
+        DatabaseID mutableDbId = getMutableDatabase();
+        if (mutableDbId.isValid()) {
+            boolean containsMutable = availableServerDatabases
+                    .contains(mutableDbId);
+
+            if (!containsMutable) {
+                ServerResponse<?> sr = this.dataManager.getClient()
+                        .createNewDb(mutableDbId);
+                containsMutable = sr.isOkay();
             }
-            for (DatabaseID dbid : availableVParmDatabases) {
-                if (dbid.getModelName().equals("ISC") && !iscDbs.contains(dbid)) {
-                    iscDbs.add(dbid);
+
+            if (containsMutable) {
+                // order of isc databases is important, since ISCDataAccess will
+                // look for the first match. That's why we don't use
+                // availableDbs()
+                // and simplify the three loops into one.
+                for (DatabaseID dbid : availableVCParmDatabases) {
+                    if (dbid.getModelName().equals("ISC")
+                            && !iscDbs.contains(dbid)) {
+                        iscDbs.add(dbid);
+                    }
                 }
-            }
-            for (DatabaseID dbid : availableServerDatabases) {
-                if (dbid.getModelName().equals("ISC") && !iscDbs.contains(dbid)) {
-                    iscDbs.add(dbid);
+                for (DatabaseID dbid : availableVParmDatabases) {
+                    if (dbid.getModelName().equals("ISC")
+                            && !iscDbs.contains(dbid)) {
+                        iscDbs.add(dbid);
+                    }
+                }
+                for (DatabaseID dbid : availableServerDatabases) {
+                    if (dbid.getModelName().equals("ISC")
+                            && !iscDbs.contains(dbid)) {
+                        iscDbs.add(dbid);
+                    }
                 }
             }
         }
