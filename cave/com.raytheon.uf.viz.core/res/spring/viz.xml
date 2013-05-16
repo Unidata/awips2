@@ -54,5 +54,18 @@
         <constructor-arg ref="requestServerKey" />
         <constructor-arg ref="requestServiceRouter" />
     </bean>
+    
+    <bean id="recordFactory" class="com.raytheon.uf.viz.core.RecordFactory" factory-method="getInstance"/>
+    
+    <bean id="recordFactoryRegisteredToDataURIUtil"
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetClass">
+			<value>com.raytheon.uf.common.dataplugin.annotations.DataURIUtil</value>
+		</property>
+		<property name="targetMethod">
+			<value>setClassMapper</value>
+		</property>
+		<property name="arguments" ref="recordFactory" />
+	</bean>
 
 </beans>
