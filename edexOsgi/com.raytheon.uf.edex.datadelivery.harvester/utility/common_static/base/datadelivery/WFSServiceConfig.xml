@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<serviceConfig name="WFS">
+    <!--  Date format used by WFS providers -->
+	<dateConfig>
+		<format>yyyy-MM-dd'T'HH:mm:ss.SSSZ</format>
+	</dateConfig>
+	
+	<constant name="BLANK" value=""/>
+	<constant name="UNKNOWN" value="unknown"/>
+	<constant name="NONE" value="NONE"/>
+	<constant name="REQUEST_HEADER" value="request"/>
+	<constant name="CAP_PARAM" value="getcapabilities"/>
+	<constant name="DESC_PARAM" value="describefeaturetype"/>
+	<constant name="GET_PARAM" value="getfeature"/>
+	<constant name="OUTFORMAT_HEADER" value="outputformat"/>
+	<constant name="RESTYPE_HEADER" value="resulttype"/>
+	<constant name="PROPNAME_HEADER" value="propertyname"/>
+	<constant name="MAXFEAT_HEADER" value="maxfeatures"/>
+	<constant name="SRSNAME_HEADER" value="srsname"/>
+	<constant name="TYPENAME_HEADER" value="typename"/>
+	<constant name="FEATID_HEADER" value="featureid"/>
+	<constant name="FILTER_HEADER" value="filter"/>
+	<constant name="BBOX_HEADER" value="bbox"/>
+	<constant name="SORTBY_HEADER" value="sortby"/>
+	<constant name="NS_HEADER" value="namespace"/>
+	<constant name="WFS" value="wfs"/>
+	<constant name="VERSION" value="1.1.0"/>
+	<constant name="PORT_HEADER" value="http://"/>
+	<constant name="PORT" value="80"/>
+	<constant name="COMMA" value=","/>
+		
+</serviceConfig>
