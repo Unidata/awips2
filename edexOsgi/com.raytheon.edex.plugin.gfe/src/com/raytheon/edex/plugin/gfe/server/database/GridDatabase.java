@@ -76,6 +76,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * 03/15/13     #1795      njensen     Added updatePublishTime()
  * 04/23/13     #1949      rjpeter     Added default implementations of history by time range
  *                                     and cachedParmId
+ * 05/02/13      #1969     randerso    Removed unnecessary updateDbs method
  * </pre>
  * 
  * @author bphillip
@@ -504,8 +505,6 @@ public abstract class GridDatabase {
                 + this.getClass().getName());
 
     }
-
-    public abstract void updateDbs();
 
     /**
      * Return the internally cache'd parmID for this database implementation.
