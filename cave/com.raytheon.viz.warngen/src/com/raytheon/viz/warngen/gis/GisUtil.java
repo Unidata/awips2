@@ -29,16 +29,8 @@ import java.util.List;
 
 import org.geotools.referencing.GeodeticCalculator;
 
-import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
-import com.raytheon.viz.warngen.suppress.SuppressMap;
-import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * 
@@ -58,6 +50,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *    Feb 29, 2012 #13596      Qinglu Lin  Added restoreAlaskaLon().
  *    May  9, 2012 #14887      Qinglu Lin  Change 0.1 to 0.16875f for PORTION_OF_CENTER; 
  *                                         0.10 to 0.0625 for EXTREME_DELTA; Added/modified code.
+ *    May  1, 2013  1963       jsanchez    Refactored calculatePortion to match A1.
  * </pre>
  * 
  * @author chammack
@@ -65,216 +58,198 @@ import com.vividsolutions.jts.geom.Polygon;
  */
 public class GisUtil {
 
-    private static final float PORTION_OF_CENTER = 0.16875f;
-
     private static final float DIRECTION_DELTA = 15;
 
-    private static final float EXTREME_DELTA = 0.0625f;
-
-    private static final double CONTAINS_PERCENTAGE = 0.1;
-
-    // When both xDirection and yDirection are Direction.CENTRAL, for a
-    // rectangle
-    // polygon, MIN1 is the maximum value of either distanceX or distanceY
-    // for EnumSet.of(xDirection,yDirection) to be returned.
-    private static final float MIN1 = 0.01f;
-
-    // When both xDirection and yDirection are Direction.CENTRAL, for a right
-    // triangle
-    // polygon, MIN2 is the maximum value of both distanceX and distanceY
-    // for EnumSet.of(xDirection,yDirection) to be returned.
-    private static final float MIN2 = 0.045f;
-
-    // When yDirection is NORTH or SOUTH, in order to add CENTRAL to retval,
-    // required
-    // minimum ratio of width of intersection envelope to that of county
-    // envelope;
-    // when xDirection is EAST or WEST, in order to add CENTRAL to retval,
-    // required
-    // minimum ratio of height of intersection envelope to that of county
-    // envelope;
-    private static final float RATIO = 0.5f;
+    public static final ThreadLocal<GeodeticCalculator> gc = new ThreadLocal<GeodeticCalculator>() {
+        @Override
+        protected GeodeticCalculator initialValue() {
+            GeodeticCalculator gc = new GeodeticCalculator();
+            return gc;
+        }
+    };
 
     public static enum Direction {
         CENTRAL, NORTH, SOUTH, EAST, WEST, EXTREME
     };
 
-    public static boolean contains(Geometry filter, Geometry geom) {
-        if (filter != null) {
-            if (filter.contains(geom)) {
-                return true;
-            }
+    /**
+     * Ported getAreaDesc from A1 code method GeoEntityLookupTable.getAreaDesc
+     * 
+     * @param parentGeom
+     *            - the parent geometry such as the impacted county/zone
+     * @param warnedArea
+     *            - the intersection geometry of the hatched warned geometry and
+     *            the parent geometry
+     * @param useCentral
+     *            - boolean flag to allow CENTRAL portion to be included.
+     * @param useExtreme
+     *            - boolean flag to allow EXTREME portion to be included.
+     * @return
+     */
+    public static EnumSet<Direction> calculatePortion(Geometry parentGeom,
+            Geometry warnedArea, boolean useCentral, boolean useExtreme) {
+        EnumSet<Direction> portions = EnumSet.noneOf(Direction.class);
+        ImpactedQuadrants iQuad = ImpactedQuadrants.findImpactedQuadrants(
+                parentGeom, warnedArea, useCentral);
 
-            double containsPercent = geom.buffer(0.00001).difference(filter)
-                    .getArea()
-                    / geom.getArea();
-            if (containsPercent < CONTAINS_PERCENTAGE) {
-                return true;
+        // Test for case where we cannot do portions or if the warnedArea covers
+        // the parentGeom
+        if (parentGeom == null || warnedArea == null
+                || parentGeom.equals(warnedArea)) {
+            return EnumSet.noneOf(Direction.class);
+        }
+
+        // Test for central by not being near adjacent borders.
+        if (iQuad.centralGeom != null && iQuad.centralGeom.contains(warnedArea)) {
+            portions.add(Direction.CENTRAL);
+            return portions;
+        }
+
+        // Possible case of a stripe across the middle
+        if (iQuad.q == 0) {
+            // Only one direction encoded
+            ; // <-- Ported A1 code
+        } else if ((iQuad.q == 2 && iQuad.nw == iQuad.se)
+                || (iQuad.q == 2 && iQuad.ne == iQuad.sw)
+                || (iQuad.qq == 2 && iQuad.nn == iQuad.ss)
+                || (iQuad.qq == 2 && iQuad.ee == iQuad.ww)) {
+            if (iQuad.nnx == iQuad.ssx && iQuad.wwx == iQuad.eex) {
+                portions.add(Direction.CENTRAL);
+                return portions;
+            }
+            return getPointDesc(iQuad, useExtreme);
+        }
+
+        // Another possible case of a stripe across the middle.
+        if (iQuad.q == 4 && iQuad.centralGeom != null
+                && iQuad.centralGeom.intersects(warnedArea)) {
+            portions.add(Direction.CENTRAL);
+            return portions;
+        }
+        // All quadrants in use.
+        if (iQuad.q == 4 && iQuad.qq == 4) {
+            return EnumSet.noneOf(Direction.class);
+        }
+        // Only one typical quadrant in use.
+        if (iQuad.q == 1) {
+            return getPointDesc(iQuad, useExtreme);
+        }
+
+        // No more than two quadrants of any kind in us, or all quadrants.
+        if (iQuad.q < 3 && iQuad.qq < 3) {
+            if (iQuad.nnx != iQuad.ssx
+                    && iQuad.wwx != iQuad.eex
+                    || (iQuad.centralGeom != null && iQuad.centralGeom
+                            .intersects(warnedArea))) {
+                return getPointDesc(iQuad, useExtreme);
             }
         }
 
-        return false;
+        // Three typical quadrants in use.
+        if (iQuad.q == 3 && iQuad.q != 3) {
+            if (iQuad.ne != 1 && (iQuad.ssw || iQuad.wsw)) {
+                portions.add(Direction.SOUTH);
+                portions.add(Direction.WEST);
+            } else if (iQuad.se != 1 && (iQuad.nnw || iQuad.wnw)) {
+                portions.add(Direction.NORTH);
+                portions.add(Direction.WEST);
+            } else if (iQuad.nw != 1 && (iQuad.sse || iQuad.ese)) {
+                portions.add(Direction.SOUTH);
+                portions.add(Direction.EAST);
+            } else if (iQuad.sw != 1 && (iQuad.nne || iQuad.ene)) {
+                portions.add(Direction.NORTH);
+                portions.add(Direction.EAST);
+            }
+        }
+
+        // Three diagonal quadrants in use.
+        if (iQuad.qq == 3 && portions.isEmpty()) {
+            if (iQuad.nn == 0) {
+                portions.add(Direction.SOUTH);
+            } else if (iQuad.ss == 0) {
+                portions.add(Direction.NORTH);
+            } else if (iQuad.ww == 0) {
+                portions.add(Direction.EAST);
+            } else if (iQuad.ee == 0) {
+                portions.add(Direction.WEST);
+            }
+        }
+
+        // add extreme for three quadrant case.
+        if (!portions.isEmpty()) {
+            if (useExtreme && iQuad.xxx > 0) {
+                portions.add(Direction.EXTREME);
+                return portions;
+            }
+        }
+
+        // All of either type of quadrant in use.
+        if (iQuad.q == 4 && iQuad.qq == 4) {
+            return EnumSet.noneOf(Direction.class);
+        }
+
+        // Case of a pure simple direction.
+        if (iQuad.ss == 1 && iQuad.nn == 1 || iQuad.q == 0) {
+            if (iQuad.nn == 0 && iQuad.ww == 1) {
+                portions.add(Direction.WEST);
+            }
+            if (iQuad.ww == 0 && iQuad.ee == 1) {
+                portions.add(Direction.EAST);
+            }
+        } else if (iQuad.ee == 1 && iQuad.ww == 1 || iQuad.q == 0) {
+            if (iQuad.nn == 0 && iQuad.ss == 1) {
+                portions.add(Direction.SOUTH);
+            }
+            if (iQuad.ss == 0 && iQuad.nn == 1) {
+                portions.add(Direction.NORTH);
+            }
+        }
+
+        // add extreme for simple direction case.
+        if (portions.isEmpty() == false) {
+            if (useExtreme && iQuad.xxx > 0) {
+                portions.add(Direction.EXTREME);
+            }
+            return portions;
+        }
+
+        // Catch with the point descriptor one last time
+        return getPointDesc(iQuad, useExtreme);
     }
 
-    public static Geometry intersect(Geometry shadedArea, Geometry filter) {
-        GeometryFactory gf = new GeometryFactory();
-        Geometry rval = shadedArea;
-        if (filter instanceof GeometryCollection) {
-            GeometryCollection gc = (GeometryCollection) filter;
-            List<Geometry> unionGeometries = new ArrayList<Geometry>();
-            for (int k = 0; k < gc.getNumGeometries(); k++) {
-                Geometry g = gc.getGeometryN(k);
-                if (g.intersects(rval)) {
-                    Geometry subIntersection = GisUtil.intersect(g, rval);
-                    unionGeometries.add(subIntersection);
-                }
-            }
+    /**
+     * Determines the portion of an area based on the ImpactedQuadrants object
+     * 
+     * @param iQuad
+     *            - ImpactedQuadrants object
+     * @param useExtrme
+     *            - boolean flag to allow EXTREME portion to be included.
+     * @return
+     */
+    private static EnumSet<Direction> getPointDesc(ImpactedQuadrants iQuad,
+            boolean useExtrme) {
+        EnumSet<Direction> portions = EnumSet.noneOf(Direction.class);
 
-            rval = gf.createGeometryCollection(unionGeometries
-                    .toArray(new Geometry[unionGeometries.size()]));
-            rval = rval.buffer(0);
-
-        } else {
-            rval = rval.intersection(filter).buffer(0);
-        }
-        return rval;
-    }
-
-    public static EnumSet<Direction> calculatePortion(Geometry geom,
-            Geometry geom2, GeodeticCalculator gc) {
-        return calculatePortion(geom, geom2, gc, SuppressMap.NONE);
-    }
-
-    public static EnumSet<Direction> calculatePortion(Geometry geom,
-            Geometry intersection, GeodeticCalculator gc, String suppressType) {
-        Direction xDirection = null;
-        Direction yDirection = null;
-
-        Coordinate point = intersection.getCentroid().getCoordinate();
-        Envelope env = intersection.getEnvelopeInternal();
-
-        Coordinate centroid = geom.getCentroid().getCoordinate();
-        Envelope envelope = geom.getEnvelopeInternal();
-        double approximateWidth = envelope.getWidth();
-        double approximateHeight = envelope.getHeight();
-
-        double distanceX = Math.abs(centroid.x - point.x);
-        double distanceY = Math.abs(centroid.y - point.y);
-
-        double centerThresholdX = approximateWidth * PORTION_OF_CENTER;
-        double centerThresholdY = approximateHeight * PORTION_OF_CENTER;
-        double extremaThresholdX = approximateWidth * EXTREME_DELTA;
-        double extremaThresholdY = approximateHeight * EXTREME_DELTA;
-
-        if (distanceX < centerThresholdX) {
-            xDirection = Direction.CENTRAL;
-            if (distanceY < centerThresholdY)
-                yDirection = Direction.CENTRAL;
+        if (iQuad.nnw || iQuad.nne) {
+            portions.add(Direction.NORTH);
+        } else if (iQuad.ssw || iQuad.sse) {
+            portions.add(Direction.SOUTH);
         }
 
-        if (xDirection != null && yDirection != null) {
-            // Both xDirection equals Direction.CENTRAL and yDirection equals
-            // Direction.CENTRAL
-            // calculated above is not always correct for returning
-            // EnumSet.of(xDirection,yDirection).
-            // The following 'if statement' filters out some cases.
-            if (distanceX < MIN1 || distanceY < MIN1
-                    || (distanceX < MIN2 && distanceY < MIN2))
-                return EnumSet.of(xDirection, yDirection);
+        if (iQuad.ene || iQuad.ese) {
+            portions.add(Direction.EAST);
+        } else if (iQuad.wnw || iQuad.wsw) {
+            portions.add(Direction.WEST);
         }
 
-        xDirection = null;
-        yDirection = null;
-
-        gc.setStartingGeographicPoint(centroid.x, centroid.y);
-        gc.setDestinationGeographicPoint(point.x, point.y);
-        double azimuth = gc.getAzimuth();
-
-        if (xDirection == null) {
-            if (azimuth < (180 - DIRECTION_DELTA) && azimuth > DIRECTION_DELTA)
-                xDirection = Direction.EAST;
-            else if (azimuth < 0 - DIRECTION_DELTA)
-                xDirection = Direction.WEST;
+        if (iQuad.cc) {
+            portions.add(Direction.CENTRAL);
         }
 
-        if (yDirection == null) {
-            if (azimuth < (90 - DIRECTION_DELTA)
-                    && azimuth > (-90 + DIRECTION_DELTA))
-                yDirection = Direction.NORTH;
-            else if (azimuth > (90 + DIRECTION_DELTA)
-                    || azimuth < (-90 - DIRECTION_DELTA))
-                yDirection = Direction.SOUTH;
+        if (!portions.isEmpty() && useExtrme && iQuad.xxx > 0) {
+            portions.add(Direction.EXTREME);
         }
-
-        List<Geometry> geoms = new ArrayList<Geometry>(geom.getNumGeometries());
-        GeometryUtil.buildGeometryList(geoms, geom);
-        boolean isExtreme = false;
-
-        for (Geometry g : geoms) {
-            if (g instanceof Polygon) {
-                LineString lineString = ((Polygon) g).getExteriorRing();
-                if (isExtreme(lineString.getCoordinates(), point,
-                        (extremaThresholdX + extremaThresholdY) / 2.0)) {
-                    isExtreme = true;
-                    break;
-                }
-            }
-        }
-
-        EnumSet<Direction> retVal = EnumSet.noneOf(Direction.class);
-
-        if (xDirection != null && !suppressType.equals(SuppressMap.EAST_WEST)
-                && !suppressType.equals(SuppressMap.ALL))
-            retVal.add(xDirection);
-
-        if (yDirection != null && !suppressType.equals(SuppressMap.NORTH_SOUTH)
-                && !suppressType.equals(SuppressMap.ALL))
-            retVal.add(yDirection);
-
-        if (xDirection != null
-                && (xDirection.equals(Direction.WEST) || xDirection
-                        .equals(Direction.EAST))) {
-            if (env.getHeight() < RATIO * approximateHeight) {
-                retVal.add(Direction.CENTRAL);
-            }
-        }
-
-        if (yDirection != null
-                && (yDirection.equals(Direction.NORTH) || yDirection
-                        .equals(Direction.SOUTH))) {
-            if (env.getWidth() < RATIO * approximateWidth) {
-                retVal.add(Direction.CENTRAL);
-            }
-        }
-
-        if ((retVal.contains(Direction.NORTH) && retVal
-                .contains(Direction.WEST))
-                || (retVal.contains(Direction.NORTH) && retVal
-                        .contains(Direction.EAST))
-                || (retVal.contains(Direction.SOUTH) && retVal
-                        .contains(Direction.WEST))
-                || (retVal.contains(Direction.SOUTH) && retVal
-                        .contains(Direction.EAST))) {
-            if (retVal.contains(Direction.CENTRAL))
-                retVal.remove(Direction.CENTRAL);
-        }
-
-        if (isExtreme && !suppressType.equals(SuppressMap.ALL))
-            retVal.add(Direction.EXTREME);
-
-        return retVal;
-    }
-
-    private static boolean isExtreme(Coordinate[] coords, Coordinate c,
-            double threshold) {
-        for (int i = 1; i < coords.length; i++) {
-            double distance = CGAlgorithms.distancePointLine(c, coords[i - 1],
-                    coords[i]);
-            if (distance < threshold)
-                return true;
-        }
-
-        return false;
+        return portions;
     }
 
     public static List<String> asStringList(EnumSet<Direction> set) {
@@ -350,6 +325,62 @@ public class GisUtil {
         }
         coord.y = oldCoords.y;
         return coord;
+    }
+
+    /**
+     * Calculates the cardinal directions of a location.
+     * 
+     * @param locationGeom
+     * @param reference
+     * @param gc
+     * @return
+     */
+    public static EnumSet<Direction> calculateLocationPortion(
+            Geometry locationGeom, Geometry reference, boolean useExtreme) {
+        for (int i = 0; i < locationGeom.getNumGeometries(); i++) {
+            Geometry geom = locationGeom.getGeometryN(i);
+            if (geom.intersects(reference)) {
+
+                Coordinate geomCentroid = geom.getEnvelope().getCentroid()
+                        .getCoordinate();
+                Coordinate refCentroid = reference.getCentroid()
+                        .getCoordinate();
+
+                EnumSet<Direction> portions = EnumSet.noneOf(Direction.class);
+
+                gc.get().setStartingGeographicPoint(geomCentroid.x,
+                        geomCentroid.y);
+                gc.get().setDestinationGeographicPoint(refCentroid.x,
+                        refCentroid.y);
+                double azimuth = gc.get().getAzimuth();
+
+                if (azimuth < (180 - DIRECTION_DELTA)
+                        && azimuth > DIRECTION_DELTA) {
+                    portions.add(Direction.EAST);
+                } else if (azimuth < 0 - DIRECTION_DELTA
+                        && azimuth > DIRECTION_DELTA - 180) {
+                    portions.add(Direction.WEST);
+                }
+
+                if (azimuth < (90 - DIRECTION_DELTA)
+                        && azimuth > (-90 + DIRECTION_DELTA)) {
+                    portions.add(Direction.NORTH);
+                } else if (azimuth > (90 + DIRECTION_DELTA)
+                        && azimuth < (-90 - DIRECTION_DELTA)) {
+                    portions.add(Direction.SOUTH);
+                }
+
+                boolean isExtreme = false;
+                if (!portions.isEmpty() && useExtreme && isExtreme) {
+                    portions.add(Direction.EXTREME);
+                }
+
+                return portions;
+            }
+        }
+
+        return EnumSet.noneOf(Direction.class);
+
     }
 
 }
