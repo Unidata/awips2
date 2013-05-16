@@ -42,6 +42,7 @@ import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
 import com.raytheon.uf.common.dataplugin.gfe.request.AbstractGfeRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.ClearPracticeVTECTableRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.CommitGridsRequest;
+import com.raytheon.uf.common.dataplugin.gfe.request.CreateNewDbRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetActiveTableRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetClientsRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetDbInventoryRequest;
@@ -110,6 +111,8 @@ import com.raytheon.viz.gfe.core.parm.Parm;
  * 06/11/09     #1947      rjpeter     Fixed null pointers.
  * 07/09/09     #2590      njensen     Site ID from preferences and sent on all requests.
  * 09/22/09     #3058      rjpeter     Removed GFE Edex dependency.
+ * 05/02/13     #1969      randerso    Added createNewDb method
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -747,6 +750,12 @@ public class IFPClient {
         GetGridHistoryRequest request = new GetGridHistoryRequest();
         request.setParmID(parmID);
         request.setTimeRanges(timeRanges);
+        return makeRequest(request);
+    }
+
+    public ServerResponse<?> createNewDb(DatabaseID dbId)
+            throws GFEServerException {
+        CreateNewDbRequest request = new CreateNewDbRequest(dbId);
         return makeRequest(request);
     }
 

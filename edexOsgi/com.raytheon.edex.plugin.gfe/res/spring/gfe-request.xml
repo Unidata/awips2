@@ -302,6 +302,13 @@
 			value="com.raytheon.uf.common.dataplugin.gfe.request.GetSelectTimeRangeRequest" />
 		<constructor-arg ref="GetSelectTRHandler" />
 	</bean>
+    <bean id="createNewDbHandler"
+        class="com.raytheon.edex.plugin.gfe.server.handler.CreateNewDbHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.gfe.request.CreateNewDbRequest" />
+        <constructor-arg ref="createNewDbHandler" />
+    </bean>
 
 
 	<!-- Service Backup Handlers -->
