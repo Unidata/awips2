@@ -28,6 +28,7 @@ import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
@@ -45,13 +46,14 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.ResponseProcessingUtilit
  * ------------ ---------- ----------- --------------------------
  * Nov 19, 2012            bsteffen     Initial javadoc
  * Feb 07, 2013 1543       djohnson     Allow package-level overriding of methods for mocking in tests.
+ * May 12, 2013 753        dhladky      Altered to be more flexible with other types
  * 
  * </pre>
  * 
  * @author unknown
  * @version 1.0
  */
-public class GridMetadataAdapter extends AbstractMetadataAdapter {
+public class GridMetadataAdapter extends AbstractMetadataAdapter<Integer> {
 
     public GridMetadataAdapter(RetrievalAttribute attXML)
             throws InstantiationException {
@@ -79,8 +81,7 @@ public class GridMetadataAdapter extends AbstractMetadataAdapter {
             }
         }
 
-        pdos = new GridRecord[size];
-
+        setPdos(size);
         GridCoverage gridCoverage = ((GriddedCoverage) attXML.getCoverage())
                 .getRequestGridCoverage();
 
@@ -242,5 +243,18 @@ public class GridMetadataAdapter extends AbstractMetadataAdapter {
         }
 
         return vals;
+    }
+  
+    @Override
+    public PluginDataObject getRecord(Integer index) {
+        if (pdos != null && index < pdos.length) {
+            return pdos[index];
+        }
+        return null;
+    }
+
+    @Override
+    public void setPdos(int size) {
+        pdos = new GridRecord[size];
     }
 }
