@@ -80,6 +80,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * Apr 01, 2013      #1774 randerso     Moved wind component checking to GfeIngestNotificaionFilter
  * Apr 04, 2013      #1787 randerso     Added null check to prevent log spamming for parameters
  *                                      not included in the parameter info file
+ * May 2, 2013       #1969 randerso     Updated for change to DBInvChangeNotification
  * 
  * </pre>
  * 
@@ -164,8 +165,7 @@ public class GfeIngestNotificationFilter {
                         fullInv.add(dbId);
                         newDbs.add(dbId);
                         GfeNotification dbInv = new DBInvChangeNotification(
-                                fullInv, Arrays.asList(dbId),
-                                new ArrayList<DatabaseID>(0), site);
+                                Arrays.asList(dbId), null, site);
                         sendNotification(dbInv);
                     }
 
