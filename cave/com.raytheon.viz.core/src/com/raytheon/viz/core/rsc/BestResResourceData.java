@@ -141,64 +141,67 @@ public class BestResResourceData extends AbstractRequestableResourceData
      */
     @Override
     public void update(Object updateData) {
-        PluginDataObject[] updatePDO = (PluginDataObject[]) updateData;
-        for (int i = 0; i < updatePDO.length; i++) {
-            Map<String, Object> recordMap = null;
-            try {
-                recordMap = RecordFactory.getInstance().loadMapFromUri(
-                        updatePDO[i].toString());
-            } catch (VizException e) {
-                e.printStackTrace();
-            }
-            AbstractVizResource<?, ?> rscToUse = null;
-            for (AbstractVizResource<?, ?> rsc : rscs) {
-                if (rsc != null) {
-                    AbstractRequestableResourceData arrd = (AbstractRequestableResourceData) rsc
-                            .getResourceData();
-                    String rscValue = arrd.getMetadataMap()
-                            .get(productIdentifierKey).getConstraintValue();
-                    String updateValue = recordMap.get(productIdentifierKey)
-                            .toString();
-                    if (rscValue != null && rscValue.equals(updateValue)) {
-                        rscToUse = rsc;
-                        break;
+        if (updateData instanceof PluginDataObject[]) {
+            PluginDataObject[] updatePDO = (PluginDataObject[]) updateData;
+            for (int i = 0; i < updatePDO.length; i++) {
+                Map<String, Object> recordMap = null;
+                try {
+                    recordMap = RecordFactory.getInstance().loadMapFromUri(
+                            updatePDO[i].toString());
+                } catch (VizException e) {
+                    e.printStackTrace();
+                }
+                AbstractVizResource<?, ?> rscToUse = null;
+                for (AbstractVizResource<?, ?> rsc : rscs) {
+                    if (rsc != null) {
+                        AbstractRequestableResourceData arrd = (AbstractRequestableResourceData) rsc
+                                .getResourceData();
+                        String rscValue = arrd.getMetadataMap()
+                                .get(productIdentifierKey).getConstraintValue();
+                        String updateValue = recordMap
+                                .get(productIdentifierKey).toString();
+                        if (rscValue != null && rscValue.equals(updateValue)) {
+                            rscToUse = rsc;
+                            break;
+                        }
                     }
                 }
-            }
 
-            // no resource found for update
-            if (rscToUse == null) {
-                continue;
-            }
+                // no resource found for update
+                if (rscToUse == null) {
+                    continue;
+                }
 
-            // We know the resource it is for
-            if (enabler != null) {
-                enabler.enable(updatePDO[i], this);
-            }
-            DataTime updateTime = updatePDO[i].getDataTime();
-            AbstractVizResource<?, ?> curRes = bestResTimes.get(updateTime);
+                // We know the resource it is for
+                if (enabler != null) {
+                    enabler.enable(updatePDO[i], this);
+                }
+                DataTime updateTime = updatePDO[i].getDataTime();
+                AbstractVizResource<?, ?> curRes = bestResTimes.get(updateTime);
 
-            // we already have this time?
-            if (rscToUse == curRes) {
-                continue;
-            }
+                // we already have this time?
+                if (rscToUse == curRes) {
+                    continue;
+                }
 
-            // new time, rscToUse is best res
-            if (curRes == null) {
-                rscToUse.getResourceData().update(
-                        new PluginDataObject[] { updatePDO[i] });
-                bestResTimes.put(updateTime, rscToUse);
-            } else {
-                // Check to see if rscToUse is higher res than curRes
-                int curIdx = rscs.indexOf(curRes);
-                int rscToUseIdx = rscs.indexOf(rscToUse);
-
-                if (curIdx == -1 /* shouldn't happen */|| rscToUseIdx < curIdx) {
-                    // rscToUse is higher res than curRes
-                    curRes.remove(updateTime);
+                // new time, rscToUse is best res
+                if (curRes == null) {
                     rscToUse.getResourceData().update(
                             new PluginDataObject[] { updatePDO[i] });
                     bestResTimes.put(updateTime, rscToUse);
+                } else {
+                    // Check to see if rscToUse is higher res than curRes
+                    int curIdx = rscs.indexOf(curRes);
+                    int rscToUseIdx = rscs.indexOf(rscToUse);
+
+                    if (curIdx == -1 /* shouldn't happen */
+                            || rscToUseIdx < curIdx) {
+                        // rscToUse is higher res than curRes
+                        curRes.remove(updateTime);
+                        rscToUse.getResourceData().update(
+                                new PluginDataObject[] { updatePDO[i] });
+                        bestResTimes.put(updateTime, rscToUse);
+                    }
                 }
             }
         }
