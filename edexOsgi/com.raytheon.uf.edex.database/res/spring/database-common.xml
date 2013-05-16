@@ -45,5 +45,18 @@
    	<constructor-arg value="com.raytheon.uf.common.dataquery.requests.TimeQueryRequestSet"/>
   	<constructor-arg ref="timeQueryHandlerSet"/>
   </bean>
+  
+  <bean id="pluginFactory" class="com.raytheon.uf.edex.database.plugin.PluginFactory" factory-method="getInstance"/>
+    
+  <bean id="pluginFactoryRegisteredToDataURIUtil"
+    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="targetClass">
+      <value>com.raytheon.uf.common.dataplugin.annotations.DataURIUtil</value>
+    </property>
+    <property name="targetMethod">
+      <value>setClassMapper</value>
+    </property>
+    <property name="arguments" ref="pluginFactory" />
+  </bean>
 
 </beans>
