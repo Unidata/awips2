@@ -50,6 +50,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataplugin.persist.DefaultPathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -93,20 +94,23 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 2/6/09       1990       bphillip    Initial creation
- * 6/29/12      #828       dgilling    Force getPurgeRulesForPlugin()
- *                                     to search only COMMON_STATIC.
+ * Feb 06, 2009 1990       bphillip    Initial creation
+ * Jun 29, 2012 828        dgilling    Force getPurgeRulesForPlugin()  to search
+ *                                     only COMMON_STATIC.
  * Oct 10, 2012 1261       djohnson    Add some generics wildcarding.
- * Jan 14, 2013 1469       bkowal      No longer retrieves the hdf5 data directory
- *                                     from the environment.
- * Feb 12, 2013 #1608      randerso    Changed to call deleteDatasets
- * Feb 26, 2013 1638       mschenke    Moved OGC specific functions to OGC project
+ * Jan 14, 2013 1469       bkowal      No longer retrieves the hdf5 data
+ *                                     directory  from the environment.
+ * Feb 12, 2013 1608       randerso    Changed to call deleteDatasets
+ * Feb 26, 2013 1638       mschenke    Moved OGC specific functions to OGC
+ *                                     project
  * Mar 27, 2013 1821       bsteffen    Remove extra store in persistToHDF5 for
  *                                     replace only operations.
- * Apr 04, 2013            djohnson    Remove formerly removed methods that won't compile.
+ * Apr 04, 2013            djohnson    Remove formerly removed methods that
+ *                                     won't compile.
  * Apr 15, 2013 1868       bsteffen    Rewrite mergeAll in PluginDao.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * May 16, 2013 1869       bsteffen    Rewrite dataURI property mappings.
  * 
  * </pre>
  * 
@@ -365,7 +369,8 @@ public abstract class PluginDao extends CoreDao {
             }
         }
         // This means dataURI is not a column.
-        for (Entry<String, Object> uriEntry : pdo.createDataURIMap().entrySet()) {
+        for (Entry<String, Object> uriEntry : DataURIUtil.createDataURIMap(pdo)
+                .entrySet()) {
             String key = uriEntry.getKey();
             Object value = uriEntry.getValue();
             if (key.equals("pluginName")) {

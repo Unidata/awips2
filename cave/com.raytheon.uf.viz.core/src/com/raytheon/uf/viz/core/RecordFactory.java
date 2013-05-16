@@ -24,9 +24,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeSet;
 
+import com.raytheon.uf.common.dataplugin.IPluginClassMapper;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataplugin.request.GetPluginRecordMapRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -50,11 +50,12 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * Mar 05, 2013 1753        njensen     Improved debug message
  * Mar 29, 2013 1638        mschenke    Added dataURI mapping methods
  * May 15, 2013 1869        bsteffen    Move uri map creation to DataURIUtil.
+ * May 16, 2013 1869        bsteffen    Rewrite dataURI property mappings.
  * 
  * </pre>
  * 
  */
-public class RecordFactory {
+public class RecordFactory implements IPluginClassMapper {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RecordFactory.class);
 
@@ -62,7 +63,7 @@ public class RecordFactory {
     private static RecordFactory instance = new RecordFactory();
 
     /** Map containing the pluginName/Record class pairs */
-    private Map<String, Class<PluginDataObject>> defMap = new HashMap<String, Class<PluginDataObject>>();
+    private volatile Map<String, Class<PluginDataObject>> defMap = null;
 
     public static final String WILDCARD = "%";
 
@@ -79,35 +80,47 @@ public class RecordFactory {
      * Creates the singleton instance of the RecordFactory
      */
     private RecordFactory() {
-        try {
-            loadDefMap();
-        } catch (Exception e) {
-            statusHandler.handle(Priority.WARN,
-                    "Failed to load plugin record definitions", e);
-        }
+
     }
 
     @SuppressWarnings("unchecked")
-    private void loadDefMap() throws VizException {
-        GetPluginRecordMapRequest req = new GetPluginRecordMapRequest();
-        Map<String, String> pluginRecordMap = (Map<String, String>) ThriftClient
-                .sendRequest(req);
-        for (Map.Entry<String, String> entry : pluginRecordMap.entrySet()) {
-            String pluginName = entry.getKey();
-            String record = entry.getValue();
-            if (record != null) {
-                try {
-                    Class<PluginDataObject> clazz = (Class<PluginDataObject>) Class
-                            .forName(record);
-                    defMap.put(pluginName, clazz);
-                } catch (ClassNotFoundException e) {
-                    String msg = "Can't find record class for " + pluginName
-                            + " plugin - alerts on " + pluginName
-                            + " data will be ignored";
-                    statusHandler.handle(Priority.DEBUG, msg);
+    private Map<String, Class<PluginDataObject>> getDefMap() {
+        if (defMap == null) {
+            synchronized (this) {
+                if (defMap == null) {
+                    Map<String, Class<PluginDataObject>> defMap = new HashMap<String, Class<PluginDataObject>>();
+                    GetPluginRecordMapRequest req = new GetPluginRecordMapRequest();
+                    try {
+                        Map<String, String> pluginRecordMap = (Map<String, String>) ThriftClient
+                                .sendRequest(req);
+                        for (Map.Entry<String, String> entry : pluginRecordMap
+                                .entrySet()) {
+                            String pluginName = entry.getKey();
+                            String record = entry.getValue();
+                            if (record != null) {
+                                try {
+                                    Class<PluginDataObject> clazz = (Class<PluginDataObject>) Class
+                                            .forName(record);
+                                    defMap.put(pluginName, clazz);
+                                } catch (ClassNotFoundException e) {
+                                    String msg = "Can't find record class for "
+                                            + pluginName
+                                            + " plugin - alerts on "
+                                            + pluginName
+                                            + " data will be ignored";
+                                    statusHandler.handle(Priority.DEBUG, msg);
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        statusHandler.handle(Priority.WARN,
+                                "Failed to load plugin record definitions", e);
+                    }
+                    this.defMap = defMap;
                 }
             }
         }
+        return defMap;
     }
 
     /**
@@ -116,7 +129,7 @@ public class RecordFactory {
      * @return
      */
     public Collection<String> getSupportedPlugins() {
-        return new TreeSet<String>(defMap.keySet());
+        return new TreeSet<String>(getDefMap().keySet());
     }
 
     /**
@@ -135,16 +148,10 @@ public class RecordFactory {
             return null;
         }
 
-        String[] tokens = dataURI.split(DataURI.SEPARATOR, 3);
-        String pluginName = tokens[1];
-
         try {
-            Map<String, Object> map = DataURIUtil.createDataURIMap(dataURI,
-                    getPluginClass(pluginName));
+            Map<String, Object> map = DataURIUtil.createDataURIMap(dataURI);
             map.put("dataURI", dataURI);
             return map;
-        } catch (NoPluginException e) {
-            throw e;
         } catch (Exception e) {
             throw new VizException("Unable to create property map for "
                     + dataURI, e);
@@ -162,8 +169,9 @@ public class RecordFactory {
      *             If errors occur creating the field/value map
      */
     public Class<PluginDataObject> getPluginClass(String pluginName)
-            throws VizException {
+            throws NoPluginException {
         Class<PluginDataObject> retVal = null;
+        Map<String, Class<PluginDataObject>> defMap = getDefMap();
         if (defMap != null) {
             retVal = defMap.get(pluginName);
         }
@@ -229,10 +237,21 @@ public class RecordFactory {
                     + type, e);
         }
         try {
-            PluginDataObject.populateFromMap(record, map);
+            DataURIUtil
+                    .populatePluginDataObject((PluginDataObject) record, map);
         } catch (PluginException e) {
             throw new VizException(e);
         }
         return record;
+    }
+
+    @Override
+    public Class<PluginDataObject> getPluginRecordClass(String pluginName)
+            throws PluginException {
+        try {
+            return getPluginClass(pluginName);
+        } catch (NoPluginException e) {
+            throw new PluginException(e.getLocalizedMessage());
+        }
     }
 }
