@@ -189,14 +189,20 @@ function buildFeatureRPMs()
 
       echo "feature = ${feature}"
       if [ "${feature}" = "com.raytheon.uf.viz.cots.feature" ] ||
-         [ "${feature}" = "com.raytheon.uf.viz.base.feature" ]; then
+         [ "${feature}" = "com.raytheon.uf.viz.base.feature" ] ||
+         [ "${feature}" = "com.raytheon.uf.viz.localization.perspective.feature" ]; then
 
-         _component_name = ""
+         _component_name=""
+         _downstream_requires="awips2-common-base"
          if [ "${feature}" = "com.raytheon.uf.viz.cots.feature" ]; then
             _component_name="awips2-cave-viz-cots"
          fi
          if [ "${feature}" = "com.raytheon.uf.viz.base.feature" ]; then
             _component_name="awips2-cave-viz-base"
+         fi
+         if [ "${feature}" = "com.raytheon.uf.viz.localization.perspective.feature" ]; then
+            _component_name="awips2-cave-viz-localization-perspective"
+            _downstream_requires="awips2-common-base awips2-cave-viz-base"
          fi
 
          echo 'export COMPONENT_NAME="${_component_name}"' > \
@@ -205,7 +211,7 @@ function buildFeatureRPMs()
             ${CONST_SETUP_DIR}/feature.setup
          echo 'export COMPONENT_DESC="${_component_name}"' >> \
             ${CONST_SETUP_DIR}/feature.setup
-         echo 'export DOWNSTREAM_REQUIRES="awips2-common-base"' >> \
+         echo 'export DOWNSTREAM_REQUIRES="${_downstream_requires}"' >> \
             ${CONST_SETUP_DIR}/feature.setup         
       else
          java -jar ${PROCESS_FEATURE_JAR} \
