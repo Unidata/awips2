@@ -21,7 +21,6 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 		   	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                         menuText="Blended Rain Rate" id="rainfallRate">
-	                <dataURI>/satellite/%/NESDIS/POES-NPOESS/Supernational/Rain_fall_rate</dataURI>
 	                <substitute key="element" value="Rain fall rate"/>
 	                <substitute key="entity" value="POES-NPOESS"/>
 	                <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
@@ -30,42 +29,36 @@
             id="GOESLine"/>
     	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Lifted Index" id="liftedIndex">
-	        <dataURI>/satellite/%/NESDIS/Composite/Supernational/Sounder_Based_Derived_Lifted_Index_(LI)</dataURI>
 	        <substitute key="element" value="Sounder Based Derived Lifted Index (LI)"/>
 	        <substitute key="entity" value="Composite"/>
 	        <substitute key="colormap" value="Sat/Lifted Index/Lifted Index Default"/>
 	    </contribute>
         <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Total Precip Water" id="totalPrecipWater">
-	        <dataURI>/satellite/%/NESDIS/Composite/Supernational/Sounder_Based_Derived_Precipitable_Water_(PW)</dataURI>
 	        <substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
 	        <substitute key="entity" value="Composite"/>
 	        <substitute key="colormap" value="Sat/Precip Water/Precip Water Default"/>
 	    </contribute>
         <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Cloud Amount" id="cloud Amount">
-	        <dataURI>/satellite/%/NESDIS/Composite/Supernational/Gridded_Cloud_Amount</dataURI>
 	        <substitute key="element" value="Gridded Cloud Amount"/>
 	        <substitute key="entity" value="Composite"/>
 	        <substitute key="colormap" value="Sat/Cloud Amount Default"/>
 	    </contribute>
         <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Cloud Top Height" id="cloudTopHeight">
-	        <dataURI>/satellite/%/NESDIS/Composite/Supernational/Gridded_Cloud_Top_Pressure_or_Height</dataURI>
 	        <substitute key="element" value="Gridded Cloud Top Pressure or Height"/>
 	        <substitute key="entity" value="Composite"/>
 	        <substitute key="colormap" value="Sat/Cloud Top Height"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Skin Temperature" id="skinTemp">
-	        <dataURI>/satellite/%/NESDIS/Composite/Supernational/Sounder_Based_Derived_Surface_Skin_Temp_(SFC_Skin)</dataURI>
 	        <substitute key="element" value="Sounder Based Derived Surface Skin Temp (SFC Skin)"/>
 	        <substitute key="entity" value="Composite"/>
 	        <substitute key="colormap" value="Sat/Skin Temp/Skin Temp Default"/>
 	    </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/DefaultCONUSSatellite.xml"
 			menuText="Low Cloud Base" id="lowCloudBase">
-			<dataURI>/satellite/%/NESDIS/GOES%/%/Low_cloud_base_imagery</dataURI>
 			<substitute key="element" value="Low cloud base imagery" />
 			<substitute key="sector0" value="West CONUS" />
 			<substitute key="sector1" value="East CONUS" />
@@ -75,7 +68,6 @@
 	    <contribute xsi:type="titleItem" titleText="------ DMSP SSM/I ------" id="DMSPLine"/>
 		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Total Precip Water" id="totalPrecipWater">
-	        <dataURI>/satellite/%/NESDIS/DMSP/Supernational/Sounder_Based_Derived_Precipitable_Water_(PW)</dataURI>
 	        <substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
 	        <substitute key="entity" value="DMSP"/>
 	        <substitute key="colormap" value="Sat/Precip Water/Precip Water - Polar)"/>
@@ -83,7 +75,6 @@
 	    <contribute xsi:type="titleItem" titleText="------ POES AMSU ------" id="POESAMSULine"/>
 		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Total Precip Water" id="totalPrecipWater">
-	        <dataURI>/satellite/%/NESDIS/POES-NPOESS/Supernational/Sounder_Based_Derived_Precipitable_Water_(PW)</dataURI>
 	        <substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
 	        <substitute key="entity" value="POES-NPOESS"/>
 	        <substitute key="colormap" value="Sat/Precip Water/Precip Water - Polar)"/>
@@ -92,14 +83,12 @@
 					titleText="------ AMSU and SSM/I + GPS ------" id="blendedofAMSUAndSSMIDataLine"/>
 			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	                menuText="Blended Total Precip Water" id="blendedTotalPrecipWater">
-		        <dataURI>/satellite/%/NESDIS/Miscellaneous/Supernational/Sounder_Based_Derived_Precipitable_Water_(PW)</dataURI>
 		    	<substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
 		        <substitute key="entity" value="Miscellaneous"/>
 		        <substitute key="colormap" value="Sat/Precip Water/Blended Total Precip Water"/>
 		    </contribute>
 			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	                menuText="Percent of Normal TPW" id="percentofNormalTPW">
-		        <dataURI>/satellite/%/NESDIS/Miscellaneous/Supernational/Percent_of_Normal_TPW</dataURI>
 		        <substitute key="element" value="Percent of Normal TPW"/>
 		        <substitute key="entity" value="Miscellaneous"/>
 		        <substitute key="colormap" value="Sat/Precip Water/Percent of Normal TPW"/>

@@ -21,25 +21,21 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 		<contribute xsi:type="bundleItem" file="bundles/HfoGoes.xml" 
 	                menuText="IR Window" id="irWindow">
-	        <dataURI>/satellite/%/NESDIS/GOES%/Hawaii%/Imager_11_micron_IR</dataURI>
 	        <substitute key="element" value="Imager 11 micron IR"/>
 	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/HfoGoes.xml"  
                 menuText="Water Vapor" id="waterVapor">
-	        <dataURI>/satellite/%/NESDIS/GOES%/Hawaii%/Imager_6.7-6.5_micron_IR_(WV)</dataURI>
 	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
 	        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
     	</contribute>
     	<contribute xsi:type="bundleItem" file="bundles/HfoGoes.xml"  
                 menuText="Visible" id="visible">
-	        <dataURI>/satellite/%/NESDIS/GOES%/%/Imager_Visible</dataURI>
 	        <substitute key="element" value="Imager Visible"/>      
 	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/HfoGoes.xml"  
                 menuText="13u" id="13u">
-	        <dataURI>/satellite/%/NESDIS/GOES%/%/Imager_13_micron_(IR)</dataURI>
 	        <substitute key="element" value="Imager 13 micron (IR)"/>
 	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
 	    </contribute>
