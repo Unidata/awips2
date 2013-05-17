@@ -95,6 +95,9 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  * 03/20/2013   #1774      randerso    Removed dead method, changed to use new 
  *                                     D2DGridDatabase constructor
  * 04/23/2013   #1949      rjpeter     Added inventory retrieval for a given time range.
+ * 05/02/13      #1969     randerso    Fixed possible null pointer in getParmList
+ *                                     Removed inventory from DBInvChangedNotification
+ * 05/03/13      #1974     randerso    Fixed error logging to include stack trace
  * </pre>
  * 
  * @author bphillip
@@ -910,9 +913,7 @@ public class GridParmManager {
         try {
             createDB(id);
             if (!inv.contains(id)) {
-                inv.add(id);
-                Collections.sort(inv);
-                createDbNotification(id.getSiteId(), inv,
+                createDbNotification(id.getSiteId(),
                         Arrays.asList(new DatabaseID[] { id }),
                         new ArrayList<DatabaseID>());
             }
@@ -981,7 +982,13 @@ public class GridParmManager {
     public static ServerResponse<List<ParmID>> getParmList(DatabaseID id) {
         ServerResponse<List<ParmID>> sr = new ServerResponse<List<ParmID>>();
         try {
-            sr = getDb(id).getParmList();
+            GridDatabase db = getDb(id);
+            if (db != null) {
+                sr = db.getParmList();
+            } else {
+                sr.addMessage("Database " + id
+                        + " does not exist for getParmList()");
+            }
         } catch (Exception e) {
             sr.addMessage("Error getting db: " + id);
             logger.error("Error getting db: " + id, e);
@@ -1210,7 +1217,7 @@ public class GridParmManager {
                                 dbId.getModelTimeAsDate());
                     } catch (Exception e) {
                         statusHandler.handle(Priority.PROBLEM,
-                                e.getLocalizedMessage());
+                                e.getLocalizedMessage(), e);
                         db = null;
                     }
                 }
@@ -1363,14 +1370,13 @@ public class GridParmManager {
         List<DatabaseID> deletions = new ArrayList<DatabaseID>(prevInventory);
         deletions.removeAll(newInventory);
 
-        createDbNotification(siteID, newInventory, additions, deletions);
+        createDbNotification(siteID, additions, deletions);
     }
 
     private static void createDbNotification(String siteID,
-            List<DatabaseID> dbs, List<DatabaseID> additions,
-            List<DatabaseID> deletions) {
+            List<DatabaseID> additions, List<DatabaseID> deletions) {
         if (!additions.isEmpty() || !deletions.isEmpty()) {
-            DBInvChangeNotification notify = new DBInvChangeNotification(dbs,
+            DBInvChangeNotification notify = new DBInvChangeNotification(
                     additions, deletions, siteID);
             SendNotifications.send(notify);
         }
