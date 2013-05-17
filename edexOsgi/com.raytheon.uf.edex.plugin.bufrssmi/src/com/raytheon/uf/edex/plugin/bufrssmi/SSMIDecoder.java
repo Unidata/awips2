@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.bufrssmi.SSMIScanData;
 import com.raytheon.uf.common.dataplugin.bufrssmi.dao.SSMIScanDataDao;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
@@ -36,13 +35,16 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * 
+ * Decoder for Special Sensor Microwave/Imager data.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 21, 2009       1939 jkorman     Initial creation
+ * Jan 21, 2009 1939       jkorman     Initial creation
+ * May 17, 2013 1869       bsteffen    Remove DataURI column from sat plot
+ *                                     types.
  * 
  * </pre>
  * 
@@ -96,12 +98,6 @@ public class SSMIDecoder extends AbstractBUFRDecoder {
                 if (ssmiObs != null) {
                     for(SSMIScanData d : ssmiObs) {
                         d.setTraceId(traceId);
-                        try {
-                            d.constructDataURI();
-                        } catch (PluginException e) {
-                            logger.error(traceId
-                                    + "- Unable to construct dataURI", e);
-                        }
                         decodedData.add(d);
                     }
                 } else {

@@ -20,10 +20,7 @@
 package com.raytheon.uf.common.dataplugin.bufrmthdw;
 
 import java.util.Calendar;
-import java.util.Collection;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -31,15 +28,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -53,7 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * PluginDataObject for MTSAT high density winds data.
  * 
  * <pre>
  * 
@@ -61,10 +52,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 26, 2010            jkorman     Initial creation
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                     forecastTime
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * May 17, 2013 1869       bsteffen    Remove DataURI column from sat plot
+ *                                     types.
  * 
  * </pre>
  * 
@@ -73,7 +67,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufrmthdwseq")
-@Table(name = "bufrmthdw", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "bufrmthdw", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "stationid", "refTime", "sattype", "pressure", "latitude", "longitude" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -84,28 +79,23 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 				@Index(name = "bufrmthdw_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
 		}
 )
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class BufrMTHDWObs extends PersistablePluginDataObject implements
-		ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
+        ISpatialEnabled, IPointData, IPersistable {
 
 	private static final long serialVersionUID = 1L;
 
 	// The observation time.
 	@DataURI(position = 1)
-	@XmlAttribute
 	@DynamicSerializeElement
 	private String satType;
 
 	@DataURI(position = 2)
-	@XmlAttribute
 	@DynamicSerializeElement
 	private Double pressure;
 
 	@Embedded
 	@DataURI(position = 3, embedded = true)
-	@XmlElement
 	@DynamicSerializeElement
 	private SurfaceObsLocation location;
 
@@ -116,101 +106,81 @@ public class BufrMTHDWObs extends PersistablePluginDataObject implements
 	// Text of the WMO header
 	@Column(length = 32)
 	@DynamicSerializeElement
-	@XmlElement
 	private String wmoHeader;
 
 	// The observation time.
 	@Column
-	@XmlAttribute
 	@DynamicSerializeElement
 	private Calendar validTime;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Double windDir;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Double windSpd;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Double satelliteID;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Double originatingID;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Double satelliteClass;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Double sgmtSzX;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Double sgmtSzY;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Integer satelliteInstr;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Integer satelliteWindMethod;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Double satelliteFreq;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Double satelliteBandWidth;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Double coldestTemp;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Integer heightMethod;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Integer tracerCorrelation;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Integer landSea;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Double satelliteZenith;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Integer firstGuess;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Integer timeSignificance;
@@ -251,11 +221,6 @@ public class BufrMTHDWObs extends PersistablePluginDataObject implements
 	 */
 	public void setValidTime(Calendar time) {
 		validTime = time;
-	}
-
-	@Override
-	public IDecoderGettable getDecoderGettable() {
-		return null;
 	}
 
 	/**
@@ -601,26 +566,6 @@ public class BufrMTHDWObs extends PersistablePluginDataObject implements
 		return null;
 	}
 
-	@Override
-	public String getString(String paramName) {
-		return null;
-	}
-
-	@Override
-	public String[] getStrings(String paramName) {
-		return null;
-	}
-
-	@Override
-	public Amount getValue(String paramName) {
-		return null;
-	}
-
-	@Override
-	public Collection<Amount> getValues(String paramName) {
-		return null;
-	}
-
 	/**
          * 
          */
@@ -680,10 +625,5 @@ public class BufrMTHDWObs extends PersistablePluginDataObject implements
 		}
 		return true;
 	}
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
-    }
+
 }
