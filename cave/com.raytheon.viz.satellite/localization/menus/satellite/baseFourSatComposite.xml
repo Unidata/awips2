@@ -24,25 +24,21 @@
 		   titleText="------ 4 Sat Composite ------" id="NHLine"/>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="IR Window" id="irWindow">
-        <dataURI>/satellite/%/NESDIS/Composite/NH_Composite_-_Meteosat-GOES_E-GOES_W-GMS/Imager_11_micron_IR</dataURI>
         <substitute key="element" value="Imager 11 micron IR"/>
         <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Water Vapor" id="waterVapor">
-        <dataURI>/satellite/%/NESDIS/Composite/NH_Composite_-_Meteosat-GOES_E-GOES_W-GMS/Imager_6.7-6.5_micron_IR_(WV)</dataURI>
         <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
         <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Visible" id="visible">
-        <dataURI>/satellite/%/NESDIS/Composite/NH_Composite_-_Meteosat-GOES_E-GOES_W-GMS/Imager_Visible</dataURI>
         <substitute key="element" value="Imager Visible"/>
         <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DerivedSatellite.xml"
                 menuText="WV/IR" id="WV/IR">
-        <dataURI>/satellite/%/NESDIS/Composite/NH_Composite_-_Meteosat-GOES_E-GOES_W-GMS/Imager_6.7-6.5_micron_IR_(WV)</dataURI>
         <substitute key="element" value="satDivWVIR"/>
         <substitute key="colormap" value="Sat/IR/IR WV"/>
     </contribute> 
