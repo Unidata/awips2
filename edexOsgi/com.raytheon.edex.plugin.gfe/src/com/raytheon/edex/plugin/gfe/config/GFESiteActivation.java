@@ -43,6 +43,7 @@ import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
+import com.raytheon.edex.plugin.gfe.server.database.IFPGridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.NetCDFDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.TopoDatabaseManager;
 import com.raytheon.edex.plugin.gfe.smartinit.SmartInitRecord;
@@ -86,6 +87,7 @@ import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
  * Feb 28, 2013  #1447    dgilling    Enable active table fetching on site
  *                                    activation.
  * Mar 20, 2013  #1774    randerso    Changed to use GFED2DDao
+ * May 02, 2013  #1969    randerso    Moved updateDbs method into IFPGridDatabase
  * 
  * </pre>
  * 
@@ -350,13 +352,12 @@ public class GFESiteActivation implements ISiteActivationListener {
             statusHandler.handle(Priority.EVENTA,
                     "Checking for IFPGridDatabase updates...");
             for (String site : ifpInventory.keySet()) {
-                for (int i = 0; i < ifpInventory.get(site).size(); i++) {
-                    GridDatabase db = GridParmManager.getDb(ifpInventory.get(
-                            site).get(i));
+                for (DatabaseID dbid : ifpInventory.get(site)) {
+                    GridDatabase db = GridParmManager.getDb(dbid);
                     // cluster locked since IFPGridDatabase can modify the grids
                     // based on changes to grid size, etc
-                    if (db.databaseIsValid()) {
-                        db.updateDbs();
+                    if (db instanceof IFPGridDatabase && db.databaseIsValid()) {
+                        ((IFPGridDatabase) db).updateDbs();
                     }
                 }
             }
