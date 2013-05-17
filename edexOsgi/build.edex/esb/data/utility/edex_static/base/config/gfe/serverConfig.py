@@ -1443,6 +1443,7 @@ D2DAccumulativeElements= {
 #############DCS3501
     "HIRESWarw": ["tp"],
     "HIRESWnmm": ["tp"],
+    "RTMA": ["tp"],
 #DR20634    "SPC": ["tp"],
 
     #Dummy ones for the transition from Eta to NAM.  These are ignored.

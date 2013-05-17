@@ -21,7 +21,6 @@
 package com.raytheon.uf.common.dataplugin.warning;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Access;
@@ -31,9 +30,6 @@ import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
@@ -49,32 +45,28 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 03/12/2007   1003        bwoodle     initial creation
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013       1857  bgonzale    Added SequenceGenerator annotation.
+ * Apr 4, 2013  1846        bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
+ * May 02, 2013 1949        rjpeter     Removed ugcZones.
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
- * 
  * </pre>
  * 
  * @author bwoodle
  * @version 1
  */
 @Entity
-@XmlAccessorType(XmlAccessType.NONE)
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "warningseq")
 @Table(name = "warning", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "warning",
-		indexes = {
-				@Index(name = "warning_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
-
-@XmlRootElement
+@org.hibernate.annotations.Table(appliesTo = "warning", indexes = {
+        @Index(name = "warning_refTimeIndex", columnNames = { "refTime",
+                "forecastTime" }),
+        @Index(name = "warning_office_phensig_index", columnNames = {
+                "officeid", "phensig" }) })
 @DynamicSerialize
 public class WarningRecord extends AbstractWarningRecord {
 
@@ -107,7 +99,7 @@ public class WarningRecord extends AbstractWarningRecord {
 
         private static Map<String, WarningAction> unknownMap = new HashMap<String, WarningAction>();
 
-        private String text;
+        private final String text;
 
         private WarningAction(String text) {
             this.text = text;
@@ -168,14 +160,6 @@ public class WarningRecord extends AbstractWarningRecord {
     public WarningRecord(String uri) {
         super(uri);
     }
-
-    public void setUgcs(List<String> list) {
-        ugczones.clear();
-        for (String s : list) {
-            ugczones.add(new UGCZone(s, this));
-        }
-    }
-
     @Override
     @Column
     @Access(AccessType.PROPERTY)

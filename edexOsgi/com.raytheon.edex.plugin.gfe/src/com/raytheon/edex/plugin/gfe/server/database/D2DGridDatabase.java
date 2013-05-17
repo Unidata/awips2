@@ -105,6 +105,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 04/04/2013   #1774       randerso    Moved wind component checking to GfeIngestNotificaionFilter
  * 04/04/2013   #1787       randerso    Move the D2D to GFE translation logic out of GFED2DDao
  * 04/17/2013   #1913       randerso    Added GFE level mapping to replace GridTranslator
+ * 05/02/2013   #1969       randerso    Removed unnecessary updateDbs method
+ * 05/03/2013   #1974       randerso    Fixed error handling when no D2D level mapping found
  * 
  * </pre>
  * 
@@ -202,7 +204,7 @@ public class D2DGridDatabase extends VGridDatabase {
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("GFE:");
 
-    public static class D2DParm {
+    public class D2DParm {
         private ParmID parmId;
 
         private GridParmInfo gpi;
@@ -344,11 +346,6 @@ public class D2DGridDatabase extends VGridDatabase {
 
         }
         return remap;
-    }
-
-    @Override
-    public void updateDbs() {
-        // no op
     }
 
     /**
@@ -1256,25 +1253,30 @@ public class D2DGridDatabase extends VGridDatabase {
         return parmName + "_" + level;
     }
 
-    private static Level getD2DLevel(String gfeLevel) {
-        List<Level> levels;
+    private Level getD2DLevel(String gfeLevel) {
+        List<Level> levels = Collections.emptyList();
         try {
-            levels = LevelMappingFactory.getInstance(GFE_LEVEL_MAPPING_FILE)
-                    .getLevelMappingForKey(gfeLevel).getLevels();
+            LevelMapping lm = LevelMappingFactory.getInstance(
+                    GFE_LEVEL_MAPPING_FILE).getLevelMappingForKey(gfeLevel);
+
+            if (lm != null) {
+                levels = lm.getLevels();
+            }
         } catch (CommunicationException e) {
-            levels = Collections.emptyList();
+            // do nothing
         }
 
         Level level = null;
         if (levels.isEmpty()) {
-            statusHandler.warn("No D2D level found for: " + gfeLevel);
+            statusHandler.warn("No D2D level found for: " + gfeLevel
+                    + ". Check gfeLevelMapping and parameterInfo files.");
         } else {
             level = levels.get(0);
         }
         return level;
     }
 
-    private static String getGFELevel(Level d2dLevel) {
+    private String getGFELevel(Level d2dLevel) {
         LevelMapping levelMapping;
         try {
             levelMapping = LevelMappingFactory.getInstance(
@@ -1284,7 +1286,10 @@ public class D2DGridDatabase extends VGridDatabase {
         }
 
         String gfeLevel = null;
-        if (levelMapping != null) {
+        if (levelMapping == null) {
+            statusHandler.warn("No GFE level found for: " + d2dLevel
+                    + ". Check gfeLevelMapping and parameterInfo files.");
+        } else {
             gfeLevel = levelMapping.getKey();
         }
         return gfeLevel;
