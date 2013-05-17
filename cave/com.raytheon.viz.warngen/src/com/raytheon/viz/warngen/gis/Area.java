@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
-import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration.AreaType;
@@ -73,7 +72,8 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  *    May  4, 2012 #14887      Qinglu lin  Changed 0.25 to 0.60 for DEFAULT_PORTION_TOLERANCE; 
  *                                         added code to pass a Envelope calculatePortion().
  *    Nov  9, 2012 DR 15430    D. Friedman Extracted method converFeAreaToPartList.
- * 
+ *    Apr 29, 2013  1955       jsanchez    Ignored comparing the geometry's user data when finding intersected areas.
+ *    May  2, 2013  1963       jsanchez    Updated method to determine partOfArea.
  * </pre>
  * 
  * @author chammack
@@ -174,7 +174,6 @@ public class Area {
 
         List<String> uniqueFips = new ArrayList<String>();
         List<AffectedAreas> areas = new ArrayList<AffectedAreas>();
-        GeodeticCalculator gc = new GeodeticCalculator();
         for (GeospatialData regionFeature : countyMap.values()) {
             Geometry regionGeom = regionFeature.geometry;
             PreparedGeometry preparedRegionGeom = regionFeature.prepGeom;
@@ -220,9 +219,9 @@ public class Area {
             double tolerCheck = regionGeom.getArea()
                     * DEFAULT_PORTION_TOLERANCE;
             if (areaIntersection < tolerCheck) {
-                area.partOfArea = GisUtil.asStringList(GisUtil
-                        .calculatePortion(regionGeom, intersection, gc,
-                                area.suppress));
+                area.partOfArea = GisUtil
+                        .asStringList(GisUtil.calculatePortion(regionGeom,
+                                intersection, true, true));
             }
 
             // Search the parent region
@@ -284,13 +283,17 @@ public class Area {
             throws VizException {
         Map<String, Object> areasMap = new HashMap<String, Object>();
 
+        String hatchedAreaSource = config.getHatchedAreaSource()
+                .getAreaSource();
         for (AreaSourceConfiguration asc : config.getAreaSources()) {
             if (asc.getType() == AreaType.INTERSECT) {
                 List<Geometry> geoms = new ArrayList<Geometry>();
                 for (GeospatialData f : warngenLayer.getGeodataFeatures(
                         asc.getAreaSource(), localizedSite)) {
+                    boolean ignoreUserData = asc.getAreaSource().equals(
+                            hatchedAreaSource) == false;
                     Geometry intersect = GeometryUtil.intersection(warnArea,
-                            f.prepGeom);
+                            f.prepGeom, ignoreUserData);
                     if (intersect.isEmpty() == false) {
                         geoms.add(intersect);
                     }

@@ -52,8 +52,7 @@
          id="com.raytheon.uf.common.datadelivery.request"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.datadelivery.event"
@@ -66,8 +65,7 @@
          id="com.raytheon.uf.common.registry.ebxml"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.registry.event"
@@ -80,8 +78,7 @@
          id="com.raytheon.uf.common.useradmin"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.viz.useradmin"
@@ -101,7 +98,6 @@
          id="com.raytheon.uf.common.datadelivery.service"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
 </feature>
