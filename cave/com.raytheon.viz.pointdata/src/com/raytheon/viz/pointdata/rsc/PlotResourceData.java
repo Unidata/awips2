@@ -157,12 +157,8 @@ public class PlotResourceData extends AbstractRequestableResourceData {
          * In the future if stationId can be set to anything that is even a
          * little unique we can get rid of this
          */
-        pluginProps.put("bufrssmi", new PluginPlotProperties(true, false));
         pluginProps.put("bufrquikscat", new PluginPlotProperties(true, false));
-        pluginProps.put("bufrascat", new PluginPlotProperties(true, false));
         pluginProps.put("radar", new PluginPlotProperties(true, false));
-        pluginProps.put("bufrhdw", new PluginPlotProperties(true, false));
-        pluginProps.put("bufrmthdw", new PluginPlotProperties(true, false));
         pluginProps.put("lsr", new PluginPlotProperties(true, false));
         pluginProps.put("tcg", new PluginPlotProperties(true, false));
         pluginProps.put("svrwx", new PluginPlotProperties(true, false));
@@ -190,7 +186,10 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("bufrmosNGM", new PluginPlotProperties());
         pluginProps.put("ldadmesonet", new PluginPlotProperties());
         pluginProps.put("qc", new PluginPlotProperties());
-
+        pluginProps.put("bufrascat", new PluginPlotProperties());
+        pluginProps.put("bufrhdw", new PluginPlotProperties());
+        pluginProps.put("bufrmthdw", new PluginPlotProperties());
+        pluginProps.put("bufrssmi", new PluginPlotProperties());
 
         ParsedURL.registerHandler(new LocalizationParsedURLHandler());
     }
