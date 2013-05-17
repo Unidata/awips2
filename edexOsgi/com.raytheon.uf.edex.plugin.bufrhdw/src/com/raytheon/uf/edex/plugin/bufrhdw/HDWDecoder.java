@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.bufrhdw.BufrHDWObs;
 import com.raytheon.uf.common.dataplugin.bufrhdw.dao.BufrHDWObsDao;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
@@ -35,14 +34,16 @@ import com.raytheon.uf.edex.plugin.bufrhdw.decoder.HDWDataAdapter;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
- * 
+ * Decoder for High Density Wind data.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 21, 2009       1939 jkorman     Initial creation
+ * Jan 21, 2009 1939       jkorman     Initial creation
+ * May 17, 2013 1869       bsteffen    Remove DataURI column from sat plot
+ *                                     types.
  * 
  * </pre>
  * 
@@ -92,12 +93,6 @@ public class HDWDecoder extends AbstractBUFRDecoder  {
                 BufrHDWObs hdwObs = adapter.createData(iterator, wmoHeader);
                 if (hdwObs != null) {
                     hdwObs.setTraceId(traceId);
-                    try {
-                        hdwObs.constructDataURI();
-                    } catch (PluginException e) {
-                        logger.error(traceId
-                                + "- Unable to construct dataURI", e);
-                    }
                     decodedData.add(hdwObs);
                 }
             }
