@@ -45,7 +45,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080303            969 jkorman     Initial implementation.
+ * Mar 03, 2008 969        jkorman     Initial implementation.
+ * May 17, 2013 1869       bsteffen    Remove DataURI column from sat plot
+ *                                     types.
  * 
  * </pre>
  * 
@@ -135,6 +137,7 @@ public class AScatDataAdapter extends BUFRPointDataAdapter<AScatObs> {
 
                     SurfaceObsLocation location = new SurfaceObsLocation();
                     location.assignLocation(lat, lon);
+                    location.generateCoordinateStationId();
                     obsData.setLocation(location);
 
                     int rainFlag = getInt(dataList.get(10),
