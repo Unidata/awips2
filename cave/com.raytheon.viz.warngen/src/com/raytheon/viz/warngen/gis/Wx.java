@@ -73,7 +73,6 @@ import com.raytheon.viz.warngen.PreferenceUtil;
 import com.raytheon.viz.warngen.WarngenException;
 import com.raytheon.viz.warngen.config.AbstractDbSourceDataAdaptor;
 import com.raytheon.viz.warngen.config.DataAdaptorFactory;
-import com.raytheon.viz.warngen.config.DbAreaSourceDataAdaptor;
 import com.raytheon.viz.warngen.util.Abbreviation;
 import com.raytheon.viz.warngen.util.AdjustAngle;
 import com.raytheon.viz.warnings.DateUtil;
@@ -108,6 +107,7 @@ import com.vividsolutions.jts.geom.Point;
  *    Mar  5, 2013 1600       jsanchez    Used AdjustAngle instead of AbstractStormTrackResource to handle angle adjusting.
  *    Mar 25, 2013 1605       jsanchez    Checks if a storm location is over an urban bound area.
  *    Apr 24, 2013 1943       jsanchez    Calculated partOfArea for a storm location over an urban bound area.
+ *    May  2, 2013 1963       jsanchez    Referenced calculateLocationPortion from GisUtil.
  * 
  * </pre>
  * 
@@ -733,11 +733,10 @@ public class Wx {
                     // has already been set in DbAreaSoureDataAdapter
                     Point reference = gf.createPoint(coords[i]);
                     if (cp.prepGeom.intersects(reference)) {
-                        cp.partOfArea = GisUtil
-                                .asStringList(DbAreaSourceDataAdaptor
-                                        .calculateLocationPortion(
-                                                cp.prepGeom.getGeometry(),
-                                                cp.point, reference, gc));
+                        cp.partOfArea = GisUtil.asStringList(GisUtil
+                                .calculateLocationPortion(
+                                        cp.prepGeom.getGeometry(), reference,
+                                        false));
                         distance = 0;
                     }
                 }

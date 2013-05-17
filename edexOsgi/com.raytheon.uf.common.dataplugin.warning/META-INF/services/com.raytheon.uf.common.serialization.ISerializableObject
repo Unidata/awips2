@@ -1,4 +1,4 @@
-com.raytheon.uf.common.dataplugin.warning.UGCZone
+com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord
 com.raytheon.uf.common.dataplugin.warning.WarningRecord
 com.raytheon.uf.common.dataplugin.warning.PracticeWarningRecord
 com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration

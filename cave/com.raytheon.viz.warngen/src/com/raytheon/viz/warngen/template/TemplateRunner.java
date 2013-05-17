@@ -150,7 +150,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * Feb 15, 2013   1607     jsanchez    Added two variables corEventTime and corCreateTime.
  * Feb 15, 2013   15820    Qinglu Lin  Added createOfficeTimezoneMap() and added logic so that localtimezone 
  *                                     and secondtimezone can get correct values when warning area covers two time zones.
- * 
+ * May 10, 2013   1951     rjpeter     Updated ugcZones references
  * </pre>
  * 
  * @author njensen
@@ -239,7 +239,7 @@ public class TemplateRunner {
         WKTReader wkt = new WKTReader();
         DataTime[] datatimes = warngenLayer.getDescriptor().getFramesInfo()
                 .getFrameTimes();
-        Date eventTime = datatimes != null && datatimes.length > 0 ? datatimes[datatimes.length - 1]
+        Date eventTime = (datatimes != null) && (datatimes.length > 0) ? datatimes[datatimes.length - 1]
                 .getRefTimeAsCalendar().getTime() : startTime;
         Date simulatedTime = SimulatedTime.getSystemTime().getTime();
         WarngenConfiguration config = warngenLayer.getConfiguration();
@@ -319,7 +319,7 @@ public class TemplateRunner {
             Map<String, Double> intersectSize = new HashMap<String, Double>();
             String[] oneLetterTZ;
             double minSize = 1.0E-3d;
-            if (areas != null && areas.length > 0) {
+            if ((areas != null) && (areas.length > 0)) {
                 Set<String> timeZones = new HashSet<String>();
                 for (AffectedAreas area : areas) {
                     if (area.getTimezone() != null) {
@@ -347,9 +347,11 @@ public class TemplateRunner {
                                 n2 = 0;
                                 size = 0.0d;
                                 totalSize = 0.0d;
-                                if (timezoneGeom != null && warningArea != null) {
-                                    if (intersectSize.get(oneLetterTZ[i]) != null)
+                                if ((timezoneGeom != null)
+                                        && (warningArea != null)) {
+                                    if (intersectSize.get(oneLetterTZ[i]) != null) {
                                         continue;
+                                    }
                                     poly1 = new Polygon[warningArea
                                             .getNumGeometries()];
                                     n1 = warningArea.getNumGeometries();
@@ -369,19 +371,22 @@ public class TemplateRunner {
                                         for (Polygon p2 : poly2) {
                                             size = p1.intersection(p2)
                                                     .getArea();
-                                            if (size > 0.0)
+                                            if (size > 0.0) {
                                                 totalSize += size;
+                                            }
                                         }
-                                        if (totalSize > minSize)
+                                        if (totalSize > minSize) {
                                             break; // save time when the size of
                                                    // poly1 or poly2 is large
+                                        }
                                     }
                                     intersectSize
                                             .put(oneLetterTZ[i], totalSize);
-                                } else
+                                } else {
                                     throw new VizException(
                                             "Either timezoneGeom or/and warningArea is null. "
                                                     + "Timezone cannot be determined.");
+                                }
                                 System.out
                                         .println("Time to do size computation = "
                                                 + (System.currentTimeMillis() - t0));
@@ -393,17 +398,18 @@ public class TemplateRunner {
                             // area is very small,
                             // use the timezone of larger intersection size.
                             if (timeZones.size() == 0) {
-                                if (intersectSize.size() > 1)
+                                if (intersectSize.size() > 1) {
                                     if (intersectSize.get(oneLetterTZ[0]) > intersectSize
                                             .get(oneLetterTZ[1])) {
                                         timeZones.add(oneLetterTZ[0]);
                                     } else {
                                         timeZones.add(oneLetterTZ[1]);
                                     }
-                                else
+                                } else {
                                     throw new VizException(
                                             "The size of intersectSize is less than 1, "
                                                     + "timezone cannot be determined.");
+                                }
                             }
                         }
                     } else {
@@ -414,16 +420,17 @@ public class TemplateRunner {
 
                 Map<String, String> officeCityTimezone = createOfficeTimezoneMap();
                 String cityTimezone = null;
-                if (officeCityTimezone != null)
+                if (officeCityTimezone != null) {
                     cityTimezone = officeCityTimezone.get(warngenLayer
                             .getLocalizedSite());
+                }
                 Iterator<String> iterator = timeZones.iterator();
-                if (timeZones.size() > 1 && cityTimezone != null) {
+                if ((timeZones.size() > 1) && (cityTimezone != null)) {
                     String timezone;
                     while (iterator.hasNext()) {
                         timezone = iterator.next();
                         if (timezone.equals(cityTimezone)
-                                && context.get("localtimezone") == null) {
+                                && (context.get("localtimezone") == null)) {
                             context.put("localtimezone", timezone);
                         } else if (context.get("secondtimezone") == null) {
                             context.put("secondtimezone", timezone);
@@ -441,7 +448,7 @@ public class TemplateRunner {
             }
 
             // CAN and EXP products follow different rules as followups
-            if (!(selectedAction == WarningAction.CAN || selectedAction == WarningAction.EXP)) {
+            if (!((selectedAction == WarningAction.CAN) || (selectedAction == WarningAction.EXP))) {
                 wx = new Wx(config, stormTrackState,
                         warngenLayer.getStormLocations(stormTrackState),
                         startTime.getTime(), DateUtil.roundDateTo15(endTime)
@@ -463,10 +470,11 @@ public class TemplateRunner {
                 context.put("duration", duration);
 
                 context.put("event", eventTime);
-                if (selectedAction == WarningAction.COR)
+                if (selectedAction == WarningAction.COR) {
                     context.put("TMLtime", eventTime);
-                else
+                } else {
                     context.put("TMLtime", simulatedTime);
+                }
                 context.put("ugcline",
                         FipsUtil.getUgcLine(areas, wx.getEndTime(), 15));
                 context.put("areaPoly", GisUtil.convertCoords(warngenLayer
@@ -550,7 +558,7 @@ public class TemplateRunner {
                 canOrExpCal.add(Calendar.MILLISECOND, 1);
                 context.put(
                         "ugcline",
-                        FipsUtil.getUgcLine(oldWarn.getUgczones(),
+                        FipsUtil.getUgcLine(oldWarn.getUgcZones(),
                                 canOrExpCal.getTime(), 0));
                 String oldGeom = oldWarn.getGeometry().toString();
                 context.put("areaPoly", GisUtil.convertCoords(wkt.read(oldGeom)
@@ -605,7 +613,7 @@ public class TemplateRunner {
         context.put("includedWatches", config.getIncludedWatches());
 
         // Additional Information for Followup Products
-        if (etn != null && etn.length() > 0) {
+        if ((etn != null) && (etn.length() > 0)) {
             AbstractWarningRecord oldWarn = null;
 
             // COR product - What are we correcting?
@@ -618,7 +626,7 @@ public class TemplateRunner {
 
             CurrentWarnings cw = CurrentWarnings.getInstance(threeLetterSiteId);
 
-            if (selectedAction == WarningAction.COR && !allowsNewProduct) {
+            if ((selectedAction == WarningAction.COR) && !allowsNewProduct) {
                 oldWarn = cw.getFollowUpByTracking(etn, phenSig,
                         new WarningAction[] { WarningAction.CON,
                                 WarningAction.COR });
@@ -627,8 +635,8 @@ public class TemplateRunner {
             }
 
             // Hydro product
-            if (oldWarn.getFloodSeverity() != null
-                    && oldWarn.getFloodSeverity().length() >= 1) {
+            if ((oldWarn.getFloodSeverity() != null)
+                    && (oldWarn.getFloodSeverity().length() >= 1)) {
                 context.put("floodseverity", oldWarn.getFloodSeverity());
                 context.put("floodic", oldWarn.getImmediateCause());
             }
@@ -651,8 +659,9 @@ public class TemplateRunner {
                     context.put("now", new Date(wwaMNDTime));
                     // original warning's 'now' time used in MND header
                     context.put("corCreateTime", new Date(wwaMNDTime));
-                } else
+                } else {
                     context.put("now", simulatedTime);
+                }
                 context.put("event", oldWarn.getIssueTime().getTime());
                 // original warning's 'event' time, which should match the storm
                 // track
@@ -721,8 +730,9 @@ public class TemplateRunner {
                             }
                         }
                     }
-                    if (untilIndex < 0 || atIndex < 0 || elipsisIndex < 0)
+                    if ((untilIndex < 0) || (atIndex < 0) || (elipsisIndex < 0)) {
                         throw new VizException("Cannot find * AT line.");
+                    }
                 }
 
                 Calendar cal = oldWarn.getEndTime();
@@ -779,18 +789,18 @@ public class TemplateRunner {
                                 oldWarn.getGeometry(), removedAreas,
                                 threeLetterSiteId);
                         for (int i = 0; i < cancelareas.length; i++) {
-                            for (int j = 0; j < areas.length; j++) {
-                                if (cancelareas[i] != null
+                            for (AffectedAreas area : areas) {
+                                if ((cancelareas[i] != null)
                                         && cancelareas[i].getFips().equals(
-                                                areas[j].getFips())) {
+                                                area.getFips())) {
                                     cancelareas[i] = null;
                                 }
                             }
                         }
                         ArrayList<AffectedAreas> al = new ArrayList<AffectedAreas>();
-                        for (int i = 0; i < cancelareas.length; i++) {
-                            if (cancelareas[i] != null) {
-                                al.add(cancelareas[i]);
+                        for (AffectedAreas cancelarea : cancelareas) {
+                            if (cancelarea != null) {
+                                al.add(cancelarea);
                             }
                         }
                         context.put("cancel"
@@ -970,7 +980,7 @@ public class TemplateRunner {
         WatchUtil rval = null;
         String[] includedWatches = config.getIncludedWatches();
 
-        if (includedWatches != null && includedWatches.length > 0) {
+        if ((includedWatches != null) && (includedWatches.length > 0)) {
             String phensigList = null;
             for (String includedWatch : includedWatches) {
                 if (includedWatch.equalsIgnoreCase("torWatches")) {
@@ -1110,7 +1120,7 @@ public class TemplateRunner {
         }
         GeospatialData[] geoData = warngenLayer.getGeodataFeatures(
                 asc.getAreaSource(), warngenLayer.getLocalizedSite());
-        if (geoData == null || geoData.length == 0) {
+        if ((geoData == null) || (geoData.length == 0)) {
             statusHandler.handle(Priority.ERROR,
                     "Cannot process watches: cannot get geospatial data");
             return rval;
@@ -1143,8 +1153,9 @@ public class TemplateRunner {
             }
             // TODO: Building geometry just to perform this test is probably
             // inefficient with the post-DR-15430 logic...
-            if (!ar.getGeometry().isEmpty())
+            if (!ar.getGeometry().isEmpty()) {
                 work.valid = true;
+            }
 
             /*
              * TODO: Currently adding all zones to the list even if they are not
@@ -1159,10 +1170,12 @@ public class TemplateRunner {
              * If none of the areas in the watch were neer our warning polygon,
              * do not included it.
              */
-            if (!work.valid)
+            if (!work.valid) {
                 continue;
-            if (determineAffectedPortions(work.ugcZone, asc, geoData, work.waw))
+            }
+            if (determineAffectedPortions(work.ugcZone, asc, geoData, work.waw)) {
                 rval.addWaw(work.waw);
+            }
         }
 
         return rval;
@@ -1190,8 +1203,8 @@ public class TemplateRunner {
             Entry<String, String[]> e = null;
 
             // Either zero or more than one sates/counties would be wrong
-            if (parsed.size() != 1
-                    || (e = parsed.entrySet().iterator().next()).getValue().length != 1) {
+            if ((parsed.size() != 1)
+                    || ((e = parsed.entrySet().iterator().next()).getValue().length != 1)) {
                 statusHandler.handle(Priority.ERROR,
                         "Invalid ugczone in active table entry: " + ugc);
                 continue;
@@ -1206,16 +1219,18 @@ public class TemplateRunner {
                         "Error generating included watches.", exc);
                 return false;
             }
-            if (feArea == NOT_IN_CWA)
+            if (feArea == NOT_IN_CWA) {
                 continue;
+            }
 
             Set<String> feAreas = map.get(stateAbbrev);
             if (feAreas == null) {
                 feAreas = new HashSet<String>();
                 map.put(stateAbbrev, feAreas);
             }
-            if (feArea != null)
+            if (feArea != null) {
                 feAreas.add(feArea);
+            }
         }
 
         ArrayList<Portion> portions = new ArrayList<Portion>(map.size());
@@ -1265,48 +1280,55 @@ public class TemplateRunner {
                 if ("pa".equals(part)) {
                     pa = 1;
                     continue;
-                } else if ("nn".equals(part))
+                } else if ("nn".equals(part)) {
                     nnn = nn = 1;
-                else if ("ss".equals(part))
+                } else if ("ss".equals(part)) {
                     sss = ss = 1;
-                else if ("ee".equals(part))
+                } else if ("ee".equals(part)) {
                     eee = ee = 1;
-                else if ("ww".equals(part))
+                } else if ("ww".equals(part)) {
                     www = ww = 1;
-                else if ("nw".equals(part))
+                } else if ("nw".equals(part)) {
                     nnn = www = nw = 1;
-                else if ("nc".equals(part))
+                } else if ("nc".equals(part)) {
                     nnn = nc = 1;
-                else if ("ne".equals(part))
+                } else if ("ne".equals(part)) {
                     nnn = eee = ne = 1;
-                else if ("wc".equals(part))
+                } else if ("wc".equals(part)) {
                     www = wc = 1;
-                else if ("cc".equals(part)) {
+                } else if ("cc".equals(part)) {
                     cc = 1;
                     continue;
-                } else if ("ec".equals(part))
+                } else if ("ec".equals(part)) {
                     eee = ec = 1;
-                else if ("sw".equals(part))
+                } else if ("sw".equals(part)) {
                     sss = www = sw = 1;
-                else if ("sc".equals(part))
+                } else if ("sc".equals(part)) {
                     sss = sc = 1;
-                else if ("se".equals(part))
+                } else if ("se".equals(part)) {
                     sss = eee = se = 1;
+                }
                 partAbrev = part;
             }
             // decide how to describe these subareas.
-            if (ne > 0 && nw > 0)
+            if ((ne > 0) && (nw > 0)) {
                 nn = 1;
-            if (se > 0 && sw > 0)
+            }
+            if ((se > 0) && (sw > 0)) {
                 ss = 1;
-            if (se > 0 && ne > 0)
+            }
+            if ((se > 0) && (ne > 0)) {
                 ee = 1;
-            if (sw > 0 && nw > 0)
+            }
+            if ((sw > 0) && (nw > 0)) {
                 ww = 1;
-            if (nnn > 0 && sss > 0 && eee > 0 && www > 0)
+            }
+            if ((nnn > 0) && (sss > 0) && (eee > 0) && (www > 0)) {
                 return abrev;
-            if (nn > 0 && ss > 0 || ee > 0 && ww > 0)
+            }
+            if (((nn > 0) && (ss > 0)) || ((ee > 0) && (ww > 0))) {
                 return abrev;
+            }
             if (nnn + sss + eee + www == 3) {
                 if (www == 0) {
                     abrev = "e";
@@ -1319,11 +1341,11 @@ public class TemplateRunner {
                 }
                 return abrev;
             }
-            if (nnn == sss && eee == www || cc == m) {
+            if (((nnn == sss) && (eee == www)) || (cc == m)) {
                 abrev = "c";
                 return abrev;
             }
-            if (pa != 0 && cc == 0) {
+            if ((pa != 0) && (cc == 0)) {
                 abrev = "pa";
                 if (--m <= 0) {
                     return abrev;
@@ -1346,8 +1368,9 @@ public class TemplateRunner {
     private static String getStateName(String key, AreaSourceConfiguration asc,
             GeospatialData[] geoData) {
         for (GeospatialData g : geoData) {
-            if (key.equals((String) g.attributes.get("STATE")))
+            if (key.equals(g.attributes.get("STATE"))) {
                 return (String) g.parent.attributes.get("NAME");
+            }
         }
         return null;
     }
@@ -1367,10 +1390,11 @@ public class TemplateRunner {
     private static String getFeArea(String stateAbbrev, String ugc,
             AreaSourceConfiguration asc, GeospatialData[] geoData) {
         for (GeospatialData g : geoData) {
-            if (stateAbbrev.equals((String) g.attributes.get("STATE"))
+            if (stateAbbrev.equals(g.attributes.get("STATE"))
                     && ((String) g.attributes.get(asc.getFipsField()))
-                            .endsWith(ugc))
+                            .endsWith(ugc)) {
                 return (String) g.attributes.get(asc.getFeAreaField());
+            }
         }
 
         // TODO: Is this the correct way to determine if the county is in the
