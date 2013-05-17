@@ -17,46 +17,47 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.activetable;
+package com.raytheon.uf.common.dataplugin.gfe.request;
 
-import javax.persistence.Entity;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.Index;
-
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * Operational Active Table, separated so that practice and operational data go to separate tables.
+ * Request to create a new GFE database
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 10, 2010            njensen     Initial creation
- * May 10, 2013 1951       rjpeter     Added own id sequence tagging and new index.
+ * May 2, 2013      #1969  randerso     Initial creation
+ * 
  * </pre>
  * 
- * @author njensen
+ * @author randerso
  * @version 1.0
  */
 
-@Entity
-@SequenceGenerator(initialValue = 1, name = ActiveTableRecord.ID_GEN, sequenceName = "activetableseq")
-@Table(name = "activetable")
 @DynamicSerialize
-@org.hibernate.annotations.Table(appliesTo = "activetable", indexes = { @Index(name = "activetable_officeid_phensig_idx", columnNames = {
-        "officeid", "phensig" }) })
-public class OperationalActiveTableRecord extends ActiveTableRecord implements
-        Cloneable {
+public class CreateNewDbRequest extends AbstractGfeRequest {
 
-    private static final long serialVersionUID = 1L;
+    @DynamicSerializeElement
+    private DatabaseID dbId;
 
-    @Override
-    public Object clone() {
-        return super.internalClone(new OperationalActiveTableRecord());
+    public CreateNewDbRequest() {
     }
 
+    public CreateNewDbRequest(DatabaseID dbId) {
+        this.dbId = dbId;
+    }
+
+    public DatabaseID getDbId() {
+        return dbId;
+    }
+
+    public void setDbId(DatabaseID dbId) {
+        this.dbId = dbId;
+    }
 }
