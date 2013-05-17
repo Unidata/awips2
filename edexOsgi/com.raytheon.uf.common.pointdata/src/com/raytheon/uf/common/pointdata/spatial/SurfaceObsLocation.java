@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.pointdata.spatial;
 
+import java.text.DecimalFormat;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -51,7 +53,9 @@ import com.vividsolutions.jts.geom.Point;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20071026            391 jkorman     Initial Coding.
+ * Oct 26, 2007 391        jkorman     Initial Coding.
+ * May 17, 2013 1869       bsteffen    Remove DataURI column from sat plot
+ *                                     types.
  * 
  * </pre>
  * 
@@ -64,6 +68,16 @@ import com.vividsolutions.jts.geom.Point;
 public class SurfaceObsLocation implements ISpatialObject, Cloneable {
 
     private static final long serialVersionUID = 1L;
+
+    private static final ThreadLocal<DecimalFormat> LATLON_FORMAT = new ThreadLocal<DecimalFormat>(){
+
+        @Override
+        protected DecimalFormat initialValue() {
+            return new DecimalFormat(
+                    "###.###");
+        }
+        
+    };
 
     // Elevation of this location in meters.
     @XmlAttribute
@@ -182,6 +196,15 @@ public class SurfaceObsLocation implements ISpatialObject, Cloneable {
      */
     public void setStationId(String stationId) {
         this.stationId = stationId;
+    }
+
+    /**
+     * Generate a stationId from the lat/lon values.
+     */
+    public void generateCoordinateStationId() {
+        DecimalFormat format = LATLON_FORMAT.get();
+        this.stationId = format.format(longitude) + ":"
+                + format.format(latitude);
     }
 
     /**
