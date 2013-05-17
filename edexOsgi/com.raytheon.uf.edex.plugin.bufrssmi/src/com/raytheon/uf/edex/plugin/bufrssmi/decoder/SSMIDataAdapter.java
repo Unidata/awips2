@@ -49,8 +49,10 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080303            969 jkorman     Initial implementation.
- * 20090706           2538 jsanchez    Added latitude,longitude to point data.
+ * Mar 03, 2008 969        jkorman     Initial implementation.
+ * Jul 06, 2009 2538       jsanchez    Added latitude,longitude to point data.
+ * May 17, 2013 1869       bsteffen    Remove DataURI column from sat plot
+ *                                     types.
  * 
  * </pre>
  * 
@@ -305,6 +307,7 @@ public class SSMIDataAdapter extends BUFRPointDataAdapter<SSMIScanData> {
 
                     SurfaceObsLocation location = new SurfaceObsLocation();
                     location.assignLocation(lat, lon);
+                    location.generateCoordinateStationId();
                     pointData.setLocation(location);
                     setViewData("surfaceTag", view, locList.get(2));
                     int posNum = getInt(locList.get(3), -9999);
