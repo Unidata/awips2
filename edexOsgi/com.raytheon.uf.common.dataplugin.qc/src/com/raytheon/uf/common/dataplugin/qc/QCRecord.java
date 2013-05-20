@@ -22,8 +22,6 @@ package com.raytheon.uf.common.dataplugin.qc;
 
 import java.util.Date;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
@@ -32,14 +30,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -56,11 +49,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 12/07/2009   3408       bphillip    Initial creation
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Dec 07, 2009 3408       bphillip    Initial creation
+ * Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                     forecastTime
  * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * May 16, 2013 1869       bsteffen    Remove DataURI column from qc.
  * 
  * </pre>
  * 
@@ -69,7 +64,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "qcseq")
-@Table(name = "qc", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "qc", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "stationid", "reftime", "qcType", "latitude", "longitude" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -80,8 +76,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 				@Index(name = "qc_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
 		}
 )
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class QCRecord extends PluginDataObject implements ISpatialEnabled {
 
@@ -131,13 +125,11 @@ public class QCRecord extends PluginDataObject implements ISpatialEnabled {
 
 	@Embedded
 	@DataURI(position = 2, embedded = true)
-	@XmlElement
 	@DynamicSerializeElement
 	private SurfaceObsLocation location; // latitude, longitude, elevation,
 
 	@Column(nullable = false, length = 20)
 	@DataURI(position = 1)
-	@XmlElement
 	@DynamicSerializeElement
 	private String qcType;
 
@@ -702,11 +694,6 @@ public class QCRecord extends PluginDataObject implements ISpatialEnabled {
 
 	public QCRecord(String uri) {
 		super(uri);
-	}
-
-	@Override
-	public IDecoderGettable getDecoderGettable() {
-		return null;
 	}
 
 	public Date getInvTime() {
@@ -1971,10 +1958,4 @@ public class QCRecord extends PluginDataObject implements ISpatialEnabled {
 	public void setPointDataView(FakePointDataView pointDataView) {
 		this.pointDataView = pointDataView;
 	}
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
-    }
 }
