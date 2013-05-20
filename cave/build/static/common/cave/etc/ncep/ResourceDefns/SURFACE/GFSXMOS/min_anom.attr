@@ -1,5 +1,5 @@
-! Attributes for the GFSXMOS resource with "minanom" plot model
+! Attributes for the GFSXMOS resource with "min_anom" plot model
 !
-plotModelName=minanom
+plotModel=@PlotModels/bufrmosMRF/min_anom.xml
 plotDensity=10
-conditionalFilterName=conditionalFilter=
+conditionalFilter=

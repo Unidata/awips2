@@ -854,8 +854,8 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 				setAttrForDlg(GfaAttrDlg.this);
 				if ( !PgenSession.getInstance().getPgenPalette().getCurrentAction()
 						.equalsIgnoreCase("MultiSelect")) {
-				populateTagCbo();
-			}
+					populateTagCbo();
+				}
 			}
 		};
 		deskCbo.addSelectionListener(saveSettings);
@@ -1149,7 +1149,7 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 		} else if (sb2.length() != 0){
 			sb.append("/").append(sb2); 
 		}
-				
+		
 		String typeStr = sb.toString();
 		if ( typeStr.contains("CIG") ) values.put( "CIG", "BLW_010" );
 		if ( typeStr.contains("VIS") ) values.put( "VIS", "BLW_3SM" );
@@ -1367,7 +1367,7 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 		
 		if ( !PgenSession.getInstance().getPgenPalette().getCurrentAction()
 				.equalsIgnoreCase("MultiSelect")) {
-		populateTagCbo();
+			populateTagCbo();
 		}
 
 		// update color 
@@ -1980,7 +1980,7 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 	    //vorText maybe null when multi-selecting
 		if ( vorText != null ) textVOR.setText( vorText );
 	}
-
+	
 	/**
 	 * check if the MoveText button is enabled.
 	 * @return

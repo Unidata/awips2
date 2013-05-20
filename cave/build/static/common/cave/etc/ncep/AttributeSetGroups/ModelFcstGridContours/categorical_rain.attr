@@ -1,0 +1,25 @@
+!
+! Restore File : categorical_rain
+!
+! Log:
+!Archana  3/2013 Initial creation
+!
+GLEVEL=0                                                                       
+GVCORD=none                                                                    
+SKIP=
+FILTER=y
+SCALE=0                                                                       
+GDPFUN=CRAIN                                                                  
+TYPE=p                                                                     
+CINT=0
+LINE=3
+FINT=1     
+FLINE=0;21-30;14-20;5                                                         
+HILO=0                                                                    
+HLSYM=0                                                                       
+WIND=
+TITLE=5/-1/~ CRAIN  
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       
+GDATTIM=f03-LAST-3
