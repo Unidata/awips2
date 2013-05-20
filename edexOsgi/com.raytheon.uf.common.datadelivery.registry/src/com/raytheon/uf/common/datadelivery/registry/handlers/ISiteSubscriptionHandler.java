@@ -17,17 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.datadelivery.subscription.subset;
+package com.raytheon.uf.common.datadelivery.registry.handlers;
 
-import org.eclipse.swt.SWT;
-
-import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
+import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
+import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
 
 /**
- * Placeholder shared subscription handler that will display a notice the
- * functionality is not available. It should never be invoked unless the
- * 5-Data_Delivery phase 3 code is available, but provides another layer in case
- * it somehow is invoked.
+ * The {@link IRegistryObjectHandler} interface for {@link Subscription}s.
  * 
  * <pre>
  * 
@@ -35,24 +32,15 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 27, 2013 1841       djohnson     Initial creation
+ * Sep 17, 2012 1169       djohnson     Initial creation
+ * Oct 17, 2012 0726       djohnson     Add {@link #getActiveByDataSetAndProvider}.
+ * Mar 29, 2013 1841       djohnson     Renamed to specify UserSubscription.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-
-public class NotEnabledSubscriptionHandler implements
-        ISharedSubscriptionHandler {
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void launchCreateSharedSubscriptionGui(SubsetManagerDlg<?, ?, ?> subsetManagerDlg) {
-        DataDeliveryUtils.showMessage(subsetManagerDlg.getShell(), SWT.OK,
-                "Unavailable option", "Shared subscriptions are not enabled.");
-    }
-
+public interface ISiteSubscriptionHandler extends
+        ISubscriptionTypeHandler<SiteSubscription> {
 }
