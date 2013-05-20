@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.event;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executors;
 
 import com.google.common.eventbus.AsyncEventBus;
@@ -38,6 +40,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 11, 2012 1407       djohnson     Moved in from EventBus.
+ * May 28, 2013 1650       djohnson     Add method to get all event buses.
  * 
  * </pre>
  * 
@@ -45,7 +48,6 @@ import com.raytheon.uf.common.status.UFStatus;
  * @version 1.0
  */
 class AsynchronousEventBusFactory implements GoogleEventBusFactory {
-
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(AsynchronousEventBusFactory.class);
@@ -60,7 +62,7 @@ class AsynchronousEventBusFactory implements GoogleEventBusFactory {
      * {@inheritDoc}
      */
     @Override
-    public EventBus getEventBus() {
+    public List<EventBus> getEventBuses() {
         int threadCount = 15;
         try {
             threadCount = Integer.getInteger(EVENT_BUS_THREAD_COUNT_PROPERTY,
@@ -71,8 +73,8 @@ class AsynchronousEventBusFactory implements GoogleEventBusFactory {
                             EVENT_BUS_THREAD_COUNT_PROPERTY, threadCount);
             statusHandler.error(logMessage, e);
         }
-        return new AsyncEventBus(EVENT_BUS_NAME,
-                Executors.newFixedThreadPool(threadCount));
+        return Arrays.<EventBus> asList(new AsyncEventBus(EVENT_BUS_NAME,
+                Executors.newFixedThreadPool(threadCount)));
     }
 
 }
