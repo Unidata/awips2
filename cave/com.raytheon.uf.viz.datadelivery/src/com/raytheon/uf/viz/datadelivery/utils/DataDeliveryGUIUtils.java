@@ -29,7 +29,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
@@ -60,6 +63,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * Dec 18, 2012  1439      mpduff     Change Regex to match invalid chars.
  * Jan 04, 2013  1420      mpduff     Change default priority to normal priority.
  * Jan 25, 2013  1528      djohnson   Subscription priority has moved up in the world to the Subscription class.
+ * May 17, 2013  1040      mpduff     Fixed JavaDoc and added tooltip.
  * May 20, 2013  2000      djohnson   Add methods for managing widget listeners.
  * 
  * </pre>
@@ -72,6 +76,9 @@ public class DataDeliveryGUIUtils {
     /** Status Handler */
     private final static IUFStatusHandler statusHandler = UFStatus
             .getHandler(DataDeliveryGUIUtils.class);
+
+    /** Tooltip */
+    private static Shell tooltip;
 
     /** Subscription start/end date format */
     private final static ThreadLocal<SimpleDateFormat> subscriptionFormat = new ThreadLocal<SimpleDateFormat>() {
@@ -279,9 +286,10 @@ public class DataDeliveryGUIUtils {
      * mouse cursor over it to the wait cursor. To undo this call the
      * corresponding method markNotBusyInUIThread(Shell).
      * 
-     * @see DataDeliveryGUIUtils.markNotBusyInUIThread(Shell)
+     * @see #DataDeliveryGUIUtils.markNotBusyInUIThread(Shell)
      * 
      * @param shell
+     *            The Shell to mark busy
      */
     public static void markBusyInUIThread(final Shell shell) {
         VizApp.runAsync(new Runnable() {
@@ -301,9 +309,13 @@ public class DataDeliveryGUIUtils {
      * mouse cursor to normal. This call is the followup to
      * markBusyInUIThread(Shell).
      * 
-     * @see DataDeliveryGUIUtils.markBusyInUIThread(Shell)
+     * This should be placed in a finally block so when exceptions occur this
+     * code is still called.
+     * 
+     * @see #DataDeliveryGUIUtils.markBusyInUIThread(Shell)
      * 
      * @param shell
+     *            the Shell used in markBusyInUIThread
      */
     public static void markNotBusyInUIThread(final Shell shell) {
         VizApp.runAsync(new Runnable() {
@@ -319,6 +331,11 @@ public class DataDeliveryGUIUtils {
 
     /**
      * Check the user's latency value.
+     * 
+     * @param latency
+     *            the latency value
+     * @param maxLatency
+     *            the max latency value
      * 
      * @return true if valid
      */
@@ -396,5 +413,50 @@ public class DataDeliveryGUIUtils {
                 }
             }
         };
+    }
+
+    /**
+     * Get a tooltip display. Caller is responsible for disposing the tooltip by
+     * calling {@link #hideToolTip}.
+     * 
+     * @param parent
+     *            the parent shell
+     * @param x
+     *            the x location
+     * @param y
+     *            the y location
+     * @param text
+     *            the text
+     */
+    public static void showTooltip(Shell parent, int x, int y, String text) {
+        if (tooltip != null && !tooltip.isDisposed()) {
+            tooltip.dispose();
+        }
+        tooltip = new Shell(parent, SWT.TOOL | SWT.ON_TOP);
+        tooltip.setLayout(new GridLayout());
+
+        tooltip.setBackground(tooltip.getDisplay().getSystemColor(
+                SWT.COLOR_INFO_BACKGROUND));
+        tooltip.setBackgroundMode(SWT.INHERIT_FORCE);
+
+        Label lbContent = new Label(tooltip, SWT.NONE);
+        lbContent.setText(text);
+
+        Point lbContentSize = lbContent.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+
+        int width = lbContentSize.x + 10;
+        int height = lbContentSize.y + 10;
+
+        tooltip.setBounds(x, y, width, height);
+        tooltip.setVisible(true);
+    }
+
+    /**
+     * Dispose the tooltip created by {@link #showTooltip}
+     */
+    public static void hideToolTip() {
+        if (tooltip != null && !tooltip.isDisposed()) {
+            tooltip.dispose();
+        }
     }
 }
