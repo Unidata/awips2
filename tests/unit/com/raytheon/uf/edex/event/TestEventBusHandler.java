@@ -19,6 +19,11 @@
  **/
 package com.raytheon.uf.edex.event;
 
+import java.util.Arrays;
+import java.util.List;
+
+import com.google.common.eventbus.EventBus;
+
 /**
  * Test event bus handler.
  * 
@@ -29,6 +34,7 @@ package com.raytheon.uf.edex.event;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 5, 2013    1580     mpduff     Initial creation
+ * May 28, 2013   1650     djohnson   Add getEventBuses.
  * 
  * </pre>
  * 
@@ -40,9 +46,10 @@ public class TestEventBusHandler extends EdexEventBusHandler {
     private static class SynchronousEventBusFactory implements
             GoogleEventBusFactory {
         @Override
-        public com.google.common.eventbus.EventBus getEventBus() {
-            return new com.google.common.eventbus.EventBus(
-                    AsynchronousEventBusFactory.EVENT_BUS_NAME);
+        public List<EventBus> getEventBuses() {
+            return Arrays
+                    .<EventBus> asList(new com.google.common.eventbus.EventBus(
+                            AsynchronousEventBusFactory.EVENT_BUS_NAME));
         }
     }
 
