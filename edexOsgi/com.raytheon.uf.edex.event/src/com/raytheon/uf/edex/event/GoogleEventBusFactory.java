@@ -19,12 +19,12 @@
  **/
 package com.raytheon.uf.edex.event;
 
+import java.util.List;
+
 import com.google.common.eventbus.EventBus;
 
 /**
  * Interface that defines how to get an {@link EventBus} for system use.
- * Intentionally package-private as it should only be used within this package,
- * and not part of the public API.
  * 
  * <pre>
  * 
@@ -33,19 +33,21 @@ import com.google.common.eventbus.EventBus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 11, 2012 1407       djohnson     Initial creation
- * 
+ * May 28, 2013 1650       djohnson     Change to get a list of event bus instances.
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-interface GoogleEventBusFactory {
+public interface GoogleEventBusFactory {
 
     /**
-     * Get the Google {@link EventBus} that will be wrapped with an AWIPS class.
+     * Get the Google {@link EventBus} instances that will be wrapped with an
+     * AWIPS class.
      * 
-     * @return the {@link EventBus}
+     * @return the {@link EventBus} instances
+     * 
      */
-    EventBus getEventBus();
+    List<EventBus> getEventBuses();
 
 }
