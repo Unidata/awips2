@@ -20,10 +20,7 @@
 package com.raytheon.uf.common.dataplugin.bufrssmi;
 
 import java.util.Calendar;
-import java.util.Collection;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -31,15 +28,10 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -54,7 +46,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * TODO Add Description
+ * PluginDataObject for Special Sensor Microwave/Imager data.
  * 
  * <pre>
  * 
@@ -62,10 +54,13 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 18, 2009            jkorman     Initial creation
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                     forecastTime
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * May 17, 2013 1869       bsteffen    Remove DataURI column from sat plot
+ *                                     types.
  * 
  * </pre>
  * 
@@ -74,7 +69,8 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufrssmiseq")
-@Table(name = "bufrssmi", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "bufrssmi", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "stationid", "refTime", "satId", "latitude", "longitude" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -86,10 +82,8 @@ import com.vividsolutions.jts.geom.Geometry;
 		}
 )
 @DynamicSerialize
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 public class SSMIScanData extends PersistablePluginDataObject implements
-		ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
+        ISpatialEnabled, IPointData, IPersistable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -100,28 +94,23 @@ public class SSMIScanData extends PersistablePluginDataObject implements
 
 	@Embedded
 	@DataURI(position = 2, embedded = true)
-	@XmlElement
 	@DynamicSerializeElement
 	private SurfaceObsLocation location;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Integer orbitNumber;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Integer scanNumber;
 
-	@XmlAttribute
 	@DynamicSerializeElement
 	@Transient
 	private Integer posNumber;
 
 	// The profiler observation time.
 	@Column
-	@XmlAttribute
 	@DynamicSerializeElement
 	private Calendar timeObs;
 
@@ -132,7 +121,6 @@ public class SSMIScanData extends PersistablePluginDataObject implements
 	// Text of the WMO header
 	@Column(length = 32)
 	@DynamicSerializeElement
-	@XmlElement
 	private String wmoHeader;
 
 	/**
@@ -294,11 +282,6 @@ public class SSMIScanData extends PersistablePluginDataObject implements
 	}
 
 	@Override
-	public IDecoderGettable getDecoderGettable() {
-		return null;
-	}
-
-	@Override
 	public SurfaceObsLocation getSpatialObject() {
 		return location;
 	}
@@ -309,26 +292,6 @@ public class SSMIScanData extends PersistablePluginDataObject implements
 
 	public void setLocation(SurfaceObsLocation location) {
 		this.location = location;
-	}
-
-	@Override
-	public String getString(String paramName) {
-		return null;
-	}
-
-	@Override
-	public String[] getStrings(String paramName) {
-		return null;
-	}
-
-	@Override
-	public Amount getValue(String paramName) {
-		return null;
-	}
-
-	@Override
-	public Collection<Amount> getValues(String paramName) {
-		return null;
 	}
 
 	/**
@@ -408,10 +371,4 @@ public class SSMIScanData extends PersistablePluginDataObject implements
 		return true;
 	}
 
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
-    }
 }
