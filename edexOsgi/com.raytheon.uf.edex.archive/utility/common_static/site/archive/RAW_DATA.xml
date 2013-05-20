@@ -10,7 +10,6 @@
         <display>\1</display>
         <saveDir>grib/${YYYY}${MM}${DD}/${HH}/(.*)</saveDir>
         <saveFiles>.*</saveFiles>
-        <selectList>grib/${YYYY}${MM}${DD}/${HH}/NCEP_QPF/</selectList>
     </category>
     <category>
         <name>Model grib2</name>
@@ -29,7 +28,7 @@
         <saveFiles>.*</saveFiles>
     </category>
     <category>
-        <name>Satellilte</name>
+        <name>Satellite</name>
         <retentionHours>101</retentionHours>
         <dirPattern>sat/[^/]*/[^/]*/(.*)</dirPattern>
         <display>\1</display>
