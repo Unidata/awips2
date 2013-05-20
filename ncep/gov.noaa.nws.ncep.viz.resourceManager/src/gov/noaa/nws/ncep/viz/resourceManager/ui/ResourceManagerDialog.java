@@ -1,13 +1,16 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui;
 
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd.CreateRbdControl;
 import gov.noaa.nws.ncep.viz.resourceManager.ui.loadRbd.LoadRbdControl;
-import gov.noaa.nws.ncep.viz.resourceManager.ui.manageSpf.ManageSpfControl;
 import gov.noaa.nws.ncep.viz.resourceManager.ui.manageResources.ManageResourceControl;
-import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
+import gov.noaa.nws.ncep.viz.resourceManager.ui.manageSpf.ManageSpfControl;
+import gov.noaa.nws.ncep.viz.resources.manager.AbstractRBD;
+import gov.noaa.nws.ncep.viz.resources.manager.NcMapRBD;
 import gov.noaa.nws.ncep.viz.resources.manager.RscBundleDisplayMngr;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -25,8 +28,7 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
-import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 
 /**
@@ -43,9 +45,10 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * 01/26/11                 Greg Hull    don't set the dialog size.
  * 02/16/11       #408      Greg Hull    Change shell to Modeless and have hotkey 
  *                                       bring to the front.
- * 11/07/11                 Chin Chen    fixed a null pointer exception bug                                      
+ * 11/07/11                 Chin Chen    fixed a null pointer exception bug       
  * 06/19/12       #624      Greg Hull    clone imported RBD and set size based 
  *                                       on prev width.
+ * 02/22/13       #972      Greg Hull    AbstractEditor
  *                                       
  * </pre>
  * 
@@ -106,36 +109,34 @@ public class ResourceManagerDialog extends Dialog {
 
     	final TabItem mngrTabItem = new TabItem( mngrTabFolder, SWT.NONE );
     	mngrTabItem.setText( "   Create RBD   " );
-
-    	rbd_mngr.init();
     	
-    	// get the active Display and set the rbd_mngr with it
-   		NCMapEditor currEditor = NmapUiUtils.getActiveNatlCntrsEditor();
+    	// get the active Display and set the rbd_mngr with it 
+    	AbstractEditor currEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
 
-		if( currEditor != null ) { 
-			RbdBundle rbdBndl = new RbdBundle();
-			rbdBndl.initFromEditor(currEditor);
-
+		if( currEditor != null ) {
+			
 			try {
-				rbdBndl = RbdBundle.clone( rbdBndl );
+				// check that t a type of display that can be imported			
+				AbstractRBD<?> rbdBndl = AbstractRBD.createRbdFromEditor(currEditor);
 
-			rbd_mngr.initFromRbdBundle( rbdBndl );
-		}        
+				rbdBndl = AbstractRBD.clone( rbdBndl );
+
+				rbd_mngr.initFromRbdBundle( rbdBndl );
+			}
 			catch ( VizException e ) {
 				MessageDialog errDlg = new MessageDialog( 
 						shell, "Error", null, 
-						"Error importing Rbd from display "+currEditor.getDisplayName()+".\n" +
+						"Error importing Rbd from display "+NcEditorUtil.getDisplayName(currEditor)+".\n" +
 							e.getMessage(),
 						MessageDialog.ERROR, new String[]{"OK"}, 0);
 				errDlg.open();
 
-				rbd_mngr.init(); 
+				rbd_mngr.init( NcDisplayType.NMAP_DISPLAY ); 
 			}
-    	
 		}        
 
     	createRbdCntrl = new CreateRbdControl( mngrTabFolder, rbd_mngr );
-
+    	
     	final TabItem manageSPFTabItem = new TabItem( mngrTabFolder, SWT.NONE );
     	manageSPFTabItem.setText( "   Manage SPFs  " );
 
@@ -219,14 +220,14 @@ public class ResourceManagerDialog extends Dialog {
     public Object open() {
     	Shell parent = getParent();
     	Display display = parent.getDisplay();
-
+    	
     	shell.setSize( new Point( shell.getSize().x, 
     		  ( prevHeight == 0 ? shell.getSize().y : prevHeight )) );
     	shell.setLocation( prevLocation );
     	shell.open();
     	
     	isOpen = true;
-    	
+    	    	
     	while( !shell.isDisposed() ) {
     		if( !display.readAndDispatch() ) {
     			display.sleep();

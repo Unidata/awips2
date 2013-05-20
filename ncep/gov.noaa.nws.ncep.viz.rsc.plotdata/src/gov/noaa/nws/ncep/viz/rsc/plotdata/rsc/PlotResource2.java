@@ -28,6 +28,7 @@ import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.PlotModelGenerator2;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.StaticPlotInfoPV;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.StaticPlotInfoPV.SPIEntry;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -121,7 +122,7 @@ import static java.lang.System.out;
  * @author brockwoo
  * @version 1.0
  */
-public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, MapDescriptor> 
+public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, NCMapDescriptor> 
 	   implements  IResourceDataChanged, IPlotModelGeneratorCaller, INatlCntrsResource {
 	
 	protected PlotResourceData plotRscData = null;
@@ -189,7 +190,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
                 PaintProperties theseProps = new PaintProperties(lastProps);
                 IExtent extent = theseProps.getView().getExtent();
                
-                int displayWidth = (int) (descriptor.getMapWidth() * theseProps
+                int displayWidth = (int) (getNcMapDescriptor().getMapWidth() * theseProps
                         .getZoomLevel());
                 double kmPerPixel = (displayWidth / canvasWidth) / 1000.0;
                 
@@ -273,19 +274,19 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
                 generator.queueStations(newStations);
                 
                 if (theseProps.getZoomLevel() > 0.10) {
-                newStations = new ArrayList<PlotInfo>();
-                for (Station station : bgStationList) {
-                    if (station.plotImage == null) {
-                        if (bgGenerator.isQueued(station.info) == false) {
-                           newStations.add(station.info);
-                        }
-                    } else {
-                        imageStations.add(station);
-                    }
-                }
-
-                // for stations within the data area (from Preferences) but outside of the current display area
-                bgGenerator.queueStations(newStations);
+	                newStations = new ArrayList<PlotInfo>();
+	                for (Station station : bgStationList) {
+	                    if (station.plotImage == null) {
+	                        if (bgGenerator.isQueued(station.info) == false) {
+	                           newStations.add(station.info);
+	                        }
+	                    } else {
+	                        imageStations.add(station);
+	                    }
+	                }
+	
+	                // for stations within the data area (from Preferences) but outside of the current display area
+	                bgGenerator.queueStations(newStations);
                 }
                 
                 synchronized (this) {
@@ -502,13 +503,13 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 				metadataMap.put( "dataTime.fcstTime", timeConstraint );
 	        }
 			else {
-	        String[] constraintList = { startTime.toString(), endTime.toString() };
+				String[] constraintList = { startTime.toString(), endTime.toString() };
 				timeConstraint.setBetweenValueList( constraintList );
 				timeConstraint.setConstraintType( RequestConstraint.ConstraintType.BETWEEN );
 
 				metadataMap.put("dataTime", timeConstraint );
 			}
-
+			
 	        long t0 = System.currentTimeMillis();
 	        
 	        List<PlotInfo> plotInfoObjs = plotRscData.getPlotInfoRetriever().getStations(
@@ -522,7 +523,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 
 	        	// have to add this since the dataTime is not always getting set by the 
 	        	// plotInfoRetriever?
-				if( pltInfo.dataTime == null ) {
+				if( pltInfo.dataTime == null ) {					
 					if( plotRscData.isSurfaceOnly() ) {
 						pltInfo.dataTime = getFrameTime();
 					}
@@ -557,7 +558,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 	        if( stnLocList.size() != stationMap.keySet().size() ) {
 	        	out.println("Sanity check: station lists out of sync???");
 	        }
-	        
+
 	        calculateProgDisc();
 
 	        setPopulated( true );
@@ -957,7 +958,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
     	}
     	
     	// generator for creating plots for stations within the current display area
-        generator = new PlotModelGenerator2(aTarget, descriptor,
+        generator = new PlotModelGenerator2(aTarget, getNcMapDescriptor(),
                 plotRscData.getPlotModel(), 
                 (plotRscData.isSurfaceOnly() ? null : plotRscData.getLevelKey() ),
                 plotRscData.getMetadataMap(),  plotRscData.getConditionalFilter(), this);  
@@ -973,7 +974,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
     	}
     	
         // generator for creating plots for stations within the data area but outside of the current display area
-        bgGenerator = new PlotModelGenerator2(aTarget, descriptor,
+        bgGenerator = new PlotModelGenerator2(aTarget, getNcMapDescriptor(),
                 plotRscData.getPlotModel(), 
                 (plotRscData.isSurfaceOnly() ? null : plotRscData.getLevelKey() ),
                 plotRscData.getMetadataMap(),  plotRscData.getConditionalFilter(), this);       
@@ -982,7 +983,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
         this.bgGenerator.setPlotMissingData(plotRscData.isPlotMissingData() );
        
         
-        this.distFloor = ( descriptor.getMapWidth() / 1000.0)
+        this.distFloor = ( getNcMapDescriptor().getMapWidth() / 1000.0)
         						* plotRscData.getPixelSizeHint() / 32000.0;
         // not sure where this calculation comes from but the above value yield
         distFloor /= 3; // 
@@ -1056,7 +1057,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
     	// easiest thing to do for now...
         clearFrames(); 
         
-        this.distFloor = (descriptor.getMapWidth() / 1000.0)
+        this.distFloor = (getNcMapDescriptor().getMapWidth() / 1000.0)
         	           * this.plotRscData.getPixelSizeHint() / 32000.0;
         this.worldExtent = new PixelExtent(0, descriptor.getGridGeometry()
                 .getGridRange().getHigh(0), 0, descriptor.getGridGeometry()

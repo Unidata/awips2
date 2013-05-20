@@ -82,7 +82,7 @@
 	</model>
 
 	<model>
-		<name>ecmwfg</name>
+		<name>ecmwft</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
 		<grid>22829</grid>
@@ -197,9 +197,28 @@
 		<subcenter>0</subcenter>
 		<grid>361181001</grid>
 		<process>
+			<id>108</id>
 			<id>109</id>
+			<id>110</id>
+			<id>111</id>
+			<id>112</id>
 		</process>
 	</model>
+
+	<model>
+		<name>ecmwfWave</name>
+		<center>98</center>
+		<subcenter>0</subcenter>
+		<grid>360181001</grid>
+		<process>
+			<id>108</id>
+			<id>109</id>
+			<id>110</id>
+			<id>111</id>
+			<id>112</id>
+		</process>
+	</model>
+
 
 	<model>
 		<name>ecmwfWave</name>

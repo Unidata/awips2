@@ -15,7 +15,8 @@ import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -88,7 +89,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * @version 1.0
  */
 
-public class WarnResource extends AbstractNatlCntrsResource< WarnResourceData, IMapDescriptor> 
+public class WarnResource extends AbstractNatlCntrsResource< WarnResourceData, NCMapDescriptor> 
 												implements     INatlCntrsResource, IStationField { 
 
 	private IFont font;
@@ -332,7 +333,7 @@ public class WarnResource extends AbstractNatlCntrsResource< WarnResourceData, I
 							warnData.countyLon[i], warnData.countyLat[i] );					
 		        	Symbol pointSymbol = new Symbol(null,colors,symbolWidth, symbolSize*2.4 ,false,
 		        					coord,"Symbol","DOT");
-		        	DisplayElementFactory df = new DisplayElementFactory( target, descriptor );
+		        	DisplayElementFactory df = new DisplayElementFactory( target, getNcMapDescriptor() );
 	    			ArrayList<IDisplayable> displayEls = df.createDisplayElements( pointSymbol , paintProps );
 	    			for (IDisplayable each : displayEls) {
 	    				each.draw(target, paintProps);
@@ -362,14 +363,14 @@ public class WarnResource extends AbstractNatlCntrsResource< WarnResourceData, I
 				if( labelPix != null ){
 					String[] text = new String[2];
 					List<String> enabledText = new ArrayList<String>();
-
+					
 					if(warnRscData.getCountyNameEnable() ){
 						enabledText.add(warnData.countyNames.get(i));
 					}
 					
 					if(warnRscData.getTimeEnable() ){
-					DataTime startTime = new DataTime( warnData.eventTime.getValidPeriod().getStart() );
-					DataTime endTime = new DataTime( warnData.eventTime.getValidPeriod().getEnd() );
+						DataTime startTime = new DataTime( warnData.eventTime.getValidPeriod().getStart() );
+						DataTime endTime = new DataTime( warnData.eventTime.getValidPeriod().getEnd() );
 						String temp = startTime.toString().substring(11, 13) +startTime.toString().substring(14, 16)
 									 + "-" + endTime.toString().substring(11, 13) +startTime.toString().substring(14, 16);
 						enabledText.add(temp);
@@ -379,7 +380,7 @@ public class WarnResource extends AbstractNatlCntrsResource< WarnResourceData, I
 						enabledText.add("");
 					
 					text = enabledText.toArray(text);
-
+					
 					target.drawStrings(font, text,   
 							labelPix[0], labelPix[1], 0.0, TextStyle.NORMAL,
 							new RGB[] {color, color},
@@ -585,8 +586,8 @@ public class WarnResource extends AbstractNatlCntrsResource< WarnResourceData, I
 	protected boolean postProcessFrameUpdate() {
     	
     	 crjob.setRequest(
-     			NmapUiUtils.getActiveNatlCntrsEditor().getActiveDisplayPane().getTarget()
-     			, descriptor, null, false, false, null);
+     			NcDisplayMngr.getActiveNatlCntrsEditor().getActiveDisplayPane().getTarget(),
+     			   getNcMapDescriptor(), null, false, false, null);
     	
 		return true;
 	}
@@ -834,7 +835,7 @@ public class WarnResource extends AbstractNatlCntrsResource< WarnResourceData, I
 	 *  called in the constructor.
 	 */
 	private void addRDChangedListener(){
-		AbstractEditor editor = NmapUiUtils.getActiveNatlCntrsEditor();
+		AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
 		editor.addRenderableDisplayChangedListener(this.new WarnDCListener());
 	}
 	
