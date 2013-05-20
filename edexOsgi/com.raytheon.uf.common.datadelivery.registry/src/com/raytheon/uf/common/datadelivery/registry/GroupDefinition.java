@@ -35,6 +35,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Dec 10, 2012   1259     bsteffen   Switch Data Delivery from LatLon to referenced envelopes.
  * Jan 02, 2013 1441       djohnson   Add constants.
  * Apr 08, 2013 1826       djohnson   Remove delivery options.
+ * May 22, 2013 1650       djohnson   Remove option instance variable.
  * 
  * </pre>
  * 
@@ -63,10 +64,6 @@ public class GroupDefinition {
     @DynamicSerializeElement
     @SlotAttribute
     protected String groupName;
-
-    @XmlAttribute
-    @DynamicSerializeElement
-    protected Integer option;
 
     @XmlAttribute
     @DynamicSerializeElement

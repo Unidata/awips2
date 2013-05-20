@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth.notification;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.google.common.eventbus.EventBus;
 
 /**
@@ -31,6 +34,7 @@ import com.google.common.eventbus.EventBus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 06, 2013 1543       djohnson     Initial creation
+ * May 28, 2013 1650       djohnson     Add getEventBuses.
  * 
  * </pre>
  * 
@@ -40,12 +44,18 @@ import com.google.common.eventbus.EventBus;
 
 public class BandwidthSyncEventBusFactory implements BandwidthEventBusFactory {
 
+    private final EventBus dataSetBus = new EventBus();
+
+    private final EventBus subscriptionBus = new EventBus();
+
+    private final EventBus retrievalBus = new EventBus();
+
     /**
      * {@inheritDoc}
      */
     @Override
     public EventBus getSubscriptionBus() {
-        return new EventBus();
+        return subscriptionBus;
     }
 
     /**
@@ -53,7 +63,7 @@ public class BandwidthSyncEventBusFactory implements BandwidthEventBusFactory {
      */
     @Override
     public EventBus getRetrievalBus() {
-        return new EventBus();
+        return retrievalBus;
     }
 
     /**
@@ -61,7 +71,15 @@ public class BandwidthSyncEventBusFactory implements BandwidthEventBusFactory {
      */
     @Override
     public EventBus getDataSetBus() {
-        return new EventBus();
+        return dataSetBus;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<EventBus> getEventBuses() {
+        return Arrays.<EventBus> asList(dataSetBus, retrievalBus,
+                subscriptionBus);
+    }
 }

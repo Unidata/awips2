@@ -136,6 +136,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * May 15, 2013 1040       mpduff       Implement shared subscriptions.
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
+ * May 28, 2013 1650       djohnson     More information when failing to schedule subscriptions.
  * </pre>
  * 
  * @author mpduff
@@ -1099,11 +1100,13 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     public String getOptionDisplayText(ForceApplyPromptResponse option,
             int requiredLatency, Subscription subscription,
             Set<String> wouldBeUnscheduledSubscriptions) {
+        final boolean singleSubscription = wouldBeUnscheduledSubscriptions
+                .size() == 1;
         switch (option) {
         case CANCEL:
             return "Do not store the adhoc query";
         case FORCE_APPLY:
-            if (wouldBeUnscheduledSubscriptions.size() == 1
+            if (singleSubscription
                     && wouldBeUnscheduledSubscriptions.contains(subscription
                             .getName())) {
                 // Can't force apply a query that won't ever be processed
@@ -1113,6 +1116,9 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         case INCREASE_LATENCY:
             return "Increase the latency on the adhoc query to "
                     + requiredLatency + " minutes";
+        case EDIT_SUBSCRIPTIONS:
+            return "Edit the "
+                    + ((singleSubscription) ? "subscription" : "subscriptions");
         default:
             throw new IllegalArgumentException(
                     "Don't know how to handle option [" + option + "]");
