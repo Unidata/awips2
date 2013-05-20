@@ -23,8 +23,8 @@ import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionDeleteRequest;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSharedSubscriptionHandler;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSiteSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler;
-import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingUserSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.PendingSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -44,6 +44,7 @@ import com.raytheon.uf.common.serialization.comm.RequestRouter;
  * Sep 27, 2012 1187       djohnson     Initial creation
  * Nov 15, 2012 1286       djohnson     Use server-keyed routing.
  * Apr 05, 2013 1841       djohnson     Add shared subscription support.
+ * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
  * 
  * </pre>
  * 
@@ -55,12 +56,12 @@ public class VizPendingSubscriptionHandler extends PendingSubscriptionHandler {
     /**
      * Constructor.
      * 
-     * @param userSubscriptionHandler
+     * @param siteSubscriptionHandler
      */
     public VizPendingSubscriptionHandler(
-            IPendingUserSubscriptionHandler userSubscriptionHandler,
+            IPendingSiteSubscriptionHandler siteSubscriptionHandler,
             IPendingSharedSubscriptionHandler sharedSubscriptionHandler) {
-        super(userSubscriptionHandler, sharedSubscriptionHandler);
+        super(siteSubscriptionHandler, sharedSubscriptionHandler);
     }
 
     /**
