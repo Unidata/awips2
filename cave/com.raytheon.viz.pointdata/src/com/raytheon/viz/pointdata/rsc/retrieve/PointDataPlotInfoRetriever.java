@@ -109,7 +109,7 @@ public class PointDataPlotInfoRetriever extends AbstractDbPlotInfoRetriever {
             statusHandler.handle(Priority.CRITICAL, message, new Exception(
                     message));
         }
-        if (data.length == 5) {
+        if (data.length > 4) {
             stationInfo.dataURI = (String) data[4];
         }
         return stationInfo;
