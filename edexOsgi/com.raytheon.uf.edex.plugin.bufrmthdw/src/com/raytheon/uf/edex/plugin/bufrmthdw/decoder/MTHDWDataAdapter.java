@@ -48,6 +48,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 26, 2010            jkorman     Initial creation
+ * May 17, 2013 1869       bsteffen    Remove DataURI column from sat plot
+ *                                     types.
  * 
  * </pre>
  * 
@@ -224,6 +226,7 @@ public class MTHDWDataAdapter extends BUFRPointDataAdapter<BufrMTHDWObs> {
             SurfaceObsLocation location = new SurfaceObsLocation();
             location.setLatitude(lat);
             location.setLongitude(lon);
+            location.generateCoordinateStationId();
             pointData.setLocation(location);
             // ****************************************
             // Now pickup the rest of the data.
