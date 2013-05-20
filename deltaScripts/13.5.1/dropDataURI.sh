@@ -35,13 +35,27 @@ function dropDatauriAndAddConstraint {
 
 echo "INFO: Dropping dataURI columns."
 
+# GFE already has constraints right so just drop the column and vaccuum
 dropDatauri gfe
 ${PSQL} -U awips -d metadata -c "VACUUM FULL ANALYZE gfe"
+
+# Remap the constraints for these type
 dropDatauriAndAddConstraint bufrmosavn bufrmosavn_location_id_reftime_forecasttime_key "(location_id, reftime, forecasttime)"
 dropDatauriAndAddConstraint bufrmoshpc bufrmoshpc_location_id_reftime_forecasttime_key "(location_id, reftime, forecasttime)"
 dropDatauriAndAddConstraint goessounding goessounding_stationid_reftime_latitude_longitude_key "(stationid, reftime, latitude, longitude)"
 dropDatauriAndAddConstraint poessounding poessounding_stationid_reftime_latitude_longitude_key "(stationid, reftime, latitude, longitude)"
 dropDatauriAndAddConstraint ldadmesonet ldadmesonet_stationid_reftime_reportType_dataProvider_latitude_longitude_key "(stationid, reftime, reportType, dataProvider, latitude, longitude)"
 dropDatauriAndAddConstraint qc qc_stationid_reftime_qctype_latitude_longitude_key "(stationid, reftime, qcType, latitude, longitude)"
+
+# These type need a unique stationid so set one before dropping datauri.
+${PSQL} -U awips -d metadata -c "update bufrascat set stationid = to_char(longitude, 'FM999.999') || ':' || to_char(latitude, 'FM999.999')"
+dropDatauriAndAddConstraint bufrascat bufrascat_stationid_reftime_satid_latitude_longitude_key "(stationid, reftime, satid, latitude, longitude)"
+${PSQL} -U awips -d metadata -c "update bufrssmi set stationid = to_char(longitude, 'FM999.999') || ':' || to_char(latitude, 'FM999.999')"
+dropDatauriAndAddConstraint bufrssmi bufrssmi_stationid_reftime_satid_latitude_longitude_key "(stationid, reftime, satid, latitude, longitude)"
+${PSQL} -U awips -d metadata -c "update bufrhdw set stationid = to_char(longitude, 'FM999.999') || ':' || to_char(latitude, 'FM999.999')"
+dropDatauriAndAddConstraint bufrhdw bufrhdw_stationid_reftime_sattype_pressure_latitude_longitude_key "(stationid, reftime, sattype, pressure, latitude, longitude)"
+${PSQL} -U awips -d metadata -c "update bufrmthdw set stationid = to_char(longitude, 'FM999.999') || ':' || to_char(latitude, 'FM999.999')"
+dropDatauriAndAddConstraint bufrmthdw bufrmthdw_stationid_reftime_sattype_pressure_latitude_longitude_key "(stationid, reftime, sattype, pressure, latitude, longitude)"
+
 
 echo "INFO: dataURI columns dropped successfully"
