@@ -32,7 +32,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.raytheon.uf.common.datadelivery.registry.SharedSubscription;
-import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 
 /**
@@ -62,7 +62,7 @@ public class NotificationMessageContainsTypeTest {
     @BeforeClass
     public static void classSetUp() throws JMSException, JAXBException {
         when(message.getText()).thenReturn(
-                SerializationUtil.marshalToXml(new UserSubscription()));
+                SerializationUtil.marshalToXml(new SiteSubscription()));
     }
 
     @Test
@@ -70,7 +70,7 @@ public class NotificationMessageContainsTypeTest {
             throws JMSException, JAXBException {
 
         NotificationMessageContainsType condition = new NotificationMessageContainsType(
-                String.class, UserSubscription.class);
+                String.class, SiteSubscription.class);
         assertThat(
                 condition
                         .matchesCondition(new NotificationMessage[] { notificationMessage }),
@@ -82,7 +82,7 @@ public class NotificationMessageContainsTypeTest {
             JAXBException {
 
         NotificationMessageContainsType condition = new NotificationMessageContainsType(
-                UserSubscription.class);
+                SiteSubscription.class);
         assertThat(
                 condition
                         .matchesCondition(new NotificationMessage[] { notificationMessage }),

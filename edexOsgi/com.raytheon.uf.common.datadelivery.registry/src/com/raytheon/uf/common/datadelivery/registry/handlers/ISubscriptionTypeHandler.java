@@ -36,6 +36,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 05, 2013 1841       djohnson     Initial creation
+ * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
  * 
  * </pre>
  * 

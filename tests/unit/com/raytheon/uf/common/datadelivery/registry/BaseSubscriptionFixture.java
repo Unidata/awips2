@@ -41,6 +41,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * Jan 30, 2013 1543       djohnson     Add coverage/parameter data.
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * Apr 08, 2013 1826       djohnson     Remove delivery options.
+ * May 15, 2013 1040       mpduff       Office Ids are now a list.
  * 
  * </pre>
  * 
@@ -74,7 +75,7 @@ public abstract class BaseSubscriptionFixture<T extends Subscription> extends
         subscription.setFullDataSet(random.nextBoolean());
         subscription.setGroupName("group" + random.nextInt());
         subscription.setName("name" + seedValue);
-        subscription.setOfficeID("officeID" + random.nextInt());
+        subscription.addOfficeID("officeID" + random.nextInt());
         subscription.addParameter(ParameterFixture.INSTANCE.get());
         // Same priority for all, individual tests needing to test specific
         // priorities should set it manually anyway

@@ -41,7 +41,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  */
 
 public class SubscriptionFixture extends
-        BaseUserSubscriptionFixture<UserSubscription> {
+        BaseSiteSubscriptionFixture<SiteSubscription> {
 
     public static final SubscriptionFixture INSTANCE = new SubscriptionFixture();
 
@@ -55,7 +55,7 @@ public class SubscriptionFixture extends
      * {@inheritDoc}
      */
     @Override
-    protected UserSubscription getSubscription() {
-        return new UserSubscription();
+    protected SiteSubscription getSubscription() {
+        return new SiteSubscription();
     }
 }

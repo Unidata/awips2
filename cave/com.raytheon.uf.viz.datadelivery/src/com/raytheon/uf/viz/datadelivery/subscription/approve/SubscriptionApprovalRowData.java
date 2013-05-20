@@ -19,8 +19,11 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription.approve;
 
+import java.util.Set;
+
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.datadelivery.common.ui.ISortTable;
 import com.raytheon.uf.viz.datadelivery.common.ui.ITableData;
 import com.raytheon.uf.viz.datadelivery.subscription.approve.SubApprovalTableComp.Action;
@@ -37,8 +40,9 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * ------------ ---------- ----------- --------------------------
  * Jun  7, 2012            mpduff      Initial creation.
  * Sep 17, 2012   1157     mpduff      Add null check.
- * Nov 28, 2012 1286       djohnson    Hide details of checking whether a user is a row's subscription's owner.
- * Dec 20, 2012 1413       bgonzale    Implemented compareTo.
+ * Nov 28, 2012   1286     djohnson    Hide details of checking whether a user is a row's subscription's owner.
+ * Dec 20, 2012   1413     bgonzale    Implemented compareTo.
+ * May 15, 2013   1040     mpduff      Change office id to a set.
  * 
  * </pre>
  * 
@@ -46,7 +50,8 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * @version 1.0
  */
 
-public class SubscriptionApprovalRowData implements ITableData<SubscriptionApprovalRowData> {
+public class SubscriptionApprovalRowData implements
+        ITableData<SubscriptionApprovalRowData> {
     /** The subscription object */
     private InitialPendingSubscription subscription;
 
@@ -63,7 +68,7 @@ public class SubscriptionApprovalRowData implements ITableData<SubscriptionAppro
     private String description;
 
     /** The office id of the subscription */
-    private String officeId;
+    private Set<String> officeIds;
 
     /** Reason for the change to the subscription */
     private String changeReason;
@@ -155,20 +160,19 @@ public class SubscriptionApprovalRowData implements ITableData<SubscriptionAppro
     }
 
     /**
-     * @return the officeId
+     * @return the officeIds
      */
-    public String getOfficeId() {
-        return officeId;
+    public Set<String> getOfficeIds() {
+        return officeIds;
     }
 
     /**
-     * @param officeId
-     *            the officeId to set
+     * @param officeIds
+     *            the officeIds to set
      */
-    public void setOfficeId(String officeId) {
-        this.officeId = officeId;
+    public void setOfficeIds(Set<String> officeIds) {
+        this.officeIds = officeIds;
     }
-
 
     /**
      * @return the changeReason
@@ -178,7 +182,8 @@ public class SubscriptionApprovalRowData implements ITableData<SubscriptionAppro
     }
 
     /**
-     * @param changeReason the changeReason to set
+     * @param changeReason
+     *            the changeReason to set
      */
     public void setChangeReason(String changeReason) {
         this.changeReason = changeReason;
@@ -186,7 +191,7 @@ public class SubscriptionApprovalRowData implements ITableData<SubscriptionAppro
 
     private void populate() {
         this.description = subscription.getDescription();
-        this.officeId = subscription.getOfficeID();
+        this.officeIds = subscription.getOfficeIDs();
         this.owner = subscription.getOwner();
         this.subName = subscription.getName();
         this.changeOwner = subscription.getChangeReqId();
@@ -202,7 +207,7 @@ public class SubscriptionApprovalRowData implements ITableData<SubscriptionAppro
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
     @Override
@@ -230,8 +235,8 @@ public class SubscriptionApprovalRowData implements ITableData<SubscriptionAppro
             otherValue = o.getSubName();
             break;
         case OFFICE:
-            selfValue = getOfficeId();
-            otherValue = o.getOfficeId();
+            selfValue = StringUtil.join(getOfficeIds(), ',');
+            otherValue = StringUtil.join(o.getOfficeIds(), ',');
             break;
         case OWNER:
             selfValue = getOwner();
@@ -257,7 +262,7 @@ public class SubscriptionApprovalRowData implements ITableData<SubscriptionAppro
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.uf.viz.datadelivery.common.ui.ITableData#setSortCallback
      * (com.raytheon.uf.viz.datadelivery.common.ui.ISortTable)
@@ -268,7 +273,8 @@ public class SubscriptionApprovalRowData implements ITableData<SubscriptionAppro
     }
 
     /**
-     * @param action the action to set
+     * @param action
+     *            the action to set
      */
     public void setAction(String action) {
         this.action = action;
@@ -291,5 +297,14 @@ public class SubscriptionApprovalRowData implements ITableData<SubscriptionAppro
      */
     public boolean isOwner(IUser user) {
         return getSubscription().getOwner().equals(user.uniqueId().toString());
+    }
+
+    /**
+     * Get a list of office ids as a String
+     * 
+     * @return list of ids
+     */
+    public String getOfficeIdsAsList() {
+        return StringUtil.join(this.officeIds, ',');
     }
 }
