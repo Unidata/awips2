@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.datadelivery.registry.handlers;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -46,6 +47,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * Oct 03, 2012 1241       djohnson     More query methods.
  * Oct 10, 2012 0726       djohnson     Add {@link #getActive()}.
  * Feb 20, 2013 1543       djohnson     Add ability to filter on routes.
+ * May 28, 2013 1650       djohnson     Add getByNames.
  * 
  * </pre>
  * 
@@ -72,6 +74,23 @@ public abstract class BaseSubscriptionHandler<T extends Subscription, QUERY exte
         checkResponse(response, "getByName");
 
         return response.getSingleResult();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<T> getByNames(Collection<String> names)
+            throws RegistryHandlerException {
+        SubscriptionFilterableQuery<T> query = getQuery();
+        query.setNames(names);
+
+        RegistryQueryResponse<T> response = RegistryManager
+                .getRegistyObjects(query);
+
+        checkResponse(response, "getByNames");
+
+        return response.getResults();
     }
 
     /**

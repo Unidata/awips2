@@ -4,17 +4,10 @@
   http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 	<bean id="logHandler" class="com.raytheon.uf.edex.event.handler.LogHandler" />
-	<bean
-		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-		<property name="staticMethod"
-			value="com.raytheon.uf.common.event.EventBus.register" />
-		<property name="arguments">
-			<list>
-				<ref bean="logHandler" />
-			</list>
-		</property>
-	</bean>
-
+    
+    <bean factory-bean="eventBus" factory-method="register">
+        <constructor-arg ref="logHandler" />
+    </bean>
 
 	<bean id="eventPublishHandler" class="com.raytheon.uf.edex.event.handler.EventPublishHandler" />
 	<bean factory-bean="handlerRegistry" factory-method="register">
