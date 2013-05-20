@@ -38,6 +38,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceA
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 4, 2012  1286      djohnson     Initial creation
+ * May 28, 2013 1650      djohnson     More information when failing to schedule subscriptions.
  * 
  * </pre>
  * 
@@ -78,17 +79,22 @@ public class CancelForceApplyAndIncreaseLatencyDisplayText implements
             int requiredLatency, Subscription subscription,
             Set<String> wouldBeUnscheduledSubscriptions) {
         final String name = subscription.getName();
+        final boolean singleSubscription = wouldBeUnscheduledSubscriptions
+                .size() == 1;
         switch (option) {
         case CANCEL:
             return "Do not " + actionText + " " + name;
         case FORCE_APPLY:
-            if (wouldBeUnscheduledSubscriptions.size() == 1
+            if (singleSubscription
                     && wouldBeUnscheduledSubscriptions.contains(name)) {
                 return titleCaseActionText + " " + name
                         + " and leave in an unscheduled status";
             }
             return titleCaseActionText + " " + name
                     + " and unschedule the others";
+        case EDIT_SUBSCRIPTIONS:
+            return "Edit the "
+                    + ((singleSubscription) ? "subscription" : "subscriptions");
         case INCREASE_LATENCY:
             return "Increase the latency on " + name + " to " + requiredLatency
                     + " minutes";

@@ -109,6 +109,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Mar 11, 2013 1645       djohnson     Watch configuration file for changes.
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * May 02, 2013 1910       djohnson     Shutdown proposed bandwidth managers in a finally.
+ * May 20, 2013 1650       djohnson     Add in capability to find required dataset size.
  * </pre>
  * 
  * @author dhladky
@@ -142,16 +143,17 @@ public abstract class BandwidthManager extends
     @VisibleForTesting
     final Runnable watchForConfigFileChanges = new Runnable() {
 
-       private final IFileModifiedWatcher fileModifiedWatcher = FileUtil.getFileModifiedWatcher(EdexBandwidthContextFactory
-               .getBandwidthMapConfig());
+        private final IFileModifiedWatcher fileModifiedWatcher = FileUtil
+                .getFileModifiedWatcher(EdexBandwidthContextFactory
+                        .getBandwidthMapConfig());
 
-       @Override
-       public void run() {
-           if (fileModifiedWatcher.hasBeenModified()) {
-               bandwidthMapConfigurationUpdated();
-           }
-       }
-   };
+        @Override
+        public void run() {
+            if (fileModifiedWatcher.hasBeenModified()) {
+                bandwidthMapConfigurationUpdated();
+            }
+        }
+    };
 
     public BandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
@@ -161,13 +163,10 @@ public abstract class BandwidthManager extends
         this.retrievalManager = retrievalManager;
         this.bandwidthDaoUtil = bandwidthDaoUtil;
 
-        EventBus.register(this);
-        BandwidthEventBus.register(this);
-
         // schedule maintenance tasks
         scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(watchForConfigFileChanges,
-                1, 1, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(watchForConfigFileChanges, 1, 1,
+                TimeUnit.MINUTES);
         scheduler.scheduleAtFixedRate(new MaintanenceTask(), 1, 5,
                 TimeUnit.MINUTES);
     }
@@ -1172,8 +1171,11 @@ public abstract class BandwidthManager extends
             // scheduled, just apply
             scheduleSubscriptions(subscriptions);
         } else if (subscriptions.size() == 1) {
-            int requiredLatency = determineRequiredLatency(subscriptions.get(0));
+            final Subscription subscription = subscriptions.get(0);
+            int requiredLatency = determineRequiredLatency(subscription);
             proposeResponse.setRequiredLatency(requiredLatency);
+            long requiredDataSetSize = determineRequiredDataSetSize(subscription);
+            proposeResponse.setRequiredDataSetSize(requiredDataSetSize);
         }
         return proposeResponse;
     }
@@ -1402,7 +1404,6 @@ public abstract class BandwidthManager extends
             nullSafeShutdown(proposedBwManager);
         }
 
-
         return subscriptions;
     }
 
@@ -1461,8 +1462,7 @@ public abstract class BandwidthManager extends
         try {
             ctx = new ClassPathXmlApplicationContext(springFiles,
                     EDEXUtil.getSpringContext());
-            return (BandwidthManager) ctx.getBean("bandwidthManager",
-                    BandwidthManager.class);
+            return ctx.getBean("bandwidthManager", BandwidthManager.class);
         } finally {
             if (close) {
                 Util.close(ctx);
@@ -1578,18 +1578,9 @@ public abstract class BandwidthManager extends
      */
     @VisibleForTesting
     void shutdown() {
-        try {
-            EventBus.unregister(this);
-        } catch (Exception e) {
-            statusHandler.handle(Priority.WARN,
-                    "Unable to unregister from the EventBus.", e);
-        }
-        try {
-            BandwidthEventBus.unregister(this);
-        } catch (Exception e) {
-            statusHandler.handle(Priority.WARN,
-                    "Unable to unregister from the BandwidthEventBus.", e);
-        }
+        unregisterFromEventBus();
+        unregisterFromBandwidthEventBus();
+
         try {
             retrievalManager.shutdown();
         } catch (Exception e) {
@@ -1602,6 +1593,20 @@ public abstract class BandwidthManager extends
             statusHandler.handle(Priority.WARN,
                     "Unable to shutdown the scheduler.", e);
         }
+    }
+
+    /**
+     * Unregister from the {@link EventBus}.
+     */
+    private void unregisterFromEventBus() {
+        EventBus.unregister(this);
+    }
+
+    /**
+     * Unregister from the {@link BandwidthEventBus}.
+     */
+    private void unregisterFromBandwidthEventBus() {
+        BandwidthEventBus.register(this);
     }
 
     /**
@@ -1622,85 +1627,111 @@ public abstract class BandwidthManager extends
      */
     @VisibleForTesting
     int determineRequiredLatency(final Subscription subscription) {
+        final int requiredLatency = determineRequiredValue(subscription,
+                new FindSubscriptionRequiredLatency());
+
+        final int bufferRoomInMinutes = retrievalManager.getPlan(
+                subscription.getRoute()).getBucketMinutes();
+
+        return requiredLatency + bufferRoomInMinutes;
+    }
+
+    /**
+     * Determine the dataset size that would be required on the subscription for
+     * it to be fully scheduled.
+     * 
+     * @param subscription
+     *            the subscription
+     * @return the required dataset size
+     */
+    private long determineRequiredDataSetSize(final Subscription subscription) {
+        return determineRequiredValue(subscription,
+                new FindSubscriptionRequiredDataSetSize());
+    }
+
+    /**
+     * Determine a value that would be required on the subscription for it to be
+     * fully scheduled.
+     * 
+     * @param subscription
+     *            the subscription
+     * @param strategy
+     *            the required value strategy
+     * @return the required value
+     */
+    private <T extends Comparable<T>> T determineRequiredValue(
+            final Subscription subscription,
+            final IFindSubscriptionRequiredValue<T> strategy) {
         ITimer timer = TimeUtil.getTimer();
         timer.start();
 
-        boolean foundLatency = false;
-        int latency = subscription.getLatencyInMinutes();
-        if (latency < 1) {
-            latency = 1;
-        }
-        int previousLatency = latency;
+        boolean foundRequiredValue = false;
+        T currentValue = strategy.getInitialValue(subscription);
+
+        T previousValue = currentValue;
         do {
-            // Double the latency until we have two values we can binary
-            // search between...
-            previousLatency = latency;
-            latency *= 2;
+            previousValue = currentValue;
+            currentValue = strategy.getNextValue(subscription, currentValue);
 
-            Subscription clone = subscription.copy();
-            clone.setLatencyInMinutes(latency);
-            foundLatency = isSchedulableWithoutConflict(clone);
-        } while (!foundLatency);
+            Subscription clone = strategy.setValue(subscription.copy(),
+                    currentValue);
+            foundRequiredValue = isSchedulableWithoutConflict(clone);
+        } while (!foundRequiredValue);
 
-        SortedSet<Integer> possibleLatencies = new TreeSet<Integer>();
-        for (int i = previousLatency; i < (latency + 1); i++) {
-            possibleLatencies.add(Integer.valueOf(i));
-        }
+        SortedSet<T> possibleValues = strategy.getPossibleValues(previousValue,
+                currentValue);
 
-        IBinarySearchResponse<Integer> response = AlgorithmUtil.binarySearch(
-                possibleLatencies, new Comparable<Integer>() {
+        IBinarySearchResponse<T> response = AlgorithmUtil.binarySearch(
+                possibleValues, new Comparable<T>() {
                     @Override
-                    public int compareTo(Integer valueToCheck) {
-                        Subscription clone = subscription.copy();
-                        clone.setLatencyInMinutes(valueToCheck);
+                    public int compareTo(T valueToCheck) {
+                        Subscription clone = strategy.setValue(
+                                subscription.copy(), valueToCheck);
 
-                        boolean latencyWouldWork = isSchedulableWithoutConflict(clone);
+                        boolean valueWouldWork = isSchedulableWithoutConflict(clone);
 
-                        // Check if one value less would not work, if so
-                        // then this is the required latency, otherwise keep
+                        // Check if one more restrictive value would not work,
+                        // if so then this is the required value, otherwise keep
                         // searching
-                        if (latencyWouldWork) {
-                            clone.setLatencyInMinutes(clone
-                                    .getLatencyInMinutes() - 1);
+                        if (valueWouldWork) {
+                            clone = strategy.setValue(
+                                    subscription.copy(),
+                                    strategy.getNextRestrictiveValue(valueToCheck));
 
                             return (isSchedulableWithoutConflict(clone)) ? 1
                                     : 0;
                         } else {
-                            // Still too low, stuff would be unscheduled
+                            // Stuff would still be unscheduled
                             return -1;
                         }
                     }
                 });
 
-        final Integer binarySearchedLatency = response.getItem();
-        if (binarySearchedLatency != null) {
-            latency = binarySearchedLatency.intValue();
+        final T binarySearchedValue = response.getItem();
+        final String valueDescription = strategy.getValueDescription();
+        if (binarySearchedValue != null) {
+            currentValue = binarySearchedValue;
 
             if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                statusHandler.debug(String.format(
-                        "Found required latency of [%s] in [%s] iterations",
-                        binarySearchedLatency, response.getIterations()));
+                statusHandler.debug(String.format("Found required "
+                        + valueDescription + " of [%s] in [%s] iterations",
+                        binarySearchedValue, response.getIterations()));
             }
         } else {
-            statusHandler
-                    .warn(String
-                            .format("Unable to find the required latency with a binary search, using required latency [%s]",
-                                    latency));
+            statusHandler.warn(String.format("Unable to find the required "
+                    + valueDescription
+                    + " with a binary search, using value [%s]", currentValue));
         }
 
         timer.stop();
 
-        int bufferRoomInMinutes = retrievalManager.getPlan(
-                subscription.getRoute()).getBucketMinutes();
+        final String logMsg = String.format("Determined required "
+                + valueDescription + " of [%s] in [%s] ms.", currentValue,
+                timer.getElapsedTime());
 
-        final String logMsg = String
-                .format("Determined required latency of [%s] in [%s] ms.  Adding buffer room of [%s] minutes",
-                        latency, timer.getElapsedTime(), bufferRoomInMinutes);
         statusHandler.info(logMsg);
 
-        latency += bufferRoomInMinutes;
-
-        return latency;
+        return currentValue;
     }
 
     /**
