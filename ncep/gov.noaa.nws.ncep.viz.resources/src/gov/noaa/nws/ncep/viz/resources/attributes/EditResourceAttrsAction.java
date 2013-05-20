@@ -2,7 +2,7 @@ package gov.noaa.nws.ncep.viz.resources.attributes;
 
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -54,7 +54,7 @@ public class EditResourceAttrsAction extends AbstractRightClickAction {
 	@Override
 	public void run() {
 		// add sanity check that this is an INatlCntrsResource
-		Shell shell = NmapUiUtils.getCaveShell();
+		Shell shell = NcDisplayMngr.getCaveShell();
 		
 		if( selectedRsc.getResource() instanceof INatlCntrsResource ) {
 			// Popup with the Apply button 
@@ -91,7 +91,7 @@ public class EditResourceAttrsAction extends AbstractRightClickAction {
 		// resource doesn't extent the Abstract Dialog class
 		if( editDlgClass == null ) {
             MessageDialog msgDlg = new MessageDialog( 
-        			NmapUiUtils.getCaveShell(), 
+        			NcDisplayMngr.getCaveShell(), 
         			"Info", null, 
         			"Resource " + rscData.getResourceName().toString() + " is not editable",
         			MessageDialog.INFORMATION, new String[]{"OK"}, 0);
@@ -119,7 +119,7 @@ public class EditResourceAttrsAction extends AbstractRightClickAction {
 		}
 		catch( Exception e ) {
 			System.out.println( "Error instantiating Edit Dialog for Resource: " +rscData.getResourceName().toString() );
-			System.out.println( "Dialog class is: " + editDlgClass );
+			System.out.println( "Dialog class is: " + editDlgClass );			
 		}
 // no need to distinguish between all these possible exceptions.
 //		} catch( SecurityException e) {

@@ -75,6 +75,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      Fixed enable problem when dialog returns. 
  * 03/12        #599        Q. Zhou     Fixed selecting a outlook. need to enable btns from outlookType table.
  * 										Fixed label text combo width.
+ * 03/13		#928		B. Yin		Removed some white space.		
  * </pre>
  * 
  * @author	B. Yin
@@ -974,7 +975,11 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		widthLbl.setText("Line Width:");
 
 		GridLayout gl = new GridLayout( 3, false );	
-		Group widthGrp = new Group( panel2, SWT.NONE ) ;	    
+		Group widthGrp = new Group( panel2, SWT.NONE ) ;
+		gl.horizontalSpacing = 1;
+		gl.verticalSpacing = 0;
+		gl.marginHeight = 1;
+		gl.marginWidth = 1;
 		widthGrp.setLayout( gl );
 /*		
 		widthSlider = new Slider(widthGrp, SWT.HORIZONTAL);
@@ -989,7 +994,7 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 */
 		widthSpinnerSlider = 
         	new gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.SpinnerSlider(widthGrp, SWT.HORIZONTAL,1);
-        widthSpinnerSlider.setLayoutData(new GridData(180,30));
+        widthSpinnerSlider.setLayoutData(new GridData(130,30));
         widthSpinnerSlider.setMinimum(1);            
         widthSpinnerSlider.setMaximum(10);
         widthSpinnerSlider.setIncrement(1);
@@ -1352,12 +1357,38 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		Node otlkType = readOutlookTbl().selectSingleNode(xpath);
 		List<Node> nodes = otlkType.selectNodes("label");
 		for (Node node : nodes) {
-			lbls.add(node.valueOf("@text"));
+			lbls.add(node.valueOf("@name"));
 		}
 
 		return lbls;
 	}
+	
+	/**
+	 * Get output text string for the specified label of the outlook type
+	 * @param type - outlook type
+	 * @return
+	 */
+	public String getTextForLabel(String outlookType, String label){
 
+		if (label == null || label.isEmpty() ) return "";
+		
+		String ret = "";
+		String xpath = OTLK_XPATH + "[@name='" + outlookType.toUpperCase() +"']";
+		
+		Node otlkType = readOutlookTbl().selectSingleNode(xpath);
+		List<Node> nodes = otlkType.selectNodes("label");
+		
+		for (Node node : nodes) {
+			if ( label.equals(node.valueOf("@name"))){
+				ret = node.valueOf("@text");
+				break;
+			}
+		}
+
+		if ( ret.isEmpty() ) ret = label;
+		
+		return ret;
+	}
 	/**
 	 * Get default values of the text labels for the input outlook type
 	 * @param type - outlook type
@@ -1375,7 +1406,7 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 			List<Node> nodes = otlkType.selectNodes( "label" );
             
 		    for (Node node : nodes) {
-			    String text = node.valueOf( "@text" );
+			    String text = node.valueOf( "@name" );
 			    cmap.append( text );
 			    cmap.append( "=" );
 			
@@ -1450,10 +1481,10 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 	public void setOtlkType( String type ){
 		int idx = outlookCombo.indexOf(type.toUpperCase());
 		if ( idx > 0 ){
-		outlookCombo.select( outlookCombo.indexOf(type.toUpperCase()));
-		setDefaultLabels( this.getOutlookType());
-		setDefaultLineAttr( outlookCombo.getText() + txtCombo.getText());
-	}
+			outlookCombo.select( outlookCombo.indexOf(type.toUpperCase()));
+			setDefaultLabels( this.getOutlookType());
+			setDefaultLineAttr( outlookCombo.getText() + txtCombo.getText());
+		}
 	}
 		
 	/**
@@ -1558,8 +1589,8 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 				this.setAttrForDlg((IAttribute)ln);
 				lineType = ln.getPgenType();
 			}
-			}
 		}
+	}
 	
 	public String getLineType(){
 		return lineType;

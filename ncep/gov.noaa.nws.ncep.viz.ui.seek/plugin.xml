@@ -17,6 +17,11 @@
       <handler
             class="gov.noaa.nws.ncep.viz.ui.seek.SeekResultsAction"
             commandId="gov.noaa.nws.ncep.viz.ui.actions.seek">
+         <enabledWhen>
+            <reference
+                  definitionId="gov.noaa.nws.ncep.viz.ui.display.isMapEditor">
+            </reference>
+         </enabledWhen>
       </handler>
    </extension>
 

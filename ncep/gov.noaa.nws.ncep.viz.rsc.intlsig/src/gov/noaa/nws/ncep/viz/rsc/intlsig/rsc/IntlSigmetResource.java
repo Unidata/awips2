@@ -29,6 +29,7 @@ import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.AbstractFrameData;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.IRscDataObject;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
 import java.awt.Color;
 import java.awt.geom.Rectangle2D;
@@ -107,7 +108,7 @@ import com.vividsolutions.jts.geom.Polygon;
  */
 @SuppressWarnings("unused")
 public class IntlSigmetResource 
-extends AbstractNatlCntrsResource<IntlSigmetResourceData, IMapDescriptor>
+extends AbstractNatlCntrsResource<IntlSigmetResourceData, NCMapDescriptor>
 implements INatlCntrsResource{
 
 	private IntlSigmetResourceData   intlSigmetResourceDataObj;
@@ -392,7 +393,8 @@ implements INatlCntrsResource{
 								    /* tempSymbolLocationWorldCoord = condensedISIG.getCentroidInWorldCoordinates(condensedISIG, this.getDescriptor(),
 								    		                                  condensedISIG.polygonVertexPixelCoordList);*/
 								    
-								    tempSymbolLocationWorldCoord = condensedISIG.getCentroidInWorldCoordinates(polygonCoordinatesList, this.getDescriptor(), graphicsTarget);
+								    tempSymbolLocationWorldCoord = condensedISIG.getCentroidInWorldCoordinates(polygonCoordinatesList, 
+								    		this.getNcMapDescriptor(), graphicsTarget);
 								    
 								     int distance   = condensedISIG.getDistance();
 								     String polyExtent = condensedISIG.getPolygonExtent();
@@ -400,7 +402,7 @@ implements INatlCntrsResource{
 								    	 if(!condensedISIG.isPolygonClosed()){
 								    	 /*If a surrounding polygon is to be rendered */
 	                                      this.drawPolygonSurroundingLine(graphicsTarget,
-	                                    		this.getDescriptor(),
+	                                    		this.getNcMapDescriptor(),
 	                                    		condensedISIG.polygonVertexWorldCoord,
 	                                    		condensedISIG.polygonVertexPixelCoordList,
 	                                    		polygonLineColor,polygonLineWidth,
@@ -464,7 +466,7 @@ implements INatlCntrsResource{
 											&& !weatherHarzardList.isEmpty()){
 										
 										PixelCoordinate coordOfSymbolInPixel;
-										DisplayElementFactory df = new DisplayElementFactory( graphicsTarget, descriptor );
+										DisplayElementFactory df = new DisplayElementFactory( graphicsTarget, getNcMapDescriptor() );
 										ArrayList<IDisplayable> displayEls = new ArrayList<IDisplayable>(0);
 										String symbolType = "ASTERISK";
 										

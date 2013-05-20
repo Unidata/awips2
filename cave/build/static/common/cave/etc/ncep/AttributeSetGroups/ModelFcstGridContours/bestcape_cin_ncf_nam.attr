@@ -6,7 +6,7 @@
 ! J. Carr/NCEP	         6/97	changed glevel and gvcord for cape and cin
 !                               to comply with EMC
 !
-GLEVEL =  180:0
+GLEVEL =  0:180
 GVCORD =  pdly
 SKIP   =    0/1
 FILTER=y
@@ -19,9 +19,9 @@ FINT   =    0
 FLINE  =   0
 HILO   =    0!0
 HLSYM  =   0
-!CLRBAR =  0
+!CLRBAR=  0
 WIND   =    0
-TITLE  =   1/-1/~ BEST CAPE (0-180 MB AGL)(jkg-1) & CIN (cyan)!0
+TITLE  =   1/-1/~ BEST CAPE (0-180 MB AGL)(jkg-1) AND CIN (cyan)!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
