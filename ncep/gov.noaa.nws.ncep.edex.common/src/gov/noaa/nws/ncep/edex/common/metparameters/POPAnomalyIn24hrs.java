@@ -4,14 +4,8 @@
 package gov.noaa.nws.ncep.edex.common.metparameters;
 
 
-//import gov.noaa.nws.ncep.metParameters.parameterConversion.PRLibrary.InvalidRangeException;
-//import gov.noaa.nws.ncep.metParameters.parameterConversion.PRLibrary.InvalidValueException;
-//import gov.noaa.nws.ncep.metparameters.Amount;
-//import gov.noaa.nws.ncep.metparameters.ClimateDataDbAccess;
-//import gov.noaa.nws.ncep.metparameters.POPAnomalyIn24hrs;
-//import gov.noaa.nws.ncep.metparameters.POPFcst24Hrs;
-//import gov.noaa.nws.ncep.metparameters.StationID;
-//import gov.noaa.nws.ncep.metparameters.MetParameterFactory.DeriveMethod;
+
+import gov.noaa.nws.ncep.edex.common.metparameters.MetParameterFactory.DeriveMethod;
 
 import javax.measure.quantity.Dimensionless;
 import javax.measure.unit.NonSI;
@@ -40,35 +34,23 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 	public POPAnomalyIn24hrs() {
 			super( UNIT );
 	}	 
-//	
-//	
-//	@DeriveMethod
-//	public POPAnomalyIn24hrs derive( POPFcst24Hrs popFcst24Hrs, StationID stationId ) throws InvalidValueException, NullPointerException  {
-//		if ( popFcst24Hrs.hasValidValue() && stationId.hasValidValue() ){
-//			String month = SelectedFrameTimeUtil.getFrameTimeMonthStringValue(); 
-//			String dayOfMonth = SelectedFrameTimeUtil.getFrameTimeDayOfMonthStringValue(); 
-//			double climatePP24 = getClimatePP24(stationId.valueString, month, dayOfMonth); 
-//			double finalPP2A = popFcst24Hrs.doubleValue() - climatePP24; 
-////			System.out.println("=======, popFcst24Hrs.doubleValue()= "+popFcst24Hrs.doubleValue()); 
-////			System.out.println("=======, climatePP24= "+climatePP24); 
-////			System.out.println("=======, finalPP2A= "+finalPP2A); 
-//			
-//			/*
-//			 * pp2a: Probability of precipitation anomaly in a 24-hr period in percentage
-//			 * pp2a = pp24 - pp24(climate)
-//			 */
-//		      Amount pp2aAmount = new Amount(finalPP2A, NonSI.PERCENT); 
-//		      setValue(pp2aAmount);
-//		}else
-//			setValueToMissing();
-//		return this;
-//	}
-//	
-//	private double getClimatePP24(String stationId, String month, String day) {
-//		ClimateDataDbAccess climateDataDbAccess = ClimateDataDbAccessManager.getInstance().getClimateDataDbAccess(); 
-//		double pp24ClimateValue = climateDataDbAccess.getPP24(stationId, month, day); 
-//		return pp24ClimateValue;  
-//	}
+
+	@DeriveMethod
+	 public POPAnomalyIn24hrs derive( Clim24HrPOP clim24hrpop,POP24Hrs pop24hrs){
+		     if (pop24hrs == null || clim24hrpop == null 
+		    		 || (!pop24hrs.hasValidValue())
+		    	     || (!clim24hrpop.hasValidValue())){
+		    	 setUnit(NonSI.PERCENT); 
+		    	 return this;
+		     }
+		    
+		    double pp2c = clim24hrpop.getValueAs("%").doubleValue();
+		    double pp24 = pop24hrs.getValueAs("%").doubleValue();
+		    double pp2a = pp24 - pp2c;
+		    setValueAs(pp2a, "%");
+		     
+		    return this;
+	 }
 	
  }
 

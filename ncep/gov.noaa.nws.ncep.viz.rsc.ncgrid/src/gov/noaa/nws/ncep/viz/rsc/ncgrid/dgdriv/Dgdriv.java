@@ -11,11 +11,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.measure.converter.ConversionException;
+
+import org.geotools.coverage.grid.GridGeometry2D;
+import org.opengis.metadata.spatial.PixelOrientation;
+
 import java.text.ParseException;
 
 import com.sun.jna.Native;
 import com.sun.jna.ptr.FloatByReference;
 import com.sun.jna.ptr.IntByReference;
+import com.vividsolutions.jts.geom.Coordinate;
 
 //import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.edex.util.UnitConv;
@@ -36,6 +41,8 @@ import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.util.GridGeometryWrapChecker;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.comm.Connector;
@@ -120,6 +127,7 @@ import gov.noaa.nws.ncep.viz.rsc.ncgrid.customCoverage.CustomPolarStereoCoverage
  *                                          dataURI instead of ScriptCreator
  * 09/06/2012               X. Guo          Query glevel2
  * 09/26/2012               X. Guo          Fixed missing value problems
+ * 04/26/2013				B. Yin			Fixed the world wrap problems
  * </pre>
  *
  * @author tlee
@@ -184,8 +192,8 @@ public class Dgdriv {
 		subgSpatialObj = null;
 		scalar = false;
 		arrowVector = false;
-		flop = false;
-		flip = false;
+		flop = true;
+		flip = true;
 		dataForecastTimes = new ArrayList<DataTime>();
 		try {
 			conn = Connector.getInstance();
@@ -1476,20 +1484,22 @@ public class Dgdriv {
 		//setWorldWrapColumns (1);
 		//check its return value/exception and decide to update coverage or not
 		GridDataRetriever dataRetriever = new GridDataRetriever (dataURI);
-//		boolean isWorldWrap = false;
-//		try {
-//			isWorldWrap = dataRetriever.setWorldWrapColumns (1);
-//		} catch (GridCoverageException e) {
-//			//ignore setWorldWrapColumns exception.
-//		}
+		boolean isWorldWrap = false;
+		try {
+			isWorldWrap = dataRetriever.setWorldWrapColumns (1);
+		} catch (GridCoverageException e) {
+			//ignore setWorldWrapColumns exception.
+		}
 		try {
 			String gempakParm = cacheData.getGempakParam(dataURI);
 			if ( gempakParm != null ) {
 				dataRetriever.setUnit(UnitConv.deserializer(gempakParmInfo.getParmUnit(gempakParm)));
 			}
 		} catch (ConversionException e) {
+			logger.info(e.getMessage());
 			//ignore setUnit exception. use default units
 		} catch (ParseException p) {
+			logger.info(p.getMessage());
 			//ignore deserializer exception.use default units
 		}
 		long t002 = System.currentTimeMillis();
@@ -1499,11 +1509,13 @@ public class Dgdriv {
 			t001 = System.currentTimeMillis();
 			FloatDataRecord dataRecord = dataRetriever.getDataRecord();
 			float[] data = dataRecord.getFloatData();
-//			if ( isWorldWrap ) {
-//				if ( ncgribLogger.enableDiagnosticLogs() )
-//					logger.info("===new coverage nx:"+dataRetriever.getCoverage().getNx() + " ny:"+dataRetriever.getCoverage().getNy());
-//				setSubgSpatialObj ( (ISpatialObject)dataRetriever.getCoverage());
-//			}
+			
+
+			if ( isWorldWrap ) {
+				if ( ncgribLogger.enableDiagnosticLogs() )
+					logger.info("===new coverage nx:"+dataRetriever.getCoverage().getNx() + " ny:"+dataRetriever.getCoverage().getNy());
+				setSubgSpatialObj ( (ISpatialObject)dataRetriever.getCoverage());
+			}
 			t002 = System.currentTimeMillis();
 			if ( ncgribLogger.enableDiagnosticLogs() )
 				logger.info("***Reading " + dataURI + " from hdf5 took: " + (t002-t001) + ", return size:" + data.length);
@@ -1547,7 +1559,9 @@ public class Dgdriv {
 		//	file = new File(File.separator + dataURI.split("/")[1]
 		//			+ File.separator + path + File.separator + sb.toString());
 		//} else if (DataMode.getSystemMode() == DataMode.PYPIES) {
-			file = new File(dataURI.split("/")[1] + File.separator + path
+			file = new File(
+					//TODO--OK??  VizApp.getServerDataDir() + File.separator +
+					dataURI.split("/")[1] + File.separator + path
 					+ File.separator + sb.toString());
 		//} else {
 		//	file = new File(VizApp.getDataDir() + File.separator
@@ -1556,13 +1570,19 @@ public class Dgdriv {
 		//}
 
 		if (file != null)
-			filename = file.getPath();
+			filename = file.getAbsolutePath();
 		return filename;
 	}
 	
 	private String getGridNavigationContent(ISpatialObject obj) {
 
-		GridCoverage gc = (GridCoverage) obj;
+		GridCoverage gc;
+		try {
+			gc = setCoverageForWorldWrap((GridCoverage) obj);
+		} catch (GridCoverageException e) {
+			gc = (GridCoverage) obj;
+		}
+
 		StringBuilder resultsBuf = new StringBuilder();
 
 		if (gc instanceof LatLonGridCoverage) {
@@ -1570,32 +1590,48 @@ public class Dgdriv {
 			 * LatLonGridCoverage
 			 */
 			LatLonGridCoverage llgc = (LatLonGridCoverage) gc;
-			resultsBuf.append("CED");
+			resultsBuf.append("CED");							//	1
 			resultsBuf.append(";");
-			resultsBuf.append(llgc.getNx());
+			resultsBuf.append(llgc.getNx());					// 	2
 			resultsBuf.append(";");
-			resultsBuf.append(llgc.getNy());
+			resultsBuf.append(llgc.getNy());					// 	3
 			resultsBuf.append(";");
-			Double dummy = llgc.getLa1() * 10000;
+			Double dummy;
+			double ddx = llgc.getDx () * ( llgc.getNx() -1 );
+			double ddy = llgc.getDy() * (llgc.getNy()-1);
+
+			if ( llgc.getFirstGridPointCorner() == Corner.UpperLeft) {
+				//upper left
+				dummy = llgc.getLa1() * 10000;
 			resultsBuf.append(dummy.intValue());
 			resultsBuf.append(";");
 			dummy = llgc.getLo1() * 10000;
 			resultsBuf.append(dummy.intValue());
 			resultsBuf.append(";");
-			double ddy = llgc.getDy() * (llgc.getNy()-1);
-			if ( llgc.getFirstGridPointCorner() == Corner.UpperLeft) {
+				//lower right
 				dummy = (llgc.getLa1() - ddy) * 10000;
-				this.flip = true;
+				resultsBuf.append(dummy.intValue());
+				resultsBuf.append(";");
+				dummy = (llgc.getLo1()+ddx) * 10000;
+				resultsBuf.append(dummy.intValue());
+				resultsBuf.append(";");
 			}
-			else {
+			else {		//assume there are only two options: UpperLeft and LowerLeft
 				dummy = (llgc.getLa1() + ddy) * 10000;
-			}
 			resultsBuf.append(dummy.intValue());
 			resultsBuf.append(";");
-			double ddx = llgc.getDx () * ( llgc.getNx() -1 );
+				dummy = llgc.getLo1() * 10000;
+				resultsBuf.append(dummy.intValue());
+				resultsBuf.append(";");
+				
+				dummy = llgc.getLa1() * 10000;
+				resultsBuf.append(dummy.intValue());
+				resultsBuf.append(";");
 			dummy = (llgc.getLo1()+ddx) * 10000;
 			resultsBuf.append(dummy.intValue());
 			resultsBuf.append(";");
+			}
+			
 			dummy = -9999.0;
 			resultsBuf.append(dummy.intValue());
 			resultsBuf.append(";");
@@ -1706,6 +1742,54 @@ public class Dgdriv {
 		return content;
 
 	}
+	
+	private GridCoverage setCoverageForWorldWrap( GridCoverage orig ) 
+	throws GridCoverageException {
+		GridCoverage dataLoc = orig;
+		GridGeometry2D dataGeom = dataLoc.getGridGeometry();
+		int wrapX = GridGeometryWrapChecker.checkForWrapping(dataGeom);
+		if (wrapX != -1) {
+			//add one column
+			int newX = wrapX + 1;
+			if (newX == dataLoc.getNx()) {
+				return orig;
+			} else if (newX < dataLoc.getNx()) {
+				return orig;
+			} else {
+				GridCoverage requestCoverage;
+				if (dataLoc instanceof LatLonGridCoverage) {
+					LatLonGridCoverage newLoc = new LatLonGridCoverage(
+							(LatLonGridCoverage) dataLoc);
+					newLoc.setLa2(0);
+					newLoc.setLo2(0);
+					requestCoverage = newLoc;
+				} else if (dataLoc instanceof MercatorGridCoverage) {
+					MercatorGridCoverage newLoc = new MercatorGridCoverage(
+							(MercatorGridCoverage) dataLoc);
+					newLoc.setLa2(null);
+					newLoc.setLo2(null);
+					requestCoverage = newLoc;
+				} else if (dataLoc instanceof LambertConformalGridCoverage) {
+					requestCoverage = new LambertConformalGridCoverage(
+							(LambertConformalGridCoverage) dataLoc);
+				} else if (dataLoc instanceof PolarStereoGridCoverage) {
+					requestCoverage = new PolarStereoGridCoverage(
+							(PolarStereoGridCoverage) dataLoc);
+				} else {
+					throw new GridCoverageException(
+							"Cannot wrap data for projection of type "
+							+ dataLoc.getClass().getName());
+				}
+				requestCoverage.setNx(newX);
+				requestCoverage.setGridGeometry(null);
+				requestCoverage.initialize();
+				return requestCoverage;
+			}
+		} else {
+			return orig;
+		}
+	}
+	
 	
 	private void setGridFlip(ISpatialObject obj) {
 
@@ -2195,6 +2279,15 @@ public class Dgdriv {
         qAssembler.setMasterLevelName (parmList[3]);
       //  qAssembler.setMasterLevelName ("MB");
 
+        int scale = 1;
+        String unitParm = gempakVcordInfo.getVcrdUnit(parmList[3]);
+        if ( (unitParm == null) || unitParm.isEmpty() || unitParm.equals("-")){
+        	try {
+        		scale = (int) Math.pow(10,Integer.valueOf(gempakVcordInfo.getParmScale((parmList[3]))));
+        	} catch (NumberFormatException e) {
+        	}
+    	}
+    	
         String ll1 = null, ll2 = null;
         if ( parmList[4].contains(":")) {
         	ll1 = parmList[4].split(":")[0];
@@ -2211,7 +2304,7 @@ public class Dgdriv {
         	} catch (NumberFormatException e) {
         		return null;
         	}
-        	qAssembler.setLevelOneValue(level1);
+        	qAssembler.setLevelOneValue(level1/scale);
         }
         if ( ll2 != null ) {
         	Double level2;
@@ -2220,7 +2313,7 @@ public class Dgdriv {
         	} catch (NumberFormatException e) {
         		return null;
         	}
-        	qAssembler.setLevelTwoValue(level2);
+        	qAssembler.setLevelTwoValue(level2/scale);
         }
         else {
         	qAssembler.setLevelTwoValue(-999999.0);

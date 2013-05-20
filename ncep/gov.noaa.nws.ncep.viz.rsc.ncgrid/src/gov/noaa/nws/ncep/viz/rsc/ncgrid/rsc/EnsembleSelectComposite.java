@@ -1,5 +1,6 @@
 package gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc;
 
+import gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryDefinition;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet.RscAttrValue;
@@ -54,7 +55,6 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  * @version 1.0
  * 
  */
-
 public class EnsembleSelectComposite extends Composite {    
     private final int WINDOW_WIDTH = 680;
     private final int HEIGHT_PER_LINE = 41;
@@ -83,7 +83,7 @@ public class EnsembleSelectComposite extends Composite {
     // update this whenever a change is made for any selection.
     //
     private RscAttrValue ensembleComponentWeightsAttr; 
-    
+        
 	private class EnsembleCompGuiData {
 //		private int cycleNumber = 4;
 		private String modelName;  // create the ensC
@@ -113,9 +113,15 @@ public class EnsembleSelectComposite extends Composite {
 	}
 
 	public void init( NcEnsembleResourceData rscData,
-					  ResourceAttrSet editedRscAttrSet ) throws VizException {
-		seldEnsCycleTime = rscData.getResourceName().getCycleTime();
+					  ResourceAttrSet editedRscAttrSet ) throws VizException {		
 		
+		// just the model names w/o the members.
+		List<String> compModelsList = rscData.getComponentModels();
+
+		// make sure the inventories exist for the component models.
+		EnsembleComponentInventoryMngr.initInventoriesForEnsComponents( compModelsList );
+		
+		seldEnsCycleTime = rscData.getResourceName().getCycleTime();
 		
 		ensembleComponentWeightsAttr = editedRscAttrSet.getRscAttr("ensembleComponentWeights");
 
@@ -127,9 +133,6 @@ public class EnsembleSelectComposite extends Composite {
     	createSelectableEnsembleComponentGuiData( rscData.getAvailableModels() );
     	
     	ensembleComponentWeightsAttr.setAttrValue( rscData.getEnsembleComponentWeights() );
-		
-//		this.modelListString = availModels;
-//		this.modelListString0 = availModels;
 		
 		ensCompData = new EnsembleComponentData( seldEnsCycleTime.getRefTime(),
 							(String)ensembleComponentWeightsAttr.getAttrValue() );
@@ -193,7 +196,7 @@ public class EnsembleSelectComposite extends Composite {
     			ensData2.hasMembers = false;
     			ensData2.isPrimary = false;
 
-    			ArrayList<Date> cycles = getAvailCycleTimes( seldEnsCycleTime.getRefTime(), ensCompModel );
+    			ArrayList<Date> cycles = getAvailCycleTimes( seldEnsCycleTime.getRefTime(), ensCompModel, "" );
     			
     			ensData2.cyclesLblStr = new String[MaxNumOfEnsembleCycles];
     			ensData2.cycleTimes = new Date[MaxNumOfEnsembleCycles];
@@ -230,7 +233,9 @@ public class EnsembleSelectComposite extends Composite {
     			ensData1.isPrimary = false;
     			ensData1.memberCount = memberStrs.length;
 
-    			ArrayList<Date> cycles = getAvailCycleTimes( seldEnsCycleTime.getRefTime(), modelName );
+    			// TODO : should we change this to specifically query for each members' cycle times instead of 
+    			// assuming the cycle time of the base model?
+    			ArrayList<Date> cycles = getAvailCycleTimes( seldEnsCycleTime.getRefTime(), modelName, "" );
     			
     			ensData1.cycleTimes   = new Date[MaxNumOfEnsembleCycles];
     			ensData1.cyclesLblStr = new String[MaxNumOfEnsembleCycles];
@@ -263,25 +268,15 @@ public class EnsembleSelectComposite extends Composite {
     }
     
 	@SuppressWarnings("null")
-	public static ArrayList<Date> getAvailCycleTimes( Date seldCycleTime, String modelName ) {
+	public ArrayList<Date> getAvailCycleTimes( Date seldCycleTime, String modelName, String pertNum ) {
 		
 		ArrayList<Date> availCycleTimesList = new ArrayList<Date>();
 		
-		HashMap<String,RequestConstraint> constraintMap = new HashMap<String,RequestConstraint>();
-		constraintMap.put( GridDBConstants.PLUGIN_NAME, new RequestConstraint( GridDBConstants.GRID_TBL_NAME, ConstraintType.EQUALS) );
-		constraintMap.put( GridDBConstants.MODEL_NAME_QUERY, 
-        		new RequestConstraint( modelName, ConstraintType.EQUALS ) );
-		
-		LayerProperty property = new LayerProperty();
-        property.setDesiredProduct( ResourceType.PLAN_VIEW );
-        DataTime[] availableTimes;
-        
         try {
-			property.setEntryQueryParameters( constraintMap );
-	        availableTimes = property.getEntryTimes();
-
-//	        System.out.println("availableTimes.lenght==="+availableTimes.length);
-	        
+        	DataTime[] availableTimes = 
+        		EnsembleComponentInventoryMngr.queryEnsComponentCycleTimes(
+        						modelName, pertNum );
+        	        
 	        for( DataTime dt : availableTimes ) {
 		        // 
 		        if( seldCycleTime.getTime() >= dt.getRefTime().getTime() ) { 
@@ -466,23 +461,27 @@ public class EnsembleSelectComposite extends Composite {
      		});
      		ensCompGuiList.get(index).members[memberIndex].modelNameButton.setSelection(isChecked);
      		
-     		// isFirst button
+     		// isPrimary button
      		isChecked = false;
      		if ( ensCompGuiList.get(index).members[memberIndex].isPrimaryButton != null) {
      			isChecked = ensCompGuiList.get(index).members[memberIndex].isPrimaryButton.getSelection();
      			ensCompGuiList.get(index).members[memberIndex].isPrimaryButton.dispose();
      		}
      		ensCompGuiList.get(index).members[memberIndex].isPrimaryButton = new Button(composite, SWT.CHECK);
+     		
      		ensCompGuiList.get(index).members[memberIndex].isPrimaryButton.setText("      ");
-     		ensCompGuiList.get(index).members[memberIndex].isPrimaryButton.addSelectionListener(new SelectionAdapter() {
-     			public void widgetSelected(SelectionEvent event) {
-     				if (ensCompGuiList.get(index).members[memberIndex].isPrimaryButton.getSelection()) {
-     					processFirstButton(index, memberIndex);
-     					updateSelectedModels();
-     				}	
-     			}
-     		});
+// Can't change the primary component. This is set in the Resource so if they need a different primary grid
+// they need to edit the RD.
+//     		ensCompGuiList.get(index).members[memberIndex].isPrimaryButton.addSelectionListener(new SelectionAdapter() {
+//     			public void widgetSelected(SelectionEvent event) {
+//     				if (ensCompGuiList.get(index).members[memberIndex].isPrimaryButton.getSelection()) {
+//     					processFirstButton(index, memberIndex);
+//     					updateSelectedModels();
+//     				}	
+//     			}
+//     		});
      		ensCompGuiList.get(index).members[memberIndex].isPrimaryButton.setSelection(isChecked);
+     		ensCompGuiList.get(index).members[memberIndex].isPrimaryButton.setEnabled( isChecked );
 
      		// TODO : Remove this if we are going to keep the primaryModel parameter in the Resource Definition.
      		// for now this is just turned off.
@@ -583,15 +582,18 @@ public class EnsembleSelectComposite extends Composite {
      		}
      		ensCompGuiList.get(index).isPrimaryButton = new Button(composite, SWT.CHECK);
      		ensCompGuiList.get(index).isPrimaryButton.setText("      ");
-     		ensCompGuiList.get(index).isPrimaryButton.addSelectionListener(new SelectionAdapter() {
-     			public void widgetSelected(SelectionEvent event) {
-     				if (ensCompGuiList.get(index).isPrimaryButton.getSelection()) {
-     					processFirstButton(index, -1);
-     					updateSelectedModels();
-     				}
-     			}
-     		});	
+     	// Can't change the primary component. This is set in the Resource so if they need a different primary grid
+     	// they need to edit the RD.
+//     		ensCompGuiList.get(index).isPrimaryButton.addSelectionListener(new SelectionAdapter() {
+//     			public void widgetSelected(SelectionEvent event) {
+//     				if (ensCompGuiList.get(index).isPrimaryButton.getSelection()) {
+//     					processFirstButton(index, -1);
+//     					updateSelectedModels();
+//     				}
+//     			}
+//     		});	
      		ensCompGuiList.get(index).isPrimaryButton.setSelection(isChecked);
+     		ensCompGuiList.get(index).isPrimaryButton.setEnabled(isChecked);
 
      		// TODO : Remove this if we are going to keep the primaryModel parameter in the Resource Definition.
      		// for now this is just turned off.

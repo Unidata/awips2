@@ -3,14 +3,9 @@
  */
 package gov.noaa.nws.ncep.edex.common.metparameters;
 
-//import gov.noaa.nws.ncep.metParameters.parameterConversion.PRLibrary.InvalidRangeException;
-//import gov.noaa.nws.ncep.metParameters.parameterConversion.PRLibrary.InvalidValueException;
-//import gov.noaa.nws.ncep.metparameters.Amount;
-//import gov.noaa.nws.ncep.metparameters.ClimateDataDbAccess;
-//import gov.noaa.nws.ncep.metparameters.Min24HrTemp;
-//import gov.noaa.nws.ncep.metparameters.NightTempAnomaly;
-//import gov.noaa.nws.ncep.metparameters.StationID;
-//import gov.noaa.nws.ncep.metparameters.MetParameterFactory.DeriveMethod;
+
+import gov.noaa.nws.ncep.edex.common.metparameters.MetParameterFactory.DeriveMethod;
+import gov.noaa.nws.ncep.edex.common.metparameters.parameterconversion.PRLibrary.InvalidValueException;
 
 import javax.measure.quantity.Temperature;
 import javax.measure.unit.NonSI;
@@ -18,6 +13,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -35,37 +31,46 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 	 */
 	private static final long serialVersionUID = -8221554987555370951L;
 
-	public NightTempAnomaly() {
-		 super( UNIT );
+	public NightTempAnomaly() throws Exception {
+		super( new UnitAdapter().marshal(UNIT) );
 	}
 	
-	 
-//	@DeriveMethod
-//	public NightTempAnomaly derive( Min24HrTemp min24HrTemp, StationID stationId ) throws InvalidValueException, NullPointerException  {
-//		if ( min24HrTemp.hasValidValue() && stationId.hasValidValue() ){
-//			String month = SelectedFrameTimeUtil.getFrameTimeMonthStringValue(); 
-//			String dayOfMonth = SelectedFrameTimeUtil.getFrameTimeDayOfMonthStringValue(); 
-//			double climateTNTFInF = getClimateTNTFInF(stationId.valueString, month, dayOfMonth); 
-//			double min24HrTempInF = min24HrTemp.getValueAs(NonSI.FAHRENHEIT).doubleValue(); 
-//			double finalTNAFInF = min24HrTempInF - climateTNTFInF; 
-////			System.out.println("=======, min24HrTempInF= "+min24HrTempInF); 
-////			System.out.println("=======, climateTNTFInF= "+climateTNTFInF); 
-////			System.out.println("=======, finalTNAFInF= "+finalTNAFInF); 
-//			
-//			/*
-//			 * tnaf: Night Temp anomaly in F
-//			 */
-//		      Amount tnafAmount = new Amount(finalTNAFInF, NonSI.FAHRENHEIT); 
-//		      setValue(tnafAmount);
-//		}else
-//			setValueToMissing();
-//		return this;
-//	}
-//	
-//	private double getClimateTNTFInF(String stationId, String month, String day) {
-//		ClimateDataDbAccess climateDataDbAccess = ClimateDataDbAccessManager.getInstance().getClimateDataDbAccess(); 
-//		double tntfClimateValue = climateDataDbAccess.getTNTF(stationId, month, day); 
-//		return tntfClimateValue;  
-//	}
+	@DeriveMethod
+	public NightTempAnomaly derive( MinNightTemp minTemp, ClimNightTemp climNightTemp ) throws InvalidValueException, NullPointerException{
+		
+		if ( minTemp == null 
+				|| climNightTemp == null 
+				|| !minTemp.hasValidValue()
+				||!climNightTemp.hasValidValue()){
+			
+			setUnit(NonSI.FAHRENHEIT);
+			return this;
+		}
+			
+			double tmax = minTemp.getValueAs("°F").doubleValue();
+			double tclim = climNightTemp.getValueAs("°F").doubleValue();
+			Double anomalyTemp = new Double (tmax - tclim);
+			setValueAs(anomalyTemp, "°F");
+	        return this;
+	}
+
+	@DeriveMethod
+	public NightTempAnomaly derive( Min24HrTemp minTemp, ClimNightTemp climNightTemp ) throws InvalidValueException, NullPointerException{
+		
+		if ( minTemp == null 
+				|| climNightTemp == null 
+				|| !minTemp.hasValidValue()
+				||!climNightTemp.hasValidValue()){
+			
+			setUnit(NonSI.FAHRENHEIT);
+			return this;
+		}
+			
+			double tmax = minTemp.getValueAs("°F").doubleValue();
+			double tclim = climNightTemp.getValueAs("°F").doubleValue();
+			Double anomalyTemp = new Double (tmax - tclim);
+			setValueAs(anomalyTemp, "°F");
+	        return this;
+	}	
 	
  }
