@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <isEnabled>true</isEnabled>
-    <inventoryEnabled>true</inventoryEnabled>
+<ResourceDefinition xmlns:ns2="http://www.example.org/productType">
     <resourceDefnName>NWW3</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
-    <resourceParameters>
-GDFILE=nww3
-pluginName=grid
-    </resourceParameters>
-    <filterLabels>Forecast,Global</filterLabels>
     <rscImplementation>ModelFcstGridContours</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
     <frameSpan>60</frameSpan>
-    <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
+    <timelineGenMethod>USE_CYCLE_TIME_FCST_HOURS</timelineGenMethod>
     <dfltFrameCount>999</dfltFrameCount>
     <dfltTimeRange>144</dfltTimeRange>
     <dfltGeogArea>BasicWX_US</dfltGeogArea>
+    <resourceParameters>
+pluginName=grid
+GDFILE=nww3
+
+</resourceParameters>
+    <inventoryEnabled>true</inventoryEnabled>
 </ResourceDefinition>

@@ -39,7 +39,7 @@
 	</hazard>
 
 <!-- 
-	<hazard name="IFR" snapshot="red" smear="violet" outlook="cyan" other="red" category="SIERRA">
+    <hazard name="IFR" snapshot="red" smear="violet" outlook="cyan" other="red" category="SIERRA">
 		<checkbox label="CIG BLW 010" type="type" checked="false"/>
 		<popup label="VIS BLW 3SM">
 			<checkbox label="PCPN"/>
@@ -78,7 +78,7 @@
 	</hazard>
 -->
 	<hazard name="MT_OBSC" snapshot="yellow" smear="violet" outlook="cyan" other="yellow" category="SIERRA">
-<!--  		<text type="input" width="100" height="18" label="Top/Bottom" scrollable="false" editable="true" characterType="digitsAndSlash" characterLimit="7" padWithZeros="3"/>
+<!--   <text type="input" width="100" height="18" label="Top/Bottom" scrollable="false" editable="true" characterType="digitsAndSlash" characterLimit="7" padWithZeros="3"/>
 -->		
        <popup label="MTNS OBSC BY">
 			<checkbox label="CLDS"/>

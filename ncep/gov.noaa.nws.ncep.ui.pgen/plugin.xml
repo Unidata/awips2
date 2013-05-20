@@ -219,6 +219,14 @@
           id="gov.noaa.nws.ncep.ui.pgen.fileManage"
           name="Manage Product File">
       </command>
+      <command
+          id="gov.noaa.nws.ncep.ui.pgen.productStoreManage"
+          name="Manage Product Store">
+      </command>
+      <command
+          id="gov.noaa.nws.ncep.ui.pgen.productRetrieveManage"
+          name="Manage Product Retrieval">
+      </command>
       <command categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.exit"
           name="Exit Product Generation">
@@ -302,6 +310,11 @@
        <handler
             class="gov.noaa.nws.ncep.ui.pgen.palette.PgenPaletteAction"
             commandId="gov.noaa.nws.ncep.ui.pgen.palette">
+         <enabledWhen>
+            <reference
+                  definitionId="gov.noaa.nws.ncep.viz.ui.display.isMapEditor">
+            </reference>
+         </enabledWhen>
        </handler>       
        <handler
             class="gov.noaa.nws.ncep.ui.pgen.tools.PgenSinglePointDrawingTool"
@@ -460,6 +473,14 @@
             commandId="gov.noaa.nws.ncep.ui.pgen.fileManage">
        </handler>
        <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.StoreManageHandler"
+            commandId="gov.noaa.nws.ncep.ui.pgen.productStoreManage">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.RetrieveHandler"
+            commandId="gov.noaa.nws.ncep.ui.pgen.productRetrieveManage">
+       </handler>
+       <handler
             class="gov.noaa.nws.ncep.ui.pgen.tools.PgenExitHandler"
             commandId="gov.noaa.nws.ncep.ui.pgen.exit">
        </handler>
@@ -588,19 +609,19 @@
          <control
              name="Open"
              label="Open MetObject File"
-             commandId="gov.noaa.nws.ncep.ui.pgen.fileManage"
+             commandId="gov.noaa.nws.ncep.ui.pgen.productRetrieveManage"
              alwaysVisible="true"
              icon="icons/open.gif" />
          <control
              name="Save"
-             label="Save Current Product to Configured File"
-             commandId="gov.noaa.nws.ncep.ui.pgen.fileManage"
+             label="Save Current Product to EDEX"
+             commandId="gov.noaa.nws.ncep.ui.pgen.productStoreManage"
              alwaysVisible="true"
              icon="icons/save.gif" />
          <control
              name="Save As"
              label="Save Current Product As..."
-             commandId="gov.noaa.nws.ncep.ui.pgen.fileManage"
+             commandId="gov.noaa.nws.ncep.ui.pgen.productStoreManage"
              alwaysVisible="true"
              icon="icons/saveas.gif" />
          <control
@@ -633,9 +654,9 @@
    -->
          <control
              name="Save All"
-             label="SAVE All Products to Configured Files"
+             label="SAVE All Products to EDEX"
              alwaysVisible="true"
-             commandId="gov.noaa.nws.ncep.ui.pgen.fileManage"
+             commandId="gov.noaa.nws.ncep.ui.pgen.productStoreManage"
              icon="icons/saveall.gif" />
          <control
              name="ProdCtrl"
@@ -673,6 +694,7 @@
              name="Delete"
              label="Delete Element"
              commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeleteElement"
+             actionHandlerClass="gov.noaa.nws.ncep.ui.pgen.tools.PgenDeleteElementHandler"
              icon="icons/delete.gif" />
          <action
              name="Copy"
@@ -693,6 +715,7 @@
              name="Delete Point"
              label="Delete Point"
              commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeletePoint"
+             actionHandlerClass="gov.noaa.nws.ncep.ui.pgen.tools.PgenDeletePointHandler"
              icon="icons/delpoint.gif" />     
          <action
              name="Delete Part"
@@ -755,11 +778,13 @@
              name="Add Point"
              label="Add Point to Nearest Segment"
              commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenAddPoint"
+             actionHandlerClass="gov.noaa.nws.ncep.ui.pgen.tools.PgenAddPointHandler"
              icon="icons/addpoint.gif" />     
          <action
              name="Add Point Alt"
              label="Add Point to Desired Segment"
              commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenAddPointAlt"
+             actionHandlerClass="gov.noaa.nws.ncep.ui.pgen.tools.PgenAddPointAltHandler"
              icon="icons/addpointalt.gif" />     
          <action
              name="Distance"
@@ -787,7 +812,8 @@
              icon="icons/combsymb.gif" />
          <class
              name="Symbol"
-             label="Symbol"            
+             label="Symbol"    
+             actions="Delete"
              icon="icons/symbol.gif" />
          <class
              name="Any"
@@ -814,6 +840,7 @@
          <class
              name="Lines"
              label="Lines"
+             actions="Add Point,Add Point Alt,Delete Point,Delete"
              icon="icons/line.gif" />
          <class
              name="Vector"
@@ -822,6 +849,7 @@
          <class
              name="Arc"
              label="Arc"
+             actions="Delete"
              icon="icons/circle.gif" />
          <class
              name="Marker"
@@ -3013,8 +3041,8 @@
              label="TCM"
              className="MET"
              commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenTCMtool"
-             icon="icons/hcntrak.gif" />                   
-          <object
+             icon="icons/hcntrak.gif" />   
+           <object
              name="SPENES"
              label="SPENES"
              className="MET"
@@ -3079,6 +3107,16 @@
             category="gov.noaa.nws.ncep.viz.common.nceppreferences">
       </page> 
    </extension>
+   <!-- moved declaration to pgen from displays project -->
+      <extension
+          point="org.eclipse.ui.contexts">
+           <context 
+                    description="The Natl Centers Product Genaration Context"
+                    id="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                    name="Natl Centers PGEN Context">
+           </context>
+   </extension>
+   
    <extension
       point="org.eclipse.ui.bindings"
       id="gov.noaa.nws.ncep.ui.pgen.pgenKeyBinding"
@@ -3274,7 +3312,7 @@
                 <parameter  id="action" value="SELECTALL" />
          </key>         
 
-   </extension>
+    </extension>
 
     <extension
           point="com.raytheon.uf.viz.localization.localizationpath">

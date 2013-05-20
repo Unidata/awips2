@@ -7,10 +7,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
- * Maps to either the GEMPAK parameter TDXC or TDXF depending on the
+ * Maps to either the GEMPAK parameter TDXC or TDXF or TDYF depending on the
  * unit used to measure the temperature
  */
 @XmlRootElement
@@ -25,8 +26,8 @@ public class Max24HrTemp extends AbstractMetParameter implements
 	 */
 	private static final long serialVersionUID = 8225713333054145814L;
 
-	public Max24HrTemp(){
-		super( UNIT );
+	public Max24HrTemp() throws Exception{
+		super( new UnitAdapter().marshal(UNIT) );
 	}
 	
 }

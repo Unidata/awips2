@@ -392,32 +392,34 @@ public class GeospatialDataGenerator {
                 null, map, SearchMode.WITHIN);
 
         // clip against County Warning Area
-        String cwaSource = "cwa";
-        List<String> cwaAreaFields = new ArrayList<String>(Arrays.asList("wfo", "gid"));
-        HashMap<String, RequestConstraint> cwaMap = new HashMap<String, RequestConstraint>(
-                2);
-        cwaMap.put("wfo", new RequestConstraint(site, ConstraintType.LIKE));
-        SpatialQueryResult[] cwaFeatures = SpatialQueryFactory.create().query(
-                cwaSource, cwaAreaFields.toArray(new String[cwaAreaFields.size()]),
-                null, cwaMap, SearchMode.WITHIN);
-        Geometry multiPolygon = null;
-        Geometry clippedGeom = null;
-        for (int i = 0; i < features.length; i++) {
-            multiPolygon = null;
-            for (int j = 0; j < cwaFeatures.length; j++) {
-                clippedGeom = features[i].geometry.intersection(cwaFeatures[j].geometry);
-                if (clippedGeom instanceof GeometryCollection) {
-                    GeometryCollection gc = (GeometryCollection)clippedGeom;
-                    if (multiPolygon != null)
-                        multiPolygon = multiPolygon.union(convertToMultiPolygon(gc));
-                    else
-                        multiPolygon = convertToMultiPolygon(gc);
+        if (!areaSource.equalsIgnoreCase(WarningConstants.MARINE)) {
+            String cwaSource = "cwa";
+            List<String> cwaAreaFields = new ArrayList<String>(Arrays.asList("wfo", "gid"));
+            HashMap<String, RequestConstraint> cwaMap = new HashMap<String, RequestConstraint>(
+                    2);
+            cwaMap.put("wfo", new RequestConstraint(site, ConstraintType.LIKE));
+            SpatialQueryResult[] cwaFeatures = SpatialQueryFactory.create().query(
+                    cwaSource, cwaAreaFields.toArray(new String[cwaAreaFields.size()]),
+                    null, cwaMap, SearchMode.WITHIN);
+            Geometry multiPolygon = null;
+            Geometry clippedGeom = null;
+            for (int i = 0; i < features.length; i++) {
+                multiPolygon = null;
+                for (int j = 0; j < cwaFeatures.length; j++) {
+                    clippedGeom = features[i].geometry.intersection(cwaFeatures[j].geometry);
+                    if (clippedGeom instanceof GeometryCollection) {
+                        GeometryCollection gc = (GeometryCollection)clippedGeom;
+                        if (multiPolygon != null)
+                            multiPolygon = multiPolygon.union(convertToMultiPolygon(gc));
+                        else
+                            multiPolygon = convertToMultiPolygon(gc);
+                    }
                 }
+                if (multiPolygon != null)
+                    features[i].geometry = multiPolygon;
+                else if (clippedGeom != null)
+                    features[i].geometry = clippedGeom;
             }
-            if (multiPolygon != null)
-                features[i].geometry = multiPolygon;
-            else if (clippedGeom != null)
-                features[i].geometry = clippedGeom;
         }
 
         topologySimplifyQueryResults(features);
