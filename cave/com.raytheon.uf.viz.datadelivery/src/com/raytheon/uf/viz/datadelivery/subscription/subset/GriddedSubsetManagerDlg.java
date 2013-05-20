@@ -50,9 +50,9 @@ import com.raytheon.uf.common.datadelivery.registry.Ensemble;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
-import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.serialization.JAXBManager;
@@ -89,6 +89,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Jan 28, 2013 1533       djohnson     Update the calculated dataset size after loading subset xml.
  * Mar 21, 2013 1794       djohnson     Add option to create a shared subscription, if phase3 code is available.
  * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
  * 
  * 
  * </pre>
@@ -258,7 +259,7 @@ public class GriddedSubsetManagerDlg
      * {@inheritDoc}
      */
     @Override
-    public <T extends UserSubscription> T createSubscription(T sub,
+    public <T extends SiteSubscription> T createSubscription(T sub,
             Network defaultRoute) {
         T subscription = super.createSubscription(sub, defaultRoute);
         if (subscription == null) {

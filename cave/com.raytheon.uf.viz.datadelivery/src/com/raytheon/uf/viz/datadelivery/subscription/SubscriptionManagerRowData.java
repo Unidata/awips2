@@ -20,8 +20,10 @@
 package com.raytheon.uf.viz.datadelivery.subscription;
 
 import java.util.Date;
+import java.util.Set;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.datadelivery.common.ui.ISortTable;
 import com.raytheon.uf.viz.datadelivery.common.ui.ITableData;
 import com.raytheon.uf.viz.datadelivery.common.ui.SortImages.SortDirection;
@@ -47,14 +49,16 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Oct  2, 2012  1103      jpiatt     Remove unused methods, update enum, code clean up.
  * Jan 25, 2012  1528      djohnson   Priorities no longer need incrementing for display.
  * Apr 08, 2013  1826      djohnson   Remove delivery options.
+ * May 15, 2013  1040      mpduff     Change Office IDs to set.
  * </pre>
  * 
  * @author mpduff
  * @version 1.0
  */
 
-public class SubscriptionManagerRowData implements ITableData<SubscriptionManagerRowData> {
-    
+public class SubscriptionManagerRowData implements
+        ITableData<SubscriptionManagerRowData> {
+
     /** Dataset id. */
     private String dataSetID = null;
 
@@ -86,13 +90,14 @@ public class SubscriptionManagerRowData implements ITableData<SubscriptionManage
     private Date activeEnd = null;
 
     /** Subscription column titles. */
-    private final String[] columns = DataDeliveryUtils.getColumnTitles(TABLE_TYPE.SUBSCRIPTION);
+    private final String[] columns = DataDeliveryUtils
+            .getColumnTitles(TABLE_TYPE.SUBSCRIPTION);
 
     /** Subscription details. */
     private String details = null;
 
-    /** Office id. */
-    private String officeId = null;
+    /** Office ids. */
+    private Set<String> officeIds = null;
 
     /** Size of dataset. */
     private long dataSetSize = 0;
@@ -105,22 +110,22 @@ public class SubscriptionManagerRowData implements ITableData<SubscriptionManage
 
     /** FullDataset enum ref. */
     private FullDataset fullDataSet = null;
-    
+
     /** Subscription group name. */
     private String groupName;
 
-	/** Sort callback. */
+    /** Sort callback. */
     private ISortTable sortCallback = null;
 
     /**
      * Constructor
      */
     public SubscriptionManagerRowData() {
-        
+
     }
 
     @Override
-	public void setSortCallback(ISortTable sortCallback) {
+    public void setSortCallback(ISortTable sortCallback) {
         this.sortCallback = sortCallback;
     }
 
@@ -172,7 +177,7 @@ public class SubscriptionManagerRowData implements ITableData<SubscriptionManage
     }
 
     /**
-     * Set  the subscription active status.
+     * Set the subscription active status.
      * 
      * @param active
      *            the active to set
@@ -334,22 +339,22 @@ public class SubscriptionManagerRowData implements ITableData<SubscriptionManage
     }
 
     /**
-     * Get the office identification.
+     * Get the office ids.
      * 
-     * @return the dataSetID
+     * @return the officeIds
      */
-    public String getOfficeId() {
-        return officeId;
+    public Set<String> getOfficeIds() {
+        return officeIds;
     }
 
     /**
-     * Set the office identification.
+     * Set the office ids.
      * 
-     * @param dataSetID
-     *            the dataSetID to set
+     * @param officeIds
+     *            the officeIds to set
      */
-    public void setOfficeId(String officeId) {
-        this.officeId = officeId;
+    public void setOfficeIds(Set<String> officeIds) {
+        this.officeIds = officeIds;
     }
 
     /**
@@ -397,8 +402,8 @@ public class SubscriptionManagerRowData implements ITableData<SubscriptionManage
     /**
      * Set the subscription object.
      * 
-     * @param subscription obj
-     *            the subscription to set
+     * @param subscription
+     *            obj the subscription to set
      */
     public void setSubscription(Subscription subscription) {
         this.subscription = subscription;
@@ -406,8 +411,8 @@ public class SubscriptionManagerRowData implements ITableData<SubscriptionManage
     }
 
     /**
-     * Set the subscription status. Statuses include active,
-     * inactive, expired, & invalid.
+     * Set the subscription status. Statuses include active, inactive, expired,
+     * & invalid.
      * 
      * @param status
      *            the status to set
@@ -417,34 +422,34 @@ public class SubscriptionManagerRowData implements ITableData<SubscriptionManage
     }
 
     /**
-     * Get the subscription status. Statuses include active,
-     * inactive, expired, & invalid.
+     * Get the subscription status. Statuses include active, inactive, expired,
+     * & invalid.
      * 
      * @return status
      */
     public String getStatus() {
         return this.status;
     }
-    
+
     /**
      * Get subscription group name.
      * 
      * @return group name
      */
     public String getGroupName() {
-		return groupName;
-	}
+        return groupName;
+    }
 
-	/**
-	 * Set subscription group name.
-	 * 
-	 * @param groupName
-	 */
-	public void setGroupName(String groupName) {
-		this.groupName = groupName;
-	}
+    /**
+     * Set subscription group name.
+     * 
+     * @param groupName
+     */
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
 
-	/**
+    /**
      * Populate the subscription.
      */
     private void populate() {
@@ -452,14 +457,13 @@ public class SubscriptionManagerRowData implements ITableData<SubscriptionManage
         this.setActiveEnd(subscription.getActivePeriodEnd());
         this.setDataSetID(subscription.getDataSetName());
         this.setDescription(subscription.getDescription());
-        this.setOfficeId(subscription.getOfficeID());
+        this.setOfficeIds(subscription.getOfficeIDs());
         this.setDataSetSize(subscription.getDataSetSize());
         this.setGroupName(subscription.getGroupName());
 
         if (subscription.isFullDataSet()) {
             this.setFullDataSet(FullDataset.FULL);
-        }
-        else {
+        } else {
             this.setFullDataSet(FullDataset.SUBSET);
         }
 
@@ -476,8 +480,8 @@ public class SubscriptionManagerRowData implements ITableData<SubscriptionManage
      * Get the sort value.
      * 
      * @param columnName
-     *           The name of the table column.
-     *           
+     *            The name of the table column.
+     * 
      * @return sort value
      */
     public String getSortValue(String columnName) {
@@ -501,7 +505,7 @@ public class SubscriptionManagerRowData implements ITableData<SubscriptionManage
         } else if (columnName.equals(columns[++cIndex])) {
             return columnName;
         } else if (columnName.equals(columns[++cIndex])) {
-            return officeId;
+            return this.getOfficeIdsAsList();
         } else if (columnName.equals(columns[++cIndex])) {
             return fullDataSet.toString();
         } else if (columnName.equals(columns[++cIndex])) {
@@ -520,20 +524,16 @@ public class SubscriptionManagerRowData implements ITableData<SubscriptionManage
         // handle empty date cells
         if ((d1 == null) && (d2 == null)) {
             return 0;
-        }
-        else if (d1 == null) {
+        } else if (d1 == null) {
             return 1;
-        }
-        else if (d2 == null) {
+        } else if (d2 == null) {
             return -1;
         }
         if (d1.before(d2)) {
             return 1;
-        }
-        else if (d1.after(d2)) {
+        } else if (d1.after(d2)) {
             return -1;
-        }
-        else {
+        } else {
             return 0;
         }
     }
@@ -560,22 +560,21 @@ public class SubscriptionManagerRowData implements ITableData<SubscriptionManage
         int returnValue = 0;
 
         if (columnName.equals("Subscription Start")) {
-            returnValue = checkDate(this.getSubscriptionStart(), o.getSubscriptionStart());
-        }
-        else if (columnName.equals("Subscription Expiration")) {
-            returnValue = checkDate(this.getSubscriptionEnd(), o.getSubscriptionEnd());
-        }
-        else if (columnName.equals("Active Period Start")) {
+            returnValue = checkDate(this.getSubscriptionStart(),
+                    o.getSubscriptionStart());
+        } else if (columnName.equals("Subscription Expiration")) {
+            returnValue = checkDate(this.getSubscriptionEnd(),
+                    o.getSubscriptionEnd());
+        } else if (columnName.equals("Active Period Start")) {
             returnValue = checkDate(this.getActiveStart(), o.getActiveStart());
-        }
-        else if (columnName.equals("Active Period End")) {
+        } else if (columnName.equals("Active Period End")) {
             returnValue = checkDate(this.getActiveEnd(), o.getActiveEnd());
         } else if (columnName.equals("Data Size")) {
             returnValue = (int) (this.getDataSetSize() - o.getDataSetSize());
-        }
-        else {
+        } else {
             if (o.getSortValue(columnName) != null) {
-                returnValue = sortValue.toUpperCase().compareTo(o.getSortValue(columnName).toUpperCase());
+                returnValue = sortValue.toUpperCase().compareTo(
+                        o.getSortValue(columnName).toUpperCase());
             }
         }
 
@@ -584,5 +583,23 @@ public class SubscriptionManagerRowData implements ITableData<SubscriptionManage
         }
 
         return returnValue;
+    }
+
+    /**
+     * Get office ids as comma separated list
+     * 
+     * @return String of office ids
+     */
+    public String getOfficeIdsAsList() {
+        return StringUtil.join(this.officeIds, ',');
+    }
+
+    /**
+     * Get office ids display list, first 3 offices in the list
+     * 
+     * @return the display string
+     */
+    public String getOfficeIdsDisplayList() {
+        return StringUtil.getDisplayList(officeIds, " ", 3);
     }
 }

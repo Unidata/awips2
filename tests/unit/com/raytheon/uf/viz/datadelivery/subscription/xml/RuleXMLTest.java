@@ -30,7 +30,7 @@ import org.junit.Test;
 
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.units.DataSizeUnit;
 import com.raytheon.uf.viz.datadelivery.system.CreateEditRuleDlg.FreqUnitOptions;
 import com.raytheon.uf.viz.datadelivery.system.Operator;
@@ -64,7 +64,7 @@ public class RuleXMLTest {
 
     @Before
     public void setUp() {
-        sub = new UserSubscription();
+        sub = new SiteSubscription();
         sub.setDataSetName("GFS");
         sub.setDataSetType(DataType.GRID);
         sub.setDataSetSize(100);
