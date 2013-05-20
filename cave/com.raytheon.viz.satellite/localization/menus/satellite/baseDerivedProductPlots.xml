@@ -261,13 +261,11 @@
 		<contribute xsi:type="bundleItem" file="bundles/SSMIWindPlot.xml" 
                menuText="SSM/I Wind Speeds" id="SSMIDataLine"
                productInterval="3600" productOffset="1800">
-	        <dataURI>/bufrssmi/%</dataURI>
 	        <substitute key="svg" value="ssmiWindPlotDesign.svg"/>
 	    </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/SSMIPlot.xml" 
                menuText="SSM/I Precip. Water" id="SSMIDataLine"
                productInterval="3600" productOffset="1800">
-	        <dataURI>/bufrssmi/%</dataURI>
 	        <substitute key="svg" value="ssmiPWPlotDesign.svg"/>
 	        <substitute key="legend" value="SSM/I Precipitable Water (kg/m**2)"/>
 	        <substitute key="offset" value="1800"/>
@@ -275,7 +273,6 @@
 		<contribute xsi:type="bundleItem" file="bundles/SSMIPlot.xml" 
                menuText="SSM/I Sea Temperature" id="SSMIDataLine"
                productInterval="3600" productOffset="1800">
-	        <dataURI>/bufrssmi/%</dataURI>
 	        <substitute key="svg" value="ssmiSTPlotDesign.svg"/>
 	        <substitute key="legend" value="SSM/I Sea Temperature (C)"/>
 	        <substitute key="offset" value="1800"/>
@@ -283,7 +280,6 @@
 		<contribute xsi:type="bundleItem" file="bundles/SSMIPlot.xml" 
                menuText="SSM/I VIL" id="SSMIDataLine"
                productInterval="3600" productOffset="1800">
-	        <dataURI>/bufrssmi/%</dataURI>
 	        <substitute key="svg" value="ssmiVILPlotDesign.svg"/>
 	        <substitute key="legend" value="SSM/I Vert. Integ. Water (kg/(m**2))"/>
 	        <substitute key="offset" value="1800"/>
@@ -292,7 +288,6 @@
        <contribute xsi:type="bundleItem" file="bundles/SoundingAvailability.xml" 
                menuText="GOES Sounding Availability" id="goesSoundingAvailability"
                productInterval="3600" productOffset="1800">
-        <dataURI>/goessounding/%</dataURI>
         <substitute key="pluginName" value="goessounding"/>
         <substitute key="plotSource" value="GOES Sounding Availability"/>
         <substitute key="offset" value="1800"/>
@@ -300,7 +295,6 @@
 	<contribute xsi:type="bundleItem" file="bundles/SoundingAvailability.xml" 
                menuText="POES Sounding Availability" id="poesSoundingAvailability"
                productInterval="3600" productOffset="1800">
-        <dataURI>/poessounding/%</dataURI>
         <substitute key="pluginName" value="poessounding"/>
         <substitute key="plotSource" value="POES Sounding Availability"/>
         <substitute key="offset" value="1800"/>
