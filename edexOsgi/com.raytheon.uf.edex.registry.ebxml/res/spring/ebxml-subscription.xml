@@ -28,14 +28,8 @@
         <property name="notificationListenerFactory" ref="notificationListenerFactory" />
 	</bean>
 	
-	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="staticMethod"
-            value="com.raytheon.uf.common.event.EventBus.register" />
-        <property name="arguments">
-            <list>
-                <ref bean="RegistrySubscriptionManager" />
-            </list>
-        </property>
+	<bean factory-bean="eventBus" factory-method="register">
+        <constructor-arg ref="RegistrySubscriptionManager" />
     </bean>
 
 </beans>
