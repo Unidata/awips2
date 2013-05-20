@@ -23,6 +23,7 @@ package com.raytheon.uf.common.util;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
@@ -57,6 +58,7 @@ import java.util.zip.GZIPOutputStream;
  * Feb 15, 2013 1638       mschenke    Moved EOL field from edex.common Util
  * Mar 11, 2013 1645       djohnson    Added file modification watcher.
  * Mar 14, 2013 1794       djohnson    FileUtil.listFiles now returns List.
+ * May 16, 2013 1966       rferrel     Add sizeOfDirectory and listDirFiles method.
  * 
  * </pre>
  * 
@@ -116,8 +118,8 @@ public class FileUtil {
      *            whether or not to go into subdirectories
      * @return the files that match the filter
      */
-    public static List<File> listFiles(File directory,
-            FilenameFilter filter, boolean recurse) {
+    public static List<File> listFiles(File directory, FilenameFilter filter,
+            boolean recurse) {
         // List of files / directories
         ArrayList<File> files = new ArrayList<File>();
 
@@ -140,6 +142,37 @@ public class FileUtil {
             // is set, recurse into the directory
             if (recurse && entry.isDirectory()) {
                 files.addAll(listFiles(entry, filter, recurse));
+            }
+        }
+
+        return files;
+    }
+
+    /**
+     * List files/directories that match a FileFilter.
+     * 
+     * @param directory
+     * @param filter
+     * @param recurse
+     * @return
+     */
+    public static List<File> listDirFiles(File directory, FileFilter filter,
+            boolean recurse) {
+        // List of files / directories
+        List<File> files = new ArrayList<File>();
+
+        // Get files / directories in the directory accepted by the filter.
+        File[] entries = directory.listFiles(filter);
+
+        if (entries == null) {
+            entries = new File[0];
+        }
+
+        // Go over entries
+        for (File entry : entries) {
+            files.add(entry);
+            if (recurse && filter != null && entry.isDirectory()) {
+                files.addAll(listDirFiles(entry, filter, recurse));
             }
         }
 
@@ -873,4 +906,23 @@ public class FileUtil {
     public static IFileModifiedWatcher getFileModifiedWatcher(File file) {
         return new FileLastModifiedTimeWatcher(file);
     }
+
+    /**
+     * Determine the size of the contents of a directory.
+     * 
+     * @param directory
+     * @return size
+     */
+    public static long sizeOfDirectory(File directory) {
+        long size = 0;
+        for (File file : directory.listFiles()) {
+            if (file.isDirectory()) {
+                size += sizeOfDirectory(file);
+            } else {
+                size += file.length();
+            }
+        }
+        return size;
+    }
+
 }
