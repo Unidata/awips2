@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <isEnabled>false</isEnabled>
     <resourceDefnName>GINI_GMS</resourceDefnName>
     <resourceCategory>SATELLITE</resourceCategory>
     <resourceParameters>
@@ -10,7 +9,6 @@ pluginName=satellite
 satelliteName=GMS
 legendColor=RGB {200, 200, 200}
     </resourceParameters>
-    <filterLabels>GMS,GINI</filterLabels>
     <rscImplementation>GiniSatellite</rscImplementation>
     <subTypeGenerator>sectorID</subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>

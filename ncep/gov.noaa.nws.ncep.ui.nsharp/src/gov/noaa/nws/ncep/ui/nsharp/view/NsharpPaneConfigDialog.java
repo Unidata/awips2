@@ -111,8 +111,11 @@ public class NsharpPaneConfigDialog extends Dialog {
 		}
 	    for(int i=0; i<NsharpConstants.PANE_CONFIGURATION_NAME.length; i++){
 	    	paneCfgCombo.add(NsharpConstants.PANE_CONFIGURATION_NAME[i]);	 
-	    	if(paneConfigurationName.equals(NsharpConstants.PANE_CONFIGURATION_NAME[i]))
+	    	if(paneConfigurationName.equals(NsharpConstants.PANE_CONFIGURATION_NAME[i])){
 	    		selectIndex = i;
+	    		break;
+	    	}
+	    	
 	    }
 	    paneCfgCombo.select(selectIndex);
 	    paneCfgCombo.addSelectionListener(new SelectionListener() {
