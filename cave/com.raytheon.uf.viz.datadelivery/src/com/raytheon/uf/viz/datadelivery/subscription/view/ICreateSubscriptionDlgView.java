@@ -46,6 +46,7 @@ import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
  * Jan 04, 2013  1420      mpduff      Added getters for latency and priority.
  * Jan 25, 2013  1528      djohnson    Subscription priority is now an enum.
  * Apr 08, 2013  1826      djohnson    Remove delivery options.
+ * May 13, 2013  1040      mpduff      Added getSharedSites method.
  * 
  * </pre>
  * 
@@ -394,4 +395,19 @@ public interface ICreateSubscriptionDlgView extends IPresenterView {
      * @param cycleTimes
      */
     void setCycleTimes(Set<Integer> cycleTimes);
+
+    /**
+     * Get the list of shared sites
+     * 
+     * @return shared sites
+     */
+    String[] getSharedSites();
+
+    /**
+     * Set the list of office ids.
+     * 
+     * @param officeIDs
+     *            list of office ids
+     */
+    void setOfficeIds(Set<String> officeIDs);
 }

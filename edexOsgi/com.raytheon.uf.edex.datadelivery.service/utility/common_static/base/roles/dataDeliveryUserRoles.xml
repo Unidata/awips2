@@ -46,6 +46,36 @@
       </description>   
    </permission>
    
+   <permission id="shared.subscription.create">
+      <description>
+        Control Access to Create Data Delivery Shared Subscriptions
+      </description>   
+   </permission>
+   
+   <permission id="shared.subscription.edit">
+      <description>
+        Control Access to Edit Data Delivery Shared Subscriptions
+      </description>   
+   </permission>
+   
+   <permission id="shared.subscription.delete">
+      <description>
+        Control Access to Delete Data Delivery Shared Subscriptions
+      </description>   
+   </permission>
+   
+   <permission id="shared.subscription.activate">
+      <description>
+        Control Access to Activate Data Delivery Shared Subscriptions
+      </description>   
+   </permission>
+   
+   <permission id="subscription.approve.share">
+      <description>
+        Authorization to Approve Shared Data Delivery Subscriptions
+      </description>   
+   </permission>
+   
    <permission id="subscription.approve.view">
       <description>
         Authorization to View Pending Data Delivery Subscriptions
@@ -98,6 +128,17 @@
       <rolePermission>subscription.approve.all</rolePermission>
       <rolePermission>subscription.user</rolePermission>
       <rolePermission>group.edit</rolePermission>
+   </role>
+
+   <role roleId="shared.subscription.admin">
+      <roleDescription>
+         This role is a grouping of permissions, default shared subscription admin role
+      </roleDescription>
+      <rolePermission>shared.subscription.create</rolePermission>
+      <rolePermission>shared.subscription.edit</rolePermission>
+      <rolePermission>shared.subscription.delete</rolePermission>
+      <rolePermission>shared.subscription.activate</rolePermission>
+      <rolePermission>subscription.approve.share</rolePermission>
    </role>
 
    <!-- ALL user is selected for permissions permitted to all users -->
