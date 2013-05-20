@@ -13,7 +13,8 @@ import gov.noaa.nws.ncep.common.dataplugin.solarimage.SolarImageRecord;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 02/22/2012   958        qzhou       Initial creation.
+ * 02/22/2013   958        qzhou       Initial creation.
+ * 04/02/2013   958        qzhou       Added isSdoHmi, isSdoHmi, isGoes, isNso, isSoho.
  * </pre>
  * 
  * @author qzhou
@@ -29,11 +30,14 @@ public class HeaderData {
     private double crln;
     private double crlt;
     //private double hcit, hcix, haex, haey, heex, heey, heqx, heqy,;
-    private double rsun; //AIA
     private double dsun;  //distance between the observer and sun image, ~D0
     private double carRot; //
     private double solarB0; 
     private double solarL0; 
+    
+    private double rsun; //fits rsun
+    private double B0; 
+    private double L0;
 
     /**
      * @param record
@@ -367,6 +371,17 @@ public class HeaderData {
          
     }
     
+    public double getL0() {
+    	double L0 = 0;
+		if (!isStereo()) {
+			L0 = getL0B0()[0];
+		} 
+		else {
+			L0 = crln - hgln;
+		}
+		return L0;
+    }
+	
     public double truncate(double angle) {
         double n = Math.floor(angle/360);
         double tangle = angle-n*360;
@@ -381,6 +396,41 @@ public class HeaderData {
         return false;
     }
     
+    public boolean isSdoAia() {
+        
+		if (header.getStringValue("TELESCOP").startsWith("SDO/AIA"))
+			return true;
+		
+        return false;
+    }
+    public boolean isSdoHmi() {
+        
+		if (header.getStringValue("TELESCOP").startsWith("SDO/HMI"))
+			return true;
+		
+        return false;
+    }
+    public boolean isGoes() {
+        
+		if (header.getStringValue("TELESCOP").startsWith("SXI"))
+			return true;
+		
+        return false;
+    }
+    public boolean isNso() {
+        
+		if (header.getStringValue("TELESCOP").startsWith("NSO"))
+			return true;
+		
+        return false;
+    }
+    public boolean isSoho() {
+        
+		if (header.getStringValue("TELESCOP").startsWith("SOHO"))
+			return true;
+		
+        return false;
+    }
     /**
      * @return the header
      */

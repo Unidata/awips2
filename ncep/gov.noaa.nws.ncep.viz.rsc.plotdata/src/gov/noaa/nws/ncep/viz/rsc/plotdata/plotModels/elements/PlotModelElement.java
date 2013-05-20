@@ -27,8 +27,8 @@ import org.eclipse.swt.graphics.RGB;
  * ------------ ---------- ----------- --------------------------
  *                  
  * 05/02/12     778         Q. Zhou     Changed symbol size form int to double    
- * 06/11/12     654         S. Gurung   Changed default textSize to 14          
- * 08/23/12     844         S. Gurung   Changed default textFont to Standard   
+ * 06/11/12     654         S. Gurung   Changed default textSize to 14     
+ * 08/23/12     844         S. Gurung   Changed default textFont to Standard       
  * 10/18/2012   431         S. Gurung   Added support for ConditionalParameter and ConditionalColorBar     
  * 02/26/2013   936       A.Subramanian Changed the font defaults to match legacy 
  * </pre>

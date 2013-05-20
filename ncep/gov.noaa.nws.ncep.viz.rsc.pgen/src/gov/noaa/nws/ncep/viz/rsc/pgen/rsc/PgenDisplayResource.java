@@ -11,6 +11,7 @@ import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
 import java.awt.Color;
 import java.io.File;
@@ -46,7 +47,7 @@ import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
  * @author bhebbard 
  * @version 1.0
  */
-public class PgenDisplayResource extends AbstractNatlCntrsResource<PgenDisplayResourceData, IMapDescriptor>
+public class PgenDisplayResource extends AbstractNatlCntrsResource<PgenDisplayResourceData, NCMapDescriptor>
                                 implements INatlCntrsResource {
 	
 	private PgenDisplayResourceData pgenResourceData;

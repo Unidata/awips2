@@ -1,55 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <plotModel svgTemplate="standardPlotModelTemplate.svg" plugin="bufrmosGFS" name="standard">
  
-    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="TMPC">
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="TDXF">
         <Position>UL</Position>
-        <Color red="255" green="0" blue="0"/>
+        <Color red="205" green="0" blue="0"/>
     </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="TMPF">
-        <Position>UR</Position>
-        <Color red="255" green="0" blue="255"/>  <!-- GEMPAK#15 -->
-    </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="TMPK">
-        <Position>TC</Position>
-        <Color red="255" green="0" blue="100"/>  <!-- GEMPAK#15 -->
-    </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="DWPC">
+
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="TDNF">
         <Position>LL</Position>
-        <Color red="0" green="255" blue="0"/>
-    </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="DWPF">
-        <Position>LR</Position>
-        <Color red="0" green="255" blue="255"/>  <!-- GEMPAK#22 -->
-    </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="DWPK">
-        <Position>BC</Position>
-        <Color red="0" green="255" blue="125"/>  <!-- GEMPAK#22 -->
-    </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="DPDC">
-        <Position>UL</Position>
-        <Color red="100" green="255" blue="0"/>
-    </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="DPDF">
-        <Position>UR</Position>
-        <Color red="150" green="255" blue="255"/>  
-    </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="DPDK">
-        <Position>TC</Position>
-        <Color red="200" green="255" blue="125"/> 
+        <Color red="0" green="205" blue="0"/>
     </PlotModelElement>
 
     <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="STID">
-        <Position>LL</Position>
+        <Position>TC</Position>
         <Color red="205" green="133" blue="0"/>  <!-- GEMPAK#18 -->
     </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="SLON">
-        <Position>LR</Position>
-        <Color red="205" green="133" blue="90"/>  
-    </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="SLAT">
-        <Position>UR</Position>
-        <Color red="205" green="122" blue="150"/>  
+ 
+     <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="SKYC">
+        <Position>SC</Position>
+        <Color red="0" green="178" blue="238"/>
     </PlotModelElement>
 
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="BRBK">
+        <Position>WD</Position>
+        <Color red="0" green="178" blue="238"/>
+    </PlotModelElement>      
 
 </plotModel>

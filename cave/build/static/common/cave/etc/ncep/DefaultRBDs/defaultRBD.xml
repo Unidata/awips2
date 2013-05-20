@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<rbdBundle rbdName="Welcome">
+<ncMapRBD rbdName="Welcome">
     <paneLayout col="1" row="1"/>
     <selectedPaneId col="0" row="0"/>
     <geoSyncedPanes>true</geoSyncedPanes>
     <autoUpdate>false</autoUpdate>
+    <isDefaultRbd>true</isDefaultRbd>
     <timeMatcher skipValue="0" numFrames="10"/>
     <displayList>
         <displays xsi:type="NC-MapRenderableDisplay" zoomLevel="0.25" mapCenter="-96.5 38.5 0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -56,9 +57,6 @@
                             <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false">
                                 <mapName>World</mapName>
                                 <table>mapdata.world</table>
-<!-- don't need this anymore
-                <constraint>name not in ('CANADA', 'MEXICO', 'UNITED STATES, THE')</constraint>
--->                
                                 <geomField>the_geom</geomField>
                                 <labelField>name</labelField>
                                 <color>RGB {255, 228, 220}</color>
@@ -77,7 +75,6 @@
                                 <mapName>State Boundaries</mapName>
                                 <table>mapdata.states</table>
                                 <geomField>the_geom</geomField>
-                                <labelField>name</labelField>
                                 <color>RGB {255, 228, 220}</color>
                                 <lineWidth>1</lineWidth>
                                 <lineStyle>SOLID</lineStyle>
@@ -94,7 +91,10 @@
                                 <mapName>Canada</mapName>
                                 <table>mapdata.canada</table>
                                 <geomField>the_geom</geomField>
+                                
+<!--   don't need this since displayLabelField is not set
                                 <labelField>name</labelField>
+  -->
                                 <color>RGB {255, 228, 220}</color>
                                 <lineWidth>1</lineWidth>
                                 <lineStyle>SOLID</lineStyle>
@@ -112,6 +112,7 @@
                                 <mapName>Mexico</mapName>
                                 <table>mapdata.mexico</table>
                                 <geomField>the_geom</geomField>
+
                                 <labelField>name</labelField>
                                 <color>RGB {255, 228, 220}</color>
                                 <lineWidth>1</lineWidth>
@@ -125,11 +126,13 @@
                             <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
                                 <pdProps maxDisplayWidth="1" minDisplayWidth="0"/>
                             </properties>
-<!-- Counties are 'disabled'. To display set the maxDisplayWidth="100000000" -->
+<!-- Counties are 'disabled'. 
+     To display set the maxDisplayWidth="100000000" -->
                             <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false" >
                                 <mapName>County Boundaries</mapName>
                                 <table>mapdata.county</table>
                                 <geomField>the_geom</geomField>
+                                <displayLabelField>false</displayLabelField>                                
                                 <labelField>countyname</labelField>
                                 <color>RGB {255, 228, 220}</color>
                                 <lineWidth>1</lineWidth>
@@ -166,8 +169,7 @@
   AXIS["Northing", NORTH]]</CRS>
                 </gridGeometry>
             </descriptor>
-	 		<initialArea areaName="BasicWX_US">
-	 		    <mapCenter>-96.5 38.5 0.0</mapCenter>
+	 		<initialArea areaName="BasicWX_US" mapCenter="-96.5 38.5 0.0">
 	 		    <zoomLevel>0.25</zoomLevel>
 	 			<areaSource>PREDEFINED_AREA</areaSource>
                 <gridGeometry envelopeMaxY="1.3E7" envelopeMinY="-1.3E7" envelopeMaxX="1.3E7" envelopeMinX="-1.3E7" rangeY="0 10000" rangeX="0 10000">
@@ -195,4 +197,4 @@
 
         </displays>
     </displayList>
-</rbdBundle>
+</ncMapRBD>

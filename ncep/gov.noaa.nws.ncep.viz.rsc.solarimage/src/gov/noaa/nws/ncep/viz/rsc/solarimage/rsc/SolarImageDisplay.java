@@ -1,17 +1,19 @@
 package gov.noaa.nws.ncep.viz.rsc.solarimage.rsc;
 
+
 import gov.noaa.nws.ncep.common.dataplugin.solarimage.SolarImageRecord;
 import gov.noaa.nws.ncep.viz.rsc.solarimage.LogSolarImageDataCallback;
 import gov.noaa.nws.ncep.viz.rsc.solarimage.SolarImageDataCallback;
 import gov.noaa.nws.ncep.viz.rsc.solarimage.util.HeaderData;
+import gov.noaa.nws.ncep.viz.rsc.solarimage.util.ImageData;
 import gov.noaa.nws.ncep.viz.rsc.solarimage.wcs.CSConversions;
 import gov.noaa.nws.ncep.viz.rsc.solarimage.wcs.WCSConverter;
 
 import java.awt.geom.AffineTransform;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import nom.tam.fits.Header;
@@ -21,6 +23,8 @@ import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
 import org.opengis.referencing.operation.TransformException;
+
+import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -34,7 +38,9 @@ import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.xy.graph.GraphProperties;
+import com.raytheon.viz.core.style.image.DataScale;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -46,7 +52,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer         Description
  * ------------ ---------- -----------      --------------------------
  * 02/21/2013   958        qzhou, sgurung   Initial creation
- * 
+ * 03/19/2013   958        qzhou, sgurung   implemented colormap changing
+ * 03/28/2013   958        qzhou            Added location adjusting for THEMATIC
  * </pre>
  * 
  * @author qzhou, sgurung
@@ -70,6 +77,8 @@ public class SolarImageDisplay implements IRenderable {
     private SolarImageDataCallback dataCallback;
 
     private ColorMapParameters colorMapParameters;
+    
+    private boolean isColorMapChanged =  false;
 
     private GeneralGridGeometry gridGeom;
 
@@ -93,27 +102,38 @@ public class SolarImageDisplay implements IRenderable {
     private AffineTransform at;
     
     public CSConversions csConv;
+    
+    private DataScale dataScale = null;
 
-    public SolarImageDisplay(SolarImageRecord record, ColorMapParameters cmp,
-            GeneralGridGeometry gridGeometry, boolean logConvert) throws VizException {
-        this.record = record;
+    public List points = new ArrayList();
+    private ImageData imageData;
+    boolean temflag = false;
+    
+    
+    public SolarImageDisplay(SolarImageRecord rec, ColorMapParameters cmp, GeneralGridGeometry gridGeometry, 
+            boolean logConvert, DataScale dataScale) throws VizException {
+        this.record = rec;
         this.colorMapParameters = cmp;
         this.gridGeom = gridGeometry;
         this.logConvert = logConvert;
-        if (this.logConvert)
+        this.dataScale = dataScale;
+        if (this.logConvert){
             dataCallback = new LogSolarImageDataCallback(record);
-        else
+            imageData = dataCallback.getImageData();
+        }
+        else {
             dataCallback = new SolarImageDataCallback(record);
+            imageData = dataCallback.getImageData();
+        }
             
-        header = dataCallback.imgData.getHeader();
+        header = imageData.getHeader();
 //        if (header == null)
 //            populateHeader();
-        nx = dataCallback.imgData.getNx();
-        ny = dataCallback.imgData.getNy();
+        nx = imageData.getNx();
+        ny = imageData.getNy();
         
         headerData = new HeaderData(record);
         csConv = new CSConversions(headerData);
-        (new HeaderData(record)).calculateRsun();
         
     }
     
@@ -121,12 +141,49 @@ public class SolarImageDisplay implements IRenderable {
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
 
-        if (image == null) {
-            // ColormappedRenderedImageCallback imageCallback = new
-            // ColormappedRenderedImageCallback(dataCallback, colorMapParameters);
-            // image = target.initializeRaster(imageCallback);
-            image = target.getExtension(IColormappedImageExtension.class)
-                    .initializeRaster(dataCallback, colorMapParameters);
+        if (image == null || isColorMapChanged) { 
+
+        	float scaleMin = dataScale.getMinValue().floatValue();
+        	float scaleMax = dataScale.getMaxValue().floatValue();
+        	float range = scaleMax - scaleMin;
+        	
+        	float cMapMax = (float)(range/255.0) * colorMapParameters.getColorMapMax(); 
+        	float cMapMin = (float) (range/255.0) * colorMapParameters.getColorMapMin(); 
+        	        	 
+        	//System.out.println(" test ****** before colorMapParameters min max = " +  colorMapParameters.getColorMapMin() + " " + colorMapParameters.getColorMapMax() + " cMapMax = " +cMapMax);
+        	
+        	if (range <= 255.0) {
+        		if ((colorMapParameters.getColorMapMax() > range)) {       		
+        			colorMapParameters.setColorMapMax(cMapMax);
+        		} 
+        		if ((colorMapParameters.getColorMapMin() > range)) {            		
+        			colorMapParameters.setColorMapMin(cMapMin);
+                } 
+            }
+
+        	else {	
+        		if (scaleMin >= 0) {
+            		if (colorMapParameters.getColorMapMax() >= 0 && cMapMax <= range) {
+                		colorMapParameters.setColorMapMax(cMapMax);
+                	}        	
+                	
+                	if (colorMapParameters.getColorMapMin() >= 0 && cMapMin <= range) {
+                		colorMapParameters.setColorMapMin(cMapMin);
+                	}
+        		}
+        		else {
+        			if (colorMapParameters.getColorMapMax() >= 0 && cMapMax <= range) {
+                		colorMapParameters.setColorMapMax(cMapMax-scaleMax);
+                	}     	
+                	
+                	if (colorMapParameters.getColorMapMin() >= 0 && cMapMin <= range) {
+                		colorMapParameters.setColorMapMin(cMapMin-scaleMax);
+                	}
+        		}
+        	}
+        	        	
+        	image = target.getExtension(IColormappedImageExtension.class)
+                    .initializeRaster(dataCallback, colorMapParameters); 
         }
        
        if (transform == null || extent == null) {
@@ -140,16 +197,16 @@ public class SolarImageDisplay implements IRenderable {
                         e);
             }
             
+            double[] ll = transform.imageToWorld(new double[] { 0, 0 });   
+            double[] lr = transform.imageToWorld(new double[] { nx, 0 });            		
+            double[] ur = transform.imageToWorld(new double[] { nx, ny });
+            double[] ul = transform.imageToWorld(new double[] { 0, ny });
             
-            double[] ll = transform.imageToWorld(new double[] { -0.5, -0.5 });
-   
-            double[] lr = transform.imageToWorld(new double[] {
-            		nx - 0.5, -0.5 });
-            double[] ur = transform.imageToWorld(new double[] {
-            		nx - 0.5, ny - 0.5 });
-            double[] ul = transform.imageToWorld(new double[] { -0.5,
-                    ny - 0.5 });
-
+//            double[] ll = transform.imageToWorld(new double[] { -0.5, -0.5 });   
+//            double[] lr = transform.imageToWorld(new double[] { nx - 0.5, -0.5 });            		
+//            double[] ur = transform.imageToWorld(new double[] { nx - 0.5, ny - 0.5 });            		
+//            double[] ul = transform.imageToWorld(new double[] { -0.5, ny - 0.5 });                                
+            
             double minX = Math.min(ll[0], ul[0]);
             double maxX = Math.max(lr[0], ur[0]);
             double minY = Math.min(ll[1], lr[1]);
@@ -160,7 +217,7 @@ public class SolarImageDisplay implements IRenderable {
             } else {
                 scale = gridGeom.getEnvelope().getSpan(1) / (maxY - minY);
             }
-           
+
             double[] center;
             if (paintProps instanceof GraphProperties) {
                 center = ((GraphProperties) paintProps).getWorldExtent()
@@ -202,20 +259,27 @@ public class SolarImageDisplay implements IRenderable {
                         "Could not create pixel extent for image", e);
             }
 
+            // handle THEMATIC
+            if (record.getWavelength().equalsIgnoreCase("THEMATIC")){
+	          	llp = new double[] { 0, 0 };
+	          	lrp = new double[] { 1000, 0 };
+	            urp = new double[] { 1000, 1000 };
+	            ulp = new double[] { 0, 1000 };
+            }
+            
             extent = new PixelCoverage(new Coordinate(ulp[0], ulp[1]),
                     new Coordinate(urp[0], urp[1]), new Coordinate(lrp[0],
                             lrp[1]), new Coordinate(llp[0], llp[1]));
-
-         
+            //System.out.println("**** extent "+ulp[0]+" "+ ulp[1] +" "+urp[0]+" "+ urp[1]+" "+ lrp[0]+" "+lrp[1]+" "+ llp[0]+" "+llp[1] );
         }
+       
         image.setContrast(contrast);
         image.setBrightness(brightness);
         image.setInterpolated(isInterpolated);
-        target.drawRaster(image, extent, paintProps);
-        
-        
+        target.drawRaster(image, extent, paintProps); 
+         
     }
-
+    
     public void dispose() {
 
         if (this.image != null)
@@ -233,7 +297,6 @@ public class SolarImageDisplay implements IRenderable {
             
             double[] world = new double[2];
             pixelToWorld.transform(pixel, 0, world, 0, 1);  
-            //world = formatValue(world);
             map.put("HCC", new Coordinate(formatValue(world[0]), formatValue(world[1])));//move down
 
             double image[] = transform.WorldToImage(world);
@@ -247,7 +310,7 @@ public class SolarImageDisplay implements IRenderable {
             else if (locWorld[0] < -180)
             	locWorld[0] = locWorld[0] +  360;
             map.put("StonyHurst", new Coordinate(formatValue(locWorld[0]), formatValue(locWorld[1])));
-            
+           
             locWorld = (new CSConversions(headerData)).heliocentricToHeliographic(world, true); 
             if (locWorld[0] > 360)
             	locWorld[0] = locWorld[0] - 360;
@@ -298,8 +361,6 @@ public class SolarImageDisplay implements IRenderable {
 
     private boolean isInImageRange(int x, int y) {
 
-//        return (x >= 0) && (x < record.getNx()) && (y >= 0)
-//                && (y < record.getNy());
         return (x >= 0) && (x < nx) && (y >= 0)
         && (y < ny);
     }
@@ -315,7 +376,16 @@ public class SolarImageDisplay implements IRenderable {
     public void setInterpolationState(boolean isInterpolated) {
         this.isInterpolated = isInterpolated;
     }
+    
+    public void setColorMapParameters(ColorMapParameters params) {
+        this.colorMapParameters = params;
+        this.isColorMapChanged = true;
+    }
 
+    public void setColorMapChanged(boolean val) {
+    	this.isColorMapChanged = val;;
+    }
+    
     public PixelCoverage getPixelCoverage() {
         return extent;
     }
