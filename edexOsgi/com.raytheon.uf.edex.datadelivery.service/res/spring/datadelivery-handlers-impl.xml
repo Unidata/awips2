@@ -10,7 +10,7 @@
         class="com.raytheon.uf.common.datadelivery.registry.handlers.SubscriptionHandler">
         <constructor-arg>
             <bean
-                class="com.raytheon.uf.common.datadelivery.registry.handlers.UserSubscriptionHandler" />
+                class="com.raytheon.uf.common.datadelivery.registry.handlers.SiteSubscriptionHandler" />
         </constructor-arg>
         <constructor-arg>
             <bean
@@ -22,7 +22,7 @@
         class="com.raytheon.uf.common.datadelivery.registry.handlers.PendingSubscriptionHandler">
         <constructor-arg>
             <bean
-                class="com.raytheon.uf.common.datadelivery.registry.handlers.PendingUserSubscriptionHandler" />
+                class="com.raytheon.uf.common.datadelivery.registry.handlers.PendingSiteSubscriptionHandler" />
         </constructor-arg>
         <constructor-arg>
             <bean
