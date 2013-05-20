@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.datadelivery.actions;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
@@ -33,7 +32,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
+import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionManagerFilter;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionManagerDlg;
+import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionManagerFilters;
 
 /**
  * Subscription Manager Dialog Action class.
@@ -46,6 +47,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionManagerDlg;
  * ------------ ---------- ----------- --------------------------
  * Jan 10, 2012            mpduff       Initial creation
  * Oct 03, 2012 1241       djohnson     Use {@link DataDeliveryPermission}.
+ * May 28, 2013 1650       djohnson     Allow using filters for the Subscription Manager Dialog.
  * 
  * </pre>
  * 
@@ -54,6 +56,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionManagerDlg;
  */
 
 public class SubscriptionManagerAction extends AbstractHandler {
+
     /** Status Handler */
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubscriptionManagerAction.class);
@@ -64,8 +67,24 @@ public class SubscriptionManagerAction extends AbstractHandler {
     /** Permission String */
     private final DataDeliveryPermission permission = DataDeliveryPermission.SUBSCRIPTION_VIEW;
 
+    /**
+     * Constructor.
+     */
+    public SubscriptionManagerAction() {
+    }
+
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
+    public Object execute(ExecutionEvent arg0) {
+        return loadSubscriptionManager(SubscriptionManagerFilters.getAll());
+    }
+
+    /**
+     * Load the SubscriptionManager dialog with the specified filter.
+     * 
+     * @param filter
+     *            the filter
+     */
+    public Object loadSubscriptionManager(ISubscriptionManagerFilter filter) {
         try {
             // check if user is authorized
             IUser user = UserController.getUserObject();
@@ -78,7 +97,7 @@ public class SubscriptionManagerAction extends AbstractHandler {
                 if ((dlg == null) || (dlg.isDisposed() == true)) {
                     Shell shell = PlatformUI.getWorkbench()
                             .getActiveWorkbenchWindow().getShell();
-                    dlg = new SubscriptionManagerDlg(shell);
+                    dlg = new SubscriptionManagerDlg(shell, filter);
                     dlg.open();
                 } else {
                     dlg.bringToTop();

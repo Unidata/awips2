@@ -19,52 +19,48 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription;
 
-import java.util.Set;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 
+import com.google.common.collect.Lists;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.ForceApplyPromptResponse;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceApplyPromptDisplayText;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
- * TODO Add Description
+ * Dialog allowing the user to choose how to continue with their subscription
+ * creation/modification request.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 29, 2012            djohnson     Initial creation
- *
+ * May 22, 2013 1650       djohnson     Add more bandwidth information.
+ * 
  * </pre>
- *
+ * 
  * @author djohnson
- * @version 1.0	
+ * @version 1.0
  */
 
 public class DisplayForceApplyPromptDialog extends CaveSWTDialog {
-    private final String dialogTitle;
 
-    private final String message;
-
-    private final int requiredLatency;
-
-    private final IForceApplyPromptDisplayText displayTextStrategy;
-
-    private final Subscription subscription;
-
-    private final Set<String> wouldBeUnscheduledSubscriptions;
+    private final ForceApplyPromptConfiguration configuration;
 
     /**
      * Constructor.
@@ -75,61 +71,99 @@ public class DisplayForceApplyPromptDialog extends CaveSWTDialog {
      * @param subscription
      * @param wouldBeUnscheduledSubscriptions
      */
-    public DisplayForceApplyPromptDialog(String title, String message,
-            int requiredLatency,
-            IForceApplyPromptDisplayText displayTextStrategy,
-            Subscription subscription,
-            Set<String> wouldBeUnscheduledSubscriptions) {
-        super(displayTextStrategy.getShell());
+    public DisplayForceApplyPromptDialog(
+            ForceApplyPromptConfiguration configuration) {
+        super(configuration.displayTextStrategy.getShell());
 
-        this.dialogTitle = title;
-        this.message = message;
-        this.requiredLatency = requiredLatency;
-        this.displayTextStrategy = displayTextStrategy;
-        this.subscription = subscription;
-        this.wouldBeUnscheduledSubscriptions = wouldBeUnscheduledSubscriptions;
+        this.configuration = configuration;
     }
 
     /**
      * {@inheritDoc}
-     * @param subscription 
+     * 
+     * @param subscription
      */
     @Override
     protected void initializeComponents(final Shell shell) {
-        setText(dialogTitle);
+        setText(configuration.title);
 
         // Initialize layout
-        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, false, true);
         gd.widthHint = 400;
-        gd.heightHint = 100;
 
         Label textLabel = new Label(shell, SWT.WRAP);
         textLabel.setLayoutData(gd);
-        textLabel.setText(message);
+        textLabel.setText(configuration.message);
+
+        if (configuration.hasUnscheduledSubscriptions()) {
+            Composite unscheduledSubscriptionsComp = new Composite(shell,
+                    SWT.NONE);
+            unscheduledSubscriptionsComp.setLayout(new GridLayout(1, false));
+            unscheduledSubscriptionsComp.setLayoutData(new GridData(SWT.FILL,
+                    SWT.FILL, true, true));
+
+            final List list = new List(unscheduledSubscriptionsComp, SWT.MULTI
+                    | SWT.BORDER);
+            list.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+            final SelectionListener listener = new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    list.deselectAll();
+                }
+            };
+            list.setItems(configuration.wouldBeUnscheduledSubscriptions
+                    .toArray(new String[configuration.wouldBeUnscheduledSubscriptions
+                            .size()]));
+            list.addSelectionListener(listener);
+        }
+
+        if (configuration.hasBandwidthDetails()) {
+            Group group = new Group(shell, SWT.BORDER);
+            group.setText("Bandwidth Details");
+            group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+            group.setLayout(new GridLayout(1, false));
+
+            Label rulesLatency = new Label(group, SWT.WRAP);
+            rulesLatency.setText("Maximum latency recommended by rules: "
+                    + configuration.maximumLatency + " minutes");
+            rulesLatency.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
+                    true));
+
+            Label sizeLabel = new Label(group, SWT.WRAP);
+            sizeLabel
+                    .setText("Maximum allowed size with current latency: "
+                            + SizeUtil
+                                    .prettyByteSize(configuration.maximumAllowedSize));
+            sizeLabel
+                    .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        }
+
+        Composite leftComp = new Composite(shell, SWT.NONE);
+        leftComp.setLayout(new GridLayout(1, false));
+        leftComp.setLayoutData(new GridData(SWT.LEFT, SWT.DEFAULT, true, false));
+
+        Label choiceLabel = new Label(leftComp, SWT.WRAP);
+        choiceLabel.setLayoutData(gd);
+        choiceLabel.setText("\nWhat would you like to do?\n");
 
         // Add radio buttons
-        Composite leftComp = new Composite(shell, SWT.NONE);
-        GridLayout gl = new GridLayout(1, false);
-        leftComp.setLayout(gl);
-        GridData gd2 = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        leftComp.setLayoutData(gd2);
-
-        Button[] radios = getRadioButtons(leftComp, requiredLatency,
-                displayTextStrategy, subscription);
+        Button[] radios = getRadioButtons(leftComp,
+                configuration.requiredLatency,
+                configuration.displayTextStrategy, configuration.subscription);
         radios[0].setSelection(true);
         setReturnValue(ForceApplyPromptResponse.CANCEL);
+        radios[0].setFocus();
 
-        // Add a close button
+        // Add an OK button
         Composite centeredComp = new Composite(shell, SWT.NONE);
-        gl = new GridLayout(1, false);
-        centeredComp.setLayout(gl);
-        gd2 = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        centeredComp.setLayoutData(gd2);
+        centeredComp.setLayout(new GridLayout(1, false));
+        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+        centeredComp.setLayoutData(gd);
 
-        Button closeBtn = new Button(centeredComp, SWT.NONE);
-        closeBtn.setText("OK");
-        closeBtn.setLayoutData(gd2);
-        closeBtn.addSelectionListener(new SelectionAdapter() {
+        Button okBtn = new Button(centeredComp, SWT.NONE);
+        okBtn.setText("OK");
+        okBtn.setLayoutData(gd);
+        okBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 shell.dispose();
@@ -158,30 +192,29 @@ public class DisplayForceApplyPromptDialog extends CaveSWTDialog {
                 .values();
         final int length = values.length;
 
-        Button[] buttons = new Button[length];
+        java.util.List<Button> buttons = Lists.newArrayList();
         for (int i = 0; i < length; i++) {
             final ForceApplyPromptResponse promptResponse = values[i];
-
-            buttons[i] = new Button(composite, SWT.RADIO);
             final String optionDisplayText = displayTextStrategy
                     .getOptionDisplayText(promptResponse, requiredLatency,
-                            subscription, wouldBeUnscheduledSubscriptions);
+                            subscription,
+                            configuration.wouldBeUnscheduledSubscriptions);
 
             // Skip any options that return a null display text
-            if (optionDisplayText == null) {
-                buttons[i].setVisible(false);
-                continue;
+            if (optionDisplayText != null) {
+                Button button = new Button(composite, SWT.RADIO);
+                button.setText(optionDisplayText);
+                button.addSelectionListener(new SelectionAdapter() {
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        setReturnValue(promptResponse);
+                    }
+                });
+                buttons.add(button);
             }
-
-            buttons[i].setText(optionDisplayText);
-            buttons[i].addSelectionListener(new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent e) {
-                    setReturnValue(promptResponse);
-                }
-            });
         }
 
-        return buttons;
+        return buttons.toArray(new Button[buttons.size()]);
     }
+
 }
