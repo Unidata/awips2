@@ -416,7 +416,7 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 		Label continueLbl = new Label(top, SWT.LEFT);
 		continueLbl.setText("Continue Watch#:");
 		cText = new Text(top, SWT.SINGLE | SWT.RIGHT | SWT.BORDER );
-
+		
 		cText.setText(cont);
 		cText.setEditable(true);
 		

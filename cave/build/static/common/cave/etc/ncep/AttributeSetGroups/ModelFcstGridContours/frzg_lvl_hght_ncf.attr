@@ -4,7 +4,7 @@
 ! Log:
 ! J. Carr/HPC   	 1/2000    Initial creation
 !
-GLEVEL=0                   !30:0
+GLEVEL=0                   !0:30
 GVCORD=FRZL                !pdly
 SKIP=
 FILTER=y

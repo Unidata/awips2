@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.Text;
  *                                        exit if the spinners are set to the MAX/MIN Integer values respectively. 
  *                                           
  *                                           
- * 
+ *                                           
  * </pre>
  * 
  * @author ghull
@@ -707,7 +707,7 @@ public class ColorBarEditor extends Composite {
 		intrvlMinSpnr.addModifyListener( minSpnrListener);
 		
 		intrvlMaxSpnr.addModifyListener(maxSpnrListener);        
-
+        
 		removeModifyListenersForSpinners();
 		intrvlMinSpnr.setDigits( colorBar.getNumDecimals() );
 		intrvlMinSpnr.setIncrement(1);
