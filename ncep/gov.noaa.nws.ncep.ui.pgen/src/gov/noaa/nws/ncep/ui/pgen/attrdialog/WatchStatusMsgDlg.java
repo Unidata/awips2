@@ -8,8 +8,12 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrdialog;
 
+import gov.noaa.nws.ncep.ui.pgen.store.PgenStorageException;
+import gov.noaa.nws.ncep.ui.pgen.store.StorageUtils;
 
-import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -35,48 +39,51 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 03/10		#159		B. Yin   	Initial Creation.
- *
+ * 04/13        #977        S. Gilbert  PGEN Database support
  * </pre>
  * 
- * @author	B. Yin
+ * @author B. Yin
  */
 
 public class WatchStatusMsgDlg extends CaveJFACEDialog {
 
-	//top level container for all widgets
-	private Composite top;
-	
-	//text message to display
-	private String statusMsg;
-	
-	//instance of watch status dialog
-	private WatchStatusDlg wsd;
-	
-	//dialog size
-	private final int NUM_LINES = 25;
-	private final int NUM_COLUMNS = 68;
-	
-	/*
-	 * constructor
-	 */
-	protected WatchStatusMsgDlg(Shell parentShell, WatchStatusDlg wsd) {
-		super(parentShell);
-		this.wsd = wsd;
-	}
+    // top level container for all widgets
+    private Composite top;
 
-	/**
-	 * Creates the dialog area
-	 */
-	@Override
-	public Control createDialogArea(Composite parent) {
-		
-		// Set title
-		getShell().setText("Watch Status Save");
-		
-		top = (Composite) super.createDialogArea(parent);
-		
+    private Text productName;
+
+    // text message to display
+    private String statusMsg;
+
+    // instance of watch status dialog
+    private WatchStatusDlg wsd;
+
+    // dialog size
+    private final int NUM_LINES = 25;
+
+    private final int NUM_COLUMNS = 68;
+
+    /*
+     * constructor
+     */
+    protected WatchStatusMsgDlg(Shell parentShell, WatchStatusDlg wsd) {
+        super(parentShell);
+        this.wsd = wsd;
+    }
+
+    /**
+     * Creates the dialog area
+     */
+    @Override
+    public Control createDialogArea(Composite parent) {
+
+        // Set title
+        getShell().setText("Watch Status Save");
+
+        top = (Composite) super.createDialogArea(parent);
+
         /*
-         *  Create the main layout for the dialog area.
+         * Create the main layout for the dialog area.
          */
         GridLayout mainLayout = new GridLayout(1, true);
         mainLayout.marginHeight = 3;
@@ -84,98 +91,133 @@ public class WatchStatusMsgDlg extends CaveJFACEDialog {
         top.setLayout(mainLayout);
 
         /*
-         *  Create a text box for the message
+         * Create a text box for the message
          */
-        Text messageBox = new Text(top, SWT.MULTI | SWT.BORDER | SWT.READ_ONLY | SWT.V_SCROLL);
-        messageBox.setFont(new Font(messageBox.getDisplay(),"Courier",12, SWT.NORMAL) );
-		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-		
-		//  Calculate approximate size of text box to display 25 lines at 80 characters each
-		gd.heightHint = NUM_LINES * messageBox.getLineHeight();       
-		GC gc = new GC (messageBox);
-		FontMetrics fm = gc.getFontMetrics ();
-		gd.widthHint = NUM_COLUMNS * fm.getAverageCharWidth ();
+        Text messageBox = new Text(top, SWT.MULTI | SWT.BORDER | SWT.READ_ONLY
+                | SWT.V_SCROLL);
+        messageBox.setFont(new Font(messageBox.getDisplay(), "Courier", 12,
+                SWT.NORMAL));
+        GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+
+        // Calculate approximate size of text box to display 25 lines at 80
+        // characters each
+        gd.heightHint = NUM_LINES * messageBox.getLineHeight();
+        GC gc = new GC(messageBox);
+        FontMetrics fm = gc.getFontMetrics();
+        gd.widthHint = NUM_COLUMNS * fm.getAverageCharWidth();
 
         messageBox.setLayoutData(gd);
         messageBox.setText(statusMsg);
-        
-        //  Make sure to dispose of font
+
+        productName = new Text(top, SWT.SINGLE | SWT.BORDER);
+        GridData gd2 = new GridData(GridData.FILL_HORIZONTAL);
+        productName.setLayoutData(gd2);
+        productName.setText(generateName());
+
+        // Make sure to dispose of font
         messageBox.addDisposeListener(new DisposeListener() {
 
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				Text w = (Text)e.widget;
-				w.getFont().dispose();
-			}
-        	
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                Text w = (Text) e.widget;
+                w.getFont().dispose();
+            }
+
         });
-		
-		return top;
-	}
-	
-	/*
-	 * 
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.dialogs.Dialog#buttonPressed(int)
-	 */
-	@Override
-	protected void okPressed() {
 
-		/*
-		 * construct watch file name and save the watch to the file.
-		 */
-		String watchNumber = String.format("%1$04d", wsd.getWatchNumber());
-		String fname = "WW"+watchNumber+".xml";
-		
-		if ( PgenUtil.checkFileStatus(fname) ){
-			
-			wsd.getWatchBox().saveToFile(fname);
-			wsd.close();
-			super.okPressed();
-		}
-	}
-	
-	/*
-	 * 
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.dialogs.Dialog#buttonPressed(int)
-	 */
-	@Override
-	protected void cancelPressed() {
-		
-		//clear status info
-		wsd.getWatchBox().rmLastStatus();
-		
-		//close the format dialog?
-		super.cancelPressed();
-		
-	}
-	
-	/**
-	 * Set watch status text
-	 * @param str - watch status text
-	 */
-	public void setMessage(String str) {
-		this.statusMsg = str;
-	}
-	
-	@Override
-	/**
-	 * Set the location of the dialog
-	 * Set the OK button to Save
-	 */
-	public int open(){
+        return top;
+    }
 
-		if ( this.getShell() == null ){
-			this.create();
-		}
-		
-   	   // this.getShell().setLocation(this.getShell().getParent().getLocation());
-  	    this.getButton(IDialogConstants.OK_ID).setText("Save");
-  	    this.getButtonBar().pack();
-  	    
-   	    return super.open();
-		
-	}
-	
+    /*
+     * 
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.dialogs.Dialog#buttonPressed(int)
+     */
+    @Override
+    protected void okPressed() {
+
+        /*
+         * construct watch file name and save the watch to the file.
+         */
+        String watchNumber = String.format("%1$04d", wsd.getWatchNumber());
+        String fname = "WW" + watchNumber + ".xml";
+
+        // if ( PgenUtil.checkFileStatus(fname) ){
+
+        // wsd.getWatchBox().saveToFile(fname);
+        String dataURI = wsd.getWatchBox().storeProduct(fname);
+        if (dataURI != null) {
+            try {
+                StorageUtils.storeDerivedProduct(dataURI,
+                        productName.getText(), "TEXT", this.statusMsg);
+            } catch (PgenStorageException e) {
+                StorageUtils.showError(e);
+            }
+        }
+        wsd.close();
+        super.okPressed();
+        // }
+    }
+
+    /*
+     * 
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.dialogs.Dialog#buttonPressed(int)
+     */
+    @Override
+    protected void cancelPressed() {
+
+        // clear status info
+        wsd.getWatchBox().rmLastStatus();
+
+        // close the format dialog?
+        super.cancelPressed();
+
+    }
+
+    /**
+     * Set watch status text
+     * 
+     * @param str
+     *            - watch status text
+     */
+    public void setMessage(String str) {
+        this.statusMsg = str;
+    }
+
+    @Override
+    /**
+     * Set the location of the dialog
+     * Set the OK button to Save
+     */
+    public int open() {
+
+        if (this.getShell() == null) {
+            this.create();
+        }
+
+        // this.getShell().setLocation(this.getShell().getParent().getLocation());
+        this.getButton(IDialogConstants.OK_ID).setText("Save");
+        this.getButtonBar().pack();
+
+        return super.open();
+
+    }
+
+    private String generateName() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd");
+        Calendar date = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        String sdate = sdf.format(date.getTime());
+        String watchNumber = String.format("%1$04d", wsd.getWatchNumber());
+
+        StringBuilder dpname = new StringBuilder("WSMenh_");
+        dpname.append(watchNumber);
+        dpname.append('_');
+        dpname.append(sdate);
+        dpname.append(".txt");
+        return dpname.toString();
+    }
+
 }

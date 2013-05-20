@@ -10,7 +10,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
- * Maps to the GEMPAK parameter ??
+ * Maps to the GEMPAK parameter CLCT
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)

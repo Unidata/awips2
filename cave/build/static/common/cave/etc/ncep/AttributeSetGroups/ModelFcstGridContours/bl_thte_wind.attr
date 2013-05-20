@@ -5,9 +5,9 @@
 ! D.W.Plummer/NCEP	 2/97	Initial creation
 ! J. Carr/HPC            6/97   Changed title to reflect better labeling
 ! D.W.Plummer/NCEP	 8/97	Added FILTER parameter and changed TEXT value
-! J. Carr/HPC            2/99   Changed the 9823 sgma to 30:0 pdly. 
+! J. Carr/HPC            2/99   Changed the 9823 sgma to 0:30 pdly. 
 !
-GLEVEL=30:0
+GLEVEL=0:30
 GVCORD=pdly
 SKIP=
 FILTER=y

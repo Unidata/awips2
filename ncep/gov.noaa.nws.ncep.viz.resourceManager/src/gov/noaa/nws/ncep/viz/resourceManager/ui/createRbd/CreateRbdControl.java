@@ -1,6 +1,14 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd;
 
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
+import gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider;
+import gov.noaa.nws.ncep.viz.common.display.INcPaneID;
+import gov.noaa.nws.ncep.viz.common.display.INcPaneLayout;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayName;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
+import gov.noaa.nws.ncep.viz.common.display.PredefinedArea;
+import gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider.ZoomLevelStrings;
+import gov.noaa.nws.ncep.viz.common.display.PredefinedArea.AreaSource;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resourceManager.timeline.TimelineControl;
 import gov.noaa.nws.ncep.viz.resourceManager.timeline.TimelineControl.IDominantResourceChangedListener;
@@ -9,7 +17,8 @@ import gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd.ResourceSelectionContr
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.attributes.EditResourceAttrsAction;
-import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
+import gov.noaa.nws.ncep.viz.resources.manager.AbstractRBD;
+import gov.noaa.nws.ncep.viz.resources.manager.NcMapRBD;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceBndlLoader;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
@@ -17,14 +26,11 @@ import gov.noaa.nws.ncep.viz.resources.manager.RscBundleDisplayMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.SpfsManager;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory.ResourceSelection;
 import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
-import gov.noaa.nws.ncep.viz.ui.display.IGridGeometryProvider;
-import gov.noaa.nws.ncep.viz.ui.display.IGridGeometryProvider.ZoomLevelStrings;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
-import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea;
-import gov.noaa.nws.ncep.viz.ui.display.NCPaneManager.PaneLayout;
-import gov.noaa.nws.ncep.viz.ui.display.PaneID;
-import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea.AreaSource;
+import gov.noaa.nws.ncep.viz.ui.display.NcPaneLayout;
+import gov.noaa.nws.ncep.viz.ui.display.NcPaneID;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,6 +88,8 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.viz.ui.UiPlugin;
+import com.raytheon.viz.ui.editor.AbstractEditor;
+
 import gov.noaa.nws.ncep.viz.customprojection.GempakProjectionValuesUtil;
 
 /**
@@ -125,7 +133,8 @@ import gov.noaa.nws.ncep.viz.customprojection.GempakProjectionValuesUtil;
  * 08/02/2012     #568       Greg Hull   Clear Rbd -> Reset Rbd. get the Default RBD
  * 11/16/2012     #630       Greg Hull   Allow selection of resource-defined areas.
  * 12/02/2012     #630       Greg Hull   add zoomLevel combo
- * 03/05/2013     #958       Quan Zhou   Added method to get editor name
+ * 01/24/2013     #972       Greg Hull   add NcDisplayType to support NonMap and solar based RBDs
+ * 
  * </pre>
  * 
  * @author ghull
@@ -143,6 +152,10 @@ public class CreateRbdControl extends Composite {
     
     private Text rbd_name_txt = null;
     private Label rbd_name_lbl = null;
+    
+    private Combo  disp_type_combo = null;
+    private Label  disp_type_lbl = null;
+    
     private Button sel_rsc_btn = null;
     
     private Button multi_pane_tog = null;
@@ -172,10 +185,8 @@ public class CreateRbdControl extends Composite {
     private Button custom_area_btn = null;
       
     private Group  pane_layout_grp = null;
-	private final int maxPaneRows = 6;
-	private final int maxPaneCols = 6;
 
-    private Button pane_sel_btns[][] = new Button[maxPaneRows][maxPaneCols];;
+    private Button pane_sel_btns[][] = null;
     private Button import_pane_btn = null;
     private Button load_pane_btn = null;
     private Button clr_pane_btn = null;
@@ -189,7 +200,7 @@ public class CreateRbdControl extends Composite {
     private Button cancel_edit_btn = null; // when part of the 'Edit Rbd' dialog these will
     private Button ok_edit_btn = null;     // replace the Clear, Save, and Load buttons
 
-    private RbdBundle editedRbd = null;    // set on OK when this is an 'Edit Rbd' dialog
+    private AbstractRBD<?> editedRbd = null;    // set on OK when this is an 'Edit Rbd' dialog
 
     // used to initialize the Save Dialog
     private String savedSpfGroup = null;
@@ -202,12 +213,8 @@ public class CreateRbdControl extends Composite {
     private TimelineControl timelineControl = null;
     
     private final String ImportFromSPF = "From SPF...";
-    
 //    private final String[] StandardZoomLevels = {"1", "1.5","2","3","5","7.5","10","15","20","30"};
-    
-    private static List<String> defaultRscList = new ArrayList<String>();
-    private static boolean emptyEditorRemoved = false;
-    	        
+      
     private static Map<String, String> gempakProjMap = 
     				GempakProjectionValuesUtil.initializeProjectionNameMap();
     
@@ -218,8 +225,7 @@ public class CreateRbdControl extends Composite {
         shell = parent.getShell();
 
         rbdMngr = mngr;
-//        rbdMngr.init();
-        
+                
         rscSelDlg = new ResourceSelectionDialog( shell );
         
         Composite top_comp = this;        
@@ -368,8 +374,8 @@ public class CreateRbdControl extends Composite {
     	
     	import_rbd_combo = new Combo( rbd_grp, SWT.DROP_DOWN | SWT.READ_ONLY );
     	FormData form_data = new FormData(195,20);
-    	form_data.left = new FormAttachment( 0, 20 );
-    	form_data.top  = new FormAttachment( 0, 40 );
+    	form_data.left = new FormAttachment( 0, 15 );
+    	form_data.top  = new FormAttachment( 0, 30 );
     	import_rbd_combo.setLayoutData( form_data );
     	import_rbd_combo.setEnabled(true);    	
 
@@ -382,9 +388,9 @@ public class CreateRbdControl extends Composite {
 
 
     	rbd_name_txt = new Text( rbd_grp, SWT.SINGLE | SWT.BORDER );
-    	form_data = new FormData(175,20);
+    	form_data = new FormData(200,20);
     	form_data.left = new FormAttachment( import_rbd_combo, 25, SWT.RIGHT );
-    	form_data.top  = new FormAttachment( import_rbd_combo, 0, SWT.TOP );
+    	form_data.top  = new FormAttachment( import_rbd_combo,  0, SWT.TOP );
     	rbd_name_txt.setLayoutData( form_data );
 
         rbd_name_lbl = new Label( rbd_grp, SWT.None );
@@ -395,10 +401,32 @@ public class CreateRbdControl extends Composite {
     	form_data.bottom = new FormAttachment( rbd_name_txt, -3, SWT.TOP );
     	rbd_name_lbl.setLayoutData( form_data );
     	
+    	
+    	disp_type_combo = new Combo( rbd_grp, SWT.DROP_DOWN | SWT.READ_ONLY );
+    	form_data = new FormData(120,20);
+    	form_data.left = new FormAttachment( import_rbd_combo, 0, SWT.LEFT );
+    	form_data.top  = new FormAttachment( import_rbd_combo, 45, SWT.BOTTOM );
+    	disp_type_combo.setLayoutData( form_data );
+    	disp_type_combo.setEnabled(true);    	
+    	
+    	disp_type_combo.setItems( new String[] { 
+    			NcDisplayType.NMAP_DISPLAY.getName(),
+    			NcDisplayType.NTRANS_DISPLAY.getName(),
+    			NcDisplayType.SOLAR_DISPLAY.getName()} );
+
+    	
+        disp_type_lbl = new Label( rbd_grp, SWT.None );
+        disp_type_lbl.setText("RBD Type");
+        form_data = new FormData();
+     	form_data.left = new FormAttachment( disp_type_combo, 0, SWT.LEFT );
+    	form_data.bottom = new FormAttachment( disp_type_combo, -3, SWT.TOP );
+    	disp_type_lbl.setLayoutData( form_data );
+
+    	
     	multi_pane_tog = new Button( rbd_grp, SWT.CHECK );
     	multi_pane_tog.setText("Multi-Pane Display");
     	form_data = new FormData();
-    	form_data.top  = new FormAttachment( rbd_name_txt, -30, SWT.TOP );
+    	form_data.top  = new FormAttachment( rbd_name_txt, -10, SWT.TOP );
     	form_data.left = new FormAttachment( rbd_name_txt, 35, SWT.RIGHT );
     	multi_pane_tog.setLayoutData( form_data );
 
@@ -430,11 +458,11 @@ public class CreateRbdControl extends Composite {
     	geo_area_grp.setText("Area" );
     	geo_area_grp.setLayout( new FormLayout() );
     	FormData form_data = new FormData();
-    	form_data.top  = new FormAttachment( rbd_name_txt, 25, SWT.BOTTOM );
+    	form_data.top  = new FormAttachment( disp_type_combo, 25, SWT.BOTTOM );
     	// form_data.bottom  = new FormAttachment( 100, -60 ); // if offset for room for the Load and Save buttons
-    	form_data.bottom  = new FormAttachment( 100, -10 );
-    	form_data.left = new FormAttachment( 0, 10 );
-    	form_data.right = new FormAttachment( 0, 180 );
+    	form_data.bottom = new FormAttachment( 100, -10 );
+    	form_data.left   = new FormAttachment( 0, 10 );
+    	form_data.right  = new FormAttachment( 0, 180 );
 
     	geo_area_grp.setLayoutData( form_data );
 
@@ -480,8 +508,8 @@ public class CreateRbdControl extends Composite {
 
     	fit_to_screen_btn.setSelection( true ); // radio behaviour
     	size_of_image_btn.setSelection( false );
-    	
 
+    
         Label proj_lbl = new Label( geo_area_info_comp, SWT.None );
         proj_lbl.setText("Projection");
         form_data = new FormData();
@@ -506,7 +534,7 @@ public class CreateRbdControl extends Composite {
     	form_data.top  = new FormAttachment( proj_info_txt, 15, SWT.BOTTOM );
     	form_data.right = new FormAttachment( 100, 0 );
     	map_center_lbl.setLayoutData( form_data );
-        
+
         map_center_txt = new Text( geo_area_info_comp, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY );
     	form_data = new FormData();
     	form_data.left = new FormAttachment( 0, 0 );
@@ -538,9 +566,11 @@ public class CreateRbdControl extends Composite {
    		seld_rscs_grp.setLayout( new FormLayout() );
     	FormData form_data = new FormData();
     	
+    	// NOTE : This is reset in updateGUIforMultipane()
 //    	form_data.left = new FormAttachment( 30, 2 );
+//    	form_data.top  = new FormAttachment( rbd_name_txt, 25, SWT.BOTTOM );
+    	form_data.top  = new FormAttachment( auto_update_btn, 15, SWT.BOTTOM );
 		form_data.left = new FormAttachment( geo_area_grp, 10, SWT.RIGHT );
-    	form_data.top  = new FormAttachment( geo_area_grp, 0, SWT.TOP );
     	form_data.right = new FormAttachment( 100, -10 );
     	form_data.bottom = new FormAttachment( geo_area_grp, 0, SWT.BOTTOM );
     	seld_rscs_grp.setLayoutData( form_data );
@@ -662,7 +692,7 @@ public class CreateRbdControl extends Composite {
     	pane_layout_grp.setLayoutData( fd );
     
     	Composite num_rows_cols_comp = new Composite( pane_layout_grp, SWT.NONE );
-    	GridLayout gl = new GridLayout(maxPaneCols, false);
+    	GridLayout gl = new GridLayout(rbdMngr.getMaxPaneLayout().getColumns(), false);
     //	gl.horizontalSpacing = 4;
     	
     	num_rows_cols_comp.setLayout( gl );
@@ -673,10 +703,10 @@ public class CreateRbdControl extends Composite {
     	fd.right = new FormAttachment( 100, -10 );
     	num_rows_cols_comp.setLayoutData( fd );
 
-    	Button num_rows_btns[] = new Button[maxPaneRows];
-    	Button num_cols_btns[] = new Button[maxPaneCols];
+    	Button num_rows_btns[] = new Button[rbdMngr.getMaxPaneLayout().getRows()];
+    	Button num_cols_btns[] = new Button[rbdMngr.getMaxPaneLayout().getColumns()];
     	
-    	for( int r=0 ; r<maxPaneRows ; r++ ) {
+    	for( int r=0 ; r<rbdMngr.getMaxPaneLayout().getRows() ; r++ ) {
     		num_rows_btns[r] = new Button( num_rows_cols_comp, SWT.PUSH );
     		num_rows_btns[r].setText( Integer.toString(r+1) );
     		num_rows_btns[r].setSize(20, 20);
@@ -685,8 +715,8 @@ public class CreateRbdControl extends Composite {
        			public void widgetSelected(SelectionEvent e) {
        				selectPane(
        						rbdMngr.setPaneLayout(
-       								new PaneLayout( (Integer)e.widget.getData(), 
-       										        rbdMngr.getPaneLayout().getColumns() ) ) );
+       								new NcPaneLayout( (Integer)e.widget.getData(), 
+       										((NcPaneLayout)rbdMngr.getPaneLayout()).getColumns() ) ) );
        				updatePaneLayout();
        			}
     		});
@@ -696,7 +726,7 @@ public class CreateRbdControl extends Composite {
     	gd.widthHint = 50;
     	gd.grabExcessHorizontalSpace = true;
 
-    	for( int c=0 ; c<maxPaneCols ; c++ ) {    		
+    	for( int c=0 ; c<rbdMngr.getMaxPaneLayout().getColumns() ; c++ ) {    		
     		num_cols_btns[c] = new Button( num_rows_cols_comp, SWT.PUSH );
     		num_cols_btns[c].setText( Integer.toString(c+1) );
     		num_cols_btns[c].setData( new Integer(c+1));
@@ -705,11 +735,12 @@ public class CreateRbdControl extends Composite {
        			public void widgetSelected(SelectionEvent e) {
        				selectPane(
        						rbdMngr.setPaneLayout(
-       								new PaneLayout(rbdMngr.getPaneLayout().getRows(), 
+       								new NcPaneLayout( 
+       										((NcPaneLayout)rbdMngr.getPaneLayout()).getRows(), 
        										(Integer)e.widget.getData() ) ) );
-   				updatePaneLayout();
-        	}			
-        });        
+       				updatePaneLayout();
+       			}
+    		});
     	}
 
     	Label num_rows_lbl = new Label( pane_layout_grp, SWT.NONE );
@@ -741,7 +772,7 @@ public class CreateRbdControl extends Composite {
     	sep.setLayoutData( fd );
 
     	Composite pane_sel_comp = new Composite( pane_layout_grp, SWT.NONE );
-    	pane_sel_comp.setLayout( new GridLayout(maxPaneCols, true));
+    	pane_sel_comp.setLayout( new GridLayout(rbdMngr.getMaxPaneLayout().getColumns(), true));
 
     	fd = new FormData();
     	fd.left = new FormAttachment( 0, 25 );
@@ -750,21 +781,26 @@ public class CreateRbdControl extends Composite {
     	fd.right = new FormAttachment( 100, -15 );
     	pane_sel_comp.setLayoutData( fd );
 
+    	pane_sel_btns = new Button[rbdMngr.getMaxPaneLayout().getRows()]
+    	                          [rbdMngr.getMaxPaneLayout().getColumns()];
     	
-    	for( int r=0 ; r<maxPaneRows ; r++ ) { 
-    		for( int c=0 ; c<maxPaneCols ; c++ ) {    
-    			pane_sel_btns[r][c] = new Button( pane_sel_comp, SWT.TOGGLE );
-    			pane_sel_btns[r][c].setText( 
-    				Integer.toString(r+1)+ ","+Integer.toString(c+1) );
-    			pane_sel_btns[r][c].setData( new PaneID(r,c) );
-    			pane_sel_btns[r][c].addSelectionListener( new SelectionAdapter() {
-           			public void widgetSelected(SelectionEvent e) {
-           				PaneID seldPane = (PaneID)e.widget.getData();
-           				selectPane(seldPane);
-           			}
-    			});
-    	    	pane_sel_btns[r][c].setSelection( (r==0 && c==0) );
-    		}
+    	int numPanes = rbdMngr.getMaxPaneLayout().getNumberOfPanes();
+    	for( int p=0 ; p<numPanes ; p++ ) {
+    		NcPaneID pid = (NcPaneID)rbdMngr.getMaxPaneLayout().createPaneId( p );
+    		int r = pid.getRow();
+    		int c = pid.getColumn();
+  
+    		pane_sel_btns[r][c] = new Button( pane_sel_comp, SWT.TOGGLE );
+    		pane_sel_btns[r][c].setText( pid.toString() ); 
+
+    		pane_sel_btns[r][c].setData( pid );
+    		pane_sel_btns[r][c].addSelectionListener( new SelectionAdapter() {
+    			public void widgetSelected(SelectionEvent e) {
+    				NcPaneID seldPane = (NcPaneID)e.widget.getData();
+    				selectPane(seldPane);
+    			}
+    		});
+    		pane_sel_btns[r][c].setSelection( (r==0 && c==0) );
     	}
     	
     	import_pane_btn = new Button( pane_layout_grp, SWT.PUSH );
@@ -834,6 +870,44 @@ public class CreateRbdControl extends Composite {
    	
     // add all of the listeners for widgets on this dialog
    	void addSelectionListeners() {
+   		
+   		disp_type_combo.addSelectionListener( new SelectionAdapter() {
+   			public void widgetSelected(SelectionEvent e) {
+   				NcDisplayType selDispType = NcDisplayType.getDisplayType( disp_type_combo.getText() );   				
+   				if( rbdMngr.getRbdType() != selDispType ) {
+   					if( rbdMngr.isRbdModified() ) {
+   			    		MessageDialog confirmDlg = new MessageDialog( 
+   			    				shell, "Confirm", null, 
+   			    				"This RBD has been modified.\n\n"+
+   			    				"Do you want to clear the current RBD selections?",
+   			    				MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0);
+   			    		confirmDlg.open();
+
+   			    		if( confirmDlg.getReturnCode() != MessageDialog.OK ) {
+   			    			return;
+   			    		}           				   			    		
+   					}
+   					
+   					try {
+   	   					rbdMngr.setRbdType( selDispType );
+
+   	   					AbstractRBD<?> dfltRbd = AbstractRBD.getDefaultRBD( rbdMngr.getRbdType() );
+   						
+   						rbdMngr.initFromRbdBundle( dfltRbd );
+   						
+   					} catch (VizException ve) {
+   						MessageDialog errDlg = new MessageDialog( 
+   								shell, "Error", null, 
+   								ve.getMessage(), MessageDialog.ERROR, new String[]{"OK"}, 0);
+   						errDlg.open();
+   						
+   						rbdMngr.init( rbdMngr.getRbdType() );
+   					}
+   					updateGUI();
+   				}				
+   			}
+   		});
+   		
     	sel_rsc_btn.addSelectionListener( new SelectionAdapter() {
    			public void widgetSelected(SelectionEvent e) {
    				StructuredSelection sel_elems = (StructuredSelection) seld_rscs_lviewer.getSelection();               
@@ -846,7 +920,8 @@ public class CreateRbdControl extends Composite {
    					rscSelDlg.open( true, // Replace button is visible
    							(rscSel != null ? true : false),
    							initRscName,
-   					multi_pane_tog.getSelection(),
+   							multi_pane_tog.getSelection(),
+   							rbdMngr.getRbdType(),
 							SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MODELESS);
    				}
    			}
@@ -863,6 +938,7 @@ public class CreateRbdControl extends Composite {
    							(rscSel != null ? true : false),
    							rscSel.getResourceName(),
    							multi_pane_tog.getSelection(),
+   							rbdMngr.getRbdType(),
 							//SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MODELESS);   
    							SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL );
    				}
@@ -876,7 +952,7 @@ public class CreateRbdControl extends Composite {
    				
    				try {
    					ResourceSelection rbt = ResourceFactory.createResource( rscName );
-   					
+   	   				
    					rbdMngr.getAreaProvider();
 
    					
@@ -998,9 +1074,9 @@ public class CreateRbdControl extends Composite {
    						(fit_to_screen_btn.getSelection() ? //1.0 : -1.0 ) );
    								ZoomLevelStrings.FitToScreen.toString() :
    								ZoomLevelStrings.SizeOfImage.toString() ) );
-   			}
+   			}	
    		});
-
+    	
     	// TODO: if single pane and there are resources selected
     	// in other panes then should we prompt the user on whether
     	// to clear them? We can ignore them if Loading/Saving a 
@@ -1016,7 +1092,7 @@ public class CreateRbdControl extends Composite {
    					updatePaneLayout();
    				}
    				else {
-   					selectPane( new PaneID(0,0) );
+   					selectPane( new NcPaneID() ); // 0,0
    				}
    				
    				if( rscSelDlg != null && rscSelDlg.isOpen() ) {
@@ -1033,9 +1109,9 @@ public class CreateRbdControl extends Composite {
    					
    					MessageDialog confirmDlg = new MessageDialog( shell, 
    						"Confirm Geo-Sync Panes", null, 
-   							"This will set the Area for all panes to the currently\n"+
+   						"This will set the Area for all panes to the currently\n"+
    						"selected Area: "+ rbdMngr.getAreaProvider().getProviderName() + "\n\n"+
-   							"Continue?",
+   						"Continue?",
    							MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0);
    					confirmDlg.open();
 
@@ -1054,7 +1130,7 @@ public class CreateRbdControl extends Composite {
 
    		custom_area_btn.addSelectionListener( new SelectionAdapter() {
    			public void widgetSelected(SelectionEvent ev) {
-//   		        Shell shell = NmapUiUtils.getCaveShell();
+//   		        Shell shell = NcDisplayMngr.getCaveShell();
 //   		        CreateCustomProjectionDialog dlg = CreateCustomProjectionDialog(shell); 
 //   		        dlg.open();
    		        
@@ -1197,7 +1273,7 @@ public class CreateRbdControl extends Composite {
         			return;
         		}
 
-        		RbdBundle impRbd = impDlg.getSelectedRBD();
+        		AbstractRBD<?> impRbd = impDlg.getSelectedRBD();
 
        			if( impRbd != null ) {    			
            			// if any selections have been made then popup a confirmation msg
@@ -1205,7 +1281,7 @@ public class CreateRbdControl extends Composite {
 //       				boolean confirm = ( rbdMngr.getSelectedRscs().length > 1 );
 //       				if( confirm ) {
 //       					MessageDialog confirmDlg = new MessageDialog( 
-//       							NmapUiUtils.getCaveShell(), "Confirm", null, 
+//       							NcDisplayMngr.getCaveShell(), "Confirm", null, 
 //       							"Do you want to remove all currently selected Resources?",
 //       							MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0);
 //       					confirmDlg.open();
@@ -1218,8 +1294,8 @@ public class CreateRbdControl extends Composite {
        				impRbd.resolveLatestCycleTimes();
        				
        				try {
-           			importPane( impRbd, impRbd.getSelectedPaneId() );
-       	    	}
+       					importPane( impRbd, impRbd.getSelectedPaneId() );
+       				}
        				catch (VizException e) {
        					MessageDialog errDlg = new MessageDialog( 
        							shell, "Error", null, 
@@ -1238,7 +1314,7 @@ public class CreateRbdControl extends Composite {
    	public void initWidgets() {
    		
     	rbd_name_txt.setText("");
-
+    	
     	updateAvailAreas();
 
 //    	for( String szl : StandardZoomLevels ) {
@@ -1246,14 +1322,12 @@ public class CreateRbdControl extends Composite {
 //    	}
 
     	selectArea( rbdMngr.getAreaProvider() );// should be the default area
-    	
+    	    	
     	shell.setSize( initDlgSize );
 
     	updateGUIforMultipane( rbdMngr.isMultiPane() );
 
     	timelineControl.clearTimeline();
-
-    	defaultRscList = getDefaultRbdRsc();
    	}
    	
    	// if this is called from the Edit Rbd Dialog (from the LoadRbd tab), then 
@@ -1301,15 +1375,16 @@ public class CreateRbdControl extends Composite {
    	
    	private void updateImportCombo() {
     	// check for possible new Displays that may be imported.
-    	String seldImport = import_rbd_combo.getText();
+   		NcDisplayName seldImport = NcDisplayName.parseNcDisplayNameString( import_rbd_combo.getText() );
     	
    		import_rbd_combo.removeAll();
-
-   		for( String displayName : NmapUiUtils.getNatlCntrsDisplayNames(true) ) {
-   			import_rbd_combo.add( displayName );
+   		for( AbstractEditor ncDisplay : NcDisplayMngr.getAllNcDisplays() ) { //rbdMngr.getRbdType() ) ) {
+   			
+   			NcDisplayName displayName = NcEditorUtil.getDisplayName( ncDisplay );
+   			import_rbd_combo.add( displayName.toString() );
    			
    			// if this was selected before, select it again
-   	   		if( seldImport == null || seldImport.isEmpty() ||
+   	   		if( seldImport == null || //seldImport.isEmpty() ||
    	   			seldImport.equals( displayName ) ) {
    	   			import_rbd_combo.select( import_rbd_combo.getItemCount()-1 );
    	   		}
@@ -1395,8 +1470,8 @@ public class CreateRbdControl extends Composite {
 //   			System.out.println("rbd Area not found in avail list: adding to the list");
 //   			
 			try {
-				rbdMngr.setAreaProviderName( NmapCommon.getDefaultMap() );
-				geo_area_combo.add( NmapCommon.getDefaultMap() );
+				rbdMngr.setAreaProviderName( rbdMngr.getRbdType().getDefaultMap() );
+				geo_area_combo.add( rbdMngr.getRbdType().getDefaultMap() );
 				selectArea( rbdMngr.getAreaProvider() );
 			} catch (VizException e) {
 			}
@@ -1425,17 +1500,30 @@ public class CreateRbdControl extends Composite {
     public void updateDialog() {
     	
     	updateImportCombo();    	
-   		
+   		    	
    		// If the gui has not been set with the current rbdMngr then do it now.
-    		updateGUI();
+   		updateGUI(); 
 
-        	// updateGUI triggers the spinner which ends up calling rbdMngr.setPaneLayout(),
-        	// so we need to reset this here.
-        	rbdMngr.setRbdModified( false ); 
-    	}
+   		// updateGUI triggers the spinner which ends up calling rbdMngr.setPaneLayout(),
+   		// so we need to reset this here.
+   		rbdMngr.setRbdModified( false ); 
+    }
     
    	// set widgets based on rbdMngr   	
    	public void updateGUI( ) { 
+
+   		// update the display type combo
+   		for( int i=0 ; i<disp_type_combo.getItemCount() ; i++ ) {
+   			NcDisplayType dType = NcDisplayType.getDisplayType( disp_type_combo.getItems()[i] );
+   			if( dType.equals( rbdMngr.getRbdType() ) ) {
+   				disp_type_combo.select( i );   		
+   			}
+   		}
+
+   		if( disp_type_combo.getSelectionIndex() == -1 ) {
+   			disp_type_combo.select( 0 );
+   		}
+   				
    		rbd_name_txt.setText( rbdMngr.getRbdName() );
    		
    		rbd_name_txt.setSelection(0, rbdMngr.getRbdName().length() );
@@ -1445,7 +1533,7 @@ public class CreateRbdControl extends Composite {
    		
    		for( int i=0 ; i<import_rbd_combo.getItemCount() ; i++ ) {
    			String importRbdName = import_rbd_combo.getItems()[i];
-   			importRbdName = NmapUiUtils.getNcDisplayNameWithoutID(importRbdName);
+   			importRbdName = NcDisplayName.parseNcDisplayNameString( importRbdName ).getName();
    			if( importRbdName.equals( rbdMngr.getRbdName() ) ) {
    				import_rbd_combo.select( i );   		
    			}
@@ -1459,14 +1547,11 @@ public class CreateRbdControl extends Composite {
    		updateAvailAreas();
    		
    		selectArea( rbdMngr.getAreaProvider() );
-    	
+   		    	
     	geo_sync_panes.setSelection( rbdMngr.isGeoSyncPanes() );
     	multi_pane_tog.setSelection( rbdMngr.isMultiPane() );
     	
     	updateGUIforMultipane( rbdMngr.isMultiPane() );    	
-    	
-    	int numRows = rbdMngr.getPaneLayout().getRows();
-    	int numCols = rbdMngr.getPaneLayout().getColumns();
     	
     	// set the pane sel buttons based on the combos
     	// also sets the rbdMngr's layout
@@ -1478,14 +1563,16 @@ public class CreateRbdControl extends Composite {
     	
     	timelineControl.clearTimeline();
     	
+    	INcPaneLayout paneLayout = rbdMngr.getPaneLayout();
+    	
     	// set the list of available resources for the timeline
-    	for( int r=0 ; r<numRows ; r++ ) {
-    		for( int c=0 ; c<numCols ; c++ ) {
-    			for( ResourceSelection rscSel : rbdMngr.getRscsForPane( new PaneID(r,c) ) ) {
-    				if( rscSel.getResourceData() instanceof AbstractNatlCntrsRequestableResourceData ) {     		    		
-    					timelineControl.addAvailDomResource( 
+    	for( int paneIndx=0 ; paneIndx<paneLayout.getNumberOfPanes() ; paneIndx++ ) {
+    		for( ResourceSelection rscSel : 
+    			rbdMngr.getRscsForPane( (NcPaneID) paneLayout.createPaneId(paneIndx) ) ) {
+
+    			if( rscSel.getResourceData() instanceof AbstractNatlCntrsRequestableResourceData ) {     		    		
+    				timelineControl.addAvailDomResource( 
     						(AbstractNatlCntrsRequestableResourceData) rscSel.getResourceData() );
-    				}
     			}
     		}
     	}
@@ -1510,34 +1597,35 @@ public class CreateRbdControl extends Composite {
    	// yellow or green...
    	//
    	private void updatePaneLayout( ) {
-
-   		int colCnt = rbdMngr.getPaneLayout().getColumns();
-	   	int rowCnt = rbdMngr.getPaneLayout().getRows();
    		
-   	   	for( int r=0 ; r<maxPaneRows ; r++ ) {
-   	   		for( int c=0 ; c<maxPaneCols ; c++ ) {
-   	   		   pane_sel_btns[r][c].setVisible( r<rowCnt && c<colCnt );   	   		   
+   		int colCnt = ((NcPaneLayout)rbdMngr.getPaneLayout()).getColumns();
+	   	int rowCnt = ((NcPaneLayout)rbdMngr.getPaneLayout()).getRows();
+   		
+   	   	for( int r=0 ; r<rbdMngr.getMaxPaneLayout().getRows() ; r++ ) {
+   	   		for( int c=0 ; c<rbdMngr.getMaxPaneLayout().getColumns() ; c++ ) {
+   	   			pane_sel_btns[r][c].setVisible( r<rowCnt && c<colCnt );   	   		   
    	   		}   			
    		}  		
    	}
    	
    	// update the GUI with the selections (area/list of rscs) for the selected pane
-   	private void selectPane( PaneID seldPane ) {
+   	private void selectPane( INcPaneID pane ) {
+   		
+   		NcPaneID seldPane = (NcPaneID)pane;
    		
    		rbdMngr.setSelectedPaneId( seldPane );
    		
+   		
    		if( rbdMngr.isMultiPane() ) {
-   			seld_rscs_grp.setText("Selected Resources for Pane "+
-    				Integer.toString(seldPane.getRow()+1)+ ","+
-    				Integer.toString(seldPane.getColumn()+1) );
+   			seld_rscs_grp.setText("Selected Resources for Pane "+seldPane.toString() );
    		}
    		else {
    			seld_rscs_grp.setText("Selected Resources" );
    		}
 
    		// implement radio behaviour
-    	for( int r=0 ; r<maxPaneRows ; r++ ) {    
-    		for( int c=0 ; c<maxPaneCols ; c++ ) { 
+    	for( int r=0 ; r<rbdMngr.getMaxPaneLayout().getRows() ; r++ ) {    
+    		for( int c=0 ; c<rbdMngr.getMaxPaneLayout().getColumns() ; c++ ) { 
     			pane_sel_btns[r][c].setSelection( 
     					(r==seldPane.getRow() && c==seldPane.getColumn()) );
     		}
@@ -1546,7 +1634,7 @@ public class CreateRbdControl extends Composite {
     	// set the selected area
 //    	geo_area_combo.setText( rbdMngr.getAreaProvider().getProviderName() );
     	selectArea( rbdMngr.getAreaProvider() );
-    	
+
     	updateSelectedResourcesView( true );
    	}
 
@@ -1609,8 +1697,8 @@ public class CreateRbdControl extends Composite {
 		// TODO : ? reset the predefined area to the default???
 		
 		boolean    saveMultiPane = rbdMngr.isMultiPane();
-		PaneLayout savePaneLayout = rbdMngr.getPaneLayout();
-		PaneID     saveSeldPane   = rbdMngr.getSelectedPaneId();
+		INcPaneLayout savePaneLayout = rbdMngr.getPaneLayout();
+		INcPaneID     saveSeldPane   = rbdMngr.getSelectedPaneId();
 		
 		if( rbdMngr.isMultiPane() ) {
 			MessageDialog confirmDlg = new MessageDialog( 
@@ -1625,21 +1713,23 @@ public class CreateRbdControl extends Composite {
 				return;
 			}
 		}
-		
+
+		NcDisplayType curDispType = rbdMngr.getRbdType();
+			
 		try {
-			RbdBundle dfltRbd = RbdBundle.getDefaultRBD();
+			AbstractRBD<?> dfltRbd = NcMapRBD.getDefaultRBD( curDispType );
 			
 			rbdMngr.initFromRbdBundle( dfltRbd );
-    	
+			
 		} catch (VizException e) {
 			MessageDialog errDlg = new MessageDialog( 
 					shell, "Error", null, 
 					e.getMessage(), MessageDialog.ERROR, new String[]{"OK"}, 0);
 			errDlg.open();
-
-			rbdMngr.init();	    	
+			
+			rbdMngr.init( curDispType );  	
 		}
-    	
+		
 		updateGUI();
 	}
 	
@@ -1651,7 +1741,7 @@ public class CreateRbdControl extends Composite {
    			
    			StructuredSelection orig_sel_elems = (StructuredSelection) seld_rscs_lviewer.getSelection();               
    			List<ResourceSelection> origSeldRscsList = 
-   				               (List<ResourceSelection>) orig_sel_elems.toList();
+   				               (List<ResourceSelection>)orig_sel_elems.toList();
    	
    			seld_rscs_lviewer.setInput( rbdMngr.getSelectedRscs() );
    			seld_rscs_lviewer.refresh( true );
@@ -1703,7 +1793,7 @@ public class CreateRbdControl extends Composite {
    			ResourceSelection rscSel = seldRscsList.get(0);
    			
    			// Can't delete, replace or turn off the base overlay.
-   			if( rscSel.getResourceName().equals( rbdMngr.getBaseOverlay().getResourceName() ) ) {
+   			if( rscSel.isBaseLevelResource() ) {
    	   			del_rsc_btn.setEnabled( false );
    	   			
    	   			replace_rsc_btn.setEnabled( false );
@@ -1757,92 +1847,121 @@ public class CreateRbdControl extends Composite {
     		rbdMngr.setGeoSyncPanes( geo_sync_panes.getSelection() );
     		rbdMngr.setAutoUpdate( auto_update_btn.getSelection() );
 //    		rbdMngr.setAutoUpdate( auto_update_btn.getEnabled() );
-    		RbdBundle rbdBndl = rbdMngr.createRbdBundle( rbdName,
+    		
+    		AbstractRBD<?> rbdBndl = rbdMngr.createRbdBundle( rbdName,
     				                                     timelineControl.getTimeMatcher() );
     		
-    		rbdBndl = RbdBundle.clone( rbdBndl );
+    		rbdBndl = AbstractRBD.clone( rbdBndl );
     		rbdBndl.resolveDominantResource();
-    
+    		    
     		ResourceBndlLoader rbdLoader = null;
     		rbdLoader = new ResourceBndlLoader("RBD Previewer");
 
-    		// Get the Display Editor to use.
+    		// TODO : Allow the user to define preferences such as 
+    		// whether to prompt when re-loading into an existing editor,
+    		// whether to look for an empty editor first before re-loading an exising one...
+    		//
+    		// Determine which Display Editor to use.
+    		//
+    		// 1-check if the name of the active editor is the same as the RBD and
+    		//   if so, re-load into this editor.
+    		// 2-if the RBD was imported then look specifically for this display ID.
+    		// 3-if no rbd name was given it will be called "Preview" and look for an
+    		//   existing "Preview" editor.
+    		// 4-
     		// First look for a preview editor and if not found then check if the 
     		// active editor name matches that of the current rbd name (Note: don't
     		// look for an editor matching the rbd name because it is possible to
     		// have the same named display for a different RBD.)
     		// If the active editor doesn't match then load into a new display editor
-    		NCMapEditor editor=null;
-    		
-    		if( rbdName.equals("Preview") ) {
-    			editor = (NCMapEditor) NmapUiUtils.findDisplayByName( rbdName );
-    		}
-    		// else if the rbd was imported from a display and the name was not changed 
-    		//    get this display
-    		if( editor == null ) {
-    			String importDisplayName = NmapUiUtils.getNcDisplayNameWithoutID(import_rbd_combo.getText());
+    		AbstractEditor editor=null;
 
-    			if( importDisplayName.equals( rbdName ) ) {
-    				// get by ID since the rbd name doesn't have to be unique
-        			editor = NmapUiUtils.findDisplayByID( importDisplayName );    				
-    			}    			
-    		}
-    		
-    		// else if the active editor matches this rbdName, use the active editor
+    		// 1-if the active editor matches this rbdName, use the active editor
     		// Don't attempt to find an editor based just on the display name since 
     		// they may not be unique without the display id.
-    		if( editor == null ) {    			
-    			editor = NmapUiUtils.getActiveNatlCntrsEditor();
-    			if (editor != null) { //quan
-    			String activeEditorName = NmapUiUtils.getNcDisplayNameWithoutID(
-    					                           editor.getDisplayName() );
+    		if( editor == null  ) {    			
+    			editor = NcDisplayMngr.getActiveNatlCntrsEditor();
     	
-    			if( !activeEditorName.equals( rbdName ) ) {
+    			if( !NcEditorUtil.getDisplayName( editor ).getName().equals( rbdName ) ) {
+    				editor = null;
+    			}
+        		// if they changed the layout then we should be able to modify the layout of the current
+        		/// display but for now just punt and get a new editor.
+    			else if( NcEditorUtil.getPaneLayout( editor ).compare( rbdBndl.getPaneLayout() ) != 0 ) {
+        			System.out.println("Creating new Editor because the paneLayout differs.");
+        			editor = null;
+        		}
+    		}
+
+    		// 2- look for and available editor that has not been modified. 
+    		//    This is usually the initial 'default' editor but could be one that has been
+    		//    cleared/wiped, or one from the New Display menu.
+    		if( editor == null  ) {    			
+
+    			editor = NcDisplayMngr.findUnmodifiedDisplayToLoad( rbdBndl.getDisplayType() );
+    			if( editor != null &&
+    				NcEditorUtil.getPaneLayout( editor ).compare( rbdBndl.getPaneLayout() ) != 0 ) {
+        			System.out.println("Creating new Editor because the paneLayout differs.");
+        			editor = null;
+        		}
+//    			String name = NcEditorUtil.getDisplayName(editor).getName();
+//    			NcEditorUtil.setDisplayName(
+//    					editor, name.substring(0, name.indexOf("-")+1) + rbdName);
+    		}
+    		
+    		// 3- if the rbd was imported from a display and the name was not changed 
+    		//    get this display and attempt to use it.
+    		
+    		if( editor == null ) {
+    			NcDisplayName importDisplayName = 
+    				NcDisplayName.parseNcDisplayNameString( import_rbd_combo.getText() );
+    			
+    			if( importDisplayName.getName().equals( rbdName ) ) {
+    				// get by ID since the rbd name doesn't have to be unique
+    				editor = NcDisplayMngr.findDisplayByID( 
+    						rbdBndl.getDisplayType(), importDisplayName );    				
+
+    				if( editor != null &&
+    					NcEditorUtil.getPaneLayout( editor ).compare( rbdBndl.getPaneLayout() ) != 0 ) {
+    					editor = null;
+    				}
+    			}
+    		}    			
+    		
+    		// 4-reuse if it is a Preview editor.
+    		//
+    		if( editor == null && 
+    			rbdName.equals("Preview") ) {
+    			editor = NcDisplayMngr.findDisplayByName( rbdBndl.getDisplayType(), rbdName );
+    			
+    			if( editor != null &&
+    				NcEditorUtil.getPaneLayout( editor ).compare( rbdBndl.getPaneLayout() ) != 0 ) {
     				editor = null;
     			}
     		}
+    		
+    		// 5-Create a new one.
+    		//    Note that it is possible for a display name matching the RBD name to not be reused
+    		//    if the display is not active. This is because the names may not be unique and so 
+    		//    we can't determine which unless it was specifically imported into the Manager and
+    		//    even in this case they may not want to re-load it.
+    		//
+    		if( editor == null ) {			
+    			editor = NcDisplayMngr.createNatlCntrsEditor( 
+    					rbdBndl.getDisplayType(), rbdName, rbdBndl.getPaneLayout() );
     		}
-
-    		// if they changed the layout then we should be able to modify the layout of the current
-    		/// display but for now just punt and get a new editor.
-    		if( editor != null &&
-    				editor.getPaneLayout().compare( rbdBndl.getPaneLayout() ) != 0 ) {
-    			System.out.println("Creating new Editor because the paneLayout differs.");
-    			editor = null;
-    		}
-
-    		if( editor == null ) {//&& !emptyEditorRemoved) {
-    			String defaultName = defaultRscList.get(0);
-    			
-				if( !defaultName.equals( rbdName ) && 
-					!emptyEditorRemoved && 
-					rbdBndl.getPaneLayout().getNumberOfPanes() == 1 &&
-					NmapUiUtils.findEmptyEditor(defaultRscList)) {
-					emptyEditorRemoved = true;
-					editor = (NCMapEditor)NmapUiUtils.findDisplayByName(defaultName);
-					String name = editor.getDisplayName();
-					editor.setDisplayName(name.substring(0, name.indexOf("-")+1) + rbdName);
-				}
-				else {
-					editor = NmapUiUtils.createNatlCntrsEditor( rbdName, rbdBndl.getPaneLayout() );
-				}
-    		}
-//    		else {
-//    			editor.setDisplayName( NmapUiUtils.createNatlCntrsDisplayName( rbdName ) );
-//    		}
 
     		if( editor == null ) {
     			throw new VizException("Unable to create a display to load the RBD.");
     		}
-
-			NmapUiUtils.bringToTop(editor);
     		
-    		editor.setApplicationName(rbdName); 
+			NcDisplayMngr.bringToTop(editor);
     		
+			//
         	rbdLoader.addRBD( rbdBndl, editor );
     		
         	VizApp.runSync( rbdLoader );
-        	
+        	  
         	// They aren't going to like this if there is an error loading....
         	if( close ) {
         		shell.dispose();
@@ -1860,117 +1979,7 @@ public class CreateRbdControl extends Composite {
     	}
     }
     
-    
-//    public static NCMapEditor findCloseEmptyEditor() {
-////    	NCMapEditor defaultEditor = (NCMapEditor) NmapUiUtils.findDisplayByName( "Welcome" );
-//    	
-//    	IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
-//		for (IWorkbenchWindow window : windows) {
-//			IWorkbenchPage pages[] = window.getPages();
-//			for (IWorkbenchPage page : pages) {
-//				IEditorReference[] refs = page.getEditorReferences();
-//				for (IEditorReference r : refs) {
-//					String name = r.getName();
-//					String s1 = name.substring(0, name.indexOf("-"));
-//					String s2 = name.substring(name.indexOf("-")+1, name.length());
-//					
-//					NCMapEditor defaultEditor = (NCMapEditor) (r.getEditor(false));
-//					
-//					if (defaultEditor != null && name != null) {
-//						if (defaultEditor.getDescriptor() != null) 	{
-//							ResourceList rl = defaultEditor.getDescriptor().getResourceList();
-//							
-//							if (rl !=null && s2.equalsIgnoreCase(defaultRscList.get(0)) && s1.equalsIgnoreCase("1")) {
-//								boolean flag = true;
-//								for( ResourcePair rp : rl ) {
-//					    			if( rp != null ) {
-//					    				String s = rp.getResource().getResourceData().getClass().getName();
-//					    				
-//					    				if (defaultRscList.contains(s)) {
-//											continue;	
-//					    				}
-//					    				else {
-//					    					flag = false;
-//					    					break;
-//					    				}
-//									}																				
-//					    		}
-//								
-//								if (flag == true) {
-//									page.closeEditor(defaultEditor, false);
-////									//updateEditorNum();
-//									return defaultEditor;
-//								}
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}	
-//		
-//		return null;
-//    }
-    	
-    // replace this later when there is a way for the user to set up there 
-    // preferred default RBD.
-//    public RbdBundle getDefaultRBD( ) throws VizException {
-//    	
-//    	File rbdFile = NcPathManager.getInstance().getStaticFile( 
-//		         NcPathConstants.DFLT_RBD );
-//    	
-//
-//    	try {
-//    		RbdBundle dfltRbd = RbdBundle.unmarshalRBD( rbdFile, null );
-//            
-//            // shouldn't need this but just in case the user creates a default with
-//            // real resources in it
-//    		dfltRbd.resolveLatestCycleTimes();
-//    		
-//    		return dfltRbd;
-//    	}
-//    	catch ( Exception ve ) {
-//    		throw new VizException( "Error getting default RBD: " + ve.getMessage());
-//    	}  
-//    }
-    
-    /*
-     *  get Rbd name and resources from defaultRbd.xml
-     */
-    public static List<String> getDefaultRbdRsc() {
-    	
-    	List<String> list = new ArrayList<String>();
-    	
-    	try {
-    		RbdBundle rbd = RbdBundle.getDefaultRBD();
-    		if (rbd != null)
-    			list.add(rbd.getRbdName() );
-    		
-    			ResourceList rscList = (rbd.getDisplays())[0].getDescriptor().getResourceList();
-    			//ResourceList rscList1 = (rbd.getDisplays())[0].getDescriptor().getRenderableDisplay().getDescriptor().getResourceList();
-    		
-    		for( ResourcePair rp : rscList ) {
-//    			try {
-    				if( rp != null && rp.getResourceData() != null) {
-    					// there are 2 type of res
-//    					AbstractNatlCntrsResourceData resourceData = (AbstractNatlCntrsResourceData)(rp.getResourceData());
-//    					String s = resourceData.getResourceName().toString();
-    					String s = rp.getResourceData().getClass().getName();
-    					list.add(s);
-    				}
-//    			}
-//    			catch (Exception e) {
-//    				String s = rp.getResourceData().getClass().getName();	    				
-//    				list.add(s);    				
-//    			}
-    		}
-    	}
-    	catch ( Exception ve ) {
-    		System.out.println("Could not load Rbd: " + ve.getMessage());
-    		
-    	}  
-    	return list;
-    }
-    
+            
     // After Loading an RBD the user may 're-load' a modified Pane. Currently the number of panes
     // has to be the same as previously displayed.
     public void loadPane() {
@@ -1989,9 +1998,9 @@ public class CreateRbdControl extends Composite {
    
     		// TODO : check timeline compatibility with other panes...
     		
-    		RbdBundle rbdBndl = rbdMngr.createRbdBundle( rbdName,
+    		AbstractRBD<?> rbdBndl = rbdMngr.createRbdBundle( rbdName,
     				                                     timelineControl.getTimeMatcher() );
-    		rbdBndl = RbdBundle.clone( rbdBndl );
+    		rbdBndl = AbstractRBD.clone( rbdBndl );
     
     		ResourceBndlLoader rbdLoader = null;
     		rbdLoader = new ResourceBndlLoader("RBD Previewer");
@@ -2000,16 +2009,15 @@ public class CreateRbdControl extends Composite {
     		
     		// Get the Display Editor to use. If the active editor doesn't 
     		// match the name of the RBD then prompt the user.
-    		NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor();
+    		AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
 
     		// Check that the selected pane is within the layout of the Display
     		if( editor == null ) {
     			throw new VizException("Error retrieving the Active Display??");
     		}
     		
-    		String activeEditorName = NmapUiUtils.getNcDisplayNameWithoutID(
-    				editor.getDisplayName() );   	
-    		
+    		String activeEditorName = NcEditorUtil.getDisplayName( editor ).getName();
+    		    		
     		if( !activeEditorName.equals( rbdName ) ) {
     			MessageDialog confirmDlg = new MessageDialog( 
     					shell, "Confirm Load Pane", null, 
@@ -2027,7 +2035,7 @@ public class CreateRbdControl extends Composite {
 
     		// TODO : We could make this smarter by adjusting the display...
     		//
-    		if( !editor.getPaneLayout().equals( rbdBndl.getPaneLayout() ) ) {
+    		if( !NcEditorUtil.getPaneLayout( editor ).equals( rbdBndl.getPaneLayout() ) ) {
     			MessageDialog msgDlg = new MessageDialog( 
     					shell, "Load Pane", null, 
     					"The pane layout of the display doesn't match the currently selected\n"+
@@ -2037,16 +2045,10 @@ public class CreateRbdControl extends Composite {
     			msgDlg.open();
          		
     			return;
-//    			throw new VizException("Error: The Active Display doesn't have enough Panes"+
-//    					" for the selected Pane: "+rbdBndl.getSelectedPaneId().toString() );				
 			}
-    		
-
-//    		rbdBndl.setNcEditor( editor );
 
     		rbdLoader.addRBD( rbdBndl, editor );
-    		
-
+    	
         	VizApp.runSync( rbdLoader );
     	} 
     	catch( VizException e ) {
@@ -2062,7 +2064,7 @@ public class CreateRbdControl extends Composite {
     }    
     
     public void importRBD( String seldDisplayName ) {
-    	RbdBundle impRbd;
+    	AbstractRBD<?> impRbd;
     	if( seldDisplayName.equals( ImportFromSPF ) ) {
 
     		SelectRbdsDialog impDlg = 
@@ -2072,34 +2074,37 @@ public class CreateRbdControl extends Composite {
     		if( !impDlg.open() ) {
     			return;
     		}
-    		
+
     		impRbd = impDlg.getSelectedRBD();
 
     		impRbd.resolveLatestCycleTimes();    		
     	}
-    	else {
-    		// get RbdBundle from selected display
-    		NCMapEditor seldEditor = NmapUiUtils.findDisplayByID( seldDisplayName );	
+    	else { 
+    		// get NcMapRBD from selected display
+    		AbstractEditor seldEditor = NcDisplayMngr.findDisplayByID( 
+    				NcDisplayName.parseNcDisplayNameString( seldDisplayName ));
+    		
     		if( seldEditor == null ) {
-    			System.out.println("Unable to load Display :"+seldDisplayName );
+    			System.out.println("Unable to load Display :"+seldDisplayName.toString() );
     			return;
     		}
     		
-    		impRbd = new RbdBundle();
-
 			try {
-    		impRbd.initFromEditor(seldEditor);  
+				impRbd = AbstractRBD.createRbdFromEditor( seldEditor );
+
+//    			impRbd.initFromEditor(seldEditor);
     			
-				impRbd = RbdBundle.clone( impRbd );
+				impRbd = AbstractRBD.clone( impRbd );
 			} catch (VizException e) {
 				MessageDialog errDlg = new MessageDialog( 
 						shell, "Error", null, 
-						"Error Importing Rbd from Display, "+seldDisplayName+".\n"+e.getMessage(),
+						"Error Importing Rbd from Display, "+seldDisplayName.toString()+".\n"+e.getMessage(),
 						MessageDialog.ERROR, new String[]{"OK"}, 0);
 				errDlg.open();
+				return;
 			}
     		
-    		NmapUiUtils.bringToTop(seldEditor);
+    		NcDisplayMngr.bringToTop(seldEditor);
     	}
 
     	//boolean confirm = ( rbdMngr.getSelectedRscs().length > 1 ) || rbdMngr.isMultiPane();
@@ -2117,12 +2122,15 @@ public class CreateRbdControl extends Composite {
     			return;
     		}           				
     	}
-
+    	
+    	NcDisplayType curDispType = rbdMngr.getRbdType();
+    	
     	try {
-    	rbdMngr.initFromRbdBundle( impRbd );
+    		rbdMngr.initFromRbdBundle( impRbd );
     	}
     	catch( VizException e ) {
-    		rbdMngr.init();
+    		rbdMngr.init( curDispType );
+    		
 			MessageDialog errDlg = new MessageDialog( 
 					shell, "Error", null, 
 					"Error Importing RBD:"+impRbd.getRbdName()+"\n\n"+e.getMessage(),
@@ -2143,19 +2151,23 @@ public class CreateRbdControl extends Composite {
     // currently selected pane. 
     // Note: paneID is not the currently selected pane id when
     // we are importing just a single pane.
-    public void	importPane( RbdBundle rbdBndl, PaneID paneId  ) throws VizException {
+    public void	importPane( AbstractRBD<?> rbdBndl, INcPaneID paneId  ) throws VizException {
 
+    	if( rbdBndl.getDisplayType() != rbdMngr.getRbdType() ) {
+    		throw new VizException("Can't import a non-matching display type.");// sanity check
+    	}
+    	
 		clearSeldResources();
 
 		rbdMngr.setPaneData( rbdBndl.getDisplayPane(paneId) );
-        			
+		
 		for( ResourceSelection rscSel : rbdMngr.getRscsForPane( rbdMngr.getSelectedPaneId() ) ) {
 			if( rscSel.getResourceData() instanceof AbstractNatlCntrsRequestableResourceData ) {     		    		
 				timelineControl.addAvailDomResource( 
 					(AbstractNatlCntrsRequestableResourceData) rscSel.getResourceData() );
-    		}
-    	}
-    	
+			}
+		}
+
 //    	
     	timelineControl.setTimeMatcher( rbdBndl.getTimeMatcher() );
     	
@@ -2163,7 +2175,7 @@ public class CreateRbdControl extends Composite {
     	// current one then prompt the user what to do.
     	// 
 //    	if( geo_sync_panes.getSelection() ) {
-    	//
+//    		
 //    	}
 //    	else {
 //    		// TODO : check for non-predefined areas and handle them appropriately
@@ -2171,7 +2183,7 @@ public class CreateRbdControl extends Composite {
 //    		PredefinedArea origArea = rbdBndl.getDisplayPane(paneId).getInitialArea();
 //    		
 //    		if( origArea == null ) {
-//    			System.out.println("RbdBundle: Area is not set in pane???");
+//    			System.out.println("NcMapRBD: Area is not set in pane???");
 //    		}
 //    		else {    		
 //    			NCMapRenderableDisplay display = rbdBndl.getDisplayPane(paneId);
@@ -2201,7 +2213,8 @@ public class CreateRbdControl extends Composite {
     	if( isMultiPane ) {
     		fd.left = new FormAttachment( geo_area_grp, 10, SWT.RIGHT );
 //        	fd.left = new FormAttachment( 30, 2 );
-    		fd.top  = new FormAttachment( geo_area_grp, 0, SWT.TOP );
+//    		fd.top  = new FormAttachment( geo_area_grp, 0, SWT.TOP );
+        	fd.top  = new FormAttachment( geo_sync_panes, 10, SWT.BOTTOM );
     		fd.bottom = new FormAttachment( geo_area_grp, 0, SWT.BOTTOM );
     		fd.right = new FormAttachment( 100, -300 );
     		seld_rscs_grp.setLayoutData( fd );
@@ -2211,8 +2224,8 @@ public class CreateRbdControl extends Composite {
     	else {
         	fd.left = new FormAttachment( geo_area_grp, 10, SWT.RIGHT );
 //        	fd.left = new FormAttachment( 30, 2 );
-
-        	fd.top  = new FormAttachment( geo_area_grp, 0, SWT.TOP );
+//        	fd.top  = new FormAttachment( geo_area_grp, 0, SWT.TOP );
+        	fd.top  = new FormAttachment( auto_update_btn, 5, SWT.BOTTOM );
         	fd.right = new FormAttachment( 100, -10 );
         	fd.bottom = new FormAttachment( geo_area_grp, 0, SWT.BOTTOM );
         	seld_rscs_grp.setLayoutData( fd );
@@ -2251,7 +2264,7 @@ public class CreateRbdControl extends Composite {
     		rbdMngr.setGeoSyncPanes( geo_sync_panes.getSelection() );
     		rbdMngr.setAutoUpdate( auto_update_btn.getSelection() );
 
-    		RbdBundle rbdBndl = rbdMngr.createRbdBundle( saveDlg.getSeldRbdName(), timeMatcher );
+    		AbstractRBD<?> rbdBndl = rbdMngr.createRbdBundle( saveDlg.getSeldRbdName(), timeMatcher );
 
     		SpfsManager.getInstance().saveRbdToSpf( savedSpfGroup, savedSpfName, rbdBndl, saveRefTime, saveTimeAsConstant );
 
@@ -2281,8 +2294,8 @@ public class CreateRbdControl extends Composite {
     		});
     	}
     }
-    
-    // if Editing then save the current rbd to an RbdBundle 
+                
+    // if Editing then save the current rbd to an AbstractRBD<?> 
     private void createEditedRbd() {
     	
     	try {    		
@@ -2313,7 +2326,7 @@ public class CreateRbdControl extends Composite {
     	}    	
     }
     
-    public RbdBundle getEditedRbd () {
+    public AbstractRBD<?> getEditedRbd () {
 		return editedRbd;
     }
 }
