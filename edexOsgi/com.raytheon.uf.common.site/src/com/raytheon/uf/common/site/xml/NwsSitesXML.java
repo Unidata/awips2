@@ -1,33 +1,35 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- *
+ * 
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- *
+ * 
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- *
+ * 
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.registry.ebxml;
+package com.raytheon.uf.common.site.xml;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-
-import com.raytheon.uf.common.datadelivery.registry.InitialPendingUserSubscription;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Implementation of {@link SubscriptionFilterableQuery} to retrieve
- * {@link InitialPendingSubscription}s.
+ * XML object for NWS Site IDs.
  * 
  * <pre>
  * 
@@ -35,34 +37,43 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 8, 2012             mpduff      Initial creation
- * Jun 21, 2012 736        djohnson    Add thrift serialization annotations.
- * Aug 02, 2012 955        djohnson    Add generics and results retrieval to registry queries.
- * Sep 24, 2012 1157       mpduff      Extends InitialPendingUserSubscriptionQuery.
+ * Apr 29, 2013    1040    mpduff      Initial creation
  * 
  * </pre>
  * 
  * @author mpduff
  * @version 1.0
  */
+@XmlRootElement(name = "nwsSites")
 @XmlAccessorType(XmlAccessType.NONE)
-@DynamicSerialize
-public class PendingUserSubscriptionQuery extends
-        SubscriptionFilterableQuery<InitialPendingUserSubscription> {
+public class NwsSitesXML {
+    @XmlElements({ @XmlElement(name = "site", type = SiteIdXML.class) })
+    private List<SiteIdXML> siteIds = new ArrayList<SiteIdXML>();
 
     /**
-     * {@inheritDoc}
+     * @return the siteIds
      */
-    @Override
-    public Class<InitialPendingUserSubscription> getResultType() {
-        return InitialPendingUserSubscription.class;
+    public List<SiteIdXML> getSiteIds() {
+        return siteIds;
     }
 
     /**
-     * {@inheritDoc}
+     * @param siteIds
+     *            the siteIds to set
      */
-    @Override
-    public Class<InitialPendingUserSubscription> getObjectType() {
-        return InitialPendingUserSubscription.class;
+    public void setSiteIds(ArrayList<SiteIdXML> siteIds) {
+        this.siteIds = siteIds;
+    }
+
+    /**
+     * Add a site id to the list.
+     * 
+     * @param idXml
+     *            The object to add.
+     */
+    public void addSiteId(SiteIdXML idXml) {
+        if (idXml != null) {
+            this.siteIds.add(idXml);
+        }
     }
 }

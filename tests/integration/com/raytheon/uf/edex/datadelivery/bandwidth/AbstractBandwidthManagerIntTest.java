@@ -37,7 +37,7 @@ import org.springframework.context.ApplicationContext;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
-import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
@@ -163,7 +163,7 @@ public abstract class AbstractBandwidthManagerIntTest {
      * 
      * @return the subscription
      */
-    protected UserSubscription createSubscriptionThatFillsUpABucket() {
+    protected SiteSubscription createSubscriptionThatFillsUpABucket() {
         return createSubscriptionWithDataSetSizeInBytes(fullBucketSize);
     }
 
@@ -172,7 +172,7 @@ public abstract class AbstractBandwidthManagerIntTest {
      * 
      * @return the subscription
      */
-    protected UserSubscription createSubscriptionThatFillsUpTenBuckets() {
+    protected SiteSubscription createSubscriptionThatFillsUpTenBuckets() {
         return createSubscriptionWithDataSetSizeInBytes(fullBucketSize * 10);
     }
 
@@ -181,7 +181,7 @@ public abstract class AbstractBandwidthManagerIntTest {
      * 
      * @return the subscription
      */
-    protected UserSubscription createSubscriptionThatFillsHalfABucket() {
+    protected SiteSubscription createSubscriptionThatFillsHalfABucket() {
         return createSubscriptionWithDataSetSizeInBytes(halfBucketSize);
     }
 
@@ -190,7 +190,7 @@ public abstract class AbstractBandwidthManagerIntTest {
      * 
      * @return the subscription
      */
-    protected UserSubscription createSubscriptionThatFillsAThirdOfABucket() {
+    protected SiteSubscription createSubscriptionThatFillsAThirdOfABucket() {
         return createSubscriptionWithDataSetSizeInBytes(thirdBucketSizeInBytes);
     }
 
@@ -199,13 +199,13 @@ public abstract class AbstractBandwidthManagerIntTest {
      * 
      * @return the subscription
      */
-    protected UserSubscription createSubscriptionThatFillsUpTwoBuckets() {
+    protected SiteSubscription createSubscriptionThatFillsUpTwoBuckets() {
         return createSubscriptionWithDataSetSizeInBytes(fullBucketSize * 2);
     }
 
-    protected UserSubscription createSubscriptionWithDataSetSizeInBytes(
+    protected SiteSubscription createSubscriptionWithDataSetSizeInBytes(
             long bytes) {
-        UserSubscription subscription = SubscriptionFixture.INSTANCE
+        SiteSubscription subscription = SubscriptionFixture.INSTANCE
                 .get(subscriptionSeed++);
         subscription.setDataSetSize(BandwidthUtil
                 .convertBytesToKilobytes(bytes));

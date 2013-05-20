@@ -17,37 +17,20 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.datadelivery.subscription;
+\set ON_ERROR_STOP 1
+\connect metadata;
 
-/**
- * Action to update the activate/deactivate buttons.
- * 
- * <pre>
- * 
- * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 15, 2012   687      lvenable    Initial creation
- * May 23, 2013  2020      mpduff      Added updateControls method.
- * 
- * </pre>
- * 
- * @author lvenable
- * @version 1.0
- */
+-- Start a transaction
+BEGIN;
 
-public interface ISubscriptionAction {
-    /**
-     * Update the Activate button's text.
-     * 
-     * @param text
-     *            The text to display on the button
-     */
-    public void activateButtonUpdate(String text);
 
-    /**
-     * Update the controls.
-     */
-    public void updateControls();
-}
+-- Remove officeID attribute
+update ebxml.value set stringvalue = regexp_replace(stringvalue, 'officeID=".*?"', '', 'g');
+
+-- Add officeID element
+update ebxml.value set stringvalue = regexp_replace(stringvalue, '(<pendingSiteSubscription.*?>)', E'\\1<officeId>@@SITE@@</officeId>', 'g');
+update ebxml.value set stringvalue = regexp_replace(stringvalue, '(<initialPendingSiteSubscription.*?>)', E'\\1<officeId>@@SITE@@</officeId>', 'g');
+update ebxml.value set stringvalue = regexp_replace(stringvalue, '(<siteSubscription.*?>)', E'\\1<officeId>@@SITE@@</officeId>', 'g');
+
+-- Commit the transaction
+END;
