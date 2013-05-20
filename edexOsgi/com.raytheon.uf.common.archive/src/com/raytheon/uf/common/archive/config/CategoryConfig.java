@@ -19,10 +19,6 @@
  **/
 package com.raytheon.uf.common.archive.config;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -142,13 +138,6 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
     @XmlElement(name = "saveFiles")
     private String saveFiles;
 
-    /**
-     * This is list of selected directories. To be used to specify which
-     * processed directories to move to /awips2/edex/data/archive.
-     */
-    @XmlElement(name = "selectList")
-    private final List<String> selectList = new ArrayList<String>();
-
     /*
      * Constructor.
      */
@@ -265,43 +254,6 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
         this.saveFiles = saveFiles;
     }
 
-    /**
-     * Get list of selected directories.
-     * 
-     * @return selectList
-     */
-    public List<String> getSelectList() {
-        return new ArrayList<String>(selectList);
-    }
-
-    /**
-     * Rest set the list of selected directories.
-     * 
-     * @param selectDir
-     */
-    public void setSelectList(Collection<String> selectDir) {
-        this.selectList.clear();
-        this.selectList.addAll(selectDir);
-    }
-
-    /**
-     * Add an entry to the select list.
-     * 
-     * @param select
-     */
-    public void addSelectList(String select) {
-        selectList.add(select);
-    }
-
-    /**
-     * Remove an entry from the select list.
-     * 
-     * @param select
-     */
-    public void removeSelectList(String select) {
-        selectList.remove(select);
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -326,14 +278,7 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
         sb.append(", display: ").append(getDisplay());
         sb.append(", saveDir: ").append(getSaveDir());
         sb.append(", saveFiles: ").append(getSaveFiles());
-        sb.append(", selectList: [");
-        String prefix = "\"";
-        for (String sel : selectList) {
-            sb.append(prefix).append(sel).append("\"");
-            prefix = ", \"";
-        }
-
-        sb.append("]]");
+        sb.append("]");
         return sb.toString();
     }
 }
