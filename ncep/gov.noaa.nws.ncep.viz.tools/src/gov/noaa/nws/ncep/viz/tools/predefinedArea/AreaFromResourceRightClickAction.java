@@ -1,11 +1,12 @@
 package gov.noaa.nws.ncep.viz.tools.predefinedArea;
 
 
+import gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider;
+import gov.noaa.nws.ncep.viz.common.display.PredefinedArea.AreaSource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
-import gov.noaa.nws.ncep.viz.ui.display.IGridGeometryProvider;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
-import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea.AreaSource;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,8 +15,8 @@ import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.ui.commands.ICommandService;
 
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 public class AreaFromResourceRightClickAction extends AbstractRightClickAction {
 
@@ -23,9 +24,8 @@ public class AreaFromResourceRightClickAction extends AbstractRightClickAction {
 	
 	@Override
 	public void run() {
-		System.out.println("Running AreaFromResourceRightClickAction");
-        NCMapEditor currEditor = NmapUiUtils.getActiveNatlCntrsEditor();
-
+//		System.out.println("Running AreaFromResourceRightClickAction");
+		AbstractEditor currEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
 
 		ICommandService service = (ICommandService)currEditor
 						.getSite().getService(ICommandService.class);

@@ -601,16 +601,16 @@
     		<xsd:attribute name="cig" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="vis" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="bottom" type="xsd:string"></xsd:attribute>
-            <xsd:attribute name="top" type="xsd:string"></xsd:attribute>
+    		<xsd:attribute name="top" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="states" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="ending" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="beginning" type="xsd:string"></xsd:attribute>
-            <xsd:attribute name="area" type="xsd:string"></xsd:attribute>
+    		<xsd:attribute name="area" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="type" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="cycleHour" type="xsd:int"></xsd:attribute>
     		<xsd:attribute name="cycleDay" type="xsd:int"></xsd:attribute>
-            <xsd:attribute name="isOutlook" type="xsd:boolean"></xsd:attribute>
-            <xsd:attribute name="issueType" type="xsd:string"></xsd:attribute>
+    		<xsd:attribute name="isOutlook" type="xsd:boolean"></xsd:attribute>
+    		<xsd:attribute name="issueType" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="desk" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="tag" type="xsd:string"></xsd:attribute>
     		<xsd:attribute name="fcstHr" type="xsd:string"></xsd:attribute>

@@ -29,6 +29,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *   06/17/09    #115        Greg Hull   Integrate with AbstractNatlCntrsResource
  *   08/07/09                Greg Hull   remove unused variables and methods
  *   11/18/09                Greg Hull   Incorporate to11d6 changes 
+ *   11/04/13    #880        Xiaochuan   set one wireframeShape for one lat or Lon lines.
+ *                                       Set spatialChopFlag to be false.
  * </pre>
  * 
  * @author mgao
@@ -43,10 +45,10 @@ public class LatLonOverlayResource extends AbstractVizResource<LatLonOverlayReso
 	private LatLonOverlayResourceData latLonOverlayResourceData; 
 	
     /** The wireframe object for drawing Latitude lines*/
-    private IWireframeShape[] wireframeShapeForLatLineArray;
+    private IWireframeShape wireframeShapeForLatLineArray;
 
     /** The wireframe object for drawing Longitude lines*/
-    private IWireframeShape[] wireframeShapeForLonLineArray;
+    private IWireframeShape wireframeShapeForLonLineArray;
     
     private List<Coordinate[]> latitudeCoordinatePointArrayList; 
 
@@ -102,7 +104,11 @@ public class LatLonOverlayResource extends AbstractVizResource<LatLonOverlayReso
 		float zoomFactor = paintProps.getZoomLevel();
 		
 		initializeViewMinAndMaxXAndY(paintProps); 
-    	
+		int latitudeDrawingLineNumber = getLatitudeDrawingLineNumber(
+    			latLonOverlayResourceData.getLatitudeInterval()); 
+    	int longitudeDrawingLineNumber = getLongitudeDrawingLineNumber(
+    			latLonOverlayResourceData.getLongitudeInterval()); 
+   	
 		// Only need to recreate the wireframeShapes if the intervals or line types changed.
 		if( needsUpdate ) {
 			needsUpdate = false;			
@@ -110,58 +116,59 @@ public class LatLonOverlayResource extends AbstractVizResource<LatLonOverlayReso
 	    	/*
 	    	 * necessary???
 	    	 */
-	    	clearWireFrameShapeArray(wireframeShapeForLatLineArray); 
+	    	clearWireFrameShapeArray(wireframeShapeForLatLineArray);
 	    	clearWireFrameShapeArray(wireframeShapeForLonLineArray); 
-	    	clearCoordinatePointArrayList(latitudeCoordinatePointArrayList); 
+	      	clearCoordinatePointArrayList(latitudeCoordinatePointArrayList); 
 	    	clearCoordinatePointArrayList(longitudeCoordinatePointArrayList); 
-	    	
-	    	int latitudeDrawingLineNumber = getLatitudeDrawingLineNumber(
-	    			latLonOverlayResourceData.getLatitudeInterval()); 
-	    	int longitudeDrawingLineNumber = getLongitudeDrawingLineNumber(
-	    			latLonOverlayResourceData.getLongitudeInterval()); 
-	    	
-	    	wireframeShapeForLatLineArray = new IWireframeShape[latitudeDrawingLineNumber]; 
-	    	wireframeShapeForLonLineArray = new IWireframeShape[longitudeDrawingLineNumber];             
-	    	latitudeCoordinatePointArrayList = new ArrayList<Coordinate[]>(latitudeDrawingLineNumber); 
+ 	
+	       	latitudeCoordinatePointArrayList = new ArrayList<Coordinate[]>(latitudeDrawingLineNumber); 
 	    	longitudeCoordinatePointArrayList = new ArrayList<Coordinate[]>(longitudeDrawingLineNumber); 
 	    	
+	    	wireframeShapeForLatLineArray = target.createWireframeShape(false,
+					descriptor, 4.0f, false, new PixelExtent(
+							getViewMinX()+offset, getViewMaxX()-offset, getViewMinY()+offset, getViewMaxY()-offset));
+	    	
 			double latitudeValue = -90;  
-			for(int i=0; i<wireframeShapeForLatLineArray.length && latitudeValue<= 90; i++) {
-				wireframeShapeForLatLineArray[i] = target.createWireframeShape(false,
-						descriptor, 4.0f, true, new PixelExtent(
-								getViewMinX()+offset, getViewMaxX()-offset, getViewMinY()+offset, getViewMaxY()-offset));
+			for(int i=0; i<latitudeDrawingLineNumber && latitudeValue <= 90; i++) {
 				Coordinate[] latLonCoordinateArray = createCoordinateArrayForLatitudeLine(latitudeValue, latLonDrawingPointInterval); 
 				latitudeCoordinatePointArrayList.add(latLonCoordinateArray); 
-				wireframeShapeForLatLineArray[i].addLineSegment(latLonCoordinateArray); 
-				wireframeShapeForLatLineArray[i].compile(); 
+				
+				if (!( latitudeValue == -90 || latitudeValue == 90 )){
+					wireframeShapeForLatLineArray.addLineSegment(latLonCoordinateArray);
+				}
+				
 				latitudeValue += latLonOverlayResourceData.getLatitudeInterval(); 
 			}
+			
+			wireframeShapeForLatLineArray.compile(); 
 
+			wireframeShapeForLonLineArray = target.createWireframeShape(false,
+					descriptor, 4.0f, false, new PixelExtent(
+							getViewMinX()+offset, getViewMaxX()-offset, getViewMinY()+offset, getViewMaxY()-offset));
+			
 			double longitudeValue = -180;  
-			for(int i=0; i<wireframeShapeForLonLineArray.length && longitudeValue <= 180; i++) {
-				wireframeShapeForLonLineArray[i] = target.createWireframeShape(false,
-						descriptor, 4.0f, true, new PixelExtent(
-								getViewMinX()+offset, getViewMaxX()-offset, getViewMinY()+offset, getViewMaxY()-offset));
+			for(int i=0; i<longitudeDrawingLineNumber && longitudeValue <= 180; i++) {
+				
 				Coordinate[] latLonCoordinateArray = createCoordinateArrayLongitudeLine(longitudeValue, latLonDrawingPointInterval); 
 				longitudeCoordinatePointArrayList.add(latLonCoordinateArray); 
-				wireframeShapeForLonLineArray[i].addLineSegment(latLonCoordinateArray); 
-				wireframeShapeForLonLineArray[i].compile(); 
+				wireframeShapeForLonLineArray.addLineSegment(latLonCoordinateArray); 
 				longitudeValue += latLonOverlayResourceData.getLongitudeInterval(); 
 			}
+			wireframeShapeForLonLineArray.compile(); 
 		}
     	
-		double latitudeValue = -90; 
-    	for(int i=0; i<wireframeShapeForLatLineArray.length && latitudeValue<= 90; i++) { 
-    		wireframeShapeForLatLineArray[i].clearLabels();
-			addDefaultLabelByPointIndex(wireframeShapeForLatLineArray[i], String.valueOf((int)latitudeValue), latitudeCoordinatePointArrayList.get(i), 0); 
-			updateEffectiveMinX(getMapMinX(), getViewMinX(), getViewMaxX()); 
+		double latitudeValue = -90;
+		updateEffectiveMinX(getMapMinX(), getViewMinX(), getViewMaxX());
+
+    	for(int i=0; i<	latitudeDrawingLineNumber && latitudeValue <= 90; i++) {
+    		addDefaultLabelByPointIndex(wireframeShapeForLatLineArray, String.valueOf((int)latitudeValue), latitudeCoordinatePointArrayList.get(i), 0); 
     		int pointIndexForAddingLabel = getPointLabelIndexForAddingLatitudeLabel(latitudeCoordinatePointArrayList.get(i), zoomFactor, 
     				getEffectiveMinX(), getEffectiveMaxX(), getEffectiveMinY(), getEffectiveMaxY()); 
     		if(!(pointIndexForAddingLabel < 0)) {
-    			addLabelOnLatLonLine( wireframeShapeForLatLineArray[i], latitudeCoordinatePointArrayList.get(i), pointIndexForAddingLabel, 
+    			addLabelOnLatLonLine( wireframeShapeForLatLineArray, latitudeCoordinatePointArrayList.get(i), pointIndexForAddingLabel, 
     					String.valueOf((int)latitudeValue)); 
     		}
-    		target.drawWireframeShape(wireframeShapeForLatLineArray[i], 
+    		target.drawWireframeShape(wireframeShapeForLatLineArray, 
     				latLonOverlayResourceData.getColor(), 
     				latLonOverlayResourceData.getLineWidth(), 
     				latLonOverlayResourceData.getLineStyle()); 
@@ -169,16 +176,16 @@ public class LatLonOverlayResource extends AbstractVizResource<LatLonOverlayReso
     	}
 
 		double longitudeValue = -180;  
-    	for(int i=0; i<wireframeShapeForLonLineArray.length && longitudeValue <= 180; i++) { 
-			wireframeShapeForLonLineArray[i].clearLabels();
-			updateEffectiveMaxY(getMapMaxY(), getViewMinY(), getViewMaxY()); 
+		updateEffectiveMaxY(getMapMaxY(), getViewMinY(), getViewMaxY());
+
+		for(int i=0; i<longitudeDrawingLineNumber && longitudeValue <= 180; i++) {	
     		int pointIndexForAddingLabel = getPointLabelIndexForAddingLongitudeLabel(longitudeCoordinatePointArrayList.get(i), zoomFactor, 
     				getEffectiveMinX(), getEffectiveMaxX(), getEffectiveMinY(), getEffectiveMaxY()); 
     		if(!(pointIndexForAddingLabel < 0)) {
-    			addLabelOnLatLonLine(wireframeShapeForLonLineArray[i], longitudeCoordinatePointArrayList.get(i), pointIndexForAddingLabel, 
+    			addLabelOnLatLonLine(wireframeShapeForLonLineArray, longitudeCoordinatePointArrayList.get(i), pointIndexForAddingLabel, 
     					String.valueOf((int)longitudeValue)); 
     		}
-    		target.drawWireframeShape(wireframeShapeForLonLineArray[i], 
+    		target.drawWireframeShape(wireframeShapeForLonLineArray, 
     				latLonOverlayResourceData.getColor(), 
     				latLonOverlayResourceData.getLineWidth(), 
     				latLonOverlayResourceData.getLineStyle()); 
@@ -361,19 +368,15 @@ public class LatLonOverlayResource extends AbstractVizResource<LatLonOverlayReso
      * @see com.raytheon.viz.core.rsc.IVizResource#dispose()
      */
     public void disposeInternal() {
-   		clearWireFrameShapeArray(wireframeShapeForLatLineArray); 
-   		clearWireFrameShapeArray(wireframeShapeForLonLineArray); 
+//   		clearWireFrameShapeArray(wireframeShapeForLatLineArray); 
+//   		clearWireFrameShapeArray(wireframeShapeForLonLineArray); 
     		
     }
     
-    private void clearWireFrameShapeArray(IWireframeShape[] wireframeShapeArray) {
+    private void clearWireFrameShapeArray(IWireframeShape wireframeShapeArray) {
     	if(wireframeShapeArray != null) {
-    		for(IWireframeShape eachWireframeShape : wireframeShapeArray) {
-    			if( eachWireframeShape != null ) 
-    				eachWireframeShape.dispose(); 
-    			eachWireframeShape = null; 
-    		}
-    		wireframeShapeArray = null; 
+    		wireframeShapeArray.dispose();
+    		wireframeShapeArray = null;
     	}
     }
     

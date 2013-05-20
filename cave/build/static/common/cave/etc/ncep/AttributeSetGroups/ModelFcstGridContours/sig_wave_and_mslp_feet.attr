@@ -22,7 +22,7 @@ HILO   =                    !        	 ! 26;2/H#;L#///30;30/y
 HLSYM  =                   !        	 ! 1.2;0.8//21//hw
 !CLRBAR =  1
 WIND   =    17/0.9/1.5/112
-TITLE  =   5/-1/~ SIG WAVE HEIGHT (ft) with GFS PMSL and BL WIND   =S!0
+TITLE  =   5/-1/~ SIG WAVE HEIGHT (ft) with GFS PMSL and BL WIND!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       
