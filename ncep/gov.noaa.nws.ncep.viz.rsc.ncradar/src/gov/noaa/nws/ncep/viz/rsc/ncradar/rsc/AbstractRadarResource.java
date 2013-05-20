@@ -49,6 +49,8 @@ import com.raytheon.viz.awipstools.capabilityInterfaces.IRangeableResource;
 import gov.noaa.nws.ncep.viz.rsc.ncradar.DefaultVizRadarRecord;
 import com.raytheon.viz.radar.IRadarConfigListener;
 import gov.noaa.nws.ncep.viz.rsc.ncradar.VizRadarRecord;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
+
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
 import com.raytheon.viz.radar.rsc.RadarTextResource.IRadarTextGeneratingResource;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -65,6 +67,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 12/07/2011    #541      S. Gurung   Initial creation
+ * 02/01/13      972        G. Hull    define on IDescriptor
  * 
  * </pre>
  * 
@@ -72,7 +75,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-public abstract class AbstractRadarResource<D extends IDescriptor> extends AbstractNatlCntrsResource<RadarResourceData, MapDescriptor> 
+public abstract class AbstractRadarResource<D extends IDescriptor> extends AbstractNatlCntrsResource<RadarResourceData, NCMapDescriptor> 
 implements IRadarConfigListener, IResourceDataChanged, IRangeableResource,
            IDataScaleResource, IRadarTextGeneratingResource {
     private static final transient IUFStatusHandler statusHandler = UFStatus

@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
-    <isEnabled>true</isEnabled>
     <resourceDefnName>IND</resourceDefnName>
     <resourceCategory>SATELLITE</resourceCategory>
-    <filterLabels>Standard,McIdas</filterLabels>
     <rscImplementation>McidasSatellite</rscImplementation>
     <subTypeGenerator>areaName,resolution</subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>

@@ -4,12 +4,53 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="gov.noaa.nws.ncep.viz.ui.display.NCMapEditor"
+            class="gov.noaa.nws.ncep.viz.ui.display.NatlCntrsEditor"
             default="true"
-            id="gov.noaa.nws.ncep.viz.ui.display.NCMapEditor"
-            name="Natl Cntrs Display Editor">
+            id=   "gov.noaa.nws.ncep.viz.ui.display.NcMapEditor"
+            name="NcMAP Display">
+      </editor>
+      <editor
+            class="gov.noaa.nws.ncep.viz.ui.display.NatlCntrsEditor"
+            default="true"
+            id=   "gov.noaa.nws.ncep.viz.ui.display.SolarDisplay"
+            name="SOLAR Display">
+      </editor>      
+      <editor
+            class="gov.noaa.nws.ncep.viz.ui.display.NatlCntrsEditor"
+            default="true"
+            id=   "gov.noaa.nws.ncep.viz.ui.display.NTransDisplay"
+            name="NTRANS Display">
       </editor>
    </extension>
+   
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="gov.noaa.nws.ncep.viz.ui.display.isMapEditor">
+         <with
+               variable="activeEditorId">
+            <equals
+                  value="gov.noaa.nws.ncep.viz.ui.display.NcMapEditor">
+            </equals>
+         </with>
+      </definition>
+   </extension>
+   
+   <!-- I don't believe this is used -->
+   <extension
+         point="com.raytheon.uf.viz.core.descriptor">
+      <descriptor
+      		name="NcMapDescriptor"
+            class="gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor"
+            editor="gov.noaa.nws.ncep.viz.ui.display.NcMapEditor">
+      </descriptor>
+      <descriptor
+      		name="NcNonMapDescriptor"
+            class="gov.noaa.nws.ncep.viz.ui.display.NCNonMapDescriptor"
+            editor="gov.noaa.nws.ncep.viz.ui.display.NTransDisplay">
+      </descriptor>
+   </extension>
+   
    <extension
          point="org.eclipse.ui.services">
       <sourceProvider
@@ -100,6 +141,7 @@
 	</extension>
 -->
    
+<!-- moved pgen and nc perspective context declarations from here to pgen and perspective plugins -->
    <extension
           point="org.eclipse.ui.contexts">
            <context 
@@ -107,38 +149,16 @@
                     id="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
                     name="Natl Centers Map Editor Context">
            </context>
-           <context 
-                    description="The Natl Centers Product Genaration Context"
-                    id="gov.noaa.nws.ncep.ui.pgen.pgenContext"
-                    name="Natl Centers PGEN Context">
-           </context>
-           <context 
-                    description="The Natl Centers Perspective Context"
-                    id="gov.noaa.nws.ncep.viz.ui.perspectives.NCPerspectiveContext"
-                    name="Natl Centers Perspective Context">
-           </context>           
    </extension>
    <extension
          point="com.raytheon.uf.viz.core.classContext">
          <classContext
-            class="gov.noaa.nws.ncep.viz.ui.display.NCMapEditor">
+            class="gov.noaa.nws.ncep.viz.ui.display.NatlCntrsEditor">
              <contextId
                    id="gov.noaa.nws.ncep.viz.ui.display.NCMapContext">
              </contextId>
          </classContext>
    </extension>
-    <!--
-    <extension
-   
-          point="com.raytheon.viz.ui.editorContext">
-       <editorContext
-             editorClass="gov.noaa.nws.ncep.viz.ui.display.NCMapEditor">
-          <contextId
-                id="gov.noaa.nws.ncep.viz.ui.display.NCMapContext">
-          </contextId>
-       </editorContext>
-    </extension>   
-    -->
 <!--
    <extension
          point="com.raytheon.uf.viz.core.graphicsTarget">

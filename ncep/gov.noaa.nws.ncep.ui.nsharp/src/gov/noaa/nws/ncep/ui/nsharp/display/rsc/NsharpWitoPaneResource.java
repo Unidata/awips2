@@ -577,7 +577,7 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 		font10 = target.initializeFont("Monospace", font10Size, null);
 		*/
 	}
-	
+
 	public boolean isInSidePane() {
 		//System.out.println("isInSidePane returned="+inSidePane + this.toString());
 		return inSidePane;

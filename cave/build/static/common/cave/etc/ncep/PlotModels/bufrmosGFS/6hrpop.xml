@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<plotModel svgTemplate="standardPlotModelTemplate.svg" plugin="bufrmosGFS" name="6hrpop">
- 
-    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="PP06">
-        <Position>UR</Position>
-        <Color red="200" green="215" blue="0"/>  
-    </PlotModelElement>
-
-</plotModel>

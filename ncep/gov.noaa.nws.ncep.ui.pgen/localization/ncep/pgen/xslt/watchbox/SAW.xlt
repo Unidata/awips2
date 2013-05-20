@@ -141,7 +141,7 @@
           <xsl:value-of select="@moveDir"/>
           <xsl:value-of select="@moveSpeed"/>
           <xsl:text>.</xsl:text>
-
+       
    	<xsl:if test="@replWatch > 0">
   	   <xsl:value-of select="$newline"/>
            <xsl:text>         WW </xsl:text>
