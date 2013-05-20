@@ -7,6 +7,8 @@
  */
 package gov.noaa.nws.ncep.viz.ui.display;
 
+import gov.noaa.nws.ncep.viz.common.display.INatlCntrsDescriptor;
+
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -53,6 +55,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 20-Jan-2011              Chin Chen   Fixed a race condition bug in handleDataTimeIndex()
  * 07/15/11                    C Chen   fixed frame number not updated while looping problem
  * 11/11/11                 Greg Hull   rm frameChangeListener in place of Raytheon's, synchronize the listener
+ * 01/21/12    #972         Greg Hull   implement new INatlCntrsDescriptor
  * 
  * </pre>
  * 
@@ -63,10 +66,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(name = "NCMapDescriptor")
 @XmlRootElement
-public class NCMapDescriptor extends MapDescriptor {
-
-    private static SimpleDateFormat FRAME_DATE_FORMAT = new SimpleDateFormat(
-            "EEE yyMMdd/HHmm");
+public class NCMapDescriptor extends MapDescriptor implements INatlCntrsDescriptor {
 
     @XmlElement
     private Boolean autoUpdate = false;
@@ -179,28 +179,6 @@ public class NCMapDescriptor extends MapDescriptor {
         }
     }
 
-    /**
-     * Create a grid geometry for a projection given the crs, lower left, and
-     * upper right corners.
-     * 
-     * @param crs
-     *            CoordinateReferenceSystem of the projection
-     * @param llCoord
-     *            lat/lon of the lower left corner
-     * @param urCoord
-     *            lat/lon of the upper right corner
-     * @return GridGeometry2D
-     * @throws FactoryException
-     * @throws TransformException
-     */
-    public static GridGeometry2D createGridGeometry(
-            CoordinateReferenceSystem crs, Coordinate llCoord,
-            Coordinate urCoord) throws VizException {
-
-        return MapDescriptor.createGridGeometry(crs, llCoord, urCoord);
-
-    }
-
     /***
      * Provides the time of the frame, given the index of the frame in the
      * DataTime array
@@ -232,80 +210,18 @@ public class NCMapDescriptor extends MapDescriptor {
         return strTimeFrame.toUpperCase();
     }
 
-    /**
-     * Returns format of the current time of the frame after setting the
-     * timezone to GMT
-     * 
-     * @return the String 'EEE yyMMdd/HHmm'
-     */
     public static SimpleDateFormat getFrameDateFormat() {
         FRAME_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
         return FRAME_DATE_FORMAT;
     }
-    
-    // only 1 instance 
+
+    // only 1 instance
     @Override
     public void addFrameChangedListener(IFrameChangedListener listener) {
-    	synchronized (listener) {
-        	if( !listeners.contains( listener ) ) {
-        		super.addFrameChangedListener( listener );
-        	}			
-		}
+        synchronized (listener) {
+            if (!listeners.contains(listener)) {
+                super.addFrameChangedListener(listener);
+            }
+        }
     }
-
-    /***
-     * Overridden method to refresh all the contribution items in the status bar
-     * each time the index of the frame changes during looping.
-     * 
-     * @param loopProperties
-     *            - the loop properties container
-     * @throws VizException
-     */
-
-    // bsteffen remove Override as super calss does not have this method TODO
-    // make sure this works
-    // @Override
-    /*
-     * Chin this is not supported since 11.5 public void
-     * handleDataTimeIndex(LoopProperties loopProperties) throws VizException {
-     * 
-     * int localDateIndex = getCurrentFrame(); // bsteffen removed call to
-     * super, as super does not ahve this. //
-     * super.handleDataTimeIndex(loopProperties); if (localDateIndex !=
-     * getCurrentFrame()) { // Chin: fixed a race condition that when user
-     * switch editor to // NON-NCMapEditor editor, // for example
-     * NsharpSkewtEditor, and the last looping notice event // arrived to here.
-     * // At such scenario, current active editor is NsharpSkewtEditor. If //
-     * just blindly // type cast to NCMapEditor, then a type cast error
-     * exception will // be thrown. AbstractEditor editor = (AbstractEditor)
-     * (PlatformUI.getWorkbench() .getActiveWorkbenchWindow().getActivePage()
-     * .getActiveEditor()); if (editor instanceof NCMapEditor) { NCMapEditor
-     * nmapEditor = (NCMapEditor) editor; nmapEditor.refreshGUIElements(); } } }
-     */
-//    @SuppressWarnings("deprecation")
-//	@Override
-//	public void checkDrawTime(LoopProperties loopProperties) {
-//    	super.checkDrawTime(loopProperties);
-//    	
-//    	//System.out.println("NsharpSkewTDescriptor checkDrawTime called ");
-//    	if (loopProperties == null || getFrames() == null) {
-//    		//System.out.println("NsharpSkewTDescriptor checkDrawTime called but jump ");
-//    		return;
-//    	}
-//    	
-//    	if (loopProperties.isLooping() && loopProperties.isShouldDraw()) {
-//    		int currentFrame = this.getCurrentFrame();
-//			int totalFrames = this.getFrameCount();
-    // System.out.println("NcMapD checkDrawTime curFram="+currentFrame+
-    // " totalFrame="+totalFrames);
-//			
-    // IDescriptor.FrameChangeMode mode =
-    // IDescriptor.FrameChangeMode.valueOf("TIME_ONLY");
-    // IDescriptor.FrameChangeOperation operation =
-    // IDescriptor.FrameChangeOperation.valueOf("NEXT");
-//			for (IFrameChangedListener lstnr : listenerSet) {
-//	            lstnr.frameChanged(operation, mode);
-//	        }
-//    	}
-//    }
 }

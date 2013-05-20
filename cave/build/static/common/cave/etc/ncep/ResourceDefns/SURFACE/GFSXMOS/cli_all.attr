@@ -1,5 +1,5 @@
-! Attributes for the GFSXMOS resource with "cliall" plot model
+! Attributes for the GFSXMOS resource with "cli_all" plot model
 !
-plotModel=cliall
+plotModel=@PlotModels/bufrmosMRF/cli_all.xml
 plotDensity=10
 conditionalFilter=

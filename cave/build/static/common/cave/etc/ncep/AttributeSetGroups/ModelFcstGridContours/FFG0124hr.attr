@@ -1,0 +1,23 @@
+!
+! Restore File :FFG0124hr
+!
+! Log:
+!
+GLEVEL=0
+GVCORD=NONE
+SKIP=
+FILTER=y
+SCALE=0
+GDPFUN=FFG0124hr
+TYPE=p
+CINT=0
+LINE=5/1/1
+FINT=50;60;70;80;90
+FLINE=0;29;28;27;26;0
+HILO=
+HLSYM=
+WIND=18/1/1
+TITLE=1/-1/~ FFG0124hr !0
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

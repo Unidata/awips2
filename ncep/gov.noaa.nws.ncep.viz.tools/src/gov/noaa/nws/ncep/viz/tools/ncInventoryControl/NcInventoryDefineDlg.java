@@ -4,7 +4,6 @@ import static java.lang.System.out;
 
 import gov.noaa.nws.ncep.edex.common.ncinventory.ManageNcInventoryMsg;
 import gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryRequestMsg;
-import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;

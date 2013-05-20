@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
-    <resource>RUC</resource>
-    <attrSetGroupName>anl_loops</attrSetGroupName>
-    <attrSetNames>200mb_hght_wind,250mb_ageo_div_isotachs,300mb_hght_absv,300mb_hght_wind,300thta_pres_wnd_pres_adv,500mb_hght_absv,700mb_hght_rh_al,700mb_rh_rs_temp,850mb_h2o_transport_al,850mb_hght_tmp_wind,850mb_hght_wind_dwpt,potvort_400-250mb</attrSetNames>
-</AttributeSetGroup>

@@ -1,0 +1,24 @@
+!
+! Restore File :iceg
+!
+! Log:
+!Archana/SGT    3/2013  Initial Creation
+!
+GLEVEL=10.0
+GVCORD=HGHT
+SKIP=
+FILTER=n
+SCALE=0
+GDPFUN=ICEG
+TYPE=p
+CINT=0
+LINE=4/1/1
+FINT=
+FLINE=0;29;28;27;26;0
+HILO=
+HLSYM=
+WIND=
+TITLE=1/-1/~ ICEG
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

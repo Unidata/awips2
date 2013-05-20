@@ -23,7 +23,12 @@ import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductConfigureDialog;
 import gov.noaa.nws.ncep.ui.pgen.producttypes.ProductType;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResourceData;
+import gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet;
+import gov.noaa.nws.ncep.ui.pgen.sigmet.Volcano;
 import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
+import gov.noaa.nws.ncep.viz.common.display.INatlCntrsPaneManager;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayName;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -59,7 +64,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.geotools.geometry.jts.JTS;
@@ -81,6 +88,7 @@ import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.EditorInput;
 import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
+import com.raytheon.viz.ui.panes.PaneManager;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -121,6 +129,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * 03/12		 #704		B. Yin		  Move applyStylesheet() here from ProdType
  * 05/12		 #708		J. Wu		  Add methods to retrieve current data frame time.
  * 05/12		 #769		B. Yin		  Moved the creation of UTC time from TCA dialog to here.
+ * 03/13         #972       G. Hull       add isNatlCntrsEditor()
+ * 03/13		 #927		B. Yin		  Moved isUnmovable from the PgenSelectTool class.
  * 
  * </pre>
  * 
@@ -168,7 +178,7 @@ public class PgenUtil {
 	public static final String PGEN_PROD_DIR = "prod";
 	public static final String PGEN_XML_DIR = "xml";
 	public static final String PGEN_TEXT_PROD_DIR = "text";
-	
+
 	/*
 	 * Format string patterns for Lat/Lon Pre/Postpend
 	 */
@@ -1012,31 +1022,31 @@ public class PgenUtil {
 			if ( adc instanceof LabeledLine && ((LabeledLine)adc).getPgenType().equalsIgnoreCase(ll.getPgenType())){
 				LabeledLine lline = (LabeledLine)adc;
 				for ( Label lbl : lline.getLabels() ){
-			if ( Math.abs(lbl.getSpe().getLocation().x - loc.x) < 0.0001 &&
-					Math.abs(lbl.getSpe().getLocation().y - loc.y) < 0.0001 ) {
-				
-				//get the label at loc
+					if ( Math.abs(lbl.getSpe().getLocation().x - loc.x) < 0.0001 &&
+							Math.abs(lbl.getSpe().getLocation().y - loc.y) < 0.0001 ) {
+
+						//get the label at loc
 				//		testLbl = lbl;
-			}
-			else {
-				
-				//calculate distance from lbl to scnLoc
-				double scnPt[] = mapEditor.translateInverseClick(lbl.getSpe().getLocation());
-				double dist = Math.sqrt( (scnLoc[0]-scnPt[0]) * (scnLoc[0]-scnPt[0]) 
-										+(scnLoc[1]-scnPt[1]) * (scnLoc[1]-scnPt[1]) );
-				
-				if ( dist < 20 ){  	// 20 is the screen distance.
+					}
+					else {
+
+						//calculate distance from lbl to scnLoc
+						double scnPt[] = mapEditor.translateInverseClick(lbl.getSpe().getLocation());
+						double dist = Math.sqrt( (scnLoc[0]-scnPt[0]) * (scnLoc[0]-scnPt[0]) 
+								+(scnLoc[1]-scnPt[1]) * (scnLoc[1]-scnPt[1]) );
+
+						if ( dist < 20 ){  	// 20 is the screen distance.
 							// a label in this range(<20) is considered as being at the same location 
-					mergeLbl = lbl;
+							mergeLbl = lbl;
 							nearestLine = (LabeledLine)adc;
 							break;
 						}
-				}
+					}
+				}		 
 			}
-		}		 
 			if ( mergeLbl != null ) break;
 		}
-	
+		
 		//add all arrow lines of one label to the other label and remove the second label
 		if ( testLbl != null && mergeLbl != null ){
 			for ( Line ln : testLbl.getArrows()) {
@@ -1432,7 +1442,7 @@ public class PgenUtil {
 			
 		return PgenUtil.getPgenActivityPath() + File.separator + PGEN_XML_DIR;  
     }
-
+               
 	/**
 	 * Format a Calendar date into a string of "DDMMYYYY"
 	 */
@@ -1718,6 +1728,34 @@ public class PgenUtil {
         }
     }
     
+	/*
+	 * Check if a workbench part is NCMapEditor
+	 */ 
+    public static boolean isNatlCntrsEditor( IWorkbenchPart part ){
+		if( part instanceof AbstractEditor ) {
+			
+			IEditorInput edInput = ((AbstractEditor)part).getEditorInput(); 
+			
+			if( edInput instanceof EditorInput ) {
+			
+				PaneManager pmngr = ((EditorInput)edInput).getPaneManager(); 
+				
+				if( pmngr instanceof INatlCntrsPaneManager ) {
+				
+					NcDisplayType dispType = ((INatlCntrsPaneManager)pmngr).getDisplayType();
+					
+					// if other display types are supported then add them here.
+					//
+					if( dispType.equals( NcDisplayType.NMAP_DISPLAY ) ) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+    
     // TODO: Do we need to look in all the panes or just the active (or the
     // selected panes)
     //
@@ -1766,29 +1804,18 @@ public class PgenUtil {
         PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
                 .setText( CaveTitle );
     }
-    
+        
     /*
-     * Get the display ID for multipane editor
-     * 
-     * Copy from NmapUiUtils.getNcDisplayID()
+     * Get an NCP editor's name/id. 
+     * 	
+     * This must be called with an ncp editor.
      */    
-    public static int getDisplayID(String displayTitle) {
-        int indx = displayTitle.indexOf("-");
-        if (indx == -1 || indx > 3) {
-            return -1;
-        } else {
-            return Integer.parseInt(displayTitle.substring(0, indx));
-        }
-    }
-    
-    
-    /*
-     * Get an editor's name
-     * 
-     * Copy from NCMapEditor.getDisplayName()
-     */    
-    public static String getDisplayName( AbstractEditor editor ) {
-        return editor.getEditorInput().getName();
+    public static NcDisplayName getDisplayName( AbstractEditor ed ) {
+    	if( !isNatlCntrsEditor( ed ) ) {
+    		return null;
+    	}
+    	
+        return ((INatlCntrsPaneManager)((EditorInput)ed.getEditorInput()).getPaneManager()).getDisplayName();    	
     }
     
     /*
@@ -2020,4 +2047,25 @@ public class PgenUtil {
 		me.y = y;
 		mapEditor.getMouseManager().handleEvent(me);
 	}
+	
+	   
+    /**
+     * telling if the DE is NOT movable.    
+     * @param DrawableElement: the DE to be judged.
+     * @return boolean: true not movable.
+     */
+    public static boolean isUnmovable(DrawableElement tmpEl){
+    	if(tmpEl instanceof Volcano )
+    		return true;
+    	
+    	if(tmpEl instanceof Sigmet ){
+    		Sigmet vaCloud = (Sigmet)tmpEl;
+    		String type = vaCloud.getType();
+    		
+    		if(type != null && (type.contains("WINDS")||(type.contains(Sigmet.ISOLATED))))
+    			return true;   		
+    	}
+    	
+    	return false;
+    }
 }
