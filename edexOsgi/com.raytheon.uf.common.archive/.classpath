@@ -6,5 +6,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.status"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.junit"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.viz.core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.util"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
