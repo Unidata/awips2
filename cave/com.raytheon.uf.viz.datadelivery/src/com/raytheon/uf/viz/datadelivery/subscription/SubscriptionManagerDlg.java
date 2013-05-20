@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.datadelivery.subscription;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -120,6 +121,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Mar 29, 2013 1841       djohnson   Subscription implementations now provide a copy method.
  * May 09, 2013 2000       djohnson   Copy subscription now requires editing first to prevent duplicates, and remove duplicate code.
  * May 17, 2013 1040       mpduff     Change office id to list for shared subscription.
+ * May 28, 2013 1650       djohnson   Allow specifying filters for what subscriptions to show.
  * </pre>
  * 
  * @author mpduff
@@ -132,25 +134,6 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
     /** Status Handler */
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubscriptionManagerDlg.class);
-
-    /** Enumeration to use with Deliver Notify */
-    public static enum SubscriptionNotification {
-        /** Subscription notification of type Delivery */
-        DELIVERY("Delivery"),
-        /** Subscription notification of type Notify */
-        NOTIFY("Notify");
-
-        private String subnotif;
-
-        private SubscriptionNotification(String subnotif) {
-            this.subnotif = subnotif;
-        }
-
-        @Override
-        public String toString() {
-            return subnotif;
-        }
-    }
 
     /** Enumeration to use with Data set */
     public static enum FullDataset {
@@ -225,15 +208,21 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
     private final ISubscriptionNotificationService subscriptionNotificationService = DataDeliveryServices
             .getSubscriptionNotificationService();
 
+    private final ISubscriptionManagerFilter filter;
+
     /**
      * Constructor
      * 
      * @param parent
      *            The parent shell
+     * @param filter
      */
-    public SubscriptionManagerDlg(Shell parent) {
+    public SubscriptionManagerDlg(Shell parent,
+            ISubscriptionManagerFilter filter) {
         super(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE,
                 CAVE.INDEPENDENT_SHELL | CAVE.PERSPECTIVE_INDEPENDENT);
+
+        this.filter = filter;
 
         setText("Data Delivery Subscription Manager");
     }
@@ -489,7 +478,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                 | SWT.MULTI | SWT.FULL_SELECTION);
         tableConfig.setTableHeight(200);
         tableComp = new SubscriptionTableComp(shell, tableConfig, this,
-                SubscriptionType.MANAGER);
+                SubscriptionType.MANAGER, filter);
 
         tableComp.populateData();
         tableComp.populateTable();
@@ -786,10 +775,35 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
      */
     private void handleFilterSelection() {
 
-        String group = groupCbo.getText();
-        String office = officeCbo.getText();
+        final String group = groupCbo.getText();
+        final String office = officeCbo.getText();
 
-        tableComp.populateFilteredData(group, office);
+        tableComp.setSubscriptionFilter(new ISubscriptionManagerFilter() {
+            
+            @Override
+            public List<Subscription> getSubscriptions(
+                    ISubscriptionHandler subscriptionHandler)
+                    throws RegistryHandlerException {
+                final List<Subscription> results = filter.getSubscriptions(subscriptionHandler);
+
+                // Remove any that don't match the configured filters. TODO:
+                // This should be cleaned up at some point in the future
+                for (Iterator<Subscription> iter = results.iterator(); iter
+                        .hasNext();) {
+                    Subscription subscription = iter.next();
+                    if ((office == null || "ALL".equals(office) || subscription
+                            .getOfficeIDs().contains(office))
+                            && (group == null
+                                    || "All Subscriptions".equals(group)
+                            || group.equals(subscription.getGroupName()))) {
+                        continue;
+                    }
+                    iter.remove();
+                }
+                return results;
+            }
+        });
+        tableComp.populateData();
         tableComp.populateTable();
 
     }

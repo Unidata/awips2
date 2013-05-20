@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -53,6 +54,7 @@ import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandle
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.common.datadelivery.service.subscription.ISubscriptionOverlapService;
 import com.raytheon.uf.common.datadelivery.service.subscription.ISubscriptionOverlapService.ISubscriptionOverlapResponse;
+import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
 import com.raytheon.uf.common.util.FileUtil;
@@ -86,6 +88,8 @@ import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceA
 public abstract class AbstractSubscriptionServiceTest {
 
     protected static final int REQUIRED_LATENCY = 2;
+
+    protected static final long REQUIRED_DATASET_SIZE = 1024l;
 
     final Subscription sub1 = SubscriptionFixture.INSTANCE.get(1);
 
@@ -125,6 +129,7 @@ public abstract class AbstractSubscriptionServiceTest {
 
     @Before
     public void setUp() throws RegistryHandlerException {
+        PathManagerFactoryTest.initLocalization();
         RegistryObjectHandlersUtil.initMemory();
 
         when(
@@ -200,18 +205,16 @@ public abstract class AbstractSubscriptionServiceTest {
     public void testFailedProposeSchedulePromptsUserForForceApply()
             throws RegistryHandlerException {
         returnTwoSubscriptionNamesWhenProposeScheduleCalled();
-        returnRequiredLatencyWhenProposeScheduleCalled();
+        returnRequiredSubscriptionValuesWhenProposeScheduleCalled();
 
         whenForceApplyPromptedUserSelectsCancel();
 
         performServiceInteraction();
 
-        final String expected = getExpectedForceApplyMessage();
+        final ForceApplyPromptConfiguration expectedForceApplyConfiguration = getExpectedForceApplyPromptConfiguration();
 
-        verify(mockDisplay).displayForceApplyPrompt(service.TITLE, expected,
-                REQUIRED_LATENCY, mockPromptDisplayText,
-                getExpectedDisplayForceApplyPromptSubscription(),
-                subNameResults);
+        verify(mockDisplay).displayForceApplyPrompt(
+                eq(expectedForceApplyConfiguration));
     }
 
     @Test
@@ -364,8 +367,7 @@ public abstract class AbstractSubscriptionServiceTest {
         verify(mockDisplay).displayMessage(
                 mockPromptDisplayText,
                 ISubscriptionOverlapService.OVERLAPPING_SUBSCRIPTIONS
-                        + FileUtil.EOL
-                        + duplicateSub.getName());
+                        + FileUtil.EOL + duplicateSub.getName());
     }
 
     /**
@@ -420,9 +422,11 @@ public abstract class AbstractSubscriptionServiceTest {
      * Returns the value of {@link #REQUIRED_LATENCY} as the required latency
      * when propose schedule is called.
      */
-    void returnRequiredLatencyWhenProposeScheduleCalled() {
+    void returnRequiredSubscriptionValuesWhenProposeScheduleCalled() {
         when(mockProposeScheduleResponse.getRequiredLatency()).thenReturn(
                 REQUIRED_LATENCY);
+        when(mockProposeScheduleResponse.getRequiredDataSetSize()).thenReturn(
+                REQUIRED_DATASET_SIZE);
     }
 
     /**
@@ -513,4 +517,12 @@ public abstract class AbstractSubscriptionServiceTest {
      * @return the subscription argument
      */
     abstract Subscription getExpectedDisplayForceApplyPromptSubscription();
+
+    /**
+     * Return the expected force apply prompt configuration.
+     * 
+     * @return the configuration
+     */
+    abstract ForceApplyPromptConfiguration getExpectedForceApplyPromptConfiguration();
 }
+
