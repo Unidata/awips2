@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 14, 2013 2000       djohnson     Initial creation
+ * May 23, 2013 1650       djohnson     Reword change bandwidth message.
  * 
  * </pre>
  * 
@@ -159,7 +160,7 @@ public class BandwidthTab extends SystemApplyCancelTab {
             }
 
             StringBuilder sb = new StringBuilder(StringUtil.createMessage(
-                    "Changing the default bandwidth for " + Network.OPSNET
+                    "Changing the bandwidth for " + Network.OPSNET
                             + " will unschedule the following subscriptions:",
                     subscriptionNames));
             sb.append(StringUtil.NEWLINE).append(StringUtil.NEWLINE);
