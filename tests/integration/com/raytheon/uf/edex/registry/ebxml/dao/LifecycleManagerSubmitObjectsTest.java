@@ -78,6 +78,7 @@ import com.raytheon.uf.edex.database.dao.DatabaseUtil;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
+        SpringFiles.EVENTBUS_COMMON_XML,
         SpringFiles.EBXML_XML, SpringFiles.EBXML_IMPL_XML,
         SpringFiles.EBXML_QUERYTYPES_XML, SpringFiles.EBXML_REGISTRY_DAO_XML,
         SpringFiles.EBXML_WEBSERVICES_XML, SpringFiles.EBXML_XACML_XML,
