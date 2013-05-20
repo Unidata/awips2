@@ -39,7 +39,7 @@ import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
-import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.registry.event.InsertRegistryEvent;
@@ -208,7 +208,7 @@ public abstract class BandwidthManager extends
                         + "]");
             }
 
-        } else if (DataDeliveryRegistryObjectTypes.USER_SUBSCRIPTION
+        } else if (DataDeliveryRegistryObjectTypes.SITE_SUBSCRIPTION
                 .equals(objectType)
                 || DataDeliveryRegistryObjectTypes.SHARED_SUBSCRIPTION
                         .equals(objectType)) {
@@ -308,8 +308,8 @@ public abstract class BandwidthManager extends
                 Subscription sub = updateSubscriptionWithDataSetMetaData(
                         subscription, dataSetMetaData);
 
-                if (sub instanceof UserSubscription) {
-                    schedule(new AdhocSubscription((UserSubscription) sub));
+                if (sub instanceof SiteSubscription) {
+                    schedule(new AdhocSubscription((SiteSubscription) sub));
                 } else {
                     statusHandler
                             .warn("Unable to create adhoc queries for shared subscriptions at this point.  This functionality should be added in the future...");
@@ -582,7 +582,7 @@ public abstract class BandwidthManager extends
     public void subscriptionRemoved(RemoveRegistryEvent event) {
         String objectType = event.getObjectType();
         if (objectType != null) {
-            if (DataDeliveryRegistryObjectTypes.USER_SUBSCRIPTION
+            if (DataDeliveryRegistryObjectTypes.SITE_SUBSCRIPTION
                     .equals(objectType)
                     || DataDeliveryRegistryObjectTypes.SHARED_SUBSCRIPTION
                             .equals(objectType)) {
@@ -752,9 +752,9 @@ public abstract class BandwidthManager extends
                 // Create an adhoc subscription based on the new subscription,
                 // and set it to retrieve the most recent cycle (or most recent
                 // url if a daily product)
-                if (subscription instanceof UserSubscription) {
+                if (subscription instanceof SiteSubscription) {
                     AdhocSubscription adhoc = new AdhocSubscription(
-                            (UserSubscription) subscription);
+                            (SiteSubscription) subscription);
                     adhoc = bandwidthDaoUtil.setAdhocMostRecentUrlAndTime(
                             adhoc, useMostRecentDataSetUpdate);
 

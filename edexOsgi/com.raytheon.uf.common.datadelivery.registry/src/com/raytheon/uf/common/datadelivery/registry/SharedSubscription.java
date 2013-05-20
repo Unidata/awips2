@@ -35,7 +35,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 27, 2013 1841       djohnson     Initial creation
+ * Mar 27, 2013 1841       djohnson    Initial creation
+ * May 15, 2013 1040       mpduff      Added addOfficeId.
  * 
  * </pre>
  * 
@@ -52,7 +53,7 @@ public class SharedSubscription extends RecurringSubscription {
 
     private static final long serialVersionUID = -7221500266253493273L;
 
-    public static final String SHARED_SUBSCRIPTION_OWNER = "shared";
+    private static final String SHARED_SUBSCRIPTION_OWNER = "shared";
 
     /**
      * Constructor.
@@ -64,7 +65,7 @@ public class SharedSubscription extends RecurringSubscription {
     /**
      * @param sharedSubscription
      */
-    public SharedSubscription(SharedSubscription sub) {
+    public SharedSubscription(Subscription sub) {
         super(sub);
     }
 
@@ -113,5 +114,15 @@ public class SharedSubscription extends RecurringSubscription {
     @Override
     public PendingSubscription pending(String currentUser) {
         return new PendingSharedSubscription(this, currentUser);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addOfficeID(String officeId) {
+        if (!officeIDs.contains(officeId)) {
+            this.officeIDs.add(officeId);
+        }
     }
 }
