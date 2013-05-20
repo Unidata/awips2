@@ -20,7 +20,7 @@ com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaData
 com.raytheon.uf.common.datadelivery.registry.Parameter
 com.raytheon.uf.common.datadelivery.registry.ParameterLevel
 com.raytheon.uf.common.datadelivery.registry.PendingSharedSubscription
-com.raytheon.uf.common.datadelivery.registry.PendingUserSubscription
+com.raytheon.uf.common.datadelivery.registry.PendingSiteSubscription
 com.raytheon.uf.common.datadelivery.registry.Projection
 com.raytheon.uf.common.datadelivery.registry.Provider
 com.raytheon.uf.common.datadelivery.registry.Time

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SQL_SCRIPT="renameSubscriptionToUserSubscription.sql"
+SQL_SCRIPT="renameSubscriptionToSiteSubscription.sql"
 
 # ensure that the sql script is present
 if [ ! -f ${SQL_SCRIPT} ]; then
@@ -9,7 +9,7 @@ if [ ! -f ${SQL_SCRIPT} ]; then
    exit 1
 fi
 
-echo "INFO: update started - renaming Subscription to UserSubscription"
+echo "INFO: update started - renaming Subscription to SiteSubscription"
 
 # run the update
 /awips2/psql/bin/psql -U awips -d metadata -f ${SQL_SCRIPT}
