@@ -2,7 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: solarimage
 Bundle-SymbolicName: gov.noaa.nws.ncep.viz.rsc.solarimage;singleton:=true
-Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.viz.ui, com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Eclipse-RegisterBuddy: gov.noaa.nws.ncep.viz.resources, com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.viz.ui, com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Eclipse-BuddyPolicy: ext, global
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: gov.noaa.nws.ncep.viz.rsc.solarimage.Activator
 Require-Bundle: gov.nasa.gsfc.fits,
@@ -26,8 +27,10 @@ Require-Bundle: gov.nasa.gsfc.fits,
  com.raytheon.viz.core;bundle-version="1.12.1174",
  javax.measure;bundle-version="1.0.0",
  com.raytheon.uf.viz.xy.timeseries;bundle-version="1.12.1174",
- gov.noaa.nws.ncep.viz.common
+ gov.noaa.nws.ncep.viz.common,
+ gov.noaa.nws.ncep.viz.resources;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: gov.noaa.nws.ncep.viz.ui.display
+Export-Package: gov.noaa.nws.ncep.viz.rsc.solarimage.rsc
 

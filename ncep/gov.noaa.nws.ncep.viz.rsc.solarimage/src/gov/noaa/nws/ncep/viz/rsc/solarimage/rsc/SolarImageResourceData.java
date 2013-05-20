@@ -1,124 +1,220 @@
 package gov.noaa.nws.ncep.viz.rsc.solarimage.rsc;
 
-import gov.noaa.nws.ncep.common.dataplugin.solarimage.SolarImageRecord;
-//import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
-//import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
+import java.text.ParseException;
+import java.text.ParsePosition;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
+import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
+import gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap;
 
+import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.datastorage.DataStoreFactory;
-import com.raytheon.uf.common.datastorage.IDataStore;
-import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
-import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(name = "SolarImageResourceData")
-public class SolarImageResourceData extends AbstractRequestableResourceData {
+public class SolarImageResourceData extends AbstractNatlCntrsRequestableResourceData {
 
-    public Map<DataTime, SolarImageRecord> dataObjectMap;
+	private static final String instrumentParam = "instrument";
+	private static final String wavelengthParam = "wavelength";
+	private static final String intTimeParam    = "intTime";
 
-    private static String GOESSXI = "SXI-FM3";
+	@XmlElement
+	private Float alpha;
 
-    private static String LASCO = "LASCO";
-
-    private static String STEREO = "SECCHI";
-
+	@XmlElement
+	private Float brightness;
+	
+	@XmlElement
+	private Float contrast;
+	
+	@XmlElement
+    private String colorMapName;
+	
+	@XmlElement
+    private ColorBarFromColormap colorBar;
+	
+	@XmlElement
+	private String displayUnitStr;
+	
+	private Unit<?> displayUnit;
+    
     public SolarImageResourceData() {
 
         super();
+        
+        // called by AbstractVizResource.getName()
+        // and we delegate back to the resource
         this.nameGenerator = new AbstractNameGenerator() {
 
             @Override
             public String getName(AbstractVizResource<?, ?> resource) {
-
-                try {
-                    if (metadataMap.get("telescope").getConstraintValue()
-                            .equals("NSO-GONG")) {
-                        return "H-alpha NSO/GONG";
-                    }
-
-                    String instr = metadataMap.get("instrument")
-                            .getConstraintValue();
-
-                    SolarImageRecord solarimagerec = null;
-                    for (SolarImageRecord rec : dataObjectMap.values()) {
-                        solarimagerec = rec;
-                        break;
-                    }
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(solarimagerec.getSatellite() + "  ");
-                    sb.append(solarimagerec.getInstrument() + "  ");
-                  
-                    sb.append(solarimagerec.getWavelength() + "  ");
-
-                    if (instr.equals(STEREO) || instr.equals(LASCO)) {
-                        ;
-                    } else {
-                        sb.append(solarimagerec.getWavelength() + "  ");
-                    }
-
-                    if (instr.equals(GOESSXI))
-                        sb.append(solarimagerec.getIntTime() + "s");
-                    return sb.toString();
-                } catch (Exception e) {
-                    return "";
-                }
+            	return ((SolarImageResource)resource).getLegendStr();
             }
-
         };
     }
+    
+	@Override
+	public NcDisplayType[] getSupportedDisplayTypes() {
+		return new NcDisplayType[] { NcDisplayType.SOLAR_DISPLAY };
+	}
 
-    @Override
-    protected AbstractVizResource<?, ?> constructResource(
-            LoadProperties loadProperties, PluginDataObject[] objects)
-            throws VizException {
+	// The following methods assume that the constraints in the metadata map
+	// are are for 'exact' matches. ie. that the one constraint value is the value
+	// that will be queried.
+    public String getInstrument() {
+    	return ( metadataMap.containsKey(instrumentParam) ?
+			     metadataMap.get(instrumentParam).getConstraintValue() : "" );
+    }
+    
+    public String getWavelength() {
+    	return ( metadataMap.containsKey(wavelengthParam) ?
+			     metadataMap.get(wavelengthParam).getConstraintValue() : "" );
+    }
 
-        dataObjectMap = new HashMap<DataTime, SolarImageRecord>();
-        System.out.println("Cconstructing dataObjectMap");
-        for (PluginDataObject pdo : objects) {
-            if (pdo instanceof SolarImageRecord) {
-                System.out.println("GOT:::::::::: " + pdo.getDataTime());
-                dataObjectMap.put(pdo.getDataTime(), (SolarImageRecord) pdo);
-            }
+    public String getIntTime() {
+    	return ( metadataMap.containsKey(intTimeParam) ?
+			     metadataMap.get(intTimeParam).getConstraintValue() : "" );
+    }
+
+	@Override
+	protected AbstractVizResource<?, ?> constructResource(
+			LoadProperties loadProperties, PluginDataObject[] objects)
+			throws VizException {
+		return new SolarImageResource(this, loadProperties);
+	}
+	
+	public Unit<?> getDisplayUnit() {
+		if( displayUnit == null ) {
+			setDisplayUnitStr( displayUnitStr );
+		}
+		return displayUnit;
+	}
+	
+	public String getDisplayUnitStr() {
+		return displayUnitStr;
+	}
+
+	public void setDisplayUnitStr(String dispUnitStr) {
+		this.displayUnitStr = dispUnitStr;
+
+		if( displayUnit == null ) {
+			if( displayUnitStr != null ) {
+	            try {
+	            	displayUnit = UnitFormat.getUCUMInstance().parseSingleUnit(
+	            			 displayUnitStr, new ParsePosition(0));
+	            } catch (ParseException e) {
+	                System.out.println("Unable parse display units : " + displayUnitStr );
+	            }
+			}
+		}
+	}
+	
+	public String getColorMapName() {
+		return colorMapName;
+	}
+
+	public void setColorMapName(String cmapName) {
+		colorMapName = cmapName;
+	}
+	
+    public ColorBarFromColormap getColorBar() {
+		return colorBar;
+	}
+
+	public void setColorBar(ColorBarFromColormap cBar) {
+		this.colorBar = cBar;
+	}
+	
+    public Float getAlpha() {
+		return alpha;
+	}
+
+
+	public void setAlpha(Float alpha) {
+		this.alpha = alpha;
+	}
+
+
+	public Float getBrightness() {
+		return brightness;
+	}
+
+
+	public void setBrightness(Float brightness) {
+		this.brightness = brightness;
+	}
+
+
+	public Float getContrast() {
+		return contrast;
+	}
+
+	public void setContrast(Float contrast) {
+		this.contrast = contrast;
+	}
+
+
+	@Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) {
+            return false;
         }
-        return new SolarImageResource(this, loadProperties);
+        if (obj instanceof SolarImageResourceData == false) {
+            return false;
+        }
+
+        SolarImageResourceData other = (SolarImageResourceData) obj;
+
+        if (this.colorMapName != null && other.colorMapName == null) {
+            return false;
+        } else if (this.colorMapName == null && other.colorMapName != null) {
+            return false;
+        } else if (this.colorMapName != null
+                && this.colorMapName.equals(other.colorMapName) == false) {
+            return false;
+        }
+        
+        if (this.displayUnitStr != null && other.displayUnitStr == null) {
+            return false;
+        } else if (this.displayUnitStr == null && other.displayUnitStr != null) {
+            return false;
+        } else if (this.displayUnitStr != null
+                && this.displayUnitStr.equals(other.displayUnitStr) == false) {
+            return false;
+        }
+       
+        
+        if ( (this.alpha != null && other.alpha == null)
+        		|| (this.alpha == null && other.alpha != null)
+        		|| (this.alpha != null && this.alpha.equals(other.alpha) == false)){
+        	return false;
+        	
+	    }
+        	
+        if ( (this.brightness != null && other.brightness == null)
+        		|| (this.brightness == null && other.brightness != null)
+        		|| (this.brightness != null && this.brightness.equals(other.brightness) == false)){
+        	return false;
+        	
+	    }
+        
+        if ( (this.contrast != null && other.contrast == null)
+        		|| (this.contrast == null && other.contrast != null)
+        		|| (this.contrast != null && this.contrast.equals(other.contrast) == false)){
+        	return false;
+        	
+	    }
+        
+        return true;
     }
-
-    public SolarImageRecord populateRecord(SolarImageRecord record) {
-        IDataStore dataStore = getDataStore(record);
-        record.retrieveFromDataStore(dataStore);
-        return record;
-    }
-
-    private IDataStore getDataStore(SolarImageRecord record) {
-        IDataStore dataStore = null;
-        // try {
-        // Map<String, Object> vals = new HashMap<String, Object>();
-        // vals.put("dataURI", record.getDataURI());
-        // vals.put("pluginName", record.getPluginName());
-
-        // record = (SolarImageRecord) Loader.loadData(vals);
-
-        File loc = HDF5Util.findHDF5Location(record);
-        dataStore = DataStoreFactory.getDataStore(loc);
-
-        // } catch (VizException e) {
-        // e.printStackTrace();
-        // }
-
-        return dataStore;
-    }
-
 }

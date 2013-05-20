@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <isEnabled>false</isEnabled>
-    <inventoryEnabled>false</inventoryEnabled>
+    <inventoryEnabled>true</inventoryEnabled>
     <resourceDefnName>LAMPMOS</resourceDefnName>
     <resourceCategory>SURFACE</resourceCategory>
     <resourceParameters>
@@ -10,13 +9,12 @@ spiFile=MTR.spi
 legendString=LAMPMOS
 legendColor=RGB {0, 255, 0}
     </resourceParameters>
-    <filterLabels>Forecast,MOS</filterLabels>
     <rscImplementation>MosPlot</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
     <frameSpan>60</frameSpan>
-    <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
+    <timelineGenMethod>USE_CYCLE_TIME_FCST_HOURS</timelineGenMethod>
     <dfltFrameCount>999</dfltFrameCount>
     <dfltTimeRange>25</dfltTimeRange>
     <dfltGeogArea>BasicWX_US</dfltGeogArea>

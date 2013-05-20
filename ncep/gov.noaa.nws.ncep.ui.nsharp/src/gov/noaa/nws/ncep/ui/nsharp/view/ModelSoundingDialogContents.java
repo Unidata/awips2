@@ -38,6 +38,7 @@ import gov.noaa.nws.ncep.viz.common.soundingQuery.NcSoundingQuery;
 
 import java.io.File;
 import java.sql.Timestamp;
+import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -199,7 +200,10 @@ public class ModelSoundingDialogContents {
     	int nameLen= Math.min(6, selectedModel.length());
     	String modelName= selectedModel.substring(0,nameLen);
 		//query using NcSoundingQuery to query
-    	ldDia.startWaitCursor();
+    	DateFormatSymbols dfs= new DateFormatSymbols();
+		String[] defaultDays = dfs.getShortWeekdays();
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		ldDia.startWaitCursor();
     	for(int i=0; i<  selectedFlLst.size(); i++){	
 			String fl = selectedFlLst.get(i);
 			long reftimeMs= NcSoundingQuery.convertRefTimeStr(fl);
@@ -207,13 +211,12 @@ public class ModelSoundingDialogContents {
 			if(timeLines != null && timeLines.getTimeLines().length >0){
 				for(Object obj : timeLines.getTimeLines()){
 					Timestamp rangestart = (Timestamp)obj;
-
 					//need to format rangestart to GMT time string.  Timestamp.toString produce a local time Not GMT time
-					Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 					cal.setTimeInMillis(rangestart.getTime());
 					long vHour = (cal.getTimeInMillis()- reftimeMs)/3600000;
-					String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tH%1$tMV%2$03d %3$s",  cal, vHour,modelName);
-					//String gmtTimeStr = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",  cal);
+					String dayOfWeek = defaultDays[cal.get(Calendar.DAY_OF_WEEK)];
+					//String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tH%1$tMV%2$03d %3$s",  cal, vHour,modelName);
+					String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tH(%4$s)V%2$03d %3$s",  cal, vHour,modelName,dayOfWeek);
 					if(sndTimeList.indexOf(gmtTimeStr) != -1){
 						// this indicate that gmtTimeStr is already in the sndTimeList, then we dont need to add it to list again.
 						continue;
@@ -268,7 +271,7 @@ public class ModelSoundingDialogContents {
 					if(rtnSndLst != null &&  rtnSndLst.size() > 4)
     				{ //after organized, if size is still good
     					if(!stnQuery){
-    						soundingLysLstMap.put(lat+";"+lon+" "+timeLine, rtnSndLst);
+    						soundingLysLstMap.put(lat+"/"+lon+" "+timeLine, rtnSndLst);
     						//System.out.println(lat+";"+lon+" "+timeLine);
     					}
     					else{
@@ -423,7 +426,7 @@ public class ModelSoundingDialogContents {
 		availableFileGp.setText("Available Grid files:");
 		availableFileGp.setFont(newFont);
 		availableFileList = new org.eclipse.swt.widgets.List(availableFileGp, SWT.BORDER  | SWT.MULTI| SWT.V_SCROLL  );
-		availableFileList.setBounds(availableFileGp.getBounds().x, availableFileGp.getBounds().y + NsharpConstants.labelGap , NsharpConstants.filelistWidth, NsharpConstants.listHeight*32/5 );
+		availableFileList.setBounds(availableFileGp.getBounds().x, availableFileGp.getBounds().y + NsharpConstants.labelGap , NsharpConstants.filelistWidth, NsharpConstants.listHeight);//*32/5 );
 		availableFileList.setFont(newFont);
 		//create a selection listener to handle user's selection on list		
 		availableFileList.addListener ( SWT.Selection, new Listener () {
@@ -439,7 +442,7 @@ public class ModelSoundingDialogContents {
 		sndTimeList = new org.eclipse.swt.widgets.List(sndTimeListGp, SWT.BORDER  | SWT.MULTI| SWT.V_SCROLL  );
 		sndTimeList.removeAll();
 		sndTimeList.setFont(newFont);
-		sndTimeList.setBounds(sndTimeListGp.getBounds().x, sndTimeListGp.getBounds().y + NsharpConstants.labelGap, NsharpConstants.listWidth, NsharpConstants.listHeight *32/5);
+		sndTimeList.setBounds(sndTimeListGp.getBounds().x, sndTimeListGp.getBounds().y + NsharpConstants.labelGap, NsharpConstants.listWidth, NsharpConstants.listHeight );//*32/5);
 		sndTimeList.addListener ( SWT.Selection, new Listener () {
 			public void handleEvent (Event e) {   			
 				handleSndTimeSelection();

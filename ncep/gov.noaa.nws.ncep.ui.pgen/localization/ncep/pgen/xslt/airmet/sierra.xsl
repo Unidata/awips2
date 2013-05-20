@@ -163,7 +163,7 @@
 		</xsl:variable>
 		<xsl:value-of select="$temp"/>
 	</xsl:template>
-	
+
 	<xsl:template name="GetOutlookEndTimeS">
 		<xsl:variable name="temp">
 			<xsl:for-each select="//Gfa[(@hazard='IFR' or @hazard='MT_OBSC') and contains(@fcstHr,'-')][last()]">

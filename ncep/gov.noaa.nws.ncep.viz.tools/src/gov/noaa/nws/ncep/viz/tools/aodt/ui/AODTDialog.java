@@ -1,11 +1,13 @@
 package gov.noaa.nws.ncep.viz.tools.aodt.ui;
 
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.rsc.satellite.rsc.ICloudHeightCapable;
 import gov.noaa.nws.ncep.viz.tools.aodt.natives.AODTv64Native;
 import gov.noaa.nws.ncep.viz.tools.cursor.NCCursors;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -43,9 +45,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -62,6 +66,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 										3.Changed to retrieve IR data only when user click Run AODT button
  * 07/02/12					S. Jacobs & 1.Fixed AODT Lat/Lon text input issue		
  * 							J. Bartlett 2.Monospace font for the AODT output 				
+ * 02/11/13      972        G. Hull     AbstractEditor instead of NCMapEditor
+ *
  * </pre>
  * 
  * @author 
@@ -112,12 +118,12 @@ public class AODTDialog extends Dialog {
 	private boolean isIRImageLoaded = false;
 	private boolean isIRImageRetrieved = false;
 	private ICloudHeightCapable satRsc = null;   
-	private  NCMapEditor mapEditor = null;
+	private  AbstractEditor mapEditor = null;
 	private UnitConverter tempUnitsConverter = null;
 	
 	private void getSatRsc(){
 		if(mapEditor!=null){
-			ResourceList rscs = mapEditor.getDescriptor().getResourceList();
+			ResourceList rscs = NcEditorUtil.getDescriptor(mapEditor).getResourceList();
 
 			for( ResourcePair r : rscs ) {
 				if( r.getResource() instanceof ICloudHeightCapable &&
@@ -140,8 +146,11 @@ public class AODTDialog extends Dialog {
 	public AODTDialog(Shell parent, String title ) {
         super(parent);
         dlgTitle = title;
-        mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();
-        getSatRsc();
+        mapEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
+        
+        if( NcEditorUtil.getNcDisplayType( mapEditor ) == NcDisplayType.NMAP_DISPLAY ) {        	
+        	getSatRsc();
+        }
     }
   
     public Object open() {
@@ -319,11 +328,13 @@ public class AODTDialog extends Dialog {
     	// Retrieve raw data from centerLat and centerLon
     	centerLat = Float.valueOf(lat_txt.getText().trim()).floatValue();
     	centerLon = Float.valueOf(lon_txt.getText().trim()).floatValue();
-		double[] p1 = mapEditor.getDescriptor().worldToPixel(new double[] { centerLon, centerLat });
+    	IDescriptor descr = NcEditorUtil.getDescriptor( mapEditor );
+    	
+		double[] p1 = descr.worldToPixel(new double[] { centerLon, centerLat });
 		int rad = NUMX / 2;
 		for (int i = -rad; i <= rad; i++ ) {
 			for ( int j = -rad; j <= rad; j++) {
-				double[] ll = mapEditor.getDescriptor().pixelToWorld
+				double[] ll = descr.pixelToWorld
 					(new double[] {p1[0]+i, p1[1]+j});
 				int indx = (i+rad) * NUMX + (j+rad);
 				lats[indx] = (float) ll[1];
@@ -387,7 +398,7 @@ public class AODTDialog extends Dialog {
     	    AODTResult.setFont(font);
     		AODTResult.setText(output);
     	}
-    	
+     	
     	if (verifyHistoryFile()) {
     		setHistoryFileCombo();
     	}
