@@ -249,7 +249,7 @@ public class GfaRules {
 			assignSSForecastTime( originalSS );
 			
 			assignIssueTime( smear );
-
+			
 			/*
 			 * Assign "airmetTag".
 			 */
@@ -273,7 +273,7 @@ public class GfaRules {
 			if("MAYBE".equals( wording.genOlk ) ) {
 				wording.genOlk = processMAYBE( smear, originalSS );
 			}
-
+            
 			/*
 			 * Outlooks should be removed if "genOlk" is "NO".
 			 */
@@ -309,7 +309,7 @@ public class GfaRules {
 		}
 		
 		// Return valid Gfa - those with at least one state in it and outlooks with GenOlk is "YES"
-		clipped.clear();
+		clipped.clear();		
 		if ( invalidOtlk.size() > 0  ) checkStates.removeAll( invalidOtlk );	    
 		clipped.addAll( checkStates );
 	}
@@ -931,7 +931,7 @@ public class GfaRules {
 				// the formula from tt 8.106 takes precedence over the earlier one 
 				// 
 				// ratio = (Outlook Area - Intersect Area)/ State Area
-				// 
+				//
 				//  June, 2012 - adjust algorithm to find the ratio due to high-resolution state bounds.
 				//
 				//  Prevoius - Intersection Area = (A^S) ^ (O^S)
@@ -951,10 +951,10 @@ public class GfaRules {
 				
 				double ratio = 0.0;
 				if ( (oArea - iArea) > 0.0 ) {
-				double sArea = PgenUtil.getSphPolyArea(stateP);
+				     double sArea = PgenUtil.getSphPolyArea(stateP);
 				     ratio = (oArea - iArea)/sArea;
 				}
-				
+
 				if (ratio >= gfaOtlkgenRatio) return "YES";
 				
 			} else {

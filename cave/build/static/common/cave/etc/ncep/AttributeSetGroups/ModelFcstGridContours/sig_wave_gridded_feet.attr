@@ -21,7 +21,7 @@ HILO   =    0
 HLSYM  =   0
 !CLRBAR =  1
 WIND   =    17/.8/1.8/112
-TITLE  =   5/-1/~ GRIDDED SIG WAVE HEIGHT (ft) and NWW3 10m WIND   =S!0
+TITLE  =   5/-1/~ GRIDDED SIG WAVE HEIGHT (ft) and NWW3 10m WIND!0
 COLORS =  1
 MARKER =  0
 GRDLBL =                                                                         

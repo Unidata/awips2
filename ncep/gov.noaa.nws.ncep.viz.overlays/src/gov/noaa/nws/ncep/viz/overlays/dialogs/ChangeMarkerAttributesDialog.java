@@ -34,6 +34,8 @@ import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
+import com.raytheon.viz.ui.editor.AbstractEditor;
+
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorMatrixSelector;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
@@ -44,7 +46,9 @@ import gov.noaa.nws.ncep.viz.overlays.IPointOverlayResourceData.MarkerType;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.attributes.AbstractEditResourceAttrsDialog;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet.RscAttrValue;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 /**
  * Provides an interface to modify the point overlay parameters
@@ -379,8 +383,9 @@ public class ChangeMarkerAttributesDialog extends AbstractEditResourceAttrsDialo
 	    selectMarkerTxtAppZoomLvlSliderText.setText(markerTextAppearZoomLevel.getAttrValue().toString());
 	   	
 	    applyCurZoomLvlBtn.addSelectionListener( new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {		
-				float currentZoomLvl = (float) NmapUiUtils.getActiveNatlCntrsEditor().getSelectedPane().getZoomLevel() * 10;
+			public void widgetSelected(SelectionEvent e) {
+				AbstractEditor activeEd = NcDisplayMngr.getActiveNatlCntrsEditor();
+				float currentZoomLvl = (float)NcEditorUtil.getSelectedPanes(activeEd)[0].getZoomLevel() * 10;
 				currentZoomLvl = Math.round(currentZoomLvl * 100.0f) / 100.0f;
 				markerTextAppearZoomLevel.setAttrValue( (Float) (currentZoomLvl) );
 	        	selectMarkerTxtAppZoomLvlSliderText.setText(markerTextAppearZoomLevel.getAttrValue().toString());

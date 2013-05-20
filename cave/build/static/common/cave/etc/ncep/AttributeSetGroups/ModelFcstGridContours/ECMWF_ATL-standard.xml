@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType">
+    <resource>ECMWF_ATL</resource>
+    <attrSetGroupName>standard</attrSetGroupName>
+    <attrSetNames>850mb_tmp,500mb_hght</attrSetNames>
+</AttributeSetGroup>

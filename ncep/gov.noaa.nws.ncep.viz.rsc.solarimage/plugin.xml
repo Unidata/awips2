@@ -1,6 +1,106 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
-<plugin>
+<plugin> 
+   <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-Resource">
+      <nc-resource
+            class="gov.noaa.nws.ncep.viz.rsc.solarimage.rsc.SolarImageResourceData"
+            editDialogClass="gov.noaa.nws.ncep.viz.rsc.solarimage.rsc.EditSolarImageAttrsDialog"
+            name="SolarImage">
+      </nc-resource>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.core.resource">
+      <resource
+            class="gov.noaa.nws.ncep.viz.rsc.solarimage.rsc.SolarImageResource"
+            recordClass="gov.noaa.nws.ncep.common.dataplugin.solarimage.SolarImageRecord"
+            name="SolarImageResource"
+            renderingOrderId="PLOT" 
+            resourceType="PLAN_VIEW"/>
+   </extension>
+   
+   <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+ 
+      <nc-resourceParameter
+            paramClass="gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap"
+            paramName="colorBar"
+            paramType="EDITABLE_ATTRIBUTE"
+            paramRefLocation="ncep/ColorBars/Solar"
+            ncResourceName="SolarImage">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="colorMapName"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="SolarImage">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Float"
+            paramName="alpha"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="1.0"
+            ncResourceName="SolarImage">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Float"
+            paramName="brightness"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="1.0"
+            ncResourceName="SolarImage">
+      </nc-resourceParameter>      
+      <nc-resourceParameter
+            paramClass="Float"
+            paramName="contrast"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="1.0"
+            ncResourceName="SolarImage">
+      </nc-resourceParameter>
+     
+      <nc-resourceParameter
+            paramName="satellite"
+            ncResourceName="SolarImage"
+            paramClass="String"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramName="instrument"
+            ncResourceName="SolarImage"
+            paramClass="String"
+            defaultValue="%"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      <!-- since this is given in the attribute sets it must have a default 
+           value given so that the code can 'validate' a rsc defn up front (ie w/o an attr set)
+        -->
+      <nc-resourceParameter
+            ncResourceName="SolarImage"
+            paramClass="String"
+            paramName="wavelength"
+            defaultValue="NA"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="SolarImage"
+            paramClass="Double"
+            paramName="intTime"
+            defaultValue="0.0"           
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            ncResourceName="SolarImage"
+            paramClass="String"
+            paramName="site"
+            defaultValue="NA"           
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>     
+      <nc-resourceParameter
+            ncResourceName="SolarImage"
+            paramClass="String"
+            paramName="reportType"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>      
+   </extension>
    
    <extension
       point="com.raytheon.viz.ui.contextualMenu">
@@ -8,9 +108,10 @@
             actionClass="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.EnableDisableSamplingAction"
             capabilityInterface="gov.noaa.nws.ncep.viz.rsc.solarimage.rsc.SolarImageResource"
             name="Sample"
-            sortID="1">
+            sortID="14">
       </contextualMenu>
    </extension> 
+   
    <extension
       point="com.raytheon.viz.ui.contextualMenu">
       <contextualMenu
@@ -18,766 +119,27 @@
             capabilityInterface="gov.noaa.nws.ncep.viz.rsc.solarimage.rsc.SolarImageResource"
             capabilityClass="gov.noaa.nws.ncep.viz.rsc.solarimage.rsc.SolarImageResource"
             name="StonyLatLon"            
-            sortID="1">
+            sortID="15">
       </contextualMenu>     
    </extension>
-    <extension
+   <extension
       point="com.raytheon.viz.ui.contextualMenu">
       <contextualMenu
             actionClass="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.CarrLatLonAction"
             capabilityInterface="gov.noaa.nws.ncep.viz.rsc.solarimage.rsc.SolarImageResource"
             capabilityClass="gov.noaa.nws.ncep.viz.rsc.solarimage.rsc.SolarImageResource"
             name="CarrLatLon"            
-            sortID="1">
+            sortID="16">
       </contextualMenu>
-      
-   </extension>
-   <extension
-      point="org.eclipse.ui.menus">
-      <menuContribution
-         locationURI="menu:org.eclipse.ui.main.menu?after=NCTools">
-         <menu
-               id="SWPC"
-               label="SWPC"
-               mnemonic="S">
-               <visibleWhen>
-                  <reference
-                      definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
-                  </reference>
-               </visibleWhen>
-               <menu
-                  id="GOES-SXI"
-                  label="GOES-15 SXI" >
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadGoesImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.GoesSXI"
-                     label="GOES SXI BE12A 1.0s"
-                     style="push"
-                     tooltip="Load GOES SXI BE12A Images">
-                     <parameter
-                       name="wavelength"
-                       value="BE12A">
-                     </parameter>
-                     <parameter
-                       name="inttime"
-                       value="0.99--1.01">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadGoesImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.GoesSXI"
-                     label="GOES SXI BE12A 0.05s"
-                     style="push"
-                     tooltip="Load GOES SXI BE12A Images">
-                     <parameter
-                       name="wavelength"
-                       value="BE12A">
-                     </parameter>
-                     <parameter
-                       name="inttime"
-                       value="0.04--0.06">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadGoesImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.GoesSXI"
-                     label="GOES SXI PTHK 0.4s"
-                     style="push"
-                     tooltip="Load GOES PTHK Images">
-                     <parameter
-                       name="wavelength"
-                       value="PTHK">
-                     </parameter>
-                     <parameter
-                       name="inttime"
-                       value="0.39--0.41">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadGoesImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.GoesSXI"
-                     label="GOES SXI PTHK 0.05s"
-                     style="push"
-                     tooltip="Load GOES PTHK Images">
-                     <parameter
-                       name="wavelength"
-                       value="PTHK">
-                     </parameter>
-                     <parameter
-                       name="inttime"
-                       value="0.04--0.06">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadGoesImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.GoesSXI"
-                     label="GOES SXI PTHNA 0.4s"
-                     style="push"
-                     tooltip="Load GOES PTHNA Images">
-                     <parameter
-                       name="wavelength"
-                       value="PTHNA">
-                     </parameter>
-                     <parameter
-                       name="inttime"
-                       value="0.39--0.41">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadGoesImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.GoesSXI"
-                     label="GOES SXI PTHNA 0.026s"
-                     style="push"
-                     tooltip="Load GOES PTHNA Images">
-                     <parameter
-                       name="wavelength"
-                       value="PTHNA">
-                     </parameter>
-                     <parameter
-                       name="inttime"
-                       value="0.02--0.03">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadGoesImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.GoesSXI"
-                     label="GOES-15 SXI TM 2.6s"
-                     style="push"
-                     tooltip="Load GOES TM Images">
-                     <parameter
-                       name="wavelength"
-                       value="TM">
-                     </parameter>
-                     <parameter
-                       name="inttime"
-                       value="2.59--2.61">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadGoesImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.GoesSXI"
-                     label="GOES-15 SXI TM 0.5s"
-                     style="push"
-                     tooltip="Load GOES TM Images">
-                     <parameter
-                       name="wavelength"
-                       value="TM">
-                     </parameter>
-                     <parameter
-                       name="inttime"
-                       value="0.49--0.51">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadGoesImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.GoesSXI"
-                     label="GOES-15 SXI TM 0.026s"
-                     style="push"
-                     tooltip="Load GOES TM Images">
-                     <parameter
-                       name="wavelength"
-                       value="TM">
-                     </parameter>
-                     <parameter
-                       name="inttime"
-                       value="0.02--0.03">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadGoesImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.GoesSXI"
-                     label="GOES-15 SXI Multipane"
-                     style="push"
-                     tooltip="Load GOES Images">
-                     <parameter
-                       name="wavelength"
-                       value="BE12A|PTHK|PTHNA|TM">
-                     </parameter>
-                     <parameter
-                       name="inttime"
-                       value="0.99--1.01|0.39--0.41|0.39--0.41|0.49--0.51">
-                     </parameter>
-                  </command>
-               </menu>
-               <menu
-                  id="SDO AIA"
-                  label="SDO AIA Images" >
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSDOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SDO"
-                     label="SDO AIA 94"
-                     style="push"
-                     tooltip="Load SDO AIA 94 Images">
-                     <parameter
-                       name="instrument"
-                       value="AIA-4">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="94">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSDOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SDO"
-                     label="SDO AIA 131"
-                     style="push"
-                     tooltip="Load SDO AIA 131 Images">
-                     <parameter
-                       name="instrument"
-                       value="AIA-1">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="131">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSDOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SDO"
-                     label="SDO AIA 171"
-                     style="push"
-                     tooltip="Load SDO AIA 171 Images">
-                     <parameter
-                       name="instrument"
-                       value="AIA-3">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="171">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSDOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SDO"
-                     label="SDO AIA 193"
-                     style="push"
-                     tooltip="Load SDO AIA 193 Images">
-                     <parameter
-                       name="instrument"
-                       value="AIA-2">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="193">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSDOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SDO"
-                     label="SDO AIA 211"
-                     style="push"
-                     tooltip="Load SDO AIA 211 Images">
-                     <parameter
-                       name="instrument"
-                       value="AIA-2">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="211">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSDOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SDO"
-                     label="SDO AIA 304"
-                     style="push"
-                     tooltip="Load SDO AIA 304 Images">
-                     <parameter
-                       name="instrument"
-                       value="AIA-4">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="304">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSDOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SDO"
-                     label="SDO AIA 335"
-                     style="push"
-                     tooltip="Load SDO AIA 335 Images">
-                     <parameter
-                       name="instrument"
-                       value="AIA-1">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="335">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSDOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SDO"
-                     label="SDO AIA 1600"
-                     style="push"
-                     tooltip="Load SDO AIA 1600 Images">
-                     <parameter
-                       name="instrument"
-                       value="AIA-3">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="1600">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSDOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SDO"
-                     label="SDO AIA 1700"
-                     style="push"
-                     tooltip="Load SDO AIA 1700 Images">
-                     <parameter
-                       name="instrument"
-                       value="AIA-3">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="1700">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSDOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SDO"
-                     label="SDO AIA 4500"
-                     style="push"
-                     tooltip="Load SDO AIA 4500 Images">
-                     <parameter
-                       name="instrument"
-                       value="AIA-3">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="4500">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSDOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SDO"
-                     label="SDO AIA Multi"
-                     style="push"
-                     tooltip="Load SDO AIA Multi Images">
-                     <parameter
-                       name="instrument"
-                       value="AIA-3">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="Multi">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSDOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SDO"
-                     label="SDO HMI"
-                     style="push"
-                     tooltip="Load SDO HMI Images">
-                     <parameter
-                       name="instrument"
-                       value="HMI-SIDE1">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="NA">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSDOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SDO"
-                     label="SDO Thematic"
-                     style="push"
-                     tooltip="Load SDO AIA Thematic Images">
-                     <parameter
-                       name="instrument"
-                       value="AIA-3">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="THEMATIC">
-                     </parameter>
-                  </command>
-               </menu>
-               <menu
-                  id="SOHO"
-                  label="SOHO Images" >
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSOHOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SOHO"
-                     label="SOHO EIT 171"
-                     style="push"
-                     tooltip="Load SOHO EIT 171 Images">
-                     <parameter
-                       name="instrument"
-                       value="EIT">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="171">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSOHOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SOHO"
-                     label="SOHO EIT 195"
-                     style="push"
-                     tooltip="Load SOHO EIT 195 Images">
-                     <parameter
-                       name="instrument"
-                       value="EIT">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="195">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSOHOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SOHO"
-                     label="SOHO EIT 284"
-                     style="push"
-                     tooltip="Load SOHO EIT 284 Images">
-                     <parameter
-                       name="instrument"
-                       value="EIT">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="284">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSOHOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SOHO"
-                     label="SOHO EIT 304"
-                     style="push"
-                     tooltip="Load SOHO EIT 304 Images">
-                     <parameter
-                       name="instrument"
-                       value="EIT">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="304">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSOHOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SOHO"
-                     label="SOHO LASCO C2"
-                     style="push"
-                     tooltip="Load SOHO LASCO C2 Images">
-                     <parameter
-                       name="instrument"
-                       value="LASCO-C2">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSOHOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SOHO"
-                     label="SOHO LASCO C3"
-                     style="push"
-                     tooltip="Load SOHO LASCO C3 Images">
-                     <parameter
-                       name="instrument"
-                       value="LASCO-C3">
-                     </parameter>
-                  </command>
-               </menu>
-               <menu
-                  id="STEREO A/B"
-                  label="STEREO A/B Images" >
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSTEREOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.STEREO"
-                     label="STEREO EUVI 195"
-                     style="push"
-                     tooltip="Load STEREO EUVI 195 Images">
-                     <parameter
-                       name="instrument"
-                       value="SECCHI-EUVI">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="195">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSTEREOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.STEREO"
-                     label="STEREO COR2"
-                     style="push"
-                     tooltip="Load STEREO COR2 Images">
-                     <parameter
-                       name="instrument"
-                       value="SECCHI-COR2">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="NA">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSTEREOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.STEREO"
-                     label="STEREO HI1"
-                     style="push"
-                     tooltip="Load STEREO HI1 Images">
-                     <parameter
-                       name="instrument"
-                       value="SECCHI-HI1">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="NA">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSTEREOImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.STEREO"
-                     label="STEREO HI2"
-                     style="push"
-                     tooltip="Load STEREO HI2 Images">
-                     <parameter
-                       name="instrument"
-                       value="SECCHI-HI2">
-                     </parameter>
-                     <parameter
-                       name="wavelength"
-                       value="NA">
-                     </parameter>
-                  </command>
-               </menu>
-               <menu
-                  id="H-alpha"
-                  label="H-alpha Images" >
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadHalphaImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.Halpha"
-                     label="NSO/GONG BB"
-                     style="push"
-                     tooltip="Load NSO/GONG H-alpha Images">
-                     <parameter
-                       name="instrument"
-                       value="NA">
-                     </parameter>
-                     <parameter
-                       name="site"
-                       value="BB">
-                     </parameter>
-                  </command>                  
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadHalphaImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.Halpha"
-                     label="NSO/GONG CT"
-                     style="push"
-                     tooltip="Load NSO/GONG H-alpha Images">
-                     <parameter
-                       name="instrument"
-                       value="NA">
-                     </parameter>
-                     <parameter
-                       name="site"
-                       value="CT">
-                     </parameter>
-                  </command>  
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadHalphaImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.Halpha"
-                     label="NSO/GONG LE"
-                     style="push"
-                     tooltip="Load NSO/GONG H-alpha Images">
-                     <parameter
-                       name="instrument"
-                       value="NA">
-                     </parameter>
-                     <parameter
-                       name="site"
-                       value="LE">
-                     </parameter>
-                  </command>         
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadHalphaImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.Halpha"
-                     label="NSO/GONG ML"
-                     style="push"
-                     tooltip="Load NSO/GONG H-alpha Images">
-                     <parameter
-                       name="instrument"
-                       value="NA">
-                     </parameter>
-                     <parameter
-                       name="site"
-                       value="ML">
-                     </parameter>
-                  </command>
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadHalphaImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.Halpha"
-                     label="NSO/GONG TD"
-                     style="push"
-                     tooltip="Load NSO/GONG H-alpha Images">
-                     <parameter
-                       name="instrument"
-                       value="NA">
-                     </parameter>
-                     <parameter
-                       name="site"
-                       value="TD">
-                     </parameter>
-                  </command>  
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadHalphaImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.Halpha"
-                     label="NSO/GONG UD"
-                     style="push"
-                     tooltip="Load NSO/GONG H-alpha Images">
-                     <parameter
-                       name="instrument"
-                       value="NA">
-                     </parameter>
-                     <parameter
-                       name="site"
-                       value="UD">
-                     </parameter>
-                  </command>     
-               </menu>
-           </menu>
-      </menuContribution>
-   </extension>
-
-   <extension
-         point="org.eclipse.ui.commands">
-      <command
-            id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadGoesImage"
-            name="Load GOES SXI">
-         <commandParameter
-               id="wavelength"
-               name="wavelength"
-               optional="false">
-         </commandParameter>
-         <commandParameter
-               id="inttime"
-               name="inttime"
-               optional="false">
-         </commandParameter>
-      </command>
-      <command
-            id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSDOImage"
-            name="Load SDO Images">
-         <commandParameter
-               id="instrument"
-               name="instrument"
-               optional="false">
-         </commandParameter>
-         <commandParameter
-               id="wavelength"
-               name="wavelength"
-               optional="false">
-         </commandParameter>
-      </command>
-      <command
-            id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSOHOImage"
-            name="Load SOHO Images">
-         <commandParameter
-               id="instrument"
-               name="instrument"
-               optional="false">
-         </commandParameter>
-         <commandParameter
-               id="wavelength"
-               name="wavelength"
-               optional="true">
-         </commandParameter>
-      </command>
-      <command
-            id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSTEREOImage"
-            name="Load STEREO Images">
-         <commandParameter
-               id="instrument"
-               name="instrument"
-               optional="false">
-         </commandParameter>
-         <commandParameter
-               id="wavelength"
-               name="wavelength"
-               optional="true">
-         </commandParameter>
-      </command>
-      <command
-            id="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadHalphaImage"
-            name="Load HAlpha Images">
-         <commandParameter
-               id="instrument"
-               name="instrument"
-               optional="false">
-         </commandParameter>
-         <commandParameter
-               id="site"
-               name="site"
-               optional="false">
-         </commandParameter>
-      </command>
-   </extension>
-
-   <extension
-         point="org.eclipse.ui.handlers">
-      <handler
-            class="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SXIImageAction"
-            commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadGoesImage">
-      </handler>
-      <handler
-            class="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SDOImageAction"
-            commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSDOImage">
-      </handler>
-      <handler
-            class="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.SOHOImageAction"
-            commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSOHOImage">
-      </handler>
-      <handler
-            class="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.STEREOImageAction"
-            commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadSTEREOImage">
-      </handler>
-      <handler
-            class="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.HalphaImageAction"
-            commandId="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.loadHalphaImage">
-      </handler>
-   </extension>
-      
-   <extension
-         point="org.eclipse.ui.editors">
-      <editor
-         class="com.raytheon.uf.viz.xy.VizXyEditor"
-         default="true"  
-         id="gov.noaa.nws.ncep.viz.rsc.solarimage.SolarImageEditor"
-         name="Solar Image">
-      </editor>
-   </extension>
-   
-   <extension
-         point="com.raytheon.uf.viz.core.descriptor">
-      <descriptor
-      		name="SolarDescriptor"
-            class="com.raytheon.uf.viz.xy.graph.XyGraphDescriptor"
-            editor="gov.noaa.nws.ncep.viz.rsc.solarimage.SolarImageEditor">
-      </descriptor>
-   </extension>
-   
-   <extension
-         point="com.raytheon.uf.viz.core.resource">
-      <resource
-            class="gov.noaa.nws.ncep.viz.rsc.solarimage.rsc.SolarImageResource"
-            name="SolarImage Resource"
-            renderingOrderId="PLOT" />
-   </extension>
-    
+    </extension>        
     <extension
-         point="org.eclipse.ui.preferencePages">    
-      <page
-            class="gov.noaa.nws.ncep.viz.rsc.solarimage.util.SolarImagePreferences"
-            id="gov.noaa.nws.ncep.viz.rsc.solarimage.util.SolarImagePreferences"
-            name="Solar Image"
-            category="gov.noaa.nws.ncep.viz.common.nceppreferences">
-      </page> 
-   </extension>  
+      point="com.raytheon.viz.ui.contextualMenu">
+      <contextualMenu
+            actionClass="gov.noaa.nws.ncep.viz.rsc.solarimage.actions.CylindricalCedAction"
+            capabilityInterface="gov.noaa.nws.ncep.viz.rsc.solarimage.rsc.SolarImageResource"
+            capabilityClass="gov.noaa.nws.ncep.viz.rsc.solarimage.rsc.SolarImageResource"
+            name="CylindricCedDiplay"            
+            sortID="13">
+      </contextualMenu>
+    </extension>
 </plugin>
