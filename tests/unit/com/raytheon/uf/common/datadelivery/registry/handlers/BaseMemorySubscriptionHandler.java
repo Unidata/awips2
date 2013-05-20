@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.datadelivery.registry.handlers;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,6 +41,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * Oct 17, 2012 0726       djohnson     Initial creation
  * Feb 20, 2013 1543       djohnson     Implement route filtering.
  * May 15, 2013 1040       mpduff       Office Id now a set.
+ * May 28, 2013 1650       djohnson     Add getByNames.
  * 
  * </pre>
  * 
@@ -52,8 +54,6 @@ public class BaseMemorySubscriptionHandler<T extends Subscription> extends
         IBaseSubscriptionHandler<T> {
     /**
      * {@inheritDoc}
-     * 
-     * @throws RegistryHandlerException
      */
     @Override
     public T getByName(String name) throws RegistryHandlerException {
@@ -64,6 +64,22 @@ public class BaseMemorySubscriptionHandler<T extends Subscription> extends
         }
 
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<T> getByNames(Collection<String> names)
+            throws RegistryHandlerException {
+        List<T> retVal = new ArrayList<T>();
+        for (T obj : getAll()) {
+            if (names.contains(obj.getName())) {
+                retVal.add(obj);
+            }
+        }
+
+        return retVal;
     }
 
     /**
