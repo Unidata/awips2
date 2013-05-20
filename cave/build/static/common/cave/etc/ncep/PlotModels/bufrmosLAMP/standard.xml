@@ -14,24 +14,11 @@
         <Color red="0" green="255" blue="255"/>
     </PlotModelElement>
     
-    <!-- 
-    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="SKYC">
-        <Position>SC</Position>
-        <Color red="0" green="255" blue="255"/>
-    </PlotModelElement>
     <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="BRBK">
         <Position>WD</Position>
-        <Color red="0" green="238" blue="238"/>
+        <Color red="0" green="178" blue="238"/>
     </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="GUST">
-        <Position>UR</Position>
-        <Color red="0" green="205" blue="0"/>
-    </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="WSYM">
-        <Position>ML</Position>
-        <Color red="255" green="0" blue="255"/>
-    </PlotModelElement>
-    -->
+    
     <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="STID">
         <Position>LR</Position>
         <Color red="205" green="133" blue="0"/>  

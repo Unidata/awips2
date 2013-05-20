@@ -22,6 +22,7 @@ package gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels;
 
 import gov.noaa.nws.ncep.edex.common.metparameters.AbstractMetParameter;
 import gov.noaa.nws.ncep.edex.common.metparameters.Amount;
+import gov.noaa.nws.ncep.edex.common.metparameters.MetParameterFactory.NotDerivableException;
 import gov.noaa.nws.ncep.edex.common.metparameters.StationLatitude;
 import gov.noaa.nws.ncep.edex.common.metparameters.StationLongitude;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
@@ -45,8 +46,10 @@ import java.net.MalformedURLException;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.quantity.Angle;
@@ -112,7 +115,7 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
  * @version 1.0
  */
 public class PlotModelFactory2 {
-	
+
 	private static final File COURIER_NORMAL_FONT = NcPathManager.getInstance().getStaticFile (NcPathManager.NcPathConstants.FONT_FILES_DIR + "cour.pfa");
     private static final File SERIF_NORMAL_FONT =NcPathManager.getInstance().getStaticFile (NcPathManager.NcPathConstants.FONT_FILES_DIR + "VeraSe.ttf");
     private static final File SERIF_BOLD_FONT = NcPathManager.getInstance().getStaticFile (NcPathManager.NcPathConstants.FONT_FILES_DIR + "l049016t.pfa");
@@ -451,7 +454,7 @@ public class PlotModelFactory2 {
         this.plotModelHeight = this.originalPlotModelHeight;
 //        svgRoot.setAttribute( "width","300");
 //        svgRoot.setAttribute( "height","300");
-
+        
         Element svgPlotSymbol = document.getElementById( SVG_PLOT_SYMBOL_ID );
 //      NodeList nodeList2 = svgPlotSymbol.getChildNodes();
 		
@@ -582,16 +585,16 @@ public class PlotModelFactory2 {
                 }
                 
                 if (pme.getConditionalParameter() == null || "".equals(pme.getConditionalParameter()) ) {
-                
-                String style = domElement.getAttribute("style");
-                String color = "RGB("+pme.getColor().getRed()+"," +
-               							pme.getColor().getGreen()+"," +
-               								pme.getColor().getBlue()+")";
- 
-                String fontFamily = prmDefn.getSymbolFont();
-
-                // TODO : adjust the position of symbol parameters to align them correctly 
-                               
+             	   
+		                String style = domElement.getAttribute("style");
+		                String color = "RGB("+pme.getColor().getRed()+"," +
+		               							pme.getColor().getGreen()+"," +
+		               								pme.getColor().getBlue()+")";
+		             
+		                String fontFamily = prmDefn.getSymbolFont();
+		              
+		                // TODO : adjust the position of symbol parameters to align them correctly 
+		                               
 //		                if( prmDefn.getPlotMode().equals("text" ) ) {         
 //		                	fontFamily = pme.getTextFont() + ("Standard".equals(pme.getTextFont())? "":pme.getTextStyle()) + "Font";
 //		                	
@@ -604,33 +607,33 @@ public class PlotModelFactory2 {
 //		                } 
 //		                else
 		                if( prmDefn.getPlotMode().equals("barb" ) ) {                
-                	style = "fill: none; "+"stroke: "+color                    		
-                			+";font-size:"+pme.getSymbolSize()+"em"
-                				+";stroke-width: 1px"
-                					+";font-family:"+fontFamily+";";
+		                	style = "fill: none; "+"stroke: "+color                    		
+		                			+";font-size:"+pme.getSymbolSize()+"em"
+		                				+";stroke-width: 1px"
+		                					+";font-family:"+fontFamily+";";
 		                	
-                } 
-                else if( prmDefn.getPlotMode().equals("table" ) ){
-                	style = style + "fill: none; "+"stroke: "+color
-                			+";stroke-width: 1px"//+pme.getSymbolSize()+"px"
-                				+";font-size:"+pme.getSymbolSize()+"em"
+		                } 
+		                else if( prmDefn.getPlotMode().equals("table" ) ){
+		                	style = style + "fill: none; "+"stroke: "+color
+		                			+";stroke-width: 1px"//+pme.getSymbolSize()+"px"
+		                				+";font-size:"+pme.getSymbolSize()+"em"
                 					+";font-family:"+fontFamily+";";
 		              
-                }
+		                }
 		                else if( !prmDefn.getPlotMode().equals("text" ) ){
-                	style = style + "stroke: "+color
+		                  	style = style + "stroke: "+color
 		          				+";stroke-width: 1px"
-        				+";font-size:"+pme.getSymbolSize()+"em"
-        					+";font-family:"+fontFamily+";";
-                	System.out.println("prmDefn missing/unrecognized plotMode: " +
-                			prmDefn.getPlotMode() );
-                	continue;
-                } 
-
+		          				+";font-size:"+pme.getSymbolSize()+"em"
+		          					+";font-family:"+fontFamily+";";
+		                  	System.out.println("prmDefn missing/unrecognized plotMode: " +
+		                  			prmDefn.getPlotMode() );
+		                  	continue;
+		                  }  
+		
 		               
 		               domElement.setAttribute("style", style);//"stroke: "+color);
                 }
-
+                
                 PlotElement plotElement = new PlotElement( prmDefn, domElement );
 
                 // MOVED THIS CODE to the constructor of PlotElement
@@ -819,10 +822,6 @@ public class PlotModelFactory2 {
     }
 
     
-    /**
-     * Takes a collection of metParameters and produces a buffered
-     * image.
-     */
     public synchronized BufferedImage getStationPlot( 
     		HashMap<String,AbstractMetParameter> metParams ) {
     	
@@ -879,7 +878,7 @@ public class PlotModelFactory2 {
     			switch ( pltMdlElmt.getDisplayMode() ) {
     			case TEXT:
     				this.processTextDirective(
-    						metParams.get( pltMdlElmt.getMetParamName() ), pltMdlElmt );
+    						metParams.get( pltMdlElmt.getMetParamName() ), pltMdlElmt,null );
     				break;
     				// the WindBarb parameter should be the only case for a 'barb' plotMode,
     				// so we will check for this here.
@@ -943,6 +942,7 @@ public class PlotModelFactory2 {
      * Takes a collection of metParameters and produces a buffered
      * image.
      */
+
     public synchronized BufferedImage getStationPlot( 
     		HashMap<String,AbstractMetParameter> metParams, HashMap<String,AbstractMetParameter> allMetParamsMap) {
     	
@@ -1119,8 +1119,9 @@ public class PlotModelFactory2 {
     					                         " not found in displayParam map" );
     					continue;
     				}
-        			
-        			this.processTextDirective( metParams.get( metParamName ), thisTextPlotElement );
+
+        			        this.processTextDirective( metParams.get( metParamName ), thisTextPlotElement , metParams);
+
         			if (!valid && required) {
         				discard = true;
         			}
@@ -1316,25 +1317,44 @@ public class PlotModelFactory2 {
         
         return null;
     }
-
+    
     // TODO : rm PointDataView when upper air is implemented with the VerticalSounding 
     private void processTextDirective(
     		AbstractMetParameter metParam,
-            PlotElement element) throws VizException {
+            PlotElement element, Map<String,AbstractMetParameter> metParamsMap) throws VizException {
     	
     	if( !metParam.hasValidValue() ) {    		
             //element.domNode.setNodeValue(  ( plotMissingData ? "m" : "" ) ); //T936 - text based plot parameters don't use the domnode now
     		element.formattedStringToPlot = ( plotMissingData ? "m" : "" );
     	}
     	else {
+   			
+			if(metParam.getMetParamName().compareTo("DewPointDepression") == 0 && metParamsMap != null){
+				Collection<AbstractMetParameter> listOfAllDbParams = metParamsMap.values();
+				if(listOfAllDbParams.size() > 0){
+					try {
+						metParam = metParam.derive(listOfAllDbParams);
+	
+					} catch (NotDerivableException e) {
+					         	
+						metParam.setValueToMissing();
+					}
+				}else
+					metParam.setValueToMissing();
+			}
+			else    		
     		// change the units 
     		if( element.getUnit() != metParam.getUnit() ) {
     			metParam.setValue( 
     				metParam.getValueAs( element.getUnit()), element.getUnit() );
+    			
     		}
     		
+			if(!metParam.hasValidValue())
+				return;
+			
     		String formattedPlotString = metParam.getFormattedString(
-    										element.getPlotFormat() );
+    										element.getPlotFormat() ).trim();
     		
     		if( element.getPlotTrim() != 0 ) {
     			formattedPlotString = formattedPlotString.substring( element.getPlotTrim() );
@@ -1342,6 +1362,7 @@ public class PlotModelFactory2 {
 
 //    		element.domNode.setNodeValue( formattedPlotString );//T936 - text-based plot parameters no longer use the domnode
     		element.formattedStringToPlot = new String( formattedPlotString );
+
     	}
 //        String sValue = null;
 ////        String dbParam = element.dbParamName;
@@ -1728,7 +1749,7 @@ public class PlotModelFactory2 {
 //		
 //		return element;
 //	}
-
+    
     private String getConditionalParameterValue(PlotParameterDefn plotPrmDefn, AbstractMetParameter metParam) throws VizException {
     	
     	String formattedPlotString = null;

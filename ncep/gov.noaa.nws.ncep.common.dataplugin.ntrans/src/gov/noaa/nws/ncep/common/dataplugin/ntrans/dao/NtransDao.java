@@ -23,6 +23,8 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
+import com.raytheon.uf.common.datastorage.StorageProperties;
+import com.raytheon.uf.common.datastorage.records.AbstractStorageRecord;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
@@ -37,21 +39,17 @@ public class NtransDao extends PluginDao{
 			IPersistable record) throws StorageException {
 
 		NtransRecord ntransRecord = (NtransRecord) record;
-		int msgLength = (ntransRecord.getConvertedMessage()).length;
-		long nx,ny;
-		System.out.println("@@ came into NtransDao");
+	    AbstractStorageRecord imageDataRecord = null;
 
-		nx = 1;
-		ny = msgLength;
+		/*IDataRecord*/ imageDataRecord = new ByteDataRecord("NTRANS",
+				ntransRecord.getDataURI(),
+				ntransRecord.getImageData());
 
-		long[] sizes = new long[] { nx, ny };
-		IDataRecord storageRecord = new ByteDataRecord("Ntrans", ntransRecord.getDataURI(),
-				(byte[]) ntransRecord.getConvertedMessage(), 2, sizes);
-		System.out.println("@@ came into NtransDao and storageRecord set");
-
-		storageRecord.setCorrelationObject(ntransRecord);
-		dataStore.addDataRecord(storageRecord);
-		System.out.println("@@ NtransDao about to return datastore");
+        StorageProperties props = new StorageProperties();
+       
+        imageDataRecord.setProperties(props);
+        imageDataRecord.setCorrelationObject(ntransRecord);
+		dataStore.addDataRecord(imageDataRecord);
 
 		return dataStore;
 	}

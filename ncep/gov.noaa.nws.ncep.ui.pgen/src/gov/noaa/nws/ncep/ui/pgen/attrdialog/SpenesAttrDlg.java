@@ -41,6 +41,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * ------------	----------	-----------	--------------------------
  * **           **          B. Yin      Initial Creation
  * 05/04        734         J. Zeng     Add calling method to create/edit a spenes
+ * 03/13		#928		B. Yin		Made the button bar smaller.
  * </pre>
  * 
  */
@@ -116,6 +117,9 @@ public class SpenesAttrDlg extends LineAttrDlg {
 	 */
 	@Override
 	public void createButtonsForButtonBar(Composite parent){
+		((GridLayout)parent.getLayout()).verticalSpacing = 0;
+		((GridLayout)parent.getLayout()).marginHeight = 3;
+		
 		createButton(parent, IDialogConstants.OK_ID, "Apply", true);
 		createButton(parent, CREATE_ID, "Create", true);
 		createButton(parent, EDIT_ID, "Edit", true);
@@ -125,6 +129,11 @@ public class SpenesAttrDlg extends LineAttrDlg {
 		getButton(IDialogConstants.CANCEL_ID).setEnabled(false);
 		getButton(CREATE_ID).setEnabled(true); 
 		getButton(EDIT_ID).setEnabled(true); 
+		
+		this.getButton(IDialogConstants.CANCEL_ID).setLayoutData( new GridData(ctrlBtnWidth,ctrlBtnHeight));
+  		this.getButton(IDialogConstants.OK_ID).setLayoutData( new GridData(ctrlBtnWidth,ctrlBtnHeight));
+ 		this.getButton(CREATE_ID).setLayoutData( new GridData(ctrlBtnWidth + 10,ctrlBtnHeight));
+  		this.getButton(EDIT_ID).setLayoutData( new GridData(ctrlBtnWidth,ctrlBtnHeight));
 	}
 	
 	@Override
