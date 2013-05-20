@@ -26,6 +26,7 @@ import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import com.raytheon.uf.common.time.DataTime;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 import gov.noaa.nws.ncep.edex.uengine.tasks.atcf.AtcfCyclone;
 import gov.noaa.nws.ncep.edex.uengine.tasks.atcf.AtcfTrack;
 
@@ -65,7 +66,7 @@ import org.eclipse.swt.graphics.RGB;
  * @author archana
  *</pre>
  */
-public class AtcfResource extends AbstractNatlCntrsResource<AtcfResourceData, IMapDescriptor>
+public class AtcfResource extends AbstractNatlCntrsResource<AtcfResourceData, NCMapDescriptor>
 implements INatlCntrsResource{
 
 	private AtcfResourceData atcfResourceDataObj;

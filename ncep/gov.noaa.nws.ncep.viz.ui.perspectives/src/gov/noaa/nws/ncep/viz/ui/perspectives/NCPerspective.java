@@ -45,25 +45,25 @@ public class NCPerspective implements IPerspectiveFactory {
     	long t0 = System.currentTimeMillis();
 
         layout.getEditorArea();
-        long t1 = System.currentTimeMillis();
-		System.out.println("Time to get Editor Area:  " + (t1-t0) + " ms");
+//        long t1 = System.currentTimeMillis();
+//		System.out.println("Time to get Editor Area:  " + (t1-t0) + " ms");
 		
         layout.setFixed(false);
-        long t2 = System.currentTimeMillis();
-		System.out.println("Time to set Fixed:  " + (t2-t1) + " ms");
+//        long t2 = System.currentTimeMillis();
+//		System.out.println("Time to set Fixed:  " + (t2-t1) + " ms");
 				
         layout.addPlaceholder(PgenUtil.VIEW_ID, IPageLayout.LEFT, 0.15f, refId);
-        long t3 = System.currentTimeMillis();
-		System.out.println("Time to add Placeholder:  " + (t3-t2) + " ms");
+//        long t3 = System.currentTimeMillis();
+//		System.out.println("Time to add Placeholder:  " + (t3-t2) + " ms");
 		
         layout.addPlaceholder("gov.noaa.nws.ncep.ui.nsharp", IPageLayout.LEFT, 0.15f, refId);
-        long t4 = System.currentTimeMillis();
-		System.out.println("Time to add Placeholder for NSHARP:  " + (t4-t3) + " ms");
+//        long t4 = System.currentTimeMillis();
+//		System.out.println("Time to add Placeholder for NSHARP:  " + (t4-t3) + " ms");
 		
         layout.addActionSet("gov.noaa.nws.ncep.viz.ui.personalities.NCActionSet");
         long t5 = System.currentTimeMillis();
-		System.out.println("Time to add Action set:  " + (t5-t4) + " ms");
-		
+//		System.out.println("Time to add Action set:  " + (t5-t4) + " ms");
+        System.out.println("Time to Create NCP perspective layout:  " + (t5-t0) + " ms");
     }
 
     /*

@@ -22,11 +22,46 @@ import com.raytheon.uf.viz.core.exception.VizException;
 @XmlAccessorType(XmlAccessType.NONE)
 public class AttrSetGroup {
 	
-	@XmlElement
-    private String resource;
+//	@XmlElement
+//    private String resource;
+//
+//	@XmlElement
+//	private String attrSetGroupName;
+	
+	// This class would be called AttrSetGroupName except that this was the name 
+	// of the old member for just the group name and the set method needs to stay the
+	// same so that the existing jaxb files are still compatible.
+	public static class RscAndGroupName implements Comparable<RscAndGroupName> {
+	    private String resource;
+		private String groupName;
+		
+		public RscAndGroupName( ) {
+			this( "","");
+		}
+		public RscAndGroupName( String r, String g ) {
+			resource = r;
+			groupName = g;
+		}
+		public String getResource() {
+			return resource;
+		}
+		public String getGroupName() {
+			return groupName;
+		}
+		public Boolean isPGEN() {
+			return getGroupName().equals("PGEN");
+		}
+		@Override
+		public String toString() {
+			return (isPGEN() ? "PGEN" : resource+"-"+groupName );
+		}
+		@Override
+		public int compareTo(RscAndGroupName o) {		
+			return toString().compareTo( o.toString() );
+		}		
+	}
 
-	@XmlElement
-	private String attrSetGroupName;
+	private RscAndGroupName rscAndGroupName;
 	
 	@XmlElement
 	@XmlJavaTypeAdapter(StringListAdapter.class)
@@ -38,15 +73,18 @@ public class AttrSetGroup {
 
 	public AttrSetGroup() {
 		attrSetNames = new ArrayList<String>();
-		resource = "";
-		attrSetGroupName = "";
+		rscAndGroupName = new RscAndGroupName();
+		
+//		resource = "";
+//		attrSetGroupName = "";
 		isModified = false;
 	}
 		
 	public AttrSetGroup( AttrSetGroup asg ) {
 		attrSetNames = new ArrayList<String>( asg.getAttrSetNames() );
-		resource = asg.getResource();
-		attrSetGroupName = asg.getAttrSetGroupName();
+		rscAndGroupName = new RscAndGroupName( asg.getResource(), asg.getAttrSetGroupName() );
+//		resource = asg.getResource();
+//		attrSetGroupName = asg.getAttrSetGroupName();
 		isModified = false;
 	}
 	
@@ -55,19 +93,27 @@ public class AttrSetGroup {
 	}
 	
 	public String getResource() {
-		return resource;
+		return rscAndGroupName.getResource();
 	}
 
+	@XmlElement
 	public void setResource(String resource) {
-		this.resource = resource;
+		rscAndGroupName = new RscAndGroupName( resource, rscAndGroupName.getGroupName() );
 	}
 
+	public RscAndGroupName getRscAndGroupName() {
+		return rscAndGroupName;
+	}
+	
 	public String getAttrSetGroupName() {
-		return attrSetGroupName;
+		return rscAndGroupName.getGroupName();
+//		return attrSetGroupName;
 	}
 
-	public void setAttrSetGroupName(String attrSetGroupName) {
-		this.attrSetGroupName = attrSetGroupName;
+	@XmlElement
+	public void setAttrSetGroupName(String group ) {
+		rscAndGroupName = new RscAndGroupName( rscAndGroupName.getResource(), group );
+//		this.attrSetGroupName = attrSetGroupName;
 	}
 
 	public List<String> getAttrSetNames() {
@@ -107,12 +153,4 @@ public class AttrSetGroup {
 		this.lclFile = lclFile;
 	}
 
-	public String getMapKey( ) {
-		if( resource.equals("PGEN") ) {
-			return "PGEN";
-		}
-		else {
-			return resource+File.separator+attrSetGroupName;
-		}
-	}
 }

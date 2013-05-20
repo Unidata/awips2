@@ -45,17 +45,22 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 import gov.noaa.nws.ncep.ui.nctextui.dbutil.NctextStationInfo;
 import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
 import gov.noaa.nws.ncep.ui.pgen.elements.SymbolLocationSet;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
-import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
+import gov.noaa.nws.ncep.viz.resources.manager.AbstractRBD;
+import gov.noaa.nws.ncep.viz.resources.manager.NcMapRBD;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceBndlLoader;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NatlCntrsEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 import gov.noaa.nws.ncep.ui.nctextui.palette.NctextuiPaletteWindow;
 
 public class NctextuiResource  extends AbstractVizResource<NctextuiResourceData,MapDescriptor> {
@@ -65,7 +70,7 @@ public class NctextuiResource  extends AbstractVizResource<NctextuiResourceData,
 	/** The set of symbols with similar attributes across many locations */
     private SymbolLocationSet symbolSet = null;
     private SymbolLocationSet pickedSymbolSet = null;
-    private static NCMapEditor mapEditor=null;
+    private static NatlCntrsEditor mapEditor=null;
 //    private static int mapEditorNum=0;
     private static  NctextuiMouseHandler mouseHandler;
     
@@ -74,7 +79,7 @@ public class NctextuiResource  extends AbstractVizResource<NctextuiResourceData,
 			createMapEditor();
 		return mapEditor;
 	}*/
-    public static NCMapEditor getMapEditor() {
+    public static NatlCntrsEditor getMapEditor() {
     	
 		return mapEditor;
 	}
@@ -110,16 +115,22 @@ public class NctextuiResource  extends AbstractVizResource<NctextuiResourceData,
 			return;
 		
 		try {
-			IEditorPart ep = EditorUtil.getActiveEditor();
-			if ( ep instanceof NCMapEditor ) {
-				mapEditor= (NCMapEditor) ep;
+			
+			// TODO: what if the active editor is not a Map Editor ?
+			// should we find one, create one or prompt
+			//
+			AbstractEditor ed = NcDisplayMngr.getActiveNatlCntrsEditor();
+			
+	        if( NcEditorUtil.getNcDisplayType( ed ) == NcDisplayType.NMAP_DISPLAY ) {        	
+				mapEditor= (NatlCntrsEditor)ed;
 			}
 			else {
-				mapEditor = NmapUiUtils.createNatlCntrsEditor("BasicWX-US","NCTEXT" );
+				mapEditor = (NatlCntrsEditor)NcDisplayMngr.createNatlCntrsEditor(
+						 NcDisplayType.NMAP_DISPLAY, "Select NCTEXT Data" );
 
-				RbdBundle rbd = RbdBundle.getDefaultRBD();
-				ResourceBndlLoader rbdLoader = new ResourceBndlLoader("DefaultMap");
-				rbdLoader.addRBD( rbd, mapEditor );
+	// get this to set the editor to 'NCTEXT'
+				ResourceBndlLoader rbdLoader = new ResourceBndlLoader("NCTEXT");
+				rbdLoader.addDefaultRBD( NcDisplayType.NMAP_DISPLAY, mapEditor );
 				VizApp.runSync( rbdLoader );
 			}
 			//register mouse handler
@@ -136,10 +147,13 @@ public class NctextuiResource  extends AbstractVizResource<NctextuiResourceData,
      * Create a new resource and add it to the current editor.
      * @return the Resource
      */
-    private static NctextuiResource createNewResource(NCMapEditor mapEditor) {
+    private static NctextuiResource createNewResource( NatlCntrsEditor mapEditor) {
     	if(mapEditor != null){
+    		// TODO : can't assume this is a MapDescriptor
+    		
+    		
     		IMapDescriptor desc = (IMapDescriptor) mapEditor.getActiveDisplayPane().getRenderableDisplay().getDescriptor();
-    		nctextuiResource = new NctextuiResource(new NctextuiResourceData(),new LoadProperties());
+    		nctextuiResource = new NctextuiResource(new NctextuiResourceData(), new LoadProperties());
     		desc.getResourceList().add( nctextuiResource );
     		try {
     			nctextuiResource.init( mapEditor.getActiveDisplayPane().getTarget());
@@ -247,7 +261,7 @@ public class NctextuiResource  extends AbstractVizResource<NctextuiResourceData,
 			wpage.hideView(vpart);
 		}
         
-        NmapUiUtils.setPanningMode();
+        NcDisplayMngr.setPanningMode();
 	}
     
 	private void reopenTextView () {
@@ -285,16 +299,6 @@ public class NctextuiResource  extends AbstractVizResource<NctextuiResourceData,
 	public String getName() {
 
 		return "NCText";
-
-	}
-
-
-	/* (non-Javadoc)
-	 * @see com.raytheon.viz.core.rsc.IVizResource#getShortName()
-	 */
-	public String getShortName() {	
-
-		return null;
 
 	}
 

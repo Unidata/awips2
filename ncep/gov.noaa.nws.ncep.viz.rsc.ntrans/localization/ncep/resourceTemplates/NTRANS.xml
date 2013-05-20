@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resourceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <resource>
+    <loadProperties loadWithoutData="true"></loadProperties>
+    <properties isSystemResource="false"
+        isBlinking="false" isMapLayer="false" isHoverOn="false"
+        isVisible="true" />
+    <resourceData xsi:type="NC-NtransResourceData"
+      isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+      <frameSpan>${frameSpan}</frameSpan>
+      <dfltNumFrames>${dfltNumFrames}</dfltNumFrames>
+      <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
+      <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>
+      <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
+      <!-- requestStyle>METADATA</requestStyle> -->
+      <metadataMap>
+        <mapping key="pluginName">
+          <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
+        </mapping>
+        <mapping key="modelName">
+          <constraint constraintValue="${modelName}" constraintType="EQUALS" />
+        </mapping>
+        <mapping key="metafileName">
+          <constraint constraintValue="${metafileName}" constraintType="EQUALS" />
+        </mapping>
+        <mapping key="productName">
+          <constraint constraintValue="${productName}" constraintType="EQUALS" />
+        </mapping>
+      </metadataMap>
+    </resourceData>
+  </resource>
+</resourceGroup>

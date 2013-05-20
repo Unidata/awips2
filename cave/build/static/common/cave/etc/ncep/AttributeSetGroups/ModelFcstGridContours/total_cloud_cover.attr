@@ -1,0 +1,23 @@
+!
+! Restore File :total_cloud_cover
+!
+! Log:
+!
+GLEVEL=0
+GVCORD=NONE
+SKIP=
+FILTER=y
+SCALE=0
+GDPFUN=TCC
+TYPE=c
+CINT=10
+LINE=6
+FINT=50;60;70;80;90
+FLINE=0;29;28;27;26;0
+HILO=
+HLSYM=
+WIND=18/1/1
+TITLE=1/-1/~ Total Cloud Cover
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       
