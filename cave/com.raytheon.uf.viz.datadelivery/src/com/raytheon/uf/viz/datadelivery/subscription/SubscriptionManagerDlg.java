@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -61,6 +62,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.datadelivery.actions.DataBrowserAction;
 import com.raytheon.uf.viz.datadelivery.common.ui.IGroupAction;
 import com.raytheon.uf.viz.datadelivery.common.ui.ITableChange;
@@ -116,7 +118,8 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  *                                    remove race condition of GUI thread updating the table after notification.
  * Jan 22, 2013 1520       mpduff     Removed menu accelerators.
  * Mar 29, 2013 1841       djohnson   Subscription implementations now provide a copy method.
- * May 29, 2013 2000       djohnson   Copy subscription now requires editing first to prevent duplicates, and remove duplicate code.
+ * May 09, 2013 2000       djohnson   Copy subscription now requires editing first to prevent duplicates, and remove duplicate code.
+ * May 17, 2013 1040       mpduff     Change office id to list for shared subscription.
  * </pre>
  * 
  * @author mpduff
@@ -167,6 +170,10 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
             return fullSet;
         }
     }
+
+    /** Current site */
+    private final String CURRENT_SITE = LocalizationManager.getInstance()
+            .getCurrentSite();
 
     /** The activate button */
     private Button activateBtn;
@@ -947,20 +954,27 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
 
                 SubscriptionManagerRowData rowData = tableComp
                         .getSubscriptionData().getDataRow(i);
-                String office = rowData.getOfficeId();
-                officeDisplayItems.add(office);
-
+                Set<String> office = rowData.getOfficeIds();
+                officeDisplayItems.addAll(office);
             }
         }
 
         officeNames = officeDisplayItems.toArray(new String[officeDisplayItems
                 .size()]);
         String[] officeAll = new String[officeNames.length + 1];
+
         officeAll[0] = "ALL";
 
         System.arraycopy(officeNames, 0, officeAll, 1, officeNames.length);
+        int idx = 0;
+        for (String site : officeAll) {
+            if (site.equalsIgnoreCase(CURRENT_SITE)) {
+                break;
+            }
+            idx++;
+        }
         officeCbo.setItems(officeAll);
-        officeCbo.select(0);
+        officeCbo.select(idx);
 
     }
 
@@ -1106,5 +1120,14 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
     @Override
     public void tableLock(boolean isLocked) {
         // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateControls() {
+        loadGroupNames();
+        loadOfficeNames();
     }
 }

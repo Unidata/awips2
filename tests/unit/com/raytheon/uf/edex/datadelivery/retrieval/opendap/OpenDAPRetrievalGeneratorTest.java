@@ -30,7 +30,7 @@ import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaDataFixture;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
-import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.registry.RegistryManagerTest;
 
 /**
@@ -61,7 +61,7 @@ public class OpenDAPRetrievalGeneratorTest {
         Time time = new Time();
         time.setCycleTimes(Arrays.asList(0, 12));
 
-        UserSubscription subscription = new UserSubscription();
+        SiteSubscription subscription = new SiteSubscription();
         subscription.setTime(time);
         
         GriddedDataSetMetaData metaData = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
@@ -77,7 +77,7 @@ public class OpenDAPRetrievalGeneratorTest {
         Time time = new Time();
         time.setCycleTimes(Arrays.asList(0, 12));
 
-        UserSubscription subscription = new UserSubscription();
+        SiteSubscription subscription = new SiteSubscription();
         subscription.setTime(time);
 
         GriddedDataSetMetaData metaData = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
@@ -93,7 +93,7 @@ public class OpenDAPRetrievalGeneratorTest {
         Time time = new Time();
         time.setCycleTimes(Arrays.asList(0, 12));
 
-        Subscription subscription = new UserSubscription();
+        Subscription subscription = new SiteSubscription();
         subscription.setTime(time);
 
         GriddedDataSetMetaData metaData = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
@@ -110,7 +110,7 @@ public class OpenDAPRetrievalGeneratorTest {
         time.setCycleTimes(Arrays
                 .<Integer> asList(GriddedDataSetMetaData.NO_CYCLE));
 
-        Subscription subscription = new UserSubscription();
+        Subscription subscription = new SiteSubscription();
         subscription.setTime(time);
 
         GriddedDataSetMetaData metaData = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
