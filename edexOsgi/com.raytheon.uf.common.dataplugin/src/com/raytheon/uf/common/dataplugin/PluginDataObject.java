@@ -20,10 +20,7 @@
 
 package com.raytheon.uf.common.dataplugin;
 
-import java.lang.reflect.Field;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -40,7 +37,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -52,9 +48,10 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.common.util.ConvertUtil;
 
 /**
  * Abstract class from which all plugin specific data types inherit. A plugin
@@ -88,21 +85,24 @@ import com.raytheon.uf.common.util.ConvertUtil;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 7/24/07      353         bphillip    Initial creation    
- * 20071129     472         jkorman     Added getDecoderGettable().
- * 2/6/09       1990        bphillip    Added database index on dataURI
- * 3/18/09      2105        jsanchez    Added getter for id.
- *                                       Removed unused getIdentfier().
- * Mar 29, 2013 1638        mschenke    Added methods for loading from data map and creating data map from 
- *                                      dataURI fields
- * Apr 12, 2013 1857        bgonzale    Changed to MappedSuperclass, named generator,
- *                                      GenerationType SEQUENCE, moved Indexes to getter
- *                                      methods.
+ * Jul 24, 2007 353         bphillip    Initial creation
+ * Nov 29, 2007 472         jkorman     Added getDecoderGettable().
+ * Feb 06, 2009 1990        bphillip    Added database index on dataURI
+ * Mar 18, 2009 2105        jsanchez    Added getter for id.  Removed unused
+ *                                      getIdentfier().
+ * Mar 29, 2013 1638        mschenke    Added methods for loading from data map
+ *                                      and creating data map from  dataURI
+ *                                      fields
+ * Apr 12, 2013 1857        bgonzale    Changed to MappedSuperclass, named
+ *                                      generator,  GenerationType SEQUENCE,
+ *                                      moved Indexes to getter  methods.
  * Apr 15, 2013 1868        bsteffen    Improved performance of createDataURIMap
- * May 02, 2013 1970        bgonzale    Moved Index annotation from getters to attributes.
- * </pre>
+ * May 02, 2013 1970        bgonzale    Moved Index annotation from getters to
+ *                                      attributes.
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
+ * May 16, 2013 1869        bsteffen    Rewrite dataURI property mappings.
+ * </pre>
  * 
  */
 @MappedSuperclass
@@ -111,6 +111,9 @@ import com.raytheon.uf.common.util.ConvertUtil;
 @DynamicSerialize
 public abstract class PluginDataObject extends PersistableDataObject implements
         ISerializableObject {
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(PluginDataObject.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -159,12 +162,16 @@ public abstract class PluginDataObject extends PersistableDataObject implements
      * Default Constructor
      */
     public PluginDataObject() {
+
     }
 
     public PluginDataObject(String uri) {
-        String[] uriTokens = uri.split(DataURI.SEPARATOR);
-        pluginName = uriTokens[1];
-        populateObject(this, uriTokens);
+        try {
+            DataURIUtil.populatePluginDataObject(this, uri);
+        } catch (PluginException e) {
+            // this should never happen operationally
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
         this.dataURI = uri;
     }
 
@@ -178,344 +185,19 @@ public abstract class PluginDataObject extends PersistableDataObject implements
         getDataURI();
     }
 
-    /**
-     * Recursive method for generating a dataURI
-     * 
-     * @param obj
-     *            An object containing fields annotated with the DataURI
-     *            annotation
-     * @param uriBuffer
-     *            The dataURI StringBuffer
-     * @return The updated dataURI
-     */
-    private void generateURI(Object obj, StringBuilder uriBuffer) {
-
-        // Get the fields with @DataURI annotation
-        Field[] dataURIFields = DataURIUtil.getInstance().getDataURIFields(
-                obj.getClass());
-
-        /*
-         * Iterate through each field and assemble the dataURI
-         */
-        for (Field field : dataURIFields) {
-            Object property = null;
-            try {
-                property = PropertyUtils.getProperty(obj, field.getName());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if (field.getAnnotation(DataURI.class).embedded()) {
-                if (property == null) {
-                    // Populate datauri with all "null" for null embedded
-                    // objects.
-                    int numFields = DataURIUtil.getInstance().getDataURIFields(
-                            field.getClass()).length;
-                    for (int f = 0; f < numFields; f += 1) {
-                        uriBuffer.append(DataURI.SEPARATOR).append(
-                                String.valueOf(null));
-                    }
-                } else {
-                    // Recursive call to get dataURI elements from embedded
-                    // object
-                    generateURI(property, uriBuffer);
-                }
-            } else {
-                // Append to the dataURI buffer
-                uriBuffer.append(DataURI.SEPARATOR);
-                if (property == null) {
-                    uriBuffer.append("null");
-                } else if (property instanceof Calendar) {
-                    uriBuffer.append(TimeUtil
-                            .formatCalendar((Calendar) property));
-                } else {
-                    uriBuffer.append(String.valueOf(property).replaceAll(
-                            DataURI.SEPARATOR, "_"));
-                }
-            }
-        }
-    }
-
-    /**
-     * Populates the record object from a data map
-     * 
-     * @param dataMap
-     * @throws PluginException
-     */
-    public void populateFromMap(Map<String, Object> dataMap)
-            throws PluginException {
-        populateFromMap(this, dataMap);
-    }
-
-    /**
-     * Creates a mapping of dataURI fields to objects set in the record
-     * 
-     * @return
-     * @throws PluginException
-     */
-    public Map<String, Object> createDataURIMap() throws PluginException {
-        try {
-            Class<? extends PluginDataObject> thisClass = this.getClass();
-            Map<String, Object> map = new HashMap<String, Object>();
-            map.put("pluginName", getPluginName());
-            int index = 0;
-            String fieldName = PluginDataObject.getDataURIFieldName(thisClass,
-                    index++);
-            while (fieldName != null) {
-                Object source = this;
-                int start = 0;
-                int end = fieldName.indexOf('.', start);
-                while (end >= 0) {
-                    source = PropertyUtils.getProperty(source,
-                            fieldName.substring(start, end));
-                    start = end + 1;
-                    end = fieldName.indexOf('.', start);
-                }
-                source = PropertyUtils.getProperty(source,
-                        fieldName.substring(start));
-                map.put(fieldName, source);
-                fieldName = PluginDataObject.getDataURIFieldName(thisClass,
-                        index++);
-            }
-            return map;
-        } catch (Exception e) {
-            throw new PluginException("Error constructing dataURI mapping", e);
-        }
-    }
-
-    /**
-     * Populates object from data mapping
-     * 
-     * @param object
-     * @param dataMap
-     */
-    public static void populateFromMap(Object object,
-            Map<String, Object> dataMap) throws PluginException {
-        try {
-            for (String property : dataMap.keySet()) {
-                String[] nested = property.split("[.]");
-                if (nested.length > 0) {
-                    Object source = object;
-                    for (int i = 0; i < nested.length - 1; ++i) {
-                        String field = nested[i];
-                        Object obj = PropertyUtils.getProperty(source, field);
-                        if (obj == null) {
-                            obj = PropertyUtils.getPropertyType(source, field)
-                                    .newInstance();
-                            PropertyUtils.setProperty(source, field, obj);
-                        }
-                        source = obj;
-                    }
-                    String sourceProperty = nested[nested.length - 1];
-                    Object value = dataMap.get(property);
-                    if (value != null) {
-                        PropertyUtils
-                                .setProperty(source, sourceProperty, value);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new PluginException("Error populating record type: "
-                    + (object != null ? object.getClass() : null)
-                    + " from map: " + dataMap, e);
-        }
-    }
-
-    /**
-     * Recursive method to populate an object from the elements in a dataURI
-     * string
-     * 
-     * @param obj
-     *            The object for which to populate fields from the dataURI
-     *            string
-     * @param uriTokens
-     *            The elements of the dataURI string
-     * @return An object populated from the elements of the dataURI string
-     */
-    @SuppressWarnings("unchecked")
-    private Object populateObject(Object obj, String[] uriTokens) {
-
-        // Get the fields annotated with the @DataURI annotation
-        Field[] dataURIFields = DataURIUtil.getInstance().getDataURIFields(
-                obj.getClass());
-
-        Field currentField = null;
-        String currentUriToken = null;
-        for (Field dataURIField : dataURIFields) {
-            currentUriToken = uriTokens[uriIndex];
-            currentField = dataURIField;
-
-            if (currentField.getAnnotation(DataURI.class).embedded()) {
-                // The current dataURI token refers to a field in an embedded
-                // object. Execute recursive call to populate embedded object
-                try {
-                    if (obj instanceof Map) {
-                        populateObject(obj, uriTokens);
-                    } else {
-                        PropertyUtils.setProperty(
-                                obj,
-                                currentField.getName(),
-                                populateObject(currentField.getType()
-                                        .newInstance(), uriTokens));
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else {
-                // The current dataURI token refers to field in the obj class.
-                // Assign the field and increment the uri index variable
-                uriIndex++;
-                try {
-                    Object property = ConvertUtil.convertObject(
-                            currentUriToken, currentField.getType());
-                    if (obj instanceof Map) {
-                        ((Map<String, Object>) obj).put(currentField.getName(),
-                                property);
-                    } else {
-                        try {
-                            PropertyUtils.setProperty(obj,
-                                    currentField.getName(), property);
-                        } catch (Throwable e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return obj;
-    }
-
-    /**
-     * Retrieves the name of the field represented by the specified index in the
-     * dataURI. The index starts at the dataTime in the dataURI and does not
-     * include the plugin name.
-     * 
-     * @param clazz
-     *            The class of the object to examine
-     * @param targetIndex
-     *            The index in the dataURI
-     * @return The name of the field at the specified dataURI index
-     */
-    public static String getDataURIFieldName(Class<?> clazz, int targetIndex) {
-        return getDataURIFieldName(targetIndex, new int[] { 0 }, clazz, "");
-    }
-
-    /**
-     * Recursive method to get the dataURI field name
-     * 
-     * @param targetIndex
-     *            The index in the DataURI to get the field name for
-     * @param index
-     *            The current index being examined. This field is necessary for
-     *            recursive calls
-     * @param clazz
-     *            The class being examined
-     * @param fieldName
-     *            The current field name. This field is necessary for recursive
-     *            calls. If the dataURI is specified in an embedded object, this
-     *            field will take the form class1.class2.field i.e. for a grib
-     *            record this could be modelInfo.modelName
-     * @return The fieldName
-     */
-    private static String getDataURIFieldName(int targetIndex, int[] index,
-            Class<?> clazz, String fieldName) {
-        // Get the fields annotated with the @DataURI annotation
-        Field[] dataURIFields = DataURIUtil.getInstance().getDataURIFields(
-                clazz);
-
-        for (Field field : dataURIFields) {
-
-            DataURI uriAnnotation = field.getAnnotation(DataURI.class);
-            if (uriAnnotation != null) {
-                if (uriAnnotation.embedded()) {
-                    String tmp = getDataURIFieldName(targetIndex, index,
-                            field.getType(), fieldName + field.getName() + ".");
-                    if (tmp != null) {
-                        return tmp;
-                    }
-                } else {
-                    if (index[0] == targetIndex) {
-                        fieldName += field.getName();
-                        return fieldName;
-                    } else {
-                        index[0]++;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Gets the value in the dataURI at the specified index
-     * 
-     * @param index
-     *            The index in the dataURI for which to get the value
-     * @param fieldName
-     *            The name of the field
-     * @return The value in the dataURI at the specified index
-     * @throws Exception
-     */
-    public Object getDataURIFieldValue(int index, String fieldName)
-            throws Exception {
-        return getDataURIFieldValue(index, new int[] { 0 }, this.getClass(),
-                fieldName);
-    }
-
-    /**
-     * Recursive helper method to get a dataURI field value
-     * 
-     * @param targetIndex
-     *            The index in the dataURI for which to get the value
-     * @param index
-     *            The current index in the dataURI being examined
-     * @param clazz
-     *            The class to be examined
-     * @param fieldName
-     *            The name of the field
-     * @return The value in the dataURI at the specified index
-     * @throws Exception
-     */
-    private Object getDataURIFieldValue(int targetIndex, int[] index,
-            Class<?> clazz, String fieldName) throws Exception {
-        // Get the fields annotated with the @DataURI annotation
-        Field[] dataURIFields = DataURIUtil.getInstance().getDataURIFields(
-                clazz);
-
-        for (Field field : dataURIFields) {
-            DataURI uriAnnotation = field.getAnnotation(DataURI.class);
-            if (uriAnnotation != null) {
-                if (uriAnnotation.embedded()) {
-                    Object tmp = getDataURIFieldValue(targetIndex, index,
-                            field.getType(), fieldName);
-                    if (tmp != null) {
-                        return tmp;
-                    }
-                } else {
-                    if (index[0] == targetIndex) {
-                        return ConvertUtil.convertObject(fieldName,
-                                field.getType());
-                    } else {
-                        index[0]++;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
     public DataTime getDataTime() {
         return dataTime;
     }
 
     public String getDataURI() {
         if (dataURI == null && pluginName != null) {
-            StringBuilder uriBuffer = new StringBuilder(160);
-            uriBuffer.append(DataURI.SEPARATOR).append(pluginName);
-            generateURI(this, uriBuffer);
-            this.dataURI = uriBuffer.toString().replaceAll(" ", "_");
+            try {
+                this.dataURI = DataURIUtil.createDataURI(this);
+            } catch (PluginException e) {
+                // this should never happen operationally
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
         }
         return this.dataURI;
     }
