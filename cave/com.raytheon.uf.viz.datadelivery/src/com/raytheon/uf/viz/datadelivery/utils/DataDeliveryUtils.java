@@ -71,6 +71,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 30, 2013 1543       djohnson     Use List instead of ArrayList.
  * Apr 08, 2013 1826       djohnson     Add getDisplayData() method to subscription columns.
  * Apr 10, 2013 1891       djohnson     Add getDisplayData() method to pending subscription columns.
+ * May 20, 2013 2000       djohnson     Add message to inform the user changes were applied.
  * </pre>
  * 
  * @author mpduff
@@ -584,6 +585,17 @@ public class DataDeliveryUtils {
      */
     public static int showYesNoMessage(Shell shell, String title, String message) {
         return showMessage(shell, SWT.YES | SWT.NO, title, message);
+    }
+
+    /**
+     * Inform the user their changes were applied.
+     * 
+     * @param shell
+     *            the shell reference
+     */
+    public static void showChangesWereAppliedMessage(Shell shell) {
+        showMessage(shell, SWT.OK, "Changes Applied",
+                "The changes were successfully applied.");
     }
 
     /**
