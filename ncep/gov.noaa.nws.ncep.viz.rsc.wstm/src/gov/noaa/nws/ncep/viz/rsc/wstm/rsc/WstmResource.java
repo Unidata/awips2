@@ -35,6 +35,7 @@ import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.drawables.IFont;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -56,12 +57,15 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
@@ -89,7 +93,7 @@ import com.vividsolutions.jts.io.ParseException;
  * @author archana
  * @version 1.0
  */
-public class WstmResource extends AbstractNatlCntrsResource<WstmResourceData, MapDescriptor >
+public class WstmResource extends AbstractNatlCntrsResource<WstmResourceData, NCMapDescriptor >
 implements INatlCntrsResource{
 	List<String> issueOfficeList = new ArrayList<String>(0);
 	private final String BOUNDS_SCHEMA = "bounds";
@@ -190,7 +194,7 @@ implements INatlCntrsResource{
 			for(WstmRscDataObject eachWstmRscDataObject : wstmRscDataObjCollection){
 				
 				WstmResourceAttributes<RGB, Integer, Float, Boolean> wstmRscAttr = null;
-					String symbolTypeStr = "";
+				String symbolTypeStr = "";
                  
 					/*Retrieve the user-configurable attributes depending on whether the WstmRscDataObject denotes an
 					 * advisory, watch or a warning*/
@@ -237,7 +241,7 @@ implements INatlCntrsResource{
          					   if (listOfFipsInfo != null && listOfFipsInfo.size() > 0) {
  								
          						   for (FipsInfo eachFipsInfo : listOfFipsInfo) {
-LatLonPoint thisPoint =  wqr.getLatLonPoint(eachFipsInfo.getFipsCode());//eachFipsInfo.getFipsCentroid();//T456
+         							   LatLonPoint thisPoint =  wqr.getLatLonPoint(eachFipsInfo.getFipsCode());//eachFipsInfo.getFipsCentroid();//T456
 							           Coordinate thisMarkerCoord = this.convertCentroidToWorldCoordinates(thisPoint);
 							           PixelCoordinate pixCoord = null;
 
@@ -301,7 +305,7 @@ drawOutlineForZone2(eachFipsInfo.getFipsCode()/*eachFipsInfo.fipsNumber*/, targe
 
 									/*Plot the symbol selected by the user from the marker selection panel*/
 							        	   if (thisMarkerCoord != null) {
-													DisplayElementFactory df = new DisplayElementFactory( target, descriptor );
+													DisplayElementFactory df = new DisplayElementFactory( target, getNcMapDescriptor() );
 													ArrayList<IDisplayable> displayEls = new ArrayList<IDisplayable>(0);	
 										            Symbol symbol = new Symbol(
 															null,
@@ -694,7 +698,7 @@ wqr.buildQueryPart(aSetOfAwwFips);	wstmRscDataObject.aListOfFipsInfoObjects=crea
     		
     		if(eventTime != null){
     			builder.append(this.TIME_FORMAT.format(eventTime.getValidPeriod().getStart()));
-        		builder.append(" - ");
+        		builder.append("-");
         		builder.append(this.TIME_FORMAT.format(eventTime.getValidPeriod().getEnd()));
     		}
 
@@ -1403,10 +1407,9 @@ wqr.buildQueryPart(aSetOfAwwFips);	wstmRscDataObject.aListOfFipsInfoObjects=crea
     @Override
 	protected boolean postProcessFrameUpdate() {
     	
-    	gov.noaa.nws.ncep.viz.ui.display.NCMapEditor ncme = 
-    				gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils.getActiveNatlCntrsEditor();
+    	AbstractEditor ncme = NcDisplayMngr.getActiveNatlCntrsEditor();
     	
-    	zrJob.setRequest(ncme.getActiveDisplayPane().getTarget(), descriptor, null, false, false, null); 
+    	zrJob.setRequest(ncme.getActiveDisplayPane().getTarget(), getNcMapDescriptor(), null, false, false, null); 
     	
     	return true;
     }
@@ -1415,7 +1418,7 @@ wqr.buildQueryPart(aSetOfAwwFips);	wstmRscDataObject.aListOfFipsInfoObjects=crea
 	 *  called in the constructor.
 	 */
 	private void addRDChangedListener(){
-		com.raytheon.viz.ui.editor.AbstractEditor editor = gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils.getActiveNatlCntrsEditor();
+		AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
 		editor.addRenderableDisplayChangedListener(this.new WstmDCListener());
 	}
     
@@ -1426,7 +1429,7 @@ wqr.buildQueryPart(aSetOfAwwFips);	wstmRscDataObject.aListOfFipsInfoObjects=crea
 
 		@Override
 		public void renderableDisplayChanged(com.raytheon.uf.viz.core.IDisplayPane pane,
-				com.raytheon.uf.viz.core.drawables.IRenderableDisplay newRenderableDisplay, DisplayChangeType type) {
+				IRenderableDisplay newRenderableDisplay, DisplayChangeType type) {
 			
 			areaChangeFlag = true;
 			

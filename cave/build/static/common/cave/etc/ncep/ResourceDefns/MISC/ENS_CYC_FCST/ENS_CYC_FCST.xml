@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <isEnabled>true</isEnabled>
     <inventoryEnabled>true</inventoryEnabled>
     <resourceDefnName>ENS_CYC_FCST</resourceDefnName>
     <resourceCategory>MISC</resourceCategory>
@@ -31,13 +30,12 @@ model18Name=AP13
 model19Name=AP14
 model20Name=AP15
     </resourceParameters>
-    <filterLabels>Forecast,Hurricane</filterLabels>
     <rscImplementation>StormTrack</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
     <frameSpan>360</frameSpan>
-    <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
+    <timelineGenMethod>USE_CYCLE_TIME_FCST_HOURS</timelineGenMethod>
     <dfltFrameCount>10</dfltFrameCount>
     <dfltTimeRange>24</dfltTimeRange>
     <dfltGeogArea>BasicWX_US</dfltGeogArea>

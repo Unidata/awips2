@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Pgen
+Bundle-SymbolicName: gov.noaa.nws.ncep.edex.plugin.pgen
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.1174",
+ gov.noaa.nws.ncep.common.dataplugin.pgen;bundle-version="1.0.0",
+ org.apache.commons.logging;bundle-version="1.1.1",
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
+ com.raytheon.uf.common.message;bundle-version="1.12.1174"

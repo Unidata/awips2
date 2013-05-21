@@ -123,7 +123,7 @@ public class PgenConnectTool extends AbstractPgenDrawingTool {
         @Override	   	
         public boolean handleMouseDown(int anX, int aY, int button) { 
         	if ( !isResourceEditable() ) return false;
-        	
+
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null ) return false;
@@ -339,7 +339,7 @@ public class PgenConnectTool extends AbstractPgenDrawingTool {
          *      int)
          */
         @Override
-        public boolean handleMouseUp(int x, int y, int button) {        	        	
+        public boolean handleMouseUp(int x, int y, int button) {     
         	if ( !isResourceEditable() ) return false;
             return true;           
         }
