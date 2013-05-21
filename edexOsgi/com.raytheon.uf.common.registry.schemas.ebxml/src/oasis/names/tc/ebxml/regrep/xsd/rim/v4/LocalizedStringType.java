@@ -90,6 +90,19 @@ public class LocalizedStringType {
     @DynamicSerializeElement
     protected String value;
 
+    public LocalizedStringType() {
+
+    }
+
+    public LocalizedStringType(String lang, String value) {
+        this.lang = lang;
+        this.value = value;
+    }
+
+    public LocalizedStringType(String value) {
+        this.value = value;
+    }
+
     public Integer getKey() {
         return key;
     }

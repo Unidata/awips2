@@ -98,6 +98,18 @@ public class InternationalStringType implements Serializable {
     @JoinTable(schema = "ebxml")
     protected List<LocalizedStringType> localizedString;
 
+    public InternationalStringType() {
+
+    }
+
+    public InternationalStringType(String lang, String value) {
+        this.localizedString.add(new LocalizedStringType(lang, value));
+    }
+
+    public InternationalStringType(String value) {
+        this.localizedString.add(new LocalizedStringType(value));
+    }
+
     /**
      * Gets the value of the localizedString property.
      * 

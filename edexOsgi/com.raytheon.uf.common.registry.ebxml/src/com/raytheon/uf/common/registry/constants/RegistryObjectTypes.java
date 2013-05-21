@@ -45,6 +45,8 @@ public class RegistryObjectTypes {
 
     public static final String ASSOCIATION = "urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association";
 
+    public static final String ASSOCIATION_PATH = "/urn:oasis:names:tc:ebxml-regrep:classificationScheme:AssociationType/HasFederationMember";
+
     public static final String AUDITABLE_EVENT = "urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:AuditableEvent";
 
     public static final String CLASSIFICATION = "urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification";
