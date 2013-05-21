@@ -26,13 +26,13 @@
     </bean>
 
     <bean name="dataDeliveryServices"
-        class="com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices"
-        factory-method="getInstance">
-        <property name="subscriptionService" ref="subscriptionService" />
-        <property name="subscriptionNotificationService" ref="subscriptionNotificationService" />
-        <property name="bandwidthService" ref="bandwidthService" />
-        <property name="permissionsService" ref="permissionsService" />
-        <property name="groupDefinitionService" ref="groupDefinitionService" />
+        class="com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices">
+        <constructor-arg ref="subscriptionService" />
+        <constructor-arg ref="subscriptionNotificationService" />
+        <constructor-arg ref="bandwidthService" />
+        <constructor-arg ref="permissionsService" />
+        <constructor-arg ref="groupDefinitionService" />
+        <constructor-arg ref="subscriptionOverlapService" />
     </bean>
 
     <bean id="systemRuleManager"
