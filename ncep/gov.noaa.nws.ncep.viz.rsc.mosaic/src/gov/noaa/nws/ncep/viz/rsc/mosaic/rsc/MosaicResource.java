@@ -9,6 +9,7 @@ import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResource;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResourceData;
 import gov.noaa.nws.ncep.viz.rsc.mosaic.Activator;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -80,7 +81,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  06-07-2012     717         Archana	  Updated setColorMapParameters() to store label information
  *                                        for the colorbar                                     
  *  06/21/2012     #825	      Greg Hull   rm mosaicInfo.txt; get legend info from the Record.
- *  07/18/12       717        Archana     Refactored a field used to align the label data      
+ *  07/18/12       717        Archana     Refactored a field used to align the label data
  * 12/19/2012     #960        Greg Hull   override propertiesChanged() to update colorBar.
  *        
  * </pre>
@@ -89,7 +90,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1
  */
 
-public class MosaicResource extends AbstractNatlCntrsResource<MosaicResourceData, MapDescriptor> implements
+public class MosaicResource extends AbstractNatlCntrsResource<MosaicResourceData, NCMapDescriptor> implements
 	IResourceDataChanged {
 
     private static final IUFStatusHandler statusHandler = UFStatus.getHandler(MosaicResource.class, "Mosaic");
@@ -136,7 +137,7 @@ public class MosaicResource extends AbstractNatlCntrsResource<MosaicResourceData
 		public boolean updateFrameData( IRscDataObject rscDataObj ) {
         	PluginDataObject pdo = ((DfltRecordRscDataObj)rscDataObj).getPDO();
 			MosaicRecord radarRecord = (MosaicRecord) pdo;
-			
+
 			prodCode = radarRecord.getProductCode();
 			prodName = radarRecord.getProdName();
 			numLevels = radarRecord.getNumLevels();
@@ -268,7 +269,7 @@ public class MosaicResource extends AbstractNatlCntrsResource<MosaicResourceData
 	@Override
 	public String getName() {
 
-		FrameData fd = (FrameData) getCurrentFrame();
+		FrameData fd = (FrameData)getCurrentFrame();
 
 		if( fd == null ) {
 			return "Natl Mosaic-No Data";
@@ -318,7 +319,7 @@ public class MosaicResource extends AbstractNatlCntrsResource<MosaicResourceData
             getCapability(ImagingCapability.class).setSuppressingMenuItems(true);
             getCapability(ColorMapCapability.class).setSuppressingMenuItems(true); 
             getCapability(ColorableCapability.class).setSuppressingMenuItems(true);
-			queryRecords();
+            queryRecords();
 
 			if (this.baseTile != null) {
                 this.baseTile.init(target);
@@ -453,7 +454,7 @@ public class MosaicResource extends AbstractNatlCntrsResource<MosaicResourceData
 		ColorMap colorMap;
 		try {
 			colorMap = (ColorMap) ColorMapUtil.loadColorMap( 
-					radarRscData.getResourceName().getRscCategory(), 
+					radarRscData.getResourceName().getRscCategory().getCategoryName(), 
 					radarRscData.getColorMapName() );
 		} catch (VizException e) {
 			throw new VizException("Error loading colormap: "+ radarRscData.getColorMapName() );
@@ -543,7 +544,7 @@ public class MosaicResource extends AbstractNatlCntrsResource<MosaicResourceData
 		}
 
 		if( grphTarget != null )
-			tileSet.setMapDescriptor(this.descriptor);
+			tileSet.setMapDescriptor(this.getNcMapDescriptor());
 		
 		return tileSet;
 	}

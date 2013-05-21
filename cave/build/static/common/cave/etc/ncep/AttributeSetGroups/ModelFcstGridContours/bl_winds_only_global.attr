@@ -19,7 +19,7 @@ HILO   =
 HLSYM  =   
 !CLRBAR=  0
 WIND   =    9/0.7/1.5/112
-TITLE  =   1/-1/~ BL WIND   = (40m; KTS)
+TITLE  =   1/-1/~ BL WIND (40m; KTS)
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       

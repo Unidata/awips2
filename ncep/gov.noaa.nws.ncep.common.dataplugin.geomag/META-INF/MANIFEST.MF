@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Magnetometer
+Bundle-SymbolicName: gov.noaa.nws.ncep.common.dataplugin.geomag
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.1174",
+ javax.persistence;bundle-version="1.0.0",
+ org.junit;bundle-version="1.0.0"
+Export-Package: gov.noaa.nws.ncep.common.dataplugin.geomag,
+ gov.noaa.nws.ncep.common.dataplugin.geomag.dao,
+ gov.noaa.nws.ncep.common.dataplugin.geomag.exception,
+ gov.noaa.nws.ncep.common.dataplugin.geomag.table,
+ gov.noaa.nws.ncep.common.dataplugin.geomag.util
+Import-Package: com.raytheon.uf.common.localization,
+ org.apache.commons.logging
+
+

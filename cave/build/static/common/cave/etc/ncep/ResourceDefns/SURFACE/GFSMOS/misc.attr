@@ -1,6 +1,0 @@
-! Attributes for the GFSMOS resource with the parameters of plot models listed below
-! fcig, fvsa, ovsi, pozp, posn, qp06, qp12, sn24, tc06, tc12, ts06, ts12, pcpt, clct, tdyf, tntf
-!
-plotModel=@PlotModels/bufrmosGFS/misc.xml
-plotDensity=10
-conditionalFilter=

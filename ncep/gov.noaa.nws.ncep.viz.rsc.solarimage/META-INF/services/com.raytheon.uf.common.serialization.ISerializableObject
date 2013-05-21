@@ -1,3 +1,5 @@
 gov.noaa.nws.ncep.viz.rsc.solarimage.rsc.SolarImageResourceData
-gov.noaa.nws.ncep.viz.rsc.solarimage.display.DefaultNonMapDisplay
 gov.noaa.nws.ncep.viz.rsc.solarimage.display.SolarImageMatchCriteria
+gov.noaa.nws.ncep.viz.rsc.solarimage.actions.CarrLatLonCapability
+gov.noaa.nws.ncep.viz.rsc.solarimage.actions.StonyLatLonCapability
+gov.noaa.nws.ncep.viz.rsc.solarimage.actions.CylindricalCedCapability
