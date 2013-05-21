@@ -1,6 +1,7 @@
 package gov.noaa.nws.ncep.viz.resources.time_match;
 
 import gov.noaa.nws.ncep.viz.common.SelectableFrameTimeMatcher;
+import gov.noaa.nws.ncep.viz.common.display.INatlCntrsDescriptor;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData.TimelineGenMethod;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
@@ -21,6 +22,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang.Validate;
+import org.hibernate.ejb.AvailableSettings;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.time.DataTime;
@@ -52,7 +54,10 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * 03/07/11     migration  Greg Hull    rm notifyResourceAdd and change defn of initialLoad
  * 11/29/11       518      Greg Hull    add dfltFrameTimes
  * 06/17/12       713      Greg Hull    typo in copy constr for skipValue
- * 08/27/12       851      Greg Hull    ignore dataTime level when creating new frame Times
+ * 08/27/12       851      Greg Hull    ignore dataTime level when creating new frame Time
+ * 02/12/13       972      Greg Hull    changed to work with INatlCntrsDescriptor
+ * 04/24/13		  689	   Xiaochuan	Loop length in slctFrames that is set based on default
+ * 										or size of selectableDataTimes.
  * 
  * </pre>
  * 
@@ -108,14 +113,14 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
 
     private boolean isForecast = false;
 
-    private ArrayList<NCMapDescriptor> descriptorList;
+    private ArrayList<INatlCntrsDescriptor> descriptorList;
 
     /**
      * Default Constructor.
      */
     public NCTimeMatcher() {
         super();
-        descriptorList = new ArrayList<NCMapDescriptor>();
+        descriptorList = new ArrayList<INatlCntrsDescriptor>();
         dominantRscData = null;
         dominantResourceName = null;
         allAvailDataTimes = new ArrayList<DataTime>();
@@ -134,7 +139,7 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
 
     public NCTimeMatcher(NCTimeMatcher tm) {
         super();
-        descriptorList = new ArrayList<NCMapDescriptor>();
+        descriptorList = new ArrayList<INatlCntrsDescriptor>();
         allAvailDataTimes = new ArrayList<DataTime>(tm.allAvailDataTimes);
         selectableDataTimes = new ArrayList<DataTime>(tm.selectableDataTimes);
         frameTimes = new ArrayList<DataTime>(tm.frameTimes);
@@ -157,13 +162,13 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         isForecast = tm.isForecast;
     }
 
-    public void addDescriptor(NCMapDescriptor desc) {
+    public void addDescriptor(INatlCntrsDescriptor desc) {
         if (!descriptorList.contains(desc)) {
             descriptorList.add(desc);
         }
     }
 
-    public void removeDescriptor(NCMapDescriptor desc) {
+    public void removeDescriptor(INatlCntrsDescriptor desc) {
         if (descriptorList.contains(desc)) {
             descriptorList.remove(desc);
         }
@@ -312,14 +317,20 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
             setCurrentRefTime();
         }
 
+        TimelineGenMethod tLineGenMthd = dominantRscData.getTimelineGenMethod();
+        
         // the frameInterval here is only used to generate the timeline.
-        if (dominantRscData.getTimelineGenMethod() == TimelineGenMethod.USE_DATA_TIMES) {
+        if( tLineGenMthd == TimelineGenMethod.USE_DATA_TIMES ||
+        		tLineGenMthd == TimelineGenMethod.USE_CYCLE_TIME_FCST_HOURS) {
             frameInterval = -1;
-        } else if (dominantRscData.getTimelineGenMethod() == TimelineGenMethod.USE_MANUAL_TIMELINE) {
+        } 
+        else if( tLineGenMthd == TimelineGenMethod.USE_MANUAL_TIMELINE) {
             if (frameInterval <= 0) {
                 frameInterval = 60; // what to use here as a default
             }
-        } else if (dominantRscData.getTimelineGenMethod() == TimelineGenMethod.USE_FRAME_INTERVAL) {
+        } 
+        else if( tLineGenMthd == TimelineGenMethod.USE_FRAME_INTERVAL ||
+        		 tLineGenMthd == TimelineGenMethod.USE_FCST_FRAME_INTERVAL_FROM_REF_TIME ) {
             frameInterval = dominantRscData.getFrameSpan();
         } else { // ???
             return;
@@ -358,10 +369,7 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
                 refTimeMillisecs = (cyclTime == null ? 0 : cyclTime
                         .getRefTime().getTime());
             }
-//            else {
-//                System.out.println("Can't get a ref time from 'latest' cycle time");
-//                return false;
-//            }
+
         } else if( isCurrentRefTime() ) {
             refTimeMillisecs = Calendar.getInstance().getTimeInMillis();
         } else if( isLatestRefTime() ) {
@@ -403,7 +411,7 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
             // if generating times from the data then get only those times in
             // the selected range.
             if (frameInterval == -1) {
-
+            	
                 long oldestTimeMs = (isForecast ? refTimeMillisecs
                         : refTimeMillisecs - timeRangeMillisecs - 1);
 
@@ -412,13 +420,8 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
 
                 for (DataTime time : allAvailDataTimes) {
                     long timeMS = time.getValidTime().getTimeInMillis();
-
                     if (timeMS >= oldestTimeMs && timeMS <= latestTimeMs) {
-                    	
-//                    	if( frmTimeMatcher == null ||
-//                    		frmTimeMatcher.matchTime( time ) ) {                  		
-                    		selectableDataTimes.add(time);
-//                    	}
+                    	selectableDataTimes.add(time);
                     }
                 }
             }
@@ -432,69 +435,68 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
             long frameTimeMillisecs = refTimeMillisecs;
 
             if (isForecast) {
-                while (frameTimeMillisecs <= refTimeMillisecs + timeRangeMillisecs) {
-                	
-                	DataTime time = new DataTime( new Date( frameTimeMillisecs));
-                	
-//                	if( frmTimeMatcher == null ||
-//                    	frmTimeMatcher.matchTime( time ) ) {                    		
-                		selectableDataTimes.add(time);
-//                	}
-
+            	while (frameTimeMillisecs <= refTimeMillisecs + timeRangeMillisecs) {
+                   	DataTime time = new DataTime( new Date( frameTimeMillisecs));
+                	selectableDataTimes.add(time);
+                		
                     frameTimeMillisecs += frameIntervalMillisecs;
                 }
             } else {
-
-                // frameTimeMillisecs = normRefTime.getRefTime().getTime();;
-
-                while (frameTimeMillisecs >= refTimeMillisecs - timeRangeMillisecs) {
+            	
+            	while (frameTimeMillisecs >= refTimeMillisecs - timeRangeMillisecs) {
 
                     DataTime normRefTime = getNormalizedTime( new DataTime(
                             new Date(frameTimeMillisecs)));
-
-//                	if( frmTimeMatcher == null ||
-//                		frmTimeMatcher.matchTime( normRefTime ) ) {
-                       selectableDataTimes.add(0, normRefTime); // new DataTime(
-                        // new Date(frameTimeMillisecs)  ) );
-//                    }	
-
+                    
+                    selectableDataTimes.add(0, normRefTime); // new DataTime(
+                     
                     frameTimeMillisecs -= frameIntervalMillisecs;
                 }
             }
         }
-
-        SelectableFrameTimeMatcher frmTimeMatcher = null;
         
+        SelectableFrameTimeMatcher frmTimeMatcher = null;
+
+        // if there is a GDATTIM then use this to compute the frameList from the 
+        // list of available times in the DB
         if( dfltFrameTimesStr != null ) {
         	try {
-				frmTimeMatcher = new SelectableFrameTimeMatcher( dfltFrameTimesStr );
+        		frmTimeMatcher = new SelectableFrameTimeMatcher( dfltFrameTimesStr );
+				
+        		for( DataTime dt : allAvailDataTimes ) {
+        			if( frmTimeMatcher.matchTime( dt ) ) {
+        				frameTimes.add( dt );
+            		}        			
+        		}
+        		
 			} catch (VizException e) {
 				// sanity check since this should already be validated
 				System.out.println("bad GDATTIM string:"+dfltFrameTimesStr);
 				frmTimeMatcher = null;
+				return false;
 			}
+
         }
-
-        int skipCount = 0;
-        // ArrayList<DataTime> tempFrameTimes = new ArrayList<DataTime>();
-
+        else { 
+        	int skipCount = 0;
         // set the initial frameTimes from the skip value and numFrames
-        //
-        for (skipCount = 0; skipCount < selectableDataTimes.size(); skipCount++) {
-        	if (skipCount % (skipValue + 1) == 0) {
+        
+        	for (skipCount = 0; skipCount < selectableDataTimes.size(); skipCount++) {
+        		if (skipCount % (skipValue + 1) == 0) {
         		
-        		DataTime selectableTime = ( isForecast ?
+        			DataTime selectableTime = ( isForecast ?
         				selectableDataTimes.get( skipCount ) :
         					selectableDataTimes.get(
         							selectableDataTimes.size()-skipCount-1) );
-
-        		if( frmTimeMatcher == null || 
-        			frmTimeMatcher.matchTime( selectableTime ) ) {
+        		
+        			if( frmTimeMatcher == null || 
+        					frmTimeMatcher.matchTime( selectableTime ) ) {
         			
-        			if (isForecast) {
-        				frameTimes.add( selectableTime );
-        			} else {
-        				frameTimes.add( 0, selectableTime );
+        				if (isForecast) {
+        					frameTimes.add( selectableTime );
+        				} else {
+        					frameTimes.add( 0, selectableTime );
+        				}
         			}
         		}
         		if (frameTimes.size() == numFrames) {
@@ -502,7 +504,6 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         		}
         	}
         }
-
         // if the list is empty don't set numFrames.
         if (frameTimes.size() > 0) { // numFrames > frameTimes.size() ) {
             numFrames = frameTimes.size();
@@ -602,7 +603,7 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         // update the times in the descriptors which will in turn
         // update the timeline for the resources in the descriptor.
         //
-        for (NCMapDescriptor ncDescr : descriptorList) {
+        for (INatlCntrsDescriptor ncDescr : descriptorList) {
             ncDescr.updateDataTimes(frameTimes.toArray(new DataTime[0]));
 
             // Since we want to keep the resources displaying the same frame
@@ -726,5 +727,4 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
             throws VizException {
         return frameTimes.toArray(new DataTime[0]);
     }
-
 }

@@ -56,6 +56,9 @@ import org.eclipse.swt.graphics.RGB;
  * ------------ ---------- ----------- --------------------------
  * Oct 13,2010   320          X. Guo       Initial Creation
  * Nov 22,2010                X. Guo       Check title old syntax with ^ and ~
+ * Mar 06,2013	 683		  Xiaochuan	   Handle 2 digit number for the colors
+ * 										   set in title. Using default color when color
+ * 										   number over 32. 		
  *                                         
  * </pre>
  * @author xguo
@@ -79,8 +82,11 @@ public class TITLE {
 	
 	private void parseTitleString (String title) {
 		int col = 0;
-		String expression = "[-+]?[0-9]";
+		String expression_1 = "[-+]?[0-9]";
+		String expression_2 = "[-+]?[0-9]{2}";
 		String tmp;
+		int colors_size = GempakColor.values().length;
+		
 		if (title == null || title.trim().length() <= 0) return;
 		
 		/*
@@ -91,26 +97,30 @@ public class TITLE {
 			if ( titleStr.length >= 1 && titleStr[0] != null &&
 					titleStr[0].trim().length() > 0) {
 				tmp = titleStr[0].trim();
-				if ( tmp.matches(expression)) {
+				if ( tmp.matches(expression_1) || tmp.matches(expression_2)) {
 					col = Integer.valueOf(tmp);
 				}
 			}
-			if ( col > 0) {
+			if ( col > 0 && col <= colors_size) {
 				titleColor = GempakColor.convertToRGB(col);
-				if ( titleStr.length >= 2 && titleStr[1] != null &&
+			}
+			else {	// use white color when the number over size of GempakColor
+				titleColor = GempakColor.convertToRGB(1);
+			}
+			
+			if ( titleStr.length >= 2 && titleStr[1] != null &&
 						titleStr[1].trim().length() > 0) {
-					tmp = titleStr[1].trim();
-					if ( tmp.matches(expression)) {
-						titleLineLocation = Integer.valueOf(tmp);
-					}
+				tmp = titleStr[1].trim();
+				if ( tmp.matches(expression_1)) {
+					titleLineLocation = Integer.valueOf(tmp);
 				}
-				if ( titleStr.length >= 3 && titleStr[2] != null &&
-						titleStr[2].trim().length() > 0) {
-					titleString = checkOldTitleSyntax(titleStr[2].trim());
-				}
-				else {
-					titleString = "~ @ _$";
-				}
+			}
+			if ( titleStr.length >= 3 && titleStr[2] != null &&
+					titleStr[2].trim().length() > 0) {
+				titleString = checkOldTitleSyntax(titleStr[2].trim());
+			}
+			else {
+				titleString = "~ @ _$";
 			}
 		}
 		else {//use white color and whole string

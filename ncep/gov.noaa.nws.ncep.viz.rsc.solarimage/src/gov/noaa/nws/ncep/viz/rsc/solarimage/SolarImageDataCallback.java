@@ -4,6 +4,7 @@ import gov.noaa.nws.ncep.common.dataplugin.solarimage.SolarImageRecord;
 import gov.noaa.nws.ncep.viz.rsc.solarimage.util.ImageData;
 
 import java.io.File;
+import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
@@ -18,7 +19,7 @@ public class SolarImageDataCallback implements IColorMapDataRetrievalCallback {
 
     protected SolarImageRecord record;
     
-    public ImageData imgData;
+    private ImageData imgData;
 
     /**
      * @param record
@@ -31,7 +32,7 @@ public class SolarImageDataCallback implements IColorMapDataRetrievalCallback {
 
     @Override
     public ColorMapData getColorMapData() throws VizException {
-        System.out.println("Retrieving solarimage data from HDF5...");
+        //System.out.println("Retrieving solarimage data from HDF5...");
 
         int[] dimensions = new int[] { imgData.getNx(), imgData.getNy() };
         FloatBuffer buffer = FloatBuffer.wrap(imgData.getImageValues());
@@ -65,7 +66,11 @@ public class SolarImageDataCallback implements IColorMapDataRetrievalCallback {
     public double getOriginalValue(double val) {
         return val;
     }
-
+    
+    public ImageData getImageData() {
+        return imgData;
+    }
+    
     @Override
     public int hashCode() {
         final int prime = 31;

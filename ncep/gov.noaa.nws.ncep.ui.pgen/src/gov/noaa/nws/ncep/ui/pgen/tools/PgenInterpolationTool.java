@@ -111,7 +111,7 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
         @Override	   	
         public boolean handleMouseDown( int anX, int aY, int button ) { 
         	if ( !isResourceEditable() ) return false;
-       	
+
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null ) return false;
@@ -268,16 +268,16 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
 
     	}
     	else {  	  	
-		if ( el2.getPgenCategory().equals( orig.getPgenCategory() ) ) {
-			
-				if ( bothClosed(orig, el2) ||  bothOpen(orig, el2) ) {
-					return true;
-				}
-				else
-					return false;
-		}		
-		else
-			return false;
+    		if ( el2.getPgenCategory().equals( orig.getPgenCategory() ) ) {
+
+    			if ( bothClosed(orig, el2) ||  bothOpen(orig, el2) ) {
+    				return true;
+    			}
+    			else
+    				return false;
+    		}		
+    		else
+    			return false;
     	}
 		
 	}
@@ -319,7 +319,7 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
     	 */
     	List<AbstractDrawableComponent> deList = PgenInterpolator.interpolate(selectedEls.get(0).getPrimaryDE(), selectedEls.get(1).getPrimaryDE(), 
     			props, getDescriptor( mapEditor ) );
-
+        
     	/*
     	 * Add any new elements to the Pgen Resource
     	 */
@@ -390,7 +390,7 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
         }
         return descriptor;
     }
-
+    
     /*
      * Check if it is a GFA and if its forecast hour can be used.
      */
@@ -409,7 +409,7 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
 
 	}
    
-
+   
 
 }
 

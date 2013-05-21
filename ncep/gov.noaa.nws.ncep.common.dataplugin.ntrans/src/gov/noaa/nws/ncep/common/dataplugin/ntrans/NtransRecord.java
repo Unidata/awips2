@@ -8,11 +8,10 @@
  *
  * Date     	Author		Description
  * ------------	----------	-----------	--------------------------
- * 02/2013		B. Hebbard	Initial creation
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime	
+ * 02/2013		B. Hebbard	Initial creation	
+ * Apr 4, 2013  1846 bkowal Added an index on refTime and forecastTime	
  * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
  * 
- * </pre>
  * This code has been developed by the SIB for use in the AWIPS2 system.
  */
 
@@ -38,6 +37,7 @@ import org.hibernate.annotations.Index;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -63,50 +63,61 @@ public class NtransRecord extends PersistablePluginDataObject {
 
 	private static final long serialVersionUID = 1L;
 
-	@Column
+    @Column
 	@DataURI(position=1)
-	@XmlElement
-	@DynamicSerializeElement
-	private String validTimeString;
+    @XmlElement
+    @DynamicSerializeElement
+    private String modelName;
 
-	@Column
+    @Column
 	@DataURI(position=2)
-	@XmlElement
-	@DynamicSerializeElement
-	private String productNameString;
+    @XmlElement
+    @DynamicSerializeElement
+    private String metafileName ;
 
-	@Column
+    @Column
 	@DataURI(position=3)
-	@XmlElement
-	@DynamicSerializeElement
-	private Calendar startTime;
+    @XmlElement
+    @DynamicSerializeElement
+    private String productName;
 
 	@Column
-	@DataURI(position=4)
-	@XmlElement
-	@DynamicSerializeElement
-	private Calendar endTime;
-
+    @XmlElement
+    @DynamicSerializeElement
+    private String validTimeString;
+	
 	@Column
-	//@DataURI(position=5)
 	@XmlElement
 	@DynamicSerializeElement
 	private String reportType;
-
-	@Column
-	//@DataURI(position=6)
-	@XmlElement
-	@DynamicSerializeElement
-	private String inputFile;
 	
 	@Transient
-	private byte[] convertedMessage;
+	private byte[] imageData;
 
-	@Column
-	//@DataURI(position=7)
-	@XmlElement
-	@DynamicSerializeElement
-	private int recordLength;
+    @Column
+    @XmlElement
+    @DynamicSerializeElement
+    private int imageSizeX;
+
+    @Column
+    @XmlElement
+    @DynamicSerializeElement
+    private int imageSizeY;
+
+    @Column
+    @XmlElement
+    @DynamicSerializeElement
+    private int imageByteCount;
+
+    @Column
+    @XmlElement
+    @DynamicSerializeElement
+    private int frameNumberInFile;
+
+    @Column
+    @XmlElement
+    @DynamicSerializeElement
+    private int totalFramesInFile;
 	
 	/**
 	 * Default Constructor
@@ -124,6 +135,22 @@ public class NtransRecord extends PersistablePluginDataObject {
 		super(uri);
 	}
 
+	public String getModelName() {
+		return modelName;
+	}
+
+	public void setModelName(String model) {
+		this.modelName = model;
+	}
+
+	public String getMetafileName() {
+		return metafileName;
+	}
+
+	public void setMetafileName(String inputMetaFileName) {
+		this.metafileName = inputMetaFileName;
+	}
+
 	public String getValidTimeString() {
 		return validTimeString;
 	}
@@ -132,28 +159,12 @@ public class NtransRecord extends PersistablePluginDataObject {
 		this.validTimeString = validTimeString;
 	}
 
-	public String getProductNameString() {
-		return productNameString;
+	public String getProductName() {
+		return productName;
 	}
 
-	public void setProductNameString(String productNameString) {
-		this.productNameString = productNameString;
-	}
-
-	public Calendar getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(Calendar startTime) {
-		this.startTime = startTime;
-	}
-
-	public Calendar getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(Calendar endTime) {
-		this.endTime = endTime;
+	public void setProductName(String productNameString) {
+		this.productName = productNameString;
 	}
 
 	public String getReportType() {
@@ -164,27 +175,65 @@ public class NtransRecord extends PersistablePluginDataObject {
 		this.reportType = reportType;
 	}
 
-	public String getInputFile() {
-		return inputFile;
+	public byte[] getImageData() {
+		return imageData;
 	}
 
-	public void setInputFile(String inputFile) {
-		this.inputFile = inputFile;
+	public void setImageData(byte[] imageData) {
+		this.imageData = imageData;
 	}
 
-	public byte[] getConvertedMessage() {
-		return convertedMessage;
+	public int getImageSizeX() {
+		return imageSizeX;
 	}
 
-	public void setConvertedMessage(byte[] convertedMessage) {
-		this.convertedMessage = convertedMessage;
+	public void setImageSizeX(int imageSizeX) {
+		this.imageSizeX = imageSizeX;
 	}
 
+	public int getImageSizeY() {
+		return imageSizeY;
+	}
+
+	public void setImageSizeY(int imageSizeY) {
+		this.imageSizeY = imageSizeY;
+	}
+
+	public int getImageByteCount() {
+		return imageByteCount;
+	}
+
+	public void setImageByteCount(int imageByteCount) {
+		this.imageByteCount = imageByteCount;
+	}
+
+	public int getFrameNumberInFile() {
+		return frameNumberInFile;
+	}
+
+	public void setFrameNumberInFile(int frameNumberInFile) {
+		this.frameNumberInFile = frameNumberInFile;
+	}
+
+	public int getTotalFramesInFile() {
+		return totalFramesInFile;
+	}
+
+	public void setTotalFramesInFile(int totalFramesInFile) {
+		this.totalFramesInFile = totalFramesInFile;
+	}
+
+	
 	@Override
 	public IDecoderGettable getDecoderGettable() {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+    public IHDFFilePathProvider getHDFPathProvider() {
+        return NtransPathProvider.getInstance();
+    }
 
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
@@ -193,13 +242,5 @@ public class NtransRecord extends PersistablePluginDataObject {
 	@Override
     public void setIdentifier(Object dataURI) {
 		this.identifier = dataURI;
-	}
-
-    public int getRecordLength() {
-		return recordLength;
-	}
-
-	public void setRecordLength(int recordLength) {
-		this.recordLength = recordLength;
 	}
 }
