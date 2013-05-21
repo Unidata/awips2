@@ -21,7 +21,6 @@ package com.raytheon.uf.edex.registry.ebxml.services.rest;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 
@@ -30,6 +29,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtrinsicObjectType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.registry.services.rest.IRepositoryItemsRestService;
 import com.raytheon.uf.edex.registry.ebxml.dao.ExtrinsicObjectDao;
 
 /**
@@ -44,6 +44,7 @@ import com.raytheon.uf.edex.registry.ebxml.dao.ExtrinsicObjectDao;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/19/2013    1931        bphillip    Initial implementation
+ * 5/21/2013    2022        bphillip    Added interface and changed method name
  * </pre>
  * 
  * @author bphillip
@@ -52,7 +53,7 @@ import com.raytheon.uf.edex.registry.ebxml.dao.ExtrinsicObjectDao;
 @Path("/rest/repositoryItems/{repositoryItemId}")
 @Service
 @Transactional
-public class RepositoryItemsRestService {
+public class RepositoryItemsRestService implements IRepositoryItemsRestService {
 
     /**
      * The data access object for getting extrinsic objects containing
@@ -69,8 +70,7 @@ public class RepositoryItemsRestService {
      */
     @GET
     @Produces("application/octet-stream")
-    public byte[] getRegistryObject(
-            @PathParam("repositoryItemId") String repositoryItemId) {
+    public byte[] getRepositoryItem(String repositoryItemId) {
         ExtrinsicObjectType obj = extrinsicObjectDao.getById(repositoryItemId);
         if (obj == null) {
             throw new WebApplicationException(404);

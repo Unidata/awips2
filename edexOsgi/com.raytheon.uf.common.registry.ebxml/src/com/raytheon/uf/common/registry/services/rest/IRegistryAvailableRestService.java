@@ -17,34 +17,39 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.registry.ebxml.init;
+package com.raytheon.uf.common.registry.services.rest;
 
-import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 
 /**
- * Interface that classes may implement to execute code that must be executed
- * after the database is initialzed. DbInit will load all classes implementing
- * this interface and will execute the executeAfterRegistryInit method.
+ * 
+ * Interface for the registry available service
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 3/13/2013    1082       bphillip    Initial creation
- * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 5/21/2013    2022        bphillip    Initial implementation
  * </pre>
  * 
  * @author bphillip
- * @version 1.0
- * @see com.raytheon.uf.edex.registry.ebxml.dao.DbInit
+ * @version 1
  */
-public interface RegistryInitializedListener {
+@Path("/rest/registryAvailable")
+public interface IRegistryAvailableRestService {
 
     /**
-     * Executes code that must be executed after the ebxml database is
-     * initialized
+     * Method that simply returns a string. This method is called to see if
+     * registry services are available for a registry
+     * 
+     * @return A string
      */
-    public void executeAfterRegistryInit() throws EbxmlRegistryException;
+    @GET
+    @Produces("text/plain")
+    public String isRegistryAvailable();
+
 }
