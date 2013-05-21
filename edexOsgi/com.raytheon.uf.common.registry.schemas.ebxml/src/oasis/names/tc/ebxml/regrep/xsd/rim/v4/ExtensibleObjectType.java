@@ -20,6 +20,7 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -95,6 +96,13 @@ public abstract class ExtensibleObjectType {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ExtensibleObjectType.class);
 
+    @BatchSize(size = 500)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(schema = "ebxml", inverseJoinColumns = @JoinColumn(name = "child_slot_key"))
+    @XmlElement(name = "Slot")
+    @DynamicSerializeElement
+    protected Set<SlotType> slot;
+
     private static final Map<Class<?>, Class<?>> SLOT_VALUE_TYPE_MAP;
 
     static {
@@ -104,6 +112,26 @@ public abstract class ExtensibleObjectType {
         map.put(Float.class, FloatValueType.class);
         SLOT_VALUE_TYPE_MAP = Collections.unmodifiableMap(map);
 
+    }
+
+    protected ExtensibleObjectType() {
+
+    }
+
+    protected ExtensibleObjectType(Collection<SlotType> slots) {
+        if (slots != null) {
+            getSlot().addAll(slots);
+        }
+    }
+
+    protected ExtensibleObjectType(Object... slotNameValues) {
+        if (slotNameValues.length % 2 != 0) {
+            throw new IllegalArgumentException(
+                    "Incorrect number of arguments submitted to ExtensibleObjectType constructor");
+        }
+        for (int i = 0; i < slotNameValues.length; i += 2) {
+            addSlot((String) slotNameValues[i], slotNameValues[i + 1]);
+        }
     }
 
     public SlotType createSlot(String slotName, Object slotValue) {
@@ -140,13 +168,6 @@ public abstract class ExtensibleObjectType {
         }
         addSlot(slotName, slotValue);
     }
-
-    @BatchSize(size = 500)
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(schema = "ebxml", inverseJoinColumns = @JoinColumn(name = "child_slot_key"))
-    @XmlElement(name = "Slot")
-    @DynamicSerializeElement
-    protected Set<SlotType> slot;
 
     /**
      * Gets the value of the slot property.

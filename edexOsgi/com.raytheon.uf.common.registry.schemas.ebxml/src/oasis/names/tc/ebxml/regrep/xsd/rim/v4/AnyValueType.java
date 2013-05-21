@@ -65,7 +65,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  */
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AnyValueType", propOrder = { "anyValue" })
@@ -79,6 +79,14 @@ public class AnyValueType extends ValueType {
     protected Object anyValue;
 
     private static final String COLUMN_NAME = "anyValue";
+
+    public AnyValueType() {
+
+    }
+
+    public AnyValueType(Object anyValue) {
+        this.anyValue = anyValue;
+    }
 
     @Override
     public String getColumnName() {
