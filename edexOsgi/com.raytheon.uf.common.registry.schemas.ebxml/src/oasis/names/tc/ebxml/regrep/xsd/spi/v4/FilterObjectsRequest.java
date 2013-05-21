@@ -21,6 +21,7 @@
 package oasis.names.tc.ebxml.regrep.xsd.spi.v4;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -31,6 +32,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtrinsicObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -72,6 +74,18 @@ public class FilterObjectsRequest extends RegistryRequestType {
     @XmlElement(name = "InvocationControlFile")
     @DynamicSerializeElement
     protected List<ExtrinsicObjectType> invocationControlFile;
+
+    public FilterObjectsRequest() {
+
+    }
+
+    public FilterObjectsRequest(String id, String comment,
+            Collection<SlotType> slots, RegistryObjectListType originalObjects,
+            List<ExtrinsicObjectType> invocationControlFile) {
+        super(id, comment, slots);
+        this.originalObjects = originalObjects;
+        this.invocationControlFile = invocationControlFile;
+    }
 
     /**
      * Gets the value of the originalObjects property.

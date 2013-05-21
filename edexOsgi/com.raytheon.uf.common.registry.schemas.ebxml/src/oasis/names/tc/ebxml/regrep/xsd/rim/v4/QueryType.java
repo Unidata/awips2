@@ -20,6 +20,8 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
+import java.util.Collection;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -80,6 +82,22 @@ public class QueryType extends ExtensibleObjectType {
     @XmlAttribute(required = true)
     @DynamicSerializeElement
     protected String queryDefinition;
+
+    public QueryType() {
+
+    }
+
+    public QueryType(String queryDefinition, Collection<SlotType> slots) {
+        super(slots);
+        this.queryDefinition = queryDefinition;
+    }
+
+    public QueryType(String queryDefinition, SlotType... slots) {
+        this.queryDefinition = queryDefinition;
+        for (SlotType slot : slots) {
+            this.getSlot().add(slot);
+        }
+    }
 
     /**
      * Gets the value of the queryDefinition property.
