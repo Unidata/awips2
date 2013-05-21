@@ -45,7 +45,6 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.registry.ebxml.dao.AuditableEventTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.NotificationTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
@@ -66,6 +65,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 4/9/2013     1802        bphillip    Initial Coding
  * 4/15/2013    1905        bphillip    Implemented notification to email endpoints
  * Apr 17, 2013 1672        djohnson    No longer cares about notification protocol.
+ * 5/21/2013    2022        bphillip    Cleaned up unused method parameters and batching of notifications
  * </pre>
  * 
  * @author bphillip
@@ -113,9 +113,11 @@ public class RegistryNotificationManager {
             List<AuditableEventType> eventsOfInterest)
             throws EbxmlRegistryException {
         // Create the notification object
-        NotificationType notification = createNotification(subscription,
-                address, objectsOfInterest, eventsOfInterest);
+        NotificationType notification = createNotification(
+                subscription.getId(), eventsOfInterest);
         checkNotification(notification, objectsOfInterest, address);
+        notification.addSlot(EbxmlObjectUtil.NOTIFICATION_SOURCE_URL_SLOT_NAME,
+                EbxmlObjectUtil.REGISTRY_BASE_URL);
         return notification;
     }
 
@@ -124,13 +126,14 @@ public class RegistryNotificationManager {
     }
 
     protected void sendNotification(NotificationListenerWrapper listener,
-            NotificationType notification, String address)
-            throws EbxmlRegistryException {
-        try {
-            listener.notificationListener.onNotification(notification);
-        } catch (Exception e) {
-            throw new EbxmlRegistryException("Error sending notification", e);
-        }
+            NotificationType notification, String address) {
+
+        statusHandler.info("Sending notification [" + notification.getId()
+                + "] to address [" + address + "]");
+        listener.notificationListener.onNotification(notification);
+        statusHandler.info("Notification [" + notification.getId()
+                + " successfully sent to address [" + address + "]");
+
         // Keep a record of when the auditable event was sent to
         // the target
         auditableEventDao.persistSendDate(notification.getEvent(),
@@ -154,6 +157,7 @@ public class RegistryNotificationManager {
             SubscriptionNotificationListeners notificationListeners,
             final List<ObjectRefType> objectsOfInterest)
             throws EbxmlRegistryException {
+        int SIZE_LIMIT = 100;
 
         final List<NotificationListenerWrapper> listeners = notificationListeners.listeners;
         final SubscriptionType subscription = notificationListeners.subscription;
@@ -164,25 +168,39 @@ public class RegistryNotificationManager {
         if (!eventsOfInterest.isEmpty()) {
             try {
                 for (NotificationListenerWrapper listener : listeners) {
-                    NotificationType notification = getNotification(
-                            subscription, listener.address, objectsOfInterest,
-                            eventsOfInterest);
-                    if (notification.getEvent().isEmpty()) {
-                        statusHandler.info("No events to send to ["
-                                + listener.address + "] for subscription ["
-                                + subscription.getId() + "]");
-                        continue;
-                    } else {
-                        sendNotification(listener, notification,
-                                listener.address);
+                    int subListCount = eventsOfInterest.size() / SIZE_LIMIT;
+                    int lastListSize = eventsOfInterest.size() % SIZE_LIMIT;
+                    for (int i = 0; i < subListCount; i++) {
+                        NotificationType notification = getNotification(
+                                subscription, listener.address,
+                                objectsOfInterest, eventsOfInterest.subList(
+                                        SIZE_LIMIT * i, SIZE_LIMIT * i
+                                                + SIZE_LIMIT));
+                        if (!notification.getEvent().isEmpty()) {
+                            sendNotification(listener, notification,
+                                    listener.address);
+                        }
                     }
+                    if (lastListSize > 0) {
+                        NotificationType notification = getNotification(
+                                subscription,
+                                listener.address,
+                                objectsOfInterest,
+                                eventsOfInterest.subList(SIZE_LIMIT
+                                        * subListCount, SIZE_LIMIT
+                                        * subListCount + lastListSize));
+                        if (!notification.getEvent().isEmpty()) {
+                            sendNotification(listener, notification,
+                                    listener.address);
+                        }
+                    }
+
                 }
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Unable to determine notification destinations.", e);
             }
         }
-
     }
 
     protected void checkNotification(NotificationType notification,
@@ -192,7 +210,6 @@ public class RegistryNotificationManager {
         List<AuditableEventType> eventsToSend = new ArrayList<AuditableEventType>();
         List<RegistryObjectType> objectsToRemove = new ArrayList<RegistryObjectType>();
         List<ObjectRefType> refsToRemove = new ArrayList<ObjectRefType>();
-        long start = TimeUtil.currentTimeMillis();
         for (AuditableEventType event : notification.getEvent()) {
             // Check to see if this is a reciprocal notification. We don't want
             // to send a notification back to the server who sent us the object
@@ -253,11 +270,11 @@ public class RegistryNotificationManager {
             }
         }
         notification.setEvent(eventsToSend);
-        statusHandler.info("Filtering of auditable events took: "
-                + (TimeUtil.currentTimeMillis() - start) + " ms");
-        statusHandler.info(eventsToSend.size()
-                + " applicable events found for subscription ["
-                + notification.getSubscription() + "]");
+        if (!eventsToSend.isEmpty()) {
+            statusHandler.info(eventsToSend.size()
+                    + " applicable events found for subscription ["
+                    + notification.getSubscription() + "]");
+        }
     }
 
     /**
@@ -276,9 +293,7 @@ public class RegistryNotificationManager {
      * @throws EbxmlRegistryException
      *             If errors occur while creating the notification
      */
-    protected NotificationType createNotification(
-            SubscriptionType subscription, String serviceAddress,
-            List<ObjectRefType> objectsOfInterest,
+    protected NotificationType createNotification(String subscriptionId,
             List<AuditableEventType> eventsOfInterest)
             throws EbxmlRegistryException {
 
@@ -292,11 +307,11 @@ public class RegistryNotificationManager {
                 .getInternationalString("Subscription Notification"));
         notification.setDescription(RegistryUtil
                 .getInternationalString("Notification for subscription ["
-                        + subscription.getId() + "]"));
+                        + subscriptionId + "]"));
         notification.setObjectType(RegistryObjectTypes.NOTIFICATION);
         notification.setStatus(StatusTypes.APPROVED);
         notification.setOwner(RegistryUtil.DEFAULT_OWNER);
-        notification.setSubscription(subscription.getId());
+        notification.setSubscription(subscriptionId);
         notification.setEvent(eventsOfInterest);
         return notification;
 

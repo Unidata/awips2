@@ -17,34 +17,26 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.registry.ebxml.init;
-
-import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+package com.raytheon.uf.common.registry.constants;
 
 /**
- * Interface that classes may implement to execute code that must be executed
- * after the database is initialzed. DbInit will load all classes implementing
- * this interface and will execute the executeAfterRegistryInit method.
+ * 
+ * Service data formats
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 3/13/2013    1082       bphillip    Initial creation
- * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 5/21/2013    2022        bphillip    Initial implementation
  * </pre>
  * 
  * @author bphillip
- * @version 1.0
- * @see com.raytheon.uf.edex.registry.ebxml.dao.DbInit
+ * @version 1
  */
-public interface RegistryInitializedListener {
+public class Format {
 
-    /**
-     * Executes code that must be executed after the ebxml database is
-     * initialized
-     */
-    public void executeAfterRegistryInit() throws EbxmlRegistryException;
+    public static final String EBRIM = "application/ebrim+xml";
+
 }
