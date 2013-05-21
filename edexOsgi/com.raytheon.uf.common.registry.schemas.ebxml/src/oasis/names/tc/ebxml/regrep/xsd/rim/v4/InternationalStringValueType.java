@@ -68,7 +68,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "InternationalStringValueType", propOrder = { "internationalStringValue" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Table(schema = "ebxml", name = "InternationalStringValue")
 public class InternationalStringValueType extends ValueType {
 
@@ -78,6 +78,26 @@ public class InternationalStringValueType extends ValueType {
     protected InternationalStringType internationalStringValue;
 
     private static final String COLUMN_NAME = "internationalStringValue";
+
+    public InternationalStringValueType() {
+
+    }
+
+    public InternationalStringValueType(
+            InternationalStringType internationalStringValue) {
+        this.internationalStringValue = internationalStringValue;
+    }
+
+    public InternationalStringValueType(String internationalStringValue) {
+        this.internationalStringValue = new InternationalStringType(
+                internationalStringValue);
+    }
+
+    public InternationalStringValueType(String lang,
+            String internationalStringValue) {
+        this.internationalStringValue = new InternationalStringType(lang,
+                internationalStringValue);
+    }
 
     @Override
     public String getColumnName() {

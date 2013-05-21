@@ -49,6 +49,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.registry.acp.xacml.util.XACMLParser;
 import com.raytheon.uf.edex.registry.ebxml.dao.ExtrinsicObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImpl;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
@@ -65,6 +66,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 8/17/2012    724          bphillip    Initial Coding
  * 3/18/2013    1802         bphillip    Modified to use transaction boundaries and spring injection
  * 4/9/2013     1802        bphillip     Import changes due to moved constant classes
+ * 5/21/2013    2022        bphillip     Implemented RegistryInitializedListener
  * </pre>
  * 
  * @author bphillip
@@ -72,7 +74,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  */
 @Service
 @Transactional
-public class XACMLPolicyAdministrator {
+public class XACMLPolicyAdministrator implements RegistryInitializedListener {
 
     /** The status handler */
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -84,8 +86,10 @@ public class XACMLPolicyAdministrator {
     /** The map of policy sets known to the system */
     private Map<String, PolicySetType> policySetMap = new HashMap<String, PolicySetType>();
 
+    /** Data access object for extrinsic objects */
     private ExtrinsicObjectDao extrinsicObjectDao;
 
+    /** The lifecycle manager instance */
     private LifecycleManagerImpl lcm;
 
     /**
@@ -176,6 +180,16 @@ public class XACMLPolicyAdministrator {
                                     Charset.forName("UTF-8")));
         }
         return policySet;
+    }
+
+    @Override
+    public void executeAfterRegistryInit() throws EbxmlRegistryException {
+        try {
+            loadAccessControlPolicies();
+        } catch (MsgRegistryException e) {
+            throw new EbxmlRegistryException(e);
+        }
+
     }
 
     /**

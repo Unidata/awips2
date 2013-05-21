@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services.notification.listeners;
 
-import java.net.MalformedURLException;
-
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.NotificationListener;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
 
@@ -87,16 +85,10 @@ public class WebServiceNotificationListener implements NotificationListener {
      */
     protected void sendNotificationViaSoap(NotificationType notification,
             String serviceAddress) throws EbxmlRegistryException {
-        try {
-            statusHandler.info("Sending notification [" + notification.getId()
-                    + "]");
-            RegistrySOAPServices.getNotificationListenerServiceForUrl(
-                    serviceAddress).onNotification(notification);
-            statusHandler.info("Notification [" + notification.getId()
-                    + "] sent!");
-        } catch (MalformedURLException e) {
-            throw new EbxmlRegistryException("Error parsing service address!",
-                    e);
-        }
+        statusHandler.info("Sending notification [" + notification.getId()
+                + "]");
+        RegistrySOAPServices.getNotificationListenerServiceForUrl(
+                serviceAddress).onNotification(notification);
+        statusHandler.info("Notification [" + notification.getId() + "] sent!");
     }
 }
