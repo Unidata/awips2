@@ -8,9 +8,9 @@
 ! D.W.Plummer/NCEP	 8/97	Added FILTER parameter
 ! J. Carr/HPC   	10/97	Moved from the standard directory because this
 !                               restore file did not apply to all the models
-! J. Carr/HPC   	 2/99	Changed 9823 sgma to 30:0 pdly
+! J. Carr/HPC   	 2/99	Changed 9823 sgma to 0:30 pdly
 !
-GLEVEL=850                !850  !30:0                 !850         
+GLEVEL=850                !850  !0:30                 !850         
 GVCORD=pres               !pres !pdly                 !pres            
 SKIP=
 FILTER=y

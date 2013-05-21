@@ -2,15 +2,20 @@ package gov.noaa.nws.ncep.viz.resources.manager;
 
 import static java.lang.System.out;
 import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasRecord;
+import gov.noaa.nws.ncep.common.dataplugin.ntrans.NtransRecord;
 import gov.noaa.nws.ncep.edex.plugin.mosaic.common.MosaicRecord;
 import gov.noaa.nws.ncep.viz.common.StringListAdapter;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.gempak.util.GempakGrid;
+import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData.TimeMatchMethod;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData.TimelineGenMethod;
+import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr.ResourceParamInfo;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr.ResourceParamType;
+import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinitionFilters.ResourceDefinitionFilter;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -77,7 +82,11 @@ import gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryRequestMsg;
  *  09/05/12      #860        Greg Hull   Add this to the URICatalog for storing the latest time.
  *  09/13/12      #860        Greg Hull   set default for inventoryEnabled to false.
  *  11/2012		  #885		  T. Lee	  Set unmapped satellite projection resolution to "native"
- *  01/2013                   Greg Hull   Don't create wildcard inventory constraints
+ *  01/2013                   Greg Hull   Don't create wildcard inventory constraint
+ *  02/2013       #972        Greg Hull   ResourceCategory class and supported display types
+ *  03/2013       #972        Greg Hull   AttrSetsOrganization
+ *  04/2013       #864        Greg Hull   mv filters and isEnabled
+ *  04/2013       #838        B. Hebbard  Add special handling (like satellite) for NTRANS compound subType
  * 
  * </pre>
  * 
@@ -86,23 +95,15 @@ import gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryRequestMsg;
  */
 @XmlRootElement(name = "ResourceDefinition")
 @XmlAccessorType(XmlAccessType.NONE)
-public class ResourceDefinition implements ISerializableObject, IAlertObserver, Comparable<ResourceDefinition> {
-
-    // if false this will only show up in the Manage resources gui but not 
-	// on the resource Selection Dialog.
-    @XmlElement
-    private boolean isEnabled;
+public class ResourceDefinition implements ISerializableObject, IAlertObserver, Comparable<ResourceDefinition> {    
 
     @XmlElement
     private String resourceDefnName;
 
     @XmlElement
-    private String resourceCategory;
+    @XmlJavaTypeAdapter(ResourceCategory.ResourceCategoryAdapter.class)
+    private ResourceCategory resourceCategory;
 
-    @XmlElement
-    @XmlJavaTypeAdapter(StringListAdapter.class)
-    private ArrayList<String> filterLabels;
-    
     private String           localizationName; // the path
     private LocalizationFile localizationFile;
 
@@ -147,6 +148,22 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     @XmlElement
     private int dfltTimeRange;
 
+    // where/how are the attribute sets located/organized
+    // 
+    public static enum AttrSetsOrganization {
+    	BY_ATTR_SET_GROUP,
+    	BY_RSC_DEFN,
+    	DETERMINE_BY_RSC_CATEGORY // GRIDS, RADAR...  use ATTR_SET GROUP
+    }
+    
+    // Most will be the default which means we will use the resource
+    // category to determine whether to use attr set groups, but this will
+    // let a RD override the behaviour for a category if needed.
+    @XmlElement
+    private  AttrSetsOrganization attrSetOrg=AttrSetsOrganization.DETERMINE_BY_RSC_CATEGORY;
+    
+	private List<NcDisplayType> applicableDisplayTypes;
+
     @XmlElement
     private String dfltGeogArea;
 
@@ -170,8 +187,6 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     // the names of the parameters which are stored in the inventory for this RD;
     //	
     private ArrayList<String> inventoryParamNames = new ArrayList<String>();
-
-    
     
     // a map from the resource Constraints to a cache of the availableTimes and the
     // latest time. The availableTimes may come from an inventory query or a db query and
@@ -184,18 +199,18 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     // Some RscDefns have alot of possible constraints (ie radar and some satellites...) which
     // means that the inventory queries can get hit all at once and cause a slight (1 second?) 
     // delay. In this case we will leverage Raytheon's URICatalog which listens for the URI 
-    // Notifications and stores the latest times. 
-    //    NOTE : this is currently only used for the latestTimes in the attr set list. The 
-    // actual times are still coming from the NcInventory. 
-    //
-//    private Boolean addToURICatalog = false;
+    // Notifications and stores the latest times.
+    //    The code can override this flag if false and still add the RD to the Catalog if
+    // for example the db query is too slow (ie > 2 seconds.)
+    //    This is currently only used for the latestTimes in the attr set list. The 
+    // actual times are still coming from the NcInventory or the DB. 
+    //    
+    @XmlElement
+    private Boolean addToURICatalog = false;
     
-    
-    public ResourceDefinition() {
-        isEnabled = true;
+	public ResourceDefinition() {
         resourceDefnName = "";
-        resourceCategory = ""; // new ArrayList<String>();
-        filterLabels = new ArrayList<String>();
+        resourceCategory = ResourceCategory.NullCategory; // new ArrayList<String>();
         subTypeGenerator = "";
         rscTypeGenerator = "";
         resourceParameters = new HashMap<String,String>();
@@ -203,7 +218,7 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
         frameSpan = 0;
         dfltFrameCount = DEFAULT_FRAME_COUNT;
         dfltTimeRange = DEFAULT_TIME_RANGE;
-        dfltGeogArea = NmapCommon.getDefaultMap();
+        dfltGeogArea = "";
         timeMatchMethod = TimeMatchMethod.CLOSEST_BEFORE_OR_AFTER;
         timelineGenMethod = timelineGenMethod.USE_DATA_TIMES;     
         inventoryAlias = null;
@@ -221,9 +236,6 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     public ResourceDefinition(ResourceDefinition rscDefn) {
         resourceDefnName = rscDefn.getResourceDefnName();
         resourceCategory = rscDefn.resourceCategory;
-
-        isEnabled = rscDefn.isEnabled;
-        filterLabels = new ArrayList<String>(rscDefn.getFilterLabels());
 
         subTypeGenerator = rscDefn.getSubTypeGenerator();
         rscTypeGenerator = rscDefn.getRscTypeGenerator();
@@ -311,9 +323,13 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
         return resourceDefnName;
     }
 
-    public void addResourceCategory(String cat) {
-        resourceCategory = cat;
-    }
+    public Boolean getAddToURICatalog() {
+		return addToURICatalog;
+	}
+
+	public void setAddToURICatalog(Boolean addToURICatalog) {
+		this.addToURICatalog = addToURICatalog;
+	}
 
     // resourceParameters includes the comments but don't return them.
     //
@@ -405,58 +421,72 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
         rscImplementation = ri;
     }
 
-    public boolean getIsEnabled() {
-        return isEnabled;
+    // isEnabled used to be stored here so instead of changing the code that called this method, 
+    // just implement it here. 
+    public boolean isEnabled() {
+    	ResourceDefinitionFilter rdf;
+		try {
+			rdf = ResourceDefnsMngr.getInstance().getResourceDefnFilter( resourceDefnName );
+		} catch (VizException e) {
+			return false;
+		}
+    	// TODO : somewhere there should be logic to determine the default 
+    	// enabled state of a RD that doesn't have an entry in the filters file. Here? or in mngr?
+    	return ( rdf == null ? false : rdf.getIsEnabled() ); 
     }
 
-    public void setEnabled(boolean isEnabled) {
-        this.isEnabled = isEnabled;
+    public Boolean isDisplayTypeSupported( NcDisplayType dispType ) {
+    	for( NcDisplayType dt : getSupportedDisplayTypes() ) {
+    		if( dt == dispType ) {
+    			return true;
+    		}
+    	}
+    	return false;
     }
-
+    
+    public NcDisplayType[] getSupportedDisplayTypes() {
+    	if( applicableDisplayTypes == null ) {
+    		applicableDisplayTypes = new ArrayList<NcDisplayType>();
+    	}
+    	
+    	Class<?> implClass = ResourceExtPointMngr.getInstance().getResourceDataClass( rscImplementation );
+    	
+    	try {
+			Object rscData = implClass.newInstance();
+			if( rscData instanceof AbstractNatlCntrsRequestableResourceData ) {
+				return ((AbstractNatlCntrsRequestableResourceData)rscData).getSupportedDisplayTypes();
+			}
+			else if( rscData instanceof AbstractNatlCntrsResourceData ) {
+				return ((AbstractNatlCntrsResourceData)rscData).getSupportedDisplayTypes();
+			}
+			else {
+				System.out.println("??? Rsc Impl "+rscImplementation+"has non-NC resource class");	
+			}
+		} catch (InstantiationException e) {
+			System.out.println("Error instantiating class ("+implClass.getName()+") for resource: "+ rscImplementation );
+		} catch (IllegalAccessException e) {
+			System.out.println("Error instantiating class ("+implClass.getName()+") for resource: "+ rscImplementation );
+		}
+    	
+    	return new NcDisplayType[0];
+    }
+    
     public boolean isForecast() {
-        return filterLabels.contains("Forecast");
+    	return (timelineGenMethod == TimelineGenMethod.USE_CYCLE_TIME_FCST_HOURS ||
+    			timelineGenMethod == TimelineGenMethod.USE_FCST_FRAME_INTERVAL_FROM_REF_TIME );
+        //return filterLabels.contains("Forecast");
     }
 
-    public void setForecast(boolean forecast) {
-        if (forecast && !isForecast()) {
-            filterLabels.add("Forecast");
-        } else if (!forecast && isForecast()) {
-            filterLabels.remove("Forecast");
-        }
-    }
-
-    public boolean isEventResource() {
-        return filterLabels.contains("Event");
-    }
-
-    public void setEventResource(boolean e) {
-        if (e && !isEventResource()) {
-            filterLabels.add("Event");
-        } else if (!e && isEventResource()) {
-            filterLabels.remove("Event");
-        }
-    }
-
-    public String getResourceCategory() {
+    public ResourceCategory getResourceCategory() {
         return resourceCategory;
     }
 
-    public void setResourceCategory(String rCat) {
+    public void setResourceCategory(ResourceCategory rCat) {
         this.resourceCategory = rCat;
     }
 
-    public ArrayList<String> getFilterLabels() {
-        return filterLabels;
-    }
-
-    public void setFilterLabels(ArrayList<String> filterLabels) {
-        this.filterLabels = filterLabels;
-    }
-
-    public void addFilterLabel(String filterLabel) {
-        if (!filterLabels.contains(filterLabel)) {
-            filterLabels.add(filterLabel);
-        }
+    public void setResourceCategory(String rCatStr) {
+        this.resourceCategory = ResourceCategory.getCategory( rCatStr );
     }
 
     public String getRscImplementation() {
@@ -520,14 +550,31 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     }
 
     public boolean isPgenResource() {
-        return resourceCategory.equals(ResourceName.PGENRscCategory);
+        return resourceCategory == ResourceCategory.PGENRscCategory;
     }
 
+    public AttrSetsOrganization getAttrSetOrg() {
+		return attrSetOrg;
+	}
+
+	public void setAttrSetOrg(AttrSetsOrganization attrSetOrg) {
+		this.attrSetOrg = attrSetOrg;
+	}
+
     public boolean applyAttrSetGroups() {
-        return resourceCategory.equals(ResourceName.GridRscCategory)
-                || resourceCategory.equals(ResourceName.RadarRscCategory)
-                || resourceCategory.equals(ResourceName.PGENRscCategory)
-                || resourceCategory.equals(ResourceName.EnsembleRscCategory);
+    	if( attrSetOrg == AttrSetsOrganization.DETERMINE_BY_RSC_CATEGORY ) {
+    		return  resourceCategory == ResourceCategory.GridRscCategory ||
+	        		resourceCategory == ResourceCategory.RadarRscCategory ||
+	        		resourceCategory == ResourceCategory.PGENRscCategory ||
+	                resourceCategory == ResourceCategory.EnsembleRscCategory ||
+	                resourceCategory == ResourceCategory.SpaceRscCategory;
+    	}
+    	else if( attrSetOrg == AttrSetsOrganization.BY_ATTR_SET_GROUP ) {
+    		return true;
+    	}
+    	else {
+    		return false;
+    	}
     }
 
     //
@@ -712,7 +759,7 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     // derives from Requestable or non-Requestable abstract class.
     //
     public boolean isRequestable() {
-    	return !( getResourceCategory().equals( ResourceName.OverlayRscCategory ) ||
+    	return !(getResourceCategory() == ResourceCategory.OverlayRscCategory ||
     			 isPgenResource() );  
     }
     
@@ -750,16 +797,18 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 		// specified by the implementation is not given.
 		//
 		HashMap<String,String> paramValues = getResourceParameters( true );
-//		HashMap<String,String> dfltParamValues = getDefaultParameterValues();
 
+		// sanity check on timelineGen
+		if( rscImplementation == "ModelFcstGridContours" &&
+			timelineGenMethod != TimelineGenMethod.USE_CYCLE_TIME_FCST_HOURS ) {
+			System.out.println("Sanity Check: GRID rsc has a non-forecast timelineGenMethod???");
+		}
+		
 		// check that all of the paramValues are specified for the rsc implementation
 		// 
 		for( String prm : paramValues.keySet() ) {
 			if( !prm.equals("pluginName") &&
 				!rscImplParams.containsKey( prm ) ) {
-
-//				out.println("Warning: parameter "+prm+" for "+getResourceDefnName()+
-//					" is not recognized for the resource implementation "+getRscImplementation() );
 
 				throw new VizException( getResourceDefnName()+" has a parameter, "+prm+
 						", that is not recognized by its implementation: "+ getRscImplementation() );
@@ -845,11 +894,15 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 
 		//    		HashMap<String, RequestConstraint> inventoryConstraints = 
 		//    								new HashMap<String,RequestConstraint>();
-
+ 
 		baseConstraints.put( "pluginName", new RequestConstraint( getPluginName() ) );
 		//        	inventoryConstraints.put( "pluginName", new RequestConstraint( getPluginName() ) );
 		inventoryParamNames = new ArrayList<String>();
 		inventoryParamNames.add( "pluginName" );
+		
+//		if( rscImplementation == "ModelFcstGridContours" ) {
+//			inventoryParamNames.add("info.ensembleId");
+//		}
 
 		// loop thru all of the request constraint parameters defined for the implementation and
 		// add it to either the base constraints or the inventory constraints. 
@@ -1580,7 +1633,16 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     				String subType=null;
     				String attrSetKey=null;
 
-    				if( getResourceCategory().equals( ResourceName.SatelliteRscCategory ) ) {
+    				if( //getResourceCategory() == ResourceCategory.NtransRscCategory 
+    					  getResourceCategory().getCategoryName().equals("NTRANS")) {
+    					if( getRscImplementation().equals("NTRANS") ) {
+    						NtransRecord ntransRec = (NtransRecord) pdo;
+    						subType = ntransRec.getMetafileName() + "_" + 
+    						ntransRec.getProductName();
+    						//attrSetKey = ntransRec.getSomeThing();  //TODO??
+    					}
+    				}
+    				else if( getResourceCategory() == ResourceCategory.SatelliteRscCategory ) {
     					if( getRscImplementation().equals("GiniSatellite") ) {
     						SatelliteRecord satRec = (SatelliteRecord) pdo;
     						subType = satRec.getSectorID();
@@ -1589,7 +1651,7 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     					else if( getRscImplementation().equals("McidasSatellite") ) {
     						McidasRecord satRec = (McidasRecord) pdo;
     						if ( satRec.getResolution() == 0 && getSubTypeGenParamsList()[1].equals("resolution") ) {
-       							subType = satRec.getAreaName() + "_native";     							
+       							subType = satRec.getAreaName() + "_native";
     						} else {
     							subType = satRec.getAreaName() + "_" + 
     							satRec.getResolution().toString() + "km";
@@ -1597,7 +1659,7 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
     						attrSetKey = satRec.getImageType();
     					}
     				}
-    				else if( getResourceCategory().equals( ResourceName.RadarRscCategory ) ) {
+    				else if( getResourceCategory() == ResourceCategory.RadarRscCategory ) {
     					// if Mosaic there is no subType so just use 'mosaic'
     					MosaicRecord rdrRec = (MosaicRecord) pdo;
     					subType = "mosaic";
@@ -1734,5 +1796,98 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver, 
 	@Override
 	public int compareTo(ResourceDefinition o) {
 		return this.getResourceDefnName().compareToIgnoreCase( o.getResourceDefnName() );
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime
+				* result
+				+ ((resourceDefnName == null) ? 0 : resourceDefnName.hashCode());
+		result = prime
+				* result
+				+ ((resourceParameters == null) ? 0 : resourceParameters
+						.hashCode());
+		result = prime
+				* result
+				+ ((rscImplementation == null) ? 0 : rscImplementation
+						.hashCode());
+		result = prime
+				* result
+				+ ((rscTypeGenerator == null) ? 0 : rscTypeGenerator.hashCode());
+		result = prime
+				* result
+				+ ((subTypeGenerator == null) ? 0 : subTypeGenerator.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ResourceDefinition other = (ResourceDefinition) obj;
+		if (applicableDisplayTypes == null) {
+			if (other.applicableDisplayTypes != null)
+				return false;
+		} else if (!applicableDisplayTypes.equals(other.applicableDisplayTypes))
+			return false;
+		if (attrSetOrg != other.attrSetOrg)
+			return false;
+		if (dfltFrameCount != other.dfltFrameCount)
+			return false;
+		if (dfltTimeRange != other.dfltTimeRange)
+			return false;
+		if (frameSpan != other.frameSpan)
+			return false;
+		if (inventoryEnabled == null) {
+			if (other.inventoryEnabled != null)
+				return false;
+		} else if (!inventoryEnabled.equals(other.inventoryEnabled))
+			return false;
+		if (inventoryParamNames == null) {
+			if (other.inventoryParamNames != null)
+				return false;
+		} else if (!inventoryParamNames.equals(other.inventoryParamNames))
+			return false;
+		if (resourceCategory.getCategoryName() == null) {
+			if (other.resourceCategory.getCategoryName() != null)
+				return false;
+		} else if (!resourceCategory.getCategoryName().equals(other.resourceCategory.getCategoryName()))
+			return false;
+		if (resourceDefnName == null) {
+			if (other.resourceDefnName != null)
+				return false;
+		} else if (!resourceDefnName.equals(other.resourceDefnName))
+			return false;
+		if (resourceParameters == null) {
+			if (other.resourceParameters != null)
+				return false;
+		} else if (!resourceParameters.equals(other.resourceParameters))
+			return false;
+		if (rscImplementation == null) {
+			if (other.rscImplementation != null)
+				return false;
+		} else if (!rscImplementation.equals(other.rscImplementation))
+			return false;
+		if (rscTypeGenerator == null) {
+			if (other.rscTypeGenerator != null)
+				return false;
+		} else if (!rscTypeGenerator.equals(other.rscTypeGenerator))
+			return false;
+		if (subTypeGenerator == null) {
+			if (other.subTypeGenerator != null)
+				return false;
+		} else if (!subTypeGenerator.equals(other.subTypeGenerator))
+			return false;
+		if (timeMatchMethod != other.timeMatchMethod)
+			return false;
+		if (timelineGenMethod != other.timelineGenMethod)
+			return false;
+		return true;
 	}
 }

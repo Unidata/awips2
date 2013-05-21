@@ -73,7 +73,8 @@ public class NsharpConfigDialog extends Dialog {
 				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  	
 				parameterSelDialog = NsharpParametersSelectionConfigDialog.getInstance(shell);
 				if ( parameterSelDialog != null ) {
-					timeLineBtn.setEnabled( false );
+					parameterSelDialog.open();
+					/*timeLineBtn.setEnabled( false );
 					dataDisplayBtn.setEnabled(false);
 					stnBtn.setEnabled( false );
 					dataPageBtn.setEnabled( false );
@@ -85,7 +86,7 @@ public class NsharpConfigDialog extends Dialog {
 					stnBtn.setEnabled( true );
 					dataPageBtn.setEnabled( true );
 					paneCfgBtn.setEnabled( true );
-					mdlCfgBtn.setEnabled( true );
+					mdlCfgBtn.setEnabled( true );*/
 				}	
 			}          		            	 	
 		} );
@@ -98,7 +99,8 @@ public class NsharpConfigDialog extends Dialog {
 				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  	
 				dataDislpayDialog =  NsharpDataDisplayConfigDialog.getInstance(shell);
 				if ( dataDislpayDialog != null ) {
-					timeLineBtn.setEnabled( false );
+					dataDislpayDialog.open();
+					/*timeLineBtn.setEnabled( false );
 					parameterBtn.setEnabled(false);
 					stnBtn.setEnabled( false );
 					dataPageBtn.setEnabled( false );
@@ -110,10 +112,11 @@ public class NsharpConfigDialog extends Dialog {
 					stnBtn.setEnabled( true );
 					dataPageBtn.setEnabled( true );
 					paneCfgBtn.setEnabled( true );
-					mdlCfgBtn.setEnabled( true );
+					mdlCfgBtn.setEnabled( true );*/
 				}	
 			}          		            	 	
 		} );
+		
 		dataPageBtn = new Button(parent, SWT.PUSH);
 		dataPageBtn.setText("Data Page Configuration");
 		dataPageBtn.setEnabled( true );
@@ -123,7 +126,7 @@ public class NsharpConfigDialog extends Dialog {
 				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  	
 				dataPageDialog =  NsharpDataPageConfigDialog.getInstance(shell);
 				if ( dataPageDialog != null ) {
-					timeLineBtn.setEnabled( false );
+					/*timeLineBtn.setEnabled( false );
 					parameterBtn.setEnabled(false);
 					stnBtn.setEnabled( false );
 					dataDisplayBtn.setEnabled(false);
@@ -135,7 +138,8 @@ public class NsharpConfigDialog extends Dialog {
 					stnBtn.setEnabled( true );
 					dataDisplayBtn.setEnabled(true);
 					paneCfgBtn.setEnabled( true );
-					mdlCfgBtn.setEnabled( true );
+					mdlCfgBtn.setEnabled( true );*/
+					dataPageDialog.open();
 				}	
 			}          		            	 	
 		} );
@@ -148,7 +152,8 @@ public class NsharpConfigDialog extends Dialog {
 				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  	
 				timelineDialog =  NsharpTimeLineConfigDialog.getInstance(shell);
 				if ( timelineDialog != null ) {
-					dataDisplayBtn.setEnabled(false);
+					timelineDialog.open();
+					/*dataDisplayBtn.setEnabled(false);
 					parameterBtn.setEnabled(false);
 					stnBtn.setEnabled( false );
 					dataPageBtn.setEnabled( false );
@@ -160,7 +165,7 @@ public class NsharpConfigDialog extends Dialog {
 					stnBtn.setEnabled( true );
 					dataPageBtn.setEnabled( true );
 					paneCfgBtn.setEnabled( true );
-					mdlCfgBtn.setEnabled( true );
+					mdlCfgBtn.setEnabled( true );*/
 				}	
 			}          		            	 	
 		} );
@@ -173,7 +178,8 @@ public class NsharpConfigDialog extends Dialog {
 				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  	
 				stnDialog =  NsharpStnConfigDialog.getInstance(shell);
 				if ( stnDialog != null ) {
-					dataDisplayBtn.setEnabled(false);
+					stnDialog.open();
+					/*dataDisplayBtn.setEnabled(false);
 					parameterBtn.setEnabled(false);
 					timeLineBtn.setEnabled( false );
 					dataPageBtn.setEnabled( false );
@@ -185,7 +191,7 @@ public class NsharpConfigDialog extends Dialog {
 					timeLineBtn.setEnabled( true );
 					dataPageBtn.setEnabled( true );
 					paneCfgBtn.setEnabled( true );
-					mdlCfgBtn.setEnabled( true );
+					mdlCfgBtn.setEnabled( true );*/
 				}	
 			}          		            	 	
 		} );
@@ -199,7 +205,9 @@ public class NsharpConfigDialog extends Dialog {
 				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  	
 				paneCfgDialog =  NsharpPaneConfigDialog.getInstance(shell);
 				if ( paneCfgDialog != null ) {
-					dataDisplayBtn.setEnabled(false);
+					paneCfgDialog.open();
+				}
+					/*dataDisplayBtn.setEnabled(false);
 					parameterBtn.setEnabled(false);
 					timeLineBtn.setEnabled( false );
 					dataPageBtn.setEnabled( false );
@@ -212,7 +220,7 @@ public class NsharpConfigDialog extends Dialog {
 					dataPageBtn.setEnabled( true );
 					stnBtn.setEnabled( true );
 					mdlCfgBtn.setEnabled( true );
-				}	
+					*/
 			}          		            	 	
 		} );
 		
@@ -225,7 +233,8 @@ public class NsharpConfigDialog extends Dialog {
 				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  	
 				mdlCfgDialog =  NsharpGribModelTypeConfigDialog.getInstance(shell);
 				if ( mdlCfgDialog != null ) {
-					dataDisplayBtn.setEnabled(false);
+					mdlCfgDialog.open();
+					/*dataDisplayBtn.setEnabled(false);
 					parameterBtn.setEnabled(false);
 					timeLineBtn.setEnabled( false );
 					dataPageBtn.setEnabled( false );
@@ -237,7 +246,35 @@ public class NsharpConfigDialog extends Dialog {
 					timeLineBtn.setEnabled( true );
 					dataPageBtn.setEnabled( true );
 					stnBtn.setEnabled( true );
-					paneCfgBtn.setEnabled(true);
+					paneCfgBtn.setEnabled(true);*/
+				}	
+			}          		            	 	
+		} );
+		
+		Button windbarbCfgBtn = new Button(parent,  SWT.PUSH);
+		windbarbCfgBtn.setText("Wind Barb Configuration");
+		windbarbCfgBtn.setEnabled( true );
+		//lineBtn.setSize(btnWidth,pushbtnHeight);
+		windbarbCfgBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {           
+				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  	
+				NsharpWindBarbConfigDialog windBarbDlg= NsharpWindBarbConfigDialog.getInstance(shell);
+				
+				if ( windBarbDlg != null ) {
+					windBarbDlg.open();
+					/*dataDisplayBtn.setEnabled(false);
+					parameterBtn.setEnabled(false);
+					timeLineBtn.setEnabled( false );
+					dataPageBtn.setEnabled( false );
+					stnBtn.setEnabled( false );
+					paneCfgBtn.setEnabled( false );
+					windBarbDlg.open();
+					parameterBtn.setEnabled(true);
+					dataDisplayBtn.setEnabled(true);
+					timeLineBtn.setEnabled( true );
+					dataPageBtn.setEnabled( true );
+					stnBtn.setEnabled( true );
+					paneCfgBtn.setEnabled(true);*/
 				}	
 			}          		            	 	
 		} );
@@ -276,7 +313,7 @@ public class NsharpConfigDialog extends Dialog {
     protected void configureShell( Shell shell ) {
         super.configureShell( shell );       
         shell.setText( "Nsharp Configuration" );
-        shell.setSize(250, 350);
+        shell.setSize(250, 370);
     }
 	@Override
     public int open( ) {

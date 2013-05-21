@@ -277,7 +277,7 @@ public abstract class RadarImageResource<D extends IDescriptor> extends
 		ColorMap colorMap;
 		try {
 			colorMap = (ColorMap) ColorMapUtil.loadColorMap( 
-					((RadarResourceData)resourceData).getResourceName().getRscCategory(), 
+					((RadarResourceData)resourceData).getResourceName().getRscCategory().getCategoryName(), 
 					((RadarResourceData)resourceData).getColorMapName() );
 		} catch (VizException e) {
 			throw new VizException("Error loading colormap: "+ ((RadarResourceData)resourceData).getColorMapName() );

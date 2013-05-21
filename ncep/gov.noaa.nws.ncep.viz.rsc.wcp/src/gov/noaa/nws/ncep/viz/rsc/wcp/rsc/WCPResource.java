@@ -26,6 +26,7 @@ import gov.noaa.nws.ncep.common.dataplugin.wcp.WcpSevrln;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
 
 /**
@@ -52,7 +53,7 @@ import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
  * @author mli 
  * @version 1.0
  */
-public class WCPResource extends AbstractNatlCntrsResource<WCPResourceData, IMapDescriptor>
+public class WCPResource extends AbstractNatlCntrsResource<WCPResourceData, NCMapDescriptor>
  				implements INatlCntrsResource {
 	private  final long SECONDS_IN_90MIN = 5400;
 

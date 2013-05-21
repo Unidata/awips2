@@ -10,6 +10,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.tcm.TcmWindQuarters;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @author bhebbard 
  * @version 1.0
  */
-public class HrcnResource extends AbstractNatlCntrsResource<HrcnResourceData, IMapDescriptor>
+public class HrcnResource extends AbstractNatlCntrsResource<HrcnResourceData, NCMapDescriptor>
                                 implements INatlCntrsResource {
 	
 	private HrcnResourceData hrcnResourceData;
@@ -154,7 +155,7 @@ public class HrcnResource extends AbstractNatlCntrsResource<HrcnResourceData, IM
         		
         		// ...display TCM PGEN object for all forecast hours.
 
-        		DisplayElementFactory df = new DisplayElementFactory(target, descriptor);
+        		DisplayElementFactory df = new DisplayElementFactory(target, getNcMapDescriptor());
         		ArrayList<IDisplayable> displayEls = df.createDisplayElements(tcm, paintProps);
         		for (IDisplayable each : displayEls) {
         			each.draw(target, paintProps);
