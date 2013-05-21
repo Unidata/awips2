@@ -1,0 +1,26 @@
+!
+! Restore File : sig_wave_gridded_feet
+!
+! Log:
+! Archana/SGT  3/2013  Initial creation
+!
+!
+GLEVEL =  0
+GVCORD =  none
+SKIP   =    /-1;1
+FILTER=y
+SCALE  =   0
+GDPFUN =  mul(HTSGW,3.28)
+TYPE   =    c
+CINT   =    1     
+LINE   =  3  
+FINT   =    
+FLINE  =   
+HILO   =    0
+HLSYM  =   0
+!CLRBAR =  1
+WIND   =    17/.8/1.8/112
+TITLE  =   5/-1/~ GRIDDED SIG WAVE HEIGHT (ft) 
+COLORS =  1
+MARKER =  0
+GRDLBL =                                                                         

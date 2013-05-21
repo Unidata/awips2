@@ -1,5 +1,5 @@
-! Attributes for the GFSXMOS resource with "clihpc" plot model
+! Attributes for the GFSXMOS resource with "cli_hpc" plot model
 !
-plotModel=clihpc
+plotModel=@PlotModels/bufrmosMRF/cli_hpc.xml
 plotDensity=10
 conditionalFilter=

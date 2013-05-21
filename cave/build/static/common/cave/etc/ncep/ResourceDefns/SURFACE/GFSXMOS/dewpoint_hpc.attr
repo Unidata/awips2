@@ -1,5 +1,5 @@
-! Attributes for the GFSXMOS resource with "dewpointhpc" plot model
+! Attributes for the GFSXMOS resource with "dewpoint_hpc" plot model
 !
-plotModel=dewpointhpc
+plotModel=@PlotModels/bufrmosMRF/dewpoint_hpc.xml
 plotDensity=10
 conditionalFilter=
