@@ -11,6 +11,7 @@
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 03/23/2010	229			Chin Chen	Initial coding
+ * 03/11/2013   972         Greg Hull   NatlCntrsEditor
  *
  * </pre>
  * 
@@ -28,7 +29,7 @@ import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
 import gov.noaa.nws.ncep.ui.nsharp.view.ModelSoundingDialogContents;
 import gov.noaa.nws.ncep.ui.nsharp.view.NsharpLoadDialog;
 import gov.noaa.nws.ncep.ui.pgen.tools.InputHandlerDefaultImpl;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NatlCntrsEditor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -122,7 +123,7 @@ public class NsharpMapMouseHandler extends InputHandlerDefaultImpl {
     	//System.out.println("NsharpMapMouseHandler handleMouseUp called");
        	// button 1 is left mouse button
     	if (button == 1 ){
-    		NCMapEditor mapEditor = NsharpMapResource.getMapEditor();
+    		NatlCntrsEditor mapEditor = NsharpMapResource.getMapEditor();
     		if(mapEditor != null){
     			//for(int i=0; i< mapEditor.getDescriptor().getResourceList().size(); i++)
     	        //	System.out.println( "C resourcename="+mapEditor.getDescriptor().getResourceList().get(i).getResource().getName());
@@ -270,7 +271,8 @@ public class NsharpMapMouseHandler extends InputHandlerDefaultImpl {
     	double	minDistance = NctextuiPointMinDistance; 	
     	GeodeticCalculator gc;
     	List<NsharpStationInfo> thePoints = new ArrayList<NsharpStationInfo>();
-    	NCMapEditor mapEditor = NsharpMapResource.getMapEditor();
+    	// TODO : can't assume this is a map Editor/MapDescriptor
+    	NatlCntrsEditor mapEditor = NsharpMapResource.getMapEditor();
     	if(mapEditor != null){
     		IMapDescriptor desc = (IMapDescriptor) mapEditor.getActiveDisplayPane().getRenderableDisplay().getDescriptor();
     		gc = new GeodeticCalculator(desc.getCRS());

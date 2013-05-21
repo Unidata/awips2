@@ -1,6 +1,9 @@
 package gov.noaa.nws.ncep.viz.tools.panZoom;
 
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.viz.common.display.INatlCntrsDescriptor;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
 
 import java.io.IOException;
 
@@ -16,7 +19,7 @@ import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IView;
 import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
-import com.raytheon.uf.viz.xy.VizXyEditor;
+import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.viz.ui.UiPlugin;
 import com.raytheon.viz.ui.input.InputAdapter;
 import com.raytheon.viz.ui.input.preferences.MousePreferenceManager;
@@ -32,7 +35,7 @@ import com.raytheon.viz.ui.input.preferences.MousePreferenceManager;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Mar 18, 2011             ghull        copied from PanHander and implement geosync
- *    02/14/2013    #958       qzhou        Made it  work on VizXyEditor temporarily
+ *    Feb 11, 2013   #972      ghull        AbstractNcEditor instead of NCMapEditor
  *    
  * </pre>
  * 
@@ -77,8 +80,8 @@ public class NcPanHandler extends InputAdapter {
      *            the container associated with the tool
      */
     public NcPanHandler(IDisplayPaneContainer container) {
-    	if( !( container instanceof NCMapEditor) ) {
-    		System.out.println( "NcPanHandler sanity check : container is not an NcMapEditor");
+    	if( !( container instanceof AbstractNcEditor) ) {
+    		System.out.println( "NcPanHandler sanity check : container is not an AbstractNcEditor");
     	}
     	
     	this.container = container;    	
@@ -140,7 +143,7 @@ public class NcPanHandler extends InputAdapter {
 //                job.schedule(500);
 //            }
 //        }
-    	if(!(container instanceof NCMapEditor) && !(container instanceof VizXyEditor) )
+    	if(!( container instanceof AbstractNcEditor) )
     		return false;
     	
         if (!prefManager.handleDrag(PAN_PREF, button)
@@ -166,24 +169,23 @@ public class NcPanHandler extends InputAdapter {
 //            theLastMouseX = aX;
 //            theLastMouseY = aY;
 //        }
-        if ((!prefManager.handleDrag(PAN_PREF, button)) || container == null || (!( container instanceof NCMapEditor) && !( container instanceof VizXyEditor)))
+        if ((!prefManager.handleDrag(PAN_PREF, button)) || container == null || 
+        	 !(container instanceof AbstractNcEditor) )
             return false;
         
         // NatlCntrs addition to implement the geoSync flag.
-
-//        NCMapEditor ncEditor = (NCMapEditor)container;
-//        boolean geoSyncPanes = ncEditor.arePanesGeoSynced();
+        
+// add sanity check for all Editors that this handler is supposed to be active for.
+        
+        AbstractNcEditor ncEditor = (AbstractNcEditor)container;
+        boolean geoSyncPanes = NcEditorUtil.arePanesGeoSynced(ncEditor);
         IDisplayPane[] panes = container.getDisplayPanes();
-        boolean geoSyncPanes = false;
-        if (container instanceof NCMapEditor)
-        	geoSyncPanes = ((NCMapEditor)container).arePanesGeoSynced();
         
         for (IDisplayPane p : panes) {
-        	if (container instanceof NCMapEditor) {
+        	
         	if( !(geoSyncPanes ||
-        			((NCMapEditor)container).isSelectedPane( p ) ) ) {
+        		 NcEditorUtil.isSelectedPane( ncEditor, p ) ) ) {
         		continue;
-        	}
         	}
         	
             IView tmpView = (IView) p.getRenderableDisplay().getView().clone();
@@ -235,7 +237,7 @@ public class NcPanHandler extends InputAdapter {
      * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseUp(int, int, int)
      */
     public boolean handleMouseUp(int x, int y, int button) {
-    	if(!(container instanceof NCMapEditor) && !(container instanceof VizXyEditor) )
+    	if(!( container instanceof AbstractNcEditor) )
     		return false;
         zoomDir = 0;
 
@@ -310,7 +312,7 @@ public class NcPanHandler extends InputAdapter {
     //
     @Override
     public boolean handleMouseWheel(Event event, int x, int y) {
-    	if(!(container instanceof NCMapEditor) && !(container instanceof VizXyEditor) )
+    	if(!( container instanceof AbstractNcEditor) )
     		return false;
     	
         com.raytheon.viz.ui.input.preferences.MouseEvent SCROLL_FORWARD = com.raytheon.viz.ui.input.preferences.MouseEvent.SCROLL_FORWARD;
@@ -318,20 +320,10 @@ public class NcPanHandler extends InputAdapter {
         
         // NatlCntrs addition to implement the geoSync flag.
 
-//        NCMapEditor ncEditor = (NCMapEditor)container;
-//        boolean geoSyncPanes = ncEditor.arePanesGeoSynced();
-//        IDisplayPane[] panes = ( geoSyncPanes ? container.getDisplayPanes() :
-//        	                     ncEditor.getSelectedPanes() );
-        IDisplayPane[] panes = null;
-        boolean geoSyncPanes = false;
-        if (container instanceof NCMapEditor) {
-        	geoSyncPanes = ((NCMapEditor)container).arePanesGeoSynced();
-        	panes = ( geoSyncPanes ? container.getDisplayPanes() :
-        		((NCMapEditor)container).getSelectedPanes() );
-        }
-        else {
-        	panes = container.getDisplayPanes();
-        }
+        AbstractNcEditor ncEditor = (AbstractNcEditor)container;
+        boolean geoSyncPanes = NcEditorUtil.arePanesGeoSynced(ncEditor);
+        IDisplayPane[] panes = ( geoSyncPanes ? container.getDisplayPanes() :
+        	                     NcEditorUtil.getSelectedPanes(ncEditor) );
                 
         if ((event.stateMask & SWT.SHIFT) == 0
                 && container.translateClick(x, y) != null) {
@@ -342,7 +334,10 @@ public class NcPanHandler extends InputAdapter {
                             ZOOMOUT_PREF, SCROLL_BACK))) {
             	
                 for (IDisplayPane pane : panes) {
-                    pane.zoom(event.count, event.x, event.y);
+                	INatlCntrsDescriptor d = (INatlCntrsDescriptor)pane.getDescriptor();
+                	if( !d.getSuspendZoom() ) {
+                		pane.zoom(event.count, event.x, event.y);
+                	}
                 }
                 return true;
             } else if ((event.count > 0 && prefManager.handleEvent(

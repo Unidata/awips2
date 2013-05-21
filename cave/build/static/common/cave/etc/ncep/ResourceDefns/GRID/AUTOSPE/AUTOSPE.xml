@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ResourceDefinition xmlns:ns2="http://www.example.org/productType">
+    <resourceDefnName>AUTOSPE</resourceDefnName>
+    <resourceCategory>GRID_ANL</resourceCategory>
+    <rscImplementation>ModelFcstGridContours</rscImplementation>
+    <subTypeGenerator></subTypeGenerator>
+    <rscTypeGenerator></rscTypeGenerator>
+    <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
+    <frameSpan>60</frameSpan>
+    <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
+    <dfltFrameCount>999</dfltFrameCount>
+    <dfltTimeRange>48</dfltTimeRange>
+    <dfltGeogArea>BasicWX_US</dfltGeogArea>
+    <resourceParameters>
+pluginName=grid
+GDFILE=AUTOSPE
+
+</resourceParameters>
+<attrSetOrg>BY_ATTR_SET_GROUP</attrSetOrg>
+    <inventoryEnabled>true</inventoryEnabled>
+</ResourceDefinition>

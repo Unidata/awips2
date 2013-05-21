@@ -31,8 +31,8 @@ public class StormTrackContainer {
 	
 	public Collection<StormTrack> getStormTracksByModel(String modelName) {
 		if( modelMap.containsKey( modelName ) ) {
-		return modelMap.get(modelName).values();
-	}
+			return modelMap.get(modelName).values();
+		}
 		else {
 			return new ArrayList<StormTrack>();
 		}

@@ -186,7 +186,7 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
         @Override	
         public boolean handleMouseDown(int anX, int aY, int button) {
         	if ( !isResourceEditable() ) return false;
-           
+
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null || shiftDown ) return false;
@@ -312,25 +312,25 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
             				if ( text.length == 1 ) {  
             					StringBuffer lbl = new StringBuffer(((TextAttrDlg)attrDlg).getString()[0]);
             				
-            				if ( lbl.length() > 0 ){
-            					if ( lbl.charAt(0) == '[')  lbl.deleteCharAt(0);
-            					if ( lbl.charAt(lbl.length()-1) == ']') lbl.deleteCharAt(lbl.length()-1);
+            					if ( lbl.length() > 0 ){
+            						if ( lbl.charAt(0) == '[')  lbl.deleteCharAt(0);
+            						if ( lbl.charAt(lbl.length()-1) == ']') lbl.deleteCharAt(lbl.length()-1);
 
             						try {
             							Integer.parseInt(lbl.toString());
-            					//check if the text is right or left of the front
-            					if ( rightOfLine(mapEditor, loc, (Line)prevElem.getPrimaryDE()) >= 0 ){
+            							//check if the text is right or left of the front
+            							if ( rightOfLine(mapEditor, loc, (Line)prevElem.getPrimaryDE()) >= 0 ){
 
-            						((TextAttrDlg)attrDlg).setText(new String[]{lbl+"]"});
-            					}
-            					else {
-            						((TextAttrDlg)attrDlg).setText(new String[]{"[" + lbl});
-            					}
+            								((TextAttrDlg)attrDlg).setText(new String[]{lbl+"]"});
+            							}
+            							else {
+            								((TextAttrDlg)attrDlg).setText(new String[]{"[" + lbl});
+            							}
             						} catch (NumberFormatException e) {
             							/*do nothing*/}
             					}
             				}
-
+            				
             				ghost = def.create( DrawableType.TEXT, (IAttribute)attrDlg,
             						pgenCategory, pgenType, loc, drawingLayer.getActiveLayer());
 
@@ -394,7 +394,7 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
     	else return Line2D.relativeCCW(screenPt[0], screenPt[1], startPt[0], startPt[1], endPt[0], endPt[1]);
 
     }
-
+    
     /*
      * Set default label for a few specific fronts.
      */

@@ -1,28 +1,24 @@
 !
-! Restore File : bl_wind
+! Restore File : bl_2-meter_temp
 !
 ! Log:
-! D.W.Plummer/NCEP	 2/97	Initial creation
-! J. Carr/HPC         5/14/97   Changed ranges on highs and lows; changed skip
-!                               for winds; changed 8 mb to 4 mb in cint
-! J. Carr/HPC            6/97   Changed boundary level to comply with EMC changes
-! D.W.Plummer/NCEP	 8/97	Added FILTER parameter and changed TEXT value
+! J. Carr/HPC         10/98   Initial Creation
 !
-GLEVEL=30:0!0
-GVCORD=pdly!none
+GLEVEL=0
+GVCORD=none
 SKIP=
 FILTER=y
 SCALE=0
-GDPFUN=mag(kntv(wnd))!sm5s(emsl) ! kntv(wnd@30:0%pdly)
-TYPE=c/f!c ! b
-CINT=5/20!4
-LINE=32/1/2/2!19//2
-FINT=20;35;50;65
-FLINE=0;24;25;30;15
-HILO=0!20/H#;L#/1020-1070;900-1008
-HLSYM=0!1.5;1.5//22;22/3;3/hw
-WIND=9/0.7/2/112
-TITLE=1/-1/~ EMSL, BL WIND (0-30 MB AGL; KTS)
+GDPFUN=sub(tmpk,273.15)!kntv(wnd)
+TYPE=c!b
+CINT=5/-100/30 !5/35 
+LINE=6/1/2/1   !2/1/2/1
+FINT=
+FLINE=
+HILO=0
+HLSYM=0
+WIND=18/1/1
+TITLE=1/-2/~TEMPERATURE (F)!0
 COLORS=2                                                                       
 MARKER=2                                                                       
 GRDLBL=5                                                                       
