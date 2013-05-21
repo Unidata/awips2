@@ -28,6 +28,7 @@ import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTy
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.registry.event.InsertRegistryEvent;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -49,6 +50,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * Feb 05, 2013 1580      mpduff       EventBus refactor.
  * 3/18/2013    1802      bphillip     Modified to use proper transaction boundaries
  * May 08, 2013 2000      djohnson     Shortcut out if no subscriptions are returned for the dataset.
+ * May 20, 2013 2000      djohnson     Shortcut out if no subscription handler is available.
  * 
  * </pre>
  * 
@@ -168,8 +170,13 @@ public class SubscriptionIntegrityVerifier {
      */
     public void dataSetUpdated(DataSet dataSet) {
         try {
-            final List<Subscription> subscriptions = DataDeliveryHandlers
-                    .getSubscriptionHandler()
+            final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
+                    .getSubscriptionHandler();
+            if (subscriptionHandler == null) {
+                return;
+            }
+
+            final List<Subscription> subscriptions = subscriptionHandler
                     .getActiveByDataSetAndProvider(dataSet.getDataSetName(),
                             dataSet.getProviderName());
 
