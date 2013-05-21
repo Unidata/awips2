@@ -15,7 +15,6 @@ import java.util.TimerTask;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
-import com.raytheon.uf.common.dataplugin.warning.UGCZone;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -47,9 +46,9 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 27, 2012  1149       jsanchez     Refactored methods from AbstractWarningsResource into this class.
+ * Sep 27, 2012 1149       jsanchez    Refactored methods from AbstractWarningsResource into this class.
  * May 06, 2013 1930       bsteffen    Check for null in WatchesResource.
- * 
+ * May 10, 2013 1951       rjpeter     Updated ugcZones references
  * </pre>
  * 
  * @author jsanchez
@@ -158,9 +157,9 @@ public class WatchesResource extends AbstractWWAResource {
                 }
             }
         } else if (type == ChangeType.CAPABILITY) {
-            if (color != null
-                    && color.equals(getCapability((ColorableCapability.class))
-                            .getColor()) == false) {
+            if ((color != null)
+                    && (color.equals(getCapability((ColorableCapability.class))
+                            .getColor()) == false)) {
                 color = getCapability((ColorableCapability.class)).getColor();
 
                 for (String dataUri : entryMap.keySet()) {
@@ -185,9 +184,9 @@ public class WatchesResource extends AbstractWWAResource {
             AbstractWarningRecord record) throws VizException {
         Geometry geo;
 
-        if (record.getUgczones().size() > 0) {
+        if (!record.getUgcZones().isEmpty()) {
             setGeometry(record);
-            if (record.getGeometry() != null && record.getPhen() != null) {
+            if ((record.getGeometry() != null) && (record.getPhen() != null)) {
                 IShadedShape ss = target.createShadedShape(false,
                         descriptor.getGridGeometry(), false);
                 geo = (Geometry) record.getGeometry().clone();
@@ -219,11 +218,11 @@ public class WatchesResource extends AbstractWWAResource {
 
                 WarningAction watchact = WarningAction.valueOf(watchrec
                         .getAct());
-                int watchSize = watchrec.getUgczones().size();
+                int watchSize = watchrec.getUgcZones().size();
 
                 if (watchact != WarningAction.NEW) {
                     AbstractWarningRecord createShape = null;
-                    if (watchact == null || watchact.toString() == null) {
+                    if ((watchact == null) || (watchact.toString() == null)) {
                         createShape = watchrec;
                     }
                     for (String entryKey : entryMap.keySet()) {
@@ -233,27 +232,27 @@ public class WatchesResource extends AbstractWWAResource {
                         // checks for any possible null pointer exceptions in
                         // the following block of code, since there is the
                         // possibility of null values
-                        if (rec.getPhensig() != null
-                                && watchrec.getPhensig() != null
-                                && rec.getOfficeid() != null
-                                && watchrec.getOfficeid() != null
-                                && rec.getUgczones() != null
-                                && rec.getStartTime() != null
-                                && watchrec.getStartTime() != null) {
+                        if ((rec.getPhensig() != null)
+                                && (watchrec.getPhensig() != null)
+                                && (rec.getOfficeid() != null)
+                                && (watchrec.getOfficeid() != null)
+                                && (rec.getUgcZones() != null)
+                                && (rec.getStartTime() != null)
+                                && (watchrec.getStartTime() != null)) {
                             if (rec.getPhensig().equals(watchrec.getPhensig())
                                     && rec.getOfficeid().equals(
                                             watchrec.getOfficeid())
                                     && rec.getEtn().equals(watchrec.getEtn())) {
-                                int recSize = rec.getUgczones().size();
+                                int recSize = rec.getUgcZones().size();
                                 if (!entry.partialCancel) {
-                                    if (watchact == WarningAction.EXP
-                                            || watchact == WarningAction.CAN) {
+                                    if ((watchact == WarningAction.EXP)
+                                            || (watchact == WarningAction.CAN)) {
                                         entry.partialCancel = true;
                                         entry.record
                                                 .setEndTime((Calendar) watchrec
                                                         .getStartTime().clone());
-                                    } else if (watchact == WarningAction.CON
-                                            && recSize > watchSize
+                                    } else if ((watchact == WarningAction.CON)
+                                            && (recSize > watchSize)
                                             && watchrec.getStartTime().after(
                                                     rec.getStartTime())) {
                                         entry.partialCancel = true;
@@ -270,7 +269,7 @@ public class WatchesResource extends AbstractWWAResource {
                     if (createShape != null) {
                         WarningEntry entry = entryMap.get(createShape
                                 .getDataURI());
-                        if (entry != null && entry.shadedShape != null) {
+                        if ((entry != null) && (entry.shadedShape != null)) {
                             entry.shadedShape.dispose();
                         }
                         initShape(target, createShape);
@@ -289,7 +288,7 @@ public class WatchesResource extends AbstractWWAResource {
         List<String> marinezone = new ArrayList<String>();
         List<Geometry> geometries = new ArrayList<Geometry>();
 
-        for (String ugc : record.getUgcsString()) {
+        for (String ugc : record.getUgcZones()) {
             Geometry geom = null;
             WeakReference<Geometry> geomRef = geometryMap.get(ugc);
             if (geomRef != null) {
@@ -383,10 +382,9 @@ public class WatchesResource extends AbstractWWAResource {
             AbstractWarningRecord watch = watches.get(key);
             if (watch == null) {
                 watch = watchrec;
-            } else if (watchrec.getUgczones() != null) {
-                Set<UGCZone> ugcZones = watch.getUgczones();
-                ugcZones.addAll(watchrec.getUgczones());
-                watch.setUgczones(ugcZones);
+            } else if (watchrec.getUgcZones() != null) {
+                Set<String> ugcZones = watch.getUgcZones();
+                ugcZones.addAll(watchrec.getUgcZones());
             }
             watches.put(key, watch);
         }
@@ -410,7 +408,7 @@ public class WatchesResource extends AbstractWWAResource {
         long now = SimulatedTime.getSystemTime().getTime().getTime();
         long endTime = rec.getEndTime().getTimeInMillis();
         synchronized (expTaskSet) {
-            if (endTime > now && !expTaskSet.contains(new Long(endTime))) {
+            if ((endTime > now) && !expTaskSet.contains(new Long(endTime))) {
                 WarningExpirationTask task = new WarningExpirationTask(this);
                 timer.schedule(task, rec.getEndTime().getTime());
                 expTaskSet.add(new Long(endTime));
@@ -429,7 +427,7 @@ public class WatchesResource extends AbstractWWAResource {
         Long time = new Long(triggerTime);
         // remove the instance of the trigger time from the map
         synchronized (expTaskSet) {
-            if (expTaskSet != null && expTaskSet.contains(time)) {
+            if ((expTaskSet != null) && expTaskSet.contains(time)) {
                 expTaskSet.remove(time);
             }
         }
