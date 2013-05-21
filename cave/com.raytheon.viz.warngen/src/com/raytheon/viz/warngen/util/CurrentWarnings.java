@@ -33,7 +33,6 @@ import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.PracticeWarningRecord;
-import com.raytheon.uf.common.dataplugin.warning.UGCZone;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.util.AnnotationUtil;
@@ -69,7 +68,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Feb 12, 2013 1500       mschenke     Refactored to not request full records and only request full 
  *                                      record when actually retrieving for use
  * Apr 22, 2013            jsanchez     Set the issue time for follow up warnings.
- * 
+ * May 10, 2013 1951       rjpeter      Updated ugcZones references
  * </pre>
  * 
  * @author mschenke
@@ -104,17 +103,21 @@ public class CurrentWarnings {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             WarningKey other = (WarningKey) obj;
-            if (etn.equals(other.etn) == false)
+            if (etn.equals(other.etn) == false) {
                 return false;
-            else if (phensig.equals(other.phensig) == false)
+            } else if (phensig.equals(other.phensig) == false) {
                 return false;
+            }
             return true;
         }
 
@@ -180,11 +183,11 @@ public class CurrentWarnings {
         return warnings;
     }
 
-    private String officeId;
+    private final String officeId;
 
-    private Map<String, AbstractWarningRecord> recordsMap = new HashMap<String, AbstractWarningRecord>();
+    private final Map<String, AbstractWarningRecord> recordsMap = new HashMap<String, AbstractWarningRecord>();
 
-    private Map<WarningKey, List<AbstractWarningRecord>> warningMap = new HashMap<WarningKey, List<AbstractWarningRecord>>() {
+    private final Map<WarningKey, List<AbstractWarningRecord>> warningMap = new HashMap<WarningKey, List<AbstractWarningRecord>>() {
 
         private static final long serialVersionUID = 1L;
 
@@ -231,7 +234,7 @@ public class CurrentWarnings {
             for (WarningKey key : keys) {
                 AbstractWarningRecord tmp = getNewestByTracking(key.etn,
                         key.phensig);
-                if (tmp != null && rval.contains(tmp) == false) {
+                if ((tmp != null) && (rval.contains(tmp) == false)) {
                     rval.add(tmp);
                 }
             }
@@ -263,11 +266,12 @@ public class CurrentWarnings {
                 end.add(Calendar.MINUTE, 10);
                 TimeRange t = new TimeRange(warning.getStartTime().getTime(),
                         end.getTime());
-                if ((action == WarningAction.NEW || action == WarningAction.CON || action == WarningAction.EXT)
+                if (((action == WarningAction.NEW)
+                        || (action == WarningAction.CON) || (action == WarningAction.EXT))
                         && t.contains(current.getTime())) {
                     rval.add(warning);
-                } else if (action == WarningAction.CAN
-                        || action == WarningAction.EXP) {
+                } else if ((action == WarningAction.CAN)
+                        || (action == WarningAction.EXP)) {
                     rval.clear();
                     return rval;
                 }
@@ -316,7 +320,7 @@ public class CurrentWarnings {
                             // rval.setAct("CON");
                             rval.setGeometry(warning.getGeometry());
                             rval.setCountyheader(warning.getCountyheader());
-                            rval.setUgczones(warning.getUgczones());
+                            rval.setUgcZones(warning.getUgcZones());
                             rval.setLoc(warning.getLoc());
                             rval.setRawmessage(warning.getRawmessage());
                             rval.setIssueTime(warning.getInsertTime());
@@ -325,37 +329,20 @@ public class CurrentWarnings {
                 }
 
                 // If warning was canceled (CAN) or has expired (EXP), check if
-                // county
-                // headers match. If so, rval = null. Otherwise check to see if
-                // rval
-                // has
-                // any UGCZones that the warning does. If there are matching
-                // UGCZones,
-                // set rval to null
+                // county headers match. If so, rval = null. Otherwise check to
+                // see if rval has any UGCZones that the warning does not have.
+                // If there
+                // are no new UGCZones, set rval to null.
                 for (AbstractWarningRecord warning : warnings) {
                     WarningAction action = getAction(warning.getAct());
-                    if (action == WarningAction.CAN
-                            || action == WarningAction.EXP) {
-                        if (rval != null
-                                && warning.getCountyheader().equals(
-                                        rval.getCountyheader())) {
+                    if ((action == WarningAction.CAN)
+                            || (action == WarningAction.EXP)) {
+                        if ((rval != null)
+                                && (warning.getCountyheader().equals(
+                                        rval.getCountyheader()) || !warning
+                                        .getUgcZones().containsAll(
+                                                rval.getUgcZones()))) {
                             rval = null;
-                        } else if (rval != null) {
-                            boolean rv = true;
-                            for (UGCZone a : rval.getUgczones()) {
-                                boolean rv2 = false;
-                                for (UGCZone b : warning.getUgczones()) {
-                                    if (a.toString().equals(b.toString())) {
-                                        rv2 = true;
-                                    }
-                                }
-                                if (rv2 == false) {
-                                    rv = false;
-                                }
-                            }
-                            if (rv == true) {
-                                rval = null;
-                            }
                         }
                     }
                 }
@@ -429,7 +416,7 @@ public class CurrentWarnings {
                 for (AbstractWarningRecord warning : warnings) {
                     WarningAction action = getAction(warning.getAct());
                     if (t.contains(warning.getIssueTime().getTime())
-                            && action == WarningAction.CAN) {
+                            && (action == WarningAction.CAN)) {
                         cancelProd = warning;
                     }
                     if (action == WarningAction.NEW) {
@@ -442,13 +429,13 @@ public class CurrentWarnings {
 
                 //
                 for (AbstractWarningRecord rec : conProds) {
-                    if (FipsUtil.containsSameCountiesOrZones(rec.getUgczones(),
-                            cancelProd.getUgczones())) {
+                    if (FipsUtil.containsSameCountiesOrZones(rec.getUgcZones(),
+                            cancelProd.getUgcZones())) {
                         conMatchesCan = true;
                     }
                 }
 
-                if (cancelProd.getUgczones().size() == newProd.getUgczones()
+                if (cancelProd.getUgcZones().size() == newProd.getUgcZones()
                         .size()) {
                     // Change nothing
                     rval = cancelProd;
