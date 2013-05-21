@@ -20,39 +20,29 @@
 
 package com.raytheon.uf.common.dataplugin.warning;
 
+import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.OneToMany;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.serialization.adapters.GeometryAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * 
  * Warning Record
  * 
  * <pre>
@@ -61,202 +51,171 @@ import com.vividsolutions.jts.geom.Geometry;
  * ------------ ----------  ----------- --------------------------
  * 03/12/2007   1003        bwoodle     initial creation
  * 04/12/2013   1857        bgonzale    Added SequenceGenerator annotation.
- * 
+ * 05/02/2013   1949        rjpeter     Moved ugcZones to be a column inside table.
  * </pre>
  * 
  * @author bwoodle
  * @version 1
  */
-@Entity
+@MappedSuperclass
 @SequenceGenerator(name = PluginDataObject.ID_GEN)
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public abstract class AbstractWarningRecord extends PluginDataObject {
+    private static final Pattern ugcSplitter = Pattern.compile(", ");
 
     private static final long serialVersionUID = 1L;
 
     @DataURI(position = 1)
     @Column(length = 32)
-    @XmlAttribute
     @DynamicSerializeElement
     private String wmoid;
 
     @DataURI(position = 2)
     @Column(length = 4)
-    @XmlAttribute
     @DynamicSerializeElement
     private String pil;
 
     @DataURI(position = 3)
     @Column(length = 4)
-    @XmlAttribute
     @DynamicSerializeElement
     private String xxxid;
 
     @Column(columnDefinition = "text")
-    @XmlAttribute
     @DynamicSerializeElement
     private String countyheader;
 
-    @XmlElement
+    @Column(name = "ugczones", columnDefinition = "text")
     @DynamicSerializeElement
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "parentWarning", fetch = FetchType.EAGER)
-    protected Set<UGCZone> ugczones = new HashSet<UGCZone>();
+    protected String ugcZoneList;
+
+    @Transient
+    protected Set<String> ugcZones;
 
     @Column(columnDefinition = "text")
-    @XmlAttribute
     @DynamicSerializeElement
     private String vtecstr;
 
     @Column(length = 4)
-    @XmlAttribute
     @DynamicSerializeElement
     private String productClass;
 
     @DataURI(position = 4)
     @Column(length = 4)
-    @XmlAttribute
     @DynamicSerializeElement
     private String act;
 
     @Column(length = 8)
-    @XmlAttribute
     @DynamicSerializeElement
-    @Index(name = "query_index", columnNames = { "officeid", "phensig" })
     private String officeid;
 
     @Column(length = 4)
-    @XmlAttribute
     @DynamicSerializeElement
     private String phen;
 
     @Column(length = 4)
-    @XmlAttribute
     @DynamicSerializeElement
     private String sig;
 
     @DataURI(position = 5)
     @Column(length = 4)
-    @XmlAttribute
     @DynamicSerializeElement
     private String etn;
 
     /** vtec start time */
-    @XmlAttribute
     @DynamicSerializeElement
+    @Column
     private Calendar startTime;
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Calendar endTime;
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Calendar issueTime;
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Calendar purgeTime;
 
     @Column(length = 8)
-    @XmlAttribute
     @DynamicSerializeElement
     private boolean ufn;
 
     @Column(name = "geometry", columnDefinition = "geometry")
     @Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
-    @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
     private Geometry geometry;
 
     @Transient
-    @XmlAttribute
     @DynamicSerializeElement
     private String forecaster = "";
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Integer motdir;
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Integer motspd;
 
     @Column(columnDefinition = "text")
-    @XmlAttribute
     @DynamicSerializeElement
     private String loc;
 
     @Column(columnDefinition = "text")
-    @XmlAttribute
     @DynamicSerializeElement
     private String rawmessage;
 
     @DataURI(position = 6)
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private int seg;
 
     @DataURI(position = 7)
     @Column(length = 4)
-    @XmlAttribute
     @DynamicSerializeElement
     private String phensig;
 
     @Transient
-    @XmlAttribute
     @DynamicSerializeElement
     private String region;
 
     @Column(columnDefinition = "text")
-    @XmlAttribute
     @DynamicSerializeElement
     private String overviewText;
 
     /** segment text */
     @Column(columnDefinition = "text")
-    @XmlAttribute
     @DynamicSerializeElement
     private String segText;
 
     @Column(length = 8)
-    @XmlAttribute
     @DynamicSerializeElement
     private String locationID;
 
     @Column(length = 2)
-    @XmlAttribute
     @DynamicSerializeElement
     private String floodSeverity;
 
-    @XmlAttribute
+    @Column
     @DynamicSerializeElement
     private String immediateCause;
 
     @Column(length = 2)
-    @XmlAttribute
     @DynamicSerializeElement
     private String floodRecordStatus;
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Calendar floodBegin;
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Calendar floodCrest;
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Calendar floodEnd;
 
@@ -280,7 +239,6 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
         this.setForecaster(old.getForecaster());
         this.setGeometry(old.getGeometry());
         this.setGeometry(old.getGeometry());
-        this.setIdentifier(old.getIdentifier());
         this.setInsertTime(old.getInsertTime());
         this.setIssueTime(old.getIssueTime());
         this.setLoc(old.getLoc());
@@ -315,7 +273,6 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
      */
     public AbstractWarningRecord(String uri) {
         super(uri);
-        identifier = java.util.UUID.randomUUID().toString();
     }
 
     @Override
@@ -554,21 +511,6 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
     }
 
     /**
-     * @return the ugczones
-     */
-    public Set<UGCZone> getUgczones() {
-        return ugczones;
-    }
-
-    /**
-     * @param ugczones
-     *            the ugczones to set
-     */
-    public void setUgczones(Set<UGCZone> ugczones) {
-        this.ugczones = ugczones;
-    }
-
-    /**
      * @return the region
      */
     public String getRegion() {
@@ -688,8 +630,6 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
         this.floodEnd = floodEnd;
     }
 
-    public abstract void setUgcs(List<String> list);
-
     /**
      * @return the ufn
      */
@@ -735,13 +675,40 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
         this.segText = segText;
     }
 
-    public String[] getUgcsString() {
-        String[] s = new String[ugczones.size()];
-        UGCZone[] ugcs = ugczones.toArray(new UGCZone[ugczones.size()]);
-        for (int i = 0; i < ugcs.length; i++) {
-            s[i] = ugcs[i].getZone();
+    public void setUgcZones(Set<String> list) {
+        ugcZones = new LinkedHashSet<String>(list);
+        StringBuilder builder = new StringBuilder(ugcZones.size() * 8);
+        boolean addComma = false;
+        for (String ugc : list) {
+            if (addComma) {
+                builder.append(", ");
+            } else {
+                addComma = true;
+            }
+            builder.append(ugc);
         }
-        return s;
+        ugcZoneList = builder.toString();
     }
 
+    public Set<String> getUgcZones() {
+        if (ugcZones == null) {
+            ugcZones = new LinkedHashSet<String>();
+
+            if ((ugcZoneList != null) && (ugcZoneList.length() > 0)) {
+                String[] zones = ugcSplitter.split(ugcZoneList);
+                ugcZones.addAll(Arrays.asList(zones));
+            }
+        }
+
+        return ugcZones;
+    }
+
+    public String getUgcZoneList() {
+        return ugcZoneList;
+    }
+
+    public void setUgcZoneList(String ugcZoneList) {
+        this.ugcZoneList = ugcZoneList;
+        this.ugcZones = null;
+    }
 }
