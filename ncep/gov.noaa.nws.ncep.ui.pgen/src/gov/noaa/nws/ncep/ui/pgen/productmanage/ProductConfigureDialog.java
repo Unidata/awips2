@@ -213,8 +213,8 @@ public class ProductConfigureDialog extends ProductDialog {
 	protected ProductConfigureDialog( Shell parShell ) throws VizException {
 		
         super( parShell );
-		
-    }
+        	
+	}
 	
 	/**
 	 * Creates a product configuration dialog if the dialog does not exist 
@@ -226,7 +226,7 @@ public class ProductConfigureDialog extends ProductDialog {
 	public static ProductConfigureDialog getInstance( Shell parShell){
 		
 		if ( INSTANCE == null ){
-					
+							
 			try {
 				INSTANCE = new ProductConfigureDialog( parShell );
 			} catch (VizException e) {
@@ -280,7 +280,7 @@ public class ProductConfigureDialog extends ProductDialog {
      */
     public void initializeComponents() {
 	    
-    	/*
+        /*
          * Retrieve PGEN pallete info - it may get disposed when palette is deactivated
          * so we need to make sure palette is there and retrieve info before starting to
          * build this GUI.
@@ -412,7 +412,7 @@ public class ProductConfigureDialog extends ProductDialog {
      *  Create the PGEN palette configuration page.
      */
     private void createPaletteTab( Composite cmp ) {
-    	
+    	   	
    	    paletteComp = cmp;
 		GridLayout gl = new GridLayout( 1, false );
         paletteComp.setLayout( gl );
@@ -765,7 +765,7 @@ public class ProductConfigureDialog extends ProductDialog {
      *  Dialog actions to be performed.
      */
     private void dialogActions( String btnName ) { 
-      
+        
     	if ( btnName.equalsIgnoreCase( cntlBtnNames[ 0 ] ) ) {
     		addNewProductType();  		  
     	}
@@ -1475,7 +1475,7 @@ public class ProductConfigureDialog extends ProductDialog {
 		}
 		
 		dlgCntlBtn = new Button[ cntlBtnNames.length ];
-           
+    	          
     }
     
     /**
@@ -2185,7 +2185,7 @@ public class ProductConfigureDialog extends ProductDialog {
 		
         populateBoundsNames( boundsListCbo.getText());
         
-           	        
+        
         /*
          * Input boundary file name
          */
@@ -2200,7 +2200,7 @@ public class ProductConfigureDialog extends ProductDialog {
         Label nameLbl = new Label( nameComp, SWT.NONE );
         nameLbl.setText( "Clip Bounds: ");
  
- 
+        
         shapeFileTxt = new Text( nameComp,  SWT.SINGLE | SWT.BORDER );
         shapeFileTxt.setLayoutData( new GridData( 180, 10 ) );
         shapeFileTxt.setEditable( true );
@@ -2220,7 +2220,7 @@ public class ProductConfigureDialog extends ProductDialog {
             	    shapeFileTxt.setText(  selectedFile );
             	}           	
             }
-        });      
+        }); 
     */    
         if (!clipChkBox.getSelection()){
         	boundsListCbo.setEnabled(false);
@@ -3022,7 +3022,7 @@ public class ProductConfigureDialog extends ProductDialog {
         	         
     }
     
-   /**
+	/**
      *  Edit/Update the Pgen clipping
      */    
     private void editClipTab() {
@@ -3429,7 +3429,7 @@ public class ProductConfigureDialog extends ProductDialog {
 
 		//update Pgen settings
 	    editSettingsTab();
-	    
+	
 		//update Pgen clipping tab
 	    editClipTab();
 	    
@@ -3636,7 +3636,7 @@ public class ProductConfigureDialog extends ProductDialog {
 	private static String nvl(String value) {
 		return value == null ? "" : (new String( value ) );
 	}
-
+	
     /**
      * Create a new primary_modal shell for this dialog.
      * 
@@ -3653,12 +3653,12 @@ public class ProductConfigureDialog extends ProductDialog {
 	 * @param table
 	 */
 	private void populateBoundsNames( String table ){
-
+		
 		boundsNameCbo.removeAll();
         for ( String str : PgenStaticDataProvider.getProvider().getBoundsNames( table )) {
         	boundsNameCbo.add(str);
         }
         boundsNameCbo.select(0);
 	}
-	
+
 }

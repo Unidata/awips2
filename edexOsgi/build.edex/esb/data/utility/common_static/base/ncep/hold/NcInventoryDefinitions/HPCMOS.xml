@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<NcInventoryDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <inventoryName>HPCMOS</inventoryName>
+    <inventoryParameters>pluginName,dataTime</inventoryParameters>
+    <baseConstraints>
+        <mapping key="pluginName">
+            <constraint constraintValue="bufrmosHPC" constraintType="EQUALS"/>
+        </mapping>
+    </baseConstraints>
+</NcInventoryDefinition>

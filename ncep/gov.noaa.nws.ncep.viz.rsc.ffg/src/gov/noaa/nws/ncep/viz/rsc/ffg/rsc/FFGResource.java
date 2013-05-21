@@ -14,6 +14,7 @@ import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResource;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResourceData;
 import gov.noaa.nws.ncep.viz.rsc.ffg.rsc.FFGResourceData.FfgParam;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBar;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,7 +59,7 @@ import javax.measure.unit.Unit;
  *  11/15/2010    307      Greg Hull    update existing data with best timeMatch
  *  07/11/2011             Greg Hull    ColorBarResource                               
  *  07/28/2011    450      Greg Hull    NcPathManager
- *  05/23/12      785      Q. Zhou      Added getName for legend.
+ *  05/23/12      785      Q. Zhou      Added getName for legend.  
  *  12/19/2012   #960      Greg Hull    override propertiesChanged() to update colorBar.
  *  
  * </pre>
@@ -66,7 +67,7 @@ import javax.measure.unit.Unit;
  * @author ghull 
  * @version 1.0
  */
-public class FFGResource extends AbstractNatlCntrsResource<FFGResourceData, MapDescriptor> 
+public class FFGResource extends AbstractNatlCntrsResource<FFGResourceData, NCMapDescriptor> 
 	implements INatlCntrsResource, IStationField {
 
 	private FFGResourceData ffgRscData;
