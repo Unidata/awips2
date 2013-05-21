@@ -20,12 +20,15 @@
 package com.raytheon.uf.common.activetable;
 
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
- * TODO Add Description
+ * Operational Active Table, separated so that practice and operational data go to separate tables.
  * 
  * <pre>
  * 
@@ -33,7 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 10, 2010            njensen     Initial creation
- * 
+ * May 10, 2013 1951       rjpeter     Added own id sequence tagging and new index.
  * </pre>
  * 
  * @author njensen
@@ -41,8 +44,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  */
 
 @Entity
+@SequenceGenerator(initialValue = 1, name = ActiveTableRecord.ID_GEN, sequenceName = "activetableseq")
 @Table(name = "activetable")
 @DynamicSerialize
+@org.hibernate.annotations.Table(appliesTo = "activetable", indexes = { @Index(name = "activetable_officeid_phensig_idx", columnNames = {
+        "officeid", "phensig" }) })
 public class OperationalActiveTableRecord extends ActiveTableRecord implements
         Cloneable {
 
