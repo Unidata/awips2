@@ -5,7 +5,7 @@ import static java.lang.System.out;
 import gov.noaa.nws.ncep.edex.common.ncinventory.ManageNcInventoryMsg;
 import gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryDefinition;
 import gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryRequestMsg;
-import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
+import gov.noaa.nws.ncep.viz.resources.manager.NcMapRBD;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
@@ -74,8 +74,12 @@ public class NcInventoryControlDlg extends Dialog {
 
     private Button deleteInvBtn = null;
 
+    private Button deleteAllInvsBtn = null;
+
     private Button createAllInvsBtn = null;
-    
+
+    private Button genEdexInvDefnsBtn = null;
+
 //    private ResourceDefinition ncGridRscDefn = null;
        
 	public NcInventoryControlDlg( Shell sh ) {
@@ -305,6 +309,15 @@ public class NcInventoryControlDlg extends Dialog {
     	fd.top  = new FormAttachment( reinitInvBtn, 15, SWT.BOTTOM );
     	invSummaryBtn.setLayoutData(fd);
 
+    	genEdexInvDefnsBtn = new Button( topForm, SWT.NONE );
+    	genEdexInvDefnsBtn.setText( " Generate Edex IDs... ");
+		
+    	fd = new FormData();
+    	fd.left = new FormAttachment( reinitInvBtn, 0, SWT.LEFT );
+    	fd.top  = new FormAttachment( reinitInvBtn, 15, SWT.BOTTOM );
+    	genEdexInvDefnsBtn.setLayoutData(fd);
+
+    	
     	Button defineInvBtn = new Button( topForm, SWT.None );
     	defineInvBtn.setText( " Define... ");
 		
@@ -325,6 +338,7 @@ public class NcInventoryControlDlg extends Dialog {
         			reinitInvBtn.setEnabled( false );
         			deleteInvBtn.setEnabled( false );
         			invSummaryBtn.setEnabled( false );
+        			genEdexInvDefnsBtn.setEnabled( false );
             	}
             	else if( listInvNames.getSelection() ) {
         			dumpInvBtn.setEnabled( true );
@@ -333,6 +347,7 @@ public class NcInventoryControlDlg extends Dialog {
         			
         			deleteInvBtn.setEnabled( true );
         			invSummaryBtn.setEnabled( true );
+        			genEdexInvDefnsBtn.setEnabled( true );
         			reinitInvBtn.setText( " Re-Init " );
             	}
             	else {
@@ -362,6 +377,7 @@ public class NcInventoryControlDlg extends Dialog {
             			reinitInvBtn.setEnabled( false );
             			deleteInvBtn.setEnabled( false );
             			invSummaryBtn.setEnabled( false );
+            			genEdexInvDefnsBtn.setEnabled( false );
             		}
             	}
 			}
@@ -653,6 +669,26 @@ public class NcInventoryControlDlg extends Dialog {
             }
         });
 
+    	genEdexInvDefnsBtn.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent event) {
+            	
+            	StructuredSelection seld_elem = (StructuredSelection)invLViewer.getSelection();
+          
+            	Iterator sel_iter = seld_elem.iterator();
+
+            	while( sel_iter.hasNext() ) {
+            		  {
+            			String inventoryName;
+            			if( listInvNames.getSelection() ) {
+            				inventoryName = (String)sel_iter.next();
+
+//            				initInventory( inventoryName );
+            			}
+            		}
+            	}
+            }
+    	});
+    	
     	createAllInvsBtn = new Button( topForm, SWT.NONE);
     	createAllInvsBtn.setText(" Re-Init All ");
     	createAllInvsBtn.setVisible( false );
@@ -701,7 +737,7 @@ public class NcInventoryControlDlg extends Dialog {
 
         fd = new FormData();
     	fd.right = new FormAttachment( 100, -10 );
-    	fd.top  = new FormAttachment( invSummaryBtn, 15, SWT.BOTTOM );
+    	fd.top  = new FormAttachment( genEdexInvDefnsBtn, 15, SWT.BOTTOM );
         closeBtn.setLayoutData(fd);
         
         closeBtn.addSelectionListener(new SelectionAdapter() {

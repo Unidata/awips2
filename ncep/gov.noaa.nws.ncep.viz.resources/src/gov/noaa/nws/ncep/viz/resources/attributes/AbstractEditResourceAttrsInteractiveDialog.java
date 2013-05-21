@@ -1,8 +1,8 @@
 package gov.noaa.nws.ncep.viz.resources.attributes;
 
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -112,7 +112,7 @@ public class AbstractEditResourceAttrsInteractiveDialog extends AbstractEditReso
         		
         		// This is to update the Fade Display with a possible change in brightness
         		// which could have occured even though we are cancelling.
-        		NmapUiUtils.getActiveNatlCntrsEditor().refreshGUIElements();
+        		NcEditorUtil.refreshGUIElements(NcDisplayMngr.getActiveNatlCntrsEditor());
 
         		ok=false;
         		shell.dispose();
@@ -129,7 +129,7 @@ public class AbstractEditResourceAttrsInteractiveDialog extends AbstractEditReso
         			
             		rscData.setRscAttrSet( new ResourceAttrSet( rscData.getRscAttrSet() )); 
             		rscData.setIsEdited( true );
-            		NmapUiUtils.getActiveNatlCntrsEditor().refresh();
+            		NcDisplayMngr.getActiveNatlCntrsEditor().refresh();
         		}
         	});
         }*/
@@ -139,9 +139,9 @@ public class AbstractEditResourceAttrsInteractiveDialog extends AbstractEditReso
 
         okBtn.addSelectionListener( new SelectionAdapter() {
         	public void widgetSelected(SelectionEvent e) {
-        		
+
         		// This is to update the Fade Display with a possible change in brightness.
-        		NmapUiUtils.getActiveNatlCntrsEditor().refreshGUIElements();
+        		NcEditorUtil.refreshGUIElements(NcDisplayMngr.getActiveNatlCntrsEditor());
         		 
         		ok=true;
         		// get the 

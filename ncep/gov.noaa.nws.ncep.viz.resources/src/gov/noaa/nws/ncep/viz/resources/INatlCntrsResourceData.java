@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import org.eclipse.swt.graphics.RGB;
 
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 
@@ -22,6 +23,7 @@ import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
  * 01 Sep 2009     #148      Greg Hull    Add get/setQualifiedResourceName
  * 04 Apr 2010     #259      Greg Hull    add getLegendColor() 
  * 22 Jun 2010     #273      Greg Hull    use ResourceName
+ * 11 Feb 2013     #972      Greg Hull    getSupportedDisplayTypes()
  *
  * </pre>
  *
@@ -50,4 +52,6 @@ public interface INatlCntrsResourceData {
     public abstract String getResourceVersion();
     
     public abstract RGB getLegendColor();
+    
+    public abstract NcDisplayType[] getSupportedDisplayTypes();
 }

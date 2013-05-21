@@ -563,20 +563,20 @@ public class WatchBoxAttrDlg extends AttrDlg implements IWatchBox{
 				@Override
 				public void run() {
 					if (!( shell == null || shell.isDisposed() )) { // make sure the dialog is not closed
-			dispBtn.setText("Hide Display");
-			if ( infoDlg == null ){
-				infoDlg = WatchInfoDlg.getInstance(WatchBoxAttrDlg.this.getParentShell(), INSTANCE);
-			}
-			infoDlg.setBlockOnOpen(false);
+						dispBtn.setText("Hide Display");
+						if ( infoDlg == null ){
+							infoDlg = WatchInfoDlg.getInstance(WatchBoxAttrDlg.this.getParentShell(), INSTANCE);
+						}
+						infoDlg.setBlockOnOpen(false);
 
-			infoDlg.open();
-			infoDlg.clearCwaPane();
-			infoDlg.createCWAs(wb.getWFOs());
-			infoDlg.setStatesWFOs();
+						infoDlg.open();
+						infoDlg.clearCwaPane();
+						infoDlg.createCWAs(wb.getWFOs());
+						infoDlg.setStatesWFOs();
 					}
 				}
 			});
-
+		
 		}
 		else {
 			dispBtn.setText("Show Display");

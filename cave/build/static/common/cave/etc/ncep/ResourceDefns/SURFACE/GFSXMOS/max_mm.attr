@@ -1,0 +1,5 @@
+! Attributes for the GFSXMOS resource with "max_mm" plot model
+!
+plotModel=@PlotModels/bufrmosMRF/max_mm.xml
+plotDensity=10
+conditionalFilter=

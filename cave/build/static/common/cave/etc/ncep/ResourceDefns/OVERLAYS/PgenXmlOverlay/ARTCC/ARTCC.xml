@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <isEnabled>true</isEnabled>
     <resourceDefnName>ARTCC</resourceDefnName>
     <resourceCategory>OVERLAY</resourceCategory>
     <resourceParameters>
@@ -8,7 +7,6 @@
 pgenStaticProductLocation=ncep/StaticPgenOverlays
 pgenStaticProductName=awc_ARTCC.xml
     </resourceParameters>
-    <filterLabels>AdministrativeBoundaries,PGEN</filterLabels>
     <rscImplementation>PgenStaticOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
