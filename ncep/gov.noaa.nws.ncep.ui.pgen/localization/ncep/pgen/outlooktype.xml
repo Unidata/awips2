@@ -5,340 +5,340 @@
 -->
 <root>
 	<otlktype name="OUTLOOK" prefix="" >
-		<label text="TSTM"	value="0"/>
-		<label text="SLGT"	value="20"/>
-		<label text="MDT"	value="40"/>
-		<label text="HIGH"	value="60"/>
-		<label text="2%"/>
-		<label text="5%"/>
-		<label text="10%"/>
-		<label text="15%"/>
-		<label text="30%"/>
-		<label text="40%"/>
-		<label text="45%"/>
-		<label text="60%"/>
-		<label text="70%"/>
-		<label text="SIG"	value="100"/>
+		<label name="TSTM"	value="0"/>
+		<label name="SLGT"	value="20"/>
+		<label name="MDT"	value="40"/>
+		<label name="HIGH"	value="60"/>
+		<label name="2%"/>
+		<label name="5%"/>
+		<label name="10%"/>
+		<label name="15%"/>
+		<label name="30%"/>
+		<label name="40%"/>
+		<label name="45%"/>
+		<label name="60%"/>
+		<label name="70%"/>
+		<label name="SIG"	value="100"/>
 	</otlktype>
 	
 	<otlktype name="LABEL" prefix="">
-		<label text="TSTM"	value="0"/>
-		<label text=".01"/>
-		<label text=".10"/>
-		<label text=".25"/>
-		<label text=".50"/>
-		<label text="1"/>
-		<label text="1.5"/>
-		<label text="2"/>
-		<label text="2.5"/>
-		<label text="3"/>
-		<label text="4"/>
-		<label text="5"/>
-		<label text="6"/>
+		<label name="TSTM"	value="0"/>
+		<label name=".01"/>
+		<label name=".10"/>
+		<label name=".25"/>
+		<label name=".50"/>
+		<label name="1"/>
+		<label name="1.5"/>
+		<label name="2"/>
+		<label name="2.5"/>
+		<label name="3"/>
+		<label name="4"/>
+		<label name="5"/>
+		<label name="6"/>
 	</otlktype>
 
 	<otlktype name="TROPICL" prefix="" makegrid="false" flagLabel="true" flagAction="false">
-		<label text="1"/>
-		<label text="2"/>
-		<label text="3"/>
-		<label text="4"/>
-		<label text="5"/>
-		<label text="6"/>
-		<label text="7"/>
-		<label text="8"/>
-		<label text="9"/>
-		<label text="10"/>
+		<label name="1"/>
+		<label name="2"/>
+		<label name="3"/>
+		<label name="4"/>
+		<label name="5"/>
+		<label name="6"/>
+		<label name="7"/>
+		<label name="8"/>
+		<label name="9"/>
+		<label name="10"/>
 	</otlktype>
 
 	<otlktype name="FLOOD" prefix="" makegrid="false" flagLabel="true" flagAction="false">
-		<label text="Likely"/>
-		<label text="Possible"/>
-		<label text="Imminent"/>
+		<label name="Likely"/>
+		<label name="Possible"/>
+		<label name="Imminent"/>
 	</otlktype>
 	
 	<otlktype name="HAIL" prefix="hail">
-		<label text="5%"/>
-		<label text="10%"/>
-		<label text="15%"/>
-		<label text="30%"/>
-		<label text="45%"/>
-		<label text="60%"/>
-		<label text="SIG"		value="100"/>
+		<label name="5%"/>
+		<label name="10%"/>
+		<label name="15%"/>
+		<label name="30%"/>
+		<label name="45%"/>
+		<label name="60%"/>
+		<label name="SIG"		value="100"/>
 	</otlktype>
 	
 	<otlktype name="TORN" prefix="torn">
-		<label text="2%"/>
-		<label text="5%"/>
-		<label text="10%"/>
-		<label text="15%"/>
-		<label text="30%"/>
-		<label text="45%"/>
-		<label text="60%"/>
-		<label text="SIG"		value="100"/>
+		<label name="2%"/>
+		<label name="5%"/>
+		<label name="10%"/>
+		<label name="15%"/>
+		<label name="30%"/>
+		<label name="45%"/>
+		<label name="60%"/>
+		<label name="SIG"		value="100"/>
 	</otlktype>
 	
 	<otlktype name="WIND" prefix="wind">
-		<label text="5%"/>
-		<label text="15%"/>
-		<label text="30%"/>
-		<label text="45%"/>
-		<label text="60%"/>
-		<label text="SIG"		value="100"/>
+		<label name="5%"/>
+		<label name="15%"/>
+		<label name="30%"/>
+		<label name="45%"/>
+		<label name="60%"/>
+		<label name="SIG"		value="100"/>
 	</otlktype>
 	
 	<otlktype name="TOTL_SVR" prefix="prob">
-		<label text="5%"/>
-		<label text="15%"/>
-		<label text="30%"/>
-		<label text="45%"/>
-		<label text="60%"/>
-		<label text="SIG"		value="100"/>	
+		<label name="5%"/>
+		<label name="15%"/>
+		<label name="30%"/>
+		<label name="45%"/>
+		<label name="60%"/>
+		<label name="SIG"		value="100"/>	
 	</otlktype>
 	
-	<otlktype name="FIREOUTL" prefix="fire">
-		<label text="ELEVATED"		value="40"/>
-		<label text="CRITICAL"		value="60"/>
-		<label text="EXTREME"		value="80"/>
-		<label text="DRY-T"			value="100"/>
-		<label text="ISOLD DRY-T"		value="100"/>
-		<label text="SCT DRY-T"			value="100"/>
+	<otlktype name="FIREOUTL" prefix="fireoutlook">
+		<label name="ELEVATED"		value="40"/>
+		<label name="CRITICAL"	text="CRITICAL AREA FIRE WEATHER"			value="60"/>
+		<label name="EXTREME"	text="EXTREMELY CRITICAL AREA FIRE WEATHER"	value="80"/>
+		<label name="DRY TSTM"	text="DRY TSTM AREA FIRE WEATHER"			value="100"/>
+		<label name="ISOLD DRY-T" text="DRY TSTM AREA FIRE WEATHER"		value="100"/>
+		<label name="SCT DRY-T"	  text="DRY TSTM AREA FIRE WEATHER"		value="100"/>
 	</otlktype>
 	
 	<otlktype name="CATG_SVR" prefix="category_severe">
-		<label text="SLGT"		value="20"/>
-		<label text="MDT"		value="40"/>
-		<label text="HIGH"		value="60"/>		
+		<label name="SLGT"		value="20"/>
+		<label name="MDT"		value="40"/>
+		<label name="HIGH"		value="60"/>		
 	</otlktype>
 	
 	<otlktype name="MESO_DSC" prefix="">
-		<label text="CNVTV"		value="20"/>
-		<label text="SVRUK"		value="40"/>
-		<label text="SVRRED"	value="60"/>
-		<label text="SVRBLUE"	value="80"/>
-		<label text="HVYRA"		value="100"/>
-		<label text="HVYSN"		value="120"/>
-		<label text="FZRA"		value="140"/>
+		<label name="CNVTV"		value="20"/>
+		<label name="SVRUK"		value="40"/>
+		<label name="SVRRED"	value="60"/>
+		<label name="SVRBLUE"	value="80"/>
+		<label name="HVYRA"		value="100"/>
+		<label name="HVYSN"		value="120"/>
+		<label name="FZRA"		value="140"/>
 	</otlktype>
 	
 	<otlktype name="TSTMOLK" prefix="">
-		<label text="5%"/>
-		<label text="15%"/>
-		<label text="30%"/>
-		<label text="45%"/>
-		<label text="60%"/>
-		<label text="SIG"		value="100"/>		
+		<label name="5%"/>
+		<label name="15%"/>
+		<label name="30%"/>
+		<label name="45%"/>
+		<label name="60%"/>
+		<label name="SIG"		value="100"/>		
 	</otlktype>
 	
 	<otlktype name="EXT_SVR" prefix="">
-		<label text="D4"		value="40"/>
-		<label text="D5"		value="50"/>
-		<label text="D6"		value="60"/>
-		<label text="D7"		value="70"/>
-		<label text="D8"		value="80"/>
-		<label text="D4-5"		value="45"/>
-		<label text="D4-6"		value="46"/>
-		<label text="D4-7"		value="47"/>
-		<label text="D4-8"		value="48"/>
-		<label text="D5-6"		value="56"/>
-		<label text="D5-7"		value="57"/>
-		<label text="D5-8"		value="58"/>
-		<label text="D6-7"		value="67"/>
-		<label text="D6-8"		value="68"/>
-		<label text="D7-8"		value="78"/>			
+		<label name="D4"		value="40"/>
+		<label name="D5"		value="50"/>
+		<label name="D6"		value="60"/>
+		<label name="D7"		value="70"/>
+		<label name="D8"		value="80"/>
+		<label name="D4-5"		value="45"/>
+		<label name="D4-6"		value="46"/>
+		<label name="D4-7"		value="47"/>
+		<label name="D4-8"		value="48"/>
+		<label name="D5-6"		value="56"/>
+		<label name="D5-7"		value="57"/>
+		<label name="D5-8"		value="58"/>
+		<label name="D6-7"		value="67"/>
+		<label name="D6-8"		value="68"/>
+		<label name="D7-8"		value="78"/>			
 	</otlktype>
 	
-	<otlktype name="EXT_FIRE" prefix="fire">
-		<label text="D3"		value="30"/>
-		<label text="D4"		value="40"/>
-		<label text="D5"		value="50"/>
-		<label text="D6"		value="60"/>
-		<label text="D7"		value="70"/>
-		<label text="D8"		value="80"/>
-		<label text="D3-4"		value="34"/>
-		<label text="D3-5"		value="35"/>
-		<label text="D3-6"		value="36"/>
-		<label text="D3-7"		value="37"/>
-		<label text="D3-8"		value="38"/>
-		<label text="D4-5"		value="45"/>
-		<label text="D4-6"		value="46"/>
-		<label text="D4-7"		value="47"/>
-		<label text="D4-8"		value="48"/>
-		<label text="D5-6"		value="56"/>
-		<label text="D5-7"		value="57"/>
-		<label text="D5-8"		value="58"/>
-		<label text="D6-7"		value="67"/>
-		<label text="D6-8"		value="68"/>
-		<label text="D7-8"		value="78"/>			
+	<otlktype name="EXT_FIRE" prefix="fireoutlook">
+		<label name="D3"		value="30"/>
+		<label name="D4"		value="40"/>
+		<label name="D5"		value="50"/>
+		<label name="D6"		value="60"/>
+		<label name="D7"		value="70"/>
+		<label name="D8"		value="80"/>
+		<label name="D3-4"		value="34"/>
+		<label name="D3-5"		value="35"/>
+		<label name="D3-6"		value="36"/>
+		<label name="D3-7"		value="37"/>
+		<label name="D3-8"		value="38"/>
+		<label name="D4-5"		value="45"/>
+		<label name="D4-6"		value="46"/>
+		<label name="D4-7"		value="47"/>
+		<label name="D4-8"		value="48"/>
+		<label name="D5-6"		value="56"/>
+		<label name="D5-7"		value="57"/>
+		<label name="D5-8"		value="58"/>
+		<label name="D6-7"		value="67"/>
+		<label name="D6-8"		value="68"/>
+		<label name="D7-8"		value="78"/>			
 	</otlktype>
 	
 	<otlktype name="ISO_BARS" prefix="">
-		<label text="956"/>
-		<label text="960"/>
-		<label text="968"/>
-		<label text="972"/>
-		<label text="976"/>
-		<label text="980"/>
-		<label text="984"/>
-		<label text="988"/>
-		<label text="992"/>
-		<label text="996"/>
-		<label text="1000"/>
-		<label text="1004"/>
-		<label text="1008"/>
-		<label text="1012"/>
-		<label text="1016"/>
-		<label text="1020"/>
-		<label text="1024"/>
-		<label text="1028"/>
-		<label text="1032"/>
+		<label name="956"/>
+		<label name="960"/>
+		<label name="968"/>
+		<label name="972"/>
+		<label name="976"/>
+		<label name="980"/>
+		<label name="984"/>
+		<label name="988"/>
+		<label name="992"/>
+		<label name="996"/>
+		<label name="1000"/>
+		<label name="1004"/>
+		<label name="1008"/>
+		<label name="1012"/>
+		<label name="1016"/>
+		<label name="1020"/>
+		<label name="1024"/>
+		<label name="1028"/>
+		<label name="1032"/>
 	</otlktype>
 	
 	<otlktype name="HI_FCST" prefix="">
-		<label text="08"/>
-		<label text="10"/>
-		<label text="12"/>
-		<label text="14"/>
-		<label text="16"/>
-		<label text="20"/>
-		<label text="22"/>
-		<label text="24"/>
-		<label text="28"/>
-		<label text="30"/>
-		<label text="32"/>
-		<label text="34"/>
-		<label text="36"/>
-		<label text="38"/>
-		<label text="40"/>
-		<label text="42"/>
-		<label text="44"/>
-		<label text="46"/>					
+		<label name="08"/>
+		<label name="10"/>
+		<label name="12"/>
+		<label name="14"/>
+		<label name="16"/>
+		<label name="20"/>
+		<label name="22"/>
+		<label name="24"/>
+		<label name="28"/>
+		<label name="30"/>
+		<label name="32"/>
+		<label name="34"/>
+		<label name="36"/>
+		<label name="38"/>
+		<label name="40"/>
+		<label name="42"/>
+		<label name="44"/>
+		<label name="46"/>					
 	</otlktype>
 	
 	<otlktype name="LO_FCST" prefix="">
-		<label text="60"/>
-		<label text="64"/>
-		<label text="68"/>
-		<label text="72"/>
-		<label text="76"/>
-		<label text="80"/>
-		<label text="82"/>
-		<label text="84"/>
-		<label text="86"/>
-		<label text="88"/>
-		<label text="90"/>
-		<label text="92"/>
-		<label text="94"/>
-		<label text="96"/>
-		<label text="98"/>
-		<label text="00"/>
-		<label text="02"/>
-		<label text="04"/>
-		<label text="08"/>					
+		<label name="60"/>
+		<label name="64"/>
+		<label name="68"/>
+		<label name="72"/>
+		<label name="76"/>
+		<label name="80"/>
+		<label name="82"/>
+		<label name="84"/>
+		<label name="86"/>
+		<label name="88"/>
+		<label name="90"/>
+		<label name="92"/>
+		<label name="94"/>
+		<label name="96"/>
+		<label name="98"/>
+		<label name="00"/>
+		<label name="02"/>
+		<label name="04"/>
+		<label name="08"/>					
 	</otlktype>
 	
 	<otlktype name="WHFT" prefix="">
-		<label text="1.5"/>
-		<label text="3"/>
-		<label text="4.5"/>
-		<label text="6"/>
-		<label text="9"/>
-		<label text="12"/>
-		<label text="15"/>
-		<label text="18"/>
-		<label text="21"/>
-		<label text="24"/>
-		<label text="27"/>
-		<label text="30"/>
-		<label text="33"/>
-		<label text="36"/>
-		<label text="39"/>
-		<label text="42"/>
-		<label text="45"/>
-		<label text="48"/>
+		<label name="1.5"/>
+		<label name="3"/>
+		<label name="4.5"/>
+		<label name="6"/>
+		<label name="9"/>
+		<label name="12"/>
+		<label name="15"/>
+		<label name="18"/>
+		<label name="21"/>
+		<label name="24"/>
+		<label name="27"/>
+		<label name="30"/>
+		<label name="33"/>
+		<label name="36"/>
+		<label name="39"/>
+		<label name="42"/>
+		<label name="45"/>
+		<label name="48"/>
 	</otlktype>
 	
 	<otlktype name="WHM" prefix="">
-		<label text="0.5"/>
-		<label text="1"/>
-		<label text="1.5"/>
-		<label text="2"/>
-		<label text="3"/>
-		<label text="4"/>
-		<label text="5"/>
-		<label text="6"/>
-		<label text="7"/>
-		<label text="8"/>
-		<label text="9"/>
-		<label text="10"/>
-		<label text="11"/>
-		<label text="12"/>
-		<label text="13"/>
-		<label text="14"/>
-		<label text="15"/>
-		<label text="16"/>
-		<label text="17"/>
-		<label text="18"/>		
+		<label name="0.5"/>
+		<label name="1"/>
+		<label name="1.5"/>
+		<label name="2"/>
+		<label name="3"/>
+		<label name="4"/>
+		<label name="5"/>
+		<label name="6"/>
+		<label name="7"/>
+		<label name="8"/>
+		<label name="9"/>
+		<label name="10"/>
+		<label name="11"/>
+		<label name="12"/>
+		<label name="13"/>
+		<label name="14"/>
+		<label name="15"/>
+		<label name="16"/>
+		<label name="17"/>
+		<label name="18"/>		
 	</otlktype>
 	
 	<otlktype name="WPER" prefix="">
-		<label text="6"/>
-		<label text="8"/>
-		<label text="10"/>
-		<label text="12"/>
-		<label text="14"/>
-		<label text="16"/>
+		<label name="6"/>
+		<label name="8"/>
+		<label name="10"/>
+		<label name="12"/>
+		<label name="14"/>
+		<label name="16"/>
 	</otlktype>
 	
 	<otlktype name="PROB" prefix="">
-		<label text="10"/>
-		<label text="20"/>
-		<label text="25"/>
-		<label text="30"/>
-		<label text="40"/>
-		<label text="50"/>
-		<label text="60"/>
-		<label text="70"/>
-		<label text="75"/>
-		<label text="80"/>
-		<label text="90"/>
-		<label text="100"/>
+		<label name="10"/>
+		<label name="20"/>
+		<label name="25"/>
+		<label name="30"/>
+		<label name="40"/>
+		<label name="50"/>
+		<label name="60"/>
+		<label name="70"/>
+		<label name="75"/>
+		<label name="80"/>
+		<label name="90"/>
+		<label name="100"/>
 	</otlktype>
 	
 	<otlktype name="EXCE_RAIN" prefix="" makegrid="false" fromline ="true" >
-		<label text="SLGT"/>
-		<label text="MDT"/>
-		<label text="HIGH"/>
-		<label text="5 INCH"/>
+		<label name="SLGT"/>
+		<label name="MDT"/>
+		<label name="HIGH"/>
+		<label name="5 INCH"/>
 	</otlktype>
 		
 	<otlktype name="ENH00" prefix="enh00">
-		<label text="10%"/>
-		<label text="40%"/>
-		<label text="70%"/>
+		<label name="10%"/>
+		<label name="40%"/>
+		<label name="70%"/>
 	</otlktype>
 	
 	<otlktype name="ENH04" prefix="enh04">
-		<label text="10%"/>
-		<label text="40%"/>
-		<label text="70%"/>	
+		<label name="10%"/>
+		<label name="40%"/>
+		<label name="70%"/>	
 	</otlktype>
 	
 	<otlktype name="ENH12" prefix="enh12">
-		<label text="10%"/>
-		<label text="40%"/>
-		<label text="70%"/>	
+		<label name="10%"/>
+		<label name="40%"/>
+		<label name="70%"/>	
 	</otlktype>
 	
 	<otlktype name="ENH16" prefix="enh16">
-		<label text="10%"/>
-		<label text="40%"/>
-		<label text="70%"/>	
+		<label name="10%"/>
+		<label name="40%"/>
+		<label name="70%"/>	
 	</otlktype>
 	
 	<otlktype name="ENH20" prefix="enh20">
-		<label text="10%"/>
-		<label text="40%"/>
-		<label text="70%"/>	
+		<label name="10%"/>
+		<label name="40%"/>
+		<label name="70%"/>	
 	</otlktype>
 		
 </root>

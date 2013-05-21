@@ -1095,7 +1095,10 @@ public class NcPlotModelDataRequestJob extends Job {
 // This could really be a sanity-check??			   
 //			   	   System.out.println("DB parameter "+dbParam+" of type  is not compatible with "+
 //					   "metParameter "+metPrm.getClass().getSimpleName() );
-				   metPrm.setStringValue( pType.toString() );			   
+				   if(pType == Type.INT){
+					   Integer tempInt = new Integer (pdv.getInt(dbParam));
+				         metPrm.setStringValue( tempInt.toString() );
+				   }
 			   }
 		   }
 		   else { // metPrm is a number

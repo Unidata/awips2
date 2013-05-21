@@ -344,7 +344,7 @@
      </parmeterinfo>
      <parmeterinfo>
           <name>Montgomery Streamfunction</name>
-          <units>m**2 s**-2</units>
+          <units>m**2/s**2</units>
           <gnam>PSYM</gnam>
           <scale>-2</scale>
      </parmeterinfo>
@@ -356,7 +356,7 @@
      </parmeterinfo>
      <parmeterinfo>
           <name>Vertical Velocity (Pressure)</name>
-          <units>hPa s**-1</units>
+          <units>hPa/s</units>
           <gnam>OMEG</gnam>
           <scale>-2</scale>
      </parmeterinfo>
@@ -470,7 +470,7 @@
      </parmeterinfo>
      <parmeterinfo>
           <name>Pressure Tendency</name>
-          <units>hPa s**-1</units>
+          <units>hPa/s</units>
           <gnam>PTND</gnam>
           <scale>-2</scale>
      </parmeterinfo>
@@ -761,7 +761,6 @@
           <units>m</units>
           <gnam>HTSGW</gnam>
           <scale>0</scale>
-          <missing>-9999.00</missing>
      </parmeterinfo>
      <parmeterinfo>
           <name>Direction of Wind Waves</name>
@@ -914,7 +913,6 @@
           <scale>0</scale>
      </parmeterinfo>
      <parmeterinfo>
-          <pdt>0</pdt>
           <name>Categorical freezing rain</name>
           <units>0,1</units>
           <gnam>WXTZ</gnam>
@@ -1197,7 +1195,6 @@
           <scale>-2</scale>
      </parmeterinfo>
      <parmeterinfo>
-          <pdt>0</pdt>
           <name>mean sea level pressure (Standard Atmosphere Reduction)</name>
           <units>hPa</units>
           <gnam>MSLSA</gnam>
@@ -1256,7 +1253,6 @@
           <units>W/m**2</units>
           <gnam>CSDSF</gnam>
           <scale>0</scale>
-          <missing>-9999.00</missing>
      </parmeterinfo>
      <parmeterinfo>
           <name>Solar Radiative Heating Rate</name>
@@ -1325,7 +1321,6 @@
           <scale>0</scale>
      </parmeterinfo>
      <parmeterinfo>
-          <pdt>0</pdt>
           <name>Total condensate</name>
           <units>kg/kg</units>
           <gnam>TCOND</gnam>

@@ -3,7 +3,6 @@
 !
 ! Log:
 ! D.W.Plummer/NCEP	 2/97	Initial creation
-! J. Carr/HPC         5/15/97   Changed HILO   = and cint of mul(1e-2,pmsl)
 ! J. Carr/HPC         5/29/97    
 !
 GLEVEL =  0!0!500:1000!500:1000!0

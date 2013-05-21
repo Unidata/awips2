@@ -404,7 +404,6 @@ public static final String OPC_MIXINGPRESSURE_MISSING = "Mixing Pressure        
 	public static final String HODOGRAPH = "Hodograph Trace";
 	public static final String EFFECTIVE_LAYER = "Effective Layer";
 	public static final String CLOUD = "Cloud";
-	public static final String WINDBARB = "WindBarb Density(min dist betw barbs, m)";
-	public static final int WINDBARB_DISTANCE_DEFAULT= 400; // in meters
+	public static final String WINDBARB="Wind Barb";
 	public static final float ENTRAIN_DEFAULT = 0.0f;
 }

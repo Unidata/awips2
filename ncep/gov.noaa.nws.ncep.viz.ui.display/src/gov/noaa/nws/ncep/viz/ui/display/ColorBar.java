@@ -31,7 +31,7 @@ import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarAnchorLocation;
  * 12/06/11      #572        qzhou        Modified equals and added hashCode
  * 06/07/12      #794       Archana       Added a Boolean flag called reverseOrder to enable/disable
  *                                        reversing the order of colors in the color-bar.
- * 06/07/12      #717       Archana       Added the overridden methods getDisplayUnitStr() and getNumPixelsToReAlignLabel()                                                                           
+ * 06/07/12      #717       Archana       Added the overridden methods getDisplayUnitStr() and getNumPixelsToReAlignLabel()
  * 06/18/12      #743       Archana       Added attributes to implement GEMPAK's CLRBAR parameter:
  *                                                                       xPixelCoordFraction, yPixelCoordFraction,drawColorBar,
  *                                                                       isDrawBoxAroundColorBar. added the corresponding setter/getter methods
@@ -40,7 +40,7 @@ import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarAnchorLocation;
  *                                                                        and added the corresponding setter/getter methods 
  *09/11/12        #743  Archana           Minor update in the method setAttributesFromColorBarAttributesBuilder() to set
  *                                                                       the pixel width correctly.
- * 
+ *                                                                               
  * </pre>
  * 
  * @author ghull
@@ -150,7 +150,7 @@ public class ColorBar implements IColorBar, ISerializableObject {
 		if( cbar == null ) {
 			return;
 		}
-		anchorLoc =   cbar.anchorLoc;
+		anchorLoc   =   cbar.anchorLoc;
 		orientation = cbar.orientation;
 		drawToScale = cbar.drawToScale;
 		labelColor  = cbar.labelColor;
@@ -158,8 +158,8 @@ public class ColorBar implements IColorBar, ISerializableObject {
 		showLabels  = cbar.showLabels;
 		lengthAsRatio = cbar.lengthAsRatio;
 		widthInPixels = cbar.widthInPixels;
-		numDecimals = cbar.numDecimals;
-		reverseOrder = cbar.reverseOrder;
+		numDecimals   = cbar.numDecimals;
+		reverseOrder  = cbar.reverseOrder;
 		colorBarAttributesBuilder = cbar.colorBarAttributesBuilder;
 		drawColorBar              = cbar.drawColorBar;
 		drawBoxAroundColorBar     = cbar.drawBoxAroundColorBar;
@@ -692,7 +692,7 @@ public class ColorBar implements IColorBar, ISerializableObject {
 				+ ((widthInPixels == null) ? 0 : widthInPixels.hashCode());
 
 		result = prime * result
-		+ ((reverseOrder == null) ? 0 : reverseOrder.hashCode());		
+		+ ((reverseOrder == null) ? 0 : reverseOrder.hashCode());
 		
 		result = prime * result
 		+ ((colorBarAttributesBuilder == null) ? 0 : colorBarAttributesBuilder.hashCode());
@@ -778,7 +778,7 @@ public class ColorBar implements IColorBar, ISerializableObject {
 				return false;
 		} else if (!reverseOrder.equals(other.reverseOrder))
 			return false;
-		
+
 		if (colorBarAttributesBuilder == null) {
 			if (other.colorBarAttributesBuilder != null)
 				return false;

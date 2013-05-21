@@ -15,6 +15,8 @@ package gov.noaa.nws.ncep.ui.nsharp.display;
  * 										Reused some software from com.raytheon.viz.skewt
  * 03/24/2011   R1G2-9      Chin Chen   migration
  * 06/14/2011   11-5        Chin Chen   migration
+ * 03/11/2013   972         Greg Hull   rm paneNum and editorNum; rm AbstractNcEditor
+ * 03/25/2013   972         Greg Hull   rm unused Add/RemoveListeners.
  *
  * </pre>
  * 
@@ -38,8 +40,6 @@ import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpTimeStnPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpWitoPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.view.NsharpPaletteWindow;
 import gov.noaa.nws.ncep.ui.pgen.tools.InputHandlerDefaultImpl;
-import gov.noaa.nws.ncep.viz.common.AbstractNcEditor;
-import gov.noaa.nws.ncep.viz.common.EditorManager;
 import gov.noaa.nws.ncep.viz.ui.display.NCLoopProperties;
 
 import java.util.List;
@@ -72,8 +72,6 @@ import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
-import com.raytheon.uf.viz.core.rsc.ResourceList.AddListener;
-import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.EditorInput;
@@ -82,8 +80,7 @@ import com.raytheon.viz.ui.panes.PaneManager;
 import com.raytheon.viz.ui.panes.VizDisplayPane;
 import com.vividsolutions.jts.geom.Coordinate;
 
-public class NsharpEditor extends AbstractEditor implements AddListener,
-        RemoveListener, AbstractNcEditor, IRenderableDisplayChangedListener {
+public class NsharpEditor extends AbstractEditor implements  IRenderableDisplayChangedListener {
 	private boolean restarting= false;
 	private final int DISPLAY_SKEWT =0; // always set it as first display, dont change it
 	private  int DISPLAY_WITO;
@@ -95,7 +92,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
 	private  int DISPLAY_FUTURE;
 	private  int DISPLAY_TOTAL;
     public static final String EDITOR_ID = "gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor";
-    private  int editorNum=0;
+//    private  int editorNum=0;
     private  NsharpResourceHandler rscHandler;
     private int baseWidth;
     private int baseHeight;
@@ -135,9 +132,6 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     private ResizeListener resizeLsner;
 	public NsharpResourceHandler getRscHandler() {
 		return rscHandler;
-	}
-	public int getEditorNum() {
-		return editorNum;
 	}
 	//Note: nsharpComp used to store composite for each pane.  
     private Composite[] nsharpComp;// = new Composite[DISPLAY_TOTAL];
@@ -306,9 +300,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
 					displayPane[i] = new VizDisplayPane(this, nsharpComp[i],
 							displaysToLoad[i]);
 					
-					
 					displayPane[i].setRenderableDisplay(displaysToLoad[i]);
-					registerListener(displayPane[i]);
 				}
 			}
 			registerHandlers();
@@ -855,10 +847,10 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
                 		}
                 	}
                 	// bsteffen: not sure if this is necessary, getPaneNumber is never used
-                	IDescriptor descriptor = display.getDescriptor();
-                	if(descriptor instanceof NsharpAbstractPaneDescriptor){
-                		((NsharpAbstractPaneDescriptor) descriptor).setPaneNumber(index);
-                	}
+//                	IDescriptor descriptor = display.getDescriptor();
+//                	if(descriptor instanceof NsharpAbstractPaneDescriptor){
+//                		((NsharpAbstractPaneDescriptor) descriptor).setPaneNumber(index);
+//                	}
                 }
 
             }
@@ -866,18 +858,15 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
         
     	edInput.setRenderableDisplays(displayArray);
 
-    	
     	super.init(site, edInput);
 
-    	
-    	//System.out.println("SkewtEditor  title " + this.getTitle() );
-    	if (editorNum == 0 ){
-    		editorNum = EditorManager.getEditorNumber();
-
-    	}
-    	// a new instance, do the registration
-    	EditorManager.registerEditorNumber(editorNum);
-    	this.setTabTitle(editorNum+"-NsharpEditor");
+//    	if (editorNum == 0 ){
+//    		editorNum = EditorManager.getEditorNumber();
+//
+//    	}
+//    	// a new instance, do the registration
+//    	EditorManager.registerEditorNumber(editorNum);
+    	this.setTabTitle(/*editorNum+*/"NsharpEditor");
     	
     	//Note: NsharpResourceHandler should be created after editor is created, so all display pane properties and
     	// pane resource are also constructed
@@ -924,7 +913,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     @Override
     public void dispose() {
     	//System.out.println("NsharpEditor disposed!! "  );
-    	if (EditorManager.unregisterEditorNumber(editorNum) ==0 ){
+//    	if (EditorManager.unregisterEditorNumber(editorNum) ==0 ){
     		super.dispose();
     		synchronized (this) {
     			if (skewtPaneMouseHandler != null && skewtInputManager != null) {
@@ -965,7 +954,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     				timeStnInputManager = null;
     			}
 
-    			editorNum=0;
+//    			editorNum=0;
     			// bsteffen only dispose the rscHandler if not swapping.
     			if(!displayArray[DISPLAY_SKEWT].isSwapping()){
         			if(rscHandler!=null){
@@ -974,7 +963,7 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     			}
                 rscHandler = null;
     		}
-    	}
+//    	}
     	try{
     		IWorkbenchPage wpage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
     		IViewPart vpart = wpage.findView( "gov.noaa.nws.ncep.ui.nsharp.defaultview1" );
@@ -1169,42 +1158,6 @@ public class NsharpEditor extends AbstractEditor implements AddListener,
     	return selectedPane;
         //return this.displayPane[0];
     }
-
-   /**
-     * Add the listenerList
-     * 
-     * @param main
-     */
-    private void registerListener(VizDisplayPane pane) {
-        synchronized (this) {
-            if (pane != null) {
-                try {
-                    // add the Editor as a resource listener
-                    pane.getRenderableDisplay().getDescriptor()
-                            .getResourceList().addPostAddListener(this);
-                    pane.getRenderableDisplay().getDescriptor()
-                            .getResourceList().addPostRemoveListener(this);
-                } catch (Exception e) {
-                    UFStatus.getHandler()
-                            .handle(
-                                    Priority.PROBLEM,                                   
-                                    "Error recovering Resource, Can't add listenerList",
-                                    e);
-                }
-            }
-        }
-    }
-
-    @Override
-    public void notifyAdd(ResourcePair rp) throws VizException {
-    }
- 
-    @Override
-    public void notifyRemove(ResourcePair rp) throws VizException {
-        //
-    }
-
- 
  
     @Override
     public NCLoopProperties getLoopProperties(){

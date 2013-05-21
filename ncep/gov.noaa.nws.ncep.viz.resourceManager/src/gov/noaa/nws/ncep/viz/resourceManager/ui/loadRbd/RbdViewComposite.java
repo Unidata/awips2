@@ -1,12 +1,11 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.loadRbd;
 
+import gov.noaa.nws.ncep.viz.common.display.INatlCntrsRenderableDisplay;
+import gov.noaa.nws.ncep.viz.common.display.INcPaneID;
+import gov.noaa.nws.ncep.viz.common.display.PredefinedArea;
+import gov.noaa.nws.ncep.viz.common.display.PredefinedArea.AreaSource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
-
-import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
-import gov.noaa.nws.ncep.viz.ui.display.PaneID;
-import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea;
-import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea.AreaSource;
+import gov.noaa.nws.ncep.viz.resources.manager.AbstractRBD;
 
 import java.util.ArrayList;
 
@@ -36,7 +35,7 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
  * ------------	----------	-----------	--------------------------
  * 06/26/12      #568       G. Hull     Created to replace separate code in 
  * 										LoadControl, SelectRbd and ManageSpfControl
- * 12/01/12      #630       G. Hull     Show Area based on Source (Resource, Predefined...)
+ * 12/01/13      #630       G. Hull     Show Area based on Source (Resource, Predefined...)
  * 
  * </pre>
  * 
@@ -88,7 +87,7 @@ public class RbdViewComposite extends Composite {
         rscLviewer.setContentProvider( new IStructuredContentProvider() {
 			@Override
 			public Object[] getElements(Object inputElement) {
-				RbdBundle selRbd = (RbdBundle)inputElement;
+				AbstractRBD<?> selRbd = (AbstractRBD<?>)inputElement;
 				if( selRbd == null ) {
 					return new String[0];
 				}
@@ -102,15 +101,14 @@ public class RbdViewComposite extends Composite {
 				// resources are displayed) and whole RBDs (in which case all pane's
 				// resources are displayed) For multi-pane RBDs the format will include
 				// the name of the pane.
-				for( int r=0 ; r<selRbd.getPaneLayout().getRows() ; r++ ) {
-					for( int c=0 ; c<selRbd.getPaneLayout().getColumns() ; c++ ) {
-						PaneID paneId = new PaneID(r,c)	;
+				for( int paneIndx=0 ; paneIndx<selRbd.getPaneLayout().getNumberOfPanes() ; paneIndx++ ) {
+						INcPaneID paneId = selRbd.getPaneLayout().createPaneId(paneIndx);
 						
-						NCMapRenderableDisplay disp = selRbd.getDisplayPane(paneId);
+						INatlCntrsRenderableDisplay disp = selRbd.getDisplayPane(paneId);
 						AbstractDescriptor mapDescr = (AbstractDescriptor)disp.getDescriptor();
 
 						boolean showPane = (!viewSelectedPane || 
-										    (viewSelectedPane && (paneId.compare( selRbd.getSelectedPaneId() ) == 0)));
+										    (viewSelectedPane && (paneId.compareTo( selRbd.getSelectedPaneId() ) == 0)));
 					
 						// show this pane only if its a single pane or if this is the 
 						if( showPane ) {
@@ -123,16 +121,21 @@ public class RbdViewComposite extends Composite {
 							}
 							
 							// TODO: show the actual center/proj/zoomLevel???
-							PredefinedArea area = disp.getInitialArea();
-							
-							if( area == null ) {
-								rscNames.add("Unspecified initial Area");
-							}
-							else if( area.getAreaSource() == AreaSource.PREDEFINED_AREA ) {
-								rscNames.add("Predefined Area "+area.getAreaName() );
+							if( disp.getInitialArea() instanceof PredefinedArea ) {
+								PredefinedArea area = (PredefinedArea)disp.getInitialArea();
+
+								if( area == null ) {
+									rscNames.add("Unspecified initial Area");
+								}
+								else if( area.getAreaSource() == AreaSource.PREDEFINED_AREA ) {
+									rscNames.add("Predefined Area "+area.getAreaName() );
+								}
+								else {
+									rscNames.add("Area From "+area.getAreaName() );
+								}
 							}
 							else {
-								rscNames.add("Area From "+area.getAreaName() );
+								// anything to add or leave blank?
 							}
 							
 							for( ResourcePair rp : mapDescr.getResourceList() ) {
@@ -155,8 +158,7 @@ public class RbdViewComposite extends Composite {
 
 									rscNames.add( rscName );
 								}
-							}
-						}
+							}				
 					}
 				}
 		    	return rscNames.toArray();
@@ -189,7 +191,7 @@ public class RbdViewComposite extends Composite {
 		viewSelectedPane = true;
 	}
 	
-	public void viewRbd( RbdBundle rbd ) {
+	public void viewRbd( AbstractRBD<?> rbd ) {
 		
 		if( rbd == null ) {
 			rbdNameLabel.setText( "" );

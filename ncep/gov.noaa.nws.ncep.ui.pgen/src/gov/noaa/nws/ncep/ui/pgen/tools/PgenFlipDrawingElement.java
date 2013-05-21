@@ -95,7 +95,7 @@ public class PgenFlipDrawingElement extends AbstractPgenTool {
         @Override	   	
         public boolean handleMouseDown(int anX, int aY, int button) {
         	if ( !isResourceEditable() ) return false;
-        	
+
         	preempt = false;
            	//  Check if mouse is in geographic extent
         	Coordinate loc = flipNCMapEditor.translateClick(anX, aY);
@@ -123,7 +123,7 @@ public class PgenFlipDrawingElement extends AbstractPgenTool {
         		else {
         			reversedDrawableElement = PgenToolUtils.createReversedDrawableElement(selectedDrawableElement); 
         		}
-
+        		
         		leftMouseButtonDownHandler(flipPgenSource, selectedDrawableElement, reversedDrawableElement, loc); 
         		flipNCMapEditor.refresh(); 
         		if ( selectedDrawableElement != null ) preempt = true;

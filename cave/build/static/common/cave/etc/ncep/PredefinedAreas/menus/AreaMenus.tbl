@@ -1,0 +1,29 @@
+! This is an ordered list of names of Predefined Areas to be made available
+! from the Areas main menu. Note : these are the Area Names and not file names.
+! All Predefined Area must be stored under Localization in the 
+! ncep/PredefinedAreas  directory. Also note that a referenced area name can
+! be stored at any localization level but the highest priority level area will
+! be displayed when selected
+! 
+!Local 
+US
+BasicWX_US
+North_America
+N_Hemisphere
+Alaska
+Hawaii
+Caribbean
+Atlantic-Western
+Atlantic-North
+Atlantic-Tropical
+Atlantic-FullBasin
+Pacific-Eastern
+Pacific-North
+Pacific-Tropical
+Pacific-FullBasin
+Canada
+Europe
+South_America
+Africa
+World
+World0

@@ -1,19 +1,17 @@
 package gov.noaa.nws.ncep.viz.tools.aodt;
 
 
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
-import gov.noaa.nws.ncep.viz.rsc.satellite.rsc.ICloudHeightCapable;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.tools.aodt.ui.AODTDialog;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
-
-import javax.measure.converter.UnitConverter;
-import javax.measure.unit.SI;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 
 
@@ -31,6 +29,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 08/11/11                 Chin Chen   1.Fixed AODT can not retrieve IR temp issue
  * 	                                    2.Fixed AODT crash CAVE issue when invalid data retrieved from database
  * 										3.Changed to retrieve IR data only when user click Run AODT button
+ * 02/11/13      972        G. Hull     AbstractEditor instead of NCMapEditor
  * 
  * </pre>
  * 
@@ -46,7 +45,7 @@ public class AODTProcesser {
 	
 	//private UnitConverter tempUnitsConverter = null;
 	
-	private NCMapEditor mapEditor;
+	private AbstractEditor mapEditor;
 	
 	//private final int NUMX = 105;
 	
@@ -57,8 +56,10 @@ public class AODTProcesser {
 	
 	public AODTProcesser( AODTDialog dlg ) {
 		aodtDlg = dlg;
-		mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();
-    	getResources();
+		mapEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
+        if( NcEditorUtil.getNcDisplayType( mapEditor ) == NcDisplayType.NMAP_DISPLAY ) {
+        	getResources();
+        }
 	}
     
 	public void processAODT( Coordinate latlon) { 
@@ -135,7 +136,7 @@ public class AODTProcesser {
     	if( aodtRsc != null  ) {
     		return;
     	}
-    	ResourceList rscs = mapEditor.getDescriptor().getResourceList();
+    	ResourceList rscs = NcEditorUtil.getDescriptor(mapEditor).getResourceList();
         
     	for( ResourcePair r : rscs ) {
             if( r.getResource() instanceof AODTResource ) {
@@ -150,8 +151,8 @@ public class AODTProcesser {
         	//aodtRsc = new CloudHeightResource("Cloud Height");
             try {
             	AODTResourceData srd = new AODTResourceData();
-            	aodtRsc = srd.construct(new LoadProperties(), mapEditor.getDescriptor());
-                mapEditor.getDescriptor().getResourceList().add( aodtRsc );
+            	aodtRsc = srd.construct(new LoadProperties(), NcEditorUtil.getDescriptor(mapEditor));
+            	NcEditorUtil.getDescriptor(mapEditor).getResourceList().add( aodtRsc );
                 aodtRsc.init( mapEditor.getActiveDisplayPane().getTarget() );
             } catch (VizException e) {
                 e.printStackTrace();
@@ -164,7 +165,7 @@ public class AODTProcesser {
     
     public void close( ) {
     	if( aodtRsc != null ) {
-        	mapEditor.getDescriptor().getResourceList().removeRsc( aodtRsc );
+    		NcEditorUtil.getDescriptor(mapEditor).getResourceList().removeRsc( aodtRsc );
         	aodtRsc = null;
         	mapEditor.refresh();
         }

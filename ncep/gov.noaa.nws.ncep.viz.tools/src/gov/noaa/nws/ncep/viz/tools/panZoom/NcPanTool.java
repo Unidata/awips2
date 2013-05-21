@@ -1,6 +1,6 @@
 package gov.noaa.nws.ncep.viz.tools.panZoom;
 
-import gov.noaa.nws.ncep.viz.ui.display.AbstractNCModalMapTool;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcModalTool;
 
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
@@ -23,7 +23,7 @@ import com.raytheon.viz.ui.input.PanHandler;
  * @author ghull
  * @version 1
  */
-public class NcPanTool extends AbstractNCModalMapTool {
+public class NcPanTool extends AbstractNcModalTool {
 
     /** The mouse handler */
     private NcPanHandler panHandler;
