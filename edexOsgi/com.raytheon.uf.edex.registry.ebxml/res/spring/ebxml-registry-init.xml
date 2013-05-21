@@ -5,9 +5,9 @@
   
 	<bean id="DbInit" class="com.raytheon.uf.edex.registry.ebxml.dao.DbInit">
         <property name="lcm" ref="lcmServiceImpl" />
-        <property name="xacmlAdmin" ref="XACMLPolicyAdministrator" />
         <property name="dao" ref="registryObjectDao" />
 		<property name="sessionFactory" ref="metadataSessionFactory" />
+		<property name="txTemplate" ref="metadataTxTemplate"/>
 	</bean>
 	
 	<bean id="ebxmlDbValidationStrategy"

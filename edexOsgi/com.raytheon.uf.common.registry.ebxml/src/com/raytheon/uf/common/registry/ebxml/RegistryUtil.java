@@ -90,7 +90,7 @@ public final class RegistryUtil {
     /**
      * The default internal owner
      */
-    public static final String DEFAULT_OWNER = "EDEX_Internal_User";
+    public static final String DEFAULT_OWNER = "NCF";
 
     // A private mapping of attribute types to slot types, used when storing an
     // object to the registry to map QueryableAttributes to SlotConverters.
