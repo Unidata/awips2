@@ -14,14 +14,16 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import gov.noaa.nws.ncep.viz.resources.*;
 import gov.noaa.nws.ncep.viz.tools.Activator;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 
 /**
@@ -39,6 +41,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * 	                                    Also remove code to handle colorBar resources since this is now 
  *                                      done in propertiesChanged()    
  * 12/19/12     #960        G. Hull     don't hide the Pgen Resource.
+ * 02/11/13     #972        G. Hull     AbstractEditor instead of NCMapEditor
  * 
  * </pre>
  * 
@@ -65,42 +68,42 @@ public class HideLoopAction extends AbstractHandler implements IElementUpdater  
 		 * Hide all, but overlays and the basic map; 
 		 * based on NmapUiUtil's findResource().
     	 */
-    	NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor(); //AbstractEditor
-					
-    	if( editor != null &&  editor instanceof NCMapEditor ) {		
-							
-    		editor.setHideShow( !editor.getHideShow() );      //reverse it
-					
+    	AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor(); //AbstractEditor
+    	
+    	if( editor != null &&  editor instanceof AbstractNcEditor ) {		
+
+    		NcEditorUtil.toggleHideShow( editor );    //reverse it
+			
             for( ResourcePair resPair : editor.getActiveDisplayPane().getDescriptor().getResourceList() ) {
-            
+            	
             	if( resPair != null && 
             		!resPair.getProperties().isSystemResource() && 
             		!resPair.getProperties().isMapLayer() &&
             		 resPair.getResource().getClass().getSimpleName().compareTo("PgenResource") != 0 ) {
-            	
-            		resPair.getProperties().setVisible( !editor.getHideShow() );
-            		}
-						}
-            
+            		
+            		resPair.getProperties().setVisible( !NcEditorUtil.getHideShow( editor ) );
+            	}
+            }
+	        
 			editor.refresh();	
-					
-			editor.refreshGUIElements(); // triggers updateElement()
+
+			NcEditorUtil.refreshGUIElements( editor ); // triggers updateElement()
 		}
         return null;
     }	
  
     @Override
 	public void updateElement(UIElement element, Map parameters) {
-    	NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor();
+    	AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
     	
-    	if (editor != null) {
-    		if (editor.getHideShow() == true) {			
+    	if( editor != null) {
+    		if( NcEditorUtil.getHideShow( editor ) ) {			
     			element.setIcon( loopShow );
     		}
     		else {			
     			element.setIcon( loopHide );
     		}
 		}
-	}
+	}    
 }
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Products xmlns:ns2="http://www.example.org/productType" xmlns:ns3="com.raytheon.uf.common.datadelivery.registry">
-    <Product name="Default" type="Default" forecaster="Default" center="Default" onOff="true" saveLayers="false" useFile="false" outputFile="/usr1/bingfan/fire/outlooksettings.xml">
+<Products xmlns:ns2="com.raytheon.uf.common.datadelivery.registry" xmlns:ns3="http://www.example.org/productType">
+    <Product name="Default" type="Default" forecaster="Default" center="Default" onOff="true" saveLayers="false" useFile="false" outputFile="outlooksettings.xml">
         <Layer name="Default" onOff="true" monoColor="false" filled="false">
             <Color red="255" green="255" blue="0" alpha="255"/>
             <DrawableElement>
@@ -332,9 +332,9 @@
                             <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="SOLID" flipSide="false">
                                 <Color red="0" green="255" blue="0" alpha="255"/>
                                 <Color red="0" green="255" blue="0" alpha="255"/>
-                    			<Point Lat="33.19734393868015" Lon="-160.59830196790335"/>
-                    			<Point Lat="34.57796868755575" Lon="-157.39502385194098"/>
-                    			<Point Lat="38.18258052536575" Lon="-156.73752092215346"/>
+                                <Point Lat="33.19734393868015" Lon="-160.59830196790335"/>
+                                <Point Lat="34.57796868755575" Lon="-157.39502385194098"/>
+                                <Point Lat="38.18258052536575" Lon="-156.73752092215346"/>
                             </Line>
                             <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="255" blue="0" alpha="255"/>
@@ -348,9 +348,9 @@
                             <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="FILL_PATTERN_1" flipSide="false">
                                 <Color red="0" green="0" blue="255" alpha="255"/>
                                 <Color red="0" green="0" blue="255" alpha="255"/>
-                    			<Point Lat="31.800509867651012" Lon="-158.76934635436356"/>
-                    			<Point Lat="33.289460633318065" Lon="-155.9199723646556"/>
-                    			<Point Lat="37.10059186552416" Lon="-154.88845763999288"/>
+                                <Point Lat="31.800509867651012" Lon="-158.76934635436356"/>
+                                <Point Lat="33.289460633318065" Lon="-155.9199723646556"/>
+                                <Point Lat="37.10059186552416" Lon="-154.88845763999288"/>
                             </Line>
                             <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="0" blue="255" alpha="255"/>
@@ -364,9 +364,9 @@
                             <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="SOLID" flipSide="false">
                                 <Color red="255" green="255" blue="0" alpha="255"/>
                                 <Color red="255" green="255" blue="0" alpha="255"/>
-                    			<Point Lat="31.00079129246684" Lon="-156.59229566035393"/>
-                    			<Point Lat="33.01689001351287" Lon="-152.795430904588"/>
-                    			<Point Lat="36.047264179629714" Lon="-153.05578084732764"/>
+                                <Point Lat="31.00079129246684" Lon="-156.59229566035393"/>
+                                <Point Lat="33.01689001351287" Lon="-152.795430904588"/>
+                                <Point Lat="36.047264179629714" Lon="-153.05578084732764"/>
                             </Line>
                             <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="255" blue="0" alpha="255"/>
@@ -380,9 +380,9 @@
                             <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="FILL_PATTERN_1" flipSide="false">
                                 <Color red="0" green="255" blue="255" alpha="255"/>
                                 <Color red="0" green="255" blue="255" alpha="255"/>
-                    			<Point Lat="30.039631635331617" Lon="-155.07375189293543"/>
-                    			<Point Lat="31.59729146627632" Lon="-151.55754921410448"/>
-                    			<Point Lat="33.83457665045852" Lon="-150.91893510340205"/>
+                                <Point Lat="30.039631635331617" Lon="-155.07375189293543"/>
+                                <Point Lat="31.59729146627632" Lon="-151.55754921410448"/>
+                                <Point Lat="33.83457665045852" Lon="-150.91893510340205"/>
                             </Line>
                             <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="0" green="255" blue="255" alpha="255"/>
@@ -396,9 +396,9 @@
                             <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="SOLID" flipSide="false">
                                 <Color red="255" green="0" blue="255" alpha="255"/>
                                 <Color red="255" green="0" blue="255" alpha="255"/>
-                    			<Point Lat="28.91144684738962" Lon="-154.11987874937623"/>
-                    			<Point Lat="30.74989103185022" Lon="-149.99315846172533"/>
-                    			<Point Lat="33.072736426637064" Lon="-149.5721073646848"/>
+                                <Point Lat="28.91144684738962" Lon="-154.11987874937623"/>
+                                <Point Lat="30.74989103185022" Lon="-149.99315846172533"/>
+                                <Point Lat="33.072736426637064" Lon="-149.5721073646848"/>
                             </Line>
                             <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="255" alpha="255"/>
@@ -412,9 +412,9 @@
                             <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="FILL_PATTERN_1" flipSide="false">
                                 <Color red="139" green="71" blue="38" alpha="255"/>
                                 <Color red="139" green="71" blue="38" alpha="255"/>
-                    			<Point Lat="27.83691252105658" Lon="-151.82265267307164"/>
-                    			<Point Lat="29.318372308457256" Lon="-149.14901730479855"/>
-                    			<Point Lat="31.605263039392547" Lon="-148.83653398170478"/>
+                                <Point Lat="27.83691252105658" Lon="-151.82265267307164"/>
+                                <Point Lat="29.318372308457256" Lon="-149.14901730479855"/>
+                                <Point Lat="31.605263039392547" Lon="-148.83653398170478"/>
                             </Line>
                             <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="139" green="71" blue="38" alpha="255"/>
@@ -428,9 +428,9 @@
                             <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="SOLID" flipSide="false">
                                 <Color red="255" green="130" blue="71" alpha="255"/>
                                 <Color red="255" green="130" blue="71" alpha="255"/>
-                    			<Point Lat="26.75114712321283" Lon="-150.54927401344503"/>
-                    			<Point Lat="27.81070499778083" Lon="-147.40845877281643"/>
-                    			<Point Lat="30.183757804653357" Lon="-147.4149949201545"/>
+                                <Point Lat="26.75114712321283" Lon="-150.54927401344503"/>
+                                <Point Lat="27.81070499778083" Lon="-147.40845877281643"/>
+                                <Point Lat="30.183757804653357" Lon="-147.4149949201545"/>
                             </Line>
                             <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="130" blue="71" alpha="255"/>
@@ -444,9 +444,9 @@
                             <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="FILL_PATTERN_1" flipSide="false">
                                 <Color red="255" green="165" blue="79" alpha="255"/>
                                 <Color red="255" green="165" blue="79" alpha="255"/>
-                    			<Point Lat="25.707784966487743" Lon="-149.2678980056477"/>
-                    			<Point Lat="26.358162458765957" Lon="-147.11329101528824"/>
-                    			<Point Lat="29.292493541217183" Lon="-145.63998759065558"/>
+                                <Point Lat="25.707784966487743" Lon="-149.2678980056477"/>
+                                <Point Lat="26.358162458765957" Lon="-147.11329101528824"/>
+                                <Point Lat="29.292493541217183" Lon="-145.63998759065558"/>
                             </Line>
                             <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="165" blue="79" alpha="255"/>
@@ -460,9 +460,9 @@
                             <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="SOLID" flipSide="false">
                                 <Color red="255" green="174" blue="185" alpha="255"/>
                                 <Color red="255" green="174" blue="185" alpha="255"/>
-                    			<Point Lat="24.655294200741245" Lon="-148.15607755680506"/>
-                    			<Point Lat="25.586664023223666" Lon="-145.22069269860285"/>
-                    			<Point Lat="28.052465283530537" Lon="-144.22058548942363"/>
+                                <Point Lat="24.655294200741245" Lon="-148.15607755680506"/>
+                                <Point Lat="25.586664023223666" Lon="-145.22069269860285"/>
+                                <Point Lat="28.052465283530537" Lon="-144.22058548942363"/>
                             </Line>
                             <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="174" blue="185" alpha="255"/>
@@ -476,9 +476,9 @@
                             <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="FILL_PATTERN_1" flipSide="false">
                                 <Color red="255" green="106" blue="106" alpha="255"/>
                                 <Color red="255" green="106" blue="106" alpha="255"/>
-                    			<Point Lat="23.36697981971183" Lon="-146.75363520816867"/>
-                    			<Point Lat="24.062589784007557" Lon="-144.47647613224126"/>
-                    			<Point Lat="26.23197980395732" Lon="-143.25612203469473"/>
+                                <Point Lat="23.36697981971183" Lon="-146.75363520816867"/>
+                                <Point Lat="24.062589784007557" Lon="-144.47647613224126"/>
+                                <Point Lat="26.23197980395732" Lon="-143.25612203469473"/>
                             </Line>
                             <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="106" blue="106" alpha="255"/>
@@ -961,7 +961,7 @@
                             </Text>
                         </DrawableElement>
                     </DECollection>
-                    <DECollection pgenCategory="MET" collectionName="OutlookLine">
+                    <DECollection collectionName="OutlookLine">
                         <DrawableElement>
                             <Line pgenType="SCALLOPED" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
@@ -973,11 +973,11 @@
                             <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="47.99936059012255" Lon="-71.48961550656405"/>
-                                <textLine>DRY-T</textLine>
+                                <textLine>DRY TSTM</textLine>
                             </Text>
                         </DrawableElement>
                     </DECollection>
-                    <DECollection pgenCategory="MET" collectionName="OutlookLine">
+                    <DECollection collectionName="OutlookLine">
                         <DrawableElement>
                             <Line pgenType="SCALLOPED" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
                                 <Color red="139" green="71" blue="38" alpha="255"/>
@@ -993,7 +993,7 @@
                             </Text>
                         </DrawableElement>
                     </DECollection>
-                    <DECollection pgenCategory="MET" collectionName="OutlookLine">
+                    <DECollection collectionName="OutlookLine">
                         <DrawableElement>
                             <Line pgenType="SCALLOPED" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
@@ -1006,6 +1006,22 @@
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="45.60978318147557" Lon="-71.82430526206285"/>
                                 <textLine>SCT DRY-T</textLine>
+                            </Text>
+                        </DrawableElement>
+                    </DECollection>
+                    <DECollection pgenCategory="MET" collectionName="OutlookLine">
+                        <DrawableElement>
+                            <Line pgenType="POINTED_ARROW" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                                <Color red="139" green="71" blue="38" alpha="255"/>
+                                <Color red="139" green="71" blue="38" alpha="255"/>
+                                <Point Lat="54.76159387097988" Lon="-76.00927434860081"/>
+                                <Point Lat="52.82394959902151" Lon="-74.9755821133164"/>
+                                <Point Lat="52.72431308574308" Lon="-70.24914444166065"/>
+                            </Line>
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                                <Color red="139" green="71" blue="38" alpha="255"/>
+                                <Point Lat="51.267748753069995" Lon="-66.80477132081892"/>
+                                <textLine>ELEVATED</textLine>
                             </Text>
                         </DrawableElement>
                     </DECollection>
@@ -2109,7 +2125,7 @@
                         </DrawableElement>
                     </DECollection>
                 </Outlook>
-                <Outlook outlookType="EXCE_RAIN" name="Outlook" pgenCategory="MET" pgenType="EXCE_RAIN" parm="HGMT" level="1000" time="2011-08-30T11:44:21.013Z" cint="10/0/100">
+                <Outlook outlookType="EXCE_RAIN" name="Outlook" pgenCategory="MET" pgenType="EXCE_RAIN" parm="HGMT" level="1000" time="2011-08-30T11:44:21.319Z" cint="10/0/100">
                     <DECollection collectionName="OutlookLine">
                         <DrawableElement>
                             <Line pgenType="POINTED_ARROW" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
@@ -2159,7 +2175,7 @@
                         </DrawableElement>
                     </DECollection>
                 </Outlook>
-                <Outlook outlookType="FLOOD" name="Outlook" pgenCategory="MET" pgenType="FLOOD" parm="HGMT" level="1000" time="2012-03-06T17:05:00.013Z" cint="10/0/100">
+                <Outlook outlookType="FLOOD" name="Outlook" pgenCategory="MET" pgenType="FLOOD" parm="HGMT" level="1000" time="2012-03-06T17:05:00.320Z" cint="10/0/100">
                     <DECollection collectionName="OutlookLine">
                         <DrawableElement>
                             <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="1" closed="true" filled="false" fillPattern="SOLID" flipSide="false">

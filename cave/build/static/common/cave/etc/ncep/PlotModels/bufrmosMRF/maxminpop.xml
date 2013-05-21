@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<plotModel svgTemplate="standardPlotModelTemplate.svg" plugin="bufrmosMRF" name="maxminpop">
+
+
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="PP24">
+        <Position>UR</Position>
+        <Color red="0" green="255" blue="0"/>
+    </PlotModelElement>
+
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="TDYF">
+        <Position>UL</Position>
+        <Color red="255" green="0" blue="0"/>
+    </PlotModelElement>
+    
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="TNTF">
+        <Position>LL</Position>
+        <Color red="0" green="178" blue="238"/>
+    </PlotModelElement>
+    
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="STID">
+        <Position>LR</Position>
+        <Color red="255" green="228" blue="220"/>
+    </PlotModelElement>    
+   
+</plotModel>

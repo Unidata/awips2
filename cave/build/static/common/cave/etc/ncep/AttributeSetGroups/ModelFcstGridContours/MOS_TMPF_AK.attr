@@ -1,0 +1,23 @@
+!
+! Restore File :MOS_TMPF_AK
+!
+! Log:
+!
+GLEVEL=2
+GVCORD=HGHT
+SKIP=
+FILTER=y
+SCALE=0
+GDPFUN=TMPF
+TYPE=p
+CINT=0
+LINE=6
+FINT=50;60;70;80;90
+FLINE=0;29;28;27;26;0
+HILO=
+HLSYM=
+WIND=18/1/1
+TITLE=1/-1/~ Temperature (in F)
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

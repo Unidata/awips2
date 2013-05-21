@@ -43,6 +43,7 @@ import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResourceData;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 import gov.noaa.nws.ncep.viz.rsc.stormtrack.rsc.StormTrackResourceData.ModelDisplayAttrs;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBar;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -86,7 +87,7 @@ import com.vividsolutions.jts.geom.CoordinateList;
  * 01-Mar-2011             Greg Hull   frameInterval -> frameSpan
  * 12-Oct-2011             sgilbert    Modified from ATCFResource
  * 26-Oct-2011             B. Hebbard  Initial commit as StormTrack
- * 05/23/2012     785      Q. Zhou     Added getName for legend.                                               
+ * 05/23/2012     785      Q. Zhou     Added getName for legend.   
  * 09/21/2012     858      Greg Hull   don't use default queryRecords. constrain on modelNames 
  *                                     and query by frame.
  * 09/28/2012     858      Greg Hull   cache wireframes by the color/linewidth and don't recompile unless changed
@@ -98,16 +99,16 @@ import com.vividsolutions.jts.geom.CoordinateList;
  * @author sgilbert
  *</pre>
  */
-public class StormTrackResource extends AbstractNatlCntrsResource<StormTrackResourceData, IMapDescriptor>
+public class StormTrackResource extends AbstractNatlCntrsResource<StormTrackResourceData, NCMapDescriptor>
 implements INatlCntrsResource{
 
 	private StormTrackResourceData strmTrkRscData;
-
+		
 	private IFont font = null;
 	private double charHeight;
 	private double charWidth;	
 	private double screenToWorldRatio;
-	
+
 	protected ColorBarResource cbarResource;
 	protected ResourcePair     cbarRscPair;
 	
@@ -124,9 +125,9 @@ implements INatlCntrsResource{
 		public WireFrameDisplayAttrs( RGB rgb, Integer lw ) {
 			color = rgb;
 			lineWidth = lw;
-	}
-
-	@Override
+		}
+		
+		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
@@ -134,9 +135,9 @@ implements INatlCntrsResource{
 			result = prime * result
 					+ ((lineWidth == null) ? 0 : lineWidth.hashCode());
 			return result;
-	}
+		}
 
-	@Override
+		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
@@ -158,17 +159,17 @@ implements INatlCntrsResource{
 			return true;
 		}
 	}
-
+	
 	private class FrameData extends AbstractFrameData {
 
 		// map from the name of the cyclone to the StormTrackCyclone object
 		private StormTrackContainer tracks;
-
+		
 		private Map<WireFrameDisplayAttrs, IWireframeShape> wireframesMap;
 
 		private boolean recreateWireframes = true;
 		private IGraphicsTarget currGrpTarget;
-		
+
 		private ArrayList<String> modelNames;
 		private ArrayList<RGB>    colorList;
 		
@@ -184,7 +185,7 @@ implements INatlCntrsResource{
 
 		public void populateFrame() {
 
-		long t0 = System.currentTimeMillis();
+			long t0 = System.currentTimeMillis();
 			try {
 				RequestConstraint reqConstr = new RequestConstraint();
 				HashMap<String, RequestConstraint> metadataMap = new HashMap<String, RequestConstraint>(
@@ -227,10 +228,10 @@ implements INatlCntrsResource{
 								new String[] { Long.toString( beginFcstHr ), 
 										Long.toString( endFcstHr ) } );
 						reqConstr.setConstraintType( ConstraintType.BETWEEN );
-		
+
 						metadataMap.put( "dataTime.fcstTime", reqConstr );
 					}
-		}
+		        }
 				else {
 //					if( strmTrkRscData.getTimeMatchMethod() == TimeMatchMethod.EXACT ) {
 //						DataTime refTime = new DataTime( frameTime.getRefTime() );					
@@ -250,9 +251,9 @@ implements INatlCntrsResource{
 					reqConstr.setConstraintType( RequestConstraint.ConstraintType.BETWEEN );
 				
 		        	metadataMap.put("dataTime.refTime", reqConstr);
-		
+
 //					metadataMap.put("dataTime", reqConstr );
-	}
+				}
 
 				
 				// add a constraint for the modelNames
@@ -260,15 +261,15 @@ implements INatlCntrsResource{
 				for( ModelDisplayAttrs dispAttrs : strmTrkRscData.getModelDisplayAttributes() ) {
 					if( dispAttrs.modelName != null && !dispAttrs.modelName.isEmpty() ) {
 						modelNamesString.append( dispAttrs.modelName + ",");
-        }
-        }
+					}
+				}
 				if( modelNamesString.toString().isEmpty() ) {
 					System.out.println("???sanity check : no models specified to query??");
 					return;
-	}
-
+				}
+				
 				modelNamesString.deleteCharAt( modelNamesString.toString().length()-1 );
-
+				
 				reqConstr = new RequestConstraint( modelNamesString.toString(), ConstraintType.IN );
 				
 				metadataMap.put( "model", reqConstr );
@@ -297,7 +298,7 @@ implements INatlCntrsResource{
 					System.out.println( pdoList.length + " Storm Track Records read.");
 				}
 
-				for (Object pdo : pdoList) {
+				for( Object pdo : pdoList ) {
 					for( IRscDataObject rscDataObj : processRecord( pdo ) )	{	
 						// Note that for the regular (ie non-forecast/legacy behaviour) version of this stormTrack resource
 						// the storm track records are time matched just on the refTimes and not the forecast times. 
@@ -312,26 +313,26 @@ implements INatlCntrsResource{
 							if( isRscDataObjInFrame( rscDataObj ) ) {
 								updateFrameData( rscDataObj );
 							}
-					}
+						}
 //						else { this can actually happen if the time is equal to the begin time
 //							System.out.println("stormTrack obj doesn't time match to the frame which queried it???  " + rscDataObj.getDataTime().toString() );
 //						}
+					}
 				}				
-			}
-
+				
 				setPopulated( true );
 
-		} catch (VizException e) {
+			} catch (VizException e) {
 				System.out.println("Error querying storm track records");
-		}
+			}
 
 			long t1 = System.currentTimeMillis();
 			System.out.println("Initializing StormTrack took:" + (t1-t0) );
-	}
+		}
 
 		// TODO : if called from a URI notification how do we know when the track is complete and
 		// to recreate the 
-	@Override
+		@Override
 		public boolean updateFrameData(IRscDataObject rscDataObj) {
 			if( rscDataObj instanceof DfltRecordRscDataObj ) {
 				DfltRecordRscDataObj dfltObj = (DfltRecordRscDataObj)rscDataObj;
@@ -346,18 +347,18 @@ implements INatlCntrsResource{
 						recreateWireframes = true;
 					}
 				}
-	}
-	
+			}
+			
 			return true;
 		}
-
+		
 		public void paint( PaintProperties paintProps)
 										throws VizException {
-
+			
 			if( !isPopulated() ) {
 				populateFrame();
-	}
-
+			}
+			
 	    	IExtent extent = paintProps.getView().getExtent();
 
 	    	// Turns out that even with a whole screenfull of tracks it doesn't cost us much to draw wireframes offscreen
@@ -370,16 +371,16 @@ implements INatlCntrsResource{
 	    		if( prevPaintProps.isZooming() &&
 	    			!paintProps.isZooming() ) {
 	    			recreateWireframes = true;
-			}
+	    		}
 	    		else if( prevPaintProps.getDataTime().getValidTime().getTimeInMillis() 
 	    			    != paintProps.getDataTime().getValidTime().getTimeInMillis() ) {
 	    			recreateWireframes = true;
-		}
-	}	
+	    		}
+	    	}
 	    	else if( wireframesMap == null ) {
 	    		recreateWireframes = true;
 	    	}
-
+	    	
 			prevPaintProps = new PaintProperties( paintProps );
 
 	    	// If the wireframes are ready to go and don't need to be recreated just draw them.
@@ -387,7 +388,7 @@ implements INatlCntrsResource{
 			if( !recreateWireframes ) {	
 				for( WireFrameDisplayAttrs wfAttrs : wireframesMap.keySet() ) {
 					IWireframeShape wireFrame = wireframesMap.get( wfAttrs );
-
+						
 					currGrpTarget.drawWireframeShape( wireFrame, 
 								wfAttrs.color, wfAttrs.lineWidth );
 				}
@@ -442,14 +443,14 @@ implements INatlCntrsResource{
 			modelNames.clear();
 			modelNames.add("Model:");
 			colorList.clear();
-			colorList.add(new RGB(255, 255, 255));
-
+			colorList.add( new RGB(255,255,255 ) );
+			
 			// NOTE : Since this is not actually clearing out old and possibly unused
 			// wireframes, there may be some that are not used but its highly unlikely that 
 			//there will be so many as to affect memory or performance.
 			for( IWireframeShape wf : wireframesMap.values() ) {
 				wf.reset();
-					}
+			}
 			
 			screenToWorldRatio = paintProps.getCanvasBounds().width /paintProps.getView().getExtent().getWidth(); 			
 
@@ -473,8 +474,8 @@ implements INatlCntrsResource{
 				Collection<StormTrack> coll = tracks.getStormTracksByModel( modelName );
 				StormLocation seldFcstHrLoc=null;
 
-					for (StormTrack st: coll) {
-						//System.out.println("      Track "+st.getStormId().getCycloneNum() + " : " +st.getTrack().size()+ " points");
+				for( StormTrack st : coll ) {
+					//System.out.println("      Track "+st.getStormId().getCycloneNum() + " : " +st.getTrack().size()+ " points");
 					
 					// NOTE: we can do the below check and it will speed up the panning a little bit. But it also causes
 					// a bug where the user can zoom in 'too' far so that none of the track points are in the current view even
@@ -488,7 +489,7 @@ implements INatlCntrsResource{
 					// tracks
 					boolean drawTrack = false;
 					
-						for ( StormLocation sloc : st.getTrack() ) {
+					for( StormLocation sloc : st.getTrack() ) {
 						if( strmTrkRscData.getForecastHourEnable() ) {							
 							if( sloc.getForecastHour() == strmTrkRscData.getForecastHour() ) {
 								seldFcstHrLoc = sloc;
@@ -497,10 +498,10 @@ implements INatlCntrsResource{
 								continue;
 							}
 						}
-							
+						
 						double[] posA = descriptor.worldToPixel(
 								new double[] {sloc.getLongitude(), sloc.getLatitude(), 0.0});
-							
+
 						if( extent.contains( posA ) ) {
 							drawTrack = true;
 						}
@@ -602,10 +603,10 @@ implements INatlCntrsResource{
 									if( sloc == st.getTrack().first() ) {
 										trackSegData.firstSegment = true;
 									}									
-
-							if (sloc == st.getTrack().last()) {
+	
+									if( sloc == st.getTrack().last() ) {
 										trackSegData.lastSegment = true;
-								}
+									}
 								}
 								else { // if this track points wind speed is not for this interval
 									
@@ -620,19 +621,19 @@ implements INatlCntrsResource{
 //									else if( isLast ) {
 //										// bug where date time label may not be displayed???
 //									}
-							}
-
+								}
+								
 								prevLoc = sloc;
-						}
+							}
 
 							if( !trackSegData.stormLocs.isEmpty() ) {
 								
 								trackSegData.lastSegment = true; // has to be the last loc
 								
 								addTrackToWireframe( wfDispAttrs, trackSegData );
+							}
+						}
 					}
-				}
-			}
 				}				
 			}
 			
@@ -651,12 +652,12 @@ implements INatlCntrsResource{
 			if( !strmTrkRscData.getColorCodeByWindSpeed() && 
 				!modelNames.isEmpty() ) {
 				
-		        IExtent screenExtent = paintProps.getView().getExtent();
-		        IExtent mapExtent = new PixelExtent(descriptor.getGridGeometry().getGridRange());
-				double x0 = Math.max(mapExtent.getMinX(), screenExtent.getMinX()
-                        + (screenExtent.getWidth() * 0.08));
+				IExtent screenExtent = paintProps.getView().getExtent();
+				IExtent mapExtent = new PixelExtent(descriptor.getGridGeometry().getGridRange());
+				double x0 = Math.max( mapExtent.getMinX(), screenExtent.getMinX()
+						+ (screenExtent.getWidth() * 0.08));
 				double y0 = Math.min(mapExtent.getMaxY(), screenExtent.getMaxY()
-                        - (screenExtent.getHeight() * 0.10));
+						- (screenExtent.getHeight() * 0.10));
 				
 				currGrpTarget.drawStrings( font, modelNames.toArray(new  String[0]),
 						x0, y0 /* - offsetY * (modelNames.size()+0.5) */, 0.0,
@@ -664,7 +665,7 @@ implements INatlCntrsResource{
 						colorList.toArray(new RGB[0]),
 						HorizontalAlignment.RIGHT,
 						VerticalAlignment.BOTTOM);
-			}
+			}					
 		}
 
 		public IWireframeShape getWireFrame( WireFrameDisplayAttrs wfKey ) {
@@ -672,8 +673,8 @@ implements INatlCntrsResource{
 			if( !wireframesMap.containsKey( wfKey) ) {
 				wireframesMap.put( new WireFrameDisplayAttrs( wfKey.color, wfKey.lineWidth ), 
 						currGrpTarget.createWireframeShape( false, descriptor) );
-		}
-		
+			}
+
 			return wireframesMap.get( wfKey );			
 		}
 		
@@ -698,24 +699,24 @@ implements INatlCntrsResource{
 				symbolSize= mda.symbolSize;
 				symbolScale= symScale;
 				stormLocs = new TreeSet<StormLocation>();
-	}
-
+			}
+						
 			public void addLocation( StormLocation sloc ) {
 				stormLocs.add( sloc );
 			}
-		
+
 			public void setSingleLocation( StormLocation sloc ) {
 				stormLocs.add( sloc );
 				firstSegment = true;
 				lastSegment  = true;
-	}
-	
+			}
+
 			public void setFullTrack( TreeSet<StormLocation> allLocs ) {
 				stormLocs = allLocs;
 				firstSegment = true;
 				lastSegment  = true;
-	}
-
+			}
+			
 			public void resetTrackSegment() {
 				stormLocs.clear();
 				firstSegment = false;
@@ -727,7 +728,7 @@ implements INatlCntrsResource{
 		//
 		private void addTrackToWireframe( WireFrameDisplayAttrs wfDispAttrs, //IWireframeShape wf, 
 										  TrackSegmentData  trackData ) {
-
+			
 			IWireframeShape wf = getWireFrame( wfDispAttrs );
 			CoordinateList trackCoords = new CoordinateList();
 
@@ -772,11 +773,11 @@ implements INatlCntrsResource{
 					fcstLabelPos[0] = posA[0] -markerSize;
 					dateLabelPos[1]  = posA[1] + markerSize;
 					modelLabelPos[1]  = posA[1] + markerSize;
-		}
-
+				}
+				
 				double offsetY = charHeight / screenToWorldRatio;
 				double offsetX = charWidth / screenToWorldRatio; 
-				
+
 				if( strmTrkRscData.getDrawPressure() ) {
 					//  draw pressure labels					
 					String presLabel = Integer.toString((int) sloc.getMslp());					
@@ -791,8 +792,8 @@ implements INatlCntrsResource{
 					windSpeedLabelPos[0] += (wsLabel.length()/2) * (charWidth / screenToWorldRatio );
 					              
 					wf.addLabel( wsLabel, windSpeedLabelPos );
-			}
-			
+				}
+
 				if( strmTrkRscData.getDrawForecastHour() ) {
 					//  draw the forecast hour	
 					String fcstLabel = Integer.toString( sloc.getForecastHour() );					
@@ -872,34 +873,34 @@ implements INatlCntrsResource{
 			tracks.clear();
 			for( IWireframeShape wf : wireframesMap.values() ) {
 				wf.dispose();
-		}
-
+			}
+			
 			wireframesMap.clear();
-	}
 		}
+	}
 
 	/* (non-Javadoc)
 	 * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#project(org.opengis.referencing.crs.CoordinateReferenceSystem)
-		 */
+	 */
 	@Override
 	public void project(CoordinateReferenceSystem crs) throws VizException {
 		for( AbstractFrameData fd : frameDataMap.values() ) {
 			((FrameData)fd).recreateWireframes = true;
 		}		
-		 }
+	}
 
 	protected StormTrackResource(StormTrackResourceData resourceData, LoadProperties props) {
 		super(resourceData, props);
 		
 		strmTrkRscData = resourceData;
-		 }
+	}
 
 	@Override
 	protected AbstractFrameData createNewFrame( DataTime frameTime, int timeInt ) {
 		/*The Python script will accept the time string only if it is formatted as given below....*/
 //		String frameTimeStr = new String (QUERY_DATE_FORMAT.format(frameTime.getValidTime().getTime()));
 		return (AbstractFrameData) new FrameData( frameTime, timeInt );
-		 }
+	}
 
 	@Override
 	public void initResource(IGraphicsTarget graphicsTarget) throws VizException {
@@ -909,11 +910,11 @@ implements INatlCntrsResource{
 			Rectangle2D charSize = graphicsTarget.getStringBounds(font, "N");
 			charHeight         = charSize.getHeight();
 			charWidth          = charSize.getWidth();
-		 }
-
+		}		
+		
 		// if displaying the full storm tracks we will need to override the default time matching 
 		// mode we will time match based on the valid time with the forecast hour. 
-		 }
+	}
 
 //	private String createQueryScriptForPython(String frameStartTimeStr, String frameEndTimeStr ){
 //		StringBuilder query = new StringBuilder();
@@ -942,14 +943,14 @@ implements INatlCntrsResource{
 		double[] pixelArr = descriptor.worldToPixel(thisWorldPixDblArray);
 
 		return new PixelCoordinate(pixelArr);
-		 }
+	}
 
 	/***
 	 * Converts each Lat/Lon point in the array to an equivalent PixelCoordinate object. 
 	 * @param latPointArray - the input array of latitude points
 	 * @param lonPointArray - the input array of longitude points
 	 * @return the array of PixelCoordinate objects
-		  */
+	 */
 	public PixelCoordinate[] convertTrackLocationPointsToPixelCoordinateArray(float latPointArray[], float lonPointArray[]  ){
 		PixelCoordinate pixCoordArray[] = null;
 
@@ -963,21 +964,21 @@ implements INatlCntrsResource{
 			}
 		}
 		return pixCoordArray;
-		 }
-
+	}	
+	
 	/***
 	 * Repaints the StormTrack tracks 
 	 * @param frameData - the frame to be rendered
 	 * @param graphicsTarget - the graphics target
 	 * @param paintProps - the pain properties
-		  */
+	 */
 	@Override
 	public  void paintFrame(AbstractFrameData frmData,
 			                IGraphicsTarget graphicsTarget, PaintProperties paintProps) throws VizException {		
 		FrameData frameData = (FrameData) frmData;
 		frameData.currGrpTarget = graphicsTarget;
 		frameData.paint( paintProps );
-		 }
+	}
 
 	@Override
 	protected void disposeInternal() {
@@ -986,19 +987,19 @@ implements INatlCntrsResource{
 		if ( font != null ) {
 			font.dispose();
 		}
-		 }
+	}
 
 	@Override
 	public void resourceAttrsModified() {
 		for( AbstractFrameData fd : frameDataMap.values() ) {
 			((FrameData)fd).recreateWireframes = true;
-		 }
+		}		
 	}
-	
+
 	@Override
     public void propertiesChanged(ResourceProperties updatedProps) {
     	if( cbarRscPair != null ) {
     		cbarRscPair.getProperties().setVisible( updatedProps.isVisible() );
-		}
-	}
+    	}
+    }
 }
