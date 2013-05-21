@@ -123,7 +123,7 @@ public class WstmQueryResult {
 			        	   continue; 			           //continue only if both the shortname as well as the name column is null    	   
 			           }
          		}
-			
+				
 			//geometry
 			ArrayList<Object[]> obs = new ArrayList<Object[]>();
 			obs.add(new Object[]{ o[0],o[1] });

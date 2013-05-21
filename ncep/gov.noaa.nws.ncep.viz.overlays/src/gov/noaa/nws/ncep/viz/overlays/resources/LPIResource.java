@@ -253,7 +253,7 @@ public class LPIResource extends AbstractVizResource<LPIResourceData, MapDescrip
 					(float) (12 * lpiResourceData.getMarkerTextSize().getSoftwareSize()), null);
 			font.setSmoothing(false);
 			font.setScaleFont(false);
-
+	    	
 			Rectangle2D charSize = target.getStringBounds(font, "N");
 			double charWidth = charSize.getWidth();
 			double charHeight = charSize.getHeight();

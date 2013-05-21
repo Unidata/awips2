@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<plotModel svgTemplate="standardPlotModelTemplate.svg" plugin="bufrmosMRF" name="maxminpop_an">
+
+
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="PP24">
+        <Position>LL</Position>
+        <Color red="0" green="255" blue="0"/>
+    </PlotModelElement>
+    
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="PP2A">
+        <Position>LR</Position>
+        <Color red="0" green="205" blue="0"/>
+    </PlotModelElement>    
+
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="TNTF">
+        <Position>ML</Position>
+        <Color red="0" green="178" blue="238"/>
+    </PlotModelElement>
+    
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="TNAF">
+        <Position>MR</Position>
+        <Color red="30" green="144" blue="255"/>
+    </PlotModelElement> 
+
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="TDYF">
+        <Position>UL</Position>
+        <Color red="255" green="0" blue="0"/>
+    </PlotModelElement>
+    
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="TDAF">
+        <Position>UR</Position>
+        <Color red="205" green="0" blue="0"/>
+    </PlotModelElement>
+   
+</plotModel>
