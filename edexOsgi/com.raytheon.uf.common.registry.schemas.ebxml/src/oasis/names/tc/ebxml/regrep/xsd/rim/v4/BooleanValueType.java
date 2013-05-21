@@ -66,7 +66,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "BooleanValueType", propOrder = { "booleanValue" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Table(schema = "ebxml", name = "BooleanValue")
 public class BooleanValueType extends ValueType {
 
@@ -76,6 +76,14 @@ public class BooleanValueType extends ValueType {
     protected Boolean booleanValue;
 
     private static final String COLUMN_NAME = "booleanValue";
+
+    public BooleanValueType() {
+
+    }
+
+    public BooleanValueType(Boolean booleanValue) {
+        this.booleanValue = booleanValue;
+    }
 
     @Override
     public String getColumnName() {
