@@ -7,9 +7,10 @@
  */
 package gov.noaa.nws.ncep.viz.tools.frame;
 
-import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.common.display.INatlCntrsDescriptor;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.swt.SWT;
@@ -25,6 +26,7 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.IFrameChangedListener;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 
 
@@ -47,6 +49,7 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor.IFrameChangedListener;
  * 11/11/11                  G. Hull      create frameChangelistener in constructor. (ie new instance after a dispose)    
  * 11/22/11      #514        G. Hull      remove editorChangeListener now that this is set by the PerspeciveManager 
  *                                        and this gets updated via refreshGUIElements()
+ * 02/11/13      #972        G. Hull      INatlCntrsDescriptor instead of NCMapDescriptor
  *                                       
  * </pre>
  * 
@@ -68,7 +71,7 @@ public class FrameDataDisplay extends ContributionItem {
 	
 	private Font font;
 
-	private NCMapDescriptor mapDescriptor;
+	private INatlCntrsDescriptor ncDescriptor;
 	
 	private String frameCountString="";
 	private String frameTimeString="";
@@ -91,16 +94,18 @@ public class FrameDataDisplay extends ContributionItem {
 	        void frameChanged( IDescriptor descriptor, DataTime oldTime,
 	                		   DataTime newTime ) {
 
+				AbstractEditor activeEd = NcDisplayMngr.getActiveNatlCntrsEditor();
+				
 				// if this is the active editor
 				//
-				if( NmapUiUtils.getActiveNatlCntrsEditor() == descriptor.getRenderableDisplay().getContainer() ) {
+				if( activeEd == descriptor.getRenderableDisplay().getContainer() ) {
 					
 					// If the widgets are disposed, it means that this listener is no longer valid (the
 					// perspective has been deactivated and status bar disposed),So we need to remove this listner.
 					// NOTE: it would be nice to remove the listener's when the status bar is disposed but by this
 					// time the editors have been removed.
 					if( frameCounterLabel == null || frameCounterLabel.isDisposed() ) {
-						NmapUiUtils.getActiveNatlCntrsEditor().removeFrameChangedListener( this );
+						NcEditorUtil.removeFrameChangedListener( activeEd, this );
 						return;
 					}
 					
@@ -108,7 +113,7 @@ public class FrameDataDisplay extends ContributionItem {
 					try{  
 						Display.getDefault().asyncExec(new Runnable(){  
 							public void run(){  
-								updateFrameDataDisplay( NmapUiUtils.getActiveNatlCntrsEditor() ); 
+								updateFrameDataDisplay( NcDisplayMngr.getActiveNatlCntrsEditor() ); 
 							}  
 						});  
 					}
@@ -162,7 +167,7 @@ public class FrameDataDisplay extends ContributionItem {
      *  
      * @param nmapEditor - the active editor in which the frames are loaded or animated.
      */
-	private void updateFrameDataDisplay( final NCMapEditor nmapEditor ) {
+	private void updateFrameDataDisplay( final AbstractEditor nmapEditor ) {
 
 		frameCountString = "";
 		frameTimeString = "";
@@ -174,16 +179,16 @@ public class FrameDataDisplay extends ContributionItem {
 
 		if( nmapEditor != null) {
 		
-			mapDescriptor = ((NCMapDescriptor) (nmapEditor.getActiveDisplayPane()
+			ncDescriptor = ((INatlCntrsDescriptor)(nmapEditor.getActiveDisplayPane()
 											.getRenderableDisplay().getDescriptor()));
-			if( mapDescriptor != null ) {
-				int currentFrame = mapDescriptor.getCurrentFrame();
-				int totalFrames = mapDescriptor.getFrameCount();
+			if( ncDescriptor != null ) {
+				int currentFrame = ncDescriptor.getCurrentFrame();
+				int totalFrames = ncDescriptor.getFrameCount();
 				
 				if( totalFrames > 0 ) {
 					frameCountString = (currentFrame+1) + " of " + totalFrames;
 					
-					frameTimeString = " " + mapDescriptor.getValidTime( currentFrame );					
+					frameTimeString = " " + ncDescriptor.getValidTime( currentFrame );					
 				}
 			}
 		}
@@ -201,10 +206,12 @@ public class FrameDataDisplay extends ContributionItem {
 	
 	@Override
 	public void update(){
-		if(NmapUiUtils.getActiveNatlCntrsEditor()!=null){
-			NmapUiUtils.getActiveNatlCntrsEditor().addFrameChangedListener( frameChangelistener );
+		AbstractEditor activeEd = NcDisplayMngr.getActiveNatlCntrsEditor();
+		
+		if( activeEd != null ){
+			NcEditorUtil.addFrameChangedListener( activeEd, frameChangelistener );
 
-			updateFrameDataDisplay( NmapUiUtils.getActiveNatlCntrsEditor() );
+			updateFrameDataDisplay( NcDisplayMngr.getActiveNatlCntrsEditor() );
 		}
 	}
 

@@ -1,7 +1,5 @@
 package gov.noaa.nws.ncep.viz.rsc.solarimage;
 
-import gov.noaa.nws.ncep.viz.rsc.solarimage.util.SolarImagePreferences;
-
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -15,6 +13,7 @@ import org.osgi.framework.BundleContext;
  * Date         Ticket#    Engineer         Description
  * ------------ ---------- -----------      --------------------------
  * 02/21/2013   958        qzhou, sgurung   Initial creation
+ * 03/06/2013   958        ghull            rm preferenceStore
  * 
  * </pre>
  * 
@@ -68,18 +67,4 @@ public class Activator extends AbstractUIPlugin {
     public static Activator getDefault() {
         return plugin;
     }
-
-    @Override
-	public IPreferenceStore getPreferenceStore() {
-		
-		/*
-		 * First time, set defaults for the SolarImage preference store
-		 */
-		if ( myprefs == null ) {
-			myprefs =  super.getPreferenceStore();
-			myprefs.setDefault( SolarImagePreferences.NUM_FRAMES, SolarImagePreferences.DEFAULT_NUM_FRAMES);			
-		}
-		
-		return myprefs;
-	}
 }

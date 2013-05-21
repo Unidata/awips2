@@ -18,13 +18,19 @@ package gov.noaa.nws.ncep.ui.nsharp;
  * @author Chin Chen
  * @version 1.0
  */
+import gov.noaa.nws.ncep.viz.common.RGBColorAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
 @XmlRootElement(name = "NsharpGraphProperty")
@@ -94,7 +100,7 @@ public class NsharpGraphProperty implements ISerializableObject{
 	private boolean windBarb=true;
 	
 	@XmlAttribute
-	private int windBarbDistance=400;
+	private int windBarbDistance=NsharpConstants.WINDBARB_DISTANCE_DEFAULT;
 	
 	@XmlAttribute
 	private int tempOffset=0;
@@ -104,6 +110,16 @@ public class NsharpGraphProperty implements ISerializableObject{
 	
 	@XmlAttribute
 	private List<String> gribModelTypeList = new ArrayList<String>();  
+	
+	@XmlAttribute
+    private float windBarbLineWidth=NsharpConstants.WINDBARB_WIDTH;
+	
+	@XmlAttribute
+    private float windBarbSize=NsharpConstants.WINDBARB_SIZE;
+	
+	@XmlElement
+    @XmlJavaTypeAdapter(RGBColorAdapter.class)
+    private RGB windBarbColor= NsharpConstants.color_yellow;
 	
 	public boolean isTemp() {
 		return temp;
@@ -121,7 +137,7 @@ public class NsharpGraphProperty implements ISerializableObject{
 		this.dewp = dewp;
 	}
 
-
+	
 	public boolean isParcelTv() {
 		return parcelTv;
 	}
@@ -129,7 +145,7 @@ public class NsharpGraphProperty implements ISerializableObject{
 	public void setParcelTv(boolean parcelTv) {
 		this.parcelTv = parcelTv;
 	}
-	
+
 	public boolean isParcel() {
 		return parcel;
 	}
@@ -305,6 +321,30 @@ public class NsharpGraphProperty implements ISerializableObject{
 
 	public void setGribModelTypeList(List<String> gribModelTypeList) {
 		this.gribModelTypeList = gribModelTypeList;
+	}
+
+	public float getWindBarbLineWidth() {
+		return windBarbLineWidth;
+	}
+
+	public void setWindBarbLineWidth(float windBarbLineWidth) {
+		this.windBarbLineWidth = windBarbLineWidth;
+	}
+
+	public float getWindBarbSize() {
+		return windBarbSize;
+	}
+
+	public void setWindBarbSize(float windBarbSize) {
+		this.windBarbSize = windBarbSize;
+	}
+
+	public RGB getWindBarbColor() {
+		return windBarbColor;
+	}
+
+	public void setWindBarbColor(RGB windBarbColor) {
+		this.windBarbColor = windBarbColor;
 	}
 
 	
