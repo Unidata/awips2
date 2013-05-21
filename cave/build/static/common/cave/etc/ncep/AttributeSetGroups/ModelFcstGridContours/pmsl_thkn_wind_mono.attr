@@ -5,7 +5,7 @@
 ! J. Carr/HPC   	 7/98	Initial creation
 ! J. Carr/HPC		11/98	Made some changes for the basic weather forecasters
 !
-GLEVEL=500:1000!500:1000!0!30:0
+GLEVEL=500:1000!500:1000!0!0:30
 GVCORD=pres!pres!none!pdly
 SKIP=
 FILTER=y

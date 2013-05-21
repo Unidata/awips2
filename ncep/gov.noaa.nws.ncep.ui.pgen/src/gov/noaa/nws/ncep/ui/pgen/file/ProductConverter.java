@@ -566,7 +566,7 @@ public class ProductConverter {
      			des.add(convertXML2WatchBox(fwb));
      		}
      	}
-     	
+  	
     	if ( !elem.getContours().isEmpty() ) {
     		
     		for ( gov.noaa.nws.ncep.ui.pgen.file.Contours fdec : elem.getContours() ) {
@@ -582,7 +582,7 @@ public class ProductConverter {
     		}
     		
     	}
-    	
+    	    	
     	if ( !elem.getSigmet().isEmpty() ) {   	    	    
     	       
     	    for ( gov.noaa.nws.ncep.ui.pgen.file.Sigmet fSig : elem.getSigmet() ) {	    
@@ -658,7 +658,7 @@ public class ProductConverter {
 				}
 
 				Coordinate gfaTextCoordinate = new Coordinate(fgfa.getLonText(), fgfa.getLatText());
-
+                
 				String haz = nvl(fgfa.getHazard());
 				if ( haz.equalsIgnoreCase("IFR") ) {
 					haz = new String("C&V");
@@ -693,7 +693,7 @@ public class ProductConverter {
 					gfa.setGfaType("");
 					gfa.setGfaValue("Type", fgfa.getType());
 				}
-				
+				               
 				String cig = fgfa.getCig();
 				if ( cig != null ) {
 				    gfa.setGfaValue(Gfa.CIG, fgfa.getCig());
@@ -705,11 +705,11 @@ public class ProductConverter {
 				String vis = fgfa.getVis();
 				if ( vis != null ) {
 				    gfa.setGfaValue(Gfa.VIS, fgfa.getVis());
-				}
-				else {
+			    }
+			    else {
 			    	gfa.setGfaValue(Gfa.VIS, "");
-				}
-				
+			    }
+			    					
 				String airmetTag = fgfa.getAirmetTag();
 				if ( airmetTag != null ) {
 					gfa.setGfaValue(Gfa.AIRMET_TAG, airmetTag );
@@ -986,7 +986,7 @@ public class ProductConverter {
 						fgfa.setIssueType(nvl(e.getGfaIssueType()));
 						fgfa.setCycleDay(e.getGfaCycleDay());
 						fgfa.setCycleHour(e.getGfaCycleHour());
-						fgfa.setType(nvl(e.getGfaType()));
+						fgfa.setType( nvl(e.getGfaType()) );
 						fgfa.setArea(nvl(e.getGfaArea()));
 						fgfa.setBeginning(nvl(e.getGfaBeginning()));
 						fgfa.setEnding(nvl(e.getGfaEnding()));

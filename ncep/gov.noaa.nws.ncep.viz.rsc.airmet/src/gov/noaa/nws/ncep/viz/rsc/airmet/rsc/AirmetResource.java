@@ -6,6 +6,7 @@ import gov.noaa.nws.ncep.common.dataplugin.airmet.AirmetReport;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
@@ -52,7 +53,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @author ghull 
  * @version 1.0
  */
-public class AirmetResource extends AbstractNatlCntrsResource<AirmetResourceData, IMapDescriptor>
+public class AirmetResource extends AbstractNatlCntrsResource<AirmetResourceData, NCMapDescriptor>
                                 implements INatlCntrsResource {
 	
 	private AirmetResourceData airmetResourceData;
@@ -397,7 +398,7 @@ public class AirmetResource extends AbstractNatlCntrsResource<AirmetResourceData
 								colors, symbolWidth, symbolSize * 0.60,  // scale per NMAP
 								false,  //  clear
 								symCoords, category, symbolType );
-						DisplayElementFactory df = new DisplayElementFactory( target, descriptor );
+						DisplayElementFactory df = new DisplayElementFactory( target, getNcMapDescriptor() );
 						ArrayList<IDisplayable> displayEls = df.createDisplayElements( symbol , paintProps );
 						for( IDisplayable each : displayEls ) {
 							each.draw(target, paintProps);

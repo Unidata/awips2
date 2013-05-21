@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <isEnabled>true</isEnabled>
     <resourceDefnName>88Ds</resourceDefnName>
     <resourceCategory>OVERLAY</resourceCategory>
     <resourceParameters>
 LpiFilename=88D.lpi
 mapName=WSR-88D Station Locs
     </resourceParameters>
-    <filterLabels>Stations</filterLabels>
     <rscImplementation>LpiOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>

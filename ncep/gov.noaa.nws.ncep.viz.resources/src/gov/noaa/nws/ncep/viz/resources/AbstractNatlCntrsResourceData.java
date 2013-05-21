@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 import gov.noaa.nws.ncep.viz.common.RGBColorAdapter;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet.RscAttrValue;
@@ -55,6 +56,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
  * Aug 06, 2009            ghull       construct() -> constructResource()
  * Apr 5, 2010     259     ghull       add legendColor
  * Jan 9, 2011     561     ghull       fixed equals()
+ * Feb 22, 2013    972     ghull       getSupportedDisplayTypes
  * 
  * </pre>
  *  * 
@@ -96,7 +98,15 @@ public abstract class AbstractNatlCntrsResourceData extends AbstractResourceData
 
         rscExtPointMngr = ResourceExtPointMngr.getInstance();
     }
-        
+
+    // implement here as a convienience since almost all of our 
+    // resources are on map based displays. Other resources
+    // that are written to draw to differendt display types will 
+    // need to override this.
+	public NcDisplayType[] getSupportedDisplayTypes() {
+		return new NcDisplayType[] { NcDisplayType.NMAP_DISPLAY };
+	}
+
     // Version can be used to test whether an RBD was created with an older version of the resource
     // Currently this is not enforced or implemented by any of the resources.
 	public String getResourceVersion() {
