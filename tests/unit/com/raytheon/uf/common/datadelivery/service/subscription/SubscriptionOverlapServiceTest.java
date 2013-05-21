@@ -33,7 +33,7 @@ import org.opengis.referencing.operation.TransformException;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
-import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 
 /**
  * Test {@link SubscriptionOverlapService}.
@@ -142,8 +142,8 @@ public class SubscriptionOverlapServiceTest {
 
     @Test
     public void matchesAnyTrueWillConsiderOneExceededValueAsOverlaps()
-            throws SerializationException {
-        service.writeNewConfig(ANY_MUST_EXCEED_65_PERCENT);
+            throws LocalizationException {
+        service.writeConfig(ANY_MUST_EXCEED_65_PERCENT);
 
         when(duplicateChecker.getCycleDuplicationPercent(sub1, sub2))
                 .thenReturn(66);
@@ -153,8 +153,8 @@ public class SubscriptionOverlapServiceTest {
 
     @Test
     public void matchesAnyFalseWillNotConsiderOneExceededValueAsOverlaps()
-            throws SerializationException {
-        service.writeNewConfig(ALL_MUST_EXCEED_65_PERCENT);
+            throws LocalizationException {
+        service.writeConfig(ALL_MUST_EXCEED_65_PERCENT);
 
         when(duplicateChecker.getCycleDuplicationPercent(sub1, sub2))
                 .thenReturn(66);
@@ -164,8 +164,8 @@ public class SubscriptionOverlapServiceTest {
 
     @Test
     public void matchesAnyTrueWillConsiderAllExceededValuesAsOverlaps()
-            throws SerializationException, TransformException {
-        service.writeNewConfig(ANY_MUST_EXCEED_65_PERCENT);
+            throws LocalizationException, TransformException {
+        service.writeConfig(ANY_MUST_EXCEED_65_PERCENT);
 
         when(duplicateChecker.getCycleDuplicationPercent(sub1, sub2))
                 .thenReturn(66);
@@ -181,8 +181,8 @@ public class SubscriptionOverlapServiceTest {
 
     @Test
     public void matchesAnyFalseWillConsiderAllExceededValuesAsOverlaps()
-            throws SerializationException, TransformException {
-        service.writeNewConfig(ALL_MUST_EXCEED_65_PERCENT);
+            throws LocalizationException, TransformException {
+        service.writeConfig(ALL_MUST_EXCEED_65_PERCENT);
 
         when(duplicateChecker.getCycleDuplicationPercent(sub1, sub2))
                 .thenReturn(66);
@@ -198,7 +198,7 @@ public class SubscriptionOverlapServiceTest {
 
     @Test
     public void whenAllComparisonsReturnOneHundredPercentReturnsDuplicate()
-            throws SerializationException, TransformException {
+            throws LocalizationException, TransformException {
         when(duplicateChecker.getCycleDuplicationPercent(sub1, sub2))
                 .thenReturn(100);
         when(duplicateChecker.getForecastHourDuplicationPercent(sub1, sub2))
@@ -213,7 +213,7 @@ public class SubscriptionOverlapServiceTest {
 
     @Test
     public void whenAllComparisonsDontReturnOneHundredPercentReturnsNotDuplicate()
-            throws SerializationException, TransformException {
+            throws LocalizationException, TransformException {
         when(duplicateChecker.getCycleDuplicationPercent(sub1, sub2))
                 .thenReturn(100);
         when(duplicateChecker.getForecastHourDuplicationPercent(sub1, sub2))
