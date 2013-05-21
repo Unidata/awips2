@@ -68,7 +68,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "VocabularyTermValueType", propOrder = { "vocabularyTermValue" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Table(schema = "ebxml", name = "VocabularyTermValue")
 public class VocabularyTermValueType extends ValueType {
 
@@ -79,6 +79,14 @@ public class VocabularyTermValueType extends ValueType {
     protected VocabularyTermType vocabularyTermValue;
 
     private static final String COLUMN_NAME = "vocabularyTermValue";
+
+    public VocabularyTermValueType() {
+
+    }
+
+    public VocabularyTermValueType(VocabularyTermType vocabularyTermValue) {
+        this.vocabularyTermValue = vocabularyTermValue;
+    }
 
     @Override
     public String getColumnName() {

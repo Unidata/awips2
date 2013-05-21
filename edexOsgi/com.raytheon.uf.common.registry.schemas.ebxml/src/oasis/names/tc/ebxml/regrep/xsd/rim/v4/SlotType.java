@@ -21,6 +21,7 @@
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -110,6 +111,24 @@ public class SlotType extends ExtensibleObjectType implements Serializable {
     @XmlAttribute
     @DynamicSerializeElement
     protected String type;
+
+    public SlotType() {
+
+    }
+
+    public SlotType(String name, ValueType slotValue) {
+        super();
+        this.slotValue = slotValue;
+        this.name = name;
+    }
+
+    public SlotType(Collection<SlotType> slots, String name, String type,
+            ValueType slotValue) {
+        super(slots);
+        this.slotValue = slotValue;
+        this.name = name;
+        this.type = type;
+    }
 
     public Integer getKey() {
         return key;
