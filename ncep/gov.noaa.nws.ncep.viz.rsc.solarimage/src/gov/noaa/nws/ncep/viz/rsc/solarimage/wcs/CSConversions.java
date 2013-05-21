@@ -31,12 +31,11 @@ public class CSConversions {
 	
     public double[] heliocentricToHeliographic(double[] cs, boolean isCarrington) {
     	
-    	/*		
-		Equations used: 
-		r2= x2 + y 2 + z2 , 
-		Θ = sin−1 ((y cos B0 + z sin B0 )/r), 
-		Φ = Φ0 + arg(z cos B0 − y sin B0 , x),   Where arg( x, y) = tan−1 (y/ x) .*/
-				
+    	/* Equations used: 
+		 * r2= x2 + y 2 + z2 , 
+		 * Θ = sin−1 ((y cos B0 + z sin B0 )/r), 
+		 * Φ = Φ0 + arg(z cos B0 − y sin B0 , x),   Where arg( x, y) = tan−1 (y/ x) .
+		 */		
     	double[] helio = new double[dim];
 		double r = headerData.getRsun();		
 			
@@ -51,16 +50,10 @@ public class CSConversions {
 		}
 				
 		if (isCarrington) {
-			
-			if (!headerData.isStereo()) {
-				L0 = headerData.getL0B0()[0];
-			} 
-			else {
-				L0 = crln - a0;
-			}
+			L0 = headerData.getL0();
 		}
-		//System.out.println(" heliocentricToHeliographic() ***  L0 = " +L0 +" crln = "+ crln+" b0 = "+ b0);
-		double temp = (double) ((cs[1] * Math.cos(Math.toRadians(b0)) + z * Math.sin(Math.toRadians(b0)) )/ r);
+						
+		double temp = (double) ((cs[1] * Math.cos(Math.toRadians(b0)) + z * Math.sin(Math.toRadians(b0)) )/ r); //lat
 		helio[1] = (double) Math.asin(temp);
 		helio[1] = Math.toDegrees(helio[1]);
 		
@@ -68,17 +61,23 @@ public class CSConversions {
 		helio[0] = (double) (Math.toRadians(a0) + Math.atan(temp));
 		helio[0] = Math.toDegrees(helio[0]) + L0;		
 		
+		if (helio[0] < -180)			
+			helio[0] = helio[0] + 360;
+		if (helio[0] > 180)
+			helio[0] = helio[0] - 360;
+		if (helio[0] < 0)			
+			helio[0] = helio[0] + 360;
+			
 		return helio;
 	}
 
 	public double[] heliographicToHeliocentric(double[] cs, boolean isCarrington) {
 
-		/*		
-		Equations used: 	
-		centric[0] = r cos Θ sin(Φ − Φ0 ), 
-		centric[1] = r[sin Θ cos B0 − cos Θ cos(Φ − Φ0 ) sin B0 ], 
-		z = r[sin Θ sin B0 + cos Θ cos(Φ − Φ0 ) cos B0 ], */
-		
+		/* Equations used: 	
+		 * centric[0] = r cos Θ sin(Φ − Φ0 ), 
+		 * centric[1] = r[sin Θ cos B0 − cos Θ cos(Φ − Φ0 ) sin B0 ], 
+		 * z = r[sin Θ sin B0 + cos Θ cos(Φ − Φ0 ) cos B0 ],
+		 */
 		double[] centric = new double[dim];
 		double r = headerData.getRsun();
 		double b0 = headerData.getHglt();
@@ -87,22 +86,14 @@ public class CSConversions {
 		double L0 = 0.0;
 		
 		if (!headerData.isStereo()) {
-			b0 = -headerData.getL0B0()[1];
+			b0 = headerData.getL0B0()[1]; //-headerData.getL0B0()[1]. tested aia euvi
 		}
 				
 		if (isCarrington) {
-			
-			if (!headerData.isStereo()) {
-				L0 = headerData.getL0B0()[0];
-			} 
-			else {
-				L0 = crln - a0;
-			}
-			
+			L0 = headerData.getL0();
 			cs[0] = cs[0] - L0; //change to stony
-		}		
-		
-		//System.out.println(" heliographicToHeliocentric() ***  L0 = " +L0 +" crln = "+ crln+" b0 = "+ b0 + " B0 = " + headerData.getL0B0()[1]);
+		}	
+
 		centric[0] = r* Math.cos(Math.toRadians( cs[1])) * Math.sin(Math.toRadians( cs[0]-a0));
 		centric[1] = r* ( Math.sin(Math.toRadians( cs[1])) *Math.cos(Math.toRadians(b0)) - Math.cos(Math.toRadians( cs[1]))*Math.cos(Math.toRadians(cs[0]-a0))*Math.sin(Math.toRadians(b0) ));
 		
@@ -110,28 +101,33 @@ public class CSConversions {
 	}
 	
 	public double[] helioprojectiveToHeliocentric(double[] cs) {
-		/*		
-		Equations used: 		
-		z = D − d cos θy cos θ x ,
-		x =  D ( PI/180) θ x, (approximate)
-		y =  D ( PI/180) θ y.*/
-		
+		/* Equations used: 		
+		 * z = D − d cos θy cos θ x ,
+		 * x =  D ( PI/180) θ x, (approximate)
+		 * y =  D ( PI/180) θ y.
+		 */
 		double[] centric = new double[dim];
-		double d = headerData.getDsun(); 
-		centric[0] = (double) (d * Math.cos( Math.toRadians( cs[1]/3600)) * Math.sin( Math.toRadians( cs[0]/3600)));
-		centric[1] = (double) (d * Math.sin( Math.toRadians( cs[1]/3600))); 
+		double dsun = headerData.getDsun();
+		double rsun = headerData.getRsun();
+		
+		double q = dsun * Math.cos( Math.toRadians( cs[1])) * Math.cos( Math.toRadians( cs[0]));
+		double d = q*q - dsun*dsun + rsun*rsun; 
+//		if (d<0)
+//			d = q - Math.sqrt(d);
+		
+		centric[0] = (double) (d * Math.cos( Math.toRadians( cs[1])) * Math.sin( Math.toRadians( cs[0])));//  /3600
+		centric[1] = (double) (d * Math.sin( Math.toRadians( cs[1]))); 
 		
 		return centric;
 	}
 	
 	public double[] heliocentricToHelioprojective(double[] cs) {
 		
-		/*
-		Equations used: 
-		d= x2 + y2 + (D − z)2 , 
-		θ x = arg(D − z, x), 
-		θy = sin−1 (y/d). */		
-		
+		/* Equations used: 
+		 * d= x2 + y2 + (D − z)2 , 
+		 * θ x = arg(D − z, x), 
+		 * θy = sin−1 (y/d).		
+		 */
 		double[] projective = new double[dim];
 		double d = headerData.getDsun();
 		double d0 = (double) Math.sqrt(d*d -cs[0]*cs[0] -cs[1]*cs[1]); 		
@@ -142,7 +138,49 @@ public class CSConversions {
 		
 		return projective;
 	}
+
+	public double[] heliographicToCylindrical(double[] cs, boolean isCarrington) {
+				
+		/* Equations used: 	
+		 * x = (n-n0) *cos Φ, 
+		 * y = Φ;
+		 */
+		double[] cylindrical = new double[dim];
+		double a0 = headerData.getHgln();		
+		double crln = headerData.getCrln();			
+		double L0 = 0.0;
+
+		if (isCarrington) {
+			L0 = headerData.getL0();
+			cs[0] = cs[0]; // - L0;
+		}		
+		
+		//System.out.println(" heliographicToHeliocentric() ***  L0 = " +L0 +" crln = "+ crln+" b0 = "+ b0 + " B0 = " + headerData.getL0B0()[1]);
+		cylindrical[0] = cs[0]; //*cos Φ;r* Math.cos(Math.toRadians( cs[1])) * Math.sin(Math.toRadians( cs[0]-a0));
+		cylindrical[1] = cs[1];    //r* ( Math.sin(Math.toRadians( cs[1])) *Math.cos(Math.toRadians(b0)) - Math.cos(Math.toRadians( cs[1]))*Math.cos(Math.toRadians(cs[0]-a0))*Math.sin(Math.toRadians(b0) ));
+		
+		return cylindrical;
+	}
 	
+	public double[] heliocentricToCylindrical(double[] cs) {
+		
+		/* Equations used:
+		 * x = (n-n0) *cos Φ, 
+		 * y = Φ; 
+		*/
+		double[] cylindrical = new double[dim];
+		double r = 0.0;
+		double theta = 0.0;
+		
+		r = Math.sqrt(cs[0]*cs[0] + cs[1]*cs[1]);
+		theta = Math.atan2(cs[1],cs[0]) * 180.0/Math.PI;		
+		
+		cylindrical[0] = r; //*cos Φ;r* Math.cos(Math.toRadians( cs[1])) * Math.sin(Math.toRadians( cs[0]-a0));
+		cylindrical[1] = theta;    //r* ( Math.sin(Math.toRadians( cs[1])) *Math.cos(Math.toRadians(b0)) - Math.cos(Math.toRadians( cs[1]))*Math.cos(Math.toRadians(cs[0]-a0))*Math.sin(Math.toRadians(b0) ));
+		
+		return cylindrical;
+	}
+
 	public HeaderData getHeaderData() {
 		
 		return headerData;

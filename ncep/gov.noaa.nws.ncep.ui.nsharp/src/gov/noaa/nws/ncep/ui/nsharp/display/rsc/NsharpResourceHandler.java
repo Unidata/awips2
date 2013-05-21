@@ -42,8 +42,12 @@ import gov.noaa.nws.ncep.ui.nsharp.view.NsharpPaletteWindow;
 import gov.noaa.nws.ncep.ui.nsharp.view.NsharpParcelDialog;
 import gov.noaa.nws.ncep.ui.nsharp.view.NsharpShowTextDialog;
 
+import java.text.DateFormatSymbols;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -53,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.swt.graphics.GC;
@@ -1468,7 +1473,49 @@ public class NsharpResourceHandler {
 			pickedStnInfo= null;
 		}
 	}
-	public void addRsc(Map<String, List<NcSoundingLayer>> soundMap,  NsharpStationInfo stnInfo, boolean displayNewData){
+	public void addRsc(Map<String, List<NcSoundingLayer>> soundMap,  NsharpStationInfo stnInfo, boolean fromNCP){
+		if(fromNCP){
+			//this is from NCP do nothing now
+			this.addRsc(true, soundMap, stnInfo);
+		}
+		else{
+			//this is from D2D, edit display and time line string to add short day-of-week and
+			//also add sounding type to string to solve an issue that data with same stn, same time line but different 
+			//sounding type will not be loaded.
+			//D2D's key string is like this: "IAD 2013-04-25 10:00:00"
+			// will change it to "IAD 2013-04-25 10 Thu NAM"
+			Set<String> dataTimelineSet = soundMap.keySet();	
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			DateFormatSymbols dfs= new DateFormatSymbols();
+			String[] defaultDays = dfs.getShortWeekdays();
+			Calendar cal =Calendar.getInstance();
+			Date date;
+			Map<String, List<NcSoundingLayer>> newmap = new HashMap<String, List<NcSoundingLayer>> ();
+			for(String timeline: dataTimelineSet){
+				//System.out.println("Old timeline Str:"+ timeline);
+				String dateStr = timeline.substring(timeline.indexOf(' ')+1);
+				String stnId= timeline.substring(0, timeline.indexOf(' '));
+				try { 
+					date = df.parse(dateStr);
+					cal.setTime(date);	
+					String dayOfWeek = defaultDays[cal.get(Calendar.DAY_OF_WEEK)];
+					//dateStr = timeline.substring(0, timeline.indexOf(':'))+dayOfWeek+stnInfo.getSndType();
+					//System.out.println("New Str:"+ dateStr);
+					String newTimeStr = String.format("%4$s %1$ty%1$tm%1$td(%2$s)/%1$tH-%3$s",  cal, dayOfWeek,stnInfo.getSndType(),stnId);
+					System.out.println("D2D (modified) timeline Str:"+ newTimeStr);
+					//put newTimeStr to new map with original value
+					newmap.put(newTimeStr, soundMap.get(timeline));
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					continue;
+				}
+			}			
+			//this is from D2D, and it does not want to display new data right away.
+			this.addRsc(false, newmap, stnInfo);
+		}	
+	}
+	public void addRsc( boolean displayNewData,Map<String, List<NcSoundingLayer>> soundMap,  NsharpStationInfo stnInfo){
 		/* testing code
 		stnInfo.setStnId("KG RI");
 		{
@@ -1479,6 +1526,7 @@ public class NsharpResourceHandler {
 				soundMap.put(newkey, sndLy);
 			}
 		}*/
+		
 		if(stnInfo.getStnId() != null && stnInfo.getStnId().indexOf(" ")>=0){
 			//take care stnId with SPACE case.
 			String stnId= stnInfo.getStnId();
@@ -1604,7 +1652,7 @@ public class NsharpResourceHandler {
 	public void addRsc(Map<String, List<NcSoundingLayer>> soundMap,  NsharpStationInfo stnInfo){
 		//by default, display new data 
 		//NCP always call from this route.
-		this.addRsc(soundMap, stnInfo,true);
+		this.addRsc(true, soundMap, stnInfo);
 		return;
 	}
  	public String getPickedStnInfoStr() {

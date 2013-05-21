@@ -16,6 +16,7 @@ import java.util.List;
 
 //import gov.noaa.nws.ncep.ui.display.InputHandlerDefaultImpl;
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
+import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElementFactory;
@@ -48,6 +49,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 10/10        #289       Archana    Added logic to handle the delete key    
  * 07/12		#610		B. Yin		Make the multi-select work for GFA.
  * 12/12		#908		B. Yin		Do not change to selecting mode. 
+ * 04/13		#874		B. Yin		Handle elements in contours.
  * </pre>
  * 
  * @author	B. Yin
@@ -243,7 +245,16 @@ public class PgenMultiSelectTool extends AbstractPgenDrawingTool {
 						noCat = false;
 
 						// Get the nearest element and set it as the selected element.
-						AbstractDrawableComponent adc = drawingLayer.getNearestComponent( loc, new AcceptFilter(), true );
+						// For contours, get the nearest DE inside of it.
+						AbstractDrawableComponent adc = null;
+						AbstractDrawableComponent contour = drawingLayer.getNearestComponent( loc, new AcceptFilter(), false );
+						if ( contour instanceof Contours ){
+							adc = drawingLayer.getNearestElement( loc, (Contours)contour );
+							
+						}
+						else {
+							adc = drawingLayer.getNearestComponent( loc, new AcceptFilter(), true );
+						}
 
 						if ( adc != null && adc.getPgenCategory().equalsIgnoreCase(pgenCat)){
 
@@ -370,41 +381,6 @@ public class PgenMultiSelectTool extends AbstractPgenDrawingTool {
 			return true;
 		}
 
-		/**
-		 * return all elements of the current Pgen category in the input area.
-		 * @param poly
-		 * @return
-		 */
-		private List<AbstractDrawableComponent> inPoly( Polygon poly){
-
-			String pgType = null;
-			Iterator<AbstractDrawableComponent> it = drawingLayer.getActiveLayer().getComponentIterator();
-			List<AbstractDrawableComponent> adcList = new ArrayList<AbstractDrawableComponent>();
-
-			while (it.hasNext()){
-				AbstractDrawableComponent adc = it.next();
-
-				// if category is text, all elements need to be the same pgen type
-				if ((pgType == null && adc.getPgenCategory().equalsIgnoreCase(pgenCat)) ||
-						(pgType != null && adc.getPgenType().equalsIgnoreCase(pgType))){
-					List<Coordinate> pts = adc.getPoints();
-					for (Coordinate pt: pts ){
-						double pix[] = mapEditor.translateInverseClick(pt);
-						if( poly.contains(pix[0], pix[1])){
-							adcList.add(adc);
-							if(pgenCat.equalsIgnoreCase("Text")){
-								pgType = adc.getPgenType();
-								PgenMultiSelectTool.this.pgenType = pgType;
-							}
-							break;
-						}
-					}
-				}
-			}
-
-			return adcList;
-		}
-
 		@Override
 		public boolean handleMouseMove(int anX, int aY) {
 			
@@ -457,6 +433,72 @@ public class PgenMultiSelectTool extends AbstractPgenDrawingTool {
 //	        	  System.out.println("Pgen elements deleted from PgenMultiSelect");				
 			}
 			return true;
+		}
+
+		/**
+		 * return all elements of the current Pgen category in the input area.
+		 * @param poly
+		 * @return
+		 */
+		private List<AbstractDrawableComponent> inPoly( Polygon poly){
+
+			String pgType = null;
+			Iterator<AbstractDrawableComponent> it = drawingLayer.getActiveLayer().getComponentIterator();
+			List<AbstractDrawableComponent> adcList = new ArrayList<AbstractDrawableComponent>();
+
+			while (it.hasNext()){
+				AbstractDrawableComponent adc = it.next();
+
+				if ( adc instanceof Contours  ){
+					adcList.addAll( contourChildrenInPoly((Contours) adc, poly));
+				}
+				// if category is text, all elements need to be the same pgen type
+				else if ((pgType == null && adc.getPgenCategory().equalsIgnoreCase(pgenCat)) ||
+						(pgType != null && adc.getPgenType().equalsIgnoreCase(pgType))){
+					List<Coordinate> pts = adc.getPoints();
+					for (Coordinate pt: pts ){
+						double pix[] = mapEditor.translateInverseClick(pt);
+						if( poly.contains(pix[0], pix[1])){
+							adcList.add(adc);
+							if(pgenCat.equalsIgnoreCase("Text")){
+								pgType = adc.getPgenType();
+								PgenMultiSelectTool.this.pgenType = pgType;
+							}
+							break;
+						}
+					}
+				}
+			}
+
+			return adcList;
+		}
+
+		/**
+		 * Returns all elements of current Pgen category in a specified contour in the input area.
+		 * @param con - a contour object
+		 * @param poly - polygon
+		 * @return - a list of drawable elements 
+		 */
+		private List<AbstractDrawableComponent> contourChildrenInPoly( Contours con, Polygon poly){
+			Iterator<DrawableElement> it = con.createDEIterator();
+			List<AbstractDrawableComponent> adcList = new ArrayList<AbstractDrawableComponent>();
+
+			while (it.hasNext()){
+				DrawableElement de = it.next();
+
+				if (de.getPgenCategory().equalsIgnoreCase(pgenCat)){
+					List<Coordinate> pts = de.getPoints();
+					for (Coordinate pt: pts ){
+						double pix[] = mapEditor.translateInverseClick(pt);
+						if( poly.contains(pix[0], pix[1])){
+							adcList.add(de);
+							break;
+						}
+					}
+				}
+			}
+
+			return adcList;
 		}
 
 	}

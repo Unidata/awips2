@@ -2,19 +2,23 @@ package gov.noaa.nws.ncep.viz.resourceManager.ui.loadRbd;
 
 
 //import gov.noaa.nws.ncep.viz.common.EditorManager;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
+import gov.noaa.nws.ncep.viz.common.display.INatlCntrsRenderableDisplay;
+import gov.noaa.nws.ncep.viz.common.display.INcPaneLayout;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.resourceManager.timeline.TimelineControl;
 import gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd.CreateRbdControl;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
+import gov.noaa.nws.ncep.viz.resources.manager.AbstractRBD;
 import gov.noaa.nws.ncep.viz.resources.manager.SpfsManager;
-import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
+import gov.noaa.nws.ncep.viz.resources.manager.NcMapRBD;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceBndlLoader;
 import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
-import gov.noaa.nws.ncep.viz.ui.display.NCPaneManager.PaneLayout;
-import gov.noaa.nws.ncep.viz.ui.display.PaneID;
+import gov.noaa.nws.ncep.viz.ui.display.NcPaneID;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,6 +73,7 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.viz.ui.UiPlugin;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * An SWT Composite control to load Rbds
@@ -104,12 +109,13 @@ import com.raytheon.viz.ui.UiPlugin;
  *                                          Removed the call to setNcEditor() 
  * 04/27/12       #585      S. Gurung       Added code to reorder RBDs using right-click and save the order
  * 											so that RBDs are displayed in the sequence specified   
- * 05/17/2012     #791       Quan Zhou      Modified LoadRBD to check if default editor is empty, then replace it.
+ * 05/17/2012     #791      Quan Zhou      Modified LoadRBD to check if default editor is empty, then replace it.
  * 06/18/2012     #713      G. Hull         replace code with new clone() for the RbdBndl
  * 06/26/2012     #568      G. Hull         Move "Save Order" functionality to Manage Rbds tab
  * 07/19/2012     #568      G. Hull         Use new RbdViewComposite
  * 07/31/2012     #528      G. Hull         back to selecting all when an spf is selected
  * 08/01/2012     #836      G. Hull         check for paneLayout when using empty editor
+ * 02/22/2013     #972      G. Hull         work with AbstractRBD
  * 
  * </pre>
  * 
@@ -145,20 +151,16 @@ public class LoadRbdControl extends Composite {
     // this is the input for the rbd_lviewr content provider. It is 
     // initially set with the rbds in an spf and is updated with edited rbds.
     //
-    private List<RbdBundle> availRbdsList = null;
-    private ArrayList<RbdBundle> seldRbdsList = null;
+    private List<AbstractRBD<?>> availRbdsList = null;
+    private ArrayList<AbstractRBD<?>> seldRbdsList = null;
     
     // This is set each time an RBD is edited and cleared when a new SPF is selected.
     // The map if from the name of the originally selected RBD to the edited one. 
-
-//    private HashMap<String, RbdBundle> editedRbdMap = null;
+//    private HashMap<String, AbstractRBD<?>> editedRbdMap = null;
     
     private Point initDlgSize = new Point( 750, 860 );
     
     private EditRbdDialog editRbdDlg = null;
-
-    private static List<String> defaultRscList = new ArrayList<String>();
-    private static boolean emptyEditorRemoved = false;
 
     public LoadRbdControl( Composite parent )       throws VizException {
         super(parent, SWT.NONE );
@@ -166,8 +168,8 @@ public class LoadRbdControl extends Composite {
 
     	rbdLoader = new ResourceBndlLoader("SPF Loader");
 
-        seldRbdsList = new ArrayList<RbdBundle>();
-        availRbdsList = new ArrayList<RbdBundle>();
+        seldRbdsList = new ArrayList<AbstractRBD<?>>();
+        availRbdsList = new ArrayList<AbstractRBD<?>>();
         
         Composite top_form = this;        
         top_form.setLayout( new GridLayout(1,true) );
@@ -281,7 +283,7 @@ public class LoadRbdControl extends Composite {
         fd.right = new FormAttachment( 100, -5 );
         fd.bottom = new FormAttachment( 100, -120 );
         rscViewer.setLayoutData( fd );
-   
+           
         load_opts_grp = new Group( sel_rbds_grp, SWT.SHADOW_NONE );
         load_opts_grp.setText("Display Options");
         load_opts_grp.setLayout( new FormLayout() );
@@ -407,8 +409,8 @@ public class LoadRbdControl extends Composite {
         
         rbd_lviewer.setLabelProvider( new LabelProvider() {
 	    	public String getText( Object element ) {
-	    		if( element instanceof RbdBundle ) {
-	    			RbdBundle rbd = (RbdBundle)element;
+	    		if( element instanceof AbstractRBD<?> ) {
+	    			AbstractRBD<?> rbd = (AbstractRBD<?>)element;
 	    			if( rbd.isEdited() ) {	    				
 		    			return rbd.getRbdName() + "(E)";
 	    			}
@@ -455,7 +457,7 @@ public class LoadRbdControl extends Composite {
 					    		return;
 					    	}
 					    	
-					    	RbdBundle rbdSel = availRbdsList.get( seldRbdIndx ); 
+					    	AbstractRBD<?> rbdSel = availRbdsList.get( seldRbdIndx ); 
 
 					    	if( rbdSel == null ) { 
 					    		return;
@@ -485,7 +487,7 @@ public class LoadRbdControl extends Composite {
 					    		return;
 					    	}
 					    	
-					    	RbdBundle rbdSel = availRbdsList.get( seldRbdIndx ); 
+					    	AbstractRBD<?> rbdSel = availRbdsList.get( seldRbdIndx ); 
 
 					    	if( rbdSel == null ) { 
 					    		return;
@@ -529,13 +531,13 @@ public class LoadRbdControl extends Composite {
        			setSelectedRBDs();
        		}
         });
-       	
+       	       	
    		// if this button is enabled then only one rbd can be selected.
    		// get the selected rbd and set the auto update flag
    		auto_update_btn.addSelectionListener(new SelectionAdapter() {
    			public void widgetSelected(SelectionEvent e) {
    		    	StructuredSelection sel_rbds = (StructuredSelection)rbd_lviewer.getSelection();                  		    	
-   				RbdBundle rbdSel = (RbdBundle)sel_rbds.getFirstElement();
+   				AbstractRBD<?> rbdSel = (AbstractRBD<?>)sel_rbds.getFirstElement();
 
    				if( rbdSel != null ) {// sanity check
    					rbdSel.setAutoUpdate( auto_update_btn.getSelection() );
@@ -546,7 +548,7 @@ public class LoadRbdControl extends Composite {
         geo_sync_panes.addSelectionListener(new SelectionAdapter() {
    			public void widgetSelected(SelectionEvent e) {
    		    	StructuredSelection sel_rbds = (StructuredSelection)rbd_lviewer.getSelection();                  		    	
-   				RbdBundle rbdSel = (RbdBundle)sel_rbds.getFirstElement();
+   				AbstractRBD<?> rbdSel = (AbstractRBD<?>)sel_rbds.getFirstElement();
 
 //   				if( rbdSel != null ) {// sanity check
 //   					rbdSel.setGeoSyncedPanes( geo_sync_panes.getSelection() );
@@ -558,12 +560,14 @@ public class LoadRbdControl extends Composite {
    				// selected Area. Then change all of the panes' areas.
    				if( geo_sync_panes.getSelection() ) {
    					String geoSyncArea = null;
-			    	AbstractRenderableDisplay panes[] = rbdSel.getDisplays(); 
+   					AbstractRenderableDisplay panes[] = rbdSel.getDisplays(); 
 			    	
-			    	for( AbstractRenderableDisplay pane : panes ) {
-			    		if( pane instanceof AbstractRenderableDisplay ) {
-			    			
-			    			String area = ((NCMapRenderableDisplay)pane).getInitialArea().getAreaName();
+			    	for( AbstractRenderableDisplay rendDisp : panes ) {
+			    		if( !(rendDisp instanceof INatlCntrsRenderableDisplay) ) {
+			    			System.out.println("Sanity check: we have a non-natlCntrs display in the RBD");
+			    		}
+			    		else {			    			
+			    			String area = ((INatlCntrsRenderableDisplay)rendDisp).getInitialArea().getProviderName();
 			    			
 			    			if( geoSyncArea == null ) {
 			    				geoSyncArea = area;
@@ -607,7 +611,7 @@ public class LoadRbdControl extends Composite {
         geo_sync_panes.setSelection(true);
         geo_sync_panes.setEnabled(false);
 
-        defaultRscList = CreateRbdControl.getDefaultRbdRsc();
+//        defaultRscList = CreateRbdControl.getDefaultRbdRsc();
     }
     
     // the callback for the SPF list
@@ -626,7 +630,7 @@ public class LoadRbdControl extends Composite {
 						true ); // resolve Latest Cycle times
 		} catch (VizException e) {
 		}
-
+		
     	rbd_lviewer.setInput( availRbdsList );
     	rbd_lviewer.refresh();
 
@@ -647,10 +651,10 @@ public class LoadRbdControl extends Composite {
     	StructuredSelection sel_rbds = (StructuredSelection)rbd_lviewer.getSelection();               
     	Iterator sel_iter = sel_rbds.iterator();
     	seldRbdsList.clear();
-		RbdBundle rbdSel = null;
+		AbstractRBD<?> rbdSel = null;
 
     	while( sel_iter.hasNext() ) {
-    		rbdSel = (RbdBundle)sel_iter.next();
+    		rbdSel = (AbstractRBD<?>)sel_iter.next();
 //    		if( rbdSel.getTimeMatcher().getDominantResource() == null ) {
 //    			System.out.println("Dominant Resource is null?");
 //    		}
@@ -684,8 +688,7 @@ public class LoadRbdControl extends Composite {
 			
 			// add all of the resources in the RBD as available
 			// to be the dominant resource
-    		AbstractRenderableDisplay panes[] =
-    			seldRbdsList.get(0).getDisplays();
+			AbstractRenderableDisplay panes[] = seldRbdsList.get(0).getDisplays();
     		
     		for( AbstractRenderableDisplay pane : panes ) {
     			ResourceList rscList = pane.getDescriptor().getResourceList();
@@ -764,15 +767,15 @@ public class LoadRbdControl extends Composite {
         
        // timelineControl.updateTimeMatcher();
         		
-		for( RbdBundle rbdBndl : seldRbdsList ) {
+		for( AbstractRBD<?> rbdBndl : seldRbdsList ) {
 			String rbdName = rbdBndl.getRbdName();
 //			NCTimeMatcher timeMatcher = rbdBndl.getTimeMatcher();
 			
-			// Since rbdLoader uses the same resources in the rbdBundle to load in the editor,
+			// Since rbdLoader uses the same resources in the AbstractRBD<?> to load in the editor,
 			// we will need to make a copy here so that future edits are not immediately reflected in
 			// the loaded display. The easiest way to do this is to marshal and then unmarshal the rbd.
 			try {
-				rbdBndl = RbdBundle.clone( rbdBndl );
+				rbdBndl = AbstractRBD.clone( rbdBndl );
 //				// timeMatcher currently isn't marshalling completely.
 //				rbdBndl.setTimeMatcher(	new NCTimeMatcher( timeMatcher ) );
 
@@ -783,7 +786,7 @@ public class LoadRbdControl extends Composite {
 				}
 
 				Integer paneCount = panes.length;
-				PaneLayout  paneLayout = rbdBndl.getPaneLayout();
+				INcPaneLayout  paneLayout = rbdBndl.getPaneLayout();
 
 				// if this is a multi-pane display
 //				if( panes.length > 1 ) {
@@ -812,18 +815,19 @@ public class LoadRbdControl extends Composite {
 //					//				}
 //				}
 
-				NCMapEditor newEditor = (NCMapEditor) NmapUiUtils.findDisplayByName( rbdName );
+				AbstractEditor newEditor = 
+					     NcDisplayMngr.findDisplayByName( rbdBndl.getDisplayType(), rbdName );
 				
 				// if there is already a display with this RBD name then prompt if the user wants to replace it
 				if( newEditor != null &&
-					newEditor.getPaneLayout().getNumberOfPanes() == paneCount ) {
+					NcEditorUtil.getPaneLayout( newEditor ).getNumberOfPanes() == paneCount ) {
 					
 					MessageDialog confirmDlg = new MessageDialog( 
 							PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
 							"Reload?", null, 
 							"A Display already exists for RBD  "+ rbdName + ".\n\n"+
 							"Do you want to re-load this RBD in to Display '"+
-							newEditor.getDisplayName()+"', or create a new Display?",
+							NcEditorUtil.getDisplayName(newEditor)+"', or create a new Display?",
 							MessageDialog.QUESTION, new String[]{"Reload", "New Display"}, 0);
 					confirmDlg.open();
 
@@ -831,40 +835,28 @@ public class LoadRbdControl extends Composite {
 						newEditor = null;
 					}
 				}
-			
+				
+				// TODO : punt on putting multi-pane RBDs into empty displays
+				// not sure if this is hard or easy but don't have time to test it.
+				if( newEditor == null && paneCount == 1 ) {
+					newEditor = NcDisplayMngr.findUnmodifiedDisplayToLoad( rbdBndl.getDisplayType() );
+				}
+				
 				if( newEditor == null ) {
-					// if there is a default display, replace it.
-					String defaultName = defaultRscList.get(0);
-					if( !defaultName.equals( rbdName ) && 
-						!emptyEditorRemoved &&
-						rbdBndl.getPaneLayout().getNumberOfPanes() == 1 &&
-						NmapUiUtils.findEmptyEditor(defaultRscList)) {
-						emptyEditorRemoved = true;
-						newEditor = (NCMapEditor)NmapUiUtils.findDisplayByName(defaultName);String name = newEditor.getDisplayName();
-						newEditor.setDisplayName(name.substring(0, name.indexOf("-")+1) + rbdName);
-					}
-					else
-						newEditor = NmapUiUtils.createNatlCntrsEditor( rbdName, paneLayout );
+					newEditor = NcDisplayMngr.createNatlCntrsEditor( 
+								rbdBndl.getDisplayType(), rbdName, paneLayout );
 			    }
 
 				if( newEditor == null ) {
-					throw new VizException( "Unable to create an Editor for RBD "+rbdName);
+					throw new VizException( "Unable to find or create an Editor for RBD "+rbdName);
 				}
 
 				if( panes.length > 1 ) {
-					newEditor.setGeoSyncPanesEnabled( rbdBndl.isGeoSyncedPanes() );
+					NcEditorUtil.setGeoSyncPanesEnabled( newEditor, rbdBndl.isGeoSyncedPanes() );
 					//	newEditor.setTimeSyncPanesEnabled( rbdLoader.arePanesTimeSynced() );
 					//			newEditor.selectPane( newEditor.getDisplayPanes()[0], true );
 				}
-
-//				rbdBndl.setNcEditor( newEditor );
 				
-				// in the case where all rbds are selected initially and the user loads without 
-				// selecting the timeline, we need to load the default timeline based on the dflt
-				// number of frames and times from the database.
-
-				//			rbdBndl.getTimeMatcher().loadTimes();
-
 				rbdLoader.addRBD( rbdBndl, newEditor );
 				
     		} catch (VizException e) {
@@ -875,23 +867,9 @@ public class LoadRbdControl extends Composite {
 			}
 		}
 
-		// "loading rbds message box..."  
-/*        	VizApp.runAsync( new Runnable() {
-			public void run() {
-				MessageBox mb = new MessageBox( PlatformUI.getWorkbench()
-						.getActiveWorkbenchWindow().getShell(), SWT.OK);
-				mb.setText("Loading Selected RBDs.....");
-				mb.setMessage("Loading Selected RBDs.....");
-				mb.open();
-			}
-		});
-*/
 		VizApp.runSync( rbdLoader );
 		
-		// if there is a default display, close it.	
-		//CreateRbdControl.findCloseEmptyEditor();
-
-    	// They aren't going to like this if there is an error loading....
+// They aren't going to like this if there is an error loading....
     	if( close ) {
 //    		if( Thread.currentThread().wait() rbdLoader.
     		shell.dispose();
@@ -910,7 +888,7 @@ public class LoadRbdControl extends Composite {
     		return;
     	}
     	
-    	RbdBundle rbdSel = availRbdsList.get( seldRbdIndx ); 
+    	AbstractRBD<?> rbdSel = availRbdsList.get( seldRbdIndx ); 
 
     	if( rbdSel == null ) { // sanity check
     		return;
@@ -919,15 +897,15 @@ public class LoadRbdControl extends Composite {
 		// make a copy of this RBD so that edits made and then canceled are not saved to this object
     	// 
     	try {
-    		rbdSel = RbdBundle.clone( rbdSel );
-    	
+    		rbdSel = AbstractRBD.clone( rbdSel );
+
     		if( editRbdDlg == null ) {
     			editRbdDlg = new EditRbdDialog( shell, rbdSel );   						
     		}
     		if( editRbdDlg.isOpen() ) {
     		}
     		else {
-    			RbdBundle editedRbd = editRbdDlg.open();
+    			AbstractRBD<?> editedRbd = editRbdDlg.open();
     			if( editedRbd != null ) {
     				availRbdsList.add( seldRbdIndx, editedRbd );
     				availRbdsList.remove( seldRbdIndx+1 );
@@ -950,5 +928,5 @@ public class LoadRbdControl extends Composite {
     	}
 
     	editRbdDlg = null;   				
-    }
+    }    
 }
