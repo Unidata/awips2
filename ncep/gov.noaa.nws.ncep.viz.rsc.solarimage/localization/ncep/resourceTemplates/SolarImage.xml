@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resourceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <resource>
+          <loadProperties loadWithoutData="true">
+                      <capabilities>
+              <capability xsi:type="colorMapCapability">
+<!-- a temp colormap name since this will be set from the colorBar -->
+                 <colorMapParameters colorMapName="colorMapName"/>
+              </capability>
+              <capability xsi:type="imagingCapability" 
+                          interpolationState="false" brightness="1.0" 
+                          contrast="1.0" alpha="1.0"/>
+              </capabilities>
+          </loadProperties>
+          <properties isSystemResource="false"
+              isBlinking="false" isMapLayer="false" isHoverOn="false"
+              isVisible="true" />
+          <resourceData xsi:type="SolarImageResourceData"
+                        isUpdatingOnMetadataOnly="false" 
+                        isRequeryNecessaryOnTimeMatch="false"> 
+
+              <frameSpan>${frameSpan}</frameSpan>
+              <dfltNumFrames>${dfltNumFrames}</dfltNumFrames>
+              <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
+              <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>       
+              <timelineGenMethod>${timelineGenMethod}</timelineGenMethod>
+ 
+			  <colorMapName>${colorMapName}</colorMapName>
+  		           ${colorBar}
+              <alpha>${alpha}</alpha>
+              <brightness>${brightness}</brightness>
+              <contrast>${contrast}</contrast> 
+  
+             <requestStyle>METADATA</requestStyle>
+             <metadataMap>
+               <mapping key="pluginName">
+                 <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
+               </mapping>
+               <mapping key="satellite">
+                 <constraint constraintValue="${satellite}" constraintType="EQUALS" />
+               </mapping>
+               <mapping key="instrument">
+                 <constraint constraintValue="${instrument}" constraintType="IN" />
+               </mapping>
+               <mapping key="wavelength">
+                 <constraint constraintValue="${wavelength}" constraintType="EQUALS" />
+               </mapping>
+               <mapping key="intTime">
+                 <constraint constraintValue="${intTime}" constraintType="EQUALS" />
+               </mapping>
+               <mapping key="site">
+                 <constraint constraintValue="${site}" constraintType="EQUALS" />
+               </mapping>
+               <mapping key="reportType">
+                 <constraint constraintValue="${reportType}" constraintType="EQUALS"/>
+               </mapping>
+             </metadataMap>             
+          </resourceData>
+        </resource>
+</resourceGroup>        

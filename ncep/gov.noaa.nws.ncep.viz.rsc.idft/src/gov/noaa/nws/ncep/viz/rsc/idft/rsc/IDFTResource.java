@@ -18,6 +18,7 @@ import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -64,7 +65,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  * @author gzhang 
  * @version 1.0
  */
-public class IDFTResource extends AbstractNatlCntrsResource<IDFTResourceData, MapDescriptor> 
+public class IDFTResource extends AbstractNatlCntrsResource<IDFTResourceData, NCMapDescriptor> 
                          implements INatlCntrsResource {
 	
 	ArrayList<DataTime> dataTimes = new ArrayList<DataTime>();
@@ -180,7 +181,7 @@ public class IDFTResource extends AbstractNatlCntrsResource<IDFTResourceData, Ma
     	RGB    arrowColorRGB = idftRscData.getArrowColor();
     	java.awt.Color arrowColor = new java.awt.Color(arrowColorRGB.red,arrowColorRGB.green,arrowColorRGB.blue);
     	
-    	DisplayElementFactory df = new DisplayElementFactory( grphTarget, this.descriptor );
+    	DisplayElementFactory df = new DisplayElementFactory( grphTarget, getNcMapDescriptor() );
     	
     	for( IDFTRscDataObj idftData : currFrameData.idftDataList ){
         	IExtent extent = paintProps.getView().getExtent();

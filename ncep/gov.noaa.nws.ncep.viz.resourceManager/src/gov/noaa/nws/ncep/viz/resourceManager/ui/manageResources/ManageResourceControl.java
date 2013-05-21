@@ -241,19 +241,6 @@ public class ManageResourceControl extends Composite {
 		}
    	};
    	
-   	public void setResourceEnable( ResourceName rscName, boolean isEnabled ) {
-   		rscDefnMngr.setResourceEnabled( rscName.getRscType(), isEnabled );
-   		
-		MessageDialog okDlg = new MessageDialog( getShell(), 
-				"", null, 
-				"The "+rscName.getRscType()+" Resource has been " + 
-				(isEnabled ? "Enabled" : "Disabled") + "\nand will "+
-				(isEnabled ? "now" : "not") + " show up in the Select " +
-				"Resources Dialog",				
-				MessageDialog.INFORMATION, new String[]{"OK"}, 0);
-		okDlg.open();
-   	}
-   	
    	public void removeResourceType( ResourceName rscName ) {
    		try {
    			if( rscName == null ||

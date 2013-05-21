@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<NcInventoryDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<NcInventoryDefinition xmlns:ns2="com.raytheon.uf.common.datadelivery.registry" xmlns:ns3="http://www.example.org/productType">
     <inventoryName>GEFS</inventoryName>
-    <inventoryParameters>pluginName,info.ensembleId,dataTime</inventoryParameters>
+    <inventoryParameters>pluginName,info.ensembleId,info.secondaryId,dataTime</inventoryParameters>
     <baseConstraints>
         <mapping key="info.datasetId">
             <constraint constraintValue="gefs" constraintType="EQUALS"/>
