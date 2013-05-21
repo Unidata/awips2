@@ -5,8 +5,12 @@
   http://www.springframework.org/schema/tx
   http://www.springframework.org/schema/tx/spring-tx.xsd">
 
+	<bean id="ebxmlFederationEnabled" class="java.lang.Boolean">
+		<constructor-arg value="${ebxmlFederationEnabled}" />
+	</bean>
+
 	<bean id="ebxmlSubscriptionsEnabled" class="java.lang.Boolean">
-		<constructor-arg value="${env:EBXML_REGISTRY_SUBSCRIPTIONS_ENABLED}" />
+		<constructor-arg value="${ebxmlSubscriptionsEnabled}" />
 	</bean>
 
 	<bean id="ebxmlEmailEnabled" class="java.lang.Boolean">

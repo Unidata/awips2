@@ -7,6 +7,14 @@
 		class="com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao">
 		<property name="sessionFactory" ref="metadataSessionFactory" />
 	</bean>
+	
+	<bean id="registryDao" class="com.raytheon.uf.edex.registry.ebxml.dao.RegistryDao">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+	</bean>
+	
+	<bean id="federationDao" class="com.raytheon.uf.edex.registry.ebxml.dao.FederationDao">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+	</bean>
 
 	<bean id="extrinsicObjectDao"
 		class="com.raytheon.uf.edex.registry.ebxml.dao.ExtrinsicObjectDao">

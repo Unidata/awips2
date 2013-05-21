@@ -99,6 +99,14 @@ public class MapType implements Serializable {
     @JoinTable(schema = "ebxml")
     protected List<EntryType> entry;
 
+    public MapType() {
+
+    }
+
+    public MapType(List<EntryType> entry) {
+        this.entry = entry;
+    }
+
     /**
      * Gets the value of the entry property.
      * 

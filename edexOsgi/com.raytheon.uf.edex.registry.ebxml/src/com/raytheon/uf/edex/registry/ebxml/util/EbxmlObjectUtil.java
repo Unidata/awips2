@@ -48,7 +48,6 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
 
-import com.google.common.net.HttpHeaders;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 
 /**
@@ -71,6 +70,14 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
  */
 
 public class EbxmlObjectUtil {
+
+    /** Default registry base URL */
+    public static final String REGISTRY_BASE_URL = "http://"
+            + System.getenv("EBXML_REGISTRY_HOST") + ":"
+            + System.getenv("EBXML_REGISTRY_WEBSERVER_PORT");
+
+    /** Slot name that holds the source of the notification */
+    public static final String NOTIFICATION_SOURCE_URL_SLOT_NAME = "NotificationSourceURL";
 
     /**
      * The name of the slot designated to hold the home server address of a
@@ -348,6 +355,16 @@ public class EbxmlObjectUtil {
                 EMAIL_NOTIFICATION_FORMATTER_SLOT);
     }
 
+    private static List<String> HTTP_HEADERS;
+    static {
+        HTTP_HEADERS = new ArrayList<String>(5);
+        HTTP_HEADERS.add("X-Forwarded-For");
+        HTTP_HEADERS.add("Proxy-Client-IP");
+        HTTP_HEADERS.add("WL-Proxy-Client-IP");
+        HTTP_HEADERS.add("HTTP_CLIENT_IP");
+        HTTP_HEADERS.add("HTTP_X_FORWARDED_FOR");
+    }
+
     public static String getClientHost(WebServiceContext wsContext) {
         if (wsContext == null) {
             return "INTERNAL";
@@ -356,13 +373,19 @@ public class EbxmlObjectUtil {
         if (mc == null) {
             return "INTERNAL";
         }
-        HttpServletRequest req = (HttpServletRequest) mc
+        HttpServletRequest request = (HttpServletRequest) mc
                 .get(MessageContext.SERVLET_REQUEST);
-        String host = req.getHeader(HttpHeaders.HOST);
-        if (host == null) {
-            return "Host name not available";
-        } else {
-            return host;
+        String ip = null;
+        request.getHeader("X-Forwarded-For");
+
+        for (int i = 0; (i < 5)
+                && (ip == null || ip.isEmpty() || "unknown"
+                        .equalsIgnoreCase(ip)); i++) {
+            ip = request.getHeader(HTTP_HEADERS.get(i));
         }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        return ip;
     }
 }

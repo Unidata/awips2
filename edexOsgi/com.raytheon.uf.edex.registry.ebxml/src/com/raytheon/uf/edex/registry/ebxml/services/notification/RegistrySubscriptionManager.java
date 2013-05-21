@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.Duration;
@@ -80,6 +81,8 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * ------------ ----------  ----------- --------------------------
  * 4/9/2013     1802        bphillip    Initial implementation
  * Apr 17, 2013 1672        djohnson    Keeps track of the notification listeners.
+ * 5/21/2013    2022        bphillip    Made logging less verbose. added running boolean so subscriptions are not process on every single
+ *                                      event.
  * </pre>
  * 
  * @author bphillip
@@ -93,6 +96,9 @@ public class RegistrySubscriptionManager implements
     /** The logger instance */
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RegistrySubscriptionManager.class);
+
+    /** Boolean used to denote if subscriptions should be processed */
+    private AtomicBoolean running = new AtomicBoolean(false);
 
     /**
      * Associates a {@link SubscriptionType} with its
@@ -287,44 +293,51 @@ public class RegistrySubscriptionManager implements
         if (!subscriptionProcessingEnabled) {
             return;
         }
-        statusHandler.info("Processing Registry Subscriptions...");
-        long start = TimeUtil.currentTimeMillis();
+        if (!running.compareAndSet(false, true)) {
+            return;
+        }
+        try {
+            long start = TimeUtil.currentTimeMillis();
 
-        Collection<SubscriptionNotificationListeners> subs = listeners.values();
-        if (subs.isEmpty()) {
-            statusHandler.info("No subscriptions to process.");
-        }
-        for (SubscriptionNotificationListeners subNotificationListener : subs) {
-            SubscriptionType sub = subNotificationListener.subscription;
-            try {
-                if (subscriptionShouldRun(sub)) {
-                    updateLastRunTime(sub,
-                            new Integer((int) TimeUtil.currentTimeMillis()));
-                    try {
-                        processSubscription(subNotificationListener);
-                    } catch (EbxmlRegistryException e) {
-                        statusHandler.error(
-                                "Errors occurred while processing subscription ["
-                                        + sub.getId() + "]", e);
-                    } catch (MsgRegistryException e) {
-                        statusHandler.error(
-                                "Errors occurred while processing subscription ["
-                                        + sub.getId() + "]", e);
+            Collection<SubscriptionNotificationListeners> subs = listeners
+                    .values();
+
+            for (SubscriptionNotificationListeners subNotificationListener : subs) {
+                SubscriptionType sub = subNotificationListener.subscription;
+                try {
+                    if (subscriptionShouldRun(sub)) {
+                        updateLastRunTime(sub,
+                                new Integer((int) TimeUtil.currentTimeMillis()));
+                        try {
+                            processSubscription(subNotificationListener);
+                        } catch (EbxmlRegistryException e) {
+                            statusHandler.error(
+                                    "Errors occurred while processing subscription ["
+                                            + sub.getId() + "]", e);
+                        } catch (MsgRegistryException e) {
+                            statusHandler.error(
+                                    "Errors occurred while processing subscription ["
+                                            + sub.getId() + "]", e);
+                        }
+                    } else {
+                        statusHandler
+                                .info("Skipping subscription ["
+                                        + sub.getId()
+                                        + "]. Required notification frequency interval has not elapsed.");
                     }
-                } else {
-                    statusHandler
-                            .info("Skipping subscription ["
-                                    + sub.getId()
-                                    + "]. Required notification frequency interval has not elapsed.");
+                } catch (EbxmlRegistryException e) {
+                    statusHandler.error(
+                            "Error processing subscription [" + sub.getId()
+                                    + "]", e);
                 }
-            } catch (EbxmlRegistryException e) {
-                statusHandler.error(
-                        "Error processing subscription [" + sub.getId() + "]",
-                        e);
             }
+            if (!subs.isEmpty()) {
+                statusHandler.info("Registry subscriptions processed in "
+                        + (TimeUtil.currentTimeMillis() - start) + " ms.");
+            }
+        } finally {
+            running.set(false);
         }
-        statusHandler.info("Registry subscriptions processed in "
-                + (TimeUtil.currentTimeMillis() - start) + " ms.");
     }
 
     /**
@@ -414,19 +427,9 @@ public class RegistrySubscriptionManager implements
                 + "]...");
 
         List<ObjectRefType> objectsOfInterest = getObjectsOfInterest(subscriptionNotificationsListeners.subscription);
-        if (objectsOfInterest.isEmpty()) {
-            statusHandler.info("Selector query for subscription ["
-                    + subscription.getId() + "] returned "
-                    + objectsOfInterest.size()
-                    + " objects.  Notification transmission unneccessary.");
-        } else {
-            statusHandler.info("Selector query for subscription ["
-                    + subscription.getId() + "] returned "
-                    + objectsOfInterest.size() + " objects of interest.");
+        if (!objectsOfInterest.isEmpty()) {
             notificationManager.sendNotifications(
                     subscriptionNotificationsListeners, objectsOfInterest);
-            statusHandler.info("Notifications sent for subscription ["
-                    + subscription.getId() + "]");
         }
 
     }

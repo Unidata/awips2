@@ -74,8 +74,10 @@ public class GetNotification extends CanonicalEbxmlQuery {
         QUERY_PARAMETERS.add(QueryConstants.START_TIME);
     }
 
+    /** The subscription manager */
     private RegistrySubscriptionManager subscriptionManager;
 
+    /** Data access object for accessing registry subscriptions */
     private SubscriptionDao subscriptionDao;
 
     @Override
@@ -131,7 +133,8 @@ public class GetNotification extends CanonicalEbxmlQuery {
 
         try {
             NotificationType notification = subscriptionManager
-                    .getOnDemandNotification(client, subscriptionId, startTime);
+                    .getOnDemandNotification("http://" + client,
+                            subscriptionId, startTime);
             List<Object> retVal = new ArrayList<Object>();
             retVal.add(notification);
             setResponsePayload(queryResponse, retVal);
