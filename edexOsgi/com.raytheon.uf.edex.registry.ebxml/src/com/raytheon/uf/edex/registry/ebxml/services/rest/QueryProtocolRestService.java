@@ -43,6 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.constants.Languages;
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
+import com.raytheon.uf.common.registry.services.rest.IQueryProtocolRestService;
 import com.raytheon.uf.common.serialization.JAXBManager;
 
 /**
@@ -57,6 +58,7 @@ import com.raytheon.uf.common.serialization.JAXBManager;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/19/2013    1931        bphillip    Initial implementation
+ * 5/21/2013    2022        bphillip    Added interface and moved constants
  * </pre>
  * 
  * @author bphillip
@@ -65,49 +67,22 @@ import com.raytheon.uf.common.serialization.JAXBManager;
 @Path("/rest/search")
 @Service
 @Transactional
-public class QueryProtocolRestService {
-
-    /** The queryID canonical query parameter name */
-    private static final String QUERY_ID = "queryId";
-
-    /** The depth canonical query parameter name */
-    private static final String DEPTH = "depth";
-
-    /** The format canonical query parameter name */
-    private static final String FORMAT = "format";
-
-    /** The federated canonical query parameter name */
-    private static final String FEDERATED = "federated";
-
-    /** The federation canonical query parameter name */
-    private static final String FEDERATION = "federation";
-
-    /** The matchOlderVersion canonical query parameter name */
-    private static final String MATCH_OLDER_VERSIONS = "matchOlderVersions";
-
-    /** The startIndex canonical query parameter name */
-    private static final String START_INDEX = "startIndex";
-
-    /** The lang canonical query parameter name */
-    private static final String LANG = "lang";
-
-    /** The maxResults canonical query parameter name */
-    private static final String MAX_RESULTS = "maxResults";
+public class QueryProtocolRestService implements IQueryProtocolRestService {
 
     /** Convenience list of all the canonical query parameter names */
     private static final List<String> CANONICAL_QUERY_PARAMETERS;
 
     static {
         CANONICAL_QUERY_PARAMETERS = new ArrayList<String>();
-        CANONICAL_QUERY_PARAMETERS.add(QUERY_ID);
-        CANONICAL_QUERY_PARAMETERS.add(DEPTH);
-        CANONICAL_QUERY_PARAMETERS.add(FORMAT);
-        CANONICAL_QUERY_PARAMETERS.add(FEDERATED);
-        CANONICAL_QUERY_PARAMETERS.add(FEDERATION);
-        CANONICAL_QUERY_PARAMETERS.add(MATCH_OLDER_VERSIONS);
-        CANONICAL_QUERY_PARAMETERS.add(START_INDEX);
-        CANONICAL_QUERY_PARAMETERS.add(LANG);
-        CANONICAL_QUERY_PARAMETERS.add(MAX_RESULTS);
+        CANONICAL_QUERY_PARAMETERS.add(QueryRequest.QUERY_ID);
+        CANONICAL_QUERY_PARAMETERS.add(QueryRequest.DEPTH);
+        CANONICAL_QUERY_PARAMETERS.add(QueryRequest.FORMAT);
+        CANONICAL_QUERY_PARAMETERS.add(QueryRequest.FEDERATED);
+        CANONICAL_QUERY_PARAMETERS.add(QueryRequest.FEDERATION);
+        CANONICAL_QUERY_PARAMETERS.add(QueryRequest.MATCH_OLDER_VERSIONS);
+        CANONICAL_QUERY_PARAMETERS.add(QueryRequest.START_INDEX);
+        CANONICAL_QUERY_PARAMETERS.add(QueryRequest.LANG);
+        CANONICAL_QUERY_PARAMETERS.add(QueryRequest.MAX_RESULTS);
 
     }
 
@@ -127,18 +102,11 @@ public class QueryProtocolRestService {
         responseJaxb = new JAXBManager(QueryResponse.class);
     }
 
-    /**
-     * Executes a query based on the submitted query parameters
-     * 
-     * @param info
-     *            The UriInfo containing the query parameters
-     * @return The marshalled QueryResponse
-     * @throws JAXBException
-     *             If errors occur while marshalling the response
-     * @throws MsgRegistryException
-     *             If errors occur in the registry while querying for the
-     *             objects
-     */
+    public String executeQuery() {
+
+        return null;
+    }
+
     @GET
     @Produces("text/xml")
     public String executeQuery(@Context UriInfo info) throws JAXBException,
@@ -148,31 +116,37 @@ public class QueryProtocolRestService {
          */
         MultivaluedMap<String, String> queryParameters = info
                 .getQueryParameters();
-        String queryId = queryParameters.getFirst(QUERY_ID) == null ? "urn:oasis:names:tc:ebxml-regrep:query:GetObjectById"
-                : queryParameters.getFirst(QUERY_ID);
+        String queryId = queryParameters.getFirst(QueryRequest.QUERY_ID) == null ? "urn:oasis:names:tc:ebxml-regrep:query:GetObjectById"
+                : queryParameters.getFirst(QueryRequest.QUERY_ID);
 
-        BigInteger depth = queryParameters.getFirst(DEPTH) == null ? null
-                : new BigInteger(queryParameters.getFirst(DEPTH));
+        BigInteger depth = queryParameters.getFirst(QueryRequest.DEPTH) == null ? null
+                : new BigInteger(queryParameters.getFirst(QueryRequest.DEPTH));
 
-        String format = queryParameters.getFirst(FORMAT);
+        String format = queryParameters.getFirst(QueryRequest.FORMAT);
 
-        boolean federated = queryParameters.getFirst(FEDERATED) == null ? false
-                : Boolean.parseBoolean(queryParameters.getFirst(FEDERATED));
+        boolean federated = queryParameters.getFirst(QueryRequest.FEDERATED) == null ? false
+                : Boolean.parseBoolean(queryParameters
+                        .getFirst(QueryRequest.FEDERATED));
 
-        String federation = queryParameters.getFirst(FEDERATION);
+        String federation = queryParameters.getFirst(QueryRequest.FEDERATION);
 
         boolean matchOlderVersions = queryParameters
-                .getFirst(MATCH_OLDER_VERSIONS) == null ? true : Boolean
-                .parseBoolean(queryParameters.getFirst(MATCH_OLDER_VERSIONS));
+                .getFirst(QueryRequest.MATCH_OLDER_VERSIONS) == null ? true
+                : Boolean.parseBoolean(queryParameters
+                        .getFirst(QueryRequest.MATCH_OLDER_VERSIONS));
 
-        BigInteger startIndex = queryParameters.getFirst(START_INDEX) == null ? new BigInteger(
-                "0") : new BigInteger(queryParameters.getFirst(START_INDEX));
+        BigInteger startIndex = queryParameters
+                .getFirst(QueryRequest.START_INDEX) == null ? new BigInteger(
+                "0") : new BigInteger(
+                queryParameters.getFirst(QueryRequest.START_INDEX));
 
-        String lang = queryParameters.getFirst(LANG) == null ? Languages.EN_US
-                : queryParameters.getFirst(LANG);
+        String lang = queryParameters.getFirst(QueryRequest.LANG) == null ? Languages.EN_US
+                : queryParameters.getFirst(QueryRequest.LANG);
 
-        BigInteger maxResults = queryParameters.getFirst(MAX_RESULTS) == null ? new BigInteger(
-                "0") : new BigInteger(queryParameters.getFirst(MAX_RESULTS));
+        BigInteger maxResults = queryParameters
+                .getFirst(QueryRequest.MAX_RESULTS) == null ? new BigInteger(
+                "0") : new BigInteger(
+                queryParameters.getFirst(QueryRequest.MAX_RESULTS));
 
         /*
          * Create the query request object

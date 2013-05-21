@@ -92,6 +92,16 @@ public class CollectionValueType extends ValueType {
 
     private static final String COLUMN_NAME = "collectionValue";
 
+    public CollectionValueType() {
+
+    }
+
+    public CollectionValueType(List<ValueType> collectionValue,
+            String collectionType) {
+        this.collectionValue = collectionValue;
+        this.collectionType = collectionType;
+    }
+
     @Override
     public String getColumnName() {
         return COLUMN_NAME;
