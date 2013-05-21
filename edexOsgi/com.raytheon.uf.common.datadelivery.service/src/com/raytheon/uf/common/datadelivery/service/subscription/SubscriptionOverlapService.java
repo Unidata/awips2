@@ -23,13 +23,15 @@ import java.util.MissingResourceException;
 
 import javax.xml.bind.JAXBException;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.serialization.JAXBManager;
-import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -173,22 +175,37 @@ public class SubscriptionOverlapService implements ISubscriptionOverlapService {
     }
 
     /**
-     * Writes the new configuration.
-     * 
-     * @param config
-     *            the configuration
-     * @throws SerializationException
-     *             on error serializing the configuration
+     * {@inheritDoc}
      */
-    @VisibleForTesting
-    void writeNewConfig(SubscriptionOverlapConfig config)
-            throws SerializationException {
-        final LocalizationFile configFile = PathManagerFactory
-                .getPathManager()
-                .getStaticLocalizationFile(
+    @Override
+    public void writeConfig(SubscriptionOverlapConfig config)
+            throws LocalizationException {
+        final IPathManager pathManager = PathManagerFactory.getPathManager();
+        LocalizationContext context = pathManager.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+        final LocalizationFile configFile = pathManager
+                .getLocalizationFile(
+                        context,
                         SubscriptionOverlapService.SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH);
-        this.jaxbManager.jaxbMarshalToXmlFile(config, configFile.getFile()
-                .getAbsolutePath());
+        configFile.jaxbMarshal(config, jaxbManager);
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @throws LocalizationException
+     */
+    @Override
+    public SubscriptionOverlapConfig readConfig() throws LocalizationException {
+        final IPathManager pathManager = PathManagerFactory.getPathManager();
+        final LocalizationContext context = pathManager.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+        final LocalizationFile configFile = pathManager
+                .getLocalizationFile(
+                        context,
+                        SubscriptionOverlapService.SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH);
+        return configFile.jaxbUnmarshal(SubscriptionOverlapConfig.class,
+                jaxbManager);
     }
 
 }
