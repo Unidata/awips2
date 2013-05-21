@@ -128,5 +128,5 @@
             </lineProperty>
         </Line>
     </linePropertyMap>
-    <dataPageProperty numberPagePerDisplay="1" severePotentialPage="10" convectiveInitiationPage="9" meanWindPage="8" stormRelativePage="7" mixingHeightPage="6" opcDataPage="5" thermodynamicDataPage="4" parcelDataPage="3" summary2Page="2" summary1Page="1"/>
+    <dataPageProperty severePotentialPage="10" convectiveInitiationPage="9" meanWindPage="8" stormRelativePage="7" mixingHeightPage="6" opcDataPage="5" thermodynamicDataPage="4" parcelDataPage="3" summary2Page="2" summary1Page="1"/>
 </NsharpConfigStore>

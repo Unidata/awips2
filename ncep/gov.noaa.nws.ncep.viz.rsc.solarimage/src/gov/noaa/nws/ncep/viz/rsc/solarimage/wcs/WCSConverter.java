@@ -38,17 +38,17 @@ public class WCSConverter {
     private double[] crval;
 
     private double[] crota;
+    
     private double a = 0.0;
 
     private double[][] pc;
     
     private double[][] cd;
     
-    private double[][] pv;
-
-    private double[][] pcInv, cdInv, pvInv; 
+    private double[][] pcInv, cdInv; 
     
     //private double[][] m, mInv;
+    //private double[][] pv, pvInv;
 
     /**
      * @param header
@@ -87,8 +87,7 @@ public class WCSConverter {
             crval[n] = header.getDoubleValue("CRVAL" + ij, 0.0);
             crota[n] = header.getDoubleValue("CROTA" + ij, 0.0);
         }
-        
-		
+                         
         for (int m = 0; m < dim; m++) {
         	String i = Integer.toString(m + 1);
         	for (int n = 0; n < dim; n++) {
@@ -102,7 +101,7 @@ public class WCSConverter {
                       
         // Convert original to pc. Do not convert original fits to cd. 
         if (!header.containsKey("PC1_1") && !header.containsKey("CD1_1")) {      	
-        	if ( crota[1] != 0.0)
+        	if ( crota[1] != 0.0) //CROTA2
         		a = crota[1];
         	else if ( crota[0] != 0.0)
         		a = crota[0];
@@ -234,6 +233,7 @@ public class WCSConverter {
     public double[] WorldToImage(double[] cs) {
     	double[] image = new double[dim];
         double[] tmp = new double[dim];
+        
         for (int i = 0; i < dim; i++) {
             image[i] = (cs[i] - crval[i]); // / cdelt[i];
         }
