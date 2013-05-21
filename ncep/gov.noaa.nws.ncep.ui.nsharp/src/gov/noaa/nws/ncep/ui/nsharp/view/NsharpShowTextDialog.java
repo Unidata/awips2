@@ -288,14 +288,14 @@ public class NsharpShowTextDialog extends Dialog {
 			}
 			String textToShow = rsc.getPickedStnInfo().getSndType() +"  "+rsc.getPickedStnInfoStr() + latlonstr+ "\n" + hdr;
 			//textToSave = rsc.getPickedStnInfo().getSndType() +"  "+rsc.getPickedStnInfoStr() + latlonstr + "\n" + hdr;
-			String tempText="", tempSaveText="";
+			String tempText="";
 			for (NcSoundingLayer layer: soundLyList){
 				tempText = String.format("%7.2f\t%8.2f %7.2f %7.2f   %6.2f  %6.2f  %9.6f\n", layer.getPressure(),
 						layer.getGeoHeight(),layer.getTemperature(),layer.getDewpoint(), layer.getWindDirection(),
 						layer.getWindSpeed(), layer.getOmega());
-				tempSaveText = String.format("%f %f %f  %f  %f  %f  %f\n", layer.getPressure(),
-						layer.getGeoHeight(),layer.getTemperature(),layer.getDewpoint(), layer.getWindDirection(),
-						layer.getWindSpeed(), layer.getOmega());
+				//tempSaveText = String.format("%f %f %f  %f  %f  %f  %f\n", layer.getPressure(),
+						//layer.getGeoHeight(),layer.getTemperature(),layer.getDewpoint(), layer.getWindDirection(),
+						//layer.getWindSpeed(), layer.getOmega());
 				textToShow = textToShow + tempText;
 				//textToSave = textToSave + tempSaveText;
 			}

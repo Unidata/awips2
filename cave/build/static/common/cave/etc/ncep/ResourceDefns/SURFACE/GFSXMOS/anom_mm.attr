@@ -1,5 +1,5 @@
-! Attributes for the GFSXMOS resource with "anonmm" plot model
+! Attributes for the GFSXMOS resource with "anon_mm" plot model
 !
-plotModel=anonmm
+plotModel=@PlotModels/bufrmosMRF/anom_mm.xml
 plotDensity=10
 conditionalFilter=

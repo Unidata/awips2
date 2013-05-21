@@ -28,6 +28,7 @@ import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.NcPlotDataThreadPool;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.StaticPlotInfoPV;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.StaticPlotInfoPV.SPIEntry;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
 import java.awt.image.DataBuffer;
 import java.util.ArrayList;
@@ -123,7 +124,7 @@ import static java.lang.System.out;
  * @author brockwoo
  * @version 1.0
  */
-public class NcPlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, MapDescriptor> 
+public class NcPlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, NCMapDescriptor> 
 	   implements  IResourceDataChanged, IPlotModelGeneratorCaller, INatlCntrsResource {
 	
 	protected PlotResourceData plotRscData = null;
@@ -193,7 +194,7 @@ public class NcPlotResource2 extends AbstractNatlCntrsResource<PlotResourceData,
                 IExtent extent = theseProps.getView().getExtent();                
                 PixelExtent expandedExtent = getExpandedExtent((PixelExtent)extent);
                   
-                int displayWidth = (int) (descriptor.getMapWidth() * theseProps
+                int displayWidth = (int) (getNcMapDescriptor().getMapWidth() * theseProps
                         .getZoomLevel());
                 double kmPerPixel = (displayWidth / canvasWidth) / 1000.0;
                 
@@ -364,23 +365,40 @@ public class NcPlotResource2 extends AbstractNatlCntrsResource<PlotResourceData,
     		ArrayList<Long> frameTimesInMap = new ArrayList<Long>( frameDataMap.keySet() );
     		int frameTimesInMapSize = (frameTimesInMap!=null)?frameTimesInMap.size():0;
     		
-    		// init backwards
-            for (int i = frameTimesInMapSize - 1; i > -1; i--) {
-    			long frameTimeMs = frameTimesInMap.get(i);	
-    			 
-    			FrameData  frameData = (FrameData)frameDataMap.get(frameTimeMs);
-                 
-                try {
-                    frameData.setFrameData();                        
-                } catch (VizException e) {
-                    System.out.println("Error retrieving frame information for time: " + frameData.getFrameTime() + ". Error: " + e);
-                }
+//    		// init backwards
+//            for (int i = frameTimesInMapSize - 1; i > -1; i--) {
+//    			long frameTimeMs = frameTimesInMap.get(i);	
+//    			 
+//    			FrameData  frameData = (FrameData)frameDataMap.get(frameTimeMs);
+//                 
+//                try {
+//                    frameData.setFrameData();                        
+//                } catch (VizException e) {
+//                    System.out.println("Error retrieving frame information for time: " + frameData.getFrameTime() + ". Error: " + e);
+//                }
+//
+//                if ( cancel ) return Status.CANCEL_STATUS;
+//                
+//                issueRefresh();
+//            }            
+        	  int index = 0;
+        	  boolean isFcst = plotRscData.isForecastResource()
+			  && (!plotRscData.getPluginName().equals("nctaf"));
+        	  index = (isFcst) ? 0 : frameTimesInMapSize - 1;
 
-                if ( cancel ) return Status.CANCEL_STATUS;
-                
-                issueRefresh();
-            }            
-        	
+    		  while ( index >= 0 && index < frameTimesInMapSize){
+     			  long frameTimeMs = frameTimesInMap.get(index);
+    			  FrameData  frameData = (FrameData)frameDataMap.get(frameTimeMs);
+    			  try {
+					frameData.setFrameData();
+				} catch (VizException e) {
+					  System.out.println("Error retrieving frame information for time: " + frameData.getFrameTime() + ". Error: " + e);
+				} 
+				if ( cancel ) return Status.CANCEL_STATUS;	
+				issueRefresh();
+    			index = (isFcst) ? ++index : --index;
+    		  }
+    		  
         return Status.OK_STATUS;
         }
 
@@ -938,7 +956,7 @@ public class NcPlotResource2 extends AbstractNatlCntrsResource<PlotResourceData,
 
 //        data.addChangeListener(this);
         
-        // allow for no SPI file to be given
+        // allow for no SPI file to be given?
         if (plotRscData.getSpiFile() != null && !plotRscData.getSpiFile().isEmpty() ) {
             this.spi = StaticPlotInfoPV.readStaticPlotInfoPV(plotRscData
                     .getSpiFile());
@@ -1092,7 +1110,7 @@ public class NcPlotResource2 extends AbstractNatlCntrsResource<PlotResourceData,
     	}
     	
     	// generator for creating plots 
-        generator = new NcPlotDataThreadPool(aTarget, descriptor,
+        generator = new NcPlotDataThreadPool(aTarget, getNcMapDescriptor(),
                 plotRscData.getPlotModel(), 
                 (plotRscData.isSurfaceOnly() ? null : plotRscData.getLevelKey() ),
                 plotRscData.getMetadataMap(),  plotRscData.getConditionalFilter(), this); 
@@ -1100,7 +1118,7 @@ public class NcPlotResource2 extends AbstractNatlCntrsResource<PlotResourceData,
   
         this.actualPlotWidth = this.plotWidth = generator.getPlotModelWidth();        
        
-        this.distFloor = ( descriptor.getMapWidth() / 1000.0)
+        this.distFloor = ( getNcMapDescriptor().getMapWidth() / 1000.0)
         						* plotRscData.getPixelSizeHint() / 32000.0;
         // not sure where this calculation comes from but the above value yield
         distFloor /= 3; // 
@@ -1121,7 +1139,7 @@ public class NcPlotResource2 extends AbstractNatlCntrsResource<PlotResourceData,
         
         // load/populate all the frames in the frameDataMap	
 		frameLoader = new FrameLoaderJob("Loading frames...");
-		if (!plotRscData.isForecastResource())
+//		if (!plotRscData.isForecastResource())
 			frameLoader.loadFrameData();        
     }
 
@@ -1187,7 +1205,7 @@ public class NcPlotResource2 extends AbstractNatlCntrsResource<PlotResourceData,
         clearFrames(); 
         clearImages();
         
-        this.distFloor = (descriptor.getMapWidth() / 1000.0)
+        this.distFloor = (getNcMapDescriptor().getMapWidth() / 1000.0)
         	           * this.plotRscData.getPixelSizeHint() / 32000.0;
         this.worldExtent = new PixelExtent(0, descriptor.getGridGeometry()
                 .getGridRange().getHigh(0), 0, descriptor.getGridGeometry()

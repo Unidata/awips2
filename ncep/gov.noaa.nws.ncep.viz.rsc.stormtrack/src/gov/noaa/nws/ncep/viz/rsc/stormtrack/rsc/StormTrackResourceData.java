@@ -49,7 +49,7 @@ import javax.measure.unit.SI;
  *    Date                Ticket#     Engineer         Description
  * ------------          ------------   ------------- --------------------------
  * 11-Oct-2011                           sgilbert          Initial creation.
- * 25 Oct 2011                   bhebbard          Add TD/Gale/TS/Hurricane attributes
+ * 25 Oct 2011                           bhebbard          Add TD/Gale/TS/Hurricane attributes
  * 01 Oct 2012             #860	         ghull             replace hardcoded modelNames
  * 
  * </pre>
@@ -61,7 +61,7 @@ import javax.measure.unit.SI;
 @XmlType(name = "StormTrackResourceData")
 public class StormTrackResourceData  extends	AbstractNatlCntrsRequestableResourceData implements IMiscResourceData,
 INatlCntrsResourceData{
-
+	
 	ColorBar windSpeedColorBar = new ColorBar(); {
 		windSpeedColorBar.setAnchorLoc( ColorBarAnchorLocation.LowerLeft );
 		windSpeedColorBar.setOrientation( ColorBarOrientation.Vertical );
@@ -82,12 +82,12 @@ INatlCntrsResourceData{
 //	@XmlElement
 //	@XmlJavaTypeAdapter(RGBColorAdapter.class)
 //	protected RGB color;
-	
+
 	@Override
 	public RGB getLegendColor() {		
 		return getModel01Color();
 	}
-
+	
 	public static class ModelDisplayAttrs {
 		String  modelName="";
 		String  cycloneID="";
@@ -100,7 +100,7 @@ INatlCntrsResourceData{
 
 	final static int MAX_NUM_MODELS = 20;
 	private ModelDisplayAttrs[] modelDisplayAttrs = new ModelDisplayAttrs[MAX_NUM_MODELS];
-	
+
 	public ModelDisplayAttrs[] getModelDisplayAttributes() {
 		return modelDisplayAttrs;
 	}
@@ -111,7 +111,7 @@ INatlCntrsResourceData{
 	//
 	@Override
 	public List<DataTime> getAvailableDataTimes( ) {
-
+		 
 		List<DataTime> times = super.getAvailableDataTimes(); 
 		if( isForecastResource() ) {
 			return times;
@@ -135,7 +135,7 @@ INatlCntrsResourceData{
 
 	@XmlElement
 	protected boolean drawBeginDateTime;
-	
+
 	@XmlElement
 	protected boolean drawForecastHour;
 
@@ -144,7 +144,7 @@ INatlCntrsResourceData{
 
 	@XmlElement
 	protected boolean drawWindSpeed;
-	
+
 	@XmlElement
 	protected boolean drawModelName;
 
@@ -160,15 +160,15 @@ INatlCntrsResourceData{
 
 	@XmlElement
 	protected Integer forecastHour;
-	
+
 	public boolean getForecastHourEnable() {
 		return forecastHourEnable;
 	}
-	
+
 	public void setForecastHourEnable(boolean forecastHourEnable) {
 		this.forecastHourEnable = forecastHourEnable;
 	}
-	
+
 	public Integer getForecastHour() {
 		return forecastHour;
 	}
@@ -179,7 +179,7 @@ INatlCntrsResourceData{
 
 	@XmlElement
 	protected String legend="StormTrack";
-
+	
 	public String getLegend() {
 		return legend;
 	}
@@ -187,7 +187,7 @@ INatlCntrsResourceData{
 	public void setLegend(String legend) {
 		this.legend = legend;
 	}
-	
+
 	public StormTrackResourceData() throws VizException {
 		super();
 		this.nameGenerator = new AbstractNameGenerator() {
@@ -197,7 +197,7 @@ INatlCntrsResourceData{
 			}
 		};
 	}	
-
+	
 //	@Override
 	protected AbstractVizResource<?, ?> constructResource(
 			LoadProperties loadProperties,
@@ -215,7 +215,7 @@ INatlCntrsResourceData{
 
 		attrs.addAttr(new MiscResourceAttr(null,
 				"  Line Width", EditElement.LABEL, 3));			
-	
+
 		attrs.addAttr(new MiscResourceAttr(null,
 				"Marker Size", EditElement.LABEL, 4));			
 
@@ -238,7 +238,7 @@ INatlCntrsResourceData{
 			attrs.addAttr(new MiscResourceAttr("model01SymbolSize",
 					"", EditElement.SPINNER, 4));
 		}
-	
+		
 		if( !getModel11Name().isEmpty() ) {
 			attrs.addAttr(new MiscResourceAttr(null,
 					null, EditElement.VERTICAL_SEPARATOR, 5));			
@@ -262,7 +262,7 @@ INatlCntrsResourceData{
 			attrs.addAttr(new MiscResourceAttr("model02SymbolSize",
 					"", EditElement.SPINNER, 4));
 		}
-
+		
 		if( !getModel12Name().isEmpty() ) {		
 			attrs.addAttr(new MiscResourceAttr(null,
 					null, EditElement.VERTICAL_SEPARATOR, 5));			
@@ -275,7 +275,7 @@ INatlCntrsResourceData{
 			attrs.addAttr(new MiscResourceAttr("model12SymbolSize",
 					"", EditElement.SPINNER, 9));
 		}
-
+		
 		if( !getModel03Name().isEmpty() ) {		
 			attrs.addAttr(new MiscResourceAttr("model03Enable",
 					getModel03Name(), EditElement.CHECK_BOX, 1));
@@ -286,7 +286,7 @@ INatlCntrsResourceData{
 			attrs.addAttr(new MiscResourceAttr("model03SymbolSize",
 					"", EditElement.SPINNER, 4));
 		}
-
+		
 		if( !getModel13Name().isEmpty() ) {		
 			attrs.addAttr(new MiscResourceAttr(null,
 					null, EditElement.VERTICAL_SEPARATOR, 5));			
@@ -299,7 +299,7 @@ INatlCntrsResourceData{
 			attrs.addAttr(new MiscResourceAttr("model13SymbolSize",
 					"", EditElement.SPINNER, 9));
 		}
-
+		
 		if( !getModel04Name().isEmpty() ) {		
 			attrs.addAttr(new MiscResourceAttr("model04Enable",
 					getModel04Name(), EditElement.CHECK_BOX, 1));
@@ -310,7 +310,7 @@ INatlCntrsResourceData{
 			attrs.addAttr(new MiscResourceAttr("model04SymbolSize",
 					"", EditElement.SPINNER, 4));
 		}
-
+		
 		if( !getModel14Name().isEmpty() ) {		
 			attrs.addAttr(new MiscResourceAttr(null,
 					null, EditElement.VERTICAL_SEPARATOR, 5));			
@@ -324,7 +324,7 @@ INatlCntrsResourceData{
 					"", EditElement.SPINNER, 9));
 		}
 
-
+		
 		if( !getModel05Name().isEmpty() ) {		
 			attrs.addAttr(new MiscResourceAttr("model05Enable",
 					getModel05Name(), EditElement.CHECK_BOX, 1));
@@ -335,7 +335,7 @@ INatlCntrsResourceData{
 			attrs.addAttr(new MiscResourceAttr("model05SymbolSize",
 					"", EditElement.SPINNER, 4));
 		}
-
+				
 		if( !getModel15Name().isEmpty() ) {		
 			attrs.addAttr(new MiscResourceAttr(null,
 					null, EditElement.VERTICAL_SEPARATOR, 5));			
@@ -348,7 +348,7 @@ INatlCntrsResourceData{
 			attrs.addAttr(new MiscResourceAttr("model15SymbolSize",
 					"", EditElement.SPINNER, 9));
 		}
-
+		
 		if( !getModel06Name().isEmpty() ) {
 			attrs.addAttr(new MiscResourceAttr("model06Enable",
 					getModel06Name(), EditElement.CHECK_BOX, 1));
@@ -372,7 +372,7 @@ INatlCntrsResourceData{
 			attrs.addAttr(new MiscResourceAttr("model16SymbolSize",
 					"", EditElement.SPINNER, 9));
 		}
-
+		
 		if( !getModel07Name().isEmpty() ) {		
 			attrs.addAttr(new MiscResourceAttr("model07Enable",
 					getModel07Name(), EditElement.CHECK_BOX, 1));
@@ -383,7 +383,7 @@ INatlCntrsResourceData{
 			attrs.addAttr(new MiscResourceAttr("model07SymbolSize",
 					"", EditElement.SPINNER, 4));
 		}
-	
+		
 		if( !getModel17Name().isEmpty() ) {		
 			attrs.addAttr(new MiscResourceAttr(null,
 					null, EditElement.VERTICAL_SEPARATOR, 5));			
@@ -396,7 +396,7 @@ INatlCntrsResourceData{
 			attrs.addAttr(new MiscResourceAttr("model17SymbolSize",
 					"", EditElement.SPINNER, 9));
 		}
-
+		
 		if( !getModel08Name().isEmpty() ) {		
 			attrs.addAttr(new MiscResourceAttr("model08Enable",
 					getModel08Name(), EditElement.CHECK_BOX, 1));
@@ -431,7 +431,7 @@ INatlCntrsResourceData{
 			attrs.addAttr(new MiscResourceAttr("model09SymbolSize",
 					"", EditElement.SPINNER, 4));
 		}
-
+		
 		if( !getModel19Name().isEmpty() ) {		
 			attrs.addAttr(new MiscResourceAttr(null,
 					null, EditElement.VERTICAL_SEPARATOR, 5));			
@@ -444,7 +444,7 @@ INatlCntrsResourceData{
 			attrs.addAttr(new MiscResourceAttr("model19SymbolSize",
 					"", EditElement.SPINNER, 9));
 		}
-	
+
 		if( !getModel10Name().isEmpty() ) {		
 			attrs.addAttr(new MiscResourceAttr("model10Enable",
 					getModel10Name(), EditElement.CHECK_BOX, 1));
@@ -468,7 +468,7 @@ INatlCntrsResourceData{
 			attrs.addAttr(new MiscResourceAttr("model20SymbolSize",
 					"", EditElement.SPINNER, 9));
 		}
-
+		
 		attrs.addAttr(new MiscResourceAttr(null, null,
 				EditElement.SEPARATOR, 1 ));	
 
@@ -483,10 +483,10 @@ INatlCntrsResourceData{
 				"", EditElement.SPINNER, 7);
 		fcstHrSpnr.setSpinnerControls(0, 0, 384, 3, 12 );
 		attrs.addAttr( fcstHrSpnr ); 
-	
+		
 		attrs.addAttr(new MiscResourceAttr(null, null,
 				EditElement.SEPARATOR, 1));	
-
+		
 		// 2 LABELS to avoid forcing column 1 to be too wide
 		attrs.addAttr(new MiscResourceAttr(null,
 				"Wind Speed", EditElement.LABEL, 1));			
@@ -501,7 +501,7 @@ INatlCntrsResourceData{
 
 		attrs.addAttr(new MiscResourceAttr(null,
 				"Upper Limit (kt)", EditElement.LABEL, 3));			
-	
+
 		attrs.addAttr(new MiscResourceAttr(null,
 				"Enable Display of:", EditElement.LABEL, 6));			
 
@@ -518,7 +518,7 @@ INatlCntrsResourceData{
 
 		attrs.addAttr(new MiscResourceAttr("drawBeginDateTime", "Begin Date/Time",
 				EditElement.CHECK_BOX, 6));
-	
+
 
 		attrs.addAttr(new MiscResourceAttr("drawForecastHour", "Forecast Hr",
 				EditElement.CHECK_BOX, 8));	
@@ -533,13 +533,13 @@ INatlCntrsResourceData{
 		maxWindSpeedSpnr.setSpinnerControls(1, 0, 2500, 10, 100 );
 
 		attrs.addAttr( maxWindSpeedSpnr ); 
-	
+
 		attrs.addAttr(new MiscResourceAttr("drawPressure", "Pressure",
 				EditElement.CHECK_BOX, 6));	
 
 		attrs.addAttr(new MiscResourceAttr("drawWindSpeed", "Wind Speed",
 				EditElement.CHECK_BOX, 8));	
-
+		
 		attrs.addAttr(new MiscResourceAttr("tropStormEnable",
 				"Tropical\nStorm  ", EditElement.CHECK_BOX, 1));
 		attrs.addAttr(new MiscResourceAttr("tropStormColor", "",
@@ -554,7 +554,7 @@ INatlCntrsResourceData{
 
 		attrs.addAttr(new MiscResourceAttr("drawCycloneID", "Cyclone ID",
 				EditElement.CHECK_BOX, 8));	
-	
+
 		attrs.addAttr(new MiscResourceAttr("hurricaneEnable",
 				"Hurricane", EditElement.CHECK_BOX, 1));
 		attrs.addAttr(new MiscResourceAttr("hurricaneColor", "",
@@ -563,7 +563,7 @@ INatlCntrsResourceData{
 				"", EditElement.SPINNER, 3);
 		maxWindSpeedSpnr.setSpinnerControls(1, 0, 2500, 10, 100 );;
 		attrs.addAttr(maxWindSpeedSpnr );
-
+		
 		attrs.addAttr(new MiscResourceAttr("drawMarker", "Marker",
 				EditElement.CHECK_BOX, 6));			
 
@@ -581,7 +581,7 @@ INatlCntrsResourceData{
 	public Boolean[] getWindSpeedCatEnable() {
 		return windSpeedCatEnable;		
 	}
-
+	
 	@XmlElement
 	public boolean getTropDepressionEnable() {
 		return windSpeedCatEnable[0];
@@ -600,7 +600,7 @@ INatlCntrsResourceData{
 	public void setTropDepressionColor(RGB tropDepressionColor) {
 		windSpeedColorBar.setRGB(0, tropDepressionColor );
 	}
-	
+
 	@XmlElement
 	public float getTropDepressionUpperLimit() {
 		return windSpeedColorBar.getIntervalMax(0);
@@ -624,7 +624,7 @@ INatlCntrsResourceData{
 	public RGB getGaleColor() {
 		return windSpeedColorBar.getRGB(1);
 	}
-	
+
 	public void setGaleColor(RGB galeColor) {
 		windSpeedColorBar.setRGB(1,galeColor);
 	}
@@ -646,7 +646,7 @@ INatlCntrsResourceData{
 	public void setTropStormEnable(boolean tropStormEnable) {
 		windSpeedCatEnable[2] = tropStormEnable;
 	}
-	
+
 	public RGB getTropStormColor() {
 		return windSpeedColorBar.getRGB(2);
 	}
@@ -665,11 +665,11 @@ INatlCntrsResourceData{
 	public void setTropStormUpperLimit(float tropStormUpperLimit) {
 		windSpeedColorBar.setIntervalMax(2, tropStormUpperLimit);	}
 
-	@XmlElement
+	@XmlElement	
 	public boolean getHurricaneEnable() {
 		return windSpeedCatEnable[3];
 	}
-	
+
 	public void setHurricaneEnable(boolean hurricaneEnable) {
 		windSpeedCatEnable[3] = hurricaneEnable;
 	}
@@ -687,8 +687,8 @@ INatlCntrsResourceData{
 	@XmlElement
 	public float getHurricaneUpperLimit() {
 		return windSpeedColorBar.getIntervalMax(3);
-	}	
-	
+	}
+
 	public void setHurricaneUpperLimit(float hurricaneUpperLimit) {
 		windSpeedColorBar.setIntervalMax(3, hurricaneUpperLimit);
 	}
@@ -696,7 +696,7 @@ INatlCntrsResourceData{
 	public ColorBar getWindSpeedColorBar( ) {
 		return windSpeedColorBar;
 	}
-
+	
 	public boolean getDrawBeginDateTime() {
 		return drawBeginDateTime;
 	}
@@ -753,53 +753,53 @@ INatlCntrsResourceData{
 		this.drawMarker = drawMarker;
 	}
 
-
+	
 	// 
 	public Object getModelDisplayAttribute( int m, String attrName ) {
 		if( modelDisplayAttrs[m-1] == null ) {
 			modelDisplayAttrs[m-1] = new ModelDisplayAttrs();
-	}
+		}
 		if( attrName.equalsIgnoreCase("modelName") ) {
 			return modelDisplayAttrs[m-1].modelName;			
-	}
+		}
 		else if( attrName.equalsIgnoreCase("enabled") ) {
 			return modelDisplayAttrs[m-1].enabled;			
-	}
+		}
 		else if( attrName.equalsIgnoreCase("color") ) {
 			return modelDisplayAttrs[m-1].color;			
-	}
+		}
 		else if( attrName.equalsIgnoreCase("lineWidth") ) {
 			return modelDisplayAttrs[m-1].lineWidth;			
-	}
+		}
 		else if( attrName.equalsIgnoreCase("symbolSize") ) {
 			return modelDisplayAttrs[m-1].symbolSize;			
-	}
+		}
 		else {
 			System.out.println("Sanity Check: Unrecognized attribut name for StormTrackResource");
 			return null;
-	}
+		}
 	}
 
 	// I'm going to cheat a little and key off of the attr class instead of passing in a string
 	public void setModelDisplayAttribute( int m, Object attrVal ) {
 		if( modelDisplayAttrs[m-1] == null ) {
 			modelDisplayAttrs[m-1] = new ModelDisplayAttrs();
-	}
+		}
 		if( attrVal instanceof String ) {
 			modelDisplayAttrs[m-1].modelName = (String)attrVal;	
-	}
+		}
 		else if( attrVal instanceof Boolean ) {
 			modelDisplayAttrs[m-1].enabled = (Boolean)attrVal;	
-	}
+		}
 		else if( attrVal instanceof RGB ) {
 			modelDisplayAttrs[m-1].color = (RGB)attrVal;	
-	}
+		}
 		else if( attrVal instanceof Integer ) {
 			modelDisplayAttrs[m-1].lineWidth = (Integer)attrVal;	
-	}
+		}
 		else if( attrVal instanceof Float ) {
 			modelDisplayAttrs[m-1].symbolSize = (Float)attrVal;	
-	}
+		}		
 	}
 
 	@XmlElement
@@ -944,7 +944,7 @@ INatlCntrsResourceData{
 		setModelDisplayAttribute(20,m);
 	}
 
-
+	
 	@XmlElement
 	public Boolean getModel01Enable() {
 		return (Boolean) getModelDisplayAttribute(1,"enabled");
@@ -1189,7 +1189,7 @@ INatlCntrsResourceData{
 		return (RGB) getModelDisplayAttribute(20,"color");
 	}
 
-
+	
 	public void setModel01Color( RGB rgb ) {
 		setModelDisplayAttribute(1,rgb);
 	}
@@ -1251,7 +1251,7 @@ INatlCntrsResourceData{
 		setModelDisplayAttribute(20,rgb);
 	}
 
-
+	
 	@XmlElement
 	public Integer getModel01LineWidth() {
 		return (Integer) getModelDisplayAttribute(1,"lineWidth");
