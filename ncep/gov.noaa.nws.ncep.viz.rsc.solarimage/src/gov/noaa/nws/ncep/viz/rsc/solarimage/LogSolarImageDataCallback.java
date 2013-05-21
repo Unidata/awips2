@@ -18,11 +18,10 @@ public class LogSolarImageDataCallback extends SolarImageDataCallback {
 
     @Override
     public ColorMapData getColorMapData() throws VizException {
-        System.out.println("Retrieving SolarImage data from HDF5...");
+        
+        int[] dimensions = new int[] { getImageData().getNx(), getImageData().getNy() };
 
-        int[] dimensions = new int[] { imgData.getNx(), imgData.getNy() };
-
-        float[] vals = imgData.getImageValues();
+        float[] vals = getImageData().getImageValues();
         float[] logVals = new float[vals.length];
 
         for (int n = 0; n < vals.length; n++) {

@@ -290,7 +290,7 @@ public class RadarGraphicsResource extends AbstractRadarResource<MapDescriptor>
                             ColorableCapability.class).getColor()) {
                 lastColor.put(paintProps.getDataTime(),
                         getCapability(ColorableCapability.class).getColor());
-                rgd = new RadarGraphicsDisplay(radarRecord, target, descriptor,
+                rgd = new RadarGraphicsDisplay(radarRecord, target, getNcMapDescriptor(),
                         getFilteredStormIds(), getCapability(
                                 MagnificationCapability.class)
                                 .getMagnification(), lastColor.get(paintProps
@@ -315,7 +315,7 @@ public class RadarGraphicsResource extends AbstractRadarResource<MapDescriptor>
                     new double[] { xPos, yPos }, target);
 
             // Get the Lat/Lon of the screen Extent
-            Envelope screenLatLon = descriptor.pixelToWorld(paintProps
+            Envelope screenLatLon = getNcMapDescriptor().pixelToWorld(paintProps
                     .getView().getExtent());
 
             int offScreenCount = 0;

@@ -1,0 +1,24 @@
+!
+! Restore File :pws50
+!
+! Log:
+!Archana/SGT    3/2013  Initial Creation
+!
+GLEVEL=10
+GVCORD=HGHT
+SKIP=
+FILTER=y
+SCALE=0
+GDPFUN=PWS50
+TYPE=p
+CINT=0
+LINE=5/1/1
+FINT=50;60;70;80;90
+FLINE=0;29;28;27;26;0
+HILO=
+HLSYM=
+WIND=18/1/1
+TITLE=1/-1/~ PWS50 !0
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       
