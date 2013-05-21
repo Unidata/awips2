@@ -47,6 +47,11 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
+/usr/bin/find %{_build_root}/awips2/edex/data/share -name .gitignore -exec rm -rf {} \;
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 %pre
 %post
 
