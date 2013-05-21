@@ -73,11 +73,12 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * feb 20, 2013    1635   dhladky     Fixed multi guidance displays
  * Feb 28, 2013    1729   dhladky     General enhancements for speed.
  * Apr 12, 2013    1902   mpduff      Code Cleanup.
- * Apr 15, 2013 1890      dhladky     Added another constant fix.
- * Apr 15, 2013 1911      dhladky     Fixed forced FFG for centered aggregates.
- * Apr 24, 2013 1946      mpduff      Fixed FFFG value for ALL when an aggregate is forced
- * Apr 26, 2013 1954      bsteffen    Minor code cleanup throughout FFMP.
- * May 7, 2013   1986     njensen     Removed unnecessary sort
+ * Apr 15, 2013    1890   dhladky     Added another constant fix.
+ * Apr 15, 2013    1911   dhladky     Fixed forced FFG for centered aggregates.
+ * Apr 24, 2013    1946   mpduff      Fixed FFFG value for ALL when an aggregate is forced
+ * Apr 26, 2013    1954   bsteffen    Minor code cleanup throughout FFMP.
+ * May 07, 2013    1986   njensen     Removed unnecessary sort
+ * May 10, 2013    1919   mpduff      Fixed problem with VGBs
  * 
  * </pre>
  * 
@@ -352,7 +353,6 @@ public class FFMPDataGenerator {
             String lid = vgBasin.getLid();
 
             if (lid != null) {
-
                 StringBuilder sb = new StringBuilder(lid);
                 // in this special case it is actually the LID
                 trd.setPfaf(lid);
@@ -409,21 +409,18 @@ public class FFMPDataGenerator {
                     for (String guidType : guidBasins.keySet()) {
                         guidance = Float.NaN;
 
-                        FFFGForceUtil forceUtil = forceUtils.get(guidType);
-                        forceUtil.setSliderTime(sliderTime);
-
                         FFMPTableCellData guidCellData = getGuidanceCellData(
                                 cBasin, domain, guidType, parentBasinPfaf);
                         if (guidCellData == null) {
-                            guidCellData = new FFMPTableCellData(
-                                    FIELDS.GUIDANCE, Float.NaN);
-                        } else {
-                            guidance = guidCellData.getValueAsFloat();
+                            // check for forcing even if no data are available
+                            guidance = getForcedAvg(domain, cBasin, guidType);
                         }
+
                         trd.setTableCellData(i + 4, guidCellData);
 
                         float ratioValue = Float.NaN;
                         float diffValue = Float.NaN;
+
                         // If guidance is NaN then it cannot be > 0
                         if (!qpe.isNaN() && (guidance > 0.0f)) {
                             ratioValue = FFMPUtils.getRatioValue(qpe, guidance);
@@ -433,7 +430,6 @@ public class FFMPDataGenerator {
                                 FIELDS.RATIO, ratioValue));
                         trd.setTableCellData(i + 6, new FFMPTableCellData(
                                 FIELDS.DIFF, diffValue));
-
                         i += 3;
                     }
                 } else {
@@ -441,7 +437,6 @@ public class FFMPDataGenerator {
                 }
 
                 tData.addDataRow(trd);
-
             }
         } else {
             displayName = getDisplayName(cBasin);
@@ -497,15 +492,12 @@ public class FFMPDataGenerator {
                         guidance = Float.NaN;
                         FFFGForceUtil forceUtil = forceUtils.get(guidType);
                         forceUtil.setSliderTime(sliderTime);
+
                         FFMPTableCellData guidCellData = getGuidanceCellData(
                                 cBasin, domain, guidType, cBasinPfaf);
                         if (guidCellData == null) {
                             // check for forcing even if no data are available
-                            guidance = getForcedAvg(forceUtil, domain, cBasin,
-                                    guidType);
-                            boolean forced = !guidance.isNaN();
-                            guidCellData = new FFMPTableCellData(
-                                    FIELDS.GUIDANCE, guidance, forced);
+                            guidance = getForcedAvg(domain, cBasin, guidType);
                         } else {
                             guidance = guidCellData.getValueAsFloat();
                         }
@@ -554,6 +546,7 @@ public class FFMPDataGenerator {
         boolean forced = false;
         Float guidance = Float.NaN;
         FFFGForceUtil forceUtil = forceUtils.get(guidType);
+        forceUtil.setSliderTime(sliderTime);
 
         // If aggregate, get basins within the aggregate
         if (cBasin.getAggregated()) {
@@ -569,6 +562,9 @@ public class FFMPDataGenerator {
                         siteKey, domain, huc);
                 pfafList.add(ft.getAggregatedPfaf(cBasinPfaf, siteKey, huc));
             }
+        } else {
+            pfafList = new ArrayList<Long>();
+            pfafList.add(cBasinPfaf);
         }
 
         if (FFFGDataMgr.getInstance().isForcingConfigured()) {
@@ -581,17 +577,19 @@ public class FFMPDataGenerator {
             forced = forceUtil.isForced();
         }
 
-        if (!forcedPfafs.isEmpty() || !pfafList.isEmpty()
-                && centeredAggregationKey == null) {
-            FFMPBasinData basinData = guidRecords.get(guidType).getBasinData(
-                    ALL);
-            guidance = basinData.getAverageGuidanceValue(pfafList, resource
-                    .getGuidanceInterpolators().get(guidType), guidance,
-                    forcedPfafs, resource.getGuidSourceExpiration(guidType));
-            forced = !forcedPfafs.isEmpty();
+        if (!forcedPfafs.isEmpty() || forced || !pfafList.isEmpty()) {
+            // Recalculate guidance using the forced value(s)
+            guidance = guidRecords
+                    .get(guidType)
+                    .getBasinData(ALL)
+                    .getAverageGuidanceValue(pfafList,
+                            resource.getGuidanceInterpolators().get(guidType),
+                            guidance, forcedPfafs,
+                            resource.getGuidSourceExpiration(guidType));
         } else {
             guidance = resource.getGuidanceValue(ffmpGuidBasin, paintRefTime,
                     guidType);
+
             if (guidance < 0.0f) {
                 guidance = Float.NaN;
             }
@@ -600,8 +598,9 @@ public class FFMPDataGenerator {
         return new FFMPTableCellData(FIELDS.GUIDANCE, guidance, forced);
     }
 
-    private float getForcedAvg(FFFGForceUtil forceUtil, String domain,
-            FFMPBasin cBasin, String guidType) {
+    private float getForcedAvg(String domain, FFMPBasin cBasin, String guidType) {
+        FFFGForceUtil forceUtil = forceUtils.get(guidType);
+        forceUtil.setSliderTime(sliderTime);
         FFFGDataMgr fdm = FFFGDataMgr.getInstance();
         List<Long> forcedPfafs;
         List<Long> pfafList = new ArrayList<Long>();
@@ -641,12 +640,6 @@ public class FFMPDataGenerator {
                 guidance = forceUtil.getAvgForcedValue(pfafList, forcedPfafs,
                         resource.getGuidanceInterpolators().get(guidType),
                         resource.getGuidSourceExpiration(guidType), ft);
-                // } else if (forcedPfafs.size() > 1) {
-                // guidance = forceUtil.getAvgForcedValue(pfafList,
-                // forcedPfafs,
-                // resource.getGuidanceInterpolators().get(guidType),
-                // resource.getGuidSourceExpiration(), ft);
-                // forced = true;
             }
         } else {
             // TODO Calculate a max value
