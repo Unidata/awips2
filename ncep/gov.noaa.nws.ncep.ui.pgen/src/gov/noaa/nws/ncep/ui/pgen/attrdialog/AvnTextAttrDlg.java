@@ -51,6 +51,7 @@ import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
  *                                          color instead of displaying 
  *                                          the complete color matrix.
  * 04/11		#?			B. Yin			Re-factor IAttribute
+ * 03/13		#928		B. Yin			Added a separator above the button bar.
  * </pre>
  * 
  * @author	J. Wu
@@ -241,7 +242,7 @@ public class AvnTextAttrDlg extends AttrDlg implements IAvnText{
 			updateDialog(AviationTextType.values()[0]);
 		}
   
-      
+        addSeparator(top.getParent());
         
 	}	
 	

@@ -44,8 +44,11 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * 06/21/2012     #825      Greg Hull    rm mosaicInfo.txt
  * 10/18/2012     #431      S. Gurung    Added constant ADVANCED_ICON_IMG
  * 12/17/2012     #861      Greg Hull    rm PGEN_XML_OVERLAYS
- * 02/26/2013     #936      Archana      Added FONT_FILES_DIR      
- * 
+ * 02/22/2013     #972      Greg Hull    add DFLT_NTRANS_RBD, DFLT_SOLAR_RBD
+ * 02/26/2013     #936      Archana      Added FONT_FILES_DIR  
+ * 04/15/2013     #864      Greg Hull    RESOURCE_FILTERS
+ * 04/17/2013     #863      Greg Hull    AREA_MENUS_FILE    
+ * 04/10/2013     #958      qzhou        Added SOLAR_IMG_STYLE_RULES
  * </pre>
  * 
  * @author ghull 
@@ -81,6 +84,11 @@ public class NcPathManager {
 		public static final String PLOT_PARAMETERS_DIR = PLOT_MODELS_DIR + File.separator+"PlotParameters";
 		public static final String FONT_FILES_DIR      = NCEP_ROOT + "fontFiles" + File.separator ;
 		public static final String LOCATOR_SOURCE_DIR  = NCEP_ROOT+"LocatorDataSources";
+
+		public static final String RESOURCE_FILTERS    = RSC_DEFNS_DIR+ File.separator+"ResourceFilters.xml";
+		public static final String AREA_MENUS_FILE     = PREDEFINED_AREAS_DIR + File.separator+
+														   "menus"+ File.separator+"AreaMenus.tbl";
+		
 // No longer used. location is now a parameter for the StaticPgenOverlayResource.
 //		public static final String PGEN_XML_OVERLAYS   = NCEP_ROOT + "StaticPgenOverlays";
 		public static final String STYLE_RULES_DIR = NCEP_ROOT + "styleRules" + File.separator;
@@ -88,7 +96,10 @@ public class NcPathManager {
 		public static final String BASEMAPS_DIR        = NCEP_ROOT + "basemaps";
 		
 		// static files
-		public static final String DFLT_RBD      = NCEP_ROOT + "DefaultRBDs" + File.separator+"defaultRBD.xml";		
+		public static final String DFLT_RBD        = NCEP_ROOT + "DefaultRBDs" + File.separator+"defaultRBD.xml";
+		public static final String DFLT_NTRANS_RBD = NCEP_ROOT + "DefaultRBDs" + File.separator+"defaultNTransRBD.xml";
+		public static final String DFLT_SOLAR_RBD   = NCEP_ROOT + "DefaultRBDs" + File.separator+"defaultSolarRBD.xml";
+		
 		public static final String LOCATOR_TBL   = NCEP_ROOT+"Locator"+File.separator+"locator_tbl.xml";
 	    public static final String LOGOS_TBL     = NCEP_ROOT + "Logos" + File.separator + "logos.tbl";
 		public static final String LOOP_SPEEDS_TBL= NCEP_ROOT + "LoopControls"+
@@ -129,7 +140,8 @@ public class NcPathManager {
 	    public static final String RADAR_INFO   = NCEP_ROOT + "Radar"+File.separator+"radarInfo.txt";
 //	    public static final String MOSAIC_INFO  = NCEP_ROOT + "Radar"+File.separator+"mosaicInfo.txt";
 	    public static final String MCIDAS_IMG_STYLE_RULES = STYLE_RULES_DIR + "mcidasSatelliteImageryStyleRules.xml";
-	    public static final String GINI_IMG_STYLE_RULES = STYLE_RULES_DIR + "giniSatelliteImageryStyleRules.xml";	    
+	    public static final String GINI_IMG_STYLE_RULES = STYLE_RULES_DIR + "giniSatelliteImageryStyleRules.xml";	
+	    public static final String SOLAR_IMG_STYLE_RULES = STYLE_RULES_DIR + "solarImageryStyleRules.xml";
 	    // PGEN Files 
 	    public static final String PGEN_ROOT            = NCEP_ROOT + "pgen"+File.separator;
 	    public static final String PGEN_SETTINGS_TBL    = PGEN_ROOT + "settings_tbl.xml";

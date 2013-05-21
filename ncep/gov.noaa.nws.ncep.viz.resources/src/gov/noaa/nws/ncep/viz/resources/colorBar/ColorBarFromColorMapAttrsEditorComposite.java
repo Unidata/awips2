@@ -17,12 +17,14 @@ import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet.RscAttrValue;
+import gov.noaa.nws.ncep.viz.resources.manager.ResourceCategory;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap;
 import gov.noaa.nws.ncep.viz.ui.display.IColorBar;
 import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarAnchorLocation;
 import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarOrientation;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -73,6 +75,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.viz.core.imagery.ImageCombiner;
 import com.raytheon.viz.core.imagery.ImageCombiner.IImageCombinerListener;
 import com.raytheon.viz.ui.dialogs.colordialog.ColorUtil;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * 
@@ -86,9 +89,10 @@ import com.raytheon.viz.ui.dialogs.colordialog.ColorUtil;
  * 2/29/2012     651        Archana       Initial Creation
  * 04/02/2012               S. Gurung     Increased height for colorBarLocOptionsGroup
  * 04/06/2012    651        Archana       Added a call to refreshColorBar(), when the showLabelBtn
- *                                        is toggled    
+ *                                        is toggled
  * 07/17/2012    743        Archana       Refactored the packages for 
  *                                        ColorBarAnchorLocation and ColorBarOrientation                                              
+ * 02/09/2013    972        Greg Hull     ResourceCategory class
  * </pre>
  * 
  * @author archana
@@ -129,7 +133,7 @@ public class ColorBarFromColorMapAttrsEditorComposite extends Composite {
 	final Combo anchorCombo = null;
 	final Combo unitsCombo = null;
 	private IColorBar editedColorBar = null;
-	private String colorMapCategory = null;
+	private ResourceCategory colorMapCategory = null;
 	private String colorMapName;
 
 	private Scale minSlider = null;
@@ -145,7 +149,7 @@ public class ColorBarFromColorMapAttrsEditorComposite extends Composite {
 	private Label alphaText = null;
 	private Button interpolationChk = null;
 	private Button combineNextImage = null;
-	private NCMapEditor currEditor = null;
+	private AbstractEditor currEditor = null;
 	private INatlCntrsResourceData theResourceData;
 	private ResourceAttrSet resAttrSet = null;
     private Button showColorBarEditOptionsBtn = null;
@@ -260,7 +264,7 @@ public class ColorBarFromColorMapAttrsEditorComposite extends Composite {
 		editedColorBar    =  (ColorBarFromColormap) resAttrSet.getRscAttr("colorBar").getAttrValue();
 		
 		labelColor = new Color(colorDevice, editedColorBar.getLabelColor());
-		currEditor = NmapUiUtils.getActiveNatlCntrsEditor();
+		currEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
 
 		if (currEditor != null) {
   		    //TODO: might need to remove if we decide that we don't need the interpolation/image combiner
@@ -610,9 +614,9 @@ public class ColorBarFromColorMapAttrsEditorComposite extends Composite {
 		fd.top = new FormAttachment(colorMapComp, 17, SWT.BOTTOM);
 		colorMapNamesCombo.setLayoutData(fd);
 
-		if (colorMapCategory != null && !colorMapCategory.isEmpty()) {
+		if (colorMapCategory != null && colorMapCategory != ResourceCategory.NullCategory ) {
 			final String[] listOfColorMapNames = ColorMapUtil
-					.listColorMaps(colorMapCategory);
+					.listColorMaps(colorMapCategory.getCategoryName());
 			if (listOfColorMapNames != null && listOfColorMapNames.length > 0) {
 				colorMapNamesCombo.setItems(listOfColorMapNames);
 
@@ -849,9 +853,9 @@ public class ColorBarFromColorMapAttrsEditorComposite extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				if (imageResources != null) {
 					for (AbstractNatlCntrsResource<?, ?> rsc : imageResources) {
-						String rscCat = rsc.getResourceData().getResourceName()
+						ResourceCategory rscCat = rsc.getResourceData().getResourceName()
 								.getRscCategory();
-						if (rscCat.equalsIgnoreCase(colorMapCategory)) {
+						if( rscCat == colorMapCategory ) {
 							ImagingCapability imgcap = rsc
 									.getCapability(ImagingCapability.class);
 							imgcap.setInterpolationState(interpolationChk
@@ -934,12 +938,12 @@ public class ColorBarFromColorMapAttrsEditorComposite extends Composite {
 			boolean fireChangeListeners, boolean isFirstTimeSetup) {
 
 		try {
-			if ((colorMapCategory != null && (!colorMapCategory.isEmpty()))
+			if ((colorMapCategory != null && colorMapCategory != ResourceCategory.NullCategory )
 					&& (cmapName != null && (!cmapName.isEmpty()))
 
 			) {
 				theSelectedColorMap = (ColorMap) ColorMapUtil.loadColorMap(
-						colorMapCategory, cmapName);
+						colorMapCategory.getCategoryName(), cmapName);
 			}
 		} catch (VizException e) {
 			System.out.println(e.getMessage());

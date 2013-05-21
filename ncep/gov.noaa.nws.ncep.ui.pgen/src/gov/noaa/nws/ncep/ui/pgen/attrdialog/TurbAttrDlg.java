@@ -198,7 +198,7 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
          * color button
          */
         createColorAttr(pane1);
-
+  
         /*
          * symbol menu
          */
@@ -510,7 +510,7 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 		}
 		
 	}
-
+	
 	/**
 	 * Create 'Closed' check box
 	 * @param comp
