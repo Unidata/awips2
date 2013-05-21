@@ -72,6 +72,13 @@ if [ $? -ne 0 ]; then
 fi
 popd > /dev/null
 
+# remove any .gitignore files
+# currently, the ebxml webapp includes a .gitignore file
+/usr/bin/find ${RPM_BUILD_ROOT}/awips2/edex -name .gitignore -exec rm -f {} \;
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 INSTALLER_RPM="%{_baseline_workspace}/rpms"
 # copy the service script.
 EDEX_BASE="${INSTALLER_RPM}/awips2.edex/Installer.edex-base"
