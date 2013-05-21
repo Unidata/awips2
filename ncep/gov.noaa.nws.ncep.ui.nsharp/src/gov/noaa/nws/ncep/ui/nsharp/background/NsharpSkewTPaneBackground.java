@@ -347,7 +347,7 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
         for (int i = 0; i < NsharpConstants.PRESSURE_MARK_LEVELS.length; i++) {
         	//we only care about pressure for this case, temp is no important  when calling getSkewTXY
         	Coordinate coor = NsharpWxMath.getSkewTXY(NsharpConstants.PRESSURE_MARK_LEVELS[i],0);
-        	try {
+        	try {       		
         		int mod = NsharpConstants.PRESSURE_MARK_LEVELS[i] % 100;
         		if(pressureMainList.contains( NsharpConstants.PRESSURE_MARK_LEVELS[i]) || 
         				(currentZoomLevel <=0.7 && mod == 0 ) || (currentZoomLevel <=0.4)){
@@ -375,7 +375,7 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
 			}
         }
         
-       // System.out.println("NUMBER*******************");      
+       // System.out.println("NUMBER*******************");
         /*
         for (int i = 0; i < NsharpConstants.PRESSURE_NUMBERING_LEVELS.length; i++) {
         	s = NsharpConstants.pressFormat.format(NsharpConstants.PRESSURE_NUMBERING_LEVELS[i]);
@@ -486,27 +486,27 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
         for (float ratio : mixingRatios) {
         	if(mixRatioMainList.contains( ratio) || 
         			(currentZoomLevel <=0.4)){       	
-            p1.temperature = Equations
-                    .invMixingRatio(p1.pressure, ratio / 1000);
-            p2.temperature = Equations
-                    .invMixingRatio(p2.pressure, ratio / 1000);
-            Coordinate coor1 = NsharpWxMath.getSkewTXY(p1.pressure,
-                    p1.temperature - 273.15);
-            Coordinate coor2 = NsharpWxMath.getSkewTXY(p2.pressure,
-                    p2.temperature - 273.15);
-            double [][] lines = {{world.mapX(coor1.x), world.mapY(coor1.y)},{world.mapX(coor2.x), world.mapY(coor2.y)}};
-            mixRatioShape.addLineSegment(lines);
-            
-            line2.setLine(world.mapX(coor1.x), world.mapY(coor1.y),
-            		world.mapX(coor2.x), world.mapY(coor2.y));
-            num = num + ratio;
-            Point2D.Double point = null;
+        		p1.temperature = Equations
+        		.invMixingRatio(p1.pressure, ratio / 1000);
+        		p2.temperature = Equations
+        		.invMixingRatio(p2.pressure, ratio / 1000);
+        		Coordinate coor1 = NsharpWxMath.getSkewTXY(p1.pressure,
+        				p1.temperature - 273.15);
+        		Coordinate coor2 = NsharpWxMath.getSkewTXY(p2.pressure,
+        				p2.temperature - 273.15);
+        		double [][] lines = {{world.mapX(coor1.x), world.mapY(coor1.y)},{world.mapX(coor2.x), world.mapY(coor2.y)}};
+        		mixRatioShape.addLineSegment(lines);
+
+        		line2.setLine(world.mapX(coor1.x), world.mapY(coor1.y),
+        				world.mapX(coor2.x), world.mapY(coor2.y));
+        		num = num + ratio;
+        		Point2D.Double point = null;
         		if ((point = getLineIntersection(ratioLabelLine, line2)) != null) {
-                double [] lblXy = {point.x, point.y};
-                mixRatioShape.addLabel(num, lblXy);
-            }
-            num = "";
-        }
+        			double [] lblXy = {point.x, point.y};
+        			mixRatioShape.addLabel(num, lblXy);
+        		}
+        		num = "";
+        	}
         }
         mixRatioShape.compile();
         

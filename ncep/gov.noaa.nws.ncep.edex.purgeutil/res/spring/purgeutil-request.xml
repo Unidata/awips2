@@ -39,6 +39,10 @@
                      <property name="contextPath" value="/purgeWeb"/>
                      <property name="war" value="file:///${edex.home}/webapps/purgeWeb"/>
                    </bean>
+                   <bean class="org.eclipse.jetty.webapp.WebAppContext">
+                     <property name="contextPath" value="/activemqAdmin"/>
+                     <property name="war" value="file:///${edex.home}/webapps/admin"/>
+                   </bean>
                  </list>
                </property>
              </bean>
@@ -50,7 +54,7 @@
     </property>
   </bean>
   
-    <camelContext id="nceppurge-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+    <camelContext id="nceppurge-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                                           
     	
     	<endpoint id="nceppurgeHttp_from"
     		uri="jetty:http://0.0.0.0:${http.port}/services/purgePlugin" />

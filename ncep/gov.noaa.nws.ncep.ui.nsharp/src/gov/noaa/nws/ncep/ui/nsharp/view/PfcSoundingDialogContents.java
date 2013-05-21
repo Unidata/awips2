@@ -29,6 +29,7 @@ import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
 import gov.noaa.nws.ncep.viz.common.soundingQuery.NcSoundingQuery;
 
 import java.sql.Timestamp;
+import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -101,6 +102,10 @@ public class PfcSoundingDialogContents {
 		String sndStr = currentSndType.toString();
 		int endIndex= Math.min(3, sndStr.length());
 		String dispSndStr = sndStr.substring(0, endIndex);
+		DateFormatSymbols dfs= new DateFormatSymbols();
+		String[] defaultDays = dfs.getShortWeekdays();
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		
     	for(int i=0; i<  selectedFlLst.size(); i++){	
 			String fl = selectedFlLst.get(i);
 			long reftimeMs= NcSoundingQuery.convertRefTimeStr(fl);
@@ -111,13 +116,11 @@ public class PfcSoundingDialogContents {
 					Timestamp rangestart = (Timestamp)obj;
 					
 						//need to format rangestart to GMT time string.  Timestamp.toString produce a local time Not GMT time
-						Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 						cal.setTimeInMillis(rangestart.getTime());
 						long vHour = (cal.getTimeInMillis()- reftimeMs)/3600000;
-						//String sndType = currentSndType.toString().substring(0, 3); //use max of 3 char for sounding type
-						//String gmtTimeStr = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",  cal);
-						String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tH%1$tMV%2$03d %3$s",  cal, vHour,dispSndStr);
-						//gmtTimeStr = gmtTimeStr+ String.format("V%03d", vHour);
+						String dayOfWeek = defaultDays[cal.get(Calendar.DAY_OF_WEEK)];
+						//String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tH%1$tMV%2$03d %3$s",  cal, vHour,dispSndStr);
+						String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tH(%4$s)V%2$03d %3$s",  cal, vHour,dispSndStr,dayOfWeek);
 						if(sndTimeList.indexOf(gmtTimeStr) != -1){
 							// this indicate that gmtTimeStr is already in the sndTimeList, then we dont need to add it to list again.
 							continue;
@@ -165,7 +168,7 @@ public class PfcSoundingDialogContents {
 				String querySndTime = selectedSndTime.substring(0, endIndex);
 				//System.out.println("selected sounding time is " + selectedSndTime);
 				//refTimeStr is same as "PFC file" name in Load dialog display 
-				String refTimeStr=NcSoundingQuery.convertSoundTimeDispStringToRefTime(querySndTime);
+				String refTimeStr=NcSoundingQuery.convertSoundTimeDispStringToForecastTime(querySndTime);
 				//while rangeStartStr is same as "sounding Times
 				String rangeStartStr = NcSoundingQuery.convertSoundTimeDispStringToRangeStartTimeFormat(querySndTime);
 				if(queriedTimeList.contains(refTimeStr)== true){

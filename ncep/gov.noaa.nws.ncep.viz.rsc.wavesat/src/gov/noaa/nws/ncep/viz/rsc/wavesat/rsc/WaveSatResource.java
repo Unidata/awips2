@@ -6,6 +6,7 @@ import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResource;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResourceData;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBar;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
 import java.awt.geom.Rectangle2D;
 import java.text.SimpleDateFormat;
@@ -59,7 +60,7 @@ import javax.measure.unit.Unit;
  * @author ghull 
  * @version 1.0
  */
-public class WaveSatResource extends AbstractNatlCntrsResource<WaveSatResourceData, MapDescriptor> 
+public class WaveSatResource extends AbstractNatlCntrsResource<WaveSatResourceData, NCMapDescriptor> 
 	implements INatlCntrsResource {
 
 	private WaveSatResourceData waveSatRscData;

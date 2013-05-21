@@ -1058,7 +1058,9 @@ public class TestDgdriv {
 		//	file = new File(File.separator + dataURI.split("/")[1]
 		//			+ File.separator + path + File.separator + sb.toString());
 		//} else if (DataMode.getSystemMode() == DataMode.PYPIES) {
-			file = new File(dataURI.split("/")[1] + File.separator + path
+			file = new File(
+					//TODO--OK??  VizApp.getServerDataDir() + File.separator + 
+					dataURI.split("/")[1] + File.separator + path
 					+ File.separator + sb.toString());
 		//} else {
 		//	file = new File(VizApp.getDataDir() + File.separator
@@ -1067,7 +1069,7 @@ public class TestDgdriv {
 		//}
 
 		if (file != null)
-			filename = file.getPath();
+			filename = file.getAbsolutePath();
 		return filename;
 	}
 	

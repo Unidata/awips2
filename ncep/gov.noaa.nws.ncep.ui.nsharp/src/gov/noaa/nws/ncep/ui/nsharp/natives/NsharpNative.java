@@ -418,10 +418,10 @@ public class NsharpNative {
 				// TODO Auto-generated constructor stub
 			}
 			public static class ByReference extends WinterInfoStr implements Structure.ByReference {
-    	
+
     		}
     		public static class ByValue extends WinterInfoStr implements Structure.ByValue {
-    	
+
     		}
 			protected ByReference newByReference() { return new ByReference(); }
     		protected ByValue newByValue() { return new ByValue(); }
@@ -474,7 +474,7 @@ public class NsharpNative {
 			public byte[] getBestGuess2() {
 				return bestGuess2;
 			}
-    	
+    		
     	}
     	public static int MAX_CLOUD_LAYER=20;
     	//cloudTypeFM value defined in caveNsharp.c OVC=1, BKN=2, SCT=3*/

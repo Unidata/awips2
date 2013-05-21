@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
-    <resource>WESTNMM</resource>
-    <attrSetGroupName>standard</attrSetGroupName>
-    <attrSetNames>500mb_hght_absv,500mb_hght_color,500mb_hght_wind</attrSetNames>
-</AttributeSetGroup>

@@ -2,7 +2,8 @@ package gov.noaa.nws.ncep.viz.tools.colorMapEditor;
 
 import gov.noaa.nws.ncep.viz.common.ColorMapUtil;
 import gov.noaa.nws.ncep.viz.common.LockedColorMaps;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -36,7 +37,6 @@ import com.raytheon.viz.ui.dialogs.colordialog.ColorUtil;
 import com.raytheon.viz.ui.dialogs.colordialog.ColorWheelComp;
 import com.raytheon.viz.ui.dialogs.colordialog.IColorBarAction;
 import com.raytheon.viz.ui.dialogs.colordialog.IColorWheelAction;
-import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * This is the main dialog for the Color Edit Dialog.
@@ -51,6 +51,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * July 18 2011   #450     ghull       use NcPathManager
  * Feb 10 2012    #686     sgurung     Added fix for java.lang.IndexOutOfBoundsException while updating colormaps
  * March 15 2012  #621     sgurung     Check for locked colormaps
+ * 02/11/13      #972        G. Hull     AbstractEditor instead of NCMapEditor
  * 
  * </pre>
  * 
@@ -501,7 +502,7 @@ public class ColormapEditDialog extends Dialog implements IColorBarAction,
 //                String cmapName = seldCmapName.substring( seldCmapName.indexOf(File.separator));
                 if (lockedCmaps != null && lockedCmaps.isLocked(seldCmapName)) {
                 	MessageDialog confirmDlg = new MessageDialog( 
-                			NmapUiUtils.getCaveShell(), 
+                			NcDisplayMngr.getCaveShell(), 
                 			"Save Colormap", null, 
                 			"Colormap " +seldCmapCat+File.separator +seldCmapName + 
                 			" already exists and is locked.\n\n" +
@@ -514,7 +515,7 @@ public class ColormapEditDialog extends Dialog implements IColorBarAction,
                 }                
                 else if( ColorMapUtil.colorMapExists( seldCmapCat, seldCmapName ) ) {
                 	MessageDialog confirmDlg = new MessageDialog( 
-                			NmapUiUtils.getCaveShell(), 
+                			NcDisplayMngr.getCaveShell(), 
                 			"Save Colormap", null, 
                 			"Colormap " +seldCmapCat+File.separator +seldCmapName + 
                 			" already exists.\n\n" +
@@ -531,7 +532,7 @@ public class ColormapEditDialog extends Dialog implements IColorBarAction,
                     ColorMapUtil.saveColorMap( cm, seldCmapCat, seldCmapName );
                     
                     MessageDialog msgDlg = new MessageDialog( 
-                			NmapUiUtils.getCaveShell(), 
+                			NcDisplayMngr.getCaveShell(), 
                 			"Colormap Saved", null, 
                 			"Colormap " +seldCmapCat+File.separator +seldCmapName + 
                 			" Saved.",
@@ -539,7 +540,7 @@ public class ColormapEditDialog extends Dialog implements IColorBarAction,
                 	msgDlg.open();
                 } catch (VizException e) {
                     MessageDialog msgDlg = new MessageDialog( 
-                			NmapUiUtils.getCaveShell(), 
+                			NcDisplayMngr.getCaveShell(), 
                 			"Error", null, 
                 			"Error Saving Colormap " +seldCmapCat+File.separator +seldCmapName + 
                 			"\n"+e.getMessage(),
@@ -754,7 +755,7 @@ public class ColormapEditDialog extends Dialog implements IColorBarAction,
         }*/
         cmapParams.setColorMap(colorMap);
         cmapParams.setColorMapName(null);
-        ((AbstractEditor) EditorUtil.getActiveEditor()).refresh();
+        ((AbstractNcEditor) EditorUtil.getActiveEditor()).refresh();
     }
 
     /**
@@ -774,7 +775,7 @@ public class ColormapEditDialog extends Dialog implements IColorBarAction,
     		ColorMapUtil.deleteColorMap(seldCmapCat, seldCmapName);
 
     		MessageDialog msgDlg = new MessageDialog( 
-    				NmapUiUtils.getCaveShell(), 
+    				NcDisplayMngr.getCaveShell(), 
     				"Deleted", null, 
     				"Colormap " +seldCmapCat+File.separator +seldCmapName + 
     				" Deleted.",
@@ -805,7 +806,7 @@ public class ColormapEditDialog extends Dialog implements IColorBarAction,
 
     	} catch (VizException e) {
     		MessageDialog msgDlg = new MessageDialog( 
-    				NmapUiUtils.getCaveShell(), 
+    				NcDisplayMngr.getCaveShell(), 
     				"Error", null, 
     				"Error Deleting Colormap " +seldCmapCat+File.separator +seldCmapName + 
     				"\n"+e.getMessage(),

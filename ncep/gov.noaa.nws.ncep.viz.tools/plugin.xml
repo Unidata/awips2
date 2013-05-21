@@ -217,6 +217,11 @@
       <handler
                class="gov.noaa.nws.ncep.viz.tools.aodt.ui.AODTAction"
                commandId="gov.noaa.nws.ncep.ui.actions.aodt.operational">
+         <enabledWhen>
+            <reference
+                  definitionId="gov.noaa.nws.ncep.viz.ui.display.isMapEditor">
+            </reference>
+         </enabledWhen>
       </handler>
       <!--handler
                class="gov.noaa.nws.ncep.viz.tools.aodt.ui.AODTAction"
@@ -253,11 +258,11 @@
       <handler
             class="gov.noaa.nws.ncep.viz.tools.predefinedArea.PredefinedAreaAction"
             commandId="gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea">
-      </handler>      
+      </handler>
       <handler
             class="gov.noaa.nws.ncep.viz.tools.panZoom.ZoomToAction"
             commandId="gov.noaa.nws.ncep.viz.ui.actions.zoomTo">
-      </handler>      
+      </handler>
       <handler
             class="gov.noaa.nws.ncep.viz.customprojection.CreateCustomProjectionHandler"
             commandId="gov.noaa.nws.ncep.viz.ui.actions.createCustomProjection">
@@ -442,7 +447,7 @@
          
          <key
                 commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
-                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                contextId="gov.noaa.nws.ncep.viz.ui.perspectives.NCPerspectiveContext"
                 schemeId="com.raytheon.viz.ui.awips.scheme"
                 sequence="F10">
                           <parameter id="keyNum" value="10"/>

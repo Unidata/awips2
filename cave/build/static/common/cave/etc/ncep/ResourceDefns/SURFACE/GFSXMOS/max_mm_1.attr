@@ -1,5 +1,0 @@
-! Attributes for the GFSXMOS resource with "maxmm1" plot model
-!
-plotModel=maxmm1
-plotDensity=10
-conditionalFilter=

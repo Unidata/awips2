@@ -1,0 +1,24 @@
+!
+! Restore File : 500mb_mean_hght
+!
+! Log:
+!Archana 3/13	Initial creation
+!
+GLEVEL=500
+GVCORD=pres
+SKIP=
+FILTER=y
+SCALE=-1
+GDPFUN=GHmean
+TYPE=c
+CINT=6
+LINE=5/1/2/1
+FINT=
+FLINE=
+HILO=
+HLSYM=
+WIND=
+TITLE=5/-1/~ @ MEAN HEIGHT AT 500 mb!0
+COLORS=2         
+MARKER=2        
+GRDLBL=5                                                                       

@@ -2,7 +2,8 @@ package gov.noaa.nws.ncep.viz.resourceManager.ui.manageSpf;
 
 import gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd.SelectRbdsDialog;
 import gov.noaa.nws.ncep.viz.resourceManager.ui.loadRbd.RbdViewComposite;
-import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
+import gov.noaa.nws.ncep.viz.resources.manager.AbstractRBD;
+import gov.noaa.nws.ncep.viz.resources.manager.NcMapRBD;
 import gov.noaa.nws.ncep.viz.resources.manager.SpfsManager;
 
 import java.io.File;
@@ -73,6 +74,7 @@ import static java.lang.System.out;
  * 										 Removed unwanted options ("Sort Alphabetically" and "Sort By Date")  
  * 06/25/12       #568       G. Hull     Changed name to Manage RBDs. 
  * 06/26/12       #568       G. Hull     Reworked to add Select Rbd section, Delete, Edit, ReOrder functionality
+ * 02/22/2013     #972       G. Hull     AbstractRBD
  * 
  * </pre>
  * 
@@ -132,7 +134,7 @@ public class ManageSpfControl extends Composite {
     // when there are no spfs to delete.
     private Button deleteSpfGroupBtn = null;
     
-    private List<RbdBundle> seldRbdsList = null; // RBDs to 
+    private List<AbstractRBD<?>> seldRbdsList = null; // RBDs to 
 
     private Point initDlgSize = new Point( 750, 860 );
 
@@ -141,7 +143,7 @@ public class ManageSpfControl extends Composite {
 		
 		shell = parent.getShell(); 
 		
-		seldRbdsList = new ArrayList<RbdBundle>();
+		seldRbdsList = new ArrayList<AbstractRBD<?>>();
 
         Composite top_comp = this;        
         top_comp.setLayout( new GridLayout(1,true) );
@@ -445,13 +447,13 @@ public class ManageSpfControl extends Composite {
    	    			return;
    	    		}
    	    		
-   	    		ArrayList<RbdBundle> rbdsToAdd = selRbdsDlg.getSelectedRBDs();
+   	    		ArrayList<AbstractRBD<?>> rbdsToAdd = selRbdsDlg.getSelectedRBDs();
 
-   	    		for( RbdBundle rbd : rbdsToAdd ) {
+   	    		for( AbstractRBD<?> rbd : rbdsToAdd ) {
    	    			rbd.resolveLatestCycleTimes();    		
 
    		    		try {
-   		    			RbdBundle newRbd = RbdBundle.clone( rbd );
+   		    			AbstractRBD<?> newRbd = AbstractRBD.clone( rbd );
    		    			
    		    			// if in create mode, this will be 
    		    			newRbd.setLocalizationFile( null );
@@ -495,8 +497,8 @@ public class ManageSpfControl extends Composite {
 
         seldRbdsLviewer.setLabelProvider( new LabelProvider() {
 	    	public String getText( Object element ) {
-	    		if( element instanceof RbdBundle ) {
-	    			RbdBundle rbd = (RbdBundle)element;
+	    		if( element instanceof AbstractRBD<?> ) {
+	    			AbstractRBD<?> rbd = (AbstractRBD<?>)element;
 	    			if( rbd.isEdited() ) {	    				
 		    			return rbd.getRbdName() + "(E)";
 	    			}
@@ -847,7 +849,7 @@ public class ManageSpfControl extends Composite {
 	private void rbdVierwSelectionChanged( SelectionChangedEvent event ) {
 		StructuredSelection sel_rbds = (StructuredSelection)event.getSelection();                      	    	
 		rscLviewer.viewRbd( sel_rbds.size() == 1 ? 
-						    (RbdBundle)sel_rbds.getFirstElement() : null );			       	    	
+						    (AbstractRBD<?>)sel_rbds.getFirstElement() : null );			       	    	
 		rscLviewer.refresh();
 
 		Iterator sel_iter = sel_rbds.iterator();
@@ -918,7 +920,7 @@ public class ManageSpfControl extends Composite {
 			if( seldIndxs[i] == i ) {
 				continue;
 			}
-			RbdBundle rbdSel = seldRbdsList.get( seldIndxs[i] );
+			AbstractRBD<?> rbdSel = seldRbdsList.get( seldIndxs[i] );
 
 			if( rbdSel != null ) {
 				seldRbdsList.remove( seldIndxs[i] );
@@ -940,7 +942,7 @@ public class ManageSpfControl extends Composite {
 			if( seldIndxs[i] == seldRbdsList.size()-seldIndxs.length+i ) {
 				continue;
 			}
-			RbdBundle rbdSel = seldRbdsList.get( seldIndxs[i] );
+			AbstractRBD<?> rbdSel = seldRbdsList.get( seldIndxs[i] );
 
 			if( rbdSel != null ) {
 				seldRbdsList.remove( seldIndxs[i] );
@@ -962,7 +964,7 @@ public class ManageSpfControl extends Composite {
     	if( rbdsel.isEmpty() ) {
     		return;
     	}
-    	RbdBundle selRbd = (RbdBundle)rbdsel.getFirstElement();
+    	AbstractRBD<?> selRbd = (AbstractRBD<?>)rbdsel.getFirstElement();
 
     	// sanity check (since the button should be disabled if not User Level),
     	// 
@@ -1000,8 +1002,8 @@ public class ManageSpfControl extends Composite {
     			throw new VizException( "Select an SPF Name and Group." );
     		}
     		else { // check for duplicate names
-    			for( RbdBundle rbd1 : seldRbdsList ) {
-    				for( RbdBundle rbd2 : seldRbdsList ) {
+    			for( AbstractRBD<?> rbd1 : seldRbdsList ) {
+    				for( AbstractRBD<?> rbd2 : seldRbdsList ) {
     					if( rbd1 != rbd2 ) {
     						if( rbd1.getRbdName().equals( rbd2.getRbdName() ) ) {
     							throw new VizException("There are duplicate RBD Names in the SPF\n"+
