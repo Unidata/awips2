@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <isEnabled>true</isEnabled>
     <resourceDefnName>METAR</resourceDefnName>
     <resourceCategory>SURFACE</resourceCategory>
 	<resourceParameters>
@@ -10,7 +9,6 @@ spiFile=MTR.spi
 legendString=Metar
 legendColor=RGB {0, 255, 0}
 	</resourceParameters>
-    <filterLabels>Observed</filterLabels>
     <rscImplementation>SurfacePlot</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>

@@ -110,9 +110,9 @@ public class PgenLayeringControlDialog extends PgenLayeringDialog {
     public void setDefaultLocation( Shell parent ) {
 
     	if ( shellLocation == null ) {
-        Point pt = parent.getLocation();
-        shell.setLocation( pt.x + 255,  pt.y + 146 );
-    }
+	        Point pt = parent.getLocation();
+	        shell.setLocation( pt.x + 255,  pt.y + 146 );
+		} 
 		else {
 			shell.setLocation(shellLocation);
 		}
@@ -776,7 +776,7 @@ public class PgenLayeringControlDialog extends PgenLayeringDialog {
          open();        
          
     }
-    
+
     /*
      *  Clean up before close the shell - default is to do nothing. 
      */

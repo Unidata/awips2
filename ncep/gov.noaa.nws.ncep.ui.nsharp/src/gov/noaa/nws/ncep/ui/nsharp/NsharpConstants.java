@@ -49,13 +49,17 @@ public class NsharpConstants {
     public static final UnitConverter feetToMeters = NonSI.FOOT
     	.getConverterTo(SI.METRE);
 
-    public static double WIND_SPEED_MIN = 0.0;
+    //public static double WIND_SPEED_MIN = 0.0;
 
-    public static double WIND_SPEED_MAX = 250.0;
+    //public static double WIND_SPEED_MAX = 250.0;
 
-    public static double WIND_DIR_MIN = 0.0;
+   // public static double WIND_DIR_MIN = 0.0;
 
-    public static double WIND_DIR_MAX = 360.0;
+    //public static double WIND_DIR_MAX = 360.0;
+    
+    public static final int WINDBARB_DISTANCE_DEFAULT= 600; // in meters
+    public static final float WINDBARB_WIDTH = 2;
+    public static final float WINDBARB_SIZE = 2.5f;
 
     public static double PRESSURE_MIN = 100.0;
 
@@ -513,7 +517,7 @@ public class NsharpConstants {
     public static final float HODO_CENTER_Y_ = HODO_Y_ORIG + (float)(1.00/2.00) * HODO_HEIGHT;
     public static final int HODO_COORDINATE_X1 = -50;
     public static final int HODO_COORDINATE_X1_STD = -90;
-    public static final int HODO_COORDINATE_Y1 = 75;
+     public static final int HODO_COORDINATE_Y1 = 75;
     public static final int HODO_COORDINATE_X2 = 70;
     public static final int HODO_COORDINATE_Y2 = -95;
     
@@ -590,7 +594,7 @@ public class NsharpConstants {
     public static final String PANE_DEF_CFG_2_STR = "Default Configuration 2";
     public static final String PANE_SPCWS_CFG_STR = "SPC Wide Screen Configuration";
     public static final String PANE_SIMPLE_D2D_CFG_STR = "D2D Skewt Standard Screen Configuration";
-    public static final String[] PANE_CONFIGURATION_NAME = {PANE_DEF_CFG_1_STR, PANE_DEF_CFG_2_STR,PANE_SPCWS_CFG_STR,PANE_SIMPLE_D2D_CFG_STR};//, PANE_LEGACY_CFG_STR};
+    public static final String[] PANE_CONFIGURATION_NAME = {/*PANE_DEF_CFG_1_STR, PANE_DEF_CFG_2_STR,*/PANE_SPCWS_CFG_STR,PANE_SIMPLE_D2D_CFG_STR};//, PANE_LEGACY_CFG_STR};
      
     //pane width and height ratio to full canvas size
     //  pane default configuration 1  

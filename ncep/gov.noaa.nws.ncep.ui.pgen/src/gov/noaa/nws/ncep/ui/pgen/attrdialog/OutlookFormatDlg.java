@@ -23,16 +23,19 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.dom.DOMSource;
 
+import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.clipper.ClipProduct;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
+import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
+import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductConfigureDialog;
@@ -59,10 +62,13 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
+import org.geotools.referencing.GeodeticCalculator;
+import org.geotools.referencing.datum.DefaultEllipsoid;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
@@ -212,7 +218,7 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		
 		PgenUtil.setUTCTimeTextField(expDt, expTime,  
 				this.getDefaultExpDT(this.getDays().replaceAll(" Fire", "")),dayGrp, 5);
-		
+			
 		setExpDt(this.getDefaultExpDT(this.getDays().replaceAll(" Fire", "")));
 
 		//forecaster
@@ -721,7 +727,7 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		ol.setDays(getDays().toUpperCase());
 		ol.setIssueTime(getInitTime());
 		ol.setExpirationTime(getExpTime());
-		ol.setLineInfo(ol.generateLineInfo("new_line"));
+		ol.setLineInfo(generateLineInfo(ol, "new_line"));
 		return ol;
 	}
 
@@ -843,4 +849,197 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		
 		return boundsPoly;
 	}
+	
+	
+	/**
+	 * Generate from line information for the outlook
+	 * @param ol - outlook element
+	 * @param lineBreaker - new line character
+	 * @return
+	 */
+	private String generateLineInfo( Outlook ol, String lineBreaker ){
+		
+		if ( ol.getOutlookType().equalsIgnoreCase("EXCE_RAIN")) return excessiveRain(ol, lineBreaker);
+			
+		String lnInfo = "";
+		
+		List<Station> anchors = PgenStaticDataProvider.getProvider().getAnchorTbl().getStationList();
+
+		Iterator<AbstractDrawableComponent> it = ol.getComponentIterator();
+		while( it.hasNext() ){
+			AbstractDrawableComponent adc = it.next();
+			if ( adc.getName().equalsIgnoreCase(Outlook.OUTLOOK_LABELED_LINE)){
+				Iterator<DrawableElement> itDe = ((DECollection)adc).createDEIterator();
+				List<Line> lines = new ArrayList<Line>();
+				gov.noaa.nws.ncep.ui.pgen.elements.Text txt = null;
+				while ( itDe.hasNext() ){
+					DrawableElement de = itDe.next();
+					if ( de instanceof gov.noaa.nws.ncep.ui.pgen.elements.Text ) txt = (gov.noaa.nws.ncep.ui.pgen.elements.Text) de;
+					else if ( de instanceof Line ) lines.add((Line)de);
+				}
+				
+				String lblInfo = "";
+				if ( txt == null ){
+					lblInfo += "LABEL -1 -1" + lineBreaker;
+				}
+				else {
+				//	lblInfo += txt.getText()[0];
+					lblInfo = otlkDlg.getTextForLabel(ol.getOutlookType(), txt.getText()[0]);
+				//	if ( this.outlookType.equalsIgnoreCase("FIREOUTL") ) {
+				//		lblInfo += " AREA FIRE WEATHER";
+				//	}
+					lblInfo += lineBreaker;
+					lblInfo += "LABEL " + String.format("%1$5.2f %2$5.2f", txt.getLocation().y, txt.getLocation().x);
+					lblInfo += lineBreaker;;
+				}
+				
+				if ( !lines.isEmpty() ){
+					for ( Line ln : lines ){
+						lnInfo += lblInfo;
+						
+						ArrayList<Coordinate> points = new ArrayList<Coordinate>();
+						points.addAll(ln.getPoints());
+						
+						if ( ln.isClosedLine() ){
+							points.add( points.get(0));
+						}
+						
+						for (Coordinate pt : points ){
+							Station st = WatchBox.getNearestAnchorPt(pt, anchors);
+							GeodeticCalculator gc = new GeodeticCalculator(DefaultEllipsoid.WGS84);
+
+							gc.setStartingGeographicPoint(st.getLongitude(), st.getLatitude() );
+							gc.setDestinationGeographicPoint(pt.x, pt.y  );
+
+							long dist = Math.round( gc.getOrthodromicDistance()/PgenUtil.SM2M);
+							long dir = Math.round(gc.getAzimuth());
+							if ( dir < 0 ) dir += 360;
+
+							lnInfo += String.format("%1$5.2f %2$7.2f%3$4d %4$-3s%5$4s", pt.y, pt.x, dist, 
+									WatchBox.dirs[(int)Math.round(dir/22.5)], st.getStid());
+							lnInfo += lineBreaker;
+
+						}
+						lnInfo += "$$" + lineBreaker;
+					}
+				}
+			}
+			else if ( adc.getName().equalsIgnoreCase( Outlook.OUTLOOK_LINE_GROUP )){
+				Iterator<DrawableElement> itDe = ((DECollection)adc).createDEIterator();
+				ArrayList<Line> lns =  new ArrayList<Line>();
+				gov.noaa.nws.ncep.ui.pgen.elements.Text txt = null;
+				while ( itDe.hasNext() ){
+					DrawableElement de = itDe.next();
+					if ( de instanceof gov.noaa.nws.ncep.ui.pgen.elements.Text ) txt = (gov.noaa.nws.ncep.ui.pgen.elements.Text) de;
+					else if ( de instanceof Line ) lns.add((Line)de);
+				}
+				
+				if ( txt == null ){
+					lnInfo += "LABEL -1 -1" + lineBreaker;
+				}
+				else {
+					lnInfo += txt.getText()[0] + lineBreaker;
+					lnInfo += "LABEL " + String.format("%1$5.2f %2$5.2f", txt.getLocation().y, txt.getLocation().x);
+					lnInfo += lineBreaker;
+				}
+				
+				int iLines = 0;
+				for (Line ln : lns ){
+					iLines++;
+					for (Coordinate pt : ln.getPoints() ){
+						Station st = WatchBox.getNearestAnchorPt(pt, anchors);
+						GeodeticCalculator gc = new GeodeticCalculator(DefaultEllipsoid.WGS84);
+
+						gc.setStartingGeographicPoint(st.getLongitude(), st.getLatitude() );
+						gc.setDestinationGeographicPoint(pt.x, pt.y  );
+
+						long dist = Math.round( gc.getOrthodromicDistance()/PgenUtil.SM2M);
+						long dir = Math.round(gc.getAzimuth());
+						if ( dir < 0 ) dir += 360;
+						
+						lnInfo += String.format("%1$5.2f %2$7.2f%3$4d %4$-3s%5$4s", pt.y, pt.x, dist, 
+								WatchBox.dirs[(int)Math.round(dir/22.5)], st.getStid());
+						lnInfo += lineBreaker;
+						
+					}
+					if ( iLines < lns.size()) lnInfo += "...CONT..." + lineBreaker;
+				}
+				
+				lnInfo += "$$" + lineBreaker;
+			}
+		}
+		
+		return lnInfo;
+	}
+	
+	private String excessiveRain( Outlook ol, String lineBreaker ){
+		String ret = "";
+		
+		String rainTxt = "RISK OF RAINFALL EXCEEDING FFG TO THE RIGHT OF A LINE FROM";
+		String fiveInch = "TOTAL RAINFALL AMOUNTS OF FIVE INCHES WILL BE POSSIBLE TO THE RIGHT OF A LINE FROM";
+		
+		List<Station> sfstns = PgenStaticDataProvider.getProvider().getSfStnTbl().getStationList();
+
+		Iterator<AbstractDrawableComponent> it = ol.getComponentIterator();
+		while( it.hasNext() ){
+			AbstractDrawableComponent adc = it.next();
+			if ( adc.getName().equalsIgnoreCase(Outlook.OUTLOOK_LABELED_LINE)){
+				Iterator<DrawableElement> itDe = ((DECollection)adc).createDEIterator();
+				List<Line> lines = new ArrayList<Line>();
+				gov.noaa.nws.ncep.ui.pgen.elements.Text txt = null;
+				while ( itDe.hasNext() ){
+					DrawableElement de = itDe.next();
+					if ( de instanceof gov.noaa.nws.ncep.ui.pgen.elements.Text ) txt = (gov.noaa.nws.ncep.ui.pgen.elements.Text) de;
+					else if ( de instanceof Line ) lines.add((Line)de);
+				}
+				
+				String lblInfo = "";
+				if ( txt == null ){
+					break;
+				}
+				else if ( txt.getString()[0].equalsIgnoreCase("5 INCH")){
+					ret += fiveInch;
+				}
+				else if ( txt.getString()[0].equalsIgnoreCase("SLGT")){
+					lblInfo += "SLIGHT ";
+				}
+				else if ( txt.getString()[0].equalsIgnoreCase("MDT")){
+					lblInfo += "MODERATE ";
+				}
+				else if ( txt.getString()[0].equalsIgnoreCase("HIGH")){
+					lblInfo += "HIGH ";
+				}
+				
+				if ( !lblInfo.isEmpty() ) ret += lblInfo + rainTxt;
+				
+				if ( !lines.isEmpty() ){
+					for ( Line ln : lines ){
+						ArrayList<Coordinate> pts = ln.getPoints();
+						if ( ln.isClosedLine() ) pts.add( pts.get(0));
+						for (Coordinate pt : pts ){
+							Station st = WatchBox.getNearestAnchorPt(pt, sfstns);
+							GeodeticCalculator gc = new GeodeticCalculator(DefaultEllipsoid.WGS84);
+
+							gc.setStartingGeographicPoint(st.getLongitude(), st.getLatitude() );
+							gc.setDestinationGeographicPoint(pt.x, pt.y  );
+
+							long dist = Math.round( gc.getOrthodromicDistance()/PgenUtil.SM2M);
+							long dir = Math.round(gc.getAzimuth());
+							if ( dir < 0 ) dir += 360;
+
+							ret += String.format(" %1$d %2$s %3$s", (int)(dist/5*5), 
+									WatchBox.dirs[(int)Math.round(dir/22.5)], st.getStid());
+
+						}
+					}
+					ret += "\n";
+				}
+			}
+			ret += "\n";
+		}
+		
+		return PgenUtil.wrap(ret, 65, "\n", false);
+
+	}
+
 }

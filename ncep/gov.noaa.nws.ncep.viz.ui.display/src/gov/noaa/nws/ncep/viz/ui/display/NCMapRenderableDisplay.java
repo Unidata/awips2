@@ -1,8 +1,12 @@
 package gov.noaa.nws.ncep.viz.ui.display;
 
-import gov.noaa.nws.ncep.viz.common.EditorManager;
-import gov.noaa.nws.ncep.viz.ui.display.IGridGeometryProvider.ZoomLevelStrings;
-import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea.AreaSource;
+import gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider;
+import gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider.ZoomLevelStrings;
+import gov.noaa.nws.ncep.viz.common.display.PredefinedArea.AreaSource;
+import gov.noaa.nws.ncep.viz.common.display.INatlCntrsRenderableDisplay;
+import gov.noaa.nws.ncep.viz.common.display.INcPaneID;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
+import gov.noaa.nws.ncep.viz.common.display.PredefinedArea;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -10,16 +14,15 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.geotools.coverage.grid.GeneralGridGeometry;
-
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.viz.core.IExtent;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.maps.display.MapRenderableDisplay;
 import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.core.rsc.ResourceList.AddListener;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * MapRenderableDisplay for NatlCntrs
@@ -48,7 +51,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
 @XmlType(name = "NC-MapRenderableDisplay")
 @XmlRootElement
 public class NCMapRenderableDisplay extends MapRenderableDisplay implements
-        /*IGridGeometryProvider,*/ ISerializableObject {
+							AddListener, INatlCntrsRenderableDisplay, ISerializableObject {
 
     public static final GenericResourceData legendRscData = new GenericResourceData(
             NCLegendResource.class);
@@ -56,11 +59,17 @@ public class NCMapRenderableDisplay extends MapRenderableDisplay implements
     public static final GenericResourceData selectedRscData = new GenericResourceData(
             NcSelectedPaneResource.class);
 
+    // can't marshal out an interface so store as a string. This should only be accessed via S
+//    @XmlElement
+//    private String paneIdStr;
+
+    // I wanted this to be an INcPaneID but jaxb can't handle interfaces. Since now and for
+    // forseeable future there will only be NcPaneID, just call it an NcPaneID.
     @XmlElement
-    private PaneID paneId;
+    private NcPaneID paneId;
     
     private String paneName; // the rbd/displayName + the paneId if multipane
-
+    
     // the initial area that the display is set to. This is used for the unzoom.
     // after the display is loaded the user may pan/zoom in which case the current
     // area(gridGeometry,zoom,mapcenter) will be different than the initial area.
@@ -71,27 +80,35 @@ public class NCMapRenderableDisplay extends MapRenderableDisplay implements
     public NCMapRenderableDisplay() {
         super();
     }
-
+    
     // set the initial gridGeometry, mapCenter and zoomLevel from the areaProvider
     // 
-    public NCMapRenderableDisplay( PaneID pid, 
-    		PredefinedArea geomPrvdr ) throws VizException {
-    	super();
-    	setPaneId( pid );
+//    public NCMapRenderableDisplay( INcPaneID pid, 
+//    							   PredefinedArea geomPrvdr ) throws VizException {
+//    	super();
+//    	setPaneId( pid );
+//    	
+//		setDescriptor( new NCMapDescriptor() );
+//
+//		setInitialArea( geomPrvdr );
+//    }
+//
+//    public NCMapRenderableDisplay( INcPaneID pid, NCMapDescriptor desc) {
+//        super(desc);
+//        this.setPaneId( pid );
+////        setInitialArea( PredefinedAreasMngr )
+//    }
+    
+  //public void setInitialArea(IGridGeometryProvider area) {
+    @Override
+    public void setInitialArea( IGridGeometryProvider area) {
+    	if( !(area instanceof PredefinedArea ) ) {
+    		System.out.println("NCMapRenderableDisplay.setInitialArea called with non-PredefinedArea???");
+    		return;
+    	}
     	
-		setDescriptor( new NCMapDescriptor() );
-
-		setInitialArea( geomPrvdr );
-    }
-
-    public NCMapRenderableDisplay( PaneID pid, NCMapDescriptor desc) {
-        super(desc);
-        this.setPaneId( pid );
-//        setInitialArea( PredefinedAreasMngr )
-    }
-
-    public void setInitialArea( PredefinedArea ia ) {
-    	initialArea = ia;
+    	initialArea = (PredefinedArea) area;
+    	
     	try {
 			setPredefinedArea( initialArea );
 			
@@ -115,12 +132,12 @@ public class NCMapRenderableDisplay extends MapRenderableDisplay implements
 //				
 //	            ((NCMapDescriptor)getDescriptor()).setSuspendZoom( true );
 //			}
-
+			
 		} catch (VizException e) {
 			System.out.println("Error setting initial area of renderable display:"+e.getMessage() );
 		}
     }
-
+    
     public IGridGeometryProvider findAreaProviderResource( String areaProviderName ) {
     	    	
     	ResourceList rList = getDescriptor().getResourceList();
@@ -212,15 +229,16 @@ public class NCMapRenderableDisplay extends MapRenderableDisplay implements
         // 
     	PredefinedArea curArea = new PredefinedArea( AreaSource.DISPLAY_AREA, 
     			getPaneName(), getDescriptor().getGridGeometry(), getMapCenter(), 
-    			Double.toString( getZoomLevel() ) );
+    			Double.toString( getZoomLevel() ),
+    			NcDisplayType.NMAP_DISPLAY );
     	
     	return curArea;
     }
     
-    // @Override
+//	@Override
 //	public GeneralGridGeometry getGridGeometry() {
 //		return getDescriptor().getGridGeometry();
-    // }
+//	}
 
     public double[] getMapCenter() {
         return this.mapCenter;
@@ -233,7 +251,7 @@ public class NCMapRenderableDisplay extends MapRenderableDisplay implements
     public void setPaneName( String p ) {
     	paneName = p;
     }
-
+    
     public String getPaneName() {
 //    	if( getContainer() != null ) {
 //    		return ((NCMapEditor)getContainer()).getDisplayName();
@@ -241,19 +259,22 @@ public class NCMapRenderableDisplay extends MapRenderableDisplay implements
     	return (paneName == null ? getPaneId().toString() : paneName); // shouldn't be null
     }
 
-    public PaneID getPaneId() {
+    @Override
+    public INcPaneID getPaneId() {
     	if( paneId == null ) {
-    		paneId = new PaneID();
+    		paneId = new NcPaneID();
     	}
     	return paneId;
     }
-
-    public void setPaneId(PaneID pid) {
-    	paneId = pid;
+    
+    @Override
+    public void setPaneId(INcPaneID pid) {
+    	paneId = (NcPaneID) pid;
 	}
     
-    // TODO? if null then set to the descriptors gridGeom??
-    public PredefinedArea getInitialArea() {
+	// TODO? if null then set to the descriptors gridGeom??
+    @Override
+    public IGridGeometryProvider getInitialArea() {
     	if( initialArea == null ) {
     		return getCurrentArea();
     	}
@@ -271,7 +292,7 @@ public class NCMapRenderableDisplay extends MapRenderableDisplay implements
     public void setExtent(IExtent pe) {
     	super.setExtent(pe);
     }
-
+    
 //    public void setAreaProviderName(String areaName) {
 //        this.areaProviderName = areaName;
 //        
@@ -308,6 +329,16 @@ public class NCMapRenderableDisplay extends MapRenderableDisplay implements
                 .constructSystemResourcePair(legendRscData));
         resourceList.add(ResourcePair
                 .constructSystemResourcePair(selectedRscData));
+        resourceList.addPostAddListener( this );
     }
+    
+    @Override
+    public void notifyAdd( ResourcePair rp ) throws VizException {
 
+    	// TODO : any checks on the type of resource here. 
+        AbstractNcPaneManager pm = NcEditorUtil.getNcPaneManager( (AbstractEditor)container );        
+        if( pm != null ) {
+        	pm.setDisplayAvailable( false );
+        }        
+    }
 }

@@ -1,0 +1,39 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  
+    <bean id="StoreActivityHandler"
+        class="gov.noaa.nws.ncep.edex.plugin.pgen.handler.StoreActivityHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="gov.noaa.nws.ncep.common.dataplugin.pgen.request.StoreActivityRequest" />
+        <constructor-arg ref="StoreActivityHandler" />
+    </bean>
+  
+    <bean id="RetrieveActivityHandler"
+        class="gov.noaa.nws.ncep.edex.plugin.pgen.handler.RetrieveActivityHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="gov.noaa.nws.ncep.common.dataplugin.pgen.request.RetrieveActivityRequest" />
+        <constructor-arg ref="RetrieveActivityHandler" />
+    </bean>
+  
+    <bean id="StoreDerivedProductHandler"
+        class="gov.noaa.nws.ncep.edex.plugin.pgen.handler.StoreDerivedProductHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="gov.noaa.nws.ncep.common.dataplugin.pgen.request.StoreDerivedProductRequest" />
+        <constructor-arg ref="StoreDerivedProductHandler" />
+    </bean>
+  
+    <bean id="RetrieveAllProductsHandler"
+        class="gov.noaa.nws.ncep.edex.plugin.pgen.handler.RetrieveAllProductsHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="gov.noaa.nws.ncep.common.dataplugin.pgen.request.RetrieveAllProductsRequest" />
+        <constructor-arg ref="RetrieveAllProductsHandler" />
+    </bean>
+  
+</beans>
+  

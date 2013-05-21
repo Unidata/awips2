@@ -3,8 +3,7 @@ package gov.noaa.nws.ncep.viz.tools.panZoom;
 import java.util.HashMap;
 import java.util.Map;
 
-import gov.noaa.nws.ncep.viz.ui.display.AbstractNCModalMapTool;
-import gov.noaa.nws.ncep.viz.ui.display.NCDisplayPane;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcModalTool;
 
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -31,7 +30,7 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
  * @author ghull
  * @version 1
  */
-public class NcZoomTool extends AbstractNCModalMapTool {
+public class NcZoomTool extends AbstractNcModalTool {
     /** The mouse handler */
     private NcZoomHandler currentHandler;
 
