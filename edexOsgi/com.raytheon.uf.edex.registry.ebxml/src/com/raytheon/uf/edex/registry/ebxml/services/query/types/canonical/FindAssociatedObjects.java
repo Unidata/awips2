@@ -85,6 +85,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * 3/18/2013    1802       bphillip     Modified to use transaction boundaries and spring dao injection
  * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
  * Apr 23, 2013 1910       djohnson     Don't allow NPE on registry object list, remove non ANSI Javadoc.
+ * 5/21/2013    2022       bphillip     Set return type on call to findAssociations
  * 
  * </pre>
  * 
@@ -147,6 +148,7 @@ public class FindAssociatedObjects extends CanonicalEbxmlQuery {
                     "Both sourceObjectType and targetObjectType MUST NOT be specified.");
         }
         QueryResponse findAssociationsResponse = new QueryResponse();
+        findAssociations.setReturnType(returnType);
         findAssociations.query(queryType, findAssociationsResponse, client);
         List<RegistryObjectType> associations = findAssociationsResponse
                 .getRegistryObjectList().getRegistryObject();
