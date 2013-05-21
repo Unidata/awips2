@@ -78,6 +78,22 @@ public class IntegerValueType extends ValueType {
 
     private static final String COLUMN_NAME = "integerValue";
 
+    public IntegerValueType() {
+
+    }
+
+    public IntegerValueType(BigInteger integerValue) {
+        this.integerValue = integerValue;
+    }
+
+    public IntegerValueType(Integer integerValue) {
+        this.integerValue = BigInteger.valueOf(integerValue.longValue());
+    }
+
+    public IntegerValueType(int integerValue) {
+        this.integerValue = BigInteger.valueOf(integerValue);
+    }
+
     @Override
     public String getColumnName() {
         return COLUMN_NAME;

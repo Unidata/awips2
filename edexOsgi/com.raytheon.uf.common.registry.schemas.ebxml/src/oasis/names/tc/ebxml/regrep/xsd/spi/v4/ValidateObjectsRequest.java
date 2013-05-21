@@ -21,6 +21,7 @@
 package oasis.names.tc.ebxml.regrep.xsd.spi.v4;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -34,6 +35,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -86,6 +88,22 @@ public class ValidateObjectsRequest extends RegistryRequestType {
     @XmlElement(name = "InvocationControlFile")
     @DynamicSerializeElement
     protected List<ExtrinsicObjectType> invocationControlFile;
+
+    public ValidateObjectsRequest() {
+
+    }
+
+    public ValidateObjectsRequest(String id, String comment,
+            Collection<SlotType> slots, QueryType query,
+            ObjectRefListType objectRefList,
+            RegistryObjectListType originalObjects,
+            List<ExtrinsicObjectType> invocationControlFile) {
+        super(id, comment, slots);
+        this.query = query;
+        this.objectRefList = objectRefList;
+        this.originalObjects = originalObjects;
+        this.invocationControlFile = invocationControlFile;
+    }
 
     /**
      * Gets the value of the query property.
