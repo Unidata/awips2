@@ -32,9 +32,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.raytheon.uf.common.dataplugin.warning.UGCZone;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.viz.warngen.gis.AffectedAreas;
 import com.raytheon.viz.warngen.gis.AffectedAreasComparator;
 import com.raytheon.viz.warnings.DateUtil;
@@ -50,8 +47,8 @@ import com.raytheon.viz.warnings.DateUtil;
  * May 6, 2008				bwoodle	    Initial creation
  * Dec 28 2012  DR15599     mgamazaychikov  Updated method getListCounties to fix the problem
  * 											with generated list of counties.
- * Apr 25,2013  1877        jsanchez    Sorted the UGC line for cancellations.
- * 
+ * Apr 25, 2013 1877        jsanchez    Sorted the UGC line for cancellations.
+ * May 10, 2013 1951        rjpeter     Updated ugcZones references
  * </pre>
  * 
  * @author bwoodle
@@ -59,9 +56,6 @@ import com.raytheon.viz.warnings.DateUtil;
  */
 
 public class FipsUtil {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(FipsUtil.class);
-
     private static final Map<String, String> fipsToState;
 
     private static String[][] abbrlist = new String[][] { { "02", "AK" },
@@ -126,7 +120,7 @@ public class FipsUtil {
 
         for (AffectedAreas area : sortedAreas) {
             String ugc = getUgc(area);
-            if (ugc != null && countiesOrZones.contains(ugc) == false) {
+            if ((ugc != null) && (countiesOrZones.contains(ugc) == false)) {
                 countiesOrZones.add(ugc);
             }
         }
@@ -159,15 +153,14 @@ public class FipsUtil {
      * @param endtime
      * @return
      */
-    public static String getUgcLine(Set<UGCZone> ugcs, Date endtime,
-            int interval) {
+    public static String getUgcLine(Set<String> ugcs, Date endtime, int interval) {
         StringBuffer rval = new StringBuffer();
         ArrayList<String> countiesOrZones = new ArrayList<String>();
         DateUtil du = new DateUtil();
 
-        for (UGCZone ugc : ugcs) {
-            if (countiesOrZones.contains(ugc.toString()) == false) {
-                countiesOrZones.add(ugc.toString());
+        for (String ugc : ugcs) {
+            if (countiesOrZones.contains(ugc) == false) {
+                countiesOrZones.add(ugc);
             }
         }
 
@@ -425,33 +418,15 @@ public class FipsUtil {
         return fipsToState.get(statefips);
     }
 
-    public static boolean containsSameCountiesOrZones(Set<UGCZone> a,
-            Set<UGCZone> b) {
-        boolean rval = true;
-
-        // Check one way...
-        for (UGCZone z1 : a) {
-            boolean containsThisItem = false;
-            for (UGCZone z2 : b) {
-                if (z1.toString().equals(z2.toString())) {
-                    containsThisItem = true;
-                }
-            }
-            if (!containsThisItem) {
-                rval = false;
-            }
-        }
-
-        // Check the other way...
-        for (UGCZone z2 : a) {
-            boolean containsThisItem = false;
-            for (UGCZone z1 : b) {
-                if (z1.toString().equals(z2.toString())) {
-                    containsThisItem = true;
-                }
-            }
-            if (!containsThisItem) {
-                rval = false;
+    public static boolean containsSameCountiesOrZones(Set<String> a,
+            Set<String> b) {
+        boolean rval = a.size() == b.size();
+        if (rval) {
+            // Check one way...
+            rval = a.containsAll(b);
+            if (rval) {
+                // Check the other way...
+                rval = b.containsAll(a);
             }
         }
 

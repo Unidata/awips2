@@ -20,15 +20,10 @@
 
 package com.raytheon.uf.common.dataplugin.warning;
 
-import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
@@ -43,9 +38,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 10/04/2011   10049        bgonzale    initial creation
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013 1857        bgonzale     Added SequenceGenerator annotation.
+ * 10/04/2011   10049       bgonzale    initial creation
+ * Apr 4, 2013  1846        bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
+ * May 02, 2013 1949        rjpeter     Removed ugcZones.
  * 
  * </pre>
  * 
@@ -59,14 +55,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "practicewarning",
-		indexes = {
-				@Index(name = "practicewarning_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
+@org.hibernate.annotations.Table(appliesTo = "practicewarning", indexes = {
+        @Index(name = "practicewarning_refTimeIndex", columnNames = {
+                "refTime", "forecastTime" }),
+        @Index(name = "practicewarning_office_phensig_index", columnNames = {
+                "officeid", "phensig" }) })
 @DynamicSerialize
 public class PracticeWarningRecord extends AbstractWarningRecord {
 
@@ -99,15 +92,5 @@ public class PracticeWarningRecord extends AbstractWarningRecord {
      */
     public PracticeWarningRecord(String uri) {
         super(uri);
-        identifier = java.util.UUID.randomUUID().toString();
     }
-
-    @Override
-    public void setUgcs(List<String> list) {
-        ugczones.clear();
-        for (String s : list) {
-            ugczones.add(new UGCZone(s, this));
-        }
-    }
-
 }
