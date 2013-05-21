@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <isEnabled>true</isEnabled>
     <resourceDefnName>FFA</resourceDefnName>
     <resourceCategory>MISC</resourceCategory>
     <resourceParameters>    
@@ -9,11 +8,10 @@ reportType=FLASH_FLOOD_ADVISORY,FLASH_FLOOD_WARNING,FLASH_FLOOD_WATCH,FLASH_FLOO
 legendName=FFA
 color=RGB {155, 155, 155}
     </resourceParameters>
-    <filterLabels>AWW,Event</filterLabels>
     <rscImplementation>FFA</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
-    <timeMatchMethod>EXACT</timeMatchMethod>
+    <timeMatchMethod>EVENT</timeMatchMethod>
     <frameSpan>0</frameSpan>
     <timelineGenMethod>USE_MANUAL_TIMELINE</timelineGenMethod>
     <dfltFrameCount>10</dfltFrameCount>

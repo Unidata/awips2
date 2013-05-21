@@ -40,7 +40,7 @@ public class ProductConfigureHandler extends AbstractHandler {
      * @see org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands.ExecutionEvent)
      */
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-    			
+    	
     	if ( PgenSession.getInstance().getPgenPalette() == null ) {
         	MessageDialog confirmDlg = new MessageDialog( 
                 		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 

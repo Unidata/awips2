@@ -27,7 +27,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer         Description
  * ------------ ---------- -----------      --------------------------
  * 02/21/2013   958        qzhou, sgurung   Initial creation
- * 
+ * 03/19/2013   958        qzhou            Modified CarrLon start/end intervals and display.
  * </pre>
  * 
  * @author qzhou, sgurung
@@ -104,7 +104,7 @@ public class LatLonOverlay {
 				if (crln == 0.0)                   // all other
 					crln = headerData.getL0B0()[0];
 			}
-		
+			
 		}
 		//System.out.println(" ****** hgln crln: " + hgln +" "+crln);
 		
@@ -137,7 +137,7 @@ public class LatLonOverlay {
     	
     	double[] startEndInterval = new double[2];
     	double startValue = -90 + hgln - hgln%latLonInterval;
-    	double endValue = startValue + 180; //90 + hgln - hgln%latLonInterval;
+    	double endValue = startValue + 180;
     	
     	if (startValue < -90 + hgln) {
     		startValue += latLonInterval;
@@ -151,7 +151,7 @@ public class LatLonOverlay {
 			startValue = endValue;
 			endValue = tem;
 		}
-		//System.out.println("***start end "+hgln +" "+startValue+" "+endValue);
+		
 		startEndInterval[0] = startValue;
 		startEndInterval[1] = endValue;
 		
@@ -182,12 +182,13 @@ public class LatLonOverlay {
     }
     
     public double[] getCarrLonStartEndInterval() {
-    	double[] startEndInterval = new double[2]; 
+    	double[] startEndInterval = new double[2];     	
     	double endValue = 0.0;
     	double startValue = -90 + crln - crln%latLonInterval;
-    	   	
+    	
     	if (startValue >180)
     		startValue = startValue - 360;
+    		
     	endValue = startValue +180;
     	
     	if (startValue < -90 + crln) {
@@ -196,7 +197,7 @@ public class LatLonOverlay {
     	if (endValue > 90 + crln) {
     		endValue -= latLonInterval;
     	}    	
-
+    	
 		if (startValue > endValue) {
 			double tem = startValue;
 			startValue = endValue;
@@ -325,10 +326,10 @@ public class LatLonOverlay {
 				int displayVal = (int)lonValue;				
 				
 				
-				if (lonValue > 180)
-					displayVal = displayVal - 360;
-				if (lonValue < -180)
-					displayVal = displayVal + 360;
+					if (lonValue > 180)
+						displayVal = displayVal - 360;
+					if (lonValue < -180)
+						displayVal = displayVal + 360;
 				
 	    		addLabelOnLatLonLine(wireframeShapeForLonLineArray[i], lonStonyCoordPointArrayList.get(i), pointIndexForAddingLabel + addToPoint, 
 	    				String.valueOf(displayVal)); 
@@ -402,7 +403,7 @@ public class LatLonOverlay {
 	    private Coordinate[] createCoordArrayForLonLine(SolarImageDisplay imageDisplay,double lonValue, double latLonPointInterval) throws VizException {
 	    	try {	    	
 	    			
-		    	int coordArrayLength = (int)((180 -5) / latLonPointInterval); //- 10
+		    	int coordArrayLength = (int)((180 -5) / latLonPointInterval);
 				Coordinate[] coordArray = new Coordinate[coordArrayLength];
 				Coordinate[] coordPixelArray = new Coordinate[coordArrayLength];  
 				double lat = -90 + latLonPointInterval; 

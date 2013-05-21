@@ -80,16 +80,16 @@ public class NcAutoUpdater implements IAlertObserver {
             Object objectToSend = null;
             Map<String, Object> attribs = new HashMap<String, Object>(
                     message.decodedAlert);
-				String dataURI = message.dataURI;
-				if (reqResourceData.isUpdatingOnMetadataOnly()) {
-					PluginDataObject record = RecordFactory.getInstance()
-							.loadRecordFromUri(dataURI);
-					objectToSend = record;
+            String dataURI = message.dataURI;
+            if (reqResourceData.isUpdatingOnMetadataOnly()) {
+                PluginDataObject record = RecordFactory.getInstance()
+                        .loadRecordFromUri(dataURI);
+                objectToSend = record;
 
-				} else {
-					attribs.put("dataURI", message.dataURI);
-					objectToSend = Loader.loadData(attribs);
-				}
+            } else {
+                attribs.put("dataURI", message.dataURI);
+                objectToSend = Loader.loadData(attribs);
+            }
             return objectToSend;
         }
     };
@@ -110,9 +110,13 @@ public class NcAutoUpdater implements IAlertObserver {
         // change all the attributes with spaces to '_'s.
         // known attribute with this problem are areaName, hazardType, watchNumber, and
         // reportType,
-        for (AlertMessage message : alertMessages) {
+//        System.out.println("recieved Alert Msg with "+alertMessages.size() + " msgs");
+        
+        for( AlertMessage message : alertMessages) {
             Map<String, Object> attribs = new HashMap<String,Object>( message.decodedAlert );
 
+//            System.out.println( message.dataURI );
+            
             for( String attrName : attribs.keySet() ) {
         		Object attribsObj = attribs.get( attrName );
         		if( attribsObj instanceof String && 

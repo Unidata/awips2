@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<NcInventoryDefinition xmlns:ns2="com.raytheon.uf.common.datadelivery.registry" xmlns:ns3="http://www.example.org/productType">
+    <inventoryName>NAMDNG5</inventoryName>
+    <inventoryParameters>pluginName,info.ensembleId,info.secondaryId,dataTime</inventoryParameters>
+    <baseConstraints>
+        <mapping key="info.datasetId">
+            <constraint constraintValue="NamDNG5" constraintType="EQUALS"/>
+        </mapping>
+        <mapping key="pluginName">
+            <constraint constraintValue="grid" constraintType="EQUALS"/>
+        </mapping>
+    </baseConstraints>
+</NcInventoryDefinition>

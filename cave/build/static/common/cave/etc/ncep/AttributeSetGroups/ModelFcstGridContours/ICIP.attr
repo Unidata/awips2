@@ -1,0 +1,23 @@
+!
+! Restore File :ICIP
+!
+! Log:
+!
+GLEVEL=914
+GVCORD=HGHT
+SKIP=
+FILTER=N
+SCALE=1
+GDPFUN=ICIP
+TYPE=c
+CINT=2
+LINE=3/1/1/2
+FINT=
+FLINE=0;29;28;27;26;0
+HILO=
+HLSYM=
+WIND=
+TITLE=1/-1/~ ICIP
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

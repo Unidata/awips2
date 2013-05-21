@@ -10,6 +10,7 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;
 import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
 import gov.noaa.nws.ncep.ui.pgen.display.CurveFitter;
@@ -21,10 +22,12 @@ import gov.noaa.nws.ncep.ui.pgen.elements.MultiPointElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;
+import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 
 import java.awt.Color;
 
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -44,6 +47,7 @@ import com.vividsolutions.jts.linearref.LocationIndexedLine;
  * 11/17        #343        S. Gilbert  Delete where selected. not just vertices
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 06/12        TTR102		B. Yin		Make it work for Jet
+ * 03/13		#927		B. Yin		Added constructor for the handler class.
  *
  * </pre>
  * 
@@ -86,7 +90,7 @@ public class PgenDeletePart extends PgenSelectingTool {
     
         if ( this.delPartHandler == null ) {
         	
-        	this.delPartHandler = new PgenDelPartHandler();
+        	this.delPartHandler = new PgenDelPartHandler( this, mapEditor, drawingLayer, attrDlg );
         	
         }
 
@@ -99,7 +103,7 @@ public class PgenDeletePart extends PgenSelectingTool {
      * @author bingfan
      *
      */
-    public class PgenDelPartHandler extends PgenSelectingTool.PgenSelectHandler {
+    public class PgenDelPartHandler extends PgenSelectHandler {
    	
     	private Symbol DOT = new Symbol(null, new Color[]{Color.RED}, 1.0f, 7.5, false, null, "Marker", "DOT");
     	OperationFilter delPartFilter = new OperationFilter( Operation.DELETE_PART );
@@ -114,6 +118,18 @@ public class PgenDeletePart extends PgenSelectingTool {
      	Coordinate point2 = null;
      	LocationIndexedLine lil = null;
      	GeometryFactory gf = new GeometryFactory();
+
+    	/**
+    	 * Constructor
+    	 * @param tool
+    	 * @param mapEditor
+    	 * @param resource
+    	 * @param attrDlg
+    	 */
+    	public PgenDelPartHandler( AbstractPgenTool tool, AbstractEditor mapEditor, PgenResource resource,
+    					AttrDlg attrDlg){
+    		super( tool, mapEditor, resource, attrDlg);
+    	}
      	
         /*
          * (non-Javadoc)
@@ -124,7 +140,7 @@ public class PgenDeletePart extends PgenSelectingTool {
         @Override	   	
         public boolean handleMouseDown(int anX, int aY, int button) { 
         	if ( !isResourceEditable() ) return false;
-        	
+
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null ) return false;

@@ -20,7 +20,9 @@ import org.eclipse.ui.PlatformUI;
 
 //import gov.noaa.nws.ncep.viz.overlays.resources.*;
 import gov.noaa.nws.ncep.viz.resources.*;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
@@ -40,6 +42,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 05/10		#265		G. Zhang   	Initial Creation.
  * 05/10        #265        G. Hull     test for AbstractNatlCntrsRequestableResourceData to
  *                                      remove PGEN dependency
+ * 02/13        #972        G. Hull     setDisplayModified flag
  *
  * </pre>
  * 
@@ -71,7 +74,8 @@ public class WipeResultsAction extends AbstractHandler {
 				// delete all, but overlays and the basic map; 
 				// based on NmapUiUtil's findResource().
 				 
-				AbstractEditor editor = NmapUiUtils.getActiveNatlCntrsEditor();
+				AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
+				
 				if( editor == null ) return null;
 
 				IRenderableDisplay disp = editor.getActiveDisplayPane().getRenderableDisplay();
@@ -91,8 +95,11 @@ public class WipeResultsAction extends AbstractHandler {
 				}				
 				
 				rscList.removeAll(rmList);	//rscList.clear() removes everything.
-							
+
+				NcEditorUtil.setDisplayAvailable( editor, true );
+				
 				editor.refresh();
+
 			}
 		}else{
 			return null;

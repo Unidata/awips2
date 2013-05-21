@@ -1,0 +1,24 @@
+!
+! Restore File :radar_spectra1
+!
+! Log:
+!Archana/SGT  	 3/2013	Initial creation
+!
+GLEVEL=0
+GVCORD=none
+SKIP=
+FILTER=y
+SCALE=0
+GDPFUN=RDSP1
+TYPE=c
+CINT=1
+LINE=5/1/2/1
+FINT=
+FLINE=
+HILO=
+HLSYM=
+WIND=
+TITLE=5/-1/~ Radar Spectra 1!
+COLORS=2         
+MARKER=2        
+GRDLBL=5                                                                       
