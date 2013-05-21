@@ -56,12 +56,12 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 	private Button tempBtn, dewpBtn, parcelTvBtn,parcelBtn, dcapeBtn,vTempBtn, wetBulbBtn, mixingRatioBtn, 
 		dryAdiabatBtn,moisAdiabatBtn,omegaBtn, meanWindVectorBtn, stormMVector3075Btn, stormMVector1585Btn,
 		stormMVectorBunkersRightBtn,stormMVectorBunkersLeftBtn, corfidiVectorBtn, hodoBtn, efflayerBtn, cloudBtn, windBarbBtn;	
-	private Text windBarbText, tempOffsetText;
+	private Text tempOffsetText;
 	//default value for button initial setup
 	private  boolean temp=true, dewp=true, parcel=true,parcelTv=true,dcape=true, vTemp=true, wetBulb=true, hodo=true,
 		mixratio=false, dryAdiabat=true, moistAdiabat=false, omega=true, meanWind=true, 
 		smv3075=false, smv1585=false, smvBunkersR=true, smvBunkersL=true,corfidiV=false, effLayer=true, cloud=false, windBarb=true;
-	private int windBarbDistance=NsharpNativeConstants.WINDBARB_DISTANCE_DEFAULT;
+	//private int windBarbDistance=NsharpNativeConstants.WINDBARB_DISTANCE_DEFAULT;
 	private int tempOffset = 0;
 	private void updateGraphProperty(){
 		if(graphProperty != null){
@@ -86,7 +86,7 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 			graphProperty.setCorfidiV(corfidiV);
 			graphProperty.setEffLayer(effLayer);
 			graphProperty.setWindBarb(windBarb);
-			graphProperty.setWindBarbDistance(windBarbDistance);
+			//graphProperty.setWindBarbDistance(windBarbDistance);
 			graphProperty.setTempOffset(tempOffset);
 		}
 	}
@@ -187,9 +187,9 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 	}
 
 
-	public int getWindBarbDistance() {
-		return windBarbDistance;
-	}
+	//public int getWindBarbDistance() {
+	//	return windBarbDistance;
+	//}
 
 
 	public static NsharpParametersSelectionConfigDialog getInstance( Shell parShell){
@@ -245,7 +245,7 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 			effLayer=graphProperty.isEffLayer();
 			cloud=graphProperty.isCloud();
 			windBarb=graphProperty.isWindBarb();
-			windBarbDistance = graphProperty.getWindBarbDistance();
+			//windBarbDistance = graphProperty.getWindBarbDistance();
 			tempOffset = graphProperty.getTempOffset();
 		}
 		
@@ -599,6 +599,7 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 					applyChange();
 				}          		            	 	
 			} );  
+		/*
 		windBarbText = new Text(btnGp, SWT.BORDER | SWT.SINGLE);
 		windBarbText.setText(Integer.toString(windBarbDistance));
 		windBarbText.setBounds(windBarbBtn.getBounds().x+windBarbBtn.getBounds().width, windBarbBtn.getBounds().y,btnWidth/4,btnHeight);
@@ -620,7 +621,7 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 				}
 				
 			}
-		});
+		});*/
 		Label tempOffsetLbl = new Label(btnGp, SWT.BORDER );
 		tempOffsetLbl.setText("Temperature Range Offset ");
 		tempOffsetLbl.setBounds(btnGp.getBounds().x+ btnGapX, windBarbBtn.getBounds().y + windBarbBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
@@ -732,11 +733,11 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 		//"Enter" key is pressed, or "Apply" button is pressed.
 		//Chin: handle user entered data and apply its changes.
 		//System.out.println("CR is pressed");
-		String textStr = windBarbText.getText();
-		if((textStr != null) && !(textStr.isEmpty())){
-			windBarbDistance = Integer.decode(textStr);
-		}
-		textStr = tempOffsetText.getText();
+		//String textStr = windBarbText.getText();
+		//if((textStr != null) && !(textStr.isEmpty())){
+		//	windBarbDistance = Integer.decode(textStr);
+		//}
+		String textStr = tempOffsetText.getText();
 		if((textStr != null) && !(textStr.isEmpty())){
 			if(!textStr.contains("-") || textStr.length() > 1){
 				tempOffset = Integer.decode(textStr);
@@ -796,7 +797,7 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
     }
 
 	public void reset(){
-		windBarbDistance=NsharpNativeConstants.WINDBARB_DISTANCE_DEFAULT;
+		//windBarbDistance=NsharpNativeConstants.WINDBARB_DISTANCE_DEFAULT;
 		tempOffset=0;
 	}
 

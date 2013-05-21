@@ -7,6 +7,10 @@
 	<bean id="ntransPluginName" class="java.lang.String">
 		<constructor-arg type="java.lang.String" value="ntrans" />
 	</bean>
+
+    <bean id="ntransPathProvider"
+        class="gov.noaa.nws.ncep.common.dataplugin.ntrans.NtransPathProvider" />
+
 	<bean id="ntransProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
 		<property name="pluginName" ref="ntransPluginName" />
 		<property name="pluginFQN" value="gov.noaa.nws.ncep.common.dataplugin.ntrans" />
@@ -14,7 +18,10 @@
 			value="gov.noaa.nws.ncep.common.dataplugin.ntrans.dao.NtransDao" />
 		<property name="record"
 			value="gov.noaa.nws.ncep.common.dataplugin.ntrans.NtransRecord" />
-
+        <property name="pathProvider">
+            <ref bean="ntransPathProvider" />
+        </property>
+        <property name="compression" value="LZF"/>
 	</bean>
 
 	<bean factory-bean="pluginRegistry" factory-method="register">

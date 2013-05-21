@@ -15,7 +15,6 @@ import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasRecord;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.viz.rsc.satellite.units.NcIRPixelToTempConverter;
-import gov.noaa.nws.ncep.viz.ui.display.IGridGeometryProvider;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 
@@ -39,7 +38,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  *  05/24/2010    #281        ghull       Initial creation 
  *  06/07/2012    #717       archana    Added the methods getImageTypeNumber(),
  *                                      getParameterList(), getLocFilePathForImageryStyleRule()
- *                                      Updated getDataUnitsFromRecord() to get the units from the database 
+ *                                      Updated getDataUnitsFromRecord() to get the units from the database
  *  11/29/2012    #630       ghull      IGridGeometryProvider   
  *                                 
  * </pre>
@@ -54,7 +53,7 @@ public class McidasSatResource extends AbstractSatelliteResource
 	
 //    McidasMapCoverage coverage = null;
     
-	public McidasSatResource(SatelliteResourceData data, LoadProperties props) {
+    public McidasSatResource(SatelliteResourceData data, LoadProperties props) {
         super(data, props);
         satRscData = data;
         
@@ -114,9 +113,9 @@ public class McidasSatResource extends AbstractSatelliteResource
     	return NcPathConstants.MCIDAS_IMG_STYLE_RULES;
     }
     
-int getImageTypeNumber(PluginDataObject pdo ) {
-	return ((McidasRecord)pdo).getImageTypeNumber().intValue();
-}
+    int getImageTypeNumber(PluginDataObject pdo ) {
+    	return ((McidasRecord)pdo).getImageTypeNumber().intValue();
+    }
     
     
 	@Override
@@ -154,6 +153,6 @@ int getImageTypeNumber(PluginDataObject pdo ) {
                  0, 0 }, new int[] { coverage.getNx(), coverage.getNy() }, false),
                  env);
 		
-	       return mapGeom;
+	    return mapGeom;
 	}
 }

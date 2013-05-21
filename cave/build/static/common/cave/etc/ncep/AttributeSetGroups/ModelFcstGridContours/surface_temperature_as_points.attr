@@ -1,0 +1,24 @@
+!
+! Restore File : surface_temperature_as_points
+!
+! Log:
+!Archana/SGT  	 3/2013	Initial creation
+!
+GLEVEL=0
+GVCORD=none
+SKIP=
+FILTER=y
+SCALE=0
+GDPFUN=TMPC
+TYPE=p
+CINT=0
+LINE=5/1/2/1
+FINT=
+FLINE=
+HILO=
+HLSYM=
+WIND=
+TITLE=5/-1/~ @ SURFACE TEMPERATURE!
+COLORS=2         
+MARKER=2        
+GRDLBL=5                                                                       

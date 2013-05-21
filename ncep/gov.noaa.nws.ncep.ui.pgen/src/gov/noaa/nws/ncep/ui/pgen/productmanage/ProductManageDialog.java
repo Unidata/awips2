@@ -1264,30 +1264,30 @@ public class ProductManageDialog extends ProductDialog {
     	 *  Remind the user to save.
     	 */
    	    if ( needSaving() ) {
-   	    MessageDialog confirmDlg = new MessageDialog( 
-        		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
-        		"Confirm Exit from Product Management", null, 
+   	    	MessageDialog confirmDlg = new MessageDialog( 
+   	    			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
+   	    			"Confirm Exit from Product Management", null, 
    	    			"Do you want to save the changes?",
-        		MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0 );
-        
-    	confirmDlg.open();
-        
-        if ( confirmDlg.getReturnCode() == MessageDialog.OK ) {   		    
-            
-        	PgenFileManageDialog file_dlg = null;
-            
-            if ( file_dlg == null ) {
-           	    try {	
-           	        file_dlg = new PgenFileManageDialog( shell, "Save" );        		
-           	    }
-                catch (VizException e) {
-                    e.printStackTrace();
-                }  
-            }
-            
-            if ( file_dlg != null )  file_dlg.open();
-  		    
-        }
+   	    			MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0 );
+
+   	    	confirmDlg.open();
+
+   	    	if ( confirmDlg.getReturnCode() == MessageDialog.OK ) {   		    
+
+   	    		PgenFileManageDialog file_dlg = null;
+
+   	    		if ( file_dlg == null ) {
+   	    			try {	
+   	    				file_dlg = new PgenFileManageDialog( shell, "Save" );        		
+   	    			}
+   	    			catch (VizException e) {
+   	    				e.printStackTrace();
+   	    			}  
+   	    		}
+
+   	    		if ( file_dlg != null )  file_dlg.open();
+
+   	    	}
         
    	    }
         
@@ -2167,7 +2167,7 @@ public class ProductManageDialog extends ProductDialog {
     	PgenUtil.setSelectingMode();
     	super.close();
     }
-         
+ 
     /*
      *  Clean up before close the shell - default is to do nothing. 
      */
