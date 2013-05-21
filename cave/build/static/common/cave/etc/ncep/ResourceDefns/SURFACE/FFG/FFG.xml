@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <isEnabled>true</isEnabled>
     <resourceDefnName>FFG</resourceDefnName>
     <resourceCategory>SURFACE</resourceCategory>
     <resourceParameters>
@@ -8,7 +7,6 @@ pluginName=ffg
 reportType=FFG
 legendColor=RGB {33,100,255}
     </resourceParameters>
-    <filterLabels></filterLabels>
     <rscImplementation>FFG</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>

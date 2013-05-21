@@ -6,7 +6,7 @@
 ! J. Carr/HPC            6/97   Changed boundary level to comply with EMC changes
 ! D.W.Plummer/NCEP	 8/97	Added FILTER parameter and changed TEXT value
 !
-GLEVEL=0   !0   !0   !0   !30:0
+GLEVEL=0   !0   !0   !0   !0:30
 GVCORD=FRZL!FRZL!FRZL!FRZL!pdly
 SKIP=
 FILTER=y

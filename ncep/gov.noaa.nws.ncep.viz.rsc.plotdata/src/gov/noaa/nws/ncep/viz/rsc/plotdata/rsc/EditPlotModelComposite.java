@@ -69,7 +69,7 @@ import org.eclipse.swt.widgets.Scale;
  * 										Fixed the issue of Sky Coverage parameters not appearing in the Sky Coverage drop-down list.
  * 07/24/2012    431        S. Gurung   Added code for editing advanced settings
  * 02/26/2013    936        Archana     Removed references to the 'Standard' font.
- * 
+ *            
  * </pre>
  * 
  * @author ghull
@@ -151,7 +151,7 @@ public class EditPlotModelComposite extends Composite {
 		plotParamDefns = PlotParameterDefnsMngr.getInstance().getPlotParamDefns( 
 								editedPlotModel.getPlugin() );		
 		
-		createPlotModelGuiElements();
+		createPlotModelGuiElements();		
 		
 		createTextAttrControls();
 
@@ -206,7 +206,7 @@ public class EditPlotModelComposite extends Composite {
 //					} else {
 //						textStyleCombo.setEnabled(true);
 //					}
-						textStyleCombo.setEnabled(true);
+					textStyleCombo.setEnabled(true);
 					if (applyToAllBtn.getSelection()) {
 		    			applyTextChangesToAllParameters();
 		    		}					
@@ -248,7 +248,7 @@ public class EditPlotModelComposite extends Composite {
 	 * Create Parameter List, symbol size and color picker
 	 */
 	private void createParmListControls() {
-		Composite comp = new Composite( topComposite, SWT.NONE);
+		Composite comp = new Composite( topComposite, SWT.NONE);	
 		GridLayout gl = new GridLayout(3, false);
 		comp.setLayout(gl);
 
@@ -301,11 +301,11 @@ public class EditPlotModelComposite extends Composite {
 				}
 			}
 		});
-
+		
 		// Color selector
 		Group selColorGrp = new Group ( comp, SWT.SHADOW_NONE );
 		selColorGrp.setText("Color");
-
+		
 		cms = new ColorMatrixSelector( selColorGrp, false, true,
 				22, 88, 18, 22, 28, 86, 0, 4, 5);
 		cms.setColorValue(new RGB(0,255,0));
@@ -317,7 +317,7 @@ public class EditPlotModelComposite extends Composite {
 					seldPlotModelElemButton.setButtonAsSelected();
 				}
 			}
-		});   	
+		});			
 	}
 	
 	private void createPlotModelGuiElements() {		
@@ -415,7 +415,7 @@ public class EditPlotModelComposite extends Composite {
 		gl.verticalSpacing = 0;
 		gl.marginHeight = 0;
 		comp.setLayout(gl);
-
+		
 		// create "Advanced..." button
         advancedBtn = new Button(comp, SWT.NONE);        
         advancedBtn.setText("Advanced...");
@@ -457,7 +457,7 @@ public class EditPlotModelComposite extends Composite {
 		
 		pmeBtn = new PlotModelElemButton(comp, pme);
 		pmeBtn.init();
-
+ 
 		plotModelElementsUIMap.put( plotModelElementPositions[10], pmeBtn ); 
 						
 	}    
@@ -500,7 +500,7 @@ public class EditPlotModelComposite extends Composite {
 			
 			checkBtn = new Button(grp, SWT.CHECK | SWT.SHADOW_ETCHED_OUT);
 			checkBtn.setLayoutData(new GridData(15, 12));
-			
+						
 			parmBtn = new Button(grp, SWT.TOGGLE);
 			parmBtn.setLayoutData(new GridData(62, 53));	
 						
@@ -594,7 +594,7 @@ public class EditPlotModelComposite extends Composite {
 		public void setSymbolSize(Double size) {
 			pltMdlElmt.setSymbolSize( size );
 		}
-
+        
 		public Double getSymbolSize() {
 			if( pltMdlElmt.getParamName() != null )
 				return pltMdlElmt.getSymbolSize();
@@ -610,7 +610,7 @@ public class EditPlotModelComposite extends Composite {
 			RGB rgb = getColor();
 
 			grp.setBackground( new Color(getParent().getDisplay(), cms.getColorValue() ));
-
+			
 			seldPlotModelElemButton.parmBtn.setForeground(
 					new Color(getParent().getDisplay(), rgb ) );
 			seldPlotModelElemButton.parmBtn.setBackground(
@@ -646,7 +646,7 @@ public class EditPlotModelComposite extends Composite {
 				parmBtn.setForeground( new Color( getParent().getDisplay(), 
 						getColor().red, getColor().green, getColor().blue ));
 				parmBtn.setBackground(Display.getDefault().getSystemColor(
-						SWT.COLOR_BLACK));
+						SWT.COLOR_BLACK));				
 
 				PlotParameterDefn paramDefn = plotParamDefns.getPlotParamDefn( 
 						pltMdlElmt.getParamName() );
@@ -701,7 +701,7 @@ public class EditPlotModelComposite extends Composite {
 			else {
 				pltMdlElmt.setParamName( parmName );
 			}
-			
+						
 			parmBtn.setText( getButtonLabel() );
 
 			// Set foreground and background color
@@ -765,7 +765,7 @@ public class EditPlotModelComposite extends Composite {
 				wndBrbElmt = new PlotModelElement();
 				wndBrbElmt.setPosition("WD");
 			}
-
+			
 			if(advancedIconFile != null && advancedIconFile.exists() 
 					&& (skyCovElmt.hasAdvancedSettings() || wndBrbElmt.hasAdvancedSettings())) {
 				Image image = new Image(Display.getCurrent(), advancedIconFile.getAbsolutePath());
@@ -981,7 +981,7 @@ public class EditPlotModelComposite extends Composite {
 					cms.setColorValue( getColor() );
 
 					// Set grp background
-					grp.setBackground( new Color(getParent().getDisplay(), cms.getColorValue() ));
+					grp.setBackground( new Color(getParent().getDisplay(), cms.getColorValue() ));					
 				}
 			}
 			
@@ -1156,14 +1156,14 @@ public class EditPlotModelComposite extends Composite {
 						cntrBtn.getWindBarbParamName() != null ) {						
 //						prmDefn = plotParamMngr.getParamDefn( cntrBtn.getSkyCovParamName() );
 						isTextApplicable = false;
-						isSymbApplicable = true; //(prmDefn != null);
+						isSymbApplicable = true; //(prmDefn != null);							
 					}
 					
 					//if (cntrBtn.getSkyCovParamName() != null && cntrBtn.getWindBarbParamName() != null) {
 						//advancedBtn.setEnabled(false);
 					//}
 				}
-//			}
+//			}			
 					
 		}
 							
@@ -1266,7 +1266,7 @@ public class EditPlotModelComposite extends Composite {
 				}        					
 			}
 		}
-	}
+	} 
 		
 	private void editAdvancedSettings() {
 		

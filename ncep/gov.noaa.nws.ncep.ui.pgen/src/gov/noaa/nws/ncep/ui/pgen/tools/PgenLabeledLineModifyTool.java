@@ -20,7 +20,9 @@ import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.Cloud;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.Label;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.LabeledLine;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.Turbulence;
+import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.Ccfp;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.CloudAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.TurbAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.CcfpAttrDlg;
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 
 
@@ -43,13 +46,16 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 09/10			305		B. Yin   	Initial Creation.
  * 12/11			?		B. Yin		Added open/close line functions
  * 03/12        #697        Q. Zhou     Fixed line arrow head size
+ * 03/13		#927		B. Yin		Added constructor for the handler. 
  * </pre>
  * 
  * @author	B. Yin
  */
 
-public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILabeledLine{
+public class PgenLabeledLineModifyTool extends PgenSelectingTool implements 
+        ILabeledLine{
 	Ccfp ccfp = null;
+	
 	//labeled line working on
 	LabeledLine labeledLine;
 	
@@ -71,7 +77,10 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
     	
     	elSelected = null;
     	click = null;
-    	
+
+        if (attrDlg == null)
+            return;
+
     	if ( event.getTrigger() instanceof Cloud ) {
     		labeledLine = (LabeledLine)event.getTrigger();
     		((CloudAttrDlg)attrDlg).setCloudDrawingTool(this);
@@ -101,7 +110,7 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
     		((CcfpAttrDlg)attrDlg).setCcfpDrawingTool(this);
     		ccfp.setAttributes(attrDlg);
     	}
-    	this.setHandler( new PgenLabeledLineModifyHandler() );
+    	this.setHandler( new PgenLabeledLineModifyHandler( this, mapEditor, drawingLayer, attrDlg ) );
     	
     }
 
@@ -113,7 +122,7 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
     
         if ( this.mouseHandler == null ) {
         	
-        	this.mouseHandler = new PgenLabeledLineModifyHandler();
+        	this.mouseHandler = new PgenLabeledLineModifyHandler( this, mapEditor, drawingLayer, attrDlg );
         	
         }
         
@@ -126,7 +135,7 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
      * @author bingfan
      *
      */
-	private class PgenLabeledLineModifyHandler extends PgenSelectingTool.PgenSelectHandler {
+	private class PgenLabeledLineModifyHandler extends PgenSelectHandler {
         private ArrayList<Coordinate> points = new ArrayList<Coordinate>();
         private boolean simulate;
        	/**
@@ -136,6 +145,18 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
     	protected DrawableElementFactory def = new DrawableElementFactory();
 		protected boolean	ptSelected2	= false;
 
+	   	/**
+	   	 * Constructor.
+	   	 * @param tool
+	   	 * @param mapEditor
+	   	 * @param resource
+	   	 * @param attrDlg
+	   	 */
+    	public PgenLabeledLineModifyHandler( AbstractPgenTool tool, AbstractEditor mapEditor, PgenResource resource,
+    					AttrDlg attrDlg){
+    		super( tool, mapEditor, resource, attrDlg);
+    	}
+     	
         /*
          * (non-Javadoc)
          * 
@@ -145,7 +166,7 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
         @Override	   	
         public boolean handleMouseDown(int anX, int aY, int button) { 
         	if ( !isResourceEditable() ) return false;
-       
+
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null || shiftDown || simulate ) return false;
@@ -292,7 +313,7 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
     					return false;
     				}
     			}
-        		
+   		
         		ptSelected2 = true;
         		if ( elSelected != null ){
         			if ( elSelected.getParent() instanceof Label ){
@@ -407,7 +428,7 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
     	       		 }
 
     	       		 // re-set label
-            		if ( elSelected.getParent() instanceof Label ){
+           		if ( elSelected.getParent() instanceof Label ){
 
             			if ( elSelected instanceof Line  && ghostEl != null   && ptSelected2){
             				ptSelected2 = false;
@@ -462,7 +483,7 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
             			drawingLayer.replaceElements(old, newLines);
             		}
             		else {
-            		drawingLayer.replaceElement(labeledLine, newll);
+            			drawingLayer.replaceElement(labeledLine, newll);
             		}
             		
             		labeledLine = newll;
@@ -523,7 +544,7 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
 		//resetSelected();
 		click = null;
 		elSelected = null;
-		setHandler(new PgenLabeledLineModifyHandler() );
+		setHandler(new PgenLabeledLineModifyHandler( this, mapEditor, drawingLayer, attrDlg ) );
 	}
 
 	@Override

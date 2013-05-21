@@ -11,6 +11,7 @@
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 03/16/2010	229			Chin Chen	Initial coding
+ * 03/11/2013   972         Greg Hull   NatlCntrsEditor
  *
  * </pre>
  * 
@@ -28,7 +29,7 @@ import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
 import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NatlCntrsEditor;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -370,9 +371,14 @@ DisposeListener, IPartListener{
 			super.dispose();
 			currentGraphMode= NsharpConstants.GRAPH_SKEWT;
 			isEditorVisible = false;
-			NCMapEditor editor = NsharpMapResource.getMapEditor();
+			NatlCntrsEditor editor = NsharpMapResource.getMapEditor();
 			if(editor!=null){
 				for ( IRenderableDisplay display : UiUtil.getDisplaysFromContainer(editor) ) {
+//					NsharpMapResource mrsc = (NsharpMapResource)NcDisplayMngr.findAllResources( NsharpMapResource.class, editor );
+//					if( mrsc != null ) {
+//						mrsc.unload();
+//						display.getDescriptor().getResourceList().removePreRemoveListener(mrsc);
+//					}
 					//System.out.println("display " + display.toString());
 					for ( ResourcePair rp : display.getDescriptor().getResourceList() ) {
 						if ( rp.getResource() instanceof NsharpMapResource ) {

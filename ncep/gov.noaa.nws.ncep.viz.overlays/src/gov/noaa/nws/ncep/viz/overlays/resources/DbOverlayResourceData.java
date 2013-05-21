@@ -4,6 +4,7 @@ package gov.noaa.nws.ncep.viz.overlays.resources;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.common.RGBColorAdapter;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -103,6 +104,11 @@ public class DbOverlayResourceData extends AbstractNatlCntrsResourceData
 
         };
     }
+
+	@Override
+	public NcDisplayType[] getSupportedDisplayTypes() {
+		return new NcDisplayType[] { NcDisplayType.NMAP_DISPLAY };
+	}
 
     @SuppressWarnings("unchecked")
 	@Override

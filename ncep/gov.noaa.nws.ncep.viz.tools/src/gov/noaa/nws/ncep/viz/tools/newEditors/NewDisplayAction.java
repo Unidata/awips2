@@ -1,12 +1,15 @@
 package gov.noaa.nws.ncep.viz.tools.newEditors;
 
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.common.ui.UserEntryDialog;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
-import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
+import gov.noaa.nws.ncep.viz.resources.manager.AbstractRBD;
+import gov.noaa.nws.ncep.viz.resources.manager.NcMapRBD;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceBndlLoader;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import java.io.File;
 
@@ -15,6 +18,8 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * from the main menu, create a new display/editor and load 
@@ -26,10 +31,12 @@ import com.raytheon.uf.viz.core.VizApp;
  * ------------ ---------- ----------- --------------------------
  * 04/20/11                Greg Hull   change name to plot model editor. Don't refresh mapEditor
  * 08/12/11       #450     Greg Hull   use the RBD name instead of the filename. 
- * 02/15/2012     #627     Archana    Updated the call to addRbd() to accept 
- *                                    a NCMapEditor object as one of the arguments   
+ * 02/15/2012     #627     Archana     Updated the call to addRbd() to accept 
+ *                                     a NCMapEditor object as one of the arguments
  * 08/16/2012     #655     B. Hebbard  (TTR 382) Run rbdLoader sync instead of async,
  *                                     to ensure descriptor has valid xforms before paint
+ * 02/13/13       #972     G. Hull     AbstractRBD
+ * 03/14/13                G. Hull     changed to return the new editor.
  * </pre>
  * 
  * @author ghull
@@ -45,15 +52,16 @@ public class NewDisplayAction extends AbstractHandler {
 
 		// create a unique display name.
 		//
-		File rbdFile = NcPathManager.getInstance().getStaticFile( 
-				         NcPathConstants.DFLT_RBD );
+		String newDisplayName="Error getting default RBD Name";
+		try {
+			newDisplayName = NcMapRBD.getDefaultRBD().getRbdName();
+		} catch (VizException e) {
+		} 
 		
-		String newDisplayName = null; 
-		
-		if( promptForName.equalsIgnoreCase( "true" ) ) {
+		if( promptForName == null || promptForName.equalsIgnoreCase( "true" ) ) {
 			
 			// pop up a dialog to prompt for the new name
-			UserEntryDialog entryDlg = new UserEntryDialog( NmapUiUtils.getCaveShell(),
+			UserEntryDialog entryDlg = new UserEntryDialog( NcDisplayMngr.getCaveShell(),
 					"Display Name", 
 					"Enter the name of the new Display:", 
 					newDisplayName );
@@ -66,35 +74,36 @@ public class NewDisplayAction extends AbstractHandler {
 			}
 		}
 
-		createNewDefaultDisplay( newDisplayName );
+		AbstractEditor ed = createNewDefaultDisplay( newDisplayName );
 		
-		return null;
+		return (Object)ed;
 	}
 
-	public static void createNewDefaultDisplay( String newDisplayName ) {
-    	try {
-    		RbdBundle rbd = RbdBundle.getDefaultRBD();
-    		
-    		rbd.resolveLatestCycleTimes(); // shouldn't be needed  but just in case
-    		
+	public static AbstractEditor createNewDefaultDisplay( String newDisplayName ) {
+		try {
     		if( newDisplayName == null || newDisplayName.isEmpty() ) {
-    			newDisplayName = rbd.getRbdName();
+    			newDisplayName = NcMapRBD.getDefaultRBD().getRbdName();
     		}
     		
-    		NCMapEditor editor = NmapUiUtils.createNatlCntrsEditor( newDisplayName );
-   // 		rbd.setNcEditor( editor );
+    		AbstractEditor editor = NcDisplayMngr.createNatlCntrsEditor( 
+    				NcDisplayType.NMAP_DISPLAY, newDisplayName  );
     		
-    		ResourceBndlLoader rbdLoader = new ResourceBndlLoader( "Loading RBD: "+rbd.getRbdName() );
+    		ResourceBndlLoader rbdLoader = new ResourceBndlLoader( "Loading RBD: "+ newDisplayName );
     		
-    		rbdLoader.addRBD( rbd, editor );
+			rbdLoader.addDefaultRBD( NcDisplayType.NMAP_DISPLAY, editor );
+			
     		//TODO -- is there a way we still run async, w/o reintroducing TTR 382?
     		// VizApp.runAsync( rbdLoader );
     		VizApp.runSync( rbdLoader );
+    		
+    		// Note that the new editor will be returned before
+    		// the rbd is loaded into it. 
+    		return editor;
     	}
     	catch ( Exception ve ) {
     		System.out.println("Could not load rbd: " + ve.getMessage());
     		ve.printStackTrace();
-    	}   
-		return;		
+    		return null;
+    	}       	
 	}
 }

@@ -1,0 +1,23 @@
+!
+! Restore File :direction_of_wind_wave
+!
+! Log:
+!
+GLEVEL=0
+GVCORD=NONE
+SKIP=
+FILTER=y
+SCALE=0
+GDPFUN=DRCTWW
+TYPE=p
+CINT=0
+LINE=5/1/1
+FINT=
+FLINE=
+HILO=
+HLSYM=
+WIND=
+TITLE=1/-1/~ Direction Of Wind Wave !0
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       
