@@ -10,11 +10,13 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.WatchBoxAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.WatchInfoDlg;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
+import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 //import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.ui.pgen.display.IWatchBox;
 
@@ -41,6 +43,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 12/11		565			B. Yin		Modify watch box onlly when the curse is close enough
  * 02/12		TTR 525		B. Yin		Make sure points don't move when selecting.
  * 05/12		TTR 534		B. Yin		Re-set the watch dialog attributes
+ * 03/13		#927		B. Yin		Added constructor for the handler class.
  * 
  * </pre>
  * 
@@ -83,7 +86,7 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
     
         if ( this.mouseHandler == null ) {
         	
-        	this.mouseHandler = new PgenWatchBoxModifyHandler();
+        	this.mouseHandler = new PgenWatchBoxModifyHandler(this, mapEditor, drawingLayer, attrDlg );
         	
         }
         
@@ -96,10 +99,17 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
      * @author bingfan
      *
      */
-	private class PgenWatchBoxModifyHandler extends PgenSelectingTool.PgenSelectHandler {
+	private class PgenWatchBoxModifyHandler extends PgenSelectHandler {
 		
 		private boolean dontMove = true;	//flag to prevent moving during selection
 		private boolean simulate;
+		
+      	
+    	public PgenWatchBoxModifyHandler( AbstractPgenTool tool, AbstractEditor mapEditor, PgenResource resource,
+    					AttrDlg attrDlg){
+    		super( tool, mapEditor, resource, attrDlg);
+    	}
+    	
         /*
          * (non-Javadoc)
          * 
@@ -123,11 +133,11 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
         	else if ( button == 3 ) {
             	
             	// Close the attribute dialog and do the cleanup.
-            	if ( attrDlg != null ) {
-            		attrDlg.close();
+            	if ( PgenWatchBoxModifyTool.this.attrDlg != null ) {
+            		PgenWatchBoxModifyTool.this.attrDlg.close();
             	}
 
-            	attrDlg = null;
+            	PgenWatchBoxModifyTool.this.attrDlg = null;
             	
         		drawingLayer.removeGhostLine();
         		ptSelected = false;
@@ -196,7 +206,7 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
         		}
         		else {
         			//create the ghost watch box
-        			ghostEl.setPoints( ((WatchBox)tmpEl).createNewWatchBox(ptIndex, loc, ((IWatchBox)attrDlg).getWatchBoxShape()));
+        			ghostEl.setPoints( ((WatchBox)tmpEl).createNewWatchBox(ptIndex, loc, ((IWatchBox)PgenWatchBoxModifyTool.this.attrDlg).getWatchBoxShape()));
         			drawingLayer.setGhostLine(ghostEl);
         			mapEditor.refresh();
 
@@ -220,7 +230,7 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
         public boolean handleMouseUp(int x, int y, int button) {
         	firstDown = null;
         	if ( !isResourceEditable() ) return false;
-        	
+
         	// Finish the editing
     		if (button == 1 && drawingLayer != null ){
     			
@@ -237,8 +247,8 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
     					
     					// re-snap the new watch box
     					resnapWatchBox( mapEditor, (WatchBox)ghostEl, newEl );
-    			    	((WatchBoxAttrDlg)attrDlg).setWatchBox(newEl);
-    			    	WatchInfoDlg infoDlg = ((WatchBoxAttrDlg)attrDlg).getWatchInfoDlg();
+    			    	((WatchBoxAttrDlg)PgenWatchBoxModifyTool.this.attrDlg).setWatchBox(newEl);
+    			    	WatchInfoDlg infoDlg = ((WatchBoxAttrDlg)PgenWatchBoxModifyTool.this.attrDlg).getWatchInfoDlg();
     			    	if ( infoDlg != null && infoDlg.getShell()!= null ){
     			    		if ( infoDlg.isCountyLock()){
     			    			newEl.setCountyList(el.getCountyList());
@@ -328,6 +338,6 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
 	}
 	
 	public void resetMouseHandler(){
-		setHandler(new PgenWatchBoxModifyHandler() );
+		setHandler(new PgenWatchBoxModifyHandler(this, mapEditor, drawingLayer, attrDlg ) );
 	}  
 }

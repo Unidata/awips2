@@ -34,11 +34,11 @@ import com.raytheon.uf.viz.core.style.VizStyleException;
 @XmlRootElement(name = "solarImageMatches")
 public class SolarImageMatchCriteria extends MatchCriteria {
 
-    private static final String INSTRUMENT = "instrument";
-
-    private static final String WAVELENGTH = "wavelength";
-
-    private static final String INT_TIME = "intTime";
+//    private static final String INSTRUMENT = "instrument";
+//
+//    private static final String WAVELENGTH = "wavelength";
+//
+//    private static final String INT_TIME = "intTime";
 
     @XmlElement
     private String instrument;
@@ -49,25 +49,25 @@ public class SolarImageMatchCriteria extends MatchCriteria {
     @XmlElement
     private String intTime;
 
-   /* @XmlElement
-    private String detector;
-*/
+    @XmlElement
+    private String satellite;
+
     public static SolarImageMatchCriteria constructFromResourceData(
             SolarImageResourceData rscdata) {
 
         SolarImageMatchCriteria criteria = new SolarImageMatchCriteria();
 
-        if (rscdata.getMetadataMap().containsKey(INSTRUMENT))
-            criteria.setInstrument(rscdata.getMetadataMap().get(INSTRUMENT)
-                    .getConstraintValue());
+        if( !rscdata.getInstrument().isEmpty() ) {
+            criteria.setInstrument( rscdata.getInstrument() );
+        }
 
-        if (rscdata.getMetadataMap().containsKey(WAVELENGTH))
-            criteria.setWavelength(rscdata.getMetadataMap().get(WAVELENGTH)
-                    .getConstraintValue());
+        if( !rscdata.getWavelength().isEmpty() ) {
+            criteria.setWavelength( rscdata.getWavelength() );
+        }
 
-        if (rscdata.getMetadataMap().containsKey(INT_TIME))
-            criteria.setIntTime(rscdata.getMetadataMap().get(INT_TIME)
-                    .getConstraintValue());       
+        if( !rscdata.getIntTime().isEmpty() ) {
+            criteria.setIntTime( rscdata.getIntTime() );    
+        }
 
         return criteria;
     }
@@ -142,4 +142,11 @@ public class SolarImageMatchCriteria extends MatchCriteria {
         this.instrument = instrument;
     }
 
+    public String getSatellite() {
+        return satellite;
+    }
+
+    public void setSatellite(String satellite) {
+        this.satellite = satellite;
+    }
 }

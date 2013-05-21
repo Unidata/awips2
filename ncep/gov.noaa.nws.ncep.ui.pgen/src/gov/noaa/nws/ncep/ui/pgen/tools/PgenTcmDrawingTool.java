@@ -29,7 +29,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------	----------	-----------	--------------------------
  * 09/11		?			B. Yin   	Initial Creation for TCM
  * 12/11		565			B. Yin		change return values for mouse handlers 
- *										inorder for panning to work correctly
+ *										in order for panning to work correctly
  *
  * </pre>
  * 
@@ -119,7 +119,7 @@ public class PgenTcmDrawingTool extends AbstractPgenDrawingTool {
         	//Coordinate loc = mapEditor.translateClick(anX, aY);
         	
         	if ( button == 1 ) { 
-                
+               
                 return false;
                 
             }

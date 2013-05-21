@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <!--  DISABLED BECAUSE the locowobnds.xml file doesn't exist -->
-    <isEnabled>false</isEnabled>
     <resourceDefnName>World</resourceDefnName>
     <resourceCategory>OVERLAY</resourceCategory>
     <resourceParameters>
 pgenStaticProductLocation=ncep/StaticPgenOverlays
 pgenStaticProductName=locowobnds.xml
     </resourceParameters>
-    <filterLabels>PGEN</filterLabels>
     <rscImplementation>PgenStaticOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>

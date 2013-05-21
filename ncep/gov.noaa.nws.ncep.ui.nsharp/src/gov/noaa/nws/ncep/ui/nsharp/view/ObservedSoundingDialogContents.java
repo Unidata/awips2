@@ -30,6 +30,7 @@ import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
 import gov.noaa.nws.ncep.viz.common.soundingQuery.NcSoundingQuery;
 
 import java.sql.Timestamp;
+import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -76,16 +77,18 @@ public class ObservedSoundingDialogContents {
 		NcSoundingTimeLines timeLines = NcSoundingQuery.soundingTimeLineQuery(currentSndType.toString());
 		
 		if(timeLines!= null && timeLines.getTimeLines() != null){
+			DateFormatSymbols dfs= new DateFormatSymbols();
+			String[] defaultDays = dfs.getShortWeekdays();
+			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 			ldDia.startWaitCursor();
 			for(Object timeLine : timeLines.getTimeLines()){
 				Timestamp synoptictime = (Timestamp)timeLine;
 				if(synoptictime != null){
 					//need to format synoptictime to GMT time string.  Timestamp.toString produce a local time Not GMT time
-					Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 					cal.setTimeInMillis(synoptictime.getTime());
-					String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tH%1$tM %2$s",  cal, currentSndType.toString());
-					//String gmtTimeStr = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",  cal);
-					//System.out.println("GMT time " + gmtTimeStr + " msec="+ synoptictime.getTime() + " local time "+synoptictime.toString());
+					String dayOfWeek = defaultDays[cal.get(Calendar.DAY_OF_WEEK)];
+					//String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tH%1$tM %2$s",  cal, currentSndType.toString());
+					String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tH(%3$s) %2$s",  cal, currentSndType.toString(),dayOfWeek);
 					if(!timeLimit){
 						//System.out.println("not 00z and 12z only");
 						sndTimeList.add(gmtTimeStr);

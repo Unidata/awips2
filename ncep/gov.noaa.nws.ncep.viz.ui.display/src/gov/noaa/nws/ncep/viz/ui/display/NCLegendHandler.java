@@ -19,9 +19,6 @@
  **/
 package gov.noaa.nws.ncep.viz.ui.display;
 
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -36,6 +33,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.BlendableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.BlendedCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.input.EditableManager;
 
 
@@ -62,7 +60,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  * 12/19/2012   960       G. Hull        use propertiesChanged() to toggle colorBar resources
  *                                        
  *                                                                                 
- * 
+ *                                                  
  * </pre>
  * 
  * @author sgurung
@@ -82,8 +80,8 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
 
     private static int currentRscIndex = 0;
 	
-	private boolean isShiftDown = false;	
-
+	private boolean isShiftDown = false;
+	 
 	private static boolean isFirstTime = true;
 
 
@@ -93,8 +91,8 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
     	if (mouseButton ==1 || mouseButton ==2) {
     		//IDisplayPaneContainer editor = getResourceContainer();
             //if (prefManager.handleClick(HIDE_RESOURCE_PREF, mouseButton)) {
-    		NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor(); //AbstractEditor
-    		if( editor != null &&  editor instanceof NCMapEditor ) {
+    		AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor(); 
+    		if( editor != null &&  editor instanceof AbstractNcEditor ) {
     			IDisplayPane activePane = editor.getActiveDisplayPane();
     			IRenderableDisplay display = editor.getActiveDisplayPane()
                     .getRenderableDisplay();
@@ -107,10 +105,10 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
     
     @Override
     public boolean handleMouseUp(int x, int y, int mouseButton) {
-    		
-    	NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor(); //AbstractEditor
+    
+    	AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor(); 
     	if (mouseButton ==1) {
-    		if( editor != null &&  editor instanceof NCMapEditor ) {
+    		if( editor != null &&  editor instanceof AbstractNcEditor ) {
     			IDisplayPane activePane = editor.getActiveDisplayPane();
     			IRenderableDisplay display = editor.getActiveDisplayPane()
                     .getRenderableDisplay();
@@ -120,7 +118,7 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
     			if (rsc != null && rsc == mouseDownRsc) {
    				
     				mouseDownRsc = null;
-    				toggleVisibility(rsc);
+    				toggleVisibility(rsc); 
     				editor.refresh();
     				
     				return true;
@@ -183,21 +181,21 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
 			isShiftDown = true;
 		}
     	
-		
-		NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor(); 
+   	
+    	AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor(); 
         ResourceList theMainList = editor.getActiveDisplayPane().getDescriptor().getResourceList();
       
         List<ResourcePair> subListOfResourcesToToggle = new ArrayList<ResourcePair>(0);
-
-			if ( isShiftDown ) {
-				/*
+        
+        if( isShiftDown  ){
+        	/*
         	 * Pressing the Shift key with either the up or the down arrow key makes
         	 * all the non-system/non map layer resources visible.
-				 */
+        	 */
             if (( keyCode == SWT.ARROW_UP || keyCode == SWT.ARROW_DOWN)){
         	  for ( ResourcePair resPair : theMainList){
         		 resPair.getProperties().setVisible(true);
-				}
+              }	
             }
 
         }else{
@@ -208,7 +206,7 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
              * Set the visibility for all the resources in both lists to false.
              */
             boolean allVisible = true;
-
+            
             for ( ResourcePair resPair : theMainList){
             	
             	if ( ! resPair.getProperties().isSystemResource() 
@@ -217,7 +215,7 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
             		subListOfResourcesToToggle.add(resPair);
             		allVisible = allVisible && resPair.getProperties().isVisible();
             		resPair.getProperties().setVisible(false);
-			}
+            	}
             }
             
             if(subListOfResourcesToToggle.isEmpty())
@@ -241,22 +239,22 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
            */     
             	if ( isFirstTime || isShiftDown)
             		currentRscIndex = 0;
-			else {
+            	else{
             		currentRscIndex++;
             		if(currentRscIndex > (listSize - 1))
             			currentRscIndex = 0;
             	}
-				
 
+            	               	 
             }else if (keyCode == SWT.ARROW_DOWN ){
-				/*
+                /*
                  *The very first time either the down arrow is pressed
                  *the currentRscIndex gets initialized to the index of the last 
                  *resource in the list
                  *Subsequently, if the down arrow is pressed, the index is decremented.
                  *If it points beyond the index of the first resource, 
                  *then it gets set to the index of the last resource 
-				 */
+                 */            	
            	
             	if(isFirstTime || isShiftDown)
             		currentRscIndex = listSize - 1;
@@ -264,11 +262,11 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
                       currentRscIndex--;
                        if( currentRscIndex < 0 )
                     	   currentRscIndex = listSize - 1;
-					}
-
-          }
-            
-           /*Make the resource visible*/ 
+            	}  
+  
+          }            
+           
+          /*Make the resource visible*/ 
           ResourcePair rscToSetVisible = subListOfResourcesToToggle.get(currentRscIndex);
           rscToSetVisible.getProperties().setVisible(true);  
           
@@ -278,11 +276,11 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
             
           if ( isFirstTime && ( ( keyCode == SWT.ARROW_DOWN ) ||  ( keyCode == SWT.ARROW_UP ) ))
     	          isFirstTime = false;        	
-
-		}
+        	
+        }
         
       editor.refresh();
-
+        
       if( isShiftDown ){ 
     	  /*
     	   *If the shift key was used to make all the resources
@@ -291,10 +289,10 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
     	   *non system/non map layer resource depending on which arrow key is 
     	   *subsequently pressed.
     	   */
-		isShiftDown = false;
+	     isShiftDown = false;
 	     isFirstTime = true;
       }
-		return false;
+	  return false;
 	}
 	
 	@Override
