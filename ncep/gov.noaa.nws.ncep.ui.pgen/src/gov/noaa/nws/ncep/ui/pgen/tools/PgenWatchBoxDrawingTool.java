@@ -137,7 +137,7 @@ public class PgenWatchBoxDrawingTool extends AbstractPgenDrawingTool {
         @Override	
         public boolean handleMouseDown(int anX, int aY, int button) {
         	if ( !isResourceEditable() ) return false;
-            
+
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null || shiftDown ) return false;
@@ -200,7 +200,7 @@ public class PgenWatchBoxDrawingTool extends AbstractPgenDrawingTool {
         @Override
         public boolean handleMouseUp( int x, int y, int button ) {
         	if ( !isResourceEditable() ) return false;
-        	
+
         	if ( button == 1 ){
         		if ( points != null && points.size() == 2) {
         			

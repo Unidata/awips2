@@ -3,8 +3,9 @@ package gov.noaa.nws.ncep.viz.tools.panZoom;
 
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.tools.panZoom.ZoomToAction.ZoomType;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,8 +14,8 @@ import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.ui.commands.ICommandService;
 
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 public class ZoomToResourceRightClickAction extends AbstractRightClickAction {
 
@@ -22,9 +23,8 @@ public class ZoomToResourceRightClickAction extends AbstractRightClickAction {
 	
 	@Override
 	public void run() {
-		System.out.println("Running AreaFromResourceRightClickAction");
-        NCMapEditor currEditor = NmapUiUtils.getActiveNatlCntrsEditor();
-
+		AbstractEditor currEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
+ 
 		ICommandService service = (ICommandService)currEditor
 						.getSite().getService(ICommandService.class);
 		Command cmd = service.getCommand(commandId);

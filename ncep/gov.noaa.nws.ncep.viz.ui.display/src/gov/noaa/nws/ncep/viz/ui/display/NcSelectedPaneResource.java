@@ -32,7 +32,7 @@ import com.raytheon.uf.viz.core.rsc.RenderingOrderFactory.ResourceOrder;
 public class NcSelectedPaneResource extends 
 				AbstractVizResource<GenericResourceData, IDescriptor> {
 
-	private NCMapEditor ncMapEditor = null;
+	private AbstractNcEditor ncMapEditor = null;
 	
     protected static final int HIGHLIGHT_WIDTH = 2;
 
@@ -60,7 +60,7 @@ public class NcSelectedPaneResource extends
     	// If the pane for this descriptor is a selected pane then 
     	// draw the highlight border around the edge of the pane.
     	//
-    	IDisplayPane[] seldPanes = ncMapEditor.getSelectedPanes();
+    	IDisplayPane[] seldPanes = NcEditorUtil.getSelectedPanes(ncMapEditor);
     	
     	IDisplayPane thisSeldPane = null;
             
@@ -85,8 +85,8 @@ public class NcSelectedPaneResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         IDisplayPaneContainer container = getResourceContainer();
-        if( container instanceof NCMapEditor ) {
-        	ncMapEditor = (NCMapEditor)container;
+        if( container instanceof AbstractNcEditor ) {
+        	ncMapEditor = (AbstractNcEditor)container;
         }
     }
 

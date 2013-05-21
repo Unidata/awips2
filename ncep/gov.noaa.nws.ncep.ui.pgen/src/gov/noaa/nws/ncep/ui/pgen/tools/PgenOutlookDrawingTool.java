@@ -154,7 +154,7 @@ public class PgenOutlookDrawingTool extends AbstractPgenDrawingTool {
         @Override	
         public boolean handleMouseDown(int anX, int aY, int button) {
         	if ( !isResourceEditable() ) return false;
-            
+
         	DECollection dec = null;
         	
         	//  Check if mouse is in geographic extent
