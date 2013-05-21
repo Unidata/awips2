@@ -605,99 +605,99 @@ void bunkers_left_motion(float *ul, float *vl, float *dirl, float *spdl)
         /*                                                                */
         /******************************************************************/
         {
-        short i, j, tIndex, tdIndex, pIndex, oldlplchoice, ok;
-        float ix1, mucape, mucin, pres, mucp, mucn;
-        Parcel pcl;
+        	short i, j, tIndex, tdIndex, pIndex, oldlplchoice, ok;
+        	float ix1, mucape, mucin, pres, mucp, mucn;
+        	Parcel pcl;
 
-        oldlplchoice = lplvals.flag;
+        	oldlplchoice = lplvals.flag;
 
-	define_parcel(3, 300);
-	mucp = parcel(-1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
-	mucn = pcl.bminus;
-	
-        define_parcel(3, 400);
-        parcel(-1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
-        mucape = pcl.bplus;
-        mucin = pcl.bminus;
+        	define_parcel(3, 300);
+        	mucp = parcel(-1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
+        	mucn = pcl.bminus;
 
-	/* scenario where shallow buoyancy present for lesser theta parcel near ground */
-	if (mucp > mucape){
-		mucape = mucp;
-		mucin = mucn;
-		}	
+        	define_parcel(3, 400);
+        	parcel(-1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
+        	mucape = pcl.bplus;
+        	mucin = pcl.bminus;
 
-        /* set parcel back to user selection */
-        if (oldlplchoice == 1)
-          pres = 0; 
-        else if (oldlplchoice == 2)
-          pres = 0;
-        else if (oldlplchoice == 3)
-          pres = mu_layer;
-        else if (oldlplchoice == 4)
-          pres = mml_layer; 
-        else if (oldlplchoice == 5)
-          pres = user_level;
-        else if (oldlplchoice == 6)
-          pres = mu_layer;
-        //printf("6 calling define_parcel  flag=%d-pres=%f------------------------->\n", oldlplchoice, pres);
+        	/* scenario where shallow buoyancy present for lesser theta parcel near ground */
+        	if (mucp > mucape){
+        		mucape = mucp;
+        		mucin = mucn;
+        	}
 
-        define_parcel(oldlplchoice, pres);
+        	/* set parcel back to user selection */
+        	if (oldlplchoice == 1)
+        		pres = 0;
+        	else if (oldlplchoice == 2)
+        		pres = 0;
+        	else if (oldlplchoice == 3)
+        		pres = mu_layer;
+        	else if (oldlplchoice == 4)
+        		pres = mml_layer;
+        	else if (oldlplchoice == 5)
+        		pres = user_level;
+        	else if (oldlplchoice == 6)
+        		pres = mu_layer;
+        	//printf("6 calling define_parcel  flag=%d-pres=%f------------------------->\n", oldlplchoice, pres);
 
-        *bot = RMISSD;
-        *top = RMISSD;
+        	define_parcel(oldlplchoice, pres);
 
-        if (!sndg) { return; }
+        	*bot = RMISSD;
+        	*top = RMISSD;
 
-        pIndex  = getParmIndex("PRES");
-        tIndex  = getParmIndex("TEMP");
-        tdIndex = getParmIndex("DWPT");
+        	if (!sndg) { return; }
 
-        if (pIndex == -1 || tIndex == -1 || tdIndex == -1) { return; }
+        	pIndex  = getParmIndex("PRES");
+        	tIndex  = getParmIndex("TEMP");
+        	tdIndex = getParmIndex("DWPT");
 
-        if (mucape >= 100 && mucin >= -250)
-        {
+        	if (pIndex == -1 || tIndex == -1 || tdIndex == -1) { return; }
+
+        	if (mucape >= 100 && mucin >= -250)
+        	{
 
         		//     printf( "Determining Effective Surface\n");
         		// ----- Begin at surface and search upward for "Effective Surface" -----
-                for(i=sfc();i<=numlvl-1;i++)
-                {
-                ix1 = parcel( -1, -1, sndg[i][pIndex], sndg[i][tIndex], sndg[i][tdIndex], &pcl);
-                if((pcl.bplus >= ecape) && (pcl.bminus >= ecinh))
-                        {
-                        *bot = sndg[i][pIndex];
+        		for(i=sfc();i<=numlvl-1;i++)
+        		{
+        			ix1 = parcel( -1, -1, sndg[i][pIndex], sndg[i][tIndex], sndg[i][tdIndex], &pcl);
+        			if((pcl.bplus >= ecape) && (pcl.bminus >= ecinh))
+        			{
+        				*bot = sndg[i][pIndex];
         				// printf( "EFFSFC = %f\n", *bot);
-                        break;
-                        }
-                }
+        				break;
+        			}
+        		}
 
-                if (*bot == RMISSD) return;
+        		if (*bot == RMISSD) return;
 
         		//             printf( "Determining Effective Top\n");
         		// ----- Keep searching upward for the "Effective Top" -----
-                for(i=sfc();i<=numlvl-1;i++)
-                {
-                if (sndg[i][pIndex] <= *bot)
-                        {
-			if ((sndg[i][tIndex] != RMISSD) && (sndg[i][tdIndex] != RMISSD)) {
-	                        ix1 = parcel( -1, -1, sndg[i][pIndex], sndg[i][tIndex], sndg[i][tdIndex], &pcl);
+        		for(i=sfc();i<=numlvl-1;i++)
+        		{
+        			if (sndg[i][pIndex] <= *bot)
+        			{
+        				if ((sndg[i][tIndex] != RMISSD) && (sndg[i][tdIndex] != RMISSD)) {
+        					ix1 = parcel( -1, -1, sndg[i][pIndex], sndg[i][tIndex], sndg[i][tdIndex], &pcl);
         					//printf("%.2f %.2f %.2f  - %.2f %.2f\n", sndg[i][pIndex], sndg[i][tIndex], sndg[i][tdIndex], pcl.bplus, pcl.bminus);
-                	        if((pcl.bplus <= ecape) || (pcl.bminus <= ecinh))
+        					if((pcl.bplus <= ecape) || (pcl.bminus <= ecinh))
         						//check for missing T/Td data with significant wind levels in obs soundings
-                        	        {
-					ok = 0;
-					j=1;
+        					{
+        						ok = 0;
+        						j=1;
 
         						while (!ok && i-j >=0 && i-j <= numlvl-1) {
-						if ((sndg[i-j][tIndex] != RMISSD) && (sndg[i-j][tdIndex] != RMISSD)) { ok=1; } else { j++; }
-						}
+        							if ((sndg[i-j][tIndex] != RMISSD) && (sndg[i-j][tdIndex] != RMISSD)) { ok=1; } else { j++; }
+        						}
         						if(i-j >=0 && i-j <= numlvl-1)
-                                	*top = sndg[i-j][pIndex];
+        						*top = sndg[i-j][pIndex];
         						//printf("inflow top = %f\n", *top);
-        	                        break;
-                	                }
-				}
-                        }
-                }
+        						break;
+        					}
+        				}
+        			}
+        		}
 
         	}
         	//	printf( "EIL - %f\n", *bot);

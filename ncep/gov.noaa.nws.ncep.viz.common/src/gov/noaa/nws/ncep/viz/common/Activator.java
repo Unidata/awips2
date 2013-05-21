@@ -21,8 +21,7 @@ public class Activator extends AbstractUIPlugin {
 	 * The constructor
 	 */
 	public Activator() {
-		EditorManager.initEditorNumList();
-		
+//		EditorManager.initEditorNumList();	
 	}
 
 	/*

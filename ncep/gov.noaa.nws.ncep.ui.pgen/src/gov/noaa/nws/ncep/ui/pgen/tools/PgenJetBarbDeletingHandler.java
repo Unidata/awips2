@@ -79,7 +79,7 @@ public class PgenJetBarbDeletingHandler extends InputHandlerDefaultImpl {
     @Override	
     public boolean handleMouseDown(int anX, int aY, int button) {
     	if (!drawingLayer.isEditable()) return false;
-       
+
     	//  Check if mouse is in geographic extent
     	Coordinate loc = mapEditor.translateClick(anX, aY);
     	if ( loc == null || shiftDown ) return false;

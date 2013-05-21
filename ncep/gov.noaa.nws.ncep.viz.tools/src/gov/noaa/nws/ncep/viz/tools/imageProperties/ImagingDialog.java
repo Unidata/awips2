@@ -1,14 +1,13 @@
 package gov.noaa.nws.ncep.viz.tools.imageProperties;
 
-import java.util.ArrayList;
-
 import gov.noaa.nws.ncep.viz.common.ColorMapUtil;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
-import gov.noaa.nws.ncep.viz.ui.display.NCDisplayPane;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NCPaneManager;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
+
+import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -31,17 +30,14 @@ import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.core.IDisplayPane;
-import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.uf.viz.core.IVizEditorChangedListener;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.BlendableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
-//import com.raytheon.viz.core.rsc.BlendedResource;
-//import com.raytheon.viz.core.rsc.BlendedResourceData;
 import com.raytheon.viz.ui.dialogs.colordialog.ColorEditDialog;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
 
 /**
@@ -58,6 +54,7 @@ import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
  * 03/25/2010   259         G. Hull     use colormap cat to load colormaps
  * 03/07/2011   migration   G. Hull     use raytheon's ISelectPaneChangeListener,
  *  					                and IVizEditorChangedListener
+ * 02/11/13     #972        G. Hull     AbstractEditor instead of NCMapEditor
  * 
  * </pre>
  * 
@@ -100,7 +97,7 @@ public class ImagingDialog extends Dialog implements IPartListener {
 
     private boolean blended = false;
 
-    private NCMapEditor currEditor = null;
+    private AbstractEditor currEditor = null;
     private String currCmapCategory = null;
     
     private ISelectedPanesChangedListener paneListener=null;
@@ -149,7 +146,7 @@ public class ImagingDialog extends Dialog implements IPartListener {
     	if( contrastScale.isDisposed() ) {
     		return;
     	}
-    	IDisplayPane[] seldPanes = currEditor.getSelectedPanes();
+    	IDisplayPane[] seldPanes = NcEditorUtil.getSelectedPanes( currEditor );
     	
     	imageResources.clear();
     	cmapResources.clear();
@@ -189,7 +186,7 @@ public class ImagingDialog extends Dialog implements IPartListener {
     		topColorMapsCombo.setEnabled( true );
     		// get the category of the first resource and load the appropriate colormaps    	
     		currCmapCategory = cmapResources.get(0).
-    		           getResourceData().getResourceName().getRscCategory();
+    		           getResourceData().getResourceName().getRscCategory().getCategoryName();
 
     		//
     		String[] colormaps = getColormaps( currCmapCategory );
@@ -232,8 +229,9 @@ public class ImagingDialog extends Dialog implements IPartListener {
 
         initializeControls();
 
-    	currEditor = NmapUiUtils.getActiveNatlCntrsEditor();
-    	currEditor.addSelectedPaneChangedListener( paneListener );
+    	currEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
+    	
+    	NcEditorUtil.addSelectedPaneChangedListener( currEditor, paneListener );
         resetDialog();
         
         pageForListener = currEditor.getSite().getPage();;
@@ -294,7 +292,7 @@ public class ImagingDialog extends Dialog implements IPartListener {
         			//
         			for( AbstractNatlCntrsResource<?, ?> rsc : cmapResources ) {
         				String rscCat = rsc.getResourceData().
-        								getResourceName().getRscCategory();
+        								getResourceName().getRscCategory().getCategoryName();
         				if( rscCat.equalsIgnoreCase( currCmapCategory ) ) {
         					ColorMapCapability cmcap = rsc.getCapability(ColorMapCapability.class);
 //        					String currentCMap = cmcap.getColorMapParameters().
@@ -454,7 +452,7 @@ public class ImagingDialog extends Dialog implements IPartListener {
         closeButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-            	currEditor.removeSelectedPaneChangedListener( paneListener );
+            	NcEditorUtil.removeSelectedPaneChangedListener( currEditor, paneListener );
             
             	paneListener = null;
             	shell.dispose();
@@ -639,22 +637,22 @@ public class ImagingDialog extends Dialog implements IPartListener {
     // Part listener methods to get notified when the active Display changes or when the 
     // selected panes change.
     //    	
-    private void updateEditor( NCMapEditor ed ) {            	
+    private void updateEditor( AbstractNcEditor ed ) {            	
     	if( ed != currEditor ) {
-    		currEditor.removeSelectedPaneChangedListener( paneListener );
+    		NcEditorUtil.removeSelectedPaneChangedListener( currEditor, paneListener );
     		currEditor = ed;
-    		currEditor.addSelectedPaneChangedListener( paneListener );
+    		NcEditorUtil.addSelectedPaneChangedListener( currEditor, paneListener );
 
     		resetDialog();
     	}
     }
     
     public void partActivated(IWorkbenchPart part) {
-    	if( !(part instanceof NCMapEditor) ) {
+    	if( !(part instanceof AbstractNcEditor) ) {
     		return;
     	}
 //    	System.out.println("partActivated : "+ ((NCMapEditor)part).getDisplayName());
-    	updateEditor( (NCMapEditor) part );
+    	updateEditor( (AbstractNcEditor) part );
     }
 
     public void partBroughtToTop(IWorkbenchPart part) {
@@ -669,7 +667,7 @@ public class ImagingDialog extends Dialog implements IPartListener {
     }
 
     public void partOpened(IWorkbenchPart part) {
-    	if( !(part instanceof NCMapEditor) ) {
+    	if( !(part instanceof AbstractNcEditor) ) {
     		return;
     	}
 //    	System.out.println("partOpened : "+ ((NCMapEditor)part).getDisplayName());

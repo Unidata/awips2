@@ -1,10 +1,10 @@
 !
-! Restore File : mul(1e-2,emsl)_bl_tempf_wind
+! Restore File : emsl_bl_tempf_wind
 !
 ! Log:
 ! J. Carr/HPC         10/97   New file
 !
-GLEVEL =  30:0!30:0!30:0!0   !30:0
+GLEVEL =  0:30!0:30!0:30!0   !0:30
 GVCORD =  pdly!pdly!pdly!none!pdly
 SKIP   =    0/1
 FILTER=y

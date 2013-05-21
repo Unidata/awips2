@@ -72,7 +72,7 @@ public class NcSoundingQuery {
 		return 0;
 	}
 	public static String convertSoundTimeDispStringToRangeStartTimeFormat(String displayStr){
-		//Note: time line display string has format of, e.x. 111208/2130V003, convert to 2011-12-08 21:30:00.
+		//Note: time line display string has format of, e.x. (old 111208/2130V003), 111208/21(Tue)V003, convert to 2011-12-08 21:00:00.
 		//first 2 digits is year
 		String rangeStartStr= "20"+displayStr.substring(0, 2);
 		//3rd and 4th digits is month
@@ -80,13 +80,14 @@ public class NcSoundingQuery {
 		//5th and 6th digits is day
 		rangeStartStr = rangeStartStr + "-"+ displayStr.substring(4, 6);
 		//8th and 9th digits is hour, 10th and 11th are min, and seconds should be 0s
-		rangeStartStr = rangeStartStr + " "+ displayStr.substring(7, 9)+":"+ displayStr.substring(9, 11)+ ":00";
+		//rangeStartStr = rangeStartStr + " "+ displayStr.substring(7, 9)+":"+ displayStr.substring(9, 11)+ ":00";
+		rangeStartStr = rangeStartStr + " "+ displayStr.substring(7, 9)+":00:00";
 		return rangeStartStr;
 	}
 	
 	//return  refTimeStr   
-	public static String convertSoundTimeDispStringToRefTime(String displayStr){
-		//Note: time line display string has format of, e.x. 111208/2100V003, convert to 2011-12-08 21:00:00.
+	public static String convertSoundTimeDispStringToForecastTime(String displayStr){
+		//Note: time line display string has format of, e.x.  111208/21(Tue)V003, convert to 2011-12-08 21:00:00 + forecast hour.
 		String year, mon, day, hour, min, Vhour;
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		//first 2 digits is year
@@ -100,11 +101,11 @@ public class NcSoundingQuery {
 		//10-11 is minutes, second should be 0s
 		min = displayStr.substring(9, 11);
 		//Vhour starting digit 13
-		Vhour = displayStr.substring(12);
-		cal.set(Integer.parseInt(year), Integer.parseInt(mon)-1,Integer.parseInt(day), Integer.parseInt(hour),Integer.parseInt(min));
-		//from VXXX and rangeStart time get  referTime
-		long reftimeMs = cal.getTimeInMillis() - (Integer.parseInt(Vhour)*3600000);
-		cal.setTimeInMillis(reftimeMs);
+		Vhour = displayStr.substring(displayStr.indexOf('V')+1, displayStr.indexOf('V')+4);
+		cal.set(Integer.parseInt(year), Integer.parseInt(mon)-1,Integer.parseInt(day), Integer.parseInt(hour),0);//Integer.parseInt(min));
+		//from VXXX and rangeStart time get  forecast Time
+		long forecasttimeMs = cal.getTimeInMillis() - (Integer.parseInt(Vhour)*3600000);
+		cal.setTimeInMillis(forecasttimeMs);
 		String ref = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:00",  cal);
 		
 		

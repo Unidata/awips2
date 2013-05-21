@@ -3,7 +3,8 @@ package gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.attributes.AbstractEditResourceAttrsDialog;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet.RscAttrValue;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -78,7 +79,7 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
     private Text markerText;
     private Text grdlblText;
     private Text clrbarText;
-	
+    	
     /**
      * Constructor
      * 
@@ -327,7 +328,7 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
             clrbarText.addModifyListener(new ModifyListener() {
     			public void modifyText(ModifyEvent e) {
     				clrbar.setAttrValue((String)clrbarText.getText().trim());
-    				NmapUiUtils.getActiveNatlCntrsEditor().refresh();
+    				NcDisplayMngr.getActiveNatlCntrsEditor().refresh();
     			}
             });
         }

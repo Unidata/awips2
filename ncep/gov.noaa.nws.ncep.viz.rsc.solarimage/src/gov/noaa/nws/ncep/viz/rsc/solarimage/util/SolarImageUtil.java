@@ -34,6 +34,8 @@ public class SolarImageUtil {
 
 	public static  void populateRawData(SolarImageRecord record) throws FileNotFoundException,
     StorageException {
+		//System.out.println("Retrieving SolarImage data from HDF5...");
+
 		File loc = HDF5Util.findHDF5Location(record);
 		
 		//Long t0 = System.currentTimeMillis();

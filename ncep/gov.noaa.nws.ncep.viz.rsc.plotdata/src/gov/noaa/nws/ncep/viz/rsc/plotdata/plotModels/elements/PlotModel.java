@@ -26,7 +26,7 @@ import com.raytheon.uf.common.localization.LocalizationFile;
  * 10/09  		172    	   	M. Li       Initial Creation
  * 
  * 08/21/11     450         G. Hull     add LocalizationFile                 
- * 05/02/12     778         Q. Zhou     Changed symbol size form int to double               
+ * 05/02/12     778         Q. Zhou     Changed symbol size form int to double       
  * 10/18/2012   431         S. Gurung   Added support for ConditionalParameter and ConditionalColorBar       
  *  
  * </pre>
@@ -242,7 +242,7 @@ public class PlotModel {
     	}    	
         
         lFile = pm.lFile;
-    }    
+    }   
     
     public boolean hasAdvancedSettings() {    	
     	

@@ -1,7 +1,9 @@
 package gov.noaa.nws.ncep.viz.resources.manager;
 
 
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
+import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 
 import java.io.BufferedReader;
@@ -40,6 +42,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * 03/17/10     #259        Greg Hull       add '@' parameter processing 
  * 08/23/10     #273        Greg Hull       isVisible()
  * 11/17/11     #518        Greg Hull       set dfltFrameTimes (GDATTIM)
+ * 02/10/13     #972        Greg Hull       getSupportedDisplayTypes
  *   
  * </pre>
  * 
@@ -54,6 +57,7 @@ public class ResourceFactory {
 	public static class ResourceSelection {
 		private INatlCntrsResourceData rscData = null; 
 		private ResourcePair rscPair = null;
+		private Boolean isBaseLevelResource = false;
 
 		// called when loading an existing RBD into the dialog and we need to get the attribute values
 		// from the edited RBD instead of the original attrSet file.
@@ -98,6 +102,13 @@ public class ResourceFactory {
 			rscPair.getProperties().setVisible( visible );
 		}
 		
+		public Boolean isBaseLevelResource() {
+			return isBaseLevelResource;
+		}
+
+		public void setIsBaseLevelResource(Boolean isBaseLevelResource) {
+			this.isBaseLevelResource = isBaseLevelResource;
+		}
 
 		// this is called by the LabelProvider for ListViewer that use this class as the ContentProvider.
 		public String getRscLabel() {
@@ -131,6 +142,19 @@ public class ResourceFactory {
 		public INatlCntrsResourceData getResourceData() {
 			return rscData;
 		}		
+
+		public NcDisplayType[] getSupportedDisplayTypes() {
+			if( rscData instanceof AbstractNatlCntrsRequestableResourceData ) {
+				return ((AbstractNatlCntrsRequestableResourceData)rscData).getSupportedDisplayTypes();
+			}
+			else if( rscData instanceof AbstractNatlCntrsResourceData ) {
+				return ((AbstractNatlCntrsResourceData)rscData).getSupportedDisplayTypes();
+			}
+			else {
+				System.out.println("??? ResourceSelection has non-NC resource class?????");
+				return new NcDisplayType[0];
+			}
+		}
 	}
 	
 	public static ResourceSelection createResource( ResourcePair rscPair ) throws VizException {		
