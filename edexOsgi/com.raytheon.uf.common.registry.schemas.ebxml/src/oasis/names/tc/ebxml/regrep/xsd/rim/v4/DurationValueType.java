@@ -80,6 +80,14 @@ public class DurationValueType extends ValueType {
 
     private static final String COLUMN_NAME = "durationValue";
 
+    public DurationValueType() {
+
+    }
+
+    public DurationValueType(Duration durationValue) {
+        this.durationValue = durationValue;
+    }
+
     @Override
     public String getColumnName() {
         return COLUMN_NAME;

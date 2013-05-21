@@ -12,7 +12,8 @@ Export-Package: com.raytheon.uf.common.registry,
  com.raytheon.uf.common.registry.ebxml.encoder,
  com.raytheon.uf.common.registry.ebxml.slots,
  com.raytheon.uf.common.registry.handler,
- com.raytheon.uf.common.registry.services
+ com.raytheon.uf.common.registry.services,
+ com.raytheon.uf.common.registry.services.rest
 Require-Bundle: org.apache.commons.codec;bundle-version="1.4.0",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
  com.raytheon.uf.common.util;bundle-version="1.12.1174",
@@ -26,5 +27,6 @@ Require-Bundle: org.apache.commons.codec;bundle-version="1.4.0",
  org.apache.http;bundle-version="4.1.2",
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  org.springframework;bundle-version="2.5.6",
- org.apache.commons.lang;bundle-version="2.3.0"
+ org.apache.commons.lang;bundle-version="2.3.0",
+ org.apache.commons.cxf;bundle-version="1.0.0"
 Import-Package: com.vividsolutions.jts.geom

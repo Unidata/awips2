@@ -79,6 +79,14 @@ public class SlotValueType extends ValueType {
 
     private static final String COLUMN_NAME = "slotValue";
 
+    public SlotValueType() {
+
+    }
+
+    public SlotValueType(SlotType slotValue) {
+        this.slotValue = slotValue;
+    }
+
     @Override
     public String getColumnName() {
         return COLUMN_NAME;
