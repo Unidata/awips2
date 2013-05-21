@@ -2,12 +2,11 @@ package gov.noaa.nws.ncep.viz.tools.autoUpdate;
 
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
-import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
 import gov.noaa.nws.ncep.viz.tools.Activator;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import java.util.Map;
 
@@ -19,7 +18,9 @@ import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
-import com.raytheon.viz.ui.UiPlugin;
+import com.raytheon.uf.viz.core.AbstractTimeMatcher;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * Enable/Disable Auto Update
@@ -29,6 +30,7 @@ import com.raytheon.viz.ui.UiPlugin;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 09/01/10      #307        Greg Hull    created
+ * 02/11/13      #972        G. Hull     AbstractEditor instead of NCMapEditor
  * 
  * </pre>
  * 
@@ -64,13 +66,13 @@ public class AutoUpdateAction extends AbstractHandler implements IElementUpdater
 			return null;
 		}
 		
-		NCMapEditor currEditor = NmapUiUtils.getActiveNatlCntrsEditor();
+		AbstractEditor currEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
 				
 		setAutoUpdate( !autoUpdate );            
-		currEditor.setAutoUpdate( autoUpdate );
+		NcEditorUtil.setAutoUpdate( currEditor, autoUpdate );
 		
 		// calls updateElement()
-		currEditor.refreshGUIElements();
+		NcEditorUtil.refreshGUIElements( currEditor );
 		currEditor.refresh();
 		
 		return null;
@@ -82,19 +84,24 @@ public class AutoUpdateAction extends AbstractHandler implements IElementUpdater
 
 	@Override
 	public void updateElement(UIElement element, Map parameters) {
-		NCMapEditor activeDisplay = NmapUiUtils.getActiveNatlCntrsEditor();
+		AbstractEditor activeDisplay = NcDisplayMngr.getActiveNatlCntrsEditor();
 
 		autoUpdateNotApplicable = true;
 
 		if( activeDisplay != null ) {
-			NCMapDescriptor descr = (NCMapDescriptor)activeDisplay.getDescriptor();	
-			NCTimeMatcher timeMatcher = (NCTimeMatcher)descr.getTimeMatcher();
-			INatlCntrsResourceData rscData = (timeMatcher == null ? null : 
-											    timeMatcher.getDominantResource() );			
-			if( rscData != null && rscData instanceof AbstractNatlCntrsRequestableResourceData ) {				
-				autoUpdateNotApplicable = 
-					!((AbstractNatlCntrsRequestableResourceData)rscData).isAutoUpdateable(); 
-			}			
+			IDescriptor descr = NcEditorUtil.getDescriptor( activeDisplay );	
+			AbstractTimeMatcher timeMatcher = descr.getTimeMatcher();
+			
+			if( timeMatcher != null &&
+				timeMatcher instanceof NCTimeMatcher ) {
+				INatlCntrsResourceData rscData =  
+						((NCTimeMatcher)timeMatcher).getDominantResource();
+				
+				if( rscData != null && rscData instanceof AbstractNatlCntrsRequestableResourceData ) {				
+					autoUpdateNotApplicable = 
+						!((AbstractNatlCntrsRequestableResourceData)rscData).isAutoUpdateable(); 
+				}			
+			}
 		}
 
 		if( autoUpdateNotApplicable ) {
@@ -104,7 +111,7 @@ public class AutoUpdateAction extends AbstractHandler implements IElementUpdater
 			element.setIcon( autoUpdateDisabledIcon );
 		}
 		else {			
-			autoUpdate = activeDisplay.getAutoUpdate();
+			autoUpdate = NcEditorUtil.getAutoUpdate(activeDisplay);
 		
 			element.setChecked( autoUpdate );
 			element.setIcon( (autoUpdate ? autoUpdateOnIcon : autoUpdateOffIcon) );			 

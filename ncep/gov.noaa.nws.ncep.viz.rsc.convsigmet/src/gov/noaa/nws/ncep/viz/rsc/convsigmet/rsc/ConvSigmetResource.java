@@ -6,6 +6,7 @@ import gov.noaa.nws.ncep.common.dataplugin.convsigmet.ConvSigmetSection;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -60,7 +61,7 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
  * @author bhebbard 
  * @version 1.0
  */
-public class ConvSigmetResource extends AbstractNatlCntrsResource<ConvSigmetResourceData, IMapDescriptor>
+public class ConvSigmetResource extends AbstractNatlCntrsResource<ConvSigmetResourceData, NCMapDescriptor>
                                 implements INatlCntrsResource {
 	
 	private ConvSigmetResourceData convSigmetResourceData;

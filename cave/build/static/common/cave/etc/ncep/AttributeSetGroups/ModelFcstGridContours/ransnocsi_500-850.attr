@@ -5,7 +5,7 @@
 ! J.Carr/HPC	 8/97	Initial creation
 ! J.Carr/HPC	 2/98	changed thes to thte and geo to wnd
 !
-GLEVEL =  850:700!700!700!850!850!30:0!30:0!850:500
+GLEVEL =  850:700!700!700!850!850!0:30!0:30!850:500
 GVCORD =  PRES!PRES!PRES!PRES!PRES!pdly!pdly!PRES
 SKIP=
 FILTER=y

@@ -3,6 +3,10 @@
  */
 package gov.noaa.nws.ncep.viz.cloudHeight;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlType;
+
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -12,6 +16,8 @@ import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
  * @author mli
  *
  */
+@XmlAccessorType(XmlAccessType.NONE)
+@XmlType(name="NcCloudHeightResourceData")
 public class CloudHeightResourceData extends AbstractResourceData {
 
 	public CloudHeightResourceData() {

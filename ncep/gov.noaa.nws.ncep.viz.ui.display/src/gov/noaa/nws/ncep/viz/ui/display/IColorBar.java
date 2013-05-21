@@ -42,7 +42,7 @@ import gov.noaa.nws.ncep.gempak.parameters.colorbar.ColorBarAttributesBuilder;
  */
 
 public interface IColorBar {
-	
+     
 //	public static enum ColorBarOrientation {
 //		Vertical, Horizontal
 //	}
@@ -55,7 +55,7 @@ public interface IColorBar {
 	
 	public abstract void setColorBarAttributesBuilder(ColorBarAttributesBuilder colorBarAttributesBuilder);
 	public abstract ColorBarAttributesBuilder getColorBarAttributesBuilder();
-		
+	
 	public abstract int getNumIntervals();
 	
 	public abstract void addColorBarInterval( Float min, Float max, RGB rgb ) ;

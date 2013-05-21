@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -27,7 +28,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 	 */
 	private static final long serialVersionUID = -115699359078068227L;
 
-	public POPFcst06Hrs() {
-		 super( UNIT );
+	public POPFcst06Hrs()throws Exception {
+		 super( new UnitAdapter().marshal(UNIT) );
 	}
   }
