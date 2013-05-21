@@ -46,9 +46,10 @@ import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.jdbc.Work;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -60,7 +61,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.ReflectionUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
-import com.raytheon.uf.edex.registry.acp.xacml.XACMLPolicyAdministrator;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImpl;
@@ -80,14 +80,15 @@ import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerIm
  * 4/9/2013     1802       bphillip     Changed submitObjects method call from submitObjectsInternal
  * Apr 15, 2013 1693       djohnson     Use a strategy to verify the database is up to date.
  * Apr 30, 2013 1960        djohnson    Extend the generalized DbInit.
+ * 5/21/2013    2022       bphillip     Using TransactionTemplate for database initialization
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-@Repository
 @Transactional
-public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements ApplicationListener {
+public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
+        ApplicationListener {
 
     private static volatile boolean INITIALIZED = false;
 
@@ -98,11 +99,14 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
     /** Query to check which tables exist in the ebxml database */
     private static final String TABLE_CHECK_QUERY = "SELECT tablename FROM pg_tables where schemaname = 'ebxml';";
 
+    /** The lifecycle manager instance */
     private LifecycleManagerImpl lcm;
 
+    /** Hibernate session factory */
     private SessionFactory sessionFactory;
 
-    private XACMLPolicyAdministrator xacmlAdmin;
+    /** Transaction template */
+    private TransactionTemplate txTemplate;
 
     /**
      * Creates a new instance of DbInit. This constructor should only be called
@@ -292,8 +296,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
          * this Hibernate SessionFactory is aware of
          */
         AnnotationConfiguration aConfig = new AnnotationConfiguration();
-        for (Object obj : sessionFactory.getAllClassMetadata()
-                .keySet()) {
+        for (Object obj : sessionFactory.getAllClassMetadata().keySet()) {
             try {
                 Class<?> clazz = Class.forName((String) obj);
                 if (clazz.getName().startsWith("oasis")) {
@@ -307,26 +310,45 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
         }
         return aConfig;
     }
-    
+
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
     public void onApplicationEvent(ApplicationEvent event) {
         if (!INITIALIZED) {
-            try {
-                initDb();
-                xacmlAdmin.loadAccessControlPolicies();
-            } catch (Exception e) {
-                statusHandler.fatal("Error initializing EBXML database!", e);
-            }
+            txTemplate.execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(
+                        TransactionStatus status) {
+                    try {
+                        initDb();
+                    } catch (Exception e) {
+                        statusHandler.fatal(
+                                "Error initializing EBXML database!", e);
+                    }
+
+                }
+            });
 
             statusHandler.info("Executing post initialization actions");
-            @SuppressWarnings("unchecked")
-            Map<String, RegistryInitializedListener> beans = EDEXUtil
-                    .getSpringContext().getBeansOfType(
-                            RegistryInitializedListener.class);
-            for (RegistryInitializedListener listener : beans.values()) {
-                listener.executeAfterRegistryInit();
-            }
+
+            txTemplate.execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(
+                        TransactionStatus status) {
+                    try {
+                        Map<String, RegistryInitializedListener> beans = EDEXUtil
+                                .getSpringContext().getBeansOfType(
+                                        RegistryInitializedListener.class);
+                        for (RegistryInitializedListener listener : beans
+                                .values()) {
+                            listener.executeAfterRegistryInit();
+                        }
+                    } catch (Throwable t) {
+                        throw new RuntimeException(
+                                "Error initializing EBXML database!", t);
+                    }
+
+                }
+            });
             INITIALIZED = true;
         }
     }
@@ -355,11 +377,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
         this.sessionFactory = sessionFactory;
     }
 
-    /**
-     * @param xacmlAdmin
-     *            the xacmlAdmin to set
-     */
-    public void setXacmlAdmin(XACMLPolicyAdministrator xacmlAdmin) {
-        this.xacmlAdmin = xacmlAdmin;
+    public void setTxTemplate(TransactionTemplate txTemplate) {
+        this.txTemplate = txTemplate;
     }
 }

@@ -113,6 +113,12 @@ public class RegistryObjectListType implements Serializable {
         this.registryObject = new ArrayList<RegistryObjectType>(registryObjects);
     }
 
+    public RegistryObjectListType(RegistryObjectType registryObject) {
+        List<RegistryObjectType> list = new ArrayList<RegistryObjectType>(1);
+        list.add(registryObject);
+        this.registryObject = list;
+    }
+
     public Integer getKey() {
         return key;
     }

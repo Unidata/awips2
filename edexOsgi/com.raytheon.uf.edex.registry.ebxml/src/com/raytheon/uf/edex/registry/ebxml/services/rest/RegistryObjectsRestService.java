@@ -56,6 +56,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.WorkflowActionType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.registry.services.rest.IRegistryObjectsRestService;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 
@@ -71,6 +72,7 @@ import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/19/2013    1931        bphillip    Initial implementation
+ * 5/21/2013    2022        bphillip    Added interface
  * </pre>
  * 
  * @author bphillip
@@ -79,7 +81,7 @@ import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 @Path("/rest/registryObjects/{objectId}")
 @Service
 @Transactional
-public class RegistryObjectsRestService {
+public class RegistryObjectsRestService implements IRegistryObjectsRestService {
 
     /** The data access object for getting registry objects */
     private RegistryObjectDao registryObjectDao;
@@ -109,15 +111,6 @@ public class RegistryObjectsRestService {
                 ClassificationSchemeType.class, WorkflowActionType.class);
     }
 
-    /**
-     * Gets a registry object based on the object ID specified in the path
-     * 
-     * @param objectId
-     *            The object Id of the object
-     * @return The marshalled object
-     * @throws JAXBException
-     *             If errors occur marshalling the object
-     */
     @GET
     @Produces("text/xml")
     public String getRegistryObject(@PathParam("objectId") String objectId)
