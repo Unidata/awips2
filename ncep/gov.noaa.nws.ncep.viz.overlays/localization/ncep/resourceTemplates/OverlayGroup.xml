@@ -19,9 +19,6 @@
                 <table>mapdata.world</table>
                 <labelField>name</labelField>
                 <mapName>World</mapName>
-<!-- don't need this anymore
-                <constraint>name not in ('CANADA', 'MEXICO', 'UNITED STATES, THE')</constraint>
--->                
               </resourceData>
             </resource>
             <resource>
@@ -48,7 +45,9 @@
               </properties>
               <resourceData xsi:type="NC-dbOverlayResourceData">
                 <table>mapdata.canada</table>
-                <labelField>name</labelField>
+<!--   don't need this since displayLabelField is not set
+		          <labelField>name</labelField>
+  -->
                 <mapName>Canada</mapName>
               </resourceData>
             </resource>
@@ -70,7 +69,9 @@
               <loadProperties>
                 <resourceType>PLAN_VIEW</resourceType>
               </loadProperties>
- <!-- Counties are 'disabled'. To display set the maxDisplayWidth="100000000" -->          
+ <!-- Counties are 'disabled'. 
+      To display set the maxDisplayWidth="100000000" 
+      -->          
               <properties isSystemResource="false" isBlinking="false"
                 isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
                 <pdProps maxDisplayWidth="1" minDisplayWidth="0" />

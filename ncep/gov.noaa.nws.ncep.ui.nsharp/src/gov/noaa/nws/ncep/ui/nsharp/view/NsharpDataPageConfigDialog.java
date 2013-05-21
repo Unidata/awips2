@@ -1,6 +1,5 @@
 package gov.noaa.nws.ncep.ui.nsharp.view;
 
-import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigManager;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigStore;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;

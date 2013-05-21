@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<NcInventoryDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<NcInventoryDefinition xmlns:ns2="com.raytheon.uf.common.datadelivery.registry" xmlns:ns3="http://www.example.org/productType">
     <inventoryName>GHM</inventoryName>
-    <inventoryParameters>pluginName,info.secondaryId,dataTime</inventoryParameters>
+    <inventoryParameters>pluginName,info.ensembleId,info.secondaryId,dataTime</inventoryParameters>
     <baseConstraints>
+        <mapping key="info.secondaryId">
+            <constraint constraintValue="%" constraintType="LIKE"/>
+        </mapping>
         <mapping key="info.datasetId">
             <constraint constraintValue="GHM" constraintType="EQUALS"/>
         </mapping>
         <mapping key="pluginName">
             <constraint constraintValue="grid" constraintType="EQUALS"/>
-        </mapping>
-        <mapping key="info.secondaryId">
-            <constraint constraintValue="%" constraintType="LIKE"/>
         </mapping>
     </baseConstraints>
 </NcInventoryDefinition>
