@@ -26,7 +26,6 @@ import java.util.Map.Entry;
 import java.util.Scanner;
 
 import com.raytheon.edex.site.SiteUtil;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
@@ -40,7 +39,6 @@ import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.uf.edex.pointdata.PointDataQuery;
 
 /**
@@ -55,6 +53,7 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
  * Nov 12, 2010            skorolev    Initial creation
  * Nov 26, 2012 1297       skorolev    Changed ArrayList to List.Clean code
  * May 15, 2013 1869       bsteffen    Remove DataURI column from ldadmesonet.
+ * May 16, 2013 1869       bsteffen    Rewrite dataURI property mappings.
  * 
  * </pre>
  * 
@@ -198,11 +197,8 @@ public class FSSObsUtils {
         PointDataQuery request = null;
         PointDataContainer result = null;
         try {
-            Class<PluginDataObject> clazz = PluginFactory.getInstance()
-                    .getPluginRecordClass(plgn.ldadmesonet.toString());
             Map<String, RequestConstraint> rcMap = RequestConstraint
-                    .toConstraintMapping(DataURIUtil.createDataURIMap(uri,
-                            clazz));
+                    .toConstraintMapping(DataURIUtil.createDataURIMap(uri));
             // Not actually in db
             rcMap.remove("pluginName");
             request = new PointDataQuery(plgn.ldadmesonet.toString());
