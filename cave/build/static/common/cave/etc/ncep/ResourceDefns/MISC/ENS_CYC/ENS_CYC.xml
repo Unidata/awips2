@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <isEnabled>true</isEnabled>
     <inventoryEnabled>true</inventoryEnabled>
     <resourceDefnName>ENS_CYC</resourceDefnName>
     <resourceCategory>MISC</resourceCategory>
@@ -31,7 +30,6 @@ model18Name=AP13
 model19Name=AP14
 model20Name=AP15
     </resourceParameters>
-    <filterLabels>Hurricane</filterLabels>
     <rscImplementation>StormTrack</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>

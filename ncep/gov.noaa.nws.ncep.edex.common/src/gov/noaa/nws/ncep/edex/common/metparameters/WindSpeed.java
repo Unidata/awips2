@@ -41,7 +41,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 	}
 	
 	@DeriveMethod
-	AbstractMetParameter derive ( WindDirectionUComp u, WindDirectionVComp v ) throws InvalidValueException, NullPointerException{
+	public WindSpeed derive ( WindDirectionUComp u, WindDirectionVComp v ) throws InvalidValueException, NullPointerException{
 		if ( u.hasValidValue() && v.hasValidValue() ){
 		   Amount val = PRLibrary.prSped( u, v );
 		   setValue ( val );

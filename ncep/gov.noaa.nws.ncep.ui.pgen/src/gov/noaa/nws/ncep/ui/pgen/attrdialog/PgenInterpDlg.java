@@ -26,6 +26,8 @@ import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -45,6 +47,7 @@ import gov.noaa.nws.ncep.ui.pgen.tools.PgenInterpolationTool;
  * ------------	----------	-----------	--------------------------
  * 08/09		#142		S. Gilbert	Initial creation from PgenExtrapDlg
  * 11/12		#?			J. Wu		Allow using Gfa forecast hour
+ * 03/13		#928		B. Yin		Made the button bar smaller.
  *
  * </pre>
  * 
@@ -132,8 +135,14 @@ public class PgenInterpDlg extends AttrDlg {
      */
     @Override
     public void createButtonsForButtonBar( Composite parent ) {   
+		((GridLayout)parent.getLayout()).verticalSpacing = 0;
+		((GridLayout)parent.getLayout()).marginHeight = 3;
+		
     	createButton(parent, INTERP_ID, INTERP_LABEL,	true);
     	getButton(INTERP_ID).setEnabled(false);
+    	
+  		this.getButton(INTERP_ID).setLayoutData( new GridData(ctrlBtnWidth + 10,ctrlBtnHeight));
+
     }
 
 	

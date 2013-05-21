@@ -44,7 +44,6 @@ public class ResourceExtPointMngr {
     private static final String RESOURCE_NAME_TAG  = "name";
     private static final String RESOURCE_CLASS_TAG = "class";
     private static final String EDIT_DLG_CLASS_TAG = "editDialogClass";
-    private static final String BUNDLE_FILE_TAG    = "bundleFile";
     
     private static final String NC_RESOURCE_PARAMS_EXT = "gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter";
     private static final String RESOURCE_NAME_REF_TAG = "ncResourceName";
@@ -199,7 +198,6 @@ public class ResourceExtPointMngr {
                 String rscName      = config[j].getAttribute(RESOURCE_NAME_TAG);
                 String rscClassName = config[j].getAttribute(RESOURCE_CLASS_TAG);
                 String editDlgClassName = config[j].getAttribute(EDIT_DLG_CLASS_TAG);
-                String bndlFileName = config[j].getAttribute(BUNDLE_FILE_TAG);
 
                 if( rscClassName == null ) {
                 	System.out.println( " "+rscClassName );

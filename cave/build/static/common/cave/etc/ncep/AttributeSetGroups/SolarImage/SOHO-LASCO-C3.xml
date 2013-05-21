@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <resource>SOHO-LASCO-C3</resource>
+    <attrSetGroupName>SOHO-LASCO-C3</attrSetGroupName>
+    <attrSetNames>DEFAULT</attrSetNames>
+</AttributeSetGroup>
