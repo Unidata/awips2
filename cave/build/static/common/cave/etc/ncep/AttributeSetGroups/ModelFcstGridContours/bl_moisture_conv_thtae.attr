@@ -20,7 +20,7 @@ HILO   =    !!!!6/H#;L#/1020-1070;900-1012
 HLSYM  =   1;1/2//4;1.5/0
 !CLRBAR=  1
 WIND   =    10/0.75/1.5/112
-TITLE  =   1/-1/~ (~995 MB) MOISTURE CONVERGENCE, WIND   = (KTS), THTAE!0
+TITLE  =   1/-1/~ (~995 MB) MOISTURE CONVERGENCE, WIND (KTS), THTAE!0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       

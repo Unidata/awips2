@@ -36,6 +36,7 @@ import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -54,6 +55,8 @@ import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 import gov.noaa.nws.ncep.edex.common.stationTables.IStationField;
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.edex.common.stationTables.StationTable;
@@ -86,7 +89,7 @@ import gov.noaa.nws.ncep.common.dataplugin.aww.AwwVtec;
  * @version 1.0
  */
 
-public class WouResource extends AbstractNatlCntrsResource< WouResourceData, IMapDescriptor> 
+public class WouResource extends AbstractNatlCntrsResource< WouResourceData, NCMapDescriptor> 
 implements     INatlCntrsResource, IStationField { 
 
 	private IFont font;
@@ -165,12 +168,12 @@ implements     INatlCntrsResource, IStationField {
 		int					symbolWidth;
 		int					symbolSize;
 	}
-
+	
 	/**
 	 *  called in the constructor.
 	 */
 	private void addRDChangedListener(){
-		com.raytheon.viz.ui.editor.AbstractEditor editor = gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils.getActiveNatlCntrsEditor();
+		AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
 		editor.addRenderableDisplayChangedListener(this.new WouDCListener());
 	}
 	
@@ -746,7 +749,7 @@ implements     INatlCntrsResource, IStationField {
 						wData.countyLon, wData.countyLat );					
 					Symbol pointSymbol = new Symbol(null,colors,wouData.symbolWidth, wouData.symbolSize*0.4 ,false,
 							coord,"Symbol","FILLED_BOX");
-					DisplayElementFactory df = new DisplayElementFactory( target, descriptor );
+					DisplayElementFactory df = new DisplayElementFactory( target, getNcMapDescriptor() );
 					ArrayList<IDisplayable> displayEls = df.createDisplayElements( pointSymbol , paintProps );
 					for (IDisplayable each : displayEls) {
 						each.draw(target, paintProps);
@@ -772,7 +775,7 @@ implements     INatlCntrsResource, IStationField {
 		
 		try {
 			PixelExtent extent = (PixelExtent) paintProps.getView().getExtent();
-			Envelope e = descriptor.pixelToWorld(extent, descriptor.getCRS());
+			Envelope e = getNcMapDescriptor().pixelToWorld(extent, descriptor.getCRS());
 			ReferencedEnvelope ref = new ReferencedEnvelope(e, descriptor.getCRS());
 			env = ref.transform(MapUtil.LATLON_PROJECTION, true);
 		} catch (Exception e) {
@@ -782,7 +785,7 @@ implements     INatlCntrsResource, IStationField {
 		String geoConstraint = String.format("the_geom_0_001 && ST_SetSrid('BOX3D(%f %f, %f %f)'::box3d,4326)",
 				env.getMinX(), env.getMinY(), env.getMaxX(), env.getMaxY());
 	    
-	    StringBuilder query = new StringBuilder(
+		StringBuilder query = new StringBuilder(
 		"select countyname, state, AsBinary(the_geom), AsBinary(the_geom_0_001) from mapdata.county where (");
         int i = 0;
 	    for ( WouCntyRscData wData : wouCntyDataValues) {
@@ -925,15 +928,15 @@ implements     INatlCntrsResource, IStationField {
 					if( labelPix != null ){
 						String[] text = new String[3];
 						List<String> enabledText = new ArrayList<String>();
-
+						
 						if(wouRscData.getWatchBoxNumberEnable() ){
 							enabledText.add(wData.watchNumber);
 						}
-
+						
 						if(wouRscData.getWatchBoxLabelEnable() ){
 							enabledText.add(wData.countyName);
 						}
-
+						
 						if(wouRscData.getWatchBoxTimeEnable() ){
 							DataTime startTime = new DataTime( wData.eventTime.getValidPeriod().getStart() );
 							DataTime endTime = new DataTime( wData.eventTime.getValidPeriod().getEnd() );
@@ -1005,7 +1008,7 @@ implements     INatlCntrsResource, IStationField {
         		Collection<WouCntyRscData> wouDataValues = wouData.data.values();
     			if ( wouDataValues.size() <= 0 ) 
     				continue;
-        		if ( wouData.unionShape != null && wouData.unionShape.isDrawable()) {
+    			if ( wouData.unionShape != null && wouData.unionShape.isDrawable()) {
         			
         			List<Coordinate> xyCloseList = new ArrayList<Coordinate>();
         			List<String> timeList = new ArrayList<String>();
@@ -1079,7 +1082,7 @@ implements     INatlCntrsResource, IStationField {
         					HorizontalAlignment.LEFT, 
         					VerticalAlignment.TOP );
         			
-        			target.drawWireframeShape(wouData.unionShape,wouData.color, wouData.symbolWidth,lineStyle );
+        			target.drawWireframeShape(wouData.unionShape, wouData.color, wouData.symbolWidth, lineStyle ); 
         			
         		}
         	}
@@ -1130,7 +1133,7 @@ implements     INatlCntrsResource, IStationField {
         		Collection<WouCntyRscData> wouDataValues = wouData.data.values();
     			if ( wouDataValues.size() <= 0 ) 
     				continue;
-        		if ( wouData.unionShape != null && wouData.unionShape.isDrawable()) {
+    			if ( wouData.unionShape != null && wouData.unionShape.isDrawable()) {
         			
         			List<Coordinate> xyCloseList = new ArrayList<Coordinate>();
         			List<String> timeList = new ArrayList<String>();
@@ -1204,9 +1207,9 @@ implements     INatlCntrsResource, IStationField {
         					HorizontalAlignment.LEFT, 
         					VerticalAlignment.TOP );
         			
-        			target.drawWireframeShape(wouData.unionShape, wouData.color,wouData.symbolWidth,lineStyle );
+        			target.drawWireframeShape(wouData.unionShape, wouData.color, wouData.symbolWidth, lineStyle ); 
         			
-        		}
+        		}       	
         	}
 		}
 	}

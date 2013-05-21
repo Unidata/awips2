@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -25,7 +26,7 @@ public class Min24HrTemp extends AbstractMetParameter implements
 	 */
 	private static final long serialVersionUID = -3934543961904215455L;
 
-	public Min24HrTemp() {
-		super( UNIT );
+	public Min24HrTemp() throws Exception {
+		super( new UnitAdapter().marshal(UNIT) );
 	}
 }

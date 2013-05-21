@@ -5,7 +5,7 @@ import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
  
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +45,7 @@ import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.ConditionalFilterMng
  * ------------ ----------      -----------     --------------------------
  * April 2012   #615             S. Gurung       Initial Creation
  * April 2012   #606             G. Hull         get 3 plot resource implementations.
+ * 02/11/13      #972        G. Hull     AbstractEditor instead of NCMapEditor
  * 
  * </pre>
  * 
@@ -174,7 +175,7 @@ public class ConditionalFilterMngrDialog extends Dialog {
 					editCondFilterBtn.setEnabled(true);
 
 					String condFilterName = condFilterList.getSelection()[0];
-					
+
 					if( condFilterName.equals( ConditionalFilterMngr.NullFilterName ) ) {
 						editCondFilterBtn.setEnabled(false);						
 						copyCondFilterBtn.setEnabled(false);
@@ -353,7 +354,7 @@ public class ConditionalFilterMngrDialog extends Dialog {
 			}
 			catch ( VizException ve ) {
 	    		MessageDialog errDlg = new MessageDialog( 
-	    				NmapUiUtils.getCaveShell(), 
+	    				NcDisplayMngr.getCaveShell(), 
 	    				"Error", null, 
 	    				"Error Saving Conditional Filter "+fromCondFilterName+ ".\n\n"+
 	    				ve.getMessage(),
@@ -370,7 +371,7 @@ public class ConditionalFilterMngrDialog extends Dialog {
 			
 			if( condFilterName.equals( ConditionalFilterMngr.NullFilterName ) ) {
 				MessageDialog errDlg = new MessageDialog( 
-	    				NmapUiUtils.getCaveShell(), 
+	    				NcDisplayMngr.getCaveShell(), 
 	    				"Error", null, 
 	    				"Can't edit the Null Conditional Filter "+ ".\n\n",
 	    				MessageDialog.ERROR, new String[]{"OK"}, 0);
@@ -400,7 +401,7 @@ public class ConditionalFilterMngrDialog extends Dialog {
 		
 		ConditionalFilter newConditionalFilter = (ConditionalFilter)editConditionalFilterDlg.open( 
 						shell.getLocation().x + shell.getSize().x/2,  shell.getLocation().y );
-		
+
 		if( newConditionalFilter != null ) {
 			// create a LocalizationFile 
 			try {
@@ -412,7 +413,7 @@ public class ConditionalFilterMngrDialog extends Dialog {
 			}
 			catch ( VizException ve ) {
 	    		MessageDialog errDlg = new MessageDialog( 
-	    				NmapUiUtils.getCaveShell(), 
+	    				NcDisplayMngr.getCaveShell(), 
 	    				"Error", null, 
 	    				"Error Saving Conditional Filter "+condFilterName+ ".\n\n"+
 	    				ve.getMessage(),
@@ -452,7 +453,7 @@ public class ConditionalFilterMngrDialog extends Dialog {
     	}
     	catch( VizException e ) {
     		MessageDialog errDlg = new MessageDialog( 
-    				NmapUiUtils.getCaveShell(), 
+    				NcDisplayMngr.getCaveShell(), 
     				"Error", null, 
     				"Error Deleting Conditional Filter "+condFilterName+ ".\n\n"+
     				e.getMessage(),

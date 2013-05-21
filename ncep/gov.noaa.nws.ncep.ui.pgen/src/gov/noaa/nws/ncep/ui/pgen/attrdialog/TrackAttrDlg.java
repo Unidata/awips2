@@ -59,6 +59,7 @@ import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
  * 02/12        TTR456      Q.Zhou      Added speed units combo, roundTo combo and roundDirTo combo.
  * 06/12        #777        Q.Zhou      Modified DEFAULT_NUMBER_OF_TIMES. 
  * 										Added isNewTrack flag to make the FirstTime(/SecondTime) current time when create a Track
+ * 03/13		#928		B. Yin 		Added a separator above the button bar.
  * </pre>
  * 
  * @author	M. Gao
@@ -137,7 +138,7 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
     TrackExtrapPointInfoDlg trackExtrapPointInfoDlg; 
     
 	private static TrackAttrDlg INSTANCE = null;
-    
+	
 	public boolean isNewTrack = false;
     
     /**
@@ -274,10 +275,10 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 		}
 		else {
         
-		getFirstTimeText().setText(getFirstOrSecondTimeStringValue(track.getFirstTimeCalendar(), true, track.getInitialPoints())); 
-		getSecondTimeText().setText(getFirstOrSecondTimeStringValue(track.getSecondTimeCalendar(), false, track.getInitialPoints())); 
+			getFirstTimeText().setText(getFirstOrSecondTimeStringValue(track.getFirstTimeCalendar(), true, track.getInitialPoints())); 
+			getSecondTimeText().setText(getFirstOrSecondTimeStringValue(track.getSecondTimeCalendar(), false, track.getInitialPoints())); 
 		}
-
+		
 		//isNewTrack = false;
 		/*
 		 * 3. restore Number of times value
@@ -694,6 +695,8 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 			}
         }); 
         
+        addSeparator(topComposite.getParent());
+
 	}	
 	
 	private void frameAndSetTimeButtonSelectionListenerAction(final Button button, 
