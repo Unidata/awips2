@@ -10,7 +10,6 @@ package gov.noaa.nws.ncep.staticdataprovider;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwRecord;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwUgc;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwVtec;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.IRscDataObject;
 import gov.noaa.nws.ncep.viz.rsc.wtch.util.WtchConstant;
 import gov.noaa.nws.ncep.viz.rsc.wtch.util.WtchUtil;
 
@@ -51,7 +50,7 @@ public class ContinuingWatch {
 	/*
 	 * WtchRscDataObj class
 	 */
-	public static class WtchRscDataObj implements IRscDataObject {
+	public static class WtchRscDataObj {
 		String 				dataUri;       
 		DataTime        	issueTime;     // issue time from bulletin
 		DataTime        	eventTime;    
@@ -64,7 +63,6 @@ public class ContinuingWatch {
 		String 				phenomena; 
 		String 				significance; 
 
-		@Override
 		public DataTime getDataTime() {
 			return eventTime;
 		}

@@ -15,6 +15,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
@@ -90,8 +91,11 @@ public class LabeledSymbolAttrDlg extends SymbolAttrDlg {
 	 */
 	protected void initializeComponents() {
 		super.initializeComponents();
+
+		Composite inCmp = new Composite( top, SWT.NONE);
+        inCmp.setLayout( getGridLayout( 3, false, 0, 0, 0, 0 ) );
 		
-		chkBox[ChkBox.LABEL.ordinal()] = new Button(top, SWT.CHECK);
+		chkBox[ChkBox.LABEL.ordinal()] = new Button(inCmp, SWT.CHECK);
 		chkBox[ChkBox.LABEL.ordinal()] .setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT));
 		chkBox[ChkBox.LABEL.ordinal()].addSelectionListener(new SelectionAdapter(){
 
@@ -110,10 +114,10 @@ public class LabeledSymbolAttrDlg extends SymbolAttrDlg {
 		
 		chkBox[ChkBox.LABEL.ordinal()].setVisible(false);
 		
-		labelChkBox = new Button(top, SWT.CHECK);
+		labelChkBox = new Button(inCmp, SWT.CHECK);
 		labelChkBox.setText("Label");
 		
-		labelColorChkBox = new Button(top, SWT.CHECK);
+		labelColorChkBox = new Button(inCmp, SWT.CHECK);
 		labelColorChkBox.setText("Use Symbol Color");
 
 		labelChkBox.addListener( SWT.MouseUp, new Listener(){

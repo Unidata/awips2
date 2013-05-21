@@ -8,6 +8,21 @@
 
 package gov.noaa.nws.ncep.ui.pgen.palette;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenSession;
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil.PgenMode;
+import gov.noaa.nws.ncep.ui.pgen.controls.CommandStackListener;
+import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
+import gov.noaa.nws.ncep.ui.pgen.elements.Product;
+import gov.noaa.nws.ncep.ui.pgen.filter.CategoryFilter;
+import gov.noaa.nws.ncep.ui.pgen.gfa.PreloadGfaDataThread;
+import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductDialogStarter;
+import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
+import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
+import gov.noaa.nws.ncep.ui.pgen.tools.PgenSelectingTool;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayName;
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -66,28 +81,9 @@ import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
-import com.raytheon.viz.ui.editor.VizMultiPaneEditor;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.raytheon.viz.ui.tools.AbstractModalTool;
-
-import gov.noaa.nws.ncep.ui.pgen.PgenSession;
-import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.PgenUtil.PgenMode;
-import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.controls.CommandStackListener;
-import gov.noaa.nws.ncep.ui.pgen.elements.Product;
-import gov.noaa.nws.ncep.ui.pgen.filter.CategoryFilter;
-import gov.noaa.nws.ncep.ui.pgen.gfa.PreloadGfaDataThread;
-import gov.noaa.nws.ncep.ui.pgen.palette.Activator;
-import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductDialogStarter;
-import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
-import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
-import gov.noaa.nws.ncep.ui.pgen.tools.PgenSelectingTool;
-import gov.noaa.nws.ncep.viz.common.AbstractNcEditor;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-//import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
-//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 /**
  * The PGEN View is used for all interaction with the objects in the PGEN Resource,
@@ -573,7 +569,7 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 						currentObject = elem.getAttribute("name");
 						setActiveIcon(currentObject);
 
-				}
+					}				
 					elem =  itemMap.get( "MultiSelect");
 				}
 				else if ( currentObject != null ){
@@ -590,9 +586,9 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 					 for ( AbstractModalTool tool : mgr.getToolManager().getSelectedModalTools() ) {
 						 //check selecting tool and change front/line type
 						 if ( tool instanceof PgenSelectingTool ){
-							 AttrDlg dlg = ((PgenSelectingTool)tool).getAttrDlg();
-							 if ( dlg != null && dlg.getShell() != null
-									 && ((PgenSelectingTool)tool).getDrawingLayer().getSelectedDE()!=null) {
+							 DrawableElement prevDe = ((PgenSelectingTool)tool).getPreviousSelectedDE();
+							 if ( prevDe != null && (prevDe.getPgenCategory().equalsIgnoreCase("Lines") ||
+									 prevDe.getPgenCategory().equalsIgnoreCase("Front") )){
 								 selTool = (PgenSelectingTool)tool;
 							 }
 							 break;
@@ -782,8 +778,7 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 		//System.out.println("Something Activated: "+part.getClass().getCanonicalName() );
 		//if ( part instanceof NCMapEditor &&((NCMapEditor) part).getApplicationName().equals("NA")) {
 		
-		//change AbstrcactEditor to VizMultiPaneEditor in order to avoid NSharp editor.		
-		if ( isNCMapEditor( part ) ) {
+		if ( PgenUtil.isNatlCntrsEditor( part ) ) {
 			
 			PgenResource rsc = PgenUtil.findPgenResource((AbstractEditor)part);
 			if ( (rsc==null) && (PgenUtil.getPgenMode()==PgenMode.SINGLE) ) rsc = PgenUtil.createNewResource();
@@ -835,22 +830,23 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 		//System.out.println("Something BroughtToTop: "+part.getClass().getCanonicalName() );
 		partActivated(partRef);
 		
-		if (  isNCMapEditor( part )  ) {
+		if( PgenUtil.isNatlCntrsEditor( part )  ) {
 			AbstractEditor editor = (AbstractEditor)part;
 			PgenResource rsc = PgenUtil.findPgenResource((AbstractEditor)part);
 
 			if ( (rsc != null) && (PgenUtil.getPgenMode()==PgenMode.SINGLE) 
 					&& (PgenUtil.doesLayerLink() ) ) {
-//				int id = NmapUiUtils.getNcDisplayID( editor.getDisplayName() );
-				int id = PgenUtil.getDisplayID( PgenUtil.getDisplayName( editor ) );
-				
-				if ( id > 0  &&  rsc != null ) {
-					
-					Product prod = rsc.getActiveProduct();
-					if ( id <= prod.getLayers().size() ) {
-						rsc.setActiveLayer( prod.getLayer(id-1) );
-					}
 
+				NcDisplayName dispName = PgenUtil.getDisplayName( editor );
+				
+				if( dispName != null ) { // sanity check
+					if( dispName.getId() > 0  &&  rsc != null ) {
+
+						Product prod = rsc.getActiveProduct();
+						if ( dispName.getId() <= prod.getLayers().size() ) {
+							rsc.setActiveLayer( prod.getLayer( dispName.getId()-1) );
+						}
+					}
 				}
 			}
 			
@@ -887,7 +883,7 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 				PgenUtil.removeSelectedPaneChangedListener( currentIsMultiPane, this );
 			}
 		}
-		else if (  isNCMapEditor( part )  ) {
+		else if (  PgenUtil.isNatlCntrsEditor( part )  ) {
 			PgenResource pgen = PgenUtil.findPgenResource( (AbstractEditor) part );
 			if ( pgen != null ){
 				pgen.closeDialogs();
@@ -900,8 +896,7 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 		IWorkbenchPart part = partRef.getPart(false);
 		//System.out.println("Something Deactivated: "+part.getClass().getCanonicalName() );
 		
-		//change AbstrcactEditor to VizMultiPaneEditor in order to avoid NSharp editor.
-		if (  isNCMapEditor( part )  ) {
+		if (  PgenUtil.isNatlCntrsEditor( part )  ) {
 			
 			PgenResource pgen = PgenUtil.findPgenResource( (AbstractEditor) part );
 			if ( pgen != null ){
@@ -947,7 +942,7 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 		IWorkbenchPart part = partRef.getPart(false);
 		//System.out.println("Something Hidden: "+part.getClass().getCanonicalName() );
 		
-		if (  isNCMapEditor( part )  ) {
+		if (  PgenUtil.isNatlCntrsEditor( part )  ) {
 			PgenResource pgen = PgenUtil.findPgenResource( (AbstractEditor) part );
 			if ( pgen != null ){
 				pgen.closeDialogs();
@@ -964,7 +959,7 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 	public void partVisible(IWorkbenchPartReference partRef) {
 		IWorkbenchPart part = partRef.getPart(false);
 		//System.out.println("Something Opened: "+part.getClass().getCanonicalName() );
-		if( isNCMapEditor( part )  && !PreloadGfaDataThread.loaded ) {
+		if( PgenUtil.isNatlCntrsEditor( part )  && !PreloadGfaDataThread.loaded ) {
 			// preload the classes to reduce the first GFA format time 
 			new PreloadGfaDataThread().start();
 		}
@@ -1277,13 +1272,5 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 	 */
 	public String getCurrentObject() {
 		return currentObject;
-	}
-	
-	/*
-	 * Check if a workbench part is NCMapEditor
-	 */
-	private boolean isNCMapEditor( IWorkbenchPart part ){
-		return ( part instanceof VizMultiPaneEditor && part instanceof AbstractNcEditor );
-	}
-
+	}	
 }

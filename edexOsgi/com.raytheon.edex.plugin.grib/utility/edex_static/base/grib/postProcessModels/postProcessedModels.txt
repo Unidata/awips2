@@ -78,6 +78,5 @@ Canadian-NH:com.raytheon.edex.plugin.grib.decoderpostprocessors.CanadianNHPostPr
 
 # RUC236 PostProcessor
 RUC236:com.raytheon.edex.plugin.grib.decoderpostprocessors.RUC236GribPostProcessor
-
 # SPC
 SPCGuide:com.raytheon.edex.plugin.grib.decoderpostprocessors.OverwriteGribPostProcessor

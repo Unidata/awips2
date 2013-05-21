@@ -1,0 +1,23 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="pgenPluginName" class="java.lang.String">
+		<constructor-arg type="java.lang.String" value="pgen" />
+	</bean>
+
+	<bean id="pgenProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+		<property name="pluginName" ref="pgenPluginName" />
+		<property name="pluginFQN" value="gov.noaa.nws.ncep.common.dataplugin.pgen" />
+		<property name="dao" value="gov.noaa.nws.ncep.edex.plugin.pgen.dao.PgenDao" />
+		<property name="record" value="gov.noaa.nws.ncep.common.dataplugin.pgen.PgenRecord" />
+	</bean>
+	
+	<bean id="pgenRegistered" factory-bean="pluginRegistry" factory-method="register">
+        <constructor-arg ref="pgenPluginName"/>
+        <constructor-arg ref="pgenProperties"/>
+    </bean>
+	
+</beans>

@@ -269,7 +269,7 @@ protected HashMap<String, RequestConstraint> queryList;//for legend DEG 2011-03-
 
 	@Override
     public void propertiesChanged(ResourceProperties updatedProps) {
-
+    	
 		cbarRscPair.getProperties().setVisible( updatedProps.isVisible() );
     }
 

@@ -19,7 +19,6 @@ import gov.noaa.nws.ncep.viz.rsc.satellite.rsc.ICloudHeightCapable;
 import gov.noaa.nws.ncep.viz.rsc.satellite.rsc.McidasFileBasedTileSet;
 import gov.noaa.nws.ncep.viz.rsc.satellite.rsc.McidasSatResource;
 import gov.noaa.nws.ncep.viz.rsc.satellite.units.NcIRPixelToTempConverter;
-import gov.noaa.nws.ncep.viz.ui.display.NCDisplayPane;
 import gov.noaa.nws.ncep.viz.cloudHeight.CloudHeightResource.StationData;
 import gov.noaa.nws.ncep.viz.cloudHeight.soundings.SoundingModel;
 import gov.noaa.nws.ncep.viz.cloudHeight.soundings.SoundingModelReader;
@@ -65,6 +64,7 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.util.BufferUtil;
 import com.raytheon.uf.viz.core.HDF5Util;
+import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 //import com.raytheon.uf.viz.core.data.IDataRetrievalCallback;
 //import com.raytheon.uf.viz.core.data.prep.CMDataPreparerManager;
@@ -119,6 +119,7 @@ import gov.noaa.nws.ncep.gempak.parameterconversionlibrary.GempakConstants;
  *                                      for common cases "No sounding data available for selected location"
  *                                      and "Cloud temperature warmer than entire sounding"
  * 05/21/2012   524         B. Hebbard  Fix regression:  Null pointer exception on start with no SAT IR.
+ * 02/11/2013   972         G. Hull     IDisplayPane instead of NCDisplayPane
  * 
  * @version 1
  */
@@ -131,7 +132,7 @@ public class CloudHeightProcesser {
 	private UnitConverter tempUnitsConverter = null;
     private UnitConverter celsiusToKelvinConverter = null;
     private NcIRPixelToTempConverter pixelToTemperatureConverter = null;
-	private NCDisplayPane seldPane;
+	private IDisplayPane seldPane;
     private int maxIntervalInHoursForValidStationData;
 	private ArrayList<SoundingModel> sndingModels = null;
 	private String sndingSrcStr = null;
@@ -162,7 +163,7 @@ public class CloudHeightProcesser {
 	}
 	
 	
-	public CloudHeightProcesser( NCDisplayPane p, CloudHeightDialog dlg ) throws VizException {
+	public CloudHeightProcesser( IDisplayPane p, CloudHeightDialog dlg ) throws VizException {
 		seldPane = p;
 		cldHghtDlg = dlg;
 		aListOfNcSoundingLayers = new ArrayList<NcSoundingLayer2>(0);
@@ -194,7 +195,7 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
     	return satRsc;
     }	
 	
-	public void setPane( NCDisplayPane newPane ) {
+	public void setPane( IDisplayPane newPane ) {
 		if( seldPane == newPane ) {
 			return;
 		}

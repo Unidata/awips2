@@ -15,15 +15,12 @@ import java.awt.Color;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.VerifyEvent;
@@ -37,6 +34,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 import gov.noaa.nws.ncep.ui.pgen.Activator;
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
@@ -58,8 +56,11 @@ import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
  *                                      selected color instead of displaying 
  *                                      the complete color matrix .
  * 04/11		#?			B. Yin		Re-factor IAttribute
- * 07/12	#610(TTR419)	B. Yin		Melti-Select GFA does not need check boxes for 
+ * 07/12	#610(TTR419)	B. Yin		Multi-Select GFA does not need check boxes for 
  *										every attributes
+ * 03/13			#928	B. Yin		Added a separator above the button bar.
+ *										Added cancelPressed() to go back to selecting mode.
+ * 04/13		TTR399		J. Wu		make the dialog smaller.
  * </pre>
  * 
  * @author	B. Yin
@@ -121,7 +122,7 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 	 * and returns the instance. If the dialog exists, return the instance.
 	 *  
 	 * @param parShell
-	 * @return
+	 * @returnGrid
 	 */
 	public static LineAttrDlg getInstance( Shell parShell){
 		
@@ -145,19 +146,15 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 	@Override
 	public Control createDialogArea(Composite parent) {
 		
+            // Create the main composite with a dense grid layout.
 	        top = (Composite) super.createDialogArea(parent);
-
-	        // Create the main layout for the shell.
-	        GridLayout mainLayout = new GridLayout(3, false);
-	        mainLayout.marginHeight = 3;
-	        mainLayout.marginWidth = 3;
-	        top.setLayout(mainLayout);
-
+	        top.setLayout( getGridLayout( 1, false, 0, 0, 0, 0 ) );
+	        
 	        // Initialize all of the menus, controls, and layouts
 	        initializeComponents();
 
 	        return top;
-	    }   
+	}   
 	
 	/**
 	 * Creates buttons, menus, and other controls in the dialog area
@@ -167,17 +164,13 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
         this.getShell().setText("Line Attributes");
         
         chkBox = new Button[ChkBox.values().length];
-
-        createColorAttr();
+        
+        createColorCloseFillAttr();        
         createWidthAttr();        
         createPatternSizeAttr();
         createSmoothAttr();
-        createCloseAttr();
-        createFillAttr();
         createFillPatternAttr();
-        
-        //Button btn = new Button( top, SWT.PUSH);
-        //btn.setImage(getFillPatternIcon("icons/patt00.gif"));
+        addSeparator(top.getParent());
 	}
 
 	/**
@@ -396,9 +389,12 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 	/**
 	 * Create widgets for the Color attribute
 	 */
-	private void createColorAttr(){
+	private void createColorAttr( Composite comp ){
+        
+		Composite inCmp = new Composite( comp, SWT.NONE);
+        inCmp.setLayout( getGridLayout( 3, false, 0, 0, 0, 0) );
 
-		chkBox[ChkBox.COLOR.ordinal()] = new Button(top, SWT.CHECK);
+		chkBox[ChkBox.COLOR.ordinal()] = new Button( inCmp, SWT.CHECK);
 		chkBox[ChkBox.COLOR.ordinal()] .setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT));
 		chkBox[ChkBox.COLOR.ordinal()].addSelectionListener(new SelectionAdapter(){
 
@@ -415,24 +411,27 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 
 		});  
 
-		colorLbl = new Label( top, SWT.LEFT );
-		colorLbl.setText("Color:");
+		colorLbl = new Label( inCmp, SWT.LEFT );
+		colorLbl.setText("Color ");
 		
-		colorGroup = new Composite( top, SWT.NONE );
-		colorGroup.setLayout(new RowLayout());
+		colorGroup = new Composite( inCmp, SWT.NONE );
+		colorGroup.setLayout( getGridLayout(1, false, 0, 0, 0, 0) );
 		csList = new ArrayList<ColorButtonSelector>();
 		
 		ColorButtonSelector dflt = new ColorButtonSelector(colorGroup);
 		dflt.setColorValue( new RGB( 0,255,0 ) );
 		csList.add(dflt);
 	}
-
-	/**
+	
+	/*
 	 * Create widgets for the Line Width attribute
 	 */
 	private void createWidthAttr(){
 
-		chkBox[ChkBox.WIDTH.ordinal()] = new Button(top, SWT.CHECK);
+		Composite inCmp = new Composite( top, SWT.NONE );
+        inCmp.setLayout( getGridLayout( 3, false, 0, 0, 0, 0 ) );
+
+		chkBox[ChkBox.WIDTH.ordinal()] = new Button(inCmp, SWT.CHECK);
 		chkBox[ChkBox.WIDTH.ordinal()].setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT));
 		chkBox[ChkBox.WIDTH.ordinal()].addSelectionListener(new SelectionAdapter(){
 
@@ -452,17 +451,12 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 
 		});  
 
-		widthLbl = new Label(top, SWT.LEFT);
-		widthLbl.setText("Line Width:");
+		widthLbl = new Label(inCmp, SWT.LEFT);
+		widthLbl.setText("Line Width ");
 		
-		GridLayout gl = new GridLayout( 2, false );
-
-		Group widthGrp = new Group( top, SWT.NONE ) ;
-	    widthGrp.setLayout( gl );
-	    
         widthSpinnerSlider = 
-        	new gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.SpinnerSlider(widthGrp, SWT.HORIZONTAL,1);
-        widthSpinnerSlider.setLayoutData(new GridData(180,30));
+        	new gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.SpinnerSlider(inCmp, SWT.HORIZONTAL,1);
+        widthSpinnerSlider.setLayoutData(new GridData(148,25));
         widthSpinnerSlider.setMinimum(1);            
         widthSpinnerSlider.setMaximum(20);
         widthSpinnerSlider.setIncrement(1);
@@ -504,7 +498,11 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 	 * Create widgets for the smooth Level attribute
 	 */
 	private void createSmoothAttr(){
-		chkBox[ChkBox.SMOOTH.ordinal()] = new Button(top, SWT.CHECK);
+		
+		Composite inCmp = new Composite( top, SWT.NONE );
+        inCmp.setLayout( getGridLayout( 3, false, 0, 0, 0, 0 ) );
+		
+		chkBox[ChkBox.SMOOTH.ordinal()] = new Button(inCmp, SWT.CHECK);
 		chkBox[ChkBox.SMOOTH.ordinal()] .setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT));
 		chkBox[ChkBox.SMOOTH.ordinal()].addSelectionListener(new SelectionAdapter(){
 
@@ -524,10 +522,10 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 
 		});  
 
-		smoothLbl = new Label(top, SWT.LEFT);
-		smoothLbl.setText("Smooth Level:");
+		smoothLbl = new Label(inCmp, SWT.LEFT);
+		smoothLbl.setText("Smooth Level ");
 
-		smoothLvlCbo = new Combo( top, SWT.DROP_DOWN | SWT.READ_ONLY );
+		smoothLvlCbo = new Combo( inCmp, SWT.DROP_DOWN | SWT.READ_ONLY );
 
 		smoothLvlCbo.add("0");
 		smoothLvlCbo.add("1");
@@ -540,7 +538,11 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 	 * Create widgets for the pattern size attribute
 	 */
 	private void createPatternSizeAttr(){
-		chkBox[ChkBox.PATTERN_SIZE.ordinal()] = new Button(top, SWT.CHECK);
+		Composite inCmp = new Composite( top, SWT.NONE );
+        inCmp.setLayout( getGridLayout( 3, false, 0, 0, 0, 0 ) );
+
+		
+		chkBox[ChkBox.PATTERN_SIZE.ordinal()] = new Button(inCmp, SWT.CHECK);
 		chkBox[ChkBox.PATTERN_SIZE.ordinal()] .setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT));
 		chkBox[ChkBox.PATTERN_SIZE.ordinal()].addSelectionListener(new SelectionAdapter(){
 
@@ -560,22 +562,18 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 
 		});  
 
-		patternSizeLbl = new Label(top, SWT.LEFT);
-		patternSizeLbl.setText("Pattern Size:");
-		GridLayout gl = new GridLayout( 2, false );
-
-		Group psGrp = new Group( top, SWT.NONE ) ;
-	    psGrp.setLayout( gl );
+		patternSizeLbl = new Label(inCmp, SWT.LEFT);
+		patternSizeLbl.setText("Pattern Size ");
 	    
         patternSizeSpinnerSlider = 
-        	new gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.SpinnerSlider(psGrp, SWT.HORIZONTAL,1);
-        patternSizeSpinnerSlider.setLayoutData(new GridData(180,30));
+        	new gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.SpinnerSlider(inCmp, SWT.HORIZONTAL,1);
+        patternSizeSpinnerSlider.setLayoutData(new GridData(140,25));
         patternSizeSpinnerSlider.setMinimum(1);            
         patternSizeSpinnerSlider.setMaximum(100);
         patternSizeSpinnerSlider.setIncrement(1);
         patternSizeSpinnerSlider.setPageIncrement(10);        
         patternSizeSpinnerSlider.setDigits(1);  
-
+        
 	}
 	
 	protected boolean validatePatternSize(VerifyEvent ve ){
@@ -603,11 +601,15 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 
 		return stat;
 	}
+	
 	/**
 	 * Create widgets for the Closed attribute
 	 */	
-	private void createCloseAttr(){
-		chkBox[ChkBox.CLOSE.ordinal()] = new Button(top, SWT.CHECK);
+	private void createCloseAttr( Composite comp ){
+		Composite inCmp = new Composite( comp, SWT.NONE);
+        inCmp.setLayout( getGridLayout( 2, false, 0, 0, 0, 0 ) );
+        
+		chkBox[ChkBox.CLOSE.ordinal()] = new Button(inCmp, SWT.CHECK);
 		chkBox[ChkBox.CLOSE.ordinal()] .setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT));
 		chkBox[ChkBox.CLOSE.ordinal()].addSelectionListener(new SelectionAdapter(){
 
@@ -624,7 +626,7 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 			}
 
 		});
-		closedBtn  = new Button(top, SWT.CHECK);
+		closedBtn  = new Button(inCmp, SWT.CHECK);
 		closedBtn.setText("Closed");
 	}
 	
@@ -632,7 +634,11 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 	 * Create widgets for the fill patterns attribute
 	 */
 	private void createFillPatternAttr(){
-		chkBox[ChkBox.FILL_PATTERN.ordinal()] = new Button(top, SWT.CHECK);
+		
+		Composite inCmp = new Composite( top, SWT.NONE );
+        inCmp.setLayout( getGridLayout( 3, false, 0, 0, 0, 0 ) );
+
+		chkBox[ChkBox.FILL_PATTERN.ordinal()] = new Button(inCmp, SWT.CHECK);
 		chkBox[ChkBox.FILL_PATTERN.ordinal()] .setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT));
 		chkBox[ChkBox.FILL_PATTERN.ordinal()].addSelectionListener(new SelectionAdapter(){
 
@@ -652,18 +658,10 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 
 		});  
 
-		fillPatternLbl = new Label(top, SWT.LEFT);
-		fillPatternLbl.setText("Fill Pattern:");
-/*
-		fillPatternCbo = new Combo( top, SWT.DROP_DOWN | SWT.READ_ONLY );
+		fillPatternLbl = new Label(inCmp, SWT.LEFT);
+		fillPatternLbl.setText("Fill Pattern ");		
 
-		for ( FillPattern fp : FillPatternList.FillPattern.values() ){
-			fillPatternCbo.add( fp.name());
-		}
-*/		
-		
-
-		fillPatternCbo = new SymbolCombo( top );
+		fillPatternCbo = new SymbolCombo( inCmp );
 		fillPatternCbo.setLayoutData(new GridData(10, 1));
 
 		if (FILL_PATTERNS == null ){
@@ -672,17 +670,11 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 
 			int ii = 0;
 			for ( FillPattern fp : FillPatternList.FillPattern.values() ){
-
-				//	else {
-				//		FILL_PATTERN_MENU_ITEMS.put(fp.name(), null);
-				//	}
-
 				FILL_PATTERNS[ii++] = fp.name();
 			}
 		}
 		
-		
-		
+				
 		Image icons[] = new Image[FILL_PATTERNS.length];
 		
 		for ( int ii=0; ii< FILL_PATTERNS.length; ii++){
@@ -699,7 +691,7 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 				case 0:
 					//shrink the first image. All other images in the list will follow. 
 					Image orgImg = getFillPatternIcon("icons/patt00.gif");
-					img = new Image(this.getShell().getDisplay(), orgImg.getImageData().scaledTo(48, 24));
+					img = new Image(this.getShell().getDisplay(), orgImg.getImageData().scaledTo(40, 20));
 					break;
 				case 1:
 					img = getFillPatternIcon("icons/patt01.gif");
@@ -737,14 +729,14 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 		
 	}
 
-	/**
+	/*
 	 * Create widgets for the Filled attribute
 	 */
-	private void createFillAttr(){
+	private void createFillAttr( Composite comp){
 
-		Composite fillGrp = new Composite(top, SWT.NONE);
-		fillGrp.setLayout(new GridLayout(2, false));
-
+		Composite fillGrp = new Composite( comp, SWT.NONE);
+		fillGrp.setLayout( getGridLayout(2, false, 0, 0, 0, 0));
+		
 		chkBox[ChkBox.FILL.ordinal()] = new Button(fillGrp, SWT.CHECK);
 		chkBox[ChkBox.FILL.ordinal()] .setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT+5));
 		chkBox[ChkBox.FILL.ordinal()].addSelectionListener(new SelectionAdapter(){
@@ -788,7 +780,7 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 	public int open(){
 
 		if ( this.getShell() == null || this.getShell().isDisposed()) {
-		this.create();
+			this.create();
 		}
 
 		if ( PgenSession.getInstance().getPgenPalette().getCurrentAction()
@@ -882,4 +874,28 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	/**
+	 * Removes ghost line, handle bars, and closes the dialog
+	 */
+	public void cancelPressed(){
+		PgenUtil.setSelectingMode();
+		super.cancelPressed();
+		
+	}
+		
+	/*
+	 * Create color, closed, fill attributes in one line.
+	 */
+	private void createColorCloseFillAttr(){
+
+		Composite inCmp = new Composite( top, SWT.NONE);
+        inCmp.setLayout( getGridLayout( 3, false, 0, 0, 0, 0 ) );
+		
+        createColorAttr( inCmp );
+        createCloseAttr( inCmp );     
+        createFillAttr( inCmp );
+
+	}
+		
 }
