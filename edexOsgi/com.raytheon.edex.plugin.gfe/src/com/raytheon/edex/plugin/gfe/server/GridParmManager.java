@@ -92,12 +92,13 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  *                                     smartInit hdf5 data
  * 03/07/13     #1773      njensen     Logged commitGrid() times
  * 03/15/13     #1795      njensen     Sped up commitGrid()
- * 03/20/2013   #1774      randerso    Removed dead method, changed to use new 
+ * 03/20/13     #1774      randerso    Removed dead method, changed to use new 
  *                                     D2DGridDatabase constructor
- * 04/23/2013   #1949      rjpeter     Added inventory retrieval for a given time range.
- * 05/02/13      #1969     randerso    Fixed possible null pointer in getParmList
+ * 04/23/13     #1949      rjpeter     Added inventory retrieval for a given time range.
+ * 05/02/13     #1969      randerso    Fixed possible null pointer in getParmList
  *                                     Removed inventory from DBInvChangedNotification
- * 05/03/13      #1974     randerso    Fixed error logging to include stack trace
+ * 05/03/13     #1974      randerso    Fixed error logging to include stack trace
+ * 05/14/13     #2004      randerso    Added methods to synch GridParmManager across JVMs
  * </pre>
  * 
  * @author bphillip
@@ -1189,7 +1190,7 @@ public class GridParmManager {
      * 
      * @param dbId
      *            The database ID of the database to retrieve
-     * @return The Grid Database
+     * @return The Grid Database or null if database not available
      * @throws GfeException
      */
     public static GridDatabase getDb(DatabaseID dbId) throws GfeException {
@@ -1398,4 +1399,34 @@ public class GridParmManager {
         dbMap.remove(id);
     }
 
+    public static void processNotification(Object msg) {
+        if (msg instanceof List) {
+            for (Object obj : (List<?>) msg) {
+                if (obj instanceof GfeNotification) {
+                    handleGfeNotification((GfeNotification) obj);
+                }
+            }
+        } else if (msg instanceof GfeNotification) {
+            handleGfeNotification((GfeNotification) msg);
+        }
+    }
+
+    private static void handleGfeNotification(GfeNotification notif) {
+        if (notif instanceof DBInvChangeNotification) {
+            DBInvChangeNotification invChanged = (DBInvChangeNotification) notif;
+
+            for (DatabaseID dbId : invChanged.getAdditions()) {
+                try {
+                    getDb(dbId);
+                } catch (GfeException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
+            }
+
+            for (DatabaseID dbId : invChanged.getDeletions()) {
+                removeDbFromMap(dbId);
+            }
+        }
+    }
 }
