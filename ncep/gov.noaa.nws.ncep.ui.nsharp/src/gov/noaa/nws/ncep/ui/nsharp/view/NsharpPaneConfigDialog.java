@@ -113,7 +113,7 @@ public class NsharpPaneConfigDialog extends Dialog {
 	    	paneCfgCombo.add(NsharpConstants.PANE_CONFIGURATION_NAME[i]);	 
 	    	if(paneConfigurationName.equals(NsharpConstants.PANE_CONFIGURATION_NAME[i])){
 	    		selectIndex = i;
-	    		break;
+	    		//break;
 	    	}
 	    	
 	    }
