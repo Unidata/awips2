@@ -137,6 +137,8 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Mar 28, 2013 DR 15974    D. Friedman Do not track removed GIDs.
  *  Apr 11, 2013 1894        jsanchez    Removed the ability to load/unload maps via bullet selection. This will be resolved in a follow on ticket.
  *  Apr 30, 2013 DR 16118    Qinglu Lin  For reissue (followup NEW), called redrawFromWarned() in okPressed().
+ *  May 17, 2013 DR 16118    Qinglu Lin  Copied the fix from 13.4.1.
+ *  May 17, 2013 2012        jsanchez    Preserved the warned area if the hatched area source is the same when changing templates.
  * </pre>
  * 
  * @author chammack
@@ -994,7 +996,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                 .getAct()) == WarningAction.NEW) {
             redrawFromWarned();
         }
-
+        
         if ((followupData == null || (WarningAction.valueOf(followupData
                 .getAct()) == WarningAction.CON && warngenLayer
                 .conWarnAreaChanged(followupData)))
@@ -1406,7 +1408,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             return;
 
         String lastAreaSource = warngenLayer.getConfiguration()
-                .getGeospatialConfig().getAreaSource();
+                .getHatchedAreaSource().getAreaSource();
 
         // reset values
         setPolygonLocked(false);
@@ -1468,12 +1470,17 @@ public class WarngenDialog extends CaveSWTDialog implements
             warngenLayer.clearWarningGeometries();
         }
 
-        boolean snapHatchedAreaToPolygon = !warngenLayer.getConfiguration()
-                .getGeospatialConfig().getAreaSource()
+        boolean isDifferentAreaSources = !warngenLayer.getConfiguration()
+                .getHatchedAreaSource().getAreaSource()
                 .equalsIgnoreCase(lastAreaSource);
-
+        boolean snapHatchedAreaToPolygon = isDifferentAreaSources;
+        boolean preservedSelection = !isDifferentAreaSources;
+        // If template has a different hatched area source from the previous
+        // template, then the warned area would be based on the polygon and not
+        // preserved.
         try {
-            warngenLayer.updateWarnedAreas(snapHatchedAreaToPolygon);
+            warngenLayer.updateWarnedAreas(snapHatchedAreaToPolygon,
+                    preservedSelection);
         } catch (VizException e1) {
             statusHandler.handle(Priority.PROBLEM, "WarnGen Error", e1);
         }
