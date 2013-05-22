@@ -50,7 +50,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *    Feb 29, 2012 #13596      Qinglu Lin  Added restoreAlaskaLon().
  *    May  9, 2012 #14887      Qinglu Lin  Change 0.1 to 0.16875f for PORTION_OF_CENTER; 
  *                                         0.10 to 0.0625 for EXTREME_DELTA; Added/modified code.
- *    May  1, 2013  1963       jsanchez    Refactored calculatePortion to match A1.
+ *    May  1, 2013  1963       jsanchez    Refactored calculatePortion to match A1. Do not allow 'Central' to be included if East and West is included.
  * </pre>
  * 
  * @author chammack
@@ -100,7 +100,8 @@ public class GisUtil {
         }
 
         // Test for central by not being near adjacent borders.
-        if (iQuad.centralGeom != null && iQuad.centralGeom.contains(warnedArea)) {
+        if (useCentral && iQuad.centralGeom != null
+                && iQuad.centralGeom.contains(warnedArea)) {
             portions.add(Direction.CENTRAL);
             return portions;
         }
@@ -146,7 +147,7 @@ public class GisUtil {
         }
 
         // Three typical quadrants in use.
-        if (iQuad.q == 3 && iQuad.q != 3) {
+        if (iQuad.q == 3 && iQuad.qq != 3) {
             if (iQuad.ne != 1 && (iQuad.ssw || iQuad.wsw)) {
                 portions.add(Direction.SOUTH);
                 portions.add(Direction.WEST);
@@ -240,9 +241,7 @@ public class GisUtil {
             portions.add(Direction.EAST);
         } else if (iQuad.wnw || iQuad.wsw) {
             portions.add(Direction.WEST);
-        }
-
-        if (iQuad.cc) {
+        } else if (iQuad.cc) {
             portions.add(Direction.CENTRAL);
         }
 
