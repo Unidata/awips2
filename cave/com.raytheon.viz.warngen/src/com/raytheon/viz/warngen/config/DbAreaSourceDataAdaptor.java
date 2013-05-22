@@ -16,6 +16,7 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.SpatialQueryResult;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.warngen.PreferenceUtil;
+import com.raytheon.viz.warngen.gis.Area;
 import com.raytheon.viz.warngen.gis.ClosestPoint;
 import com.raytheon.viz.warngen.gis.GisUtil;
 import com.raytheon.viz.warngen.gis.GisUtil.Direction;
@@ -38,7 +39,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Mar 25, 2013  1810      jsanchez     Allowed other values to be accepted as a true value for useDirs.
  * Mar 25, 2013  1605      jsanchez     Set ClosestPoint's prepGeom.
  * Apr 24, 2013  1944      jsanchez     Updated calculateLocationPortion visibility to public.
- * May  2, 2013  1963      jsanchez     Referenced calculatePortion from GisUtil.
+ * May  2, 2013  1963      jsanchez     Referenced calculatePortion from GisUtil if intersection less than DEFAULT_PORTION_TOLERANCE.
  * 
  * </pre>
  * 
@@ -177,10 +178,17 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
             PreparedGeometry prepGeom = PreparedGeometryFactory.prepare(geom);
             if (prepGeom.intersects(searchArea) && !prepGeom.within(searchArea)) {
                 Geometry intersection = searchArea.intersection(geom);
-                partOfArea = GisUtil.asStringList(GisUtil.calculatePortion(
-                        geom, intersection, false, false));
 
-                if (attributes.get(suppressedDirectionsField) != null) {
+                double areaIntersection = intersection.getArea();
+                double tolerCheck = geom.getArea()
+                        * Area.DEFAULT_PORTION_TOLERANCE;
+                if (areaIntersection < tolerCheck) {
+                    partOfArea = GisUtil.asStringList(GisUtil.calculatePortion(
+                            geom, intersection, false, false));
+                }
+
+                if ((partOfArea != null)
+                        && (attributes.get(suppressedDirectionsField) != null)) {
                     String suppressedDirections = String.valueOf(
                             attributes.get(suppressedDirectionsField))
                             .toLowerCase();
