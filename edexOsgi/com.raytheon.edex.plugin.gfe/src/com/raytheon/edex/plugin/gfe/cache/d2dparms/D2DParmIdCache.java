@@ -21,6 +21,7 @@
 package com.raytheon.edex.plugin.gfe.cache.d2dparms;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,11 +41,13 @@ import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.edex.plugin.gfe.server.notify.GfeIngestNotificationFilter;
+import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.dataplugin.gfe.server.notify.DBInvChangeNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotification;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -68,6 +71,7 @@ import com.raytheon.uf.edex.site.SiteAwareRegistry;
  *                                     GridUpdateNotifications.
  * Mar 20, 2013  #1774     randerso    Changed to use GFDD2DDao
  * Apr 01, 2013  #1774     randerso    Moved wind component checking to GfeIngestNotificaionFilter
+ * May 14, 2013  #2004     randerso    Added DBInvChangeNotifications when D2D data is purged
  * 
  * </pre>
  * 
@@ -342,9 +346,13 @@ public class D2DParmIdCache {
             putParmIDList(parmIds);
             List<DatabaseID> currentDbInventory = this.getDatabaseIDs();
             dbsToRemove.removeAll(currentDbInventory);
+            List<DBInvChangeNotification> invChgList = new ArrayList<DBInvChangeNotification>(
+                    dbsToRemove.size());
             for (DatabaseID dbId : dbsToRemove) {
-                GridParmManager.removeDbFromMap(dbId);
+                invChgList.add(new DBInvChangeNotification(null, Arrays
+                        .asList(dbId), siteID));
             }
+            SendNotifications.send(invChgList);
 
             // inform GfeIngestNotificationFilter of removed dbs
             GfeIngestNotificationFilter.purgeDbs(dbsToRemove);
