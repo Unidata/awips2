@@ -1,0 +1,143 @@
+#!/bin/bash
+#
+# ldmcp:	This starts and stops the SBN LDMCP software at the sites
+#
+# chkconfig:	345 99 0
+# description:	ldmcp starts/stops SBN LDM software on the CP at the site
+#
+#
+
+PATH=/sbin:/bin:/usr/bin:/usr/sbin
+
+# Source function library.
+. /etc/init.d/functions
+
+RETVAL=0
+LDM_PROJECT="/usr/local/ldm"
+AWIPS_PROJECT="/awips"
+LOGFILE=`basename $0`
+
+if [ -f /etc/rc.config.d/AWIPS ];then
+  . /etc/rc.config.d/AWIPS
+else
+  echo "AWIPS file not found. Exiting.."
+  exit -1
+fi
+
+function handle_ramdisk() {
+
+	# check if ramdisk is mounted:
+	if ! mount | grep ram0 > /dev/null 
+	then
+		echo -ne "Creating RAMDISK:\t"
+		if mkfs -t ext2 -m 0 -q /dev/ramdisk 1500000 && success || failure	
+		then
+			echo
+			# mount to /data/ldm/data
+			echo -ne "Mounting to /data/ldm/data:\t"
+			if ! mount /dev/ramdisk /data/ldm/data && failure 
+			then
+				echo
+				return 1
+			else
+				success
+			fi
+			echo
+			sleep 2
+		else
+			echo
+			return 1
+		fi
+	fi
+	echo -ne "Fixing Permissions:\t"
+	if ! chown -R ldm:fxalpha /data/ldm/data && failure 
+	then
+		echo
+		return 1
+	fi
+		success
+	echo
+	return 0
+}
+
+function clean_ldm() {
+
+	echo -ne "Cleaning LDM:\t"
+	su ldm -lc "ldmadmin clean" > /dev/null 2>&1 && success || failure
+	myRetVal=$?
+        if [[ ${myRetVal} -ne 0 ]]
+        then
+                return ${myRetVal}
+        fi
+	echo
+	if [[ -f /data/ldm/data/ldm.pq ]] 
+	then
+		echo -ne "\nDeleting the ldm queue:\t"
+		su ldm -lc "ldmadmin delqueue" > /dev/null 2>&1 && success || failure
+		echo
+	fi
+        echo -ne "\nCreating the ldm queue:\t"
+        su ldm -lc "ldmadmin mkqueue" > /dev/null 2>&1 && success || failure
+	myRetVal=$?
+        echo
+	return ${myRetVal}
+}
+
+case $1 in
+
+'start')
+	if ! handle_ramdisk; then exit 1 ; fi
+	if ! clean_ldm; then exit 1 ; fi
+
+	echo -n "Starting AWIPS SBN CP (LDM) processes:"
+
+	$LDM_PROJECT/bin/start_ldm > /data/ldm/logs/$LOGFILE 2>&1
+	if [ $? -eq 0 ]
+	then
+		RETVAL=0
+		touch /var/lock/subsys/ldmcp
+		success  && echo
+		$AWIPS_PROJECT/bin/ErrorLogADS -p ldmcp -t c -s ma -g 60 -n 2 -m "SBN CP (LDM) Start OK"
+		echo "$AWIPS_PROJECT/bin/ErrorLogADS -p ldmcp -t c -s ma -g 60 -n 2 -m 'SBN CP (LDM) Start OK' "
+	else
+		RETVAL=1
+		failure && echo
+		$AWIPS_PROJECT/bin/ErrorLogADS -p ldmcp -t c -s ma -g 60 -n 2 -m "SBN CP (LDM) Start FAIL"
+		echo "$AWIPS_PROJECT/bin/ErrorLogADS -p ldmcp -t c -s ma -g 60 -n 2 -m 'SBN CP (LDM) Start FAIL'"
+	fi
+        mc_sbn_S300_dvb
+	;;
+
+'stop')
+	echo -n "Stopping AWIPS SBN CP (LDM) processes:"
+
+	$LDM_PROJECT/bin/stop_ldm >> /data/ldm/logs/$LOGFILE 2>&1
+	if [ $? -eq 0 ] 
+	then
+		RETVAL=0
+		rm -f /var/lock/subsys/ldmcp
+		success && echo
+		$AWIPS_PROJECT/bin/ErrorLogADS -p ldmcp -t c -s ma -g 60 -n 2 -m "SBN CP (LDM) Stop OK"
+		echo "$AWIPS_PROJECT/bin/ErrorLogADS -p ldmcp -t c -s ma -g 60 -n 2 -m 'SBN CP (LDM) Stop OK'"
+	else
+		RETVAL=1
+		failure && echo
+		$AWIPS_PROJECT/bin/ErrorLogADS -p ldmcp -t c -s ma -g 60 -n 2 -m "SBN CP (LDM) Stop FAIL"
+		echo "$AWIPS_PROJECT/bin/ErrorLogADS -p ldmcp -t c -s ma -g 60 -n 2 -m 'SBN CP (LDM) Stop FAIL'"
+	fi
+        for pid in `ps -C mc_sbn_S300_dvb --no-headings -o pid`
+        do
+           echo "Sending SIGTERM to the mc_sbn_S300_dvb pid $pid"
+           kill -s SIGTERM $pid
+        sleep 1
+        done
+	;;
+
+*)
+	echo "usage: $0 {start|stop}"
+	RETVAL=1
+	;;
+
+esac
+
+exit $RETVAL
