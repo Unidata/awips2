@@ -76,6 +76,7 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * 05/02/13     #1969      randerso    Added code to explicitly create the mutable database
  *                                     if it doesn't exist. Used to just happen by accident
  *                                     when getParmList was called.
+ * 05/14/13     #2004      randerso    Corrected logging levels
  * </pre>
  * 
  * @author bphillip
@@ -185,7 +186,7 @@ public class ParmManager extends AbstractParmManager {
     @Override
     public Parm addParm(ParmID pid, boolean mutableParm, boolean displayable) {
         if (!isParmInDatabase(pid)) {
-            statusHandler.handle(Priority.EVENTA,
+            statusHandler.handle(Priority.PROBLEM,
                     "Attempt to load a nonexistent parm: " + pid);
             return null;
         }
@@ -251,7 +252,7 @@ public class ParmManager extends AbstractParmManager {
             for (int i = 0; i < parms.length; i++) {
                 if (!this.parms.contains(parms[i])) {
                     statusHandler.handle(
-                            Priority.EVENTA,
+                            Priority.DEBUG,
                             "Attempt to delete unknown parm:"
                                     + parms[i].getParmID());
                     continue;
@@ -1170,7 +1171,7 @@ public class ParmManager extends AbstractParmManager {
             return createParmInternal(pid, mutableParm, displayable);
         } catch (GFEServerException e) {
             statusHandler
-                    .handle(Priority.EVENTA,
+                    .handle(Priority.PROBLEM,
                             "Failure to instantiate parm in createParmInternal: "
                                     + pid, e);
             return null;
