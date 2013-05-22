@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.core.MPEDataManager.MPEDateInfo;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
+import com.raytheon.viz.mpe.ui.TransmitRFCBiasProvider;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
@@ -299,6 +300,7 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
                 } else {
                     restore();
                 }
+                TransmitRFCBiasProvider.setEnabled(true);
             }
         });
 
