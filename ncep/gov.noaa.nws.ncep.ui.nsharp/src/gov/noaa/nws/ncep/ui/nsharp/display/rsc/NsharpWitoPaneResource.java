@@ -281,7 +281,7 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
         shNcolor = new NsharpShapeAndLineProperty();
         shNcolor.setShape(target.createWireframeShape(false,descriptor) );
         IWireframeShape shapeG= shNcolor.getShape();
-        shapeG.allocate(soundingLys.size()*2);
+        shapeG.allocate(soundingLys.size()*2); 
         shNcolor.getLp().setLineColor(NsharpConstants.color_green);
         windBoxWindRscShapeList.add(shNcolor);
         shNcolor = new NsharpShapeAndLineProperty();
@@ -352,6 +352,7 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
     	shapeC.compile();
     	shapePline.compile();
 	}
+	private static int k=0;
 	/*
 	 * Chin:: NOTE:::
 	 * This plotting function is based on the algorithm of plot_advectionprofile() at xwvid5.c of Bignsharp source code
@@ -443,14 +444,23 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 	 * Should be used only when a new resource is becoming Current active resource to be displayed.
 	 *  
 	 */
-	public void createAllWireFrameShapes(){
+	public synchronized void createAllWireFrameShapes(){
 		if(target== null || rscHandler== null || inSidePane )
 			return;
 		//System.out.println("whitoPane="+this.toString()+" createAllWireFrameShapes called");
 		rscHandler.repopulateSndgData();
 		
 			disposeAllWireFrameShapes();
-			createRscWireFrameShapes();;
+			if(soundingLys != null){
+				NsharpGenericPaneBackground skewtBgd = rscHandler.getSkewtPaneRsc().getActiveBackground();
+		        if(skewtBgd!=null){
+		        	vpc = skewtBgd.getViewablePressureContainer(soundingLys);
+		        	vplc = skewtBgd.getViewablePressureLinesContainer();
+		        }
+				createRscOmegaShape();
+				createRscWindBoxWindShape();
+				createRscVerticalWindShape();
+			}
 			//create static shape
 			createBkgOmegaShape();
 			createBkgWindBoxShape();
@@ -475,12 +485,15 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 	public void disposeAllWireFrameShapes(){
 		disposeRscWireFrameShapes();
 		//also dispose static background shpae
-		if(omegaBkgShape!=null)
+		if(omegaBkgShape!=null){
 			omegaBkgShape.dispose();
+			omegaBkgShape=null;
+		}
 
-		if(windBoxBkgShape!=null)
+		if(windBoxBkgShape!=null){
 			windBoxBkgShape.dispose();
-
+			windBoxBkgShape=null;
+		}
 	}
 	public void disposeRscWireFrameShapes(){
 		if(omegaRscShape!=null){
