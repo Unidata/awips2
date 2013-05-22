@@ -30,6 +30,8 @@ __all__ = [
             'GetASCIIGridsRequest',
             'GetGridDataRequest',
             'GetGridInventoryRequest',
+            'GetLatestDbTimeRequest',
+            'GetLatestModelDbIdRequest',
             'GetLockTablesRequest',
             'GetOfficialDbNameRequest',
             'GetParmListRequest',
@@ -58,6 +60,8 @@ from ExecuteIscMosaicRequest import ExecuteIscMosaicRequest
 from GetASCIIGridsRequest import GetASCIIGridsRequest
 from GetGridDataRequest import GetGridDataRequest
 from GetGridInventoryRequest import GetGridInventoryRequest
+from GetLatestDbTimeRequest import GetLatestDbTimeRequest
+from GetLatestModelDbIdRequest import GetLatestModelDbIdRequest
 from GetLockTablesRequest import GetLockTablesRequest
 from GetOfficialDbNameRequest import GetOfficialDbNameRequest
 from GetParmListRequest import GetParmListRequest
