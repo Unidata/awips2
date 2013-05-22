@@ -18,7 +18,7 @@
          id="com.raytheon.uf.common.base.feature"
          version="0.0.0"/>
 
-	<includes
+   <includes
          id="com.raytheon.uf.viz.base.feature"
          version="0.0.0"/>
 
@@ -168,6 +168,10 @@
 
    <includes
          id="com.raytheon.uf.viz.gisdatastore.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.archive.feature"
          version="0.0.0"/>
 
    <requires>
