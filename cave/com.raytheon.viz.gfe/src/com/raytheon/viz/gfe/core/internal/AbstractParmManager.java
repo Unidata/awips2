@@ -104,6 +104,7 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
  * 04/11/2013    16028     ryu         Fixed setParmsRemoveISCDeps() to not remove
  *                                     modified parms.
  * 05/02/2013    #1969     randerso    Cleaned up and optimized processing of DBInvChangedNotification
+ * 05/14/2013    #2004     randerso    Improved error handling
  * 
  * </pre>
  * 
@@ -1073,9 +1074,9 @@ public abstract class AbstractParmManager implements IParmManager {
                     parmsToAdd.add(p);
                 }
             } catch (GFEServerException e) {
-                statusHandler.handle(Priority.EVENTA,
+                statusHandler.handle(Priority.PROBLEM,
                         "Failure to instantiate parm in createParmInternal: "
-                                + addParm.getParmID().toString());
+                                + addParm.getParmID().toString(), e);
             }
         }
 
