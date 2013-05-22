@@ -24,7 +24,6 @@ import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceInterpolation;
-import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates;
 import com.raytheon.uf.common.monitor.config.FFFGDataMgr;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
@@ -44,6 +43,7 @@ import com.raytheon.uf.common.monitor.xml.SourceXML;
  * 01/14/13     1569       dhladky    changed arraylist to list
  * 04/15/13     1890       dhladky    Changed COUNTY to use constant
  * 05/10/13     1919       mpduff     If there are forced pfafs then the aggregate is forced.
+ * 05/22/13     1902       mpduff     Added methods to get forced values.
  * 
  * </pre>
  * 
@@ -135,10 +135,8 @@ public class FFFGForceUtil {
             pfafList = ft.getAggregatePfafs(cBasin.getPfaf(),
                     resource.getSiteKey(), resource.getHuc());
         } else if (!domain.equals("NA")) {
-            if (!resource.getHuc().equals(FFMPRecord.ALL)) {
-                pfafList = ft.getAggregatePfafsByDomain(cBasin.getPfaf(),
-                        resource.getSiteKey(), domain, resource.getHuc());
-            }
+            pfafList = ft.getAggregatePfafsByDomain(cBasin.getPfaf(),
+                    resource.getSiteKey(), domain, resource.getHuc());
         } // else use the existing pfaf list
 
         // Add current pfaf to the list
@@ -253,7 +251,7 @@ public class FFFGForceUtil {
         float tvalue = 0.0f;
         float value;
         int i = 0;
-        if (interpolation.isInterpolate() == false) {
+        if (!interpolation.isInterpolate()) {
             FFFGDataMgr dman = FFFGDataMgr.getInstance();
             for (long pfaf : forcedPfafs) {
                 long countyFips = templates.getCountyFipsByPfaf(pfaf);
@@ -266,6 +264,49 @@ public class FFFGForceUtil {
             }
 
             return tvalue / i;
+        } else {
+            // TODO interpolated code under new ticket
+        }
+
+        return Float.NaN;
+    }
+
+    /**
+     * Get the max forced value (max is smallest number for FFG)
+     * 
+     * @param pfafList
+     *            list of pfaf ids
+     * @param forcedPfafs
+     *            list of forced pfaf ids
+     * @param interpolation
+     *            FFMPGuidanceInterpolation object
+     * @param expiration
+     *            force expiration
+     * @param templates
+     *            ffmp templates
+     * @return max forced value
+     */
+    public float getMaxForcedValue(List<Long> pfafList, List<Long> forcedPfafs,
+            FFMPGuidanceInterpolation interpolation, long expiration,
+            FFMPTemplates templates) {
+        float tvalue = 0.0f;
+        float value;
+        if (!interpolation.isInterpolate()) {
+            FFFGDataMgr dman = FFFGDataMgr.getInstance();
+            for (long pfaf : forcedPfafs) {
+                long countyFips = templates.getCountyFipsByPfaf(pfaf);
+                templates.getCountyFipsByPfaf(pfaf);
+                value = dman.adjustValue(Float.NaN,
+                        interpolation.getStandardSource(), pfaf, countyFips);
+
+                if (value < tvalue) {
+                    tvalue = value;
+                }
+            }
+
+            return tvalue;
+        } else {
+            // TODO interpolated code
         }
 
         return Float.NaN;
@@ -314,5 +355,41 @@ public class FFFGForceUtil {
      */
     public void setSliderTime(double sliderTime) {
         this.sliderTime = sliderTime;
+    }
+
+    /**
+     * Get the forced values for the pfaf list.
+     * 
+     * @param pfafList
+     *            list of pfaf ids
+     * @param forcedPfafs
+     *            list of forced pfafs
+     * @param ffmpGuidanceInterpolation
+     *            FFMPGuidanceInterpolation object
+     * @param guidSourceExpiration
+     *            expiration time
+     * @param ft
+     *            ffmp templates
+     * @return list of forced guidance values
+     */
+    public List<Float> getForcedGuidValues(List<Long> pfafList,
+            List<Long> forcedPfafs,
+            FFMPGuidanceInterpolation ffmpGuidanceInterpolation,
+            long guidSourceExpiration, FFMPTemplates ft) {
+        List<Float> guidList = new ArrayList<Float>();
+        if (pfafList != null) {
+            for (Long pfaf : pfafList) {
+                if (pfaf == null) {
+                    continue;
+                }
+
+                List<Long> pl = new ArrayList<Long>();
+                pl.add(pfaf);
+                float val = getAvgForcedValue(pl, forcedPfafs,
+                        ffmpGuidanceInterpolation, guidSourceExpiration, ft);
+                guidList.add(val);
+            }
+        }
+        return guidList;
     }
 }
