@@ -78,15 +78,34 @@ public class ImpactedQuadrants {
     protected int sw;
 
     /**
-     * q is the accumulation of the quadrants, qq is the accumulation of the sub
-     * quadrants
+     * q is the accumulation of the quadrants,
      */
-    protected int q, qq;
+    protected int q;
 
     /**
-     * Extreme portions for north, south, east, and west.
+     * qq is the accumulation of the sub quadrants
      */
-    protected int nnx, ssx, eex, wwx;
+    protected int qq;
+
+    /**
+     * Extreme portions for north.
+     */
+    protected int nnx;
+
+    /**
+     * Extreme portions for south.
+     */
+    protected int ssx;
+
+    /**
+     * Extreme portions for east.
+     */
+    protected int eex;
+
+    /**
+     * Extreme portions for west.
+     */
+    protected int wwx;
 
     /**
      * Accumulation of extreme portions.
