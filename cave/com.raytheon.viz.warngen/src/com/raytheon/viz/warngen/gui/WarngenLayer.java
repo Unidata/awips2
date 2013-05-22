@@ -174,6 +174,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * 04/12/1013   DR 16045   Qinglu Lin  Updated AreaHatcher's run() by calling removeDuplicateCoordinate().
  * 04/23/1013   DR 16064   Qinglu Lin  Added removeDuplicateGid() and applies it in populateStrings().
  * 04/24/2013   1943       jsanchez    Replaced used of areaConfig with areaSource.
+ * 05/16/2013   2008       jsanchez    Allowed warned areas for follow ups to be resized to less than 10%
+ * 05/17/2013  DR 16064    Qinglu Lin  Merged the fix done in 13.4.1.
  * </pre>
  * 
  * @author mschenke
@@ -1505,11 +1507,12 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     // Snap back to polygon
                     state.setWarningPolygon(localToLatLon((Polygon) oldWarningPolygon));
                     newHatchedArea = (Geometry) oldWarningArea.clone();
-                } else if (areaPercent < 10 && state.isMarked()) {
+                } else if (oldWarningPolygon.intersects(warningPolygon) == false
+                        && areaPercent < 10 && state.isMarked()) {
                     // snap back to last valid user selected area
                     state.setWarningPolygon((Polygon) state
                             .getMarkedWarningPolygon().clone());
-                    newHatchedArea = latLonToLocal(state.getMarkedWarningArea());
+                    newHatchedArea = state.getMarkedWarningArea();
                     state.resetMarked();
                 } else if (warningPolygon != null) {
                     // want intersection of warningPolygon and oldWarningArea
@@ -2957,13 +2960,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
         return slope;
     }
-    
+
     /**
-     * Some counties/forecast zones have two GIDs, one is for the large portion of that
-     * county and the other is for the small portion, e.g., inlets of a bay. Prince William
-     * County, Virginia is such an example. As WarnGen needs to mark a hatched county with
-     * only one W, one of the GIDs needs to be filtered out. The approach in the method is
-     * to remove the GID for the area of smaller size.
+     * Some counties/forecast zones have two GIDs, one is for the large portion
+     * of that county and the other is for the small portion, e.g., inlets of a
+     * bay. Prince William County, Virginia is such an example. As WarnGen needs
+     * to mark a hatched county with only one W, one of the GIDs needs to be
+     * filtered out. The approach in the method is to remove the GID for the
+     * area of smaller size.
      */
     private Set<String> removeDuplicateGid(Set<String> prefixes) {
 
@@ -2972,7 +2976,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         Map<String, Double> fipsSize = new HashMap<String, Double>();
         Map<String, String> namePrefix = new HashMap<String, String>();
-        Iterator<String> iter = prefixes.iterator(); 
+        Iterator<String> iter = prefixes.iterator();
         String fips = null;
         String prefix = null;
         while (iter.hasNext()) {
@@ -2981,14 +2985,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
             for (GeospatialData f : geoData.features) {
                 fips = getFips(f);
                 Geometry geom = f.geometry;
-                if(prefix.equals(GeometryUtil.getPrefix(geom.getUserData()))) {
+                if (prefix.equals(GeometryUtil.getPrefix(geom.getUserData()))) {
                     size = geom.getArea();
                     if (fipsSize.containsKey(fips)) {
                         if (fipsSize.get(fips) < size) {
                             fipsSize.put(fips, size);
                             namePrefix.put(fips, prefix);
                             break;
-                        } 
+                        }
                     } else {
                         fipsSize.put(fips, size);
                         namePrefix.put(fips, prefix);
@@ -2998,5 +3002,4 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
         return new HashSet<String>(namePrefix.values());
     }
-
 }

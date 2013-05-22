@@ -49,6 +49,9 @@
 		class="com.raytheon.edex.plugin.gfe.cache.d2dparms.D2DParmIdCache"
 		factory-method="getInstance" />
 
+    <bean id="gridParmManager"
+        class="com.raytheon.edex.plugin.gfe.server.GridParmManager" />
+
 	<camelContext id="gfe-common-camel" xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
 
@@ -94,5 +97,17 @@
 				</doCatch>
 			</doTry>
 		</route>
+
+        <route id="notifyGridParmManager">
+            <from uri="jms-generic:topic:edex.alerts.gfe" />
+            <doTry>
+                <bean ref="serializationUtil" method="transformFromThrift" />
+                <bean ref="gridParmManager" method="processNotification" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:gridParmManager?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+        </route>
 	</camelContext>
 </beans>
