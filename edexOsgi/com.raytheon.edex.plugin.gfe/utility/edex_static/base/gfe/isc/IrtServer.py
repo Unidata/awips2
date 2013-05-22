@@ -42,6 +42,8 @@ from com.raytheon.edex.plugin.gfe.isc import IRTManager
 #    03/13/13        1759          dgilling       Move siteConfig imports into
 #                                                 functions where module is used
 #                                                 to interact better with IscScript.
+#    05/22/13        1759          dgilling       Add missing import to 
+#                                                 makeISCrequest().
 #    
 # 
 #
@@ -244,6 +246,7 @@ def irtGetServers(ancfURL, bncfURL, iscWfosWanted):
 # xmlRequest is the original request from the GFE's ISCRequestDialog.
 def makeISCrequest(xmlRequest, gridDims, gridProj, gridBoundBox, mhs, host, port, protocol, site, xmtScript):
     import IrtAccess
+    import siteConfig
     import xml
     from xml.etree import ElementTree
     from xml.etree.ElementTree import Element, SubElement
