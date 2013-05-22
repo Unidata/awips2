@@ -46,6 +46,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 11, 2013            dgilling     Initial creation
+ * May 22, 2013  #1759     dgilling     Ensure addSitePath() also adds base
+ *                                      path.
  * 
  * </pre>
  * 
@@ -127,6 +129,7 @@ public class IscScript extends PythonScript {
                     .getValue("sys.path.index('" + basePath + "')");
         } else {
             index = (Integer) jep.getValue("len(sys.path)");
+            jep.eval("sys.path.insert(" + index + ", '" + basePath + "')");
         }
         jep.eval("sys.path.insert(" + index + ", '" + sitePath + "')");
     }
