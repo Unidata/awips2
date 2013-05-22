@@ -1,5 +1,7 @@
-%define _ldm_version 6.11.2
-%define _ldm_src_tar awips2-ldm.%{_ldm_version}.tar.gz
+%define _ldm_version 6.11.5
+%define _ldm_src_tar ldm-%{_ldm_version}.tar.gz
+# ldm-%{_ldm_version}.tar.gz is tarred up ldm-%{_ldm_version}/src dir after
+# ISG makes retrans changes
 #
 # AWIPS II LDM Spec File
 #
@@ -18,10 +20,8 @@ Vendor: Raytheon
 Packager: Bryan Kowal
 
 AutoReq: no
-Requires: qpid-cpp-client = 0.7.946106-28.el5.centos.1 
-Requires: qpid-cpp-client-devel = 0.7.946106-28.el5.centos.1
+Requires: awips2-notification
 Requires: zlib-devel
-Requires: /usr/lib/libz.a
 provides: awips2-ldm
 provides: awips2-base-component
 
@@ -51,6 +51,21 @@ if [ $? -ne 0 ]; then
 fi
 
 /bin/mkdir -p %{_build_root}/etc/profile.d
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+/bin/mkdir -p %{_build_root}/etc/ld.so.conf.d
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+/bin/mkdir -p %{_build_root}/etc/logrotate.d
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+/bin/mkdir -p %{_build_root}/etc/init.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -118,6 +133,21 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
+/bin/cp ld.so.conf.d/* %{_build_root}/etc/ld.so.conf.d
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+/bin/cp logrotate.d/* %{_build_root}/etc/logrotate.d
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+/bin/cp init.d/* %{_build_root}/etc/init.d
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 %pre
 if [ -d /tmp/ldm ]; then
    rm -rf /tmp/ldm
@@ -126,7 +156,7 @@ mkdir -p /tmp/ldm
 for dir in etc .ssh;
 do
    if [ -d /usr/local/ldm/${dir} ]; then
-      scp -qrp /usr/local/${dir} /tmp/ldm
+      scp -qrp /usr/local/ldm/${dir} /tmp/ldm
    fi
 done
 
@@ -139,12 +169,12 @@ _myHost=`echo ${_myHost} | cut -f1 -d'-'`
 pushd . > /dev/null 2>&1
 cd ${_ldm_dir}/SOURCES
 # unpack the ldm source
-/bin/tar -xf awips2-ldm.%{_ldm_version}.tar.gz \
+/bin/tar -xf %{_ldm_src_tar} \
    -C ${_ldm_dir}
 if [ $? -ne 0 ]; then
    exit 1
 fi
-rm -f awips2-ldm.%{_ldm_version}.tar.gz
+rm -f %{_ldm_src_tar}
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -401,3 +431,6 @@ rm -rf ${RPM_BUILD_ROOT}
 /usr/local/ldm/SOURCES/*
 
 %attr(755,root,root) /etc/profile.d/awipsLDM.csh
+%attr(755,root,root) /etc/ld.so.conf.d/awips2-ldm-i386.conf
+%attr(755,root,root) /etc/ld.so.conf.d/ldm.log
+%attr(755,root,root) /etc/init.d/ldmcp

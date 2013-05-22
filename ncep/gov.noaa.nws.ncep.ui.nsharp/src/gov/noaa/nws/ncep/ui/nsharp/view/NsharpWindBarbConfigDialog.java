@@ -209,7 +209,7 @@ public class NsharpWindBarbConfigDialog extends Dialog {
         mb = new MessageBox(shell, SWT.ICON_WARNING
 				| SWT.OK);
 
-		mb.setMessage( "Input Error! Should be greater than 0");
+		mb.setMessage( "Input Error! ");
     }
 	@Override
 	public Control createDialogArea(Composite parent) {
@@ -248,9 +248,15 @@ public class NsharpWindBarbConfigDialog extends Dialog {
 			}
 		}
 		textStr = windBarbSizeText.getText();
-		if((textStr != null) && !(textStr.isEmpty())){
-			curSize = Float.parseFloat(textStr);
-			if(curSize <= 0){
+		if((textStr != null) && !(textStr.isEmpty()) ){
+			try{
+				curSize = Float.parseFloat(textStr);
+			}
+			catch (NumberFormatException e){		
+				mb.open();
+				return false;
+			}
+			if(curSize <= 0 || curSize > 15){
 				curSize=1;
 				windBarbSizeText.setText(Float.toString(curSize));
 				mb.open();
@@ -259,8 +265,14 @@ public class NsharpWindBarbConfigDialog extends Dialog {
 		}
 		textStr = windBarbWidthText.getText();
 		if((textStr != null) && !(textStr.isEmpty())){
-			curLineWidth = Float.parseFloat(textStr);
-			if(curLineWidth <=0){
+			try{
+				curLineWidth = Float.parseFloat(textStr);
+			}
+			catch (NumberFormatException e){		
+				mb.open();
+				return false;
+			}
+			if(curLineWidth <=0 || curLineWidth > 7){
 				curLineWidth=1;
 				windBarbWidthText.setText(Float.toString(curLineWidth));
 				mb.open();
