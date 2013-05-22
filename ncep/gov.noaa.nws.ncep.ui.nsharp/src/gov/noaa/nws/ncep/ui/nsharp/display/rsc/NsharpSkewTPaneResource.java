@@ -784,7 +784,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
             WGraphics world,  RGB iicolor, List<NcSoundingLayer> sndLys, double xPosition, double botPress)throws VizException {
         if(sndLys.size()< 4)
         	return;
-    	ArrayList<List<LineStroke>> windList = new ArrayList<List<LineStroke>>();
+    	//ArrayList<List<LineStroke>> windList = new ArrayList<List<LineStroke>>();
         List<windPickedElement>  layerStateList = new ArrayList<windPickedElement>();
         float lastHeight = -9999;
         RGB icolor = iicolor;//graphConfigProperty.getWindBarbColor();
@@ -843,10 +843,10 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
         }
         double windX = xPosition;    
         double windY=0;
-        double barbScaleFactorx, barbScaleFactory;
-        barbScaleFactorx = zoomLevel;
-        barbScaleFactory = zoomLevel;
-        List<double[]> locations = new ArrayList<double[]>();
+        //double barbScaleFactorx, barbScaleFactory;
+        //barbScaleFactorx = zoomLevel;
+       // barbScaleFactory = zoomLevel;
+        //List<double[]> locations = new ArrayList<double[]>();
         //System.out.println("zoom="+zoomLevel +"world viewYmin="+world.getViewYmin()+" viewYmax="+world.getViewYmax()+" wolrdYmin="+ world.getWorldYmin()+" wolrdYmax="+ world.getWorldYmax()
         //		+"world viewXmin="+world.getViewXmin()+" viewXmax="+world.getViewXmax()+" wolrdXmin="+ world.getWorldXmin()+" wolrdXmax="+ world.getWorldXmax());
         //plot wind barbs
@@ -876,30 +876,30 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
             // Get the vertical ordinate.
             if(currentGraphMode== NsharpConstants.GRAPH_SKEWT){
             	windY = NsharpWxMath.getSkewTXY(pressure, 0).y;
-            	barbScaleFactorx = 0.6*zoomLevel;
-            	barbScaleFactory= zoomLevel;
+            	//barbScaleFactorx = 0.6*zoomLevel;
+            	//barbScaleFactory= zoomLevel;
             }
             else if(currentGraphMode== NsharpConstants.GRAPH_ICING ){
             	//Chin:Y axis (pressure) is scaled using log scale and increaing downward
             	//WorldYmin= at pressure 1000,its value actually is 1000 (max), wolrdYmax = at pressure 300, its value is 825 (min)
             	windY = world.getWorldYmax() + (world.getWorldYmin()-icingBackground.toLogScale(pressure));
-            	barbScaleFactorx = 1.3*zoomLevel;
-            	barbScaleFactory= 2.5*zoomLevel;//experimental value: depends on the world coordinate size set
+            	//barbScaleFactorx = 1.3*zoomLevel;
+            	//barbScaleFactory= 2.5*zoomLevel;//experimental value: depends on the world coordinate size set
             }else if( currentGraphMode== NsharpConstants.GRAPH_TURB){
             	//Chin:Y axis (pressure) is scaled using log scale and increaing downward
             	//WorldYmin= at pressure 1000,its value actually is 1000 (max), wolrdYmax = at pressure 300, its value is 825 (min)
             	windY = world.getWorldYmax() + (world.getWorldYmin()-turbBackground.toLogScale(pressure));
-            	barbScaleFactorx = .12*zoomLevel;//experimental value: depends on the world coordinate size set
-            	barbScaleFactory=3.8*zoomLevel;
+            	//barbScaleFactorx = .12*zoomLevel;//experimental value: depends on the world coordinate size set
+            	//barbScaleFactory=3.8*zoomLevel;
             }
             else
             	continue;
             		
             if(ele.myState.equals(eleState.UNPICKED)){
-        		double[] loc= {world.mapX(windX),  world.mapY(windY)};
-            	locations.add(loc);
-        		continue;
-            	//spd=0.1f;
+        		//double[] loc= {world.mapX(windX),  world.mapY(windY)};
+            	//locations.add(loc);
+        		continue; 
+            	//spd=0.1f;//Chin::if we want pgen to draw unpicked wind as a circle, then set this.
         	}
           //System.out.println("spd="+spd+" dir="+dir);
           /*
@@ -1356,7 +1356,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 		str.verticallAlignment = VerticalAlignment.TOP;
 		Rectangle2D rect = target.getStringsBounds(str);
 		PixelExtent boxExt;
-		if(cursorInSkewT== true){
+		if(cursorInSkewT== true && currentGraphMode == NsharpConstants.GRAPH_SKEWT){
 			boxExt = new PixelExtent(dispX,dispX+(rect.getWidth()+1)*hRatio,dispY-1*vRatio, dispY+rect.getHeight()*vRatio*4);
 			//blank out box, should draw this first and then draw data on top of it
 			target.drawShadedRect(boxExt, NsharpConstants.color_black, 1f, null); 
@@ -1691,8 +1691,6 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 					if(curseToggledFontLevel < CURSER_STRING_OFF)
 						drawNsharpSkewtCursorData(target);
 				}
-				//}
-
 			}// end of currentGraphMode= NsharpConstants.GRAPH_SKEWT
 			else if(currentGraphMode == NsharpConstants.GRAPH_ICING){
 				paintIcing( currentZoomLevel, target);
