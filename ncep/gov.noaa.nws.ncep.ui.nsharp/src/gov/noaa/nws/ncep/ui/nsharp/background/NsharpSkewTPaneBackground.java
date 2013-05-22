@@ -68,6 +68,8 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
 	private double currentZoomLevel=1;
 	private int skewtWidth=NsharpConstants.SKEWT_WIDTH;
 	private float xRatio=1;
+	private NsharpGraphProperty graphConfigProperty;
+    
 	private Float[]mainMixingRatios = 
             { .5f, 1f, 2f, 5f, 10f, 20f};
 	private float[]mixingRatios = 
@@ -80,7 +82,7 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
     1000, 100, 10, -40, 273, 20);
     
 	private static final double Rd = 0.2870586d; 
-	private NsharpGraphProperty graphConfigProperty;
+	
 	private int tempOffset = 0;
     public NsharpSkewTPaneBackground(NsharpSkewTPaneDescriptor desc) {
         super();
@@ -96,8 +98,9 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
                 NsharpConstants.right, NsharpConstants.bottom);
         //System.out.println("NsharpSkewTPaneBackground created");
         this.desc = desc;
+       
         NsharpConfigManager configMgr = NsharpConfigManager.getInstance();
-		graphConfigProperty = configMgr.retrieveNsharpConfigStoreFromFs().getGraphProperty();
+        graphConfigProperty = configMgr.retrieveNsharpConfigStoreFromFs().getGraphProperty();
 		pressureMainList = Arrays.asList(NsharpConstants.PRESSURE_MAIN_LEVELS);
 		mixRatioMainList = Arrays.asList(mainMixingRatios);
     }
@@ -363,7 +366,7 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
     						VerticalAlignment.MIDDLE, null);
         		}
         		else{
-        			// only mark pressure line to a small length
+        			// only mark pressure line to a small lengthprivate NsharpGraphProperty graphConfigProperty;
         			xend = xmin+15* currentZoomLevel*xRatio;
         		}
 				target.drawLine(xmin, world.mapY(coor.y), 0.0, xend,
@@ -825,7 +828,10 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
         double pX= world.mapX( NsharpConstants.right);
         if(pX < xmax)
         	xmax = pX;
-        double dispX = xmax - 20 * currentZoomLevel * xRatio;
+        double windBarbSizfactor = graphConfigProperty.getWindBarbSize()/1.6f;
+        if(windBarbSizfactor < 1)
+        	windBarbSizfactor=1;
+        double dispX = xmax - 40 * currentZoomLevel * xRatio * windBarbSizfactor;
         Coordinate cumap = world.unMap(dispX,ymax);
         
         return cumap.x;
