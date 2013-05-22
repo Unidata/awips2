@@ -20,7 +20,9 @@
  */
 package gov.noaa.nws.ncep.ui.nsharp.background;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigManager;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpGraphProperty;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpLineProperty;
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDescriptor;
 
@@ -54,6 +56,7 @@ public class NsharpTurbulencePaneBackground extends NsharpGenericPaneBackground{
 	private int paneHeight = NsharpConstants.SKEWT_HEIGHT;
 	private float yMagFactor=1;
 	private float xMagFactor=1;
+	private NsharpGraphProperty graphConfigProperty;
 	public NsharpTurbulencePaneBackground(NsharpSkewTPaneDescriptor desc) {
         super();
 
@@ -61,6 +64,8 @@ public class NsharpTurbulencePaneBackground extends NsharpGenericPaneBackground{
         		NsharpConstants.TURB_WIDTH, NsharpConstants.TURB_HEIGHT);
         pe = new PixelExtent(this.rectangle);
         world = new WGraphics(this.rectangle);
+        NsharpConfigManager configMgr = NsharpConfigManager.getInstance();
+        graphConfigProperty = configMgr.retrieveNsharpConfigStoreFromFs().getGraphProperty();
         this.desc = desc;
     }
 	@Override
@@ -347,7 +352,10 @@ public class NsharpTurbulencePaneBackground extends NsharpGenericPaneBackground{
         double pX= world.mapX( NsharpConstants.TURBULENCE_LN_RICHARDSON_NUMBER_LEFT);
         if(pX < xmax)
         	xmax = pX;
-        double dispX = xmax - 50 * currentZoomLevel * xMagFactor;
+        double windBarbSizfactor = graphConfigProperty.getWindBarbSize()/2f;
+        if(windBarbSizfactor < 1)
+        	windBarbSizfactor=1;
+        double dispX = xmax - 50 * currentZoomLevel * xMagFactor* windBarbSizfactor;
         
         Coordinate cumap = world.unMap(dispX,ymax);
         
