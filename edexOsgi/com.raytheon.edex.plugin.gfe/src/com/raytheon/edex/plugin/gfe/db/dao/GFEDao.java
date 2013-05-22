@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -55,6 +56,7 @@ import com.raytheon.uf.common.dataplugin.gfe.server.notify.LockNotification;
 import com.raytheon.uf.common.dataplugin.gfe.type.Pair;
 import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -62,6 +64,7 @@ import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.purge.PurgeLogger;
+import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
 /**
  * Data access object for manipulating GFE Records
@@ -87,6 +90,8 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  * 03/15/13     #1795      njensen     Added updatePublishTime()
  * 03/21/13     #1774      randerso    Moved D2D routines into {@link com.raytheon.edex.plugin.gfe.db.dao.GFED2DDao}
  * 04/08/13     #1949      rjpeter     Normalized GFE Database.
+ * 05/22/13     #2025      dgilling    Re-implement functions needed by 
+ *                                     GetLatestDbTimeRequest and GetLatestModelDbIdRequest.
  * </pre>
  * 
  * @author bphillip
@@ -1098,6 +1103,54 @@ public class GFEDao extends DefaultPluginDao {
                             "Error occurred closing database session", e);
                 }
             }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public Date getMaxInsertTimeByDbId(final DatabaseID dbId)
+            throws DataAccessLayerException {
+        DatabaseQuery query = new DatabaseQuery(this.daoClass);
+        query.addQueryParam("parmId.dbId", getDatabaseId(dbId),
+                QueryOperand.EQUALS);
+        query.addReturnedField("insertTime");
+        query.addOrder("insertTime", false);
+        query.setMaxResults(1);
+
+        List<Calendar> result = (List<Calendar>) this.queryByCriteria(query);
+        if (!result.isEmpty()) {
+            return result.get(0).getTime();
+        } else {
+            return null;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public DatabaseID getLatestDbIdByModelName(final String siteId,
+            final String modelName) throws DataAccessLayerException {
+        // TODO: Should this be done from GridParmManager?
+        List<DatabaseID> results = Collections.emptyList();
+        try {
+            final String[] queryParams = { siteId, modelName };
+            results = (List<DatabaseID>) txTemplate
+                    .execute(new TransactionCallback() {
+                        @Override
+                        public List<DatabaseID> doInTransaction(
+                                TransactionStatus status) {
+                            return getHibernateTemplate()
+                                    .find("FROM DatabaseID WHERE siteId = ? AND modelName = ? ORDER BY modelTime DESC LIMIT 1",
+                                            queryParams);
+                        }
+                    });
+        } catch (Exception e) {
+            throw new DataAccessLayerException(
+                    "Unable to look up database inventory for site " + siteId,
+                    e);
+        }
+
+        if (!results.isEmpty()) {
+            return results.get(0);
+        } else {
+            return null;
         }
     }
 }
