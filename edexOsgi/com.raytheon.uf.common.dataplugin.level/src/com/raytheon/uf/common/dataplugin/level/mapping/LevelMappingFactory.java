@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.xml.bind.JAXB;
 
@@ -50,8 +51,11 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 11/16/2009    #3120     rjpeter     Initial version
  * 11/21/2009    #3576     rjpeter     Added group capability
  * 04/17/2013    #1913     randerso    Moved to common
+ * 05/16/2013    #2010     randerso    Added read/write locking to mutable maps
  * 
- * &#064;author rjpeter
+ * </pre>
+ * 
+ * @author rjpeter
  * @version 1.0
  */
 public class LevelMappingFactory {
@@ -65,11 +69,15 @@ public class LevelMappingFactory {
 
     private Map<String, LevelMapping> keyToLevelMappings = new HashMap<String, LevelMapping>();
 
-    private boolean levelToLevelMappingsInitialized = false;
+    private volatile boolean levelToLevelMappingsInitialized = false;
+
+    private ReentrantReadWriteLock levelToLevelLock = new ReentrantReadWriteLock();
 
     private Map<Level, LevelMapping> levelToLevelMappings = new HashMap<Level, LevelMapping>();
 
-    private boolean groupToMasterLevelsInitialized = false;
+    private volatile boolean groupToMasterLevelsInitialized = false;
+
+    private ReentrantReadWriteLock groupToMasterLevelsLock = new ReentrantReadWriteLock();
 
     private Map<String, Map<MasterLevel, Set<Level>>> groupToMasterLevels = new HashMap<String, Map<MasterLevel, Set<Level>>>();
 
@@ -110,6 +118,14 @@ public class LevelMappingFactory {
             }
 
         }
+
+        try {
+            initializeLevelToLevelMappings();
+            initializeGroupToMasterLevels();
+        } catch (CommunicationException e) {
+            statusHandler.error("Error initializing LevelMappingFactory for: "
+                    + filePath, e);
+        }
         long finish = System.currentTimeMillis();
         System.out.println("LevelMappingFactory initialization took ["
                 + (finish - start) + "] ms");
@@ -124,7 +140,14 @@ public class LevelMappingFactory {
         if (!levelToLevelMappingsInitialized) {
             initializeLevelToLevelMappings();
         }
-        return levelToLevelMappings.get(level);
+
+        levelToLevelLock.readLock().lock();
+        try {
+            LevelMapping retVal = levelToLevelMappings.get(level);
+            return retVal;
+        } finally {
+            levelToLevelLock.readLock().unlock();
+        }
     }
 
     public Collection<LevelMapping> getAllLevelMappings() {
@@ -135,7 +158,14 @@ public class LevelMappingFactory {
         if (!levelToLevelMappingsInitialized) {
             initializeLevelToLevelMappings();
         }
-        return levelToLevelMappings.keySet();
+
+        levelToLevelLock.readLock().lock();
+        try {
+            Set<Level> retVal = levelToLevelMappings.keySet();
+            return retVal;
+        } finally {
+            levelToLevelLock.readLock().unlock();
+        }
     }
 
     public Map<MasterLevel, Set<Level>> getLevelMapForGroup(String group)
@@ -143,61 +173,85 @@ public class LevelMappingFactory {
         if (!groupToMasterLevelsInitialized) {
             initializeGroupToMasterLevels();
         }
-        return groupToMasterLevels.get(group);
+
+        groupToMasterLevelsLock.readLock().lock();
+        try {
+            Map<MasterLevel, Set<Level>> retVal = groupToMasterLevels
+                    .get(group);
+            return retVal;
+        } finally {
+            groupToMasterLevelsLock.readLock().unlock();
+        }
     }
 
     private void initializeLevelToLevelMappings() throws CommunicationException {
-        for (LevelMapping mapping : keyToLevelMappings.values()) {
-            String group = mapping.getGroup();
-
-            for (Level l : mapping.getLevels()) {
-                if (levelToLevelMappings.containsKey(l)) {
-                    LevelMapping oldMapping = levelToLevelMappings.get(l);
-                    // Only replace the old level mapping if we have less
-                    // levels than the old mapping
-                    // This should cause the most specific mapping to be
-                    // used
-                    if (mapping.getLevels().size() < oldMapping.getLevels()
-                            .size()) {
-                        levelToLevelMappings.put(l, mapping);
+        // acquire the write lock
+        levelToLevelLock.writeLock().lock();
+        try {
+            // verify some other thread hasn't already initialized
+            if (!levelToLevelMappingsInitialized) {
+                for (LevelMapping mapping : keyToLevelMappings.values()) {
+                    for (Level l : mapping.getLevels()) {
+                        // Only replace the old level mapping if we have
+                        // less levels than the old mapping
+                        // This should cause the most specific mapping to be
+                        // used
+                        LevelMapping oldMapping = levelToLevelMappings.get(l);
+                        if (oldMapping == null
+                                || mapping.getLevels().size() < oldMapping
+                                        .getLevels().size()) {
+                            levelToLevelMappings.put(l, mapping);
+                        }
                     }
-                } else {
-                    levelToLevelMappings.put(l, mapping);
                 }
+                levelToLevelMappingsInitialized = true;
             }
+        } finally {
+            // release the write lock
+            levelToLevelLock.writeLock().unlock();
         }
-        levelToLevelMappingsInitialized = true;
     }
 
     private void initializeGroupToMasterLevels() throws CommunicationException {
-        for (LevelMapping mapping : keyToLevelMappings.values()) {
-            String group = mapping.getGroup();
-            Map<MasterLevel, Set<Level>> masterLevels = null;
+        // acquire the write lock
+        groupToMasterLevelsLock.writeLock().lock();
+        try {
+            // verify some other thread hasn't already initialized
+            if (!groupToMasterLevelsInitialized) {
+                for (LevelMapping mapping : keyToLevelMappings.values()) {
+                    String group = mapping.getGroup();
+                    Map<MasterLevel, Set<Level>> masterLevels = null;
 
-            if (group != null) {
-                masterLevels = groupToMasterLevels.get(mapping.getGroup());
-                if (masterLevels == null) {
-                    masterLevels = new HashMap<MasterLevel, Set<Level>>();
-                    groupToMasterLevels.put(group, masterLevels);
-                }
-            }
-
-            for (Level l : mapping.getLevels()) {
-
-                // populate grouping map
-                if (masterLevels != null) {
-                    MasterLevel ml = l.getMasterLevel();
-                    Set<Level> levels = masterLevels.get(ml);
-
-                    if (levels == null) {
-                        levels = new HashSet<Level>();
-                        masterLevels.put(ml, levels);
+                    if (group != null) {
+                        masterLevels = groupToMasterLevels.get(mapping
+                                .getGroup());
+                        if (masterLevels == null) {
+                            masterLevels = new HashMap<MasterLevel, Set<Level>>();
+                            groupToMasterLevels.put(group, masterLevels);
+                        }
                     }
 
-                    levels.add(l);
+                    for (Level l : mapping.getLevels()) {
+
+                        // populate grouping map
+                        if (masterLevels != null) {
+                            MasterLevel ml = l.getMasterLevel();
+                            Set<Level> levels = masterLevels.get(ml);
+
+                            if (levels == null) {
+                                levels = new HashSet<Level>();
+                                masterLevels.put(ml, levels);
+                            }
+
+                            levels.add(l);
+                        }
+                    }
                 }
+                groupToMasterLevelsInitialized = true;
             }
+        } finally {
+            // release the write lock
+            groupToMasterLevelsLock.writeLock().unlock();
         }
-        groupToMasterLevelsInitialized = true;
     }
 }
