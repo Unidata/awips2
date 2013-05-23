@@ -11,4 +11,6 @@ Export-Package: com.raytheon.uf.common.archive,
  com.raytheon.uf.common.archive.file
 Require-Bundle: com.raytheon.uf.common.util;bundle-version="1.12.1174",
  com.raytheon.uf.common.localization;bundle-version="1.12.1174",
- com.raytheon.uf.common.status;bundle-version="1.12.1174"
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ org.apache.commons.io;bundle-version="2.4.0",
+ com.raytheon.uf.common.time;bundle-version="1.12.1174"
