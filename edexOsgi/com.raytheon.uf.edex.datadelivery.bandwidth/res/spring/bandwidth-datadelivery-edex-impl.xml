@@ -60,7 +60,7 @@
 
                     <!-- notify retrieval threads, if data delivery made 
                         into cluster this should move to topic post -->
-                    <to uri="directvm:notifyRetrieval" />
+                    <to uri="direct-vm:notifyRetrieval" />
                 </pipeline>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>

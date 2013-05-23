@@ -57,7 +57,7 @@
 			need to replace the method decode with 	decodeNcscatInputFile
 					<bean ref="ncscatDecoder" method="decode" />	-->
 					<bean ref="ncscatDecoder" method="decodeNcscatInputFile" />	
-					<to uri="directvm:persistIndexAlert" />
+					<to uri="direct-vm:persistIndexAlert" />
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
