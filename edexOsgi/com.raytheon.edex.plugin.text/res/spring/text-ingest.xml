@@ -70,7 +70,7 @@
 			Text routes
 		-->
 		<route id="textDirectDecodedIngestRoute">
-			<from uri="directvm:textDirectDecodedIngestRoute" />
+			<from uri="direct-vm:textDirectDecodedIngestRoute" />
 			<setHeader headerName="pluginName">
 				<constant>text</constant>
 			</setHeader>
@@ -93,7 +93,7 @@
 		</route>
 
 		<route id="textDirectUndecodedIngestRoute">
-			<from uri="directvm:textDirectUndecodedIngestRoute" />
+			<from uri="direct-vm:textDirectUndecodedIngestRoute" />
 			<setHeader headerName="pluginName">
 				<constant>text</constant>
 			</setHeader>

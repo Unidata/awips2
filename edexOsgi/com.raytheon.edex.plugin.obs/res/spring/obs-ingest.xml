@@ -55,9 +55,9 @@
 					<bean ref="obsDecoder" method="decode" />
 					<bean ref="metarPointData" method="toPointData" />
 					<multicast>
-						<to uri="directvm:persistIndexAlert" />
-						<to uri="directvm:metarToShef" />
-						<to uri="directvm:metarToHMDB"/> 
+						<to uri="direct-vm:persistIndexAlert" />
+						<to uri="direct-vm:metarToShef" />
+						<to uri="direct-vm:metarToHMDB"/> 
 					</multicast>
 				</pipeline>
 				<doCatch>

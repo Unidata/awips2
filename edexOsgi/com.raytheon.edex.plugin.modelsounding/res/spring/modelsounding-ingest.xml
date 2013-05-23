@@ -59,7 +59,7 @@
 		                <doTry>
 		    	            <pipeline>
         	    		        <bean ref="modelsoundingDecoder" method="decode"/>
-                        		<to uri="directvm:persistIndexAlert" />
+                        		<to uri="direct-vm:persistIndexAlert" />
 		                    </pipeline>
          	                <doCatch>
                   			    <exception>java.lang.Throwable</exception>
