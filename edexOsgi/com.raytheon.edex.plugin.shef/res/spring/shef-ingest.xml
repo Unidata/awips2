@@ -98,7 +98,7 @@
 			</setHeader>
 			<pipeline>
 				<bean ref="stringToFile" />
-				<to uri="directvm:shefProcessing" />
+				<to uri="direct-vm:shefProcessing" />
 			</pipeline>
 		</route>
 		<route id="shefStagedRoute">
@@ -107,13 +107,13 @@
 			<setHeader headerName="pluginName">
 				<constant>shef</constant>
 			</setHeader>
-			<to uri="directvm:shefProcessing" />
+			<to uri="direct-vm:shefProcessing" />
 		</route>
 
-		<!-- directvm will be run under original thread, should this be moved to 
+		<!-- direct-vm will be run under original thread, should this be moved to 
 			a queue?? but will cause message to be serialized to the jms queue... -->
 		<route id="synopticToShefRoute">
-			<from uri="directvm:synopticToShef" />
+			<from uri="direct-vm:synopticToShef" />
 			<bean ref="synopticToShefFilter" method="filter" />
 			<pipeline>
 				<split streaming="true">
@@ -124,10 +124,10 @@
 			</pipeline>
 		</route>
 
-		<!-- directvm will be run under original thread, should this be moved to 
+		<!-- direct-vm will be run under original thread, should this be moved to 
 			a queue?? but will cause message to be serialized to the jms queue... -->
 		<route id="metarToShefRoute">
-			<from uri="directvm:metarToShef" />
+			<from uri="direct-vm:metarToShef" />
 			<bean ref="metarToShefFilter" method="filter" />
 			<pipeline>
 				<split streaming="true">
@@ -140,7 +140,7 @@
 		</route>
 
 		<route id="shefProcessingRoute">
-			<from uri="directvm:shefProcessing" />
+			<from uri="direct-vm:shefProcessing" />
 			<doTry>
 				<pipeline>
 					<bean ref="shefDecoder" method="decode" />
