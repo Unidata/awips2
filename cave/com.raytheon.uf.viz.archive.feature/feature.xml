@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="com.raytheon.uf.viz.archive.feature"
+      label="Feature"
+      version="1.0.0.qualifier"
+      provider-name="RAYTHEON">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <requires>
+      <import plugin="org.eclipse.ui" version="3.8.2" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="com.raytheon.viz.ui" version="1.12.1174" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.serialization" version="1.12.1174" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.localization" version="1.12.1174" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.archive" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.time" version="1.12.1174" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.util" version="1.12.1174" match="greaterOrEqual"/>
+      <import plugin="org.apache.commons.io"/>
+   </requires>
+
+   <plugin
+         id="com.raytheon.uf.viz.archive"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
