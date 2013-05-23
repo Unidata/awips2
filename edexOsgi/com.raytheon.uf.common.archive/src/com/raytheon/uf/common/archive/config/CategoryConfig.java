@@ -24,8 +24,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.junit.Assert;
-
 /**
  * Information on a category for a given archive.
  * 
@@ -36,10 +34,10 @@ import org.junit.Assert;
  *   &lt;name>redbook&lt;/name>
  *   &lt;!-- When 0 default to the parent archive's retentionHours -->
  *   &lt;retentionHours>0&lt;/retentionHours>
- *   &lt;dirPattern>hdf5/redbook/([^/]*)/&lt;/dirPattern>
- *   &lt;display>redbook - \1&lt;/display>
- *   &lt;saveDir>hdf5/redbook/([^/]*)/&lt;/saveDir>
- *   &lt;saveFiles>redbook-${YYYY}-${MM}-${DD}-${HH}\..*&lt;/saveFiles>
+ *   &lt;dirPattern>hdf5/(redbook)&lt;/dirPattern>
+ *   &lt;display>{1}&lt;/display>
+ *   &lt;filePattern>redbook-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*&lt;/filePattern>
+ *   &lt;dateGroupIndices>2,3,4,5&lt;/dateGroupIndices>
  * &lt;/category>
  * </pre>
  * 
@@ -49,11 +47,9 @@ import org.junit.Assert;
  * &lt;category>
  *   &lt;name>Model grib&lt;/name>
  *   &lt;retentionHours>0&lt;/retentionHours>
- *   &lt;dirPattern>grib/[^/]*&#47[^/]*&#47(.*\)&lt;/dirPattern>
- *   &lt;display>\1&lt;/display>
- *   &lt;saveDir>grib/${YYYY}${MM}${DD}/${HH}/(.*)&lt;/saveDir>
- *   &lt;saveFiles>.*&lt;/saveFiles>
- *   &lt;selectList>grib/${YYYY}${MM}${DD}/${HH}/NCEP_QPF/&lt;/selectList>
+ *   &lt;dirPattern>grib/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)&lt;/dirPattern>
+ *   &lt;display>{5}&lt;/display>
+ *   &lt;dateGroupIndices>1,2,3,4&lt;/dateGroupIndices>
  * &lt;/category>
  * </pre>
  * 
@@ -93,7 +89,7 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
      * example:
      * 
      * <pre>
-     * &lt;dirPattern>grib2/[^/]*&#47;[^/]*&#47;(.*)/&lt;/dirPattern>
+     * &lt;dirPattern>grib2/\d{8}/\d{2}/(.*)/&lt;/dirPattern>
      * </pre>
      */
     @XmlElement(name = "dirPattern")
@@ -104,26 +100,33 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
      * dirPatern may be displayed. For example:
      * 
      * <pre>
-     * &lt;dirName>grib2/[^/]*&#47;[^/]*&#47;(.*)&lt;/dirName>
-     * &lt;display>grib2 - \1&lt;/display>
+     * &lt;dirName>(grib2)/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)&lt;/dirName>
+     * &lt;display>{1} - {6}&lt;/display>
      * </pre>
      * 
-     * The \1 will be replaced with directory names 2 levels down from the grib2
-     * directory.
+     * The {1} will be replaced by the first group (grib2) in the regex
+     * expression in dirName. The {6} is the sixth group (.*). {0} is the whole
+     * expression match.
      */
     @XmlElement(name = "display")
     private String display;
 
     /**
-     * A pattern to find the directories to save. This may contain the year,
-     * month, day and hour information. For example:
+     * A comma separated list of 4 numbers representing the group indices
+     * specifying the location of the numeric date time stamp. The indices must
+     * be in the order of year, month, day and hour. The group numbering starts
+     * with the first group in the dirPattern and continues with any grouping in
+     * the filePattern.
      * 
      * <pre>
-     * &lt;saveDir>grib2/${YYYY}${MM}{$DD}/${HH}/.*&lt;/saveDir>
+     *   &lt;dirPattern>hdf5/(redbook)&lt;/dirPattern>
+     *   &lt;display>{1}&lt;/display>
+     *   &lt;filePattern>redbook-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*&lt;/filePattern>
+     *   &lt;dateGroupIndices>2,3,4,5&lt;/dateGroupIndices>
      * </pre>
      */
-    @XmlElement(name = "saveDir")
-    private String saveDir;
+    @XmlElement(name = "dateGroupIndices")
+    private String dateGroupIndices;
 
     /**
      * A saveDir directory may contain files with data for several days. This
@@ -135,8 +138,8 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
      * &lt;saveFile>redbook-${YYYY}-${MM}-${DD}-${HH}\..*&lt;saveFiles>
      * </pre>
      */
-    @XmlElement(name = "saveFiles")
-    private String saveFiles;
+    @XmlElement(name = "filePattern")
+    private String filePattern;
 
     /*
      * Constructor.
@@ -158,7 +161,6 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
      * @param name
      */
     public void setName(String name) {
-        Assert.assertNotNull(name);
         this.name = name;
     }
 
@@ -175,7 +177,6 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
      * Set the retention hours must be greater then zero.
      */
     public void setRetentionHours(int retentionHours) {
-        Assert.assertTrue(retentionHours > 0);
         this.retentionHours = retentionHours;
     }
 
@@ -194,7 +195,6 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
      * @param dirPattern
      */
     public void setDirPattern(String dirPattern) {
-        Assert.assertNotNull(dirPattern);
         this.dirPattern = dirPattern;
     }
 
@@ -208,22 +208,21 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
     }
 
     /**
-     * Set the disaplay pattern.
+     * Set the display pattern.
      * 
      * @param display
      */
     public void setDisplay(String display) {
-        Assert.assertNotNull(display);
         this.display = display;
     }
 
     /**
      * Get the save directory pattern..
      * 
-     * @return savedir
+     * @return dateGroups
      */
-    public String getSaveDir() {
-        return saveDir;
+    public String getDateGroupIndices() {
+        return dateGroupIndices;
     }
 
     /**
@@ -231,9 +230,8 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
      * 
      * @param saveDir
      */
-    public void setSaveDir(String saveDir) {
-        Assert.assertNotNull(saveDir);
-        this.saveDir = saveDir;
+    public void setDateGroupIndices(String dateGroupIndices) {
+        this.dateGroupIndices = dateGroupIndices;
     }
 
     /**
@@ -241,8 +239,8 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
      * 
      * @return saveFiles
      */
-    public String getSaveFiles() {
-        return saveFiles;
+    public String getFilePattern() {
+        return filePattern;
     }
 
     /**
@@ -250,8 +248,8 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
      * 
      * @param saveFiles
      */
-    public void setSaveFiles(String saveFiles) {
-        this.saveFiles = saveFiles;
+    public void setFilePattern(String filePattern) {
+        this.filePattern = filePattern;
     }
 
     /*
@@ -275,9 +273,9 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
         sb.append("Category [ name: ").append(getName());
         sb.append(", retentionHours: ").append(getRetentionHours());
         sb.append(", dirPattern: ").append(getDirPattern());
+        sb.append(", filePattern: ").append(getFilePattern());
         sb.append(", display: ").append(getDisplay());
-        sb.append(", saveDir: ").append(getSaveDir());
-        sb.append(", saveFiles: ").append(getSaveFiles());
+        sb.append(", dateGroupIndices: ").append(getDateGroupIndices());
         sb.append("]");
         return sb.toString();
     }
