@@ -57,7 +57,7 @@
 			need to replace the method decode with 	decodeNtransMetafile
 					<bean ref="ntransDecoder" method="decode" />	-->
 					<bean ref="ntransDecoder" method="decodeNtransMetafile" />	
-					<to uri="directvm:persistIndexAlert" />
+					<to uri="direct-vm:persistIndexAlert" />
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
