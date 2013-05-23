@@ -17,7 +17,7 @@
 		factory-method="getInstance" depends-on="alphaNumericDatatypePool">
 		<constructor-arg><value>AlphaNumeric</value></constructor-arg>
 		<constructor-arg><value>stormTrack</value></constructor-arg>
-		<constructor-arg><value>directvm:stormTrackIngest</value></constructor-arg>
+		<constructor-arg><value>direct-vm:stormTrackIngest</value></constructor-arg>
 	</bean> -->	
 <!-- class=" com.raytheon.uf.edex.distribution.DistributionSrv" -->
 	<bean id="stormTrackDistRegistry" factory-bean="distributionSrv" 
@@ -58,7 +58,7 @@
 				<doTry>
 					<pipeline>
 						<bean ref="stormTrackDecoder" method="decode" />
-						<to uri="directvm:indexAlert" />
+						<to uri="direct-vm:indexAlert" />
 					</pipeline>
 					<doCatch>
 						<exception>java.lang.Throwable</exception>
