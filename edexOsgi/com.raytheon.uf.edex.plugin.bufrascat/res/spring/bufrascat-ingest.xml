@@ -53,7 +53,7 @@
 		            <bean ref="stringToFile" />
                     <bean ref="bufrascatDecoder" method="decode" />
                     <bean ref="ascatSHFilter" method="filter" />
-                    <to uri="directvm:persistIndexAlert" />
+                    <to uri="direct-vm:persistIndexAlert" />
                 </pipeline>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>

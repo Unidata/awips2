@@ -28,7 +28,9 @@ import org.apache.camel.component.direct.DirectEndpoint;
 import org.apache.camel.impl.DefaultConsumer;
 
 /**
- * Provides a cross-context synchronous component
+ * Provides a cross-context synchronous component. Deprecated: Use camel's
+ * built-in direct-vm component instead. This component can be deleted after
+ * that has been tested thoroughly.
  * 
  * <pre>
  * 
@@ -38,6 +40,7 @@ import org.apache.camel.impl.DefaultConsumer;
  * Nov 18, 2008            chammack     Initial creation
  * Jul 16, 2012 DR 15073   D. Friedman  Override correct methods
  * May 09, 2013 1989       njensen      Camel 2.11 compatibility
+ * May 23, 2013 1989       njensen      Deprecated
  * 
  * </pre>
  * 
@@ -45,6 +48,7 @@ import org.apache.camel.impl.DefaultConsumer;
  * @version 1.0
  */
 
+@Deprecated
 public class DirectVMEndpoint extends DirectEndpoint {
     private boolean allowMultipleConsumers = true;
 
