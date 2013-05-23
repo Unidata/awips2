@@ -53,12 +53,12 @@
         <!-- Wake retrieval threads if were not running -->
         <route id="notifyRetrieval">
             <!-- If data delivery clustered, move this to topic -->
-            <from uri="directvm:notifyRetrieval" />
+            <from uri="direct-vm:notifyRetrieval" />
             <bean ref="retrievalHandler" method="notify" />
         </route>
 
         <route id="dataDeliveryNotify">
-            <from uri="directvm:dataDeliveryNotify" />
+            <from uri="direct-vm:dataDeliveryNotify" />
             <bean ref="toDataURI" method="toDataURI" />
             <to uri="vm:stageNotification" />
         </route>
