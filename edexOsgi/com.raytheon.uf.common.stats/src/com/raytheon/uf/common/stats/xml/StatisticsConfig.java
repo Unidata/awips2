@@ -43,8 +43,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 6, 2012      728    mpduff      Initial creation.
- *
+ * Nov  6, 2012 728        mpduff      Initial creation.
+ * May 22, 2013 1917       rjpeter     Renamed StatisticsEvent to StatisticsEventConfig.
  * </pre>
  *
  * @author mpduff
@@ -54,14 +54,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement(name = "statisticsConfig")
 @XmlAccessorType(XmlAccessType.NONE)
 public class StatisticsConfig implements ISerializableObject {
-    @XmlElements({ @XmlElement(name = "statisticsEvent", type = StatisticsEvent.class) })
+    @XmlElements({ @XmlElement(name = "statisticsEvent", type = StatisticsEventConfig.class) })
     @DynamicSerializeElement
-    private List<StatisticsEvent> events;
+    private List<StatisticsEventConfig> events;
 
     /**
      * @return the events
      */
-    public List<StatisticsEvent> getEvents() {
+    public List<StatisticsEventConfig> getEvents() {
         return events;
     }
 
@@ -69,7 +69,7 @@ public class StatisticsConfig implements ISerializableObject {
      * @param events
      *            the events to set
      */
-    public void setEvents(List<StatisticsEvent> events) {
+    public void setEvents(List<StatisticsEventConfig> events) {
         this.events = events;
     }
 
@@ -81,7 +81,7 @@ public class StatisticsConfig implements ISerializableObject {
     public List<String> getCategories() {
         Set<String> categories = new HashSet<String>();
         if (events != null && events.size() > 0) {
-            for (StatisticsEvent event : events) {
+            for (StatisticsEventConfig event : events) {
                 categories.add(event.getCategory());
             }
         }
