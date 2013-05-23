@@ -20,4 +20,5 @@ Require-Bundle: com.raytheon.uf.common.time;bundle-version="1.12.1174",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
  javax.measure;bundle-version="1.0.0",
  com.raytheon.uf.common.units;bundle-version="1.0.0",
- org.apache.commons.lang;bundle-version="2.3.0"
+ org.apache.commons.lang;bundle-version="2.3.0",
+ org.hibernate
