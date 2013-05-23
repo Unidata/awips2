@@ -49,8 +49,8 @@
 				<pipeline>
 					<bean ref="acarsDecoder" method="decode" />
                     <multicast>
-                       <to uri="directvm:indexAlert" />
-                       <to uri="directvm:acarsSounding" />
+                       <to uri="direct-vm:indexAlert" />
+                       <to uri="direct-vm:acarsSounding" />
                     </multicast>
 				</pipeline>
 				<doCatch>
