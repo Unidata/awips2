@@ -3,6 +3,9 @@
 %define _component_project_dir    awips2.cave/Installer.cave
 %define _component_zip_file_name  CAVE-linux.gtk.%{_build_arch}.zip
 %define _component_desc           "awips2-cave"
+
+%define _swt_version 3.8.1.v3836b
+%define _ui_version 3.8.2.v20121018-234953
 #
 # awips2-cave Spec File
 #
@@ -188,34 +191,34 @@ pushd . > /dev/null 2>&1
 cd /awips2/cave/plugins
 # Forcefully unzip: org.eclipse.swt.gtk.linux.x86_3.6.1.v3655c.jar
 # : if i386
-if [ -f org.eclipse.swt.gtk.linux.x86_3.6.1.v3655c.jar ]; then
-   mkdir org.eclipse.swt.gtk.linux.x86_3.6.1.v3655c
-   unzip -qq org.eclipse.swt.gtk.linux.x86_3.6.1.v3655c.jar \
-      -d org.eclipse.swt.gtk.linux.x86_3.6.1.v3655c
-   rm -f org.eclipse.swt.gtk.linux.x86_3.6.1.v3655c.jar
-   mv org.eclipse.swt.gtk.linux.x86_3.6.1.v3655c \
-      org.eclipse.swt.gtk.linux.x86_3.6.1.v3655c.jar
+if [ -f org.eclipse.swt.gtk.linux.x86_%{_swt_version}.jar ]; then
+   mkdir org.eclipse.swt.gtk.linux.x86_%{_swt_version}
+   unzip -qq org.eclipse.swt.gtk.linux.x86_%{_swt_version}.jar \
+      -d org.eclipse.swt.gtk.linux.x86_%{_swt_version}
+   rm -f org.eclipse.swt.gtk.linux.x86_%{_swt_version}.jar
+   mv org.eclipse.swt.gtk.linux.x86_%{_swt_version} \
+      org.eclipse.swt.gtk.linux.x86_%{_swt_version}.jar
 fi
 # Forcefully unzip: org.eclipse.swt.gtk.linux.x86_64_3.6.1.v3655c.jar
 # : if x86_64
-if [ -f org.eclipse.swt.gtk.linux.x86_64_3.6.1.v3655c.jar ]; then
-   mkdir org.eclipse.swt.gtk.linux.x86_64_3.6.1.v3655c
-   unzip -qq org.eclipse.swt.gtk.linux.x86_64_3.6.1.v3655c.jar \
-      -d org.eclipse.swt.gtk.linux.x86_64_3.6.1.v3655c
-   rm -f org.eclipse.swt.gtk.linux.x86_64_3.6.1.v3655c.jar
-   mv org.eclipse.swt.gtk.linux.x86_64_3.6.1.v3655c \
-      org.eclipse.swt.gtk.linux.x86_64_3.6.1.v3655c.jar
+if [ -f org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar ]; then
+   mkdir org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}
+   unzip -qq org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar \
+      -d org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}
+   rm -f org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
+   mv org.eclipse.swt.gtk.linux.x86_64_%{_swt_version} \
+      org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
 fi
 
 # Forcefully unzip: org.eclipse.ui_3.6.1.M20100826-1330.jar
 # : for i386 & x86_64
-if [ -f org.eclipse.ui_3.6.1.M20100826-1330.jar ]; then
-   mkdir org.eclipse.ui_3.6.1.M20100826-1330
-   unzip -qq org.eclipse.ui_3.6.1.M20100826-1330.jar \
-      -d org.eclipse.ui_3.6.1.M20100826-1330
-   rm -f org.eclipse.ui_3.6.1.M20100826-1330.jar
-   mv org.eclipse.ui_3.6.1.M20100826-1330 \
-      org.eclipse.ui_3.6.1.M20100826-1330.jar
+if [ -f org.eclipse.ui_%{_ui_version}.jar ]; then
+   mkdir org.eclipse.ui_%{_ui_version}
+   unzip -qq org.eclipse.ui_%{_ui_version}.jar \
+      -d org.eclipse.ui_%{_ui_version}
+   rm -f org.eclipse.ui_%{_ui_version}.jar
+   mv org.eclipse.ui_%{_ui_version} \
+      org.eclipse.ui_%{_ui_version}.jar
 fi
 
 popd > /dev/null 2>&1
