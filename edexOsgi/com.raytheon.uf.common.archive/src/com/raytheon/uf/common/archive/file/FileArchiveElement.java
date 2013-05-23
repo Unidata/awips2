@@ -21,8 +21,6 @@ package com.raytheon.uf.common.archive.file;
 
 import java.io.File;
 
-import org.junit.Assert;
-
 import com.raytheon.uf.common.archive.IArchiveElement;
 import com.raytheon.uf.common.archive.exception.ArchiveException;
 
@@ -48,7 +46,6 @@ public class FileArchiveElement implements IArchiveElement {
     private String name;
 
     public FileArchiveElement(String name) {
-        Assert.assertNotNull(name);
         this.name = name;
     }
 
