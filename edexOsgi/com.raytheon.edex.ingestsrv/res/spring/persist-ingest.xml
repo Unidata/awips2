@@ -26,7 +26,7 @@
         	 Indexing but no alert processing
         -->
       	<route id="persistIndex">
-        	<from uri="directvm:persistIndex"/>
+        	<from uri="direct-vm:persistIndex"/>
         	<bean ref="persist" method="persist"/>
             <bean ref="index" method="index"/>
             <bean ref="processUtil" method="log"/>
@@ -37,7 +37,7 @@
         	 Indexing and Alerting
         -->
         <route id="persistIndexAlert">
-        	<from uri="directvm:persistIndexAlert"/>
+        	<from uri="direct-vm:persistIndexAlert"/>
         	<bean ref="persist" method="persist"/>
             <bean ref="index" method="index"/>
             <bean ref="processUtil" method="log"/>
@@ -49,7 +49,7 @@
         	 Intended for routes that need Indexing and Alerting
         -->
         <route id="indexAlert">
-        	<from uri="directvm:indexAlert"/>
+        	<from uri="direct-vm:indexAlert"/>
             <bean ref="index" method="index"/>
             <bean ref="processUtil" method="log"/>
             <bean ref="toDataURI" method="toDataURI"/>

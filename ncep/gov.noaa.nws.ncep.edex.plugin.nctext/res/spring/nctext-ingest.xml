@@ -51,7 +51,7 @@
 					<!-- bean ref="nctextDecoderSbn" method="decodeTextInputFile" /-->
 					<multicast>
 						<!-- to uri="activemq:queue:watchwarn" /-->
-						<to uri="directvm:persistIndexAlert" />
+						<to uri="direct-vm:persistIndexAlert" />
 					</multicast>
 				</pipeline>
 				<doCatch>

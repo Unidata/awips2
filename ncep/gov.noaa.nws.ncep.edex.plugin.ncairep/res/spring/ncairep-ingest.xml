@@ -57,8 +57,8 @@
 								<!-- Add next line for h5 version and change next
 								     line from indexAlert to persistIndexAlert" /-->
 								<bean ref="ncairepPointData" method="toPointData" />
-								<!--  to uri="directvm:indexAlert" /-->
-								<to uri="directvm:persistIndexAlert" />								
+								<!--  to uri="direct-vm:indexAlert" /-->
+								<to uri="direct-vm:persistIndexAlert" />								
 							</pipeline>
 							<doCatch>
 								<exception>java.lang.Throwable</exception>
