@@ -63,7 +63,7 @@
 		</route>
 		
 		<route id="WCLWatch">
-			<from uri="directvm:wclWatch" />
+			<from uri="direct-vm:wclWatch" />
 			<bean ref="wclWatch" method="handleWclWatch" />
 		</route>
 
