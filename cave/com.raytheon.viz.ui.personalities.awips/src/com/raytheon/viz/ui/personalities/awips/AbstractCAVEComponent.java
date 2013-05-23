@@ -37,6 +37,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.internal.WorkbenchPlugin;
@@ -95,6 +96,7 @@ import com.raytheon.viz.core.units.UnitRegistrar;
  * Apr 17, 2013    1786    mpduff       startComponent now sets StatusHandlerFactory
  * Apr 23, 2013   #1939    randerso     Allow serialization to complete initialization
  *                                      before connecting to JMS to avoid deadlock
+ * May 23, 2013   #2005    njensen      Shutdown on spring initialization errors
  * 
  * </pre>
  * 
@@ -156,6 +158,24 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
             display = PlatformUI.createDisplay();
         } else {
             display = new Display();
+        }
+
+        // verify Spring successfully initialized, otherwise stop CAVE
+        if (!com.raytheon.uf.viz.spring.dm.Activator.getDefault()
+                .isSpringInitSuccessful()) {
+            String msg = "CAVE's Spring container did not initialize correctly and CAVE must shut down.";
+            boolean restart = false;
+            if (!nonui) {
+                msg += " Attempt to restart CAVE?";
+                restart = MessageDialog.openQuestion(new Shell(display),
+                        "Startup Error", msg);
+            } else {
+                System.err.println(msg);
+            }
+            if (restart) {
+                return IApplication.EXIT_RESTART;
+            }
+            return IApplication.EXIT_OK;
         }
 
         try {
