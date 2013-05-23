@@ -24,7 +24,7 @@
 			<value>mosaic</value>
 		</constructor-arg>
 		<constructor-arg>
-			<value>directvm:mosaicIngest</value>
+			<value>direct-vm:mosaicIngest</value>
 		</constructor-arg>
 	</bean>
 
@@ -56,7 +56,7 @@
 				<pipeline>
 					<bean ref="stringToFile" />
 					<bean ref="mosaicDecoder" method="decode" />
-					<to uri="directvm:persistIndexAlert" />
+					<to uri="direct-vm:persistIndexAlert" />
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>

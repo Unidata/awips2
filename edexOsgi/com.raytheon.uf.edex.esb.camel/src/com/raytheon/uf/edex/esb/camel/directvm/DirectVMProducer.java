@@ -35,7 +35,9 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
- * Direct VM Producer used with DirectVMConsumer
+ * Direct VM Producer used with DirectVMConsumer. Deprecated: Use camel's
+ * built-in direct-vm component instead. This component can be deleted after
+ * that has been tested thoroughly.
  * 
  * <pre>
  * 
@@ -44,6 +46,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 27, 2010            mschenke     Initial creation
+ * May 23, 2013 1989       njensen      Deprecated
  * 
  * </pre>
  * 
@@ -51,8 +54,10 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @version 1.0
  */
 
+@Deprecated
 public class DirectVMProducer extends DirectProducer {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(DirectVMProducer.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DirectVMProducer.class);
 
     private DirectVMEndpoint endpoint;
 
@@ -67,8 +72,9 @@ public class DirectVMProducer extends DirectProducer {
     public void process(Exchange exchange) throws Exception {
         List<DefaultConsumer> consumers = endpoint.getConsumers();
         if (consumers == null || consumers.size() == 0) {
-            statusHandler.handle(Priority.PROBLEM, "No consumers available on endpoint: "
-                            + endpoint + " to process: " + exchange);
+            statusHandler.handle(Priority.PROBLEM,
+                    "No consumers available on endpoint: " + endpoint
+                            + " to process: " + exchange);
             throw new CamelExchangeException(
                     "No consumers available on endpoint: " + endpoint, exchange);
         } else {
@@ -81,8 +87,9 @@ public class DirectVMProducer extends DirectProducer {
     public boolean process(Exchange exchange, AsyncCallback callback) {
         List<DefaultConsumer> consumers = endpoint.getConsumers();
         if (consumers == null || consumers.size() == 0) {
-            statusHandler.handle(Priority.PROBLEM, "No consumers available on endpoint: "
-                            + endpoint + " to process: " + exchange);
+            statusHandler.handle(Priority.PROBLEM,
+                    "No consumers available on endpoint: " + endpoint
+                            + " to process: " + exchange);
             // indicate its done synchronously
             exchange.setException(new CamelExchangeException(
                     "No consumers available on endpoint: " + endpoint, exchange));
