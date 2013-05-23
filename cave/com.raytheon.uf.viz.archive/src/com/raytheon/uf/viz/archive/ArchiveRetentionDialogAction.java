@@ -3,6 +3,10 @@ package com.raytheon.uf.viz.archive;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
+
+import com.raytheon.uf.viz.archive.ui.ArchiveRetentionDlg;
 
 /**
  * Action to display the Archive Retention dialog.
@@ -21,7 +25,7 @@ import org.eclipse.core.commands.ExecutionException;
  * @version 1.0
  */
 public class ArchiveRetentionDialogAction extends AbstractHandler {
-    // ArchiveRetentionDialog dialog;
+    private ArchiveRetentionDlg dialog;
 
     /*
      * (non-Javadoc)
@@ -32,17 +36,15 @@ public class ArchiveRetentionDialogAction extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        // if (dialog == null || dialog.isDiposed()) {
-        // Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-        // .getShell();
-        // dialog = new ArchiveRetentionDialog(shell);
-        // dialog.open();
-        // } else {
-        // dialog.bringToTop();
-        // }
-        // dialog.open();
-        System.out.println("ArchiveRetentionDialogAction NYI.");
+        if (dialog == null || dialog.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            dialog = new ArchiveRetentionDlg(shell);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
+        }
+
         return null;
     }
-
 }
