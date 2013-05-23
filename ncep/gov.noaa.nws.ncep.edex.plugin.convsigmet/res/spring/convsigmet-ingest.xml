@@ -54,7 +54,7 @@
                   		<doTry>
                      		<pipeline>
                         		<bean ref="convsigmetDecoder" method="decode"/>
-                        		<to uri="directvm:indexAlert"/>
+                        		<to uri="direct-vm:indexAlert"/>
 		                    </pipeline>
         		            <doCatch>
                 		        <exception>java.lang.Throwable</exception>

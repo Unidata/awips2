@@ -47,7 +47,7 @@
 						<doTry>
 							<pipeline>
 								<bean ref="ccfpDecoder" method="decode" />
-								<to uri="directvm:indexAlert" />
+								<to uri="direct-vm:indexAlert" />
 							</pipeline>
 							<doCatch>
 								<exception>java.lang.Throwable</exception>

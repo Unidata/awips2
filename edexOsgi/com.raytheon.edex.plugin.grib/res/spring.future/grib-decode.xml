@@ -87,7 +87,7 @@
 								<bean ref="gribSplitter" method="clean" />
 								<!-- send for processing -->
 								<bean ref="gribPostProcessor" method="process" />
-								<to uri="directvm:persistIndexAlert" />
+								<to uri="direct-vm:persistIndexAlert" />
 							</pipeline>
 							<doCatch>
 								<exception>java.lang.Throwable</exception>
