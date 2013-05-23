@@ -10,7 +10,7 @@
   
     <camelContext id="textdbsrv-common-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
         <route id="textdbsrvinternal">
-        	<from uri="directvm:int.textdb.request"/>
+        	<from uri="direct-vm:int.textdb.request"/>
         	<bean ref="serializationUtil" method="unmarshalFromXml" />
 	    	<bean ref="textdbsrv" method="processMessage" />
       	    <bean ref="serializationUtil" method="marshalToXml" />
