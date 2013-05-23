@@ -1,7 +1,8 @@
 <statisticsConfig>
     <!-- Event Type should be fully qualified name of stat event -->
     <statisticsEvent type="com.raytheon.uf.common.stats.LoadEvent"
-        displayName="Load Time" category="FFMP Load Times">
+        displayName="Load Time" category="FFMP Load Times"
+        rawOfflineRetentionDays="90" aggregateOfflineRetentionDays="90">
         <statisticsGroup name="type" displayName="Type" />
         <!-- Processing time available display units:
              ms, Seconds, Minutes, Hours -->

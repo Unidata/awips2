@@ -56,10 +56,10 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 15, 2012    728     mpduff      Initial creation
+ * Nov 15, 2012 728        mpduff      Initial creation
  * Jan 15, 2013 1487       djohnson    Use xml for the grouping information on an {@link AggregateRecord}.
- * Jan 17, 2013   1357     mpduff      Remove unit conversions, add time step, other cleanup.
- * 
+ * Jan 17, 2013 1357       mpduff      Remove unit conversions, add time step, other cleanup.
+ * May 22, 2013 1917       rjpeter     Made unmarshalGroupingColumnFromRecord public.
  * </pre>
  * 
  * @author mpduff
@@ -268,7 +268,7 @@ public class StatsDataAccumulator {
      * @return the unmarshalled column, or an empty column if unable to
      *         unmarshal
      */
-    private static StatsGroupingColumn unmarshalGroupingColumnFromRecord(
+    public static StatsGroupingColumn unmarshalGroupingColumnFromRecord(
             AggregateRecord record) {
         String groupingXmlAsString = record.getGrouping();
         try {
