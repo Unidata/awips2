@@ -54,8 +54,8 @@
 					<bean ref="sfcobsDecoder" method="decode" />
                     <bean ref="sfcobsPointData" method="toPointData" />
                     <multicast>
-                      <to uri="directvm:persistIndexAlert" />
-                      <to uri="directvm:synopticToShef"/>
+                      <to uri="direct-vm:persistIndexAlert" />
+                      <to uri="direct-vm:synopticToShef"/>
                     </multicast>
 				</pipeline>
 				<doCatch>
