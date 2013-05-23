@@ -31,4 +31,58 @@
           extensionFilter=".xml">
        </path>
     </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+       <menuContribution
+            allPopups="false"
+            locationURI="menu:CAVE?after=group1">
+         <command
+               commandId="com.raytheon.uf.viz.archive.retentionui"
+               id="archivetest"
+               label="Archive Retention..."
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+  <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:CAVE?after=group1">
+         <command
+               commandId="com.raytheon.uf.viz.archive.casecreationui"
+               id="archivetest"
+               label="Archive Case Creation..."
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="com.raytheon.uf.viz.archive.casecreationui"
+            name="casecreation">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="com.raytheon.uf.viz.archive.retentionui"
+            name="archiveretention">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.raytheon.uf.viz.archive.ArchiveCaseCreationDialogAction"
+            commandId="com.raytheon.uf.viz.archive.casecreationui">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.raytheon.uf.viz.archive.ArchiveRetentionDialogAction"
+            commandId="com.raytheon.uf.viz.archive.retentionui">
+      </handler>
+   </extension>
 </plugin>
