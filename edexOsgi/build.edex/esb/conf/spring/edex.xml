@@ -64,7 +64,9 @@
 		<property name="requestTimeout" value="5000"/>
 
 		<!-- receiveTimeout is amount of time thread waits to receive a message before recycling -->
-		<property name="receiveTimeout" value="300000"/>
+		<!-- receiveTimeout also affects how fast a JMSConsumer will shut down, because the
+                  thread may be stuck polling for the duration of receiveTimeout before shutting down -->
+		<property name="receiveTimeout" value="10000"/>
 		<property name="transacted" value="false"/>
 
 		<!-- force maxMessagesPerTask so that the threads don't keep disconnecting and reconnecting.
