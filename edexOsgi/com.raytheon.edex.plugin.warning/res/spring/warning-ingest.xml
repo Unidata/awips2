@@ -68,7 +68,7 @@
 					<bean ref="warningDecoder" method="decode" />
 					<bean ref="index" method="index" />
 					<multicast parallelProcessing="false">
-						<to uri="directvm:warningIngestAlert" />
+						<to uri="direct-vm:warningIngestAlert" />
 						<to uri="jms-warning:queue:edex.spcWatch" />
 						<to uri="jms-warning:queue:edex.tpcWatch" />
 						<filter>
@@ -85,7 +85,7 @@
 		</route>
 
 		<route id="warningIngestAlert">
-			<from uri="directvm:warningIngestAlert" />
+			<from uri="direct-vm:warningIngestAlert" />
 			<bean ref="toDataURI" method="toDataURI" />
 			<bean ref="processUtil" method="log" />
 			<to uri="vm:stageNotification" />

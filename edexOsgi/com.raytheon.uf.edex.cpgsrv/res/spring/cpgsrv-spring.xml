@@ -17,7 +17,7 @@
         errorHandlerRef="errorHandler"
         autoStartup="false">
         <route id="cpgProcessAlerts">
-        	<from uri="directvm:processCPGAlerts"/>
+        	<from uri="direct-vm:processCPGAlerts"/>
             <bean ref="toDataURI" method="toDataURI"/>
             <to uri="vm:stageNotification"/> 
         </route>

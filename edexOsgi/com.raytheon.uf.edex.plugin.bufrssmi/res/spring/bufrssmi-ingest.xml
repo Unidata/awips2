@@ -53,7 +53,7 @@
 		            <bean ref="stringToFile" />
                     <bean ref="bufrssmiDecoder" method="decode" />
                     <bean ref="ssmiSHFilter" method="filter" />
-                    <to uri="directvm:persistIndexAlert" />
+                    <to uri="direct-vm:persistIndexAlert" />
                 </pipeline>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
