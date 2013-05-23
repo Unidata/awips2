@@ -35,9 +35,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
- * Direct VM Producer used with DirectVMConsumer. Deprecated: Use camel's
- * built-in direct-vm component instead. This component can be deleted after
- * that has been tested thoroughly.
+ * Direct VM Producer used with DirectVMConsumer.
  * 
  * <pre>
  * 
@@ -52,6 +50,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * @author mschenke
  * @version 1.0
+ * @deprecated Use camel's built-in direct-vm component instead. This component
+ *             can be deleted after that has been tested thoroughly.
  */
 
 @Deprecated
