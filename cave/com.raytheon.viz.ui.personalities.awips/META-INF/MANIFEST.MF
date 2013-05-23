@@ -21,7 +21,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.application;bundle-version="1.0.0",
  com.raytheon.viz.alerts;bundle-version="1.12.1174",
  com.raytheon.uf.common.comm;bundle-version="1.12.1174",
- com.raytheon.uf.viz.personalities.cave;bundle-version="1.0.0";visibility:=reexport
+ com.raytheon.uf.viz.personalities.cave;bundle-version="1.0.0";visibility:=reexport,
+ com.raytheon.uf.viz.spring.dm
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
