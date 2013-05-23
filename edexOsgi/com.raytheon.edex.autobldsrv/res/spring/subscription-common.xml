@@ -39,7 +39,7 @@
                   
 		<!-- LDAD (watch/warn) triggered script runner, internal use only -->
 		<route id="ldadWatchWarnDirect">
-			<from uri="directvm:ldadWatchWarnDirect"/>
+			<from uri="direct-vm:ldadWatchWarnDirect"/>
 		   <doTry>
 		   	   <bean ref="ldadScriptRunner" method="runScripts" />
 		   	   <doCatch>

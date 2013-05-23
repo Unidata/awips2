@@ -57,7 +57,7 @@
                         <method bean="acarsSounding" method="getQueueTime" />
                     </setHeader>
                     <bean ref="acarsSounding" method="processSounding" />
-                    <to uri="directvm:indexAlert" />
+                    <to uri="direct-vm:indexAlert" />
                    </pipeline>
                    <doCatch>
                       <exception>java.lang.Throwable</exception>
@@ -68,7 +68,7 @@
         </route>
 
 		<route id="acarsSoundingRoute">
-            <from uri="directvm:acarsSounding"/>
+            <from uri="direct-vm:acarsSounding"/>
             <bean ref="acarsPersistObs" method="process" />
         </route>
     </camelContext>

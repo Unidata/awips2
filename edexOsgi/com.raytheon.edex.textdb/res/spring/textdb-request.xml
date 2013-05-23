@@ -37,7 +37,7 @@
   	</bean>
 
   	<bean id="remoteRetrievalManager" class="com.raytheon.edex.textdb.handler.RemoteRetrievalManager">
-  		<!--  <property name="remoteRetrievalExternalURI" value="directvm:remoteRetrievalExternalRoute" />  -->
+  		<!--  <property name="remoteRetrievalExternalURI" value="direct-vm:remoteRetrievalExternalRoute" />  -->
   		<property name="rrDelegate" ref="textdbRemoteRetrievalTarget" />
   	</bean>
 
@@ -58,10 +58,10 @@
 
 		<proxy id="textdbRemoteRetrievalTarget"
 			serviceInterface="com.raytheon.edex.textdb.handler.RemoteRetrievalManager$IRRDelegate"
-			serviceUrl="directvm:remoteRetrievalExternalRoute" />
+			serviceUrl="direct-vm:remoteRetrievalExternalRoute" />
 
 		<route id="remoteRetrievalExternal">
-			<from uri="directvm:remoteRetrievalExternalRoute" />
+			<from uri="direct-vm:remoteRetrievalExternalRoute" />
 			<!-- Convert from BeanInvocation if needed. -->
 			<convertBodyTo type="com.raytheon.uf.common.dataplugin.text.request.RemoteRetrievalRequest" />
 			<bean ref="serializationUtil" method="transformToThrift" />
