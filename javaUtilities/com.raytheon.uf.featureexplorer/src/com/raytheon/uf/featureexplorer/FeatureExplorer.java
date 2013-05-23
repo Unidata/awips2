@@ -35,6 +35,7 @@ import com.raytheon.uf.featureexplorer.search.IPluginSearch;
  * Oct 7, 2008  SP#15      bclement    Changed ArrayList references to List
  * Oct 10, 2008 SP#15      bclement    Added static functions for reading manifests
  * Feb 4, 2013  #1577      bkowal      Verify that a plugin has not been included in more than one feature.
+ * May 22, 2013 #1927      bkowal      Fix improper String comparison
  * </pre>
  * 
  * @author dglazesk
@@ -187,7 +188,7 @@ public class FeatureExplorer {
 					plugin.getVersion());
 			try {
 				if (this.pluginLookupMap.containsKey(plugin.getId())
-						&& this.pluginLookupMap.get(plugin.getId()) != aFile) {
+						&& this.pluginLookupMap.get(plugin.getId()).equals(aFile)) {
 					StringBuilder stringBuilder = new StringBuilder("Plugin ");
 					stringBuilder.append(plugin.getId());
 					stringBuilder.append(" is in Feature ");
