@@ -42,8 +42,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 6, 2012    728      mpduff      Initial creation.
- * 
+ * Nov  6, 2012 728        mpduff      Initial creation.
+ * May 22, 2013 1917       rjpeter     Renamed to StatisticsEventConfig and
+ *                                     added offline retention settings.
  * </pre>
  * 
  * @author mpduff
@@ -52,7 +53,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @XmlRootElement(name = "event")
 @XmlAccessorType(XmlAccessType.NONE)
-public class StatisticsEvent {
+public class StatisticsEventConfig {
 
     @XmlAttribute
     @DynamicSerializeElement
@@ -65,6 +66,22 @@ public class StatisticsEvent {
     @XmlAttribute
     @DynamicSerializeElement
     private String category;
+
+    /**
+     * Retention period for the raw offline statistic to be saved. Value < 0 do
+     * not retain, value = 0 retain all, value > 0 retain for value days.
+     */
+    @XmlAttribute
+    @DynamicSerializeElement
+    private int rawOfflineRetentionDays = -1;
+
+    /**
+     * Retention period for the aggregate offline statistic to be saved. Value <
+     * 0 do not retain, value = 0 retain all, value > 0 retain for value days.
+     */
+    @XmlAttribute
+    @DynamicSerializeElement
+    private int aggregateOfflineRetentionDays;
 
     @XmlElements({ @XmlElement(name = "statisticsGroup", type = StatisticsGroup.class) })
     @DynamicSerializeElement
@@ -179,4 +196,20 @@ public class StatisticsEvent {
         this.aggregateMethods = aggregateMethods;
     }
 
+    public int getRawOfflineRetentionDays() {
+        return rawOfflineRetentionDays;
+    }
+
+    public void setRawOfflineRetentionDays(int rawOfflineRetentionDays) {
+        this.rawOfflineRetentionDays = rawOfflineRetentionDays;
+    }
+
+    public int getAggregateOfflineRetentionDays() {
+        return aggregateOfflineRetentionDays;
+    }
+
+    public void setAggregateOfflineRetentionDays(
+            int aggregateOfflineRetentionDays) {
+        this.aggregateOfflineRetentionDays = aggregateOfflineRetentionDays;
+    }
 }
