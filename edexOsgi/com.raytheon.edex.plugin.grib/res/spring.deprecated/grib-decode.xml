@@ -92,9 +92,9 @@
 								<bean ref="gribPostProcessor" method="process" />
 								<multicast parallelProcessing="false">
 									<!-- send to persistence -->
-									<to uri="directvm:persistIndexAlert" />
+									<to uri="direct-vm:persistIndexAlert" />
 									<!-- send to transform -->
-									<to uri="directvm:gridToGrib"/>
+									<to uri="direct-vm:gridToGrib"/>
 								</multicast>
 							</pipeline>
 							<doCatch>
@@ -114,7 +114,7 @@
 		</route>
 		
 		<route id="gridToGrib">
-			<from uri="directvm:gridToGrib"/>
+			<from uri="direct-vm:gridToGrib"/>
 			<bean ref="gridToGribConverter" method="convert"/>
 			<bean ref="index" method="index"/>
             <bean ref="toDataURI" method="toDataURI"/>
