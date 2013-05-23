@@ -59,8 +59,8 @@
 								<bean ref="ncpafmDecoder" method="decode" />
 								<!-- Add next line for h5 version  /-->
 								<bean ref="ncpafmPointDataTransform" method="toPointData" />
-								<!--to uri="directvm:indexAlert" /-->
-								<to uri="directvm:persistIndexAlert" />
+								<!--to uri="direct-vm:indexAlert" /-->
+								<to uri="direct-vm:persistIndexAlert" />
 							</pipeline>
 							<doCatch>
 								<exception>java.lang.Throwable</exception>

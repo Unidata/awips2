@@ -16,7 +16,7 @@
         factory-method="getInstance" depends-on="alphaNumericDatatypePool">
        <constructor-arg><value>AlphaNumeric</value></constructor-arg>
        <constructor-arg><value>aww</value></constructor-arg>
-       <constructor-arg><value>directvm:awwIngest</value></constructor-arg>
+       <constructor-arg><value>direct-vm:awwIngest</value></constructor-arg>
     </bean-->
     
     <bean id="awwDistRegistry" factory-bean="distributionSrv"
@@ -65,7 +65,7 @@
 		                <doTry>
         		        	<pipeline>
                 		    	<bean ref="awwDecoder" method="decode"/>
-                        		<to uri="directvm:indexAlert"/>
+                        		<to uri="direct-vm:indexAlert"/>
 		                    </pipeline>
         	            <doCatch>
 	                        <exception>java.lang.Throwable</exception>

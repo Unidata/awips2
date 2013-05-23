@@ -54,7 +54,7 @@
 					<bean ref="stringToFile" />
 					<bean ref="sgwhDecoder" method="decode" />
 					<bean ref="sgwhToPointData" method="toPointData" />
-					<to uri="directvm:persistIndexAlert" />		
+					<to uri="direct-vm:persistIndexAlert" />		
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
