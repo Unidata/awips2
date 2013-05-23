@@ -58,7 +58,7 @@
 						<!-- chin  bean ref="ncuairDecoder" method="decode" /-->
 					 	<bean ref="ncuairDecoder" method="decodeBatch" />
 						<bean ref="ncuairToPointData" method="toPointData" />					
-						<to uri="directvm:persistIndexAlert" />
+						<to uri="direct-vm:persistIndexAlert" />
 					</pipeline>
 					<doCatch>
 						<exception>java.lang.Throwable</exception>

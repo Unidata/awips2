@@ -31,7 +31,9 @@ import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.camel.util.ServiceHelper;
 
 /**
- * Provides a cross-context synchronous component
+ * Provides a cross-context synchronous component. Deprecated: Use camel's
+ * built-in direct-vm component instead. This component can be deleted after
+ * that has been tested thoroughly.
  * 
  * <pre>
  * 
@@ -40,6 +42,7 @@ import org.apache.camel.util.ServiceHelper;
  * ------------ ---------- ----------- --------------------------
  * Nov 18, 2008            chammack     Initial creation
  * Jul 16, 2012 DR 15073   D. Friedman  Don't stop all consumer in doStop.
+ * May 23, 2013 1989       njensen      Deprecated
  * 
  * </pre>
  * 
@@ -48,6 +51,7 @@ import org.apache.camel.util.ServiceHelper;
  */
 
 @SuppressWarnings("unchecked")
+@Deprecated
 public class DirectVMComponent extends DirectComponent {
 
     private static Map<String, CopyOnWriteArrayList<DefaultConsumer>> CONSUMERS = new HashMap<String, CopyOnWriteArrayList<DefaultConsumer>>();
@@ -78,8 +82,9 @@ public class DirectVMComponent extends DirectComponent {
     protected void doStop() throws Exception {
         Collection<CopyOnWriteArrayList<DefaultConsumer>> set = CONSUMERS
                 .values();
-        
-        /* Stop only the consumers created through this instance of the 
+
+        /*
+         * Stop only the consumers created through this instance of the
          * component.
          */
         for (CopyOnWriteArrayList<DefaultConsumer> consumerList : set)

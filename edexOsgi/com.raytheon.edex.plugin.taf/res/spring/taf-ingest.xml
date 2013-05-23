@@ -55,7 +55,7 @@
 						<doTry>
 							<pipeline>
 								<bean ref="tafDecoder" method="decode" />
-								<to uri="directvm:indexAlert" />
+								<to uri="direct-vm:indexAlert" />
 							</pipeline>
 							<doCatch>
 								<exception>java.lang.Throwable</exception>
