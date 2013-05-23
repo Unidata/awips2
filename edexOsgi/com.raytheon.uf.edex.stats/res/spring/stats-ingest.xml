@@ -1,0 +1,66 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans-2.0.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="statsPurge" class="com.raytheon.uf.edex.stats.StatsPurge"
+        depends-on="statsRegister"/>
+
+    <bean id="aggregateManager" class="com.raytheon.uf.edex.stats.AggregateManager">
+        <!-- Not directly exposing at this time, due to performance concerns from 
+            improper values -->
+        <!-- Bucket interval in minutes for aggregation -->
+        <constructor-arg value="5"/>
+    </bean>
+
+    <bean id="edexStatsRegistered" factory-bean="clusteredCamelContextMgr"
+        factory-method="register" depends-on="persistCamelRegistered">
+        <constructor-arg ref="edexStats-camel"/>
+    </bean>
+
+    <camelContext id="edexStats-camel" xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler" autoStartup="false">
+
+        <endpoint id="statsScanTimer" uri="timer://scanStats?period=${stats.scanInterval}m"/>
+        <endpoint id="aggrToCsvTimer"
+            uri="quartz://stats/aggrToCsv/?cron=${stats.aggregateToCsv.cron}"/>
+        <endpoint id="statsPurgeTimer" uri="quartz://stats/purge/?cron=${stats.purge.cron}"/>
+
+        <route id="statsTableScan">
+            <from ref="statsScanTimer"/>
+            <doTry>
+                <bean ref="aggregateManager" method="scan"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:stats?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="statsAggrToCsv">
+            <from ref="aggrToCsvTimer"/>
+            <doTry>
+                <bean ref="aggregateManager" method="offlineAggregates"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:stats?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="statsPurgeRoute">
+            <from ref="statsPurgeTimer"/>
+            <doTry>
+                <bean ref="statsPurge" method="purge"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:stats?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>
