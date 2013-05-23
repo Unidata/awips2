@@ -1,4 +1,84 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- 
+    The <archive> contains five types of tags:
+        <name>           - Required tag. The id for the archive such as Raw or Processed.
+                           Used in the GUIs to filter which archive to display.
+        <rootDir>        - Required tag. The root directory on the edex server for the archive.
+        <retentionHours> - Required tag. The default number of hour to retain data in the <rootDir>
+        <category>       - Detail information for display information in the archive GUIs and
+                           overriding the default retention hours. There can be several of these tags.
+    
+    The <category> has six types of tags:
+        <name>              - Required tag. The id for the category such as grib2 or redbook.
+                              Used in the GUIs to filter what is the display in the table.
+        <retentionHours>    - Optional tag. The retentionHours for this category.
+                              Default is the archive's <retentionHours>.
+        <dirPattern>        - Required tag. A pattern for finding directories for this category.
+                              The pattern is relative to the archive's <rootDir>. Wildcard patterns do not cross directory
+                              delimiter /. Thus to match 3 levels of directories you would need .*/.*/.* .
+                              See patterns and groups section.
+        <filePattern>       - Optional tag.  A pattern to find files in the directories that match the <dirPattern>.
+                              Default is everything in the directories that match <dirPattern>.
+                              See patterns and groups section.
+        <display>           - Required tag. The label to display for directories that match <dirPattern>. Any group in the
+                              <dirPattern> may be made part of the label by placing the group's index inside parenthesis, {1}.
+                              More then one directory may match the <dirPattern>. The archive GUIs may  clapse them into a single
+                              table entry.  
+        <dateGroupIndicies> - Required tag. A comma separated list of 4 numbers which are the index of the groups in
+                              <dirPattern> and/or <filePattern> that contain in order the year, mouth, day and hour information.
+                              This is used to determine what files/directories to retain or a range of directories/files to copy
+                              for case creation. Note to get the group's index the <dirPattern> and <filePattern> are combined.
+                              Thus if there are 5 groups in the <dirPattern> then the first group in the <filePattern> is index 6.
+     Patterns and groups.
+     The <dirPattern> and <filePattern> use Java regex expressions; similar to the ldm's pqact.conf file.
+     For more details see http://docs.oracle.com/javase/tutorial/essential/regex/
+     
+     The groupings index start at one.  The groups in the <dirPattern> can be used in the <display>. For example:
+        <dirPattern>(grib2)/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)</dirPattern>
+        <display>{1} - {6}</display>
+        <dateGroupIndices>2,3,4,5</dateGroupIndices>
+     
+     Here the <dirPattern> contains six groups. The first group is the literal grib2 which matches only a directory named grib2
+     that is a sub-directory of the <rootDir>. The groups 2, 3 and 4 break apart the next level of sub-directories into a 4 digit
+     and two 2 digit groups.  This is the expected year, month, day sub-subdirectory indicated by the first 3 entries in
+     <dateGroupIndices>.  The next sub-directory contains the fifth group which is a two digit number representing the hour.
+     Finally the sixth group will match any sub-directory that in the hour directory.
+     
+     Thus the directory paths <rootPath>/grib2/20130527/18/GFS will generate the display string, grib2 - GFS, and from the grouping we
+     can find the year, 201; month, 05; day, 27 and hour, 18.
+     
+     Example with <filePattern>:
+        <dirPattern>hdf5/(redbook)</dirPattern>
+        <display>{1}</display>
+        <filePattern>redbook-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
+        <dateGroupIndices>2,3,4,5</dateGroupIndices>
+     
+     Here the display will only show, redbook. The directory looked at will be <rootPath>/redbook/. The <dateGroupIndices> all
+     come from the <filePattern> since there is one group in the <dirPattern> the groups in the <filePattern> start at two. This
+     matches file names redbook-YYYY-MM-DD-HH.<extension>. Thus the file name redbook-2013-05-28-00.hd5 would match the <filePattern>.
+     
+     NOTE group {0} is a string that matches the whole <dirPattern>. If this is used in the <display> would see every directory that
+     matches the pattern.
+     -->
 <archive>
     <name>Raw</name>
     <rootDir>/data_store/</rootDir>
@@ -6,33 +86,29 @@
     <category>
         <name>Model grib</name>
         <retentionHours>0</retentionHours>
-        <dirPattern>grib/[^/]*/[^/]*/(.*\)</dirPattern>
-        <display>\1</display>
-        <saveDir>grib/${YYYY}${MM}${DD}/${HH}/(.*)</saveDir>
-        <saveFiles>.*</saveFiles>
+        <dirPattern>grib/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)</dirPattern>
+        <display>{5}</display>
+        <dateGroupIndices>1,2,3,4</dateGroupIndices>
     </category>
     <category>
         <name>Model grib2</name>
         <retentionHours>0</retentionHours>
-        <dirPattern>grib2/[^/]*/[^/]*/(.*\)</dirPattern>
-        <display>\1</display>
-        <saveDir>grib2/${YYYY}${MM}${DD}/${HH}/.*</saveDir>
-        <saveFiles>.*</saveFiles>
+        <dirPattern>(grib2)/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)</dirPattern>
+        <display>{1} - {6}</display>
+        <dateGroupIndices>2,3,4,5</dateGroupIndices>
     </category>
     <category>
         <name>Model other</name>
         <retentionHours>0</retentionHours>
-        <dirPattern>(acars|airmet|binlighting|bufrmos|bufrua|bufsigwx|convsigmet|goessndg|manual|mdlsndg|poessndg|profiler|shef|text)/[^/]*/[^/]*/(.*)</dirPattern>
-        <display>\1 - \2</display>
-        <saveDir>(acars|airmet|binlighting|bufrmos|bufrua|bufsigwx|convsigmet|goessndg|manual|mdlsndg|poessndg|profiler|shef|text)/YYYYMMDD/HH/.*</saveDir>
-        <saveFiles>.*</saveFiles>
+        <dirPattern>(acars|airmet|binlightning|bufrmos|bufrua|bufrsigwx|convsigmet|goessndg|manual|mdlsndg|poessndg|profiler|shef|text)/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
+        <display>{1}</display>
+        <dateGroupIndices>2,3,4,5</dateGroupIndices>
     </category>
     <category>
         <name>Satellite</name>
         <retentionHours>101</retentionHours>
-        <dirPattern>sat/[^/]*/[^/]*/(.*)</dirPattern>
-        <display>\1</display>
-        <saveDir>sat/${YYYY}${MM}${DD}/${HH}/.*</saveDir>
-        <saveFiles>.*</saveFiles>
+        <dirPattern>sat/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)</dirPattern>
+        <display>{5}</display>
+        <dateGroupIndices>1,2,3,4</dateGroupIndices>
     </category>
 </archive>
