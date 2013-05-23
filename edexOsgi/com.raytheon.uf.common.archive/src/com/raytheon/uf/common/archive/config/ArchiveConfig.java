@@ -27,8 +27,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.junit.Assert;
-
 /**
  * Archive data information for retention, purging and archiving. An example:
  * 
@@ -115,7 +113,6 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
      * @param name
      */
     public void setName(String name) {
-        Assert.assertNotNull(name);
         this.name = name;
     }
 
@@ -135,12 +132,11 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
      * @param rootDir
      */
     public void setRootDir(String rootDir) {
-        Assert.assertNotNull(rootDir);
         this.rootDir = rootDir;
     }
 
     /**
-     * Retrive the archive's retention hours.
+     * Retrieve the archive's retention hours.
      * 
      * @return retentionHours
      */
@@ -154,7 +150,6 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
      * @param retentionHours
      */
     public void setRetentionHours(int retentionHours) {
-        Assert.assertTrue(retentionHours > 0);
         this.retentionHours = retentionHours;
     }
 
