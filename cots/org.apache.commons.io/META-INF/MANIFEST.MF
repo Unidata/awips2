@@ -3,9 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Io
 Bundle-SymbolicName: org.apache.commons.io
 Bundle-Version: 2.4
-Bundle-ClassPath: commons-io-2.4.jar,
- commons-io-2.4-javadoc.jar,
- commons-io-2.4-sources.jar
+Bundle-ClassPath: commons-io-2.4.jar
 Bundle-Vendor: Apache
 Export-Package: org.apache.commons.io,
  org.apache.commons.io.comparator,
@@ -14,3 +12,4 @@ Export-Package: org.apache.commons.io,
  org.apache.commons.io.monitor,
  org.apache.commons.io.output
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy

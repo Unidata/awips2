@@ -32,7 +32,8 @@ import org.eclipse.core.runtime.jobs.Job;
 import com.raytheon.uf.common.util.FileUtil;
 
 /**
- * This class uses a obtains information on a File in a Job in order to remove from the UI thread.
+ * This class uses a obtains information on a File in a Job in order to remove
+ * from the UI thread.
  * 
  * <pre>
  * 
