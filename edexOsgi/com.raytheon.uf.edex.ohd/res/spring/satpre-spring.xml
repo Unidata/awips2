@@ -19,7 +19,7 @@
 		          <pipeline>
 		          	<bean ref="serializationUtil" method="transformFromThrift" />
 		            <bean ref="satPreFilter" method="matchURI"/>
-		            <!-- <to uri="directvm:persistIndexAlert"/> -->
+		            <!-- <to uri="direct-vm:persistIndexAlert"/> -->
 		          </pipeline>
 		          <doCatch>
 		             <exception>java.lang.Throwable</exception>
