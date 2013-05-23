@@ -85,7 +85,7 @@
 					<bean ref="index" method="index" />
 					<bean ref="ncgridAssembler" method="process"/>
 					<multicast parallelProcessing="false">
-						  <to uri="directvm:ncgribIngestAlert" />
+						  <to uri="direct-vm:ncgribIngestAlert" />
 						  <to uri="vm:ncgribNotification" /> 
 					</multicast>
 				</pipeline>
@@ -100,7 +100,7 @@
 		</route>
 
 		<route id="ncgribIngestAlert">
-			<from uri="directvm:ncgribIngestAlert" />
+			<from uri="direct-vm:ncgribIngestAlert" />
 			<bean ref="toDataURI" method="toDataURI" />
 			<bean ref="processUtil" method="log" />
 			<to uri="vm:stageNotification" />

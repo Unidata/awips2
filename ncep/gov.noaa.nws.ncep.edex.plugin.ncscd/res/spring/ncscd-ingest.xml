@@ -18,7 +18,7 @@
 
 	<!-- bean id="ncscdRegistry" class=" com.raytheon.uf.edex.esb.camel.BasicThreadPoolRouter" 
 		factory-method="getInstance" depends-on="alphaNumericDatatypePool"> <constructor-arg><value>AlphaNumeric</value></constructor-arg> 
-		<constructor-arg><value>ncscd</value></constructor-arg> <constructor-arg><value>directvm:ncscdIngest</value></constructor-arg> 
+		<constructor-arg><value>ncscd</value></constructor-arg> <constructor-arg><value>direct-vm:ncscdIngest</value></constructor-arg> 
 		</bean -->
 
 	<bean id="ncscdDistRegistry" factory-bean="distributionSrv"
@@ -61,7 +61,7 @@
 							<pipeline>
 								<bean ref="ncscdDecoder" method="decode" />
 								<bean ref="ncscdPointData" method="toPointData" />
-								<to uri="directvm:persistIndexAlert" />
+								<to uri="direct-vm:persistIndexAlert" />
 							</pipeline>
 							<doCatch>
 								<exception>java.lang.Throwable</exception>

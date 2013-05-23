@@ -62,7 +62,7 @@
 		            <bean ref="stringToFile" />
 					<bean ref="mesowestDecoder" method="decode" />
                     <bean ref="mesowestFilter" method="filter" />
-					<to uri="directvm:indexAlert" />				
+					<to uri="direct-vm:indexAlert" />				
 				</pipeline>				
 				<doCatch>
 					<exception>java.lang.Throwable</exception>

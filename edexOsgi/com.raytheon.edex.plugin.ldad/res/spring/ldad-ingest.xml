@@ -29,21 +29,21 @@
 			<from uri="jms-generic:queue:Ingest.ldad" />
 			<multicast>
 				<try>
-					<to uri="directvm:ldadmesonetIngest" />
+					<to uri="direct-vm:ldadmesonetIngest" />
 					<catch>
 						<exception>java.lang.Throwable</exception>
 						<to uri="log:ldadmesonet?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
 					</catch>
 				</try>
 				<try>
-					<to uri="directvm:ldadhydroIngest" />
+					<to uri="direct-vm:ldadhydroIngest" />
 					<catch>
 						<exception>java.lang.Throwable</exception>
 						<to uri="log:ldadhydro?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
 					</catch>
 				</try>
 				<try>
-					<to uri="directvm:ldadmanualIngest" />
+					<to uri="direct-vm:ldadmanualIngest" />
 					<catch>
 						<exception>java.lang.Throwable</exception>
 						<to uri="log:ldadmanual?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
