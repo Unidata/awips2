@@ -21,7 +21,7 @@
                   autoStartup="false">
        <proxy id="qcScannerTarget"
                serviceInterface="com.raytheon.uf.edex.plugin.qc.IQCScannerTarget"
-               serviceUrl="directvm:qcToIndexAlert"/>
+               serviceUrl="direct-vm:qcToIndexAlert"/>
 
         <endpoint id="scheduledQCCron" uri="clusteredquartz://qc/scanQC/?cron=${qc.cron}"/>        
 
@@ -31,14 +31,14 @@
         </route>
 
         <route id="qcToIndexAlert">
-            <from uri="directvm:qcToIndexAlert" />
+            <from uri="direct-vm:qcToIndexAlert" />
             <setHeader headerName="pluginName">
                 <constant>qc</constant>
             </setHeader>
             <setHeader headerName="ingestFileName">
                 <simple>${body.args[0].[last].ncSet}(${body.args[0].[last].ncIndex})</simple>
             </setHeader>
-            <to uri="directvm:indexAlert" pattern="InOnly"/>
+            <to uri="direct-vm:indexAlert" pattern="InOnly"/>
         </route>
         
         <route id="scheduledQCScanWork">
