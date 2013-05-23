@@ -28,9 +28,8 @@ import org.apache.camel.component.direct.DirectEndpoint;
 import org.apache.camel.impl.DefaultConsumer;
 
 /**
- * Provides a cross-context synchronous component. Deprecated: Use camel's
- * built-in direct-vm component instead. This component can be deleted after
- * that has been tested thoroughly.
+ * 
+ * Provides a cross-context synchronous component.
  * 
  * <pre>
  * 
@@ -46,6 +45,8 @@ import org.apache.camel.impl.DefaultConsumer;
  * 
  * @author chammack
  * @version 1.0
+ * @deprecated Use camel's built-in direct-vm component instead. This component
+ *             can be deleted after that has been tested thoroughly.
  */
 
 @Deprecated
