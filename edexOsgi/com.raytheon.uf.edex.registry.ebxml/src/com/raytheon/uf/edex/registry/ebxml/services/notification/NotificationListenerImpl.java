@@ -101,8 +101,10 @@ public class NotificationListenerImpl implements NotificationListener {
     /** The local lifecyclemanager instance */
     private LifecycleManagerImpl lcm;
 
+    /** Data access object for getting registry objects */
     private RegistryObjectDao registryObjectDao;
 
+    /** Data access object for getting RegistryType objects */
     private RegistryDao registryDao;
 
     /** The classification node data access object */
@@ -110,29 +112,18 @@ public class NotificationListenerImpl implements NotificationListener {
 
     @Override
     public void onNotification(NotificationType notification) {
-        String clientBaseURL = notification
-                .getSlotValue(EbxmlObjectUtil.NOTIFICATION_SOURCE_URL_SLOT_NAME);
-        if (clientBaseURL == null) {
-            clientBaseURL = "http://"
-                    + EbxmlObjectUtil.getClientHost(wsContext);
+        String clientBaseURL = EbxmlObjectUtil.getClientHost(wsContext);
+        RegistryType sourceRegistry = registryDao
+                .getRegistryByBaseURL(clientBaseURL);
+        if (sourceRegistry == null) {
             statusHandler.info("Received notification from unknown source at "
                     + clientBaseURL);
         } else {
-            RegistryType sourceRegistry = registryDao
-                    .getRegistryByBaseURL(clientBaseURL);
-            if (sourceRegistry == null) {
-                clientBaseURL = "http://"
-                        + EbxmlObjectUtil.getClientHost(wsContext);
-                statusHandler
-                        .info("Received notification from unknown source at "
-                                + clientBaseURL);
-            } else {
-                clientBaseURL = sourceRegistry.getBaseURL();
-                statusHandler
-                        .info("Received notification from Registry Federation member at ["
-                                + sourceRegistry.getId() + "]");
-            }
+            statusHandler
+                    .info("Received notification from Registry Federation member at ["
+                            + sourceRegistry.getId() + "]");
         }
+
         List<AuditableEventType> events = notification.getEvent();
 
         // Process the received auditable events and add them to the appropriate
@@ -181,12 +172,14 @@ public class NotificationListenerImpl implements NotificationListener {
                     for (String id : regObjAction.getObjIds()) {
                         RegistryObjectType object = registryObjectDao
                                 .getById(id);
-                        String replicaHome = object
-                                .getSlotValue(EbxmlObjectUtil.HOME_SLOT_NAME);
-                        if (clientBaseURL.equals(replicaHome)) {
-                            ObjectRefType ref = new ObjectRefType();
-                            ref.setId(id);
-                            refList.getObjectRef().add(ref);
+                        if (object != null) {
+                            String replicaHome = object
+                                    .getSlotValue(EbxmlObjectUtil.HOME_SLOT_NAME);
+                            if (clientBaseURL.equals(replicaHome)) {
+                                ObjectRefType ref = new ObjectRefType();
+                                ref.setId(id);
+                                refList.getObjectRef().add(ref);
+                            }
                         }
                     }
                     RemoveObjectsRequest request = new RemoveObjectsRequest(
@@ -367,18 +360,9 @@ public class NotificationListenerImpl implements NotificationListener {
             return action;
         }
 
-        public void setAction(String action) {
-            this.action = action;
-        }
-
         public List<String> getObjIds() {
             return objIds;
         }
-
-        public void setObjIds(List<String> objIds) {
-            this.objIds = objIds;
-        }
-
     }
 
 }
