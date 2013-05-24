@@ -54,7 +54,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 1, 2013  1966       rferrel     Initial creation
+ * May  1, 2013 1966       rferrel     Initial creation
  * 
  * </pre>
  * 
@@ -193,4 +193,5 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
         sb.append("]");
         return sb.toString();
     }
+
 }
