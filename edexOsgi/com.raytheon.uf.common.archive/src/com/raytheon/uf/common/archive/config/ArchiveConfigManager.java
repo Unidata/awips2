@@ -29,6 +29,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,10 +40,13 @@ import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXB;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 
+import com.raytheon.uf.common.archive.exception.ArchiveException;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -62,7 +66,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 1, 2013  1966       rferrel     Initial creation
+ * May  1, 2013 1966       rferrel     Initial creation
+ * May 29, 2013 1965       bgonzale    Added archive creation method and purge.
  * 
  * </pre>
  * 
@@ -159,6 +164,148 @@ public class ArchiveConfigManager {
     public ArchiveConfig loadArchiveData(LocalizationFile lFile)
             throws IOException, LocalizationException {
         return unmarshalArhiveConfigFromXmlFile(lFile);
+    }
+
+    /**
+     * @return the Collection of Archives.
+     */
+    public Collection<ArchiveConfig> getArchives() {
+        return archiveMap.values();
+    }
+
+    /**
+     * Create an archive in the given archive directory from the Files filtered
+     * by the given Archive out of the ArchiveElements.
+     * 
+     * @param archive
+     *            Archive configuration to create Archive from
+     * @param category
+     *            Archive Category configuration
+     * @param archiveDir
+     *            Destination directory of the Archive
+     * @param displaysSelectedForArchive
+     *            List of display elements to filter inclusion into Archive
+     * @param start
+     *            Start time boundary of the Archive
+     * @param end
+     *            End time boundary of the Archive
+     * @return the list of files added to the created archive.
+     * @throws IOException
+     * @throws ArchiveException
+     */
+    public Collection<File> createArchive(ArchiveConfig archive,
+            CategoryConfig category, File archiveDir,
+            Collection<String> displaysSelectedForArchive, Calendar start,
+            Calendar end) throws IOException, ArchiveException {
+        Collection<File> archivedFiles = null;
+        if (archiveDir.exists() || archiveDir.mkdirs()) {
+            Collection<File> filesToArchive = new ArrayList<File>();
+
+            for (String displayLabel : displaysSelectedForArchive) {
+                File[] files = getDisplayFiles(archive.getName(),
+                        category.getName(), displayLabel, start, end);
+                filesToArchive.addAll(Arrays.asList(files));
+            }
+
+            String rootDirString = archive.getRootDir();
+            String archiveDirString = archiveDir.getAbsolutePath();
+
+            archivedFiles = new ArrayList<File>(filesToArchive.size());
+            rootDirString = (rootDirString.endsWith(File.separator) ? rootDirString
+                    .substring(0, rootDirString.lastIndexOf(File.separatorChar))
+                    : rootDirString);
+            for (File srcFile : filesToArchive) {
+                String fileAbsPath = srcFile.getAbsolutePath();
+                File newArchiveDir = getDirRelativeToArchiveDirFromRoot(
+                        srcFile.isDirectory(), fileAbsPath, rootDirString,
+                        archiveDirString);
+                FileUtils.forceMkdir(newArchiveDir);
+
+                if (srcFile.isDirectory()) {
+                    FileUtils.copyDirectory(srcFile, newArchiveDir);
+                    archivedFiles.addAll(Arrays.asList(newArchiveDir
+                            .listFiles()));
+                } else {
+                    FileUtils.copyFileToDirectory(srcFile, newArchiveDir);
+                    String filename = FilenameUtils.getName(fileAbsPath);
+                    File dstFile = new File(newArchiveDir, filename);
+                    archivedFiles.add(dstFile);
+                }
+            }
+        } else {
+            StringBuilder sbuff = new StringBuilder(
+                    "Failed to create archive for Archive: ");
+            sbuff.append(archive);
+            sbuff.append(" and Category: ");
+            sbuff.append(category);
+            throw new ArchiveException(sbuff.toString());
+        }
+        return archivedFiles;
+    }
+
+    private File getDirRelativeToArchiveDirFromRoot(boolean fileIsDir,
+            String fileAbsPath,
+            String rootDirString, String archiveDirString) {
+        String path = null;
+        if (fileIsDir) {
+            path = fileAbsPath;
+        } else {
+            path = FilenameUtils.getFullPath(fileAbsPath);
+        }
+        String newArchivePathString = path.replace(rootDirString,
+                archiveDirString);
+        return new File(newArchivePathString);
+    }
+
+    /**
+     * Purge the Files that fall outside of the time frame constraints for the
+     * Archive.
+     * 
+     * @param archive
+     * @return the list of expired Files purged
+     */
+    public Collection<File> purgeExpiredFromArchive(ArchiveConfig archive) {
+        Collection<File> filesPurged = new ArrayList<File>();
+
+        for (CategoryConfig category : archive.getCategoryList()) {
+            Calendar purgeTime = calculateExpiration(archive, category);
+
+            for (String displayLabel : getDisplayLabels(archive.getName(),
+                    category.getName())) {
+                File[] displayFiles = getDisplayFiles(archive.getName(),
+                        category.getName(), displayLabel, null, purgeTime);
+                for (File file : displayFiles) {
+                    if (file.isFile()) {
+                        filesPurged.add(file);
+                    } else if (file.isDirectory()) {
+                        filesPurged.addAll(FileUtils.listFiles(file,
+                                FileFilterUtils.fileFileFilter(),
+                                FileFilterUtils.trueFileFilter()));
+                    }
+                    FileUtils.deleteQuietly(file);
+                }
+            }
+        }
+        return filesPurged;
+    }
+
+    private Calendar calculateExpiration(ArchiveConfig archive,
+            CategoryConfig category) {
+        Calendar newCal = TimeUtil.newGmtCalendar();
+        int retHours = category.getRetentionHours() == 0 ? archive
+                .getRetentionHours() : category.getRetentionHours();
+        if (retHours != 0) {
+            newCal.add(Calendar.HOUR, (-1) * retHours);
+        }
+        return newCal;
+    }
+
+    /**
+     * @return the archive with the given name; return null if it does not
+     *         exist.
+     */
+    public ArchiveConfig getArchive(String archiveName) {
+        return archiveMap.get(archiveName);
     }
 
     /**
