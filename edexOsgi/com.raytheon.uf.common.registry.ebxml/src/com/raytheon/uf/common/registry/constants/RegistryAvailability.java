@@ -17,13 +17,11 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.registry.ebxml.dao;
-
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.FederationType;
+package com.raytheon.uf.common.registry.constants;
 
 /**
- * Data access object for FederationType objects
  * 
+ * Valid responses from the Registry availability REST service
  * 
  * <pre>
  * 
@@ -31,27 +29,17 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.FederationType;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 5/21/2013    2022        bphillip    Initial implementation
+ * 5/24/2013    2036        bphillip    Initial implementation
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-public class FederationDao extends RegistryObjectTypeDao<FederationType> {
+public class RegistryAvailability {
 
-    private static final String COUNT_QUERY = "select count(*) FROM FederationType";
+    /** Registry Available */
+    public static final String AVAILABLE = "Registry services available.";
 
-    @Override
-    protected Class<FederationType> getEntityClass() {
-        return FederationType.class;
-    }
-
-    public long getFederationCount() {
-        return (Long) this.executeHQLQuery(COUNT_QUERY).get(0);
-    }
-
-    public boolean federationsExist() {
-        return getFederationCount() > 0;
-    }
-
+    /** Registry not available since the database is not yet initialized */
+    public static final String DB_NOT_INITIALIZED = "Registry services available, but database has not yet been initialized!";
 }

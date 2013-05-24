@@ -87,6 +87,20 @@ public final class RegistryUtil {
         // Prevent Instantiation
     }
 
+    public static String LOCAL_REGISTRY_ADDRESS = null;
+
+    static {
+        if (System.getenv("EBXML_REGISTRY_HOST") != null
+                && System.getenv("EBXML_REGISTRY_WEBSERVER_PORT") != null) {
+            LOCAL_REGISTRY_ADDRESS = "http://"
+                    + System.getenv("EBXML_REGISTRY_HOST") + ":"
+                    + System.getenv("EBXML_REGISTRY_WEBSERVER_PORT");
+        }
+
+    }
+
+    public static final String CALLING_REGISTRY_SOAP_HEADER_NAME = "Calling_Registry";
+
     /**
      * The default internal owner
      */
