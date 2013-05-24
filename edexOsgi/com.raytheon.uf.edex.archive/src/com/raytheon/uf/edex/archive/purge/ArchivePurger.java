@@ -19,23 +19,13 @@
  **/
 package com.raytheon.uf.edex.archive.purge;
 
-import java.util.List;
+import java.util.Collection;
 
-import com.raytheon.uf.common.archive.ArchiveManagerFactory;
-import com.raytheon.uf.common.archive.IArchive;
-import com.raytheon.uf.common.archive.IArchiveElement;
-import com.raytheon.uf.common.archive.IArchiveManager;
-import com.raytheon.uf.common.archive.exception.ArchiveException;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.archive.config.ArchiveConfig;
+import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
 
 /**
  * Purge task to purge archived data based on configured expiration.
- * 
- * TODO This is a purge that will run on a timer scheduled in spring properties
- * that is not related to the expiration date of data. Another possible solution
- * would be to programatically schedule a timer when an archive is created based
- * on the expiration date of the archive.
  * 
  * <pre>
  * 
@@ -43,7 +33,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 6, 2013            bgonzale     Initial creation
+ * May  6, 2013 1965       bgonzale    Initial creation
  * 
  * </pre>
  * 
@@ -52,34 +42,15 @@ import com.raytheon.uf.common.status.UFStatus;
  */
 
 public class ArchivePurger {
-    private static final IUFStatusHandler logger = UFStatus
-            .getHandler(ArchivePurger.class);
 
     /**
      * Purge expired elements from the archives.
      */
-    public void purge() {
-        IArchiveManager manager = ArchiveManagerFactory.getManager();
-        List<IArchive> archives = manager.getArchives();
-        for (IArchive archive : archives) {
-            // TODO fix...
-            for (IArchiveElement element : archive.getExpiredElements(null,
-                    null)) {
-                try {
-                    if (!element.purge()) {
-                        String elementName = element == null ? "null" : element
-                                .getName();
-                        logger.error("ArchivePurger unable to purge element "
-                                + elementName);
-                    }
-                } catch (ArchiveException e) {
-                    String elementName = element == null ? "null" : element
-                            .getName();
-                    logger.error("ArchivePurger unable to purge element "
-                            + elementName, e);
-                }
-            }
+    public static void purge() {
+        ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
+        Collection<ArchiveConfig> archives = manager.getArchives();
+        for (ArchiveConfig archive : archives) {
+            manager.purgeExpiredFromArchive(archive);
         }
     }
-
 }

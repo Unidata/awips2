@@ -43,6 +43,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.adhoc.AdhocQueryExpres
  * ------------ ---------- ----------- --------------------------
  * Feb 06, 2013 1543       djohnson     Moved out of SerializationUtilTest.
  * Apr 17, 2013 1914       djohnson     Add W3CEndpointReference.
+ * May 29, 2013 1965       bgonzale     Added archive classes.
  * 
  * </pre>
  * 
@@ -61,6 +62,8 @@ public class TestJaxbableClassesLocator implements IJaxbableClassesLocator {
     private static final List JAXB_CLASSES;
     static {
         Class<?>[] array = new Class<?>[] {
+                com.raytheon.uf.common.archive.config.ArchiveConfig.class,
+                com.raytheon.uf.common.archive.config.CategoryConfig.class,
                 com.raytheon.edex.plugin.redbook.decoder.RedbookFcstMap.class,
                 com.raytheon.uf.common.datadelivery.registry.AdhocSubscription.class,
                 com.raytheon.uf.common.datadelivery.registry.Connection.class,
