@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.Criteria;
 import org.hibernate.QueryException;
 import org.hibernate.Session;
@@ -372,10 +373,21 @@ public abstract class PluginDao extends CoreDao {
         for (Entry<String, Object> uriEntry : DataURIUtil.createDataURIMap(pdo)
                 .entrySet()) {
             String key = uriEntry.getKey();
-            Object value = uriEntry.getValue();
             if (key.equals("pluginName")) {
                 ;// this is not in the db, only used internally.
-            } else if (value == null) {
+                continue;
+            }
+            Object value = uriEntry.getValue();
+            int dotIndex = key.indexOf(".");
+            if (dotIndex > 0) {
+                key = key.substring(0, dotIndex);
+                try {
+                    value = PropertyUtils.getProperty(pdo, key);
+                } catch (Exception e) {
+                    throw new PluginException(e);
+                }
+            }
+            if (value == null) {
                 criteria.add(Restrictions.isNull(key));
             } else {
                 criteria.add(Restrictions.eq(key, value));
