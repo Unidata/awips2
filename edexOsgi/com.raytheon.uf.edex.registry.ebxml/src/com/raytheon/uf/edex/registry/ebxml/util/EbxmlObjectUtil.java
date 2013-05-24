@@ -48,6 +48,10 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
 
+import org.apache.cxf.headers.Header;
+import org.apache.cxf.helpers.CastUtils;
+import org.w3c.dom.Element;
+
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 
 /**
@@ -70,14 +74,6 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
  */
 
 public class EbxmlObjectUtil {
-
-    /** Default registry base URL */
-    public static final String REGISTRY_BASE_URL = "http://"
-            + System.getenv("EBXML_REGISTRY_HOST") + ":"
-            + System.getenv("EBXML_REGISTRY_WEBSERVER_PORT");
-
-    /** Slot name that holds the source of the notification */
-    public static final String NOTIFICATION_SOURCE_URL_SLOT_NAME = "NotificationSourceURL";
 
     /**
      * The name of the slot designated to hold the home server address of a
@@ -373,10 +369,19 @@ public class EbxmlObjectUtil {
         if (mc == null) {
             return "INTERNAL";
         }
+        String ip = null;
+        List<Header> headerList = CastUtils.cast((List<?>) mc
+                .get(Header.HEADER_LIST));
+        for (Header header : headerList) {
+            if (header.getObject() instanceof Element) {
+                if (header.getName().getLocalPart()
+                        .equals(RegistryUtil.CALLING_REGISTRY_SOAP_HEADER_NAME)) {
+                    return ((Element) header.getObject()).getTextContent();
+                }
+            }
+        }
         HttpServletRequest request = (HttpServletRequest) mc
                 .get(MessageContext.SERVLET_REQUEST);
-        String ip = null;
-        request.getHeader("X-Forwarded-For");
 
         for (int i = 0; (i < 5)
                 && (ip == null || ip.isEmpty() || "unknown"
