@@ -1,4 +1,4 @@
-<project default="p2.build" basedir=".">
+<project default="main" basedir=".">
 
 	<!-- TODO: Verify These Properties References An Actual Directory. -->
 	<property name="eclipse.dir" 
@@ -315,7 +315,26 @@
 
 		<antcall target="cleanup.features" />
 	</target>
+
+	<target name="wa-build" depends="p2.build" description="Builds work assignment specific features after the main build">
+           <for param="wa.feature.list.file">
+               <fileset dir="${basedir}" includes="*-wa-build.properties" />
+               <sequential>
+                   <var name="wa.features" unset="true" />
+                   <property file="@{wa.feature.list.file}" />
+                   <for list="${wa.features}" param="wa.feature">
+                       <sequential>
+                           <antcall target="p2.build.repo">
+                               <param name="feature" value="@{wa.feature}" />
+                           </antcall>
+                       </sequential>
+                   </for>
+               </sequential>
+           </for>           
+	</target>
 	
+        <target name="main" depends="clean, p2.build, wa-build" />
+
 	<target name="p2.build.repo">
 		<!-- Copy The Feature -->
 		<copy todir="${basedir}/cave/p2/features">
