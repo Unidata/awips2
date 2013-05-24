@@ -128,6 +128,10 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
         populateDB();
     }
 
+    public static boolean isDbInitialized() {
+        return INITIALIZED;
+    }
+
     /**
      * Populates the RegRep database with the minimum set of objects. The
      * objects are defined in the localization directory.
