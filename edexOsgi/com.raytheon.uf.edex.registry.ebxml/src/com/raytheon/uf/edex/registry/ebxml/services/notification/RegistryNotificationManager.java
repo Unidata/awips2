@@ -116,8 +116,6 @@ public class RegistryNotificationManager {
         NotificationType notification = createNotification(
                 subscription.getId(), eventsOfInterest);
         checkNotification(notification, objectsOfInterest, address);
-        notification.addSlot(EbxmlObjectUtil.NOTIFICATION_SOURCE_URL_SLOT_NAME,
-                EbxmlObjectUtil.REGISTRY_BASE_URL);
         return notification;
     }
 
