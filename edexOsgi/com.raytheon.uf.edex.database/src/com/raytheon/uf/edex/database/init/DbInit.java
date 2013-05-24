@@ -148,8 +148,8 @@ public abstract class DbInit {
 
             executeAdditionalSql();
 
-            statusHandler.info("Database tables for application [" + application
-                    + "] have been successfully regenerated!");
+            statusHandler.info("Database tables for application ["
+                    + application + "] have been successfully regenerated!");
         }
     }
 
@@ -312,7 +312,6 @@ public abstract class DbInit {
         executeWork(work);
     }
 
-
     /**
      * Convenience method to execute drop sql with parameters.
      * 
@@ -355,7 +354,7 @@ public abstract class DbInit {
     protected Dialect getDialect() {
         return dao.getDialect();
     }
-    
+
     public void setDao(SessionManagedDao<?, ?> dao) {
         this.dao = dao;
     }
