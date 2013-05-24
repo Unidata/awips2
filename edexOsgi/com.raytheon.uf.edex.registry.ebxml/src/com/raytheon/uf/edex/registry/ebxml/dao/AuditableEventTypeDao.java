@@ -74,9 +74,9 @@ public class AuditableEventTypeDao extends
      * notifications
      */
     private static final String EVENTS_OF_INTEREST_QUERY = "select event from AuditableEventType as event "
-            + "inner join event.action as action "
-            + "inner join action.affectedObjects as AffectedObjects "
-            + "inner join AffectedObjects.registryObject as RegistryObjects "
+            + "left outer join event.action as action "
+            + "left outer join action.affectedObjects as AffectedObjects "
+            + "left outer join AffectedObjects.registryObject as RegistryObjects "
             + "where (RegistryObjects.id in (:ids) OR action.eventType = :eventType) and event.timestamp >= :startTime";
 
     /** Optional end time clause */
@@ -186,13 +186,18 @@ public class AuditableEventTypeDao extends
     public void createAuditableEventsFromRefs(RegistryRequestType request,
             Map<String, List<ObjectRefType>> actionMap, long currentTime)
             throws EbxmlRegistryException {
-        AuditableEventType event = createEvent(request, currentTime);
         for (String actionType : actionMap.keySet()) {
-            event.getAction().add(
-                    createAuditableEventAction(actionMap.get(actionType), null,
-                            actionType));
+            for (ObjectRefType obj : actionMap.get(actionType)) {
+                AuditableEventType event = createEvent(request, currentTime);
+                ActionType action = new ActionType();
+                action.setEventType(actionType);
+                ObjectRefListType refList = new ObjectRefListType();
+                refList.getObjectRef().add(obj);
+                action.setAffectedObjectRefs(refList);
+                event.getAction().add(action);
+                create(event);
+            }
         }
-        create(event);
     }
 
     /**
@@ -210,42 +215,18 @@ public class AuditableEventTypeDao extends
     public void createAuditableEventsFromObjects(RegistryRequestType request,
             Map<String, List<RegistryObjectType>> actionMap, long currentTime)
             throws EbxmlRegistryException {
-        AuditableEventType event = createEvent(request, currentTime);
         for (String actionType : actionMap.keySet()) {
-            event.getAction().add(
-                    createAuditableEventAction(null, actionMap.get(actionType),
-                            actionType));
+            for (RegistryObjectType obj : actionMap.get(actionType)) {
+                AuditableEventType event = createEvent(request, currentTime);
+                ActionType action = new ActionType();
+                action.setEventType(actionType);
+                RegistryObjectListType regObjList = new RegistryObjectListType();
+                regObjList.getRegistryObject().add(obj);
+                action.setAffectedObjects(regObjList);
+                event.getAction().add(action);
+                create(event);
+            }
         }
-        create(event);
-    }
-
-    /**
-     * Helper class to create and action for the AuditableEventType
-     * 
-     * @param affectedObjectRefs
-     *            The references to any affected objects
-     * @param affectedObjects
-     *            The affected objects
-     * @param actionType
-     *            The action that occurred
-     * @return The ActionType object
-     */
-    private ActionType createAuditableEventAction(
-            List<ObjectRefType> affectedObjectRefs,
-            List<RegistryObjectType> affectedObjects, String actionType) {
-        ActionType action = new ActionType();
-        action.setEventType(actionType);
-        if (affectedObjectRefs != null) {
-            ObjectRefListType refList = new ObjectRefListType();
-            refList.getObjectRef().addAll(affectedObjectRefs);
-            action.setAffectedObjectRefs(refList);
-        }
-        if (affectedObjects != null) {
-            RegistryObjectListType regObjList = new RegistryObjectListType();
-            regObjList.getRegistryObject().addAll(affectedObjects);
-            action.setAffectedObjects(regObjList);
-        }
-        return action;
     }
 
     /**
