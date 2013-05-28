@@ -114,6 +114,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Dec 12, 2012 1391       bgonzale     Added job for dataset retrieval.
  * Jan 08, 2012 1436       bgonzale     Fixed area text box display update check.
  * Jan 14, 2012 1437       bgonzale     Clear filters when creating a new configuration.
+ * May 15, 2013 1040       mpduff       Put DataDeliveryGUIUtils.markNotBusyInUIThread in finally block.
  * 
  * </pre>
  * 
@@ -1073,11 +1074,15 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
                 VizApp.runAsync(new Runnable() {
                     @Override
                     public void run() {
-                        if (!dataTableComp.isDisposed()) {
-                            dataTableComp.updateTable(matchingDataSets);
-                            updateTableEntriesLabel();
+                        try {
+                            if (!dataTableComp.isDisposed()) {
+                                dataTableComp.updateTable(matchingDataSets);
+                                updateTableEntriesLabel();
+                            }
+                        } finally {
+                            DataDeliveryGUIUtils
+                                    .markNotBusyInUIThread(jobParent);
                         }
-                        DataDeliveryGUIUtils.markNotBusyInUIThread(jobParent);
                     }
                 });
             }

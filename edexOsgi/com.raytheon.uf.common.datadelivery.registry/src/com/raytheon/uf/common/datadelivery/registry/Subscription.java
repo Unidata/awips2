@@ -21,6 +21,7 @@ package com.raytheon.uf.common.datadelivery.registry;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
@@ -36,6 +37,7 @@ import javax.xml.bind.annotation.XmlEnumValue;
  * ------------ ---------- ----------- --------------------------
  * Mar 25, 2013 1841       djohnson     Extracted from UserSubscription.
  * Apr 08, 2013 1826       djohnson     Remove delivery options.
+ * May 15, 2013 1040       mpduff       Changed officeId to a set.
  * 
  * </pre>
  * 
@@ -180,19 +182,19 @@ public interface Subscription {
     String getOwner();
 
     /**
-     * Get owner office id.
+     * Get office ids.
      * 
-     * @return office id
+     * @return office id list
      */
-    String getOfficeID();
+    Set<String> getOfficeIDs();
 
     /**
-     * Set office id.
+     * Set office ids.
      * 
-     * @param officeID
-     *            the office id
+     * @param officeIDs
+     *            the office ids
      */
-    void setOfficeID(String officeID);
+    void setOfficeIDs(Set<String> officeIDs);
 
     /**
      * Get subscription priority for fulfillment.
@@ -591,4 +593,12 @@ public interface Subscription {
      * @return
      */
     PendingSubscription pending(String currentUser);
+
+    /**
+     * Add an office Id to the list.
+     * 
+     * @param officeId
+     *            Office Id to add
+     */
+    void addOfficeID(String officeId);
 }
