@@ -4,7 +4,7 @@
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
     <bean id="ncfBandwidthManagerServiceRouter" class="com.raytheon.uf.edex.auth.RemoteServerRequestRouter">
-        <constructor-arg value="${ncf.bandwidth.manager.service}" />
+        <constructor-arg value="${NCF_BANDWIDTH_MANAGER_SERVICE}" />
     </bean>
 
     <bean id="registerNcfBandwidthManagerServiceRouter"

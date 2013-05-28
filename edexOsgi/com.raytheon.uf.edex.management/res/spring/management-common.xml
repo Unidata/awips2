@@ -38,7 +38,7 @@
         autoStartup="true">
         
         <endpoint id="managementEndpoint"
-			uri="jetty:http://0.0.0.0:${management.port}/services/edexMgmt?disableStreamCache=true" />        
+			uri="jetty:http://0.0.0.0:${MGMT_PORT}/services/edexMgmt?disableStreamCache=true" />        
      
      	<route id="managementService">
 			<from ref="managementEndpoint" />
