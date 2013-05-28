@@ -53,22 +53,22 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-@RegistryObject(objectType = InitialPendingUserSubscription.class, value = {
+@RegistryObject(objectType = InitialPendingSiteSubscription.class, value = {
         Subscription.PROVIDER_NAME_SLOT, Subscription.NAME_SLOT,
         Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT,
         InitialPendingSubscription.CHANGE_REQUEST_ID_SLOT }, associationMappings = { @AssociationMapping(associationType = AssociationTypes.RELATED_TO, keyFields = {
         Subscription.PROVIDER_NAME_SLOT, Subscription.NAME_SLOT,
-        Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT }, required = false, targetObject = UserSubscription.class) })
-public class PendingUserSubscription extends InitialPendingUserSubscription
+        Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT }, required = false, targetObject = SiteSubscription.class) })
+public class PendingSiteSubscription extends InitialPendingSiteSubscription
         implements PendingSubscription, ISerializableObject {
 
     private static final long serialVersionUID = 7607153845750089310L;
 
-    public PendingUserSubscription() {
+    public PendingSiteSubscription() {
 
     }
 
-    public PendingUserSubscription(UserSubscription subscription,
+    public PendingSiteSubscription(SiteSubscription subscription,
             String currentUser) {
         super(subscription, currentUser);
     }

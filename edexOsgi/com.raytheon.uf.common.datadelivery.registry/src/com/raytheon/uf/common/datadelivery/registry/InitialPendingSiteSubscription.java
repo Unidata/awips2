@@ -44,6 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Dec 12, 2012 1433       bgonzale    Use new Subscription copy ctor.
  * Mar 29, 2013 1841       djohnson    Subscription is now UserSubscription.
  * Apr 02, 2013 1841       djohnson    InitialPendingSubscription is now InitialPendingUserSubscription.
+ * May 21, 2013 2020       mpduff      Rename UserSubscription to SiteSubscription.
  * 
  * </pre>
  * 
@@ -57,7 +58,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
         Subscription.NAME_SLOT, Subscription.DATA_SET_SLOT,
         Subscription.OWNER_SLOT,
         InitialPendingSubscription.CHANGE_REQUEST_ID_SLOT })
-public class InitialPendingUserSubscription extends UserSubscription implements
+public class InitialPendingSiteSubscription extends SiteSubscription implements
         InitialPendingSubscription {
     private static final long serialVersionUID = 2779084460608459754L;
 
@@ -75,7 +76,7 @@ public class InitialPendingUserSubscription extends UserSubscription implements
     /**
      * Constructor
      */
-    public InitialPendingUserSubscription() {
+    public InitialPendingSiteSubscription() {
         //empty
     }
 
@@ -87,7 +88,7 @@ public class InitialPendingUserSubscription extends UserSubscription implements
      * @param user
      *           user
      */
-    public InitialPendingUserSubscription(UserSubscription subscription, String user) {
+    public InitialPendingSiteSubscription(SiteSubscription subscription, String user) {
         super(subscription);
 
         this.setChangeReqId(user);
@@ -134,6 +135,6 @@ public class InitialPendingUserSubscription extends UserSubscription implements
      */
     @Override
     public Subscription subscription() {
-        return new UserSubscription(this);
+        return new SiteSubscription(this);
     }
 }
