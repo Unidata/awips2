@@ -42,7 +42,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  */
 
 public class PendingSubscriptionFixture extends
-        BaseUserSubscriptionFixture<PendingUserSubscription> {
+        BaseSiteSubscriptionFixture<PendingSiteSubscription> {
 
     public static final PendingSubscriptionFixture INSTANCE = new PendingSubscriptionFixture();
 
@@ -56,8 +56,8 @@ public class PendingSubscriptionFixture extends
      * {@inheritDoc}
      */
     @Override
-    public PendingUserSubscription getInstance(long seedValue, Random random) {
-        PendingUserSubscription sub = super.getInstance(seedValue, random);
+    public PendingSiteSubscription getInstance(long seedValue, Random random) {
+        PendingSiteSubscription sub = super.getInstance(seedValue, random);
         sub.setChangeReqId("change" + seedValue);
 
         return sub;
@@ -67,8 +67,8 @@ public class PendingSubscriptionFixture extends
      * {@inheritDoc}
      */
     @Override
-    protected PendingUserSubscription getSubscription() {
-        return new PendingUserSubscription();
+    protected PendingSiteSubscription getSubscription() {
+        return new PendingSiteSubscription();
     }
 
 }

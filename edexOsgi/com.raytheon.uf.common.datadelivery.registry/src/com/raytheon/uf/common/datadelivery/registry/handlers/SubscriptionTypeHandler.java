@@ -44,7 +44,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 05, 2013 1841       djohnson     Extracted and genericized from UserSubscriptionHandler.
+ * Apr 05, 2013 1841       djohnson     Extracted and genericized from siteSubscriptionHandler.
  * 
  * </pre>
  * 
