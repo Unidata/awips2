@@ -39,7 +39,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  */
 
 public class AdhocSubscriptionFixture extends
-        BaseUserSubscriptionFixture<AdhocSubscription> {
+        BaseSiteSubscriptionFixture<AdhocSubscription> {
 
     public static final AdhocSubscriptionFixture INSTANCE = new AdhocSubscriptionFixture();
 
