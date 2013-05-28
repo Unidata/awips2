@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.IPreferenceNode;
 import org.eclipse.jface.preference.PreferenceManager;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IPerspectiveRegistry;
@@ -46,10 +47,11 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
  * 7/1/06                   chammack    Initial Creation.
- * Mar 5, 2013     1753     njensen    Added shutdown printout
+ * Mar 5, 2013  1753        njensen     Added shutdown printout
+ * May 28, 2013 1967        njensen     Remove unused subnode preferences
  * 
  * </pre>
  * 
@@ -166,6 +168,7 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
      * Removes options from the rcp preferences menu
      */
     private void removeExtraPreferences() {
+        // remove top level preference pages
         PreferenceManager preferenceManager = PlatformUI.getWorkbench()
                 .getPreferenceManager();
         preferenceManager.remove("org.eclipse.team.ui.TeamPreferences");
@@ -174,6 +177,26 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
         preferenceManager.remove("org.eclipse.debug.ui.DebugPreferencePage");
         preferenceManager
                 .remove("org.eclipse.jdt.ui.preferences.JavaBasePreferencePage");
+        preferenceManager.remove("ValidationPreferencePage");
+
+        // remove subnode preference pages
+        IPreferenceNode[] topNodes = preferenceManager.getRootSubNodes();
+        for (IPreferenceNode root : topNodes) {
+            String rootId = root.getId();
+            if (rootId.equals("org.eclipse.ui.preferencePages.Workbench")) {
+                root.remove("org.eclipse.search.preferences.SearchPreferencePage");
+                root.remove("org.eclipse.ui.preferencePages.Workspace");
+            } else if (rootId.equals("org.python.pydev.prefs")) {
+                root.remove("org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython");
+                root.remove("org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageIronpython");
+                root.remove("org.python.pydev.prefs.pylint");
+                root.remove("org.python.pydev.prefs.pyunitPage");
+                root.remove("org.python.pydev.jython.ui.JyScriptingPreferencesPage");
+            } else if (rootId.equals("org.eclipse.wst.xml.ui.preferences.xml")) {
+                root.remove("org.eclipse.wst.xml.core.ui.XMLCatalogPreferencePage");
+            }
+        }
+
     }
 
     /*
