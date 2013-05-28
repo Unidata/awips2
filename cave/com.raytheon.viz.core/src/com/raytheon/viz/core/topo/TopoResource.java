@@ -154,7 +154,7 @@ public class TopoResource extends
         params.setColorMapMax(5000);
         params.setDataMin(Short.MIN_VALUE);
         params.setDataMax(Short.MAX_VALUE);
-        params.setFormatString("0.00");
+        params.setFormatString("0");
 
         if (styleRule != null) {
             // TODO: This basic logic should be extracted somewhere,
@@ -324,7 +324,7 @@ public class TopoResource extends
                     ColorMapCapability.class).getColorMapParameters();
             UnitConverter cvt = parameters.getDataToDisplayConverter();
 
-            DecimalFormat df = new DecimalFormat(parameters.getFormatString());
+            DecimalFormat df = new DecimalFormat("0.00");
             return String.format(
                     "%s %s ",
                     df.format(cvt.convert(height)),
