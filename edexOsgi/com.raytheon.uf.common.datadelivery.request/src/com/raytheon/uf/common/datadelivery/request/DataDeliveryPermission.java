@@ -28,7 +28,8 @@ package com.raytheon.uf.common.datadelivery.request;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 3, 2012  1241      djohnson     Initial creation
+ * Oct 03, 2012  1241      djohnson     Initial creation.
+ * May 20, 2013  1040      mpduff       Added Shared Subscription permissions.
  * 
  * </pre>
  * 
@@ -45,7 +46,11 @@ public enum DataDeliveryPermission {
             "subscription.edit"), SYSTEM_MANAGEMENT_VIEW(
             "systemmanagement.view"), SUBSCRIPTION_CREATE("subscription.create"), SUBSCRIPTION_ACTIVATE(
             "subscription.activate"), SUBSCRIPTION_DELETE("subscription.delete"), SYSTEM_MANAGEMENT_CREATE(
-            "systemmanagement.create");
+            "systemmanagement.create"), SHARED_SUBSCRIPTION_CREATE(
+            "shared.subscription.create"), SHARED_SUBSCRIPTION_DELETE(
+            "shared.subscription.delete"), SHARED_SUBSCRIPTION_EDIT(
+            "shared.subscription.edit"), SHARED_SUBSCRIPTION_ACTIVATE(
+            "shared.subscription.activate");
 
     private String stringValue;
 
