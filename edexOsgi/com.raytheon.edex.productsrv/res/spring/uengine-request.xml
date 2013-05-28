@@ -63,9 +63,9 @@
 	<camelContext id="uengine-camel" xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
 		<endpoint id="uEngineHttpThrift_from"
-			uri="jetty:http://0.0.0.0:${http.port}/services/pyproductthrift?disableStreamCache=true&amp;chunked=false&amp;httpBindingRef=#binaryHttpBinding" />
+			uri="jetty:http://0.0.0.0:${HTTP_PORT}/services/pyproductthrift?disableStreamCache=true&amp;chunked=false&amp;httpBindingRef=#binaryHttpBinding" />
 		<endpoint id="uEngineHttpJaxb_from"
-			uri="jetty:http://0.0.0.0:${http.port}/services/pyproductjaxb" />
+			uri="jetty:http://0.0.0.0:${HTTP_PORT}/services/pyproductjaxb" />
 
 		<!-- UEngine routes -->
 		<route id="uEngineHttpThrift" streamCache="false">

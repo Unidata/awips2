@@ -21,7 +21,7 @@
 		errorHandlerRef="errorHandler">
 		
 		<endpoint id="mpeHttp_from"
-			uri="jetty:http://0.0.0.0:${http.port}/services/mpeFieldGenHttpService?disableStreamCache=true" />
+			uri="jetty:http://0.0.0.0:${HTTP_PORT}/services/mpeFieldGenHttpService?disableStreamCache=true" />
 			
 		<route id="mpeHttp">
 			<from uri="ref:mpeHttp_from" />

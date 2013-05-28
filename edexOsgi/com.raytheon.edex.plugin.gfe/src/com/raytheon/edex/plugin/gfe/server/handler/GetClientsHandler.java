@@ -104,7 +104,7 @@ public class GetClientsHandler implements IRequestHandler<GetClientsRequest> {
         PythonScript ps = scriptCache.get();
 
         HashMap<String, Object> argsHash = new HashMap<String, Object>();
-        argsHash.put("brokerHost", System.getProperty("broker.addr"));
+        argsHash.put("brokerHost", System.getenv("BROKER_ADDR"));
         try {
             Object obj = ps.execute("getConnections", argsHash);
             if (obj instanceof String[]) {
