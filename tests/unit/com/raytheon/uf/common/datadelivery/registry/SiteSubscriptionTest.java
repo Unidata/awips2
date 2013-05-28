@@ -28,11 +28,14 @@ import static org.junit.Assert.assertThat;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.xml.bind.JAXBException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.time.CalendarBuilder;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
@@ -50,13 +53,14 @@ import com.raytheon.uf.common.time.util.TimeUtilTest;
  * Jan 02, 2013 1345       djohnson     Fix broken assertion that id matches copied object.
  * Jan 11, 2013 1453       djohnson     Add test for active period crossing year boundary.
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * May 15, 2013 1040       mpduff       Office Id now a set.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class UserSubscriptionTest {
+public class SiteSubscriptionTest {
 
     @Before
     public void setUp() {
@@ -74,9 +78,9 @@ public class UserSubscriptionTest {
 
     @Test
     public void testCopyConstructorSetsSpecifiedName() throws Exception {
-        UserSubscription subscription = SubscriptionFixture.INSTANCE.get();
+        SiteSubscription subscription = SubscriptionFixture.INSTANCE.get();
 
-        Subscription copied = new UserSubscription(subscription, "newName");
+        Subscription copied = new SiteSubscription(subscription, "newName");
 
         assertEquals("Expected the new name to be set on the subscription!",
                 "newName", copied.getName());
@@ -85,9 +89,9 @@ public class UserSubscriptionTest {
     @Test
     public void testCopyConstructorSetsValuesFromSourceSubscription()
             throws Exception {
-        UserSubscription subscription = SubscriptionFixture.INSTANCE.get();
+        SiteSubscription subscription = SubscriptionFixture.INSTANCE.get();
 
-        Subscription copied = new UserSubscription(subscription, "newName");
+        Subscription copied = new SiteSubscription(subscription, "newName");
 
         assertEquals(subscription.getActivePeriodEnd(),
                 copied.getActivePeriodEnd());
@@ -102,7 +106,7 @@ public class UserSubscriptionTest {
 
         assertThat(copied.getId(), is(not(equalTo(subscription.getId()))));
 
-        assertEquals(subscription.getOfficeID(), copied.getOfficeID());
+        assertEquals(subscription.getOfficeIDs(), copied.getOfficeIDs());
         assertEquals(subscription.getPriority(), copied.getPriority());
         assertEquals(subscription.getProvider(), copied.getProvider());
         assertEquals(subscription.getStatus(), copied.getStatus());
@@ -197,5 +201,13 @@ public class UserSubscriptionTest {
 
         assertThat(subscription.getStatus(),
                 is(equalTo(SubscriptionStatus.ACTIVE.toString())));
+    }
+
+    @Test
+    public void testIt() throws JAXBException {
+        Subscription subscription = new SubscriptionBuilder().withOfficeId(
+                "OAX").build();
+        System.out.println(new JAXBManager(SiteSubscription.class)
+                .marshalToXml(subscription));
     }
 }

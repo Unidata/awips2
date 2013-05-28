@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
@@ -42,6 +43,7 @@ import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionManagerRowData;
@@ -71,6 +73,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 30, 2013 1543       djohnson     Use List instead of ArrayList.
  * Apr 08, 2013 1826       djohnson     Add getDisplayData() method to subscription columns.
  * Apr 10, 2013 1891       djohnson     Add getDisplayData() method to pending subscription columns.
+ * May 15, 2013 1040       mpduff       Using Set for office Ids.
  * May 20, 2013 2000       djohnson     Add message to inform the user changes were applied.
  * </pre>
  * 
@@ -252,7 +255,7 @@ public class DataDeliveryUtils {
         OFFICE_ID("Office ID", null) {
             @Override
             public String getDisplayData(SubscriptionManagerRowData rd) {
-                return rd.getOfficeId();
+                return rd.getOfficeIdsDisplayList();
             }
         },
         /** Column Full Dataset */
@@ -420,7 +423,7 @@ public class DataDeliveryUtils {
         OFFICE("Office Id", null) {
             @Override
             public String getDisplayData(SubscriptionApprovalRowData rd) {
-                return rd.getOfficeId();
+                return rd.getOfficeIdsAsList();
             }
         },
         /** Description */
@@ -607,7 +610,7 @@ public class DataDeliveryUtils {
      * @return The formated details string
      */
     public static String formatDetails(Subscription sub) {
-        final String newline = System.getProperty("line.separator");
+        final String newline = StringUtil.NEWLINE;
         final String space = " ";
         final String comma = ", ";
 
@@ -621,24 +624,26 @@ public class DataDeliveryUtils {
                 .append(newline);
         fmtStr.append("Dataset Size: ").append(sub.getDataSetSize())
                 .append(newline);
-        fmtStr.append("Provider : ").append(sub.getProvider()).append(newline);
-        fmtStr.append("Office ID: ").append(sub.getOfficeID()).append(newline);
-        fmtStr.append("Priority : ")
+        fmtStr.append("Provider: ").append(sub.getProvider()).append(newline);
+        fmtStr.append("Office IDs: ")
+                .append(getFormatedList(sub.getOfficeIDs())).append(newline);
+        fmtStr.append("Priority: ")
                 .append(sub.getPriority().getPriorityValue()).append(newline);
+        fmtStr.append("Network: ").append(sub.getRoute()).append(newline);
 
         fmtStr.append("Coverage: ").append(newline);
         final Coverage coverage = sub.getCoverage();
         if (coverage.getProjection() != null) {
-            fmtStr.append("------ Projection : ")
+            fmtStr.append("------ Projection: ")
                     .append(coverage.getProjection()).append(newline);
         } else {
-            fmtStr.append("------ Projection : ").append(newline);
+            fmtStr.append("------ Projection: ").append(newline);
         }
         final DecimalFormat decimalFormat = format.get();
         final Coordinate requestLowerRight = coverage.getRequestLowerRight();
         final Coordinate requestUpperLeft = coverage.getRequestUpperLeft();
         if (requestLowerRight == null || requestUpperLeft == null) {
-            fmtStr.append("------ Upper Left : ")
+            fmtStr.append("------ Upper Left:  ")
                     .append(decimalFormat.format(coverage.getUpperLeft().x))
                     .append(comma)
                     .append((decimalFormat.format(coverage.getUpperLeft().y)))
@@ -649,7 +654,7 @@ public class DataDeliveryUtils {
                     .append(decimalFormat.format(coverage.getLowerRight().y))
                     .append(newline);
         } else {
-            fmtStr.append("------ Upper Left : ")
+            fmtStr.append("------ Upper Left:  ")
                     .append(decimalFormat.format(requestUpperLeft.x))
                     .append(comma)
                     .append(decimalFormat.format(requestUpperLeft.y))
@@ -692,14 +697,14 @@ public class DataDeliveryUtils {
                     .append(newline);
             fmtStr.append("------ Definition: ").append(p.getDefinition())
                     .append(newline);
-            fmtStr.append("------ Data Type : ").append(p.getDataType())
+            fmtStr.append("------ Data Type: ").append(p.getDataType())
                     .append(newline);
 
             fmtStr.append("------ Level Type: ").append(newline);
             for (DataLevelType dlt : p.getLevelType()) {
                 fmtStr.append("------------ Type: ").append(dlt.getType())
                         .append(newline);
-                fmtStr.append("------------ ID  : ").append(dlt.getId())
+                fmtStr.append("------------ ID: ").append(dlt.getId())
                         .append(newline);
                 if (dlt.getUnit() != null) {
                     fmtStr.append("------------ Unit: ").append(dlt.getUnit())
@@ -711,6 +716,17 @@ public class DataDeliveryUtils {
         }
 
         return fmtStr.toString();
+    }
+
+    /**
+     * Get a formatted list.
+     * 
+     * @param list
+     *            List of items
+     * @return a formatted list as a String
+     */
+    public static String getFormatedList(Set<String> list) {
+        return StringUtil.getIndentedList(list, "            ");
     }
 
     /**
@@ -756,7 +772,8 @@ public class DataDeliveryUtils {
             final int nextIndex = i + 1;
             if (nextIndex < size) {
                 int tempMax = cycles.get(nextIndex) - cycles.get(i);
-                maximumTimeBetweenCycles = Math.max(maximumTimeBetweenCycles, tempMax);
+                maximumTimeBetweenCycles = Math.max(maximumTimeBetweenCycles,
+                        tempMax);
             }
         }
 
