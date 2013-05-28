@@ -10,7 +10,7 @@
 		errorHandlerRef="errorHandler">
 
 		<endpoint id="thriftService_from"
-			uri="jetty:http://0.0.0.0:${http.port}/services/thrift?disableStreamCache=true&amp;chunked=false&amp;httpBindingRef=#binaryHttpBinding" />
+			uri="jetty:http://0.0.0.0:${HTTP_PORT}/services/thrift?disableStreamCache=true&amp;chunked=false&amp;httpBindingRef=#binaryHttpBinding" />
 
 		<route id="thriftService" streamCache="false">
 			<from uri="ref:thriftService_from" />
@@ -29,6 +29,6 @@
     
     <bean factory-bean="serverLocationRegistry" factory-method="register">
         <constructor-arg ref="requestServerKey" />
-        <constructor-arg value="${http.server}" />
+        <constructor-arg value="${HTTP_SERVER}" />
     </bean>
 </beans>
