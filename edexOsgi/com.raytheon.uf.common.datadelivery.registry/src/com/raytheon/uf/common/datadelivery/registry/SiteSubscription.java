@@ -56,6 +56,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jan 25, 2013 1528        djohnson    Subscription priority is now an enum.
  * Feb 20, 2013 1543        djohnson    Route is now a slot.
  * Mar 29, 2013 1841        djohnson    Renamed to UserSubscription.
+ * May 15, 2013 1040        mpduff      Added addOfficeId.
+ * May 21, 2013 2020        mpduff      Rename UserSubscription to SiteSubscription.
  * 
  * </pre>
  * 
@@ -68,13 +70,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @RegistryObject({ Subscription.PROVIDER_NAME_SLOT, Subscription.NAME_SLOT,
         Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT })
 @DynamicSerialize
-public class UserSubscription extends RecurringSubscription {
+public class SiteSubscription extends RecurringSubscription {
     private static final long serialVersionUID = -6422673887457060034L;
 
     /**
      * Constructor.
      */
-    public UserSubscription() {
+    public SiteSubscription() {
 
     }
 
@@ -86,7 +88,7 @@ public class UserSubscription extends RecurringSubscription {
      * @param name
      *            New subscription name
      */
-    public UserSubscription(UserSubscription sub, String name) {
+    public SiteSubscription(SiteSubscription sub, String name) {
         this(sub);
         this.setName(name);
         this.setId(RegistryUtil.getRegistryObjectKey(this));
@@ -98,7 +100,7 @@ public class UserSubscription extends RecurringSubscription {
      * @param sub
      *            Subscription object
      */
-    public UserSubscription(UserSubscription sub) {
+    public SiteSubscription(SiteSubscription sub) {
         super(sub);
         this.setOwner(sub.getOwner());
     }
@@ -133,7 +135,7 @@ public class UserSubscription extends RecurringSubscription {
      */
     @Override
     public Subscription copy() {
-        return new UserSubscription(this);
+        return new SiteSubscription(this);
     }
 
     /**
@@ -141,7 +143,7 @@ public class UserSubscription extends RecurringSubscription {
      */
     @Override
     public Subscription copy(String newName) {
-        return new UserSubscription(this, newName);
+        return new SiteSubscription(this, newName);
     }
 
     /**
@@ -149,7 +151,7 @@ public class UserSubscription extends RecurringSubscription {
      */
     @Override
     public InitialPendingSubscription initialPending(String currentUser) {
-        return new InitialPendingUserSubscription(this, currentUser);
+        return new InitialPendingSiteSubscription(this, currentUser);
     }
 
     /**
@@ -157,6 +159,16 @@ public class UserSubscription extends RecurringSubscription {
      */
     @Override
     public PendingSubscription pending(String currentUser) {
-        return new PendingUserSubscription(this, currentUser);
+        return new PendingSiteSubscription(this, currentUser);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addOfficeID(String officeId) {
+        if (!officeIDs.contains(officeId)) {
+            this.officeIDs.add(officeId);
+        }
     }
 }

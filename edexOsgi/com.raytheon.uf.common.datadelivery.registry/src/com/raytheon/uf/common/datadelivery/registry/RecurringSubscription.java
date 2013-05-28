@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -35,10 +37,12 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import com.google.common.collect.Sets;
 import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
 import com.raytheon.uf.common.registry.annotations.SlotAttribute;
 import com.raytheon.uf.common.registry.annotations.SlotAttributeConverter;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import com.raytheon.uf.common.registry.ebxml.slots.SetSlotConverter;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -54,6 +58,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * ------------ ---------- ----------- --------------------------
  * Mar 25, 2013 1841       djohnson     Extracted from Subscription.
  * Apr 08, 2013 1826       djohnson     Remove delivery options.
+ * May 15, 2013 1040       mpduff       Changed to use Set for office id.
+ * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
  * 
  * </pre>
  * 
@@ -61,8 +67,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-@XmlSeeAlso({ PendingUserSubscription.class, PendingSharedSubscription.class,
-        AdhocSubscription.class, UserSubscription.class,
+@XmlSeeAlso({ PendingSiteSubscription.class, PendingSharedSubscription.class,
+        AdhocSubscription.class, SiteSubscription.class,
         SharedSubscription.class })
 public abstract class RecurringSubscription implements ISerializableObject,
         Serializable, Subscription {
@@ -84,7 +90,7 @@ public abstract class RecurringSubscription implements ISerializableObject,
      * @param name
      *            New subscription name
      */
-    public RecurringSubscription(RecurringSubscription sub, String name) {
+    public RecurringSubscription(Subscription sub, String name) {
         this.setActive(sub.isActive());
         this.setActivePeriodEnd(sub.getActivePeriodEnd());
         this.setActivePeriodStart(sub.getActivePeriodStart());
@@ -96,7 +102,7 @@ public abstract class RecurringSubscription implements ISerializableObject,
         this.setGroupName(sub.getGroupName());
         this.setId(sub.getId());
         this.setName(name);
-        this.setOfficeID(sub.getOfficeID());
+        this.setOfficeIDs(sub.getOfficeIDs());
         this.setParameter(sub.getParameter());
         this.setPriority(sub.getPriority());
         this.setProvider(sub.getProvider());
@@ -120,7 +126,7 @@ public abstract class RecurringSubscription implements ISerializableObject,
      * @param sub
      *            Subscription object
      */
-    public RecurringSubscription(RecurringSubscription sub) {
+    public RecurringSubscription(Subscription sub) {
         this(sub, sub.getName());
     }
 
@@ -143,10 +149,11 @@ public abstract class RecurringSubscription implements ISerializableObject,
     @SlotAttribute(PROVIDER_NAME_SLOT)
     private String provider;
 
-    @XmlAttribute
+    @XmlElements({ @XmlElement(name = "officeId") })
     @DynamicSerializeElement
     @SlotAttribute
-    private String officeID;
+    @SlotAttributeConverter(SetSlotConverter.class)
+    protected Set<String> officeIDs = Sets.newTreeSet();
 
     @XmlAttribute
     @DynamicSerializeElement
@@ -308,24 +315,19 @@ public abstract class RecurringSubscription implements ISerializableObject,
     }
 
     /**
-     * Get owner office id.
-     * 
-     * @return office id
+     * {@inheritDoc}
      */
     @Override
-    public String getOfficeID() {
-        return officeID;
+    public Set<String> getOfficeIDs() {
+        return officeIDs;
     }
 
     /**
-     * Set office id.
-     * 
-     * @param officeID
-     *            the office id
+     * {@inheritDoc}
      */
     @Override
-    public void setOfficeID(String officeID) {
-        this.officeID = officeID;
+    public void setOfficeIDs(Set<String> officeIDs) {
+        this.officeIDs = new TreeSet<String>(officeIDs);
     }
 
     /**
