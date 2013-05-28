@@ -17,34 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.datadelivery.subscription.subset;
+\set ON_ERROR_STOP 1
+\connect metadata;
 
-/**
- * Interface that will be implemented for phase3 datadelivery, but not in the
- * common baseline.
- * 
- * <pre>
- * 
- * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 27, 2013 1841       djohnson     Initial creation
- * 
- * </pre>
- * 
- * @author djohnson
- * @version 1.0
- */
-
-public interface ISharedSubscriptionHandler {
-
-    /**
-     * Launch the GUI to create a shared subscription.
-     * 
-     * @param subsetManagerDlg
-     */
-    void launchCreateSharedSubscriptionGui(
-            SubsetManagerDlg<?, ?, ?> subsetManagerDlg);
-
-}
+select distinct regexp_matches(stringvalue, 'officeID="(.*?)"') from ebxml.value where stringvalue like '%officeID%';
