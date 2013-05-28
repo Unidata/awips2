@@ -361,4 +361,18 @@
          install-size="0"
          version="0.0.0"/>
 
+   <plugin
+         id="org.eclipse.wst.validation.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.wst.common.frameworks.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>
