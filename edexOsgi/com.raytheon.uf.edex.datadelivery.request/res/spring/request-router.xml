@@ -7,11 +7,11 @@
   http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
     <bean id="requestDataDeliveryRouter" class="com.raytheon.uf.edex.auth.RemoteServerRequestRouter">
-        <constructor-arg value="${datadelivery.server}" />
+        <constructor-arg value="${DATADELIVERY_SERVER}" />
     </bean>
     
     <bean id="requestRegistryRouter" class="com.raytheon.uf.edex.auth.RemoteServerRequestRouter">
-        <constructor-arg value="${ebxml.registry.service}" />
+        <constructor-arg value="${EBXML_REGISTRY_SERVICE}" />
     </bean>
     
     <!-- Registers the IRequestRouter handler for data delivery -->
@@ -28,23 +28,23 @@
     <!-- Registry service location registration -->
     <bean factory-bean="serverLocationRegistry" factory-method="register">
         <constructor-arg ref="ebxmlRegistryServiceKey" />
-        <constructor-arg value="${ebxml.registry.service}" />
+        <constructor-arg value="${EBXML_REGISTRY_SERVICE}" />
     </bean>
 
     <bean factory-bean="serverLocationRegistry" factory-method="register">
         <constructor-arg ref="ebxmlLcmServiceKey" />
-        <constructor-arg value="${ebxml.registry.lcm.service}" />
+        <constructor-arg value="${EBXML_REGISTRY_LCM_SERVICE}" />
     </bean>
 
     <bean factory-bean="serverLocationRegistry" factory-method="register">
         <constructor-arg ref="ebxmlQueryServiceKey" />
-        <constructor-arg value="${ebxml.registry.query.service}" />
+        <constructor-arg value="${EBXML_REGISTRY_QUERY_SERVICE}" />
     </bean>
 
     <!-- Data Delivery server location registration -->
     <bean factory-bean="serverLocationRegistry" factory-method="register">
         <constructor-arg ref="dataDeliveryServerKey" />
-        <constructor-arg value="${datadelivery.server}" />
+        <constructor-arg value="${DATADELIVERY_SERVER}" />
     </bean>
 
 </beans>
