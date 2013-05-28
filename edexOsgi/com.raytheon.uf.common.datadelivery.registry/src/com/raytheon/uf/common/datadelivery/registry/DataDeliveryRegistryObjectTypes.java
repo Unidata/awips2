@@ -32,6 +32,7 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
  * ------------ ---------- ----------- --------------------------
  * Oct 5, 2012  0726       djohnson     Initial creation
  * Dec 11, 2012 1403       djohnson     Adhoc subscriptions no longer go to the registry.
+ * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
  * 
  * </pre>
  * 
@@ -49,8 +50,8 @@ public final class DataDeliveryRegistryObjectTypes {
     public static final String DATASETMETADATA = RegistryUtil
             .getObjectType(DataSetMetaData.class);
 
-    public static final String USER_SUBSCRIPTION = RegistryUtil
-            .getObjectType(UserSubscription.class);
+    public static final String SITE_SUBSCRIPTION = RegistryUtil
+            .getObjectType(SiteSubscription.class);
 
     public static final String SHARED_SUBSCRIPTION = RegistryUtil
             .getObjectType(SharedSubscription.class);
