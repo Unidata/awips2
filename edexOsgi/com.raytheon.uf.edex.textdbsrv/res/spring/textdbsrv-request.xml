@@ -6,7 +6,7 @@
     <camelContext id="textdbsrv-request-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
     
     	<endpoint id="textdbsrvXml_from"
-    		uri="jetty:http://0.0.0.0:${http.port}/services/textdbsrv?disableStreamCache=true" />
+    		uri="jetty:http://0.0.0.0:${HTTP_PORT}/services/textdbsrv?disableStreamCache=true" />
      
         <route id="textdbsrvXml">
             <from uri="ref:textdbsrvXml_from" />
