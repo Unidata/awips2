@@ -125,6 +125,8 @@ import com.sun.opengl.util.j2d.TextRenderer;
  *                                      interpolation by default.
  * Apr 18, 2013 1638        mschenke    Made string rendering always occur in canvas space so
  *                                      strings are always readable despite extent
+ * May 28, 2013 1638        mschenke    Made sure {@link TextStyle#BLANKED} text is drawing correct size
+ *                                      box around text
  * 
  * </pre>
  * 
@@ -1916,9 +1918,9 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                         double diff = height + textBounds.getY();
 
                         double x1 = xy[0] - scaleX;
-                        double y1 = xy[1] - scaleY - diff;
-                        double x2 = xy[0] + width;
-                        double y2 = xy[1] + height - diff;
+                        double y1 = (xy[1] - diff) - scaleY;
+                        double x2 = xy[0] + width + scaleX;
+                        double y2 = (xy[1] - diff) + height + scaleY;
 
                         gl.glRectd(x1, y2, x2, y1);
 
