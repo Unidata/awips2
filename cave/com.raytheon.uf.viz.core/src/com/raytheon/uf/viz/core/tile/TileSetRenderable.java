@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.core.tile;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,7 +61,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 8, 2012            mschenke     Initial creation
+ * Aug 8, 2012             mschenke     Initial creation
+ * May 28, 2013 2037       njensen      Made imageMap concurrent to fix leak
  * 
  * </pre>
  * 
@@ -124,7 +124,7 @@ public class TileSetRenderable implements IRenderable {
     protected Map<Tile, Runnable> jobMap = new ConcurrentHashMap<Tile, Runnable>();
 
     /** Image map for tiles */
-    protected Map<Tile, DrawableImage> imageMap = new HashMap<Tile, DrawableImage>();
+    protected Map<Tile, DrawableImage> imageMap = new ConcurrentHashMap<Tile, DrawableImage>();
 
     /** Full resolution tile set GridGeometry2D */
     protected final GridGeometry2D tileSetGeometry;
