@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 
 /**
  * 
@@ -47,6 +48,7 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
  * Jul 3, 2007             chammack    Initial Creation.
  * Jan 14, 2013 1442       rferrel     Added method searchTreeUsingContraints.
  *                                     Addition checks on constraints.
+ * May 28, 2013 1638       mschenke    Added proper support for {@link ConstraintType#ISNULL}
  * 
  * </pre>
  * 
@@ -349,14 +351,15 @@ public class DecisionTree<T> {
 
         boolean foundSomething = false;
         if (evaluatedConstraint) {
-            // Evaluate through the values: First search for an exact match
-            // of non-null values
+            // Have nodes evaluate against parsedValue, continue if
+            // searchCriteria does not have entry for this Node's constraint
             for (Node n : curNode.nodeChildren) {
                 RequestConstraint c = n.decision;
                 if (c == null
-                        || (c == RequestConstraint.WILDCARD
-                                || parsedValue == null || c
-                                .evaluate(parsedValue))) {
+                        || c == RequestConstraint.WILDCARD
+                        || searchCriteria
+                                .containsKey(curNode.decisionAttribute) == false
+                        || c.evaluate(parsedValue)) {
                     foundSomething = true;
                     searchTree(n, searchCriteria, resultList, lvl + 1,
                             evaluatedConstraint);
