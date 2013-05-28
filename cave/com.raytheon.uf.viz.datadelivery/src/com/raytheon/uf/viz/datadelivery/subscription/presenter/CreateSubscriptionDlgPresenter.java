@@ -41,8 +41,10 @@ import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.GroupDefinition;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
+import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
+import com.raytheon.uf.common.datadelivery.registry.SharedSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
@@ -107,6 +109,7 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
  * Apr 05, 2013 1841       djohnson     Add support for shared subscriptions.
  * Apr 08, 2013 1826       djohnson     Remove delivery options.
+ * May 15, 2013 1040       mpduff       Add shared sites.
  * </pre>
  * 
  * @author mpduff
@@ -178,6 +181,9 @@ public class CreateSubscriptionDlgPresenter {
      * @param dataSet
      *            The dataset
      * @param create
+     *            true for create, false for edit
+     * @param guiThreadTaskExecutor
+     *            task executor
      */
     public CreateSubscriptionDlgPresenter(ICreateSubscriptionDlgView view,
             DataSet dataSet, boolean create,
@@ -231,7 +237,6 @@ public class CreateSubscriptionDlgPresenter {
             }
         };
         this.view.setCycleTimes(cycleTimes);
-        this.view.setSubscription(this.subscription);
         this.view.setPreOpenCallback(callback);
         this.view.openDlg();
     }
@@ -253,6 +258,7 @@ public class CreateSubscriptionDlgPresenter {
      */
     public void setSubscriptionData(Subscription sub) {
         this.subscription = sub;
+        this.view.setSubscription(sub);
     }
 
     /**
@@ -387,6 +393,8 @@ public class CreateSubscriptionDlgPresenter {
         if (!Strings.isNullOrEmpty(subscription.getGroupName())) {
             view.setGroupName(subscription.getGroupName());
         }
+
+        view.setOfficeIds(subscription.getOfficeIDs());
     }
 
     /**
@@ -429,6 +437,18 @@ public class CreateSubscriptionDlgPresenter {
     boolean okAction() {
         if (!validate()) {
             return false;
+        }
+        String[] sharedSites = view.getSharedSites();
+        if (sharedSites != null && sharedSites.length > 1) {
+            SharedSubscription sharedSub = new SharedSubscription(subscription);
+            sharedSub.setRoute(Network.SBN);
+            Set<String> officeList = Sets.newHashSet(sharedSites);
+            sharedSub.setOfficeIDs(officeList);
+            subscription = sharedSub;
+        } else {
+            Set<String> officeList = Sets.newHashSet();
+            officeList.add(LocalizationManager.getInstance().getCurrentSite());
+            subscription.setOfficeIDs(officeList);
         }
 
         // Data are valid, now add info to the subscription object and store
@@ -496,9 +516,6 @@ public class CreateSubscriptionDlgPresenter {
         SubscriptionPriority priority = view.getPriority();
         subscription.setPriority(priority);
 
-        subscription.setOfficeID(LocalizationManager.getInstance()
-                .getCurrentSite());
-
         subscription.setName(view.getSubscriptionName());
 
         subscription.setDescription(view.getSubscriptionDescription());
@@ -549,39 +566,43 @@ public class CreateSubscriptionDlgPresenter {
                     job.addJobChangeListener(new JobChangeAdapter() {
                         @Override
                         public void done(final IJobChangeEvent event) {
+                            try {
+                                final IStatus status = event.getResult();
 
-                            final IStatus status = event.getResult();
+                                final boolean subscriptionCreated = status
+                                        .isOK();
+                                if (subscriptionCreated) {
+                                    sendSubscriptionNotification(subscription,
+                                            username);
+                                }
 
-                            final boolean subscriptionCreated = status.isOK();
-                            if (subscriptionCreated) {
-                                sendSubscriptionNotification(subscription,
-                                        username);
+                                if (!Strings.isNullOrEmpty(status.getMessage())) {
+                                    guiThreadTaskExecutor
+                                            .runAsync(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    if (!view.isDisposed()) {
+                                                        if (subscriptionCreated) {
+                                                            view.displayPopup(
+                                                                    CREATED_TITLE,
+                                                                    status.getMessage());
+                                                            view.setStatus(Status.OK);
+                                                            view.closeDlg();
+                                                        } else {
+                                                            view.setStatus(Status.CANCEL);
+                                                            view.displayPopup(
+                                                                    "Unable to Create Subscription",
+                                                                    status.getMessage());
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                }
+                            } finally {
+                                DataDeliveryGUIUtils
+                                        .markNotBusyInUIThread(jobShell);
                             }
-
-                            if (!Strings.isNullOrEmpty(status.getMessage())) {
-                                guiThreadTaskExecutor.runAsync(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (!view.isDisposed()) {
-                                            if (subscriptionCreated) {
-                                                view.displayPopup(
-                                                        CREATED_TITLE,
-                                                        status.getMessage());
-                                                view.setStatus(Status.OK);
-                                                view.closeDlg();
-                                            } else {
-                                                view.setStatus(Status.CANCEL);
-                                                view.displayPopup(
-                                                        "Unable to Create Subscription",
-                                                        status.getMessage());
-                                            }
-                                        }
-                                    }
-                                });
-                            }
-                            DataDeliveryGUIUtils
-                                    .markNotBusyInUIThread(jobShell);
-                        };
+                        }
                     });
                     job.schedule();
                     return false;
@@ -609,8 +630,7 @@ public class CreateSubscriptionDlgPresenter {
         } else {
             // Check for pending subscription, can only have one pending change
             PendingSubscription pendingSub = subscription
-                    .pending(LocalizationManager.getInstance()
-                            .getCurrentUser());
+                    .pending(LocalizationManager.getInstance().getCurrentUser());
             pendingSub.setChangeReason(view.getChangeReason());
 
             // Create the registry ids

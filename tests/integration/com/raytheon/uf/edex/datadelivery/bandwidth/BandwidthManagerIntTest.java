@@ -62,7 +62,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Time;
-import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -816,7 +816,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
 
         final int numberOfSubscriptionsWithSameProviderDataSet = 4;
 
-        final UserSubscription templateSubscription = createSubscriptionThatFillsUpABucket();
+        final SiteSubscription templateSubscription = createSubscriptionThatFillsUpABucket();
         final Network route = templateSubscription.getRoute();
         templateSubscription.setDataSetSize(templateSubscription
                 .getDataSetSize()
@@ -828,7 +828,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         final Subscription[] subscriptions = new Subscription[numberOfSubscriptionsWithSameProviderDataSet];
         for (int i = 0; i < numberOfSubscriptionsWithSameProviderDataSet; i++) {
 
-            final UserSubscription currentSubscription = new UserSubscription(
+            final SiteSubscription currentSubscription = new SiteSubscription(
                     templateSubscription, "ILookLikeTheOtherGuys-" + i);
             subscriptions[i] = currentSubscription;
 
@@ -1015,7 +1015,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
     private void sendDeletedSubscriptionEvent(Subscription subscription) {
         RemoveRegistryEvent event = new RemoveRegistryEvent(
                 subscription.getOwner(), subscription.getId());
-        event.setObjectType(DataDeliveryRegistryObjectTypes.USER_SUBSCRIPTION);
+        event.setObjectType(DataDeliveryRegistryObjectTypes.SITE_SUBSCRIPTION);
         bandwidthManager.subscriptionRemoved(event);
     }
 
