@@ -99,7 +99,9 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Jan 07, 2013  1437      bgonzale     Added sort column direction updates.
  * Jan 28, 2013  1529      djohnson     Disable menu items if no subscriptions are selected.
  * Apr 08, 2013  1826      djohnson     Remove delivery options, move column value parsing to the columns themselves.
- * May 29, 2013  2000      djohnson     Consolidate and remove duplicate code.
+ * May 09, 2013  2000      djohnson     Consolidate and remove duplicate code.
+ * May 15, 2013  1040      mpduff       Place markNotBusyInUIThread in a finally block.
+ * May 23, 2013  2020      mpduff       Call updateControls();
  * 
  * </pre>
  * 
@@ -246,12 +248,9 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
         }
 
         if (table.getSelectionCount() > 1) {
-            int choice = DataDeliveryUtils
-                    .showMessage(
-                            this.getShell(),
-                            SWT.ERROR | SWT.YES | SWT.NO,
-                            "Single Selection Only",
-                            "Multiple subscriptions are selected.\n"
+            int choice = DataDeliveryUtils.showMessage(this.getShell(),
+                    SWT.ERROR | SWT.YES | SWT.NO, "Single Selection Only",
+                    "Multiple subscriptions are selected.\n"
                             + "Only the first selected item will be used.\n\n"
                             + "Continue?");
             return choice != SWT.NO;
@@ -457,13 +456,17 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
         job.addJobChangeListener(new JobChangeAdapter() {
             @Override
             public void done(IJobChangeEvent event) {
-                VizApp.runAsync(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateTable(subList);
-                    }
-                });
-                DataDeliveryGUIUtils.markNotBusyInUIThread(jobShell);
+                try {
+                    VizApp.runAsync(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateTable(subList);
+                            subActionCallback.updateControls();
+                        }
+                    });
+                } finally {
+                    DataDeliveryGUIUtils.markNotBusyInUIThread(jobShell);
+                }
             }
         });
         job.schedule();
