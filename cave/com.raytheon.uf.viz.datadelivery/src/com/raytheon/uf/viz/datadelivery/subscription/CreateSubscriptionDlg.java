@@ -26,8 +26,13 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -38,17 +43,28 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.DataSetQuery;
+import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.StringUtil;
+import com.raytheon.uf.viz.core.auth.UserController;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.datadelivery.common.ui.ActivePeriodComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.DurationComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.GroupSelectComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.PriorityComp;
+import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.view.ICreateSubscriptionDlgView;
 import com.raytheon.uf.viz.datadelivery.system.SystemRuleManager;
+import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.presenter.components.ButtonConf;
 import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
 
@@ -80,6 +96,7 @@ import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
  * Jan 04, 2013 1420       mpduff       Add latency.
  * Jan 25, 2013 1528       djohnson    Use priority enum instead of raw integers.
  * Apr 08, 2013 1826       djohnson    Remove delivery options.
+ * May 15, 2013 1040       mpduff      Add Shared sites.
  * 
  * </pre>
  * 
@@ -88,6 +105,9 @@ import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
  */
 public class CreateSubscriptionDlg extends CaveSWTDialog implements
         ICreateSubscriptionDlgView {
+    /** Status Handler */
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(CreateSubscriptionDlg.class);
 
     /** The Main Composite */
     private Composite mainComp;
@@ -146,6 +166,12 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
     /** Available cycle times */
     private Set<Integer> cycleTimes;
 
+    private String[] sharedSites;
+
+    private Label selectedSiteLbl;
+
+    private final Font font;
+
     /**
      * Constructor.
      * 
@@ -155,8 +181,8 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
      *            true for new subscription, false for edit
      */
     public CreateSubscriptionDlg(Shell parent, boolean create) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.INDEPENDENT_SHELL
-                | CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL,
+                CAVE.INDEPENDENT_SHELL | CAVE.PERSPECTIVE_INDEPENDENT);
         this.create = create;
 
         if (create) {
@@ -164,6 +190,8 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         } else {
             setText("Edit Subscription");
         }
+
+        font = new Font(this.getDisplay(), "Monospace", 9, SWT.NORMAL);
     }
 
     /*
@@ -197,6 +225,8 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         priorityComp = new PriorityComp(mainComp, latency, priority);
 
         this.createCycleGroup();
+        createSiteSelection();
+
         if (create == false) {
             createChangeText();
         }
@@ -264,6 +294,97 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
 
         changeReasonTxt = new Text(reasonGroup, SWT.BORDER);
         changeReasonTxt.setLayoutData(new GridData(375, SWT.DEFAULT));
+    }
+
+    /**
+     * Create the site selection widgets.
+     */
+    private void createSiteSelection() {
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        GridLayout gl = new GridLayout(2, false);
+
+        final Group group = new Group(mainComp, SWT.NONE);
+        group.setLayout(gl);
+        group.setLayoutData(gd);
+        group.setText(" Shared Sites ");
+
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
+        gl = new GridLayout(2, false);
+        final Composite c = new Composite(group, SWT.NONE);
+        c.setLayout(gl);
+        c.setLayoutData(gd);
+
+        gl = new GridLayout(1, false);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        final Button btn = new Button(c, SWT.NONE);
+        btn.setLayoutData(new GridData(95, SWT.DEFAULT));
+        btn.setText("Select Sites...");
+        btn.setToolTipText("Select sites for sharing");
+        btn.setEnabled(false);
+
+        final DataDeliveryPermission permission = DataDeliveryPermission.SHARED_SUBSCRIPTION_CREATE;
+        final IUser user = UserController.getUserObject();
+        final String msg = user.uniqueId()
+                + " is not authorized to create shared subscriptions. "
+                + StringUtil.NEWLINE + "Permission: " + permission;
+        try {
+            if (DataDeliveryServices.getPermissionsService()
+                    .checkPermission(user, msg, permission).isAuthorized()) {
+                btn.setEnabled(true);
+            } else {
+                c.addMouseTrackListener(new MouseTrackAdapter() {
+
+                    @Override
+                    public void mouseExit(MouseEvent e) {
+                        DataDeliveryGUIUtils.hideToolTip();
+                    }
+
+                    @Override
+                    public void mouseHover(MouseEvent e) {
+                        handleMouseEvent(e, msg, group.getBounds());
+                    }
+
+                    @Override
+                    public void mouseEnter(MouseEvent e) {
+                        handleMouseEvent(e, msg, group.getBounds());
+                    }
+                });
+            }
+        } catch (VizException e1) {
+            statusHandler
+                    .handle(Priority.PROBLEM, e1.getLocalizedMessage(), e1);
+        }
+        btn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                SiteSelectionDlg dlg = new SiteSelectionDlg(shell, "OAX",
+                        sharedSites);
+                dlg.setCloseCallback(new ICloseCallback() {
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        if (returnValue instanceof String[]) {
+                            String[] sites = (String[]) returnValue;
+                            processSites(sites);
+                        }
+                    }
+                });
+                dlg.open();
+            }
+        });
+
+        selectedSiteLbl = new Label(group, SWT.BORDER);
+        selectedSiteLbl.setFont(font);
+        selectedSiteLbl.setText("");
+        selectedSiteLbl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+                false));
+
+        if (!create) {
+            if (subscription != null && subscription.getOfficeIDs().size() > 0) {
+                String[] siteArr = subscription.getOfficeIDs().toArray(
+                        new String[subscription.getOfficeIDs().size()]);
+                processSites(siteArr);
+            }
+        }
     }
 
     /**
@@ -342,11 +463,39 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
     }
 
     /**
+     * Handle the mouse event and display the tooltip.
+     * 
+     * @param e
+     *            MouseEvent
+     * @param msg
+     *            Message to display
+     * @param bounds
+     *            Bounds
+     */
+    private void handleMouseEvent(MouseEvent e, String msg, Rectangle bounds) {
+        Point pos = shell.toDisplay(bounds.x + e.x + 15, bounds.y + e.y + 15);
+        DataDeliveryGUIUtils.showTooltip(this.shell, pos.x, pos.y, msg);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public void openDlg() {
         this.open();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
+    @Override
+    protected void disposed() {
+        super.disposed();
+        if (font != null && !font.isDisposed()) {
+            font.dispose();
+        }
     }
 
     /**
@@ -814,5 +963,50 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
     @Override
     public void setCycleTimes(Set<Integer> cycleTimes) {
         this.cycleTimes = cycleTimes;
+    }
+
+    /**
+     * Process the site list
+     * 
+     * @param sites
+     *            list of sites
+     */
+    private void processSites(String[] sites) {
+        this.sharedSites = sites;
+        StringBuilder toolTipText = new StringBuilder();
+        StringBuilder labelText = new StringBuilder();
+        boolean overflow = false;
+        for (int i = 0; i < sites.length; i++) {
+            toolTipText.append(sites[i]).append(" ");
+            if (i < 8) {
+                labelText.append(sites[i]).append(" ");
+            } else {
+                overflow = true;
+            }
+        }
+        String lt = labelText.toString().trim();
+        if (!lt.isEmpty() && overflow) {
+            lt = lt.concat("...");
+        }
+
+        selectedSiteLbl.setText(lt);
+        selectedSiteLbl.setToolTipText(toolTipText.toString());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String[] getSharedSites() {
+        return this.sharedSites;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setOfficeIds(Set<String> officeIDs) {
+        List<String> list = new ArrayList<String>(officeIDs);
+        this.sharedSites = list.toArray(new String[officeIDs.size()]);
     }
 }
