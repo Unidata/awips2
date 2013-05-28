@@ -92,6 +92,7 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * Dec 10, 2012  1259      bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Jan 02, 2013  1441      djohnson     Access GroupDefinitionManager in a static fashion.
  * Apr 08, 2013  1826      djohnson     Remove unused code, delivery options.
+ * May 15, 2013  1040      mpduff       OfficeID is now a list so need to add it rather than set it.
  * </pre>
  * 
  * @author jpiatt
@@ -276,8 +277,7 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay,
                 .getSelectedListItems());
 
         Set<String> differences = Sets.symmetricDifference(
-                selectedSubscriptionNames,
-                initiallySelectedSubscriptions);
+                selectedSubscriptionNames, initiallySelectedSubscriptions);
 
         Set<Subscription> addedToGroup = new HashSet<Subscription>();
         Set<Subscription> removedFromGroup = new HashSet<Subscription>();
@@ -335,8 +335,7 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay,
         }
 
         updateGroupDefinitionForSubscriptions(groupName,
-                groupSubscriptionsForUpdate,
-                removedFromGroup);
+                groupSubscriptionsForUpdate, removedFromGroup);
 
         timer.stop();
         if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
@@ -408,19 +407,16 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay,
                 subscription.setCoverage(cov);
             }
 
-            subscription.setOfficeID(LocalizationManager.getInstance()
+            subscription.addOfficeID(LocalizationManager.getInstance()
                     .getCurrentSite());
-
         }
-        
 
         try {
             final ISubscriptionServiceResult result = DataDeliveryServices
                     .getSubscriptionService().updateWithPendingCheck(
                             new ArrayList<Subscription>(Sets.union(
                                     groupSubscriptions,
-                            removeFromGroupSubscriptions)),
-                            this);
+                                    removeFromGroupSubscriptions)), this);
             if (result.hasMessageToDisplay()) {
                 DataDeliveryUtils.showMessage(getShell(), SWT.ICON_INFORMATION,
                         "Edit Group", result.getMessageToDisplay());

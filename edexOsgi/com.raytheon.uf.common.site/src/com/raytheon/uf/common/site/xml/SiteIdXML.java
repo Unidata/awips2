@@ -17,14 +17,16 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.registry;
+package com.raytheon.uf.common.site.xml;
 
-import java.util.Random;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import com.raytheon.uf.common.site.SiteData.SiteDataType;
 
 /**
- * Adds attributes specific to {@link UserSubscription} types.
+ * Site tag xml object.
  * 
  * <pre>
  * 
@@ -32,33 +34,50 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 29, 2013 1841       djohnson     Initial creation
+ * Apr 29, 2013    1040    mpduff      Initial creation
  * 
  * </pre>
  * 
- * @author djohnson
+ * @author mpduff
  * @version 1.0
  */
+@XmlAccessorType(XmlAccessType.NONE)
+public class SiteIdXML {
+    /** Site ID */
+    @XmlAttribute(name = "id")
+    private String id;
 
-public abstract class BaseUserSubscriptionFixture<T extends UserSubscription>
-        extends BaseSubscriptionFixture<T> {
+    /** Site type */
+    @XmlAttribute(name = "type")
+    private SiteDataType type;
 
     /**
-     * {@inheritDoc}
+     * @return the id
      */
-    @Override
-    public T getInstance(long seedValue, Random random) {
-        T subscription = super.getInstance(seedValue, random);
-
-        subscription.setOwner("owner" + random.nextInt());
-        subscription.setId(RegistryUtil.getRegistryObjectKey(subscription));
-
-        return subscription;
+    public String getId() {
+        return id;
     }
 
     /**
-     * @return
+     * @param id
+     *            the id to set
      */
-    @Override
-    protected abstract T getSubscription();
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    /**
+     * @return the type
+     */
+    public SiteDataType getType() {
+        return type;
+    }
+
+    /**
+     * @param type
+     *            the type to set
+     */
+    public void setType(SiteDataType type) {
+        this.type = type;
+    }
 }

@@ -30,13 +30,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.site.xml.NwsSitesXML;
+import com.raytheon.uf.common.site.xml.SiteIdXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -52,6 +59,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Jul 16, 2010            bfarmer     Initial creation
  * Apr 09, 2012 DR14765    mhuang      Map out correct CCCC site ID for backup
  *                                      sites.
+ * May 15, 2013  1040      mpduff      Add awips_site_list.xml.
  * 
  * </pre>
  * 
@@ -73,21 +81,45 @@ public class SiteMap {
 
     private static final String RFC_TABLE_FILENAME = "textdb/rfc_lookup_table.dat";
 
-    private List<String> rfcList = new ArrayList<String>();
+    private static final String LOCATION_ID_FILENAME = "awips_site_list.xml";
 
-    private Map<String, String> siteToSiteMap = new HashMap<String, String>();
+    private final List<String> rfcList = new ArrayList<String>();
 
-    private Map<String, String> nationalCategoryMap = new HashMap<String, String>();
+    private final Map<String, String> siteToSiteMap = new HashMap<String, String>();
 
-    private Map<String, String> siteTo4LetterSite = new HashMap<String, String>();
+    private final Map<String, String> nationalCategoryMap = new HashMap<String, String>();
 
-    private Map<String, Set<String>> siteTo3LetterSite = new HashMap<String, Set<String>>();
+    private final Map<String, String> siteTo4LetterSite = new HashMap<String, String>();
 
+    private final Map<String, Set<String>> siteTo3LetterSite = new HashMap<String, Set<String>>();
+
+    private final Map<String, SiteData> siteMap = new TreeMap<String, SiteData>();
+
+    /** JAXB context */
+    private JAXBContext jax;
+
+    /** Unmarshaller object */
+    private Unmarshaller unmarshaller;
+
+    /**
+     * Get an instance.
+     * 
+     * @return the instance
+     */
     public static SiteMap getInstance() {
         return instance;
     }
 
     private SiteMap() {
+        Class[] classes = new Class[] { NwsSitesXML.class, SiteIdXML.class };
+
+        try {
+            jax = JAXBContext.newInstance(classes);
+            this.unmarshaller = jax.createUnmarshaller();
+        } catch (JAXBException e) {
+            throw new ExceptionInInitializerError(
+                    "Error creating context for SiteMap");
+        }
         readFiles();
     }
 
@@ -111,14 +143,17 @@ public class SiteMap {
     }
 
     /**
-     * Attempt to map an xxxid to a cccid. Use the afos_lookup_table.dat data only.
-     * @param xxx An id to map.
+     * Attempt to map an xxxid to a cccid. Use the afos_lookup_table.dat data
+     * only.
+     * 
+     * @param xxx
+     *            An id to map.
      * @return
      */
     public String getAFOSTableMap(String xxx) {
         return siteToSiteMap.get(xxx);
     }
-    
+
     public synchronized String mapICAOToCCC(String icao) {
         return nationalCategoryMap.get(icao);
     }
@@ -128,6 +163,7 @@ public class SiteMap {
         nationalCategoryMap.clear();
         siteTo4LetterSite.clear();
         siteTo3LetterSite.clear();
+        siteMap.clear();
 
         // load base afos lookup
         IPathManager pathMgr = PathManagerFactory.getPathManager();
@@ -144,12 +180,24 @@ public class SiteMap {
                 LocalizationLevel.SITE);
         file = pathMgr.getFile(lc, AFOS_LOOKUP_FILENAME);
         loadAfosLookupFile(file, siteToSiteMap);
-        
+
         // load national category
         lc = pathMgr.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.BASE);
         file = pathMgr.getFile(lc, NATIONAL_CATEGORY_TABLE_FILENAME);
         loadNationalCategoryFile(file, nationalCategoryMap);
+
+        // Load site list
+        lc = pathMgr.getContext(LocalizationType.COMMON_STATIC,
+                LocalizationLevel.SITE);
+        file = pathMgr.getFile(lc, LOCATION_ID_FILENAME);
+        if (file == null || !file.exists()) {
+            lc = pathMgr.getContext(LocalizationType.COMMON_STATIC,
+                    LocalizationLevel.BASE);
+            file = pathMgr.getFile(lc, LOCATION_ID_FILENAME);
+            System.out.println(LOCATION_ID_FILENAME);
+        }
+        loadSiteListFile(file);
 
         // post-process the nationalCategoryMap to generate the 3 to 4 letter
         // mapping
@@ -314,6 +362,24 @@ public class SiteMap {
         }
     }
 
+    private void loadSiteListFile(File file) {
+        if (file != null && file.exists()) {
+            NwsSitesXML siteXml;
+            try {
+                siteXml = (NwsSitesXML) unmarshaller.unmarshal(file);
+                for (SiteIdXML xml : siteXml.getSiteIds()) {
+                    String id = xml.getId();
+                    SiteData sd = new SiteData(id, xml.getType());
+                    this.siteMap.put(id, sd);
+                }
+            } catch (JAXBException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Problem reading in Site Id File ["
+                                + LOCATION_ID_FILENAME + "]", e);
+            }
+        }
+    }
+
     /**
      * Converts a 3 letter site ID into a 4 letter ID, e.g. OAX to KOAX
      * 
@@ -327,19 +393,19 @@ public class SiteMap {
         // if site not found default to K
         if (site == null) {
             site = "K" + site3LetterId;
-        } else { 
-        	// DR_14765, in case the site hashed out from combined mapping
-        	// table from both national_category_table and afo_lookup_table 
-        	// does not start with K but not from site3LetterTo4LetterOerride.dat
-        	// which are starting with P or T
-        	char[] siteChar = site.toCharArray();
-        	if (siteChar[0] != 'K') {
-        		if (!((siteChar[0] == 'P' && (siteChar[1] == 'A' || siteChar[1] == 'G'
-        			|| siteChar[1] == 'H')) ||
-        				(siteChar[0] == 'T' && siteChar[1] == 'S'))) {
-            		site = "K" + site3LetterId;       			
-        		}
-        	}
+        } else {
+            // DR_14765, in case the site hashed out from combined mapping
+            // table from both national_category_table and afo_lookup_table
+            // does not start with K but not from
+            // site3LetterTo4LetterOerride.dat
+            // which are starting with P or T
+            char[] siteChar = site.toCharArray();
+            if (siteChar[0] != 'K') {
+                if (!((siteChar[0] == 'P' && (siteChar[1] == 'A'
+                        || siteChar[1] == 'G' || siteChar[1] == 'H')) || (siteChar[0] == 'T' && siteChar[1] == 'S'))) {
+                    site = "K" + site3LetterId;
+                }
+            }
         }
 
         return site;
@@ -370,5 +436,14 @@ public class SiteMap {
 
     public boolean isRFCSite(String site) {
         return rfcList.contains(site);
+    }
+
+    /**
+     * Get the site data objects.
+     * 
+     * @return site data objects
+     */
+    public Map<String, SiteData> getSiteData() {
+        return siteMap;
     }
 }
