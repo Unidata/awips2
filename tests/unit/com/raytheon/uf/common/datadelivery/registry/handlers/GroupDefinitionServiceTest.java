@@ -38,7 +38,7 @@ import com.raytheon.uf.common.datadelivery.registry.GroupDefinition;
 import com.raytheon.uf.common.datadelivery.registry.GroupDefinitionServiceRequest;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBuilder;
-import com.raytheon.uf.common.datadelivery.registry.UserSubscription;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.service.GroupDefinitionService;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.common.registry.RegistryManagerTest;
@@ -97,10 +97,10 @@ public class GroupDefinitionServiceTest {
         group.setGroupName(GROUP_NAME);
         groupHandler.store(group);
 
-        UserSubscription subscription = new SubscriptionBuilder()
+        SiteSubscription subscription = new SubscriptionBuilder()
                 .withGroupName(
                 GROUP_NAME).build();
-        UserSubscription subscription2 = new UserSubscription(subscription,
+        SiteSubscription subscription2 = new SiteSubscription(subscription,
                 "sub2");
 
         subscriptionHandler.store(subscription);

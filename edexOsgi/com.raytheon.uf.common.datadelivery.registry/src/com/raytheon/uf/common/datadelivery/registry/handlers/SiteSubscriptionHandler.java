@@ -19,13 +19,12 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry.handlers;
 
-import com.raytheon.uf.common.datadelivery.registry.InitialPendingUserSubscription;
-import com.raytheon.uf.common.datadelivery.registry.ebxml.PendingUserSubscriptionQuery;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
+import com.raytheon.uf.common.datadelivery.registry.ebxml.SiteSubscriptionQuery;
 import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
 
 /**
- * {@link IRegistryObjectHandler} implementation for
- * {@link InitialPendingUserSubscription}s.
+ * {@link IRegistryObjectHandler} implementation for {@link SiteSubscription}.
  * 
  * <pre>
  * 
@@ -33,32 +32,34 @@ import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 18, 2012 1169       djohnson     Initial creation
- * Sep 24, 2012 1157       mpduff       Changed to use InitialPendingUserSubscription.
- * Apr 04, 2013 1841       djohnson     Extracted most methods to base class.
+ * Sep 17, 2012 1169       djohnson     Initial creation.
+ * Sep 24, 2012 1157       mpduff       Change to use InitialPendingSubscription.
+ * Oct 17, 2012 0726       djohnson     Add {@link #getActiveByDataSetAndProvider}.
+ * Mar 29, 2013 1841       djohnson     Renamed from SubscriptionHandler.
+ * Apr 05, 2013 1841       djohnson     Extracted core logic to superclass.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class PendingUserSubscriptionHandler extends
-        BasePendingSubscriptionHandler<InitialPendingUserSubscription, PendingUserSubscriptionQuery>
-        implements IPendingUserSubscriptionHandler {
+public class SiteSubscriptionHandler extends
+        SubscriptionTypeHandler<SiteSubscription, SiteSubscriptionQuery>
+        implements ISiteSubscriptionHandler {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected PendingUserSubscriptionQuery getQuery() {
-        return new PendingUserSubscriptionQuery();
+    protected SiteSubscriptionQuery getQuery() {
+        return new SiteSubscriptionQuery();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected Class<InitialPendingUserSubscription> getRegistryObjectClass() {
-        return InitialPendingUserSubscription.class;
+    protected Class<SiteSubscription> getRegistryObjectClass() {
+        return SiteSubscription.class;
     }
 }
