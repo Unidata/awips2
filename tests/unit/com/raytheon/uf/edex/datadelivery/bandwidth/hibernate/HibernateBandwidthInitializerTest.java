@@ -27,7 +27,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.edex.datadelivery.bandwidth.IBandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 
@@ -53,7 +53,7 @@ public class HibernateBandwidthInitializerTest {
     @Test
     public void testSchedulesAllSubscriptionReturnedFromIFindSubscriptions()
             throws Exception {
-        final Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        final Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
 
         IFindSubscriptionsForScheduling strategy = mock(IFindSubscriptionsForScheduling.class);
         when(strategy.findSubscriptionsToSchedule()).thenReturn(
