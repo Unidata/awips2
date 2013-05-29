@@ -22,6 +22,7 @@ package com.raytheon.uf.common.registry.handler;
 import org.mockito.Mockito;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.common.util.TestUtil;
 
 /**
@@ -47,8 +48,6 @@ public class RegistryObjectHandlersUtil {
 
     private static final String MOCK_DATADELIVERY_HANDLERS_XML = "/datadelivery/mock-datadelivery-handlers.xml";
 
-    private static final String SPRING_DATADELIVERY_HANDLERS_IMPL_XML = "/spring/datadelivery-handlers-impl.xml";
-
     private static final String MEMORY_DATADELIVERY_HANDLERS_XML = "/datadelivery/memory-datadelivery-handlers.xml";
 
     /**
@@ -56,7 +55,7 @@ public class RegistryObjectHandlersUtil {
      * which interact with the registry proper.
      */
     public static void init() {
-        initHandlersFromSpringFile(SPRING_DATADELIVERY_HANDLERS_IMPL_XML);
+        initHandlersFromSpringFile(SpringFiles.DATADELIVERY_HANDLERS_IMPL_XML);
     }
 
     /**
@@ -80,7 +79,7 @@ public class RegistryObjectHandlersUtil {
         RegistryObjectHandlers.clear();
         new ClassPathXmlApplicationContext(
                 new String[] {
-                        TestUtil.getResResourcePath("/spring/datadelivery-handlers.xml"),
+                        TestUtil.getResResourcePath(SpringFiles.DATADELIVERY_HANDLERS_XML),
                         TestUtil.getResResourcePath(resResource) },
                 RegistryObjectHandlersUtil.class);
     }
