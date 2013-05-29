@@ -20,12 +20,7 @@
 ##
 
 export INIT_MEM=512 # in Meg
-
-if [ $HIGH_MEM_FLAG == "on" ]; then
-    export MAX_MEM=1536 # in Meg
-else
-    export MAX_MEM=896 # in Meg
-fi
+export MAX_MEM=1536 # in Meg
 
 export METADATA_POOL_MIN=10
 export EDEX_DEBUG_PORT=5009
