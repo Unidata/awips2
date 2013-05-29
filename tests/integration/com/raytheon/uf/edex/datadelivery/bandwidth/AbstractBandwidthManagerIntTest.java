@@ -32,16 +32,23 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
-import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
 import com.raytheon.uf.common.util.PropertiesUtil;
+import com.raytheon.uf.common.util.SpringFiles;
+import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
@@ -70,6 +77,14 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * @author djohnson
  * @version 1.0
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
+        SpringFiles.EVENTBUS_COMMON_XML,
+        SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML,
+        SpringFiles.BANDWIDTH_DATADELIVERY_DAOS_XML,
+        SpringFiles.BANDWIDTH_DATADELIVERY_XML,
+        SpringFiles.BANDWIDTH_DATADELIVERY_INTEGRATION_TEST_XML })
+@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 @Ignore
 public abstract class AbstractBandwidthManagerIntTest {
 
@@ -205,7 +220,7 @@ public abstract class AbstractBandwidthManagerIntTest {
 
     protected SiteSubscription createSubscriptionWithDataSetSizeInBytes(
             long bytes) {
-        SiteSubscription subscription = SubscriptionFixture.INSTANCE
+        SiteSubscription subscription = SiteSubscriptionFixture.INSTANCE
                 .get(subscriptionSeed++);
         subscription.setDataSetSize(BandwidthUtil
                 .convertBytesToKilobytes(bytes));
