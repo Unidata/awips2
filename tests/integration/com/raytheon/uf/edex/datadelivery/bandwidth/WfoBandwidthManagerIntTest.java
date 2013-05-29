@@ -60,6 +60,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
+        SpringFiles.EVENTBUS_COMMON_XML,
         SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML,
         SpringFiles.BANDWIDTH_DATADELIVERY_DAOS_XML,
         SpringFiles.BANDWIDTH_DATADELIVERY_XML,

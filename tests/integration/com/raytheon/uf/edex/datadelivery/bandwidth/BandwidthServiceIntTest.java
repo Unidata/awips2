@@ -79,6 +79,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Feb 20, 2013 1543       djohnson     Use WFO bandwidth manager.
  * Feb 26, 2013 1643       djohnson     BandwidthService extends reusable class.
  * Feb 27, 2013 1644       djohnson     Bandwidth service is the WFO version.
+ * May 20, 2013 1650       djohnson     Add test for returning required dataset size.
  * 
  * </pre>
  * 
@@ -87,6 +88,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
+        SpringFiles.EVENTBUS_COMMON_XML,
         SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML,
         SpringFiles.BANDWIDTH_DATADELIVERY_DAOS_XML,
         SpringFiles.BANDWIDTH_DATADELIVERY_XML,
@@ -293,8 +295,28 @@ public class BandwidthServiceIntTest extends AbstractBandwidthManagerIntTest {
                 .asList(subscription, subscription2));
         assertEquals(
                 "Expected the required latency to not be set when the propose schedule fits",
-                IProposeScheduleResponse.REQUIRED_LATENCY_NOT_SET,
+                IProposeScheduleResponse.VALUE_NOT_SET,
                 response.getRequiredLatency());
+    }
+
+    @Test
+    public void testProposeScheduleTwoSubscriptionsThatFitReturnsNotSetRequiredDataSetSize() {
+
+        // Two subscriptions, the sum of which will fill up a bucket exactly
+        Subscription subscription = createSubscriptionThatFillsHalfABucket();
+        Subscription subscription2 = createSubscriptionThatFillsHalfABucket();
+
+        subscription.getTime().setCycleTimes(
+                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
+        subscription2.getTime().setCycleTimes(
+                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
+
+        IProposeScheduleResponse response = service.proposeSchedule(Arrays
+                .asList(subscription, subscription2));
+        assertEquals(
+                "Expected the required latency to not be set when the propose schedule fits",
+                IProposeScheduleResponse.VALUE_NOT_SET,
+                response.getRequiredDataSetSize());
     }
 
     @Test
@@ -361,6 +383,55 @@ public class BandwidthServiceIntTest extends AbstractBandwidthManagerIntTest {
         assertEquals(
                 "The required latency should have been returned from propose schedule!",
                 6, requiredLatency);
+    }
+
+    @Test
+    public void testProposeScheduleSubscriptionsSecondDoesntFitReturnsRequiredSize() {
+
+        Subscription subscription = createSubscriptionThatFillsHalfABucket();
+        Subscription subscription2 = createSubscriptionThatFillsUpTenBuckets();
+
+        // subscription2 will not be able to schedule for cycle hour 8
+        subscription.getTime().setCycleTimes(
+                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
+        subscription2.getTime().setCycleTimes(
+                Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
+
+        Set<String> unscheduledSubscriptions = service.schedule(subscription);
+        verifyNoSubscriptionsWereUnscheduled(unscheduledSubscriptions);
+
+        // The maximum dataset size that could fit in the bucket is another
+        // subscription the same size as the first
+        final long expectedRequiredDataSetSize = subscription.getDataSetSize();
+        final long requiredDataSetSize = service.proposeSchedule(subscription2)
+                .getRequiredDataSetSize();
+        assertEquals(
+                "The required dataset size should have been returned from propose schedule!",
+                expectedRequiredDataSetSize, requiredDataSetSize);
+    }
+
+    @Test
+    public void testDetermineRequiredSizeReturnsZeroIfUnableToFitAtAll() {
+
+        Subscription subscription = createSubscriptionThatFillsUpABucket();
+        Subscription subscription2 = createSubscriptionThatFillsUpABucket();
+
+        // subscription2 will not be able to schedule for cycle hour 8
+        subscription.getTime().setCycleTimes(
+                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
+        subscription2.getTime().setCycleTimes(
+                Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
+
+        Set<String> unscheduledSubscriptions = service.schedule(subscription);
+        verifyNoSubscriptionsWereUnscheduled(unscheduledSubscriptions);
+
+        // The maximum dataset size that could fit in the bucket is another
+        // subscription the same size as the first
+        final long expectedRequiredDataSetSize = 0;
+        final long requiredDataSetSize = service.proposeSchedule(subscription2)
+                .getRequiredDataSetSize();
+        assertEquals("The required dataset size should have returned 0!",
+                expectedRequiredDataSetSize, requiredDataSetSize);
     }
 
     @Test
