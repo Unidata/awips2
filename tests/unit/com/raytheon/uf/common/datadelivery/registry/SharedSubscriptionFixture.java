@@ -19,13 +19,9 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry;
 
-import java.util.Random;
-
-import com.raytheon.uf.common.util.AbstractFixture;
 
 /**
- * {@link AbstractFixture} implementation for {@link PendingSubscription}
- * objects.
+ * Fixture for {@link SharedSubscription} objects.
  * 
  * <pre>
  * 
@@ -33,7 +29,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 28, 2012 1187       djohnson     Initial creation
+ * May 29, 2013 1650       djohnson     Initial creation
  * 
  * </pre>
  * 
@@ -41,34 +37,24 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * @version 1.0
  */
 
-public class PendingSubscriptionFixture extends
-        BaseSiteSubscriptionFixture<PendingSiteSubscription> {
+public class SharedSubscriptionFixture extends
+        BaseSharedSubscriptionFixture<SharedSubscription> {
 
-    public static final PendingSubscriptionFixture INSTANCE = new PendingSubscriptionFixture();
+    public static final SharedSubscriptionFixture INSTANCE = new SharedSubscriptionFixture();
 
     /**
-     * Disabled constructor.
+     * Constructor.
      */
-    private PendingSubscriptionFixture() {
+    private SharedSubscriptionFixture() {
+
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public PendingSiteSubscription getInstance(long seedValue, Random random) {
-        PendingSiteSubscription sub = super.getInstance(seedValue, random);
-        sub.setChangeReqId("change" + seedValue);
-
-        return sub;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected PendingSiteSubscription getSubscription() {
-        return new PendingSiteSubscription();
+    protected SharedSubscription getSubscription() {
+        return new SharedSubscription();
     }
 
 }
