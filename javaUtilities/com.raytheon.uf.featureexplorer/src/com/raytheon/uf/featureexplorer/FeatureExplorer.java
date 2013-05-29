@@ -188,7 +188,7 @@ public class FeatureExplorer {
 					plugin.getVersion());
 			try {
 				if (this.pluginLookupMap.containsKey(plugin.getId())
-						&& this.pluginLookupMap.get(plugin.getId()).equals(aFile)) {
+						&& !this.pluginLookupMap.get(plugin.getId()).equals(aFile)) {
 					StringBuilder stringBuilder = new StringBuilder("Plugin ");
 					stringBuilder.append(plugin.getId());
 					stringBuilder.append(" is in Feature ");
