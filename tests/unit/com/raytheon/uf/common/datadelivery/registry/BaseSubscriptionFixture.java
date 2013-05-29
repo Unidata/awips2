@@ -28,7 +28,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.AbstractFixture;
 
 /**
- * Move in reusable code from {@link SubscriptionFixture}.
+ * Move in reusable code from {@link SiteSubscriptionFixture}.
  * 
  * <pre>
  * 
