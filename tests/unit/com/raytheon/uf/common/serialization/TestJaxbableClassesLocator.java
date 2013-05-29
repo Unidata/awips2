@@ -24,9 +24,12 @@ import java.util.List;
 
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtensibleObjectType;
+
 import org.junit.Ignore;
 
 import com.raytheon.uf.common.monitor.xml.FFMPTemplateXML;
+import com.raytheon.uf.edex.registry.ebxml.services.query.adhoc.AdhocQueryExpression;
 
 /**
  * Implementation of {@link IJaxbableClassesLocator} that returns a static list
@@ -95,7 +98,8 @@ public class TestJaxbableClassesLocator implements IJaxbableClassesLocator {
                 com.raytheon.uf.common.datadelivery.retrieval.xml.LevelLookup.class,
                 com.raytheon.uf.common.monitor.xml.FFMPSourceConfigXML.class,
                 com.raytheon.uf.common.monitor.xml.FFMPRunConfigXML.class,
-                FFMPTemplateXML.class, W3CEndpointReference.class };
+                FFMPTemplateXML.class, W3CEndpointReference.class,
+                AdhocQueryExpression.class, ExtensibleObjectType.class };
 
         JAXB_CLASSES = Arrays.asList(array);
     }
