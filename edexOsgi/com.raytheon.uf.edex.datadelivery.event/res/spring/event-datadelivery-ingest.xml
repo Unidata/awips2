@@ -9,17 +9,10 @@
 			value="jms-generic:topic:notify.msg?destinationResolver=#qpidDurableResolver" />
 		<property name="notificationDao" ref="notificationDao" />
 	</bean>
-
-	<bean
-		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-		<property name="staticMethod"
-			value="com.raytheon.uf.common.event.EventBus.register" />
-		<property name="arguments">
-			<list>
-				<ref bean="notificationHandler" />
-			</list>
-		</property>
-	</bean>
+    
+    <bean factory-bean="eventBus" factory-method="register">
+        <constructor-arg ref="notificationHandler" />
+    </bean>
 
 	<!-- verify text product info for site, spawns in separate thread to not 
 		delay start up -->
