@@ -292,6 +292,8 @@ public abstract class AbstractRequestableResourceData extends
                 }
             }
             this.fireChangeListeners(ChangeType.DATA_UPDATE, updateData);
+        } else {
+            this.fireChangeListeners(ChangeType.DATA_UPDATE, updateData);
         }
     }
 
