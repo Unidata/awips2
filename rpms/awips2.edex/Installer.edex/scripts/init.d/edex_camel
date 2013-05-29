@@ -24,11 +24,6 @@ prog="start.sh"
 MEM=( `free -g | grep "Mem:"` )
 TOTAL_MEM=${MEM[1]}
 
-HIGH_MEM=off
-if [ $TOTAL_MEM -gt 4 ]; then
-   HIGH_MEM=on
-fi
-
 # determine services to load
 if [ -f /etc/rc.d/init.d/edexServiceList ]; then
 	. /etc/rc.d/init.d/edexServiceList
@@ -67,9 +62,6 @@ startEDEX() {
    fi
 
    EXTRA_ARGS="-noConsole"
-   if [ $HIGH_MEM == "on" ]; then
-      EXTRA_ARGS="${EXTRA_ARGS} -h"
-   fi
 
    DAEMON="${EDEX_INSTALL}/bin/start.sh ${EXTRA_ARGS} ${1}"
    EDEXSTARTLOG=${EDEX_INSTALL}/logs/start-edex-${1}-$TODAY.log
