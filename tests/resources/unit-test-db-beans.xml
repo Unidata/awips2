@@ -12,6 +12,7 @@
         <property name="location">
             <value>classpath:/unit-test-db-beans.properties</value>
         </property>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
     </bean>
 
     <import resource="classpath:/unit-test-db-session.xml" />
