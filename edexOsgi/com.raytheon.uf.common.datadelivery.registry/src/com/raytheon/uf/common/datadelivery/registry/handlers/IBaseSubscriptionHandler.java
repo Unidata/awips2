@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry.handlers;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -41,6 +42,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * Oct 03, 2012 1241       djohnson     More query methods.
  * Oct 10, 2012 0726       djohnson     Add {@link #getActive()}.
  * Feb 20, 2013 1543       djohnson     Add ability to filter on routes.
+ * May 28, 2013 1650       djohnson     Add getByNames.
  * 
  * </pre>
  * 
@@ -60,6 +62,16 @@ public interface IBaseSubscriptionHandler<T extends Subscription> extends
      *             on unsuccessful response from the registry
      */
     T getByName(String name) throws RegistryHandlerException;
+
+    /**
+     * Retrieve subscriptions by name.
+     * 
+     * @param names
+     *            the namnes
+     * @return the subscriptions
+     */
+    List<T> getByNames(Collection<String> names)
+            throws RegistryHandlerException;
 
     /**
      * Retrieve a list of subscriptions by the owner.

@@ -50,6 +50,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * Apr 05, 2013 1841       djohnson     Add support for shared subscriptions.
  * 4/9/2013     1802      bphillip     Using constant values from constants package instead of RegistryUtil
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
+ * May 28, 2013 1650       djohnson     Add getByNames.
  * 
  * </pre>
  * 
@@ -138,6 +139,19 @@ public class SubscriptionHandler implements ISubscriptionHandler {
             value = sharedSubscriptionHandler.getByName(name);
         }
         return value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Subscription> getByNames(Collection<String> names)
+            throws RegistryHandlerException {
+        List<Subscription> subs = Lists.newArrayList();
+        subs.addAll(siteSubscriptionHandler.getByNames(names));
+        subs.addAll(sharedSubscriptionHandler.getByNames(names));
+
+        return subs;
     }
 
     /**
@@ -344,4 +358,5 @@ public class SubscriptionHandler implements ISubscriptionHandler {
             }
         }
     }
+
 }
