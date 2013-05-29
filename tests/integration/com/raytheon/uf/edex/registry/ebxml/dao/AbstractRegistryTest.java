@@ -49,11 +49,18 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl.RETURN_TYPE;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
@@ -76,6 +83,20 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * @author djohnson
  * @version 1.0
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { SpringFiles.DATADELIVERY_HANDLERS_XML,
+        SpringFiles.DATADELIVERY_HANDLERS_IMPL_XML, SpringFiles.EBXML_XML,
+        SpringFiles.EBXML_IMPL_XML, SpringFiles.EBXML_QUERYTYPES_XML,
+        SpringFiles.EBXML_REGISTRY_DAO_XML,
+        SpringFiles.EBXML_REGISTRY_ENCODER_XML,
+        SpringFiles.EBXML_WEBSERVICES_XML, SpringFiles.EBXML_XACML_XML,
+        SpringFiles.EBXML_VALIDATOR_PLUGINS_XML,
+        SpringFiles.EBXML_SUBSCRIPTION_XML, SpringFiles.EVENTBUS_COMMON_XML,
+        DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
+        SpringFiles.UNIT_TEST_EBXML_BEANS_XML,
+        SpringFiles.UNIT_TEST_LOCALIZATION_BEANS_XML })
+@TransactionConfiguration(transactionManager = "metadataTxManager", defaultRollback = true)
+@Transactional
 @Ignore
 public class AbstractRegistryTest {
 
