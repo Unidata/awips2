@@ -11,6 +11,8 @@
 			</list>
 		</property>
 	</bean>
+    
+    <bean id="bandwidthEventBus" class="com.raytheon.uf.edex.datadelivery.bandwidth.notification.BandwidthEventBusBean" />
 
 	<bean id="bandwidthDao" factory-bean="bandwidthContextFactory"
 		factory-method="getBandwidthDao" />
@@ -99,16 +101,6 @@
 		<constructor-arg ref="bandwidthDao" />
 		<constructor-arg ref="retrievalAgentNotifier" />
 		<property name="retrievalPlans" ref="retrievalPlans" />
-	</bean>
-
-	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-		<property name="staticMethod"
-			value="com.raytheon.uf.common.event.EventBus.register" />
-		<property name="arguments">
-			<list>
-				<ref bean="retrievalManager" />
-			</list>
-		</property>
 	</bean>
 
 	<bean id="BandwidthManagerProcessor"

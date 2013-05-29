@@ -74,6 +74,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
+        SpringFiles.EVENTBUS_COMMON_XML,
         SpringFiles.EBXML_XML, SpringFiles.EBXML_XACML_XML,
         SpringFiles.EBXML_SUBSCRIPTION_XML,
         SpringFiles.EBXML_WEBSERVICES_XML,
