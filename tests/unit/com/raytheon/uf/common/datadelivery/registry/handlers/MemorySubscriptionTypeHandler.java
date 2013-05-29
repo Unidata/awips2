@@ -31,7 +31,7 @@ import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
 import com.raytheon.uf.common.util.CollectionUtil;
 
 /**
- * {@link ISubscriptionHandler} in-memory implementation.
+ * Base {@link ISubscriptionTypeHandler} in-memory implementation.
  * 
  * <pre>
  * 
@@ -39,7 +39,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 17, 2012 0726       djohnson     Initial creation
+ * May 29, 2013 1650       djohnson     Initial creation
  * 
  * </pre>
  * 
@@ -47,15 +47,15 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * @version 1.0
  */
 
-public class MemorySubscriptionHandler extends
-        BaseMemorySubscriptionHandler<Subscription> implements
-        ISubscriptionHandler {
+public abstract class MemorySubscriptionTypeHandler<T extends Subscription>
+        extends BaseMemorySubscriptionHandler<T> implements
+        IBaseSubscriptionHandler<T>, ISubscriptionTypeHandler<T> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Subscription getByPendingSubscription(PendingSubscription pending)
+    public T getByPendingSubscription(PendingSubscription pending)
             throws RegistryHandlerException {
         return getByPendingSubscriptionId(RegistryUtil
                 .getRegistryObjectKey(pending));
@@ -65,7 +65,7 @@ public class MemorySubscriptionHandler extends
      * {@inheritDoc}
      */
     @Override
-    public Subscription getByPendingSubscriptionId(final String id)
+    public T getByPendingSubscriptionId(final String id)
             throws RegistryHandlerException {
         // TODO: lookup via in-memory association
         return null;
@@ -99,11 +99,11 @@ public class MemorySubscriptionHandler extends
      * {@inheritDoc}
      */
     @Override
-    public List<Subscription> getActiveByDataSetAndProvider(String dataSetName,
+    public List<T> getActiveByDataSetAndProvider(String dataSetName,
             String providerName) throws RegistryHandlerException {
-        List<Subscription> retVal = new ArrayList<Subscription>();
+        List<T> retVal = new ArrayList<T>();
 
-        for (Subscription obj : getActive()) {
+        for (T obj : getActive()) {
             if (matches(dataSetName, obj.getDataSetName())
                     && matches(providerName, obj.getProvider())) {
                 retVal.add(obj);
