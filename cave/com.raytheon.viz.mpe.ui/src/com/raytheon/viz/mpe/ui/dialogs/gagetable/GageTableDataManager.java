@@ -59,6 +59,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 29, 2009 2476       mpduff      Initial creation.
  * Jan 28, 2010 4415       mpduff      Fixed problem with column 
  *                                       header creation.
+ * May 20, 2013 15962      lbousaidi   Added a new routine getRadarIdsTrue()
+ *                                     for Radar Sites dialog.                                    
  * 
  * </pre>
  * 
@@ -240,6 +242,30 @@ public class GageTableDataManager {
         if (radarIds == null) {
             String query = "select radid from radarloc where office_id = '"
                     + fxa_local_site + "' and use_radar='T' order by radid asc";
+            List<Object[]> rs = DirectDbQuery.executeQuery(query,
+                    HydroConstants.IHFS, QueryLanguage.SQL);
+
+            radarIds = new String[rs.size()];
+            for (int i = 0; i < rs.size(); i++) {
+                Object[] oa = rs.get(i);
+                radarIds[i] = (String) oa[0];
+            }
+        }
+
+        return radarIds;
+    }
+    
+    /**
+     * Get the list of Radar Ids from radarloc.
+     * only the one with use_radar= T
+     * @return the radarIds
+     * @throws VizException
+     */
+    public String[] getRadarIdsTrue() throws VizException {
+
+        if (radarIds == null) {
+            String query = "select radid from radarloc where use_radar='T' " +
+                                        "order by radid asc";
             List<Object[]> rs = DirectDbQuery.executeQuery(query,
                     HydroConstants.IHFS, QueryLanguage.SQL);
 
