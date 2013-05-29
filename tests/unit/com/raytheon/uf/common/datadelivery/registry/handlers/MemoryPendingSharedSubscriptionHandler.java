@@ -17,12 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.registry;
+package com.raytheon.uf.common.datadelivery.registry.handlers;
 
-import com.raytheon.uf.common.util.AbstractFixture;
+import com.raytheon.uf.common.datadelivery.registry.InitialPendingSharedSubscription;
 
 /**
- * {@link AbstractFixture} implementation for {@link Subscription} objects.
+ * {@link IPendingSharedSubscriptionHandler} in-memory implementation.
  * 
  * <pre>
  * 
@@ -30,9 +30,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 27, 2012 0743       djohnson     Initial creation
- * Sep 28, 2012 1187       djohnson     Move reusable code to {@link BaseSubscriptionFixture}.
- * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * May 29, 2013 1650       djohnson     Initial creation
  * 
  * </pre>
  * 
@@ -40,22 +38,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * @version 1.0
  */
 
-public class SubscriptionFixture extends
-        BaseSiteSubscriptionFixture<SiteSubscription> {
-
-    public static final SubscriptionFixture INSTANCE = new SubscriptionFixture();
-
-    /**
-     * Disabled constructor.
-     */
-    private SubscriptionFixture() {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected SiteSubscription getSubscription() {
-        return new SiteSubscription();
-    }
+public class MemoryPendingSharedSubscriptionHandler extends
+        MemoryPendingSubscriptionTypeHandler<InitialPendingSharedSubscription>
+        implements IPendingSharedSubscriptionHandler {
 }
