@@ -256,11 +256,13 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
     public String getOptionDisplayText(ForceApplyPromptResponse option,
             int requiredLatency, Subscription subscription,
             Set<String> wouldBeUnscheduledSubscriptions) {
+        final boolean singleSubscription = wouldBeUnscheduledSubscriptions
+                .size() == 1;
         switch (option) {
         case CANCEL:
             return "Do not update the rules";
         case FORCE_APPLY:
-            if (wouldBeUnscheduledSubscriptions.size() == 1) {
+            if (singleSubscription) {
                 return "Update the rules and unschedule "
                         + wouldBeUnscheduledSubscriptions.iterator().next();
             }
@@ -268,6 +270,9 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
         case INCREASE_LATENCY:
             // Signifies it should not be an option
             return null;
+        case EDIT_SUBSCRIPTIONS:
+            return "Edit the "
+                    + ((singleSubscription) ? "subscription" : "subscriptions");
         default:
             throw new IllegalArgumentException(
                     "Don't know how to handle option [" + option + "]");
