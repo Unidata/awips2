@@ -48,6 +48,7 @@ import com.raytheon.uf.edex.database.dao.SessionManagedDao;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * Apr 30, 2013 1960        djohnson    Extracted and generalized from the registry DbInit.
+ * May 29, 2013 1650        djohnson    Allow initDb() to be overridden, though should rarely be done.
  * </pre>
  * 
  * @author djohnson
@@ -115,7 +116,7 @@ public abstract class DbInit {
      * @throws Exception
      *             on error initializing the database
      */
-    public final void initDb() throws Exception {
+    public void initDb() throws Exception {
         /*
          * Create a new configuration object which holds all the classes that
          * this Hibernate SessionFactory is aware of
