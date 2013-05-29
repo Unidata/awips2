@@ -36,6 +36,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.raytheon.uf.common.auth.user.IUser;
+import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
@@ -243,8 +244,7 @@ public class SubscriptionServiceMassUpdateTest extends
      */
     @Override
     String getExpectedForceApplyMessage() {
-        return "The following subscriptions would not fully schedule with the bandwidth management system if this action were performed:\n"
-                + sub1Name + "\n" + sub2Name + "\n\nWhat would you like to do?";
+        return "The following subscriptions would not fully schedule with the bandwidth management system if this action were performed:";
     }
 
     /**
@@ -341,5 +341,20 @@ public class SubscriptionServiceMassUpdateTest extends
                 DataDeliveryHandlers.getPendingSubscriptionHandler()
                         .getBySubscription(subscription)).thenReturn(
                 new InitialPendingSiteSubscription());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    ForceApplyPromptConfiguration getExpectedForceApplyPromptConfiguration() {
+        return new ForceApplyPromptConfiguration(service.TITLE,
+                getExpectedForceApplyMessage(),
+                IProposeScheduleResponse.VALUE_NOT_SET,
+                IProposeScheduleResponse.VALUE_NOT_SET,
+                IProposeScheduleResponse.VALUE_NOT_SET,
+                mockPromptDisplayText,
+                getExpectedDisplayForceApplyPromptSubscription(),
+                subNameResults);
     }
 }

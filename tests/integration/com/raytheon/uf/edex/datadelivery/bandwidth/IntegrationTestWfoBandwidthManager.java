@@ -21,7 +21,6 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 
 import com.raytheon.uf.common.util.JarUtil;
 import com.raytheon.uf.common.util.SpringFiles;
-import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.WfoBandwidthManagerCreator.WfoBandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
@@ -52,9 +51,10 @@ public class IntegrationTestWfoBandwidthManager extends WfoBandwidthManager {
 
     static final String[] INTEGRATION_TEST_SPRING_FILES = new String[] {
             "/bandwidth/bandwidth-datadelivery-integrationtest-impl.xml",
-            JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-daos.xml"),
-            TestUtil.getResResourcePath(SpringFiles.BANDWIDTH_DATADELIVERY_XML),
-            TestUtil.getResResourcePath(SpringFiles.BANDWIDTH_DATADELIVERY_WFO_XML) };
+            JarUtil.getResResourcePath(SpringFiles.BANDWIDTH_DATADELIVERY_DAOS_XML),
+            JarUtil.getResResourcePath(SpringFiles.BANDWIDTH_DATADELIVERY_XML),
+            JarUtil.getResResourcePath(SpringFiles.BANDWIDTH_DATADELIVERY_EVENTBUS_XML),
+            JarUtil.getResResourcePath(SpringFiles.BANDWIDTH_DATADELIVERY_WFO_XML) };
 
     /**
      * Constructor.
