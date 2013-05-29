@@ -67,6 +67,10 @@ public class SpringFiles {
 
     public static final String BANDWIDTH_DATADELIVERY_WFO_XML = "/spring/bandwidth-datadelivery-wfo.xml";
 
+    public static final String DATADELIVERY_HANDLERS_XML = "/spring/datadelivery-handlers.xml";
+
+    public static final String DATADELIVERY_HANDLERS_IMPL_XML = "/spring/datadelivery-handlers-impl.xml";
+
     public static final String EBXML_XML = "/spring/ebxml.xml";
 
     public static final String EBXML_IMPL_XML = "/spring/ebxml-impl.xml";
@@ -74,6 +78,8 @@ public class SpringFiles {
     public static final String EBXML_QUERYTYPES_XML = "/spring/ebxml-querytypes.xml";
 
     public static final String EBXML_REGISTRY_DAO_XML = "/spring/ebxml-registry-dao.xml";
+
+    public static final String EBXML_REGISTRY_ENCODER_XML = "/spring/ebxml-registry-encoder.xml";
 
     public static final String EBXML_REPLICATION_DATADELIVERY_WFO_XML = "/spring/registry-replication-datadelivery-wfo.xml";
 
@@ -94,4 +100,5 @@ public class SpringFiles {
     public static final String UNIT_TEST_EBXML_REPLICATION_BEANS_XML = "/ebxml/unit-test-ebxml-replication-beans.xml";
 
     public static final String UNIT_TEST_EBXML_PLUGIN_NOTIFICATION_LISTENER_XML = "/ebxml/ebxml-plugin-notification-listener.xml";
+
 }
