@@ -17,56 +17,45 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.datadelivery.bandwidth.dao;
+package com.raytheon.uf.common.datadelivery.registry;
 
-import java.util.Random;
-
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
-import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.AbstractFixture;
-import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
 /**
- * TODO Add Description
+ * {@link AbstractFixture} implementation for {@link Subscription} objects.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 13, 2012            djohnson     Initial creation
- *
+ * Aug 27, 2012 0743       djohnson     Initial creation
+ * Sep 28, 2012 1187       djohnson     Move reusable code to {@link BaseSubscriptionFixture}.
+ * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * 
  * </pre>
- *
+ * 
  * @author djohnson
- * @version 1.0	
+ * @version 1.0
  */
 
-public class SubscriptionDaoFixture extends AbstractFixture<BandwidthSubscription> {
+public class SiteSubscriptionFixture extends
+        BaseSiteSubscriptionFixture<SiteSubscription> {
 
-    public static final SubscriptionDaoFixture INSTANCE = new SubscriptionDaoFixture();
+    public static final SiteSubscriptionFixture INSTANCE = new SiteSubscriptionFixture();
 
     /**
-     * Private.
+     * Disabled constructor.
      */
-    private SubscriptionDaoFixture() {
-
+    private SiteSubscriptionFixture() {
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public BandwidthSubscription getInstance(long seedValue, Random random) {
-        Subscription sub = SiteSubscriptionFixture.INSTANCE.get(seedValue);
-        try {
-            return BandwidthUtil.getSubscriptionDaoForSubscription(sub,
-                    BandwidthUtil.now());
-        } catch (SerializationException e) {
-            throw new RuntimeException(e);
-        }
+    protected SiteSubscription getSubscription() {
+        return new SiteSubscription();
     }
-
 }

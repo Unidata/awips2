@@ -46,7 +46,7 @@ public class PendingSubscriptionTest {
 
     @Test
     public void testCopyConstructorSetsOriginalSubNameAsName() {
-        SiteSubscription subscription = SubscriptionFixture.INSTANCE.get();
+        SiteSubscription subscription = SiteSubscriptionFixture.INSTANCE.get();
 
         PendingSiteSubscription pendingSubscription = new PendingSiteSubscription(
                 subscription, "djohnson");
@@ -57,7 +57,7 @@ public class PendingSubscriptionTest {
 
     @Test
     public void testCopyConstructorSetsSubscriptionValuesOnPendingSubscription() {
-        SiteSubscription subscription = SubscriptionFixture.INSTANCE.get();
+        SiteSubscription subscription = SiteSubscriptionFixture.INSTANCE.get();
 
         PendingSiteSubscription copied = new PendingSiteSubscription(
                 subscription, "djohnson");
