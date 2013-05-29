@@ -19,9 +19,9 @@ AutoReq: no
 provides: awips2-edex-environment
 requires: awips2-edex-base
 requires: awips2-postgresql
-requires: qpid-java-broker
-requires: qpid-java-client
-requires: qpid-java-common
+requires: awips2-qpid-java-broker
+requires: awips2-qpid-java-client
+requires: awips2-qpid-java-common
 requires: awips2-python
 requires: awips2-java
 requires: awips2-psql
