@@ -28,11 +28,11 @@ import java.util.Set;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSharedSubscription;
-import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSiteSubscription;
+import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Network;
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
+import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.util.CollectionUtil;
@@ -50,6 +50,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * Sep 18, 2012 1169       djohnson     Initial creation
  * Sep 24, 2012 1157       mpduff       Changed to use InitialPendingSubscription.
  * 4/9/2013     1802      bphillip   Using constant values from constants package instead of RegistryUtil
+ * May 28, 2013 1650       djohnson     Add getByNames.
  * 
  * </pre>
  * 
@@ -89,6 +90,19 @@ public class PendingSubscriptionHandler implements IPendingSubscriptionHandler {
             value = sharedSubscriptionHandler.getByName(name);
         }
         return value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<InitialPendingSubscription> getByNames(Collection<String> names)
+            throws RegistryHandlerException {
+        List<InitialPendingSubscription> subs = Lists.newArrayList();
+        subs.addAll(siteSubscriptionHandler.getByNames(names));
+        subs.addAll(sharedSubscriptionHandler.getByNames(names));
+
+        return subs;
     }
 
     /**

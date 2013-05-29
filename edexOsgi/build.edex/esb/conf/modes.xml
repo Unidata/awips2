@@ -213,6 +213,7 @@
 
     <mode name="statsTemplate" template="true">
         <include>event-common.xml</include>
+        <include>eventbus-common.xml</include>
         <include>stats-common.xml</include>
     </mode>
     <mode name="dataDeliveryTemplate" template="true">

@@ -11,6 +11,7 @@
     http://cxf.apache.org/schemas/jaxrs.xsd">
 
 	<import resource="file:///${edex.home}/conf/spring/edex-db.xml" />
+    <import resource="classpath:res/spring/eventbus-common.xml" />
 	<import resource="classpath:res/spring/ebxml.xml" />
 	<import resource="classpath:res/spring/ebxml-webservices.xml" />
     <import resource="classpath:res/spring/ebxml-validator-plugins.xml" />
