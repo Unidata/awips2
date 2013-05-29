@@ -42,15 +42,8 @@ import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsResponse;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
-import org.springframework.transaction.annotation.Transactional;
 
-import com.raytheon.uf.common.util.SpringFiles;
-import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.registry.ebxml.dao.AbstractRegistryTest;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
@@ -72,18 +65,6 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * @author djohnson
  * @version 1.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
-        SpringFiles.EVENTBUS_COMMON_XML,
-        SpringFiles.EBXML_XML, SpringFiles.EBXML_XACML_XML,
-        SpringFiles.EBXML_SUBSCRIPTION_XML,
-        SpringFiles.EBXML_WEBSERVICES_XML,
-        SpringFiles.EBXML_VALIDATOR_PLUGINS_XML,
-        SpringFiles.EBXML_QUERYTYPES_XML, SpringFiles.EBXML_REGISTRY_DAO_XML,
-        SpringFiles.UNIT_TEST_EBXML_BEANS_XML,
-        SpringFiles.UNIT_TEST_LOCALIZATION_BEANS_XML })
-@TransactionConfiguration(transactionManager = "metadataTxManager", defaultRollback = true)
-@Transactional
 public class ValidatorImplTest extends AbstractRegistryTest {
 
     private static final String LOCAL_STATIC_REFERENCE = "urn:acme:person:Danyal";
