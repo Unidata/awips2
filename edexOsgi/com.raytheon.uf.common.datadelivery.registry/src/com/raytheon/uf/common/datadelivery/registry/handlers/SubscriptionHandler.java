@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.datadelivery.registry.handlers;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -51,6 +52,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * 4/9/2013     1802      bphillip     Using constant values from constants package instead of RegistryUtil
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
  * May 28, 2013 1650       djohnson     Add getByNames.
+ * May 29, 2013 1650       djohnson     Fix ability to delete multiple types of subscriptions at once.
  * 
  * </pre>
  * 
@@ -328,16 +330,36 @@ public class SubscriptionHandler implements ISubscriptionHandler {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void delete(Collection<Subscription> objects)
             throws RegistryHandlerException {
         if (!CollectionUtil.isNullOrEmpty(objects)) {
-            final Collection asSubtype = objects;
-            if (objects.iterator().next() instanceof SiteSubscription) {
-                siteSubscriptionHandler.delete(asSubtype);
-            } else {
-                sharedSubscriptionHandler.delete(asSubtype);
+            final Collection<SiteSubscription> siteSubscriptions = Lists
+                    .newArrayList();
+            final Collection<SharedSubscription> sharedSubscriptions = Lists
+                    .newArrayList();
+            for (Iterator<Subscription> iter = objects.iterator(); iter
+                    .hasNext();) {
+                final Subscription sub = iter.next();
+                if (sub instanceof SiteSubscription) {
+                    siteSubscriptions.add((SiteSubscription) sub);
+                } else if (sub instanceof SharedSubscription) {
+                    sharedSubscriptions.add((SharedSubscription) sub);
+                } else {
+                    throw new RegistryHandlerException(
+                            new IllegalArgumentException(
+                                    "Unable to delete subscription of type ["
+                                            + sub.getClass().getName()
+                                            + "].  Did you add a new subscription type?"));
+                }
+            }
+            
+            if (!siteSubscriptions.isEmpty()) {
+                siteSubscriptionHandler.delete(siteSubscriptions);
+            }
+            
+            if (!sharedSubscriptions.isEmpty()) {
+                sharedSubscriptionHandler.delete(sharedSubscriptions);
             }
         }
     }
@@ -345,18 +367,37 @@ public class SubscriptionHandler implements ISubscriptionHandler {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void delete(String username, Collection<Subscription> objects)
             throws RegistryHandlerException {
         if (!CollectionUtil.isNullOrEmpty(objects)) {
-            final Collection asSubtype = objects;
-            if (objects.iterator().next() instanceof SiteSubscription) {
-                siteSubscriptionHandler.delete(username, asSubtype);
-            } else {
-                sharedSubscriptionHandler.delete(username, asSubtype);
+            final Collection<SiteSubscription> siteSubscriptions = Lists
+                    .newArrayList();
+            final Collection<SharedSubscription> sharedSubscriptions = Lists
+                    .newArrayList();
+            for (Iterator<Subscription> iter = objects.iterator(); iter
+                    .hasNext();) {
+                final Subscription sub = iter.next();
+                if (sub instanceof SiteSubscription) {
+                    siteSubscriptions.add((SiteSubscription) sub);
+                } else if (sub instanceof SharedSubscription) {
+                    sharedSubscriptions.add((SharedSubscription) sub);
+                } else {
+                    throw new RegistryHandlerException(
+                            new IllegalArgumentException(
+                                    "Unable to delete subscription of type ["
+                                            + sub.getClass().getName()
+                                            + "].  Did you add a new subscription type?"));
+                }
+            }
+            
+            if (!siteSubscriptions.isEmpty()) {
+                siteSubscriptionHandler.delete(username, siteSubscriptions);
+            }
+            
+            if (!sharedSubscriptions.isEmpty()) {
+                sharedSubscriptionHandler.delete(username, sharedSubscriptions);
             }
         }
     }
-
 }

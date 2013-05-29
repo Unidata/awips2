@@ -17,56 +17,58 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.datadelivery.bandwidth.dao;
+package com.raytheon.uf.common.datadelivery.registry;
 
 import java.util.Random;
 
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
-import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.AbstractFixture;
-import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
 /**
- * TODO Add Description
+ * {@link AbstractFixture} implementation for {@link PendingSubscription}
+ * objects.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 13, 2012            djohnson     Initial creation
- *
+ * Sep 28, 2012 1187       djohnson     Initial creation
+ * 
  * </pre>
- *
+ * 
  * @author djohnson
- * @version 1.0	
+ * @version 1.0
  */
 
-public class SubscriptionDaoFixture extends AbstractFixture<BandwidthSubscription> {
+public class PendingSiteSubscriptionFixture extends
+        BaseSiteSubscriptionFixture<PendingSiteSubscription> {
 
-    public static final SubscriptionDaoFixture INSTANCE = new SubscriptionDaoFixture();
+    public static final PendingSiteSubscriptionFixture INSTANCE = new PendingSiteSubscriptionFixture();
 
     /**
-     * Private.
+     * Disabled constructor.
      */
-    private SubscriptionDaoFixture() {
-
+    private PendingSiteSubscriptionFixture() {
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public BandwidthSubscription getInstance(long seedValue, Random random) {
-        Subscription sub = SiteSubscriptionFixture.INSTANCE.get(seedValue);
-        try {
-            return BandwidthUtil.getSubscriptionDaoForSubscription(sub,
-                    BandwidthUtil.now());
-        } catch (SerializationException e) {
-            throw new RuntimeException(e);
-        }
+    public PendingSiteSubscription getInstance(long seedValue, Random random) {
+        PendingSiteSubscription sub = super.getInstance(seedValue, random);
+        sub.setChangeReqId("change" + seedValue);
+
+        return sub;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected PendingSiteSubscription getSubscription() {
+        return new PendingSiteSubscription();
     }
 
 }
