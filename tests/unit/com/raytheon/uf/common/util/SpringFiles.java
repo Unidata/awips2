@@ -33,6 +33,7 @@ import org.junit.Ignore;
  * Feb 12, 2013 1543       djohnson     Initial creation
  * Apr 23, 2013 1910       djohnson     Add constants for ebxml spring files.
  * May 02, 2013 1910       djohnson     Add validator plugins spring file.
+ * May 28, 2013 1650       djohnson     Add event bus spring files.
  * 
  * </pre>
  * 
@@ -51,6 +52,8 @@ public class SpringFiles {
     public static final String RETRIEVAL_DATADELIVERY_DAOS_XML = "/spring/retrieval-datadelivery-daos.xml"; 
 
     public static final String BANDWIDTH_DATADELIVERY_DAOS_XML = "/spring/bandwidth-datadelivery-daos.xml";
+
+    public static final String BANDWIDTH_DATADELIVERY_EVENTBUS_XML = "/spring/bandwidth-datadelivery-eventbus.xml";
 
     public static final String BANDWIDTH_DATADELIVERY_INTEGRATION_TEST_XML = "/bandwidth/bandwidth-datadelivery-integrationtest-impl.xml";
 
@@ -81,6 +84,8 @@ public class SpringFiles {
     public static final String EBXML_WEBSERVICES_XML = "/spring/ebxml-webservices.xml";
 
     public static final String EBXML_VALIDATOR_PLUGINS_XML = "/spring/ebxml-validator-plugins.xml";
+
+    public static final String EVENTBUS_COMMON_XML = "/spring/eventbus-common.xml";
 
     public static final String UNIT_TEST_LOCALIZATION_BEANS_XML = "/unit-test-localization-beans.xml";
 
