@@ -27,18 +27,11 @@ import static org.junit.Assert.assertThat;
 import java.util.List;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest.RequestType;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.util.SpringFiles;
-import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 
@@ -58,17 +51,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * @author djohnson
  * @version 1.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
-        SpringFiles.EVENTBUS_COMMON_XML,
-        SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML,
-        SpringFiles.BANDWIDTH_DATADELIVERY_DAOS_XML,
-        SpringFiles.BANDWIDTH_DATADELIVERY_XML,
-        SpringFiles.BANDWIDTH_DATADELIVERY_WFO_XML,
-        SpringFiles.BANDWIDTH_DATADELIVERY_INTEGRATION_TEST_XML,
-        SpringFiles.BANDWIDTH_DATADELIVERY_INTEGRATION_TEST_WFO_XML })
-@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
-public class WfoBandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
+public class WfoBandwidthManagerIntTest extends
+        AbstractWfoBandwidthManagerIntTest {
 
     @Test
     public void testSchedulesSbnSubscriptionForRetrieval() {
