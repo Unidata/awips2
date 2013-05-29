@@ -38,7 +38,7 @@ import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTy
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.event.EventBus;
@@ -72,9 +72,9 @@ public class SubscriptionIntegrityVerifierTest {
 
     private final OpenDapGriddedDataSet dataSet = new OpenDapGriddedDataSet();
 
-    private final Subscription sub1 = SubscriptionFixture.INSTANCE.get(1);
+    private final Subscription sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
 
-    private final Subscription sub2 = SubscriptionFixture.INSTANCE.get(2);
+    private final Subscription sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
 
     private final List<Subscription> subscriptions = Arrays.asList(sub1, sub2);
 
