@@ -48,7 +48,7 @@ import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
@@ -91,9 +91,9 @@ public abstract class AbstractSubscriptionServiceTest {
 
     protected static final long REQUIRED_DATASET_SIZE = 1024l;
 
-    final Subscription sub1 = SubscriptionFixture.INSTANCE.get(1);
+    final Subscription sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
 
-    final Subscription sub2 = SubscriptionFixture.INSTANCE.get(2);
+    final Subscription sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
 
     final List<Subscription> subs = Arrays.asList(sub1, sub2);
 
