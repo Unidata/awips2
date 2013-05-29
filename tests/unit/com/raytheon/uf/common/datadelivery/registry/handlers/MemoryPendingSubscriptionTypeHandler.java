@@ -30,8 +30,6 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 
-
-
 /**
  * {@link IPendingSubscriptionHandler} in-memory implementation.
  * 
@@ -49,16 +47,15 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * @version 1.0
  */
 
-public class MemoryPendingSubscriptionHandler extends
-        BaseMemorySubscriptionHandler<InitialPendingSubscription> implements
-        IPendingSubscriptionHandler {
+public class MemoryPendingSubscriptionTypeHandler<T extends InitialPendingSubscription>
+        extends BaseMemorySubscriptionHandler<T> implements
+        IBasePendingSubscriptionHandler<T> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void store(InitialPendingSubscription obj)
-            throws RegistryHandlerException {
+    public void store(T obj) throws RegistryHandlerException {
         // TODO: Store an in-memory association to the subscription
         super.store(obj);
     }
@@ -77,8 +74,8 @@ public class MemoryPendingSubscriptionHandler extends
      * {@inheritDoc}
      */
     @Override
-    public InitialPendingSubscription getBySubscription(
-            Subscription subscription) throws RegistryHandlerException {
+    public T getBySubscription(Subscription subscription)
+            throws RegistryHandlerException {
         return getBySubscriptionId(RegistryUtil
                 .getRegistryObjectKey(subscription));
     }
@@ -87,10 +84,8 @@ public class MemoryPendingSubscriptionHandler extends
      * {@inheritDoc}
      */
     @Override
-    public InitialPendingSubscription getBySubscriptionId(String id)
-            throws RegistryHandlerException {
-        List<InitialPendingSubscription> results = getBySubscriptionIds(Arrays
-                .asList(id));
+    public T getBySubscriptionId(String id) throws RegistryHandlerException {
+        List<T> results = getBySubscriptionIds(Arrays.asList(id));
         return (!results.isEmpty()) ? results.iterator().next() : null;
     }
 
@@ -98,8 +93,7 @@ public class MemoryPendingSubscriptionHandler extends
      * {@inheritDoc}
      */
     @Override
-    public List<InitialPendingSubscription> getBySubscriptions(
-            Collection<Subscription> subscriptions)
+    public List<T> getBySubscriptions(Collection<Subscription> subscriptions)
             throws RegistryHandlerException {
         List<String> ids = new ArrayList<String>(subscriptions.size());
         for (Subscription subscription : subscriptions) {
@@ -112,8 +106,8 @@ public class MemoryPendingSubscriptionHandler extends
      * {@inheritDoc}
      */
     @Override
-    public List<InitialPendingSubscription> getBySubscriptionIds(
-            List<String> ids) throws RegistryHandlerException {
+    public List<T> getBySubscriptionIds(List<String> ids)
+            throws RegistryHandlerException {
         // TODO: Lookup via an in-memory association
         return Collections.emptyList();
     }

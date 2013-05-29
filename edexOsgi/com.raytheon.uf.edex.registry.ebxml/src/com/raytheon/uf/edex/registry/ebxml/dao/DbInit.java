@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
@@ -63,7 +64,6 @@ import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
-import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImpl;
 
 /**
  * The DbInit class is responsible for ensuring that the appropriate tables are
@@ -81,6 +81,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerIm
  * Apr 15, 2013 1693       djohnson     Use a strategy to verify the database is up to date.
  * Apr 30, 2013 1960        djohnson    Extend the generalized DbInit.
  * 5/21/2013    2022       bphillip     Using TransactionTemplate for database initialization
+ * May 29, 2013 1650       djohnson     Reference LifecycleManager as interface type.
  * </pre>
  * 
  * @author bphillip
@@ -100,7 +101,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
     private static final String TABLE_CHECK_QUERY = "SELECT tablename FROM pg_tables where schemaname = 'ebxml';";
 
     /** The lifecycle manager instance */
-    private LifecycleManagerImpl lcm;
+    private LifecycleManager lcm;
 
     /** Hibernate session factory */
     private SessionFactory sessionFactory;
@@ -142,7 +143,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
      *             If errors occur during the object submission process
      * @throws EbxmlRegistryException
      */
-    private void populateDB() throws SerializationException,
+    protected void populateDB() throws SerializationException,
             MsgRegistryException, EbxmlRegistryException {
         LocalizationFile[] files = PathManagerFactory.getPathManager()
                 .listStaticFiles("ebxml/minDB", new String[] { ".xml" }, true,
@@ -369,7 +370,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
      * @param lcm
      *            the lcm to set
      */
-    public void setLcm(LifecycleManagerImpl lcm) {
+    public void setLcm(LifecycleManager lcm) {
         this.lcm = lcm;
     }
 

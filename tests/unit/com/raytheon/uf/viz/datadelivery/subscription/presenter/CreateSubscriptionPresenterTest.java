@@ -44,7 +44,7 @@ import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBuilder;
-import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.time.CalendarBuilder;
@@ -160,7 +160,7 @@ public class CreateSubscriptionPresenterTest {
     @Test
     public void verifySubscriptionIsSubmittedToSubscriptionService()
             throws RegistryHandlerException {
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
 
         final ISubscriptionServiceResult result = mock(ISubscriptionServiceResult.class);
         when(
@@ -176,7 +176,7 @@ public class CreateSubscriptionPresenterTest {
     @Test
     public void verifyIfMessageIsNotReturnedFromSubscriptionServiceThenItIsNotDisplayed()
             throws RegistryHandlerException {
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
 
         final ISubscriptionServiceResult result = mock(ISubscriptionServiceResult.class);
         when(result.hasMessageToDisplay()).thenReturn(false);
