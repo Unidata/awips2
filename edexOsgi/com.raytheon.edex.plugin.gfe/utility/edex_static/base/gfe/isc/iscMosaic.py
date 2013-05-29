@@ -79,6 +79,7 @@ from com.raytheon.uf.edex.database.cluster import ClusterTask
 #    04/24/13        1941          dgilling       Re-port WECache to match A1.
 #    05/08/13        1988          dgilling       Fix history handling bug in
 #                                                 __getDbGrid().
+#    05/23/13        1759          dgilling       Remove unnecessary imports.
 # 
 # 
 
@@ -248,7 +249,6 @@ class IscMosaic:
         
         ## Logging methods ##
     def __initLogger(self):
-        import logging, siteConfig
         self.__logger=iscUtil.getLogger("iscMosaic",self.__logFile)
         
     def __init__(self, args):

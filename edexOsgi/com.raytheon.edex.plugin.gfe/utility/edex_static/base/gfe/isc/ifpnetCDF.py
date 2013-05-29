@@ -64,7 +64,7 @@ from com.raytheon.uf.common.localization import LocalizationContext_Localization
 #    03/11/13        1759          dgilling       Removed unneeded methods.
 #    04/23/13        1937          dgilling       Reimplement WECache to match
 #                                                 A1, big perf improvement.
-#    
+#    05/23/13        1759          dgilling       Remove unnecessary imports.
 # 
 #
 
@@ -77,7 +77,6 @@ ifpNetcdfLogger=None
 ## Logging methods ##
 def initLogger(logFile=None):
     global ifpNetcdfLogger
-    import logging, siteConfig
     ifpNetcdfLogger = iscUtil.getLogger("ifpnetCDF",logFile)
 
 def logEvent(*msg):
