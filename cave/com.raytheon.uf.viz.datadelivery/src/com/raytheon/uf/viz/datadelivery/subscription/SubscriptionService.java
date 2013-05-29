@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
@@ -57,6 +58,8 @@ import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.datadelivery.actions.SubscriptionManagerAction;
+import com.raytheon.uf.viz.datadelivery.system.SystemRuleManager;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 
 /**
@@ -79,6 +82,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Jan 28, 2013 1530       djohnson     Reset unscheduled flag with each update.
  * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
  * May 14, 2013 2000       djohnson     Check for subscription overlap/duplication.
+ * May 23, 2013 1650       djohnson     Move out some presentation logic to DisplayForceApplyPromptDialog.
  * 
  * </pre>
  * 
@@ -105,14 +109,10 @@ public class SubscriptionService implements ISubscriptionService {
          * @param subscription
          */
         @Override
-        public ForceApplyPromptResponse displayForceApplyPrompt(String title,
-                String message, int requiredLatency,
-                IForceApplyPromptDisplayText displayTextStrategy,
-                Subscription subscription,
-                Set<String> wouldBeUnscheduledSubscriptions) {
+        public ForceApplyPromptResponse displayForceApplyPrompt(
+                ForceApplyPromptConfiguration configuration) {
             DisplayForceApplyPromptDialog dlg = new DisplayForceApplyPromptDialog(
-                    title, message, requiredLatency, displayTextStrategy,
-                    subscription, wouldBeUnscheduledSubscriptions);
+                    configuration);
             forceApplyPromptResponse = (ForceApplyPromptResponse) dlg.open();
             return forceApplyPromptResponse;
         }
@@ -219,18 +219,12 @@ public class SubscriptionService implements ISubscriptionService {
     private final class ProposeResult {
         private final boolean promptUser;
 
-        private final String message;
+        private final ForceApplyPromptConfiguration config;
 
-        private final int requiredLatency;
-
-        private final Set<String> wouldBeUnscheduledSubscriptions;
-
-        private ProposeResult(boolean promptUser, String message,
-                int requiredLatency, Set<String> wouldBeUnscheduledSubscriptions) {
+        private ProposeResult(boolean promptUser,
+                ForceApplyPromptConfiguration config) {
             this.promptUser = promptUser;
-            this.message = message;
-            this.requiredLatency = requiredLatency;
-            this.wouldBeUnscheduledSubscriptions = wouldBeUnscheduledSubscriptions;
+            this.config = config;
         }
     }
 
@@ -247,7 +241,7 @@ public class SubscriptionService implements ISubscriptionService {
      * Enumeration of force apply responses.
      */
     public static enum ForceApplyPromptResponse {
-        CANCEL, INCREASE_LATENCY, FORCE_APPLY;
+        CANCEL, INCREASE_LATENCY, EDIT_SUBSCRIPTIONS, FORCE_APPLY;
     }
 
     /**
@@ -258,18 +252,13 @@ public class SubscriptionService implements ISubscriptionService {
         /**
          * Display the force apply prompt.
          * 
-         * @param title
-         * @param message
-         * @param requiredLatency
-         * @param displayTextStrategy
-         * @param wouldBeUnscheduledSubscriptions
+         * @param configuration
+         *            the configuration
+         * 
          * @return the response
          */
-        ForceApplyPromptResponse displayForceApplyPrompt(String title,
-                String message, int requiredLatency,
-                IForceApplyPromptDisplayText displayTextStrategy,
-                Subscription subscription,
-                Set<String> wouldBeUnscheduledSubscriptions);
+        ForceApplyPromptResponse displayForceApplyPrompt(
+                ForceApplyPromptConfiguration configuration);
 
         ForceApplyPromptResponse getForceApplyPromptResponse();
 
@@ -609,8 +598,9 @@ public class SubscriptionService implements ISubscriptionService {
             }
             if (!overlappingSubscriptions.isEmpty()) {
                 Collections.sort(overlappingSubscriptions);
-                forceApplyPrompt.displayMessage(
-                        displayTextStrategy,
+                forceApplyPrompt
+                        .displayMessage(
+                                displayTextStrategy,
                                 StringUtil
                                         .createMessage(
                                                 ISubscriptionOverlapService.OVERLAPPING_SUBSCRIPTIONS,
@@ -620,7 +610,7 @@ public class SubscriptionService implements ISubscriptionService {
 
         try {
             final ProposeResult result = proposeScheduleAndAction(
-                    subscriptions, action);
+                    subscriptions, action, displayTextStrategy);
 
             if (result.promptUser) {
                 final Subscription subscription = (subscriptions.size() == 1) ? subscriptions
@@ -629,15 +619,13 @@ public class SubscriptionService implements ISubscriptionService {
                 VizApp.runSync(new Runnable() {
                     @Override
                     public void run() {
-                        forceApplyPrompt.displayForceApplyPrompt(TITLE,
-                                result.message, result.requiredLatency,
-                                displayTextStrategy, subscription,
-                                result.wouldBeUnscheduledSubscriptions);
+                        forceApplyPrompt.displayForceApplyPrompt(result.config);
                     }
                 });
                 switch (forceApplyPrompt.getForceApplyPromptResponse()) {
                 case INCREASE_LATENCY:
-                    subscription.setLatencyInMinutes(result.requiredLatency);
+                    subscription
+                            .setLatencyInMinutes(result.config.requiredLatency);
                     // Intentional fall-through
                 case FORCE_APPLY:
                     // Have to make sure we set them to not be unscheduled, let
@@ -657,13 +645,20 @@ public class SubscriptionService implements ISubscriptionService {
                     return new SubscriptionServiceResult(sb.toString());
                 case CANCEL:
                     return new SubscriptionServiceResult(true);
+                case EDIT_SUBSCRIPTIONS:
+                    if (!result.config.isNotAbleToScheduleOnlyTheSubscription()) {
+                        new SubscriptionManagerAction()
+                                .loadSubscriptionManager(SubscriptionManagerFilters
+                                        .getByNames(result.config.wouldBeUnscheduledSubscriptions));
+                    }
+                    return new SubscriptionServiceResult(true);
                 default:
                     throw new IllegalArgumentException(
                             "Unknown force apply prompt response!  Did you add a new type that must be handled?");
                 }
             }
 
-            return new SubscriptionServiceResult(result.message);
+            return new SubscriptionServiceResult(result.config.message);
         } catch (RegistryHandlerException e) {
             // The in-memory objects must be corrupted since we schedule first,
             // then store to the registry, so a reinitialize is called for
@@ -685,7 +680,8 @@ public class SubscriptionService implements ISubscriptionService {
      */
     private ProposeResult proposeScheduleAndAction(
             List<Subscription> subscriptions,
-            ServiceInteraction serviceInteraction)
+            ServiceInteraction serviceInteraction,
+            IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException {
 
         IProposeScheduleResponse proposeScheduleresponse = bandwidthService
@@ -694,17 +690,18 @@ public class SubscriptionService implements ISubscriptionService {
                 .getUnscheduledSubscriptions();
         boolean wouldUnscheduleSubs = !unscheduledSubscriptions.isEmpty();
 
-        String response = null;
+        ForceApplyPromptConfiguration response = null;
         if (wouldUnscheduleSubs) {
             response = getWouldCauseUnscheduledSubscriptionsPortion(
-                    unscheduledSubscriptions, subscriptions);
+                    unscheduledSubscriptions, subscriptions,
+                    proposeScheduleresponse, displayTextStrategy);
         } else {
-            response = serviceInteraction.call();
+            response = new ForceApplyPromptConfiguration(TITLE,
+                    serviceInteraction.call(), displayTextStrategy,
+                    unscheduledSubscriptions);
         }
 
-        return new ProposeResult(wouldUnscheduleSubs, response,
-                proposeScheduleresponse.getRequiredLatency(),
-                unscheduledSubscriptions);
+        return new ProposeResult(wouldUnscheduleSubs, response);
     }
 
     /**
@@ -714,15 +711,19 @@ public class SubscriptionService implements ISubscriptionService {
      *            the unscheduled subscriptions
      * @param subscriptions
      *            the subscriptions which were attempting to schedule
+     * @param dataSize
      */
-    private String getWouldCauseUnscheduledSubscriptionsPortion(
+    private ForceApplyPromptConfiguration getWouldCauseUnscheduledSubscriptionsPortion(
             Set<String> unscheduledSubscriptions,
-            List<Subscription> subscriptions) {
+            List<Subscription> subscriptions,
+            IProposeScheduleResponse proposeScheduleResponse,
+            IForceApplyPromptDisplayText displayTextStrategy) {
         StringBuilder msg = new StringBuilder();
 
         // Handle the case where it's just the subscription we're changing
         // itself that would not schedule
-        if ((subscriptions.size() == 1 && unscheduledSubscriptions.size() == 1)
+        final boolean singleSubscription = subscriptions.size() == 1;
+        if ((singleSubscription && unscheduledSubscriptions.size() == 1)
                 && (subscriptions.get(0).getName()
                         .equals(unscheduledSubscriptions.iterator().next()))) {
             final Subscription subscription = subscriptions.get(0);
@@ -731,15 +732,26 @@ public class SubscriptionService implements ISubscriptionService {
                             : "Subscription " + subscription.getName())
                     .append(" would not fully schedule with the bandwidth management system if this action were performed.");
         } else {
-            msg.append(StringUtil
-                    .createMessage(
-                            "The following subscriptions would not fully schedule with the bandwidth management system if this action were performed:",
-                            unscheduledSubscriptions));
+            msg.append("The following subscriptions would not fully schedule with the bandwidth management system if this action were performed:");
         }
 
-        msg.append("\n\nWhat would you like to do?");
+        if (singleSubscription) {
+            Subscription subscription = subscriptions.get(0);
+            final int maximumLatencyFromRules = SystemRuleManager.getInstance()
+                    .getLatency(
+                            subscription,
+                            Sets.newTreeSet(subscription.getTime()
+                                    .getCycleTimes()));
 
-        return msg.toString();
+            return new ForceApplyPromptConfiguration(TITLE, msg.toString(),
+                    proposeScheduleResponse.getRequiredLatency(),
+                    maximumLatencyFromRules,
+                    proposeScheduleResponse.getRequiredDataSetSize(),
+                    displayTextStrategy, subscription, unscheduledSubscriptions);
+        } else {
+            return new ForceApplyPromptConfiguration(TITLE, msg.toString(),
+                    displayTextStrategy, unscheduledSubscriptions);
+        }
     }
 
     /**
