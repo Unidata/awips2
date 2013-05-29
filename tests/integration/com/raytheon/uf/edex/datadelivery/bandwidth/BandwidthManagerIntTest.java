@@ -46,11 +46,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTypes;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
@@ -58,11 +53,11 @@ import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaDataFixture;
 import com.raytheon.uf.common.datadelivery.registry.ParameterFixture;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
-import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Time;
-import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -71,9 +66,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.time.util.ImmutableDate;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
-import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.common.util.TestUtil;
-import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
@@ -111,18 +104,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * @author djohnson
  * @version 1.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
-        SpringFiles.EVENTBUS_COMMON_XML,
-        SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML,
-        SpringFiles.BANDWIDTH_DATADELIVERY_DAOS_XML,
-        SpringFiles.BANDWIDTH_DATADELIVERY_EVENTBUS_XML,
-        SpringFiles.BANDWIDTH_DATADELIVERY_XML,
-        SpringFiles.BANDWIDTH_DATADELIVERY_WFO_XML,
-        SpringFiles.BANDWIDTH_DATADELIVERY_INTEGRATION_TEST_XML,
-        SpringFiles.BANDWIDTH_DATADELIVERY_INTEGRATION_TEST_WFO_XML })
-@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
-public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
+public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest {
 
     @Test
     public void testAddingSubscriptionAllocatesOncePerPlanDayForOneCycle()
@@ -141,7 +123,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
     @Test
     public void testDataSetMetaDataUpdateSetsSubscriptionRetrievalsToReady()
             throws SerializationException, ParseException {
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
         bandwidthManager.subscriptionUpdated(subscription);
 
         OpenDapGriddedDataSetMetaData metadata = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
@@ -163,7 +145,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
     @Test
     public void testDataSetMetaDataUpdateSetsCorrectTimeOnSubscription()
             throws SerializationException, ParseException {
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
         bandwidthManager.subscriptionUpdated(subscription);
 
         OpenDapGriddedDataSetMetaData metadata = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
@@ -199,7 +181,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         RegistryObjectHandlersUtil.initMemory();
 
         // Store the original subscription
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
         DataDeliveryHandlers.getSubscriptionHandler().store(subscription);
 
         // The dataset metadata update
@@ -235,7 +217,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         RegistryObjectHandlersUtil.initMemory();
 
         // Store the original subscription
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
         subscription.getTime().setCycleTimes(Collections.<Integer> emptyList());
         DataDeliveryHandlers.getSubscriptionHandler().store(subscription);
 
@@ -269,7 +251,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         RegistryObjectHandlersUtil.initMemory();
 
         // Store the original subscription
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
         subscription.setLatencyInMinutes(5);
         DataDeliveryHandlers.getSubscriptionHandler().store(subscription);
 
@@ -703,7 +685,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
                     @Override
                     public void run() {
                         try {
-                            final Subscription subscription2 = SubscriptionFixture.INSTANCE
+                            final Subscription subscription2 = SiteSubscriptionFixture.INSTANCE
                                     .get(current);
                             subscription2
                                     .addParameter(ParameterFixture.INSTANCE
@@ -999,7 +981,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
 
     private void testSubscriptionCyclesAreAllocatedOncePerCyclePerPlanDay(
             List<Integer> cycles) throws SerializationException {
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
         subscription.getTime().setCycleTimes(cycles);
         try {
             bandwidthManager.subscriptionUpdated(subscription);
