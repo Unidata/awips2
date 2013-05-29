@@ -19,7 +19,7 @@
     <!-- specify the connection to the broker (qpid) -->
     <!-- MaxPrefetch set at 0, due to DataPool routers getting messages backed up behind long running tasks -->
     <bean id="amqConnectionFactory" class="org.apache.qpid.client.AMQConnectionFactory">
-       <constructor-arg type="java.lang.String" value="amqp://guest:guest@/edex?brokerlist='tcp://${broker.addr}?retries='9999'&amp;connecttimeout='5000'&amp;connectdelay='5000''&amp;maxprefetch='0'&amp;sync_publish='all'&amp;sync_ack='true'"/>
+       <constructor-arg type="java.lang.String" value="amqp://guest:guest@/edex?brokerlist='tcp://${BROKER_ADDR}?retries='9999'&amp;connecttimeout='5000'&amp;connectdelay='5000''&amp;maxprefetch='0'&amp;sync_publish='all'&amp;sync_ack='true'"/>
     </bean>
 
     <bean id="jmsPooledConnectionFactory" class="com.raytheon.uf.common.jms.JmsPooledConnectionFactory">
@@ -35,8 +35,8 @@
  
     <bean id="genericThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="${jms.pool.min}" />
-		<property name="maxPoolSize" value="${jms.pool.max}" />
+		<property name="corePoolSize" value="${JMS_POOL_MIN}" />
+		<property name="maxPoolSize" value="${JMS_POOL_MAX}" />
 		<property name="queueCapacity" value="0" />
 	</bean>
 
@@ -95,7 +95,7 @@
 	-->
 	
 	<bean id="httpClient" class="com.raytheon.uf.common.comm.HttpClient" factory-method="getInstance">
-		<property name="maxConnectionsPerHost" value="${pypies.maxConnections}"/>
+		<property name="maxConnectionsPerHost" value="${PYPIES_MAX_CONN}"/>
 		<!-- value in milliseconds to allow socket to timeout, don't allow this to be zero, bad things could happen -->
 	   <property name="socketTimeout" value="180000"/>	   	   
 	   <property name="compressRequests" value="false"/>
@@ -103,7 +103,7 @@
 	</bean>
 	
 	<bean id="pypiesStoreProps" class="com.raytheon.uf.common.pypies.PypiesProperties">
-		<property name="address" value="${pypies.server}" />		
+		<property name="address" value="${PYPIES_SERVER}" />		
 	</bean>
 	<bean id="pypiesDataStoreFactory" class="com.raytheon.uf.common.pypies.PyPiesDataStoreFactory">
 		<constructor-arg ref="pypiesStoreProps" />
@@ -211,9 +211,9 @@
 
     <!-- Serialization Pool -->
 	<bean id="baosPool" class="com.raytheon.uf.common.util.ByteArrayOutputStreamPool" factory-method="getInstance">
-	   <property name="maxPoolSize" value="${ByteArrayOutputStreamPool.maxPoolSize}"/>
-	   <property name="initStreamSize" value="${ByteArrayOutputStreamPool.initStreamSize}"/>
-	   <property name="maxStreamSize" value="${ByteArrayOutputStreamPool.maxStreamSize}"/>
+	   <property name="maxPoolSize" value="${SERIALIZE_POOL_MAX_SIZE}"/>
+	   <property name="initStreamSize" value="${SERIALIZE_STREAM_INIT_SIZE_MB}"/>
+	   <property name="maxStreamSize" value="${SERIALIZE_STREAM_MAX_SIZE_MB}"/>
 	</bean>
 
 	<bean id="edexLocalizationObserver" class="com.raytheon.edex.utility.EDEXLocalizationNotificationObserver" factory-method="getInstance"/>
