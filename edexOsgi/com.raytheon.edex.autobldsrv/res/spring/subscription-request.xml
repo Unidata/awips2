@@ -9,7 +9,7 @@
 	              xmlns="http://camel.apache.org/schema/spring" 
 	              errorHandlerRef="errorHandler">
 	    <endpoint id="subscriptionHTTP_from"
-	    	uri="jetty:http://0.0.0.0:${http.port}/services/subscribe?disableStreamCache=true" />          
+	    	uri="jetty:http://0.0.0.0:${HTTP_PORT}/services/subscribe?disableStreamCache=true" />          
 	    
 		<!-- SubscriptionSrv routes -->
 		<route id="subscriptionHTTP">
