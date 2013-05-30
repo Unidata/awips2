@@ -18,7 +18,7 @@
 	</provider>
 	<agent xsi:type="ogcAgent" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 		<dateFormat>HHddMMMyyyy</dateFormat>
-		<layer name="madis">
+		<layer name="madis" namespace="http://madis.edex.uf.raytheon.com">
 			<!-- Geographic constraint of madis layer data -->
 			<minx>-120.0</minx>
 			<maxx>-70.0</maxx>
