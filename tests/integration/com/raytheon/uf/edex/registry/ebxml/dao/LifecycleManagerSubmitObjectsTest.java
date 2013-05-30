@@ -47,15 +47,8 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnresolvedReferenceExceptionType;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Sets;
-import com.raytheon.uf.common.util.SpringFiles;
-import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 
 /**
  * Test {@link LifecycleManager} submit objects functionality.
@@ -76,18 +69,6 @@ import com.raytheon.uf.edex.database.dao.DatabaseUtil;
  * @author djohnson
  * @version 1.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
-        SpringFiles.EVENTBUS_COMMON_XML,
-        SpringFiles.EBXML_XML, SpringFiles.EBXML_IMPL_XML,
-        SpringFiles.EBXML_QUERYTYPES_XML, SpringFiles.EBXML_REGISTRY_DAO_XML,
-        SpringFiles.EBXML_WEBSERVICES_XML, SpringFiles.EBXML_XACML_XML,
-        SpringFiles.EBXML_VALIDATOR_PLUGINS_XML,
-        SpringFiles.EBXML_SUBSCRIPTION_XML,
-        SpringFiles.UNIT_TEST_EBXML_BEANS_XML,
-        SpringFiles.UNIT_TEST_LOCALIZATION_BEANS_XML })
-@TransactionConfiguration(transactionManager = "metadataTxManager", defaultRollback = true)
-@Transactional
 public class LifecycleManagerSubmitObjectsTest extends AbstractRegistryTest {
 
     /**
