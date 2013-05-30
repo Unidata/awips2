@@ -48,7 +48,8 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 12, 2011            mschenke     Initial creation
+ * Oct 12, 2011            mschenke    Initial creation
+ * May 30, 2013 #2028      randerso    Changed to return simple geometry or multi-geometry if possible
  * 
  * </pre>
  * 
@@ -93,8 +94,15 @@ public class WorldWrapCorrector {
         } else {
             wrapCorrect(geom, geoms);
         }
-        return geom.getFactory().createGeometryCollection(
-                geoms.toArray(new Geometry[geoms.size()]));
+
+        Geometry retVal;
+        if (geoms.size() == 1) {
+            retVal = geoms.get(0);
+        } else {
+            retVal = geom.getFactory().buildGeometry(geoms);
+        }
+
+        return retVal;
     }
 
     /**
