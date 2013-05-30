@@ -30,7 +30,11 @@ Require-Bundle: com.raytheon.uf.common.status;bundle-version="1.12.1174",
  com.raytheon.uf.edex.event;bundle-version="1.0.0",
  com.raytheon.uf.common.stats;bundle-version="1.0.0",
  com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174",
- com.raytheon.uf.edex.registry.ebxml;bundle-version="1.0.0"
+ com.raytheon.uf.edex.registry.ebxml;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataplugin.madis;bundle-version="1.0.0",
+ com.raytheon.uf.edex.plugin.madis.ogc;bundle-version="1.0.0",
+ net.opengis;bundle-version="1.0.2",
+ com.raytheon.uf.common.pointdata;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.datadelivery.retrieval;
