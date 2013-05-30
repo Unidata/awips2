@@ -19,12 +19,20 @@
  **/
 package com.raytheon.uf.viz.archive.ui;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -33,14 +41,24 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
+import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
+import com.raytheon.uf.common.archive.config.ArchiveConfigManager.DisplayData;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.SizeUtil;
+import com.raytheon.uf.viz.archive.data.ArchiveInfo;
+import com.raytheon.uf.viz.archive.data.CategoryInfo;
+import com.raytheon.uf.viz.archive.data.DirInfo;
+import com.raytheon.uf.viz.archive.data.IArchiveTotals;
+import com.raytheon.uf.viz.archive.data.IUpdateListener;
 import com.raytheon.uf.viz.archive.ui.ArchiveTableComp.TableType;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.ui.dialogs.AwipsCalendar;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -61,7 +79,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @author lvenable
  * @version 1.0
  */
-public class CaseCreationDlg extends CaveSWTDialog {
+public class CaseCreationDlg extends CaveSWTDialog implements IArchiveTotals,
+        IUpdateListener {
 
     /** Table control */
     private ArchiveTableComp tableComp;
@@ -102,12 +121,23 @@ public class CaseCreationDlg extends CaveSWTDialog {
     /** Directory location label. */
     private Label locationLbl;
 
+    /** Directory location state. */
+    private Label locationStateLbl;
+
     /** Uncompressed file size label. */
     private Label uncompressSizeLbl;
 
     /** Date format. */
     private SimpleDateFormat dateFmt = new SimpleDateFormat(
             "E MMM dd yyyy HH:00 z");
+
+    /** Archive configuration manager */
+    private ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
+
+    /** Information for populating the various table displays. */
+    private final Map<String, ArchiveInfo> archiveInfoMap = new HashMap<String, ArchiveInfo>();
+
+    private Cursor busyCursor;
 
     /**
      * Constructor.
@@ -132,7 +162,8 @@ public class CaseCreationDlg extends CaveSWTDialog {
 
     @Override
     protected void initializeComponents(Shell shell) {
-        setText("Case Creation");
+        busyCursor = shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
+        setText("Archive Case Creation");
         Composite mainComp = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(1, false);
         gl.marginHeight = 0;
@@ -140,14 +171,21 @@ public class CaseCreationDlg extends CaveSWTDialog {
         gl.horizontalSpacing = 0;
         mainComp.setLayout(gl);
 
+        manager.reset();
+
         init();
+    }
+
+    @Override
+    protected void disposed() {
+        DirInfo.removeUpdateListener(this);
     }
 
     /**
      * Initialize method to create all of the composite & controls.
      */
     private void init() {
-
+        DirInfo.addUpdateListener(this);
         createTimeControls();
         addSeparator(shell, SWT.HORIZONTAL);
         createCaseCompressionControls();
@@ -199,9 +237,10 @@ public class CaseCreationDlg extends CaveSWTDialog {
         endTimeLbl = new Label(timeComp, SWT.BORDER);
         endTimeLbl.setLayoutData(gd);
 
-        Date date = TimeUtil.newDate();
-        startDate = date;
-        endDate = date;
+        endDate = TimeUtil.newDate();
+        long time = endDate.getTime();
+        time -= TimeUtil.MILLIS_PER_DAY;
+        startDate = new Date(time);
         startTimeLbl.setText(dateFmt.format(startDate));
         endTimeLbl.setText(dateFmt.format(endDate));
     }
@@ -244,9 +283,9 @@ public class CaseCreationDlg extends CaveSWTDialog {
         archCfgCbo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                /*
-                 * TODO - add code to update the category combo box
-                 */
+                String archiveName = archCfgCbo.getItem(archCfgCbo
+                        .getSelectionIndex());
+                populateCategoryCbo(archiveName);
             }
         });
 
@@ -260,9 +299,11 @@ public class CaseCreationDlg extends CaveSWTDialog {
         categoryCbo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                /*
-                 * TODO - add code to update the information in the table
-                 */
+                String archiveName = archCfgCbo.getItem(archCfgCbo
+                        .getSelectionIndex());
+                String categoryName = categoryCbo.getItem(categoryCbo
+                        .getSelectionIndex());
+                populateTableComp(archiveName, categoryName);
             }
         });
     }
@@ -294,9 +335,9 @@ public class CaseCreationDlg extends CaveSWTDialog {
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         uncompressSizeLbl = new Label(compressionLblComp, SWT.NONE);
-        uncompressSizeLbl.setText("1024 MB");
+        // uncompressSizeLbl.setText("1024 MB");
         uncompressSizeLbl.setLayoutData(gd);
-
+        updateUncompressSizeLbl();
         /*
          * Compression controls
          */
@@ -358,7 +399,7 @@ public class CaseCreationDlg extends CaveSWTDialog {
      */
     private void createFileBrowserControls() {
         Composite fileBrowserComp = new Composite(shell, SWT.NONE);
-        GridLayout gl = new GridLayout(4, false);
+        GridLayout gl = new GridLayout(6, false);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         fileBrowserComp.setLayout(gl);
         fileBrowserComp.setLayoutData(gd);
@@ -378,13 +419,20 @@ public class CaseCreationDlg extends CaveSWTDialog {
                 handleBrowserSelection();
             }
         });
+
+        Label stateLbl = new Label(fileBrowserComp, SWT.NONE);
+        stateLbl.setText("Full - Avaliable:");
+
+        locationStateLbl = new Label(fileBrowserComp, SWT.BORDER);
+        gd = new GridData(200, SWT.DEFAULT);
+        locationStateLbl.setLayoutData(gd);
     }
 
     /**
      * Create the table control.
      */
     private void createTable() {
-        tableComp = new ArchiveTableComp(shell, TableType.Case);
+        tableComp = new ArchiveTableComp(shell, TableType.Case, this);
     }
 
     /**
@@ -494,6 +542,38 @@ public class CaseCreationDlg extends CaveSWTDialog {
             locationLbl.setText(trimDirectoryName(dirName));
             locationLbl.setToolTipText(dirName);
             locationLbl.setData(dirName);
+            File dir = new File(dirName);
+            long totSpace = dir.getTotalSpace();
+            long freeSpace = dir.getUsableSpace();
+            long percentFull = (long) Math
+                    .round(((totSpace - freeSpace) * 100.0) / totSpace);
+            String state = null;
+            Color bgColor = null;
+            Color fgColor = null;
+            Display display = shell.getDisplay();
+            if (percentFull <= 84) {
+                state = "GOOD";
+                bgColor = display.getSystemColor(SWT.COLOR_GREEN);
+                fgColor = display.getSystemColor(SWT.COLOR_BLACK);
+            } else if (percentFull <= 94) {
+                state = "CAUTION";
+                bgColor = display.getSystemColor(SWT.COLOR_YELLOW);
+                fgColor = display.getSystemColor(SWT.COLOR_BLACK);
+            } else if (percentFull <= 97) {
+                state = "DANGER";
+                bgColor = display.getSystemColor(SWT.COLOR_RED);
+                fgColor = display.getSystemColor(SWT.COLOR_BLACK);
+            } else {
+                state = "FATAL";
+                bgColor = display.getSystemColor(SWT.COLOR_DARK_MAGENTA);
+                fgColor = display.getSystemColor(SWT.COLOR_WHITE);
+            }
+
+            String text = String.format("%1$3d%% %2$s - %3$s", percentFull,
+                    state, SizeUtil.prettyByteSize(freeSpace));
+            locationStateLbl.setText(text);
+            locationStateLbl.setBackground(bgColor);
+            locationStateLbl.setForeground(fgColor);
         }
     }
 
@@ -526,8 +606,15 @@ public class CaseCreationDlg extends CaveSWTDialog {
      *            True for start time, false for end time.
      */
     private void displayDateTimeControls(boolean startTimeFlag) {
-        AwipsCalendar ac = new AwipsCalendar(shell, 1);
+
+        Date acDate = startTimeFlag ? startDate : endDate;
+        AwipsCalendar ac = new AwipsCalendar(shell, acDate, 1);
+        ac.setTimeZone(TimeUtil.newCalendar().getTimeZone());
         Date date = (Date) ac.open();
+
+        if (date == null) {
+            return;
+        }
 
         if (startTimeFlag) {
             if (date.after(endDate)) {
@@ -538,6 +625,12 @@ public class CaseCreationDlg extends CaveSWTDialog {
                 mb.open();
                 return;
             }
+
+            if (!startDate.equals(date)) {
+                startDate = date;
+                // TODO update all information not just the current table.
+                populateTableComp();
+            }
         } else {
             if (date.before(startDate)) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
@@ -546,6 +639,11 @@ public class CaseCreationDlg extends CaveSWTDialog {
                 mb.setMessage("The selected end date is before the start date.  Resetting.");
                 mb.open();
                 return;
+            }
+            if (!endDate.equals(date)) {
+                endDate = date;
+                // TODO update all information not just the current table.
+                populateTableComp();
             }
         }
 
@@ -587,23 +685,152 @@ public class CaseCreationDlg extends CaveSWTDialog {
         return str;
     }
 
-    /********************************************************
-     * TEST METHODS ******************************************************
+    /**
+     * Initial set up of the combo boxes.
      */
     private void populateComboBoxes() {
-        archCfgCbo.add("Raw");
-        archCfgCbo.add("Processed");
-        archCfgCbo.select(0);
+        boolean doSelect = false;
+        for (String archiveName : manager.getArchiveDataNamesList()) {
+            archCfgCbo.add(archiveName);
+            doSelect = true;
+        }
 
-        categoryCbo.add("Radar");
-        categoryCbo.add("Point");
-        categoryCbo.add("Satellite");
-        categoryCbo.select(0);
+        if (doSelect) {
+            archCfgCbo.select(0);
+            String archiveName = archCfgCbo.getItem(0);
+            populateCategoryCbo(archiveName);
+        }
 
         fileSizeCbo.add("MB");
         fileSizeCbo.add("GB");
         fileSizeCbo.select(0);
         fileSizeCbo
                 .setData(fileSizeCbo.getItem(fileSizeCbo.getSelectionIndex()));
+    }
+
+    /**
+     * Populate the category combo based on the archive name and populate the
+     * table.
+     * 
+     * @param archiveName
+     */
+    private void populateCategoryCbo(String archiveName) {
+        categoryCbo.removeAll();
+        for (String categoryName : manager.getCategoryNames(archiveName)) {
+            categoryCbo.add(categoryName);
+        }
+        categoryCbo.select(0);
+        String categoryName = categoryCbo.getItem(0);
+        populateTableComp(archiveName, categoryName);
+    }
+
+    private void populateTableComp() {
+        String archiveName = archCfgCbo.getItem(archCfgCbo.getSelectionIndex());
+        String categoryName = categoryCbo.getItem(categoryCbo
+                .getSelectionIndex());
+        populateTableComp(archiveName, categoryName);
+    }
+
+    private void populateTableComp(String archiveName, String categoryName) {
+
+        setBusy(true);
+        DirInfo.clearQueue();
+        ArchiveInfo archiveInfo = archiveInfoMap.get(archiveName);
+        if (archiveInfo == null) {
+            archiveInfo = new ArchiveInfo();
+            archiveInfoMap.put(archiveName, archiveInfo);
+        }
+
+        CategoryInfo categoryInfo = archiveInfo.get(categoryName);
+        if (categoryInfo == null) {
+            List<DisplayData> displayInfos = manager.getDisplayInfo(
+                    archiveName, categoryName);
+            categoryInfo = new CategoryInfo(archiveName, categoryName,
+                    displayInfos);
+            archiveInfo.add(categoryInfo);
+        }
+
+        // TODO investigate using just Date or long values for start/end
+        Calendar startCal = TimeUtil.newCalendar();
+        startCal.setTimeInMillis(startDate.getTime());
+        Calendar endCal = TimeUtil.newCalendar();
+        endCal.setTimeInMillis(endDate.getTime());
+        for (DisplayData displayInfo : categoryInfo.getDisplayInfoList()) {
+            new DirInfo(displayInfo, startCal, endCal);
+        }
+
+        tableComp.populateTable(categoryInfo.getDisplayInfoList());
+        updateUncompressSizeLbl();
+        setBusy(false);
+    }
+
+    public int getTotalSelectedItems() {
+        int totalSelected = 0;
+        for (ArchiveInfo archiveInfo : archiveInfoMap.values()) {
+            for (String categoryName : archiveInfo.getCategoryNames()) {
+                CategoryInfo categoryInfo = archiveInfo.get(categoryName);
+                for (DisplayData displayInfo : categoryInfo
+                        .getDisplayInfoList()) {
+                    if (displayInfo.isSelected()) {
+                        ++totalSelected;
+                    }
+                }
+            }
+        }
+        updateUncompressSizeLbl();
+        return totalSelected;
+    }
+
+    private void setBusy(boolean state) {
+        Cursor cursor = null;
+        if (state) {
+            cursor = busyCursor;
+        }
+        shell.setCursor(cursor);
+    }
+
+    @Override
+    public void update(List<DirInfo> dirInfos) {
+        final List<DisplayData> displayInfos = new ArrayList<ArchiveConfigManager.DisplayData>();
+        for (DirInfo dirInfo : dirInfos) {
+            displayInfos.add(dirInfo.getDisplayInfo());
+        }
+
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                tableComp.updateSize(displayInfos);
+                updateUncompressSizeLbl();
+            }
+        });
+    }
+
+    /**
+     * Updates the estimated uncompressed size of selected entries.
+     */
+    private void updateUncompressSizeLbl() {
+        long totalSize = 0;
+        for (String archiveName : archiveInfoMap.keySet()) {
+            ArchiveInfo archiveInfo = archiveInfoMap.get(archiveName);
+            for (String categoryName : archiveInfo.getCategoryNames()) {
+                CategoryInfo categoryInfo = archiveInfo.get(categoryName);
+                for (DisplayData displayData : categoryInfo
+                        .getDisplayInfoList()) {
+                    if (displayData.isSelected()) {
+                        long size = displayData.getSize();
+                        if (size < 0) {
+                            // Size still being computed.
+                            uncompressSizeLbl.setText("????MB");
+                            return;
+                        } else {
+                            totalSize += size;
+                        }
+                    }
+                }
+            }
+        }
+
+        uncompressSizeLbl.setText(SizeUtil.prettyByteSize(totalSize));
     }
 }

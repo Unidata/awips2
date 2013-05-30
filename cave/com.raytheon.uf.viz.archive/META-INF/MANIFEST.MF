@@ -12,6 +12,8 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.8.2",
  com.raytheon.uf.common.localization;bundle-version="1.12.1174",
  com.raytheon.uf.common.archive;bundle-version="1.0.0",
  com.raytheon.uf.common.time;bundle-version="1.12.1174",
- com.raytheon.uf.common.util;bundle-version="1.12.1174"
+ com.raytheon.uf.common.util;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.core;bundle-version="1.12.1174",
+ com.raytheon.uf.common.units;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
