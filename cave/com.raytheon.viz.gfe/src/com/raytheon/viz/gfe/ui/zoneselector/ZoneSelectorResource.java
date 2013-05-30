@@ -36,11 +36,19 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
+import org.geotools.coverage.grid.GeneralGridEnvelope;
+import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.opengis.metadata.spatial.PixelOrientation;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.util.WorldWrapCorrector;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -74,6 +82,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
@@ -91,6 +100,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * ------------ ---------- ----------- --------------------------
  * Aug 11, 2011            randerso    Initial creation
  * Apr 10, 2013      #1854 randerso    Fix for compatibility with PostGIS 2.0
+ * May 30, 2013 #2028      randerso    Fixed date line issue with map display
  * 
  * </pre>
  * 
@@ -543,6 +553,8 @@ public class ZoneSelectorResource extends DbMapResource {
 
     private GridLocation gloc;
 
+    private WorldWrapCorrector worldWrapCorrector;
+
     /**
      * @param data
      * @param loadProperties
@@ -557,6 +569,14 @@ public class ZoneSelectorResource extends DbMapResource {
         this.outlineColor = RGBColors.getRGBColor("white");
         this.wfoOutlineColor = RGBColors.getRGBColor("yellow");
         this.gloc = gloc;
+
+        GeneralEnvelope env = new GeneralEnvelope(MapUtil.LATLON_PROJECTION);
+        env.setEnvelope(-180.0, -90.0, 180.0, 90.0);
+
+        GridGeometry2D latLonGridGeometry = new GridGeometry2D(
+                new GeneralGridEnvelope(new int[] { 0, 0 }, new int[] { 360,
+                        180 }, false), env);
+        this.worldWrapCorrector = new WorldWrapCorrector(latLonGridGeometry);
     }
 
     private ZoneInfo getZoneInfo(String zoneName) {
@@ -746,7 +766,7 @@ public class ZoneSelectorResource extends DbMapResource {
             if (font == null) {
                 font = GFEFonts.getFont(aTarget, 2);
             }
-            double screenToWorldRatio = paintProps.getView().getExtent()
+            double worldToScreenRatio = paintProps.getView().getExtent()
                     .getWidth()
                     / paintProps.getCanvasBounds().width;
 
@@ -772,7 +792,7 @@ public class ZoneSelectorResource extends DbMapResource {
                                 + Math.abs(tuple.y - y);
                         minDistance = Math.min(distance, minDistance);
                     }
-                    if (minDistance > 100 * screenToWorldRatio) {
+                    if (minDistance > 100 * worldToScreenRatio) {
                         String[] text = new String[] { "", "" };
                         if (this.labelZones) {
                             text[0] = zone;
@@ -972,7 +992,7 @@ public class ZoneSelectorResource extends DbMapResource {
     protected String getGeospatialConstraint(String geometryField, Envelope env) {
         StringBuilder constraint = new StringBuilder();
 
-        Geometry g1 = MapUtil.getBoundingGeometry(gloc);
+        Geometry g1 = buildBoundingGeometry(gloc);
         if (env != null) {
             g1 = g1.intersection(MapUtil.createGeometry(env));
         }
@@ -980,19 +1000,24 @@ public class ZoneSelectorResource extends DbMapResource {
         constraint.append("ST_Intersects(");
         constraint.append(geometryField);
         constraint.append(", ST_GeomFromText('");
-        constraint.append(g1.toString());
+        constraint.append(g1.toText());
         constraint.append("',4326))");
 
         return constraint.toString();
     }
 
+    /**
+     * Get the bounding envelope of all overlapping geometry in CRS coordinates
+     * 
+     * @return the envelope
+     */
     public Envelope getBoundingEnvelope() {
         if (this.boundingEnvelope == null) {
             try {
                 this.boundingEnvelope = new Envelope();
                 StringBuilder query = new StringBuilder("SELECT ");
 
-                query.append("asBinary(ST_extent(");
+                query.append("asBinary(ST_Envelope(");
                 query.append(resourceData.getGeomField());
                 query.append(")) as extent");
 
@@ -1019,11 +1044,20 @@ public class ZoneSelectorResource extends DbMapResource {
                         query.toString(), "maps", QueryLanguage.SQL);
 
                 WKBReader wkbReader = new WKBReader();
-                byte[] b = (byte[]) mappedResult.getRowColumnValue(0, "extent");
-                if (b != null) {
-                    Geometry g = wkbReader.read(b);
-                    this.boundingEnvelope.expandToInclude(g
-                            .getEnvelopeInternal());
+                for (int i = 0; i < mappedResult.getResultCount(); i++) {
+                    byte[] b = (byte[]) mappedResult.getRowColumnValue(i,
+                            "extent");
+                    if (b != null) {
+                        Geometry g = wkbReader.read(b);
+                        Envelope env = g.getEnvelopeInternal();
+
+                        ReferencedEnvelope llEnv = new ReferencedEnvelope(env,
+                                MapUtil.LATLON_PROJECTION);
+                        ReferencedEnvelope projEnv = llEnv.transform(
+                                gloc.getCrs(), true);
+
+                        this.boundingEnvelope.expandToInclude(projEnv);
+                    }
                 }
 
             } catch (VizException e) {
@@ -1047,5 +1081,130 @@ public class ZoneSelectorResource extends DbMapResource {
         double[] d = super.getLevels();
         // d = new double[] { d[d.length - 1] };
         return d;
+    }
+
+    private Geometry buildBoundingGeometry(GridLocation gloc) {
+
+        try {
+            Coordinate ll = MapUtil.gridCoordinateToNative(
+                    new Coordinate(0, 0), PixelOrientation.LOWER_LEFT, gloc);
+            Coordinate ur = MapUtil.gridCoordinateToNative(
+                    new Coordinate(gloc.getNx(), gloc.getNy()),
+                    PixelOrientation.LOWER_LEFT, gloc);
+
+            MathTransform latLonToCRS = MapUtil.getTransformFromLatLon(gloc
+                    .getCrs());
+
+            Coordinate pole = null;
+            double[] output = new double[2];
+            try {
+                latLonToCRS.transform(new double[] { 0, 90 }, 0, output, 0, 1);
+                Coordinate northPole = new Coordinate(output[0], output[1]);
+
+                if (northPole.x >= ll.x && northPole.x <= ur.x
+                        && northPole.y >= ll.y && northPole.y <= ur.y) {
+                    pole = northPole;
+
+                }
+            } catch (TransformException e) {
+                // north pole not defined in CRS
+            }
+
+            if (pole == null) {
+                try {
+                    latLonToCRS.transform(new double[] { 0, -90 }, 0, output,
+                            0, 1);
+                    Coordinate southPole = new Coordinate(output[0], output[1]);
+                    if (southPole.x >= ll.x && southPole.x <= ur.x
+                            && southPole.y >= ll.y && southPole.y <= ur.y) {
+                        pole = southPole;
+                    }
+                } catch (TransformException e) {
+                    // south pole not defined in CRS
+                }
+            }
+
+            // compute delta = min cell dimension in meters
+            Coordinate cellSize = gloc.gridCellSize();
+            double delta = Math.min(cellSize.x, cellSize.y) * 1000;
+
+            Geometry poly;
+            if (pole == null) {
+                poly = polygonFromGloc(gloc, delta, ll, ur);
+            } else {
+                // if pole is in the domain split the domain into four quadrants
+                // with corners at the pole
+                Coordinate[][] quadrant = new Coordinate[4][2];
+                quadrant[0][0] = ll;
+                quadrant[0][1] = pole;
+
+                quadrant[1][0] = new Coordinate(ll.x, pole.y);
+                quadrant[1][1] = new Coordinate(pole.x, ur.y);
+
+                quadrant[2][0] = pole;
+                quadrant[2][1] = ur;
+
+                quadrant[3][0] = new Coordinate(pole.x, ll.y);
+                quadrant[3][1] = new Coordinate(ur.x, pole.y);
+
+                List<Polygon> polygons = new ArrayList<Polygon>(4);
+                for (Coordinate[] q : quadrant) {
+                    if (q[1].x > q[0].x && q[1].y > q[0].y) {
+                        polygons.add(polygonFromGloc(gloc, delta, q[0], q[1]));
+                    }
+                }
+
+                GeometryFactory gf = new GeometryFactory();
+                poly = gf.createMultiPolygon(polygons
+                        .toArray(new Polygon[polygons.size()]));
+            }
+
+            MathTransform crsToLatLon = MapUtil.getTransformToLatLon(gloc
+                    .getCrs());
+            poly = JTS.transform(poly, crsToLatLon);
+
+            // correct for world wrap
+            poly = this.worldWrapCorrector.correct(poly);
+
+            return poly;
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error computing bounding geometry", e);
+        }
+        return null;
+    }
+
+    private Polygon polygonFromGloc(GridLocation gridLoc, double delta,
+            Coordinate ll, Coordinate ur) {
+
+        double width = ur.x - ll.x;
+        double height = ur.y - ll.y;
+
+        int nx = (int) Math.abs(Math.ceil(width / delta));
+        int ny = (int) Math.abs(Math.ceil(height / delta));
+
+        double dx = width / nx;
+        double dy = height / ny;
+
+        Coordinate[] coordinates = new Coordinate[2 * (nx + ny) + 1];
+        int i = 0;
+        for (int x = 0; x < nx; x++) {
+            coordinates[i++] = new Coordinate(x * dx + ll.x, ll.y);
+        }
+        for (int y = 0; y < ny; y++) {
+            coordinates[i++] = new Coordinate(ur.x, y * dy + ll.y);
+        }
+        for (int x = nx; x > 0; x--) {
+            coordinates[i++] = new Coordinate(x * dx + ll.x, ur.y);
+        }
+        for (int y = ny; y > 0; y--) {
+            coordinates[i++] = new Coordinate(ll.x, y * dy + ll.y);
+        }
+        coordinates[i++] = coordinates[0];
+
+        GeometryFactory gf = new GeometryFactory();
+        LinearRing shell = gf.createLinearRing(coordinates);
+        Polygon poly = gf.createPolygon(shell, null);
+        return poly;
     }
 }
