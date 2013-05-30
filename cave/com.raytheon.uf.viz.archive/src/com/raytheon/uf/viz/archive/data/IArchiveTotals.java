@@ -19,10 +19,8 @@
  **/
 package com.raytheon.uf.viz.archive.data;
 
-import java.util.List;
-
 /**
- * A listener to update file/directory information.
+ * Interface for methods for getting totals needed by the ArchiveTableComp.
  * 
  * <pre>
  * 
@@ -30,18 +28,19 @@ import java.util.List;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 16, 2013 1966       rferrel     Initial creation
+ * May 29, 2013 1996       rferrel     Initial creation
  * 
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
-public interface IUpdateListener {
+
+public interface IArchiveTotals {
     /**
-     * Table display state entries with updated information.
+     * Total selected items from all tables.
      * 
-     * @param dirInfos
+     * @return totalSelectedItems.
      */
-    public void update(List<DirInfo> dirInfos);
+    public int getTotalSelectedItems();
 }
