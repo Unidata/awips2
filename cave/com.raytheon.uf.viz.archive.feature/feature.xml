@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="com.raytheon.uf.viz.archive.feature"
-      label="Feature"
+      label="CAVE Archive Feature"
       version="1.0.0.qualifier"
       provider-name="RAYTHEON">
 
@@ -31,6 +31,13 @@
 
    <plugin
          id="com.raytheon.uf.viz.archive"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.archive"
          download-size="0"
          install-size="0"
          version="0.0.0"
