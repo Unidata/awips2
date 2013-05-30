@@ -22,6 +22,8 @@ package com.raytheon.uf.edex.registry.ebxml.dao;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.NotificationListener;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
 
+import org.junit.Ignore;
+
 /**
  * A plugin subscribed listener.
  * 
@@ -38,7 +40,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
  * @author djohnson
  * @version 1.0
  */
-
+@Ignore
 public class PluginSubscribedListener implements NotificationListener {
 
     private boolean notified;
