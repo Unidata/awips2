@@ -32,6 +32,7 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
+import com.raytheon.uf.viz.archive.data.IArchiveTotals;
 import com.raytheon.uf.viz.archive.ui.ArchiveTableComp.TableType;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -51,7 +52,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @author lvenable
  * @version 1.0
  */
-public class ArchiveRetentionDlg extends CaveSWTDialog {
+public class ArchiveRetentionDlg extends CaveSWTDialog implements IArchiveTotals {
 
     /** Table composite that holds the table controls. */
     private ArchiveTableComp tableComp;
@@ -218,7 +219,7 @@ public class ArchiveRetentionDlg extends CaveSWTDialog {
      * Create the table control.
      */
     private void createTable() {
-        tableComp = new ArchiveTableComp(shell, TableType.Case);
+        tableComp = new ArchiveTableComp(shell, TableType.Case, this);
     }
 
     /**
@@ -345,5 +346,11 @@ public class ArchiveRetentionDlg extends CaveSWTDialog {
         categoryCbo.add("Point");
         categoryCbo.add("Satellite");
         categoryCbo.select(0);
+    }
+
+    @Override
+    public int getTotalSelectedItems() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 }
