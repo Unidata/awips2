@@ -78,5 +78,32 @@ public class PointTime extends Time implements ISerializableObject, Serializable
     public List<Date> getTimes() {
         return times;
     }
+    
+    /**
+     * gets the most recent date
+     */
+    public Date getEndDate() {
+        for (Date time: getTimes()) {
+            if (endDate == null) {
+                endDate = time;
+            } else if(endDate.before(time)) {
+                endDate = time;
+            }
+        }
+        return endDate;
+    }
 
+    /**
+     * gets the earliest date
+     */
+    public Date getStartDate() {
+        for (Date time: getTimes()) {
+            if (startDate == null) {
+                startDate = time;
+            } else if(startDate.after(time)) {
+                startDate = time;
+            }
+        }
+        return startDate;
+    }
 }
