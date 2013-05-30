@@ -52,7 +52,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.mapping.PluginRouteList;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 26, 2012  1367         dhladky     Common plugin route persistance
+ * Nov 26, 2012  1367      dhladky  Common plugin route persistence
  * 
  * </pre>
  * 
