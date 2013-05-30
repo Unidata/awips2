@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.archive.ui;
 
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -34,6 +36,10 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+
+import com.raytheon.uf.common.archive.config.ArchiveConfigManager.DisplayData;
+import com.raytheon.uf.common.util.SizeUtil;
+import com.raytheon.uf.viz.archive.data.IArchiveTotals;
 
 /**
  * Archive table composite that contains the SWT table.
@@ -53,6 +59,9 @@ import org.eclipse.swt.widgets.TableItem;
  */
 public class ArchiveTableComp extends Composite {
 
+    /** Key for getting Display Information state. */
+    private final String DISPLAY_INFO_KEY = "displayInfo";
+
     /** Table control. */
     private Table table;
 
@@ -61,6 +70,9 @@ public class ArchiveTableComp extends Composite {
 
     /** Number of selected items label. */
     private Label selectedLbl;
+
+    /** Total selected items for all tables */
+    private Label totalSelectedLbl;
 
     /** Size label. */
     private Label sizeLbl;
@@ -73,6 +85,8 @@ public class ArchiveTableComp extends Composite {
     /** Current table type. */
     private TableType tableType = TableType.Retention;
 
+    private IArchiveTotals iTotalSelectedSize;
+
     /**
      * Constructor.
      * 
@@ -81,10 +95,12 @@ public class ArchiveTableComp extends Composite {
      * @param type
      *            Table type.
      */
-    public ArchiveTableComp(Composite parent, TableType type) {
+    public ArchiveTableComp(Composite parent, TableType type,
+            IArchiveTotals iTotalSelectedSize) {
         super(parent, 0);
 
         tableType = type;
+        this.iTotalSelectedSize = iTotalSelectedSize;
         init();
     }
 
@@ -103,41 +119,35 @@ public class ArchiveTableComp extends Composite {
         createTable();
         createTableLabels();
 
-        updateSelectionLabel();
+        updateSelectionLabels();
     }
 
     /**
      * Create the table control.
      */
     private void createTable() {
+        GridData gd = null;
+
         table = new Table(this, SWT.CHECK | SWT.BORDER | SWT.V_SCROLL
                 | SWT.H_SCROLL | SWT.MULTI);
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
         gd.widthHint = 730;
         gd.heightHint = 270;
         table.setLayoutData(gd);
         table.setHeaderVisible(true);
         table.setLinesVisible(true);
 
-        TableColumn pathColumn = new TableColumn(table, SWT.CENTER);
-        pathColumn.setText("Path");
+        TableColumn pathColumn = new TableColumn(table, SWT.LEFT);
+        pathColumn.setText("Label");
 
         TableColumn sizeColumn = new TableColumn(table, SWT.CENTER);
         if (tableType == TableType.Retention) {
-            sizeColumn.setText("Current Size (MB)");
+            sizeColumn.setText("Current Size");
         } else if (tableType == TableType.Case) {
-            sizeColumn.setText("Size (MB)");
+            sizeColumn.setText("Size");
         }
 
-        populateTable();
-
-        for (int i = 0; i < 2; i++) {
-            table.getColumn(i).setResizable(false);
-            table.getColumn(i).setMoveable(false);
-            table.getColumn(i).pack();
-        }
-
-        table.getColumn(1).setWidth(100);
+        table.getColumn(0).setWidth(500);
 
         table.addMouseListener(new MouseAdapter() {
             @Override
@@ -152,7 +162,7 @@ public class ArchiveTableComp extends Composite {
         table.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                updateSelectionLabel();
+                updateSelectionLabels();
             }
         });
     }
@@ -162,7 +172,7 @@ public class ArchiveTableComp extends Composite {
      */
     private void createTableLabels() {
         Composite lblComp = new Composite(this, SWT.NONE);
-        GridLayout gl = new GridLayout(2, true);
+        GridLayout gl = new GridLayout(3, true);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         lblComp.setLayout(gl);
         lblComp.setLayoutData(gd);
@@ -171,30 +181,51 @@ public class ArchiveTableComp extends Composite {
         selectedLbl = new Label(lblComp, SWT.NONE);
         selectedLbl.setLayoutData(gd);
 
-        /*
-         * TODO : keep for future use. This will be used to show the total size
-         * of the selected items in the table.
-         */
-        // gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        // sizeLbl = new Label(lblComp, SWT.NONE);
-        // sizeLbl.setLayoutData(gd);
-        // sizeLbl.setText("Size of Selected items: 0" + sizeSuffix);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        sizeLbl = new Label(lblComp, SWT.NONE);
+        sizeLbl.setLayoutData(gd);
+
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        totalSelectedLbl = new Label(lblComp, SWT.NONE);
+        totalSelectedLbl.setLayoutData(gd);
     }
 
     /**
-     * Update the selection items label.
+     * Update the selection items labels.
      */
-    private void updateSelectionLabel() {
+    private void updateSelectionLabels() {
         TableItem[] itemArray = table.getItems();
         int count = 0;
+        long tableTotalSize = 0;
 
         for (TableItem ti : itemArray) {
+            DisplayData displayInfo = (DisplayData) ti
+                    .getData(DISPLAY_INFO_KEY);
             if (ti.getChecked()) {
-                count++;
+                ++count;
+                displayInfo.setSelected(true);
+                if (tableTotalSize >= 0) {
+                    long diSize = displayInfo.getSize();
+                    if (diSize < 0) {
+                        tableTotalSize = diSize;
+                    } else {
+                        tableTotalSize += diSize;
+                    }
+                }
+            } else {
+                displayInfo.setSelected(false);
             }
         }
 
-        selectedLbl.setText("Selected Items: " + count);
+        selectedLbl.setText("Table Selected Items: " + count);
+        int totalSelectedSize = iTotalSelectedSize.getTotalSelectedItems();
+        totalSelectedLbl.setText("Total Selected Items: " + totalSelectedSize);
+
+        String sizeString = "????";
+        if (tableTotalSize >= 0) {
+            sizeString = SizeUtil.prettyByteSize(tableTotalSize);
+        }
+        sizeLbl.setText("Table Selected Size: " + sizeString);
     }
 
     /**
@@ -260,12 +291,12 @@ public class ArchiveTableComp extends Composite {
      */
     private void handleCheckSelectedRow(boolean check) {
         TableItem[] itemArray = table.getSelection();
-
+        System.out.println("handleCheckSelectedRow: " + check);
         for (TableItem ti : itemArray) {
             ti.setChecked(check);
         }
 
-        updateSelectionLabel();
+        updateSelectionLabels();
     }
 
     /**
@@ -281,23 +312,51 @@ public class ArchiveTableComp extends Composite {
             ti.setChecked(check);
         }
 
-        updateSelectionLabel();
+        updateSelectionLabels();
+    }
+
+    public void updateSize(List<DisplayData> displayInfos) {
+        TableItem[] itemArray = table.getItems();
+
+        for (DisplayData displayInfo : displayInfos) {
+            for (TableItem ti : itemArray) {
+                if (displayInfo.equals(ti.getData(DISPLAY_INFO_KEY))) {
+                    setItemSize(ti);
+                }
+            }
+        }
     }
 
     /*
      * TODO : this is just for display purposes. This will go away when the
      * functionality is implemented.
      */
-    private void populateTable() {
-        for (int i = 0; i < 150; i++) {
+    protected void populateTable(List<DisplayData> displayInfoArray) {
+        table.removeAll();
+        for (DisplayData displayInfo : displayInfoArray) {
             TableItem item = new TableItem(table, SWT.NONE);
-            item.setText(0,
-                    "/home/lvenable/caveData/configuration/base/com.raytheon.uf.viz.gisdatastore/"
-                            + i + "   ");
-            if (i % 5 == 0) {
-                item.setChecked(true);
-            }
-            item.setText(1, "?????");
+            item.setData(DISPLAY_INFO_KEY, displayInfo);
+            item.setChecked(displayInfo.isSelected());
+            item.setText(0, displayInfo.getDisplayLabel());
+
+            item.setChecked(displayInfo.isSelected());
+            setItemSize(item);
+        }
+        for (int i = 0; i < 2; i++) {
+            table.getColumn(i).setResizable(false);
+            table.getColumn(i).setMoveable(false);
+            table.getColumn(i).pack();
+        }
+        table.getColumn(0).setWidth(600);
+        updateSelectionLabels();
+    }
+
+    private void setItemSize(TableItem item) {
+        long size = ((DisplayData) item.getData(DISPLAY_INFO_KEY)).getSize();
+        if (size < 0L) {
+            item.setText(1, "????");
+        } else {
+            item.setText(1, SizeUtil.prettyByteSize(size));
         }
     }
 }
