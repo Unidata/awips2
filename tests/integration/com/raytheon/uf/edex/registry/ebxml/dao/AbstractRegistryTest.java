@@ -47,7 +47,6 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +58,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.Lists;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.util.SpringFiles;
-import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl.RETURN_TYPE;
@@ -107,13 +105,8 @@ public class AbstractRegistryTest {
     @Autowired
     protected LifecycleManager lifecycleManager;
 
+    @Autowired
     protected QueryManager queryManager;
-
-    @Before
-    public void setUp() {
-        this.queryManager = EDEXUtil.getESBComponent(QueryManager.class,
-                "queryServiceImpl");
-    }
 
     /**
      * Submits the registry object to the registry and verifies it was
