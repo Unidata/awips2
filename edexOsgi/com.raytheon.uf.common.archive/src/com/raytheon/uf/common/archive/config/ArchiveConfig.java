@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.archive.config;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -128,11 +129,16 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
 
     /**
      * Set the fully qualified name of the directory all components are relative
+     * to.
      * 
      * @param rootDir
      */
     public void setRootDir(String rootDir) {
-        this.rootDir = rootDir;
+        if (rootDir != null && !rootDir.endsWith(File.separator)) {
+            this.rootDir = rootDir + File.separator;
+        } else {
+            this.rootDir = rootDir;
+        }
     }
 
     /**
