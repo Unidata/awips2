@@ -225,8 +225,19 @@ public class TestPathManager extends PathManager {
                 }
 
                 if (buildEdexDir == null) {
-                    throw new RuntimeException(
-                            "Unable to find the build.edex directory!");
+                    // work assignment workaround to for tests since we don't
+                    // know where the baseline repo is and we can't necessarily
+                    // find files if we don't know the baseline repo's location
+                    // THIS MEANS THAT FOR WORK ASSIGNMENTS WE MUST HAVE
+                    // BASELINE_DIR SET
+                    buildEdexDir = new File(System.getenv("baseline_dir")
+                            .replace("\n", ""), "edexOsgi" + File.separator
+                            + "build.edex");
+                    if (buildEdexDir.exists() == false
+                            || buildEdexDir.isDirectory() == false) {
+                        throw new RuntimeException(
+                                "Unable to find the build.edex directory!");
+                    }
                 }
 
                 // Plugin utility directories
