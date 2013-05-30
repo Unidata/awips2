@@ -27,4 +27,5 @@ export EDEX_DEBUG_PORT=5010
 export EDEX_JMX_PORT=1621
 export LOG4J_CONF=log4j-dataprovideragent.xml
 export MGMT_PORT=9606
+export DB_DIALECT=org.hibernatespatial.postgis.PostgisDialect
 
