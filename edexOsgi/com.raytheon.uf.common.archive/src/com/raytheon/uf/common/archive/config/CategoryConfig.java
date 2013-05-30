@@ -35,7 +35,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  *   &lt;!-- When 0 default to the parent archive's retentionHours -->
  *   &lt;retentionHours>0&lt;/retentionHours>
  *   &lt;dirPattern>hdf5/(redbook)&lt;/dirPattern>
- *   &lt;display>{1}&lt;/display>
+ *   &lt;displayLabel>{1}&lt;/displayLabel>
  *   &lt;filePattern>redbook-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*&lt;/filePattern>
  *   &lt;dateGroupIndices>2,3,4,5&lt;/dateGroupIndices>
  * &lt;/category>
@@ -48,7 +48,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  *   &lt;name>Model grib&lt;/name>
  *   &lt;retentionHours>0&lt;/retentionHours>
  *   &lt;dirPattern>grib/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)&lt;/dirPattern>
- *   &lt;display>{5}&lt;/display>
+ *   &lt;displayLabel>{5}&lt;/displayLabel>
  *   &lt;dateGroupIndices>1,2,3,4&lt;/dateGroupIndices>
  * &lt;/category>
  * </pre>
@@ -101,14 +101,14 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
      * 
      * <pre>
      * &lt;dirName>(grib2)/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)&lt;/dirName>
-     * &lt;display>{1} - {6}&lt;/display>
+     * &lt;displayLabel>{1} - {6}&lt;/displayLabel>
      * </pre>
      * 
      * The {1} will be replaced by the first group (grib2) in the regex
      * expression in dirName. The {6} is the sixth group (.*). {0} is the whole
      * expression match.
      */
-    @XmlElement(name = "display")
+    @XmlElement(name = "displayLabel")
     private String display;
 
     /**
@@ -120,7 +120,7 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
      * 
      * <pre>
      *   &lt;dirPattern>hdf5/(redbook)&lt;/dirPattern>
-     *   &lt;display>{1}&lt;/display>
+     *   &lt;displayLabel>{1}&lt;/displayLabel>
      *   &lt;filePattern>redbook-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*&lt;/filePattern>
      *   &lt;dateGroupIndices>2,3,4,5&lt;/dateGroupIndices>
      * </pre>
@@ -199,7 +199,7 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
     }
 
     /**
-     * Get the diaplay pattern.
+     * Get the display label pattern.
      * 
      * @return display
      */
@@ -208,7 +208,7 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
     }
 
     /**
-     * Set the display pattern.
+     * Set the display label pattern.
      * 
      * @param display
      */
@@ -274,7 +274,7 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
         sb.append(", retentionHours: ").append(getRetentionHours());
         sb.append(", dirPattern: ").append(getDirPattern());
         sb.append(", filePattern: ").append(getFilePattern());
-        sb.append(", display: ").append(getDisplay());
+        sb.append(", displayLabel: ").append(getDisplay());
         sb.append(", dateGroupIndices: ").append(getDateGroupIndices());
         sb.append("]");
         return sb.toString();
