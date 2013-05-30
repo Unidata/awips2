@@ -87,7 +87,7 @@ public class ArchiveConfigManagerTest {
     private ArchiveConfigManager manager;
 
     private ArchiveConfig archive;
-    
+
     private Collection<File> archiveFiles = new ArrayList<File>();
 
     private Collection<File> expiredFiles = new ArrayList<File>();
@@ -97,7 +97,7 @@ public class ArchiveConfigManagerTest {
     private Calendar referenceCalendar;
 
     private Calendar archiveStart;
-    
+
     private Calendar archiveEnd;
 
     private List<String> selectedForArchive;
@@ -149,7 +149,8 @@ public class ArchiveConfigManagerTest {
         createTestFiles(grib1Format, getRetentionHours(archive, grib1Cat),
                 false, archiveStart, archiveEnd);
         // manager is not configured internally until this is called...
-        manager.getDisplayLabels(archive.getName(), grib1Cat.getName());
+        // TODO Brad will fix.
+        // manager.getDisplayLabels(archive.getName(), grib1Cat.getName());
 
         // **** sat ****
         CategoryConfig satCat = getCategory(archive, SAT_CAT_NAME);
@@ -158,7 +159,8 @@ public class ArchiveConfigManagerTest {
         createTestFiles(satFormat, getRetentionHours(archive, satCat), true,
                 archiveStart, archiveEnd);
         // manager is not configured internally until this is called...
-        manager.getDisplayLabels(archive.getName(), satCat.getName());
+        // TODO Brad will fix.
+        // manager.getDisplayLabels(archive.getName(), satCat.getName());
 
         // **** acars ****
         CategoryConfig otherCat = getCategory(archive, "Model other");
@@ -180,7 +182,8 @@ public class ArchiveConfigManagerTest {
         createTestFiles(bufrsigwxFormat, otherCatRetentionHours, false,
                 archiveStart, archiveEnd);
         // manager is not configured internally until this is called...
-        manager.getDisplayLabels(archive.getName(), otherCat.getName());
+        // TODO Brad will fix.
+        // manager.getDisplayLabels(archive.getName(), otherCat.getName());
 
         // create test archive data dir
         archiveDir = new File(TEST_DIR, TEST_ARCHIVE_DIR);
@@ -224,12 +227,9 @@ public class ArchiveConfigManagerTest {
         createDataFile(moreThanOneDayOld, dataFileNameFormat);
 
         // create data file older than purge time
-        Calendar lessThanExpiredCalendar = (Calendar) referenceCalendar
-                .clone();
-        lessThanExpiredCalendar.add(Calendar.HOUR, (-1
-                * retentionHours - 1));
-        dataFile = createDataFile(lessThanExpiredCalendar,
-                dataFileNameFormat);
+        Calendar lessThanExpiredCalendar = (Calendar) referenceCalendar.clone();
+        lessThanExpiredCalendar.add(Calendar.HOUR, (-1 * retentionHours - 1));
+        dataFile = createDataFile(lessThanExpiredCalendar, dataFileNameFormat);
         expiredFiles.add(dataFile);
         purgeFiles.add(dataFile);
 
@@ -250,7 +250,7 @@ public class ArchiveConfigManagerTest {
 
         archiveStart.add(Calendar.HOUR, -20);
         archiveEnd.add(Calendar.HOUR, -3);
-        
+
         yyyyMMFormat.setCalendar(referenceCalendar);
         ddFormat.setCalendar(referenceCalendar);
         hhFormat.setCalendar(referenceCalendar);
