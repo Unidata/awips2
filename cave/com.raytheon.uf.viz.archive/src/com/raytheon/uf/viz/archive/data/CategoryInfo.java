@@ -21,8 +21,11 @@ package com.raytheon.uf.viz.archive.data;
 
 import java.util.List;
 
+import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
+
 /**
- * A listener to update file/directory information.
+ * This class used to maintain the state of a category so it can be restored
+ * when reselected.
  * 
  * <pre>
  * 
@@ -30,18 +33,37 @@ import java.util.List;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 16, 2013 1966       rferrel     Initial creation
+ * May 24, 2013 1966        rferrel     Initial creation
  * 
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
-public interface IUpdateListener {
-    /**
-     * Table display state entries with updated information.
-     * 
-     * @param dirInfos
-     */
-    public void update(List<DirInfo> dirInfos);
+
+public class CategoryInfo {
+    private final String archiveName;
+
+    private final String categoryName;
+
+    private final List<ArchiveConfigManager.DisplayData> displayInfoList;
+
+    public CategoryInfo(String archiveName, String categoryName,
+            List<ArchiveConfigManager.DisplayData> displayInfoList) {
+        this.archiveName = archiveName;
+        this.categoryName = categoryName;
+        this.displayInfoList = displayInfoList;
+    }
+
+    public String getArchiveName() {
+        return archiveName;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public List<ArchiveConfigManager.DisplayData> getDisplayInfoList() {
+        return displayInfoList;
+    }
 }

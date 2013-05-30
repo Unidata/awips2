@@ -19,10 +19,13 @@
  **/
 package com.raytheon.uf.viz.archive.data;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * A listener to update file/directory information.
+ * This class maintains the state of the archive selection so it can be restored
+ * by the GUI.
  * 
  * <pre>
  * 
@@ -30,18 +33,30 @@ import java.util.List;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 16, 2013 1966       rferrel     Initial creation
+ * May 24, 2013 1966       rferrel     Initial creation
  * 
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
-public interface IUpdateListener {
-    /**
-     * Table display state entries with updated information.
-     * 
-     * @param dirInfos
-     */
-    public void update(List<DirInfo> dirInfos);
+
+public class ArchiveInfo {
+    private final Map<String, CategoryInfo> categoryInfoMap = new HashMap<String, CategoryInfo>();
+
+    public void add(CategoryInfo categoryInfo) {
+        categoryInfoMap.put(categoryInfo.getCategoryName(), categoryInfo);
+    }
+
+    public CategoryInfo get(String categoryName) {
+        return categoryInfoMap.get(categoryName);
+    }
+
+    public void clear() {
+        categoryInfoMap.clear();
+    }
+
+    public Set<String> getCategoryNames() {
+        return categoryInfoMap.keySet();
+    }
 }
