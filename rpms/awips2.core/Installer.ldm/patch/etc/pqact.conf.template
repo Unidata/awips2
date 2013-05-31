@@ -32,6 +32,7 @@
 #20121009            1252 jkorman     Corrections and additions from Dale Morris.
 #20121211            1411 rferrel     More corrections and additions from Dale Morris.
 #20130326            1828 rferrel     Fix patterns for intlsigmets and text pattern not placing files in proper directory.
+#20130530            2054 rferrel     Minor fix to two grib patterns.
 #***************************************************************
 # AWIPS 1 PATTERN GRAPHIC	^[PQ].*				/redbook/Raw
 # PGNA00 KWNS 010001 !redbook 1_1/NMCGPHMCD/MCDSUM/PXSF001CN/20110201 0001
@@ -340,10 +341,10 @@ ANY	^(ZDIA98) (....) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9
 
 # Restore from build 12.12 with new grib storage convention. 
 HRS	^(YA)([WX])(A..) (KKCI) (..)(..)(..).*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})
-	FILE	-overwrite -log -close -edex	/data_store/\8/(\5:yyyy)(\5:mm)\5/\6/\9/GRID\(10)/\(12)Z_\(13)-\1\2\3_\4_5\6\7_(seq).\8.%Y%m%d%H
+	FILE	-overwrite -log -close -edex	/data_store/\8/(\5:yyyy)(\5:mm)\5/\6/\9/GRID\(10)/\(12)Z_\(13)-\1\2\3_\4_\5\6\7_(seq).\8.%Y%m%d%H
 
 HRS	^(ZV)(W)([ADGJM]..) (KKCI) (..)(..)(..).*!(grib|grib2)/[^/]*/([^/]*)/#([^/]*)/([0-9]{8})([0-9]{4})/(F[0-9]{3})
-	FILE	-overwrite -log -close -edex	/data_store/\8/(\5:yyyy)(\5:mm)\5/\6/\9/GRID\(10)/\(12)Z_\(13)-\1\2\3_\4_5\6\7_(seq).\8.%Y%m%d%H
+	FILE	-overwrite -log -close -edex	/data_store/\8/(\5:yyyy)(\5:mm)\5/\6/\9/GRID\(10)/\(12)Z_\(13)-\1\2\3_\4_\5\6\7_(seq).\8.%Y%m%d%H
 
 
 # AWIPS1:	POINT   .*IUPT(0[1-4]).*|.*IUPT40.*     /ispan/bufr/profiler
