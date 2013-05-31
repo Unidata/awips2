@@ -21,6 +21,7 @@ package com.raytheon.uf.common.datadelivery.registry.handlers;
 
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
@@ -46,6 +47,7 @@ import com.raytheon.uf.edex.registry.ebxml.dao.AbstractRegistryTest;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 29, 2013 1650       djohnson     Initial creation
+ * May 31, 2013 1650       djohnson     Fix ability to get shared subscriptions by id.
  * 
  * </pre>
  * 
@@ -94,5 +96,18 @@ public class SubscriptionHandlerTest extends AbstractRegistryTest {
         subscriptionHandler.delete("joeSchmo", subscriptions);
 
         assertThat(subscriptionHandler.getAll(), is(empty()));
+    }
+
+    @Test
+    public void getByIdReturnsSharedSubscription()
+            throws RegistryHandlerException {
+        final SharedSubscription sharedSubscription = SharedSubscriptionFixture.INSTANCE
+                .get();
+
+        final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
+                .getSubscriptionHandler();
+        subscriptionHandler.store(sharedSubscription);
+
+        assertNotNull(subscriptionHandler.getById(sharedSubscription.getId()));
     }
 }
