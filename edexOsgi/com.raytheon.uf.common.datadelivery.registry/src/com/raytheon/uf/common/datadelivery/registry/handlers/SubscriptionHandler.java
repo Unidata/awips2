@@ -34,6 +34,9 @@ import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.CollectionUtil;
 
 /**
@@ -53,6 +56,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
  * May 28, 2013 1650       djohnson     Add getByNames.
  * May 29, 2013 1650       djohnson     Fix ability to delete multiple types of subscriptions at once.
+ * May 31, 2013 1650       djohnson     Fix ability to get shared subscriptions by id.
  * 
  * </pre>
  * 
@@ -60,6 +64,9 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * @version 1.0
  */
 public class SubscriptionHandler implements ISubscriptionHandler {
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SubscriptionHandler.class);
 
     private final ISiteSubscriptionHandler siteSubscriptionHandler;
 
@@ -249,7 +256,19 @@ public class SubscriptionHandler implements ISubscriptionHandler {
      */
     @Override
     public Subscription getById(String id) throws RegistryHandlerException {
-        Subscription value = siteSubscriptionHandler.getById(id);
+        Subscription value = null;
+        try {
+            value = siteSubscriptionHandler.getById(id);
+        } catch (RegistryHandlerException e) {
+            if (e.getCause() instanceof ClassCastException) {
+                // This will happen for shared subscriptions
+                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                    statusHandler.handle(Priority.DEBUG,
+                            "Registry object with id [" + id
+                                    + "] is not a site subscription.", e);
+                }
+            }
+        }
         if (value == null) {
             value = sharedSubscriptionHandler.getById(id);
         }
@@ -353,11 +372,11 @@ public class SubscriptionHandler implements ISubscriptionHandler {
                                             + "].  Did you add a new subscription type?"));
                 }
             }
-            
+
             if (!siteSubscriptions.isEmpty()) {
                 siteSubscriptionHandler.delete(siteSubscriptions);
             }
-            
+
             if (!sharedSubscriptions.isEmpty()) {
                 sharedSubscriptionHandler.delete(sharedSubscriptions);
             }
@@ -390,11 +409,11 @@ public class SubscriptionHandler implements ISubscriptionHandler {
                                             + "].  Did you add a new subscription type?"));
                 }
             }
-            
+
             if (!siteSubscriptions.isEmpty()) {
                 siteSubscriptionHandler.delete(username, siteSubscriptions);
             }
-            
+
             if (!sharedSubscriptions.isEmpty()) {
                 sharedSubscriptionHandler.delete(username, sharedSubscriptions);
             }
