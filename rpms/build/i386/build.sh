@@ -254,7 +254,7 @@ if [ "${1}" = "-full" ]; then
       exit 1
    fi
    buildRPM "awips2-httpd-pypies"
-   buildRPM "awips2-java"
+   buildJava
    buildRPM "awips2-groovy"
    #buildRPM "awips2-ldm"
    buildRPM "awips2-postgres"
@@ -270,7 +270,7 @@ fi
 
 if [ "${1}" = "-ade" ]; then
    buildRPM "awips2-eclipse"
-   buildRPM "awips2-java"
+   buildJava
    buildRPM "awips2-ant"
    buildRPM "awips2-python"
    buildRPM "awips2-python-cherrypy"
