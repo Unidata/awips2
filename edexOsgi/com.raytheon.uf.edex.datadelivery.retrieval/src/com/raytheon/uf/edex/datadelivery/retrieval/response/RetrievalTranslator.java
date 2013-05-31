@@ -37,9 +37,10 @@ import com.raytheon.uf.edex.datadelivery.retrieval.metadata.adapters.AbstractMet
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 18, 2011    191        dhladky     Initial creation
+ * Jan 18, 2011    191     dhladky      Initial creation
  * Feb 07, 2013 1543       djohnson     Allow overriding of methods for mocking in tests.
  * Feb 12, 2013 1543       djohnson     Pass the exception as the cause for instantiation exceptions.
+ * May 31, 2013 2038       djohnson     Protected access for constructor.
  * 
  * </pre>
  * 
@@ -74,7 +75,7 @@ public abstract class RetrievalTranslator implements IRetrievalTranslator {
         }
     }
 
-    RetrievalTranslator(RetrievalAttribute attXML, String className)
+    protected RetrievalTranslator(RetrievalAttribute attXML, String className)
             throws InstantiationException {
         this.attXML = attXML;
         try {
