@@ -15,6 +15,41 @@
         <constructor-arg ref="ddRetrievalDatabaseProperties" />
     </bean>
 
+    <bean id="serviceFactoryRegistry"
+        class="com.raytheon.uf.edex.datadelivery.retrieval.ServiceTypeFactory"
+        factory-method="getServiceTypeRegistry" />
+
+    <bean id="metadataAdapterRegistry"
+        class="com.raytheon.uf.edex.datadelivery.retrieval.metadata.adapters.AbstractMetadataAdapter"
+        factory-method="getMetadataAdapterRegistry" />
+
+    <bean factory-bean="metadataAdapterRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.grid.GridRecord" />
+        <constructor-arg value="com.raytheon.uf.edex.datadelivery.retrieval.metadata.adapters.GridMetadataAdapter" type="java.lang.Class" />
+    </bean>
+
+    <!-- Register service factories -->
+    <bean factory-bean="serviceFactoryRegistry" factory-method="register">
+        <constructor-arg value="OPENDAP" />
+        <constructor-arg value="com.raytheon.uf.edex.datadelivery.retrieval.opendap.OpenDapServiceFactory" type="java.lang.Class" />
+    </bean>
+
+    <bean factory-bean="serviceFactoryRegistry" factory-method="register">
+        <constructor-arg value="WCS" />
+        <constructor-arg value="com.raytheon.uf.edex.datadelivery.retrieval.wcs.WcsServiceFactory" type="java.lang.Class" />
+    </bean>
+
+    <bean factory-bean="serviceFactoryRegistry" factory-method="register">
+        <constructor-arg value="WMS" />
+        <constructor-arg value="com.raytheon.uf.edex.datadelivery.retrieval.wms.WmsServiceFactory" type="java.lang.Class" />
+    </bean>
+
+    <bean factory-bean="serviceFactoryRegistry" factory-method="register">
+        <constructor-arg value="WXXM" />
+        <constructor-arg value="com.raytheon.uf.edex.datadelivery.retrieval.wxxm.WxxmServiceFactory" type="java.lang.Class" />
+    </bean>
+    <!-- End service factories -->
+
     <bean id="subNotifyTask"
         class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.SubscriptionNotifyTask">
         <constructor-arg ref="retrievalDao" />
