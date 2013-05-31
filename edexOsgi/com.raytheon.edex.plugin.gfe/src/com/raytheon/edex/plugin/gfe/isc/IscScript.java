@@ -92,10 +92,13 @@ public class IscScript extends PythonScript {
             Object retVal = super.execute(methodName, args);
             return retVal;
         } finally {
-            // if we don't ensure these two modifications to the python include
-            // path happen after every execution, site-specific paths can get
-            // stuck if a JepException is thrown by the execute() method.
+            // if we don't run these two commands after execution, site-specific
+            // paths and modules can get stuck in the interpreter's copy of
+            // sys.path or sys.modules if a JepException is thrown by the
+            // execute() method.
+            // the RollbackImporter handles sys.modules
             jep.eval("rollbackImporter.rollback()");
+            // while this cleans up sys.path
             removeSiteSpecificInclude(siteId);
         }
     }
