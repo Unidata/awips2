@@ -34,6 +34,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalGenerator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 30, 2013 1543       djohnson     Initial creation
+ * May 31, 2013 2038       djohnson     Call setProvider in constructor.
  * 
  * </pre>
  * 
@@ -47,7 +48,8 @@ public class MockOpenDapServiceFactory extends OpenDapServiceFactory {
      * @param provider
      */
     public MockOpenDapServiceFactory(Provider provider) {
-        super(provider);
+        super();
+        setProvider(provider);
     }
 
     @Override
