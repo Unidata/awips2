@@ -48,14 +48,21 @@ dropDatauriAndAddConstraint ldadmesonet ldadmesonet_stationid_reftime_reportType
 dropDatauriAndAddConstraint qc qc_stationid_reftime_qctype_latitude_longitude_key "(stationid, reftime, qcType, latitude, longitude)"
 
 # These type need a unique stationid so set one before dropping datauri.
-${PSQL} -U awips -d metadata -c "update bufrascat set stationid = to_char(longitude, 'FM999.999') || ':' || to_char(latitude, 'FM999.999')"
 dropDatauriAndAddConstraint bufrascat bufrascat_stationid_reftime_satid_latitude_longitude_key "(stationid, reftime, satid, latitude, longitude)"
-${PSQL} -U awips -d metadata -c "update bufrssmi set stationid = to_char(longitude, 'FM999.999') || ':' || to_char(latitude, 'FM999.999')"
+${PSQL} -U awips -d metadata -c "update bufrascat set stationid = to_char(longitude, 'FM999.999') || ':' || to_char(latitude, 'FM999.999')"
+${PSQL} -U awips -d metadata -c "VACUUM FULL ANALYZE bufrascat"
+
 dropDatauriAndAddConstraint bufrssmi bufrssmi_stationid_reftime_satid_latitude_longitude_key "(stationid, reftime, satid, latitude, longitude)"
-${PSQL} -U awips -d metadata -c "update bufrhdw set stationid = to_char(longitude, 'FM999.999') || ':' || to_char(latitude, 'FM999.999')"
+${PSQL} -U awips -d metadata -c "update bufrssmi set stationid = to_char(longitude, 'FM999.999') || ':' || to_char(latitude, 'FM999.999')"
+${PSQL} -U awips -d metadata -c "VACUUM FULL ANALYZE bufrssmi"
+
 dropDatauriAndAddConstraint bufrhdw bufrhdw_stationid_reftime_sattype_pressure_latitude_longitude_key "(stationid, reftime, sattype, pressure, latitude, longitude)"
-${PSQL} -U awips -d metadata -c "update bufrmthdw set stationid = to_char(longitude, 'FM999.999') || ':' || to_char(latitude, 'FM999.999')"
+${PSQL} -U awips -d metadata -c "update bufrhdw set stationid = to_char(longitude, 'FM999.999') || ':' || to_char(latitude, 'FM999.999')"
+${PSQL} -U awips -d metadata -c "VACUUM FULL ANALYZE bufrhdw"
+
 dropDatauriAndAddConstraint bufrmthdw bufrmthdw_stationid_reftime_sattype_pressure_latitude_longitude_key "(stationid, reftime, sattype, pressure, latitude, longitude)"
+${PSQL} -U awips -d metadata -c "update bufrmthdw set stationid = to_char(longitude, 'FM999.999') || ':' || to_char(latitude, 'FM999.999')"
+${PSQL} -U awips -d metadata -c "VACUUM FULL ANALYZE bufrmthdw"
 
 
 echo "INFO: dataURI columns dropped successfully"
