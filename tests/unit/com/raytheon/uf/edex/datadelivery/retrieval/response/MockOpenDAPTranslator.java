@@ -55,13 +55,15 @@ public class MockOpenDAPTranslator extends OpenDAPTranslator {
     public MockOpenDAPTranslator(RetrievalAttribute attXML)
             throws InstantiationException {
         super(attXML, GridRecord.class.getName());
+        this.attXML = attXML;
+        this.metadataAdapter = new MockGridMetaDataAdapter();
+        metadataAdapter.processAttributeXml(attXML);
     }
 
     @Override
     protected void configureFromPdoClassName(String className)
             throws ClassNotFoundException, InstantiationException {
         setPdoClass(className);
-        this.metadataAdapter = new MockGridMetaDataAdapter();
     }
 
     @Override
