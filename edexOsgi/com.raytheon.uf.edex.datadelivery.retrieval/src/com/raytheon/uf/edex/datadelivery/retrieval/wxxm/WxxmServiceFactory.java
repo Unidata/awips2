@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.wxxm;
 
 import java.util.Date;
 
+import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.edex.datadelivery.retrieval.IExtractMetaData;
 import com.raytheon.uf.edex.datadelivery.retrieval.IParseMetaData;
 import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalGenerator;
@@ -36,6 +37,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.ServiceFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 25, 2012 955        djohnson     Initial creation
+ * May 31, 2013 2038       djohnson     Add setProvider.
  * 
  * </pre>
  * 
@@ -75,4 +77,11 @@ public class WxxmServiceFactory implements ServiceFactory {
         return new WXXMRetrievalGenerator();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setProvider(Provider provider) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }
