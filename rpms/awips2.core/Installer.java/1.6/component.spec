@@ -1,9 +1,10 @@
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-java-repack-jars[[:space:]].*$!!g')
-%define _java_version 1.6.0_43 
+%define _java_major_version 1.6
+%define _java_version %{_java_major_version}.0_43 
 %define _build_arch %(uname -i)
 
 #
-# AWIPS II Java Spec File
+# AWIPS II Java 1.6 Spec File
 #
 Name: awips2-java
 Summary: AWIPS II Java Distribution
@@ -83,8 +84,11 @@ pydev_cert="pydev_certificate.cer"
 
 # locate the java src.
 CORE_PROJECT_DIR="%{_baseline_workspace}/rpms/awips2.core"
-JAVA_SRC_DIR="${CORE_PROJECT_DIR}/Installer.java/src"
-JAVA_SCRIPTS_DIR="${CORE_PROJECT_DIR}/Installer.java/scripts"
+INSTALLER_JAVA="${CORE_PROJECT_DIR}/Installer.java"
+JAVA_SRC_DIR="${INSTALLER_JAVA}/%{_java_major_version}/src"
+JAVA_COMMON_DIR="${INSTALLER_JAVA}/common"
+JAVA_SCRIPTS_DIR="${JAVA_COMMON_DIR}/scripts"
+JAVA_COMMON_SRC_DIR="${JAVA_COMMON_DIR}/src/${arch_directory}"
 JAVA_ARCH_SRC_DIR="${JAVA_SRC_DIR}/${arch_directory}"
 
 pushd . > /dev/null
@@ -93,6 +97,10 @@ cd ${JAVA_ARCH_SRC_DIR}
 if [ $? -ne 0 ]; then
    exit 1
 fi
+popd > /dev/null
+
+pushd . > /dev/null
+cd ${JAVA_COMMON_SRC_DIR}
 /usr/bin/patch -i ${jai_bin_patch} \
    -o %{_build_root}/build-java/${jai_bin}
 if [ $? -ne 0 ]; then
@@ -103,8 +111,10 @@ fi
 if [ $? -ne 0 ]; then
    exit 1
 fi
+popd > /dev/null
 
 chmod a+x %{_build_root}/build-java/*.bin
+pushd . > /dev/null
 cd %{_build_root}/awips2/java
 # Used to automatically agree to software licenses.
 touch yes.txt
@@ -150,7 +160,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # The pydev certificate.
-cp -v ${JAVA_SRC_DIR}/${pydev_cert} \
+cp -v ${JAVA_COMMON_DIR}/src/${pydev_cert} \
    %{_build_root}/awips2/java/jre/lib/security
 if [ $? -ne 0 ]; then
    exit 1
