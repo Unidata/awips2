@@ -85,6 +85,8 @@ public class DataSetHandler extends
                 } catch (RegistryHandlerException e1) {
                     throw e1;
                 }
+            } else {
+                throw e;
             }
         }
     }
@@ -105,6 +107,8 @@ public class DataSetHandler extends
                 } catch (RegistryHandlerException e1) {
                     throw e1;
                 }
+            } else {
+                throw e;
             }
         }
     }
