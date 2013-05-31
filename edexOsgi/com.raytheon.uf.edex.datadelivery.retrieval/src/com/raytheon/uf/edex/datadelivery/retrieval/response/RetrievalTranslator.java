@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.response;
  **/
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -86,7 +87,7 @@ public abstract class RetrievalTranslator implements IRetrievalTranslator {
             throw ie;
         }
     }
-
+   
     protected void configureFromPdoClassName(String className)
             throws InstantiationException, ClassNotFoundException {
         setPdoClass(className);
@@ -94,7 +95,7 @@ public abstract class RetrievalTranslator implements IRetrievalTranslator {
                 getPdoClass(), attXML);
 
     }
-
+  
     @Override
     public void setAttribute(RetrievalAttribute attXML) {
         this.attXML = attXML;
@@ -147,6 +148,6 @@ public abstract class RetrievalTranslator implements IRetrievalTranslator {
      * 
      * @return
      */
-    protected abstract ArrayList<DataTime> getTimes();
+    protected abstract List<DataTime> getTimes();
 
 }
