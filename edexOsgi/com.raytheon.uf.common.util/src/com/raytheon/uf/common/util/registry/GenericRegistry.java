@@ -32,6 +32,7 @@ import java.util.Set;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 6, 2009            mschenke     Initial creation
+ * May 31, 2013 2038      djohnson     Allow sub-classes to define the backing map.
  * 
  * </pre>
  * 
@@ -44,7 +45,16 @@ public class GenericRegistry<T, S> {
     protected Map<T, S> registry;
 
     protected GenericRegistry() {
-        registry = new HashMap<T, S>();
+        this(new HashMap<T, S>());
+    }
+
+    /**
+     * Constructor allowing sub-classes to define the map to use.
+     * 
+     * @param registry
+     */
+    protected GenericRegistry(Map<T, S> registry) {
+        this.registry = registry;
     }
 
     public Object register(T t, S s) throws RegistryException {
