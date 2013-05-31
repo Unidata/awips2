@@ -9,6 +9,7 @@
 	<constant name="UNKNOWN" value="unknown"/>
 	<constant name="NONE" value="NONE"/>
 	<constant name="REQUEST_HEADER" value="request"/>
+	<constant name="TIME_HEADER" value="time"/>
 	<constant name="CAP_PARAM" value="getcapabilities"/>
 	<constant name="DESC_PARAM" value="describefeaturetype"/>
 	<constant name="GET_PARAM" value="getfeature"/>
