@@ -47,6 +47,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.ResponseProcessingUtilit
  * Nov 19, 2012            bsteffen     Initial javadoc
  * Feb 07, 2013 1543       djohnson     Allow package-level overriding of methods for mocking in tests.
  * May 12, 2013 753        dhladky      Altered to be more flexible with other types
+ * May 31, 2013 2038       djohnson     Rename setPdos to allocatePdoArray.
  * 
  * </pre>
  * 
@@ -55,13 +56,14 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.ResponseProcessingUtilit
  */
 public class GridMetadataAdapter extends AbstractMetadataAdapter<Integer> {
 
-    public GridMetadataAdapter(RetrievalAttribute attXML)
-            throws InstantiationException {
-
-        loadPDOs(attXML);
+    public GridMetadataAdapter() {
     }
 
-    private void loadPDOs(RetrievalAttribute attXML)
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void processAttributeXml(RetrievalAttribute attXML)
             throws InstantiationException {
         Level[] levels = getLevels(attXML);
         int size = levels.length;
@@ -81,7 +83,7 @@ public class GridMetadataAdapter extends AbstractMetadataAdapter<Integer> {
             }
         }
 
-        setPdos(size);
+        allocatePdoArray(size);
         GridCoverage gridCoverage = ((GriddedCoverage) attXML.getCoverage())
                 .getRequestGridCoverage();
 
@@ -254,7 +256,7 @@ public class GridMetadataAdapter extends AbstractMetadataAdapter<Integer> {
     }
 
     @Override
-    public void setPdos(int size) {
+    public void allocatePdoArray(int size) {
         pdos = new GridRecord[size];
     }
 }
