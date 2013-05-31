@@ -1,0 +1,17 @@
+*** jai-1_1_3-lib-linux-amd64-jdk.bin	2011-07-01 10:33:52.000000000 -0500
+--- jai-1_1_3-lib-linux-amd64-jdk.bin.update	2011-07-05 14:23:31.000000000 -0500
+***************
+*** 1,6 ****
+  #!/bin/sh
+  PATH=/bin:/usr/bin
+! more <<EOF
+  
+  
+  
+--- 1,6 ----
+  #!/bin/sh
+  PATH=/bin:/usr/bin
+! cat <<EOF
+  
+  
+  
