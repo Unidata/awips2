@@ -8,7 +8,7 @@ grepString="(/awips2/cave/cave|/usr/local/viz/cave)"
 edexGrepString="edex.run.mode="
 
 # the remote servers to grab top on.  Use to get general state of server
-REMOTE_SERVERS_TO_CHECK="dx1f dx3 dx4"
+REMOTE_SERVERS_TO_CHECK="dx1f dx2f dx3 dx4"
 
 # Flags to control what data capure grabs, to enable flag must be YES, anything else will be considered off.
 RUN_JSTACK="Y"
