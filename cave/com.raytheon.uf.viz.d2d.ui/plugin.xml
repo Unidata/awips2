@@ -2170,4 +2170,11 @@
           value="purge">
     	</path>
     </extension>
+    <extension
+       point="com.raytheon.uf.viz.ui.menus.tearoffperspective">
+    	<tearoffperspective
+          enabled="true"
+          perspectiveId="com.raytheon.uf.viz.d2d.ui.perspectives.D2D5Pane">
+    </tearoffperspective>
+ </extension>
 </plugin>
