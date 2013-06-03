@@ -54,7 +54,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalFixt
  * @version 1.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
+@ContextConfiguration(locations = { SpringFiles.UNIT_TEST_DB_BEANS_XML,
         SpringFiles.BANDWIDTH_DATADELIVERY_DAOS_XML,
         SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML,
         "sessionManagedServiceTest.xml" })
