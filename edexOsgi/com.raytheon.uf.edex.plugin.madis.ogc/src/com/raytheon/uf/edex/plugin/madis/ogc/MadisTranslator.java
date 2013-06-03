@@ -24,6 +24,7 @@ import com.raytheon.uf.edex.wfs.reg.WfsTranslator;
  * ------------ ---------- ----------- --------------------------
  * 04/01/2013   1746       dhladky      Initial creation
  * 05/30/2013   753        dhladky      updated
+ * June 03, 2013 1763      dhladky      Bulked the PointDataQuery
  * </pre>
  * 
  * @author dhladky
@@ -42,8 +43,10 @@ public class MadisTranslator implements WfsTranslator {
         ArrayList<JAXBElement<? extends AbstractFeatureType>> rval = new ArrayList<JAXBElement<? extends AbstractFeatureType>>(
                 pdos.length);
 
+        MadisPointDataTransform.populatePointDataFields(pdos);
+        
         for (PluginDataObject pdo : pdos) {
-            rval.add(translate(pdo));
+             rval.add(translate(pdo));
         }
         return rval;
     }
@@ -53,11 +56,8 @@ public class MadisTranslator implements WfsTranslator {
      * @return
      */
     public JAXBElement<Madis> translate(PluginDataObject pdo) {
-        
-        MadisRecord record = null;
-        record = MadisPointDataTransform.populatePointDataFields((MadisRecord) pdo);
-        
-        return new MadisObjectFactory().create(new Madis(record));
+
+        return new MadisObjectFactory().create(new Madis((MadisRecord)pdo));
     }
 
 }
