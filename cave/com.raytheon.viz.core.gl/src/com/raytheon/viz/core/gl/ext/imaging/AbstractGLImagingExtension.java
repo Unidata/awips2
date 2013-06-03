@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.core.gl.ext;
+package com.raytheon.viz.core.gl.ext.imaging;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
