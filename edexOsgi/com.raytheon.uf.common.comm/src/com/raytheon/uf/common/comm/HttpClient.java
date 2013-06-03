@@ -398,6 +398,7 @@ public class HttpClient {
     private HttpClient() {
     }
 
+
     private org.apache.http.client.HttpClient getHttpsInstance() {
         return HttpsHolder.sslClient;
     }
@@ -1146,7 +1147,7 @@ public class HttpClient {
                 new AuthScope(host, port),
                 new UsernamePasswordCredentials(username, password));
     }
-
+    
     /**
      * @param httpsConfiguration
      *            the httpsConfiguration to set
@@ -1161,4 +1162,5 @@ public class HttpClient {
     public IHttpsConfiguration getHttpsConfiguration() {
         return httpsConfiguration;
     }
+  
 }
