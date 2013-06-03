@@ -47,6 +47,8 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +60,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.Lists;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.util.SpringFiles;
-import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl.RETURN_TYPE;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
@@ -90,7 +91,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
         SpringFiles.EBXML_WEBSERVICES_XML, SpringFiles.EBXML_XACML_XML,
         SpringFiles.EBXML_VALIDATOR_PLUGINS_XML,
         SpringFiles.EBXML_SUBSCRIPTION_XML, SpringFiles.EVENTBUS_COMMON_XML,
-        DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
+        SpringFiles.UNIT_TEST_DB_BEANS_XML,
         SpringFiles.UNIT_TEST_EBXML_BEANS_XML,
         SpringFiles.UNIT_TEST_LOCALIZATION_BEANS_XML })
 @TransactionConfiguration(transactionManager = "metadataTxManager", defaultRollback = true)
@@ -107,6 +108,12 @@ public class AbstractRegistryTest {
 
     @Autowired
     protected QueryManager queryManager;
+
+    @BeforeClass
+    @AfterClass
+    public static void resetDbInitialized() {
+        DbInit.INITIALIZED = false;
+    }
 
     /**
      * Submits the registry object to the registry and verifies it was
