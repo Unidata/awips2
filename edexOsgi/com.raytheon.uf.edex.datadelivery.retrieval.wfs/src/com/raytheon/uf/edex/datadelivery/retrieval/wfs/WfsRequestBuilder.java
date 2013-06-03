@@ -2,10 +2,12 @@ package com.raytheon.uf.edex.datadelivery.retrieval.wfs;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.EnvelopeUtils;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.retrieval.util.HarvesterServiceManager;
@@ -14,6 +16,7 @@ import com.raytheon.uf.common.datadelivery.retrieval.xml.ServiceConfig;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.datadelivery.retrieval.request.RequestBuilder;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * 
@@ -27,6 +30,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.request.RequestBuilder;
  * ------------ ---------- ----------- --------------------------
  * May 12, 2013 753        dhladky      created.
  * May 31, 2013 2038       djohnson     Move to correct repo.
+ * Jun 11, 2013 1763       dhladky      Made operational.
  * 
  * </pre>
  * 
@@ -43,21 +47,33 @@ public class WfsRequestBuilder extends RequestBuilder {
     
     public static final String separator = getServiceConfig().getConstantValue("COMMA");
     
+    public static final String slash = getServiceConfig().getConstantValue("FORWARD_SLASH");
+    
+    public static final String bbox = getServiceConfig().getConstantValue("BBOX_HEADER");
+    
+    public static final String srs = getServiceConfig().getConstantValue("SRSNAME_HEADER");
+    
+    public static final String crs = getServiceConfig().getConstantValue("DEFAULT_CRS");
+    
+    public static final String time = getServiceConfig().getConstantValue("TIME_HEADER");
+    
+    public static final String equals = getServiceConfig().getConstantValue("EQUALS");
+    
+    public static final String blank = getServiceConfig().getConstantValue("BLANK");
+    
+    public static final String ampersand = "&";
+    
     private final String wfsURL;
-
+    
     WfsRequestBuilder(WfsRetrievalAdapter adapter,
             RetrievalAttribute attXML) {
         super(attXML);
-        
         // Create URL
         // this works in this order
         StringBuilder buffer = new StringBuilder();
         // apply the base WFS service URL
         buffer.append(adapter.getProviderRetrievalXMl().getConnection()
                 .getUrl());
-        buffer.append("?");
-        // apply the feature you are trying to retrieve
-        buffer.append(getRetrievalAttribute().getParameter().getProviderName());
         // process the coverage bounding box
         buffer.append(processCoverage());
         // process the time range you are trying to retrieve
@@ -73,23 +89,28 @@ public class WfsRequestBuilder extends RequestBuilder {
 
             SimpleDateFormat sdf = new SimpleDateFormat(getServiceConfig()
                     .getDateConfig().getFormats().get(0));
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
             return sdf;
         }
     };
 
     @Override
-    public String processTime(Time time) {
+    public String processTime(Time inTime) {
 
         try {
-            if (time.getEndDate() != null && time.getStartDate() != null) {
-                Date sDate = time.getStartDate();
-                Date eDate = time.getEndDate();
+            if (inTime.getEndDate() != null && inTime.getStartDate() != null) {
+            
+                
+                Date sDate = inTime.getStartDate();
+                Date eDate = inTime.getEndDate();
                 String endDateString = ogcDateFormat.get().format(eDate);
                 String startDateString = ogcDateFormat.get().format(sDate);
                 StringBuilder sb = new StringBuilder();
-                sb.append("&TIME=");
+                sb.append(ampersand);
+                sb.append(time);
+                sb.append(equals);
                 sb.append(startDateString);
-                sb.append("/");
+                sb.append(slash);
 
                 if (!endDateString.equals(startDateString)) {
                     sb.append(endDateString);
@@ -102,31 +123,37 @@ public class WfsRequestBuilder extends RequestBuilder {
         }
 
         // no times, return blank
-        return getServiceConfig().getConstantValue("BLANK");
+        return blank;
 
     }
 
     @Override
     public String processCoverage() {
 
-        // &srsName=crs:84&bbox=-100.0,41.0,-98.0,43.0
         StringBuilder sb = new StringBuilder();
         Coverage coverage = getRetrievalAttribute().getCoverage();
-
 
         if (coverage != null) {
 
             ReferencedEnvelope re = coverage.getRequestEnvelope();
+            Coordinate ll = EnvelopeUtils.getLowerLeftLatLon(re);
+            Coordinate ur = EnvelopeUtils.getUpperRightLatLon(re);
             // manage the box
-            double lowerLon = re.getMinX();
-            double lowerLat = re.getMinY();
-            double upperLon = re.getMaxX();
-            double upperLat = re.getMaxY();
+            double lowerLon = ll.x;
+            double lowerLat = ll.y;
+            double upperLon = ur.x;
+            double upperLat = ur.y;
 
-            sb.append("&srsName=");
-            sb.append(coverage.getEnvelope().getCoordinateReferenceSystem()
-                    .getName());
-            sb.append("&bbox=");
+            sb.append(ampersand);
+            sb.append(srs);
+            sb.append(equals);
+            sb.append(crs);
+            //TODO Revisit this when we have a better idea of how to switch them
+            //sb.append(coverage.getEnvelope().getCoordinateReferenceSystem()
+            //        .getName());
+            sb.append(ampersand);
+            sb.append(bbox);
+            sb.append(equals);
             sb.append(lowerLon);
             sb.append(separator);
             sb.append(lowerLat);
@@ -138,7 +165,7 @@ public class WfsRequestBuilder extends RequestBuilder {
             return sb.toString();
         }
 
-        return getServiceConfig().getConstantValue("BLANK");
+        return blank;
     }
 
     @Override
@@ -164,5 +191,5 @@ public class WfsRequestBuilder extends RequestBuilder {
         
         return wfsServiceConfig;
     }
-
+ 
 }
