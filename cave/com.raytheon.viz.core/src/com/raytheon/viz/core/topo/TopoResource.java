@@ -64,6 +64,7 @@ import com.raytheon.uf.viz.core.style.StyleManager;
 import com.raytheon.uf.viz.core.style.StyleManager.StyleType;
 import com.raytheon.uf.viz.core.style.StyleRule;
 import com.raytheon.uf.viz.core.tile.TileSetRenderable;
+import com.raytheon.uf.viz.core.tile.TileSetRenderable.TileImageCreator;
 import com.raytheon.viz.core.style.image.DataScale;
 import com.raytheon.viz.core.style.image.ImagePreferences;
 import com.raytheon.viz.core.style.image.SamplePreferences;
@@ -94,9 +95,9 @@ public class TopoResource extends
         }
     };
 
-    private File dataFile;
+    protected File dataFile;
 
-    private TileSetRenderable topoTileSet;
+    protected TileSetRenderable topoTileSet;
 
     protected TopoResource(TopoResourceData topoData,
             LoadProperties loadProperties, File dataFile) throws VizException {
@@ -214,9 +215,12 @@ public class TopoResource extends
 
         topoTileSet = new TileSetRenderable(
                 getCapability(ImagingCapability.class), getTopoGeometry(),
-                new TopoTileImageCreator(this, dataFile),
-                getNumberOfTopoLevels(), 512);
+                getTopoTileImageCreator(), getNumberOfTopoLevels(), 512);
         topoTileSet.project(descriptor.getGridGeometry());
+    }
+
+    protected TileImageCreator getTopoTileImageCreator() {
+        return new TopoTileImageCreator(this, dataFile);
     }
 
     private int getNumberOfTopoLevels() throws VizException {
