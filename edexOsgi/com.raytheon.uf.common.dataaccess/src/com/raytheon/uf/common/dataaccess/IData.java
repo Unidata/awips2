@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.dataaccess;
 
+import java.util.Set;
+
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.time.DataTime;
 
@@ -33,6 +35,7 @@ import com.raytheon.uf.common.time.DataTime;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 10, 2012            njensen     Initial creation
+ * Jun 03, 2013  #2023     dgilling    Add getAttributes().
  * 
  * </pre>
  * 
@@ -49,6 +52,13 @@ public interface IData {
      * @return the attribute
      */
     public Object getAttribute(String key);
+
+    /**
+     * Gets the list of attributes associated with this data.
+     * 
+     * @return the attributes
+     */
+    public Set<String> getAttributes();
 
     /**
      * Gets the DataTime of the data. May be null if the data is time agnostic.
