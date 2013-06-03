@@ -45,6 +45,7 @@ import com.raytheon.uf.common.util.registry.RegistryException;
  * Nov 19, 2012            bsteffen     Initial javadoc
  * May 12, 2013  753       dhladky      Added support for Madis
  * May 31, 2013 2038       djohnson     Plugin contributable registry.
+ * Jun 11, 2013  2101      dhladky      Updated for Madis
  * 
  * </pre>
  * 
@@ -56,6 +57,8 @@ public abstract class AbstractMetadataAdapter<RecordKey> implements
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractMetadataAdapter.class);
+    
+    protected boolean isPointData = false;
 
     protected PluginDataObject[] pdos;
 
@@ -138,5 +141,17 @@ public abstract class AbstractMetadataAdapter<RecordKey> implements
      */
     public static GenericRegistry<String, Class<AbstractMetadataAdapter<?>>> getMetadataAdapterRegistry() {
         return metadataAdapterRegistry;
+    }
+    
+    /**
+     * Sets whether this adapter is pointData or not
+     * @param isPointData
+     */
+    public void setIsPointData(boolean isPointData) {
+        this.isPointData = isPointData;
+    }
+    
+    public boolean isPointData() {
+        return isPointData;
     }
 }

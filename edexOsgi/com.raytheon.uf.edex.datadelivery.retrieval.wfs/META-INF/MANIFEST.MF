@@ -15,11 +15,9 @@ Require-Bundle: com.raytheon.uf.common.datadelivery.retrieval;bundle-version="1.
  com.google.guava;bundle-version="1.0.0",
  com.raytheon.uf.common.registry.ebxml;bundle-version="1.0.0",
  org.geotools;bundle-version="2.6.4",
- com.raytheon.uf.edex.plugin.madis.ogc;bundle-version="1.0.0",
- com.raytheon.uf.common.dataplugin.madis;bundle-version="1.0.0",
  com.raytheon.uf.common.util;bundle-version="1.12.1174",
  com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
  com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
  com.raytheon.uf.common.event;bundle-version="1.0.0",
- com.raytheon.uf.edex.ogc.common;bundle-version="1.0.0",
- com.raytheon.uf.edex.wfs;bundle-version="1.0.0"
+ com.raytheon.uf.edex.ogc.common;bundle-version="1.0.0"
+Export-Package: com.raytheon.uf.edex.datadelivery.retrieval.wfs
