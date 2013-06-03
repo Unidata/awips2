@@ -93,6 +93,8 @@ public class SpringFiles {
 
     public static final String EVENTBUS_COMMON_XML = "/spring/eventbus-common.xml";
 
+    public static final String UNIT_TEST_DB_BEANS_XML = "/unit-test-db-beans.xml";
+
     public static final String UNIT_TEST_LOCALIZATION_BEANS_XML = "/unit-test-localization-beans.xml";
 
     public static final String UNIT_TEST_EBXML_BEANS_XML = "/ebxml/unit-test-ebxml-beans.xml";
