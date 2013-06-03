@@ -22,8 +22,8 @@ package com.raytheon.uf.edex.datadelivery.retrieval.wfs;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
+import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.event.EventBus;
@@ -50,6 +50,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.WfsConnectionUtil;
  * Jul 25, 2012 955        djohnson     Moved to wfs specific package.
  * May 12, 2013 753        dhladky      implemented.
  * May 31, 2013 2038       djohnson     Move to correct repo.
+ * Jun 03, 2013 1763       dhladky      Readied for retrievals.
  * 
  * </pre>
  * 
@@ -61,8 +62,12 @@ public class WfsRetrievalAdapter extends RetrievalAdapter {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(WfsRetrievalAdapter.class);
-
-    private static final Pattern splitter = Pattern.compile("?");
+    
+    private Provider provider;
+    
+    WfsRetrievalAdapter(Provider provider) {
+        this.provider = provider;
+    }
 
     @Override
     public IRetrievalRequestBuilder createRequestMessage(
@@ -113,9 +118,7 @@ public class WfsRetrievalAdapter extends RetrievalAdapter {
 
         String xmlMessage = null;
         try {
-            // break url into CGI parameters and address
-            String[] parts = splitter.split(request.getRequest());
-            xmlMessage = WfsConnectionUtil.wfsConnect(parts[0], parts[1]);
+            xmlMessage = WfsConnectionUtil.wfsConnect(request.getRequest(), provider);
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
             EventBus.publish(new RetrievalEvent(e.getMessage()));

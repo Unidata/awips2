@@ -25,6 +25,7 @@ import java.io.Serializable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
@@ -42,6 +43,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jan 17, 2011    191      dhladky     Initial creation
  * Jun 28, 2012    819      djohnson    Remove proxy information.
  * Jul 24, 2012    955      djohnson    Add copy constructor.
+ * Jun 11, 2013    1763     dhladky     Added Encryption type
  * 
  * </pre>
  * 
@@ -69,6 +71,7 @@ public class Connection implements ISerializableObject, Serializable {
         setPassword(connection.getPassword());
         setUrl(connection.getUrl());
         setUserName(connection.getUserName());
+        setEncryption(connection.getEncryption());
     }
 
     @XmlElement(name = "userName")
@@ -78,6 +81,10 @@ public class Connection implements ISerializableObject, Serializable {
     @XmlElement(name = "password")
     @DynamicSerializeElement
     private String password;
+    
+    @XmlElement(name = "encryption")
+    @DynamicSerializeElement
+    private Encryption encryption;
 
     @XmlElement(name = "url")
     @DynamicSerializeElement
@@ -100,11 +107,43 @@ public class Connection implements ISerializableObject, Serializable {
     }
 
     public String getPassword() {
-        return password;
+        if (password != null) {
+            return encryption.decrypt(password);
+        }
+        
+        return null;
     }
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+    
+    @XmlEnum
+    public enum Encryption {
+        // will have a map of these eventually
+        CLEAR(Encryption.CLEAR_VALUE);
+
+        private static final String CLEAR_VALUE = "CLEAR";
+        
+        private final String displayString;
+
+        private Encryption(String displayString) {
+            this.displayString = displayString;
+        }
+        
+        // clear text for now so nothing happens here
+        public String decrypt(String password) {
+            return password;
+        }
+       
+    }
+
+    public Encryption getEncryption() {
+        return encryption;
+    }
+
+    public void setEncryption(Encryption encryption) {
+        this.encryption = encryption;
     }
 
 }
