@@ -28,6 +28,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.RasterMode;
 import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.PixelCoverage;
+import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.data.prep.HDF5DataRetriever;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
@@ -56,7 +57,7 @@ import com.raytheon.uf.viz.core.tile.TileSetRenderable.TileImageCreator;
 
 public class TopoTileImageCreator implements TileImageCreator {
 
-    private TopoResource resource;
+    protected TopoResource resource;
 
     private File dataFile;
 
@@ -76,20 +77,24 @@ public class TopoTileImageCreator implements TileImageCreator {
     @Override
     public DrawableImage createTileImage(IGraphicsTarget target, Tile tile,
             GeneralGridGeometry targetGeometry) throws VizException {
-        int level = tile.tileLevel;
-        String dataset = "/full";
-        if (level > 0) {
-            dataset = "/interpolated/" + level;
-        }
-
         IColormappedImage image = target.getExtension(
                 IColormappedImageExtension.class).initializeRaster(
-                new HDF5DataRetriever(dataFile, dataset, tile.getRectangle()),
+                createColormapImageCallback(tile),
                 resource.getCapability(ColorMapCapability.class)
                         .getColorMapParameters());
         IMesh mesh = target.getExtension(IMapMeshExtension.class)
                 .constructMesh(tile.tileGeometry, targetGeometry);
         return new DrawableImage(image, new PixelCoverage(mesh),
                 RasterMode.ASYNCHRONOUS);
+    }
+
+    protected IColorMapDataRetrievalCallback createColormapImageCallback(
+            Tile tile) {
+        int level = tile.tileLevel;
+        String dataset = "/full";
+        if (level > 0) {
+            dataset = "/interpolated/" + level;
+        }
+        return new HDF5DataRetriever(dataFile, dataset, tile.getRectangle());
     }
 }
