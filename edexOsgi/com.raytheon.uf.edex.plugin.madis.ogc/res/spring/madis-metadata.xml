@@ -1,0 +1,9 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean factory-bean="metadataAdapterRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.madis.MadisRecord" />
+        <constructor-arg value="com.raytheon.uf.edex.plugin.madis.ogc.metadata.MadisMetadataAdapter" type="java.lang.Class" />
+    </bean>
+</beans>

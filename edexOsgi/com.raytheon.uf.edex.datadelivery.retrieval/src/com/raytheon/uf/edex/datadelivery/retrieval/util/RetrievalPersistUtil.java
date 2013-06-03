@@ -88,7 +88,7 @@ public final class RetrievalPersistUtil {
      * @param pdos
      * @return
      */
-    public static synchronized boolean routePlugin(String defaultPeristRoute,
+    public static synchronized boolean routePlugin(String defaultPersistRoute,
             String pluginName,
             PluginDataObject[] pdos) {
 
@@ -120,7 +120,7 @@ public final class RetrievalPersistUtil {
 
                     pluginDao.persistToDatabase(pdos);
                     EDEXUtil.getMessageProducer().sendAsyncUri(
-                            defaultPeristRoute,
+                            defaultPersistRoute,
                             pdos);
                     success = true;
                 }
