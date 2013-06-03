@@ -27,7 +27,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.raytheon.uf.common.util.SpringFiles;
-import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDao;
 
@@ -49,7 +48,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthD
  * @version 1.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
+@ContextConfiguration(locations = { SpringFiles.UNIT_TEST_DB_BEANS_XML,
         SpringFiles.BANDWIDTH_DATADELIVERY_DAOS_XML,
         SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)

@@ -10,5 +10,5 @@ then
    export MAX_PERMGEN_SIZE="192m"
 fi
 
-export ANT_OPTS="-XX:PermSize=${INITIAL_PERMGEN_SIZE} -XX:MaxPermSize=${MAX_PERMGEN_SIZE}"
+export ANT_OPTS="-XX:PermSize=${INITIAL_PERMGEN_SIZE} -XX:MaxPermSize=${MAX_PERMGEN_SIZE}  $*"
 ant
