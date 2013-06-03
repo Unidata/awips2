@@ -20,7 +20,6 @@ package com.raytheon.uf.edex.datadelivery.retrieval.response;
  * further licensing information.
  **/
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
@@ -42,6 +41,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.metadata.adapters.AbstractMet
  * Feb 07, 2013 1543       djohnson     Allow overriding of methods for mocking in tests.
  * Feb 12, 2013 1543       djohnson     Pass the exception as the cause for instantiation exceptions.
  * May 31, 2013 2038       djohnson     Protected access for constructor.
+ * Jun 11, 2013  2101      dhladky      Imports
  * 
  * </pre>
  * 

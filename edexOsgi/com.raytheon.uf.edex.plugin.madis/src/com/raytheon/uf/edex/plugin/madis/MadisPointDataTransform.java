@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 28 Mar 2013  1746       dhladky      Created 
+ * 10 Jun 2013  1763       dhladky      Updates for speed.
  * </pre>
  * 
  * @author dhladky
@@ -54,91 +55,95 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
 public class MadisPointDataTransform {
 
     private static final IUFStatusHandler statusHandler = UFStatus
-    .getHandler(MadisPointDataTransform.class);
-    
+            .getHandler(MadisPointDataTransform.class);
+
     public static final String DATASET = "dataset";
 
+    public static final String COMMA = ",";
+
+    public static final String IN = "in";
+
     public static final String DEWPOINT = "dewpoint";
-    
+
     public static final String DEWPOINT_QCD = "dewpoint_qcd";
-    
+
     public static final String DEWPOINT_QCA = "dewpoint_qca";
-    
+
     public static final String DEWPOINT_QCR = "dewpoint_qcr";
-    
+
     public static final String RH = "rh";
-    
+
     public static final String RH_QCD = "rh_qcd";
-   
+
     public static final String RH_QCA = "rh_qca";
-    
+
     public static final String RH_QCR = "rh_qcr";
-    
+
     public static final String ALTIMETER = "altimeter";
-   
+
     public static final String ALTIMETER_QCD = "altimeter_qcd";
-    
+
     public static final String ALTIMETER_QCA = "altimeter_qca";
-    
+
     public static final String ALTIMETER_QCR = "altimeter_qcr";
-    
+
     public static final String TEMPERATURE = "temperature";
-    
+
     public static final String TEMPERATURE_QCD = "temperature_qcd";
-   
+
     public static final String TEMPERATURE_QCA = "temperature_qca";
-   
+
     public static final String TEMPERATURE_QCR = "temperature_qcr";
-   
+
     public static final String WINDDIRECTION = "windDirection";
-   
+
     public static final String WINDDIRECTION_QCD = "windDirection_qcd";
-    
+
     public static final String WINDDIRECTION_QCA = "windDirection_qca";
-   
+
     public static final String WINDDIRECTION_QCR = "windDirection_qcr";
-    
+
     public static final String PRECIPRATE = "precipRate";
-    
+
     public static final String PRECIPRATE_QCD = "precipRate_qcd";
-   
+
     public static final String PRECIPRATE_QCA = "precipRate_qca";
-    
+
     public static final String PRECIPRATE_QCR = "precipRate_qcr";
 
     public static final String WINDSPEED = "windSpeed";
-    
+
     public static final String WINDSPEED_QCD = "windSpeed_qcd";
-    
+
     public static final String WINDSPEED_QCA = "windSpeed_qca";
-    
+
     public static final String WINDSPEED_QCR = "windSpeed_qcr";
-   
+
     public static final String WINDGUST = "windGust";
-   
+
     public static final String WINDGUST_QCD = "windGust_qcd";
-    
+
     public static final String WINDGUST_QCA = "windGust_qca";
-    
+
     public static final String WINDGUST_QCR = "windGust_qcr";
-   
+
     public static final String PRECIPITALWATER = "precipitalWater";
-    
+
     public static final String PRECIPITALWATER_QCD = "precipitalWater_qcd";
-    
+
     public static final String PRECIPITALWATER_QCA = "precipitalWater_qca";
-    
+
     public static final String PRECIPITALWATER_QCR = "precipitalWater_qcr";
-    
+
     public static final String PRESSURE = "pressure";
-    
+
     public static final String PRESSURE_QCD = "pressure_qcd";
-    
+
     public static final String PRESSURE_QCA = "pressure_qca";
-    
+
     public static final String PRESSURE_QCR = "pressure_qcr";
-    
- // -------------- location info ------------------//
+
+    // -------------- location info ------------------//
     public static final String STATION_NAME = "stationName";
 
     public static final String STATION_ID = "stationId";
@@ -148,61 +153,60 @@ public class MadisPointDataTransform {
     public static final String LATITUDE = "latitude";
 
     public static final String ELEVATION = "elevation";
-    
+
     // -----------These for actual record ------------//
 
     public static final String PROVIDER = "provider";
-    
+
     public static final String SUB_PROVIDER = "sub_provider";
-    
+
     public static final String RESTRICTION = "restriction";
-    
+
     public static final String TIME_OBS = "timeObs";
-    
+
     public static final String DATA_URI = "dataURI";
 
-    public static final String[] ALL_PARAMS = {  
-            DATASET, DEWPOINT, DEWPOINT_QCD, DEWPOINT_QCA, DEWPOINT_QCR, RH, RH_QCD,
-            RH_QCA, RH_QCR, ALTIMETER, ALTIMETER_QCD, ALTIMETER_QCA,
-            ALTIMETER_QCR, TEMPERATURE, TEMPERATURE_QCD, TEMPERATURE_QCA,
-            TEMPERATURE_QCR, WINDDIRECTION, WINDDIRECTION_QCD,
-            WINDDIRECTION_QCA, WINDDIRECTION_QCR, PRECIPRATE, PRECIPRATE_QCD,
-            PRECIPRATE_QCA, PRECIPRATE_QCR, WINDSPEED, WINDSPEED_QCD,
-            WINDSPEED_QCA, WINDSPEED_QCR, WINDGUST, WINDGUST_QCD, WINDGUST_QCA,
-            WINDGUST_QCR, PRECIPITALWATER, PRECIPITALWATER_QCD,
-            PRECIPITALWATER_QCA, PRECIPITALWATER_QCR, PRESSURE, PRESSURE_QCD,
-            PRESSURE_QCA, PRESSURE_QCR };
+    public static final String[] ALL_PARAMS = { DATASET, DEWPOINT,
+            DEWPOINT_QCD, DEWPOINT_QCA, DEWPOINT_QCR, RH, RH_QCD, RH_QCA,
+            RH_QCR, ALTIMETER, ALTIMETER_QCD, ALTIMETER_QCA, ALTIMETER_QCR,
+            TEMPERATURE, TEMPERATURE_QCD, TEMPERATURE_QCA, TEMPERATURE_QCR,
+            WINDDIRECTION, WINDDIRECTION_QCD, WINDDIRECTION_QCA,
+            WINDDIRECTION_QCR, PRECIPRATE, PRECIPRATE_QCD, PRECIPRATE_QCA,
+            PRECIPRATE_QCR, WINDSPEED, WINDSPEED_QCD, WINDSPEED_QCA,
+            WINDSPEED_QCR, WINDGUST, WINDGUST_QCD, WINDGUST_QCA, WINDGUST_QCR,
+            PRECIPITALWATER, PRECIPITALWATER_QCD, PRECIPITALWATER_QCA,
+            PRECIPITALWATER_QCR, PRESSURE, PRESSURE_QCD, PRESSURE_QCA,
+            PRESSURE_QCR };
 
     public static final String ALL_PARAMS_LIST;
+
     static {
-         ALL_PARAMS_LIST = StringUtil.join(ALL_PARAMS, ',');
+        ALL_PARAMS_LIST = StringUtil.join(ALL_PARAMS, ',');
     }
 
     private MadisDao dao;
 
     private PointDataDescription description;
 
-    public MadisPointDataTransform() {
-        try {
-            this.dao = new MadisDao(MadisRecord.PLUGIN_NAME);
-            this.description = dao.getPointDataDescription(null);
-        } catch (Exception e) {
-           statusHandler.error("Can't create Madis Point data container." + e);
-        }
+    public MadisPointDataTransform() throws PluginException {
+
+        this.dao = new MadisDao(MadisRecord.PLUGIN_NAME);
+        this.description = dao.getPointDataDescription(null);
     }
 
     /**
      * Takes in PDO's puts out populated PointData
+     * 
      * @param pdo
      * @return
      */
     public PluginDataObject[] toPointData(PluginDataObject[] pdos) {
 
         if (pdos != null && pdos.length > 0) {
-            
+
             Map<File, PointDataContainer> pointMap = new HashMap<File, PointDataContainer>();
             long time = System.currentTimeMillis();
-            
+
             for (PluginDataObject p : pdos) {
                 if (!(p instanceof MadisRecord)) {
                     statusHandler.handle(Priority.WARN,
@@ -225,17 +229,18 @@ public class MadisPointDataTransform {
                             "Can't create pointData container", e);
                 }
             }
-            
+
             long time2 = System.currentTimeMillis();
-            statusHandler.handle(Priority.INFO,
-                    "MADIS PointData create time: "+(time2-time)+" ms");
+            statusHandler.handle(Priority.INFO, "MADIS PointData create time: "
+                    + (time2 - time) + " ms");
         }
-        
+
         return pdos;
     }
 
     /**
      * Builds the PointDataView
+     * 
      * @param container
      * @param record
      * @return
@@ -267,7 +272,8 @@ public class MadisPointDataTransform {
         pdv.setInt(TEMPERATURE_QCR, record.getTemperature_qcr());
         // dew point depression
         pdv.setFloat(WINDDIRECTION, record.getWindDirection());
-        pdv.setString(WINDDIRECTION_QCD, record.getWindDirection_qcd().toString());
+        pdv.setString(WINDDIRECTION_QCD, record.getWindDirection_qcd()
+                .toString());
         pdv.setInt(WINDDIRECTION_QCA, record.getWindDirection_qca());
         pdv.setInt(WINDDIRECTION_QCR, record.getWindDirection_qcr());
         // precip rate
@@ -287,7 +293,8 @@ public class MadisPointDataTransform {
         pdv.setInt(WINDGUST_QCR, record.getWindGust_qcr());
         // Precipital Water
         pdv.setFloat(PRECIPITALWATER, record.getPrecipitalWater());
-        pdv.setString(PRECIPITALWATER_QCD, record.getPrecipitalWater_qcd().toString());
+        pdv.setString(PRECIPITALWATER_QCD, record.getPrecipitalWater_qcd()
+                .toString());
         pdv.setInt(PRECIPITALWATER_QCA, record.getPrecipitalWater_qca());
         pdv.setInt(PRECIPITALWATER_QCR, record.getPrecipitalWater_qcr());
         // Pressure
@@ -295,12 +302,13 @@ public class MadisPointDataTransform {
         pdv.setString(PRESSURE_QCD, record.getPressure_qcd().toString());
         pdv.setInt(PRESSURE_QCA, record.getPressure_qca());
         pdv.setInt(PRESSURE_QCR, record.getPressure_qcr());
-        
+
         return pdv;
     }
 
     /**
      * Creates a MadisRecord from a PointDataContainer
+     * 
      * @param pdc
      * @return
      */
@@ -338,7 +346,7 @@ public class MadisPointDataTransform {
         mr.setPrecipRate_qcd(QCD.fromString(pdv.getString(PRECIPRATE_QCD)));
         mr.setPrecipRate_qca(pdv.getInt(PRECIPRATE_QCA));
         mr.setPrecipRate_qcr(pdv.getInt(PRECIPRATE_QCR));
-        // WINDSPEED 
+        // WINDSPEED
         mr.setWindSpeed(pdv.getFloat(WINDSPEED));
         mr.setWindSpeed_qcd(QCD.fromString(pdv.getString(WINDSPEED_QCD)));
         mr.setWindSpeed_qca(pdv.getInt(WINDSPEED_QCA));
@@ -350,7 +358,8 @@ public class MadisPointDataTransform {
         mr.setWindGust_qcr(pdv.getInt(WINDGUST_QCR));
         // Precipital Water
         mr.setPrecipitalWater(pdv.getFloat(PRECIPITALWATER));
-        mr.setPrecipitalWater_qcd(QCD.fromString(pdv.getString(PRECIPITALWATER_QCD)));
+        mr.setPrecipitalWater_qcd(QCD.fromString(pdv
+                .getString(PRECIPITALWATER_QCD)));
         mr.setPrecipitalWater_qca(pdv.getInt(PRECIPITALWATER_QCA));
         mr.setPrecipitalWater_qcr(pdv.getInt(PRECIPITALWATER_QCR));
         // Pressure
@@ -358,20 +367,18 @@ public class MadisPointDataTransform {
         mr.setPressure_qcd(QCD.fromString(pdv.getString(PRESSURE_QCD)));
         mr.setPressure_qca(pdv.getInt(PRESSURE_QCA));
         mr.setPressure_qcr(pdv.getInt(PRESSURE_QCR));
-        
+
         return mr;
     }
-    
+
     /**
      * Creates a MadisRecord from a PointDataContainer
+     * 
      * @param pdc
      * @return
      */
-    public static MadisRecord toMadisRecord(MadisRecord mr, PointDataContainer container) {
+    public static MadisRecord toMadisRecord(MadisRecord mr, PointDataView pdv) {
 
-        container.setCurrentSz(container.getAllocatedSz());
-        PointDataView pdv = container.readRandom(0);
-        
         mr.setDataset(pdv.getInt(DATASET));
         // dewpoint
         mr.setDewpoint(pdv.getFloat(DEWPOINT));
@@ -403,7 +410,7 @@ public class MadisPointDataTransform {
         mr.setPrecipRate_qcd(QCD.fromString(pdv.getString(PRECIPRATE_QCD)));
         mr.setPrecipRate_qca(pdv.getInt(PRECIPRATE_QCA));
         mr.setPrecipRate_qcr(pdv.getInt(PRECIPRATE_QCR));
-        // WINDSPEED 
+        // WINDSPEED
         mr.setWindSpeed(pdv.getFloat(WINDSPEED));
         mr.setWindSpeed_qcd(QCD.fromString(pdv.getString(WINDSPEED_QCD)));
         mr.setWindSpeed_qca(pdv.getInt(WINDSPEED_QCA));
@@ -415,7 +422,8 @@ public class MadisPointDataTransform {
         mr.setWindGust_qcr(pdv.getInt(WINDGUST_QCR));
         // Precipital Water
         mr.setPrecipitalWater(pdv.getFloat(PRECIPITALWATER));
-        mr.setPrecipitalWater_qcd(QCD.fromString(pdv.getString(PRECIPITALWATER_QCD)));
+        mr.setPrecipitalWater_qcd(QCD.fromString(pdv
+                .getString(PRECIPITALWATER_QCD)));
         mr.setPrecipitalWater_qca(pdv.getInt(PRECIPITALWATER_QCA));
         mr.setPrecipitalWater_qcr(pdv.getInt(PRECIPITALWATER_QCR));
         // Pressure
@@ -423,10 +431,10 @@ public class MadisPointDataTransform {
         mr.setPressure_qcd(QCD.fromString(pdv.getString(PRESSURE_QCD)));
         mr.setPressure_qca(pdv.getInt(PRESSURE_QCA));
         mr.setPressure_qcr(pdv.getInt(PRESSURE_QCR));
-        
+
         return mr;
     }
-    
+
     /**
      * Gets Madis fields out of PointData.
      * 
@@ -438,7 +446,7 @@ public class MadisPointDataTransform {
 
         PointDataQuery request = null;
         PointDataContainer result = null;
-        
+
         try {
             request = new PointDataQuery(MadisRecord.PLUGIN_NAME);
             request.requestAllLevels();
@@ -446,13 +454,69 @@ public class MadisPointDataTransform {
             request.setParameters(ALL_PARAMS_LIST);
             result = request.execute();
             if (result != null) {
-                record = toMadisRecord(record, result);
+
+                result.setCurrentSz(result.getAllocatedSz());
+                PointDataView pdv = result.readRandom(0);
+                record = toMadisRecord(record, pdv);
             }
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
-        
+
         return record;
+    }
+
+    /**
+     * Gets Madis fields out of PointData.
+     * 
+     * @param madisRecord
+     *            []
+     * @return populated Madis record Array
+     * @throws PluginException
+     */
+    // TODO I would like to make a PointDataInterface that could implement this
+    // and other methods that all of these
+    // will use.
+    public static PluginDataObject[] populatePointDataFields(
+            PluginDataObject[] records) {
+
+        PointDataQuery request = null;
+        PointDataContainer result = null;
+        StringBuilder uris = new StringBuilder();
+
+        for (int i = 0; i < records.length; i++) {
+            uris.append(records[i].getDataURI());
+            if (i < records.length - 1) {
+                uris.append(COMMA);
+            }
+        }
+
+        try {
+            // TODO:  We wnat to get rid of dataURI so, 
+            // When we do the 2020 integration this summer, replace dataURI and sue this instead.
+            // RequestConstraint.toConstraintMapping(DataURIUtil.createDataURIMap(uri));
+            request = new PointDataQuery(MadisRecord.PLUGIN_NAME);
+            request.requestAllLevels();
+            request.addParameter(DATA_URI, uris.toString(), IN);
+            request.setParameters(ALL_PARAMS_LIST);
+            result = request.execute();
+
+            for (int i = 0; i < records.length; i++) {
+                PointDataView pdv = result.readRandom(i);
+                toMadisRecord((MadisRecord) records[i], pdv);
+            }
+
+            if (result != null) {
+                statusHandler.info("Results: " + result.getCurrentSz()
+                        + " point data views.");
+            }
+
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to populate point data records!", e);
+        }
+
+        return records;
     }
 
 }

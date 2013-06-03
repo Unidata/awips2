@@ -9,6 +9,9 @@
 			<!-- for OGC it's your FQDN 
 			 !!!!!PLACE YOUR URL HERE!!!!!!-->
 			<url>http://your.url.here:8085</url>
+			<userName>user</userName>
+			<password>password</password>
+			<encryption>CLEAR</encryption>
 		</connection>
 		<providerType dataType="POINT" plugin="madis" availabilityDelay="0" />
 		<projection type="LatLon">
