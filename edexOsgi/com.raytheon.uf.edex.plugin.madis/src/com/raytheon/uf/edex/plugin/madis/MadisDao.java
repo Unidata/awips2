@@ -40,14 +40,13 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 import com.raytheon.uf.edex.pointdata.PointDataDbDescription;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 
 /**
- * MadisDao MADIS data DAO
+ * MadisDao  MADIS data DAO
  * 
  * <pre>
  * 
@@ -64,22 +63,22 @@ import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
  */
 
 public class MadisDao extends PointDataPluginDao<MadisRecord> {
-
+    
     /** The station dao */
     private ObStationDao obDao = new ObStationDao();
-
+    
     private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(MadisDao.class);
-
+    .getHandler(MadisDao.class);
+   
     public List<?> queryBySpatialBox(double upperLeftLat, double upperLeftLon,
             double lowerRightLat, double lowerRightLon)
             throws DataAccessLayerException {
 
         List<ObStation> stationList = obDao.queryBySpatialBox(upperLeftLat,
                 upperLeftLon, lowerRightLat, lowerRightLon);
-
+       
         List<String> stationNames = new ArrayList<String>();
-        for (ObStation ob : stationList) {
+        for (ObStation ob: stationList) {
             stationNames.add(ob.getIcao());
         }
 
@@ -109,8 +108,8 @@ public class MadisDao extends PointDataPluginDao<MadisRecord> {
      */
     public Object[] queryDataUriColumn(final String dataUri) {
 
-        String sql = "select datauri from awips.madis where datauri='"
-                + dataUri + "';";
+        String sql = "select datauri from awips.madis where datauri='" + dataUri
+                + "';";
 
         Object[] results = executeSQLQuery(sql);
 
@@ -133,8 +132,7 @@ public class MadisDao extends PointDataPluginDao<MadisRecord> {
         } catch (JAXBException e) {
             statusHandler.error("Unable to load madis Point Data Description",
                     e);
-            throw new PluginException(
-                    "Unable to load madis Point Data Description!", e);
+            throw new PluginException("Unable to load madis Point Data Description!", e);
         }
 
     }
@@ -143,6 +141,7 @@ public class MadisDao extends PointDataPluginDao<MadisRecord> {
     public PointDataDescription getPointDataDescription(Map<String, Object> obj) {
         return hdf5DataDescription;
     }
+
 
     public ObStationDao getObDao() {
         return obDao;
@@ -166,7 +165,7 @@ public class MadisDao extends PointDataPluginDao<MadisRecord> {
     public MadisRecord newObject() {
         return new MadisRecord();
     }
-
+    
     /*
      * (non-Javadoc)
      * 
