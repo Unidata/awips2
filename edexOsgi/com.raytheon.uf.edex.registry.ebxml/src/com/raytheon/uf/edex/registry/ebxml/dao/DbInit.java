@@ -45,13 +45,14 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.jdbc.Work;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
@@ -89,9 +90,10 @@ import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
  */
 @Transactional
 public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
-        ApplicationListener {
+        ApplicationListener<ContextRefreshedEvent> {
 
-    private static volatile boolean INITIALIZED = false;
+    @VisibleForTesting
+    static volatile boolean INITIALIZED = false;
 
     /** The logger */
     private static final IUFStatusHandler statusHandler = UFStatus
@@ -317,7 +319,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
     }
 
     @Override
-    public void onApplicationEvent(ApplicationEvent event) {
+    public void onApplicationEvent(ContextRefreshedEvent event) {
         if (!INITIALIZED) {
             txTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
