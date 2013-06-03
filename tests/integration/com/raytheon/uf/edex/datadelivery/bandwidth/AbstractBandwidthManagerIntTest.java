@@ -48,7 +48,6 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
 import com.raytheon.uf.common.util.PropertiesUtil;
 import com.raytheon.uf.common.util.SpringFiles;
-import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
@@ -78,7 +77,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * @version 1.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
+@ContextConfiguration(locations = { SpringFiles.UNIT_TEST_DB_BEANS_XML,
         SpringFiles.EVENTBUS_COMMON_XML,
         SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML,
         SpringFiles.BANDWIDTH_DATADELIVERY_DAOS_XML,

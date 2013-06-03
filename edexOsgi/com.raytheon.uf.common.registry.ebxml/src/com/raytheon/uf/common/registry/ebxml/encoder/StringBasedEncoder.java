@@ -21,6 +21,8 @@ package com.raytheon.uf.common.registry.ebxml.encoder;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
 
+import com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders.Type;
+
 /**
  * A string-based encoding strategy. Package-private because we want the
  * encoding strategies to remain implementation details that are separate from
@@ -32,7 +34,8 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 7, 2012  1102      djohnson     Initial creation
+ * Sep 07, 2012 1102       djohnson     Initial creation
+ * Jun 03, 2013 2038       djohnson     Add equals/hashcode.
  * 
  * </pre>
  * 
@@ -41,6 +44,16 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
  */
 abstract class StringBasedEncoder extends
         ContentSlotBasedEncoder<StringValueType, String> {
+
+    /**
+     * Constructor. Intentionally package-private.
+     * 
+     * @param type
+     *            the type
+     */
+    StringBasedEncoder(Type type) {
+        super(type);
+    }
 
     /**
      * {@inheritDoc}
