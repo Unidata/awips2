@@ -18,11 +18,7 @@
 # further licensing information.
 ##
 
-# determine the location of the python ported meteolib
-# TODO put the meteolib location in the java MasterDerivScript instead of having
-#      to manually determine its location like this
-import sys
-from numpy import zeros
+from com.raytheon.uf.viz.derivparam.python.function import CapeFunc
 
 def execute(*args):
     return __execute(*args)[0]
@@ -93,104 +89,9 @@ def __execute(*args):
     pressureValue = pressure
     pressure = zeros(temperatureValues.shape, temperatureValues.dtype)
     pressure[:] = pressureValue
-
-    return capeFunc(useVirtualTemp, pressureValues, temperatureValues, pressure, potentialTemperature, specificHumidity, upperTerminationPressure)
-
-import numpy as np
-import ctypes as ct
-from com.raytheon.edex.meteoLib import MeteoLibUtil
-
-def capeFunc(usetv, p_dat, tve_dat, p0, th0, sh0, ptop = None):
-    """ Use the native capeFunc function
-    """
-    
-    # define the c_float_ptr type
-    c_float_ptr = ct.POINTER(ct.c_float)
-    
-    # determine the input dimensions
-    dataShape = tve_dat.shape
-    
-    nx = dataShape[2] if len(dataShape) > 2 else None
-    ny = dataShape[1] if len(dataShape) > 1 else None
-    nz = dataShape[0]
-    
-    gridArea = nx * ny 
-    
-    # flatten all input arrays
-    p_dat = np.copy(p_dat)
-    tve_dat = np.copy(tve_dat)
-    p0 = np.copy(p0)
-    th0 = np.copy(th0)
-    sh0 = np.copy(sh0)
-
-    p_dat[np.isnan(p_dat)] = 1e37
-    tve_dat[np.isnan(tve_dat)] = 1e37
-    p0[np.isnan(p0)] = 1e37
-    th0[np.isnan(th0)] = 1e37
-    sh0[np.isnan(sh0)] = 1e37
-
-    p_dat.resize((nz, nx * ny,))
-    tve_dat.resize((nz, nx * ny,))
-    p0.resize((p0.size,))
-    th0.resize((th0.size,))
-    sh0.resize((sh0.size,))
-    
-    if ptop != None:
-        ptop.resize((ptop.size,))
-    
-    
-    # load the library
-    meteoLibPath = MeteoLibUtil.getSoPath()
-    meteoLib =  np.ctypeslib.load_library(meteoLibPath,"")
-    capeFunc = meteoLib.capeFunc if ptop == None else meteoLib.capeFuncTop 
-    
-    # "define" the capeFunc signature
-    capeFunc.restype = ct.c_int # return type
-    capeFunc.argtypes = [ct.c_float,
-                         ct.POINTER(c_float_ptr),
-                         ct.POINTER(c_float_ptr),
-                         c_float_ptr,
-                         c_float_ptr,
-                         c_float_ptr,
-                         ct.c_int,
-                         ct.c_int,
-                         ct.c_int,
-                         ct.c_int,
-                         c_float_ptr,
-                         c_float_ptr]
-    
-    if ptop != None:
-        capeFunc.argtypes.append(c_float_ptr)
-    
-    # result arrays
-    cape_dat = np.zeros(gridArea,p_dat.dtype)
-    cin_dat = np.zeros(gridArea,p_dat.dtype)
-    
-    capeFuncArgs = [ct.c_float(usetv),
-             
-             # get c_style pointers to the 2D input arrays
-             (c_float_ptr*len(p_dat))(*[row.ctypes.data_as(c_float_ptr) for row in p_dat]),
-             (c_float_ptr*len(tve_dat))(*[row.ctypes.data_as(c_float_ptr) for row in tve_dat]),
-             
-             p0.ctypes.data_as(c_float_ptr), 
-             th0.ctypes.data_as(c_float_ptr),
-             sh0.ctypes.data_as(c_float_ptr), 
-             ct.c_int(nx),
-             ct.c_int(nx),
-             ct.c_int(ny),
-             ct.c_int(nz),
-             cape_dat.ctypes.data_as(c_float_ptr), 
-             cin_dat.ctypes.data_as(c_float_ptr)]
-    
-    if ptop != None:
-        capeFuncArgs.append(ptop.ctypes.data_as(c_float_ptr))
-    
-    val = capeFunc(*capeFuncArgs)
-    if val == 1 :
-        raise MemoryError('Cape derived parameter ran out of memory')
-        exit
-    # resize the cape and cin data to the appropriate grid size
-    cape_dat.resize((ny,nx))
-    cin_dat.resize((ny,nx))
-    
-    return cape_dat, cin_dat
+    if upperTerminationPressure is None:
+        threeDshape = pressureValues.shape
+        return CapeFunc.capeFunc(useVirtualTemp, pressureValues, temperatureValues, pressure, potentialTemperature, specificHumidity, threeDshape[1], threeDshape[2], threeDshape[0]).__numpy__
+    else:
+        threeDshape = pressureValues.shape
+        return CapeFunc.capeFuncTop(useVirtualTemp, pressureValues, temperatureValues, pressure, potentialTemperature, specificHumidity, upperTerminationPressure, threeDshape[1], threeDshape[2], threeDshape[0]).__numpy__
