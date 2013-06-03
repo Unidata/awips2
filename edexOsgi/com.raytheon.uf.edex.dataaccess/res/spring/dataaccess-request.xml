@@ -1,0 +1,37 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+    
+    
+	<bean id="availableLocationsHandler"
+		class="com.raytheon.uf.edex.dataaccess.handler.GetAvailableLocationNamesHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.dataaccess.request.GetAvailableLocationNamesRequest" />
+		<constructor-arg ref="availableLocationsHandler" />
+	</bean>
+	
+	<bean id="availableTimesHandler"
+		class="com.raytheon.uf.edex.dataaccess.handler.GetAvailableTimesHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.dataaccess.request.GetAvailableTimesRequest" />
+		<constructor-arg ref="availableTimesHandler" />
+	</bean>
+	
+	<bean id="getGeometryDataHandler"
+		class="com.raytheon.uf.edex.dataaccess.handler.GetGeometryDataHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.dataaccess.request.GetGeometryDataRequest" />
+		<constructor-arg ref="getGeometryDataHandler" />
+	</bean>
+	
+	<bean id="getGridDataHandler"
+		class="com.raytheon.uf.edex.dataaccess.handler.GetGridDataHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.dataaccess.request.GetGridDataRequest" />
+		<constructor-arg ref="getGridDataHandler" />
+	</bean>
+</beans>

@@ -19,11 +19,23 @@
 ##
 
 # File auto-generated against equivalent DynamicSerialize Java class
+# and then modified post-generation to add additional features to better
+# match Java implementation.
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    ??/??/??                      xxxxxxxx       Initial Creation.
+#    05/28/13         2023         dgilling       Implement __str__().
+#
+#
 
 import calendar
 import datetime
 import numpy
 import time
+import StringIO
 
 from dynamicserialize.dstypes.java.util import Date
 from dynamicserialize.dstypes.java.util import EnumSet
@@ -39,10 +51,7 @@ class DataTime(object):
             ValueError("Invalid validPeriod object specified for DataTime.")
         self.validPeriod = validPeriod if validPeriod is not None else None
         self.utilityFlags = EnumSet('com.raytheon.uf.common.time.DataTime$FLAG')
-        # Only way to get a Double type to Java is to use numpy.float64 type,
-        # which means we need to create an array to hold this single Double value.
-        # FIXME: Find a better way to store doubles
-        self.levelValue = numpy.array([-1.0], dtype=numpy.float64)
+        self.levelValue = numpy.float64(-1.0)
         
         if self.refTime is not None:
             if isinstance(self.refTime, datetime.datetime):
@@ -62,11 +71,42 @@ class DataTime(object):
                 self.validPeriod.setEnd(validTimeMills/1000)
                 
         # figure out utility flags
-        if fcstTime is not None:
+        if fcstTime:
             self.utilityFlags.add("FCST_USED")
-        if self.validPeriod.getStart() != self.validPeriod.getEnd():
+        if self.validPeriod and self.validPeriod.isValid():
             self.utilityFlags.add("PERIOD_USED") 
 
+    def __str__(self):
+        buffer = StringIO.StringIO()
+        
+        if self.refTime is not None:
+            refTimeInSecs = self.refTime.getTime() / 1000
+            dtObj = datetime.datetime.utcfromtimestamp(refTimeInSecs)
+            buffer.write(dtObj.isoformat(' '))
+        
+        if "FCST_USED" in self.utilityFlags:
+            hrs = int(self.fcstTime / 3600)
+            mins = int((self.fcstTime - (hrs * 3600)) / 60)
+            buffer.write(" (" + str(hrs))
+            if mins != 0:
+                buffer.write(":" + str(mins))
+            buffer.write(")")
+        
+        if "PERIOD_USED" in self.utilityFlags:
+            buffer.write("[")
+            startTimeInSecs = self.validPeriod.getStartInMillis() / 1000
+            dtObj = datetime.datetime.utcfromtimestamp(startTimeInSecs)
+            buffer.write(dtObj.isoformat(' '))
+            buffer.write("--")
+            endTimeInSecs = self.validPeriod.getEndInMillis() / 1000
+            dtObj = datetime.datetime.utcfromtimestamp(endTimeInSecs)
+            buffer.write(dtObj.isoformat(' '))
+            buffer.write("]")
+        
+        strVal = buffer.getvalue()
+        buffer.close()
+        return strVal
+    
     def getRefTime(self):
         return self.refTime
 
@@ -92,8 +132,8 @@ class DataTime(object):
         self.utilityFlags = utilityFlags
 
     def getLevelValue(self):
-        return self.levelValue[0]
+        return self.levelValue
 
     def setLevelValue(self, levelValue):
-        self.levelValue[0] = levelValue
+        self.levelValue = numpy.float64(levelValue)
 
