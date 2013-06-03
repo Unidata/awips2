@@ -74,6 +74,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * MAR 27, 2013 1746       dhladky     MADIS data record creation
  * May 15, 2013 1658       djohnson    Add sequence.
  * May 16, 2013 753        dhladky     Restored dataUri as unique key
+ * June 03, 2013 1763      dhladky     Added ValMap lookups for QCD
  * </pre>
  * 
  * @author dhladky
@@ -644,6 +645,8 @@ public class MadisRecord extends PersistablePluginDataObject implements
         
         private static final Map<String,QCD> qcdMap;
         
+        private static final Map<String, QCD> valMap;
+        
         static {
             Map<String, QCD> map = new HashMap<String, QCD>();
             map.put(V, QCD.VERIFIED);
@@ -655,6 +658,17 @@ public class MadisRecord extends PersistablePluginDataObject implements
             map.put(Z, QCD.MISSING);
             map.put(X, QCD.REJECTED);
             qcdMap = Collections.unmodifiableMap(map);
+            
+            Map<String, QCD> map2 = new HashMap<String, QCD>();
+            map2.put(QCD.VERIFIED.name(), QCD.VERIFIED);
+            map2.put(QCD.SCREENDED.name(), QCD.SCREENDED);
+            map2.put(QCD.QUESTIONED.name(), QCD.QUESTIONED);
+            map2.put(QCD.COARSEPASS.name(), QCD.COARSEPASS);
+            map2.put(QCD.BAD.name(), QCD.BAD);
+            map2.put(QCD.GOOD.name(), QCD.GOOD);
+            map2.put(QCD.MISSING.name(), QCD.MISSING);
+            map2.put(QCD.REJECTED.name(), QCD.REJECTED);
+            valMap = Collections.unmodifiableMap(map2);
         }
 
         private final String qcd;
@@ -670,6 +684,10 @@ public class MadisRecord extends PersistablePluginDataObject implements
 
         public static QCD fromString(String val) {
             return qcdMap.get(val);
+        }
+        
+        public static QCD fromVal(String val) {
+            return valMap.get(val);
         }
        
     }

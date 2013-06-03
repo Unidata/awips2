@@ -25,6 +25,10 @@ Require-Bundle: com.raytheon.uf.edex.ogc.common;bundle-version="1.0.0",
  com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
  com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
  com.raytheon.uf.edex.wms;bundle-version="1.0.0",
- com.raytheon.uf.common.time;bundle-version="1.12.1174"
+ com.raytheon.uf.common.time;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.datadelivery.retrieval.wfs;bundle-version="1.0.0",
+ com.raytheon.uf.edex.datadelivery.retrieval;bundle-version="1.0.0",
+ com.raytheon.uf.common.datadelivery.retrieval;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.edex.plugin.madis.ogc,
- com.raytheon.uf.edex.plugin.madis.ogc.feature
+ com.raytheon.uf.edex.plugin.madis.ogc.feature,
+ com.raytheon.uf.edex.plugin.madis.ogc.metadata

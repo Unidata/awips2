@@ -22,7 +22,6 @@ package com.raytheon.uf.edex.datadelivery.retrieval.util;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 import com.raytheon.edex.colormap.ColorMapManager;
 import com.raytheon.uf.common.comm.ProxyConfiguration;
