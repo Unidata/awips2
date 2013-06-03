@@ -220,10 +220,12 @@ public class GLShaderProgram {
             gl.glUniform1i(getUniformLocation(uniformName),
                     ((Boolean) value) == true ? 1 : 0);
         } else if (value instanceof int[]) {
-            gl.glUniform1iv(getUniformLocation(uniformName), MAX_MULTIGRIDS,
+            int[] ints = (int[]) value;
+            gl.glUniform1iv(getUniformLocation(uniformName), ints.length,
                     (int[]) value, 0);
         } else if (value instanceof float[]) {
-            gl.glUniform1fv(getUniformLocation(uniformName), MAX_MULTIGRIDS,
+            float[] floats = (float[]) value;
+            gl.glUniform1fv(getUniformLocation(uniformName), floats.length,
                     (float[]) value, 0);
         } else if (value instanceof RGB) {
             gl.glUniform3f(getUniformLocation(uniformName),
