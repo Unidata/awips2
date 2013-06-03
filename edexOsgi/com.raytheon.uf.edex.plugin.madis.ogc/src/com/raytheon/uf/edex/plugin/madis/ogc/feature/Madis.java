@@ -52,6 +52,7 @@ import com.raytheon.uf.edex.ogc.common.feature.ObsLocation;
  * Date          Ticket#     Engineer    Description
  * -----------  ----------  ----------- --------------------------
  * 3/27/13      1746         dhladky    Initial creation
+ * Jun 03, 2013 1763         dhladky    Altered QCD values map
  * </pre>
  * 
  * @author dhladky
@@ -245,43 +246,43 @@ public class Madis extends AbstractFeatureType {
         record.setTimeObs(date);
         record.setLocation(getSfcObsLocation(this.getObsLocation()));
         record.setDewpoint(this.getDewpoint());
-        record.setDewpoint_qcd(QCD.fromString(this.getDewpoint_qcd()));
+        record.setDewpoint_qcd(QCD.fromVal(this.getDewpoint_qcd()));
         record.setDewpoint_qca(this.getDewpoint_qca());
         record.setDewpoint_qcr(this.getDewpoint_qcr());
         record.setRh(this.getRh());
-        record.setRh_qcd(QCD.fromString(this.getRh_qcd()));
+        record.setRh_qcd(QCD.fromVal(this.getRh_qcd()));
         record.setRh_qca(this.getRh_qca());
         record.setRh_qcr(this.getRh_qcr());
         record.setAltimeter(this.getAltimeter());
-        record.setAltimeter_qcd(QCD.fromString(this.getAltimeter_qcd()));
+        record.setAltimeter_qcd(QCD.fromVal(this.getAltimeter_qcd()));
         record.setAltimeter_qca(this.getAltimeter_qca());
         record.setAltimeter_qcr(this.getAltimeter_qcr());
         record.setTemperature(this.getTemperature());
-        record.setTemperature_qcd(QCD.fromString(this.getTemperature_qcd()));
+        record.setTemperature_qcd(QCD.fromVal(this.getTemperature_qcd()));
         record.setTemperature_qca(this.getTemperature_qca());
         record.setTemperature_qcr(this.getTemperature_qcr());
         record.setWindDirection(this.getWindDirection());
-        record.setWindDirection_qcd(QCD.fromString(this.getWindDirection_qcd()));
+        record.setWindDirection_qcd(QCD.fromVal(this.getWindDirection_qcd()));
         record.setWindDirection_qca(this.getWindDirection_qca());
         record.setWindDirection_qcr(this.getWindDirection_qcr());
         record.setPrecipRate(this.getPrecipRate());
-        record.setPrecipRate_qcd(QCD.fromString(this.getPrecipRate_qcd()));
+        record.setPrecipRate_qcd(QCD.fromVal(this.getPrecipRate_qcd()));
         record.setPrecipRate_qca(this.getPrecipRate_qca());
         record.setPrecipRate_qcr(this.getPrecipRate_qcr());
         record.setWindSpeed(this.getWindSpeed());
-        record.setWindSpeed_qcd(QCD.fromString(this.getWindSpeed_qcd()));
+        record.setWindSpeed_qcd(QCD.fromVal(this.getWindSpeed_qcd()));
         record.setWindSpeed_qca(this.getWindSpeed_qca());
         record.setWindSpeed_qcr(this.getWindSpeed_qcr());
         record.setWindGust(this.getWindGust());
-        record.setWindGust_qcd(QCD.fromString(this.getWindGust_qcd()));
+        record.setWindGust_qcd(QCD.fromVal(this.getWindGust_qcd()));
         record.setWindGust_qca(this.getWindGust_qca());
         record.setWindGust_qcr(this.getWindGust_qcr());
         record.setPrecipitalWater(this.getPrecipitalWater());
-        record.setPrecipitalWater_qcd(QCD.fromString(this.getPrecipitalWater_qcd()));
+        record.setPrecipitalWater_qcd(QCD.fromVal(this.getPrecipitalWater_qcd()));
         record.setPrecipitalWater_qca(this.getPrecipitalWater_qca());
         record.setPrecipitalWater_qcr(this.getPrecipitalWater_qcr());
         record.setPressure(this.getPressure());
-        record.setPressure_qcd(QCD.fromString(this.getPressure_qcd()));
+        record.setPressure_qcd(QCD.fromVal(this.getPressure_qcd()));
         record.setPressure_qca(this.getPressure_qca());
         record.setPressure_qcr(this.getPressure_qcr());
 
