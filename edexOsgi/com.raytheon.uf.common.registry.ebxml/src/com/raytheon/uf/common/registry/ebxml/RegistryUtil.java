@@ -75,6 +75,7 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * Sep 07, 2012 1102       djohnson    Check in hanging around encoding strategy code that will prove useful later.
  * Oct 05, 2012 1195       djohnson    Don't persist slots for null values.
  * 4/9/2013     1802       bphillip    Pulled constants out into existing constants package that was moved into common
+ * Jun 03, 2013 2038       djohnson    Allow setting the same encoder strategy.
  * 
  * </pre>
  * 
@@ -172,7 +173,7 @@ public final class RegistryUtil {
      *             has been set
      */
     public static void setEncoderStrategy(IRegistryEncoder encoder) {
-        if (ENCODER_STRATEGY != null) {
+        if (ENCODER_STRATEGY != null && !ENCODER_STRATEGY.equals(encoder)) {
             throw new IllegalStateException(
                     "The encoder strategy is already set, you cannot change it on a running system!");
         }

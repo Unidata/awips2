@@ -13,6 +13,7 @@
 	</target>
 
 	<target name="env-setup" description="Sets up the environment" depends="env-check, env-developer, env-jenkins">
+		<property environment="env" />
 		<property file="${build.properties.file}" />
 		<property file="build.properties" />
 		<property file="${BUILD.EDEX.PROPERTIES}" />
@@ -85,9 +86,13 @@
 
 		<forEachTestType>
 			<var name="testTypeSourceDir" value="${basedir}/@{testType}" />
+			<!-- Test type forking settings -->
+			<propertycopy name="forkTests" from="@{testType}.FORK.TESTS" override="true" />
+			<propertycopy name="forkMode" from="@{testType}.FORK.MODE" override="true" />
+			<propertycopy name="forkCloneVm" from="@{testType}.FORK.CLONEVM" override="true" />
 
-			<junit printsummary="yes" haltonfailure="no" failureproperty="tests.failed">
-				<jvmarg value="-Duser.dir=${testTypeSourceDir}" />
+			<junit printsummary="yes" forkmode="${forkMode}" clonevm="${forkCloneVm}" haltonfailure="no" failureproperty="tests.failed">
+				<jvmarg line="-Duser.dir=${testTypeSourceDir} -XX:PermSize=${env.INITIAL_PERMGEN_SIZE} -XX:MaxPermSize=${env.MAX_PERMGEN_SIZE}" />
 				<classpath>
 					<!-- Any resources for tests -->
 					<pathelement location="${testTypeSourceDir}" />
@@ -101,11 +106,8 @@
 
 				<formatter type="xml" />
 
-				<batchtest fork="no" todir="${TEST.REPORTS.DIR}">
-					<fileset dir="${basedir}/@{testType}">
-						<include name="${TEST.INCLUSION.PATTERN}" />
-						<exclude name="${TEST.EXCLUSION.PATTERN}" />
-					</fileset>
+				<batchtest fork="${forkTests}" todir="${TEST.REPORTS.DIR}">
+					<fileset dir="${basedir}/@{testType}" includes="${TEST.INCLUSION.PATTERN}" excludes="${TEST.EXCLUSION.PATTERN}" />
 				</batchtest>
 			</junit>
 		</forEachTestType>
