@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.core.gl.internal.ext;
+package com.raytheon.viz.core.gl.ext;
 
 import java.util.ArrayList;
 import java.util.List;
