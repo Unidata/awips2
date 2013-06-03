@@ -23,7 +23,7 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.ext.ISingleColorImageExtension.ISingleColorImage;
-import com.raytheon.viz.core.gl.internal.ext.GLSingleColorImageExtension;
+import com.raytheon.viz.core.gl.ext.imaging.GLSingleColorImageExtension;
 
 /**
  * GL Image object that all non-zero values should be mapped to a single color
