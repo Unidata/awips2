@@ -4,7 +4,8 @@ import javax.xml.bind.JAXBException;
 
 import net.opengis.wfs.v_1_1_0.FeatureCollectionType;
 
-import com.raytheon.uf.edex.ogc.common.jaxb.OgcJaxbManager;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.PluginException;
 
 /**
  * 
@@ -17,6 +18,7 @@ import com.raytheon.uf.edex.ogc.common.jaxb.OgcJaxbManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 22, 2013  753          dhladky    Initial javadoc
+ * June 11, 2013 1763        dhladky     Moved and updated.
  * 
  * </pre>
  * 
@@ -25,11 +27,9 @@ import com.raytheon.uf.edex.ogc.common.jaxb.OgcJaxbManager;
  */
 
 public interface IWfsMetaDataAdapter {
-    
-    public void configureMarshaller() throws JAXBException;
-    
-    public OgcJaxbManager getMarshaller();
-    
+
     public FeatureCollectionType getFeatureCollection(String payload) throws JAXBException;
+    
+    public PluginDataObject[] setPointData(PluginDataObject[] pdos) throws PluginException;
 
 }
