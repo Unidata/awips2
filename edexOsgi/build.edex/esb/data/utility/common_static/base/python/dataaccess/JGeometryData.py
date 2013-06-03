@@ -28,8 +28,9 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    12/10/12                      njensen       Initial Creation.
-#    
-# 
+#    06/03/13         #2023        dgilling      Remove "unit" support from
+#                                                __getitem__ as it only threw errors.
+#
 #
 
 from ufpy.dataaccess import IGeometryData
@@ -46,8 +47,6 @@ class JGeometryData(IGeometryData, JData.JData):
             return self.getGeometry()
         elif key == 'parameters':
             return self.getParameters()
-        elif key == 'unit':
-            return self.getUnit()
         elif key =='locationName':
             return self.getLocationName()
         elif key == 'time':
