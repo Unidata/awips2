@@ -27,14 +27,17 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.Ensemble;
+import com.raytheon.uf.common.datadelivery.registry.EnvelopeUtils;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.Levels;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
+import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.util.CollectionUtil;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Data Structure for calculating Data Set Size.
@@ -49,6 +52,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * Aug 12, 2012  1022      djohnson   Stop coordinates on GriddedCoverage from being corrupted.
  * Oct 31, 2012  1278      mpduff     Clarified a Javadoc comment.
  * Dec 10, 2012  1259      bsteffen   Switch Data Delivery from LatLon to referenced envelopes.
+ * Jun 11, 2013  2021      dhladky    WFS semi-scientific sizing.
  * 
  * </pre>
  * 
@@ -68,16 +72,33 @@ public class DataSizeUtils {
 
     public static long calculateSize(RetrievalAttribute ra, ServiceType st) {
 
-        if (ra.getCoverage() instanceof GriddedCoverage) {
-            GriddedCoverage griddedCov = (GriddedCoverage) ra.getCoverage();
-            int nx = griddedCov.getGridCoverage().getNx();
-            int ny = griddedCov.getGridCoverage().getNy();
+        if (st == ServiceType.OPENDAP) {
+            if (ra.getCoverage() instanceof GriddedCoverage) {
+                GriddedCoverage griddedCov = (GriddedCoverage) ra.getCoverage();
+                int nx = griddedCov.getGridCoverage().getNx();
+                int ny = griddedCov.getGridCoverage().getNy();
 
-            long l = st.getRequestBytesPerParameterPerLevel(nx * ny);
+                long l = st.getRequestBytesPerParameterPerLevel(nx * ny);
 
-            l = l / bytesPerKilobyte;
+                l = l / bytesPerKilobyte;
+                return l;
+            } else {
+                throw new IllegalStateException(
+                        "Couldn't calculate the retrieval size for a retrieval of type "
+                                + st.name() + "!");
+            }
+
+        } else if (st == ServiceType.WFS) {
+  
+            ReferencedEnvelope re = ra.getCoverage().getRequestEnvelope();
+            Coordinate ur = EnvelopeUtils.getUpperRightLatLon(re);
+            Coordinate ll = EnvelopeUtils.getLowerLeftLatLon(re);
+            double lonSpan = Math.abs(ll.x - ur.x);
+            double latSpan = Math.abs(ll.y - ur.y);
+            PointTime time = (PointTime)ra.getTime();
+            long l = st.getRequestBytesPerLatLonBoxAndTime(latSpan, lonSpan, time.getInterval());
+            
             return l;
-
         } else {
             throw new IllegalStateException(
                     "Couldn't calculate the retrieval size for a retrieval of type "
