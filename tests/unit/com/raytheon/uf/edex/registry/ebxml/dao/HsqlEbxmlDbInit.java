@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Extends {@link DbInit} to load the database for HSQL.
@@ -42,6 +44,7 @@ public class HsqlEbxmlDbInit extends DbInit {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void initDb() throws Exception {
         populateDB();
     }
