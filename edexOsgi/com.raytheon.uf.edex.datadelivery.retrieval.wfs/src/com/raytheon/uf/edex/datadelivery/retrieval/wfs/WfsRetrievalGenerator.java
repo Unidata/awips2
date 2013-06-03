@@ -11,6 +11,7 @@ import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.PointDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
+import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.common.datadelivery.registry.ProviderType;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
@@ -39,6 +40,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
  * May 12, 2013 753        dhladky      Implemented
  * May 31, 2013 2038       djohnson     Move to correct repo.
+ * Jun 04, 2013 1763       dhladky      Readied for WFS Retrievals.
  * 
  * </pre>
  * 
@@ -49,9 +51,11 @@ class WfsRetrievalGenerator extends RetrievalGenerator {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(WfsRetrievalGenerator.class);
+    private Provider provider;
 
-    WfsRetrievalGenerator() {
+    WfsRetrievalGenerator(Provider provider) {
         super(ServiceType.WFS);
+        this.provider = provider;
     }
 
     @Override
@@ -82,8 +86,6 @@ class WfsRetrievalGenerator extends RetrievalGenerator {
         List<Retrieval> retrievals = new ArrayList<Retrieval>();
         Subscription sub = bundle.getSubscription();
 
-        sub = removeDuplicates(sub);
-
         if (sub != null) {
 
             PointTime subTime = (PointTime) sub.getTime();
@@ -97,7 +99,12 @@ class WfsRetrievalGenerator extends RetrievalGenerator {
             }
 
             // with point data they all have the same data
-            Parameter param = sub.getParameter().get(0);
+            Parameter param = null;
+            
+            if (sub.getParameter() != null) {
+                param = sub.getParameter().get(0);
+            }
+                
             Retrieval retrieval = getRetrieval(sub, bundle, param, subTime);
             retrievals.add(retrieval);
         }
@@ -153,9 +160,7 @@ class WfsRetrievalGenerator extends RetrievalGenerator {
         if (dsmd instanceof PointDataSetMetaData) {
             // PointDataSetMetaData data = (PointDataSetMetaData) dsmd;
             // TODO determine some check for validity of point data sets
-
             return true;
-
         }
 
         return false;
@@ -185,11 +190,12 @@ class WfsRetrievalGenerator extends RetrievalGenerator {
 
         // Coverage and type processing
         Coverage cov = sub.getCoverage();
+
         if (cov instanceof Coverage) {
             retrieval.setDataType(DataType.POINT);
         } else {
             throw new UnsupportedOperationException(
-                    "WFS retrieval does not yet support coverages other than Point. ");
+                    "WFS retrieval does not support coverages/types other than Point. ");
         }
 
         final ProviderType providerType = bundle.getProvider().getProviderType(
@@ -198,11 +204,16 @@ class WfsRetrievalGenerator extends RetrievalGenerator {
 
         // Attribute processing
         RetrievalAttribute att = new RetrievalAttribute();
-        Parameter lparam = processParameter(param);
         att.setCoverage(cov);
-        lparam.setLevels(param.getLevels());
+        
+        if (param != null) {
+            
+            Parameter lparam = processParameter(param);
+            lparam.setLevels(param.getLevels());
+            att.setParameter(lparam);
+        }
+        
         att.setTime(time);
-        att.setParameter(lparam);
         att.setSubName(retrieval.getSubscriptionName());
         att.setPlugin(plugin);
         att.setProvider(sub.getProvider());
@@ -216,12 +227,12 @@ class WfsRetrievalGenerator extends RetrievalGenerator {
      */
     @Override
     protected RetrievalAdapter getServiceRetrievalAdapter() {
-        return new WfsRetrievalAdapter();
+        return new WfsRetrievalAdapter(provider);
     }
 
     @Override
     protected Subscription removeDuplicates(Subscription sub) {
-        throw new UnsupportedOperationException("Not implemented");
+        throw new UnsupportedOperationException("Not implemented for WFS");
     }
 
 }
