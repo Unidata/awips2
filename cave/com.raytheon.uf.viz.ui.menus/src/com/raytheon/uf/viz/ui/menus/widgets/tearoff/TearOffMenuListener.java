@@ -23,6 +23,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.ContributionItem;
@@ -43,6 +48,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.ui.VizWorkbenchManager;
+import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
 /**
  * Menu listener that adds item to menu which will open dialog which is the menu
@@ -72,14 +78,35 @@ public class TearOffMenuListener implements IMenuListener2 {
 
     public static final String TEAROFF_PREFERENCE_ID = "tearoffmenus";
 
+    private static final String TEAROFF_DISABLED_PERSPECTIVES = "com.raytheon.uf.viz.ui.menus.tearoffperspective";
+
     private static final IUFStatusHandler statusHandler = UFStatus
-        .getHandler(TearOffMenuListener.class);
+            .getHandler(TearOffMenuListener.class);
 
     private static boolean enabled;
+
+    private static List<String> enabledPerspectives;
     static {
         final IPreferenceStore store = com.raytheon.uf.viz.core.Activator
                 .getDefault().getPreferenceStore();
         enabled = store.getBoolean(TEAROFF_PREFERENCE_ID);
+        enabledPerspectives = new ArrayList<String>();
+
+        IExtensionRegistry registry = Platform.getExtensionRegistry();
+        IExtensionPoint point = registry
+                .getExtensionPoint(TEAROFF_DISABLED_PERSPECTIVES);
+        if (point != null) {
+            IExtension[] extensions = point.getExtensions();
+            for (IExtension extension : extensions) {
+                for (IConfigurationElement element : extension
+                        .getConfigurationElements()) {
+                    if (Boolean.valueOf(element.getAttribute("enabled"))) {
+                    	enabledPerspectives.add(element
+                                .getAttribute("perspectiveId"));
+                    }
+                }
+            }
+        }
         store.addPropertyChangeListener(new IPropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent event) {
@@ -149,9 +176,12 @@ public class TearOffMenuListener implements IMenuListener2 {
     private Object getPerspectiveKey(IMenuManager manager) {
         String perspectiveId = "";
         try {
-            perspectiveId =  VizWorkbenchManager.getInstance().getCurrentWindow().getActivePage().getPerspective().getId();
+            perspectiveId = VizWorkbenchManager.getInstance()
+                    .getCurrentWindow().getActivePage().getPerspective()
+                    .getId();
         } catch (Exception e) {
-            statusHandler.handle(Priority.EVENTA, "Failed to get current perspective ID", e);
+            statusHandler.handle(Priority.EVENTA,
+                    "Failed to get current perspective ID", e);
         }
         return perspectiveId + "::" + getKey(manager);
     }
@@ -210,7 +240,13 @@ public class TearOffMenuListener implements IMenuListener2 {
          */
         @Override
         public boolean isVisible() {
-            return super.isVisible() && enabled;
+            String currPerspective = VizPerspectiveListener
+                    .getCurrentPerspectiveManager().getPerspectiveId();
+            boolean currPerspectiveEnabled = false;
+            if (enabledPerspectives.contains(currPerspective)) {
+                currPerspectiveEnabled = true;
+            }
+            return super.isVisible() && enabled && currPerspectiveEnabled;
         }
 
     }
