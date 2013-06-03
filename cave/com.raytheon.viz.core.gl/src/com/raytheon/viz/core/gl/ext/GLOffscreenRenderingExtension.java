@@ -44,10 +44,10 @@ import com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat;
 import com.raytheon.viz.core.gl.dataformat.GLByteDataFormat;
 import com.raytheon.viz.core.gl.dataformat.GLColorMapDataFormatFactory;
 import com.raytheon.viz.core.gl.dataformat.IGLColorMapDataFormatProvider;
+import com.raytheon.viz.core.gl.ext.imaging.GLColormappedImageExtension;
 import com.raytheon.viz.core.gl.images.AbstractGLImage;
 import com.raytheon.viz.core.gl.images.GLColormappedImage;
 import com.raytheon.viz.core.gl.internal.GLView2D;
-import com.raytheon.viz.core.gl.internal.ext.GLColormappedImageExtension;
 
 /**
  * 
