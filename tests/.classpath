@@ -4,6 +4,7 @@
 	<classpathentry kind="src" path="deploy"/>
 	<classpathentry kind="src" path="resources"/>
 	<classpathentry kind="src" path="integration"/>
+	<classpathentry kind="src" path="manual"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.junit"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.commons.codec"/>

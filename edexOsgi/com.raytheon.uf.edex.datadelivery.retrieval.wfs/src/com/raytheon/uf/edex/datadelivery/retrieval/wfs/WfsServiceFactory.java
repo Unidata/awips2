@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.ServiceFactory;
  * Jul 25, 2012 955        djohnson     Initial creation
  * May 12, 2013 753        dhladky      implementation
  * May 31, 2013 2038       djohnson     Add setProvider.
+ * Jun 11, 2013 1763       dhladky      Service provider impl for WFS
  * 
  * </pre>
  * 
@@ -47,6 +48,8 @@ import com.raytheon.uf.edex.datadelivery.retrieval.ServiceFactory;
  */
 public class WfsServiceFactory implements ServiceFactory {
 
+    private Provider provider;
+    
     /*
      * (non-Javadoc)
      * 
@@ -78,7 +81,7 @@ public class WfsServiceFactory implements ServiceFactory {
      */
     @Override
     public RetrievalGenerator getRetrievalGenerator() {
-        return new WfsRetrievalGenerator();
+        return new WfsRetrievalGenerator(provider);
     }
 
     /**
@@ -86,6 +89,6 @@ public class WfsServiceFactory implements ServiceFactory {
      */
     @Override
     public void setProvider(Provider provider) {
-        throw new UnsupportedOperationException("Not implemented");
+        this.provider = provider;
     }
 }
