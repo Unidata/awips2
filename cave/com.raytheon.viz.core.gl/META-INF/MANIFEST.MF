@@ -21,6 +21,7 @@ Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.core.gl,
  com.raytheon.viz.core.gl.dataformat,
  com.raytheon.viz.core.gl.ext,
+ com.raytheon.viz.core.gl.ext.imaging,
  com.raytheon.viz.core.gl.glsl,
  com.raytheon.viz.core.gl.images
 Import-Package: com.raytheon.uf.common.status,
