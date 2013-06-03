@@ -21,28 +21,24 @@ import com.raytheon.uf.common.time.domain.api.IDuration;
 
 /**
  * 
- * Represents a service interface in ebRIM. Matches interface as defined in WSDL
- * 2.
  * 
- * 
- * <p>
- * Java class for ServiceInterfaceType complex type.
- * 
- * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
+ * Provider Object
  * 
  * <pre>
- * &lt;complexType name="ServiceInterfaceType">
- *   &lt;complexContent>
- *     &lt;extension base="{urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0}RegistryObjectType">
- *     &lt;/extension>
- *   &lt;/complexContent>
- * &lt;/complexType>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Feb 16, 2012            dhladky     Initial creation
+ * jun 11, 2013 2101       dhladky     Updated for username/password DPA exchanges
+ * 
  * </pre>
  * 
- * 
+ * @author dhladky
+ * @version 1.0
  */
+
 @XmlRootElement(name = "provider")
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -68,9 +64,9 @@ public class Provider implements ISerializableObject {
      */
     public enum ServiceType {
 
-        // TODO: Only OPENDAP has the correct amounts
-        OPENDAP(5000, BYTES_IN_FLOAT), WCS(5000, BYTES_IN_FLOAT), WFS(5000,
-                BYTES_IN_FLOAT), WMS(5000, BYTES_IN_FLOAT), WXXM(5000,
+        // TODO: Only OPENDAP and WFS have the correct amounts
+        OPENDAP(5000, BYTES_IN_FLOAT), WCS(5000, BYTES_IN_FLOAT), WFS(2411724,
+                OneByOneBox), WMS(5000, BYTES_IN_FLOAT), WXXM(5000,
                 BYTES_IN_FLOAT);
 
         private final long requestOverheadInBytes;
@@ -87,9 +83,32 @@ public class Provider implements ISerializableObject {
             return bytesPerParameterRequest * numberOfPoints
                     + requestOverheadInBytes;
         }
+
+        /**
+         * Takes in a WFS request and gives you a nominal byte size based 
+         * on the size in lat/lon of the bounding box and the interval in multiples of 
+         * 5 min intervals.
+         * 
+         * timeSpan ~ minutes
+         * latSpan ~ span in degrees of lat for bounding box
+         * lonSpan ~ span in degrees of lon for bounding box
+         * 
+         * @param latSpan
+         * @param lonSpan
+         * @param timeSpan
+         * @return
+         */
+        public long getRequestBytesPerLatLonBoxAndTime(double latSpan,
+                double lonSpan, int timeSpan) {
+            // increments are in 5 minutes so 5/5 = 1
+            return (long) (latSpan * lonSpan * timeSpan/5 * requestOverheadInBytes);
+        }
     }
 
     private static final Integer BYTES_IN_FLOAT = Float.SIZE / Byte.SIZE;
+
+    /** a one degree by one degree box **/
+    private static final Integer OneByOneBox = 1;
 
     @XmlAttribute(name = "name", required = true)
     @DynamicSerializeElement
