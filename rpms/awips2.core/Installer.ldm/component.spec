@@ -21,6 +21,7 @@ Packager: Bryan Kowal
 
 AutoReq: no
 Requires: awips2-notification
+Requires: qpid-cpp-client-devel
 Requires: zlib-devel
 provides: awips2-ldm
 provides: awips2-base-component
@@ -178,6 +179,52 @@ rm -f %{_ldm_src_tar}
 if [ $? -ne 0 ]; then
    exit 1
 fi
+
+# create .bash_profile
+if [ ! -f /usr/local/ldm/.bash_profile ]; then
+   echo 'export PATH=$HOME/decoders:$HOME/util:$HOME/bin:$PATH' > \
+      /usr/local/ldm/.bash_profile
+   echo 'export MANPATH=$HOME/share/man:/usr/share/man' >> \
+      /usr/local/ldm/.bash_profile
+   /bin/chown ldm:fxalpha /usr/local/ldm/.bash_profile
+fi
+
+pushd . > /dev/null 2>&1
+# build ldm
+rm -f ~ldm/runtime
+cd ${_ldm_root_dir}/src
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+export _current_dir=`pwd`
+su ldm -lc "cd ${_current_dir}; ./configure --disable-max-size --with-noaaport --disable-root-actions --prefix=${_ldm_root_dir} CFLAGS='-g -O0'" \
+   > configure.log 2>&1
+if [ $? -ne 0 ]; then
+   echo "FATAL: ldm configure has failed!"
+   exit 1
+fi
+export _current_dir=`pwd`
+su ldm -lc "cd ${_current_dir}; make install" > install.log 2>&1
+if [ $? -ne 0 ]; then
+   echo "FATAL: make install has failed!"
+   exit 1
+fi
+
+su ldm -lc "cd ${_current_dir}; /bin/bash my-install" > my-install.log 2>&1
+if [ $? -ne 0 ]; then
+   echo "FATAL: my-install has failed!"
+   exit 1
+fi
+popd > /dev/null 2>&1
+pushd . > /dev/null 2>&1
+cd ${_ldm_root_dir}/src
+make root-actions > root-actions.log 2>&1
+if [ $? -ne 0 ]; then
+   echo "FATAL: root-actions has failed!"
+   exit 1
+fi
+popd > /dev/null 2>&1
+
 # unpack bin, decoders, and etc.
 _PATCH_DIRS=( 'bin' 'decoders' 'etc' )
 for patchDir in ${_PATCH_DIRS[*]};
@@ -191,20 +238,9 @@ do
       exit 1
    fi
 done
-/bin/chown -R ldm:fxalpha ${_ldm_dir}
-if [ $? -ne 0 ]; then
-   exit 1
-fi
+/bin/chmod a+x ${_ldm_dir}/bin/*
+/bin/chown -R ldm:fxalpha ${_ldm_dir}/etc ${_ldm_dir}/decoders
 popd > /dev/null 2>&1
-
-# create .bash_profile
-if [ ! -f /usr/local/ldm/.bash_profile ]; then
-   echo 'export PATH=$HOME/decoders:$HOME/util:$HOME/bin:$PATH' > \
-      /usr/local/ldm/.bash_profile
-   echo 'export MANPATH=$HOME/share/man:/usr/share/man' >> \
-      /usr/local/ldm/.bash_profile
-   /bin/chown ldm:fxalpha /usr/local/ldm/.bash_profile
-fi
 
 # construct pqact
 pushd . > /dev/null 2>&1
@@ -232,47 +268,6 @@ if [ ${_myHost} != "cpsbn1" -a ${_myHost} != "cpsbn2" -a ${_myHost} != "dx1" -a 
       echo "ERROR: Unable to merge pqact.conf.dev and pqact.conf."
       exit 1
    fi
-fi
-popd > /dev/null 2>&1
-
-pushd . > /dev/null 2>&1
-# build ldm
-cd ${_ldm_root_dir}/src
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-export _current_dir=`pwd`
-su ldm -lc "cd ${_current_dir}; ./configure --disable-max-size --with-noaaport --disable-root-actions --prefix=${_ldm_dir}" \
-   > configure.log 2>&1
-if [ $? -ne 0 ]; then
-   echo "FATAL: ldm configure has failed!"
-   exit 1
-fi
-export _current_dir=`pwd`
-su ldm -lc "cd ${_current_dir}; make install" > install.log 2>&1
-if [ $? -ne 0 ]; then
-   echo "FATAL: make install has failed!"
-   exit 1
-fi
-popd > /dev/null 2>&1
-pushd . > /dev/null 2>&1
-cd ${_ldm_root_dir}/src/noaaport
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-export _current_dir=`pwd`
-su ldm -lc "cd ${_current_dir}; /bin/bash my-make" > my-make.log 2>&1
-if [ $? -ne 0 ]; then
-   echo "FATAL: my-make has failed!"
-   exit 1
-fi
-popd > /dev/null 2>&1
-pushd . > /dev/null 2>&1
-cd ${_ldm_root_dir}/src
-make root-actions > root-actions.log 2>&1
-if [ $? -ne 0 ]; then
-   echo "FATAL: root-actions has failed!"
-   exit 1
 fi
 popd > /dev/null 2>&1
 
@@ -349,7 +344,7 @@ fi
 for _file in $( ls /tmp/ldm/etc/pqact.conf.* | grep -wE "pqact.conf.[a-z]{3,4}" | grep -v pqact.conf.dev | xargs ) ;
 do
    if [[ ! -f /usr/local/ldm/etc/${_file} ]]; then
-      scp -qp /tmp/ldm/etc/${_file} /usr/local/ldm/etc/
+      scp -qp ${_file} /usr/local/ldm/etc/
    fi
 done
 #if a remote CP site, copy over the filtered data configuration
@@ -432,5 +427,5 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %attr(755,root,root) /etc/profile.d/awipsLDM.csh
 %attr(755,root,root) /etc/ld.so.conf.d/awips2-ldm-i386.conf
-%attr(755,root,root) /etc/ld.so.conf.d/ldm.log
+%attr(755,root,root) /etc/logrotate.d/ldm.log
 %attr(755,root,root) /etc/init.d/ldmcp
