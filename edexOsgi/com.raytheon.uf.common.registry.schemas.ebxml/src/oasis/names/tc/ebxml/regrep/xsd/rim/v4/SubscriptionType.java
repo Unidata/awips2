@@ -114,6 +114,16 @@ public class SubscriptionType extends RegistryObjectType {
     @Type(type = "com.raytheon.uf.common.registry.schemas.ebxml.util.DurationType")
     protected Duration notificationInterval;
 
+    public SubscriptionType() {
+
+    }
+
+    public SubscriptionType(String id, String lid, String objectType,
+            String owner, String status, String name, String description) {
+        super(id, lid, objectType, owner, status, name, description);
+
+    }
+
     /**
      * Gets the value of the deliveryInfo property.
      * 
