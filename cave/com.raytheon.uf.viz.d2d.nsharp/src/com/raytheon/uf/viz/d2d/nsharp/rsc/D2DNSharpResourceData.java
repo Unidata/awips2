@@ -57,7 +57,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 12, 2011            bsteffen     Initial creation
+ * Apr 12, 2011            bsteffen    Initial creation
+ * May 31, 2013 1847       bsteffen    D2D nsharp will now format Lat/Lons as
+ *                                     stationId like NC ncharp.
  * 
  * </pre>
  * 
@@ -174,15 +176,19 @@ public abstract class D2DNSharpResourceData extends
             fcstTime = new Timestamp(time.getValidPeriod().getStart().getTime());
             stnInfo.setRangestarttime(fcstTime);
         }
+        String pointName = this.pointName;
         if (coordinate != null) {
             stnInfo.setLongitude(coordinate.x);
             stnInfo.setLatitude(coordinate.y);
+            if (pointName == null) {
+                pointName = String.format("%.2f/%.2f", coordinate.y,
+                        coordinate.x);
+            }
         }
         if (pointName != null) {
             stnInfo.setStnDisplayInfo(pointName + " "
                     + formatTimestamp(fcstTime));
-        } else {
-            stnInfo.setStnDisplayInfo(formatTimestamp(fcstTime));
+            stnInfo.setStnId(pointName);
         }
         return stnInfo;
     }
