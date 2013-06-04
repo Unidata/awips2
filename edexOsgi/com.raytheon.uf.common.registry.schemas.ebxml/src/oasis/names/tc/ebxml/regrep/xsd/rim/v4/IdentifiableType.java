@@ -20,6 +20,8 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
+import java.util.Collection;
+
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -75,6 +77,15 @@ public abstract class IdentifiableType extends ExtensibleObjectType implements
     @XmlAttribute(required = true)
     @DynamicSerializeElement
     protected String id;
+
+    protected IdentifiableType() {
+
+    }
+
+    protected IdentifiableType(Collection<SlotType> slots, String id) {
+        super(slots);
+        this.id = id;
+    }
 
     /**
      * Gets the value of the id property.
