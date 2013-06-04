@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth.util;
 
-import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -56,6 +55,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Oct 24, 2012 1286       djohnson     Extract methods from {@link BandwidthUtil}.
  * Dec 11, 2012 1286       djohnson     FULFILLED allocations are not in the retrieval plan either.
  * Feb 14, 2013 1595       djohnson     Fix not using calendar copies, and backwards max/min operations.
+ * Jun 04, 2013  223       mpduff       Refactor changes.
  * 
  * </pre>
  * 
@@ -297,46 +297,38 @@ public class BandwidthDaoUtil {
             // getDataSetMetaData returns the dataset meta-data in descending
             // order of time, so walk the iterator finding the first subscribed
             // to cycle
-            try {
-                BandwidthDataSetUpdate daoToUse = null;
-                Time adhocTime = adhoc.getTime();
-                for (BandwidthDataSetUpdate current : dataSetMetaDataUpdates) {
-                    if (mostRecent
-                            || adhocTime.getCycleTimes().contains(
-                                    current.getDataSetBaseTime().get(
-                                            Calendar.HOUR_OF_DAY))) {
-                        daoToUse = current;
-                        break;
-                    }
+            BandwidthDataSetUpdate daoToUse = null;
+            Time adhocTime = adhoc.getTime();
+            for (BandwidthDataSetUpdate current : dataSetMetaDataUpdates) {
+                if (mostRecent
+                        || adhocTime.getCycleTimes().contains(
+                                current.getDataSetBaseTime().get(
+                                        Calendar.HOUR_OF_DAY))) {
+                    daoToUse = current;
+                    break;
                 }
-
-                if (daoToUse == null) {
-                    if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                        statusHandler
-                                .debug(String
-                                        .format("There wasn't applicable most recent dataset metadata to use for the adhoc subscription [%].",
-                                                adhoc.getName()));
-                    }
-                } else {
-                    if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                        statusHandler
-                                .debug(String
-                                        .format("Found most recent metadata for adhoc subscription [%s], using url [%s]",
-                                                adhoc.getName(),
-                                                daoToUse.getUrl()));
-                    }
-                    adhoc.setUrl(daoToUse.getUrl());
-                    adhocTime.setStartDate(daoToUse.getDataSetBaseTime()
-                            .getTime());
-
-                    retVal = adhoc;
-                }
-            } catch (ParseException e) {
-                statusHandler
-                        .error("Error setting start time for AdhocSubscription ["
-                                + adhoc.getName()
-                                + "].  AdhocSubscription cannot be fulfilled");
             }
+
+            if (daoToUse == null) {
+                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                    statusHandler
+                            .debug(String
+                                    .format("There wasn't applicable most recent dataset metadata to use for the adhoc subscription [%].",
+                                            adhoc.getName()));
+                }
+            } else {
+                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                    statusHandler
+                            .debug(String
+                                    .format("Found most recent metadata for adhoc subscription [%s], using url [%s]",
+                                            adhoc.getName(), daoToUse.getUrl()));
+                }
+                adhoc.setUrl(daoToUse.getUrl());
+                adhocTime.setStartDate(daoToUse.getDataSetBaseTime().getTime());
+
+                retVal = adhoc;
+            }
+
         }
         return retVal;
     }
