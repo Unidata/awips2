@@ -43,6 +43,7 @@ import org.junit.Test;
 
 import com.raytheon.uf.common.archive.config.ArchiveConfig;
 import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
+import com.raytheon.uf.common.archive.config.ArchiveConfigManager.DisplayData;
 import com.raytheon.uf.common.archive.config.CategoryConfig;
 import com.raytheon.uf.common.archive.exception.ArchiveException;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
@@ -73,6 +74,8 @@ public class ArchiveConfigManagerTest {
 
     private static final String SAT_CAT_NAME = "Satellite";
 
+    private static final String satNameForArchive = "GOES-13";
+
     private static File TEST_DIR = TestUtil
             .setupTestClassDir(ArchiveConfigManagerTest.class);
 
@@ -99,8 +102,6 @@ public class ArchiveConfigManagerTest {
     private Calendar archiveStart;
 
     private Calendar archiveEnd;
-
-    private List<String> selectedForArchive;
 
     private File archiveDir;
 
@@ -148,9 +149,6 @@ public class ArchiveConfigManagerTest {
         CategoryConfig grib1Cat = getCategory(archive, "Model grib");
         createTestFiles(grib1Format, getRetentionHours(archive, grib1Cat),
                 false, archiveStart, archiveEnd);
-        // manager is not configured internally until this is called...
-        // TODO Brad will fix.
-        // manager.getDisplayLabels(archive.getName(), grib1Cat.getName());
 
         // **** sat ****
         CategoryConfig satCat = getCategory(archive, SAT_CAT_NAME);
@@ -158,9 +156,6 @@ public class ArchiveConfigManagerTest {
                 "/sat/{0}{1}/{2}/GOES-13/{2}{3}Z_SOUND-VIS_10km_EAST-CONUS-TIGE59_KNES_128453.satz.{0}{1}{2}");
         createTestFiles(satFormat, getRetentionHours(archive, satCat), true,
                 archiveStart, archiveEnd);
-        // manager is not configured internally until this is called...
-        // TODO Brad will fix.
-        // manager.getDisplayLabels(archive.getName(), satCat.getName());
 
         // **** acars ****
         CategoryConfig otherCat = getCategory(archive, "Model other");
@@ -181,16 +176,9 @@ public class ArchiveConfigManagerTest {
                 "/bufrsigwx/{0}{1}/{2}/JUWE96_KKCI_{1}{2}{3}_31368878.bufr.{0}{1}{2}");
         createTestFiles(bufrsigwxFormat, otherCatRetentionHours, false,
                 archiveStart, archiveEnd);
-        // manager is not configured internally until this is called...
-        // TODO Brad will fix.
-        // manager.getDisplayLabels(archive.getName(), otherCat.getName());
 
         // create test archive data dir
         archiveDir = new File(TEST_DIR, TEST_ARCHIVE_DIR);
-        // create archive elements for selected list
-        selectedForArchive = new ArrayList<String>();
-        selectedForArchive.add("GOES-13");
-
     }
 
     private int getRetentionHours(ArchiveConfig archive, CategoryConfig category) {
@@ -305,9 +293,16 @@ public class ArchiveConfigManagerTest {
     public void testArchiveManagerCreateArchive() throws IOException,
             ArchiveException {
         CategoryConfig satCategory = getCategory(archive, SAT_CAT_NAME);
-        Collection<File> archivedFiles = manager.createArchive(archive,
-                satCategory, archiveDir, selectedForArchive, archiveStart,
-                archiveEnd);
+        List<DisplayData> displays = 
+                manager.getDisplayInfo(archive.getName(), satCategory.getName());
+        List<DisplayData> selectedDisplays = new ArrayList<ArchiveConfigManager.DisplayData>();
+        for (DisplayData displayData : displays) {
+            if (displayData.getDisplayLabel().equals(satNameForArchive)) {
+                selectedDisplays.add(displayData);
+            }
+        }
+        Collection<File> archivedFiles = manager.createArchive(archiveDir,
+                selectedDisplays, archiveStart, archiveEnd);
         assertEquals(
                 "The expected archive files and the archived files are not the same",
                 createFileNameListNoRootDir(new File(archive.getRootDir()),
