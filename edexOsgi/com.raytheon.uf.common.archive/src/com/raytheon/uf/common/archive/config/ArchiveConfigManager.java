@@ -67,7 +67,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May  1, 2013 1966       rferrel     Initial creation
- * May 29, 2013 1965       bgonzale    Added archive creation method and purge.
+ * May 29, 2013 1965       bgonzale    Added archive creation, purge, and save methods.
  * 
  * </pre>
  * 
@@ -83,6 +83,8 @@ public class ArchiveConfigManager {
     public final String ARCHIVE_DIR = "archive";
 
     private IPathManager pathMgr;
+
+    private final Map<String, LocalizationFile> archiveNameToLocalizationFileMap = new HashMap<String, LocalizationFile>();
 
     private final Map<String, ArchiveConfig> archiveMap = new HashMap<String, ArchiveConfig>();
 
@@ -175,12 +177,9 @@ public class ArchiveConfigManager {
 
     /**
      * Create an archive in the given archive directory from the Files filtered
-     * by the given Archive out of the ArchiveElements.
+     * by the ArchiveElements that are within the start and end time frame
+     * parameters.
      * 
-     * @param archive
-     *            Archive configuration to create Archive from
-     * @param category
-     *            Archive Category configuration
      * @param archiveDir
      *            Destination directory of the Archive
      * @param displaysSelectedForArchive
@@ -193,52 +192,48 @@ public class ArchiveConfigManager {
      * @throws IOException
      * @throws ArchiveException
      */
-    public Collection<File> createArchive(ArchiveConfig archive,
-            CategoryConfig category, File archiveDir,
-            Collection<String> displaysSelectedForArchive, Calendar start,
+    public Collection<File> createArchive(File archiveDir,
+            Collection<DisplayData> displaysSelectedForArchive, Calendar start,
             Calendar end) throws IOException, ArchiveException {
         Collection<File> archivedFiles = null;
-        if (archiveDir.exists() || archiveDir.mkdirs()) {
+        FileUtils.forceMkdir(archiveDir);
+        if (archiveDir.exists()) {
             Collection<File> filesToArchive = new ArrayList<File>();
 
-            // TODO Brad will fix.
-            // for (String displayLabel : displaysSelectedForArchive) {
-            // File[] files = getDisplayFiles(archive.getName(),
-            // category.getName(), displayLabel, start, end);
-            // filesToArchive.addAll(Arrays.asList(files));
-            // }
+            for (DisplayData display : displaysSelectedForArchive) {
+                List<File> files = getDisplayFiles(display, start, end);
+                filesToArchive.addAll(files);
+                String rootDirString = display.archiveConfig.getRootDir();
+                String archiveDirString = archiveDir.getAbsolutePath();
 
-            String rootDirString = archive.getRootDir();
-            String archiveDirString = archiveDir.getAbsolutePath();
+                archivedFiles = new ArrayList<File>(filesToArchive.size());
+                rootDirString = (rootDirString.endsWith(File.separator) ? rootDirString
+                        .substring(0,
+                                rootDirString.lastIndexOf(File.separatorChar))
+                        : rootDirString);
+                for (File srcFile : filesToArchive) {
+                    String fileAbsPath = srcFile.getAbsolutePath();
+                    File newArchiveDir = getDirRelativeToArchiveDirFromRoot(
+                            srcFile.isDirectory(), fileAbsPath, rootDirString,
+                            archiveDirString);
+                    FileUtils.forceMkdir(newArchiveDir);
 
-            archivedFiles = new ArrayList<File>(filesToArchive.size());
-            rootDirString = (rootDirString.endsWith(File.separator) ? rootDirString
-                    .substring(0, rootDirString.lastIndexOf(File.separatorChar))
-                    : rootDirString);
-            for (File srcFile : filesToArchive) {
-                String fileAbsPath = srcFile.getAbsolutePath();
-                File newArchiveDir = getDirRelativeToArchiveDirFromRoot(
-                        srcFile.isDirectory(), fileAbsPath, rootDirString,
-                        archiveDirString);
-                FileUtils.forceMkdir(newArchiveDir);
-
-                if (srcFile.isDirectory()) {
-                    FileUtils.copyDirectory(srcFile, newArchiveDir);
-                    archivedFiles.addAll(Arrays.asList(newArchiveDir
-                            .listFiles()));
-                } else {
-                    FileUtils.copyFileToDirectory(srcFile, newArchiveDir);
-                    String filename = FilenameUtils.getName(fileAbsPath);
-                    File dstFile = new File(newArchiveDir, filename);
-                    archivedFiles.add(dstFile);
+                    if (srcFile.isDirectory()) {
+                        FileUtils.copyDirectory(srcFile, newArchiveDir);
+                        archivedFiles.addAll(Arrays.asList(newArchiveDir
+                                .listFiles()));
+                    } else {
+                        FileUtils.copyFileToDirectory(srcFile, newArchiveDir);
+                        String filename = FilenameUtils.getName(fileAbsPath);
+                        File dstFile = new File(newArchiveDir, filename);
+                        archivedFiles.add(dstFile);
+                    }
                 }
             }
         } else {
             StringBuilder sbuff = new StringBuilder(
-                    "Failed to create archive for Archive: ");
-            sbuff.append(archive);
-            sbuff.append(" and Category: ");
-            sbuff.append(category);
+                    "Failed to create archive in: ");
+            sbuff.append(archiveDir);
             throw new ArchiveException(sbuff.toString());
         }
         return archivedFiles;
@@ -270,22 +265,21 @@ public class ArchiveConfigManager {
         for (CategoryConfig category : archive.getCategoryList()) {
             Calendar purgeTime = calculateExpiration(archive, category);
 
-            // TODO Brad will fix.
-            // for (String displayLabel : getDisplayLabels(archive.getName(),
-            // category.getName())) {
-            // File[] displayFiles = getDisplayFiles(archive.getName(),
-            // category.getName(), displayLabel, null, purgeTime);
-            // for (File file : displayFiles) {
-            // if (file.isFile()) {
-            // filesPurged.add(file);
-            // } else if (file.isDirectory()) {
-            // filesPurged.addAll(FileUtils.listFiles(file,
-            // FileFilterUtils.fileFileFilter(),
-            // FileFilterUtils.trueFileFilter()));
-            // }
-            // FileUtils.deleteQuietly(file);
-            // }
-            // }
+            for (DisplayData display : getDisplayInfo(archive.getName(),
+                    category.getName())) {
+                List<File> displayFiles = getDisplayFiles(display, null,
+                        purgeTime);
+                for (File file : displayFiles) {
+                    if (file.isFile()) {
+                        filesPurged.add(file);
+                    } else if (file.isDirectory()) {
+                        filesPurged.addAll(FileUtils.listFiles(file,
+                                FileFilterUtils.fileFileFilter(),
+                                FileFilterUtils.trueFileFilter()));
+                    }
+                    FileUtils.deleteQuietly(file);
+                }
+            }
         }
         return filesPurged;
     }
@@ -334,11 +328,13 @@ public class ArchiveConfigManager {
      */
     public void reset() {
         archiveMap.clear();
+        archiveNameToLocalizationFileMap.clear();
         LocalizationFile[] files = getArchiveConfigFiles();
         for (LocalizationFile lFile : files) {
             try {
-                ArchiveConfig archiveConfig;
-                archiveConfig = unmarshalArhiveConfigFromXmlFile(lFile);
+                ArchiveConfig archiveConfig = unmarshalArhiveConfigFromXmlFile(lFile);
+                archiveNameToLocalizationFileMap.put(archiveConfig.getName(),
+                        lFile);
                 archiveMap.put(archiveConfig.getName(), archiveConfig);
             } catch (IOException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
@@ -347,6 +343,18 @@ public class ArchiveConfigManager {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }
+        }
+    }
+
+    /**
+     * Save the cached configuration.
+     */
+    public void save() {
+        for (String archiveName : archiveMap.keySet()) {
+            ArchiveConfig archiveConfig = archiveMap.get(archiveName);
+            LocalizationFile lFile = archiveNameToLocalizationFileMap
+                    .get(archiveName);
+            saveArchiveConfig(lFile, archiveConfig);
         }
     }
 
@@ -719,4 +727,5 @@ public class ArchiveConfigManager {
             return false;
         }
     }
+
 }
