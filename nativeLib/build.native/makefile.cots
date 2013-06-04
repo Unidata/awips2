@@ -35,6 +35,7 @@ clean:
 	-$(MAKE) -C $(make_dir) uninstall
 	-$(MAKE) -C $(make_dir) $@
 	-@rm -f $(make_dir)/Makefile
+	-@rm -rf $(make_dir)
 	
 .PHONY: all
 
