@@ -21,11 +21,9 @@ package com.raytheon.uf.common.python.concurrent;
 
 import jep.JepException;
 
-import com.raytheon.uf.common.python.PythonInterpreter;
-
 /**
- * Any class that implements this will be able to execute methods on the
- * PythonInterpreter that is passed in
+ * This exception is thrown by the PythonJobCoordinator when the
+ * AbstractPythonScriptFactory fails to execute a Job.
  * 
  * <pre>
  * 
@@ -33,23 +31,20 @@ import com.raytheon.uf.common.python.PythonInterpreter;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 05, 2013            mnash       Initial creation
- * Jun 04, 2013 2041       bsteffen    Improve exception handling for concurrent
- *                                     python.
+ * Jun 04, 2013 2041       bsteffen    Initial creation
  * 
  * </pre>
  * 
- * @author mnash
+ * @author bsteffen
  * @version 1.0
  */
 
-public interface IPythonExecutor<P extends PythonInterpreter, R extends Object> {
-    /**
-     * Method takes a {@link PythonInterpreter} and executes the necessary parts
-     * of it
-     * 
-     * @param script
-     * @return
-     */
-    public abstract R execute(P script) throws JepException;
+public class PythonJobFailedException extends RuntimeException {
+
+    private static final long serialVersionUID = -6716989387583873621L;
+
+    public PythonJobFailedException(JepException cause) {
+        super(cause.getMessage(), cause);
+    }
+
 }
