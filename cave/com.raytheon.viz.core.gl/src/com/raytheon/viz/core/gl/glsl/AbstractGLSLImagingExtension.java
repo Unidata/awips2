@@ -21,7 +21,7 @@ package com.raytheon.viz.core.gl.glsl;
 
 import com.raytheon.viz.core.gl.GLCapabilities;
 import com.raytheon.viz.core.gl.IGLTarget;
-import com.raytheon.viz.core.gl.ext.AbstractGLImagingExtension;
+import com.raytheon.viz.core.gl.ext.imaging.AbstractGLImagingExtension;
 import com.raytheon.viz.core.gl.internal.GLTarget;
 
 /**
