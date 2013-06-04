@@ -54,6 +54,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Sep 24, 2012 1209        djohnson    Add copy constructor.
  * Sep 28, 2012 1187        djohnson    {@link #setEndDate(Date)} was incorrectly changing the start date.
  * Nov 19, 2012 1166        djohnson    Clean up JAXB representation of registry objects.
+ * Jun 04, 2013  223        mpduff      Added interval field.
  * 
  * </pre>
  * 
@@ -92,8 +93,7 @@ public class Time implements ISerializableObject, Serializable {
         this.requestStart = toCopy.requestStart;
         List<Integer> incomingSelectedTimeIndices = toCopy.selectedTimeIndices;
         this.selectedTimeIndices = (incomingSelectedTimeIndices == null) ? null
-                : new ArrayList<Integer>(
-                incomingSelectedTimeIndices);
+                : new ArrayList<Integer>(incomingSelectedTimeIndices);
         this.start = toCopy.start;
         this.step = toCopy.step;
         this.stepUnit = toCopy.stepUnit;
@@ -161,7 +161,7 @@ public class Time implements ISerializableObject, Serializable {
 
     /**
      * Get the start date
-     *
+     * 
      * @return
      * @throws ParseException
      */
@@ -184,11 +184,11 @@ public class Time implements ISerializableObject, Serializable {
 
     /**
      * Set the start date
-     *
+     * 
      * @return
      * @throws ParseException
      */
-    public void setStartDate(Date startDate) throws ParseException {
+    public void setStartDate(Date startDate) {
         this.startDate = startDate;
         if (startDate != null && getFormat() != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
@@ -203,7 +203,7 @@ public class Time implements ISerializableObject, Serializable {
 
     /**
      * Get the end date
-     *
+     * 
      * @return
      * @throws ParseException
      */
@@ -225,11 +225,11 @@ public class Time implements ISerializableObject, Serializable {
 
     /**
      * Set the end date
-     *
+     * 
      * @return
      * @throws ParseException
      */
-    public void setEndDate(Date endDate) throws ParseException {
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
         if (endDate != null && getFormat() != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
@@ -256,7 +256,7 @@ public class Time implements ISerializableObject, Serializable {
 
     /**
      * Get the cycle times.
-     *
+     * 
      * @return List of cycle times
      */
     public List<Integer> getCycleTimes() {
@@ -265,8 +265,9 @@ public class Time implements ISerializableObject, Serializable {
 
     /**
      * Set the cycle times.
-     *
-     * @param cycleTimes ArrayList of cycle times.
+     * 
+     * @param cycleTimes
+     *            ArrayList of cycle times.
      */
     public void setCycleTimes(List<Integer> cycleTimes) {
         this.cycleTimes = cycleTimes;
@@ -274,8 +275,9 @@ public class Time implements ISerializableObject, Serializable {
 
     /**
      * Add a cycle time.
-     *
-     * @param cycleTime The cycle time to add
+     * 
+     * @param cycleTime
+     *            The cycle time to add
      */
     public void addCycleTime(int cycleTime) {
         if (cycleTimes == null) {
@@ -287,37 +289,38 @@ public class Time implements ISerializableObject, Serializable {
 
     /**
      * Get me the date of the time requested
+     * 
      * @param timeInt
      * @return
      */
-	public Date getTimeAsDate(int timeInt) {
+    public Date getTimeAsDate(int timeInt) {
 
-		try {
-			long unitStepFactor = getUnitStepFactor();
+        try {
+            long unitStepFactor = getUnitStepFactor();
 
-			for (int i = 0; i < getNumTimes(); i++) {
-				if (timeInt == i) {
+            for (int i = 0; i < getNumTimes(); i++) {
+                if (timeInt == i) {
 
-					long time = 0l;
-					if (i == 0) {
-						time = getStartDate().getTime();
-					} else {
-						time = (long) (getStartDate().getTime() + (unitStepFactor
-								* getStep() * i));
-					}
-					return new Date(time);
-				}
-			}
-		} catch (ParseException pe) {
-			System.err.println("Can't parse the requested time: "
-					+ pe.getMessage());
-		}
-		return null;
-	}
+                    long time = 0l;
+                    if (i == 0) {
+                        time = getStartDate().getTime();
+                    } else {
+                        time = (long) (getStartDate().getTime() + (unitStepFactor
+                                * getStep() * i));
+                    }
+                    return new Date(time);
+                }
+            }
+        } catch (ParseException pe) {
+            System.err.println("Can't parse the requested time: "
+                    + pe.getMessage());
+        }
+        return null;
+    }
 
     /**
      * Sets the request start as a date
-     *
+     * 
      * @param timeInt
      */
     public void setRequestStartTimeAsInt(Integer timeInt) {
@@ -353,7 +356,7 @@ public class Time implements ISerializableObject, Serializable {
 
     /**
      * Get the start time as an int
-     *
+     * 
      * @return
      */
     public int getRequestStartTimeAsInt() {
@@ -393,7 +396,7 @@ public class Time implements ISerializableObject, Serializable {
 
     /**
      * Set the end time with a know integer in the list
-     *
+     * 
      * @param timeInt
      */
     public void setRequestEndTimeAsInt(Integer timeInt) {
@@ -424,7 +427,7 @@ public class Time implements ISerializableObject, Serializable {
 
     /**
      * Get the end time as an int
-     *
+     * 
      * @return
      */
     public int getRequestEndTimeAsInt() {
@@ -472,7 +475,7 @@ public class Time implements ISerializableObject, Serializable {
 
     /**
      * get the primitive
-     *
+     * 
      * @return
      */
     private long getUnitStepFactor() {
@@ -500,9 +503,9 @@ public class Time implements ISerializableObject, Serializable {
     }
 
     /**
-     *
+     * 
      * Enumeration of the duration units
-     *
+     * 
      * @author dhladky
      * @version 1.0
      */
@@ -523,7 +526,7 @@ public class Time implements ISerializableObject, Serializable {
 
     /**
      * variations on step unit
-     *
+     * 
      * @param inStep
      * @return
      */
@@ -552,7 +555,7 @@ public class Time implements ISerializableObject, Serializable {
 
     /**
      * Finds forecast step in seconds
-     *
+     * 
      * @return
      */
     public int findForecastStepUnit() {
@@ -592,7 +595,7 @@ public class Time implements ISerializableObject, Serializable {
 
     /**
      * Set the end date
-     *
+     * 
      * @return
      * @throws ParseException
      */
@@ -608,7 +611,7 @@ public class Time implements ISerializableObject, Serializable {
 
     /**
      * Get the end date
-     *
+     * 
      * @return
      * @throws ParseException
      */
@@ -626,7 +629,7 @@ public class Time implements ISerializableObject, Serializable {
 
     /**
      * Set the end date
-     *
+     * 
      * @return
      * @throws ParseException
      */
@@ -641,7 +644,7 @@ public class Time implements ISerializableObject, Serializable {
 
     /**
      * Get the end date
-     *
+     * 
      * @return
      * @throws ParseException
      */
@@ -659,18 +662,20 @@ public class Time implements ISerializableObject, Serializable {
 
     /**
      * gets the FCST hours
-     *
+     * 
      * @return
      */
     public List<String> getFcstHours() {
         List<String> hours = new ArrayList<String>();
 
         int hour = 0;
-        hours.add(String.valueOf(hour));
-
-        for (int i = 1; i < numTimes; i++) {
-            hour += getStep();
-            hours.add(String.valueOf(hour));
+        for (int i = 0; i < numTimes; i++) {
+            if (i == 0) {
+                hours.add(String.valueOf(hour));
+            } else {
+                hour += getStep();
+                hours.add(String.valueOf(hour));
+            }
         }
 
         return hours;
@@ -694,32 +699,32 @@ public class Time implements ISerializableObject, Serializable {
     /**
      * Gets the time breakups needs to split retrievals for a subscription and
      * limit size of retrievals
-     *
+     * 
      * @return
      */
     public List<List<Integer>> getTimeSequences(int sfactor) {
 
-		List<List<Integer>> sequences = new ArrayList<List<Integer>>();
+        List<List<Integer>> sequences = new ArrayList<List<Integer>>();
         List<Integer> al = new ArrayList<Integer>();
 
-		if (selectedTimeIndices.size() > 0) {
-			int previous = selectedTimeIndices.get(0);
-			al.add(previous);
-			for (int i = 1; i < selectedTimeIndices.size(); i++) {
-				int next = selectedTimeIndices.get(i);
-				if (next - previous == 1 && al.size() <= sfactor) {
-					al.add(next);
-					previous = next;
-				} else {
-					sequences.add(al);
-					al = new ArrayList<Integer>();
-					al.add(next);
-					previous = next;
-				}
-			}
+        if (selectedTimeIndices.size() > 0) {
+            int previous = selectedTimeIndices.get(0);
+            al.add(previous);
+            for (int i = 1; i < selectedTimeIndices.size(); i++) {
+                int next = selectedTimeIndices.get(i);
+                if (next - previous == 1 && al.size() <= sfactor) {
+                    al.add(next);
+                    previous = next;
+                } else {
+                    sequences.add(al);
+                    al = new ArrayList<Integer>();
+                    al.add(next);
+                    previous = next;
+                }
+            }
 
-			sequences.add(al);
-		}
+            sequences.add(al);
+        }
 
         return sequences;
     }
