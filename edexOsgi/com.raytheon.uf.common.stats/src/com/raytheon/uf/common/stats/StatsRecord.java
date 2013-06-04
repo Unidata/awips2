@@ -31,6 +31,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.annotations.BatchSize;
+
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -43,15 +45,15 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 21, 2012            jsanchez     Initial creation
- * 3/18/2013    1802       bphillip     Implemented transaction boundaries. Changed to extend parameterized PersistableDataObject
- * 
+ * Aug 21, 2012            jsanchez    Initial creation
+ * Mar 18, 2013 1802       bphillip    Implemented transaction boundaries. Changed to extend parameterized PersistableDataObject
+ * May 22, 2013 1917       rjpeter     Added BatchSize annotation.
  * </pre>
  * 
  * @author jsanchez
- * 
  */
 @Entity
+@BatchSize(size = 500)
 @Table(name = "stats", schema = "events")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
