@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services.notification;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -39,10 +38,12 @@ import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.NotificationListene
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AuditableEventType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DateTimeValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DeliveryInfoType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 
 import org.springframework.stereotype.Component;
@@ -83,6 +84,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Apr 17, 2013 1672        djohnson    Keeps track of the notification listeners.
  * 5/21/2013    2022        bphillip    Made logging less verbose. added running boolean so subscriptions are not process on every single
  *                                      event.
+ * 6/4/2013     2022        bphillip    Changed slot type of subscription last run time. Longs were being truncated when casting to ints
  * </pre>
  * 
  * @author bphillip
@@ -306,8 +308,6 @@ public class RegistrySubscriptionManager implements
                 SubscriptionType sub = subNotificationListener.subscription;
                 try {
                     if (subscriptionShouldRun(sub)) {
-                        updateLastRunTime(sub,
-                                new Integer((int) TimeUtil.currentTimeMillis()));
                         try {
                             processSubscription(subNotificationListener);
                         } catch (EbxmlRegistryException e) {
@@ -375,11 +375,19 @@ public class RegistrySubscriptionManager implements
      * @throws EbxmlRegistryException
      *             if errors occur accessing the slot on the subscription
      */
-    private void updateLastRunTime(SubscriptionType subscription, Integer time)
+    private void updateLastRunTime(SubscriptionType subscription, long time)
             throws EbxmlRegistryException {
         try {
-            subscription.updateSlot(
-                    EbxmlObjectUtil.SUBSCRIPTION_LAST_RUN_TIME_SLOT_NAME, time);
+            SlotType lastRunTimeSlot = subscription
+                    .getSlotByName(EbxmlObjectUtil.SUBSCRIPTION_LAST_RUN_TIME_SLOT_NAME);
+            if (lastRunTimeSlot == null) {
+                lastRunTimeSlot = new SlotType(
+                        EbxmlObjectUtil.SUBSCRIPTION_LAST_RUN_TIME_SLOT_NAME,
+                        new DateTimeValueType(time));
+                subscription.getSlot().add(lastRunTimeSlot);
+            } else {
+                lastRunTimeSlot.setSlotValue(new DateTimeValueType(time));
+            }
         } catch (Exception e) {
             throw new EbxmlRegistryException(
                     "Error getting subscription run time", e);
@@ -398,15 +406,13 @@ public class RegistrySubscriptionManager implements
      */
     private Calendar getLastRunTime(SubscriptionType subscription)
             throws EbxmlRegistryException {
-        BigInteger lastRunTime = subscription
+        XMLGregorianCalendar lastRunTime = subscription
                 .getSlotValue(EbxmlObjectUtil.SUBSCRIPTION_LAST_RUN_TIME_SLOT_NAME);
         if (lastRunTime == null) {
             updateLastRunTime(subscription, 0);
-            lastRunTime = BigInteger.valueOf(0);
+            lastRunTime = EbxmlObjectUtil.getTimeAsXMLGregorianCalendar(0);
         }
-        Calendar subRunTime = TimeUtil.newCalendar();
-        subRunTime.setTimeInMillis(lastRunTime.longValue());
-        return subRunTime;
+        return lastRunTime.toGregorianCalendar();
     }
 
     /**
@@ -422,6 +428,8 @@ public class RegistrySubscriptionManager implements
     private void processSubscription(
             final SubscriptionNotificationListeners subscriptionNotificationsListeners)
             throws MsgRegistryException, EbxmlRegistryException {
+        updateLastRunTime(subscriptionNotificationsListeners.subscription,
+                TimeUtil.currentTimeMillis());
         SubscriptionType subscription = subscriptionNotificationsListeners.subscription;
         statusHandler.info("Processing subscription [" + subscription.getId()
                 + "]...");
