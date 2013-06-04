@@ -22,6 +22,8 @@ package com.raytheon.uf.common.python.concurrent;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.raytheon.uf.common.python.PythonInterpreter;
+
 /**
  * Creates new threads named according to what python task they were created
  * for. Based nearly identically off of {@link ThreadFactory}
@@ -32,7 +34,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 31, 2013            mnash     Initial creation
+ * Jan 31, 2013            mnash       Initial creation
+ * Jun 04, 2013 2041       bsteffen    Improve exception handling for concurrent
+ *                                     python.
  * 
  * </pre>
  * 
@@ -49,7 +53,11 @@ public class PythonThreadFactory implements ThreadFactory {
 
     private final String namePrefix;
 
-    public PythonThreadFactory(String name) {
+    private final ThreadLocal<? extends PythonInterpreter> threadLocal;
+
+    public PythonThreadFactory(
+            ThreadLocal<? extends PythonInterpreter> threadLocal, String name) {
+        this.threadLocal = threadLocal;
         SecurityManager s = System.getSecurityManager();
         group = (s != null) ? s.getThreadGroup() : Thread.currentThread()
                 .getThreadGroup();
@@ -58,7 +66,7 @@ public class PythonThreadFactory implements ThreadFactory {
     }
 
     public Thread newThread(Runnable r) {
-        Thread t = new Thread(group, r, namePrefix
+        Thread t = new PythonThread(group, r, namePrefix
                 + threadNumber.getAndIncrement(), 0);
         if (t.isDaemon()) {
             t.setDaemon(false);
@@ -68,4 +76,22 @@ public class PythonThreadFactory implements ThreadFactory {
         }
         return t;
     }
+
+    private class PythonThread extends Thread {
+
+        public PythonThread(ThreadGroup group, Runnable target, String name,
+                long stackSize) {
+            super(group, target, name, stackSize);
+        }
+
+        @Override
+        public void run() {
+            try {
+                super.run();
+            } finally {
+                threadLocal.get().dispose();
+            }
+        }
+
+    };
 }
