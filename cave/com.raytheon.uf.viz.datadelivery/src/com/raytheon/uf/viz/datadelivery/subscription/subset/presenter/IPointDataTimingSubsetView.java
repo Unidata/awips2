@@ -17,10 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.datadelivery.common.xml;
+package com.raytheon.uf.viz.datadelivery.subscription.subset.presenter;
 
 /**
- * Interface to get the xml in a formatted string for display purposes.
+ * TODO Add Description
  * 
  * <pre>
  * 
@@ -28,20 +28,27 @@ package com.raytheon.uf.viz.datadelivery.common.xml;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 29, 2012            lvenable     Initial creation
- * Jun 04, 2013    223     mpduff       Change method name to getPreviewString
+ * May 29, 2013            mpduff     Initial creation
  * 
  * </pre>
  * 
- * @author lvenable
+ * @author mpduff
  * @version 1.0
  */
 
-public interface IDisplayXml {
+public interface IPointDataTimingSubsetView extends IDataTimingSubsetView {
     /**
-     * Get the xml contents in a formatted string for display.
+     * Set the Data Retrieval Interval.
      * 
-     * @return the formatted string
+     * @param interval
+     *            the interval to set
      */
-    String getPreviewString();
+    void setDataRetrievalInterval(int interval);
+
+    /**
+     * Get the Data Retrieval Interval.
+     * 
+     * @return the data retrieval interval
+     */
+    int getDataRetrievalInterval();
 }
