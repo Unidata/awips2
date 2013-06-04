@@ -52,7 +52,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 @XmlAccessorType(XmlAccessType.NONE)
 public class TopoResourceData extends AbstractResourceData {
 
-    private static final String TOPO_DIR = "topo";
+    protected static final String TOPO_DIR = "topo";
 
     @XmlElement
     private String topoFile = "srtm30.hdf";
@@ -85,7 +85,7 @@ public class TopoResourceData extends AbstractResourceData {
     public TopoResource construct(LoadProperties loadProperties,
             IDescriptor descriptor) throws VizException {
         return new TopoResource(this, loadProperties, new File(TOPO_DIR
-                + IPathManager.SEPARATOR + topoFile));
+                + IPathManager.SEPARATOR + getTopoFile()));
     }
 
     public String getTopoFile() {
