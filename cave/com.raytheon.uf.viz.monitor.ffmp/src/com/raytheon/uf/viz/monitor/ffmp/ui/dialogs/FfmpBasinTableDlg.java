@@ -120,6 +120,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Mar 29, 2013  1790      rferrel     Bug fix for non-blocking dialogs.
  * Apr 15, 2013  1904      mpduff       Remove calls to reset FFMPConfig.
  * Apr 25, 2013  1902      mpduff       Fixed Thresholds dialog on multiple opens, needed an isDisposed check.
+ * Jun 04, 2013 #1984      lvenable     removed unnecessary code.
  * </pre>
  * 
  * @author lvenable
@@ -1751,8 +1752,6 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         if (!ffmpTable.isDisposed()) {
             this.mainTableData = tData;
             ffmpTable.clearTableSelection();
-            ffmpTable
-                    .setCenteredAggregationKey(resource.centeredAggregationKey);
             ffmpTable.setTableData(mainTableData);
             resetCursor();
             shell.pack();
