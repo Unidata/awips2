@@ -67,6 +67,7 @@ import com.raytheon.uf.viz.datadelivery.filter.config.xml.FilterTypeXML;
  * Oct 05, 2012 1241       djohnson     Replace RegistryManager calls with registry handler calls.
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
  * Dec 10, 2012 1259       bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
+ * Jun 04, 2013  223       mpduff       Add data set type to filter.
  * 
  * </pre>
  * 
@@ -291,10 +292,13 @@ public class MetaDataManager {
             }
         }
 
+        // Add data set types
+        List<String> dataSetTypes = xml.getDataSetTypes();
+
         try {
             filteredDataSets.addAll(DataDeliveryHandlers.getDataSetHandler()
                     .getByFilters(providers, dataSetNames, levels,
-                            parameterNames, envelope));
+                            parameterNames, dataSetTypes, envelope));
         } catch (RegistryHandlerException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to retrieve the filtered datasets.", e);

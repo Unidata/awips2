@@ -17,10 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.datadelivery.common.xml;
+package com.raytheon.uf.common.datadelivery.registry.ebxml;
+
+import com.raytheon.uf.common.datadelivery.registry.PointDataSetMetaData;
 
 /**
- * Interface to get the xml in a formatted string for display purposes.
+ * TODO Add Description
  * 
  * <pre>
  * 
@@ -28,20 +30,20 @@ package com.raytheon.uf.viz.datadelivery.common.xml;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 29, 2012            lvenable     Initial creation
- * Jun 04, 2013    223     mpduff       Change method name to getPreviewString
+ * May 29, 2013            mpduff     Initial creation
  * 
  * </pre>
  * 
- * @author lvenable
+ * @author mpduff
  * @version 1.0
  */
 
-public interface IDisplayXml {
-    /**
-     * Get the xml contents in a formatted string for display.
-     * 
-     * @return the formatted string
-     */
-    String getPreviewString();
+public class PointDataSetMetaDataQuery extends
+        PointDataSetMetaDataFilterableQuery<PointDataSetMetaData> {
+    @Override
+    public Class<PointDataSetMetaData> getResultType() {
+
+        return PointDataSetMetaData.class;
+    }
+
 }
