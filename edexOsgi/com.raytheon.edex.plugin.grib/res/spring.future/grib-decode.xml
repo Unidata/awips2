@@ -84,7 +84,6 @@
 								<bean ref="stringToFile" />
 								<bean ref="largeFileChecker" />
 								<bean ref="gribDecoder" />
-								<bean ref="gribSplitter" method="clean" />
 								<!-- send for processing -->
 								<bean ref="gribPostProcessor" method="process" />
 								<to uri="direct-vm:persistIndexAlert" />
@@ -94,6 +93,7 @@
 								<to uri="log:grib?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
 							</doCatch>
 							<doFinally>
+								<bean ref="gribSplitter" method="clean" />
 								<bean ref="largeFileLockRelease" />
 							</doFinally>
 						</doTry>
