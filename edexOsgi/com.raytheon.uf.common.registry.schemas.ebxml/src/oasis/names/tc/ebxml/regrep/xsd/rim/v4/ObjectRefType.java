@@ -77,6 +77,14 @@ public class ObjectRefType extends ExtensibleObjectType implements
     @DynamicSerializeElement
     protected String id;
 
+    public ObjectRefType() {
+
+    }
+
+    public ObjectRefType(String id) {
+        this.id = id;
+    }
+
     /**
      * Gets the value of the id property.
      * 
