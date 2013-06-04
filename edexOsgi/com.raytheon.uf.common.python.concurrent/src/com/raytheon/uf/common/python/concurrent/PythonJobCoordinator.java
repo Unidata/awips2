@@ -26,6 +26,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import jep.JepException;
+
 import com.raytheon.uf.common.python.PythonInterpreter;
 
 /**
@@ -43,7 +45,7 @@ import com.raytheon.uf.common.python.PythonInterpreter;
  *       IPythonExecutor<PythonInterpreter, Object> executor = new CAVEExecutor(
  *               args);
  *       try {
- *           coordinator.submitJob(executor, listener);
+ *           coordinator.submitAsyncJob(executor, listener);
  *       } catch (Exception e) {
  *           e.printStackTrace();
  *       }
@@ -54,7 +56,9 @@ import com.raytheon.uf.common.python.PythonInterpreter;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 31, 2013            mnash     Initial creation
+ * Jan 31, 2013            mnash       Initial creation
+ * Jun 04, 2013 2041       bsteffen    Improve exception handling for concurrent
+ *                                     python.
  * 
  * </pre>
  * 
@@ -70,13 +74,17 @@ public class PythonJobCoordinator<P extends PythonInterpreter> {
     private static Map<String, PythonJobCoordinator<? extends PythonInterpreter>> pools = new ConcurrentHashMap<String, PythonJobCoordinator<? extends PythonInterpreter>>();
 
     private PythonJobCoordinator(final AbstractPythonScriptFactory<P> factory) {
-        execService = Executors.newFixedThreadPool(factory.getMaxThreads(),
-                new PythonThreadFactory(factory.getName()));
         threadLocal = new ThreadLocal<P>() {
             protected P initialValue() {
-                return factory.createPythonScript();
+                try {
+                    return factory.createPythonScript();
+                } catch (JepException e) {
+                    throw new ScriptCreationException(e);
+                }
             };
         };
+        execService = Executors.newFixedThreadPool(factory.getMaxThreads(),
+                new PythonThreadFactory(threadLocal, factory.getName()));
     }
 
     /**
@@ -85,11 +93,11 @@ public class PythonJobCoordinator<P extends PythonInterpreter> {
      * @param name
      * @return
      */
-    public static PythonJobCoordinator<? extends PythonInterpreter> getInstance(
+    public static <S extends PythonInterpreter> PythonJobCoordinator<S> getInstance(
             String name) {
         synchronized (pools) {
             if (pools.containsKey(name)) {
-                return pools.get(name);
+                return (PythonJobCoordinator<S>) pools.get(name);
             } else {
                 throw new RuntimeException(
                         "Unable to find instance of PythonJobCoordinator named "
@@ -167,10 +175,11 @@ public class PythonJobCoordinator<P extends PythonInterpreter> {
      * 
      * @param name
      */
-    public void shutdownCoordinator(String name) {
-        /*
-         * TODO need to add for future functionality
-         */
+    public void shutdown() {
+        synchronized (pools) {
+            pools.remove(this);
+        }
+        execService.shutdown();
     }
 
     /**
