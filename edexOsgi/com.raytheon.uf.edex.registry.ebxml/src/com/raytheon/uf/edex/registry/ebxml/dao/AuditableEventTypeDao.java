@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ActionType;
@@ -249,13 +248,8 @@ public class AuditableEventTypeDao extends
         event.setOwner(RegistryUtil.DEFAULT_OWNER);
         event.setObjectType(RegistryObjectTypes.AUDITABLE_EVENT);
         event.setRequestId(request.getId());
-        try {
-            event.setTimestamp(EbxmlObjectUtil
-                    .getTimeAsXMLGregorianCalendar(currentTime));
-        } catch (DatatypeConfigurationException e) {
-            throw new EbxmlRegistryException(
-                    "Error creating timestamp for auditable event", e);
-        }
+        event.setTimestamp(EbxmlObjectUtil
+                .getTimeAsXMLGregorianCalendar(currentTime));
         event.setUser("Client");
         event.setStatus(StatusTypes.APPROVED);
         event.setVersionInfo(new VersionInfoType());
