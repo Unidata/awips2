@@ -7,8 +7,13 @@ grepString="(/awips2/cave/cave|/usr/local/viz/cave)"
 
 edexGrepString="edex.run.mode="
 
-# the remote servers to grab top on.  Use to get general state of server
-REMOTE_SERVERS_TO_CHECK="dx1f dx3 dx4"
+# the remote servers to grab top on.  Use to get general state of servers
+REMOTE_SERVERS_TO_CHECK="${DX_SERVERS}"
+
+# in case environ variable is undefined
+if [ "$REMOTE_SERVERS_TO_CHECK" == "" ]; then
+   REMOTE_SERVERS_TO_CHECK="dx1f dx2f dx3 dx4"
+fi
 
 # Flags to control what data capure grabs, to enable flag must be YES, anything else will be considered off.
 RUN_JSTACK="Y"
@@ -292,7 +297,7 @@ runJmap() {
    local log="${prePath}dump.log"
    local dumpPath="${prePath}dump"
 
-   if [ "$ACCUM" = "y" ]; then
+   if [ "$ACCUM" == "y" ]; then
       # accum needs to change hprof by date
       local t2=`date "+%Y%m%d_%H%M%S"`
       dumpPath="${dumpPath}_${t2}.hprof"
@@ -337,7 +342,7 @@ runQpidStat() {
    local cmd="/awips2/python/bin/qpid-stat -q -Smsg -L500 ${qpidHost}" 
    local log="${prepath}qpid-stat-queues.log"
    echo "${t1}: Running command: $cmd >> $log 2>&1 &" >> $processFile
-   if [ "$ACCUM" = "y" ]; then
+   if [ "$ACCUM" == "y" ]; then
 	echo >> $log
 	echo >> $log
 	echo "Running for $t1" >> $log
@@ -347,7 +352,7 @@ runQpidStat() {
    log="${prepath}qpid-stat-sessions.log"
    cmd="/awips2/python/bin/qpid-stat -s -Smsg -L500 ${qpidHost}" 
    echo "${t1}: Running command: $cmd >> $log 2>&1 &" >> $processFile
-   if [ "$ACCUM" = "y" ]; then
+   if [ "$ACCUM" == "y" ]; then
 	echo >> $log
 	echo >> $log
 	echo "Running for $t1" >> $log

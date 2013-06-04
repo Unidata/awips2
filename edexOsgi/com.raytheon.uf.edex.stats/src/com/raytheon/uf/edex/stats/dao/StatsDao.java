@@ -23,12 +23,15 @@ package com.raytheon.uf.edex.stats.dao;
 import java.util.Calendar;
 import java.util.List;
 
+import org.hibernate.Query;
+import org.hibernate.StatelessSession;
+
 import com.raytheon.uf.common.stats.StatsRecord;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.SessionManagedDao;
 
 /**
- * Stats object data access object
+ * Data access object for raw statistics.
  * 
  * <pre>
  * 
@@ -36,11 +39,12 @@ import com.raytheon.uf.edex.database.dao.SessionManagedDao;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 3/18/2013    1082       bphillip     Modified to extend sessionmanagedDao and use spring injection
- * 
+ * Aug 21, 2012            jsanchez    Initial creation
+ * Mar 18, 2013 1082       bphillip    Modified to extend sessionmanagedDao and use spring injection
+ * May 22, 2013 1917       rjpeter     Added reclaimSpace.
  * </pre>
  * 
- * @author bphillip
+ * @author jsanchez
  * @version 1.0
  */
 public class StatsDao extends SessionManagedDao<Integer, StatsRecord> {
@@ -77,5 +81,35 @@ public class StatsDao extends SessionManagedDao<Integer, StatsRecord> {
     @Override
     protected Class<StatsRecord> getEntityClass() {
         return StatsRecord.class;
+    }
+
+    /**
+     * Manually runs vacuum due to large numbers of inserts and deletes to keep
+     * table size to a minimum.
+     */
+    public void reclaimSpace() {
+        StatelessSession sess = null;
+
+        try {
+            sess = template.getSessionFactory().openStatelessSession();
+            // vacuum can't run within a transaction, hack to allow vacuum to
+            // run from within hibernate
+            Query query = sess
+                    .createSQLQuery("rollback; VACUUM ANALYZE events.stats");
+            query.executeUpdate();
+            statusHandler.info("stats vacuumed");
+        } catch (Exception e) {
+            statusHandler.error(
+                    "Error occurred running VACUUM on events.stats", e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
+        }
     }
 }
