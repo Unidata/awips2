@@ -37,7 +37,8 @@ import com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 29, 2012            mpduff     Initial creation
+ * Mar 29, 2012            mpduff     Initial creation.
+ * Jun 04, 2013   223      mpudff     Refactored Method name change.
  *
  * </pre>
  *
@@ -116,7 +117,7 @@ public class VerticalXML implements IDisplayXml {
      * @see com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml#getDisplayXmlString()
      */
     @Override
-    public String getDisplayXmlString() {
+    public String getPreviewString() {
         final String nl = "\n";
         StringBuilder sb = new StringBuilder();
         sb.append(nl);
