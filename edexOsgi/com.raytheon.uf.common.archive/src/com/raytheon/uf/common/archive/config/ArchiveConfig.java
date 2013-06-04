@@ -56,6 +56,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May  1, 2013 1966       rferrel     Initial creation
+ * May 31, 2013 1965       bgonzale    Added getCategory(categoryName)
  * 
  * </pre>
  * 
@@ -166,6 +167,19 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
      */
     public List<CategoryConfig> getCategoryList() {
         return new ArrayList<CategoryConfig>(categoryList);
+    }
+    
+    /**
+     * @param categoryName
+     * @return The named CategoryConfig; null if not found
+     */
+    public CategoryConfig getCategory(String categoryName) {
+        for (CategoryConfig category : categoryList) {
+            if (category.getName().equals(categoryName)) {
+                return category;
+            }
+        }
+        return null;
     }
 
     /**
