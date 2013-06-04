@@ -20,6 +20,8 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
+import java.util.GregorianCalendar;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -29,6 +31,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.hibernate.annotations.Cache;
@@ -88,6 +92,18 @@ public class DateTimeValueType extends ValueType {
 
     public DateTimeValueType(XMLGregorianCalendar dateTimeValue) {
         this.dateTimeValue = dateTimeValue;
+    }
+
+    public DateTimeValueType(long time) {
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTimeInMillis(time);
+        try {
+            this.dateTimeValue = DatatypeFactory.newInstance()
+                    .newXMLGregorianCalendar(cal);
+        } catch (DatatypeConfigurationException e) {
+            throw new RuntimeException("Error creating XMLGregorianCalendar!",
+                    e);
+        }
     }
 
     @Override
