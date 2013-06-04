@@ -78,7 +78,9 @@ import com.raytheon.viz.grid.record.RequestableDataRecord;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2009            brockwoo    Initial creation
- * Nov 21, 2009 #3576      rjpeter     Refactored use of DerivParamDesc.
+ * Nov 21, 2009 3576       rjpeter     Refactored use of DerivParamDesc.
+ * Jun 04, 2013 2041       bsteffen    Improve exception handing in grid
+ *                                     resources.
  * </pre>
  * 
  * @author brockwoo
@@ -367,7 +369,7 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
                         records = getRecord(obj, requests);
                     }
                 } catch (VizException e) {
-                    throw new VizDataCubeException(e);
+                    throw new VizDataCubeException(e.getMessage(), e);
                 }
             } else {
                 records = getRecord(obj, req, dataset);
