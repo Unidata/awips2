@@ -1,17 +1,21 @@
-<beans
-  xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
-
-	<!-- Need to set up connect between cave and edex 
-	1) The possible combinations to populate drop downs etc
-	2) Bucketizing so that Cave requests data in 15 minute buckets, 
-	you would need to do the aggregation (still undecided on if this is a cave or edex feature).
-	-->
-	
-	<bean id="aggregatedStatsHandler" class="com.raytheon.uf.edex.stats.handler.AggregatedStatsHandler"/>   
+    <bean id="graphDataHandlerAggregateRecordDao" class="com.raytheon.uf.edex.stats.dao.AggregateRecordDao">
+        <property name="sessionFactory" ref="metadataSessionFactory" />
+    </bean>
+    
+    <bean id="aggregatedStatsHandler" class="com.raytheon.uf.edex.stats.handler.AggregatedStatsHandler"/>
     <bean factory-bean="handlerRegistry" factory-method="register">
-  	  <constructor-arg value="com.raytheon.uf.common.stats.AggregatedStatsRequest"/>
-  	  <constructor-arg ref="aggregatedStatsHandler"/>
+        <constructor-arg value="com.raytheon.uf.common.stats.AggregatedStatsRequest"/>
+        <constructor-arg ref="aggregatedStatsHandler"/>
+    </bean>
+
+    <bean id="statsGraphDataHandler" class="com.raytheon.uf.edex.stats.handler.GraphDataHandler" >
+        <property name="aggregateRecordDao" ref="graphDataHandlerAggregateRecordDao" />
+    </bean>
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.stats.GraphDataRequest"/>
+        <constructor-arg ref="statsGraphDataHandler"/>
     </bean>
 </beans>
