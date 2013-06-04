@@ -17,22 +17,16 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.core.gl.internal.ext;
+package com.raytheon.viz.core.gl.ext.imaging;
 
-import org.eclipse.swt.graphics.RGB;
-
-import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
-import com.raytheon.uf.viz.core.drawables.ext.ISingleColorImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.core.gl.glsl.AbstractGLSLImagingExtension;
 import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
-import com.raytheon.viz.core.gl.images.GLSingleColorImage;
+import com.raytheon.viz.core.gl.images.AbstractGLImage;
 
 /**
- * GL implementation of ISingleColorImageExtension, uses shader to assign color
- * value
+ * TODO Add Description
  * 
  * <pre>
  * 
@@ -40,7 +34,7 @@ import com.raytheon.viz.core.gl.images.GLSingleColorImage;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 15, 2011            mschenke     Initial creation
+ * Dec 16, 2011            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -48,8 +42,7 @@ import com.raytheon.viz.core.gl.images.GLSingleColorImage;
  * @version 1.0
  */
 
-public class GLSingleColorImageExtension extends AbstractGLSLImagingExtension
-        implements ISingleColorImageExtension {
+public class GLDefaultImagingExtension extends AbstractGLImagingExtension {
 
     /*
      * (non-Javadoc)
@@ -60,20 +53,7 @@ public class GLSingleColorImageExtension extends AbstractGLSLImagingExtension
      */
     @Override
     public String getShaderProgramName() {
-        return "singleColor";
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.drawables.ext.ISingleColorImageExtension#
-     * constructImage(com.raytheon.uf.viz.core.drawables.IImage,
-     * org.eclipse.swt.graphics.RGB)
-     */
-    @Override
-    public ISingleColorImage constructImage(IRenderedImageCallback callback,
-            RGB color) {
-        return new GLSingleColorImage(callback, color);
+        return "raster";
     }
 
     /*
@@ -89,18 +69,16 @@ public class GLSingleColorImageExtension extends AbstractGLSLImagingExtension
     public void loadShaderData(GLShaderProgram program, IImage iimage,
             PaintProperties paintProps) throws VizException {
         // Get image as AbstractGLImage
-        GLSingleColorImage image = null;
-        if (iimage instanceof GLSingleColorImage == false) {
+        AbstractGLImage image = null;
+        if (iimage instanceof AbstractGLImage == false) {
             throw new VizException(
-                    "Cannot apply single color raster shader to non single color image");
+                    "Cannot apply glsl raster shader to non gl image");
         }
+        image = (AbstractGLImage) iimage;
 
-        image = (GLSingleColorImage) iimage;
-
+        program.setUniform("alpha", paintProps.getAlpha());
         program.setUniform("brightness", image.getBrightness());
         program.setUniform("contrast", image.getContrast());
-        program.setUniform("alpha", paintProps.getAlpha());
-        program.setUniform("color", image.getColor());
         program.setUniform("rawTex", 0);
     }
 

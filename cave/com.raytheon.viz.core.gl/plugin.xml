@@ -36,22 +36,22 @@
       <extension
             point="com.raytheon.uf.viz.core.graphicsExtension">
          <graphicsExtension
-               class="com.raytheon.viz.core.gl.internal.ext.GLColormapShadedShapeExtension">
+               class="com.raytheon.viz.core.gl.ext.GLColormapShadedShapeExtension">
          </graphicsExtension>
          <graphicsExtension
                class="com.raytheon.viz.core.gl.ext.GLOffscreenRenderingExtension">
          </graphicsExtension>
          <graphicsExtension
-               class="com.raytheon.viz.core.gl.internal.ext.GLMapMeshExtension">
+               class="com.raytheon.viz.core.gl.ext.GLMapMeshExtension">
          </graphicsExtension>
          <graphicsExtension
-               class="com.raytheon.viz.core.gl.internal.ext.GLColormappedImageExtension">
+               class="com.raytheon.viz.core.gl.ext.imaging.GLColormappedImageExtension">
          </graphicsExtension>
          <graphicsExtension
-               class="com.raytheon.viz.core.gl.internal.ext.GLSingleColorImageExtension">
+               class="com.raytheon.viz.core.gl.ext.imaging.GLSingleColorImageExtension">
          </graphicsExtension>
          <graphicsExtension
-               class="com.raytheon.viz.core.gl.internal.ext.GLDefaultImagingExtension">
+               class="com.raytheon.viz.core.gl.ext.imaging.GLDefaultImagingExtension">
          </graphicsExtension>
          <graphicsExtension
                class="com.raytheon.viz.core.gl.internal.ext.mosaic.GLMosaicImageExtension">
