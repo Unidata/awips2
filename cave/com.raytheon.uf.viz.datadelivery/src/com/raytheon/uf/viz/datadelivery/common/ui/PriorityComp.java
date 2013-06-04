@@ -46,6 +46,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPri
  * Aug 21, 2012     712    mpduff      Default to Default, and allow for setting the combo box.
  * Jan 04, 2013    1420    mpduff      Add latency.
  * Jan 25, 2013 1528       djohnson    Use priority enum instead of raw integers.
+ * Jun 04, 2013     223    mpduff      Changes for Point Data.
  * 
  * </pre>
  * 
@@ -65,6 +66,10 @@ public class PriorityComp extends Composite {
     /** The priority value */
     private SubscriptionPriority priority;
 
+    private final boolean readOnlyLatency;
+
+    private Label latencyLabel;
+
     /**
      * Constructor.
      * 
@@ -74,10 +79,11 @@ public class PriorityComp extends Composite {
      * @param priority
      */
     public PriorityComp(Composite parent, int latency,
-            SubscriptionPriority priority) {
+            SubscriptionPriority priority, boolean readOnlyLatency) {
         super(parent, SWT.NONE);
         this.latency = latency;
         this.priority = priority;
+        this.readOnlyLatency = readOnlyLatency;
         init();
     }
 
@@ -151,12 +157,21 @@ public class PriorityComp extends Composite {
         Label latencyLbl = new Label(latencyComp, SWT.NONE);
         latencyLbl.setText("Latency (Minutes):");
 
-        latencyText = new Text(latencyComp, SWT.BORDER);
-        latencyText.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
-                false));
-        latencyText
-                .setToolTipText("Time in minutes allotted for a subscription to download");
-        latencyText.setText(String.valueOf(this.latency));
+        if (readOnlyLatency) {
+            latencyLabel = new Label(latencyComp, SWT.BORDER);
+            latencyLabel.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT,
+                    true, false));
+            latencyLabel
+                    .setToolTipText("Point Data's latency is the retrieval interval.");
+            latencyLabel.setText(String.valueOf(this.latency));
+        } else {
+            latencyText = new Text(latencyComp, SWT.BORDER);
+            latencyText.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
+                    false));
+            latencyText
+                    .setToolTipText("Time in minutes allotted for a subscription to download");
+            latencyText.setText(String.valueOf(this.latency));
+        }
     }
 
     /**
@@ -185,7 +200,13 @@ public class PriorityComp extends Composite {
      *         entry entered
      */
     public int getLatencyValue() {
-        String latency = latencyText.getText().trim();
+        String latency;
+        if (latencyText != null) {
+            latency = latencyText.getText().trim();
+        } else {
+            latency = latencyLabel.getText();
+        }
+
         int intLatency;
         try {
             intLatency = Integer.parseInt(latency);

@@ -115,6 +115,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 08, 2012 1436       bgonzale     Fixed area text box display update check.
  * Jan 14, 2012 1437       bgonzale     Clear filters when creating a new configuration.
  * May 15, 2013 1040       mpduff       Put DataDeliveryGUIUtils.markNotBusyInUIThread in finally block.
+ * Jun 04, 2013  223       mpduff       Add data type to filters.
  * 
  * </pre>
  * 
@@ -1054,6 +1055,12 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
         // Get selected filter settings
         xml = new FilterSettingsXML();
         filterExpandBar.populateFilterSettingsXml(xml);
+
+        String[] dataTypes = this.dataTypesDualList.getSelectedListItems();
+        for (String type : dataTypes) {
+            xml.addDataSetType(type);
+        }
+
         final List<DataSet> matchingDataSets = new ArrayList<DataSet>();
         final Shell jobParent = this.getShell();
 
