@@ -45,15 +45,21 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Ordering;
+import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
+import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Ensemble;
+import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
+import com.raytheon.uf.common.datadelivery.registry.Levels;
 import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -66,6 +72,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.GriddedTim
 import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.GriddedTimingSubsetPresenter;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SpecificDateTimeXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
+import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.VerticalXML;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 
 /**
@@ -90,6 +97,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Mar 21, 2013 1794       djohnson     Add option to create a shared subscription, if phase3 code is available.
  * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
+ * Jun 04, 2013  223       mpduff       Added grid specific items to this class.
  * 
  * 
  * </pre>
@@ -101,6 +109,8 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 public class GriddedSubsetManagerDlg
         extends
         SubsetManagerDlg<GriddedDataSet, GriddedTimingSubsetPresenter, SpecificDateTimeXML> {
+    private static final String TIMING_TAB_GRID = "Forecast Hours";
+
     @VisibleForTesting
     final String POPUP_TITLE = "Notice";
 
@@ -130,6 +140,8 @@ public class GriddedSubsetManagerDlg
     private DataSetMetaData metaData;
 
     private GriddedEnsembleSubsetTab ensembleTab;
+
+    private TabItem timingTab;
 
     /**
      * Constructor.
@@ -167,8 +179,33 @@ public class GriddedSubsetManagerDlg
     }
 
     @Override
-    protected void createGridTabs(TabFolder tabFolder) {
-        super.createGridTabs(tabFolder);
+    protected void createTabs(TabFolder tabFolder) {
+        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+        GridLayout gl = new GridLayout(1, false);
+
+        TabItem verticalTab = new TabItem(tabFolder, SWT.NONE);
+        verticalTab.setText(VERTICAL_TAB);
+        verticalTab.setData("valid", false);
+        Composite vertComp = new Composite(tabFolder, SWT.NONE);
+        vertComp.setLayout(gl);
+        vertComp.setLayoutData(gd);
+        verticalTab.setControl(vertComp);
+        vTab = new VerticalSubsetTab(vertComp, dataSet, this);
+
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gl = new GridLayout(1, false);
+
+        timingTab = new TabItem(tabFolder, SWT.NONE);
+        timingTab.setText(TIMING_TAB_GRID);
+        timingTab.setData("valid", false);
+        Composite timingComp = new Composite(tabFolder, SWT.NONE);
+        timingComp.setLayout(gl);
+        timingComp.setLayoutData(gd);
+        timingTab.setControl(timingComp);
+        timingTabControls = getDataTimingSubsetPresenter(timingComp, dataSet,
+                this, shell);
+        timingTabControls.init();
+
         Ensemble e = dataSet.getEnsemble();
         if (e != null && e.getMembers() != null) {
             TabItem ensembleTabItem = new TabItem(tabFolder, SWT.NONE, 2);
@@ -190,6 +227,15 @@ public class GriddedSubsetManagerDlg
         if (ensembleTab != null && !ensembleTab.isValid()) {
             invalidTabs.add(ensembleTab.getName());
         }
+
+        if (!vTab.isValid()) {
+            invalidTabs.add(VERTICAL_TAB);
+        }
+
+        if (!timingTabControls.isValid()) {
+            invalidTabs.add(timingTab.getText());
+        }
+
         return invalidTabs;
     }
 
@@ -207,6 +253,13 @@ public class GriddedSubsetManagerDlg
         if (ensembleTab != null) {
             ensembleTab.loadFromSubsetXML(subsetXml);
         }
+
+        ArrayList<VerticalXML> vertList = subsetXml.getVerticalList();
+        vTab.populate(vertList, dataSet);
+
+        SpecificDateTimeXML time = subsetXml.getTime();
+        this.timingTabControls.populate(time, dataSet);
+
         updateDataSize();
     }
 
@@ -224,6 +277,52 @@ public class GriddedSubsetManagerDlg
         if (ensembleTab != null) {
             ensembleTab.loadFromSubscription(subscription);
         }
+
+        // Cycle time
+        SpecificDateTimeXML timeXml = getTimeXmlFromSubscription();
+
+        timeXml.setLatestData(true);
+
+        this.timingTabControls.populate(timeXml, dataSet);
+
+        // Vertical/Parameters
+        Map<String, VerticalXML> levelMap = new HashMap<String, VerticalXML>();
+        List<Parameter> paramaterList = this.subscription.getParameter();
+
+        for (Parameter p : paramaterList) {
+            for (DataLevelType levelType : p.getLevelType()) {
+                if (!levelMap.containsKey(levelType.getKey())) {
+                    VerticalXML v = new VerticalXML();
+                    if (levelType.getUnit() == null) {
+                        v.setLayerType(String.valueOf(levelType
+                                .getDescription()));
+                    } else {
+                        v.setLayerType(levelType.getDescription() + " ("
+                                + levelType.getUnit() + "" + ")");
+                    }
+                    levelMap.put(levelType.getKey(), v);
+                }
+                VerticalXML v = levelMap.get(levelType.getKey());
+                v.addParameter(p.getProviderName());
+
+                // TODO - This is set up to only have one level type with
+                // Multiple parameters. This will need to change if other
+                // Data providers have parameters with multiple level types
+                // containing multiple levels
+                if (levelType.getId() == 100) {
+                    final Levels levels = p.getLevels();
+                    final List<Integer> selectedLevelIndices = levels
+                            .getSelectedLevelIndices();
+                    for (int index : selectedLevelIndices) {
+                        v.addLevel(String.valueOf(levels.getLevel().get(index)));
+                    }
+                }
+            }
+        }
+
+        ArrayList<VerticalXML> vertList = new ArrayList<VerticalXML>(
+                levelMap.values());
+        vTab.populate(vertList, dataSet);
     }
 
     @Override
@@ -493,5 +592,51 @@ public class GriddedSubsetManagerDlg
     public String getSubscriptionUrl() {
         return (this.useLatestDate || this.metaData == null) ? null
                 : this.metaData.getUrl();
+    }
+
+    @Override
+    protected <T extends Subscription> T populateSubscription(T sub,
+            boolean create) {
+        ArrayList<Parameter> selectedParameterObjs = vTab.getParameters();
+        sub.setParameter(selectedParameterObjs);
+
+        Time dataSetTime = dataSet.getTime();
+
+        Time newTime = new Time();
+        newTime.setEnd(dataSetTime.getEnd());
+        newTime.setFormat(dataSetTime.getFormat());
+        newTime.setNumTimes(dataSetTime.getNumTimes());
+        newTime.setRequestEnd(dataSetTime.getRequestEnd());
+        newTime.setRequestStart(dataSetTime.getRequestStart());
+        newTime.setStart(dataSetTime.getStart());
+        newTime.setStep(dataSetTime.getStep());
+        newTime.setStepUnit(dataSetTime.getStepUnit());
+
+        if (sub instanceof AdhocSubscription) {
+            newTime = setupDataSpecificTime(newTime, sub);
+        } else if (!create) {
+            newTime.setCycleTimes(this.subscription.getTime().getCycleTimes());
+        }
+
+        sub.setTime(newTime);
+
+        // TODO Phase 1 is only gridded coverage
+        GriddedCoverage cov = (GriddedCoverage) dataSet.getCoverage();
+        cov.setModelName(dataSet.getDataSetName());
+        cov.setGridName(getNameText());
+        GridCoverage coverage = cov.getGridCoverage();
+        coverage.setName(getNameText());
+
+        if (spatialTabControls.useDataSetSize()) {
+            cov.setRequestEnvelope(cov.getEnvelope());
+            sub.setFullDataSet(true);
+        } else {
+            cov.setRequestEnvelope(spatialTabControls.getEnvelope());
+            sub.setFullDataSet(false);
+        }
+
+        sub.setCoverage(cov);
+
+        return sub;
     }
 }
