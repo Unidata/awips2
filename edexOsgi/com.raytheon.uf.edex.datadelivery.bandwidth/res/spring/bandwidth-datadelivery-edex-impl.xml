@@ -44,6 +44,11 @@
         <constructor-arg ref="hibernateBandwidthDbInit" />
     </bean>
 
+    <bean id="dataSetAvailabilityCalculator"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.util.ProviderDataTypeAvailabilityCalculator">
+        <constructor-arg ref="ProviderHandler" />
+    </bean>
+
     <camelContext id="BandwidthManager-context"
         xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 

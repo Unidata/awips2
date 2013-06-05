@@ -55,6 +55,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Sep 28, 2012 1187        djohnson    {@link #setEndDate(Date)} was incorrectly changing the start date.
  * Nov 19, 2012 1166        djohnson    Clean up JAXB representation of registry objects.
  * Jun 04, 2013  223        mpduff      Added interval field.
+ * Jun 06, 2013 2038        djohnson    Remove throws ParseException.
  * 
  * </pre>
  * 
@@ -599,8 +600,7 @@ public class Time implements ISerializableObject, Serializable {
      * @return
      * @throws ParseException
      */
-    public void setRequestStartAsDate(Date requestStartDate)
-            throws ParseException {
+    public void setRequestStartAsDate(Date requestStartDate) {
         this.requestStartDate = requestStartDate;
         if (requestStartDate != null && getFormat() != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
@@ -633,7 +633,7 @@ public class Time implements ISerializableObject, Serializable {
      * @return
      * @throws ParseException
      */
-    public void setRequestEndAsDate(Date requestEndDate) throws ParseException {
+    public void setRequestEndAsDate(Date requestEndDate) {
         this.requestEndDate = requestEndDate;
         if (requestEndDate != null && getFormat() != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
