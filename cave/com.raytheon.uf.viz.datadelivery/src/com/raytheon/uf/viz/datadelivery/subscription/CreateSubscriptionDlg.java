@@ -44,9 +44,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.auth.user.IUser;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
+import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.DataSetQuery;
+import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -97,6 +100,7 @@ import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
  * Jan 25, 2013 1528       djohnson    Use priority enum instead of raw integers.
  * Apr 08, 2013 1826       djohnson    Remove delivery options.
  * May 15, 2013 1040       mpduff      Add Shared sites.
+ * Jun 04, 2013  223       mpduff       Modify for point data.
  * 
  * </pre>
  * 
@@ -218,13 +222,25 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         activePeriodComp = new ActivePeriodComp(mainComp);
 
         // Get latency value
+        int latency = 15;
+        SubscriptionPriority priority = SubscriptionPriority.NORMAL;
         SystemRuleManager ruleManager = SystemRuleManager.getInstance();
-        int latency = ruleManager.getLatency(this.subscription, cycleTimes);
-        SubscriptionPriority priority = ruleManager.getPriority(
-                this.subscription, cycleTimes);
-        priorityComp = new PriorityComp(mainComp, latency, priority);
 
-        this.createCycleGroup();
+        if (this.subscription.getDataSetType() == DataType.GRID) {
+            latency = ruleManager.getLatency(subscription, cycleTimes);
+            priority = ruleManager.getPriority(subscription, cycleTimes);
+            priorityComp = new PriorityComp(mainComp, latency, priority, false);
+        } else if (this.subscription.getDataSetType() == DataType.POINT) {
+            // For point the latency is the retrieval interval
+            latency = ((PointTime) subscription.getTime()).getInterval();
+            priority = ruleManager.getPointDataPriority(subscription);
+            priorityComp = new PriorityComp(mainComp, latency, priority, true);
+        }
+
+        if (this.subscription.getDataSetType() == DataType.GRID) {
+            this.createCycleGroup();
+        }
+
         createSiteSelection();
 
         if (create == false) {
@@ -303,86 +319,89 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         GridLayout gl = new GridLayout(2, false);
 
-        final Group group = new Group(mainComp, SWT.NONE);
-        group.setLayout(gl);
-        group.setLayoutData(gd);
-        group.setText(" Shared Sites ");
+        if (DataDeliveryConstants.PHASE3_ENABLED) {
+            final Group group = new Group(mainComp, SWT.NONE);
+            group.setLayout(gl);
+            group.setLayoutData(gd);
+            group.setText(" Shared Sites ");
 
-        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
-        gl = new GridLayout(2, false);
-        final Composite c = new Composite(group, SWT.NONE);
-        c.setLayout(gl);
-        c.setLayoutData(gd);
+            gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
+            gl = new GridLayout(2, false);
+            final Composite c = new Composite(group, SWT.NONE);
+            c.setLayout(gl);
+            c.setLayoutData(gd);
 
-        gl = new GridLayout(1, false);
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        final Button btn = new Button(c, SWT.NONE);
-        btn.setLayoutData(new GridData(95, SWT.DEFAULT));
-        btn.setText("Select Sites...");
-        btn.setToolTipText("Select sites for sharing");
-        btn.setEnabled(false);
+            gl = new GridLayout(1, false);
+            gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+            final Button btn = new Button(c, SWT.NONE);
+            btn.setLayoutData(new GridData(95, SWT.DEFAULT));
+            btn.setText("Select Sites...");
+            btn.setToolTipText("Select sites for sharing");
+            btn.setEnabled(false);
 
-        final DataDeliveryPermission permission = DataDeliveryPermission.SHARED_SUBSCRIPTION_CREATE;
-        final IUser user = UserController.getUserObject();
-        final String msg = user.uniqueId()
-                + " is not authorized to create shared subscriptions. "
-                + StringUtil.NEWLINE + "Permission: " + permission;
-        try {
-            if (DataDeliveryServices.getPermissionsService()
-                    .checkPermission(user, msg, permission).isAuthorized()) {
-                btn.setEnabled(true);
-            } else {
-                c.addMouseTrackListener(new MouseTrackAdapter() {
+            final DataDeliveryPermission permission = DataDeliveryPermission.SHARED_SUBSCRIPTION_CREATE;
+            final IUser user = UserController.getUserObject();
+            final String msg = user.uniqueId()
+                    + " is not authorized to create shared subscriptions. "
+                    + StringUtil.NEWLINE + "Permission: " + permission;
+            try {
+                if (DataDeliveryServices.getPermissionsService()
+                        .checkPermission(user, msg, permission).isAuthorized()) {
+                    btn.setEnabled(true);
+                } else {
+                    c.addMouseTrackListener(new MouseTrackAdapter() {
 
-                    @Override
-                    public void mouseExit(MouseEvent e) {
-                        DataDeliveryGUIUtils.hideToolTip();
-                    }
-
-                    @Override
-                    public void mouseHover(MouseEvent e) {
-                        handleMouseEvent(e, msg, group.getBounds());
-                    }
-
-                    @Override
-                    public void mouseEnter(MouseEvent e) {
-                        handleMouseEvent(e, msg, group.getBounds());
-                    }
-                });
-            }
-        } catch (VizException e1) {
-            statusHandler
-                    .handle(Priority.PROBLEM, e1.getLocalizedMessage(), e1);
-        }
-        btn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                SiteSelectionDlg dlg = new SiteSelectionDlg(shell, "OAX",
-                        sharedSites);
-                dlg.setCloseCallback(new ICloseCallback() {
-                    @Override
-                    public void dialogClosed(Object returnValue) {
-                        if (returnValue instanceof String[]) {
-                            String[] sites = (String[]) returnValue;
-                            processSites(sites);
+                        @Override
+                        public void mouseExit(MouseEvent e) {
+                            DataDeliveryGUIUtils.hideToolTip();
                         }
-                    }
-                });
-                dlg.open();
+
+                        @Override
+                        public void mouseHover(MouseEvent e) {
+                            handleMouseEvent(e, msg, group.getBounds());
+                        }
+
+                        @Override
+                        public void mouseEnter(MouseEvent e) {
+                            handleMouseEvent(e, msg, group.getBounds());
+                        }
+                    });
+                }
+            } catch (VizException e1) {
+                statusHandler.handle(Priority.PROBLEM,
+                        e1.getLocalizedMessage(), e1);
             }
-        });
+            btn.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    SiteSelectionDlg dlg = new SiteSelectionDlg(shell, "OAX",
+                            sharedSites);
+                    dlg.setCloseCallback(new ICloseCallback() {
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof String[]) {
+                                String[] sites = (String[]) returnValue;
+                                processSites(sites);
+                            }
+                        }
+                    });
+                    dlg.open();
+                }
+            });
 
-        selectedSiteLbl = new Label(group, SWT.BORDER);
-        selectedSiteLbl.setFont(font);
-        selectedSiteLbl.setText("");
-        selectedSiteLbl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
-                false));
+            selectedSiteLbl = new Label(group, SWT.BORDER);
+            selectedSiteLbl.setFont(font);
+            selectedSiteLbl.setText("");
+            selectedSiteLbl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
+                    true, false));
 
-        if (!create) {
-            if (subscription != null && subscription.getOfficeIDs().size() > 0) {
-                String[] siteArr = subscription.getOfficeIDs().toArray(
-                        new String[subscription.getOfficeIDs().size()]);
-                processSites(siteArr);
+            if (!create) {
+                if (subscription != null
+                        && subscription.getOfficeIDs().size() > 0) {
+                    String[] siteArr = subscription.getOfficeIDs().toArray(
+                            new String[subscription.getOfficeIDs().size()]);
+                    processSites(siteArr);
+                }
             }
         }
     }
@@ -727,12 +746,15 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         okBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                status = Status.OK;
-                getShell().setCursor(
-                        getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
-                okConf.getOnClickAction().run();
-                if (!getShell().isDisposed()) {
-                    getShell().setCursor(null);
+                try {
+                    status = Status.OK;
+                    getShell().setCursor(
+                            getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+                    okConf.getOnClickAction().run();
+                } finally {
+                    if (!getShell().isDisposed()) {
+                        getShell().setCursor(null);
+                    }
                 }
             }
         });

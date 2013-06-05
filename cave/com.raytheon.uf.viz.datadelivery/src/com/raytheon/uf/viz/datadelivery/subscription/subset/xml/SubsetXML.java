@@ -44,7 +44,8 @@ import com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml;
  * ------------ ---------- ----------- --------------------------
  * Mar 29, 2012            mpduff       Initial creation
  * Aug 10, 2012 1022       djohnson     {@link SubsetXML} requires provider name.
- * Feb 15, 2013 1638       mschenke     Moved Util.EOL into FileUtil
+ * Feb 15, 2013 1638       mschenke     Moved Util.EOL into FileUtil.
+ * Jun 04, 2013  223       mpduff       Refactoring method name change.
  * 
  * </pre>
  * 
@@ -58,7 +59,7 @@ public class SubsetXML<TIMEXML extends TimeXML> implements IDisplayXml {
 
     @XmlElement(name = "datasetName", type = String.class)
     protected String datasetName;
-    
+
     @XmlElement(name = "providerName", type = String.class)
     private String providerName;
 
@@ -70,10 +71,10 @@ public class SubsetXML<TIMEXML extends TimeXML> implements IDisplayXml {
 
     @XmlElement
     protected Ensemble ensemble;
-    
+
     @XmlElements({ @XmlElement(name = "vertical", type = VerticalXML.class) })
     protected ArrayList<VerticalXML> verticalList = new ArrayList<VerticalXML>();
-    
+
     @XmlElementRef
     protected TIMEXML time;
 
@@ -85,7 +86,8 @@ public class SubsetXML<TIMEXML extends TimeXML> implements IDisplayXml {
     }
 
     /**
-     * @param subsetName the subsetName to set
+     * @param subsetName
+     *            the subsetName to set
      */
     public void setSubsetName(String subsetName) {
         this.subsetName = subsetName;
@@ -114,7 +116,8 @@ public class SubsetXML<TIMEXML extends TimeXML> implements IDisplayXml {
     }
 
     /**
-     * @param area the area to set
+     * @param area
+     *            the area to set
      */
     public void setArea(AreaXML area) {
         this.area = area;
@@ -128,16 +131,18 @@ public class SubsetXML<TIMEXML extends TimeXML> implements IDisplayXml {
     }
 
     /**
-     * @param verticalList the verticalList to set
+     * @param verticalList
+     *            the verticalList to set
      */
     public void setVerticalList(ArrayList<VerticalXML> verticalList) {
         this.verticalList = verticalList;
     }
-    
+
     /**
      * Add a VerticalXML object to the list
      * 
-     * @param vertical VerticalXML object to add
+     * @param vertical
+     *            VerticalXML object to add
      */
     public void addVertical(VerticalXML vertical) {
         this.verticalList.add(vertical);
@@ -151,7 +156,8 @@ public class SubsetXML<TIMEXML extends TimeXML> implements IDisplayXml {
     }
 
     /**
-     * @param time the time to set
+     * @param time
+     *            the time to set
      */
     public void setTime(TIMEXML time) {
         this.time = time;
@@ -165,7 +171,8 @@ public class SubsetXML<TIMEXML extends TimeXML> implements IDisplayXml {
     }
 
     /**
-     * @param datasetName the datasetName to set
+     * @param datasetName
+     *            the datasetName to set
      */
     public void setDatasetName(String datasetName) {
         this.datasetName = datasetName;
@@ -186,26 +193,30 @@ public class SubsetXML<TIMEXML extends TimeXML> implements IDisplayXml {
         this.providerName = providerName;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml#getDisplayXmlString()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml#getDisplayXmlString
+     * ()
      */
     @Override
-    public String getDisplayXmlString() {
+    public String getPreviewString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Subset Name : ").append(subsetName).append(FileUtil.EOL);
         sb.append("Dataset Name: ").append(datasetName).append(FileUtil.EOL);
         sb.append("Provider: " + providerName);
-        
-        for (VerticalXML v: verticalList) {
-            sb.append(v.getDisplayXmlString());
+
+        for (VerticalXML v : verticalList) {
+            sb.append(v.getPreviewString());
         }
-        
+
         sb.append(FileUtil.EOL);
-        
-        sb.append(area.getDisplayXmlString());
-        
-        sb.append(time.getDisplayXmlString());
-        
+
+        sb.append(area.getPreviewString());
+
+        sb.append(time.getPreviewString());
+
         return sb.toString();
     }
 

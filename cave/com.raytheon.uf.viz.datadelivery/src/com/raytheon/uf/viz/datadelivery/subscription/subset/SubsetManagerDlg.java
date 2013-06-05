@@ -21,9 +21,6 @@ package com.raytheon.uf.viz.datadelivery.subscription.subset;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.Status;
@@ -48,14 +45,11 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.google.common.base.Preconditions;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
-import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
-import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
-import com.raytheon.uf.common.datadelivery.registry.Levels;
 import com.raytheon.uf.common.datadelivery.registry.Network;
-import com.raytheon.uf.common.datadelivery.registry.Parameter;
+import com.raytheon.uf.common.datadelivery.registry.PointDataSet;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
@@ -63,7 +57,6 @@ import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.datadelivery.retrieval.util.DataSizeUtils;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -81,6 +74,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.ForceAp
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceApplyPromptDisplayText;
 import com.raytheon.uf.viz.datadelivery.subscription.presenter.CreateSubscriptionDlgPresenter;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.DataTimingSubsetPresenter;
+import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.PointTimeXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SpecificDateTimeXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.TimeXML;
@@ -137,6 +131,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * May 15, 2013 1040       mpduff       Implement shared subscriptions.
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
  * May 28, 2013 1650       djohnson     More information when failing to schedule subscriptions.
+ * Jun 04, 2013  223       mpduff       Moved data type specific code to sub classes.
  * </pre>
  * 
  * @author mpduff
@@ -204,9 +199,7 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     /** Subset manager constant */
     private final String DD_SUBSET_MANAGER = "Data Delivery Subset Manager - ";
 
-    private final String VERTICAL_TAB = "Vertical Levels/Parameters";
-
-    private final String TIMING_TAB = "Forecast Hours";
+    protected final String VERTICAL_TAB = "Vertical Levels/Parameters";
 
     private final String SPATIAL_TAB = "Spatial";
 
@@ -240,7 +233,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         this.loadDataSet = loadDataSet;
 
         this.dataSize = new DataSizeUtils(dataSet);
-
     }
 
     /**
@@ -281,6 +273,8 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
 
         this.dataSize = new DataSizeUtils(dataSet);
     }
+
+    abstract void createTabs(TabFolder tabFolder);
 
     /*
      * (non-Javadoc)
@@ -343,7 +337,7 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
 
         tabFolder = new TabFolder(shell, SWT.NONE);
         tabFolder.setLayoutData(gd);
-        createTabs(tabFolder);
+        createCommonTabs(tabFolder);
         tabFolder.pack();
 
     }
@@ -361,46 +355,10 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     }
 
     /** Create the tabs */
-    private void createTabs(TabFolder tabFolder) {
-        createGridTabs(tabFolder);
-
-        TabItem savedSetsTab = new TabItem(tabFolder, SWT.NONE);
-        savedSetsTab.setText("Saved Subsets");
-        Composite savedSetsComp = new Composite(tabFolder, SWT.NONE);
-        savedSetsTab.setControl(savedSetsComp);
-        subsetTab = new SavedSubsetTab(savedSetsComp, this);
-    }
-
-    /** Create the grid tab */
-    protected void createGridTabs(TabFolder tabFolder) {
+    private void createCommonTabs(TabFolder tabFolder) {
+        createTabs(tabFolder);
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         GridLayout gl = new GridLayout(1, false);
-
-        TabItem verticalTab = new TabItem(tabFolder, SWT.NONE);
-        verticalTab.setText(VERTICAL_TAB);
-        verticalTab.setData("valid", false);
-        Composite vertComp = new Composite(tabFolder, SWT.NONE);
-        vertComp.setLayout(gl);
-        vertComp.setLayoutData(gd);
-        verticalTab.setControl(vertComp);
-        vTab = new VerticalSubsetTab(vertComp, dataSet, this);
-
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        gl = new GridLayout(1, false);
-
-        TabItem timingTab = new TabItem(tabFolder, SWT.NONE);
-        timingTab.setText(TIMING_TAB);
-        timingTab.setData("valid", false);
-        Composite timingComp = new Composite(tabFolder, SWT.NONE);
-        timingComp.setLayout(gl);
-        timingComp.setLayoutData(gd);
-        timingTab.setControl(timingComp);
-        timingTabControls = getDataTimingSubsetPresenter(timingComp, dataSet,
-                this, shell);
-        timingTabControls.init();
-
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gl = new GridLayout(1, false);
 
         TabItem spatialTab = new TabItem(tabFolder, SWT.NONE);
         spatialTab.setText(SPATIAL_TAB);
@@ -409,6 +367,12 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         spatialComp.setLayoutData(gd);
         spatialTab.setControl(spatialComp);
         spatialTabControls = new SpatialSubsetTab(spatialComp, dataSet, this);
+
+        TabItem savedSetsTab = new TabItem(tabFolder, SWT.NONE);
+        savedSetsTab.setText("Saved Subsets");
+        Composite savedSetsComp = new Composite(tabFolder, SWT.NONE);
+        savedSetsTab.setControl(savedSetsComp);
+        subsetTab = new SavedSubsetTab(savedSetsComp, this);
     }
 
     /**
@@ -424,6 +388,9 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     protected abstract PRESENTER getDataTimingSubsetPresenter(
             Composite parentComp, DATASET dataSet, IDataSize callback,
             Shell shell);
+
+    protected abstract <T extends Subscription> T populateSubscription(T sub,
+            boolean create);
 
     /** Create the information composite */
     private void createInfoComp() {
@@ -516,9 +483,11 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
      */
     public void launchCreateSubscriptionGui(Subscription sub) {
         DataDeliveryGUIUtils.markBusyInUIThread(shell);
-        if (handleOK(sub)) {
-            close();
-        } else {
+        try {
+            if (handleOK(sub)) {
+                close();
+            }
+        } finally {
             DataDeliveryGUIUtils.markNotBusyInUIThread(shell);
         }
     }
@@ -616,8 +585,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         Preconditions.checkNotNull(defaultRoute,
                 "A defaultRoute must be provided.");
 
-        ArrayList<Parameter> selectedParameterObjs = vTab.getParameters();
-
         sub.setRoute(defaultRoute);
         sub.setName(nameText.getText());
         if (subscription == null || subscription.getOfficeIDs() == null) {
@@ -637,55 +604,14 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         }
         sub.setProvider(dataSet.getProviderName());
         sub.setDataSetName(dataSet.getDataSetName());
-        sub.setParameter(selectedParameterObjs);
         sub.setDataSetSize(dataSize.getDataSetSize());
         sub.setDataSetType(dataSet.getDataSetType());
-        Time dataSetTime = dataSet.getTime();
-
-        Time time = dataSetTime;
-        Time newTime = new Time();
-        newTime.setEnd(time.getEnd());
-        newTime.setFormat(time.getFormat());
-        newTime.setNumTimes(time.getNumTimes());
-        newTime.setRequestEnd(time.getRequestEnd());
-        newTime.setRequestStart(time.getRequestStart());
-        newTime.setStart(time.getStart());
-        newTime.setStep(time.getStep());
-        newTime.setStepUnit(time.getStepUnit());
-
-        if (sub instanceof AdhocSubscription) {
-            newTime = setupDataSpecificTime(newTime, sub);
-        } else if (!create) {
-            newTime.setCycleTimes(this.subscription.getTime().getCycleTimes());
-        }
 
         // Catch the case where the user closes this dialog.
         if (this.isDisposed()) {
             return null;
         }
 
-        if (newTime == null) {
-            return null;
-        }
-
-        sub.setTime(newTime);
-
-        // TODO Phase 1 is only gridded coverage
-        GriddedCoverage cov = (GriddedCoverage) dataSet.getCoverage();
-        cov.setModelName(dataSet.getDataSetName());
-        cov.setGridName(nameText.getText());
-        GridCoverage coverage = cov.getGridCoverage();
-        coverage.setName(nameText.getText());
-
-        if (spatialTabControls.useDataSetSize()) {
-            cov.setRequestEnvelope(cov.getEnvelope());
-            sub.setFullDataSet(true);
-        } else {
-            cov.setRequestEnvelope(spatialTabControls.getEnvelope());
-            sub.setFullDataSet(false);
-        }
-
-        sub.setCoverage(cov);
         sub.setDataSetName(dataSet.getDataSetName());
         sub.setSubscriptionId("AdHocID");
         if (this.subscription != null) {
@@ -697,7 +623,7 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
 
         sub.setId(RegistryUtil.getRegistryObjectKey(sub));
 
-        return sub;
+        return populateSubscription(sub, create);
     }
 
     /**
@@ -771,19 +697,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     protected Collection<String> getInvalidTabs() {
         Collection<String> invalidTabs = new ArrayList<String>(3);
 
-        // Get the tabs to validate
-        // TODO Hardcoding the tabs for now, fix this later
-
-        // Validate the vertical tab
-        if (!vTab.isValid()) {
-            invalidTabs.add(VERTICAL_TAB);
-        }
-
-        if (!timingTabControls.isValid()) {
-            invalidTabs.add(TIMING_TAB);
-        }
-
-        // Next is spatial subset tab
         if (!spatialTabControls.isValid()) {
             invalidTabs.add(SPATIAL_TAB);
         }
@@ -871,9 +784,13 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         AreaXML area = spatialTabControls.getSaveInfo();
         subset.setArea(area);
 
-        // next save vertical layer/parameter info
-        ArrayList<VerticalXML> vertList = vTab.getSaveInfo();
-        subset.setVerticalList(vertList);
+        // TODO Only save this for grid. Once Obs have parameters then this will
+        // need to be saved for obs
+        if (dataSet.getDataSetType() == DataType.GRID) {
+            // next save vertical layer/parameter info
+            ArrayList<VerticalXML> vertList = vTab.getSaveInfo();
+            subset.setVerticalList(vertList);
+        }
 
         // finally the date/cycle/forecast data
         TIMEXML time = timingTabControls.getSaveInfo();
@@ -899,12 +816,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     }
 
     protected void loadFromSubsetXML(SubsetXML<TIMEXML> subsetXml) {
-        ArrayList<VerticalXML> vertList = subsetXml.getVerticalList();
-        vTab.populate(vertList, dataSet);
-
-        TIMEXML time = subsetXml.getTime();
-        this.timingTabControls.populate(time, dataSet);
-
         if (this.subsetXml == subsetXml) {
             // only populate area and name if subsetXml is loading from initial
             // load, not from the saved subsets tab.
@@ -918,13 +829,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
 
     protected void loadFromSubscription(Subscription subscription) {
         this.nameText.setText(this.subscription.getName());
-
-        // Cycle time
-        TIMEXML timeXml = getTimeXmlFromSubscription();
-
-        timeXml.setLatestData(true);
-
-        this.timingTabControls.populate(timeXml, dataSet);
 
         // Area
         AreaXML area = new AreaXML();
@@ -943,44 +847,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         spatialTabControls.setDataSet(this.dataSet);
         spatialTabControls.populate(area);
 
-        // Vertical/Parameters
-        Map<String, VerticalXML> levelMap = new HashMap<String, VerticalXML>();
-        List<Parameter> paramaterList = this.subscription.getParameter();
-
-        for (Parameter p : paramaterList) {
-            for (DataLevelType levelType : p.getLevelType()) {
-                if (!levelMap.containsKey(levelType.getKey())) {
-                    VerticalXML v = new VerticalXML();
-                    if (levelType.getUnit() == null) {
-                        v.setLayerType(String.valueOf(levelType
-                                .getDescription()));
-                    } else {
-                        v.setLayerType(levelType.getDescription() + " ("
-                                + levelType.getUnit() + "" + ")");
-                    }
-                    levelMap.put(levelType.getKey(), v);
-                }
-                VerticalXML v = levelMap.get(levelType.getKey());
-                v.addParameter(p.getProviderName());
-
-                // TODO - This is set up to only have one level type with
-                // Multiple parameters. This will need to change if other
-                // Data providers have parameters with multiple level types
-                // containing multiple levels
-                if (levelType.getId() == 100) {
-                    final Levels levels = p.getLevels();
-                    final List<Integer> selectedLevelIndices = levels
-                            .getSelectedLevelIndices();
-                    for (int index : selectedLevelIndices) {
-                        v.addLevel(String.valueOf(levels.getLevel().get(index)));
-                    }
-                }
-            }
-        }
-
-        ArrayList<VerticalXML> vertList = new ArrayList<VerticalXML>(
-                levelMap.values());
-        vTab.populate(vertList, dataSet);
     }
 
     /**
@@ -995,7 +861,7 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
      */
     protected boolean isDirty() {
 
-        if (vTab.isDirty()) {
+        if (vTab != null && vTab.isDirty()) {
             return true;
         }
 
@@ -1014,7 +880,9 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
      * Reset the dirty flags.
      */
     protected void setClean() {
-        vTab.setClean();
+        if (vTab != null) {
+            vTab.setClean();
+        }
         timingTabControls.setDirty(false);
         spatialTabControls.setSpatialDirty(false);
     }
@@ -1031,8 +899,10 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
      */
     public static SubsetManagerDlg<?, ?, ?> fromDataSet(Shell shell,
             DataSet data) {
-        if (data instanceof GriddedDataSet) {
+        if (data.getDataSetType() == DataType.GRID) {
             return new GriddedSubsetManagerDlg(shell, (GriddedDataSet) data);
+        } else if (data.getDataSetType() == DataType.POINT) {
+            return new PointSubsetManagerDlg(shell, (PointDataSet) data);
         }
         throw new IllegalArgumentException(String.format(
                 DATASETS_NOT_SUPPORTED, data.getClass().getName()));
@@ -1054,6 +924,8 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
             boolean loadDataSet, Subscription subscription) {
         if (DataType.GRID == subscription.getDataSetType()) {
             return new GriddedSubsetManagerDlg(shell, loadDataSet, subscription);
+        } else if (DataType.POINT == subscription.getDataSetType()) {
+            return new PointSubsetManagerDlg(shell, loadDataSet, subscription);
         }
 
         throw new IllegalArgumentException(String.format(
@@ -1080,6 +952,9 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         if (data instanceof GriddedDataSet) {
             return new GriddedSubsetManagerDlg(shell, (GriddedDataSet) data,
                     loadDataSet, (SubsetXML<SpecificDateTimeXML>) subset);
+        } else if (data instanceof PointDataSet) {
+            return new PointSubsetManagerDlg(shell, (PointDataSet) data, true,
+                    (SubsetXML<PointTimeXML>) subset);
         }
         throw new IllegalArgumentException(String.format(
                 DATASETS_NOT_SUPPORTED, data.getClass().getName()));
@@ -1123,5 +998,12 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
             throw new IllegalArgumentException(
                     "Don't know how to handle option [" + option + "]");
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected String getNameText() {
+        return nameText.getText();
     }
 }
