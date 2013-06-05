@@ -17,10 +17,15 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.archive.data;
+package com.raytheon.uf.viz.archive.ui;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 
 /**
- * Interface for methods for getting totals needed by the ArchiveTableComp.
+ * Common methods used in the dialogs.
  * 
  * <pre>
  * 
@@ -28,7 +33,7 @@ package com.raytheon.uf.viz.archive.data;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 29, 2013 1996       rferrel     Initial creation
+ * Jun 6, 2013  1966       rferrel     Initial creation
  * 
  * </pre>
  * 
@@ -36,9 +41,30 @@ package com.raytheon.uf.viz.archive.data;
  * @version 1.0
  */
 
-public interface IArchiveTotals {
+public class GuiUtil {
+    private GuiUtil() {
+    }
+
     /**
-     * Update total selected items and sizes.
+     * Add a separator line to the provided container.
+     * 
+     * @param container
+     *            Composite.
+     * @param orientation
+     *            Vertical or horizontal orientation.
      */
-    public void updateTotals();
+    public static void addSeparator(Composite container, int orientation) {
+        // Separator label
+        GridData gd;
+
+        if (orientation == SWT.HORIZONTAL) {
+            gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        } else {
+            gd = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
+        }
+
+        Label sepLbl = new Label(container, SWT.SEPARATOR | orientation);
+        sepLbl.setLayoutData(gd);
+    }
+
 }
