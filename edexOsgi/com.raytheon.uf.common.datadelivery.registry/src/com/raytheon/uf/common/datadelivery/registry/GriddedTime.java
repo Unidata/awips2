@@ -51,6 +51,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * Jan 15, 2011             dhladky     Initial creation
  * Jul 24, 2012    955      djohnson    Use List instead of ArrayList.
+ * Jun 04, 2013    223      mpduff      Cleanup.
  * 
  * </pre>
  * 
@@ -61,11 +62,13 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class GriddedTime extends Time implements ISerializableObject, Serializable {
+public class GriddedTime extends Time implements ISerializableObject,
+        Serializable {
 
     private static final long serialVersionUID = -7032078355732493125L;
-    
-    private static final IUFStatusHandler statusHandler = UFStatus.getHandler(GriddedTime.class);
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GriddedTime.class);
 
     /**
      * Default Constructor.
@@ -85,7 +88,7 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
     @XmlElements({ @XmlElement(name = "selectedTimeIndices", type = Integer.class) })
     @DynamicSerializeElement
     private List<Integer> selectedTimeIndices;
-    
+
     @XmlElements({ @XmlElement(name = "cycleTimes", type = Integer.class) })
     @DynamicSerializeElement
     private List<Integer> cycleTimes;
@@ -97,7 +100,6 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
     private Date endDate = null;
 
     private Date requestStartDate = null;
-
 
     /**
      * Clone constructor.
@@ -116,19 +118,19 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
         this.requestStart = toCopy.requestStart;
         List<Integer> incomingSelectedTimeIndices = toCopy.selectedTimeIndices;
         this.selectedTimeIndices = (incomingSelectedTimeIndices == null) ? null
-                : new ArrayList<Integer>(
-                incomingSelectedTimeIndices);
+                : new ArrayList<Integer>(incomingSelectedTimeIndices);
         this.start = toCopy.start;
         this.step = toCopy.step;
         this.stepUnit = toCopy.stepUnit;
     }
-    
+
     /**
      * Get the start date
      * 
      * @return
      * @throws ParseException
      */
+    @Override
     public Date getStartDate() throws ParseException {
 
         if (startDate == null) {
@@ -148,7 +150,8 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
      * @return
      * @throws ParseException
      */
-    public void setStartDate(Date startDate) throws ParseException {
+    @Override
+    public void setStartDate(Date startDate) {
         this.startDate = startDate;
         if (startDate != null && getFormat() != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
@@ -163,6 +166,7 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
      * @return
      * @throws ParseException
      */
+    @Override
     public Date getEndDate() throws ParseException {
         if (endDate == null) {
             if (getEnd() != null && getFormat() != null) {
@@ -181,7 +185,8 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
      * @return
      * @throws ParseException
      */
-    public void setEndDate(Date endDate) throws ParseException {
+    @Override
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
         if (endDate != null && getFormat() != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
@@ -190,10 +195,12 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
         }
     }
 
+    @Override
     public Double getStep() {
         return step;
     }
 
+    @Override
     public void setStep(Double step) {
         this.step = step;
     }
@@ -203,33 +210,40 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
      * 
      * @return List of cycle times
      */
+    @Override
     public List<Integer> getCycleTimes() {
         return this.cycleTimes;
     }
-    
+
     /**
      * Set the cycle times.
      * 
-     * @param cycleTimes ArrayList of cycle times.
+     * @param cycleTimes
+     *            ArrayList of cycle times.
      */
+    @Override
     public void setCycleTimes(List<Integer> cycleTimes) {
         this.cycleTimes = cycleTimes;
     }
-    
+
     /**
      * Add a cycle time.
      * 
-     * @param cycleTime The cycle time to add
+     * @param cycleTime
+     *            The cycle time to add
      */
+    @Override
     public void addCycleTime(int cycleTime) {
         this.cycleTimes.add(cycleTime);
     }
-    
+
     /**
      * Get me the date of the time requested
+     * 
      * @param timeInt
      * @return
      */
+    @Override
     public Date getTimeAsDate(int timeInt) {
 
         try {
@@ -249,7 +263,8 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
                 }
             }
         } catch (ParseException pe) {
-            statusHandler.handle(Priority.ERROR, "Can't parse time as date.", pe);
+            statusHandler.handle(Priority.ERROR, "Can't parse time as date.",
+                    pe);
         }
         return null;
     }
@@ -259,6 +274,7 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
      * 
      * @param timeInt
      */
+    @Override
     public void setRequestStartTimeAsInt(Integer timeInt) {
         try {
             if (getStartDate() != null) {
@@ -284,7 +300,8 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
             }
 
         } catch (ParseException pe) {
-            statusHandler.handle(Priority.ERROR, "Can't parse time as date.", pe);
+            statusHandler.handle(Priority.ERROR, "Can't parse time as date.",
+                    pe);
         }
     }
 
@@ -293,6 +310,7 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
      * 
      * @return
      */
+    @Override
     public int getRequestStartTimeAsInt() {
 
         int timeInt = 0;
@@ -321,7 +339,8 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
             }
 
         } catch (ParseException pe) {
-            statusHandler.handle(Priority.ERROR, "Can't parse requested time as date.", pe);
+            statusHandler.handle(Priority.ERROR,
+                    "Can't parse requested time as date.", pe);
         }
         return timeInt;
 
@@ -332,6 +351,7 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
      * 
      * @param timeInt
      */
+    @Override
     public void setRequestEndTimeAsInt(Integer timeInt) {
         try {
             if (getEndDate() != null) {
@@ -352,7 +372,8 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
                 }
             }
         } catch (ParseException pe) {
-            statusHandler.handle(Priority.ERROR, "Can't parse requested time as int.", pe);
+            statusHandler.handle(Priority.ERROR,
+                    "Can't parse requested time as int.", pe);
         }
 
     }
@@ -362,6 +383,7 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
      * 
      * @return
      */
+    @Override
     public int getRequestEndTimeAsInt() {
 
         int timeInt = 0;
@@ -390,16 +412,19 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
             }
 
         } catch (ParseException pe) {
-            statusHandler.handle(Priority.ERROR, "Can't parse requested time as int.", pe);
+            statusHandler.handle(Priority.ERROR,
+                    "Can't parse requested time as int.", pe);
         }
         return timeInt;
 
     }
 
+    @Override
     public String getStepUnit() {
         return stepUnit;
     }
 
+    @Override
     public void setStepUnit(String stepUnit) {
         this.stepUnit = stepUnit;
     }
@@ -460,6 +485,7 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
      * 
      * @return
      */
+    @Override
     public int findForecastStepUnit() {
 
         if (getStepUnit().equals("hour")) {
@@ -485,6 +511,7 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
      * @return
      * @throws ParseException
      */
+    @Override
     public void setRequestStartAsDate(Date requestStartDate)
             throws ParseException {
         this.requestStartDate = requestStartDate;
@@ -501,6 +528,7 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
      * @return
      * @throws ParseException
      */
+    @Override
     public Date getRequestStartAsDate() throws ParseException {
         if (requestStartDate == null) {
             if (getRequestStart() != null && getFormat() != null) {
@@ -519,6 +547,7 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
      * @return
      * @throws ParseException
      */
+    @Override
     public void setRequestEndAsDate(Date requestEndDate) throws ParseException {
         this.requestEndDate = requestEndDate;
         if (requestEndDate != null && getFormat() != null) {
@@ -534,6 +563,7 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
      * @return
      * @throws ParseException
      */
+    @Override
     public Date getRequestEndAsDate() throws ParseException {
         if (requestEndDate == null) {
             if (getRequestEnd() != null && getFormat() != null) {
@@ -551,6 +581,7 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
      * 
      * @return
      */
+    @Override
     public List<String> getFcstHours() {
         List<String> hours = new ArrayList<String>();
 
@@ -568,6 +599,7 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
     /**
      * @return the selectedTimeIndices
      */
+    @Override
     public List<Integer> getSelectedTimeIndices() {
         return selectedTimeIndices;
     }
@@ -576,6 +608,7 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
      * @param selectedTimeIndices
      *            the selectedTimeIndices to set
      */
+    @Override
     public void setSelectedTimeIndices(List<Integer> selectedTimeIndices) {
         this.selectedTimeIndices = selectedTimeIndices;
     }
@@ -586,11 +619,12 @@ public class GriddedTime extends Time implements ISerializableObject, Serializab
      * 
      * @return
      */
+    @Override
     public List<List<Integer>> getTimeSequences(int sfactor) {
 
         List<List<Integer>> sequences = new ArrayList<List<Integer>>();
         List<Integer> al = new ArrayList<Integer>();
-        
+
         if (selectedTimeIndices.size() > 0) {
             int previous = selectedTimeIndices.get(0);
             al.add(previous);
