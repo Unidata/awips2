@@ -39,6 +39,7 @@ import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
 import com.raytheon.uf.common.archive.config.CategoryConfig;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.viz.archive.data.IArchiveTotals;
 
 /**
  * Archive retention dialog.
@@ -57,7 +58,8 @@ import com.raytheon.uf.common.status.UFStatus;
  * @author lvenable
  * @version 1.0
  */
-public class ArchiveRetentionDlg extends AbstractArchiveDlg {
+public class ArchiveRetentionDlg extends AbstractArchiveDlg implements
+        IArchiveTotals {
 
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ArchiveRetentionDlg.class);
@@ -106,7 +108,7 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
      */
     private void init() {
         createRetentionControls();
-        addSeparator(shell, SWT.HORIZONTAL);
+        GuiUtil.addSeparator(shell, SWT.HORIZONTAL);
         createBottomActionButtons();
         selectionsUpdated();
     }
@@ -331,7 +333,7 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
     }
 
     @Override
-    protected void selectionsUpdated() {
+    public void updateTotals() {
         ArchiveConfig archive = getSelectedArchive();
         if (archive != null) {
             if (minRetentionSpnr != null) {
@@ -342,6 +344,11 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
                 }
             }
         }
+    }
+
+    @Override
+    protected void selectionsUpdated() {
+        // Not used.
     }
 
 }
