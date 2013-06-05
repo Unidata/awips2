@@ -34,6 +34,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * ------------ ---------- ----------- --------------------------
  * Jan 08, 2013 1420       mpduff       Initial creation.
  * Jan 22, 2013 1519       djohnson     Correct the non-hourly default latency to match requirements.
+ * Jun 04, 2013  223       mpduff       Refactored constant name changes.
  * 
  * </pre>
  * 
@@ -42,10 +43,10 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  */
 
 public enum DataSetFrequency {
-    HOURLY(DataDeliveryUtils.HOURLY_DATASET_LATENCY_IN_MINUTES), SIX_HOURLY(
-            DataDeliveryUtils.NON_HOURLY_DATASET_LATENCY_IN_MINUTES), TWELVE_HOURLY(
-            DataDeliveryUtils.NON_HOURLY_DATASET_LATENCY_IN_MINUTES), DAILY(
-            DataDeliveryUtils.NON_HOURLY_DATASET_LATENCY_IN_MINUTES);
+    HOURLY(DataDeliveryUtils.GRIDDED_HOURLY_DATASET_LATENCY_IN_MINUTES), SIX_HOURLY(
+            DataDeliveryUtils.GRIDDED_NON_HOURLY_DATASET_LATENCY_IN_MINUTES), TWELVE_HOURLY(
+            DataDeliveryUtils.GRIDDED_NON_HOURLY_DATASET_LATENCY_IN_MINUTES), DAILY(
+            DataDeliveryUtils.GRIDDED_NON_HOURLY_DATASET_LATENCY_IN_MINUTES);
     
     private int defaultLatency;
 
