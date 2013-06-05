@@ -53,12 +53,21 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class PointTime extends Time implements ISerializableObject, Serializable {
-    
+public class PointTime extends Time implements ISerializableObject,
+        Serializable {
+
     /**
      * 
      */
     private static final long serialVersionUID = 234624356321L;
+
+    @XmlElement
+    @DynamicSerializeElement
+    private int interval;
+
+    @XmlElements({ @XmlElement(name = "times", type = Date.class) })
+    @DynamicSerializeElement
+    private List<Date> times;
 
     /**
      * Default Constructor.
@@ -66,11 +75,7 @@ public class PointTime extends Time implements ISerializableObject, Serializable
     public PointTime() {
 
     }
-       
-    @XmlElements({ @XmlElement(name = "times", type = Date.class) })
-    @DynamicSerializeElement
-    private List<Date> times;
-    
+
     public void setTimes(List<Date> times) {
         this.times = times;
     }
@@ -78,15 +83,16 @@ public class PointTime extends Time implements ISerializableObject, Serializable
     public List<Date> getTimes() {
         return times;
     }
-    
+
     /**
      * gets the most recent date
      */
+    @Override
     public Date getEndDate() {
-        for (Date time: getTimes()) {
+        for (Date time : getTimes()) {
             if (endDate == null) {
                 endDate = time;
-            } else if(endDate.before(time)) {
+            } else if (endDate.before(time)) {
                 endDate = time;
             }
         }
@@ -96,14 +102,30 @@ public class PointTime extends Time implements ISerializableObject, Serializable
     /**
      * gets the earliest date
      */
+    @Override
     public Date getStartDate() {
-        for (Date time: getTimes()) {
+        for (Date time : getTimes()) {
             if (startDate == null) {
                 startDate = time;
-            } else if(startDate.after(time)) {
+            } else if (startDate.after(time)) {
                 startDate = time;
             }
         }
         return startDate;
+    }
+
+    /**
+     * @return the interval
+     */
+    public int getInterval() {
+        return interval;
+    }
+
+    /**
+     * @param interval
+     *            the interval to set
+     */
+    public void setInterval(int interval) {
+        this.interval = interval;
     }
 }
