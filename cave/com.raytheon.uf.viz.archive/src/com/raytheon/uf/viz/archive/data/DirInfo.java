@@ -22,8 +22,9 @@ package com.raytheon.uf.viz.archive.data;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -53,15 +54,16 @@ import com.raytheon.uf.common.util.FileUtil;
  */
 
 public class DirInfo {
+
     private static final SizeJob sizeJob = new DirInfo.SizeJob();
 
     final private DisplayData displayInfo;
 
     private final List<File> files = new ArrayList<File>();
 
-    private Calendar startCal;
+    private final Calendar startCal;
 
-    private Calendar endCal;
+    private final Calendar endCal;
 
     public static void clearQueue() {
         sizeJob.clearQueue();
@@ -79,7 +81,6 @@ public class DirInfo {
         this.displayInfo = displayInfo;
         this.startCal = startCal;
         this.endCal = endCal;
-        displayInfo.setSize(-1);
         DirInfo.sizeJob.queue(this);
     }
 
@@ -87,29 +88,57 @@ public class DirInfo {
         return displayInfo;
     }
 
+    /**
+     * Job to determine the size for a directory and its contents on a non-UI
+     * thread.
+     */
     static private class SizeJob extends Job {
-        private LinkedList<DirInfo> queueList = new LinkedList<DirInfo>();
+        private ConcurrentLinkedQueue<DirInfo> queue = new ConcurrentLinkedQueue<DirInfo>();
 
-        private boolean isShutdown = false;
+        private final ConcurrentLinkedQueue<DisplayData> selectedQueue = new ConcurrentLinkedQueue<ArchiveConfigManager.DisplayData>();
+
+        private final AtomicBoolean stopComputeSize = new AtomicBoolean(false);
 
         List<IUpdateListener> listeners = new ArrayList<IUpdateListener>();
 
+        /**
+         * Add entry to queue and if pending selected entries add them to the
+         * queue with same start/end times.
+         * 
+         * @param fileInfo
+         */
         protected void queue(DirInfo fileInfo) {
-            synchronized (queueList) {
-                queueList.add(fileInfo);
-                if (getState() == Job.NONE) {
-                    System.out.println("schedule queue size: "
-                            + queueList.size());
-                    schedule();
-                }
+            queue.add(fileInfo);
+
+            if (getState() == Job.NONE) {
+                schedule();
             }
         }
 
+        /**
+         * Clear list off pending data but save selected entries still needing
+         * sizes.
+         */
         protected void clearQueue() {
-            synchronized (queueList) {
-                queueList.clear();
-                if (getState() != Job.NONE) {
-                    isShutdown = true;
+            List<DirInfo> pending = new ArrayList<DirInfo>();
+
+            // Drain queue queue.removeAll() doesn't work.
+            while (!queue.isEmpty()) {
+                pending.add(queue.remove());
+            }
+
+            if (getState() != NONE) {
+                cancel();
+            }
+
+            // Save selected items that do not have sizes.
+            for (DirInfo dirInfo : pending) {
+                DisplayData displayData = dirInfo.getDisplayInfo();
+
+                if (displayData.isSelected() && displayData.getSize() < 0L) {
+                    if (!selectedQueue.contains(displayData)) {
+                        selectedQueue.add(displayData);
+                    }
                 }
             }
         }
@@ -121,66 +150,68 @@ public class DirInfo {
 
         @Override
         protected IStatus run(IProgressMonitor monitor) {
+            if (monitor.isCanceled()) {
+                return Status.OK_STATUS;
+            }
+
             ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
-            System.out.println("starting SizeJob");
-            long startTime = System.currentTimeMillis();
-            while (!isShutdown && !queueList.isEmpty()) {
-                List<DirInfo> list = null;
-                synchronized (queueList) {
 
-                    list = new ArrayList<DirInfo>(queueList);
+            mainLoop: while (!queue.isEmpty()) {
+                DirInfo dirInfo = queue.remove();
 
-                    queueList.clear();
-                }
-                System.out.println("sizeJob Processing: " + list.size());
-                long t1 = System.currentTimeMillis();
+                stopComputeSize.set(false);
+                DisplayData displayData = dirInfo.displayInfo;
+                Calendar startCal = dirInfo.startCal;
+                Calendar endCal = dirInfo.endCal;
 
-                for (DirInfo dirInfo : list) {
-                    long t2 = System.currentTimeMillis();
-                    if (isShutdown) {
-                        break;
-                    }
-                    DisplayData displayInfo = dirInfo.displayInfo;
-                    Calendar startCal = dirInfo.startCal;
-                    Calendar endCal = dirInfo.endCal;
-                    displayInfo.setSize(-1);
+                List<File> files = manager.getDisplayFiles(displayData,
+                        startCal, endCal);
 
-                    List<File> files = manager.getDisplayFiles(displayInfo,
-                            startCal, endCal);
-                    dirInfo.files.clear();
-                    dirInfo.files.addAll(files);
-                    long size = 0L;
-                    for (File file : dirInfo.files) {
-                        if (isShutdown) {
-                            break;
-                        }
-                        if (file.isDirectory()) {
-                            size += FileUtil.sizeOfDirectory(file);
-                        } else {
-                            size += file.length();
-                        }
-                    }
-                    long t3 = System.currentTimeMillis();
-                    System.out.println("-- \"" + displayInfo.getDisplayLabel()
-                            + "\": oldSize: " + displayInfo.getSize()
-                            + ", newSize: " + size + ", time: " + (t3 - t2)
-                            + " ms");
-                    displayInfo.setSize(size);
+                // Is size still needed.
+                if (!displayData.isSelected() && stopComputeSize.get()) {
+                    continue;
                 }
 
-                if (!isShutdown) {
-                    for (IUpdateListener listener : listeners) {
-                        listener.update(list);
+                dirInfo.files.clear();
+                dirInfo.files.addAll(files);
+                long size = 0L;
+                for (File file : dirInfo.files) {
+
+                    // Skip when size no longer needed.
+                    if (!displayData.isSelected() && stopComputeSize.get()) {
+                        continue mainLoop;
                     }
-                } else {
-                    synchronized (queueList) {
-                        isShutdown = false;
+
+                    if (file.isDirectory()) {
+                        size += FileUtil.sizeOfDirectory(file);
+                    } else {
+                        size += file.length();
+                    }
+                }
+
+                displayData.setSize(size);
+
+                List<DirInfo> list = new ArrayList<DirInfo>();
+                list.add(dirInfo);
+                for (IUpdateListener listener : listeners) {
+                    listener.update(list);
+                }
+
+                if (!stopComputeSize.get()) {
+                    // Place any pending selections at end of the queue.
+                    while (!selectedQueue.isEmpty()) {
+                        DisplayData data = selectedQueue.remove();
+                        new DirInfo(data, startCal, endCal);
                     }
                 }
             }
-            System.out.println("Ending SizeJob");
 
             return Status.OK_STATUS;
+        }
+
+        @Override
+        protected void canceling() {
+            stopComputeSize.set(true);
         }
     }
 }
