@@ -230,7 +230,8 @@ class FileCommunicationStrategy implements CommunicationStrategy {
                 coll.setFirstDate(pc.getFirstDateFormatted());
                 // TODO: figure a default data type and projection
                 // strategy other than just the first one.
-                coll.setDataType(provider.getProviderType().get(0));
+                coll.setDataType(provider.getProviderType().get(0)
+                        .getDataType());
                 coll.setProjection(provider.getProjection().get(0).getType());
                 coll.setPeriodicity(pc.getPeriodicity());
                 coll.setUrlKey(pc.getUrlKey());

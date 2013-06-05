@@ -52,6 +52,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Jan 15, 2011             dhladky     Initial creation
  * Jul 24, 2012    955      djohnson    Use List instead of ArrayList.
  * Jun 04, 2013    223      mpduff      Cleanup.
+ * Jun 06, 2013 2038        djohnson    Remove throws ParseException.
  * 
  * </pre>
  * 
@@ -512,8 +513,7 @@ public class GriddedTime extends Time implements ISerializableObject,
      * @throws ParseException
      */
     @Override
-    public void setRequestStartAsDate(Date requestStartDate)
-            throws ParseException {
+    public void setRequestStartAsDate(Date requestStartDate) {
         this.requestStartDate = requestStartDate;
         if (requestStartDate != null && getFormat() != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
@@ -548,7 +548,7 @@ public class GriddedTime extends Time implements ISerializableObject,
      * @throws ParseException
      */
     @Override
-    public void setRequestEndAsDate(Date requestEndDate) throws ParseException {
+    public void setRequestEndAsDate(Date requestEndDate) {
         this.requestEndDate = requestEndDate;
         if (requestEndDate != null && getFormat() != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());

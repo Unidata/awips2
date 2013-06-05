@@ -25,8 +25,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.util.SpringFiles;
+import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDao;
 
@@ -41,6 +44,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthD
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 13, 2012 1286       djohnson     Initial creation
+ * Jun 03, 2013 2038       djohnson     Use transactional semantics.
  * 
  * </pre>
  * 
@@ -51,6 +55,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthD
 @ContextConfiguration(locations = { SpringFiles.UNIT_TEST_DB_BEANS_XML,
         SpringFiles.BANDWIDTH_DATADELIVERY_DAOS_XML,
         SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML })
+@TransactionConfiguration(transactionManager = TestUtil.METADATA_TX_MANAGER, defaultRollback = true)
+@Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class HibernateBandwidthDaoTest extends
         AbstractBandwidthDaoTest<IBandwidthDao> {

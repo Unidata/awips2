@@ -19,11 +19,9 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
-import com.raytheon.uf.common.datadelivery.registry.Provider.ProviderType;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.common.util.AbstractFixture;
 
@@ -68,8 +66,8 @@ public class ProviderFixture extends AbstractFixture<Provider> {
         // TODO: ProjectionFixture
         // provider.setProjection(ProjectionFixture.INSTANCE.get(seedValue));
         provider.setServiceType(ServiceType.OPENDAP);
-        provider.setProviderType(new ArrayList<ProviderType>(Arrays
-                .asList(AbstractFixture.randomEnum(ProviderType.class, random))));
+        provider.setProviderType(Arrays.<ProviderType> asList(new ProviderType(
+                DataType.GRID, "grid", 100)));
 
         return provider;
     }
