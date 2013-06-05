@@ -19,6 +19,7 @@
 ##
 
 from com.raytheon.uf.viz.derivparam.python.function import CapeFunc
+from numpy import zeros
 
 def execute(*args):
     return __execute(*args)[0]
