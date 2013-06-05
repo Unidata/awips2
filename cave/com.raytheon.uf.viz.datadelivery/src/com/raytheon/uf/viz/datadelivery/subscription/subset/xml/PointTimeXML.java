@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * TimeXML that supports a date range.
+ * Point time xml object.
  * 
  * <pre>
  * 
@@ -33,9 +33,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 22, 2012 0743       djohnson     Moved in range specific code from TimeXML.
- * Jun 04, 2013  223       mpduff       Changed hierarchy.
- * 
+ * May 29, 2013    223     mpduff      Initial creation.
  * 
  * </pre>
  * 
@@ -43,50 +41,32 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-@XmlRootElement(name = "rangeDateTime")
-public class DateRangeTimeXML extends GriddedTimeXML {
-
-    @XmlElement(name = "rangeStart", type = String.class)
-    protected String rangeStart;
-
-    @XmlElement(name = "rangeEnd", type = String.class)
-    protected String rangeEnd;
+@XmlRootElement
+public class PointTimeXML extends TimeXML {
+    @XmlElement
+    private int dataRetrievalInterval;
 
     /**
-     * @return the rangeStart
+     * @return the dataRetrievalInterval
      */
-    public String getRangeStart() {
-        return rangeStart;
+    public int getDataRetrievalInterval() {
+        return dataRetrievalInterval;
     }
 
     /**
-     * @param rangeStart
-     *            the rangeStart to set
+     * @param dataRetrievalInterval
+     *            the dataRetrievalInterval to set
      */
-    public void setRangeStart(String rangeStart) {
-        this.rangeStart = rangeStart;
-    }
-
-    /**
-     * @return the rangeEnd
-     */
-    public String getRangeEnd() {
-        return rangeEnd;
-    }
-
-    /**
-     * @param rangeEnd
-     *            the rangeEnd to set
-     */
-    public void setRangeEnd(String rangeEnd) {
-        this.rangeEnd = rangeEnd;
+    public void setDataRetrievalInterval(int dataRetrievalInterval) {
+        this.dataRetrievalInterval = dataRetrievalInterval;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected String getNonLatestData() {
-        return "Range: " + rangeStart + " to " + rangeEnd;
+    public String getPreviewString() {
+        return "Data Retrieval Interval: " + dataRetrievalInterval;
     }
+
 }
