@@ -71,8 +71,8 @@ public class MockOpenDapRetrievalGenerator extends OpenDAPRetrievalGenerator {
         retrieval.setConnection(bundle.getConnection());
         retrieval.setNetwork(subscription.getRoute());
         retrieval.setOwner(subscription.getOwner());
-        retrieval.setProviderType(bundle.getProvider().getProviderType()
-                .iterator().next());
+        retrieval.setDataType(bundle.getProvider().getProviderType()
+                .iterator().next().getDataType());
         retrieval.setServiceType(this.getServiceType());
         retrieval.setSubscriptionName(subscription.getName());
         retrieval.setSubscriptionType(getSubscriptionType(subscription));

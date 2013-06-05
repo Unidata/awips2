@@ -19,13 +19,11 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
-import java.text.ParseException;
 import java.util.List;
 
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
-import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.registry.event.InsertRegistryEvent;
 import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
@@ -63,17 +61,6 @@ public interface IBandwidthManager {
      */
     @Subscribe
     void registryEventListener(InsertRegistryEvent re);
-
-    /**
-     * Persist the DataSetMetaData update and store the necessary statistical
-     * data's to generate the predictive update time for a dataset.
-     * 
-     * @param dataSetMetaData
-     * @throws ParseException
-     */
-    @Subscribe
-    void updateDataSetMetaData(DataSetMetaData dataSetMetaData)
-            throws ParseException;
 
     /**
      * When a Subscription is removed from the Registry, a RemoveRegistryEvent
