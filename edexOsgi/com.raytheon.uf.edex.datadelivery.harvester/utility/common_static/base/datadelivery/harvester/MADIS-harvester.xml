@@ -10,7 +10,7 @@
 			 !!!!!PLACE YOUR URL HERE!!!!!!-->
 			<url>http://your.url.here:8085</url>
 		</connection>
-		<providerType>Point</providerType>
+		<providerType dataType="POINT" plugin="madis" availabilityDelay="0" />
 		<projection type="LatLon">
 			<name>MadisLatLon</name>
 			<description>MADIS Test LatLon Coverage</description>

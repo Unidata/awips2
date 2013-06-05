@@ -60,6 +60,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.Lists;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.util.SpringFiles;
+import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl.RETURN_TYPE;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
@@ -76,6 +77,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Apr 15, 2013 1914       djohnson     Initial creation
  * Apr 18, 2013 1693       djohnson     Consolidate reusable methods.
  * Apr 23, 2013 1910       djohnson     Allow sub-classes to pass callables and monitor for fault exceptions.
+ * Jun 05, 2013 2038       djohnson     Use TestUtil constant for transactionManager.
  * 
  * </pre>
  * 
@@ -94,7 +96,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
         SpringFiles.UNIT_TEST_DB_BEANS_XML,
         SpringFiles.UNIT_TEST_EBXML_BEANS_XML,
         SpringFiles.UNIT_TEST_LOCALIZATION_BEANS_XML })
-@TransactionConfiguration(transactionManager = "metadataTxManager", defaultRollback = true)
+@TransactionConfiguration(transactionManager = TestUtil.METADATA_TX_MANAGER, defaultRollback = true)
 @Transactional
 @Ignore
 public class AbstractRegistryTest {

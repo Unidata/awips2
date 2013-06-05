@@ -59,6 +59,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Jul 24, 2012 955        djohnson     Initial creation
  * Sep 07, 2012 1102       djohnson     Add test for more specification defined properties of hashCode/equals.
  * Oct 23, 2012 1286       djohnson     setupTestClassDir() takes any class.
+ * Jun 05, 2013 2038       djohnson     Add constant for metadata tx manager.
  * 
  * </pre>
  * 
@@ -67,6 +68,9 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  */
 @Ignore
 public final class TestUtil {
+
+    public static final String METADATA_TX_MANAGER = "metadataTxManager";
+
     public static final Pattern COMMA_PATTERN = Pattern.compile(",");
 
     private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\n");
