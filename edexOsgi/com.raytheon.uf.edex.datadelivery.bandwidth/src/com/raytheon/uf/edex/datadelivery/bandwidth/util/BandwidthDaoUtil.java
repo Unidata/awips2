@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth.util;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -26,7 +27,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Sets;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
@@ -55,6 +56,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Oct 24, 2012 1286       djohnson     Extract methods from {@link BandwidthUtil}.
  * Dec 11, 2012 1286       djohnson     FULFILLED allocations are not in the retrieval plan either.
  * Feb 14, 2013 1595       djohnson     Fix not using calendar copies, and backwards max/min operations.
+ * Jun 03, 2013 2038       djohnson     Add ability to schedule down to minute granularity.
  * Jun 04, 2013  223       mpduff       Refactor changes.
  * 
  * </pre>
@@ -96,24 +98,8 @@ public class BandwidthDaoUtil {
      */
     public SortedSet<Calendar> getRetrievalTimes(Subscription subscription,
             SortedSet<Integer> cycles) {
-
-        // TODO: Will need to address this calculation where obs are considered,
-        // not sure how the Time Object will be used to communicate all the
-        // times that an observation subscription should be fulfilled. For now,
-        // assume grid and move on.
-        SortedSet<Calendar> subscriptionTimes = new TreeSet<Calendar>();
-
-        // TODO: Can't schedule subscriptions without cycles, yet...
-        if (cycles.size() == 0) {
-            return subscriptionTimes;
-        }
-
-        RetrievalPlan plan = retrievalManager.getPlan(subscription.getRoute());
-        if (plan == null) {
-            return subscriptionTimes;
-        }
-
-        return getRetrievalTimes(subscription, cycles, plan, subscriptionTimes);
+        return getRetrievalTimes(subscription, cycles,
+                Sets.newTreeSet(Arrays.asList(0)));
     }
 
     /**
@@ -121,15 +107,47 @@ public class BandwidthDaoUtil {
      * the current retrieval plan for the specified subscription.
      * 
      * @param subscription
-     * @param cycles
-     * @param plan
-     * @param subscriptionTimes
+     * @param retrievalInterval
+     *            the retrieval interval
+     * @return the retrieval times
+     */
+    public SortedSet<Calendar> getRetrievalTimes(Subscription subscription,
+            int retrievalInterval) {
+        // Add all hours of the days
+        final SortedSet<Integer> hours = Sets.newTreeSet();
+        for (int i = 0; i < TimeUtil.HOURS_PER_DAY; i++) {
+            hours.add(i);
+        }
+
+        // Add every minute of the hour that is a multiple of the retrieval
+        // interval
+        final SortedSet<Integer> minutes = Sets.newTreeSet();
+        for (int i = 0; i < TimeUtil.MINUTES_PER_HOUR; i += retrievalInterval) {
+            minutes.add(i);
+        }
+
+        return getRetrievalTimes(subscription, hours, minutes);
+    }
+
+    /**
+     * Calculate all the retrieval times for a subscription that should be in
+     * the current retrieval plan for the specified subscription.
+     * 
+     * @param subscription
+     * @param hours
+     * @param minutes
      * @return
      */
-    @VisibleForTesting
-    SortedSet<Calendar> getRetrievalTimes(Subscription subscription,
-            SortedSet<Integer> cycles, RetrievalPlan plan,
-            SortedSet<Calendar> subscriptionTimes) {
+    private SortedSet<Calendar> getRetrievalTimes(Subscription subscription,
+            SortedSet<Integer> hours, SortedSet<Integer> minutes) {
+
+        SortedSet<Calendar> subscriptionTimes = new TreeSet<Calendar>();
+
+        RetrievalPlan plan = retrievalManager.getPlan(subscription.getRoute());
+        if (plan == null) {
+            return subscriptionTimes;
+        }
+
         Calendar planEnd = plan.getPlanEnd();
         Calendar planStart = plan.getPlanStart();
 
@@ -200,24 +218,24 @@ public class BandwidthDaoUtil {
 
         outerloop: while (!subscriptionStartDate.after(subscriptionEndDate)) {
 
-            for (Integer cycle : cycles) {
-                // TODO: VERY grid specific. Should be transitioned to minutes?
-                // to support obs
-                // or rapidly (less than an hour) updated datasets..
+            for (Integer cycle : hours) {
                 subscriptionStartDate.set(Calendar.HOUR_OF_DAY, cycle);
-                if (subscriptionStartDate.after(subscriptionEndDate)) {
-                    break outerloop;
-                } else {
-                    Calendar time = TimeUtil.newCalendar();
-                    time.setTimeInMillis(subscriptionStartDate
-                            .getTimeInMillis());
-                    subscriptionTimes.add(time);
+                for (Integer minute : minutes) {
+                    subscriptionStartDate.set(Calendar.MINUTE, minute);
+                    if (subscriptionStartDate.after(subscriptionEndDate)) {
+                        break outerloop;
+                    } else {
+                        Calendar time = TimeUtil.newCalendar();
+                        time.setTimeInMillis(subscriptionStartDate
+                                .getTimeInMillis());
+                        subscriptionTimes.add(time);
+                    }
                 }
             }
 
             // Start the next day..
             subscriptionStartDate.add(Calendar.DAY_OF_YEAR, 1);
-            subscriptionStartDate.set(Calendar.HOUR_OF_DAY, cycles.first());
+            subscriptionStartDate.set(Calendar.HOUR_OF_DAY, hours.first());
         }
 
         // Now walk the subscription times and throw away anything outside the
@@ -313,7 +331,7 @@ public class BandwidthDaoUtil {
                 if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
                     statusHandler
                             .debug(String
-                                    .format("There wasn't applicable most recent dataset metadata to use for the adhoc subscription [%].",
+                                    .format("There wasn't applicable most recent dataset metadata to use for the adhoc subscription [%s].",
                                             adhoc.getName()));
                 }
             } else {

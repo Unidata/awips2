@@ -31,4 +31,11 @@
         factory-method="emptyMap">
         <!-- No retrievals for integration test -->
     </bean>
+
+    <bean id="dataSetAvailabilityCalculator"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.util.SimpleAvailablityCalculator">
+        <property name="delay"
+            value="${bandwidth.dataSetAvailabilityCalculator.delay}" />
+    </bean>
+
 </beans>

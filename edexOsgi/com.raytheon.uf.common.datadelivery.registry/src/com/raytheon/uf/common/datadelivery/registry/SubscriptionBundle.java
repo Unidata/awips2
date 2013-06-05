@@ -2,7 +2,6 @@ package com.raytheon.uf.common.datadelivery.registry;
 
 import java.util.List;
 
-import com.raytheon.uf.common.datadelivery.registry.Provider.ProviderType;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -107,21 +106,19 @@ public class SubscriptionBundle implements ISerializableObject {
      * 
      * @return the type
      */
-    public ProviderType getDataType() {
-        ProviderType pt = null;
+    public DataType getDataType() {
         if (subscription != null) {
             if (subscription.getCoverage() instanceof GriddedCoverage) {
-                pt = ProviderType.GRID;
+                return DataType.GRID;
             }
             // TODO: Add more data types, currently defaulting to POINT only if
             // not a GriddedCoverage, when there could be other data types than
             // just Grid/Point
             else {
-                pt = ProviderType.POINT;
+                return DataType.POINT;
             }
         }
-
-        return pt;
+        return null;
     }
 
 }
