@@ -51,6 +51,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.xml.PriorityRuleXML;
 import com.raytheon.uf.viz.datadelivery.subscription.xml.PriorityRulesXML;
 import com.raytheon.uf.viz.datadelivery.subscription.xml.RuleXML;
 import com.raytheon.uf.viz.datadelivery.subscription.xml.RulesXML;
+import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.uf.viz.datadelivery.utils.DataSetFrequency;
 import com.raytheon.uf.viz.datadelivery.utils.NameOperationItems;
 import com.raytheon.uf.viz.datadelivery.utils.TypeOperationItems;
@@ -67,7 +68,8 @@ import com.raytheon.uf.viz.datadelivery.utils.TypeOperationItems;
  * Sep 17, 2012    730      jpiatt     Initial creation.
  * Oct 23, 2012   1286      djohnson   Hook into bandwidth management.
  * Jan 04, 2013   1420      mpduff     Move rules into a single file.
- * Jan 25, 2013   1528     djohnson    Subscription priority is now an enum.
+ * Jan 25, 2013   1528      djohnson   Subscription priority is now an enum.
+ * Jun 04, 2013    223      mpduff     Implement point data types.
  * 
  * </pre>
  * 
@@ -469,6 +471,38 @@ public class SystemRuleManager {
     }
 
     /**
+     * Get latency value for point data.
+     * 
+     * @param sub
+     *            the subscription object
+     * @return the latency value
+     */
+    public int getPointDataLatency(Subscription sub) {
+        LatencyRulesXML rulesXml = this.getLatencyRules(false);
+
+        for (LatencyRuleXML rule : rulesXml.getRules()) {
+            if (OpsNetFieldNames.NAME.toString().equals(rule.getRuleField())) {
+                if (rule.matches(sub, null)) {
+                    return rule.getLatency();
+                }
+            } else if (OpsNetFieldNames.SIZE.toString().equals(
+                    rule.getRuleField())) {
+                if (rule.matches(sub, null)) {
+                    return rule.getLatency();
+                }
+            } else if (OpsNetFieldNames.TYPE.toString().equals(
+                    rule.getRuleField())) {
+                if (rule.matches(sub, null)) {
+                    return rule.getLatency();
+                }
+            }
+        }
+
+        // Set default if none found
+        return DataDeliveryUtils.POINT_DATASET_DEFAULT_LATENCY_IN_MINUTES;
+    }
+
+    /**
      * Return the lowest latency value defined by the rules.
      * 
      * @param sub
@@ -497,6 +531,36 @@ public class SystemRuleManager {
         }
 
         return latency;
+    }
+
+    /**
+     * Get the priority for the point data subscription.
+     * 
+     * @param sub
+     *            the subscription object
+     * @return the priority
+     */
+    public SubscriptionPriority getPointDataPriority(Subscription sub) {
+        PriorityRulesXML rulesXml = this.getPriorityRules(false);
+        for (PriorityRuleXML rule : rulesXml.getRules()) {
+            if (OpsNetFieldNames.NAME.toString().equals(rule.getRuleField())) {
+                if (rule.matches(sub, null)) {
+                    return rule.getPriority();
+                }
+            } else if (OpsNetFieldNames.SIZE.toString().equals(
+                    rule.getRuleField())) {
+                if (rule.matches(sub, null)) {
+                    return rule.getPriority();
+                }
+            } else if (OpsNetFieldNames.TYPE.toString().equals(
+                    rule.getRuleField())) {
+                if (rule.matches(sub, null)) {
+                    return rule.getPriority();
+                }
+            }
+        }
+
+        return SubscriptionPriority.NORMAL;
     }
 
     /**
