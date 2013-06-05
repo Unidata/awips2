@@ -45,6 +45,7 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.google.common.base.Preconditions;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
@@ -1005,5 +1006,22 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
      */
     protected String getNameText() {
         return nameText.getText();
+    }
+
+    /**
+     * Set the coverage into the subscription.
+     * 
+     * @param sub
+     *            The subscription needing the coverage
+     */
+    protected void setCoverage(Subscription sub, Coverage cov) {
+        if (spatialTabControls.useDataSetSize()) {
+            cov.setRequestEnvelope(cov.getEnvelope());
+            sub.setFullDataSet(true);
+        } else {
+            cov.setRequestEnvelope(spatialTabControls.getEnvelope());
+            sub.setFullDataSet(false);
+        }
+        sub.setCoverage(cov);
     }
 }
