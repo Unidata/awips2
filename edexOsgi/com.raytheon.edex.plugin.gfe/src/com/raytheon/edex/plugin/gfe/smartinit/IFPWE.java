@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 
@@ -81,6 +82,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * Apr 23, 2013  #1941      dgilling    Implement put(), add methods to build
  *                                      Scalar/VectorGridSlices, refactor
  *                                      Discrete/WeatherGridSlices builders.
+ * Jun 05, 2013  #2063      dgilling    Port history() from A1.
  * 
  * </pre>
  * 
@@ -306,6 +308,39 @@ public class IFPWE {
                         + unLockResponse.message());
             }
         }
+    }
+
+    /**
+     * Returns the grid history for a specified time range.
+     * 
+     * @param tr
+     *            The time for which the history is being requested.
+     * @return The grid history entries for the specified time range in coded
+     *         string format.
+     */
+    public List<String> history(final TimeRange tr) {
+        ServerResponse<Map<TimeRange, List<GridDataHistory>>> sr = GridParmManager
+                .getGridHistory(parmId, Arrays.asList(tr));
+
+        if (!sr.isOkay()) {
+            statusHandler.error("Error retrieving grid history for parm ["
+                    + parmId + "] at time range " + tr + ": " + sr.message());
+            return Collections.emptyList();
+        }
+
+        Map<TimeRange, List<GridDataHistory>> payload = sr.getPayload();
+        if ((payload == null) || (payload.isEmpty())) {
+            statusHandler.error("No grid history returned for parm [" + parmId
+                    + "] at time range " + tr);
+            return Collections.emptyList();
+        }
+
+        List<GridDataHistory> hist = payload.get(tr);
+        List<String> retVal = new ArrayList<String>(hist.size());
+        for (GridDataHistory entry : hist) {
+            retVal.add(entry.getCodedString());
+        }
+        return retVal;
     }
 
     private void setItem(TimeRange time, IGridSlice gridSlice,
