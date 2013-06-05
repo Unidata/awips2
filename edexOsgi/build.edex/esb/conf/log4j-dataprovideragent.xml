@@ -8,6 +8,17 @@
       </layout> 
    </appender>
 
+   <!-- hibernate log -->
+   <appender name="HibernateLog" class="org.apache.log4j.rolling.RollingFileAppender">
+      <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+         <param name="FileNamePattern" value="${edex.home}/logs/edex-${edex.run.mode}-hibernate-%d{yyyyMMdd}.log"/>
+      </rollingPolicy> 
+
+      <layout class="org.apache.log4j.PatternLayout"> 
+         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
+      </layout> 
+   </appender>
+
    <logger name="com.raytheon">
       <level value="INFO"/>
    </logger>
@@ -52,8 +63,9 @@
    <logger name="uk.ltd.getahead">
       <level value="WARN"/>
    </logger>
-   <logger name="org.hibernate">
+   <logger name="org.hibernate" additivity="false">
       <level value="ERROR"/>
+      <appender-ref ref="HibernateLog" />
    </logger>
    <logger name="org.geotools">
       <level value="WARN"/>
