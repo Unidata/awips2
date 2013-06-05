@@ -19,7 +19,10 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription.subset;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -30,6 +33,7 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.PointDataSet;
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
@@ -171,10 +175,17 @@ public class PointSubsetManagerDlg extends
         newTime.setEndDate(new Date());
         sub.setTime(newTime);
 
-        Coverage coverage = new Coverage();
-        coverage.setEnvelope(spatialTabControls.getEnvelope());
-        sub.setCoverage(coverage);
+        Coverage cov = new Coverage();
 
+        setCoverage(sub, cov);
+
+        List<Parameter> paramList = new ArrayList<Parameter>();
+        Map<String, Parameter> paramMap = dataSet.getParameters();
+        for (String key : paramMap.keySet()) {
+            paramList.add(paramMap.get(key));
+        }
+
+        sub.setParameter(paramList);
         return sub;
     }
 
