@@ -19,10 +19,12 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry;
 
-import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import java.util.Random;
+
+import com.raytheon.uf.common.util.AbstractFixture;
 
 /**
- * Constants file for data delivery registry object types.
+ * Fixture for {@link PointTime} objects.
  * 
  * <pre>
  * 
@@ -30,9 +32,7 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 5, 2012  0726       djohnson     Initial creation
- * Dec 11, 2012 1403       djohnson     Adhoc subscriptions no longer go to the registry.
- * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
+ * Jun 05, 2013 2038      djohnson     Initial creation
  * 
  * </pre>
  * 
@@ -40,25 +40,24 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
  * @version 1.0
  */
 
-public final class DataDeliveryRegistryObjectTypes {
+public class PointTimeFixture extends AbstractFixture<PointTime> {
+
+    public static final PointTimeFixture INSTANCE = new PointTimeFixture();
+
     /**
-     * Private constructor.
+     * Disabled.
      */
-    private DataDeliveryRegistryObjectTypes() {
+    private PointTimeFixture() {
     }
 
-    public static final String DATASETMETADATA = RegistryUtil
-            .getObjectType(DataSetMetaData.class);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PointTime getInstance(long seedValue, Random random) {
+        PointTime time = new PointTime();
+        time.setInterval((int) seedValue + 1);
 
-    public static final String SITE_SUBSCRIPTION = RegistryUtil
-            .getObjectType(SiteSubscription.class);
-
-    public static final String SHARED_SUBSCRIPTION = RegistryUtil
-            .getObjectType(SharedSubscription.class);
-
-    public static final String DATASET = RegistryUtil
-            .getObjectType(DataSet.class);
-
-    public static final String PROVIDER = RegistryUtil
-            .getObjectType(Provider.class);
+        return time;
+    }
 }
