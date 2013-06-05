@@ -575,36 +575,38 @@ public class SubscriptionService implements ISubscriptionService {
             throws RegistryHandlerException {
 
         for (Subscription subscription : subscriptions) {
-            final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
-                    .getSubscriptionHandler();
-            final List<Subscription> potentialDuplicates = subscriptionHandler
-                    .getActiveByDataSetAndProvider(
-                            subscription.getDataSetName(),
-                            subscription.getProvider());
-            List<String> overlappingSubscriptions = Lists.newArrayList();
-            for (Subscription potentialDuplicate : potentialDuplicates) {
-                final ISubscriptionOverlapResponse overlapResponse = subscriptionOverlapService
-                        .isOverlapping(potentialDuplicate, subscription);
-                final String potentialDuplicateName = potentialDuplicate
-                        .getName();
-                if (overlapResponse.isDuplicate()) {
-                    return new SubscriptionServiceResult(true,
-                            "This subscription would be an exact duplicate of "
-                                    + potentialDuplicateName);
+            if (!(subscription instanceof AdhocSubscription)) {
+                final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
+                        .getSubscriptionHandler();
+                final List<Subscription> potentialDuplicates = subscriptionHandler
+                        .getActiveByDataSetAndProvider(
+                                subscription.getDataSetName(),
+                                subscription.getProvider());
+                List<String> overlappingSubscriptions = Lists.newArrayList();
+                for (Subscription potentialDuplicate : potentialDuplicates) {
+                    final ISubscriptionOverlapResponse overlapResponse = subscriptionOverlapService
+                            .isOverlapping(potentialDuplicate, subscription);
+                    final String potentialDuplicateName = potentialDuplicate
+                            .getName();
+                    if (overlapResponse.isDuplicate()) {
+                        return new SubscriptionServiceResult(true,
+                                "This subscription would be an exact duplicate of "
+                                        + potentialDuplicateName);
+                    }
+                    if (overlapResponse.isOverlapping()) {
+                        overlappingSubscriptions.add(potentialDuplicateName);
+                    }
                 }
-                if (overlapResponse.isOverlapping()) {
-                    overlappingSubscriptions.add(potentialDuplicateName);
+                if (!overlappingSubscriptions.isEmpty()) {
+                    Collections.sort(overlappingSubscriptions);
+                    forceApplyPrompt
+                            .displayMessage(
+                                    displayTextStrategy,
+                                    StringUtil
+                                            .createMessage(
+                                                    ISubscriptionOverlapService.OVERLAPPING_SUBSCRIPTIONS,
+                                                    overlappingSubscriptions));
                 }
-            }
-            if (!overlappingSubscriptions.isEmpty()) {
-                Collections.sort(overlappingSubscriptions);
-                forceApplyPrompt
-                        .displayMessage(
-                                displayTextStrategy,
-                                StringUtil
-                                        .createMessage(
-                                                ISubscriptionOverlapService.OVERLAPPING_SUBSCRIPTIONS,
-                                                overlappingSubscriptions));
             }
         }
 
