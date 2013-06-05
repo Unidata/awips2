@@ -620,22 +620,13 @@ public class GriddedSubsetManagerDlg
 
         sub.setTime(newTime);
 
-        // TODO Phase 1 is only gridded coverage
         GriddedCoverage cov = (GriddedCoverage) dataSet.getCoverage();
         cov.setModelName(dataSet.getDataSetName());
         cov.setGridName(getNameText());
         GridCoverage coverage = cov.getGridCoverage();
         coverage.setName(getNameText());
 
-        if (spatialTabControls.useDataSetSize()) {
-            cov.setRequestEnvelope(cov.getEnvelope());
-            sub.setFullDataSet(true);
-        } else {
-            cov.setRequestEnvelope(spatialTabControls.getEnvelope());
-            sub.setFullDataSet(false);
-        }
-
-        sub.setCoverage(cov);
+        setCoverage(sub, cov);
 
         return sub;
     }
