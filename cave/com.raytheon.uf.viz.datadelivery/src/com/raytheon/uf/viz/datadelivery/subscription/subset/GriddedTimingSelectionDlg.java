@@ -60,6 +60,7 @@ import com.raytheon.viz.ui.presenter.components.ListConf;
  * Jan 04, 2013  1420      mpduff      Add Priority Composite.
  * Jan 25, 2013  1528      djohnson    Subscription priority is now an enum.
  * Feb 26, 2013  1592      djohnson    When the shell is closed, don't submit the query.
+ * Jun 04, 2013   223      mpduff      PriorityComp constructor changed.
  * 
  * </pre>
  * 
@@ -142,9 +143,9 @@ public class GriddedTimingSelectionDlg extends CaveSWTDialog implements
         // Get latency value
         SystemRuleManager ruleManager = SystemRuleManager.getInstance();
         int latency = ruleManager.getLatency(this.subscription, cycleTimes);
-        SubscriptionPriority priority = ruleManager
-                .getPriority(this.subscription, cycleTimes);
-        priorityComp = new PriorityComp(shell, latency, priority);
+        SubscriptionPriority priority = ruleManager.getPriority(
+                this.subscription, cycleTimes);
+        priorityComp = new PriorityComp(shell, latency, priority, false);
 
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gl = new GridLayout(2, false);
