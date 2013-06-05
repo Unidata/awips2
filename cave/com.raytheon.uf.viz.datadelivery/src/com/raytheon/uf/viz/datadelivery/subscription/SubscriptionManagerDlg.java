@@ -123,6 +123,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * May 09, 2013 2000       djohnson   Copy subscription now requires editing first to prevent duplicates, and remove duplicate code.
  * May 17, 2013 1040       mpduff     Change office id to list for shared subscription.
  * May 28, 2013 1650       djohnson   Allow specifying filters for what subscriptions to show.
+ * Jun 05, 2013 2064       mpduff     Fix for filtering combo boxes.
  * Jun 06, 2013 2030       mpduff     Refactored help.
  * </pre>
  * 
@@ -211,6 +212,15 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
             .getSubscriptionNotificationService();
 
     private final ISubscriptionManagerFilter filter;
+
+    /** The selected office */
+    private String selectedOffice;
+
+    /** The selected group */
+    private String selectedGroup;
+
+    /** The office display list */
+    private final SortedSet<String> officeDisplayItems = new TreeSet<String>();
 
     /**
      * Constructor
@@ -779,6 +789,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
 
         final String group = groupCbo.getText();
         final String office = officeCbo.getText();
+        this.selectedOffice = office;
+        this.selectedGroup = group;
 
         tableComp.setSubscriptionFilter(new ISubscriptionManagerFilter() {
             @Override
@@ -953,17 +965,18 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         groupNameList.add(0, "All Subscriptions");
         groupNames = groupNameList.toArray(new String[0]);
         groupCbo.setItems(groupNames);
-        groupCbo.select(0);
+
+        if (this.selectedGroup != null) {
+            groupCbo.select(groupNameList.indexOf(selectedGroup));
+        } else {
+            groupCbo.select(0);
+        }
     }
 
     /**
      * Return the list of office names available. Default is "ALL" office ids
      */
     public void loadOfficeNames() {
-
-        // Create sorted set
-        SortedSet<String> officeDisplayItems = new TreeSet<String>();
-
         int numRows = tableComp.getTable().getItemCount();
 
         if (numRows > 0) {
@@ -983,16 +996,21 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         officeAll[0] = "ALL";
 
         System.arraycopy(officeNames, 0, officeAll, 1, officeNames.length);
-        int idx = 0;
-        for (String site : officeAll) {
-            if (site.equalsIgnoreCase(CURRENT_SITE)) {
-                break;
-            }
-            idx++;
-        }
         officeCbo.setItems(officeAll);
-        officeCbo.select(idx);
 
+        String site = CURRENT_SITE;
+        if (this.selectedOffice != null) {
+            for (Iterator<String> iter = officeDisplayItems.iterator(); iter
+                    .hasNext();) {
+                String next = iter.next();
+                if (next.equals(selectedOffice)) {
+                    site = next;
+                    break;
+                }
+            }
+        }
+
+        officeCbo.select(officeCbo.indexOf(site));
     }
 
     /*
