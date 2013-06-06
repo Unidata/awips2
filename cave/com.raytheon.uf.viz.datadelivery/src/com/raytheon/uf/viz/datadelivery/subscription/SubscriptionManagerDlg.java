@@ -68,6 +68,7 @@ import com.raytheon.uf.viz.datadelivery.actions.DataBrowserAction;
 import com.raytheon.uf.viz.datadelivery.common.ui.IGroupAction;
 import com.raytheon.uf.viz.datadelivery.common.ui.ITableChange;
 import com.raytheon.uf.viz.datadelivery.common.ui.TableCompConfig;
+import com.raytheon.uf.viz.datadelivery.help.HelpManager;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceApplyPromptDisplayText;
@@ -122,6 +123,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * May 09, 2013 2000       djohnson   Copy subscription now requires editing first to prevent duplicates, and remove duplicate code.
  * May 17, 2013 1040       mpduff     Change office id to list for shared subscription.
  * May 28, 2013 1650       djohnson   Allow specifying filters for what subscriptions to show.
+ * Jun 06, 2013 2030       mpduff     Refactored help.
  * </pre>
  * 
  * @author mpduff
@@ -134,6 +136,9 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
     /** Status Handler */
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubscriptionManagerDlg.class);
+
+    /** Help file */
+    private final String SUBSCRIPTION_MANAGER_HELP_FILE = "help/subscriptionManagerHelp.xml";
 
     /** Enumeration to use with Data set */
     public static enum FullDataset {
@@ -166,9 +171,6 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
 
     /** Subscription Manager Configuration Dialog */
     private SubscriptionManagerConfigDlg configDlg = null;
-
-    /** Help Dialog */
-    private final SubscriptionHelpDlg help = null;
 
     /** Subscription table composite. */
     private SubscriptionTableComp tableComp;
@@ -779,12 +781,12 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         final String office = officeCbo.getText();
 
         tableComp.setSubscriptionFilter(new ISubscriptionManagerFilter() {
-            
             @Override
             public List<Subscription> getSubscriptions(
                     ISubscriptionHandler subscriptionHandler)
                     throws RegistryHandlerException {
-                final List<Subscription> results = filter.getSubscriptions(subscriptionHandler);
+                final List<Subscription> results = filter
+                        .getSubscriptions(subscriptionHandler);
 
                 // Remove any that don't match the configured filters. TODO:
                 // This should be cleaned up at some point in the future
@@ -794,8 +796,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                     if ((office == null || "ALL".equals(office) || subscription
                             .getOfficeIDs().contains(office))
                             && (group == null
-                                    || "All Subscriptions".equals(group)
-                            || group.equals(subscription.getGroupName()))) {
+                                    || "All Subscriptions".equals(group) || group
+                                        .equals(subscription.getGroupName()))) {
                         continue;
                     }
                     iter.remove();
@@ -905,12 +907,13 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
      * Handle the help display dialog.
      */
     private void handleHelp() {
-
-        if (help == null || help.isDisposed()) {
-            SubscriptionHelpDlg help = new SubscriptionHelpDlg(shell);
-            help.open();
-        } else {
-            help.bringToTop();
+        try {
+            HelpManager.getInstance().displayHelpDialog(getShell(),
+                    SUBSCRIPTION_MANAGER_HELP_FILE);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Error loading Help Text file: "
+                            + SUBSCRIPTION_MANAGER_HELP_FILE, e);
         }
     }
 
