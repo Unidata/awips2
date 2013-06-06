@@ -22,20 +22,13 @@ package com.raytheon.uf.viz.derivparam.python;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import jep.JepException;
+import java.util.concurrent.ExecutionException;
 
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.python.PyUtil;
+import com.raytheon.uf.common.python.concurrent.PythonJobCoordinator;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -53,7 +46,9 @@ import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 16, 2010            mschenke     Initial creation
+ * Dec 16, 2010            mschenke    Initial creation
+ * Jun 04, 2013 2041       bsteffen    Switch derived parameters to use
+ *                                     concurrent python for threading.
  * 
  * </pre>
  * 
@@ -68,18 +63,10 @@ public class DerivParamPythonFunctionAdapter implements
 
     private static final String PYTHON = "python";
 
-    private static final String INTERFACE_SCRIPT = DerivedParameterGenerator.DERIV_PARAM_DIR
-            + File.separator
-            + PYTHON
-            + File.separator
-            + "DerivParamImporter.py";
-
     private static final String TEMPLATE_FILE = DerivedParameterGenerator.DERIV_PARAM_DIR
             + File.separator + PYTHON + File.separator + "functionTemplate.txt";
 
-    private MasterDerivScript masterScript;
-
-    private List<IDataRecord> results;
+    private PythonJobCoordinator<MasterDerivScript> coordinator;
 
     /*
      * (non-Javadoc)
@@ -134,58 +121,11 @@ public class DerivParamPythonFunctionAdapter implements
      */
     @Override
     public void init() {
-        IPathManager pm = PathManagerFactory.getPathManager();
-
-        File script = pm.getStaticFile(INTERFACE_SCRIPT);
-
-        // Get list of all files for search hierarch of CAVE_STATIC
-        LocalizationFile[] derivParamFiles = pm.listFiles(
-                pm.getLocalSearchHierarchy(LocalizationType.CAVE_STATIC),
-                DerivedParameterGenerator.DERIV_PARAM_DIR, null, false, false);
-        List<String> functionDirs = new ArrayList<String>(
-                derivParamFiles.length);
-        functionDirs.add(script.getParent());
-
-        Arrays.sort(derivParamFiles);
-
-        for (LocalizationFile file : derivParamFiles) {
-            if (file.isDirectory()
-                    && DerivedParameterGenerator.FUNCTIONS
-                            .equals(LocalizationUtil.extractName(file.getName()))) {
-                // If it is a derived parameters functions directory, add to search list
-                functionDirs.add(file.getFile().getAbsolutePath());
-            }
+        if (coordinator != null) {
+            coordinator.shutdown();
         }
-
-        // Create path from function dir list
-        String PATH = PyUtil.buildJepIncludePath(functionDirs
-                .toArray(new String[functionDirs.size()]));
-
-        List<String> preEvals = new ArrayList<String>(2);
-        preEvals.add("import DerivParamImporter");
-        StringBuilder cmd = new StringBuilder(200);
-        cmd.append("sys.meta_path.append(DerivParamImporter.DerivParamImporter(");
-        // Pass in directories to search based on function directories
-        int size = functionDirs.size() - 1;
-        for (int i = size; i > 0; --i) {
-            if (i < size) {
-                cmd.append(", ");
-            }
-            cmd.append("'").append(functionDirs.get(i)).append("'");
-        }
-        cmd.append("))");
-        preEvals.add(cmd.toString());
-
-        try {
-            if (masterScript != null) {
-                masterScript.dispose();
-            }
-            masterScript = new MasterDerivScript(PATH,
-                    MasterDerivScript.class.getClassLoader(), preEvals);
-        } catch (JepException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Failed to load derived parameters", e);
-        }
+        coordinator = PythonJobCoordinator
+                .newInstance(new MasterDerivScriptFactory());
     }
 
     /*
@@ -195,41 +135,27 @@ public class DerivParamPythonFunctionAdapter implements
      * com.raytheon.uf.viz.derivparam.IDerivParamFunctionAdapter#executeFunction
      * (java.lang.String, java.util.List)
      */
-    @SuppressWarnings("unchecked")
     @Override
-    public void executeFunction(String name, List<Object> arguments) {
+    public List<IDataRecord> executeFunction(String name, List<Object> arguments)
+            throws ExecutionException {
         try {
-            results = (List<IDataRecord>) masterScript.executeFunction(name,
-                    arguments);
-        } catch (JepException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error executing derived parameter request", e);
-            results = null;
+            return coordinator.submitSyncJob(new MasterDerivScriptExecutor(
+                    name, arguments));
+        } catch (InterruptedException e) {
+            throw new ExecutionException(e);
         }
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.uf.viz.derivparam.IDerivParamFunctionAdapter#getRequestResults
-     * ()
+     * @see com.raytheon.uf.viz.derivparam.IDerivParamFunctionAdapter#shutdown()
      */
     @Override
-    public List<IDataRecord> getRequestResults() {
-        return results;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.derivparam.IDerivParamFunctionAdapter#
-     * getRequestIdentifierResults()
-     */
-    @Override
-    public Object getRequestIdentifierResults() {
-        // TODO: Not supported yet
-        return null;
+    public void shutdown() {
+        if (coordinator != null) {
+            coordinator.shutdown();
+        }
     }
 
 }
