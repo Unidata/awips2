@@ -51,6 +51,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * Jun 23, 2011            mschenke    Initial creation
  * Apr 12, 2013 1903       rjpeter     Fix allocateLock freezing out other lock requests.
+ * May 30, 2013 2056       rjpeter     Allow ACQUIRING state to be released.
  * </pre>
  * 
  * @author mschenke
@@ -72,6 +73,8 @@ public class FileLocker {
         final Thread lockingThread;
 
         final List<Object> lockers = new ArrayList<Object>();
+
+        long lockTime = System.currentTimeMillis();
 
         File lockFile;
 
@@ -210,6 +213,7 @@ public class FileLocker {
                     // TODO: This is not safe as another thread could have a
                     // read lock and we may clobber the read
                     lock.lockers.add(locker);
+                    lock.lockTime = System.currentTimeMillis();
                     return true;
                 }
             }
@@ -265,30 +269,24 @@ public class FileLocker {
                         return allocateLock(file, lock);
                     } else if (lock != null) {
                         synchronized (lock) {
-                            switch (lock.lockState) {
-                            case IN_USE:
-                                if ((type == Type.READ)
-                                        && (type == lock.lockType)) {
-                                    // A different waiter grabbed it for
-                                    // reading, we can read it also
-                                    lock.lockers.add(locker);
-                                    return true;
-                                } else {
-                                    long curTime = System.currentTimeMillis();
-                                    long lastMod = lock.lockFile.lastModified();
-                                    if ((curTime - lastMod) > MAX_WAIT) {
-                                        System.err
-                                                .println("Releasing lock: "
-                                                        + "Lock has been allocated for  "
-                                                        + ((curTime - lastMod) / 1000)
-                                                        + "s on file "
-                                                        + file.getPath());
-                                        locks.remove(file);
-                                    }
+                            if ((type == Type.READ) && (type == lock.lockType)
+                                    && LockState.IN_USE.equals(lock.lockState)) {
+                                // A different waiter grabbed it for
+                                // reading, we can read it also
+                                lock.lockers.add(locker);
+                                lock.lockTime = System.currentTimeMillis();
+                                return true;
+                            } else {
+                                long curTime = System.currentTimeMillis();
+                                if ((curTime - lock.lockTime) > MAX_WAIT) {
+                                    System.err
+                                            .println("Releasing lock: "
+                                                    + "Lock has been allocated for  "
+                                                    + ((curTime - lock.lockTime) / 1000)
+                                                    + "s on file "
+                                                    + file.getPath());
+                                    locks.remove(file);
                                 }
-                                break;
-                            // ACUIRING - NOOP wait for lock to be acquired
-                            // RELEASED - loop again and check if next waiter
                             }
                         }
                     }
@@ -309,6 +307,7 @@ public class FileLocker {
         try {
             boolean fileUnlocked = false;
             LockedFile lock = null;
+
             // Get the Lock
             synchronized (locks) {
                 lock = locks.get(file);
@@ -319,7 +318,8 @@ public class FileLocker {
             }
 
             synchronized (lock) {
-                if (lock.lockState == LockState.IN_USE) {
+                if ((lock.lockState == LockState.IN_USE)
+                        || lock.lockingThread.equals(Thread.currentThread())) {
                     lock.lockers.remove(locker);
 
                     if (lock.lockers.isEmpty()) {
@@ -370,14 +370,23 @@ public class FileLocker {
         // Get the lock directory, make sure it is not already taken
         File parentDir = file.getParentFile();
 
-        // If we can't write to the parent directory of the file we are locking,
-        // can't do any locking
+        if (!parentDir.exists()) {
+            parentDir.mkdirs();
+        }
+
+        // If we can't write to the parent directory of the file we are
+        // locking, can't do any locking
         if (parentDir.canWrite() == false) {
+            UFStatus.getHandler()
+                    .handle(Priority.PROBLEM,
+                            "Cannot write to directory: "
+                                    + parentDir.getAbsolutePath());
             return false;
         }
 
         boolean gotLock = false;
         File lockFile = new File(parentDir, "." + file.getName() + "_LOCK");
+
         try {
             // start with a moderate wait
             long waitInterval = 100;
@@ -409,8 +418,10 @@ public class FileLocker {
                     "Error obtaining file lock: " + file, e);
         } finally {
             synchronized (lock) {
+                long millis = System.currentTimeMillis();
                 lock.lockFile = lockFile;
-                lock.lockFile.setLastModified(System.currentTimeMillis());
+                lock.lockTime = millis;
+                lock.lockFile.setLastModified(millis);
                 lock.lockState = LockState.IN_USE;
             }
         }
