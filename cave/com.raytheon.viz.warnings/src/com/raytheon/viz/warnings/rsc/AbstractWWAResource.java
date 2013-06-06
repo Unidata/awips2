@@ -461,7 +461,6 @@ public abstract class AbstractWWAResource extends
     }
 
     protected void cleanupData(DataTime paintTime, DataTime[] descFrameTimes) {
-        System.out.println("entryMap size " + entryMap.size());
         List<TimeRange> framePeriods = new ArrayList<TimeRange>(
                 descFrameTimes.length);
         for (int i = 0; i < descFrameTimes.length; i++) {
