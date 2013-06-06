@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.dataaccess.impl;
 
 import java.util.Map;
+import java.util.Set;
 
 import javax.measure.unit.Unit;
 
@@ -41,7 +42,8 @@ import com.raytheon.uf.common.time.DataTime;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 5, 2012            njensen     Initial creation
+ * Nov 05, 2012            njensen     Initial creation
+ * Jun 03, 2013  #2023     dgilling    Implement getAttributes().
  * 
  * </pre>
  * 
@@ -79,6 +81,11 @@ public class DefaultGridData implements IGridData {
             result = attributes.get(key);
         }
         return result;
+    }
+
+    @Override
+    public Set<String> getAttributes() {
+        return attributes.keySet();
     }
 
     @Override
