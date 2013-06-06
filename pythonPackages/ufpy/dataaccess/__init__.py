@@ -30,8 +30,9 @@
 #    12/10/12                      njensen       Initial Creation.
 #    Feb 14, 2013    1614          bsteffen       refactor data access framework
 #                                                 to use single request.
-#    Apr 09, 2013    1871    njensen      Add doc strings
-#    
+#    Apr 09, 2013    1871          njensen      Add doc strings
+#    Jun 03, 2013    2023          dgilling     Add getAttributes to IData, add
+#                                               getLatLonGrids() to IGridData.
 # 
 #
 
@@ -183,6 +184,16 @@ class IData(object):
         return
     
     @abc.abstractmethod
+    def getAttributes(self):
+        """
+        Gets the valid attributes for the data.
+                
+        Returns:
+                a list of strings of the attribute names 
+        """
+        return
+    
+    @abc.abstractmethod
     def getDataTime(self):
         """
         Gets the data time of the data.
@@ -247,6 +258,17 @@ class IGridData(IData):
         
         Returns:
                 a numpy array of the data
+        """
+        return
+    
+    @abc.abstractmethod
+    def getLatLonCoords(self):
+        """
+        Gets the lat/lon coordinates of the grid data.
+        
+        Returns:
+            a tuple where the first element is a numpy array of lons, and the 
+            second element is a numpy array of lats
         """
         return
 
