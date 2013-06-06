@@ -27,24 +27,31 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    12/10/12                      njensen       Initial Creation.
+#    12/10/12                      njensen        Initial Creation.
 #    Feb 14, 2013    1614          bsteffen       refactor data access framework
 #                                                 to use single request.
-#    4/10/13         1871          mnash         move getLatLonCoords to JGridData and add default args
+#    04/10/13         1871         mnash          move getLatLonCoords to JGridData and add default args
+#    05/29/13         2023         dgilling       Hook up ThriftClientRouter.
 #    
 # 
 #
 
 
 import sys
+import subprocess
 
-if sys.modules.has_key('jep'):
+THRIFT_HOST = subprocess.check_output(
+                    "source /awips2/fxa/bin/setup.env; echo $DEFAULT_HOST", 
+                    shell=True).strip()
+USING_NATIVE_THRIFT = False
+
+try:
     import JepRouter
-    router = JepRouter    
-else:
-    # router = ThriftClientRouter()
-    import exceptions
-    raise exceptions.NotImplementedError("Must use inside a JVM until ThriftClient support is added")
+    router = JepRouter
+except ImportError:
+    from ufpy.dataaccess import ThriftClientRouter
+    router = ThriftClientRouter.ThriftClientRouter(THRIFT_HOST)
+    USING_NATIVE_THRIFT = True
     
 
 def getAvailableTimes(request):
@@ -113,5 +120,16 @@ def newDataRequest():
     """
     return router.newDataRequest()
 
-
-
+def changeEDEXHost(newHostName):
+    """"
+    Changes the EDEX host the Data Access Framework is communicating with. Only
+    works if using the native Python client implemenation, otherwise, this
+    method will throw a TypeError.
+    """
+    if USING_NATIVE_THRIFT:
+        global THRIFT_HOST
+        THRIFT_HOST = newHostName
+        global router
+        router = ThriftClientRouter.ThriftClientRouter(THRIFT_HOST)
+    else:
+        raise TypeError("Cannot call changeEDEXHost when using JepRouter.")
