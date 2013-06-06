@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.d2d.ui.dialogs.procedures;
 
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -32,6 +34,7 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -39,6 +42,7 @@ import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -52,6 +56,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -175,7 +180,10 @@ public class ProcedureListDlg extends CaveSWTDialog {
      * @param mainComp
      */
     protected void createTextComp(Composite mainComp) {
-        Composite textComp = new Composite(mainComp, SWT.NONE);
+        final Cursor cursor = getShell().getCursor();
+        getShell().setCursor(
+                Display.getCurrent().getSystemCursor(SWT.CURSOR_WAIT));
+        final Composite textComp = new Composite(mainComp, SWT.NONE);
         textComp.setLayout(new GridLayout(1, true));
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 150;
@@ -227,24 +235,41 @@ public class ProcedureListDlg extends CaveSWTDialog {
             }
         });
 
-        fileTree = populateDataList(treeViewer);
+        Job job = new Job("Populating procedures...") {
+            protected org.eclipse.core.runtime.IStatus run(
+                    org.eclipse.core.runtime.IProgressMonitor monitor) {
+                fileTree = populateDataList(treeViewer);
+                VizApp.runAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        treeViewer
+                                .setContentProvider(new ProcedureTreeContentProvider(
+                                        fileTree));
+                        treeViewer
+                                .setLabelProvider(new ProcedureTreeLabelProvider());
+                        treeViewer.setSorter(new ProcedureTreeSorter());
 
-        treeViewer
-                .setContentProvider(new ProcedureTreeContentProvider(fileTree));
-        treeViewer.setLabelProvider(new ProcedureTreeLabelProvider());
-        treeViewer.setSorter(new ProcedureTreeSorter());
+                        // uncomment following function call to enable the right
+                        // click
+                        // context
+                        // menu
+                        // createContextMenu();
 
-        // uncomment following function call to enable the right click context
-        // menu
-        // createContextMenu();
+                        // it didn't seem to start with null, the string doesn't
+                        // actually mean
+                        // anything in this case
+                        treeViewer.setInput("kickstart");
 
-        // it didn't seem to start with null, the string doesn't actually mean
-        // anything in this case
-        treeViewer.setInput("kickstart");
+                        openUserInTreeViewer();
 
-        openUserInTreeViewer();
-
-        createExpandComp(textComp);
+                        createExpandComp(textComp);
+                        getShell().setCursor(cursor);
+                    }
+                });
+                return Status.OK_STATUS;
+            }
+        };
+        job.schedule();
     }
 
     private void createContextMenu() {
