@@ -92,6 +92,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Apr 21, 2009            chammack    Refactor to common pointData model
  * Feb 01, 2013 1567       njensen     Refactor handling of updates
  * May 14, 2013 1869       bsteffen    Get plots working without dataURI
+ * Jun 06, 2013 2072       bsteffen    Fix concurrency problems when init is
+ *                                     called before time matching is done.
  * 
  * </pre>
  * 
@@ -272,13 +274,18 @@ public class PlotResource2 extends
         progressiveDisclosure.setPlotWidth(plotWidth);
 
         DataTime[] dts = this.descriptor.getFramesInfo().getTimeMap().get(this);
-        // init backwards
-        for (int i = dts.length - 1; i > -1; i--) {
-            DataTime time = dts[i];
-            if (time != null) {
-                FrameInformation curFrame = frameMap.get(time);
-                if (curFrame == null) {
-                    curFrame = startFrameInit(time);
+        // if this is null then the time matcher has not yet had time to time
+        // match this, in which case frames will have to load when they are
+        // first painted.
+        if (dts != null) {
+            // init backwards
+            for (int i = dts.length - 1; i > -1; i--) {
+                DataTime time = dts[i];
+                if (time != null) {
+                    FrameInformation curFrame = frameMap.get(time);
+                    if (curFrame == null) {
+                        curFrame = startFrameInit(time);
+                    }
                 }
             }
         }
