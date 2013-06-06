@@ -54,6 +54,7 @@ import com.raytheon.uf.viz.core.notification.NotificationException;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.datadelivery.common.ui.TableCompConfig;
 import com.raytheon.uf.viz.datadelivery.common.ui.TableDataManager;
+import com.raytheon.uf.viz.datadelivery.help.HelpManager;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.CancelForceApplyAndIncreaseLatencyDisplayText;
 import com.raytheon.uf.viz.datadelivery.subscription.IPermissionsService;
@@ -90,6 +91,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Dec 12, 2012 1433       bgonzale    Use new subscription copy ctor method for approval of pending subscription.
  * Mar 29, 2013 1841       djohnson    Subscription is now UserSubscription.
  * Apr 05, 2013 1841       djohnson    Add support for shared subscriptions.
+ * Jun 06, 2013 2030       mpduff      Refactored help.
  * 
  * </pre>
  * 
@@ -128,6 +130,9 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
         }
     }
 
+    /** Help file */
+    protected final String HELP_FILE = "help/subscriptionApprovalHelp.xml";
+
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubscriptionApprovalDlg.class);
 
@@ -144,21 +149,21 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
 
     private String denyMessage;
 
-
     /**
      * Constructor.
-     *
+     * 
      * @param parent
      *            The parent Shell
      */
     public SubscriptionApprovalDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE, CAVE.INDEPENDENT_SHELL);
+        super(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE,
+                CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
         setText("Subscription Approval");
     }
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayoutData()
      */
@@ -169,7 +174,7 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
      */
     @Override
@@ -184,7 +189,7 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
      * .eclipse.swt.widgets.Shell)
@@ -273,7 +278,13 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
         aboutMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-
+                try {
+                    HelpManager.getInstance().displayHelpDialog(getShell(),
+                            HELP_FILE);
+                } catch (Exception e) {
+                    statusHandler.handle(Priority.ERROR,
+                            "Error loading Help Text file: " + HELP_FILE, e);
+                }
             }
         });
 
@@ -281,8 +292,10 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
     }
 
     private void createTable() {
-        TableCompConfig tableConfig = new TableCompConfig(TABLE_TYPE.PENDING_SUBSCRIPTION);
-        tableConfig.setTableStyle(SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI | SWT.FULL_SELECTION);
+        TableCompConfig tableConfig = new TableCompConfig(
+                TABLE_TYPE.PENDING_SUBSCRIPTION);
+        tableConfig.setTableStyle(SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL
+                | SWT.MULTI | SWT.FULL_SELECTION);
         tableConfig.setTableHeight(200);
         tableComp = new SubApprovalTableComp(shell, tableConfig, this);
     }
@@ -323,8 +336,8 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
     @Override
     public void handleApprove() {
         if (tableComp.getTable().getSelectionCount() == 0) {
-            DataDeliveryUtils
-                    .showMessage(shell, SWT.ERROR, "No Rows Selected", "Please select a row or rows to Approve");
+            DataDeliveryUtils.showMessage(shell, SWT.ERROR, "No Rows Selected",
+                    "Please select a row or rows to Approve");
             return;
         }
         getShell().setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
@@ -334,7 +347,8 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
         IAuthorizedPermissionResponse response = allowed(user);
 
         if (response.isAuthorized()) {
-            // Check if user or site permissions, compare to owner of sub if user permission
+            // Check if user or site permissions, compare to owner of sub if
+            // user permission
             boolean site = false;
 
             if (response
@@ -342,11 +356,13 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
                 site = true;
             }
 
-            TableDataManager<SubscriptionApprovalRowData> pendingSubData = tableComp.getPendingSubData();
+            TableDataManager<SubscriptionApprovalRowData> pendingSubData = tableComp
+                    .getPendingSubData();
             ArrayList<SubscriptionApprovalRowData> approveList = new ArrayList<SubscriptionApprovalRowData>();
             ArrayList<String> notApprovedSubList = new ArrayList<String>();
             for (int idx : tableComp.getTable().getSelectionIndices()) {
-                SubscriptionApprovalRowData approvedItem = pendingSubData.getDataRow(idx);
+                SubscriptionApprovalRowData approvedItem = pendingSubData
+                        .getDataRow(idx);
                 if (site) {
                     approveList.add(approvedItem);
                 } else {
@@ -363,9 +379,11 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
             }
 
             if (notApprovedSubList.size() > 0) {
-                StringBuilder buffer = new StringBuilder(user.uniqueId().toString() + " is not authorized to approve pending subscriptions belonging to other users. " +
-                		"\nNot authorized to approve the following subscriptions:\n\n");
-                for (String name: notApprovedSubList) {
+                StringBuilder buffer = new StringBuilder(
+                        user.uniqueId().toString()
+                                + " is not authorized to approve pending subscriptions belonging to other users. "
+                                + "\nNot authorized to approve the following subscriptions:\n\n");
+                for (String name : notApprovedSubList) {
                     buffer.append(name).append("\n");
                 }
 
@@ -408,7 +426,8 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
     public void handleDeny() {
         if (tableComp.getTable().getSelectionCount() == 0) {
             DataDeliveryUtils
-                    .showMessage(getShell(), SWT.ERROR, "No Rows Selected", "Please select a row or rows to delete");
+                    .showMessage(getShell(), SWT.ERROR, "No Rows Selected",
+                            "Please select a row or rows to delete");
             return;
         }
         getShell().setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
@@ -417,7 +436,8 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
         IAuthorizedPermissionResponse response = allowed(user);
         if (response.isAuthorized()) {
             if (confirm()) {
-                // Check if user or site permissions, compare to owner of sub if user permission
+                // Check if user or site permissions, compare to owner of sub if
+                // user permission
                 boolean site = false;
 
                 if (response
@@ -425,11 +445,13 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
                     site = true;
                 }
 
-                TableDataManager<SubscriptionApprovalRowData> pendingSubData = tableComp.getPendingSubData();
+                TableDataManager<SubscriptionApprovalRowData> pendingSubData = tableComp
+                        .getPendingSubData();
                 ArrayList<SubscriptionApprovalRowData> deleteList = new ArrayList<SubscriptionApprovalRowData>();
                 final String username = user.uniqueId().toString();
                 for (int idx : tableComp.getTable().getSelectionIndices()) {
-                    SubscriptionApprovalRowData removedItem = pendingSubData.getDataRow(idx);
+                    SubscriptionApprovalRowData removedItem = pendingSubData
+                            .getDataRow(idx);
 
                     if (site) {
                         deleteList.add(removedItem);
@@ -465,7 +487,8 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
 
                     tableComp.repopulate();
                 } else {
-                    String msg = username + " is not authorized to deny pending subscriptions belonging to other users.";
+                    String msg = username
+                            + " is not authorized to deny pending subscriptions belonging to other users.";
                     statusHandler.handle(Priority.WARN, msg);
                 }
             }
@@ -486,11 +509,10 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
         return false;
     }
 
-
     private void approveSubs(ArrayList<SubscriptionApprovalRowData> subList) {
         tableComp.getPendingSubData().removeAll(subList);
         String username = System.getenv().get("LOGNAME");
-        for (SubscriptionApprovalRowData rd: subList) {
+        for (SubscriptionApprovalRowData rd : subList) {
             InitialPendingSubscription ps = rd.getSubscription();
 
             Subscription s = ps.subscription();
@@ -527,7 +549,7 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.uf.viz.core.notification.INotificationObserver#
      * notificationArrived
      * (com.raytheon.uf.viz.core.notification.NotificationMessage[])
@@ -565,7 +587,6 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
      */
     @Override
     public boolean displayYesNoPopup(String title, String message) {
-        return DataDeliveryUtils.showYesNoMessage(getShell(), title,
-                message) == SWT.YES;
+        return DataDeliveryUtils.showYesNoMessage(getShell(), title, message) == SWT.YES;
     }
 }
