@@ -177,7 +177,7 @@ public class PythonJobCoordinator<P extends PythonInterpreter> {
      */
     public void shutdown() {
         synchronized (pools) {
-            pools.remove(this);
+            pools.values().remove(this);
         }
         execService.shutdown();
     }
