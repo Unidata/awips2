@@ -137,6 +137,10 @@ if [ "${1}" = "-postgres" ]; then
    buildRPM "awips2-database"
    buildRPM "awips2-maps-database"
    buildRPM "awips2-pgadmin3"
+   buildRPM "awips2-data.hdf5-gfe.climo"
+   buildRPM "awips2-data.hdf5-topo"
+   buildRPM "awips2-notification"
+   buildRPM "awips2-tools"
 
    exit 0
 fi
