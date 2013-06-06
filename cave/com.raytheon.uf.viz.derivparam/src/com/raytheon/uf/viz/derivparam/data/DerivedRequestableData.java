@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
@@ -42,7 +43,9 @@ import com.raytheon.uf.viz.derivparam.tree.CubeLevel;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 17, 2010            bsteffen     Initial creation
+ * Mar 17, 2010            bsteffen    Initial creation
+ * Jun 04, 2013 2041       bsteffen    Switch derived parameters to use
+ *                                     concurrent python for threading.
  * 
  * </pre>
  * 
@@ -73,21 +76,25 @@ public class DerivedRequestableData extends AbstractRequestableData {
     @Override
     public Object getDataValue(Object arg) throws VizException {
         DerivedParameterRequest request = createDerparRequest(arg);
-        DerivedParameterGenerator.addTask(request);
-        List<?> finalResult = request.getQueue();
-        if (finalResult != null && finalResult.size() > 0) {
-            if (finalResult.size() == 1) {
-                return new IDataRecord[] { ((IDataRecord) finalResult.get(0)) };
-            } else if (finalResult.size() == 4) {
-                return new IDataRecord[] {
-                        ((FloatDataRecord) finalResult.get(0)),
-                        ((FloatDataRecord) finalResult.get(1)),
-                        ((FloatDataRecord) finalResult.get(2)),
-                        ((FloatDataRecord) finalResult.get(3)) };
-            } else {
-                throw new VizException(
-                        "Error processing derived parameter, expecting scalar or vector data.  Vector data must return speed, dir, u, and v components.");
+        try {
+            List<?> finalResult = DerivedParameterGenerator.calculate(request);
+            if (finalResult != null && finalResult.size() > 0) {
+                if (finalResult.size() == 1) {
+                    return new IDataRecord[] { ((IDataRecord) finalResult
+                            .get(0)) };
+                } else if (finalResult.size() == 4) {
+                    return new IDataRecord[] {
+                            ((FloatDataRecord) finalResult.get(0)),
+                            ((FloatDataRecord) finalResult.get(1)),
+                            ((FloatDataRecord) finalResult.get(2)),
+                            ((FloatDataRecord) finalResult.get(3)) };
+                } else {
+                    throw new VizException(
+                            "Error processing derived parameter, expecting scalar or vector data.  Vector data must return speed, dir, u, and v components.");
+                }
             }
+        } catch (ExecutionException e) {
+            throw new VizException("Error executing Derived Parameter.", e);
         }
         return null;
     }
