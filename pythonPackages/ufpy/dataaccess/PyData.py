@@ -18,49 +18,40 @@
 # further licensing information.
 ##
 
-
 #
-# Implements IData and wraps around a Java IData
+# Implements IData for use by native Python clients to the Data Access
+# Framework.
 #  
 #    
 #     SOFTWARE HISTORY
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    12/10/12                      njensen       Initial Creation.
-#    06/03/13          #2023       dgilling      Implement getAttributes().
-# 
+#    06/03/13                      dgilling      Initial Creation.
+#    
 #
 
 from ufpy.dataaccess import IData
-import JUtil, DataTime
 
-class JData(IData, JUtil.JavaWrapperClass):
+class PyData(IData):
     
-    def __init__(self, wrappedObject):
-        self.jobj = wrappedObject
-    
+    def __init__(self, dataRecord):
+        self.__time = dataRecord.getTime()
+        self.__level = dataRecord.getLevel()
+        self.__locationName = dataRecord.getLocationName()
+        self.__attributes = dataRecord.getAttributes()
+
     def getAttribute(self, key):
-        return self.jobj.getAttribute(key)
+        return self.__attributes[key]
     
     def getAttributes(self):
-        attributes = []
-        jattribs = self.jobj.getAttributes()
-        itr = jattribs.iterator()
-        while itr.hasNext():
-            attributes.append(str(itr.next()))
-        return attributes
+        return self.__attributes.keys()
     
     def getDataTime(self):
-        return DataTime.DataTime(self.jobj.getDataTime())
+        return self.__time
     
     def getLevel(self):
-        return str(self.jobj.getLevel())
+        return self.__level
     
     def getLocationName(self):
-        return self.jobj.getLocationName()
-    
-    def toJavaObj(self):
-        return self.jobj
-    
-
+        return self.__locationName
