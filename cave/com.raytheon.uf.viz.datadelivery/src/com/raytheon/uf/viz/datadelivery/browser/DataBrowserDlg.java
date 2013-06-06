@@ -77,6 +77,7 @@ import com.raytheon.uf.viz.datadelivery.filter.MetaDataManager;
 import com.raytheon.uf.viz.datadelivery.filter.config.FilterManager;
 import com.raytheon.uf.viz.datadelivery.filter.config.xml.FilterSettingsXML;
 import com.raytheon.uf.viz.datadelivery.filter.config.xml.FilterTypeXML;
+import com.raytheon.uf.viz.datadelivery.help.HelpManager;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.SubsetManagerDlg;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
@@ -116,6 +117,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 14, 2012 1437       bgonzale     Clear filters when creating a new configuration.
  * May 15, 2013 1040       mpduff       Put DataDeliveryGUIUtils.markNotBusyInUIThread in finally block.
  * Jun 04, 2013  223       mpduff       Add data type to filters.
+ * Jun 06, 2013 2030       mpduff       Updates to help.
  * 
  * </pre>
  * 
@@ -129,6 +131,9 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DataBrowserDlg.class);
 
+    /** File containing help text */
+    private final String DATA_BROWSER_HELP_FILE = "help/dataBrowserHelp.xml";
+
     /** Window Title string. */
     private final String WINDOW_TITLE = "Dataset Discovery Browser";
 
@@ -139,9 +144,6 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
     /** Default browser configuration. */
     private static final String DEFAULT_CONFIG = FileUtil.join(CONFIG_PATH,
             "DefaultBrowserConfig.xml");
-
-    /** Help Dialog */
-    private final DataBrowserHelpDlg help = null;
 
     /** Filter expand bar. */
     private FilterExpandBar filterExpandBar;
@@ -714,14 +716,14 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
      * Handle the help display dialog.
      */
     private void handleHelp() {
-
-        if (help == null || help.isDisposed()) {
-            DataBrowserHelpDlg help = new DataBrowserHelpDlg(shell);
-            help.open();
-        } else {
-            help.bringToTop();
+        try {
+            HelpManager.getInstance().displayHelpDialog(getShell(),
+                    DATA_BROWSER_HELP_FILE);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Error loading Help Text file: " + DATA_BROWSER_HELP_FILE,
+                    e);
         }
-
     }
 
     /**
