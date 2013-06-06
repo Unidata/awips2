@@ -51,6 +51,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *    May  9, 2012 #14887      Qinglu Lin  Change 0.1 to 0.16875f for PORTION_OF_CENTER; 
  *                                         0.10 to 0.0625 for EXTREME_DELTA; Added/modified code.
  *    May  1, 2013  1963       jsanchez    Refactored calculatePortion to match A1. Do not allow 'Central' to be included if East and West is included.
+ *    Jun  3, 2013  2029       jsanchez    Updated A1 special case for calculating a central portion. Allowed East Central and West Central.
  * </pre>
  * 
  * @author chammack
@@ -114,21 +115,18 @@ public class GisUtil {
                 || (iQuad.q == 2 && iQuad.ne == iQuad.sw)
                 || (iQuad.qq == 2 && iQuad.nn == iQuad.ss)
                 || (iQuad.qq == 2 && iQuad.ee == iQuad.ww)) {
-            if (iQuad.nnx == iQuad.ssx && iQuad.wwx == iQuad.eex) {
-                portions.add(Direction.CENTRAL);
-                return portions;
-            }
             return getPointDesc(iQuad, useExtreme);
         }
 
-        // Another possible case of a stripe across the middle.
-        if (iQuad.q == 4 && iQuad.centralGeom != null
-                && iQuad.centralGeom.intersects(warnedArea)) {
-            portions.add(Direction.CENTRAL);
-            return portions;
-        }
         // All quadrants in use.
         if (iQuad.q == 4 && iQuad.qq == 4) {
+            if ((iQuad.north && iQuad.south && !iQuad.east && !iQuad.west)
+                    || (iQuad.east && iQuad.west && !iQuad.north && !iQuad.south)) {
+                // Add CENTRAL if north and south are impacted, but not east and
+                // west. Apply vice versa
+                portions.add(Direction.CENTRAL);
+                return portions;
+            }
             return EnumSet.noneOf(Direction.class);
         }
         // Only one typical quadrant in use.
@@ -230,18 +228,27 @@ public class GisUtil {
     private static EnumSet<Direction> getPointDesc(ImpactedQuadrants iQuad,
             boolean useExtrme) {
         EnumSet<Direction> portions = EnumSet.noneOf(Direction.class);
+        int counter = 0;
 
-        if (iQuad.nnw || iQuad.nne) {
+        if (iQuad.north) {
             portions.add(Direction.NORTH);
-        } else if (iQuad.ssw || iQuad.sse) {
+            counter++;
+        } else if (iQuad.south) {
             portions.add(Direction.SOUTH);
+            counter++;
         }
 
-        if (iQuad.ene || iQuad.ese) {
+        if (iQuad.east) {
             portions.add(Direction.EAST);
-        } else if (iQuad.wnw || iQuad.wsw) {
+            counter++;
+        } else if (iQuad.west) {
             portions.add(Direction.WEST);
-        } else if (iQuad.cc) {
+            counter++;
+        }
+
+        // Only add CENTRAL if only one portion was set. For example, NORTH EAST
+        // CENTRAL is not allowed.
+        if (iQuad.cc && counter < 2) {
             portions.add(Direction.CENTRAL);
         }
 
