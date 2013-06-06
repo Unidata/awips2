@@ -19,16 +19,8 @@
  **/
 package com.raytheon.uf.viz.derivparam.python.function;
 
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.c0;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.c1;
-import static com.raytheon.uf.viz.derivparam.python.function.Constants.c2;
-import static java.lang.Math.exp;
-
 /**
- * This routine calculates the equivalent tempurature of a temperature and
- * pressure using the adiabatic definition, assuming saturation put a fudge
- * factor into L/cp to get agreement of moist adiabats with a published
- * thermodynamic diagram *
+ * Consolidated constants from various meteolib functions.
  * 
  * <pre>
  * 
@@ -36,7 +28,7 @@ import static java.lang.Math.exp;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 3, 2013  2043       bsteffen    Ported from meteolib C
+ * Jun 06, 2013  2043       bsteffen    Ported from meteolib C
  * 
  * </pre>
  * 
@@ -44,11 +36,29 @@ import static java.lang.Math.exp;
  * @version 1.0
  */
 
-public class AdiabeticTemperature {
+public class Constants {
 
-    public static double adiabatic_te(double temp, double press) {
-        double e = exp(c0 - c1 * temp - c2 / temp);
-        e = 0.622 * e / (press - e);
-        return temp * exp(2740.0 * e / temp);
-    }
+    // from meteoLib capeFunc.c
+    public static final double c0 = 26.66082;
+
+    // from meteoLib capeFunc.c
+    public static final double c1 = 0.0091379024;
+
+    // from meteoLib capeFunc.c
+    public static final double c2 = 6106.396;
+
+    // from meteoLib capeFunc.c
+    public static final double c_1 = 223.1986;
+
+    // from meteoLib capeFunc.c
+    public static final double c_2 = 0.0182758048;
+
+    // from meteoLib capeFunc.c
+    public static final double kapa = 0.286;
+
+    // from meteoLib capeFunc.c
+    public static final double kapa_1 = 3.498257;
+
+    // from meteoLib calctw.f
+    public static final double f = 0.0006355;
 }
