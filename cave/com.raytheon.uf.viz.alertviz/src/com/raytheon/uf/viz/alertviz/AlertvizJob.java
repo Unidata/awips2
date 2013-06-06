@@ -58,6 +58,7 @@ import com.raytheon.uf.viz.alertviz.internal.LogMessageDAO;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 4, 2008  1433       chammack     Initial creation
+ * Jun 3, 2013  2026       randerso     Improve error handling
  * </pre>
  * 
  * @author chammack
@@ -208,10 +209,12 @@ public class AlertvizJob extends Job {
 
                         @Override
                         public void run() {
+                            String xmlString = null;
+                            StatusMessage statusMessage = null;
                             try {
-
-                                StringReader sr = new StringReader(tm.getText());
-                                StatusMessage statusMessage = (StatusMessage) umsh
+                                xmlString = tm.getText();
+                                StringReader sr = new StringReader(xmlString);
+                                statusMessage = (StatusMessage) umsh
                                         .unmarshal(sr);
                                 if (statusMessage.getEventTime() == null) {
                                     statusMessage.setEventTime(SimulatedTime
@@ -220,34 +223,25 @@ public class AlertvizJob extends Job {
 
                                 displayAlert(statusMessage);
 
+                            } catch (JMSException e) {
+                                String message = "Unable to retrieve JMS message text";
+                                handleInteralError(message, e);
+                            } catch (JAXBException e) {
+                                String message = "Unable to unmarshal XML:\n"
+                                        + xmlString;
+                                handleInteralError(message, e);
                             } catch (Exception e) {
-                                // Log to internal Log4j log
-                                Container
-                                        .logInternal(
-                                                Priority.ERROR,
-                                                "AlertVizJob: exception when retrieving text message text or "
-                                                        + "creating text message unmarshaller.",
-                                                e);
-                                StatusMessage sm = new StatusMessage();
-                                sm.setPriority(Priority.CRITICAL);
-                                sm.setMachineToCurrent();
-                                sm.setCategory("GDN_ADMIN");
-                                sm.setSourceKey("GDN_ADMIN");
-                                sm.setMessage(e.getMessage());
-                                sm.setEventTime(SimulatedTime.getSystemTime()
-                                        .getTime());
-                                try {
-                                    LogMessageDAO.getInstance().save(sm);
-                                } catch (AlertvizException e1) {
-                                    // Nothing but we can do but print
-                                    // stacktrace
-                                    // Log to internal Log4j log
-                                    Container
-                                            .logInternal(
-                                                    Priority.ERROR,
-                                                    "AlertVizJob unalbe to save to internal database.",
-                                                    e);
+                                String message = "Unexpected exception";
+                                if (xmlString == null) {
+                                    message += ": ";
+                                } else if (statusMessage == null) {
+                                    message += " while processing:\n"
+                                            + xmlString;
+                                } else {
+                                    message += " while processing:\n"
+                                            + statusMessage;
                                 }
+                                handleInteralError(message, e);
                             }
                         }
 
@@ -263,6 +257,25 @@ public class AlertvizJob extends Job {
         } catch (JAXBException e) {
             throw new AlertvizException(
                     "Error preparing serialization context", e);
+        }
+    }
+
+    private void handleInteralError(String message, Throwable e) {
+
+        // Log to internal Log4j log
+        Container.logInternal(Priority.CRITICAL, message, e);
+        StatusMessage sm = new StatusMessage("GDN_ADMIN", "GDN_ADMIN",
+                Priority.CRITICAL, this.getClass().getPackage().getName(),
+                message, e);
+        sm.setMachineToCurrent();
+        sm.setEventTime(SimulatedTime.getSystemTime().getTime());
+        try {
+            LogMessageDAO.getInstance().save(sm);
+        } catch (AlertvizException e1) {
+            // Nothing but we can do but print stacktrace
+            // Log to internal Log4j log
+            Container.logInternal(Priority.ERROR,
+                    "AlertVizJob unalbe to save to internal database.", e);
         }
     }
 
