@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.objectiveanalysis.rsc;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -53,7 +54,9 @@ import com.raytheon.viz.grid.util.TiltUtils;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 20, 2010            bsteffen     Initial creation
+ * May 20, 2010            bsteffen    Initial creation
+ * Jun 04, 2013 2041       bsteffen    Switch derived parameters to use
+ *                                     concurrent python for threading.
  * 
  * </pre>
  * 
@@ -210,9 +213,12 @@ public class OATiltGridTransformer extends OAGridTransformer {
         DerivedParameterRequest sliceRequest = new DerivedParameterRequest();
         sliceRequest.setMethod("Slice");
         sliceRequest.setArgumentRecords(new Object[] { cube, presRequest, -1 });
-        DerivedParameterGenerator.addTask(sliceRequest);
-        return ((FloatDataRecord) sliceRequest.getQueue().get(0))
-                .getFloatData();
+        try {
+            return ((FloatDataRecord) DerivedParameterGenerator.calculate(
+                    sliceRequest).get(0)).getFloatData();
+        } catch (ExecutionException e) {
+            throw new VizException(e);
+        }
 
     }
 
