@@ -24,6 +24,7 @@ __all__ = [
             'gfe',
             'grib',
             'grid',
+            'level',
             'message'
           ]
 
