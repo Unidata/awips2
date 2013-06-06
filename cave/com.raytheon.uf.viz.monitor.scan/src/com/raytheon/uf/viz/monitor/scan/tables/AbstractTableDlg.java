@@ -76,7 +76,8 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.LoadSaveConfigDlg.DialogTy
  * ------------ ---------- ----------- --------------------------
  * Nov 21, 2009 #3039      lvenable     Initial creation
  * Apr 26, 2013 #1945      lvenable    Some code cleanup.
- * 
+ * 06 Jun 2013  #2065      lvenable    Added convenience method to alert the user to use the clear
+ *                                     button if they want to close the dialog.
  * </pre>
  * 
  * @author lvenable
@@ -766,6 +767,21 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
     public boolean getLinkToFrame(String type) {
         return SCANConfig.getInstance()
                 .getLinkToFrame(ScanTables.valueOf(type));
+    }
+
+    /**
+     * This pops up a dialog letting the operator know that you must use the
+     * Clear button to close the SCAN dialog.
+     * 
+     * @param dialogBeingClosed
+     *            Name of the dialog trying to be closed.
+     */
+    protected void displayCloseInstructions(String dialogBeingClosed) {
+        MessageBox mb = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
+        mb.setText("Close Information");
+        mb.setMessage("To close the " + dialogBeingClosed
+                + ",\nyou must clear the D2D display.");
+        mb.open();
     }
 
     /*
