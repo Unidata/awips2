@@ -1,0 +1,64 @@
+<Help>
+  <!-- Help dialog's title -->
+  <title>Subscription Approval Help</title>
+  <!-- A help entry -->
+  <helpEntry>
+     <!-- Help entry heading, bold font -->
+     <header>
+		The Subscription Approval Dialog allows an authorized user to approve or deny subscriptions.
+     </header>
+     <!-- Help entry text, normal font.  Line breaks in text are passed through to display -->
+     <text>
+     </text>
+  </helpEntry>
+  <helpEntry>
+     <header>
+        File Menu  
+     </header>
+     <text />
+  </helpEntry>
+  <helpEntry>
+     <header>
+        Exit
+     </header>
+     <text>
+     Close the dialog.
+     </text>
+  </helpEntry>
+  <helpEntry>
+     <header>
+        View Menu
+     </header>
+     <text />
+  </helpEntry>
+  <helpEntry>
+     <header>
+        Details...
+     </header>
+     <text>
+     View the details of the highlighted subscription.
+     </text>
+  </helpEntry>
+  <helpEntry>
+     <header>
+        Action Menu
+     </header>
+     <text />
+  </helpEntry>
+  <helpEntry>
+     <header>
+        Approve Selected
+     </header>
+     <text>
+     Approve the highlighted subscription.
+     </text>
+  </helpEntry>
+  <helpEntry>
+     <header>
+        Deny Selected
+     </header>
+     <text>
+        Deny the highlighted subscription
+     </text>
+  </helpEntry>
+</Help>
