@@ -29,6 +29,7 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dissemination.OUPRequest;
 import com.raytheon.uf.common.dissemination.OUPResponse;
 import com.raytheon.uf.common.dissemination.OfficialUserProduct;
+import com.raytheon.uf.common.plugin.nwsauth.user.User;
 import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -49,6 +50,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * ------------ ---------- ----------- --------------------------
  * May 10, 2012 14715      rferrel     Initial creation
  * Mar 21, 2013 15375      zhao        Modified to also handle AvnFPS VFT product
+ * Jun 07, 2013  1981      mpduff      Add user to OUPRequest.
  * 
  * </pre>
  * 
@@ -183,6 +185,7 @@ public class TafQueueManager implements Runnable {
         }
 
         OUPRequest req = new OUPRequest();
+        req.setUser(new User(OUPRequest.EDEX_ORIGINATION));
         req.setProduct(oup);
         OUPResponse resp;
         boolean success = false;
@@ -241,16 +244,16 @@ public class TafQueueManager implements Runnable {
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         Date nextPurgeTime = cal.getTime();
-        
+
         /**
          * (for DR15375)
          */
-        TafQueueVFTMgr vftMgr = TafQueueVFTMgr.getInstance(); 
+        TafQueueVFTMgr vftMgr = TafQueueVFTMgr.getInstance();
         Date nextVftTime = null;
 
         while (true) {
             try {
-            	
+
                 processList = dao.getRecordsToSend();
 
                 if (processList.size() > 0) {
@@ -258,15 +261,15 @@ public class TafQueueManager implements Runnable {
                     // more PENDING may have been added while sending
                     continue;
                 }
-                
+
                 /**
                  * (for DR15375)
                  */
-            	nextVftTime = vftMgr.getNextVftTime();
-                if ( nextVftTime.compareTo(Calendar.getInstance().getTime()) <= 0 ) {
-                	vftMgr.makeVftProduct();
-                	// transmit immediately
-                	continue;
+                nextVftTime = vftMgr.getNextVftTime();
+                if (nextVftTime.compareTo(Calendar.getInstance().getTime()) <= 0) {
+                    vftMgr.makeVftProduct();
+                    // transmit immediately
+                    continue;
                 }
 
                 if (nextPurgeTime.compareTo(Calendar.getInstance().getTime()) <= 0) {
@@ -284,17 +287,18 @@ public class TafQueueManager implements Runnable {
                     nextProccessTime = nextPurgeTime;
                 } else if (nextProccessTime.compareTo(nextPurgeTime) > 0) {
                     nextProccessTime = nextPurgeTime;
-                } else if (nextProccessTime.compareTo(Calendar.getInstance().getTime()) <= 0) {
+                } else if (nextProccessTime.compareTo(Calendar.getInstance()
+                        .getTime()) <= 0) {
                     // immediate transmit placed on queue while processing.
                     continue;
                 }
-                
+
                 /**
                  * (DR15375)
                  */
                 nextVftTime = vftMgr.getNextVftTime();
-                if ( nextVftTime.compareTo(nextProccessTime) < 0 ) {
-                	nextProccessTime = nextVftTime;
+                if (nextVftTime.compareTo(nextProccessTime) < 0) {
+                    nextProccessTime = nextVftTime;
                 }
 
                 synchronized (this) {
