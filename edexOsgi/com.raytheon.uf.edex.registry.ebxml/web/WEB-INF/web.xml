@@ -12,6 +12,11 @@
 	version="2.4">
 	<display-name>Data Delivery Web Services</display-name>
 	
+    <context-param>
+    	<param-name>webAppRootKey</param-name>
+    	<param-value>registryEbxml</param-value>
+    </context-param>	
+	
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>/webServiceBeans.xml</param-value>
