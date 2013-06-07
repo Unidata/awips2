@@ -20,6 +20,13 @@
 package com.raytheon.uf.viz.derivparam.python.function;
 
 import static com.raytheon.uf.viz.derivparam.python.function.AdiabeticTemperature.adiabatic_te;
+import static com.raytheon.uf.viz.derivparam.python.function.Constants.c0;
+import static com.raytheon.uf.viz.derivparam.python.function.Constants.c1;
+import static com.raytheon.uf.viz.derivparam.python.function.Constants.c2;
+import static com.raytheon.uf.viz.derivparam.python.function.Constants.c_1;
+import static com.raytheon.uf.viz.derivparam.python.function.Constants.c_2;
+import static com.raytheon.uf.viz.derivparam.python.function.Constants.kapa;
+import static com.raytheon.uf.viz.derivparam.python.function.Constants.kapa_1;
 import static com.raytheon.uf.viz.derivparam.python.function.TempOfTe.temp_of_te;
 import static java.lang.Math.exp;
 import static java.lang.Math.log;
@@ -57,20 +64,6 @@ import jep.INumpyable;
  */
 
 public class CapeFunc {
-
-    private static final float c0 = 26.66082f;
-
-    private static final float c1 = 0.0091379024f;
-
-    private static final float c2 = 6106.396f;
-
-    private static final float c_1 = 223.1986f;
-
-    private static final float c_2 = 0.0182758048f;
-
-    private static final float kapa = 0.286f;
-
-    private static final float kapa_1 = 3.498257f;
 
     public static CapeCinPair capeFunc(float usetv, float[] p_dat,
             float[] tve_dat, float[] p0, float[] th0, float[] sh0, int nx,
