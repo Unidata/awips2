@@ -38,6 +38,7 @@ import com.raytheon.uf.viz.core.requests.INotAuthHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 27, 2010            rgeorge     Initial creation
+ * Jun 07, 2013   1981     mpduff      Add an IUser field.
  * 
  * </pre>
  * 
@@ -48,6 +49,9 @@ import com.raytheon.uf.viz.core.requests.INotAuthHandler;
 public class NwsUserManager implements IUserManager {
 
     private final NwsNotAuthHandler notAuthHandler = new NwsNotAuthHandler();
+
+    /** Saved User Name */
+    private IUser user;
 
     /*
      * (non-Javadoc)
@@ -66,8 +70,13 @@ public class NwsUserManager implements IUserManager {
      */
     @Override
     public IUser getUserObject() {
-        String userId = System.getProperty("user.name");
-        return new User(userId);
+        if (this.user == null) {
+            String userId = System.getProperty("user.name");
+            this.user = new User(userId);
+            return this.user;
+        } else {
+            return user;
+        }
     }
 
     /*
@@ -80,6 +89,7 @@ public class NwsUserManager implements IUserManager {
      */
     @Override
     public void updateUserObject(IUser user, IAuthenticationData authData) {
+        this.user = user;
     }
 
     /**
@@ -98,5 +108,13 @@ public class NwsUserManager implements IUserManager {
     public List<IRole> getRoles(String application) {
         // TODO: Should this pass through to EDEX to get this stuff?
         return NwsRoleDataManager.getInstance().getRoles(application);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateUserObject(String userId, IAuthenticationData authData) {
+        user = new User(userId);
     }
 }
