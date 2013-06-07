@@ -40,7 +40,7 @@ class PyGeometryData(IGeometryData, PyData.PyData):
     
     def __init__(self, geoDataRecord):
         PyData.PyData.__init__(self, geoDataRecord)
-        self.__geometry = shapely.wkt.loads(geoDataRecord.getGeometry())
+        self.__geometry = shapely.wkt.loads(geoDataRecord.getGeometryWKT())
         self.__dataMap = {}
         tempDataMap = geoDataRecord.getDataMap()
         for key, value in tempDataMap.items():
