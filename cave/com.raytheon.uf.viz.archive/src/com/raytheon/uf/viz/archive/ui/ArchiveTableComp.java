@@ -71,9 +71,6 @@ public class ArchiveTableComp extends Composite {
     /** Number of selected items label. */
     private Label selectedLbl;
 
-    /** Total selected items for all tables */
-    private Label totalSelectedLbl;
-
     /** Size label. */
     private Label sizeLbl;
 
@@ -85,7 +82,7 @@ public class ArchiveTableComp extends Composite {
     /** Current table type. */
     private TableType tableType = TableType.Retention;
 
-    private IArchiveTotals iTotalSelectedSize;
+    private IArchiveTotals iArchiveTotals;
 
     /**
      * Constructor.
@@ -100,7 +97,7 @@ public class ArchiveTableComp extends Composite {
         super(parent, 0);
 
         tableType = type;
-        this.iTotalSelectedSize = iTotalSelectedSize;
+        this.iArchiveTotals = iTotalSelectedSize;
         init();
     }
 
@@ -172,7 +169,7 @@ public class ArchiveTableComp extends Composite {
      */
     private void createTableLabels() {
         Composite lblComp = new Composite(this, SWT.NONE);
-        GridLayout gl = new GridLayout(3, true);
+        GridLayout gl = new GridLayout(2, true);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         lblComp.setLayout(gl);
         lblComp.setLayoutData(gd);
@@ -184,10 +181,6 @@ public class ArchiveTableComp extends Composite {
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         sizeLbl = new Label(lblComp, SWT.NONE);
         sizeLbl.setLayoutData(gd);
-
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        totalSelectedLbl = new Label(lblComp, SWT.NONE);
-        totalSelectedLbl.setLayoutData(gd);
     }
 
     /**
@@ -218,14 +211,13 @@ public class ArchiveTableComp extends Composite {
         }
 
         selectedLbl.setText("Table Selected Items: " + count);
-        int totalSelectedSize = iTotalSelectedSize.getTotalSelectedItems();
-        totalSelectedLbl.setText("Total Selected Items: " + totalSelectedSize);
 
-        String sizeString = "????";
+        String sizeString = DisplayData.UNKNOWN_SIZE_LABEL;
         if (tableTotalSize >= 0) {
             sizeString = SizeUtil.prettyByteSize(tableTotalSize);
         }
         sizeLbl.setText("Table Selected Size: " + sizeString);
+        iArchiveTotals.updateTotals();
     }
 
     /**
@@ -325,6 +317,8 @@ public class ArchiveTableComp extends Composite {
                 }
             }
         }
+
+        updateSelectionLabels();
     }
 
     /*
@@ -354,7 +348,7 @@ public class ArchiveTableComp extends Composite {
     private void setItemSize(TableItem item) {
         long size = ((DisplayData) item.getData(DISPLAY_INFO_KEY)).getSize();
         if (size < 0L) {
-            item.setText(1, "????");
+            item.setText(1, DisplayData.UNKNOWN_SIZE_LABEL);
         } else {
             item.setText(1, SizeUtil.prettyByteSize(size));
         }
