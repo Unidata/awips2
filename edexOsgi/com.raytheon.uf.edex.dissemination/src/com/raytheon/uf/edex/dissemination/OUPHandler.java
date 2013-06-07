@@ -25,6 +25,8 @@ import java.util.Map;
 
 import jep.JepException;
 
+import com.raytheon.uf.common.auth.exception.AuthorizationException;
+import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.dissemination.OUPRequest;
 import com.raytheon.uf.common.dissemination.OUPResponse;
 import com.raytheon.uf.common.dissemination.OfficialUserProduct;
@@ -35,12 +37,15 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
-import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.auth.AuthManager;
+import com.raytheon.uf.edex.auth.AuthManagerFactory;
+import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
+import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
+import com.raytheon.uf.edex.auth.roles.IRoleStorage;
 import com.raytheon.uf.edex.dissemination.transmitted.TransProdHeader;
-import com.raytheon.uf.edex.dissemination.transmitted.TransmittedProductList;
 
 /**
  * IRequestHandler for OUPRequests
@@ -52,6 +57,7 @@ import com.raytheon.uf.edex.dissemination.transmitted.TransmittedProductList;
  * ------------ ---------- ----------- --------------------------
  * Oct 22, 2009            njensen     Initial creation
  * Oct 12, 2012  DR 15418  D. Friedman Use clustered TransmittedProductList
+ * Jun 07, 2013   1981     mpduff      This is now a priviledged request handler.
  * 
  * </pre>
  * 
@@ -59,10 +65,13 @@ import com.raytheon.uf.edex.dissemination.transmitted.TransmittedProductList;
  * @version 1.0
  */
 
-public class OUPHandler implements IRequestHandler<OUPRequest> {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+public class OUPHandler extends AbstractPrivilegedRequestHandler<OUPRequest> {
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(OUPHandler.class);
-    
+
+    /** The application for authentication */
+    private static final String APPLICATION = "Official User Product";
+
     private OUPAckManager ackManager;
 
     @Override
@@ -98,7 +107,7 @@ public class OUPHandler implements IRequestHandler<OUPRequest> {
                     resp.setAttempted(true);
                     py.execute("process", args);
                 } catch (JepException e) {
-                	resp.setMessage("Error executing handleOUP python");
+                    resp.setMessage("Error executing handleOUP python");
                     statusHandler.handle(Priority.SIGNIFICANT,
                             "Error executing handleOUP python", e);
                 } finally {
@@ -106,8 +115,9 @@ public class OUPHandler implements IRequestHandler<OUPRequest> {
                         py.dispose();
                     }
                 }
-                /* TODO: Should be updating TransmittedProductList here, after
-                 * success has been confirmed.  
+                /*
+                 * TODO: Should be updating TransmittedProductList here, after
+                 * success has been confirmed.
                  */
             } catch (OUPHeaderException e) {
                 resp.setAttempted(false);
@@ -160,12 +170,38 @@ public class OUPHandler implements IRequestHandler<OUPRequest> {
         return python;
     }
 
-	public OUPAckManager getAckManager() {
-		return ackManager;
-	}
+    public OUPAckManager getAckManager() {
+        return ackManager;
+    }
 
-	public void setAckManager(OUPAckManager ackManager) {
-		this.ackManager = ackManager;
-	}
+    public void setAckManager(OUPAckManager ackManager) {
+        this.ackManager = ackManager;
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AuthorizationResponse authorized(IUser user, OUPRequest request)
+            throws AuthorizationException {
+        boolean authorized = false;
+
+        if (request.getUser().uniqueId().toString()
+                .equals(OUPRequest.EDEX_ORIGINATION)) {
+            authorized = true;
+        } else {
+            AuthManager manager = AuthManagerFactory.getInstance().getManager();
+            IRoleStorage roleStorage = manager.getRoleStorage();
+
+            authorized = roleStorage.isAuthorized((request).getRoleId(), user
+                    .uniqueId().toString(), APPLICATION);
+        }
+
+        if (authorized) {
+            return new AuthorizationResponse(authorized);
+        } else {
+            return new AuthorizationResponse(
+                    (request).getNotAuthorizedMessage());
+        }
+    }
 }
