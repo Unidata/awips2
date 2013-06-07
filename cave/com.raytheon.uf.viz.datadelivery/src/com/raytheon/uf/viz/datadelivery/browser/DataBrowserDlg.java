@@ -117,6 +117,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 14, 2012 1437       bgonzale     Clear filters when creating a new configuration.
  * May 15, 2013 1040       mpduff       Put DataDeliveryGUIUtils.markNotBusyInUIThread in finally block.
  * Jun 04, 2013  223       mpduff       Add data type to filters.
+ * Jun 05, 2013 1800       mpduff       Move the area filter below the data type selection.
  * Jun 06, 2013 2030       mpduff       Updates to help.
  * 
  * </pre>
@@ -266,8 +267,8 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
     protected void initializeComponents(Shell shell) {
         createMenus();
 
-        createAreaControls();
         createDataTypeControls();
+        createAreaControls();
         createSashForm();
         createRetSubsControl();
 
