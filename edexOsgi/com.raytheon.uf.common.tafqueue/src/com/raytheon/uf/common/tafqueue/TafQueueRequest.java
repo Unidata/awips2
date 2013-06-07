@@ -22,6 +22,8 @@ package com.raytheon.uf.common.tafqueue;
 import java.util.Date;
 import java.util.List;
 
+import com.raytheon.uf.common.auth.req.AbstractPrivilegedRequest;
+import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
@@ -35,7 +37,8 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 3, 2012  14715      rferrel     Initial creation
+ * May 3,  2012  14715     rferrel     Initial creation
+ * Jun 07, 2013   1981     mpduff      This is now an AbstractPrivilegedRequest
  * 
  * </pre>
  * 
@@ -43,7 +46,8 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * @version 1.0
  */
 @DynamicSerialize
-public class TafQueueRequest implements IServerRequest {
+public class TafQueueRequest extends AbstractPrivilegedRequest implements
+        IServerRequest {
 
     public enum Type {
         UNKNOWN, CREATE, GET_LIST, GET_LOG, GET_TAFS, REMOVE_SELECTED, RETRANSMIT
@@ -63,6 +67,20 @@ public class TafQueueRequest implements IServerRequest {
 
     @DynamicSerializeElement
     private Date xmitTime;
+
+    /** User object */
+    @DynamicSerializeElement
+    private IUser user;
+
+    /** A not authorized message */
+    @DynamicSerializeElement
+    private final String NotAuthorizedMessage = "Not Authorized to Send Official User Products";
+
+    /**
+     * OUP Request permission. This should not be changed.
+     */
+    @DynamicSerializeElement
+    private final String roleId = "awips.oup";
 
     public TafQueueRequest() {
         this.type = Type.UNKNOWN;
@@ -106,5 +124,36 @@ public class TafQueueRequest implements IServerRequest {
 
     public void setXmitTime(Date xmitTime) {
         this.xmitTime = xmitTime;
+    }
+
+    /**
+     * @return the user
+     */
+    @Override
+    public IUser getUser() {
+        return user;
+    }
+
+    /**
+     * @param user
+     *            the user to set
+     */
+    @Override
+    public void setUser(IUser user) {
+        this.user = user;
+    }
+
+    /**
+     * @return the notAuthorizedMessage
+     */
+    public String getNotAuthorizedMessage() {
+        return NotAuthorizedMessage;
+    }
+
+    /**
+     * @return the roleId
+     */
+    public String getRoleId() {
+        return roleId;
     }
 }
