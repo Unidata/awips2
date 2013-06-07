@@ -114,10 +114,13 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
         setupCursor();
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.archive.data.IArchiveTotals#getTotalSelectedItems()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.archive.data.IArchiveTotals#getTotalSelectedItems()
      */
-    @Override
+    // @Override
     public int getTotalSelectedItems() {
         int totalSelected = 0;
         for (ArchiveInfo archiveInfo : archiveInfoMap.values()) {
@@ -317,28 +320,6 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      */
     protected void updateTableComp() {
         populateTableComp(getSelectedArchiveName(), getSelectedCategoryName());
-    }
-
-    /**
-     * Add a separator line to the provided container.
-     * 
-     * @param container
-     *            Composite.
-     * @param orientation
-     *            Vertical or horizontal orientation.
-     */
-    protected void addSeparator(Composite container, int orientation) {
-        // Separator label
-        GridData gd;
-
-        if (orientation == SWT.HORIZONTAL) {
-            gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        } else {
-            gd = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
-        }
-
-        Label sepLbl = new Label(container, SWT.SEPARATOR | orientation);
-        sepLbl.setLayoutData(gd);
     }
 
     /**
