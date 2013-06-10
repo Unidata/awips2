@@ -41,10 +41,15 @@ import org.junit.Test;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBuilder;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
-import com.raytheon.uf.edex.datadelivery.bandwidth.IntegrationTestBandwidthContextFactory;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
@@ -96,8 +101,14 @@ public class BandwidthDaoUtilTest {
                 dataSetAvailabilityCalculator);
         PathManagerFactoryTest.initLocalization();
 
-        map = BandwidthMap.load(IntegrationTestBandwidthContextFactory
-                .getIntegrationTestBandwidthMapConfigFile());
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
+                LocalizationLevel.BASE);
+
+        LocalizationFile lf = pm.getLocalizationFile(lc,
+                "datadelivery/bandwidthmap.xml");
+
+        map = BandwidthMap.load(lf.getFile());
         plan = new RetrievalPlan(Network.OPSNET, map, mockDao);
     }
 

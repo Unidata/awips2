@@ -36,6 +36,7 @@ import org.eclipse.ui.PlatformUI;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial creation.
+ * 03/29/2013   1790        rferrel     Changes for non-blocking StationListDlg.
  * 
  * </pre>
  * 
@@ -43,13 +44,21 @@ import org.eclipse.ui.PlatformUI;
  * 
  */
 public class StationListAction extends AbstractHandler {
+    /*
+     * Active dialog.
+     */
+    private StationListDlg stationListDlg;
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        StationListDlg stationListDlg = new StationListDlg(shell);
-        stationListDlg.open();
+        if (stationListDlg == null || stationListDlg.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            stationListDlg = new StationListDlg(shell);
+            stationListDlg.open();
+        } else {
+            stationListDlg.bringToTop();
+        }
 
         return null;
     }

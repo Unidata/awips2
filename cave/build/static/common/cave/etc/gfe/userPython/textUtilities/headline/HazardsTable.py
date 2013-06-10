@@ -18,6 +18,21 @@
 # further licensing information.
 ##
 
+#
+# Port of A1 HazardsTable.py.
+#
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    ??/??/??                      ????????       Initial Creation.
+#    05/14/13        1842          dgilling       Use GFEVtecUtil to handle NEW
+#                                                 ETN assignment.
+#    
+# 
+
+
 import time, getopt, sys, copy, string, logging
 import VTECTableUtil, VTECTable
 import TimeRange, AbsTime, ActiveTableVtec
@@ -28,6 +43,7 @@ from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
 from com.raytheon.uf.common.dataplugin.gfe.discrete import DiscreteKey
 from com.raytheon.uf.common.time import TimeRange as JavaTimeRange
 from com.raytheon.viz.gfe.sampler import HistoSampler, SamplerRequest
+from com.raytheon.viz.gfe.vtec import GFEVtecUtil
 import cPickle
 
 # This class makes an object that interfaces to the GFE hazard grid
@@ -69,13 +85,13 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         self.__marineProds = ["CWF", "NSH", "GLF", "MWW", "OFF"]
 
         # list of phen/sig from national centers and "until further notice"
-        self.__tpcKeys = [('HU','A'), ('HU','S'), ('HU','W'), ('TR','A'), 
-          ('TR','W')]
+        self.__tpcKeys = self.__processJavaCollection(GFEVtecUtil.TROPICAL_PHENSIGS, self.__convertPhensig)
         self.__tpcBaseETN = '1001'
-        self.__ncKeys = [('TO','A'), ('SV','A'), ('HU', 'S'), ('HU','A'), ('HU','W'),
-          ('TR','A'), ('TR','W')] # added HU.S
+        self.__ncKeys = self.__processJavaCollection(GFEVtecUtil.NATIONAL_PHENSIGS, self.__convertPhensig)
         self.__ufnKeys = [('HU','A'), ('HU','S'), ('HU','W'), ('TR','A'), ('TR','W'), 
           ('TY','A'), ('TY','W')]
+        
+        self.__sitesIgnoreNatlEtn = self.__processJavaCollection(GFEVtecUtil.IGNORE_NATIONAL_ETN, str)
         
         self.__marineZonesPrefix = ["AM", "GM", "PZ", "PK", "PH", "PM", "AN",
           "PS", "SL"]   #list of zone name prefix that are marine zones
@@ -682,36 +698,31 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                             assigned.extend(ids2)
 
     # find highest etn in active table for phen/sig, returns it.
+    # This method has been dramatically re-written for A2 to use
+    # GFEVtecUtil to do preliminary ETN assignment instead of scrubbing
+    # the whole set of ActiveTableRecords to calculate it. 
     def __highestETNActiveTable(self, phen, sig, activeTable):
-        #check active table for highest etn
-        presentyear = time.gmtime(self.__time)[0]
         etn_base = 0
-        for active in activeTable:
-            # find only records with
-            # 1. same phen and sig
-            # 2. in the present year
-            # and not from the national center
-            activeyear = time.gmtime(active['issueTime'])[0]
-            phensig = (active['phen'],active['sig'])
-            if active['phen'] == phen and active['sig'] == sig and \
-              activeyear == presentyear:
-                # find the max ETN...
-                # 1. highest ETN period for non-tropical and all GUM products (tpcKeys)
-                # or
-                # 2. highest ETN > 1000 for the tropical, non-GUM products (tpcKeys)
-                #
-                # Local WFOs do not assign these numbers, so they should have
-                # numbers < 1000
-                if active['etn'] > etn_base and \
-                  phensig not in self.__tpcKeys:
-                    etn_base = active['etn']
-                elif active['etn'] > etn_base and \
-                  phensig in self.__tpcKeys:
-                    if self.__siteID4 == 'PGUM':
-                        etn_base = active['etn'] # GUM uses their own ETNs regardless of hazard
-                    else:
-                      if active['etn'] < 1001: # causes failure if tropical hazards are less than 1001
-                        self.log.error("Incorrect ETN for tropical hazard.")
+        phensig = (phen, sig)
+        
+        # find the max ETN...
+        # 1. highest ETN period for non-tropical and all GUM products (tpcKeys)
+        # or
+        # 2. highest ETN > 1000 for the tropical, non-GUM products (tpcKeys)
+        #
+        # Local WFOs do not assign these numbers, so they should have
+        # numbers < 1000
+        if phensig not in self.__tpcKeys or self.__siteID4 in self.__sitesIgnoreNatlEtn:
+            etn_base = GFEVtecUtil.getNextEtn(self.__siteID4, '.'.join(phensig), False) - 1
+        else:
+            presentyear = time.gmtime(self.__time)[0]
+            for active in activeTable:
+                activeyear = time.gmtime(active['issueTime'])[0]
+                activephensig = (active['phen'],active['sig'])
+                if phensig == activephensig and presentyear == activeyear:
+                    # causes failure if tropical hazards are less than 1001
+                    if active['etn'] < int(self.__tpcBaseETN):
+                        LogStream.logProblem("Incorrect ETN for tropical hazard.")
         return etn_base
 
     #determine the new etn to use, using the etn cache
@@ -2389,3 +2400,17 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 #                return False   #same phen/sig, not tpc, so. non separate track
 #        else:
 #            return true;
+
+    def __processJavaCollection(self, javaObj, processMethod=None):
+        retVal = []
+        iter = javaObj.iterator()
+        while iter.hasNext():
+            nextObj = iter.next()
+            if processMethod is not None:
+                nextObj = processMethod(nextObj)
+            retVal.append(nextObj)
+        return retVal
+
+    def __convertPhensig(self, javaPhensig):
+        phenSig = tuple(str(javaPhensig).split('.'))
+        return phenSig

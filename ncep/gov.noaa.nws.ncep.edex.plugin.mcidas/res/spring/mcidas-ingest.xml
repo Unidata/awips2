@@ -1,8 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:amq="http://activemq.apache.org/schema/core"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
   
     <bean id="mcidasDao" class="gov.noaa.nws.ncep.common.dataplugin.mcidas.dao.McidasDao">
@@ -17,7 +15,7 @@
 		factory-method="getInstance" depends-on="alphaNumericDatatypePool">
 		<constructor-arg><value>AlphaNumeric</value></constructor-arg>
 		<constructor-arg><value>mcidas</value></constructor-arg>
-		<constructor-arg><value>directvm:mcidasIngest</value></constructor-arg>
+		<constructor-arg><value>direct-vm:mcidasIngest</value></constructor-arg>
 	</bean-->
 
     <bean id="mcidasRegistry" factory-bean="distributionSrv"
@@ -53,7 +51,7 @@
 				<pipeline>
 					<bean ref="stringToFile" />
 					<bean ref="mcidasDecoder" method="decode" />
-					<to uri="directvm:persistIndexAlert" />
+					<to uri="direct-vm:persistIndexAlert" />
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>

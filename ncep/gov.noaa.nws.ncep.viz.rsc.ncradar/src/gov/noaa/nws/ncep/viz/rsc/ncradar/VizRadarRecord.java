@@ -19,9 +19,9 @@
  **/
 package gov.noaa.nws.ncep.viz.rsc.ncradar;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarStoredData;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 
 /**
  * TODO Add Description

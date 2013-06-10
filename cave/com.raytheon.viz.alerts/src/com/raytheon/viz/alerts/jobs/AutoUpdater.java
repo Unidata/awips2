@@ -34,7 +34,6 @@ import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
-import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.updater.DataUpdateTree;
@@ -75,7 +74,7 @@ public class AutoUpdater implements IAlertObserver {
     @Override
     public void alertArrived(Collection<AlertMessage> alertMessages) {
         Set<IDescriptor> displayList = new HashSet<IDescriptor>();
-        Map<AbstractRequestableResourceData, List<AlertMessage>> pdoSendMap = new IdentityHashMap<AbstractRequestableResourceData, List<AlertMessage>>();
+        Map<AbstractResourceData, List<AlertMessage>> alertSendMap = new IdentityHashMap<AbstractResourceData, List<AlertMessage>>();
         int errors = 0;
 
         for (AlertMessage message : alertMessages) {
@@ -92,28 +91,24 @@ public class AutoUpdater implements IAlertObserver {
                         IDescriptor md = r1.getDescriptor();
                         AbstractResourceData resourceData = r1
                                 .getResourceData();
-                        if (!(resourceData instanceof AbstractRequestableResourceData)
-                                || resourceData.isFrozen())
+                        if (resourceData.isFrozen())
                             continue;
-
-                        AbstractRequestableResourceData reqResourceData = (AbstractRequestableResourceData) resourceData;
 
                         if (md.getTimeMatcher() != null) {
                             md.getTimeMatcher().redoTimeMatching(r1);
                         }
                         displayList.add(md);
 
-                        List<AlertMessage> list = pdoSendMap
-                                .get(reqResourceData);
+                        List<AlertMessage> list = alertSendMap.get(resourceData);
                         if (list == null) {
                             list = new ArrayList<AlertMessage>();
-                            pdoSendMap.put(reqResourceData, list);
+                            alertSendMap.put(resourceData, list);
                         }
                         list.add(message);
 
                         if (list.size() > 100) {
                             // update with objects
-                            reqResourceData.update(list
+                            resourceData.update(list
                                     .toArray(new AlertMessage[list.size()]));
                             list.clear();
                         }
@@ -131,12 +126,12 @@ public class AutoUpdater implements IAlertObserver {
             }
         }
 
-        for (AbstractRequestableResourceData arrd : pdoSendMap.keySet()) {
-            List<AlertMessage> pdos = pdoSendMap.get(arrd);
-            if (pdos == null || pdos.size() < 1) {
+        for (AbstractResourceData resourceData : alertSendMap.keySet()) {
+            List<AlertMessage> alerts = alertSendMap.get(resourceData);
+            if (alerts == null || alerts.isEmpty()) {
                 continue;
             }
-            arrd.update(pdos.toArray(new AlertMessage[pdos.size()]));
+            resourceData.update(alerts.toArray(new AlertMessage[alerts.size()]));
         }
 
         List<IDescriptor> refreshedDescriptors = new ArrayList<IDescriptor>();

@@ -52,6 +52,8 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
 
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.IColorMap;
+import com.raytheon.uf.common.colormap.image.ColorMapData;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -67,7 +69,6 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IView;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IFont.Style;
@@ -122,7 +123,10 @@ import com.sun.opengl.util.j2d.TextRenderer;
  * Feb 14, 2013 1616        bsteffen    Add option for interpolation of colormap
  *                                      parameters, disable colormap
  *                                      interpolation by default.
- * 
+ * Apr 18, 2013 1638        mschenke    Made string rendering always occur in canvas space so
+ *                                      strings are always readable despite extent
+ * May 28, 2013 1638        mschenke    Made sure {@link TextStyle#BLANKED} text is drawing correct size
+ *                                      box around text
  * 
  * </pre>
  * 
@@ -1199,6 +1203,12 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                     new GLFont(java.awt.Font.MONOSPACED, 14.0f,
                             new Style[] { Style.BOLD }));
         }
+
+        // Set swap interval to 1 refresh
+        gl.setSwapInterval(1);
+        // Set swap interval to 0 refresh (disables vsync)
+        gl.setSwapInterval(0);
+
         releaseContext();
     }
 
@@ -1810,6 +1820,24 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
             return;
         }
 
+        double glScaleX = getScaleX();
+        double glScaleY = getScaleY();
+        double stringScaleX = 1.0;
+        double stringScaleY = 1.0;
+        Rectangle bounds = getBounds();
+        List<DrawableString> copy = new ArrayList<DrawableString>(
+                parameters.size());
+        for (DrawableString dString : parameters) {
+            // Convert strings into canvas location
+            dString = new DrawableString(dString);
+            double[] screen = targetView.gridToScreen(new double[] {
+                    dString.basics.x, dString.basics.y, dString.basics.z },
+                    this);
+            dString.setCoordinates(bounds.x + screen[0], bounds.y + screen[1]);
+            copy.add(dString);
+        }
+        parameters = copy;
+
         // TODO if parameters has different fonts we should ensure that all
         // strings with the same font are rendered in a group, otherwise this
         // function ends up calling begin/end rendering lots which slows it down
@@ -1821,10 +1849,12 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
         gl.glMatrixMode(GL.GL_MODELVIEW);
         gl.glPushMatrix();
         try {
+            IExtent extent = targetView.getExtent();
             gl.glEnable(GL.GL_BLEND);
             gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
             gl.glEnable(GL.GL_TEXTURE_2D);
-            gl.glScaled(1.0, -1.0, 1.0);
+            gl.glTranslated(extent.getMinX(), extent.getMinY(), 0);
+            gl.glScaled(glScaleX, -glScaleY, 1.0);
 
             // This loop just draws the box or a blank rectangle.
             for (DrawableString dString : parameters) {
@@ -1840,14 +1870,13 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                     if (verticalAlignment == VerticalAlignment.MIDDLE
                             && dString.getText().length > 1) {
                         Rectangle2D totalBounds = getStringsBounds(dString);
-                        double totalHeight = totalBounds.getHeight()
-                                * getScaleY();
+                        double totalHeight = totalBounds.getHeight();
                         yPos -= totalHeight * .5;
                         verticalAlignment = VerticalAlignment.TOP;
                     }
 
-                    double scaleX = getScaleX();
-                    double scaleY = getScaleY();
+                    double scaleX = stringScaleX;
+                    double scaleY = stringScaleY;
 
                     if (dString.rotation != 0.0) {
                         rotatedPoint = getUpdatedCoordinates(
@@ -1884,14 +1913,14 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                                     backgroundColor.blue / 255.0, alpha);
                         }
 
-                        double width = textBounds.getWidth() * scaleX;
-                        double height = textBounds.getHeight() * scaleY;
-                        double diff = height + textBounds.getY() * scaleY;
+                        double width = textBounds.getWidth();
+                        double height = textBounds.getHeight();
+                        double diff = height + textBounds.getY();
 
                         double x1 = xy[0] - scaleX;
-                        double y1 = xy[1] - scaleY - diff;
+                        double y1 = (xy[1] - diff) - scaleY;
                         double x2 = xy[0] + width + scaleX;
-                        double y2 = xy[1] + height - diff + scaleY;
+                        double y2 = (xy[1] - diff) + height + scaleY;
 
                         gl.glRectd(x1, y2, x2, y1);
 
@@ -1911,9 +1940,9 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                         gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
 
                         if (verticalAlignment == VerticalAlignment.TOP) {
-                            yPos += textBounds.getHeight() * getScaleY();
+                            yPos += textBounds.getHeight();
                         } else {
-                            yPos -= textBounds.getHeight() * getScaleY();
+                            yPos -= textBounds.getHeight();
 
                         }
                     }
@@ -1977,15 +2006,15 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                             * magnification;
                 }
 
-                float scaleX = (float) (getScaleX() * fontPercentage);
-                float scaleY = (float) (getScaleY() * fontPercentage);
+                float scaleX = (float) (stringScaleX * fontPercentage);
+                float scaleY = (float) (stringScaleY * fontPercentage);
 
                 double yPos = dString.basics.y;
                 VerticalAlignment verticalAlignment = dString.verticallAlignment;
                 if (verticalAlignment == VerticalAlignment.MIDDLE
                         && dString.getText().length > 1) {
                     Rectangle2D totalBounds = getStringsBounds(dString);
-                    double totalHeight = totalBounds.getHeight() * getScaleY();
+                    double totalHeight = totalBounds.getHeight();
                     yPos -= totalHeight * .5;
                     verticalAlignment = VerticalAlignment.TOP;
                 }
@@ -2067,9 +2096,9 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                         textRenderer.draw3D(string, xy[0], xy[1], 0.0f, scaleY);
                     }
                     if (verticalAlignment == VerticalAlignment.TOP) {
-                        yPos += textBounds.getHeight() * getScaleY();
+                        yPos += textBounds.getHeight();
                     } else {
-                        yPos -= textBounds.getHeight() * getScaleY();
+                        yPos -= textBounds.getHeight();
                     }
                 }
 
@@ -2119,10 +2148,8 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
         double width = textBounds.getWidth();
         double height = textBounds.getHeight();
 
-        double adjustedWidth = width * getScaleX();
-        double adjustedHeight = height * getScaleY();
-
-        double adjustedOffset = (height + textBounds.getY()) * getScaleY();
+        double offset = (height + textBounds.getY());
+        // double adjustedOffset = (height + textBounds.getY()) * getScaleY();
 
         double canvasX1 = 0.0;
         double canvasY1 = 0.0;
@@ -2132,22 +2159,22 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
             canvasX1 = xPos;
 
         } else if (horizontalAlignment == HorizontalAlignment.CENTER) {
-            canvasX1 = xPos - adjustedWidth / 2;
+            canvasX1 = xPos - width / 2;
 
         } else if (horizontalAlignment == HorizontalAlignment.RIGHT) {
-            canvasX1 = xPos - adjustedWidth;
+            canvasX1 = xPos - width;
         }
 
         // Calculate the vertical point based on alignment
         if (verticalAlignment == VerticalAlignment.BOTTOM) { // normal
             canvasY1 = yPos;
         } else if (verticalAlignment == VerticalAlignment.MIDDLE) {
-            canvasY1 = yPos + adjustedHeight / 2;
+            canvasY1 = yPos + height / 2;
         } else if (verticalAlignment == VerticalAlignment.TOP) {
-            canvasY1 = yPos + adjustedHeight;
+            canvasY1 = yPos + height;
         }
 
-        canvasY1 -= (adjustedOffset);
+        canvasY1 -= (offset);
 
         return new float[] { (float) canvasX1, (float) -canvasY1 };
     }

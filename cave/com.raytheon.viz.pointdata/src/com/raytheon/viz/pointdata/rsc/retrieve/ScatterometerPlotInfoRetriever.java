@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.pointdata.rsc.retrieve;
 
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -51,15 +52,17 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
- * Abstract class for retrieving available products and returning them as
- * PlotInfo objects.
+ * Retrieves available PlotInfo objects for ascat asynchronously and in fixed
+ * size sets so they can be displayed during data retrieval.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 9, 2009            bsteffen     Initial creation
+ * Oct 09, 2009            bsteffen    Initial creation
+ * May 17, 2013 1869       bsteffen    Remove DataURI column from sat plot
+ *                                     types.
  * 
  * </pre>
  * 
@@ -106,6 +109,18 @@ public class ScatterometerPlotInfoRetriever extends PointDataPlotInfoRetriever {
 
     }
 
+    private static class ScatterometerPlotInfo extends PlotInfo {
+
+        public final int id;
+
+        public ScatterometerPlotInfo(PlotInfo pi, int id) {
+            super(pi.stationId, pi.latitude, pi.longitude, pi.dataTime,
+                    pi.dataURI);
+            this.id = id;
+        }
+
+    }
+
     @XmlTransient
     private Job job = new Job("Retrieving Scatterometer Locations") {
 
@@ -139,7 +154,7 @@ public class ScatterometerPlotInfoRetriever extends PointDataPlotInfoRetriever {
                     }
                     if (stations != null && stations.size() == MAX_RESULT_SIZE) {
                         for (PlotInfo station : stations) {
-                            int id = Integer.parseInt(station.stationId);
+                            int id = ((ScatterometerPlotInfo) station).id;
                             if (id < request.maxId) {
                                 request.maxId = id;
                             }
@@ -192,6 +207,11 @@ public class ScatterometerPlotInfoRetriever extends PointDataPlotInfoRetriever {
     @XmlTransient
     private Deque<Request> backgroundQueue = new LinkedList<Request>();
 
+    public ScatterometerPlotInfoRetriever() {
+        needsDataUri = false;
+        onlyRefTime = true;
+    }
+
     @Override
     protected void addColumns(DbQuery dq) {
         dq.setMaxResults(MAX_RESULT_SIZE);
@@ -209,8 +229,8 @@ public class ScatterometerPlotInfoRetriever extends PointDataPlotInfoRetriever {
      */
     @Override
     protected PlotInfo getPlotInfo(Object[] data) {
-        PlotInfo info = super.getPlotInfo(data);
-        info.stationId = data[data.length - 1].toString();
+        PlotInfo info = super.getPlotInfo(Arrays.copyOf(data, data.length - 1));
+        info = new ScatterometerPlotInfo(info, (Integer) data[data.length - 1]);
         return info;
     }
 

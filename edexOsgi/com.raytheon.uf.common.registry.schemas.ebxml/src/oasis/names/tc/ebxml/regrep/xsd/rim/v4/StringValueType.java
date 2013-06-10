@@ -67,14 +67,22 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "StringValueType", propOrder = { "stringValue" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "StringValue")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "StringValue")
 public class StringValueType extends ValueType {
 
     @Column(name = COLUMN_NAME, columnDefinition = "text")
     @XmlElement(name = "Value")
     @DynamicSerializeElement
     protected String stringValue;
+
+    public StringValueType() {
+
+    }
+
+    public StringValueType(String stringValue) {
+        this.stringValue = stringValue;
+    }
 
     /**
      * Gets the value of the value property.

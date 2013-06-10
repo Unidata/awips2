@@ -19,7 +19,7 @@
       </layout> 
    </appender>
    
-   <appender name="CaveLogAppender" class="com.raytheon.uf.viz.alertviz.EnvConfigurableRollingFileAppender">
+   <appender name="CaveLogAppender" class="com.raytheon.uf.viz.core.log.EnvConfigurableRollingFileAppender">
       <param name="envLogVar" value="LOGFILE_CAVE"  />
       <param name="maxFileSize" value="2GB"/>
       <param name="maxBackupIndex" value="5"/>
@@ -29,7 +29,7 @@
       </layout>
    </appender>    
    
-   <appender name="PerformanceLogAppender" class="com.raytheon.uf.viz.alertviz.EnvConfigurableRollingFileAppender">
+   <appender name="PerformanceLogAppender" class="com.raytheon.uf.viz.core.log.EnvConfigurableRollingFileAppender">
       <param name="envLogVar" value="LOGFILE_PERFORMANCE"  />
       <param name="maxFileSize" value="2GB"/>
       <param name="maxBackupIndex" value="5"/>

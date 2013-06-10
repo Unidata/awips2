@@ -49,8 +49,8 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.core.mode.CAVEMode;
-import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.product.TextDBUtil;
+import com.raytheon.viz.gfe.vtec.GFEVtecUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -66,6 +66,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      functionality.
  * 09 NOV 2012  1298       rferrel     Changes for non-blocking dialog.
  * 02apr2013    15564   mgamazaychikov Ensured awipsWanPil to be 10 characters space-padded long
+ * 08 MAY 2013  1842       dgilling    Use VtecUtil to set product ETNs, fix
+ *                                     warnings.
  * </pre>
  * 
  * @author lvenable
@@ -152,7 +154,7 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
     @Override
     protected void initializeComponents(Shell shell) {
         String title = null;
-        CAVEMode opMode = DataManager.getCurrentInstance().getOpMode();
+        CAVEMode opMode = CAVEMode.getMode();
         if (opMode.equals(CAVEMode.OPERATIONAL)) {
             if (isStoreDialog == true) {
                 title = "Store in AWIPS TextDB";
@@ -272,7 +274,7 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
         gd = new GridData(150, SWT.DEFAULT);
         final Button actionBtn = new Button(buttons, SWT.PUSH);
 
-        CAVEMode opMode = DataManager.getCurrentInstance().getOpMode();
+        CAVEMode opMode = CAVEMode.getMode();
         if (opMode.equals(CAVEMode.OPERATIONAL)) {
             if (isStoreDialog == true) {
                 actionBtn.setText("Store");
@@ -325,10 +327,28 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
     /**
      * Method to store or transmit the product.
      */
+    @Override
     public void storeTransmitProduct() {
         // Store/Transmit the product...
 
         if (!countdownThread.threadCancelled()) {
+
+            try {
+                productText = GFEVtecUtil.finalizeETNs(productText);
+            } catch (VizException e) {
+                statusHandler.handle(Priority.CRITICAL,
+                        "Error setting ETNs for product", e);
+                sendTransmissionStatus(ConfigData.productStateEnum.Failed);
+                VizApp.runAsync(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        StoreTransmitDlg.this.parentEditor.revive();
+                    }
+                });
+                return;
+            }
+
             VizApp.runSync(new Runnable() {
 
                 @Override
@@ -388,8 +408,10 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
         } else {
             req = new OUPRequest();
             OfficialUserProduct oup = new OfficialUserProduct();
-            // make sure the awipsWanPil is exactly 10 characters space-padded long
-			String awipsWanPil = String.format("%-10s", productIdTF.getText().trim());
+            // make sure the awipsWanPil is exactly 10 characters space-padded
+            // long
+            String awipsWanPil = String.format("%-10s", productIdTF.getText()
+                    .trim());
             oup.setAwipsWanPil(awipsWanPil);
             oup.setProductText(productText);
 
@@ -451,6 +473,8 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
                 }
                 statusHandler.handle(p, resp.getMessage());
             }
+
+            this.parentEditor.setProductText(productText, false);
             this.parentEditor.brain();
         } catch (VizException e) {
             statusHandler.handle(Priority.CRITICAL, "Error sending product", e);

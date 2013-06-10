@@ -26,8 +26,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.Validate;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.widgets.Display;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.edex.plugin.redbook.common.RedbookRecord;
@@ -64,9 +62,10 @@ import com.raytheon.viz.redbook.rsc.RedbookFrame.RedbookStatus;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * May 28, 2008	#1162	    chammack	Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * May 28, 2008 1162        chammack    Initial creation
+ * May 21, 2013 2001        njensen     Fixed display of messages
  * 
  * </pre>
  * 
@@ -261,17 +260,11 @@ public class RedbookResource extends
 
         if (status != null) {
             if (status.unhandledPackets) {
-                MessageDialog
-                        .openWarning(
-                                Display.getCurrent().getActiveShell(),
-                                "Redbook Rendering Warning",
-                                "Warning: Unrecognized redbook packets found, rendering may not be complete.  Details have been logged.");
+                statusHandler
+                        .info("Warning: Unrecognized redbook packets found. Rendering may not be complete.");
             } else if (status.vectorRenderingWarning) {
-                MessageDialog
-                        .openWarning(
-                                Display.getCurrent().getActiveShell(),
-                                "Redbook Rendering Warning",
-                                "Warning: Some redbook vectors could not be rendered.  Rendering may not be complete.  Details have been logged.");
+                statusHandler
+                        .info("Warning: Some redbook vectors could not be rendered. Rendering may not be complete.");
             }
         }
     }

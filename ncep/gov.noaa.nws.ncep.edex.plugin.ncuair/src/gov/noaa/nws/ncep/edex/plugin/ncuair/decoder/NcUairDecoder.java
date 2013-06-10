@@ -33,9 +33,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.edex.db.dao.spatial.ObStationDao;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;

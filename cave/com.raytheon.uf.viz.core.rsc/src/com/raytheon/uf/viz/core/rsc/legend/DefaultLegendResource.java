@@ -30,10 +30,16 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.core.rsc.capabilities.BlendableCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.BlendedCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
+import com.raytheon.viz.ui.input.EditableManager;
+import com.raytheon.viz.ui.input.preferences.MousePreferenceManager;
 
 /**
- * TODO Add Description
+ * Default legend resource, handles visibility toggling and editableness
+ * toggling. TODO: Make D2DLegendResource extend it
  * 
  * <pre>
  * 
@@ -51,6 +57,13 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 
 public class DefaultLegendResource extends
         AbstractLegendResource<GenericResourceData> {
+
+    private static final String HIDE_RESOURCE_PREF = "com.raytheon.viz.d2d.ui.hide.resource";
+
+    private static final String EDIT_RESOURCE_PREF = "com.raytheon.viz.ui.input.resource.edit";
+
+    private MousePreferenceManager prefManager = MousePreferenceManager
+            .getInstance();
 
     /**
      * @param resourceData
@@ -94,6 +107,12 @@ public class DefaultLegendResource extends
                     } else {
                         legend.label = rsc.getName();
                         legend.resource = resourcePair;
+
+                        if (rsc.hasCapability(EditableCapability.class)
+                                && rsc.getCapability(EditableCapability.class)
+                                        .isEditable()) {
+                            legend.label += " (Editable)";
+                        }
                     }
 
                     if (!vis) {
@@ -114,5 +133,83 @@ public class DefaultLegendResource extends
             entries[i].legendParts = new LegendData[] { labels.get(i) };
         }
         return entries;
+    }
+
+    @Override
+    protected boolean checkResourceClick(ResourcePair mouseDownRsc,
+            int mouseButton) {
+        return true;
+    }
+
+    @Override
+    protected void resourceClicked(ResourcePair resource, int mouseButton) {
+        if (prefManager.handleClick(EDIT_RESOURCE_PREF, mouseButton)
+                && resource.getResource().hasCapability(
+                        EditableCapability.class)) {
+            // Editable case
+            toggleEditability(resource);
+        } else {
+            // Visibility case
+            toggleVisibility(resource);
+        }
+        issueRefresh();
+    }
+
+    /**
+     * Toggle visibility of resource taking blended/blendable resources into
+     * account.
+     * 
+     * If resource to toggle is blended, 1st check to see if parent resource is
+     * visible. If not visible then make parent and all children visible.
+     * 
+     * @param rp
+     */
+    protected boolean toggleVisibility(ResourcePair rp) {
+        AbstractVizResource<?, ?> rsc = rp.getResource();
+        if (rsc != null) {
+            if (rsc.hasCapability(BlendedCapability.class)) {
+                ResourcePair parentRsc = rsc.getCapability(
+                        BlendedCapability.class).getBlendableResource();
+                ResourceList children = parentRsc.getResource()
+                        .getCapability(BlendableCapability.class)
+                        .getResourceList();
+                if (parentRsc.getProperties().isVisible() == false) {
+                    parentRsc.getProperties().setVisible(true);
+                    for (ResourcePair child : children) {
+                        child.getProperties().setVisible(true);
+                    }
+                } else {
+                    // topmost resource is visible, toggle us and other
+                    // rsc
+                    if (rp.getProperties().isVisible() == false) {
+                        rp.getProperties().setVisible(true);
+                        parentRsc
+                                .getResource()
+                                .getCapability(BlendableCapability.class)
+                                .setAlphaStep(BlendableCapability.BLEND_MAX / 2);
+                    } else {
+                        parentRsc.getResource()
+                                .getCapability(BlendableCapability.class)
+                                .toggle(rp);
+                    }
+                }
+                return rp.getProperties().isVisible();
+            }
+        }
+        rp.getProperties().setVisible(!rp.getProperties().isVisible());
+        return rp.getProperties().isVisible();
+    }
+
+    /**
+     * Toggles the editable flag on the resource
+     * 
+     * @param rp
+     * @return
+     */
+    protected boolean toggleEditability(ResourcePair rp) {
+        EditableManager.makeEditable(rp.getResource(), !rp.getResource()
+                .getCapability(EditableCapability.class).isEditable());
+        return rp.getResource().getCapability(EditableCapability.class)
+                .isEditable();
     }
 }

@@ -73,6 +73,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * 02 Sep 2008             lvenable    Initial creation.
  * 09 Sep 2009  2772       mpduff      Implemented Dialog.
+ * 16 Apr 2013  1790       rferrel     Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -81,7 +82,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  */
 public class ArealDefinitionsDlg extends CaveSWTDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(ArealDefinitionsDlg.class);
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ArealDefinitionsDlg.class);
+
     private static final String[] GEOAREA_FILENAMES = { "zones.dat",
             "counties.dat", "basins.dat", "resvrs.dat" };
 
@@ -155,13 +158,18 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public ArealDefinitionsDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Areal Definitions");
 
         waitCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_WAIT);
         arrowCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_ARROW);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         GridLayout mainLayout = new GridLayout(1, false);
@@ -171,11 +179,23 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -192,9 +212,8 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
             loadAreaList(ArealTypeSelection.ZONES);
             loadAreaImport(ArealTypeSelection.ZONES);
         } catch (VizException e) {
-            statusHandler.handle(
-                            Priority.PROBLEM,
-                            "Error updating Geo Area List");
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error updating Geo Area List", e);
         }
     }
 
@@ -381,9 +400,8 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
             loadAreaList(selectedType);
             loadAreaImport(selectedType);
         } catch (VizException e) {
-            statusHandler.handle(
-                            Priority.PROBLEM,
-                            "Error updating Geo Area List");
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error updating Geo Area List", e);
         }
 
     }
@@ -409,8 +427,8 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
         for (GeoAreaData row : areaDataList) {
             String lat = geoUtils.cvt_latlon_from_double(row.getInteriorLat());
             String lon = geoUtils.cvt_latlon_from_double(row.getInteriorLon());
-            areaList.add(String.format(GEOAREA_FORMAT, row.getAreaId(), row
-                    .getName(), lat, lon));
+            areaList.add(String.format(GEOAREA_FORMAT, row.getAreaId(),
+                    row.getName(), lat, lon));
         }
 
     }
@@ -441,26 +459,23 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
         /* confirm import of info */
         if (defaultMatch) {
             msg = String
-                    .format(
-                            "Importing %s data from the default file:\n  %s\n\n"
-                                    + "This will DELETE all %s data before the import.\n\n",
+                    .format("Importing %s data from the default file:\n  %s\n\n"
+                            + "This will DELETE all %s data before the import.\n\n",
                             HydroConstants.GEOAREA_DATANAMES[listCbo
                                     .getSelectionIndex()], importFile,
                             HydroConstants.GEOAREA_DATANAMES[listCbo
                                     .getSelectionIndex()]);
         } else {
             msg = String
-                    .format(
-                            "Importing %s data from a user-specified file:\n  %s\n\n"
-                                    + "This will DELETE all %s data before the import.\n\n",
+                    .format("Importing %s data from a user-specified file:\n  %s\n\n"
+                            + "This will DELETE all %s data before the import.\n\n",
                             HydroConstants.GEOAREA_DATANAMES[listCbo
                                     .getSelectionIndex()], importFile,
                             HydroConstants.GEOAREA_DATANAMES[listCbo
                                     .getSelectionIndex()]);
 
-            msg
-                    .concat("(Note: Occasionally save backup file copies of the data\n"
-                            + "       to user-specified file - i.e. not the default filename.)\n\n");
+            msg.concat("(Note: Occasionally save backup file copies of the data\n"
+                    + "       to user-specified file - i.e. not the default filename.)\n\n");
 
             msg.concat("Are you sure you wish to import the data?");
 
@@ -476,10 +491,9 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
                 importGeoArea();
                 loadAreaList(selectedType);
             } catch (VizException e) {
-                statusHandler.handle(
-                                Priority.PROBLEM,
-                                "Error importing Geo Data for file:  "
-                                        + getAreaFilename().getAbsolutePath());
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error importing Geo Data for file:  "
+                                + getAreaFilename().getAbsolutePath(), e);
             }
         }
 
@@ -707,15 +721,13 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
                 String nameString = null;
                 if (name.length() > LOC_AREANAME_LEN) {
                     log(String
-                            .format(
-                                    "WARNING: truncated name (use 1-%d chars) in line %d: %s",
+                            .format("WARNING: truncated name (use 1-%d chars) in line %d: %s",
                                     LOC_AREANAME_LEN, linenum, line));
 
                     name.substring(0, 40);
                 } else if (name.length() <= 0) {
                     log(String
-                            .format(
-                                    "WARNING: invalid name (use 1-%d chars) in line %d: %s",
+                            .format("WARNING: invalid name (use 1-%d chars) in line %d: %s",
                                     LOC_AREANAME_LEN, linenum, line));
 
                     nameString = "UNDEFINED";
@@ -775,9 +787,8 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
                 GeoAreaData geoData = new GeoAreaData();
                 geoData.setAreaId(id);
                 geoData.setName(nameString);
-                geoData
-                        .setBoundaryType(HydroConstants.GEOAREA_DATANAMES[listCbo
-                                .getSelectionIndex()]);
+                geoData.setBoundaryType(HydroConstants.GEOAREA_DATANAMES[listCbo
+                        .getSelectionIndex()]);
                 geoData.setInteriorLat(intLat);
                 geoData.setInteriorLon(intLon);
                 geoData.setLon(lonPoints);
@@ -896,7 +907,7 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
 
         ArrayList<Coordinate> points = getPointsFromArea(data);
 
-        ArrayList<LineSegment> segments = LineSegmentUtil
+        java.util.List<LineSegment> segments = LineSegmentUtil
                 .getSegmentsFromPoints(points);
 
         binList = LineSegmentUtil.getHrapBinListFromSegments(segments);
@@ -942,8 +953,8 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
          * if the first point and the last point are not the same, add a final
          * point that is the same as the first
          */
-        if (!LineSegmentUtil.pointsEqual(points.get(0), points.get(points
-                .size() - 1))) {
+        if (!LineSegmentUtil.pointsEqual(points.get(0),
+                points.get(points.size() - 1))) {
             coord = new Coordinate(lon[0], lat[0]);
             points.add(coord);
         }

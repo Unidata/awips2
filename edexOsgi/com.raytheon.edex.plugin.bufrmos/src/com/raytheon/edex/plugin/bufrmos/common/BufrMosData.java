@@ -19,8 +19,6 @@
  **/
 package com.raytheon.edex.plugin.bufrmos.common;
 
-import java.util.Collection;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Embedded;
 import javax.persistence.Inheritance;
@@ -36,7 +34,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIConfig;
@@ -56,11 +53,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080221            862 jkorman     Initial Coding.
- * 02/06/09     1990       bphillip    removed populateDataStore method
+ * Feb 21, 2008 862        jkorman     Initial Coding.
+ * Feb 06, 2009 1990       bphillip    removed populateDataStore method
  * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
- * May 02, 2013 1970       bgonzale    Removed Table annotation, changed from Entity
- *                                     annotation to MappedSuperClass.
+ * May 02, 2013 1970       bgonzale    Removed Table annotation, changed from
+ *                                     Entity  annotation to MappedSuperClass.
+ * May 14, 2013 1869       bsteffen    Remove DataURI column from bufrmos.
  * 
  * </pre>
  * 
@@ -75,7 +73,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @DataURIConfig(persistentIndex = 2)
 public abstract class BufrMosData extends PersistablePluginDataObject implements
-		IDecoderGettable, IPersistable, IPointData {
+        IPersistable, IPointData {
 
 	public static enum MOSType {
 		ETA, GFS, AVN, LAMP, HPC, MRF, NGM
@@ -176,62 +174,6 @@ public abstract class BufrMosData extends PersistablePluginDataObject implements
 	@Override
 	public void setDataURI(String dataURI) {
 		identifier = dataURI;
-	}
-
-	/**
-	 * @see com.raytheon.uf.common.dataplugin.PluginDataObject#getDecoderGettable()
-	 */
-	@Override
-	public IDecoderGettable getDecoderGettable() {
-		return null;
-	}
-
-	/**
-	 * @see com.raytheon.uf.common.dataplugin.IDecoderGettable#getString(java.lang.String)
-	 */
-	@Override
-	public String getString(String paramName) {
-		return null;
-	}
-
-	/**
-	 * @see com.raytheon.uf.common.dataplugin.IDecoderGettable#getStrings(java.lang.String)
-	 */
-	@Override
-	public String[] getStrings(String paramName) {
-		return null;
-	}
-
-	/**
-	 * @see com.raytheon.uf.common.dataplugin.IDecoderGettable#getValue(java.lang.String)
-	 */
-	@Override
-	public Amount getValue(String paramName) {
-
-		Amount retValue = null;
-
-		// Object element = elementMap.get(paramName);
-		// TODO:
-		// if (element != null) {
-		// Unit<?> units = BUFRTableB.mapUnits(element.getUnits());
-		// if (units != null) {
-		// if ("FLOAT".equals(element.getElementType())) {
-		// retValue = new Amount(element.getDoubleVal(), units);
-		// } else if ("INTEGER".equals(element.getElementType())) {
-		// retValue = new Amount(element.getIntegerVal(), units);
-		// }
-		// }
-		// }
-
-		return retValue;
-	}
-
-	/**
-	 * @see com.raytheon.uf.common.dataplugin.IDecoderGettable#getValues(java.lang.String)
-	 */
-	@Override
-	public Collection<Amount> getValues(String paramName) {
-		return null;
 	}
 
 	public BufrMosDataLocation getLocation() {

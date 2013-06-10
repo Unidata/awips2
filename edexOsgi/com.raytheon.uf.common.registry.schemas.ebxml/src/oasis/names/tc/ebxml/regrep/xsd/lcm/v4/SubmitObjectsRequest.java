@@ -20,6 +20,9 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.lcm.v4;
 
+import java.util.Collection;
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -28,6 +31,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -75,6 +80,20 @@ public class SubmitObjectsRequest extends RegistryRequestType {
     @DynamicSerializeElement
     protected Mode mode;
 
+    public SubmitObjectsRequest() {
+
+    }
+
+    public SubmitObjectsRequest(String id, String comment,
+            Collection<SlotType> slots,
+            RegistryObjectListType registryObjectList, Boolean checkReferences,
+            Mode mode) {
+        super(id, comment, slots);
+        this.registryObjectList = registryObjectList;
+        this.checkReferences = checkReferences;
+        this.mode = mode;
+    }
+
     /**
      * Gets the value of the registryObjectList property.
      * 
@@ -94,6 +113,18 @@ public class SubmitObjectsRequest extends RegistryRequestType {
      */
     public void setRegistryObjectList(RegistryObjectListType value) {
         this.registryObjectList = value;
+    }
+
+    /**
+     * Get the registry objects on the request.
+     * 
+     * @return
+     */
+    public List<RegistryObjectType> getRegistryObjects() {
+        if (registryObjectList == null) {
+            registryObjectList = new RegistryObjectListType();
+        }
+        return registryObjectList.getRegistryObject();
     }
 
     /**

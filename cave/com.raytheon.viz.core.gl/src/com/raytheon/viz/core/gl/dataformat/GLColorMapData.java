@@ -21,8 +21,8 @@ package com.raytheon.viz.core.gl.dataformat;
 
 import java.nio.Buffer;
 
-import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapData;
-import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapDataType;
+import com.raytheon.uf.common.colormap.image.ColorMapData;
+import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 
 /**
  * 
@@ -49,7 +49,7 @@ public class GLColorMapData {
 
     private int[] dimensions;
 
-    private ColorMapDataType dataType;
+    private ColorMapData.ColorMapDataType dataType;
 
     private int textureType;
 
@@ -86,7 +86,7 @@ public class GLColorMapData {
         this.textureType = textureType;
     }
 
-    public ColorMapDataType getDataType() {
+    public ColorMapData.ColorMapDataType getDataType() {
         return dataType;
     }
 

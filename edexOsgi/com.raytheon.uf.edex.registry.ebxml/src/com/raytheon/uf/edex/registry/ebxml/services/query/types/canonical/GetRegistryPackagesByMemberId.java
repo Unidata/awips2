@@ -20,17 +20,16 @@
 package com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryPackageType;
 
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Property;
 
+import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
@@ -49,6 +48,8 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
+ * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
  * 
  * </pre>
  * 
@@ -62,9 +63,6 @@ public class GetRegistryPackagesByMemberId extends CanonicalEbxmlQuery {
     protected static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GetAuditTrailByTimeInterval.class);
 
-    public static final String QUERY_DEFINITION = QUERY_CANONICAL_PREFIX
-            + "GetRegistryPackagesByMemberId";
-
     /** The list of valid parameters for this query */
     private static final List<String> QUERY_PARAMETERS = new ArrayList<String>();
 
@@ -73,12 +71,11 @@ public class GetRegistryPackagesByMemberId extends CanonicalEbxmlQuery {
         QUERY_PARAMETERS.add(QueryConstants.MEMBER_ID);
     }
 
+    private RegistryObjectTypeDao<RegistryPackageType> registryPackageDao;
+
     @Override
-    protected <T extends RegistryObjectType> List<T> query(QueryType queryType,
-            QueryResponse queryResponse) throws EbxmlRegistryException {
-        RegistryObjectTypeDao regPackageDao = new RegistryObjectTypeDao(
-                RegistryPackageType.class);
-        RegistryObjectTypeDao regDao = new RegistryObjectTypeDao();
+    protected void query(QueryType queryType, QueryResponse queryResponse,
+            String client) throws EbxmlRegistryException {
         QueryParameters parameters = getParameterMap(queryType.getSlot(),
                 queryResponse);
         // The client did not specify the required parameter
@@ -92,9 +89,9 @@ public class GetRegistryPackagesByMemberId extends CanonicalEbxmlQuery {
         String id = parameters.getFirstParameter(QueryConstants.MEMBER_ID);
         List<String> ids = new ArrayList<String>();
         if (id.contains("_") || id.contains("%")) {
-            List<String> matchingIds = regDao.getMatchingIds(id);
+            List<String> matchingIds = registryObjectDao.getMatchingIds(id);
             if (matchingIds.isEmpty()) {
-                return Collections.emptyList();
+                return;
             }
             ids.addAll(matchingIds);
 
@@ -107,7 +104,9 @@ public class GetRegistryPackagesByMemberId extends CanonicalEbxmlQuery {
         theQuery.createAlias("registryObjectList", "registryObjectList");
         theQuery.createAlias("registryObjectList.registryObject", "regObject");
         theQuery.add(Property.forName("regObject.id").in(ids));
-        return regPackageDao.executeCriteriaQuery(theQuery);
+        setResponsePayload(queryResponse,
+                registryPackageDao.executeCriteriaQuery(theQuery));
+
     }
 
     @Override
@@ -117,6 +116,12 @@ public class GetRegistryPackagesByMemberId extends CanonicalEbxmlQuery {
 
     @Override
     public String getQueryDefinition() {
-        return QUERY_DEFINITION;
+        return CanonicalQueryTypes.GET_REGISTRY_PACKAGES_BY_MEMBER_ID;
     }
+
+    public void setRegistryPackageDao(
+            RegistryObjectTypeDao<RegistryPackageType> registryPackageDao) {
+        this.registryPackageDao = registryPackageDao;
+    }
+
 }

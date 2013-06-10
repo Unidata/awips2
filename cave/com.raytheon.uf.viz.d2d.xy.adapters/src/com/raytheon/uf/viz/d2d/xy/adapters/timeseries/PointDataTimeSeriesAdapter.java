@@ -20,12 +20,14 @@
 package com.raytheon.uf.viz.d2d.xy.adapters.timeseries;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
@@ -40,10 +42,13 @@ import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.pointdata.PointDataConstants;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.DataTime.FLAG;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.level.LevelUtilities;
@@ -58,14 +63,17 @@ import com.raytheon.viz.core.graphing.xy.XYWindImageData;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Adapter for converting pdos that are compatible with the point data api into
+ * XYDataLists that can be used for time series.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 7, 2010            bsteffen     Initial creation
+ * May 07, 2010            bsteffen    Initial creation
+ * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
+ *                                     work without dataURI.
  * 
  * </pre>
  * 
@@ -107,32 +115,48 @@ public class PointDataTimeSeriesAdapter extends
 
     private XYDataList loadDataInternal(PluginDataObject[] recordsToLoad)
             throws VizException {
-        RequestConstraint uriConstraint = new RequestConstraint();
-        uriConstraint.setConstraintType(RequestConstraint.ConstraintType.IN);
+        boolean refTimeOnly = true;
+        RequestConstraint dataTimeConstraint = new RequestConstraint();
+        RequestConstraint refTimeConstraint = new RequestConstraint();
         // Perhaps this should just be done using the resource metadatamap
         for (PluginDataObject pdo : recordsToLoad) {
-            uriConstraint.addToConstraintValueList(pdo.getDataURI());
+            DataTime dt = pdo.getDataTime();
+            dataTimeConstraint.addToConstraintValueList(dt
+                    .toString());
+            refTimeOnly &= !dt.getUtilityFlags().contains(FLAG.FCST_USED);
+            if(refTimeOnly){
+                refTimeConstraint.addToConstraintValueList(TimeUtil
+                        .formatToSqlTimestamp(dt.getRefTime()));
+            }
         }
 
         String parameter = resourceData.getYParameter().code;
 
         boolean isIcon = displayType == DisplayType.ICON;
-        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
-        constraints.put("dataURI", uriConstraint);
+        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>(
+                resourceData.getMetadataMap());
+        String[] parameters = null;
+        if(refTimeOnly){
+            refTimeConstraint.setConstraintType(RequestConstraint.ConstraintType.IN);
+            constraints.put("dataTime.refTime", refTimeConstraint);
+            parameters = new String[] {
+                    PointDataConstants.DATASET_REFTIME, parameter };
+        }else{
+            dataTimeConstraint.setConstraintType(RequestConstraint.ConstraintType.IN);
+            constraints.put("dataTime", dataTimeConstraint);
+            parameters = new String[] {
+                    PointDataConstants.DATASET_REFTIME,
+                    PointDataConstants.DATASET_FORECASTHR, parameter };
+        }
 
         PointDataContainer pdc = DataCubeContainer.getPointData(
-                recordsToLoad[0].getPluginName(), new String[] { "dataURI",
-                        parameter }, resourceData.getLevelKey(), constraints);
+                recordsToLoad[0].getPluginName(), parameters,
+                resourceData.getLevelKey(),
+                constraints);
         ArrayList<XYData> data = new ArrayList<XYData>();
         for (int uriCounter = 0; uriCounter < pdc.getAllocatedSz(); uriCounter++) {
             PointDataView pdv = pdc.readRandom(uriCounter);
-            String dataURI = pdv.getString("dataURI");
-            DataTime x = null;
-            for (PluginDataObject pdo : recordsToLoad) {
-                if (dataURI.equals(pdo.getDataURI())) {
-                    x = pdo.getDataTime();
-                }
-            }
+            DataTime x = getDataTime(pdv, refTimeOnly);
             Number y = pdv.getNumber(parameter);
 
             if (x == null) {
@@ -165,6 +189,32 @@ public class PointDataTimeSeriesAdapter extends
 
         list.setData(data);
         return list;
+    }
+
+    private DataTime getDataTime(PointDataView pdv, boolean refTimeOnly) {
+        long refTime = pdv.getNumber(PointDataConstants.DATASET_REFTIME)
+                .longValue();
+        Unit<?> refUnit = pdv.getUnit(PointDataConstants.DATASET_REFTIME);
+        if (refUnit != null && !refUnit.equals(SI.MILLI(SI.SECOND))
+                && refUnit.isCompatible(SI.SECOND)) {
+            refTime = (long) refUnit.getConverterTo(SI.MILLI(SI.SECOND))
+                    .convert(refTime);
+        }
+        if (refTimeOnly) {
+            return new DataTime(new Date(refTime));
+        }
+
+        int forecastTime = pdv.getNumber(PointDataConstants.DATASET_FORECASTHR)
+                .intValue();
+        Unit<?> forecastUnit = pdv
+                .getUnit(PointDataConstants.DATASET_FORECASTHR);
+        if (forecastUnit != null && !forecastUnit.equals(SI.SECOND)
+                && forecastUnit.isCompatible(SI.SECOND)) {
+            forecastTime = (int) forecastUnit.getConverterTo(SI.SECOND)
+                    .convert(forecastTime);
+        }
+
+        return new DataTime(new Date(refTime), forecastTime);
     }
 
     private XYDataList loadDataOAInternal(PluginDataObject[] recordsToLoad)

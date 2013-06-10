@@ -26,10 +26,10 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
+import javax.persistence.JoinTable;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -80,13 +80,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "SubscriptionType", propOrder = { "deliveryInfo", "selector" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "Subscription")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "Subscription")
 public class SubscriptionType extends RegistryObjectType {
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     @XmlElement(name = "DeliveryInfo")
     @DynamicSerializeElement
+    @JoinTable(schema = "ebxml")
     protected List<DeliveryInfoType> deliveryInfo;
 
     @OneToOne(cascade = CascadeType.ALL)
@@ -108,9 +109,9 @@ public class SubscriptionType extends RegistryObjectType {
     @DynamicSerializeElement
     protected XMLGregorianCalendar endTime;
 
-    @Transient
     @XmlAttribute
     @DynamicSerializeElement
+    @Type(type = "com.raytheon.uf.common.registry.schemas.ebxml.util.DurationType")
     protected Duration notificationInterval;
 
     /**

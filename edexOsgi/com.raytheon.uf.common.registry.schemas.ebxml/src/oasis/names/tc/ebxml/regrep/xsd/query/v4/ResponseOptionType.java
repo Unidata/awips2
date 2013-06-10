@@ -76,6 +76,15 @@ public class ResponseOptionType {
     @DynamicSerializeElement
     protected Boolean returnComposedObjects;
 
+    public ResponseOptionType() {
+
+    }
+
+    public ResponseOptionType(String returnType, Boolean returnComposedObjects) {
+        this.returnType = returnType;
+        this.returnComposedObjects = returnComposedObjects;
+    }
+
     /**
      * Gets the value of the returnType property.
      * 

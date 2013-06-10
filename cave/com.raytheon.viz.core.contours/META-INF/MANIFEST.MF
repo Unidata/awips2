@@ -14,8 +14,7 @@ Require-Bundle: org.eclipse.ui,
  org.geotools,
  javax.measure,
  com.raytheon.viz.ui,
- com.raytheon.edex.meteolib,
- com.raytheon.viz.pointdata;bundle-version="1.10.13"
+ com.raytheon.edex.meteolib
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.core.contours,
  com.raytheon.viz.core.contours.cmenu,

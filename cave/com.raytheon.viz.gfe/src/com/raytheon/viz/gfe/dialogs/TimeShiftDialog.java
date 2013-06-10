@@ -32,10 +32,10 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.edex.util.MathUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.MathUtil;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
@@ -50,6 +50,7 @@ import com.raytheon.viz.ui.widgets.LabeledScale;
  * ------------ ---------- ----------- --------------------------
  * 	Feb 26, 2008					Eric Babin Initial Creation
  * Oct 30, 2012 1298       rferrel     Code clean up for non-blocking dialog.
+ * Feb 15, 2013 1638       mschenke    Moved edex.common MathUtil into common.util
  * 
  * </pre>
  * 

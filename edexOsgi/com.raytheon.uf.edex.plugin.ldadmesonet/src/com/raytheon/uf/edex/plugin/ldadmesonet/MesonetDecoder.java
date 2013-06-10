@@ -33,7 +33,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
@@ -51,7 +50,6 @@ import com.raytheon.edex.plugin.IBinaryDecoder;
 import com.raytheon.edex.plugin.ldad.common.DecodedData;
 import com.raytheon.edex.plugin.ldad.common.LdadField;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.ldadmesonet.MesonetLdadRecord;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -66,9 +64,10 @@ import com.raytheon.uf.common.time.DataTime;
  * 
  * SOFTWARE HISTORY
  *                     
- * ate          Ticket#     Engineer    Description
+ * Date         Ticket#     Engineer    Description
  * -----------  ----------  ----------- --------------------------
- * 9/4/09                   vkorolev    Initial creation
+ * Sep 04, 2009             vkorolev    Initial creation
+ * May 15, 2013 1869        bsteffen    Remove DataURI column from ldadmesonet.
  * </pre>
  * 
  * @author vkorolev
@@ -248,7 +247,6 @@ public class MesonetDecoder<E> extends AbstractDecoder implements
                             DataTime dt = new DataTime(ot);
                             record.setDataTime(dt);
                             record.setLocation(location);
-                            record.constructDataURI();
                             record.setRawMessage(record.toMessage());
                             retVal.add(record);
                         }
@@ -265,8 +263,6 @@ public class MesonetDecoder<E> extends AbstractDecoder implements
                 logger.error(traceId + " - SecurityException:" + e);
             } catch (IllegalArgumentException e) {
                 logger.error(traceId + " - IllegalArgumentException:" + e);
-            } catch (PluginException e) {
-                logger.error(traceId + " - PluginException:" + e);
             }
         }
         return retVal.toArray(new PluginDataObject[retVal.size()]);
