@@ -32,6 +32,7 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.datadelivery.registry.GroupDefinition;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
@@ -62,6 +63,10 @@ import com.raytheon.viz.ui.presenter.components.WidgetConf;
  * Aug 31, 2012  1128      mpduff      Notification Fixes.
  * Nov 28, 2012  1286      djohnson    Use the subscription service.
  * Jan 02, 2013  1441      djohnson    Access GroupDefinitionManager in a static fashion.
+ * Mar 29, 2013  1841      djohnson    Subscription is now UserSubscription.
+ * Apr 08, 2013  1826      djohnson    Remove delivery options.
+ * May 14, 2013  1040      mpduff      Changed to add office Id rather than setting it.
+ * May 21, 2013  2020      mpduff      Rename UserSubscription to SiteSubscription.
  * 
  * </pre>
  * 
@@ -71,7 +76,8 @@ import com.raytheon.viz.ui.presenter.components.WidgetConf;
 public class GroupAddDlg extends CaveSWTDialog {
 
     /** Status Handler */
-    private final IUFStatusHandler statusHandler = UFStatus.getHandler(GroupAddDlg.class);
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GroupAddDlg.class);
 
     /** The Main Composite */
     private Composite mainComp;
@@ -92,13 +98,14 @@ public class GroupAddDlg extends CaveSWTDialog {
      * Constructor.
      * 
      * @param parent
-     *           parent shell 
+     *            parent shell
      * @param subscription
-     *           Subscription object
+     *            Subscription object
      * @param callback
-     *           callback to parent shell
+     *            callback to parent shell
      */
-    public GroupAddDlg(Shell parent, Subscription subscription, IGroupAction callback) {
+    public GroupAddDlg(Shell parent, Subscription subscription,
+            IGroupAction callback) {
         super(parent, SWT.DIALOG_TRIM, CAVE.INDEPENDENT_SHELL);
         setText("Add To Group");
         this.subscription = subscription;
@@ -121,20 +128,23 @@ public class GroupAddDlg extends CaveSWTDialog {
         mainComp.setLayoutData(gd);
 
         createSubInfo();
-        
-        // TODO - need to change this to not us the IGroupAction 
+
+        // TODO - need to change this to not us the IGroupAction
         groupSelectComp = new GroupSelectComp(mainComp, true);
         groupSelectComp.setGroupName(subscription.getGroupName());
         createButtons();
 
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
      */
     @Override
     protected void preOpened() {
-        ComboBoxConf groupComboConf = new ComboBoxConf(true, "Select a Group", WidgetConf.DO_NOTHING);
+        ComboBoxConf groupComboConf = new ComboBoxConf(true, "Select a Group",
+                WidgetConf.DO_NOTHING);
         groupSelectComp.setGroupNameComboConf(groupComboConf);
     }
 
@@ -216,29 +226,32 @@ public class GroupAddDlg extends CaveSWTDialog {
      */
     private boolean handleOK() {
 
-        //Get Group Definition
+        // Get Group Definition
         String groupName = groupSelectComp.getGroupName();
         GroupDefinition groupDefinition = GroupDefinitionManager
                 .getGroup(groupName);
 
-        //Apply group properties to subscription definition
+        // Apply group properties to subscription definition
         if (groupDefinition != null) {
-            subscription.setNotify(groupDefinition.getOption() == 1);
             subscription.setGroupName(groupName);
 
-            //Set duration
+            // Set duration
             if (groupDefinition.getSubscriptionStart() != null) {
-                subscription.setSubscriptionStart(groupDefinition.getSubscriptionStart());
-                subscription.setSubscriptionEnd(groupDefinition.getSubscriptionEnd());
+                subscription.setSubscriptionStart(groupDefinition
+                        .getSubscriptionStart());
+                subscription.setSubscriptionEnd(groupDefinition
+                        .getSubscriptionEnd());
             } else {
                 subscription.setSubscriptionStart(null);
                 subscription.setSubscriptionEnd(null);
             }
 
-            //Set active period
+            // Set active period
             if (groupDefinition.getActivePeriodStart() != null) {
-                subscription.setActivePeriodStart(groupDefinition.getActivePeriodStart());
-                subscription.setActivePeriodEnd(groupDefinition.getActivePeriodEnd());
+                subscription.setActivePeriodStart(groupDefinition
+                        .getActivePeriodStart());
+                subscription.setActivePeriodEnd(groupDefinition
+                        .getActivePeriodEnd());
             } else {
                 subscription.setActivePeriodStart(null);
                 subscription.setActivePeriodEnd(null);
@@ -249,8 +262,14 @@ public class GroupAddDlg extends CaveSWTDialog {
 
         System.out.println("Fix Me:  Need to calculate data set size");
         subscription.setDataSetSize(999);
-        subscription.setOfficeID(LocalizationManager.getInstance().getCurrentSite());
-        subscription.setOwner(username);
+        subscription.addOfficeID(LocalizationManager.getInstance()
+                .getCurrentSite());
+
+        // TODO: How to do this better? Will shared subscriptions participate in
+        // groups?
+        if (subscription instanceof SiteSubscription) {
+            ((SiteSubscription) subscription).setOwner(username);
+        }
 
         try {
             DataDeliveryHandlers.getSubscriptionHandler().store(subscription);
@@ -261,8 +280,7 @@ public class GroupAddDlg extends CaveSWTDialog {
         }
 
         subscriptionNotificationService.sendCreatedSubscriptionNotification(
-                subscription,
-                username);
+                subscription, username);
 
         // refresh table
         callback.handleRefresh();
@@ -271,4 +289,3 @@ public class GroupAddDlg extends CaveSWTDialog {
     }
 
 }
-

@@ -19,6 +19,9 @@
  **/
 package com.raytheon.edex.plugin.bufrmos.common;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -44,6 +47,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * May 25, 2011            rjpeter     Initial creation
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869       bsteffen    Remove dataURI column from
+ *                                     PluginDataObject.
  * 
  * </pre>
  * 
@@ -71,4 +76,12 @@ public class BufrMosEtaData extends BufrMosData {
     public MOSType getType() {
         return MOSType.ETA;
     }
+
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
+
 }

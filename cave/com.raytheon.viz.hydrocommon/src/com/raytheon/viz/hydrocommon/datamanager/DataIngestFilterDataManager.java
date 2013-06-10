@@ -20,6 +20,7 @@
 package com.raytheon.viz.hydrocommon.datamanager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
@@ -35,6 +36,7 @@ import com.raytheon.viz.hydrocommon.data.DataIngestFilterData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 11, 2008 1787       askripsky   Initial Creation
+ * Apr 18, 2013 1790       rferrel     Code clean up with non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -43,9 +45,9 @@ import com.raytheon.viz.hydrocommon.data.DataIngestFilterData;
  */
 
 public class DataIngestFilterDataManager {
-    private static DataIngestFilterDataManager manager = null;
+    private static DataIngestFilterDataManager manager = new DataIngestFilterDataManager();
 
-    private ArrayList<DataIngestFilterData> ingestFilterData = null;
+    private List<DataIngestFilterData> ingestFilterData = null;
 
     /**
      * Private constructor.
@@ -59,10 +61,6 @@ public class DataIngestFilterDataManager {
      * @return manager
      */
     public static synchronized DataIngestFilterDataManager getInstance() {
-        if (manager == null) {
-            manager = new DataIngestFilterDataManager();
-        }
-
         return manager;
     }
 
@@ -72,8 +70,8 @@ public class DataIngestFilterDataManager {
      * @return The duration from the DB
      * @throws VizException
      */
-    public ArrayList<String> getShefDur() throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+    public List<String> getShefDur() throws VizException {
+        List<String> rval = new ArrayList<String>();
 
         String durQuery = "SELECT name, dur FROM shefdur ORDER BY dur";
 
@@ -99,8 +97,8 @@ public class DataIngestFilterDataManager {
      * @return The type sources from the DB
      * @throws VizException
      */
-    public ArrayList<String> getShefTs() throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+    public List<String> getShefTs() throws VizException {
+        List<String> rval = new ArrayList<String>();
 
         String tsQuery = "SELECT name, ts FROM shefts ORDER BY ts";
 
@@ -126,8 +124,8 @@ public class DataIngestFilterDataManager {
      * @return The extremum from the DB
      * @throws VizException
      */
-    public ArrayList<String> getShefExtremum() throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+    public List<String> getShefExtremum() throws VizException {
+        List<String> rval = new ArrayList<String>();
 
         String extQuery = "SELECT name, extremum FROM shefex ORDER BY extremum";
 
@@ -173,8 +171,8 @@ public class DataIngestFilterDataManager {
      * @return The filtered ingest filter data.
      * @throws VizException
      */
-    public ArrayList<DataIngestFilterData> getIngestFilter(boolean filterByPE,
-            ArrayList<String> selectedPE, boolean filterByLocation,
+    public List<DataIngestFilterData> getIngestFilter(boolean filterByPE,
+            List<String> selectedPE, boolean filterByLocation,
             String selectedLocation, boolean filterBySwitches,
             boolean filterByIngest, boolean filterByOFS, boolean filterByMPE,
             boolean filterByTS, String selectedTS) throws VizException {
@@ -211,15 +209,14 @@ public class DataIngestFilterDataManager {
      * @return The filtered ingest filter data.
      * @throws VizException
      */
-    public ArrayList<DataIngestFilterData> getIngestFilter(boolean filterByPE,
-            ArrayList<String> selectedPE, boolean filterByLocation,
+    public List<DataIngestFilterData> getIngestFilter(boolean filterByPE,
+            List<String> selectedPE, boolean filterByLocation,
             String selectedLocation, boolean filterBySwitches,
             boolean filterByIngest, boolean filterByOFS, boolean filterByMPE,
             boolean filterByTS, String selectedTS, boolean forceLoad)
             throws VizException {
         if ((ingestFilterData == null) || forceLoad) {
             DataIngestFilterData seedData = new DataIngestFilterData();
-//            seedData.setResultLimit(150);
 
             StringBuffer whereClause = new StringBuffer();
             if (filterByLocation) {
@@ -287,8 +284,8 @@ public class DataIngestFilterDataManager {
         String dataFormat = "%-9S %-4S %-6S %-7S %-6S %-7S %-5S %-5S %-5S";
 
         return String.format(dataFormat, currData.getLid(), currData.getPe(),
-                getDisplayString(currData.getDuration()), currData
-                        .getTypeSource(), currData.getExtremum(),
+                getDisplayString(currData.getDuration()),
+                currData.getTypeSource(), currData.getExtremum(),
                 getDisplayString(currData.getTsRank()), currData.getIngest(),
                 currData.getOfsInput(), currData.getStg2Input());
     }
@@ -302,8 +299,8 @@ public class DataIngestFilterDataManager {
      * @return The corresponding string or "" if the value is MISSING_VALUE
      */
     public String getDisplayString(Double val) {
-        String temp = (Double.compare(val, Double
-                .valueOf(HydroConstants.MISSING_VALUE)) != 0) ? Double
+        String temp = (Double.compare(val,
+                Double.valueOf(HydroConstants.MISSING_VALUE)) != 0) ? Double
                 .toString(val) : "";
 
         return temp;

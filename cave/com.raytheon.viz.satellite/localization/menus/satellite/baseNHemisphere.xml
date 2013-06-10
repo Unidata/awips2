@@ -24,49 +24,41 @@
 		   titleText="------ NH/NA/US every image------" id="NHLine"/>
     <contribute xsi:type="satBundleItem" file="bundles/DefaultCompositeSatellite.xml" 
                 menuText="IR Window" id="irWindow">
-        <dataURI>/satellite/%/NESDIS/GOES%/%/Imager_11_micron_IR</dataURI>
         <substitute key="element" value="Imager 11 micron IR"/>
         <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
     </contribute>
     <contribute xsi:type="satBundleItem" file="bundles/DefaultCompositeSatellite.xml" 
                 menuText="Water Vapor" id="waterVapor">
-        <dataURI>/satellite/%/NESDIS/GOES%/%/Imager_6.7-6.5_micron_IR_(WV)</dataURI>
         <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
         <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
     </contribute>
     <contribute xsi:type="satBundleItem" file="bundles/DefaultCompositeSatellite.xml" 
                 menuText="Visible" id="visible">
-        <dataURI>/satellite/%/NESDIS/GOES%/%/Imager_Visible</dataURI>
         <substitute key="element" value="Imager Visible"/>
         <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
     </contribute>
     <contribute xsi:type="satBundleItem" file="bundles/DefaultCONUSSatellite.xml" 
                 menuText="3.9u" id="3.9u">
-        <dataURI>/satellite/%/NESDIS/GOES%/%/Imager_3.9_micron_IR</dataURI>
         <substitute key="element" value="Imager 3.9 micron IR"/>
         <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
     </contribute>
     <contribute xsi:type="satBundleItem" file="bundles/DefaultCONUSSatellite.xml" 
                 menuText="13u" id="13u">
-        <dataURI>/satellite/%/NESDIS/GOES%/%/Imager_13_micron_(IR)</dataURI>
         <substitute key="element" value="Imager 13 micron (IR)"/>
         <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
     </contribute>
     <contribute xsi:type="satBundleItem" file="bundles/DerivedCONUSSatellite.xml" 
                 menuText="11u-3.9u" id="11-3.9u">
-        <dataURI>/satellite/%/NESDIS/GOES%/%/Imager_3.9_micron_IR</dataURI>
         <substitute key="element" value="satDif11u3_9uIR"/>
         <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
     </contribute>
 	<contribute xsi:type="satBundleItem" file="bundles/DerivedCONUSSatellite.xml"
                 menuText="11u-13u" id="11u-13u">
-        <dataURI>/satellite/%/NESDIS/GOES%/%/Imager_13_micron_(IR)</dataURI>
         <substitute key="element" value="satDif11u13uIR"/>
         <substitute key="colormap" value="Grid/gridded data"/>
     </contribute> 
 	<contribute xsi:type="satBundleItem" file="bundles/DerivedCONUSSatellite.xml"
                 menuText="WV/IR" id="WV/IR">
-        <dataURI>/satellite/%/NESDIS/GOES%/%/Imager_6.7-6.5_micron_IR_(WV)</dataURI>
         <substitute key="element" value="satDivWVIR"/>
         <substitute key="colormap" value="Sat/IR/IR WV"/>
     </contribute> 

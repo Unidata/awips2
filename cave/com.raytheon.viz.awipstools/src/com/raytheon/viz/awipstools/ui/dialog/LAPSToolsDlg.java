@@ -49,7 +49,7 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.viz.awipstools.Activator;
 import com.raytheon.viz.awipstools.ui.action.LapsToolsData;
@@ -970,7 +970,7 @@ public class LAPSToolsDlg extends CaveSWTDialog {
         defaultBtn.setEnabled(false);
         localizeLapsBtn.setEnabled(false);
         readSpinners();
-        AwipsToolsResourceData<LapsToolLayer> rd = new AwipsToolsResourceData<LapsToolLayer>(
+        GenericToolsResourceData<LapsToolLayer> rd = new GenericToolsResourceData<LapsToolLayer>(
                 LapsToolLayer.DEFAULT_NAME, LapsToolLayer.class);
 
         IDisplayPaneContainer container = EditorUtil.getActiveVizContainer();

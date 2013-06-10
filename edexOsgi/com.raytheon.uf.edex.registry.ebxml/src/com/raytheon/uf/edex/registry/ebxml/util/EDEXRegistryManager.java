@@ -16,8 +16,6 @@ import com.raytheon.uf.common.registry.RegistryQuery;
 import com.raytheon.uf.common.registry.RegistryResponse;
 import com.raytheon.uf.common.registry.ebxml.LifecycleManagerFactory;
 import com.raytheon.uf.common.registry.ebxml.QueryManagerFactory;
-import com.raytheon.uf.common.registry.ebxml.RegistryTxManager;
-import com.raytheon.uf.common.registry.ebxml.TxManager;
 import com.raytheon.uf.common.serialization.comm.response.ServerErrorResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -25,7 +23,6 @@ import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.registry.acp.xacml.XACMLPolicyEnforcementPoint;
-import com.raytheon.uf.edex.registry.ebxml.services.util.RegistrySessionManager;
 
 /**
  * 
@@ -45,6 +42,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.util.RegistrySessionManager;
  * Jun 21, 2012 736        djohnson    Change handleRequest() to call RegistryManager.
  * Sep 14, 2012 1169       djohnson    Add use of create only mode.
  * Sep 27, 2012 1187       djohnson    Simplify the session management for a registry interaction.
+ * 3/18/2013               bphillip    Modified to use proper transaction management and spring injection of objects
  * 
  * </pre>
  * 
@@ -53,8 +51,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.util.RegistrySessionManager;
  */
 public class EDEXRegistryManager extends
         AbstractPrivilegedRequestHandler<IRegistryRequest<?>> implements
-        LifecycleManagerFactory,
-        QueryManagerFactory, RegistryTxManager {
+        LifecycleManagerFactory, QueryManagerFactory {
 
     @VisibleForTesting
     static IUFStatusHandler statusHandler = UFStatus
@@ -65,7 +62,9 @@ public class EDEXRegistryManager extends
 
     private static final String LIFECYCLEMANAGER_BEAN = "lcmServiceImpl";
 
-    private static final String QUERYMANAGER_BEAN = "queryServiceImpl";
+    private XACMLPolicyEnforcementPoint xacmlPep;
+
+    private QueryManager queryManager;
 
     /**
      * Get an implementation of LifeCycleManager that uses the internal
@@ -82,19 +81,6 @@ public class EDEXRegistryManager extends
     }
 
     /**
-     * Get an implementation of TxManager to manage transactions with the
-     * registry.
-     * 
-     * @return A implementation of TxManager.
-     * 
-     * @see RegisryTxManager
-     */
-    @Override
-    public TxManager getTxManager() {
-        return this.new EDEXTxManager();
-    }
-
-    /**
      * Get an implementation of QueryManager that uses the internal components
      * defined by the registry itself.
      * 
@@ -104,64 +90,7 @@ public class EDEXRegistryManager extends
      */
     @Override
     public QueryManager getQueryManager() {
-        return (QueryManager) EDEXUtil.getESBComponent(QUERYMANAGER_BEAN);
-    }
-
-    /**
-     * Inner class to implement the TxManager interface. The transaction
-     * management for the EDEX client needs to keep the hiberate Session Object
-     * open during the submission of a request and the subsequent iteration of
-     * the results. RegistryManage will use this Class to control that process.
-     */
-    public class EDEXTxManager implements TxManager {
-
-        /**
-         * Start an internal transaction to keep the hiberate Session open
-         * during the processing of a registry request.
-         */
-        @Override
-        public void startTransaction() {
-                RegistrySessionManager.openSession();
-        }
-
-        /**
-         * Close an internal transaction to allow the hiberate Session to close
-         * and release resources.
-         */
-        @Override
-        public void closeTransaction() {
-                RegistrySessionManager.closeSession();
-        }
-    }
-
-    /**
-     * This method is used by the Thrift client service route to manage the
-     * hiberate Session used to query the registry. Like the webservice created
-     * for LifecycleManager and QueryManger, the transaction management of
-     * thrift requests made to the registry are managed with spring
-     * configuration. The webservices use request/response interceptors to start
-     * and close the hiberate session used to process a webservice request.
-     * Since this class is the registered IRequestHandler for Thrift client
-     * requests, that same pattern is used. The camel route defined for
-     * processing thrift based requests uses this method to open the session for
-     * the length of the request. The response can then be serialized out
-     * without encountering hiberate errors for retrieving data. When the
-     * serialization step has completed, the route calls the closeSession()
-     * method on this class to close the hiberate session.
-     * 
-     * @see closeSession()
-     */
-    public void openSession() {
-        RegistrySessionManager.openSession();
-    }
-
-    /**
-     * Close the hiberate Session.
-     * 
-     * @see openSession()
-     */
-    public void closeSession() {
-        RegistrySessionManager.closeSession();
+        return queryManager;
     }
 
     /**
@@ -195,8 +124,8 @@ public class EDEXRegistryManager extends
             break;
         case REMOVE:
             if (query == null) {
-                response = RegistryManager.removeRegistyObjects(
-                        username, objects);
+                response = RegistryManager.removeRegistyObjects(username,
+                        objects);
             } else if (username == null) {
                 response = RegistryManager.removeRegistyObjects(query);
             } else {
@@ -224,9 +153,16 @@ public class EDEXRegistryManager extends
 
     @Override
     public AuthorizationResponse authorized(IUser user,
-            IRegistryRequest<?> request)
-            throws AuthorizationException {
-        return XACMLPolicyEnforcementPoint.getInstance().handleRegistryRequest(
-                user, request);
+            IRegistryRequest<?> request) throws AuthorizationException {
+        return xacmlPep.handleRegistryRequest(user, request);
     }
+
+    public void setXacmlPep(XACMLPolicyEnforcementPoint xacmlPep) {
+        this.xacmlPep = xacmlPep;
+    }
+
+    public void setQueryManager(QueryManager queryManager) {
+        this.queryManager = queryManager;
+    }
+
 }

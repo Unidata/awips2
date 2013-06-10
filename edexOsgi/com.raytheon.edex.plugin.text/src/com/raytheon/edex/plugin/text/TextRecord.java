@@ -19,6 +19,8 @@
  **/
 package com.raytheon.edex.plugin.text;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.xml.bind.annotation.XmlElement;
 
@@ -37,6 +39,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 5, 2008            jkorman     Initial creation
+ * May 07, 2013 1869       bsteffen    Remove dataURI column from
+ *                                     PluginDataObject.
  * 
  * </pre>
  * 
@@ -95,6 +99,13 @@ public class TextRecord extends PluginDataObject {
     @Override
     public IDecoderGettable getDecoderGettable() {
         return null;
+    }
+
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
     }
 
 }

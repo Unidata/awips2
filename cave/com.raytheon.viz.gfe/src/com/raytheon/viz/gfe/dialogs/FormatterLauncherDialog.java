@@ -95,6 +95,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Apr 24, 2013 1936       dgilling    Remove initialization of 
  *                                     TextProductManager from this class, clean
  *                                     up warnings.
+ * May 15, 2013 1842       dgilling    Pass DataManager instance down to sub-
+ *                                     components.
  * 
  * </pre>
  * 
@@ -714,7 +716,8 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
 
         ProductAreaComp comp = new ProductAreaComp(tabFolder, this,
                 newTab.getText(), tabName.equals(PRODUCT_EDITOR),
-                textProductMgr, CAVEMode.getMode().equals(CAVEMode.PRACTICE));
+                textProductMgr, dataMgr, CAVEMode.getMode().equals(
+                        CAVEMode.PRACTICE));
         productMap.put(tabName, comp);
 
         newTab.setControl(productMap.get(tabName));

@@ -17,6 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
+
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
 import java.util.List;
@@ -35,20 +36,15 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 7/30/2012    724        bphillip     Initial creation
+ * 3/18/2013    1802         bphillip    Modified to use transaction boundaries and spring injection
+ * 4/9/2013     1802        bphillip     Removed exception catching
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-public class AssociationDao extends RegistryObjectTypeDao {
-
-    /**
-     * Constructs a new AssociationDao
-     */
-    public AssociationDao() {
-        super(AssociationType.class);
-    }
+public class AssociationDao extends RegistryObjectTypeDao<AssociationType> {
 
     /**
      * Gets associations based on the association target and type
@@ -61,8 +57,7 @@ public class AssociationDao extends RegistryObjectTypeDao {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
-    public List<AssociationType> getByTargetAndType(String target, String type)
-            throws EbxmlRegistryException {
+    public List<AssociationType> getByTargetAndType(String target, String type) {
         return executeHQLQuery("from AssociationType obj where obj.targetObject='"
                 + target + "' and obj.type='" + type + "'");
     }
@@ -78,8 +73,7 @@ public class AssociationDao extends RegistryObjectTypeDao {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
-    public List<AssociationType> getBySourceAndType(String source, String type)
-            throws EbxmlRegistryException {
+    public List<AssociationType> getBySourceAndType(String source, String type) {
         return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
                 + source + "' and obj.type='" + type + "'");
     }
@@ -98,7 +92,7 @@ public class AssociationDao extends RegistryObjectTypeDao {
      *             If errors occur during interaction with the database
      */
     public List<AssociationType> getBySourceTargetAndType(String source,
-            String target, String type) throws EbxmlRegistryException {
+            String target, String type) {
         return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
                 + source
                 + "' and obj.type='"
@@ -115,8 +109,7 @@ public class AssociationDao extends RegistryObjectTypeDao {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
-    public List<AssociationType> getAllAssociations(String objReferenced)
-            throws EbxmlRegistryException {
+    public List<AssociationType> getAllAssociations(String objReferenced) {
         return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
                 + objReferenced
                 + "' or obj.targetObject='"
@@ -133,8 +126,7 @@ public class AssociationDao extends RegistryObjectTypeDao {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
-    public List<AssociationType> getAssociationsTo(String objReferenced)
-            throws EbxmlRegistryException {
+    public List<AssociationType> getAssociationsTo(String objReferenced) {
         return executeHQLQuery("from AssociationType obj where obj.targetObject='"
                 + objReferenced + "'");
     }
@@ -148,8 +140,7 @@ public class AssociationDao extends RegistryObjectTypeDao {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
-    public List<AssociationType> getAssociationsFrom(String objReferenced)
-            throws EbxmlRegistryException {
+    public List<AssociationType> getAssociationsFrom(String objReferenced) {
         return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
                 + objReferenced + "'");
     }
@@ -162,11 +153,17 @@ public class AssociationDao extends RegistryObjectTypeDao {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
-    public void deleteAssociationsForObj(String objReferenced)
-            throws EbxmlRegistryException {
+    public void deleteAssociationsForObj(String objReferenced) {
         List<AssociationType> associations = getAllAssociations(objReferenced);
         if (!associations.isEmpty()) {
-            this.delete(associations);
+            for (AssociationType association : associations) {
+                this.delete(association);
+            }
         }
+    }
+
+    @Override
+    protected Class<AssociationType> getEntityClass() {
+        return AssociationType.class;
     }
 }

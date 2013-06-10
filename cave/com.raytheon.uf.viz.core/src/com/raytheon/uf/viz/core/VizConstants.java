@@ -54,4 +54,6 @@ public class VizConstants {
     public static final String LOADMODE_ID = "loadmode";
 
     public static final String LOOPING_ID = "looping";
+
+    public static final String CAVE = "CAVE";
 }

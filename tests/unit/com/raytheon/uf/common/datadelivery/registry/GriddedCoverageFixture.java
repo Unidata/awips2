@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry;
 
+import java.util.Random;
+
 import com.raytheon.uf.common.gridcoverage.Corner;
 import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
 import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
@@ -56,11 +58,11 @@ public class GriddedCoverageFixture extends AbstractFixture<GriddedCoverage> {
      * {@inheritDoc}
      */
     @Override
-    public GriddedCoverage get(long seedValue) {
+    public GriddedCoverage getInstance(long seedValue, Random random) {
         LatLonGridCoverage gridCoverage = new LatLonGridCoverage();
         gridCoverage.setCrsWKT("Polygon");
-        gridCoverage.setLa1(10);
-        gridCoverage.setLo1(-10);
+        gridCoverage.setLa1(10 + seedValue);
+        gridCoverage.setLo1(-10 - seedValue);
         gridCoverage.setDx(1.0);
         gridCoverage.setDy(1.0);
         gridCoverage.setNx(21);

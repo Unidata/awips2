@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.edex.datadelivery.harvester.purge;
 
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
-import com.raytheon.uf.edex.datadelivery.harvester.config.HarvesterConfig;
 
 /**
  * Defines a purge for a {@link DataSetMetaData} type. Intentionally

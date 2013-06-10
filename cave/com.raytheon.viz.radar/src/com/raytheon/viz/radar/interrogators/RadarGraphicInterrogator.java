@@ -24,9 +24,9 @@ import java.util.Map;
 
 import org.opengis.referencing.operation.MathTransform;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.geospatial.CRSCache;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.viz.radar.util.GraphicDataUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 

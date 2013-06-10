@@ -19,12 +19,9 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.TimeZone;
+import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -52,7 +49,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
-import com.raytheon.uf.common.datadelivery.service.SubscriptionNotificationResponse;
+import com.raytheon.uf.common.datadelivery.service.BaseSubscriptionNotificationResponse;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -61,8 +58,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.notification.NotificationException;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
+import com.raytheon.uf.viz.core.notification.NotificationMessageContainsType;
 import com.raytheon.uf.viz.datadelivery.common.ui.IGroupAction;
 import com.raytheon.uf.viz.datadelivery.common.ui.SortImages.SortDirection;
 import com.raytheon.uf.viz.datadelivery.common.ui.TableComp;
@@ -101,6 +98,10 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Dec 12, 2012  1391      bgonzale     Added a job for subscription retrieves.
  * Jan 07, 2013  1437      bgonzale     Added sort column direction updates.
  * Jan 28, 2013  1529      djohnson     Disable menu items if no subscriptions are selected.
+ * Apr 08, 2013  1826      djohnson     Remove delivery options, move column value parsing to the columns themselves.
+ * May 09, 2013  2000      djohnson     Consolidate and remove duplicate code.
+ * May 15, 2013  1040      mpduff       Place markNotBusyInUIThread in a finally block.
+ * May 23, 2013  2020      mpduff       Call updateControls();
  * 
  * </pre>
  * 
@@ -125,6 +126,10 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /** TableDataManager object. */
     private TableDataManager<SubscriptionManagerRowData> subManagerData;
+
+    /** Checks for the notification message to be those we care about. **/
+    private final NotificationMessageContainsType notificationMessageChecker = new NotificationMessageContainsType(
+            BaseSubscriptionNotificationResponse.class);
 
     /**
      * Enumeration to determine the type of subscription dialog this class is
@@ -195,26 +200,21 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
      * Handle subscription editing.
      */
     public void handleEdit() {
-        if (table.getSelectionCount() == 0) {
-            DataDeliveryUtils.showMessage(this.getShell(), SWT.ERROR,
-                    "No Rows Selected", "Please select a row to Edit");
+        if (!verifySingleRowSelected()) {
             return;
         }
 
-        if (table.getSelectionCount() > 1) {
-            int choice = DataDeliveryUtils
-                    .showMessage(
-                            this.getShell(),
-                            SWT.ERROR | SWT.YES | SWT.NO,
-                            "Single Selection Only",
-                            "Multiple subscriptions are selected.\n"
-                                    + "Only the first selected item will be edited.\n\n"
-                                    + "Continue with Edit?");
-            if (choice == SWT.NO) {
-                return;
-            }
-        }
+        editSubscription(getSelectedSubscription());
+    }
 
+    /**
+     * Bring up the edit screen with the given subscription. The user
+     * permissions will be verified prior to launching the dialog.
+     * 
+     * @param subscription
+     *            the subscription
+     */
+    public void editSubscription(Subscription subscription) {
         final DataDeliveryPermission permission = DataDeliveryPermission.SUBSCRIPTION_CREATE;
         IUser user = UserController.getUserObject();
         String msg = user.uniqueId()
@@ -224,12 +224,8 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
         try {
             if (DataDeliveryServices.getPermissionsService()
                     .checkPermissions(user, msg, permission).isAuthorized()) {
-                // Get the subscription data
-                int idx = table.getSelectionIndex();
-                SubscriptionManagerRowData row = subManagerData.getDataRow(idx);
                 SubsetManagerDlg<?, ?, ?> dlg = SubsetManagerDlg
-                        .fromSubscription(this.getShell(), true,
-                                row.getSubscription());
+                        .fromSubscription(this.getShell(), true, subscription);
 
                 dlg.open();
             }
@@ -240,29 +236,36 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
     }
 
     /**
+     * Verifies a single row is selected.
+     * 
+     * @return true if a single row is selected
+     */
+    public boolean verifySingleRowSelected() {
+        if (table.getSelectionCount() == 0) {
+            DataDeliveryUtils.showMessage(this.getShell(), SWT.ERROR,
+                    "No Rows Selected", "Please select a row.");
+            return false;
+        }
+
+        if (table.getSelectionCount() > 1) {
+            int choice = DataDeliveryUtils.showMessage(this.getShell(),
+                    SWT.ERROR | SWT.YES | SWT.NO, "Single Selection Only",
+                    "Multiple subscriptions are selected.\n"
+                            + "Only the first selected item will be used.\n\n"
+                            + "Continue?");
+            return choice != SWT.NO;
+        }
+
+        return true;
+    }
+
+    /**
      * Open the Add To Group dialog.
      */
     private void handleGroupAdd() {
 
-        // Ensure a row is selected
-        if (table.getSelectionCount() == 0) {
-            DataDeliveryUtils.showMessage(this.getShell(), SWT.ERROR,
-                    "No Rows Selected", "Please select a row to Edit");
+        if (!verifySingleRowSelected()) {
             return;
-        }
-
-        if (table.getSelectionCount() > 1) {
-            int choice = DataDeliveryUtils
-                    .showMessage(
-                            this.getShell(),
-                            SWT.ERROR | SWT.YES | SWT.NO,
-                            "Single Selection Only",
-                            "Multiple subscriptions are selected.\n"
-                                    + "Only the first selected item will be edited.\n\n"
-                                    + "Continue with Edit?");
-            if (choice == SWT.NO) {
-                return;
-            }
         }
 
         // Check permissions
@@ -275,11 +278,9 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
         try {
             if (DataDeliveryServices.getPermissionsService()
                     .checkPermissions(user, msg, permission).isAuthorized()) {
-                // Get the subscription data
-                int idx = table.getSelectionIndex();
-                SubscriptionManagerRowData row = subManagerData.getDataRow(idx);
+
                 GroupAddDlg groupAdd = new GroupAddDlg(this.getShell(),
-                        row.getSubscription(), this);
+                        getSelectedSubscription(), this);
                 groupAdd.open();
             }
         } catch (VizException e) {
@@ -455,13 +456,17 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
         job.addJobChangeListener(new JobChangeAdapter() {
             @Override
             public void done(IJobChangeEvent event) {
-                VizApp.runAsync(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateTable(subList);
-                    }
-                });
-                DataDeliveryGUIUtils.markNotBusyInUIThread(jobShell);
+                try {
+                    VizApp.runAsync(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateTable(subList);
+                            subActionCallback.updateControls();
+                        }
+                    });
+                } finally {
+                    DataDeliveryGUIUtils.markNotBusyInUIThread(jobShell);
+                }
             }
         });
         job.schedule();
@@ -509,62 +514,8 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
      * @return The text for the table cell
      */
     private String getCellText(String name, SubscriptionManagerRowData rd) {
-        String returnValue = null;
-        if (name.equals(SubColumnNames.NAME.toString())) {
-            returnValue = rd.getName();
-        } else if (name.equals(SubColumnNames.OWNER.toString())) {
-            returnValue = rd.getOwner();
-        } else if (name.equals(SubColumnNames.STATUS.toString())) {
-            returnValue = rd.getStatus();
-        } else if (name.equals(SubColumnNames.PRIORITY.toString())) {
-            returnValue = String.valueOf(rd.getPriority());
-        } else if (name.equals(SubColumnNames.DESCRIPTION.toString())) {
-            returnValue = rd.getDescription();
-        } else if (name.equals(SubColumnNames.SUBSCRIPTION_START.toString())) {
-            Date date = rd.getSubscriptionStart();
-            if (date != null) {
-                SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH");
-                sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-                returnValue = sdf.format(date) + "Z";
-            }
-        } else if (name.equals(SubColumnNames.SUBSCRIPTION_EXPIRATION
-                .toString())) {
-            Date date = rd.getSubscriptionEnd();
-            if (date == null) {
-                returnValue = "No Expiration";
-            } else {
-                SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH");
-                sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-                returnValue = sdf.format(date) + "Z";
-            }
-        } else if (name.equals(SubColumnNames.ACTIVE_START.toString())) {
-            Date date = rd.getActiveStart();
-            if (date != null) {
-                SimpleDateFormat sdf2 = new SimpleDateFormat("MM/dd HH");
-                sdf2.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-                returnValue = sdf2.format(date) + "Z";
-            }
-        } else if (name.equals(SubColumnNames.ACTIVE_END.toString())) {
-            Date date = rd.getActiveEnd();
-            if (date != null) {
-                SimpleDateFormat sdf2 = new SimpleDateFormat("MM/dd HH");
-                sdf2.setTimeZone(TimeZone.getTimeZone("GMT"));
-                returnValue = sdf2.format(date) + "Z";
-            }
-        } else if (name.equals(SubColumnNames.DELIVERY.toString())) {
-            returnValue = rd.getDeliveryNotify().toString();
-        } else if (name.equals(SubColumnNames.OFFICE_ID.toString())) {
-            returnValue = rd.getOfficeId();
-        } else if (name.equals(SubColumnNames.FULL_DATA_SET.toString())) {
-            returnValue = rd.getFullDataSet().toString();
-        } else if (name.equals(SubColumnNames.DATA_SIZE.toString())) {
-            returnValue = String.valueOf(rd.getDataSetSize());
-        } else if (name.equals(SubColumnNames.GROUP_NAME.toString())) {
-            returnValue = rd.getGroupName();
-        }
-
-        return returnValue;
+        SubColumnNames subColumn = SubColumnNames.fromDisplayString(name);
+        return subColumn.getDisplayData(rd);
     }
 
     /**
@@ -652,9 +603,9 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
      */
     @Override
     public void createColumns() {
-        SubscriptionConfigurationManager configMan;
-        configMan = SubscriptionConfigurationManager.getInstance();
-        HashMap<String, Integer> alignmentMap = configMan.getAlignmentMap();
+        SubscriptionConfigurationManager configMan = SubscriptionConfigurationManager
+                .getInstance();
+        Map<String, Integer> alignmentMap = configMan.getAlignmentMap();
 
         // Get list of columns from config
         SubscriptionManagerConfigXML xml = configMan.getXml();
@@ -828,28 +779,14 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
      */
     @Override
     public void notificationArrived(NotificationMessage[] messages) {
-        final ArrayList<Subscription> updatedSubscriptions = new ArrayList<Subscription>();
-        try {
-            for (NotificationMessage msg : messages) {
-                Object obj = msg.getMessagePayload();
-                if (obj instanceof SubscriptionNotificationResponse) {
-                    SubscriptionNotificationResponse response = (SubscriptionNotificationResponse) obj;
-                    Subscription sub = response.getSubscription();
-                    if (sub != null) {
-                        updatedSubscriptions.add(sub);
-                    }
-                }
-            }
-        } catch (NotificationException e) {
-            statusHandler.error("Error when receiving notification", e);
-        }
 
-        if (updatedSubscriptions.isEmpty() == false) {
+        if (notificationMessageChecker.matchesCondition(messages)) {
+            // Just refresh the whole table on a notification arriving
             VizApp.runAsync(new Runnable() {
                 @Override
                 public void run() {
-                    if (isDisposed() == false) {
-                        updateTable(updatedSubscriptions);
+                    if (!isDisposed()) {
+                        handleRefresh();
                     }
                 }
             });
@@ -892,5 +829,17 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
      */
     public void setSubscriptionNameList(List<String> subscriptionNameList) {
         this.subscriptionNameList = subscriptionNameList;
+    }
+
+    /**
+     * Return the selected subscription.
+     * 
+     * @return the subscription
+     */
+    public Subscription getSelectedSubscription() {
+        int idx = this.getTable().getSelectionIndices()[0];
+        SubscriptionManagerRowData row = this.getSubscriptionData().getDataRow(
+                idx);
+        return row.getSubscription();
     }
 }

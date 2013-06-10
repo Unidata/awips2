@@ -48,11 +48,13 @@ public class HttpTestConstants {
 
     public static final String HOST = "localhost";
 
-    public static final int HTTP_PORT = 8888;
+    public static final int HTTP_PORT = 9999;
 
-    public static final String HTTPS_URI = "https://localhost:8443/test";
+    public static final String HTTPS_URI = "https://" + HOST + ":" + HTTPS_PORT
+            + "/test";
 
-    public static final String HTTP_URI = "http://localhost:8888/test";
+    public static final String HTTP_URI = "http://" + HOST + ":" + HTTP_PORT
+            + "/test";
 
-    public static final int PORT = 8888;
+    public static final int PORT = HTTP_PORT;
 }

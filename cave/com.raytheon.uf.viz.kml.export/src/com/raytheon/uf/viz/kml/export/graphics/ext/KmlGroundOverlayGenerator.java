@@ -34,6 +34,9 @@ import org.geotools.geometry.Envelope2D;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.colormap.image.ColorMapData;
+import com.raytheon.uf.common.colormap.image.Colormapper;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
@@ -42,9 +45,6 @@ import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.PixelCoverage;
-import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapData;
-import com.raytheon.uf.viz.core.data.prep.Colormapper;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.kml.export.KmlFeatureGenerator;
 import com.raytheon.uf.viz.kml.export.io.KmlOutputManager;
 

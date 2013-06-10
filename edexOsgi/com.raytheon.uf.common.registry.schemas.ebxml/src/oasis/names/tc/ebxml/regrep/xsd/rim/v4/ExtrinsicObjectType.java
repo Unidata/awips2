@@ -21,7 +21,11 @@
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
 import javax.activation.DataHandler;
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -80,13 +84,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlSeeAlso({ CommentType.class })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "ExtrinsicObject")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "ExtrinsicObject")
 public class ExtrinsicObjectType extends RegistryObjectType {
 
     @XmlElement(name = "ContentVersionInfo")
     @DynamicSerializeElement
-    @ManyToOne(cascade = CascadeType.ALL)
+    @AttributeOverrides({
+            @AttributeOverride(name = "versionName", column = @Column(name = "contentVersionName")),
+            @AttributeOverride(name = "userVersionName", column = @Column(name = "contentUserVersionName")) })
+    @Embedded
     protected VersionInfoType contentVersionInfo;
 
     @XmlElement(name = "RepositoryItemRef")

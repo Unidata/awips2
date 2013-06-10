@@ -21,7 +21,6 @@ package com.raytheon.viz.hydrobase.dialogs;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
@@ -40,6 +39,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.data.DatumData;
@@ -56,6 +58,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Sep 4, 2008				lvenable	Initial creation
  * Dec 5, 2008  1744        askripsky   Connected to DB
  * 12/19/2008   1782        grichard    Implemented IHydroDialog
+ * Apr 18, 2013 1790        rferrel     Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -63,6 +66,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class DatumDlg extends CaveSWTDialog implements IHydroDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DatumDlg.class);
 
     /**
      * Control font.
@@ -96,7 +101,7 @@ public class DatumDlg extends CaveSWTDialog implements IHydroDialog {
 
     private DialogStates dialogState;
 
-    private ArrayList<DatumData> locationDatum;
+    private java.util.List<DatumData> locationDatum;
 
     private String lid;
 
@@ -134,7 +139,7 @@ public class DatumDlg extends CaveSWTDialog implements IHydroDialog {
 
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
+        setReturnValue(lid);
         // Initialize all of the controls and layouts
         initializeComponents();
 
@@ -257,7 +262,7 @@ public class DatumDlg extends CaveSWTDialog implements IHydroDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -286,8 +291,8 @@ public class DatumDlg extends CaveSWTDialog implements IHydroDialog {
         try {
             locationDatum = HydroDBDataManager.getInstance().getData(seedData);
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Problem getting Datum data. ", e);
         }
 
         updateDialogDisplay();
@@ -345,8 +350,7 @@ public class DatumDlg extends CaveSWTDialog implements IHydroDialog {
                 .format(currData.getDate()) : "");
         elevationTF
                 .setText((currData.getElevation() != HydroConstants.MISSING_VALUE) ? Double
-                        .toString(currData.getElevation())
-                        : "");
+                        .toString(currData.getElevation()) : "");
     }
 
     @Override
@@ -391,16 +395,15 @@ public class DatumDlg extends CaveSWTDialog implements IHydroDialog {
         try {
             HydroDBDataManager.getInstance().putData(dataToSave);
         } catch (VizException e) {
-            MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-            mb.setText("Unable to Save");
-            mb.setMessage("An error occurred while trying to save.");
-
             String cause = e.getCause().getMessage();
-
             int causeStart = cause.indexOf("ERROR:");
 
             // If the exception contain the SQL exception "ERROR:"
             if (causeStart > 0) {
+                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+                mb.setText("Unable to Save");
+                mb.setMessage("An error occurred while trying to save.");
+
                 int causeEnd = cause.indexOf("\n", causeStart);
 
                 cause = cause.substring(causeStart, causeEnd);
@@ -409,11 +412,11 @@ public class DatumDlg extends CaveSWTDialog implements IHydroDialog {
                     mb.setMessage("Please enter data for " + lid
                             + " in the River Gauge dialog first");
                 }
+                mb.open();
+            } else {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Problem saving record. ", e);
             }
-
-            mb.open();
-
-            e.printStackTrace();
             return false;
         }
 
@@ -439,13 +442,8 @@ public class DatumDlg extends CaveSWTDialog implements IHydroDialog {
                 dateTF.setText("");
                 elevationTF.setText("");
             } catch (VizException e) {
-                MessageBox mbDel = new MessageBox(shell, SWT.ICON_ERROR
-                        | SWT.OK);
-                mbDel.setText("Unable to Delete");
-                mbDel.setMessage("An error occurred while trying to delete.");
-                mbDel.open();
-
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Problem deleting record. ", e);
             }
         }
 

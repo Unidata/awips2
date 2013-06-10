@@ -62,7 +62,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  */
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "MapValueType", propOrder = { "mapValue" })
@@ -76,6 +76,14 @@ public class MapValueType extends ValueType {
     protected MapType mapValue;
 
     private static final String COLUMN_NAME = "mapValue";
+
+    public MapValueType() {
+
+    }
+
+    public MapValueType(MapType mapValue) {
+        this.mapValue = mapValue;
+    }
 
     @Override
     public String getColumnName() {

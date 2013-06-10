@@ -33,24 +33,25 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.Criteria;
+import org.hibernate.QueryException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.exception.ConstraintViolationException;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataplugin.persist.DefaultPathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -62,13 +63,7 @@ import com.raytheon.uf.common.datastorage.IDataStore.StoreOp;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.StorageStatus;
-import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
-import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
-import com.raytheon.uf.common.geospatial.ISpatialEnabled;
-import com.raytheon.uf.common.geospatial.ISpatialObject;
-import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -88,8 +83,6 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
 import com.raytheon.uf.edex.database.purge.PurgeRule;
 import com.raytheon.uf.edex.database.purge.PurgeRuleSet;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Abstract implementation of a Plugin data access object
@@ -102,17 +95,23 @@ import com.vividsolutions.jts.geom.Polygon;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 2/6/09       1990       bphillip    Initial creation
- * 6/29/12      #828       dgilling    Force getPurgeRulesForPlugin()
- *                                     to search only COMMON_STATIC.
+ * Feb 06, 2009 1990       bphillip    Initial creation
+ * Jun 29, 2012 828        dgilling    Force getPurgeRulesForPlugin()  to search
+ *                                     only COMMON_STATIC.
  * Oct 10, 2012 1261       djohnson    Add some generics wildcarding.
- * Jan 14, 2013 1469       bkowal      No longer retrieves the hdf5 data directory
- *                                     from the environment.
- * Feb 12, 2013 #1608      randerso    Changed to call deleteDatasets
+ * Jan 14, 2013 1469       bkowal      No longer retrieves the hdf5 data
+ *                                     directory  from the environment.
+ * Feb 12, 2013 1608       randerso    Changed to call deleteDatasets
+ * Feb 26, 2013 1638       mschenke    Moved OGC specific functions to OGC
+ *                                     project
  * Mar 27, 2013 1821       bsteffen    Remove extra store in persistToHDF5 for
  *                                     replace only operations.
- * Apr 04, 2013            djohnson    Remove formerly removed methods that won't compile.
+ * Apr 04, 2013            djohnson    Remove formerly removed methods that
+ *                                     won't compile.
  * Apr 15, 2013 1868       bsteffen    Rewrite mergeAll in PluginDao.
+ * May 07, 2013 1869       bsteffen    Remove dataURI column from
+ *                                     PluginDataObject.
+ * May 16, 2013 1869       bsteffen    Rewrite dataURI property mappings.
  * 
  * </pre>
  * 
@@ -134,6 +133,9 @@ public abstract class PluginDao extends CoreDao {
     protected static final int COMMIT_INTERVAL = 100;
 
     protected static final ConcurrentMap<Class<?>, DuplicateCheckStat> pluginDupCheckRate = new ConcurrentHashMap<Class<?>, DuplicateCheckStat>();
+
+    // Map for tracking which PDOs store dataURI as a column in the DB.
+    protected static final ConcurrentMap<Class<?>, Boolean> pluginDataURIColumn = new ConcurrentHashMap<Class<?>, Boolean>();
 
     /** The base path of the folder containing HDF5 data for the owning plugin */
     public final String PLUGIN_HDF5_DIR;
@@ -204,8 +206,7 @@ public abstract class PluginDao extends CoreDao {
         }
         List<PluginDataObject> duplicates = mergeAll(toPersist);
         for (PluginDataObject pdo : duplicates) {
-            logger.info("Discarding duplicate: "
-                    + ((PluginDataObject) (pdo)).getDataURI());
+            logger.info("Discarding duplicate: " + ((pdo)).getDataURI());
             toPersist.remove(pdo);
         }
         return toPersist.toArray(new PluginDataObject[toPersist.size()]);
@@ -220,7 +221,7 @@ public abstract class PluginDao extends CoreDao {
      * @return any duplicate objects which already existed in the db.
      */
     public List<PluginDataObject> mergeAll(final List<PluginDataObject> objects) {
-        if (objects == null || objects.isEmpty()) {
+        if ((objects == null) || objects.isEmpty()) {
             return objects;
         }
         List<PluginDataObject> duplicates = new ArrayList<PluginDataObject>();
@@ -355,23 +356,43 @@ public abstract class PluginDao extends CoreDao {
 
     private void populateDatauriCriteria(Criteria criteria, PluginDataObject pdo)
             throws PluginException {
-        criteria.add(Restrictions.eq("dataURI", pdo.getDataURI()));
-
-        // TODO this code block can be used if we drop the dataURI column.
-
-        // for (Entry<String, Object> uriEntry :
-        // pdo.createDataURIMap().entrySet()) {
-        // String key = uriEntry.getKey();
-        // Object value = uriEntry.getValue();
-        // if (key.equals("pluginName")) {
-        // ;// this is not in the db, only used internally.
-        // } else if (value == null) {
-        // criteria.add(Restrictions.isNull(key));
-        // } else {
-        // criteria.add(Restrictions.eq(key, value));
-        // }
-        // }
-
+        Class<? extends PluginDataObject> pdoClazz = pdo.getClass();
+        Boolean hasDataURIColumn = pluginDataURIColumn.get(pdoClazz);
+        if (!Boolean.FALSE.equals(hasDataURIColumn)) {
+            try {
+                getSessionFactory().getClassMetadata(pdoClazz)
+                        .getPropertyType("dataURI");
+                criteria.add(Restrictions.eq("dataURI", pdo.getDataURI()));
+                return;
+            } catch (QueryException e) {
+                hasDataURIColumn = Boolean.FALSE;
+                pluginDataURIColumn.put(pdoClazz, hasDataURIColumn);
+            }
+        }
+        // This means dataURI is not a column.
+        for (Entry<String, Object> uriEntry : DataURIUtil.createDataURIMap(pdo)
+                .entrySet()) {
+            String key = uriEntry.getKey();
+            if (key.equals("pluginName")) {
+                ;// this is not in the db, only used internally.
+                continue;
+            }
+            Object value = uriEntry.getValue();
+            int dotIndex = key.indexOf(".");
+            if (dotIndex > 0) {
+                key = key.substring(0, dotIndex);
+                try {
+                    value = PropertyUtils.getProperty(pdo, key);
+                } catch (Exception e) {
+                    throw new PluginException(e);
+                }
+            }
+            if (value == null) {
+                criteria.add(Restrictions.isNull(key));
+            } else {
+                criteria.add(Restrictions.eq(key, value));
+            }
+        }
     }
 
     /**
@@ -1763,40 +1784,6 @@ public abstract class PluginDao extends CoreDao {
         dbQuery.addOrder("dataTime.refTime", true);
 
         return (List<PersistableDataObject>) this.queryByCriteria(dbQuery);
-    }
-
-    protected ISpatialObject getSpatialObject(PluginDataObject record)
-            throws Exception {
-        if (record instanceof ISpatialEnabled) {
-            return ((ISpatialEnabled) record).getSpatialObject();
-        } else {
-            throw new Exception(record.getClass() + " is not spatially enabled");
-        }
-    }
-
-    protected ReferencedEnvelope getNativeEnvelope(ISpatialObject spatial)
-            throws FactoryException {
-        CoordinateReferenceSystem crs = spatial.getCrs();
-        Geometry geom = spatial.getGeometry();
-        return MapUtil.getBoundingEnvelope(crs, (Polygon) geom);
-    }
-
-    public Double extractSingle(IDataRecord record) {
-        Double rval = null;
-        if (record == null) {
-            return rval;
-        }
-        if (record instanceof ByteDataRecord) {
-            byte[] data = ((ByteDataRecord) record).getByteData();
-            rval = (double) data[0];
-        } else if (record instanceof FloatDataRecord) {
-            float[] data = ((FloatDataRecord) record).getFloatData();
-            rval = (double) data[0];
-        } else if (record instanceof IntegerDataRecord) {
-            int[] data = ((IntegerDataRecord) record).getIntData();
-            rval = (double) data[0];
-        }
-        return rval;
     }
 
     protected static class DuplicateCheckStat {

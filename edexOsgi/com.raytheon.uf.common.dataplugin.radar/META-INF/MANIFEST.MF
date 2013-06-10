@@ -16,7 +16,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
  com.raytheon.uf.common.site;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataaccess;bundle-version="1.0.0",
- com.raytheon.uf.common.image;bundle-version="1.0.0"
+ com.raytheon.uf.common.units;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.common.dataplugin.radar;

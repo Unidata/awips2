@@ -1,9 +1,7 @@
 <beans
   xmlns="http://www.springframework.org/schema/beans"
-  xmlns:amq="http://activemq.apache.org/schema/core"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
   <bean id="queryData" class="com.raytheon.uf.edex.database.handlers.DbQueryHandler"/>
@@ -44,6 +42,19 @@
   <bean factory-bean="handlerRegistry" factory-method="register">
    	<constructor-arg value="com.raytheon.uf.common.dataquery.requests.TimeQueryRequestSet"/>
   	<constructor-arg ref="timeQueryHandlerSet"/>
+  </bean>
+  
+  <bean id="pluginFactory" class="com.raytheon.uf.edex.database.plugin.PluginFactory" factory-method="getInstance"/>
+    
+  <bean id="pluginFactoryRegisteredToDataURIUtil"
+    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="targetClass">
+      <value>com.raytheon.uf.common.dataplugin.annotations.DataURIUtil</value>
+    </property>
+    <property name="targetMethod">
+      <value>setClassMapper</value>
+    </property>
+    <property name="arguments" ref="pluginFactory" />
   </bean>
 
 </beans>

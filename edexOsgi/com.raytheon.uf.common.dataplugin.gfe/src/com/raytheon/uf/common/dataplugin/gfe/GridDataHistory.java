@@ -40,13 +40,13 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * GridDataHistory
@@ -58,6 +58,7 @@ import com.raytheon.uf.common.time.TimeRange;
  *                         randerso    Initial creation
  * 02/27/2008   879        rbell       Added clone()
  * 04/18/2008   #875       bphillip    Changed date fields to use java.util.Calendar
+ * Feb 15, 2013 1638       mschenke    Moved Util.getUnixTime into TimeUtil
  * 03/28/2013   1949       rjpeter     Normalized database structure.
  * </pre>
  * 
@@ -443,33 +444,33 @@ public class GridDataHistory implements Cloneable {
 
         buffer.append(this.origin.ordinal()).append(" ");
         buffer.append(this.originParm.toString()).append(" ");
-        buffer.append(Util.getUnixTime(this.originTimeRange.getStart()))
+        buffer.append(TimeUtil.getUnixTime(this.originTimeRange.getStart()))
                 .append(" ");
-        buffer.append(Util.getUnixTime(this.originTimeRange.getEnd())).append(
+        buffer.append(TimeUtil.getUnixTime(this.originTimeRange.getEnd())).append(
                 " ");
 
         if (this.timeModified == null) {
             buffer.append("0");
-        } else if (Util.getUnixTime(this.timeModified) == 0) {
+        } else if (TimeUtil.getUnixTime(this.timeModified) == 0) {
             buffer.append("0");
         } else {
-            buffer.append(Util.getUnixTime(this.timeModified)).append(" ");
+            buffer.append(TimeUtil.getUnixTime(this.timeModified)).append(" ");
             buffer.append(this.whoModified);
         }
         if (this.updateTime == null) {
             buffer.append(" 0");
         } else {
-            buffer.append(" ").append(Util.getUnixTime(this.updateTime));
+            buffer.append(" ").append(TimeUtil.getUnixTime(this.updateTime));
         }
         if (this.publishTime == null) {
             buffer.append(" 0");
         } else {
-            buffer.append(" ").append(Util.getUnixTime(this.publishTime));
+            buffer.append(" ").append(TimeUtil.getUnixTime(this.publishTime));
         }
         if (this.lastSentTime == null) {
             buffer.append(" 0");
         } else {
-            buffer.append(" ").append(Util.getUnixTime(this.lastSentTime));
+            buffer.append(" ").append(TimeUtil.getUnixTime(this.lastSentTime));
         }
 
         return buffer.toString();
