@@ -29,6 +29,7 @@ package com.raytheon.uf.viz.datadelivery.common.xml;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 29, 2012            lvenable     Initial creation
+ * Jun 04, 2013    223     mpduff       Change method name to getPreviewString
  * 
  * </pre>
  * 
@@ -37,5 +38,10 @@ package com.raytheon.uf.viz.datadelivery.common.xml;
  */
 
 public interface IDisplayXml {
-    String getDisplayXmlString();
+    /**
+     * Get the xml contents in a formatted string for display.
+     * 
+     * @return the formatted string
+     */
+    String getPreviewString();
 }

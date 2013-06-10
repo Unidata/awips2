@@ -9,6 +9,8 @@ $(INSTALL_FROM):
 	find . -name "*.bin" -exec bash -c 'echo yes | ./{}' \;
 
 clean:
+	rm -rf jdk1.6.0_12
+	rm -rf uninstall~
 	rm -f $(BUILD_DIR)/lib/libjvm.so
 	chmod -R +w $(INSTALL_TO)
 	$(MAKE) -f ../build.native/makefile.copy clean

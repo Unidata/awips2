@@ -45,8 +45,10 @@ import com.raytheon.uf.viz.core.rsc.updater.DataUpdateTree;
  *    SOFTWARE HISTORY
  *   
  *    Date          Ticket#     Engineer    Description
- *    ------------	----------	-----------	--------------------------
- *    7/1/06                    chammack    Initial Creation.
+ *    ------------  ----------  ----------- --------------------------
+ *    Jul 01, 2006              chammack    Initial Creation.
+ *    Jun 07, 2013  2034        bsteffen    Clear all locks in resource catalog
+ *                                          before runAsync.
  * 
  * </pre>
  * 
@@ -127,27 +129,33 @@ public class ResourceCatalog implements IDisposeListener {
      * @param displayID
      *            the id of the display
      */
-    public synchronized void removeResource(
+    public void removeResource(
             final AbstractVizResource<?, ?> resource, String displayID) {
-        Set<String> list = theMapping.get(resource);
-        if (list != null) {
-            list.remove(displayID);
-            if (list.size() == 0) {
-                // Only dispose of resources if they have been initialized
-                if (resource.getStatus() == ResourceStatus.INITIALIZED) {
-                    // this needs to be async, otherwise other components like
-                    // gfe can deadlock when this blocks but the UI thread is
-                    // blocked waiting on a different lock
-                    VizApp.runAsync(new Runnable() {
-                        @Override
-                        public void run() {
-                            resource.dispose();
-                        }
-                    });
-                } else {
-                    disposed(resource);
+        boolean dispose = false;
+        synchronized (this) {
+            Set<String> list = theMapping.get(resource);
+            if (list != null) {
+                list.remove(displayID);
+                if (list.size() == 0) {
+                    // Only dispose of resources if they have been initialized
+                    if (resource.getStatus() == ResourceStatus.INITIALIZED) {
+                        dispose = true;
+                    } else {
+                        disposed(resource);
+                    }
                 }
             }
+        }
+        if (dispose) {
+            // this needs to be async outside the synchronized block, otherwise
+            // other components like gfe and warngen can deadlock when this
+            // blocks but the UI thread is blocked waiting on a different lock
+            VizApp.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    resource.dispose();
+                }
+            });
         }
     }
 
@@ -162,7 +170,9 @@ public class ResourceCatalog implements IDisposeListener {
     public void disposed(AbstractVizResource<?, ?> resource) {
         // Nothing points to this resource
         // remove it from the map, and invoke dispose.
-        theMapping.remove(resource);
+        synchronized (this) {
+            theMapping.remove(resource);
+        }
 
         if (resource instanceof IResourceGroup) {
             ((IResourceGroup) resource).getResourceList().clear();

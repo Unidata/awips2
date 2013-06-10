@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.ServiceFactory;
  * ------------ ---------- ----------- --------------------------
  * Jul 24, 2012 955        djohnson     Initial creation
  * Feb 07, 2013 1543       djohnson     Allow sub-classes.
+ * May 31, 2013 2038       djohnson     Add setProvider.
  * 
  * </pre>
  * 
@@ -49,10 +50,9 @@ public class OpenDapServiceFactory implements ServiceFactory {
 
     private static final OpenDAPMetaDataParser PARSER = new OpenDAPMetaDataParser();
 
-    private final Provider provider;
+    private Provider provider;
 
-    public OpenDapServiceFactory(final Provider provider) {
-        this.provider = provider;
+    public OpenDapServiceFactory() {
     }
 
     /*
@@ -88,5 +88,13 @@ public class OpenDapServiceFactory implements ServiceFactory {
     @Override
     public RetrievalGenerator getRetrievalGenerator() {
         return new OpenDAPRetrievalGenerator();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setProvider(Provider provider) {
+        this.provider = provider;
     }
 }

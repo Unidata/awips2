@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth.notification;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executors;
 
 import com.google.common.eventbus.AsyncEventBus;
@@ -38,6 +40,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * ------------ ---------- ----------- --------------------------
  * Dec 11, 2012 1286       djohnson     Initial creation
  * Feb 06, 2013 1543       djohnson     Changes to correspond with EventBus changes.
+ * May 28, 2013 1650       djohnson     Changes to match functionality in general event bus handling.
  * 
  * </pre>
  * 
@@ -94,6 +97,15 @@ public class BandwidthAsyncEventBusFactory implements BandwidthEventBusFactory {
     @Override
     public EventBus getRetrievalBus() {
         return retrievalBus;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<EventBus> getEventBuses() {
+        return Arrays.<EventBus> asList(dataSetBus, retrievalBus,
+                subscriptionBus);
     }
 
 }

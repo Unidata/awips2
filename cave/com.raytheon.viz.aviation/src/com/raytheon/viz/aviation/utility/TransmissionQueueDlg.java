@@ -42,6 +42,7 @@ import com.raytheon.uf.common.tafqueue.ServerResponse;
 import com.raytheon.uf.common.tafqueue.TafQueueRecord.TafQueueState;
 import com.raytheon.uf.common.tafqueue.TafQueueRequest;
 import com.raytheon.uf.common.tafqueue.TafQueueRequest.Type;
+import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr;
@@ -62,6 +63,7 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * 14 MAY 2012  14715      rferrel     Use EDEX to perform requests.
  * 10 OCT 2012  1229       rferrel     Make dialog non-blocking.
  * 10 OCT 2012  1229       rferrel     Changes for non-blocking HelpUsageDlg.
+ * 07 JUN 2013  1981       mpduff      Set user on the request.
  * 
  * </pre>
  * 
@@ -113,8 +115,8 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
      * 
      * @author lvenable
      */
-    private String[] dayOfWeek = new String[] { "Sunday", "Monday", "Tuesday",
-            "Wednesday", "Thursday", "Friday", "Saturday" };
+    private final String[] dayOfWeek = new String[] { "Sunday", "Monday",
+            "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
 
     /**
      * The Selected day of the week Calendar day of the week value.
@@ -306,8 +308,7 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
                             + "               moved back to 'pending'. The transmission time (the last\n"
                             + "               part of the file name) is updated to the current time.\n"
                             + "   Help:       displays this window";
-                    usageDlg = new HelpUsageDlg(shell, description,
-                            helpText);
+                    usageDlg = new HelpUsageDlg(shell, description, helpText);
                     usageDlg.open();
                 } else {
                     usageDlg.bringToTop();
@@ -333,6 +334,7 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
         request.setType(Type.RETRANSMIT);
         request.setState(getDisplayState());
         request.setArgument(idList);
+        request.setUser(UserController.getUserObject());
 
         try {
             ServerResponse<java.util.List<String>> response = (ServerResponse<java.util.List<String>>) ThriftClient
@@ -384,6 +386,8 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
         TafQueueRequest request = new TafQueueRequest();
         request.setType(Type.GET_TAFS);
         request.setArgument(idList);
+        request.setUser(UserController.getUserObject());
+
         ServerResponse<String> response = null;
         try {
             response = (ServerResponse<String>) ThriftClient
@@ -426,6 +430,7 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
         request.setType(Type.REMOVE_SELECTED);
         request.setState(getDisplayState());
         request.setArgument(idList);
+        request.setUser(UserController.getUserObject());
 
         try {
             ServerResponse<java.util.List<String>> response = (ServerResponse<java.util.List<String>>) ThriftClient
@@ -634,6 +639,7 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
         selectedDayEnd.add(Calendar.DAY_OF_MONTH, 1);
         dateList.add(selectedDayEnd.getTime());
         request.setArgument(dateList);
+        request.setUser(UserController.getUserObject());
 
         try {
             ServerResponse<String> response = (ServerResponse<String>) ThriftClient
@@ -660,6 +666,7 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
             request.setType(Type.GET_LIST);
 
             request.setState(getDisplayState());
+            request.setUser(UserController.getUserObject());
 
             ServerResponse<java.util.List<String>> response = (ServerResponse<java.util.List<String>>) ThriftClient
                     .sendRequest(request);
