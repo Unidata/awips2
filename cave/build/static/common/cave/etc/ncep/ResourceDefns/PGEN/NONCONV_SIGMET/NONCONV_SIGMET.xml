@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <isEnabled>true</isEnabled>
     <resourceDefnName>NONCONV_SIGMET</resourceDefnName>
     <resourceCategory>PGEN</resourceCategory>
-    <filterLabels></filterLabels>
     <resourceParameters>
 ! the sub-directory under the current PGEN working directory
 ! TODO : may want to change pgenDirectory to productType/activity and get the directory of the productType

@@ -20,7 +20,7 @@
 package com.raytheon.uf.common.jms;
 
 /**
- * TODO Add Description
+ * State of Jms Pooled object.
  * 
  * <pre>
  * 

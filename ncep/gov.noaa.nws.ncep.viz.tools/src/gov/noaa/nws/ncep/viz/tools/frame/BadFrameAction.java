@@ -8,8 +8,9 @@
 
 package gov.noaa.nws.ncep.viz.tools.frame;
 
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import java.util.TreeSet;
 
@@ -37,12 +38,12 @@ import com.raytheon.viz.ui.tools.AbstractTool;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 10/10		#309		G. Zhang   	Initial Creation.
+ * 02/11/13     #972        G. Hull     AbstractEditor instead of NCMapEditor
  *
  * </pre>
  * 
  * @author	G. Zhang
  */
-
 public class BadFrameAction  extends AbstractTool {
 	
 	private final static Logger THE_LOG = Logger.getLogger(BadFrameAction.class);
@@ -68,7 +69,7 @@ public class BadFrameAction  extends AbstractTool {
 		
 		super.execute(arg0);
 		
-		AbstractEditor editor = NmapUiUtils.getActiveNatlCntrsEditor();
+		AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
 		if( editor == null ) 
 			return null;
 		
@@ -133,9 +134,7 @@ public class BadFrameAction  extends AbstractTool {
 				}					
 				
 				editor.refresh();
-				if( editor instanceof NCMapEditor ) {
-					((NCMapEditor) editor).refreshGUIElements();
-				}
+				NcEditorUtil.refreshGUIElements( editor );
 			}
 		}else{
 			return null;

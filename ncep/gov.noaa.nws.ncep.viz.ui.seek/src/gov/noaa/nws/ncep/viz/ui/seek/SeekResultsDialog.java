@@ -1,8 +1,11 @@
 package gov.noaa.nws.ncep.viz.ui.seek;
 
 import gov.noaa.nws.ncep.viz.common.LocatorUtil;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.tools.cursor.NCCursors;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -45,7 +48,7 @@ import org.geotools.referencing.datum.DefaultEllipsoid;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -1006,9 +1009,12 @@ public class SeekResultsDialog extends Dialog  {
     	setClickPtText();
     	
     	SeekDrawingLayer seekDrawingLayer = null;
-    	NCMapEditor theEditor = EditorUtil.getActiveEditorAs(NCMapEditor.class);
-        	if ( theEditor != null ) {
-        	ResourceList rscs = theEditor.getDescriptor().getResourceList();
+    	AbstractEditor theEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
+    	
+    	if ( theEditor != null &&
+    		 NcEditorUtil.getNcDisplayType( theEditor ) == NcDisplayType.NMAP_DISPLAY ) {        	
+
+        	ResourceList rscs = NcEditorUtil.getDescriptor(theEditor).getResourceList();
             for (ResourcePair r : rscs) {
                 if (r.getResource() instanceof SeekDrawingLayer) {
                     seekDrawingLayer = (SeekDrawingLayer) r.getResource();
@@ -1431,8 +1437,8 @@ public class SeekResultsDialog extends Dialog  {
     	setClickPtText2();
     	
     	SeekDrawingLayer seekDrawingLayer = null;
-    	NCMapEditor theEditor = (NCMapEditor)EditorUtil.getActiveEditor();
-    	ResourceList rscs = theEditor.getDescriptor().getResourceList();
+    	AbstractEditor theEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
+    	ResourceList rscs = NcEditorUtil.getDescriptor(theEditor).getResourceList();
         
     	for (ResourcePair r : rscs) {
             if (r.getResource() instanceof SeekDrawingLayer) {

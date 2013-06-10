@@ -14,7 +14,8 @@ Require-Bundle: org.apache.commons.logging,
  javax.persistence,
  javax.measure,
  com.raytheon.uf.common.dataplugin,
- com.raytheon.uf.common.serialization
+ com.raytheon.uf.common.serialization,
+ org.hibernate;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.common.dataplugin.acarssounding,
  com.raytheon.uf.common.dataplugin.acarssounding.tools
 Import-Package: com.raytheon.uf.common.dataplugin.acars,

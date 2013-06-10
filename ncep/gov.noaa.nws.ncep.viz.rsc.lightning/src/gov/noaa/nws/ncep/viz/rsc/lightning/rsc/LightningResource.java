@@ -6,6 +6,7 @@ import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResourceData;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResource;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBar;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -69,7 +70,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  * @author ghull 
  * @version 1.0
  */
-public class LightningResource extends AbstractNatlCntrsResource<LightningResourceData, MapDescriptor> 
+public class LightningResource extends AbstractNatlCntrsResource<LightningResourceData, NCMapDescriptor> 
 	implements INatlCntrsResource {
     
     private static final IUFStatusHandler statusHandler = UFStatus.getHandler(LightningResource.class);

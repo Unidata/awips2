@@ -20,3 +20,4 @@ gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpSkewTPaneResourceData
 gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpSpcGraphsPaneResourceData
 gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpTimeStnPaneResourceData
 gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpWitoPaneResourceData
+gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResourceData

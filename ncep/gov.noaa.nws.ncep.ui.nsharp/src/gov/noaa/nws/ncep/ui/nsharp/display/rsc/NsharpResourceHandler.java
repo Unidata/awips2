@@ -42,8 +42,12 @@ import gov.noaa.nws.ncep.ui.nsharp.view.NsharpPaletteWindow;
 import gov.noaa.nws.ncep.ui.nsharp.view.NsharpParcelDialog;
 import gov.noaa.nws.ncep.ui.nsharp.view.NsharpShowTextDialog;
 
+import java.text.DateFormatSymbols;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -53,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.swt.graphics.GC;
@@ -86,7 +91,7 @@ public class NsharpResourceHandler {
 	private NsharpAbstractPaneResource futurePaneRsc;
 	//private Coordinate hodoStmCenter; //hodo storm motion center
 	NsharpNative nsharpNative=null;
-	private static final int  DATAPAGEMAX = NsharpConstants.PAGE_MAX_NUMBER/ 2;
+	private int  displayDataPageMax;
 	private static final int  INSETPAGEMAX =2;
 	private int currentTextChapter= 1;
 	private int currentInsetPage= 1;
@@ -266,7 +271,7 @@ public class NsharpResourceHandler {
 	
 
 	public void setNextTextChapter(){
-		if(currentTextChapter == DATAPAGEMAX){
+		if(currentTextChapter == displayDataPageMax){
 			currentTextChapter = 1;
 		}
 		else
@@ -431,14 +436,6 @@ public class NsharpResourceHandler {
 		this.soundingType = soundingType;
 	}
 
-	/*public static NsharpSkewTResource createSkewtResource() {
-        LoadProperties loadProperties1 = new LoadProperties();
-        ColorableCapability colorable1 = new ColorableCapability();
-        colorable1.setColor(NsharpConstants.backgroundColor);
-        loadProperties1.getCapabilities().addCapability(colorable1);
-        return new NsharpSkewTResource(new NsharpSkewTResourceData(),
-                loadProperties1);
-    }*/
 	
     public List<List<NcSoundingLayer>> getSoundingLysList() {
 		return soundingLysList;
@@ -447,7 +444,7 @@ public class NsharpResourceHandler {
     public void setCurrentParcel(short currentParcel) {
 		this.currentParcel = currentParcel;
 		currentParcelLayerPressure=NsharpNativeConstants.parcelToLayerMap.get(currentParcel);
-		//inform draw panel as well
+		//inform data/skewT panel as well
 		if(dataPaneRsc!=null){
 			dataPaneRsc.setCurrentParcel(currentParcel);
 		}
@@ -455,64 +452,20 @@ public class NsharpResourceHandler {
 			if(currentParcel == NsharpNativeConstants.PARCELTYPE_USER_DEFINED)
 				currentParcelLayerPressure = NsharpParcelDialog.getUserDefdParcelMb();
 			skewtPaneRsc.createRscParcelTraceShapes(currentParcel,currentParcelLayerPressure);
+			skewtPaneRsc.createRscParcelRtTraceShapesList(currentParcel,currentParcelLayerPressure);
 			skewtPaneRsc.createLCLEtcLinesShape();
 		}
 	}
-    public void setCurrentParcelData(short currentParcel, float pressure) {
-		this.currentParcel = currentParcel;
-		currentParcelLayerPressure=pressure;
-		//inform draw panel as well
-		if(dataPaneRsc!=null){
-			dataPaneRsc.setCurrentParcel(currentParcel);
-		}
-	}
-	/*
-     * NOTE:::ONly one parcel will be in parcel list as current design changed to only show one configured parcel
-     * This is how BigNsharp does.
-     * Todo: replace List<ParcelData>  with just one ParcelData
-     */
-	/*public void setParcelList(List<ParcelData> parcelList) {
-		this.parcelList = parcelList;
-		if(skewtPaneRsc!=null)
-			skewtPaneRsc.createParcelShapes(parcelList);
-	}*/
+    
 	public void updateParcelFromPanel(short currentParcel){
 		this.currentParcel = currentParcel;
 		currentParcelLayerPressure=NsharpNativeConstants.parcelToLayerMap.get(currentParcel);
 		if(skewtPaneRsc!=null){
 			skewtPaneRsc.createRscParcelTraceShapes(currentParcel,currentParcelLayerPressure);
+			skewtPaneRsc.createRscParcelRtTraceShapesList(currentParcel,currentParcelLayerPressure);
 			skewtPaneRsc.createLCLEtcLinesShape();
 		}
-		//update parcel shape
-		/*List<ParcelData> parcelList = new ArrayList<ParcelData>(); 
-		ParcelData pd= new ParcelData();
-		pd.setParcelType(currentParcel);
-		pd.setParcelLayerPressure(currentParcelLayerPressure);
-		parcelList.add(pd);
-		setParcelList(parcelList);*/
 	}
-    /*
-     * NOTE:::when called, it assumed that this new element is current parcel. Therefore caller has to make sure of this.
-     *
-	public void addParcelToList(ParcelData parceldata) {
-		boolean addToList = true;
-		for(ParcelData pdata : parcelList){
-			if((pdata.parcelType == parceldata.parcelType) && (pdata.parcelLayerPressure == parceldata.parcelLayerPressure)){
-				addToList= false;
-				break;
-			}
-		}
-		if(addToList== true)
-			this.parcelList.add(parceldata);
-		
-		currentParcel = parceldata.getParcelType();
-		currentParcelLayerPressure = parceldata.getParcelLayerPressure();
-		NsharpBackgroundResource bkRsc = descriptor.getSkewTBkGResource();   	
-		WGraphics WGc = bkRsc.getSkewTBackground().getWorld();
-		createRscParcelTraceShape( WGc, parceldata.parcelType,parceldata.parcelLayerPressure);
-		
-	}*/
-
 
 	public void setSoundingLysList(List<List<NcSoundingLayer>> soundingLysList) {
 		this.soundingLysList = soundingLysList;
@@ -689,10 +642,13 @@ public class NsharpResourceHandler {
 			if(NsharpParcelDialog.getAccess()!=null){
 				NsharpParcelDialog.getAccess().resetUserDefParcel();
 			}
-			/* TBD 
-			//reset draw panel as well
-			if(drawPanel!=null){
-				drawPanel.resetCurrentParcel();
+			 /* Chin:::
+			  * This api is called in may scenarios.
+			  * User may want to keep his previous picked parcel type.
+			  * Therefore, thdataPaneRsc.resetCurrentParcel should be called from
+			  * other area that really meant to reset parcel type.
+			if(dataPaneRsc!=null){
+				dataPaneRsc.resetCurrentParcel();
 			}*/
 		}
 		//Chin: TBD remove handle resize here to fix sizing issue when swapped nsharp from side pane back to main pane 
@@ -1013,7 +969,7 @@ public class NsharpResourceHandler {
 				return 0;
 
 			}			
-			//System.out.println("t1="+s1tok1+" t2="+s1tok2);
+			//System.out.println("t1="+s1tok1+" t2="+s2tok1);
 			StringTokenizer st2 = new StringTokenizer(o2.getTimeDescription());
 			int tkCount2 = st2.countTokens();
 			//System.out.println("ElementComparatorTimeLine o2="+o2.elementDescription+"c2 = "+tkCount2);
@@ -1517,7 +1473,75 @@ public class NsharpResourceHandler {
 			pickedStnInfo= null;
 		}
 	}
-	public void addRsc(Map<String, List<NcSoundingLayer>> soundMap,  NsharpStationInfo stnInfo, boolean displayNewData){
+	public void addRsc(Map<String, List<NcSoundingLayer>> soundMap,  NsharpStationInfo stnInfo, boolean fromNCP){
+		if(fromNCP){
+			//this is from NCP do nothing now
+			this.addRsc(true, soundMap, stnInfo);
+		}
+		else{
+			//this is from D2D, edit display and time line string to add short day-of-week and
+			//also add sounding type to string to solve an issue that data with same stn, same time line but different 
+			//sounding type will not be loaded.
+			//D2D's key string is like this: "IAD 2013-04-25 10:00:00"
+			// will change it to "IAD 2013-04-25 10 Thu NAM"
+			Set<String> dataTimelineSet = soundMap.keySet();	
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			DateFormatSymbols dfs= new DateFormatSymbols();
+			String[] defaultDays = dfs.getShortWeekdays();
+			Calendar cal =Calendar.getInstance();
+			Date date;
+			Map<String, List<NcSoundingLayer>> newmap = new HashMap<String, List<NcSoundingLayer>> ();
+			for(String timeline: dataTimelineSet){
+				//System.out.println("Old timeline Str:"+ timeline);
+				String dateStr = timeline.substring(timeline.indexOf(' ')+1);
+				String stnId= timeline.substring(0, timeline.indexOf(' '));
+				try { 
+					date = df.parse(dateStr);
+					cal.setTime(date);	
+					String dayOfWeek = defaultDays[cal.get(Calendar.DAY_OF_WEEK)];
+					//dateStr = timeline.substring(0, timeline.indexOf(':'))+dayOfWeek+stnInfo.getSndType();
+					//System.out.println("New Str:"+ dateStr);
+					String newTimeStr = String.format("%4$s %1$ty%1$tm%1$td(%2$s)/%1$tH-%3$s",  cal, dayOfWeek,stnInfo.getSndType(),stnId);
+					System.out.println("D2D (modified) timeline Str:"+ newTimeStr);
+					//put newTimeStr to new map with original value
+					newmap.put(newTimeStr, soundMap.get(timeline));
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					continue;
+				}
+			}			
+			//this is from D2D, and it does not want to display new data right away.
+			this.addRsc(false, newmap, stnInfo);
+		}	
+	}
+	public void addRsc( boolean displayNewData,Map<String, List<NcSoundingLayer>> soundMap,  NsharpStationInfo stnInfo){
+		/* testing code
+		stnInfo.setStnId("KG RI");
+		{
+			Set<String> keyset= new HashSet<String>(soundMap.keySet());
+			for(String key: keyset) {
+				List<NcSoundingLayer> sndLy = soundMap.remove(key);
+				String newkey= key.replace("KGRI", "KG RI");
+				soundMap.put(newkey, sndLy);
+			}
+		}*/
+		
+		if(stnInfo.getStnId() != null && stnInfo.getStnId().indexOf(" ")>=0){
+			//take care stnId with SPACE case.
+			String stnId= stnInfo.getStnId();
+			String newStnId = stnId.replace(" ", "_");
+			stnInfo.setStnId(newStnId);
+			String dspInfo= stnInfo.getStnDisplayInfo();
+			stnInfo.setStnDisplayInfo(dspInfo.replace(stnId, newStnId));
+			Set<String> keyset= new HashSet<String>(soundMap.keySet());
+			for(String key: keyset) {
+				List<NcSoundingLayer> sndLy = soundMap.remove(key);
+				String newkey= key.replace(stnId, newStnId);
+				soundMap.put(newkey, sndLy);
+			}
+			
+		}
 		deepCopyDataMap(this.originalDataTimelineSndLysListMap,this.dataTimelineSndLysListMap);
 		//make sure not adding duplicated sounding data
 		//System.out.println("NsharpSkewTResource addRsc called");
@@ -1557,6 +1581,7 @@ public class NsharpResourceHandler {
 			String elmDesc = tempTimeLineArr[i].toString();
 			String stnId = elmDesc.substring(0,elmDesc.indexOf(" "));
 			String timeLine= elmDesc.substring(elmDesc.indexOf(" ")+1);
+			timeLine = timeLine.replace(" ", "-"); //fixed DR15325 - sorting time line issue in D2D
 			//add time line to stnTimeTable and set its index
 			addElementToTableAndLists(elmDesc,stnId,timeLine,stnInfo);
 		}
@@ -1626,7 +1651,8 @@ public class NsharpResourceHandler {
 
 	public void addRsc(Map<String, List<NcSoundingLayer>> soundMap,  NsharpStationInfo stnInfo){
 		//by default, display new data 
-		this.addRsc(soundMap, stnInfo,true);
+		//NCP always call from this route.
+		this.addRsc(true, soundMap, stnInfo);
 		return;
 	}
  	public String getPickedStnInfoStr() {
@@ -2176,7 +2202,7 @@ public class NsharpResourceHandler {
 				dataPaneRsc.setLinePropertyMap(linePropertyMap);
 				dataPaneRsc.setGraphConfigProperty(graphConfigProperty);
 				dataPaneRsc.setNsharpNative(nsharpNative);
-				dataPaneRsc.setPageDisplayOrderNumberArray(pageDisplayOrderNumberArray);
+				dataPaneRsc.setPageDisplayOrderNumberArray(pageDisplayOrderNumberArray,  dataPageProperty.getNumberPagePerDisplay());
 			}
 			else if (absPaneRsc instanceof NsharpHodoPaneResource){
 				hodoPaneRsc = (NsharpHodoPaneResource)absPaneRsc;
@@ -2248,7 +2274,7 @@ public class NsharpResourceHandler {
 
 
 	public NsharpResourceHandler(IRenderableDisplay[] displayArray, NsharpEditor editor) {
-    	//System.out.println("NsharpResourceHandler constructed");
+    	System.out.println("NsharpResourceHandler constructed");
 		//myNsharpEditor = editor;
         this.soundingMap = new HashMap<Date, SoundingParams>();
         elementColorMap.put(NsharpConstants.State.CURRENT,NsharpConstants.color_green); //green
@@ -2283,6 +2309,7 @@ public class NsharpResourceHandler {
 		dataPageProperty = configStore.getDataPageProperty();
 		updatePageOrderArray();
 		updateDisplay(displayArray,paneConfigurationName);
+		displayDataPageMax = NsharpConstants.PAGE_MAX_NUMBER / dataPageProperty.getNumberPagePerDisplay();
 		//pspLsner = new NsharpPerspectiveListener();
 		//pspLsner.setRscHandler(this);
 		//pspLsner.setMyPerspectiveId(VizPerspectiveListener.getCurrentPerspectiveManager().getPerspectiveId());
@@ -2327,7 +2354,7 @@ public class NsharpResourceHandler {
     	resetData();
     }
 	public void disposeInternal() {
-		//System.out.println("NsharpSkewTResource disposeInternal called");
+		System.out.println("NsharpResourceHandler disposeInternal called");
 	    soundingMap= null;
 	    //parcelList= null;
 	    listenerList=null;
@@ -3013,7 +3040,7 @@ public class NsharpResourceHandler {
 		this.dataPageProperty = dataPageProperty;
 		updatePageOrderArray();
 		if(dataPaneRsc!=null)
-			dataPaneRsc.setPageDisplayOrderNumberArray(pageDisplayOrderNumberArray);
+			dataPaneRsc.setPageDisplayOrderNumberArray(pageDisplayOrderNumberArray, dataPageProperty.getNumberPagePerDisplay());
 	}
 
 
@@ -3164,6 +3191,11 @@ public class NsharpResourceHandler {
 
 	public NsharpSpcGraphsPaneResource getSpcGraphsPaneRsc() {
 		return spcGraphsPaneRsc;
+	}
+
+
+	public NsharpDataPaneResource getDataPaneRsc() {
+		return dataPaneRsc;
 	}
 
 

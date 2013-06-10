@@ -9,16 +9,14 @@
 package gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
-import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
-import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
+import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.CcfpInfo;
+import gov.noaa.nws.ncep.ui.pgen.store.PgenStorageException;
+import gov.noaa.nws.ncep.ui.pgen.store.StorageUtils;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.Writer;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -45,6 +43,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date       	Ticket#		Engineer	Description
  * ---------	--------	----------	--------------------------
  * 09/10		322			G. Zhang 	Initial Creation.
+ * 04/13        #977        S. Gilbert  PGEN Database support
  * </pre>
  * 
  * @author gzhang
@@ -68,6 +67,8 @@ public class CcfpMsgDlg extends AttrDlg {
     private String issueTime;
 
     private String validTime;
+
+    private Product product;
 
     // Text field for displaying the text product
     private Text txtInfo;
@@ -122,6 +123,10 @@ public class CcfpMsgDlg extends AttrDlg {
      */
     @Override
     public void createButtonsForButtonBar(Composite parent) {
+
+        ((GridLayout) parent.getLayout()).verticalSpacing = 0;
+        ((GridLayout) parent.getLayout()).marginHeight = 3;
+
         createButton(parent, CCFP_CONSTANT_UPDATE, "Update", true);
         createButton(parent, IDialogConstants.OK_ID, "Save", true);
         createButton(parent, IDialogConstants.CANCEL_ID,
@@ -131,11 +136,20 @@ public class CcfpMsgDlg extends AttrDlg {
                 new Listener() {
                     public void handleEvent(Event e) {
 
-                        String xmlFileName = CcfpInfo.saveCcfpXmlFile(
-                                getIssueTime(), getValidTime());
-                        txtFileContent = CcfpInfo
+                        product = CcfpInfo.getCcfpPrds(getIssueTime(),
+                                getValidTime());
+
+                        String activityXML;
+                        try {
+                            activityXML = StorageUtils
+                                    .serializeProduct(product);
+                        } catch (PgenStorageException e1) {
+                            StorageUtils.showError(e1);
+                            return;
+                        }
+                        String txtFileContent = CcfpInfo
                                 .convertXml2Txt(
-                                        xmlFileName,
+                                        activityXML,
                                         PgenStaticDataProvider
                                                 .getProvider()
                                                 .getFileAbsolutePath(
@@ -147,6 +161,13 @@ public class CcfpMsgDlg extends AttrDlg {
 
                     }
                 });
+
+        this.getButton(IDialogConstants.CANCEL_ID).setLayoutData(
+                new GridData(ctrlBtnWidth, ctrlBtnHeight));
+        this.getButton(IDialogConstants.OK_ID).setLayoutData(
+                new GridData(ctrlBtnWidth, ctrlBtnHeight));
+        this.getButton(CCFP_CONSTANT_UPDATE).setLayoutData(
+                new GridData(ctrlBtnWidth, ctrlBtnHeight));
     }
 
     /**
@@ -178,12 +199,20 @@ public class CcfpMsgDlg extends AttrDlg {
     @Override
     public void okPressed() {
 
-		FileTools.writeFile(PgenUtil.getPgenActivityTextProdPath()
-				+ File.separator + txtSave.getText(), 
-				txtInfo.getText());
+        // FileTools.writeFile(PgenUtil.getPgenActivityTextProdPath()
+        // + File.separator + txtSave.getText(), txtInfo.getText());
+        try {
+            String dataURI = CcfpInfo.storeCcfpXmlFile(product);
 
-            setReturnCode(OK);
-            close();
+            StorageUtils.storeDerivedProduct(dataURI, txtSave.getText(),
+                    "TEXT", txtInfo.getText());
+        } catch (PgenStorageException e) {
+            StorageUtils.showError(e);
+            return;
+        }
+
+        setReturnCode(OK);
+        close();
 
     }
 
@@ -326,6 +355,10 @@ public class CcfpMsgDlg extends AttrDlg {
      */
     public void setValidTime(String validTime) {
         this.validTime = validTime;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
     }
 
 }

@@ -45,6 +45,7 @@ import gov.noaa.nws.ncep.ui.pgen.attrdialog.TextAttrDlg;
  * 02/11			?		B. Yin		Fixed Outlook type problem.
  * 04/11			?		B. Yin		Re-factor IAttribute
  * 08/12         #802       Q. Zhou     Fixed Front text of 2 lines. Modified handleMouseMove.
+ * 12/12		 #591		J. Wu		TTR343 - added default label value for some fronts.
  * </pre>
  * 
  * @author	B. Yin
@@ -119,9 +120,16 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
         			}
         		}
 
-        		//for fronts, don't remember last value
+        		/*
+        		 * for fronts, don't remember last value. 
+        		 * 
+        		 *  Jun (12/18/2012, TTR 343/TTN 591) - However, for Squall Line,Tropical Wave, 
+        		 *  Outflow boundary, Dry Line, and Shear Line, need to use the default label 
+        		 *  so the client won't need to type it - 
+        		 */
         		if (  prevElem.getName().equalsIgnoreCase("labeledFront")){
-    				((TextAttrDlg) attrDlg).setText(new String[] { "" });
+    				String flbl = getDefaultFrontLabel( prevElem );   				
+    				((TextAttrDlg) attrDlg).setText(new String[] { flbl });
         		}
         		else if ( prevElem.getName().equalsIgnoreCase("Volcano")){
         			((TextAttrDlg) attrDlg).setFontSize(18);
@@ -178,7 +186,7 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
         @Override	
         public boolean handleMouseDown(int anX, int aY, int button) {
         	if ( !isResourceEditable() ) return false;
-           
+
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null || shiftDown ) return false;
@@ -304,25 +312,25 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
             				if ( text.length == 1 ) {  
             					StringBuffer lbl = new StringBuffer(((TextAttrDlg)attrDlg).getString()[0]);
             				
-            				if ( lbl.length() > 0 ){
-            					if ( lbl.charAt(0) == '[')  lbl.deleteCharAt(0);
-            					if ( lbl.charAt(lbl.length()-1) == ']') lbl.deleteCharAt(lbl.length()-1);
+            					if ( lbl.length() > 0 ){
+            						if ( lbl.charAt(0) == '[')  lbl.deleteCharAt(0);
+            						if ( lbl.charAt(lbl.length()-1) == ']') lbl.deleteCharAt(lbl.length()-1);
 
             						try {
             							Integer.parseInt(lbl.toString());
-            					//check if the text is right or left of the front
-            					if ( rightOfLine(mapEditor, loc, (Line)prevElem.getPrimaryDE()) >= 0 ){
+            							//check if the text is right or left of the front
+            							if ( rightOfLine(mapEditor, loc, (Line)prevElem.getPrimaryDE()) >= 0 ){
 
-            						((TextAttrDlg)attrDlg).setText(new String[]{lbl+"]"});
-            					}
-            					else {
-            						((TextAttrDlg)attrDlg).setText(new String[]{"[" + lbl});
-            					}
+            								((TextAttrDlg)attrDlg).setText(new String[]{lbl+"]"});
+            							}
+            							else {
+            								((TextAttrDlg)attrDlg).setText(new String[]{"[" + lbl});
+            							}
             						} catch (NumberFormatException e) {
             							/*do nothing*/}
             					}
             				}
-
+            				
             				ghost = def.create( DrawableType.TEXT, (IAttribute)attrDlg,
             						pgenCategory, pgenType, loc, drawingLayer.getActiveLayer());
 
@@ -384,6 +392,34 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
     	if ( minDist == 0 ) return 0;
 
     	else return Line2D.relativeCCW(screenPt[0], screenPt[1], startPt[0], startPt[1], endPt[0], endPt[1]);
+
+    }
+    
+    /*
+     * Set default label for a few specific fronts.
+     */
+    private String getDefaultFrontLabel( AbstractDrawableComponent elem ) {
+
+    	//Use default label for specific fronts.
+		String frontLabel = "";
+		String ptype = elem.getPgenType();
+		if ( ptype.equalsIgnoreCase("TROF") ) {
+			frontLabel = new String( "OUTFLOW BOUNDARY" );
+		}
+		else if ( ptype.equals( "TROPICAL_TROF") ) {
+			frontLabel =  new String( "TROPICAL WAVE" );               			
+		}
+		else if ( ptype.equals( "DRY_LINE") ) {
+			frontLabel = new String( "DRYLINE" );               			
+		}
+		else if ( ptype.equals( "INSTABILITY") ) {
+			frontLabel = new String( "SQUALL LINE" );              			
+		}
+		else if ( ptype.equals( "SHEAR_LINE") ) {
+			frontLabel = new String( "SHEARLINE" );                			
+		}
+		
+		return frontLabel;
 
     }
 

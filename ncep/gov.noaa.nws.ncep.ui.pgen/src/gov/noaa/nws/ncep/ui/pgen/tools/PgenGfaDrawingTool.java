@@ -187,7 +187,7 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
         		 
         		else if (startGfaText && drawableType == DrawableType.GFA){			//after a GFA polygon is created
         			startGfaText = false;
-        			drawingLayer.addElement(elem);
+        			drawingLayer.addElement(elem);       			
         			
         			validateGfa( (Gfa)elem) ;
         			handleGfaMouseDown(loc, drawableType); 
@@ -198,19 +198,19 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
         			if ( points.size() == 0 ) {
         				//When drawing GFA polygon, disable the moveText button in GFA dialog
             			((GfaAttrDlg)attrDlg).enableMoveTextBtn(false);
-    			}
+        			}
         			
         			if ( isValidPoint( points, loc ) ) {
-                points.add( loc );     
-        		}
-                
+        				points.add( loc ); 
+        			}
+        			
 //        			points.add( loc ); 
         		}
         		
                 attrDlg.setAttrForDlg(attrDlg); // update the parameters in GfaAttrDlg
                 return true;
             }
-            else if ( button == 3 ) {
+        	else if ( button == 3 ) {
 
         		//exit drawing text mode
         		if ( startGfaText ) {
@@ -232,13 +232,13 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
         			}
         		}
 
-            	if ( points.size() == 0 ) {
+        		if ( points.size() == 0 ) {
 
-            		closeAttrDlg(attrDlg); 
-            		attrDlg = null; 
+						closeAttrDlg(attrDlg); 
+						attrDlg = null; 
 						drawingLayer.removeSelected((Gfa)elem);
 						elem = null;
-            		PgenUtil.setSelectingMode();
+						PgenUtil.setSelectingMode();
 					
 
             	}
@@ -270,12 +270,12 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
             		
             		//set from line
             		String vorText = Gfa.buildVorText( (Gfa)elem );
-            		((Gfa)elem).setGfaVorText( vorText );
+            		((Gfa)elem).setGfaVorText( vorText );           	    
             		((GfaAttrDlg)attrDlg).setVorText( vorText );
             		
 					startGfaText = true;
 					attrDlg.setAttrForDlg(attrDlg); // update the parameters in GfaAttrDlg
-
+		    				    		 
 					return true;
             	}
 
@@ -294,14 +294,14 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
         }
 
 		private boolean handleGfaMouseDown(Coordinate loc, DrawableType drawableType) {
-			
+				
 			((Gfa)elem).setGfaTextCoordinate(loc);
-    		
+			 			
 			removeClearRefresh();
 			
 			((GfaAttrDlg)attrDlg).populateTagCbo();
 			((GfaAttrDlg)attrDlg).setDrawableElement((Gfa)elem);
-			
+			            
 			return true;
 		}
 
@@ -388,7 +388,7 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
 			}
 			
 			((Gfa)ghost).setGfaTextCoordinate(loc);
-			
+
 			drawingLayer.setGhostLine(ghost);
         	mapEditor.refresh();
 			return false;
@@ -407,7 +407,7 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
         public void clearPoints(){
         	points.clear();
         }
-
+        
         
         /*
          * Warning if a GFA is invalid (self-crossing).

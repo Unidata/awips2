@@ -21,7 +21,9 @@ package com.raytheon.uf.viz.cwat;
 
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -68,6 +70,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    16JUN2009    2037        dhladky    Initial Creation.
+ *    Apr 17, 2013   1916      njensen    Overrode getDataTimes()
+ * 
  * 
  * </pre>
  * 
@@ -78,39 +82,33 @@ import com.vividsolutions.jts.geom.Coordinate;
 public class CWATResource extends
         AbstractVizResource<CWATResourceData, MapDescriptor> implements
         IResourceDataChanged {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CWATResource.class);
 
-    public String icao;
+    protected CWATRecord record;
 
-    public String fieldName;
+    private Map<DataTime, GriddedImageDisplay2> griddedDisplayMap;
 
-    public String fieldUnitString;
+    protected DataTime displayedDataTime;
 
-    public CWATRecord record;
-
-    private HashMap<DataTime, GriddedImageDisplay2> griddedDisplayMap;
-
-    public DataTime displayedDataTime;
-
-    public DataTime previousDataTime;
+    protected DataTime previousDataTime;
 
     private String colormapfile = null;
 
     /* The font used */
-    public IFont font = null;
+    protected IFont font = null;
 
     private float cwatmax = 0.0f;
 
     private float cwatmin = 0.0f;
 
-    boolean init = true;
+    private boolean init = true;
 
     public CWATResource(CWATResourceData data, LoadProperties props) {
         super(data, props);
 
         data.addChangeListener(this);
-        this.dataTimes = new ArrayList<DataTime>();
         griddedDisplayMap = new HashMap<DataTime, GriddedImageDisplay2>();
     }
 
@@ -146,7 +144,10 @@ public class CWATResource extends
             for (PluginDataObject pdo : pdos) {
                 try {
                     CWATRecord cwat = (CWATRecord) pdo;
-                    resourceData.dataObjectMap.put(cwat.getDataTime(), cwat);
+                    synchronized (resourceData.dataObjectMap) {
+                        resourceData.dataObjectMap
+                                .put(cwat.getDataTime(), cwat);
+                    }
                     record = cwat;
                 } catch (Exception e) {
                     statusHandler.handle(Priority.PROBLEM,
@@ -303,7 +304,9 @@ public class CWATResource extends
 
     @Override
     public void remove(DataTime dataTime) {
-        this.dataTimes.remove(dataTime);
+        synchronized (resourceData.dataObjectMap) {
+            resourceData.dataObjectMap.remove(dataTime);
+        }
         GriddedImageDisplay2 display = this.griddedDisplayMap.remove(dataTime);
         if (display != null) {
             display.dispose();
@@ -321,5 +324,15 @@ public class CWATResource extends
         paramList.add(record.getPluginName());
         match.setParameterName(paramList);
         return match;
+    }
+
+    @Override
+    public DataTime[] getDataTimes() {
+        DataTime[] times = new DataTime[0];
+        synchronized (resourceData.dataObjectMap) {
+            times = this.resourceData.dataObjectMap.keySet().toArray(times);
+        }
+        Arrays.sort(times);
+        return times;
     }
 }

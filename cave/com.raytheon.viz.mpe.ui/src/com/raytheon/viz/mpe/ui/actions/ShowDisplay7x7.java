@@ -33,6 +33,7 @@ import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
+import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.rsc.MPEGageResource;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.input.EditableManager;
@@ -45,6 +46,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 6, 2009             snaples     Initial creation
+ * Mar 14, 2013  1457      mpduff      Don't throw error if nothing displayed.
  * </pre>
  * 
  * @author snaples
@@ -54,20 +56,23 @@ public class ShowDisplay7x7 extends AbstractHandler implements IElementUpdater {
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        IEditorPart activeEditor = (IEditorPart) EditorUtil
-                .getActiveEditorAs(IDisplayPaneContainer.class);
-        if (activeEditor != null) {
-            IDisplayPane first = ((IDisplayPaneContainer) activeEditor)
-                    .getDisplayPanes()[0];
-            List<MPEGageResource> rscs = first.getDescriptor()
-                    .getResourceList()
-                    .getResourcesByTypeAsType(MPEGageResource.class);
-            for (MPEGageResource rsc : rscs) {
-                rsc.getProperties().setVisible(true);
-                EditableManager.makeEditable(rsc, true);
-                rsc.issueRefresh();
+        if (MPEDisplayManager.getCurrent().getDisplayedFieldResource() != null) {
+            IEditorPart activeEditor = (IEditorPart) EditorUtil
+                    .getActiveEditorAs(IDisplayPaneContainer.class);
+            if (activeEditor != null) {
+                IDisplayPane first = ((IDisplayPaneContainer) activeEditor)
+                        .getDisplayPanes()[0];
+                List<MPEGageResource> rscs = first.getDescriptor()
+                        .getResourceList()
+                        .getResourcesByTypeAsType(MPEGageResource.class);
+                for (MPEGageResource rsc : rscs) {
+                    rsc.getProperties().setVisible(true);
+                    EditableManager.makeEditable(rsc, true);
+                    rsc.issueRefresh();
+                }
             }
         }
+
         return null;
     }
 
@@ -88,5 +93,4 @@ public class ShowDisplay7x7 extends AbstractHandler implements IElementUpdater {
             }
         }
     }
-
 }

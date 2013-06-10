@@ -1,5 +1,0 @@
-! Attributes for the GFSMOS resource with "wind related symbols" plot model
-!
-plotModel=@PlotModels/bufrmosGFS/wind.xml
-plotDensity=10
-conditionalFilter=

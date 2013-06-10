@@ -14,8 +14,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
-import com.raytheon.uf.edex.core.props.EnvProperties;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
 /**
@@ -39,7 +37,7 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  **/
 
 /**
- * TODO Add Description
+ * Repacks all point data hdf5 files.
  * 
  * <pre>
  * 
@@ -47,8 +45,9 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 1, 2011            njensen     Initial creation
- * 
+ * Nov 1, 2011             njensen     Initial creation
+ * Jan 14, 2013 1469       bkowal      Removed the hdf5 data directory
+ * Mar 21, 2013 1814       rjpeter     Fixed logging of exception.
  * </pre>
  * 
  * @author njensen
@@ -62,14 +61,9 @@ public class DataStoreRepacker {
 
     private List<String> pluginsToRepack;
 
-    private String hdf5Dir;
-
     private Compression compression = Compression.NONE;
 
     public DataStoreRepacker(String compression) {
-        EnvProperties properties = PropertiesFactory.getInstance()
-                .getEnvProperties();
-        hdf5Dir = properties.getEnvValue("HDF5DIR");
         this.compression = Compression.valueOf(compression);
     }
 
@@ -81,12 +75,12 @@ public class DataStoreRepacker {
         // TODO change log statement if more than pointdata is hooked into this
         statusHandler.info("Starting repack of pointdata datastore");
         for (String plugin : pluginsToRepack) {
-            String dir = hdf5Dir + File.separator + plugin;
-            IDataStore ds = DataStoreFactory.getDataStore(new File(dir));
+            IDataStore ds = DataStoreFactory.getDataStore(new File(plugin));
             try {
                 ds.repack(compression);
             } catch (StorageException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage());
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
         }
         // TODO change log statement if more than pointdata is hooked into this

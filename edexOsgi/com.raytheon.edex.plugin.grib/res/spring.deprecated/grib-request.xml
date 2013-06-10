@@ -1,0 +1,19 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  
+   <bean id="gridDataQueryHandler" class="com.raytheon.edex.plugin.grib.handler.GridDataHandler" />
+	
+   <bean factory-bean="handlerRegistry" factory-method="register">
+      <constructor-arg value="com.raytheon.uf.common.dataplugin.grib.request.GridDataRequestMessage"/>
+  	  <constructor-arg ref="gridDataQueryHandler"/>
+   </bean>
+  
+   <bean id="deleteAllModelDataHandler" class="com.raytheon.edex.plugin.grib.handler.DeleteAllModelDataHandler" />
+   <bean factory-bean="handlerRegistry" factory-method="register">
+      <constructor-arg value="com.raytheon.uf.common.dataplugin.grib.request.DeleteAllModelDataRequest"/>
+  	  <constructor-arg ref="deleteAllModelDataHandler"/>
+   </bean>
+ </beans>

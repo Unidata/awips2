@@ -19,9 +19,9 @@ AutoReq: no
 provides: awips2-edex-environment
 requires: awips2-edex-base
 requires: awips2-postgresql
-requires: awips2-qpid-server-store
-requires: awips2-qpid-client
-requires: awips2-qpid-server
+requires: awips2-qpid-java-broker
+requires: awips2-qpid-java-client
+requires: awips2-qpid-java-common
 requires: awips2-python
 requires: awips2-java
 requires: awips2-psql
@@ -112,11 +112,12 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
+_QPID_VERSION="0.18"
 RPM_PROJECT="%{_baseline_workspace}/rpms"
-POSTGRES_INITD="${RPM_PROJECT}/awips2.core/Installer.postgresql/scripts/init.d/edex_postgres"
-QPID_INITD="${RPM_PROJECT}/awips2.qpid/SOURCES/qpidd"
-QUEUE_SH="${RPM_PROJECT}/awips2.qpid/SOURCES/queueCreator.sh"
+POSTGRES_INITD="${RPM_PROJECT}/awips2.core/Installer.postgres/scripts/init.d/edex_postgres"
+QPID_INITD="${RPM_PROJECT}/awips2.qpid/${_QPID_VERSION}/SOURCES/qpidd"
 EDEX_INITD="${RPM_PROJECT}/awips2.edex/Installer.edex-base/scripts/init.d/edex_camel"
+HTTPD_PYPIES_INITD="${RPM_PROJECT}/awips2.core/Installer.httpd-pypies/configuration/etc/init.d/httpd-pypies"
 
 # Copy the startup scripts.
 cp ${POSTGRES_INITD} \
@@ -129,12 +130,12 @@ cp ${QPID_INITD} \
 if [ $? -ne 0 ]; then
    exit 1
 fi
-cp ${QUEUE_SH} \
+cp ${EDEX_INITD} \
    %{_build_root}%{_installation_directory}/edex-environment/scripts
 if [ $? -ne 0 ]; then
    exit 1
 fi
-cp ${EDEX_INITD} \
+cp ${HTTPD_PYPIES_INITD} \
    %{_build_root}%{_installation_directory}/edex-environment/scripts
 if [ $? -ne 0 ]; then
    exit 1

@@ -143,7 +143,7 @@ public class VParm extends Parm {
     @Override
     public void looseLocks() {
         // simply replace the lock table with one without any locks
-        this.lockTable.setLocks(new ArrayList<Lock>());
+        this.lockTable.setLocks(new ArrayList<Lock>(0));
     }
 
 }

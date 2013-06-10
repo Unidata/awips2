@@ -1,0 +1,22 @@
+<beans xmlns="http://www.springframework.org/schema/beans"	
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<bean id="radarUnitsRegisterd"
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetClass">
+			<value>com.raytheon.uf.common.dataplugin.radar.units.RadarUnits</value>
+		</property>
+		<property name="targetMethod">
+			<value>register</value>
+		</property>
+	</bean>
+
+	<bean id="radarGridFactory" class="com.raytheon.uf.common.dataplugin.radar.dataaccess.RadarGridFactory" />
+	
+	<bean factory-bean="dataAccessRegistry" factory-method="register">
+		<constructor-arg value="radar"/>
+		<constructor-arg ref="radarGridFactory"/>
+	</bean>	
+	
+</beans>

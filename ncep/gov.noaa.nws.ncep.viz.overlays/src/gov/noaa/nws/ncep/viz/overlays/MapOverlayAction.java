@@ -1,12 +1,14 @@
 package gov.noaa.nws.ncep.viz.overlays;
 
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.resources.manager.ResourceCategory;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory.ResourceSelection;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import java.io.File;
 import java.util.Map;
@@ -32,6 +34,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.UiPlugin;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 
 /**
@@ -75,7 +78,7 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
             return null;
         }
 
-        final NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor();
+        final AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
         if( editor == null )
             return null;
 
@@ -98,14 +101,14 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
                 	// get the name of the default attr set and create the overlay resource
                 	//String qualRscName = NmapCommon.OverlaysRscDir + bundleName;
                 	ResourceName fullRscName = new ResourceName( 
-                			ResourceName.OverlayRscCategory, overlayName, null );
+                			ResourceCategory.OverlayRscCategory, overlayName, null );
                 	
                 	ResourceSelection rbt = ResourceFactory.createResource( fullRscName ); 
                 	ResourcePair rscPair = rbt.getResourcePair();
             		ResourceProperties props = rscPair.getProperties();
             		AbstractResourceData ovrlyRscData = rscPair.getResourceData(); 
             		
-                    IDisplayPane[] seldPanes = ((NCMapEditor)editor).getSelectedPanes();
+                    IDisplayPane[] seldPanes = NcEditorUtil.getSelectedPanes(editor);
                     
                     if( seldPanes.length == 0 ) {
                     	System.out.println("There are no Selected Panes to load to?");
@@ -115,7 +118,7 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
                     for (IDisplayPane pane : seldPanes ) {
                     	existingMD = pane.getRenderableDisplay().getDescriptor();
 
-                    	ResourceList resourceList = existingMD.getResourceList(); 
+                    	ResourceList resourceList = existingMD.getResourceList();
                     	ResourcePair rp = new ResourcePair();
                     	rp.setResourceData( ovrlyRscData );
                     	resourceList.add( rp ); 
@@ -146,12 +149,13 @@ public class MapOverlayAction extends AbstractHandler implements IElementUpdater
      */
     @SuppressWarnings("unchecked")
     public void updateElement(UIElement element, Map parameters) {
-        NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor();
+    	AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
         if (editor == null) {
             return;
         }
 
         IDescriptor descriptor = editor.getActiveDisplayPane().getDescriptor();
+        
         if (descriptor instanceof IMapDescriptor) {
             //element.setChecked(((IMapDescriptor) descriptor).getMapManager()
             //        .isMapLoaded((String) parameters.get("mapName")));

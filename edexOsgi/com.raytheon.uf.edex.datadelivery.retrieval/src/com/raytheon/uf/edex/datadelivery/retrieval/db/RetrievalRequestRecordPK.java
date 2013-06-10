@@ -23,6 +23,13 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
 import com.raytheon.uf.common.serialization.ISerializableObject;
@@ -38,6 +45,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 09, 2012            rjpeter     Initial creation
+ * Feb 11, 2013 1543       djohnson    Override equals/hashCode to remove Hibernate warning.
+ * Feb 15, 2013 1543       djohnson    Add JAXB annotations.
  * 
  * </pre>
  * 
@@ -46,17 +55,22 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Embeddable
 @DynamicSerialize
-public class RetrievalRequestRecordPK implements IPersistableDataObject,
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)
+public class RetrievalRequestRecordPK implements
+        IPersistableDataObject<RetrievalRequestRecordPK>,
         Serializable, ISerializableObject {
 
     private static final long serialVersionUID = 1L;
 
     @Column
     @DynamicSerializeElement
+    @XmlAttribute
     private String subscriptionName;
 
     @Column
     @DynamicSerializeElement
+    @XmlAttribute
     private int index;
 
     // TODO: Subscription only unique per owner
@@ -86,12 +100,34 @@ public class RetrievalRequestRecordPK implements IPersistableDataObject,
     }
 
     @Override
-    public Object getIdentifier() {
+    public RetrievalRequestRecordPK getIdentifier() {
         return this;
     }
 
     @Override
     public String toString() {
         return subscriptionName + "/" + index;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof RetrievalRequestRecordPK) {
+            RetrievalRequestRecordPK other = (RetrievalRequestRecordPK) obj;
+
+            EqualsBuilder builder = new EqualsBuilder();
+            builder.append(this.getIndex(), other.getIndex());
+            builder.append(this.getSubscriptionName(),
+                    other.getSubscriptionName());
+            return builder.isEquals();
+        }
+        return super.equals(obj);
+    }
+    
+    @Override
+    public int hashCode() {
+        HashCodeBuilder builder = new HashCodeBuilder();
+        builder.append(this.getIndex());
+        builder.append(this.getSubscriptionName());
+        return builder.toHashCode();
     }
 }

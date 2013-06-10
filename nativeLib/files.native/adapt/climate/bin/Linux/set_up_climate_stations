@@ -1,0 +1,111 @@
+#!/bin/sh
+
+##############################################################################
+#
+# set_up_climate_stations
+#
+# This is the script to set up the stations for the climate program.
+#
+# Modification History:
+# ---------------------
+# 12/05/2002  OB2  Bob Morris         - Changed from csh to sh
+#                                     - Removed CLIMATE_BIN_DIR definition, it
+#                                       is set in readenv.sh.  General cleanup.
+#                                     - Replace -a's in tests.
+#
+# 09/04/2003 OB3  Mohammed Sikder     A new technique was adopted in order 
+#                                     to explicitly pipe the generated outputs
+#                                     from a set of climate scripts to a logfile.
+#                                     Te reason behind that was some of the nested
+#                                     GUIs in the climate was failing to get
+#                                     displayed at NGIT OB3 test platform.
+#                                     
+##############################################################################
+#
+#
+##############################################################################
+
+#
+# Set the file path environment variables
+#
+
+if [ "$CLIMATE_DIR" = "" ]
+then
+  echo "\nFatal error in set_up_climate_stations: CLIMATE_DIR not defined in environment!"
+  echo " - Exiting."
+  exit 1
+fi
+
+CLIMATE_DATA_DIR=${CLIMATE_DIR}/data; export CLIMATE_DATA_DIR
+CLIMATE_TMP_DIR=${CLIMATE_DIR}/tmp; export CLIMATE_TMP_DIR
+
+if [ ! -d ${CLIMATE_DATA_DIR} ]
+then
+   echo "Directory ${CLIMATE_DATA_DIR} does not exist." 
+   echo "Check installation and setup of Climate routines."
+   echo "Halting set_up_climate_stations script execution .... "
+   exit 1
+fi
+
+if [ ! -d ${CLIMATE_TMP_DIR} ]
+then
+   echo "Directory ${CLIMATE_TMP_DIR} does not exist." 
+   echo "Check installation and setup of Climate routines."
+   echo "Halting set_up_climate_stations script execution .... "
+   exit 1
+fi
+ 
+   LOGFILE=${CLIMATE_TMP_DIR}/tmp.txt
+   echo "Set Up Climate Params run date/time: `date`" > $LOGFILE
+  
+#
+# Check that environment variable for path to climate executables is set
+#
+if [ "$CLIMATE_BIN_DIR" = "" ]
+then
+  echo "\nIn set_up_climate_stations: CLIMATE_BIN_DIR not defined in environment!"
+  echo " - Exiting script."
+  exit 1
+else
+  echo "In set_up_climate_stations: CLIMATE_BIN_DIR = $CLIMATE_BIN_DIR \n"
+fi
+
+#
+# Change the directory to the temporary climate directory
+#
+cd ${CLIMATE_TMP_DIR}
+
+if [ ! -s ${CLIMATE_BIN_DIR}/set_up_climate ]
+then
+   echo "${CLIMATE_BIN_DIR}/set_up_climate executable does not exist!"
+   echo "Halting set_up_climate_stations script execution .... "
+   exit 1
+else if [ ! -x ${CLIMATE_BIN_DIR}/set_up_climate ]
+   then 
+      echo "${CLIMATE_BIN_DIR}/set_up_climate does not have execute permission!"
+      echo "Halting set_up_climate_stations script execution .... "
+      exit 1
+   fi
+fi
+
+# All this copying back-and-forth looks bogus. Is this a remnant of a one-time
+# modification?  Why wouldn't you just edit the file in ${CLIMATE_DATA_DIR}? 
+# The run-time scripts copy it from DATA to TMP each time anyway.  I'm not going
+# to f___ with it for now.  - Morris, Dec. 2002, OB2 comment
+
+# Added 6/18/99 for new global file
+cp ${CLIMATE_DATA_DIR}/global_day ${CLIMATE_TMP_DIR}
+
+# 6/10/99 Changed to reflect new set_up_climate
+${CLIMATE_BIN_DIR}/set_up_climate params $1 $2 >> $LOGFILE 2>> $LOGFILE
+
+# Added 6/18/99 for new global file
+cp ${CLIMATE_TMP_DIR}/global_day ${CLIMATE_DATA_DIR}
+
+#
+# Restart the main climate menu and exit script
+#
+exec ${CLIMATE_BIN_DIR}/climate & 
+
+
+exit 0

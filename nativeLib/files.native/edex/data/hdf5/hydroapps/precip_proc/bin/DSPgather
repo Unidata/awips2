@@ -1,0 +1,227 @@
+#!/bin/ksh
+
+#
+#   script for gathering DSP products from fxa directories
+#   and moving them to the OHD precip_proc world
+#   October 16, 2007
+#   David T. Miller RSIS OHD/HSEB
+#   this script is modified based on DPAgather script.
+
+# This allows you to call this script from outside of ./bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for AWIPS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+
+export DSP_LOG_DIR=$(get_apps_defaults dsp_log_dir)
+export DSP_DIRNAME2=$(get_apps_defaults dsp_dirname2)
+export DSP_DIRNAME1=$(get_apps_defaults dsp_dirname1)
+export DSP_PROD_DIR=$(get_apps_defaults dsp_prod_dir)
+export HPE_LOG_DIR=$(get_apps_defaults hpe_log_dir)
+export DB_NAME=$(get_apps_defaults db_name)
+
+#
+# define function for checking for a stop file to bypass the gather process 
+
+checkcronstop()
+{
+	STOP_DIR=$1
+	test -r $STOP_DIR/stop_hpe_crons
+	FILES_FOUND=$?
+	if test $FILES_FOUND -eq 0
+	then
+	
+             return 1
+
+	else
+             return 0
+	fi
+}
+
+
+checkcronstop $HPE_LOG_DIR
+STOP_FOUND=$?
+
+if test STOP_FOUND -eq 1
+then
+   exit 0
+fi
+
+# Note that this is slightly different than the DHR log as that
+# is the primary data gather process.  DSP is secondary and will
+# not have stop_hpe_crons info in the log.
+#
+
+#   setup log files
+#
+
+fnm=$DSP_LOG_DIR/dspgather_log
+tmp=$DSP_LOG_DIR/dspgather_tmp
+#----------------------------------------------------------------------
+#  Don't fire up another instance if one is underway
+# the AMIRUNNING_DIR variable is required by the amirunning script
+
+AMIRUNNING_DIR=$DSP_LOG_DIR
+
+. $RFCLX/public/bin/amirunning
+
+if [[ $AmIRunning = "yes" ]]; then
+  echo DSPgather script cancelled due to other instance running >> $fnm
+  exit 1
+  fi
+
+#
+#   save latest entries in log file
+#
+
+if [[ -s $fnm ]]
+  then
+     tail -1200 $fnm > $tmp
+     mv $tmp  $fnm
+  fi
+
+#
+#   begin write to log               
+#
+
+echo "-------------------------------------------" >> $fnm
+Dte=`date -u`
+echo "Begin gather at  "$Dte >> $fnm
+
+if [[ ! -d $DSP_PROD_DIR ]]
+then
+   echo "The DSP PROD DIR $DSP_PROD_DIR is invalid or " >> $fnm
+   echo "does not exist.  Exiting DHRgather script. " $Dte >> $fnm
+   exit 1
+fi
+
+#
+#   touch dspgather control temp file
+#
+
+touch $DSP_LOG_DIR/dspgather_control.temp
+
+#
+#  check if radarloc table has any radars with use_radar="T"
+#  if not, then stop
+#  the sed command strips off all non-numeric characters
+#
+
+Num_Rad=$(
+echo "select count(*) from Radarloc WHERE use_radar='T'; " | \
+$POSTGRESQLBINDIR/psql -q -t $DB_NAME 
+         )
+
+if [[ $Num_Rad = 0 ]]
+then
+
+      echo no radars defined for use -- gather not done  >> $fnm
+      Dte=`date -u`
+      echo "End   gather at  "$Dte >> $fnm
+      exit 1
+
+elif [[ -z $Num_Rad ]]
+then
+
+      echo number of radars defined for use is undetermined -- gather continuing  >> $fnm
+fi
+
+#
+#  write radar identifiers and prefixes to temp file                             
+#
+
+
+#$POSTGRESQLBINDIR/psql -q  -t  $DB_NAME
+#unload to "$DSP_LOG_DIR/radid.temp"
+#select lower(radid_prefix), lower(radid)
+#from Radarloc
+#WHERE use_radar='T';
+
+echo "select lower(radid_prefix), lower(radid) from Radarloc WHERE use_radar='T';" | \
+$POSTGRESQLBINDIR/psql -q  -A  -t  $DB_NAME > $DSP_LOG_DIR/radid.temp
+#
+#  if radid.temp is not created or is 0 bytes in length, then print message and exit gather script
+#
+
+if [[ ! -s $DSP_LOG_DIR/radid.temp ]]
+  then
+      rm -f $DSP_LOG_DIR/radid.temp
+      rm -f $DSP_LOG_DIR/dspgather_control.temp
+      echo "radid.temp file not created properly -- gather not done"  >> $fnm
+
+      Dte=`date -u`
+      echo "End   gather at  "$Dte >> $fnm
+      exit 1
+  fi
+
+#
+#  for each radar id in file, construct directory name and search for products
+#  note that the radar id in the directory name is lower case and 4 char
+#
+echo "DSP_DIRNAME1 = $DSP_DIRNAME1" >> $fnm
+echo "DSP_DIRNAME2 = $DSP_DIRNAME2" >> $fnm
+for rid in `cat $DSP_LOG_DIR/radid.temp`
+do 
+
+radid_dir=$(echo "$rid" | sed 's/|//g')
+radid=${radid_dir#?}
+
+PRODUCT_DIR_NAME=$DSP_DIRNAME1/$radid_dir/$DSP_DIRNAME2
+echo "PRODUCT_DIR_NAME = $PRODUCT_DIR_NAME radid dir=$radid_dir"
+
+#  
+#   look for raw products in the directory satisfying the time test                     
+#   if found, then copy to a temporary location and mv to the gather directory
+#   change radar id to upper case
+#   successfully processed products will be deleted from the gather directory as part of
+#     the decoding process
+#   write old name, new name to log file 
+#
+
+num_files=`ls -F $PRODUCT_DIR_NAME 2>>$fnm | grep -v "*" | grep -v "/" | wc -l`
+echo "num_files = $num_files"
+if test $num_files -ne 0
+then
+   RADID=$(print $radid | tr '[a-z]' '[A-Z]')
+
+   i=0
+
+   for pname in `find $PRODUCT_DIR_NAME  -type f  -name '*'  -newer  $DSP_LOG_DIR/dspgather_control` 
+   do
+
+      GATHER_FILENAME=$DSP_PROD_DIR/DSP$RADID.`date -u +%Y%m%d%H%M%S.$i`
+      echo "GATHER_FILENAME = $GATHER_FILENAME"
+
+      i=`expr $i + 1`
+
+      cp $pname  $DSP_LOG_DIR/radar_temp
+
+      mv $DSP_LOG_DIR/radar_temp  $GATHER_FILENAME
+      echo $pname "copied to"  $GATHER_FILENAME  >> $fnm
+
+   done
+
+fi
+
+done
+
+#
+#   mv dspgather control file
+#
+
+mv $DSP_LOG_DIR/dspgather_control.temp  $DSP_LOG_DIR/dspgather_control
+
+#
+#   delete radid.temp file      
+#
+
+rm $DSP_LOG_DIR/radid.temp                      
+
+#
+#   end write to log               
+#
+
+Dte=`date -u`
+echo "End   gather at  "$Dte >> $fnm
+
+exit 0

@@ -7,10 +7,10 @@ Eclipse-BuddyPolicy: registered, ext, global
 Eclipse-RegisterBuddy:  com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.uf.common.dataplugin,
- com.raytheon.uf.common.dataplugin.annotations,
- com.raytheon.uf.common.dataplugin.persist,
- com.raytheon.uf.common.pointdata,
- com.raytheon.uf.common.serialization.annotations,
- javax.persistence
 Export-Package: com.raytheon.uf.common.dataplugin.npp.crimss
+Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataplugin.npp.sounding;bundle-version="1.0.0";visibility:=reexport,
+ com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
+ com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.time;bundle-version="1.12.1174",
+ javax.persistence;bundle-version="1.0.0"

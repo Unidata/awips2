@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
-    <resource>RUC40</resource>
-    <attrSetGroupName>basic_wx</attrSetGroupName>
-    <attrSetNames>300-700_q-vctrs_thkn,700mb_rh_rs_temp,precip_6hr_1000-500_thkn</attrSetNames>
-</AttributeSetGroup>

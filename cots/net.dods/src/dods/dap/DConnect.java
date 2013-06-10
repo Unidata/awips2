@@ -46,12 +46,6 @@ public class DConnect {
 
     private static final int MAX_NUMBER_OF_URL_ATTEMPTS_TO_MAKE = 4;
 
-    private static final int CONNECTION_TIMEOUT = Integer.getInteger(
-            DODS_CONNECTION_TIMEOUT_MILLISECONDS, 0);
-
-    private static final int SOCKET_TIMEOUT = Integer.getInteger(
-            DODS_SOCKET_TIMEOUT_MILLISECONDS, 0);
-
     private static final String HTTP_CONNECT_STRATEGY = System
             .getProperty("dods.http.connect.strategy");
 
@@ -177,8 +171,10 @@ public class DConnect {
         this.httpStrategy = httpStrategy;
         // Prevent connections from having unlimited time (unless using default
         // values)
-        httpStrategy.setConnectionTimeout(CONNECTION_TIMEOUT);
-        httpStrategy.setSocketTimeout(SOCKET_TIMEOUT);
+        httpStrategy.setConnectionTimeout(Integer.getInteger(
+                DODS_CONNECTION_TIMEOUT_MILLISECONDS, 0));
+        httpStrategy.setSocketTimeout(Integer.getInteger(
+                DODS_SOCKET_TIMEOUT_MILLISECONDS, 0));
 
         if (proxyHost != null && proxyPort != null) {
             httpStrategy.setProxy(proxyHost, Integer.parseInt(proxyPort));

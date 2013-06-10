@@ -69,6 +69,8 @@ import com.raytheon.uf.viz.core.notification.NotificationMessage;
  * ------------	----------	-----------	--------------------------
  * 05/08/08		1127		randerso    Initial Creation
  * 09/03/08     1448        chammack    Refactored notification observer interface
+ * 04/23/13     1939        randerso    Add separate connect method to allow application
+ *                                      to complete initialization before connecting to JMS
  * </pre>
  * 
  * @author randerso
@@ -184,7 +186,6 @@ public class NotificationManagerJob implements ExceptionListener, IDisposable {
      */
     protected NotificationManagerJob() {
         this.listeners = new HashMap<ListenerKey, NotificationListener>();
-        connect(true);
         Activator.getDefault().registerDisposable(this);
     }
 
@@ -409,6 +410,20 @@ public class NotificationManagerJob implements ExceptionListener, IDisposable {
             listener.disconnect();
             notifMgr.listeners.remove(key);
         }
+    }
+
+    /**
+     * Connect to JMS
+     */
+    public static void connect() {
+        getInstance().connect(true);
+    }
+
+    /**
+     * Disconnect from JMS
+     */
+    public static void disconnect() {
+        getInstance().disconnect(true);
     }
 
     private static class NotificationListener implements MessageListener {

@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.viz.npp.crimss;
 
-import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor;
+import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +44,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpDescriptor;
 import com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpDisplay;
-import com.raytheon.uf.viz.npp.crimss.map.CrimssMapResourceData;
+import com.raytheon.uf.viz.npp.sounding.rsc.NPPSoundingMapResourceData;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.productbrowser.AbstractRequestableProductBrowserDataDefinition;
 import com.raytheon.uf.viz.productbrowser.ProductBrowserLabel;
@@ -61,6 +61,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 6, 2011            bsteffen     Initial creation
+ * May 02, 2013 1949       bsteffen    Switch Product Browser from uengine to
+ *                                     DbQueryRequest.
  * 
  * </pre>
  * 
@@ -91,7 +93,7 @@ public class CrimssDataDefinition
 
     @Override
     protected String[] queryData(String param,
-            HashMap<String, RequestConstraint> queryList) {
+            Map<String, RequestConstraint> queryList) {
         if (param.equals(POINT)) {
             // TODO depending on how much data we have this might be way too
             // data to request.
@@ -211,7 +213,7 @@ public class CrimssDataDefinition
      */
     @Override
     protected IDisplayPaneContainer openNewEditor(String editorId) {
-        if (NsharpSkewTEditor.EDITOR_ID.equals(editorId)) {
+        if (NsharpEditor.EDITOR_ID.equals(editorId)) {
             return UiUtil.createEditor(editorId, new D2DNSharpDisplay());
         } else {
             return super.openNewEditor(editorId);
@@ -229,7 +231,10 @@ public class CrimssDataDefinition
         for (int i = 0; i < selection.length; i++) {
             if (order[i].equals(POINT)) {
                 if (selection[i].equals(MAP_RESOURCE)) {
-                    resourceData = new CrimssMapResourceData();
+                    NPPSoundingMapResourceData nsmrd = new NPPSoundingMapResourceData();
+                    nsmrd.setNsharpResourceData(CrimssNSharpResourceData.class);
+                    nsmrd.setResourceName("CrIMSS");
+                    resourceData = nsmrd;
                 }
             }
         }

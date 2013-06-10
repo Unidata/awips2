@@ -138,7 +138,7 @@ public class D2DNSharpResource extends
             D2DNSharpDataObject pdo = dataResponseQueue.poll();
             while (pdo != null) {
                 if (pdos.get(pdo.getDataTime()) == pdo) {
-                    if (isValidSounding(pdo)) {
+                    if (pdo.getLayers() != null) {
                         stnInfo = pdo.getStationInfo();
                         myDataMap.put(stnInfo.getStnDisplayInfo(),
                                 pdo.getLayers());
@@ -152,31 +152,6 @@ public class D2DNSharpResource extends
             handler.addRsc(myDataMap, stnInfo, false);
             issueRefresh();
         }
-    }
-
-    /**
-     * Determine if a dataObject has enough valid layers to build a sounding
-     * without freezing or crashing CAVE.
-     * 
-     * @param pdo
-     * @return
-     */
-    protected boolean isValidSounding(D2DNSharpDataObject pdo) {
-        if (pdo.getLayers() == null) {
-            return false;
-        }
-
-        int numberOfWindLayers = 0;
-        for (NcSoundingLayer layer : pdo.getLayers()) {
-            if (layer.getWindSpeed() > 0) {
-                numberOfWindLayers += 1;
-                if (numberOfWindLayers >= 2) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     private NsharpResourceHandler getHandler() throws VizException {

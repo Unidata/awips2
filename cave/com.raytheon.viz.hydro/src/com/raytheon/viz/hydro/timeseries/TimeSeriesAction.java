@@ -25,12 +25,6 @@ package com.raytheon.viz.hydro.timeseries;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
-
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.viz.hydro.resource.MultiPointResource;
-import com.raytheon.viz.hydrocommon.HydroDisplayManager;
 
 /**
  * Action for unimplemented features. To be used temporarily until final
@@ -43,6 +37,7 @@ import com.raytheon.viz.hydrocommon.HydroDisplayManager;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial Creation.
+ * 02/05/2013   1578        rferrel     Changes for non-blocking singleton TimeSeriesDlg.
  * 
  * </pre>
  * 
@@ -50,23 +45,11 @@ import com.raytheon.viz.hydrocommon.HydroDisplayManager;
  * 
  */
 public class TimeSeriesAction extends AbstractHandler {
-    private TimeSeriesDlg dlg = null;
-    
-	@Override
-	public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        AbstractVizResource<?,?> rsc = HydroDisplayManager.getInstance().getDisplayedResource();
-        if (rsc instanceof MultiPointResource) {
-            dlg = ((MultiPointResource) rsc).getTs();
-        }
-        if ((dlg != null) && (dlg.isDisposed() == false)) {
-            dlg.setFocus();
-        } else {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-            dlg = new TimeSeriesDlg(shell);
-            dlg.open();
-        }
-        
-		return null;
-	}
+
+    @Override
+    public Object execute(ExecutionEvent arg0) throws ExecutionException {
+        TimeSeriesDlg.getInstance().open();
+
+        return null;
+    }
 }

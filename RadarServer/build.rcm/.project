@@ -4,7 +4,7 @@
 	<comment></comment>
 	<projects>
 		<project>org.apache.activemq</project>
-		<project>org.apache.tools.bzip2</project>
+		<project>org.itadaki.bzip2</project>
 		<project>RadarServer</project>
 		<project>RadarServerWithMQ</project>
 	</projects>

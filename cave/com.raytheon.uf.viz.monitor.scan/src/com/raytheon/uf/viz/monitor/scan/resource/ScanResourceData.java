@@ -21,11 +21,14 @@ package com.raytheon.uf.viz.monitor.scan.resource;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -36,10 +39,12 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.scan.ScanRecord;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
+import com.raytheon.uf.common.datastorage.Request;
+import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
+import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.HDF5Util;
-import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -55,6 +60,8 @@ import com.raytheon.uf.viz.monitor.scan.ScanMonitor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 13, 2009            dhladky     Initial creation
+ * Feb 28, 2013 1731       bsteffen    Optimize construction of scan resource.
+ * Apr 18, 2013    1926    njensen     Reuse URIs in construction of resource
  * 
  * </pre>
  * 
@@ -89,46 +96,48 @@ public class ScanResourceData extends AbstractRequestableResourceData {
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects)
             throws VizException {
-        List<String> uris = Arrays.asList(getScan().getAvailableUris(
-                ScanTables.valueOf(tableType), icao));
+        List<String> uris = getScan().getAvailableUris(
+                ScanTables.valueOf(tableType), icao);
         try {
             long t0 = System.currentTimeMillis();
             // Forces ScanMonitor to grab data back for one extra hour 1/2 past
-            // the
-            // first time.
-            long first = ((ScanRecord) objects[0]).getDataTime().getRefTime()
-                    .getTime()
-                    - (3600 * 1500);
-            Date firstDate = new Date(first);
+            // the first time.
+            Calendar firstCal = ((ScanRecord) objects[0]).getDataTime()
+                    .getRefTimeAsCalendar();
+            firstCal.add(Calendar.MINUTE, -90);
+            Date firstDate = firstCal.getTime();
             int count = 0;
+            List<ScanRecord> recordsToLoad = new ArrayList<ScanRecord>(
+                    uris.size());
             for (String uri : uris) {
-                ScanRecord record = getScanRecord(uri);
-                if (record != null) {
-                    if (record.getDataTime().getRefTime().after(firstDate)) {
-                        record = populateRecord(record);
-                        if ((record.getTableData() != null)
-                                && (record.getDataTime() != null)
-                                && (record.getTableData().getVolScanTime() != null)) {
+                ScanRecord record = new ScanRecord(uri);
+                if (record.getDataTime().getRefTime().after(firstDate)) {
+                    recordsToLoad.add(record);
+                }
+            }
+            ScanRecord[] records = recordsToLoad.toArray(new ScanRecord[0]);
 
-                            getScan().setTableData(icao, record.getTableData(),
-                            /*
-                             * TODO: This should be the volume scan time, but
-                             * {Radar,Scan}Record.getVolScanTime is actually the
-                             * radar product generation time.
-                             */
-                            record.getDataTime().getRefTime(),
-                                    record.getTilt(),
-                                    record.getDataTime().getRefTime(),
-                                    tableType);
-                            count++;
+            populateRecords(records);
+            for (ScanRecord record : records) {
+                if ((record.getTableData() != null)
+                        && (record.getDataTime() != null)
+                        && (record.getTableData().getVolScanTime() != null)) {
 
-                            if (record.getType().equals(ScanTables.DMD.name())) {
-                                if (dataObjectMap == null) {
-                                    dataObjectMap = new HashMap<DataTime, ScanRecord>();
-                                }
-                                dataObjectMap.put(record.getDataTime(), record);
-                            }
+                    getScan().setTableData(icao, record.getTableData(),
+                    /*
+                     * TODO: This should be the volume scan time, but
+                     * {Radar,Scan}Record.getVolScanTime is actually the radar
+                     * product generation time.
+                     */
+                    record.getDataTime().getRefTime(), record.getTilt(),
+                            record.getDataTime().getRefTime(), tableType);
+                    count++;
+
+                    if (record.getType().equals(ScanTables.DMD.name())) {
+                        if (dataObjectMap == null) {
+                            dataObjectMap = new HashMap<DataTime, ScanRecord>();
                         }
+                        dataObjectMap.put(record.getDataTime(), record);
                     }
                 }
             }
@@ -151,11 +160,10 @@ public class ScanResourceData extends AbstractRequestableResourceData {
                     }
                 }
             }
+            long t4 = System.currentTimeMillis();
 
-            System.out
-                    .println("Loaded " + count + " out of " + objects.length
-                            + " objects in "
-                            + (System.currentTimeMillis() - t0) + "ms");
+            System.out.println("Loaded " + count + " out of " + uris.size()
+                    + " objects in " + (t4 - t0) + "ms");
             // need to update the dialog here after the
             // scanResourceData has been fully populated
             getScan().setInstantiated(true);
@@ -176,6 +184,7 @@ public class ScanResourceData extends AbstractRequestableResourceData {
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
             getScan().closeDialog(icao);
         }
         return new ScanResource(this, loadProperties);
@@ -187,34 +196,46 @@ public class ScanResourceData extends AbstractRequestableResourceData {
      * @param record
      */
     public ScanRecord populateRecord(ScanRecord record) throws VizException {
-        IDataStore dataStore = getDataStore(record);
-        record.retrieveMapFromDataStore(dataStore);
+        populateRecords(new ScanRecord[] { record });
         return record;
     }
 
-    /**
-     * Get the data store
-     * 
-     * @param record
-     * @return
-     */
-    private IDataStore getDataStore(ScanRecord record) {
-        IDataStore dataStore = null;
-        try {
-            Map<String, Object> vals = new HashMap<String, Object>();
-            vals.put("dataURI", record.getDataURI());
-            vals.put("pluginName", record.getPluginName());
-
-            record = (ScanRecord) Loader.loadData(vals);
-
+    public void populateRecords(ScanRecord[] records) throws VizException {
+        Map<File, Set<ScanRecord>> fileMap = new HashMap<File, Set<ScanRecord>>();
+        for (ScanRecord record : records) {
+            record.setPluginName("scan");
             File loc = HDF5Util.findHDF5Location(record);
-            dataStore = DataStoreFactory.getDataStore(loc);
-
-        } catch (VizException e) {
-            e.printStackTrace();
+            Set<ScanRecord> recordSet = fileMap.get(loc);
+            if (recordSet == null) {
+                recordSet = new HashSet<ScanRecord>();
+                fileMap.put(loc, recordSet);
+            }
+            recordSet.add(record);
         }
+        for (Entry<File, Set<ScanRecord>> fileEntry : fileMap.entrySet()) {
+            IDataStore dataStore = DataStoreFactory.getDataStore(fileEntry
+                    .getKey());
 
-        return dataStore;
+            String[] datasetGroupPath = new String[fileEntry.getValue().size()];
+            ScanRecord[] scanRecords = new ScanRecord[datasetGroupPath.length];
+            int i = 0;
+            for (ScanRecord record : fileEntry.getValue()) {
+                datasetGroupPath[i] = record.getDataURI()
+                        + DataStoreFactory.DEF_SEPARATOR + record.getType();
+                scanRecords[i] = record;
+                i += 1;
+            }
+            try {
+                IDataRecord[] dataRecords = dataStore.retrieveDatasets(
+                        datasetGroupPath, Request.ALL);
+                for (i = 0; i < dataRecords.length; i += 1) {
+                    ByteDataRecord byteData = (ByteDataRecord) dataRecords[i];
+                    scanRecords[i].setTableData(byteData);
+                }
+            } catch (Exception e) {
+                throw new VizException(e);
+            }
+        }
     }
 
     // create the monitor instance
@@ -261,22 +282,4 @@ public class ScanResourceData extends AbstractRequestableResourceData {
         }
     }
 
-    /**
-     * Gets the available record
-     * 
-     * @param uri
-     * @return
-     */
-    private ScanRecord getScanRecord(String uri) {
-        Map<String, Object> vals = new HashMap<String, Object>();
-        vals.put("pluginName", "scan");
-        vals.put("dataURI", uri);
-        try {
-            return (ScanRecord) Loader.loadData(vals);
-        } catch (VizException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
 }

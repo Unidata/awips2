@@ -17,8 +17,11 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IWorkbenchPart;
 
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * Common class for constants, utility methods ...
@@ -74,6 +77,7 @@ import com.raytheon.uf.common.time.DataTime;
  * 07/28/11       #450      G. Hull         move pgen localization calls to pgen
  * 08/09/11       #450      G. Hull         get/set for pgen working directory.
  * 07/31/12       #631      G. Hull         getNcepPreferenceStore()
+ * 11/10/12                 G. Hull         onlyShowResourcesWithData
  * 
  * </pre>
  * 
@@ -84,7 +88,7 @@ import com.raytheon.uf.common.time.DataTime;
 public class NmapCommon {
 		    
     private final static String BaseOverlay = "GeoPolitical";
-    private final static String DefaultMap = "BasicWX_US";
+//    private final static String DefaultMap = "BasicWX_US";
 
     // commands associated with GUI Elements that can be updated/refreshed.
     public final static String[] guiUpdateElementCommands = {
@@ -93,7 +97,7 @@ public class NmapCommon {
     	"com.raytheon.viz.ui.tools.looping.loop"
     	// ? frameTool, looping
     };
-    
+
 	private static IPreferenceStore ncPrefStore = null;
 
     public final static String NatlCntrsPerspectiveID = "gov.noaa.nws.ncep.viz.ui.NCPerspective";
@@ -111,10 +115,6 @@ public class NmapCommon {
 	public static String getBaseOverlay() {
     	return new String( BaseOverlay );
     }
-    
-    public static String getDefaultMap() {
-        return new String( DefaultMap );
-    }
 
     // Added this to make it more clear that this plugin's store is used for 
     // all Ncep preferences
@@ -127,6 +127,7 @@ public class NmapCommon {
     		ncPrefStore =  Activator.getDefault().getPreferenceStore();
     		ncPrefStore.setDefault( NcepGeneralPreferencesPage.PromptOnDisplayClose, false );
     		ncPrefStore.setDefault( NcepGeneralPreferencesPage.ShowLatestResourceTimes, true );
+    		ncPrefStore.setDefault( NcepGeneralPreferencesPage.OnlyShowResourcesWithData, true );
 
     		/*
     			myprefs.setDefault( NcgridPreferences.LLLAT, "");
