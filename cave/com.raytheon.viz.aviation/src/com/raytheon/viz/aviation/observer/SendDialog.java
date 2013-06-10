@@ -46,6 +46,7 @@ import com.raytheon.uf.common.tafqueue.ServerResponse;
 import com.raytheon.uf.common.tafqueue.TafQueueRecord;
 import com.raytheon.uf.common.tafqueue.TafQueueRequest;
 import com.raytheon.uf.common.tafqueue.TafQueueRequest.Type;
+import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.aviation.AviationDialog;
@@ -70,6 +71,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 12/08/2011   11745      rferrel     Updated header time to transmission time.
  * 08AUG2012    15613      zhao        Determine proper BBB for transmission
  * 09OCT2012    1229       rferrel     Make dialog non-blocking.
+ * 0yJUN2013    1981       mpduff      Set user on the request.
  * 
  * </pre>
  * 
@@ -116,12 +118,12 @@ public class SendDialog extends CaveSWTDialog {
     /**
      * Tab composite containing the TAF Viewer and the TAF Editor.
      */
-    private EditorTafTabComp tabComp;
+    private final EditorTafTabComp tabComp;
 
     /**
      * Message status composite.
      */
-    private IStatusSettable msgStatComp;
+    private final IStatusSettable msgStatComp;
 
     /**
      * Main composite.
@@ -136,7 +138,7 @@ public class SendDialog extends CaveSWTDialog {
     /**
      * Send the TAFs individually or as a collective.
      */
-    private boolean sendCollective;
+    private final boolean sendCollective;
 
     /**
      * Constructor.
@@ -346,6 +348,7 @@ public class SendDialog extends CaveSWTDialog {
     private void sendAction() {
         TafQueueRequest request = new TafQueueRequest();
         request.setType(Type.CREATE);
+        request.setUser(UserController.getUserObject());
 
         // Forecaster ID
         int forecasterId = forecasterArray.get(personList.getSelectionIndex())
@@ -473,11 +476,12 @@ public class SendDialog extends CaveSWTDialog {
         try {
             TafQueueRequest request = new TafQueueRequest();
             request.setType(Type.GET_LIST);
+            request.setUser(UserController.getUserObject());
             request.setState(TafQueueRecord.TafQueueState.SENT);
             ServerResponse<java.util.List<String>> response = (ServerResponse<java.util.List<String>>) ThriftClient
                     .sendRequest(request);
             java.util.List<String> payload = response.getPayload();
-            String[] records = (String[]) payload.toArray(new String[0]);
+            String[] records = payload.toArray(new String[0]);
             int numRecords = records.length;
             for (int i = numRecords - 1; i >= 0; i--) {
                 if (records[i].contains(siteId)) {
