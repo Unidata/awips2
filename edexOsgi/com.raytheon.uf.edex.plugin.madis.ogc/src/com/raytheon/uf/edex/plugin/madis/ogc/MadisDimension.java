@@ -1,3 +1,5 @@
+package com.raytheon.uf.edex.plugin.madis.ogc;
+
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -17,10 +19,15 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.request;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import com.raytheon.uf.edex.ogc.common.db.SimpleDimension;
+import com.raytheon.uf.edex.ogc.common.db.SimpleLayer;
 
 /**
- * Interface defining a way to check if phase3 code is enabled.
+ * Madis dimension.
  * 
  * <pre>
  * 
@@ -28,21 +35,31 @@ package com.raytheon.uf.common.datadelivery.request;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 21, 2013 1794       djohnson     Initial creation.
+ * Mar 24, 2013       dhladky     Initial creation
  * 
  * </pre>
  * 
- * @author djohnson
+ * @author dhladky
  * @version 1.0
  */
 
-public interface IPhase3Initializer {
+public class MadisDimension extends SimpleDimension {
+
     /**
-     * Checks whether or not the phase 3 code is enabled at runtime. Should only
-     * return true if components from the 5-Data_Delivery repository are
-     * installed.
-     * 
-     * @return true if the phase 3 code is enabled
+     * {@inheritDoc}
      */
-    boolean isPhase3CodeEnabled();
+    @Override
+    public Set<String> getValues() {
+        return new HashSet<String>();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDefaultValue(SimpleLayer<? extends SimpleDimension> layer) {
+        return null;
+    }
+
+
 }
