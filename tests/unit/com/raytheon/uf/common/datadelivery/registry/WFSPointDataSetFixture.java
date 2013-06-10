@@ -19,10 +19,13 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry;
 
-import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import java.util.Collections;
+import java.util.Random;
+
+import com.raytheon.uf.common.util.AbstractFixture;
 
 /**
- * Constants file for data delivery registry object types.
+ * {@link AbstractFixture} implementation for {@link WFSPointDataSet} objects.
  * 
  * <pre>
  * 
@@ -30,9 +33,7 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 5, 2012  0726       djohnson     Initial creation
- * Dec 11, 2012 1403       djohnson     Adhoc subscriptions no longer go to the registry.
- * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
+ * Jun 05, 2013 2038      djohnson     Initial creation
  * 
  * </pre>
  * 
@@ -40,25 +41,30 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
  * @version 1.0
  */
 
-public final class DataDeliveryRegistryObjectTypes {
+public class WFSPointDataSetFixture extends AbstractFixture<WFSPointDataSet> {
+
+    public static final WFSPointDataSetFixture INSTANCE = new WFSPointDataSetFixture();
+
     /**
-     * Private constructor.
+     * Disabled constructor.
      */
-    private DataDeliveryRegistryObjectTypes() {
+    private WFSPointDataSetFixture() {
     }
 
-    public static final String DATASETMETADATA = RegistryUtil
-            .getObjectType(DataSetMetaData.class);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public WFSPointDataSet getInstance(long seedValue, Random random) {
+        WFSPointDataSet obj = new WFSPointDataSet();
+        obj.setCollectionName("collectionName-" + seedValue);
+        obj.setDataSetName("dataSetName" + seedValue);
+        obj.setDataSetType(DataType.POINT);
+        obj.setTime(PointTimeFixture.INSTANCE.get(seedValue));
+        obj.setParameters(Collections.<String, Parameter> emptyMap());
+        obj.setProviderName(ProviderFixture.INSTANCE.get(seedValue).getName());
 
-    public static final String SITE_SUBSCRIPTION = RegistryUtil
-            .getObjectType(SiteSubscription.class);
+        return obj;
+    }
 
-    public static final String SHARED_SUBSCRIPTION = RegistryUtil
-            .getObjectType(SharedSubscription.class);
-
-    public static final String DATASET = RegistryUtil
-            .getObjectType(DataSet.class);
-
-    public static final String PROVIDER = RegistryUtil
-            .getObjectType(Provider.class);
 }

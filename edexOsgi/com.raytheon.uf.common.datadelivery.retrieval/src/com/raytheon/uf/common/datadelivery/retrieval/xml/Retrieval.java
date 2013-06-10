@@ -33,8 +33,8 @@ import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.datadelivery.registry.Connection;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Network;
-import com.raytheon.uf.common.datadelivery.registry.Provider.ProviderType;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -83,7 +83,7 @@ public class Retrieval implements ISerializableObject, Serializable {
 
     @XmlElement
     @DynamicSerializeElement
-    private ProviderType providerType;
+    private DataType dataType;
 
     @XmlElement
     @DynamicSerializeElement
@@ -171,12 +171,12 @@ public class Retrieval implements ISerializableObject, Serializable {
         this.subscriptionName = subscriptionName;
     }
 
-    public void setProviderType(ProviderType providerType) {
-        this.providerType = providerType;
+    public void setDataType(DataType providerType) {
+        this.dataType = providerType;
     }
 
-    public ProviderType getProviderType() {
-        return providerType;
+    public DataType getDataType() {
+        return dataType;
     }
 
     public void setSubscriptionType(SubscriptionType subscriptionType) {
