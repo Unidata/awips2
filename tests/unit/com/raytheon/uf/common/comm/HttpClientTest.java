@@ -72,6 +72,7 @@ public class HttpClientTest {
 
     @After
     public void stopServer() {
+        System.out.println("Stopping server...");
         try {
             server.stopServer();
         } catch (Exception e) {

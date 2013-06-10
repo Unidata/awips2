@@ -20,7 +20,7 @@
 package com.raytheon.viz.ui.dialogs.colordialog;
 
 import com.raytheon.uf.common.colormap.ColorMap;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 
 /**
  * Callback for classes using the ColorEditComposite

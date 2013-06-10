@@ -43,7 +43,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.rsc.tools.AbstractMovableToolLayer;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
@@ -102,7 +102,7 @@ public class DistanceBearingToolLayer extends
     private Coordinate selectedVertex = null;
 
     public DistanceBearingToolLayer(
-            AwipsToolsResourceData<DistanceBearingToolLayer> resourceData,
+            GenericToolsResourceData<DistanceBearingToolLayer> resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties, true);
         getCapabilities().addCapability(new OutlineCapability());

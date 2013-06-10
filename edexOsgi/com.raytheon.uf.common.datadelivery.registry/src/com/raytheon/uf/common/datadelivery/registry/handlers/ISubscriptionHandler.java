@@ -35,8 +35,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 17, 2012 1169       djohnson     Initial creation
- * Oct 17, 2012 0726       djohnson     Add {@link #getActiveByDataSetAndProvider}.
+ * Mar 29, 2013 1841       djohnson     Initial creation
  * 
  * </pre>
  * 

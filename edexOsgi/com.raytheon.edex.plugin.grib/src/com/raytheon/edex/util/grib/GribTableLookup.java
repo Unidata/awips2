@@ -25,8 +25,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -45,6 +45,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.common.util.file.FilenameFilters;
 
 /**
  * Class used to access and manage data from any defined tables.
@@ -56,6 +57,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
+ * Mar 14, 2013 1794        djohnson    Consolidate common FilenameFilter implementations.
  * 
  * </pre>
  * 
@@ -73,7 +75,7 @@ public class GribTableLookup {
     private static final int NO_SUBCENTER = -1;
 
     /** The map of defined tables */
-    private Map<Integer, Map<String, GribTable>> tableMap;
+    private final Map<Integer, Map<String, GribTable>> tableMap;
 
     /** The singleton instance */
     private static GribTableLookup instance;
@@ -219,31 +221,19 @@ public class GribTableLookup {
     }
 
     private void initTablesFromPath(String commonPath) {
-        FilenameFilter filter = new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return new File(dir.getPath() + File.separator + name)
-                        .isDirectory();
-            }
-        };
+        FilenameFilter tableFilter = FilenameFilters.byFileExtension(".table");
 
-        FilenameFilter tableFilter = new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".table");
-            }
-        };
-
-        ArrayList<File> files = FileUtil.listFiles(new File(commonPath),
-                filter, false);
+        List<File> files = FileUtil.listFiles(new File(commonPath),
+                FilenameFilters.ACCEPT_DIRECTORIES, false);
         for (File f : files) {
             int center = 0;
             try {
                 center = Integer.parseInt(f.getPath().substring(
                         f.getPath().lastIndexOf("/") + 1));
 
-                ArrayList<File> files2 = FileUtil.listFiles(new File(commonPath
-                        + File.separator + String.valueOf(center)), filter,
+                List<File> files2 = FileUtil.listFiles(new File(commonPath
+                        + File.separator + String.valueOf(center)),
+                        FilenameFilters.ACCEPT_DIRECTORIES,
                         true);
 
                 int subcenter = 0;
@@ -251,7 +241,7 @@ public class GribTableLookup {
                     if (!f2.getPath().contains(".svn")) {
                         subcenter = Integer.parseInt(f2.getPath().substring(
                                 f2.getPath().lastIndexOf("/") + 1));
-                        ArrayList<File> tableFiles = FileUtil.listFiles(f2,
+                        List<File> tableFiles = FileUtil.listFiles(f2,
                                 tableFilter, false);
                         String tableName = null;
                         for (File table : tableFiles) {

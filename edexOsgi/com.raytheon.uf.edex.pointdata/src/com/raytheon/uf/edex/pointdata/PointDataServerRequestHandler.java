@@ -23,7 +23,6 @@ package com.raytheon.uf.edex.pointdata;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataServerRequest;
 import com.raytheon.uf.common.pointdata.PointDataThriftContainer;
@@ -37,8 +36,9 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 16, 2011 #8070      ekladstrup  Initial creation
- * Aug 09, 2011 #9696      gzhou       add handle for request from nativeLib
+ * Feb 16, 2011 8070       ekladstrup  Initial creation
+ * Aug 09, 2011 9696       gzhou       add handle for request from nativeLib
+ * May 15, 2013 1869       bsteffen    Remove DataURI column from ldadmesonet.
  * 
  * </pre>
  * 
@@ -98,7 +98,7 @@ public class PointDataServerRequestHandler implements
         for (String key : map.keySet()) {
             RequestConstraint rc = map.get(key);
             String value = rc.getConstraintValue();
-            String type = constraintTypeToString(rc.getConstraintType());
+            String type = rc.getConstraintType().getOperand();
             query.addParameter(key, value, type);
         }
 
@@ -122,44 +122,6 @@ public class PointDataServerRequestHandler implements
         } else {
             return container;
         }
-    }
-
-    /**
-     * converts a ConstraintType enum into a string
-     * 
-     * @param type
-     * @return
-     */
-    private String constraintTypeToString(ConstraintType type) {
-        String rval;
-
-        // EQUALS, NOT_EQUALS, GREATER_THAN, GREATER_THAN_EQUALS, LESS_THAN,
-        // LESS_THAN_EQUALS, BETWEEN, IN, LIKE, ILIKE, ISNULL
-        if (type == ConstraintType.EQUALS) {
-            rval = "=";
-        } else if (type == ConstraintType.NOT_EQUALS) {
-            rval = "!=";
-        } else if (type == ConstraintType.GREATER_THAN) {
-            rval = ">";
-        } else if (type == ConstraintType.GREATER_THAN_EQUALS) {
-            rval = ">=";
-        } else if (type == ConstraintType.LESS_THAN) {
-            rval = "<";
-        } else if (type == ConstraintType.LESS_THAN_EQUALS) {
-            rval = "<=";
-        } else if (type == ConstraintType.BETWEEN) {
-            rval = "between";
-        } else if (type == ConstraintType.IN) {
-            rval = "in";
-        } else if (type == ConstraintType.LIKE) {
-            rval = "like";
-        } else if (type == ConstraintType.ILIKE) {
-            rval = "ilike";
-        } else {
-            rval = "=";
-        }
-
-        return rval;
     }
 
 }

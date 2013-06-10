@@ -21,7 +21,6 @@ package com.raytheon.viz.hydrobase.dialogs;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
@@ -44,6 +43,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.PublicationsData;
 import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
@@ -58,6 +60,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------	----------	-----------	--------------------------
  * Sep 5, 2008				lvenable	Initial creation.
  * 12/18/2008   1782        grichard    Connected to IHFS DB.
+ * Apr 19, 2013 1790        rferrel     Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -65,6 +68,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(PublicationsDlg.class);
 
     /**
      * Control font.
@@ -136,7 +141,7 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
     /**
      * Publications Data.
      */
-    private ArrayList<PublicationsData> pubData;
+    private java.util.List<PublicationsData> pubData;
 
     /**
      * Location Identifier.
@@ -149,7 +154,7 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 
     /**
-     * Constructor.
+     * Non-blocking Constructor.
      * 
      * @param parent
      *            Parent shell.
@@ -157,7 +162,7 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
      *            Dialog title information.
      */
     public PublicationsDlg(Shell parent, String titleInfo, String lid) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Publications" + titleInfo);
 
         this.lid = lid;
@@ -167,6 +172,11 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -177,14 +187,26 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
+        setReturnValue(lid);
         // Initialize all of the controls and layouts
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
 
@@ -346,7 +368,7 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 if (saveRecord()) {
-                    shell.dispose();
+                    close();
                 }
             }
         });
@@ -371,7 +393,7 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -416,8 +438,10 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
         return labelStr;
     }
 
-    /**
-     * Get the publication data from the database that matched the location ID.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#getDialogData()
      */
     @Override
     public void getDialogData() {
@@ -430,14 +454,18 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
         try {
             pubData = HydroDBDataManager.getInstance().getData(seedData);
         } catch (VizException e) {
-            // e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to get publication data. ", e);
         }
 
         updateDialogDisplay();
     }
 
-    /**
-     * Update the publication list control.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.hydrobase.dialogs.IHydroDialog#updateDialogDisplay()
      */
     @Override
     public void updateDialogDisplay() {
@@ -466,8 +494,10 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
         updateDialogState();
     }
 
-    /**
-     * Update the dialog's state.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#updateDialogState()
      */
     @Override
     public void updateDialogState() {
@@ -487,8 +517,10 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
         }
     }
 
-    /**
-     * Update the publication information control.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#updateInformation()
      */
     @Override
     public void updateInformation() {
@@ -502,10 +534,10 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
                 .setText((currData.getPub() != null) ? currData.getPub() : "");
     }
 
-    /**
-     * Obtain the currently selected publication data.
+    /*
+     * (non-Javadoc)
      * 
-     * @return the publication data
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#getSelectedDatum()
      */
     @Override
     public PublicationsData getSelectedDatum() {
@@ -538,8 +570,12 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
         mb.open();
     }
 
-    /**
-     * Validate the user inputs in the value text control.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.hydrobase.dialogs.IHydroDialog#validateEntryData(org
+     * .eclipse.swt.widgets.Text)
      */
     @Override
     public boolean validateEntryData(Text tf) {
@@ -551,8 +587,10 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
         return true;
     }
 
-    /**
-     * Save the record to the database.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#saveRecord()
      */
     @Override
     public boolean saveRecord() {
@@ -571,8 +609,7 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
             } catch (ParseException e) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Invalid Date");
-                mb
-                        .setMessage("Please enter a valid date in the form: MM/DD/YYYY");
+                mb.setMessage("Please enter a valid date in the form: MM/DD/YYYY");
                 mb.open();
                 return false;
             }
@@ -584,8 +621,7 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
             } catch (ParseException e) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Invalid Date");
-                mb
-                        .setMessage("Please enter a valid date in the form: MM/DD/YYYY");
+                mb.setMessage("Please enter a valid date in the form: MM/DD/YYYY");
                 mb.open();
                 return false;
             }
@@ -595,9 +631,6 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
         try {
             HydroDBDataManager.getInstance().putData(dataToSave);
         } catch (VizException e) {
-            MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-            mb.setText("Unable to Save");
-            mb.setMessage("An error occurred while trying to save.");
 
             String cause = e.getCause().getMessage();
 
@@ -605,6 +638,9 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
 
             // If the exception contain the SQL exception "ERROR:"
             if (causeStart > 0) {
+                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+                mb.setText("Unable to Save");
+                mb.setMessage("An error occurred while trying to save.");
                 int causeEnd = cause.indexOf("\n", causeStart);
 
                 cause = cause.substring(causeStart, causeEnd);
@@ -613,11 +649,12 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
                     mb.setMessage("Please enter data for " + lid
                             + " in the River Gauge dialog first");
                 }
+                mb.open();
+            } else {
+
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to save publication data. ", e);
             }
-
-            mb.open();
-
-            e.printStackTrace();
             return false;
         }
 
@@ -626,8 +663,10 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
         return true;
     }
 
-    /**
-     * Delete the record from the database.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#deleteRecord()
      */
     @Override
     public void deleteRecord() {
@@ -647,21 +686,15 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
                     MessageBox mbDel = new MessageBox(shell, SWT.ICON_ERROR
                             | SWT.OK);
                     mbDel.setText("Unable to Delete");
-                    mbDel
-                            .setMessage("No item is selected in the publications list");
+                    mbDel.setMessage("No item is selected in the publications list");
                     mbDel.open();
                 }
 
                 clearForm();
 
             } catch (VizException e) {
-                MessageBox mbDel = new MessageBox(shell, SWT.ICON_ERROR
-                        | SWT.OK);
-                mbDel.setText("Unable to Delete");
-                mbDel.setMessage("An error occurred while trying to delete.");
-                mbDel.open();
-
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to delete publication data. ", e);
             }
         }
 
@@ -669,8 +702,10 @@ public class PublicationsDlg extends CaveSWTDialog implements IHydroDialog {
         getDialogData();
     }
 
-    /**
-     * Clear the text fields in the form.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#clearForm()
      */
     @Override
     public void clearForm() {

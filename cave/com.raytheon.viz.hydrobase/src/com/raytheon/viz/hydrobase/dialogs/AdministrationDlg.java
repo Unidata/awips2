@@ -21,7 +21,6 @@ package com.raytheon.viz.hydrobase.dialogs;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -54,6 +53,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 02 Sep 2008             lvenable    Initial creation.
  * 14 Nov 2008  1697       askripsky   Connect to DB
+ * 16 Apr 2013  1790       rferrel     Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -135,7 +135,7 @@ public class AdministrationDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public AdministrationDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Administration");
 
         adminFormat = new SimpleDateFormat("MM/dd/yyyy");
@@ -151,6 +151,13 @@ public class AdministrationDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -327,14 +334,14 @@ public class AdministrationDlg extends CaveSWTDialog {
         closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
 
     private void getAdministrationData() {
         try {
-            ArrayList<AdministrationData> data = HydroDBDataManager
+            java.util.List<AdministrationData> data = HydroDBDataManager
                     .getInstance().getData(AdministrationData.class);
 
             // if no data is returned, clear the current display data
@@ -354,10 +361,8 @@ public class AdministrationDlg extends CaveSWTDialog {
             nameTF.setText(adminData.getName());
             stationTF.setText(adminData.getStationName());
             stationIdTF.setText(adminData.getHsa());
-            hsaNoTF
-                    .setText((adminData.getHsaNumber() != HydroConstants.MISSING_VALUE) ? Integer
-                            .toString(adminData.getHsaNumber())
-                            : "");
+            hsaNoTF.setText((adminData.getHsaNumber() != HydroConstants.MISSING_VALUE) ? Integer
+                    .toString(adminData.getHsaNumber()) : "");
             regionTF.setText(adminData.getRegion());
             noTF.setText(adminData.getRegionNumber());
             phoneTF.setText(adminData.getPhoneNumber());
@@ -436,9 +441,8 @@ public class AdministrationDlg extends CaveSWTDialog {
             currData.setRegionNumber(noTF.getText());
             currData.setStationName(stationTF.getText());
             try {
-                currData
-                        .setOneYearDate((oneYearTF.getText().compareTo("") == 0) ? (Date) null
-                                : adminFormat.parse(oneYearTF.getText()));
+                currData.setOneYearDate((oneYearTF.getText().compareTo("") == 0) ? (Date) null
+                        : adminFormat.parse(oneYearTF.getText()));
             } catch (ParseException e) {
                 MessageBox messageBox = new MessageBox(new Shell(),
                         SWT.ICON_WARNING | SWT.OK);
@@ -450,9 +454,8 @@ public class AdministrationDlg extends CaveSWTDialog {
                 return currData;
             }
             try {
-                currData
-                        .setTenYearDate((tenYearTF.getText().compareTo("") == 0) ? (Date) null
-                                : adminFormat.parse(tenYearTF.getText()));
+                currData.setTenYearDate((tenYearTF.getText().compareTo("") == 0) ? (Date) null
+                        : adminFormat.parse(tenYearTF.getText()));
             } catch (ParseException e) {
                 MessageBox messageBox = new MessageBox(new Shell(),
                         SWT.ICON_WARNING | SWT.OK);

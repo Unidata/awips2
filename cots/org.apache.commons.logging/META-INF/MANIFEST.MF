@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Apache Commons Logging Plug-in
 Bundle-SymbolicName: org.apache.commons.logging
-Bundle-Version: 1.1.1
-Bundle-ClassPath: commons-logging-1.1.1.jar
+Bundle-Version: 1.1.2
+Bundle-ClassPath: commons-logging-1.1.2.jar
 Bundle-Vendor: Raytheon-bundled OSS
 Export-Package: org.apache.commons.logging,
  org.apache.commons.logging.impl

@@ -34,8 +34,8 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
-import com.raytheon.uf.viz.core.rsc.tools.action.AbstractMapToolAction;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
 import com.raytheon.viz.awipstools.ui.layer.HomeToolLayer;
 import com.raytheon.viz.ui.input.EditableManager;
 
@@ -57,7 +57,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  * @author ebabin
  * @version 1
  */
-public class HomeToolAction extends AbstractMapToolAction<HomeToolLayer> {
+public class HomeToolAction extends AbstractGenericToolAction<HomeToolLayer> {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(HomeToolAction.class);
@@ -125,8 +125,8 @@ public class HomeToolAction extends AbstractMapToolAction<HomeToolLayer> {
      * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
      */
     @Override
-    protected AwipsToolsResourceData<HomeToolLayer> getResourceData() {
-        return new AwipsToolsResourceData<HomeToolLayer>(
+    protected GenericToolsResourceData<HomeToolLayer> getResourceData() {
+        return new GenericToolsResourceData<HomeToolLayer>(
                 HomeToolLayer.DEFAULT_NAME, HomeToolLayer.class);
 
     }

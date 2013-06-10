@@ -19,12 +19,8 @@
  **/
 package com.raytheon.uf.viz.core.data;
 
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.ShortBuffer;
 
+import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
@@ -50,99 +46,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
  */
 
 public interface IColorMapDataRetrievalCallback {
-
-    public static enum ColorMapDataType {
-        BYTE, SIGNED_BYTE, UNSIGNED_SHORT, SHORT, INT, FLOAT;
-    }
-
-    public static class ColorMapData {
-        private Buffer buffer;
-
-        private int[] dimensions;
-
-        private ColorMapDataType dataType;
-
-        /**
-         * 
-         * @param buffer
-         * @param dataSetBounds
-         */
-        public ColorMapData(Buffer buffer, int[] dimensions) {
-            this(buffer, dimensions, getDataType(buffer));
-        }
-
-        /**
-         * @param buffer
-         * @param dataBounds
-         * @param dataType
-         */
-        public ColorMapData(Buffer buffer, int[] dimensions,
-                ColorMapDataType dataType) {
-            this.buffer = buffer;
-            this.dimensions = dimensions;
-            this.dataType = dataType;
-        }
-
-        /**
-         * @param dataType
-         * @param dataBounds
-         */
-        public ColorMapData(ColorMapDataType dataType, int[] dimensions) {
-            this.buffer = getBuffer(dataType, dimensions);
-            this.dimensions = dimensions;
-            this.dataType = dataType;
-        }
-
-        public Buffer getBuffer() {
-            return buffer;
-        }
-
-        public int[] getDimensions() {
-            return dimensions;
-        }
-
-        public ColorMapDataType getDataType() {
-            return dataType;
-        }
-
-        private static ColorMapDataType getDataType(Buffer buffer) {
-            if (buffer instanceof FloatBuffer) {
-                return ColorMapDataType.FLOAT;
-            } else if (buffer instanceof IntBuffer) {
-                return ColorMapDataType.INT;
-            } else if (buffer instanceof ShortBuffer) {
-                return ColorMapDataType.SHORT;
-            } else if (buffer instanceof ByteBuffer) {
-                return ColorMapDataType.BYTE;
-            }
-            throw new RuntimeException("Could not find ColorMapDataType for "
-                    + buffer);
-        }
-
-        private static Buffer getBuffer(ColorMapDataType dataType,
-                int[] dimensions) {
-            int size = 1;
-            for (int i : dimensions) {
-                size *= i;
-            }
-            switch (dataType) {
-            case BYTE:
-            case SIGNED_BYTE:
-                return ByteBuffer.allocate(size);
-            case SHORT:
-            case UNSIGNED_SHORT:
-                return ShortBuffer.allocate(size);
-            case FLOAT:
-                return FloatBuffer.allocate(size);
-            case INT:
-                return IntBuffer.allocate(size);
-            default:
-                throw new RuntimeException("Could not find Buffer for "
-                        + dataType);
-            }
-
-        }
-    }
 
     /**
      * Get the ColorMapData. IMPORTANT NOTE: This method should retrieve the

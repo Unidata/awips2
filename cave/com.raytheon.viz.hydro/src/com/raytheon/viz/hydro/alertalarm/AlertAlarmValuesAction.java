@@ -37,6 +37,7 @@ import org.eclipse.ui.PlatformUI;
  * ------------	----------	-----------	--------------------------
  * 6/27/07                  lvenable    Initial creation.
  * 12/05/12     1353        rferrel     Changes for non-blocking AlertAlarmValuesDlg.
+ * 03/27/2013   1790        rferrel     Bug fix for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -49,12 +50,14 @@ public class AlertAlarmValuesAction extends AbstractHandler {
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
 
-        if (alertAlarmDlg == null) {
+        if (alertAlarmDlg == null || alertAlarmDlg.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
             alertAlarmDlg = new AlertAlarmValuesDlg(shell);
+            alertAlarmDlg.open();
+        } else {
+            alertAlarmDlg.bringToTop();
         }
-        alertAlarmDlg.open();
 
         return null;
     }

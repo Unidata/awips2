@@ -53,6 +53,9 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml;
 import com.raytheon.uf.viz.datadelivery.filter.config.xml.FilterSettingsXML;
 import com.raytheon.uf.viz.datadelivery.filter.config.xml.FilterTypeXML;
@@ -80,38 +83,40 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jun  1, 2012    645     jpiatt     Added tooltips.
  * Jun 19, 2012    717     jpiatt     Save action update.
  * Aug 22, 2012   0743     djohnson   Add new TimeXML sub-classes.
+ * Apr 25, 2013   1820     mpduff     Implement deletion of config file.
  * 
  * </pre>
  * 
- * @author
  * @version 1.0
  */
 
 public class LoadSaveConfigDlg extends CaveSWTDialog {
+    /** Status Handler */
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(LoadSaveConfigDlg.class);
 
     /**
-     * Dialog Type Enumeration. Types include OPEN,
-     * SAVE_AS, DELETE, SELECT_DEFAULT.
-     *
+     * Dialog Type Enumeration. Types include OPEN, SAVE_AS, DELETE,
+     * SELECT_DEFAULT.
      */
     public static enum DialogType {
         /**
          * Open dialog.
          */
-        OPEN, 
+        OPEN,
         /**
          * Save as dialog.
          */
-        SAVE_AS, 
+        SAVE_AS,
         /**
          * Delete dialog.
          */
-        DELETE, 
+        DELETE,
         /**
          * Default dialog.
          */
         SELECT_DEFAULT
-        
+
     };
 
     /** DialogType object */
@@ -165,9 +170,6 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
     /** Preview button */
     private Button previewBtn;
 
-    /** Configuration file */
-    private final NotificationConfigXML xml = null;
-
     /** JAXB context */
     private JAXBContext jax;
 
@@ -192,18 +194,18 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
      * @param excludedNameForSaving
      *            Exclude name for saving flag.
      * @param showPreview
+     *            show the preview pane if true
      */
-    public LoadSaveConfigDlg(Shell parent, DialogType type, String fileNamePath, String excludedNameForSaving,
+    public LoadSaveConfigDlg(Shell parent, DialogType type,
+            String fileNamePath, String excludedNameForSaving,
             boolean showPreview) {
         super(parent, SWT.TITLE);
 
         if (type == DialogType.OPEN) {
             setText("Load Configuration");
-        }
-        else if (type == DialogType.SAVE_AS) {
+        } else if (type == DialogType.SAVE_AS) {
             setText("Save Configuration");
-        }
-        else if (type == DialogType.SELECT_DEFAULT) {
+        } else if (type == DialogType.SELECT_DEFAULT) {
             setText("Select Default");
         } else if (type == DialogType.DELETE) {
             setText("Delete Configuration");
@@ -224,16 +226,34 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
      * Constructor that does not show the preview pane.
      * 
      * @param parent
-     *           parent shell
+     *            parent shell
      * @param type
-     *           dialog type
+     *            dialog type
      * @param fileNamePath
-     *           path of the file
+     *            path of the file
      * @param excludedNameForSaving
      *            exclude name
      */
-    public LoadSaveConfigDlg(Shell parent, DialogType type, String fileNamePath, String excludedNameForSaving) {
+    public LoadSaveConfigDlg(Shell parent, DialogType type,
+            String fileNamePath, String excludedNameForSaving) {
         this(parent, type, fileNamePath, excludedNameForSaving, false);
+    }
+
+    /**
+     * Constructor.
+     * 
+     * @param parent
+     *            parent shell
+     * @param type
+     *            dialog type
+     * @param filePath
+     *            path for the dialog
+     * @param showPreview
+     *            show the preview pane
+     */
+    public LoadSaveConfigDlg(Shell parent, DialogType type, String filePath,
+            boolean showPreview) {
+        this(parent, type, filePath, null, showPreview);
     }
 
     @Override
@@ -302,30 +322,34 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         gd = new GridData();
         gd.widthHint = 350;
         gd.heightHint = 350;
-        cfgFileList = new List(controlComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+        cfgFileList = new List(controlComp, SWT.BORDER | SWT.SINGLE
+                | SWT.V_SCROLL);
         cfgFileList.setLayoutData(gd);
         cfgFileList.setFont(controlFont);
         cfgFileList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 if (dialogType == DialogType.SAVE_AS) {
-                    String selItem = cfgFileList.getItem(cfgFileList.getSelectionIndex());
+                    String selItem = cfgFileList.getItem(cfgFileList
+                            .getSelectionIndex());
 
                     int idx = selItem.lastIndexOf(":");
                     String newStr = selItem.substring(idx + 1);
 
                     newFileNameTF.setText(newStr);
-                    if (selItem.startsWith(LocalizationContext.LocalizationLevel.SITE.name())
-                            || selItem.startsWith(LocalizationContext.LocalizationLevel.BASE.name())) {
+                    if (selItem
+                            .startsWith(LocalizationContext.LocalizationLevel.SITE
+                                    .name())
+                            || selItem
+                                    .startsWith(LocalizationContext.LocalizationLevel.BASE
+                                            .name())) {
                         siteBtn.setSelection(true);
                         userBtn.setSelection(false);
-                    }
-                    else {
+                    } else {
                         userBtn.setSelection(true);
                         siteBtn.setSelection(false);
                     }
-                }
-                else if (dialogType == DialogType.OPEN) {
+                } else if (dialogType == DialogType.OPEN) {
                     if (showPreview) {
                         updatePreview();
                     }
@@ -346,8 +370,9 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
 
         if (dialogType == DialogType.SAVE_AS) {
             gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-            gd.horizontalSpan = ((GridLayout)controlComp.getLayout()).numColumns;
-            Label sepLbl = new Label(controlComp, SWT.SEPARATOR | SWT.HORIZONTAL);
+            gd.horizontalSpan = ((GridLayout) controlComp.getLayout()).numColumns;
+            Label sepLbl = new Label(controlComp, SWT.SEPARATOR
+                    | SWT.HORIZONTAL);
             sepLbl.setLayoutData(gd);
 
             gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
@@ -394,11 +419,12 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         gd = new GridData();
         gd.widthHint = 350;
         gd.heightHint = 350;
-        previewTxt = new StyledText(previewComp, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+        previewTxt = new StyledText(previewComp, SWT.BORDER | SWT.H_SCROLL
+                | SWT.V_SCROLL);
         previewTxt.setLayoutData(gd);
 
         previewComp.setVisible(false);
-        ((GridData)previewComp.getLayoutData()).exclude = true;
+        ((GridData) previewComp.getLayoutData()).exclude = true;
 
         parentComp.layout();
     }
@@ -445,8 +471,9 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         gd = new GridData(100, SWT.DEFAULT);
         actionBtn = new Button(buttonComp, SWT.PUSH);
         actionBtn.setLayoutData(gd);
+        shell.setDefaultButton(actionBtn);
 
-        //Open Dialog
+        // Open Dialog
         if (dialogType == DialogType.OPEN) {
             actionBtn.setText("Load");
             actionBtn.addSelectionListener(new SelectionAdapter() {
@@ -456,7 +483,7 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
                 }
             });
         }
-        //Delete Dialog
+        // Delete Dialog
         else if (dialogType == DialogType.DELETE) {
             actionBtn.setText("Delete");
             actionBtn.addSelectionListener(new SelectionAdapter() {
@@ -466,7 +493,7 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
                 }
             });
         }
-        //Save As Dialog
+        // Save As Dialog
         else if (dialogType == DialogType.SAVE_AS) {
             actionBtn.setText("Save");
             actionBtn.addSelectionListener(new SelectionAdapter() {
@@ -478,8 +505,7 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
                     }
                 }
             });
-        }
-        else if (dialogType == DialogType.SELECT_DEFAULT) {
+        } else if (dialogType == DialogType.SELECT_DEFAULT) {
             actionBtn.setText("Select");
             actionBtn.addSelectionListener(new SelectionAdapter() {
                 @Override
@@ -500,7 +526,7 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
             }
         });
     }
-    
+
     /**
      * Perform a configuration delete action.
      */
@@ -509,9 +535,11 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         String str = cfgFileList.getItem(selectedIndex);
 
         if (dialogType == DialogType.DELETE) {
-            MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+            MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES
+                    | SWT.NO);
             mb.setText("Delete");
-            mb.setMessage("You are about to delete the file:\n\n" + str + "\n\nDo you wish to continue?");
+            mb.setMessage("You are about to delete the file:\n\n" + str
+                    + "\n\nDo you wish to continue?");
             int result = mb.open();
 
             if (result == SWT.NO) {
@@ -534,17 +562,25 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
             selectedFile = locFileMap.get(str);
 
             IPathManager pm = PathManagerFactory.getPathManager();
-            LocalizationContext context = pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+            LocalizationContext context = pm.getContext(
+                    LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
 
             if (str.startsWith("SITE")) {
-                context = pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+                context = pm.getContext(LocalizationType.CAVE_STATIC,
+                        LocalizationLevel.SITE);
             }
 
-            LocalizationFile locFile = pm.getLocalizationFile(context, selectedFile.getName());
+            LocalizationFile locFile = pm.getLocalizationFile(context,
+                    selectedFile.getName());
 
             setReturnValue(locFile);
 
             close();
+        } else {
+            MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+            mb.setText("Selection Required");
+            mb.setMessage("Please select a configuration file to load.");
+            mb.open();
         }
     }
 
@@ -553,35 +589,39 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
      */
     private void saveAction() {
 
-        String fileName = fileNamePath + File.separator + newFileNameTF.getText();
+        String fileName = fileNamePath + File.separator
+                + newFileNameTF.getText();
 
         IPathManager pm = PathManagerFactory.getPathManager();
 
         // check if USER or SITE radio button
-        LocalizationContext context = pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+        LocalizationContext context = pm.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
         if (siteBtn.getSelection() == true) {
-            context = pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+            context = pm.getContext(LocalizationType.CAVE_STATIC,
+                    LocalizationLevel.SITE);
         }
 
         LocalizationFile locFile = pm.getLocalizationFile(context, fileName);
 
         if (locFile != null) {
-            for (LocalizationFile lf: locFiles) {
+            for (LocalizationFile lf : locFiles) {
                 if (locFile.equals(lf)) {
-                    String msg = locFile.getFile().getName() + " already exists.\n\nAre you sure you want to overwrite the file?";
-                
-                    int answer = DataDeliveryUtils.showMessage(getShell(), SWT.YES | SWT.NO, "Overwrite?",
-                    msg);
-                    
+                    String msg = locFile.getFile().getName()
+                            + " already exists.\n\nAre you sure you want to overwrite the file?";
+
+                    int answer = DataDeliveryUtils.showMessage(getShell(),
+                            SWT.YES | SWT.NO, "Overwrite?", msg);
+
                     if (answer == SWT.YES) {
                         setReturnValue(locFile);
                     }
-                } 
+                }
             }
-            
-            //set return value if null
+
+            // set return value if null
             if (getReturnValue() == null) {
-            	setReturnValue(locFile);
+                setReturnValue(locFile);
             }
         }
     }
@@ -591,8 +631,9 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
      */
     @SuppressWarnings("rawtypes")
     private void createContext() {
-        Class[] classes = new Class[] { NotificationConfigXML.class, NotificationFilterXML.class,
-                FilterSettingsXML.class, FilterTypeXML.class, SubscriptionManagerConfigXML.class,
+        Class[] classes = new Class[] { NotificationConfigXML.class,
+                NotificationFilterXML.class, FilterSettingsXML.class,
+                FilterTypeXML.class, SubscriptionManagerConfigXML.class,
                 SubsetXML.class, TimeXML.class, SpecificDateTimeXML.class,
                 DateRangeTimeXML.class, VerticalXML.class };
 
@@ -601,13 +642,10 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
             this.unmarshaller = jax.createUnmarshaller();
             this.marshaller = jax.createMarshaller();
         } catch (JAXBException e) {
-            // statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-            // e);
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }
 
-    
     private boolean validateFileName() {
         StringBuffer strBuf = new StringBuffer(newFileNameTF.getText().trim());
 
@@ -631,7 +669,8 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         if (strBuf.toString().compareTo(excludedNameForSaving) == 0) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
             mb.setText("Warning");
-            mb.setMessage("Cannot save to the base default file name.\n" + "Please choose anther file name.");
+            mb.setMessage("Cannot save to the base default file name.\n"
+                    + "Please choose anther file name.");
             mb.open();
             return false;
         }
@@ -643,9 +682,11 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
             String fn = listItem.substring(idx + 1);
 
             if (fn.compareTo(strBuf.toString()) == 0) {
-                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.YES | SWT.NO);
+                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.YES
+                        | SWT.NO);
                 mb.setText("Warning");
-                mb.setMessage("File name already exists.  Do you wish to overwrite\n" + "the existing file?.");
+                mb.setMessage("File name already exists.  Do you wish to overwrite\n"
+                        + "the existing file?.");
                 int result = mb.open();
 
                 if (result == SWT.NO) {
@@ -670,10 +711,13 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         IPathManager pm = PathManagerFactory.getPathManager();
 
         ArrayList<LocalizationContext> contextList = new ArrayList<LocalizationContext>();
-        contextList.add(pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.SITE));
-        contextList.add(pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.USER));
-        locFiles = pm.listFiles(contextList.toArray(new LocalizationContext[contextList.size()]), fileNamePath,
-                extensions, false, true);
+        contextList.add(pm.getContext(LocalizationType.CAVE_STATIC,
+                LocalizationLevel.SITE));
+        contextList.add(pm.getContext(LocalizationType.CAVE_STATIC,
+                LocalizationLevel.USER));
+        locFiles = pm.listFiles(contextList
+                .toArray(new LocalizationContext[contextList.size()]),
+                fileNamePath, extensions, false, true);
 
         if (locFiles == null) {
             return;
@@ -686,7 +730,8 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
             int idx = locFile.lastIndexOf("/");
             String newStr = locFile.substring(idx + 1);
 
-            locFileMap.put(locFiles[i].getContext().getLocalizationLevel() + ":" + newStr, locFiles[i]);
+            locFileMap.put(locFiles[i].getContext().getLocalizationLevel()
+                    + ":" + newStr, locFiles[i]);
         }
 
         for (String str : locFileMap.keySet()) {
@@ -714,7 +759,7 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
      *            Parent composite.
      */
     private void addSeparator(Composite parentComp) {
-        GridLayout gl = (GridLayout)parentComp.getLayout();
+        GridLayout gl = (GridLayout) parentComp.getLayout();
 
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.horizontalSpan = gl.numColumns;
@@ -732,14 +777,13 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         if (previewOn) {
             previewBtn.setText("<< Preview");
             previewComp.setVisible(true);
-            ((GridData)previewComp.getLayoutData()).exclude = false;
+            ((GridData) previewComp.getLayoutData()).exclude = false;
 
             updatePreview();
-        }
-        else {
+        } else {
             previewBtn.setText("Preview >>");
             previewComp.setVisible(false);
-            ((GridData)previewComp.getLayoutData()).exclude = true;
+            ((GridData) previewComp.getLayoutData()).exclude = true;
         }
 
         this.listPreviewComp.layout();
@@ -762,35 +806,33 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         selectedFile = locFileMap.get(str);
 
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext context = pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+        LocalizationContext context = pm.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
 
         if (str.startsWith("SITE")) {
-            context = pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+            context = pm.getContext(LocalizationType.CAVE_STATIC,
+                    LocalizationLevel.SITE);
         }
 
-        LocalizationFile locFile = pm.getLocalizationFile(context, selectedFile.getName());
+        LocalizationFile locFile = pm.getLocalizationFile(context,
+                selectedFile.getName());
 
         try {
-
-            // TODO : Check for instance of IDisplayXml
-
             Object obj = unmarshaller.unmarshal(locFile.getFile());
 
             if (obj instanceof IDisplayXml) {
-                IDisplayXml dispXml = (IDisplayXml)obj;
+                IDisplayXml dispXml = (IDisplayXml) obj;
                 previewTxt.setText(dispXml.getDisplayXmlString());
-            }
-            else {
-                this.marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            } else {
+                this.marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT,
+                        true);
                 StringWriter sw = new StringWriter();
                 this.marshaller.marshal(obj, sw);
                 previewTxt.setText(sw.toString());
             }
 
         } catch (JAXBException e) {
-            // statusHandler.handle(Priority.PROBLEM,
-            // e.getLocalizedMessage(), e);
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }
 }

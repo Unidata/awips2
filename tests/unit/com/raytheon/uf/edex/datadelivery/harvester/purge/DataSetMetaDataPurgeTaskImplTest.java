@@ -35,6 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Multimap;
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaDataFixture;
@@ -44,7 +45,6 @@ import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandler
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
 import com.raytheon.uf.common.time.util.ImmutableDate;
-import com.raytheon.uf.edex.datadelivery.harvester.config.HarvesterConfig;
 
 /**
  * Test {@link DataSetMetaDataPurgeImpl).

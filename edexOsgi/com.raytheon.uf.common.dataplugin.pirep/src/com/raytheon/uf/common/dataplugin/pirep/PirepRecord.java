@@ -33,6 +33,8 @@ import javax.measure.quantity.Velocity;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -80,6 +82,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * as separated code to generate distinct max icing/turbulence levels. Removed
  * code that used "display" boolean to determine data access.
  * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869       bsteffen    Remove dataURI column from
+ *                                     PluginDataObject.
  * 
  * </pre>
  * 
@@ -815,5 +819,11 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
         } else if (!getDataURI().equals(other.getDataURI()))
             return false;
         return true;
+    }
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
     }
 }

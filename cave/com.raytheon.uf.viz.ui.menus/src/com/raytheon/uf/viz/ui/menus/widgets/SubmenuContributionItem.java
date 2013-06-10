@@ -49,6 +49,8 @@ import com.raytheon.uf.viz.ui.menus.xml.MenuXMLMap;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 26, 2009            chammack     Initial creation
+ * May 08, 2013 1978       bsteffen    Perform variable substitution on subMenu
+ *                                     IDs.
  * 
  * </pre>
  * 
@@ -82,15 +84,17 @@ public class SubmenuContributionItem extends MenuManager {
     public SubmenuContributionItem(VariableSubstitution[] includeSubstitutions,
             String id, String name, CommonAbstractMenuContribution[] ci,
             Set<String> removals) {
-        super(processNameSubstitution(includeSubstitutions, name), id);
+        super(processSubstitution(includeSubstitutions, name),
+                processSubstitution(includeSubstitutions, id));
         this.subs = includeSubstitutions;
         this.contribs = ci;
         this.removals = removals;
     }
 
-    private static String processNameSubstitution(
+    private static String processSubstitution(
             VariableSubstitution[] includeSubstitutions, String name) {
-        if (includeSubstitutions != null && includeSubstitutions.length > 0) {
+        if (name != null && includeSubstitutions != null
+                && includeSubstitutions.length > 0) {
             Map<String, String> map = VariableSubstitution
                     .toMap(includeSubstitutions);
             try {

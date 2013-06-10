@@ -42,7 +42,6 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.edex.meteoLib.Controller;
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
@@ -52,6 +51,8 @@ import com.raytheon.uf.common.geospatial.util.WorldWrapChecker;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.ArraysUtil;
+import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -88,6 +89,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *    Apr 26, 2010 #4583       rjpeter     Replaced fortran fortconbuf with java port.
  *    Mar 4, 2011   #7747       njensen   Cached subgrid envelopes
  *    Jul 9, 2012  DR 14940    M. Porricelli  Adjust arrow size for streamlines
+ *    Feb 15, 2013 1638        mschenke    Moved edex.common Util functions into common Util
  * </pre>
  * 
  * @author chammack
@@ -97,9 +99,9 @@ public class ContourSupport {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ContourSupport.class);
 
-    private static float smallestContourValue = Util.GRID_FILL_VALUE - 1;
+    private static float smallestContourValue = GridUtil.GRID_FILL_VALUE - 1;
 
-    private static float largestContourValue = Util.GRID_FILL_VALUE + 1;
+    private static float largestContourValue = GridUtil.GRID_FILL_VALUE + 1;
 
     private static LRUMap subgridCache = new LRUMap(10);
 
@@ -328,7 +330,7 @@ public class ContourSupport {
                 for (int i = 0; i < szX; i++) {
                     float val = data1D[((int) sz[0] * (j + minY)) + (i + minX)];
                     if (Float.isNaN(val)) {
-                        val = Util.GRID_FILL_VALUE;
+                        val = GridUtil.GRID_FILL_VALUE;
                     }
                     subgriddedData[i][j] = val;
                 }
@@ -364,7 +366,7 @@ public class ContourSupport {
                 float min = Float.POSITIVE_INFINITY;
                 float max = Float.NEGATIVE_INFINITY;
                 for (float f : data1D) {
-                    if (f != Util.GRID_FILL_VALUE && !Float.isNaN(f)) {
+                    if (f != GridUtil.GRID_FILL_VALUE && !Float.isNaN(f)) {
                         min = Math.min(min, f);
                         max = Math.max(max, f);
                     }
@@ -1093,8 +1095,8 @@ public class ContourSupport {
             }
         }
 
-        Util.flipVert(adjustedUw, szY, szX);
-        Util.flipVert(adjustedVw, szY, szX);
+        ArraysUtil.flipVert(adjustedUw, szY, szX);
+        ArraysUtil.flipVert(adjustedVw, szY, szX);
 
         int arrSz = Math.max(10 * adjustedUw.length, uW.length);
 

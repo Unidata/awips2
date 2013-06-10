@@ -39,7 +39,6 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
@@ -48,6 +47,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.datadelivery.common.ui.IDialogClosed;
 import com.raytheon.uf.viz.datadelivery.common.ui.SortImages.SortDirection;
@@ -81,6 +81,8 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Aug 30, 2012   1120     jpiatt       Added clickSort flag.
  * Oct 05, 2012   1241     djohnson     Replace RegistryManager calls with registry handler calls.
  * Jan 10, 2013   1346     mpduff       Add additional information to the dataset details output.
+ * Feb 15, 2013   1638     mschenke     Moved Util.EOL into FileUtil
+ * Apr 10, 2013   1891     djohnson     Declare variable as List.
  * 
  * </pre>
  * 
@@ -293,27 +295,27 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
         StringBuilder sb = new StringBuilder(150);
         sb.append("Dataset Name: ")
                 .append(validateString(dataSet.getDataSetName()))
-                .append(Util.EOL);
+                .append(FileUtil.EOL);
         sb.append("Dataset Type: ").append(dataSet.getDataSetType().toString())
-                .append(Util.EOL);
-        sb.append("Coverage: ").append(Util.EOL);
+                .append(FileUtil.EOL);
+        sb.append("Coverage: ").append(FileUtil.EOL);
 
         sb.append("--- Projection  : ")
                 .append(validateString(dataSet.getCoverage().getProjection()))
-                .append(Util.EOL);
+                .append(FileUtil.EOL);
 
         sb.append("--- UpperLeft (Lon) : ")
                 .append(dataSet.getCoverage().getUpperLeft().x)
-                .append(Util.EOL);
+                .append(FileUtil.EOL);
         sb.append("--- UpperLeft (Lat) : ")
                 .append(dataSet.getCoverage().getUpperLeft().y)
-                .append(Util.EOL);
+                .append(FileUtil.EOL);
         sb.append("--- LowerRight (Lon): ")
                 .append(dataSet.getCoverage().getLowerRight().x)
-                .append(Util.EOL);
+                .append(FileUtil.EOL);
         sb.append("--- LowerRight (Lat): ")
                 .append(dataSet.getCoverage().getLowerRight().y)
-                .append(Util.EOL);
+                .append(FileUtil.EOL);
         sb.append("\n");
 
         if (dataSet instanceof GriddedDataSet) {
@@ -325,7 +327,7 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
                 for (int i : cycleList) {
                     sb.append(i).append(" ");
                 }
-                sb.append(Util.EOL);
+                sb.append(FileUtil.EOL);
             }
 
             List<Integer> fcstHrs = new ArrayList<Integer>(
@@ -340,19 +342,19 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
                     hrBuffer.append(i).append(" ");
                     // wrap at 50 characters
                     if (hrBuffer.length() > 50) {
-                        sb.append(hrBuffer).append(Util.EOL);
+                        sb.append(hrBuffer).append(FileUtil.EOL);
                         sb.append("                ");
                         hrBuffer.setLength(0);
                     }
                 }
 
-                sb.append(Util.EOL);
+                sb.append(FileUtil.EOL);
             }
         }
 
         Map<String, Parameter> paramMap = dataSet.getParameters();
         if (!paramMap.isEmpty()) {
-            sb.append("Parameters:").append(Util.EOL);
+            sb.append("Parameters:").append(FileUtil.EOL);
             List<String> paramList = new ArrayList<String>(paramMap.keySet());
             Collections.sort(paramList, String.CASE_INSENSITIVE_ORDER);
 
@@ -367,7 +369,7 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
             for (String param : paramList) {
                 sb.append("--- ").append(param);
                 sb.append(getSpacing(max + 1, param));
-                sb.append(paramMap.get(param).getDefinition()).append(Util.EOL);
+                sb.append(paramMap.get(param).getDefinition()).append(FileUtil.EOL);
             }
         }
 
@@ -512,7 +514,7 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
 
         tableData.sortData();
 
-        ArrayList<BrowserTableRowData> btrdArray = tableData.getDataArray();
+        List<BrowserTableRowData> btrdArray = tableData.getDataArray();
 
         for (BrowserTableRowData btrd : btrdArray) {
             TableItem ti = new TableItem(this.table, SWT.NONE);

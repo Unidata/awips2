@@ -73,9 +73,11 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 17, 2009            njensen     Initial creation
- * Dec 21, 2009    4055    njensen    Queued thread for updates
- * Feb 26, 2013    1447    dgilling   Add routine to use MergeVTEC as basis
- *                                    for merge logic.
+ * Dec 21, 2009    4055    njensen     Queued thread for updates
+ * Feb 26, 2013    1447    dgilling    Add routine to use MergeVTEC as basis
+ *                                     for merge logic.
+ * May 14, 2013    1842    dgilling    Also delete cluster locks when purging
+ *                                     PRACTICE active table.
  * 
  * </pre>
  * 
@@ -219,7 +221,7 @@ public class ActiveTable {
 
     public static Integer getNextEtn(String siteId, ActiveTableMode mode,
             String phensig, Calendar currentTime, boolean isLock) {
-        String lockName = NEXT_ETN_LOCK + "_" + siteId + "_" + mode.name();
+        String lockName = getEtnClusterLockName(siteId, mode);
         ClusterTask ct = null;
         CurrentTimeClusterLockHandler lockHandler = null;
         if (isLock) {
@@ -266,6 +268,22 @@ public class ActiveTable {
         }
 
         return new Integer(nextEtn);
+    }
+
+    /**
+     * Returns the EDEX cluster lock name for the given site and active table
+     * mode.
+     * 
+     * @param siteId
+     *            4-char site identifier
+     * @param mode
+     *            The active table mode
+     * @return The cluster lock name for the given site and active table.
+     */
+    private static String getEtnClusterLockName(String siteId,
+            ActiveTableMode mode) {
+        String lockName = NEXT_ETN_LOCK + "_" + siteId + "_" + mode.name();
+        return lockName;
     }
 
     /**
@@ -570,6 +588,11 @@ public class ActiveTable {
             ActiveTableMode mode) throws DataAccessLayerException {
         CoreDao dao = practiceDao;
         String sql = "delete from practice_activetable;";
+        dao.executeNativeSql(sql);
+
+        sql = "delete from cluster_task where name ='"
+                + getEtnClusterLockName(requestedSiteId,
+                        ActiveTableMode.PRACTICE) + "';";
         dao.executeNativeSql(sql);
     }
 

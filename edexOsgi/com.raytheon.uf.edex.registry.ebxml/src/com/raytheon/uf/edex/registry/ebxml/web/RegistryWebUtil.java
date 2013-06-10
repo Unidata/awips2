@@ -22,7 +22,6 @@ package com.raytheon.uf.edex.registry.ebxml.web;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -42,20 +41,19 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.PostalAddressType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.TelephoneNumberType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
+import com.raytheon.uf.common.registry.constants.AssociationTypes;
+import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
+import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
-import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.registry.ebxml.constants.AssociationTypes;
-import com.raytheon.uf.edex.registry.ebxml.constants.RegistryObjectTypes;
-import com.raytheon.uf.edex.registry.ebxml.constants.RegistryResponseStatus;
-import com.raytheon.uf.edex.registry.ebxml.constants.StatusTypes;
 import com.raytheon.uf.edex.registry.ebxml.dao.AssociationDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.ClassificationNodeDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.OrganizationDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.PersonDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
-import com.raytheon.uf.edex.registry.ebxml.util.EDEXRegistryManager;
+import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImpl;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
@@ -68,6 +66,8 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 7/30/2012    724        bphillip     Initial creation
+ * 3/13/2013    1082       bphillip     Modified to use spring injection
+ * Apr 23, 2013 1910       djohnson     RegistryResponseStatus is now an enum.
  * 
  * </pre>
  * 
@@ -75,6 +75,12 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * @version 1.0
  */
 public class RegistryWebUtil {
+
+    private LifecycleManagerImpl lcm;
+
+    private ClassificationNodeDao classificationNodeDao;
+
+    private PersonDao personDao;
 
     /**
      * Creates a party (user or organization) based on parameters contained in
@@ -86,11 +92,10 @@ public class RegistryWebUtil {
      * @throws EbxmlRegistryException
      *             If errors occur during registry interaction
      */
-    public static SubmitObjectsRequest createParty(HttpServletRequest request)
+    public SubmitObjectsRequest createParty(HttpServletRequest request)
             throws EbxmlRegistryException {
 
         List<RegistryObjectType> objectList = new ArrayList<RegistryObjectType>();
-        ClassificationNodeDao dao = new ClassificationNodeDao();
 
         String partyId = request.getParameter("id");
         PartyType party = null;
@@ -145,7 +150,6 @@ public class RegistryWebUtil {
         }
         // Creating an organization
         else {
-            PersonDao personDao = new PersonDao();
             party = new OrganizationType();
             party.setLid(partyId);
             party.setOwner(RegistryUtil.DEFAULT_OWNER);
@@ -172,7 +176,7 @@ public class RegistryWebUtil {
 
         // Assign the postal address
         PostalAddressType address = new PostalAddressType();
-        address.setType(dao.getNodeFromCode(request
+        address.setType(classificationNodeDao.getNodeFromCode(request
                 .getParameter(WebFields.ADDRESS_TYPE.fieldName())));
         address.setStreet(request.getParameter(WebFields.ADDRESS_1.fieldName()));
         address.setStreetNumber(request.getParameter(WebFields.ADDRESS_2
@@ -187,7 +191,7 @@ public class RegistryWebUtil {
 
         // Assign the telephone number
         TelephoneNumberType phone = new TelephoneNumberType();
-        phone.setType(dao.getNodeFromCode(request
+        phone.setType(classificationNodeDao.getNodeFromCode(request
                 .getParameter(WebFields.TELEPHONE_TYPE.fieldName())));
         phone.setAreaCode(request.getParameter(WebFields.AREA_CODE.fieldName()));
         phone.setNumber(request.getParameter(WebFields.PHONE_1.fieldName())
@@ -197,7 +201,7 @@ public class RegistryWebUtil {
 
         // Assign the email address
         EmailAddressType email = new EmailAddressType();
-        email.setType(dao.getNodeFromCode(request
+        email.setType(classificationNodeDao.getNodeFromCode(request
                 .getParameter(WebFields.EMAIL_TYPE.fieldName())));
         email.setAddress(request.getParameter(WebFields.EMAIL.fieldName()));
         party.getEmailAddress().add(email);
@@ -218,7 +222,7 @@ public class RegistryWebUtil {
      * @throws EbxmlRegistryException
      *             If errors occur during database interaction
      */
-    private static AssociationType createEmployeeOfAssociation(String user,
+    private AssociationType createEmployeeOfAssociation(String user,
             String organization) throws EbxmlRegistryException {
 
         AssociationType association = new AssociationType();
@@ -246,7 +250,7 @@ public class RegistryWebUtil {
      *            The role (The target of the association)
      * @return The association object
      */
-    private static AssociationType createHasRoleAssociation(String user,
+    private AssociationType createHasRoleAssociation(String user,
             String roleName) {
         AssociationType association = new AssociationType();
         association.setId(EbxmlObjectUtil.getUUID());
@@ -282,7 +286,7 @@ public class RegistryWebUtil {
      * @throws IOException
      *             If the message cannot be forwarded
      */
-    public static void sendSuccessResponse(HttpServletRequest request,
+    public void sendSuccessResponse(HttpServletRequest request,
             HttpServletResponse response, String responsePage, String userId,
             String partyType) throws ServletException, IOException {
         request.setAttribute("partyType", partyType);
@@ -312,7 +316,7 @@ public class RegistryWebUtil {
      * @throws IOException
      *             If the message cannot be forwarded
      */
-    public static void sendErrorResponse(HttpServletRequest request,
+    public void sendErrorResponse(HttpServletRequest request,
             HttpServletResponse response, String responsePage, String userId,
             String partyType, String cause) throws ServletException,
             IOException {
@@ -333,17 +337,14 @@ public class RegistryWebUtil {
      * @throws MsgRegistryException
      *             If errors occur when submitting the remove object request
      */
-    @SuppressWarnings("rawtypes")
-    public static void removeAssociations(PartyType party)
+    public void removeAssociations(PartyType party)
             throws EbxmlRegistryException, MsgRegistryException {
         AssociationDao associationDao = new AssociationDao();
         List<AssociationType> associations = associationDao
                 .getAllAssociations(party.getId());
         if (!associations.isEmpty()) {
             RemoveObjectsRequest removeRequest = getRemoveRequest(associations);
-            ((EDEXRegistryManager) EDEXUtil
-                    .getESBComponent("edexRegistryManager"))
-                    .getLifeCycleManager().removeObjects(removeRequest);
+            lcm.removeObjects(removeRequest);
         }
     }
 
@@ -357,17 +358,14 @@ public class RegistryWebUtil {
      * @throws MsgRegistryException
      *             If errors occur when submitting the remove object request
      */
-    @SuppressWarnings("rawtypes")
-    public static void removeAssociationsFrom(PartyType party)
+    public void removeAssociationsFrom(PartyType party)
             throws EbxmlRegistryException, MsgRegistryException {
         AssociationDao associationDao = new AssociationDao();
         List<AssociationType> associations = associationDao
                 .getAssociationsFrom(party.getId());
         if (!associations.isEmpty()) {
             RemoveObjectsRequest removeRequest = getRemoveRequest(associations);
-            ((EDEXRegistryManager) EDEXUtil
-                    .getESBComponent("edexRegistryManager"))
-                    .getLifeCycleManager().removeObjects(removeRequest);
+            lcm.removeObjects(removeRequest);
         }
     }
 
@@ -381,17 +379,14 @@ public class RegistryWebUtil {
      * @throws MsgRegistryException
      *             If errors occur when submitting the remove object request
      */
-    @SuppressWarnings("rawtypes")
-    public static void removeAssociationsTo(PartyType party)
+    public void removeAssociationsTo(PartyType party)
             throws EbxmlRegistryException, MsgRegistryException {
         AssociationDao associationDao = new AssociationDao();
         List<AssociationType> associations = associationDao
                 .getAssociationsTo(party.getId());
         if (!associations.isEmpty()) {
             RemoveObjectsRequest removeRequest = getRemoveRequest(associations);
-            ((EDEXRegistryManager) EDEXUtil
-                    .getESBComponent("edexRegistryManager"))
-                    .getLifeCycleManager().removeObjects(removeRequest);
+            lcm.removeObjects(removeRequest);
         }
     }
 
@@ -403,7 +398,7 @@ public class RegistryWebUtil {
      * @throws EbxmlRegistryException
      *             If errors occur during database interaction
      */
-    public static void updatePC(HttpServletRequest request)
+    public void updatePC(HttpServletRequest request)
             throws EbxmlRegistryException {
         if (request.getParameter(WebFields.OBJ_TYPE.fieldName()).equals("User")) {
             String user = request.getParameter(WebFields.ID.fieldName());
@@ -424,7 +419,7 @@ public class RegistryWebUtil {
                 update = true;
             }
             if (update) {
-                orgDao.saveOrUpdate(org);
+                orgDao.createOrUpdate(org);
             }
         }
     }
@@ -439,17 +434,13 @@ public class RegistryWebUtil {
      * @throws MsgRegistryException
      *             If errors occur when submitting the remove objects request
      */
-    @SuppressWarnings("rawtypes")
-    public static void removeParty(PartyType party)
-            throws EbxmlRegistryException, MsgRegistryException {
+    public void removeParty(PartyType party) throws EbxmlRegistryException,
+            MsgRegistryException {
 
-        EDEXRegistryManager mgr = ((EDEXRegistryManager) EDEXUtil
-                .getESBComponent("edexRegistryManager"));
         RemoveObjectsRequest request = getRemoveRequest(party);
-        RegistryResponseType response = mgr.getLifeCycleManager()
-                .removeObjects(request);
+        RegistryResponseType response = lcm.removeObjects(request);
         if (!response.getStatus().equals(RegistryResponseStatus.SUCCESS)) {
-            StringBuffer exceptionText = new StringBuffer();
+            StringBuilder exceptionText = new StringBuilder();
             exceptionText.append("Remove Objects Failed:\n");
             for (RegistryExceptionType exception : response.getException()) {
                 exceptionText.append("Exception: ")
@@ -471,7 +462,7 @@ public class RegistryWebUtil {
      *            The object to be submitted to the registry
      * @return The submit object request
      */
-    public static <T extends RegistryObjectType> SubmitObjectsRequest getSubmitRequest(
+    public <T extends RegistryObjectType> SubmitObjectsRequest getSubmitRequest(
             T obj) {
         List<RegistryObjectType> objs = new ArrayList<RegistryObjectType>();
         objs.add(obj);
@@ -488,7 +479,7 @@ public class RegistryWebUtil {
      *            The objects to be submitted to the registry
      * @return The submit object request
      */
-    public static <T extends RegistryObjectType> SubmitObjectsRequest getSubmitRequest(
+    public <T extends RegistryObjectType> SubmitObjectsRequest getSubmitRequest(
             List<T> objs) {
         SubmitObjectsRequest submitRequest = new SubmitObjectsRequest();
         submitRequest.setComment("Object submission");
@@ -511,7 +502,7 @@ public class RegistryWebUtil {
      *            The object to be removed from the registry
      * @return The RemoveObjectRequest object
      */
-    public static <T extends RegistryObjectType> RemoveObjectsRequest getRemoveRequest(
+    public <T extends RegistryObjectType> RemoveObjectsRequest getRemoveRequest(
             T obj) {
         List<RegistryObjectType> objs = new ArrayList<RegistryObjectType>(1);
         objs.add(obj);
@@ -528,9 +519,9 @@ public class RegistryWebUtil {
      *            The objects to be removed from the registry
      * @return The RemoveObjectRequest object
      */
-    public static <T extends RegistryObjectType> RemoveObjectsRequest getRemoveRequest(
+    public <T extends RegistryObjectType> RemoveObjectsRequest getRemoveRequest(
             List<T> objs) {
-        StringBuffer comment = new StringBuffer(objs.size() * 38);
+        StringBuilder comment = new StringBuilder(objs.size() * 38);
         comment.append("Removing objects: ");
         for (RegistryObjectType regObj : objs) {
             comment.append("[");
@@ -540,30 +531,22 @@ public class RegistryWebUtil {
         RemoveObjectsRequest request = new RemoveObjectsRequest();
         request.setId(EbxmlObjectUtil.getUUID());
         request.setComment(comment.toString());
-        request.setObjectRefList(EbxmlObjectUtil
-                .createObjectRefListFromObjects(objs));
+        request.setObjectRefList(EbxmlObjectUtil.createObjectRefList(objs));
         return request;
 
     }
 
-    /**
-     * Converst a map of objects to a string representation that can be easily
-     * parsed by the web client
-     * 
-     * @param map
-     *            The map of key value pairs to convert to a string
-     * @return The String representation of the map
-     */
-    public static String mapToString(Map<String, String> map) {
-        StringBuffer retVal = new StringBuffer();
-        int idx = 0;
-        for (String key : map.keySet()) {
-            retVal.append(key).append("===").append(map.get(key));
-            if (idx != map.size() - 1) {
-                retVal.append("_____");
-            }
-            idx++;
-        }
-        return retVal.toString();
+    public void setLcm(LifecycleManagerImpl lcm) {
+        this.lcm = lcm;
     }
+
+    public void setClassificationNodeDao(
+            ClassificationNodeDao classificationNodeDao) {
+        this.classificationNodeDao = classificationNodeDao;
+    }
+
+    public void setPersonDao(PersonDao personDao) {
+        this.personDao = personDao;
+    }
+
 }

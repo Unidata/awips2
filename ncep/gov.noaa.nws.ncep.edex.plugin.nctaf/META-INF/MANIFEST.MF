@@ -13,7 +13,7 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.10.13",
  org.apache.log4j;bundle-version="1.0.0",
  org.junit;bundle-version="1.0.0",
  gov.noaa.nws.ncep.common.dataplugin.nctaf;bundle-version="1.0.0",
- com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.pointdata;bundle-version="1.12.1174",
  org.geotools
 Export-Package: gov.noaa.nws.ncep.edex.plugin.nctaf.decoder
 Import-Package: com.raytheon.edex.exception,
