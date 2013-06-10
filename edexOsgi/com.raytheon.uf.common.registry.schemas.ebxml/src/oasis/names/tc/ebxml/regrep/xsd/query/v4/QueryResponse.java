@@ -68,6 +68,16 @@ public class QueryResponse extends RegistryResponseType {
     @DynamicSerializeElement
     protected BigInteger totalResultCount;
 
+    public void incrementResultCount(BigInteger resultCount) {
+        if (resultCount == null) {
+            return;
+        }
+        if (totalResultCount == null) {
+            totalResultCount = new BigInteger("0");
+        }
+        totalResultCount = totalResultCount.add(resultCount);
+    }
+
     /**
      * Gets the value of the startIndex property.
      * 

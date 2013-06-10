@@ -98,7 +98,7 @@ public class SubscriptionBuilder {
      * {@inheritDoc}
      */
     public SiteSubscription build() {
-        SiteSubscription subscription = SubscriptionFixture.INSTANCE.get();
+        SiteSubscription subscription = SiteSubscriptionFixture.INSTANCE.get();
         subscription.setActive(active);
         subscription.setActivePeriodStart(activePeriodStart);
         subscription.setActivePeriodEnd(activePeriodEnd);

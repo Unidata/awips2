@@ -22,7 +22,7 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.dao;
 import java.util.Random;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.AbstractFixture;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
@@ -60,7 +60,7 @@ public class SubscriptionDaoFixture extends AbstractFixture<BandwidthSubscriptio
      */
     @Override
     public BandwidthSubscription getInstance(long seedValue, Random random) {
-        Subscription sub = SubscriptionFixture.INSTANCE.get(seedValue);
+        Subscription sub = SiteSubscriptionFixture.INSTANCE.get(seedValue);
         try {
             return BandwidthUtil.getSubscriptionDaoForSubscription(sub,
                     BandwidthUtil.now());
