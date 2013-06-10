@@ -152,7 +152,7 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool implemen
         @Override	
         public boolean handleMouseDown(int anX, int aY, int button) {
         	if ( !isResourceEditable() ) return false;
-            
+
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null || shiftDown ) return false;
@@ -161,9 +161,9 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool implemen
         		
         		if ( "CCFP_SIGMET".equalsIgnoreCase(pgenType) 
         				|| attrDlg.isAddLineMode() ){
-                points.add( loc );                
+        			points.add( loc );                
         		}
-                
+        		
                 return true;
                 
             }
@@ -203,20 +203,20 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool implemen
         				
         				if( labeledLine != null ) {
 
-        				//add line to labeled line collection
-        				LabeledLine newll = labeledLine.copy();
-        				elem = def.createLabeledLine( pgenCategory, pgenType, (IAttribute)attrDlg,
-        						points, newll, drawingLayer.getActiveLayer());
-        				drawingLayer.replaceElement(labeledLine, newll);
-        				labeledLine = newll;
-        			}
-        			else {
+        					//add line to labeled line collection
+        					LabeledLine newll = labeledLine.copy();
+        					elem = def.createLabeledLine( pgenCategory, pgenType, (IAttribute)attrDlg,
+        							points, newll, drawingLayer.getActiveLayer());
+        					drawingLayer.replaceElement(labeledLine, newll);
+        					labeledLine = newll;
+        				}
+        				else {
         		*/			//new labeled line
-        				elem = def.createLabeledLine( pgenCategory, pgenType, (IAttribute)attrDlg,
-        						points, null, drawingLayer.getActiveLayer());
+        					elem = def.createLabeledLine( pgenCategory, pgenType, (IAttribute)attrDlg,
+        							points, null, drawingLayer.getActiveLayer());
         					
-        				drawingLayer.addElement( elem );
-        				labeledLine = (LabeledLine)elem;
+        					drawingLayer.addElement( elem );
+        					labeledLine = (LabeledLine)elem;
         	//			}
         			}
 
@@ -229,12 +229,12 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool implemen
 
 
         				if ( ccdlg.isAreaType()){//avoid 2 Sigmet elements issue
-        			
-        			    ccfpTxtFlag = true; 
-        			    setAddingLabelHandler( );//return true;//avoid right click cause no showing issue
+
+        					ccfpTxtFlag = true; 
+        					setAddingLabelHandler( );//return true;//avoid right click cause no showing issue
+        				}
         			}
-        			}
-        			
+        			       			
         			drawingLayer.removeGhostLine();
         			if( ! ccfpTxtFlag ) 	points.clear();
 
@@ -316,7 +316,7 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool implemen
 		private void clearPoints(){
         	points.clear();
         }
-
+		
 		/**
 		 * Returns the Labeled Line in the current layer with input type(Turb/Cloud).
 		 * @param type

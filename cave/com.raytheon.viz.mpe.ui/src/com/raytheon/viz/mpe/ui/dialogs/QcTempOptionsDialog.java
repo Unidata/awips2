@@ -50,7 +50,6 @@ import com.raytheon.viz.mpe.ui.actions.OtherPrecipOptions;
 import com.raytheon.viz.mpe.ui.actions.OtherTempOptions;
 import com.raytheon.viz.mpe.ui.actions.SaveLevel2Data;
 import com.raytheon.viz.mpe.ui.actions.ScreeningOptions;
-import com.raytheon.viz.mpe.ui.rsc.XmrgResource;
 import com.raytheon.viz.mpe.util.DailyQcUtils;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Tdata;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Ts;
@@ -195,19 +194,19 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
     public Object open() {
         Shell parent = this.getParent();
         Display display = parent.getDisplay();
-        Date prevDate = MPEDisplayManager.getCurrent().getCurrentDate();
+        MPEDisplayManager displayMgr = MPEDisplayManager.getCurrent();
+        Date prevDate = displayMgr.getCurrentEditDate();
         Date currDate = ChooseDataPeriodDialog.prevDate;
         String QcArea = ChooseDataPeriodDialog.prevArea;
         AppsDefaults appDefaults = AppsDefaults.getInstance();
-        DisplayFieldData df = MPEDisplayManager.getCurrent()
-                .getDisplayFieldType();
+        DisplayFieldData df = displayMgr.getDisplayFieldType();
         if (currDate == null) {
             currDate = prevDate;
         }
         if (QcArea == null) {
             QcArea = appDefaults.getToken("mpe_site_id");
         }
-        int qcDays = MPEDisplayManager.getCurrent().getDqcDays();
+        int qcDays = displayMgr.getDqcDays();
         // checks to see if area or date has changed since last data load
         DailyQcUtils dqcu = new DailyQcUtils();
         // reloads data if changed
@@ -234,15 +233,15 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         dataType.add("Points+Contours");
         dataType.add("None");
         dataSet.addAll(dataType);
-        if (MPEDisplayManager.getCurrent().isQpf()) {
+        if (displayMgr.isQpf()) {
             QcPrecipOptionsDialog.destroy(false);
-            MPEDisplayManager.getCurrent().setQpf(false);
+            displayMgr.setQpf(false);
         }
-        if (MPEDisplayManager.getCurrent().isZflag()) {
+        if (displayMgr.isZflag()) {
             QcFreezeOptionsDialog.destroy(false);
         }
 
-        MPEDisplayManager.getCurrent().setMaxmin(true);
+        displayMgr.setMaxmin(true);
         ddqc = DrawDQCStations.getInstance();
 
         shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MODELESS);
@@ -265,20 +264,20 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         shell.pack();
 
         shell.open();
-        MPEDisplayManager.getCurrent().setMaxmin(true);
+        displayMgr.setMaxmin(true);
         isOpen = true;
         isfinished = false;
         oto.chg_maxmin_time(maxminTimeCbo.getSelectionIndex() + 2);
         opo.send_expose();
         while (!shell.isDisposed()) {
             if (dqc_good == 0) {
-                MPEDisplayManager.getCurrent().setMaxmin(false);
+                displayMgr.setMaxmin(false);
                 isOpen = false;
                 ddqc.destroy();
                 shell.dispose();
             }
             if (isOpen == false) {
-                MPEDisplayManager.getCurrent().setMaxmin(false);
+                displayMgr.setMaxmin(false);
                 ddqc.destroy();
                 shell.dispose();
             }
@@ -287,7 +286,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
             }
         }
         ddqc.destroy();
-        MPEDisplayManager.getCurrent().setMaxmin(false);
+        displayMgr.setMaxmin(false);
         isfinished = true;
         isOpen = false;
         font.dispose();
@@ -295,18 +294,17 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         s2.send_dbase_new_area();
         DailyQcUtils dc = new DailyQcUtils();
         dc.clearData();
-        MPEDisplayManager.getCurrent().setDisplayFieldType(df);
-        XmrgResource xmrgRsc = (XmrgResource) MPEDisplayManager.getCurrent()
-                .getDisplayedResource();
-        xmrgRsc.updateXmrg(false);
+        displayMgr.displayFieldData(df);
         removePerspectiveListener();
-        final ChooseDataPeriodDialog dialog = new ChooseDataPeriodDialog(
-                getParent().getShell());
-        display.asyncExec(new Runnable() {
-            public void run() {
-                dialog.open();
-            }
-        });
+        if (MPEDisplayManager.getCurrent() != null) {
+            display.asyncExec(new Runnable() {
+                public void run() {
+                    ChooseDataPeriodDialog dialog = new ChooseDataPeriodDialog(
+                            getParent().getShell());
+                    dialog.open();
+                }
+            });
+        }
 
         return s2;
     }

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <isEnabled>true</isEnabled>
     <inventoryEnabled>true</inventoryEnabled>
     <resourceDefnName>SGWH</resourceDefnName>
     <resourceCategory>MISC</resourceCategory>
@@ -9,7 +8,6 @@ pluginName=sgwh
 satelliteId=260
 legendColor=RGB {33,100,255}
     </resourceParameters>
-    <filterLabels>Satellite</filterLabels>
     <rscImplementation>WaveSat</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>

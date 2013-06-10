@@ -78,16 +78,17 @@ public class VizStatusHandler implements IUFStatusHandler {
      */
     @Override
     public void handle(UFStatus status) {
-		handle(status, this.category);
-	}
+        handle(status, this.category);
+    }
 
-	@Override
-	public void handle(UFStatus status, String category) {
+    @Override
+    public void handle(UFStatus status, String category) {
         if (this.source == null) {
             if (factory != null) {
                 this.source = factory.getSource(source, pluginId);
             }
         }
+
         VizStatusInternal vizStatus = new VizStatusInternal(status, category,
                 source, pluginId);
         StatusManager.getManager().handle(vizStatus);
@@ -98,10 +99,10 @@ public class VizStatusHandler implements IUFStatusHandler {
         handle(new UFStatus(p, msg));
     }
 
-	@Override
-	public void handle(Priority priority, String category, String message) {
-		handle(priority, category, message, (Throwable) null);
-	}
+    @Override
+    public void handle(Priority priority, String category, String message) {
+        handle(priority, category, message, (Throwable) null);
+    }
 
     @Override
     public void handle(Priority p, String msg, Throwable t) {
@@ -109,19 +110,19 @@ public class VizStatusHandler implements IUFStatusHandler {
     }
 
     @Override
-	public void handle(Priority p, String category, String msg, Throwable t) {
-		handle(new UFStatus(p, msg, t), category);
-	}
+    public void handle(Priority p, String category, String msg, Throwable t) {
+        handle(new UFStatus(p, msg, t), category);
+    }
 
-	@Override
+    @Override
     public void debug(String message) {
         handle(Priority.DEBUG, message);
     }
 
-	@Override
-	public void debug(String category, String message) {
-		handle(Priority.DEBUG, category, message);
-	}
+    @Override
+    public void debug(String category, String message) {
+        handle(Priority.DEBUG, category, message);
+    }
 
     @Override
     public void info(String message) {
@@ -129,48 +130,48 @@ public class VizStatusHandler implements IUFStatusHandler {
     }
 
     @Override
-	public void info(String category, String message) {
-		handle(Priority.INFO, category, message);
-	}
+    public void info(String category, String message) {
+        handle(Priority.INFO, category, message);
+    }
 
-	@Override
+    @Override
     public void warn(String message) {
         handle(Priority.WARN, message);
     }
 
     @Override
-	public void warn(String category, String message) {
-		handle(Priority.WARN, category, message);
-	}
+    public void warn(String category, String message) {
+        handle(Priority.WARN, category, message);
+    }
 
-	@Override
+    @Override
     public void error(String message) {
         handle(Priority.ERROR, message);
     }
 
     @Override
-	public void error(String category, String message) {
-		handle(Priority.ERROR, category, message);
-	}
+    public void error(String category, String message) {
+        handle(Priority.ERROR, category, message);
+    }
 
-	@Override
+    @Override
     public void error(String message, Throwable throwable) {
         handle(Priority.ERROR, message, throwable);
     }
 
     @Override
-	public void error(String message, String category, Throwable throwable) {
-		handle(Priority.ERROR, category, message, throwable);
-	}
+    public void error(String message, String category, Throwable throwable) {
+        handle(Priority.ERROR, category, message, throwable);
+    }
 
-	@Override
+    @Override
     public void fatal(String message, Throwable throwable) {
         handle(Priority.FATAL, message, throwable);
     }
 
-	@Override
-	public void fatal(String message, String category, Throwable throwable) {
-		handle(Priority.FATAL, category, message, throwable);
-	}
+    @Override
+    public void fatal(String message, String category, Throwable throwable) {
+        handle(Priority.FATAL, category, message, throwable);
+    }
 
 }

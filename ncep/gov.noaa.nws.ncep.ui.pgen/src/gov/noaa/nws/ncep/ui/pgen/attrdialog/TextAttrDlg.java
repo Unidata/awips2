@@ -50,6 +50,7 @@ import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
  *                                      selected color instead of displaying 
  *                                      the complete color matrix.
  * 04/11		#?			B. Yin		Re-factor IAttribute
+ * 03/13		#928		B. Yin 		Added a separator above the button bar.
  * </pre>
  * 
  * @author	J. Wu
@@ -189,6 +190,7 @@ public class TextAttrDlg extends AttrDlg implements IText{
         createJustAttr();
         createColorAttr();
         createRotationAttr();
+        addSeparator(top.getParent());
 
 	}	
 	

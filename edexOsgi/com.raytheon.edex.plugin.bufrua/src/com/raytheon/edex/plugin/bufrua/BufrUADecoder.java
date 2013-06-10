@@ -38,6 +38,10 @@ import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.bufrtools.AbstractBUFRDecoder;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
@@ -72,6 +76,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  *                                     in findDuplicate.
  * 20080408           1039 jkorman     Added traceId for tracing data.
  * 11/25/08          #1684 chammack    Camel Refactor
+ * Mar 19, 2013 1785       bgonzale    Added performance status handler and added status
+ *                                     to decodeData.
  * </pre>
  * 
  * @author jkorman
@@ -85,6 +91,9 @@ public class BufrUADecoder extends AbstractBUFRDecoder {
     private BufrUADao dao;
 
     private BUFRUAAdapterFactory adapterFactory;
+
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("BufrUA:");
 
     /**
      * 
@@ -127,7 +136,9 @@ public class BufrUADecoder extends AbstractBUFRDecoder {
             Iterator<BUFRDataDocument> iterator = document.iterator();
 
             String cor = isCor(wmoHeader);
+            ITimer timer = TimeUtil.getTimer();
 
+            timer.start();
             while (iterator.hasNext()) {
 
                 logger.debug("Decoding one BUFRDataDocument");
@@ -151,6 +162,8 @@ public class BufrUADecoder extends AbstractBUFRDecoder {
                     }
                 }
             }
+            timer.stop();
+            perfLog.logDuration("Time to Decode", timer.getElapsedTime());
         }
         return decodedData;
     }

@@ -2,7 +2,6 @@ package com.raytheon.viz.warngen.config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -11,22 +10,20 @@ import java.util.Set;
 
 import javax.measure.converter.UnitConverter;
 
-import org.geotools.referencing.GeodeticCalculator;
-
 import com.raytheon.uf.common.dataplugin.warning.config.PathcastConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.PointSourceConfiguration;
-import com.raytheon.uf.common.dataplugin.warning.gis.PreparedGeometryCollection;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.SpatialQueryResult;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.warngen.PreferenceUtil;
+import com.raytheon.viz.warngen.gis.Area;
 import com.raytheon.viz.warngen.gis.ClosestPoint;
 import com.raytheon.viz.warngen.gis.GisUtil;
 import com.raytheon.viz.warngen.gis.GisUtil.Direction;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
+import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 
 /**
  * 
@@ -39,6 +36,10 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  * ------------ ---------- ----------- --------------------------
  * Sep 25, 2012 #15425     Qinglu Lin   Updated createClosestPoint().
  * Feb 13, 2012  1605      jsanchez     Calculated the point based on lat,lon values.
+ * Mar 25, 2013  1810      jsanchez     Allowed other values to be accepted as a true value for useDirs.
+ * Mar 25, 2013  1605      jsanchez     Set ClosestPoint's prepGeom.
+ * Apr 24, 2013  1944      jsanchez     Updated calculateLocationPortion visibility to public.
+ * May  2, 2013  1963      jsanchez     Referenced calculatePortion from GisUtil if intersection less than DEFAULT_PORTION_TOLERANCE.
  * 
  * </pre>
  * 
@@ -115,9 +116,26 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
         List<String> partOfArea = getPartOfArea(ptFields, attributes,
                 ptRslt.geometry);
         int gid = getGid(ptFields, attributes);
-
-        return new ClosestPoint(name, point, population, warngenlev,
+        ClosestPoint cp = new ClosestPoint(name, point, population, warngenlev,
                 partOfArea, gid);
+
+        // Used to determine if a storm location is within an urban bound area
+        if (useDirections(attributes.get(useDirectionField))) {
+            cp.setPrepGeom(PreparedGeometryFactory.prepare(ptRslt.geometry));
+        }
+        return cp;
+    }
+
+    /**
+     * Converts DB value (i.e. 1, t, true) to a boolean true
+     * 
+     * @param useDirectionValue
+     * @return
+     */
+    private boolean useDirections(Object useDirectionValue) {
+        String userDir = String.valueOf(useDirectionValue).toLowerCase();
+        return Boolean.valueOf(userDir) || userDir.equals("t")
+                || userDir.equals("1");
     }
 
     /**
@@ -145,7 +163,8 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
 
     /**
      * Determines the part of area impacted if the userDirectionField is set to
-     * true.
+     * true. This method only takes into account areas within the warning
+     * polygon.
      * 
      * @param ptFields
      * @param attributes
@@ -155,17 +174,21 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
     private List<String> getPartOfArea(Set<String> ptFields,
             Map<String, Object> attributes, Geometry geom) {
         List<String> partOfArea = null;
-
-        boolean userDirections = Boolean.valueOf(String.valueOf(attributes
-                .get(useDirectionField)));
-        if (userDirections) {
-            PreparedGeometry prepGeom = new PreparedGeometryCollection(geom);
+        if (useDirections(attributes.get(useDirectionField))) {
+            PreparedGeometry prepGeom = PreparedGeometryFactory.prepare(geom);
             if (prepGeom.intersects(searchArea) && !prepGeom.within(searchArea)) {
                 Geometry intersection = searchArea.intersection(geom);
-                partOfArea = GisUtil.asStringList(calculateLocationPortion(
-                        geom, intersection, gc));
 
-                if (attributes.get(suppressedDirectionsField) != null) {
+                double areaIntersection = intersection.getArea();
+                double tolerCheck = geom.getArea()
+                        * Area.DEFAULT_PORTION_TOLERANCE;
+                if (areaIntersection < tolerCheck) {
+                    partOfArea = GisUtil.asStringList(GisUtil.calculatePortion(
+                            geom, intersection, false, false));
+                }
+
+                if ((partOfArea != null)
+                        && (attributes.get(suppressedDirectionsField) != null)) {
                     String suppressedDirections = String.valueOf(
                             attributes.get(suppressedDirectionsField))
                             .toLowerCase();
@@ -196,86 +219,6 @@ public class DbAreaSourceDataAdaptor extends AbstractDbSourceDataAdaptor {
         }
 
         return null;
-    }
-
-    /**
-     * Helper class to store cardinal ranges
-     * 
-     * @author jsanchez
-     * 
-     */
-    private static class CardinalRange {
-        public EnumSet<Direction> directions;
-
-        public double lowRange;
-
-        public double highRange;
-
-        public CardinalRange(EnumSet<Direction> directions, double lowRange,
-                double highRange) {
-            this.directions = directions;
-            this.lowRange = lowRange;
-            this.highRange = highRange;
-        }
-    }
-
-    private static CardinalRange[] ranges = new CardinalRange[] {
-            new CardinalRange(EnumSet.of(Direction.NORTH), 0, 22.5),
-            new CardinalRange(EnumSet.of(Direction.NORTH, Direction.EAST),
-                    22.5, 67.5),
-            new CardinalRange(EnumSet.of(Direction.EAST), 67.5, 112.5),
-            new CardinalRange(EnumSet.of(Direction.SOUTH, Direction.EAST),
-                    112.5, 157.5),
-            new CardinalRange(EnumSet.of(Direction.SOUTH), 157.5, 202.5),
-            new CardinalRange(EnumSet.of(Direction.SOUTH, Direction.WEST),
-                    202.5, 247.5),
-            new CardinalRange(EnumSet.of(Direction.WEST), 247.5, 292.5),
-            new CardinalRange(EnumSet.of(Direction.NORTH, Direction.WEST),
-                    292.5, 337.5),
-            new CardinalRange(EnumSet.of(Direction.NORTH), 337.5, 360) };
-
-    /**
-     * Calculates the cardinal directions of a location.
-     * 
-     * @param geom
-     * @param intersection
-     * @param gc
-     * @return
-     */
-    private static EnumSet<Direction> calculateLocationPortion(Geometry geom,
-            Geometry intersection, GeodeticCalculator gc) {
-        EnumSet<Direction> directions = EnumSet.noneOf(Direction.class);
-        Coordinate geomCentroid = geom.convexHull().getCentroid()
-                .getCoordinate();
-        Coordinate intersectCentroid = intersection.convexHull().getCentroid()
-                .getCoordinate();
-
-        gc.setStartingGeographicPoint(geomCentroid.x, geomCentroid.y);
-        gc.setDestinationGeographicPoint(intersectCentroid.x,
-                intersectCentroid.y);
-
-        Envelope envelope = geom.getEnvelopeInternal();
-        double centerThresholdX = envelope.getWidth() * 0.10;
-        double centerThresholdY = envelope.getHeight() * 0.10;
-        double distanceX = Math.abs(intersectCentroid.x - geomCentroid.x);
-        double distanceY = Math.abs(intersectCentroid.y - geomCentroid.y);
-
-        if (distanceX > centerThresholdX || distanceY > centerThresholdY) {
-            // Convert azimuth from -180/180 to 0/360
-            double degrees = gc.getAzimuth();
-            if (degrees < 0) {
-                degrees += 360;
-            }
-
-            for (CardinalRange range : ranges) {
-                if (degrees > range.lowRange && degrees <= range.highRange) {
-                    directions = range.directions;
-                    break;
-                }
-            }
-        }
-
-        return directions;
     }
 
     /**

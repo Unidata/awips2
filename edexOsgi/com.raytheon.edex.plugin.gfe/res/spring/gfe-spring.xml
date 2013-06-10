@@ -22,10 +22,9 @@
 	    <property name="pendingInitMinTimeMillis" value="180000"/>
 	    <property name="runningInitTimeOutMillis" value="300000"/>
 	    <property name="threadSleepInterval" value="60000"/>
-	    <property name="initialDelay" value="320000"/>
 	</bean>
 
-  	<bean depends-on="gfeDbRegistered" id="smartInitSrv" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitSrv">
+  	<bean depends-on="gfeDbRegistered, gfeSitesActive" id="smartInitSrv" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitSrv">
         <constructor-arg ref="smartInitSrvCfg" />
   	</bean>
 	
@@ -72,10 +71,15 @@
             <from uri="timer://smartInitTimer?fixedRate=true&amp;period=30000" />           
             <bean ref="smartInitQueue" method="fireSmartInit" />                                
         </route>
+	</camelContext>
+		
+  	<camelContext id="clusteredGfeIngestRoutes"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler" autoStartup="false">
 
-        <!--  gfeIngestNotification not clustered and has two threads to read due to throughput of messages during model run times -->
+        <!--  gfeIngestNotification must be a singleton and has 4 threads to read due to throughput of messages during model run times -->
         <route id="gfeIngestNotification">
-            <from uri="jms-generic:queue:gfeDataURINotification?destinationResolver=#qpidDurableResolver&amp;concurrentConsumers=2" />
+            <from uri="jms-generic:queue:gfeDataURINotification?destinationResolver=#qpidDurableResolver&amp;concurrentConsumers=4" />
             <doTry>
                 <bean ref="serializationUtil" method="transformFromThrift" />
                 <bean ref="gfeIngestFilter" method="filterDataURINotifications" />
@@ -86,11 +90,6 @@
                 </doCatch>
             </doTry>
         </route>
-	</camelContext>
-		
-  	<camelContext id="clusteredGfeIngestRoutes"
-		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler" autoStartup="false">
 
 		<!-- Smart Init Routes -->
 		<!--  main route now handled through the gfeIngestNotification -->
@@ -136,9 +135,21 @@
        <constructor-arg type="java.lang.String" value="amqp://guest:guest@gfeNotify/edex?brokerlist='tcp://${broker.addr}?retries='9999'&amp;connecttimeout='5000'&amp;connectdelay='5000''&amp;maxprefetch='0'&amp;sync_publish='all'&amp;sync_ack='true'"/>
     </bean>
 
+    <bean id="gfeNotifyPooledConnectionFactory" class="com.raytheon.uf.common.jms.JmsPooledConnectionFactory">
+       <constructor-arg ref="gfeNotifyConnectionFactory"/>
+       <property name="provider" value="QPID"/>
+       <property name="reconnectInterval" value="5000"/>
+       <!-- After connection has been closed by thread keep it allocated for another 90 seconds in case thread needs it again -->
+       <property name="connectionHoldTime" value="90000"/>
+       <!-- Any resource that has been available in the pool for more than 1 minute will be closed -->
+       <property name="resourceRetention" value="60000"/>
+       <property name="maxSpareConnections" value="1"/>
+    </bean>
+
 	<bean id="gfeNotifyJmsConfig" class="org.apache.camel.component.jms.JmsConfiguration"
 			factory-bean="jmsConfig" factory-method="copy">
-		<property name="listenerConnectionFactory" ref="gfeNotifyConnectionFactory" />
+		<property name="listenerConnectionFactory" ref="gfeNotifyPooledConnectionFactory" />
+		<property name="templateConnectionFactory" ref="gfeNotifyPooledConnectionFactory" />
     </bean>
 
     <bean id="gfeNotifyThreadPool"

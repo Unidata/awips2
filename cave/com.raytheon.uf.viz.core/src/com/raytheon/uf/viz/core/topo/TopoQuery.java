@@ -42,6 +42,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 12, 2009            mschenke     Initial creation
+ * Jan 14, 2013 1469       bkowal       The hdf5 root directory is no longer passed
+ *                                      as an argument to the common TopoQuery constructor.
  * 
  * </pre>
  * 
@@ -59,8 +61,7 @@ public class TopoQuery implements ITopoQuery {
      * @return Initialized TopoQuery instance
      */
     public static synchronized ITopoQuery getInstance() {
-        return com.raytheon.uf.edex.topo.TopoQuery.getInstance(
-                VizApp.getServerDataDir(), 0);
+        return com.raytheon.uf.edex.topo.TopoQuery.getInstance(0);
     }
 
     /**
@@ -68,8 +69,7 @@ public class TopoQuery implements ITopoQuery {
      */
     public static synchronized ITopoQuery getInstance(int topoLevel,
             boolean useCaching) {
-        return com.raytheon.uf.edex.topo.TopoQuery.getInstance(
-                VizApp.getServerDataDir(), 0);
+        return com.raytheon.uf.edex.topo.TopoQuery.getInstance(0);
     }
 
     private TopoQuery(int level, boolean useCaching) {

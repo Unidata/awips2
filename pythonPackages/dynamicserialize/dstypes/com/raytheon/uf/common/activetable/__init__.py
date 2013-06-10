@@ -33,10 +33,11 @@ __all__ = [
             'OperationalActiveTableRecord',
             'PracticeActiveTableRecord',
             'PracticeProductOfftimeRequest',
-            'UpdateActiveTableRequest',
-            'UpdateActiveTableResponse',
+            'SendPracticeProductRequest',
             'VTECChange',
-            'VTECTableChangeNotification'
+            'VTECTableChangeNotification',
+            'request',
+            'response'
           ]
 
 from ActiveTableMode import ActiveTableMode
@@ -52,8 +53,6 @@ from OperationalActiveTableRecord import OperationalActiveTableRecord
 from PracticeActiveTableRecord import PracticeActiveTableRecord
 from PracticeProductOfftimeRequest import PracticeProductOfftimeRequest
 from SendPracticeProductRequest import SendPracticeProductRequest
-from UpdateActiveTableRequest import UpdateActiveTableRequest
-from UpdateActiveTableResponse import UpdateActiveTableResponse
 from VTECChange import VTECChange
 from VTECTableChangeNotification import VTECTableChangeNotification
 

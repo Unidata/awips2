@@ -20,8 +20,12 @@
 package com.raytheon.viz.hydrocommon.datamanager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.PhysicalElementData;
 import com.raytheon.viz.hydrocommon.data.RejectedData;
@@ -35,6 +39,7 @@ import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 29, 2008 1636       askripsky   Initial Creation
+ * Feb 06, 2013 1578       rferrel     Code clean for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -43,27 +48,39 @@ import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
  */
 
 public class RejectedDataManager extends HydroDataManager {
-    protected static RejectedDataManager manager = null;
+    /** Handler for error messages. */
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RejectedDataManager.class);
 
-    private static final String SELECT_COLUMNS = "rd.lid, loc.name, rd.pe, rd.dur, rd.ts, rd.extremum, rd.value, "
+    /** Singleton instance of class. */
+    private static final RejectedDataManager manager = new RejectedDataManager();
+
+    /** Select columns query should retreive. */
+    private final String SELECT_COLUMNS = "rd.lid, loc.name, rd.pe, rd.dur, rd.ts, rd.extremum, rd.value, "
             + "rd.shef_qual_code, rd.quality_code, rd.revision, rd.product_id, rd.producttime, rd.postingtime, cast(rd.probability as float), "
             + "rd.validtime, rd.basistime, rd.reject_type, rd.userid";
 
-    private static final String SELECT_STATEMENT = "SELECT " + SELECT_COLUMNS
+    /** The query select statement. */
+    private final String SELECT_STATEMENT = "SELECT " + SELECT_COLUMNS
             + " FROM rejecteddata rd, location loc where rd.lid=loc.lid";
 
-    private static final String SELECT_CHECK_STATEMENT = "SELECT lid, pe, dur, ts, extremum, value, "
+    /** The first part of the select statement to check if record exists. */
+    private final String SELECT_CHECK_STATEMENT = "SELECT lid, pe, dur, ts, extremum, value, "
             + "shef_qual_code, quality_code, revision, product_id, producttime, postingtime, cast(probability as float), "
             + "validtime, basistime, reject_type, userid from rejecteddata";
 
-    private static final String INSERT_INTO_STATEMENT = "INSERT INTO rejecteddata (";
+    /** First part of insert statement to add a rejected record. */
+    private final String INSERT_INTO_STATEMENT = "INSERT INTO rejecteddata (";
 
-    private static final String INSERT_COLUMNS = "lid, pe, dur, ts, extremum, probability, validtime, "
+    /** The columns for the inserted rejected record. */
+    private final String INSERT_COLUMNS = "lid, pe, dur, ts, extremum, probability, validtime, "
             + "basistime, postingtime, value, revision, shef_qual_code, product_id, producttime, quality_code, reject_type, userid";
 
-    private static final String INSERT_VALUES = ") VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')";
+    /** The formating for the values to in the insert of a rejected record. */
+    private final String INSERT_VALUES = ") VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')";
 
-    private static final String UPDATE_STATEMENT = "UPDATE rejecteddata SET value='%s', shef_qual_code='%s', quality_code='%s', revision='%s', product_id='%s', producttime='%s', reject_type='%s', userid='%s' WHERE %s";
+    /** Formated query for updating a rejected record. */
+    private final String UPDATE_STATEMENT = "UPDATE rejecteddata SET value='%s', shef_qual_code='%s', quality_code='%s', revision='%s', product_id='%s', producttime='%s', reject_type='%s', userid='%s' WHERE %s";
 
     /**
      * Private constructor.
@@ -77,12 +94,8 @@ public class RejectedDataManager extends HydroDataManager {
      * 
      * @return manager
      */
-    public static synchronized RejectedDataManager getInstance() {
-        if (manager == null) {
-            manager = new RejectedDataManager();
-        }
-
-        return (RejectedDataManager) manager;
+    public static RejectedDataManager getInstance() {
+        return manager;
     }
 
     /**
@@ -97,28 +110,46 @@ public class RejectedDataManager extends HydroDataManager {
         putRejectedData(new RejectedData(questionableData));
     }
 
-    private void addRejectedDataRecord(RejectedData newRejectedData)
-            throws VizException {
-        runStatement(INSERT_INTO_STATEMENT
-                + INSERT_COLUMNS
-                + String.format(INSERT_VALUES, newRejectedData.getLid(),
-                        newRejectedData.getPe(), newRejectedData.getDur(),
-                        newRejectedData.getTs(), newRejectedData.getExtremum(),
-                        newRejectedData.getProbability(), dbFormat
-                                .format(newRejectedData.getValidTime()),
-                        dbFormat.format(newRejectedData.getBasisTime()),
-                        dbFormat.format(newRejectedData.getPostingTime()),
-                        newRejectedData.getValue(), newRejectedData
-                                .getRevision(), newRejectedData
-                                .getShefQualCode(), newRejectedData
-                                .getProductID(), dbFormat
-                                .format(newRejectedData.getProductTime()),
-                        newRejectedData.getQualityCode(), newRejectedData
-                                .getRejectType(), newRejectedData.getUserID()));
+    /**
+     * Insert the rejected record into the data base.
+     * 
+     * @param newRejectedData
+     * @throws VizException
+     */
+    private void addRejectedDataRecord(RejectedData newRejectedData) {
+
+        try {
+            runStatement(INSERT_INTO_STATEMENT
+                    + INSERT_COLUMNS
+                    + String.format(INSERT_VALUES, newRejectedData.getLid(),
+                            newRejectedData.getPe(), newRejectedData.getDur(),
+                            newRejectedData.getTs(),
+                            newRejectedData.getExtremum(),
+                            newRejectedData.getProbability(),
+                            dbFormat.format(newRejectedData.getValidTime()),
+                            dbFormat.format(newRejectedData.getBasisTime()),
+                            dbFormat.format(newRejectedData.getPostingTime()),
+                            newRejectedData.getValue(),
+                            newRejectedData.getRevision(),
+                            newRejectedData.getShefQualCode(),
+                            newRejectedData.getProductID(),
+                            dbFormat.format(newRejectedData.getProductTime()),
+                            newRejectedData.getQualityCode(),
+                            newRejectedData.getRejectType(),
+                            newRejectedData.getUserID()));
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM, "Unable to add record: ", e);
+        }
     }
 
-    public ArrayList<RejectedData> getRejectedData() throws VizException {
-        ArrayList<RejectedData> rval = new ArrayList<RejectedData>();
+    /**
+     * Get a list of rejected data.
+     * 
+     * @return rval
+     * @throws VizException
+     */
+    public List<RejectedData> getRejectedData() throws VizException {
+        List<RejectedData> rval = new ArrayList<RejectedData>();
 
         for (Object[] currData : getRejectedDataRawData()) {
             rval.add(new RejectedData(currData));
@@ -132,7 +163,7 @@ public class RejectedDataManager extends HydroDataManager {
      * @return
      * @throws VizException
      */
-    public ArrayList<Object[]> getRejectedDataRawData() throws VizException {
+    public List<Object[]> getRejectedDataRawData() throws VizException {
         return runQuery(SELECT_STATEMENT);
     }
 
@@ -142,7 +173,7 @@ public class RejectedDataManager extends HydroDataManager {
      * @param recordsToDelete
      * @throws VizException
      */
-    public void deleteRecords(ArrayList<RejectedData> recordsToDelete)
+    public void deleteRecords(List<RejectedData> recordsToDelete)
             throws VizException {
         for (RejectedData currData : recordsToDelete) {
             deleteRecord(currData);
@@ -150,7 +181,7 @@ public class RejectedDataManager extends HydroDataManager {
     }
 
     /**
-     * Deletes each record passed in from the the rejecteddata table.
+     * Deletes a record from the rejecteddata table.
      * 
      * @param recordsToDelete
      * @throws VizException
@@ -177,36 +208,42 @@ public class RejectedDataManager extends HydroDataManager {
     }
 
     /**
-     * Updates a record
+     * Updates an existing record
      * 
      * @param data
      * @throws VizException
      */
     private void updateRejectedData(RejectedData data) {
         try {
-            runStatement(String.format(UPDATE_STATEMENT, data.getValue(), data
-                    .getShefQualCode(), data.getQualityCode(), data
-                    .getRevision(), data.getProductID(), dbFormat.format(data
-                    .getProductTime()), data.getRejectType(), data.getUserID(),
+            runStatement(String.format(UPDATE_STATEMENT, data.getValue(),
+                    data.getShefQualCode(), data.getQualityCode(),
+                    data.getRevision(), data.getProductID(),
+                    dbFormat.format(data.getProductTime()),
+                    data.getRejectType(), data.getUserID(),
                     HydroDataUtils.getPKStatement(data)));
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Unble to update record: ",
+                    e);
         }
     }
 
-    public void putRejectedData(RejectedData data) {
+    /**
+     * Update an existing record or insert a new record.
+     * 
+     * @param record
+     */
+    public void putRejectedData(RejectedData record) {
         try {
-            if (checkRejectedData(data) > 0) {
+            if (checkRejectedData(record) > 0) {
                 // Do an update
-                updateRejectedData(data);
+                updateRejectedData(record);
             } else {
                 // Do an insert
-                addRejectedDataRecord(data);
+                addRejectedDataRecord(record);
             }
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Check for record failed: ",
+                    e);
         }
     }
 }

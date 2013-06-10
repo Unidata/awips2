@@ -6,4 +6,5 @@ fontName=Courier
 timeDisplayInterval=30
 timeDisplayColor=RGB {255, 255, 255}
 ! satelliteId moved to the resourceDefn
+! TODO : will need to create a new SGWHE RD for envisat
 !satelliteId=60

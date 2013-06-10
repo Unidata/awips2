@@ -64,6 +64,7 @@ import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.util.WorldWrapCorrector;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
@@ -109,6 +110,7 @@ import com.vividsolutions.jts.linearref.LocationIndexedLine;
  *    Mar 15, 2012             X. Guo      Refactor
  *    Mar 27, 2012             X. Guo      Used contour lock instead of "synchronized" 
  *    May 23, 2012             X. Guo      Loaded ncgrib logger
+ *    Apr 26, 2013			   B. Yin	   Fixed the world wrap problem for centeral line 0/180.
  * 
  * </pre>
  * 
@@ -144,6 +146,7 @@ public class ContourSupport {
     private List<Double> fvalues;
     private Set<Double> svalues;
     private boolean isWorld0;
+    private boolean isWorld180;
     private boolean isCntrsCreated;
     private static NcgribLogger ncgribLogger = NcgribLogger.getInstance();;
     
@@ -290,7 +293,8 @@ public class ContourSupport {
     	this.name = name;
     	this.zoom = zoom;
     	this.cntrData = new ContourGridData(records);
-    	this.isWorld0 = isWorld0(descriptor);
+    	this.isWorld0 = (getCentralMeridian(descriptor) == 0.0);
+    	this.isWorld180 = (Math.abs(getCentralMeridian(descriptor)) == 180.0);
     	
     	initContourGroup ( target,contourGp );
     }
@@ -527,25 +531,42 @@ public class ContourSupport {
     }
 
     
-    private static double[][] toScreen(Coordinate[] coords, MathTransform xform, int minX, int minY) {
-        double[][] out = new double[coords.length][3];
-
-        for ( int i=0; i< coords.length; i++ ) {
+    private double[][] toScreen(Coordinate[] coords, MathTransform xform, int minX, int minY) {
+    	
+    	int size = coords.length;
+    	
+    	//remove points on longitude 360 degree. to avoid long cross lines
+    	if ( isWorld180 ) {
+    		for ( Coordinate pt : coords ){
+    			if ( pt.x == 360.0)	size--;
+    		}
+    	}
+    	
+        double[][] out = new double[size][3];
+        
+        for ( int i=0, jj = 0; i< coords.length; i++, jj++ ) {
+        	if ( isWorld180 && coords[i].x == 360.0 ){ jj--; continue;}
+        	
                 double[] tmp = new double[2];
                 tmp[0]=coords[i].x + minX;
                 tmp[1]=coords[i].y + minY;
 //                if (tmp[0] > 180) tmp[0] -= 360;
                 
                 try {
-                        xform.transform(tmp, 0, out[i], 0, 1);
+                        xform.transform(tmp, 0, out[jj], 0, 1);
                 } catch (TransformException e) {
                         // TODO Auto-generated catch block
                       //  e.printStackTrace();
                 	return null;
                 }
         }
-
-        return out;
+        
+        if ( out.length >  0 ) {
+        	return out;
+        }
+        else {
+        	return null;
+        }
     }
 
     private static double[][] toScreenSubtract360(Coordinate[] coords, MathTransform xform,MathTransform xform1, int minX, int minY) {
@@ -576,33 +597,54 @@ public class ContourSupport {
                 }
         }
 
-        return out;
+        if ( out.length >  0 ) {
+        	return out;
+        }
+        else {
+        	return null;
+        }
     }
     
-    private static LineString toScreenLS(Coordinate[] coords, MathTransform xform, int minX, int minY) {
+    private LineString toScreenLS(Coordinate[] coords, MathTransform xform, int minX, int minY) {
 
         GeometryFactory gf = new GeometryFactory();
-        Coordinate[] out = new Coordinate[coords.length];
+
+        int size = coords.length;
+    	//remove points on 360. to avoid long cross lines
+    	if ( isWorld180 ) {
+    		for ( Coordinate pt : coords ){
+    			if ( pt.x == 360.0)	size--;
+    		}
+    	}
+        
+        Coordinate[] out = new Coordinate[size];
         double[] tmpout = new double[3];
 
-                for ( int i=0; i< coords.length; i++ ) {
-                        double[] tmp = new double[2];
-                        tmp[0]=coords[i].x + minX;
-                        tmp[1]=coords[i].y + minY;
-//                        if (tmp[0] > 180) tmp[0] -= 360;
-                        
-                        try {
-                                xform.transform(tmp, 0, tmpout, 0, 1);
-                        } catch (TransformException e) {
-                                // TODO Auto-generated catch block
-//                                e.printStackTrace();
-                        	return null;
-                        }
-                        out[i] = new Coordinate( tmpout[0], tmpout[1] );
-                }
+        for ( int i=0, jj = 0; i< coords.length; i++, jj++ ) {
+        	if ( isWorld180 && coords[i].x == 360.0 ){ jj--; continue;}
 
-                return gf.createLineString(out);
+        	double[] tmp = new double[2];
+        	tmp[0]=coords[i].x + minX;
+        	tmp[1]=coords[i].y + minY;
+        	//                        if (tmp[0] > 180) tmp[0] -= 360;
+
+        	try {
+        		xform.transform(tmp, 0, tmpout, 0, 1);
+        	} catch (TransformException e) {
+        		// TODO Auto-generated catch block
+        		//                                e.printStackTrace();
+        		return null;
+        	}
+        	out[jj] = new Coordinate( tmpout[0], tmpout[1] );
         }
+
+        if ( out.length >= 2 ) {
+        	return gf.createLineString(out);
+        }
+        else {
+        	return null;
+        }
+    }
 
     private static LineString toScreenLSSubtract360(Coordinate[] coords, MathTransform xform, MathTransform xform1,int minX, int minY) {
 
@@ -725,7 +767,7 @@ public class ContourSupport {
         return max;
     }
     
-    private static boolean isWorld0 (IMapDescriptor descriptor) {
+    public static double getCentralMeridian (IMapDescriptor descriptor) {
     	MapProjection worldProjection = CRS.getMapProjection(descriptor
                 .getCRS());
         if (worldProjection != null) {
@@ -733,9 +775,9 @@ public class ContourSupport {
             double centralMeridian = group.parameter(
                     AbstractProvider.CENTRAL_MERIDIAN.getName().getCode())
                     .doubleValue();
-            if ( centralMeridian == 0.0 ) return true;
+            return centralMeridian;
         }	 
-    	return false;
+    	return -999;
     }
     
     private static List<Double> contourReduce ( List<Double> contour1, List<Double> contour2){
@@ -956,11 +998,47 @@ public class ContourSupport {
     			Geometry g = contourGroup.data.get(cval.toString());
     			if ( g == null ) continue;
 //    			contourMap.put( cval, g);
+    			
+   	/*		Geometry gclone = (Geometry)g.clone();
+    			
+    			for ( Coordinate pt : gclone.getCoordinates() ){
+    				if ( pt.x > 180 ) pt.x -=360;
+    				if ( pt.y > 90 ) pt.y = pt.y*-1 + 90; // ????????
+    			}
+    			
+    			WorldWrapCorrector corrector = new WorldWrapCorrector(
+						descriptor.getGridGeometry());
+
+				Geometry geo = null;
+				try {
+					geo = corrector.correct( gclone );
+				}
+				catch ( Exception e ){
+					System.out.println( "World wrap error: " + e.getMessage() );
+				}
+		*/	
+			//	if ( geo != null ) g =geo;
+				
     			double[][] screen1 = null;
     			for ( int i=0; i < g.getNumGeometries(); i++ ) {
     				Geometry gn = g.getGeometryN(i);
+    				
+    		//		System.out.println( "First pt : " +  gn.getCoordinates()[0].x + "  " + gn.getCoordinates()[0].y);
+    		//		System.out.println( "Last pt : " +  gn.getCoordinates()[gn.getCoordinates().length-1].x + "  " + gn.getCoordinates()[gn.getCoordinates().length-1].y);
+
+    				
+    				//toLabel = false;
+		//			double[][] pixels = PgenUtil.latlonToPixel( gn.getCoordinates(), descriptor);
+					//contourGroup.negValueShape.addLineSegment(pixels);
+
+			/*		for ( Coordinate pt : gn.getCoordinates() ){
+						if ( pt.x < 0 ) pt.x +=360;
+						if ( pt.y < 90 ) pt.y = pt.y*-1 + 90; // ????????
+						System.out.println( "PPPPPPPPPPPPPPPPP: " + pt.x + "    " + pt.y);
+					}
+*/
     				double[][] screen = toScreen( gn.getCoordinates(), rastPosToWorldGrid, minX, minY );
-    			
+ 
     				if ( screen != null )
     					contourGroup.negValueShape.addLineSegment(screen);
                 	if ( isWorld0 ) {
@@ -1241,7 +1319,7 @@ public class ContourSupport {
 
     		long t1c = System.currentTimeMillis();
     		logger.debug("ContourGenerator.setContourValues(allvalues) took: " + (t1c-t1b));
-//    		System.out.println("ContourGenerator init took:" + (t1c-t0));
+//    		System.out.println("ContourGenerator init took:" + (t1c-t0));    
     
     		try {
     			cgen.generateContours();

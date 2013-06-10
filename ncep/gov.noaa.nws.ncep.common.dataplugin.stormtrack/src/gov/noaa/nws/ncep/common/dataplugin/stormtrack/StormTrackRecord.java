@@ -20,10 +20,13 @@
 
 package gov.noaa.nws.ncep.common.dataplugin.stormtrack;
 
+import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
+
 import java.util.Calendar;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -31,17 +34,17 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import org.hibernate.annotations.Index;
+
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
-import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
-
 /**
  * StormTrackRecord is the Data Access component for Automated Tropical Cyclone
- * Forecast (ATCF) and ensemble cyclone tracks. This class contains getters and 
+ * Forecast (ATCF) and ensemble cyclone tracks. This class contains getters and
  * setters for the main parent table stormtrack.
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -54,6 +57,8 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
  * ------------ ---------- 	----------- --------------------------
  * 07/2011					T. Lee		ATCF and Ensemble storm tracks
  * 10/19/2011    858        Greg Hull   remove forecastHr
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * 
  * </pre>
  * 
@@ -61,7 +66,18 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
  * @version 1.0
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "stormtrackseq")
 @Table(name = "stormtrack", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "stormtrack",
+		indexes = {
+				@Index(name = "stormtrack_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize

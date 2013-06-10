@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <isEnabled>true</isEnabled>
     <resourceDefnName>ElevNam1000</resourceDefnName>
     <resourceCategory>OVERLAY</resourceCategory>
     <resourceParameters>
 pgenStaticProductLocation=ncep/StaticPgenOverlays
 pgenStaticProductName=elev_NAM1000.xml
     </resourceParameters>
-    <filterLabels>PGEN</filterLabels>
     <rscImplementation>PgenStaticOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>

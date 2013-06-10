@@ -555,7 +555,7 @@ public class PointTempPlotResource extends
         this.paintProps = paintProps;
         MPEDisplayManager displayMgr = getResourceData().getMPEDisplayManager();
         // Fonts are shared and cached, no need to init or dispose
-        font = fontFactory.getMPEFont(displayMgr.getFontState());
+        font = fontFactory.getMPEFont(MPEDisplayManager.getFontId());
 
         if (DailyQcUtils.points_flag == 1 && displayMgr.isMaxmin() == true) {
             Iterator<String> iter = dataMap.keySet().iterator();

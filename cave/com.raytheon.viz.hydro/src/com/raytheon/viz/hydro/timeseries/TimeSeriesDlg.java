@@ -46,7 +46,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowData;
@@ -62,6 +61,7 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -117,7 +117,10 @@ import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
  * 08 Aug 2012   657       mpduff      Fix error when selecting a TS while no selection has been made 
  *                                     in the Station List.
  * 27 Sep 2012 15302       wkwock      TimeSeries start mode should depends on token timeseries_mode
- *                                     despite start up in CAVE or standalone.               
+ *                                     despite start up in CAVE or standalone.
+ * 30 Jan 2013 15264       wkwock      Fix the missing group_definition.cfg file crash           
+ * 05 Feb 2013 1578        rferrel     Dialog made non-blocking and a singleton.
+ * 06 May 2013  1976       mpduff      Code cleanup.
  * </pre>
  * 
  * @author lvenable
@@ -125,7 +128,7 @@ import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
  * 
  */
 public class TimeSeriesDlg extends CaveHydroSWTDialog {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(TimeSeriesDlg.class);
 
     /* Constants */
@@ -175,8 +178,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
 
     private static final String COLOR = "color";
 
-    // private static final String[] TS_LIST = { "RG", "RP", "RZ", "FF", "FX",
-    // "FZ" };
+    private static TimeSeriesDlg instance;
 
     private final String[] TS_ORDER = { "R", "F", "P", "M", "C" };
 
@@ -440,43 +442,28 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     private LIDData currLidData = new LIDData();
 
     /** List of GroupInfo objects */
-    private ArrayList<GroupInfo> groupList = new ArrayList<GroupInfo>();
+    private final ArrayList<GroupInfo> groupList = new ArrayList<GroupInfo>();
 
-    /** Holds the Group Information */
-    private GroupInfo groupInfo;
-    
     /** Holds the last graphed GroupInfo object */
     private GroupInfo prevGroupInfo;
 
-    /** Holds the page information */
-    private PageInfo pageInfo = null;
-
-    /** Holds the graph information */
-    private GraphData graphData = null;
-
     private String groupConfigFilePath = null;
 
-    private ArrayList<SiteInfo> siteInfoList = new ArrayList<SiteInfo>();
+    private final ArrayList<SiteInfo> siteInfoList = new ArrayList<SiteInfo>();
 
-    private ArrayList<TabInfo> tabInfoList = new ArrayList<TabInfo>();
+    private final ArrayList<TabInfo> tabInfoList = new ArrayList<TabInfo>();
 
-    private HydroDisplayManager displayManager;
+    private final HydroDisplayManager displayManager;
 
     private boolean openTimeSeriesDisplays = false;
 
     private GageData gageData = null;
-
-    private Cursor waitCursor = null;
-
-    private Cursor arrowCursor = null;
 
     /**
      * Auto open the graph or tabular display. True opens graph, false opens
      * tabular display.
      */
     private boolean displayGraph = false;
-
-    private Rectangle bounds = null;
 
     private TabularTimeSeriesDlg tabularDlg;
 
@@ -485,13 +472,29 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
      * standalone mode - outside of CAVE.
      */
     private boolean standaloneMode = false;
-    
+
     /**
      * Mode ComboBox previous selection.
      */
     private int prevModeIdx;
-    
+
     private String startMode;
+
+    /**
+     * When not in stand alone mode this allows only a single instance of the
+     * dialog.
+     * 
+     * @return instance
+     */
+    public final static TimeSeriesDlg getInstance() {
+        // Independent shell must be recreated after closing.
+        if (instance == null || !instance.isOpen()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            instance = new TimeSeriesDlg(shell);
+        }
+        return instance;
+    }
 
     /**
      * Constructor.
@@ -499,98 +502,18 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
      * @param parent
      *            Parent shell.
      */
-    public TimeSeriesDlg(Shell parent) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK | CAVE.INDEPENDENT_SHELL);
+    private TimeSeriesDlg(Shell parent) {
+        super(parent, CAVE.INDEPENDENT_SHELL);
         setText("Time Series Control");
 
         displayManager = HydroDisplayManager.getInstance();
         if (displayManager.getCurrentLid() != null) {
             currentLid = displayManager.getCurrentLid();
         }
-
-        waitCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_WAIT);
-        arrowCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_ARROW);
     }
 
     /**
-     * Constructor.
-     * 
-     * @param parent
-     *            Parent shell.
-     * @param lid
-     *            Preselected Lid to display upon opening the dialog
-     */
-    public TimeSeriesDlg(Shell parent, String lid) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK | CAVE.INDEPENDENT_SHELL);
-        setText("Time Series");
-
-        currentLid = lid;
-        waitCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_WAIT);
-        arrowCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_ARROW);
-    }
-
-    /**
-     * Constructor.
-     * 
-     * @param parent
-     *            Parent shell.
-     * @param lid
-     *            Preselected Lid to display upon opening the dialog
-     */
-    public TimeSeriesDlg(Shell parent, String lid, String PE, String TS,
-            boolean displayGraph) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK | CAVE.INDEPENDENT_SHELL);
-        setText("Time Series");
-        currentLid = lid;
-        currentTs = TS;
-        currentPe = PE;
-        this.displayGraph = displayGraph;
-        openTimeSeriesDisplays = true;
-        waitCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_WAIT);
-        arrowCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_ARROW);
-    }
-
-    /**
-     * Constructor.
-     * 
-     * @param parent
-     *            Parent shell.
-     * @param lid
-     *            Preselected Lid to display upon opening the dialog
-     */
-    public TimeSeriesDlg(Shell parent, String lid, boolean displayGraph) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK | CAVE.INDEPENDENT_SHELL);
-        setText("Time Series");
-
-        currentLid = lid;
-        this.displayGraph = displayGraph;
-        openTimeSeriesDisplays = true;
-        waitCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_WAIT);
-        arrowCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_ARROW);
-    }
-
-    /**
-     * Constructor.
-     * 
-     * @param parent
-     *            Parent shell.
-     * @param lid
-     *            Preselected Lid to display upon opening the dialog
-     */
-    public TimeSeriesDlg(Shell parent, GageData gageData, boolean displayGraph) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK | CAVE.INDEPENDENT_SHELL);
-        setText("Time Series");
-
-        currentLid = gageData.getLid();
-        this.displayGraph = displayGraph;
-        openTimeSeriesDisplays = true;
-        this.gageData = gageData;
-        waitCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_WAIT);
-        arrowCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_ARROW);
-    }
-
-    /**
-     * Constructor.
+     * Constructor for stand alone dialog.
      * 
      * @param parent
      *            the Parent shell.
@@ -599,33 +522,99 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
      *            the user-specified file with group configuration information.
      */
     public TimeSeriesDlg(Shell parent, File groupConfigFile) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.INDEPENDENT_SHELL);
-        setText("Time Series");
+        this(parent);
 
         this.standaloneMode = true;
         // Ensure That The Group Configuration File Exists.
-        if (!groupConfigFile.exists()) {
-        	// if it does not, check localization for the file
+        if (groupConfigFile == null || !groupConfigFile.exists()) {
+            // if it does not, check localization for the file
             IPathManager pm = PathManagerFactory.getPathManager();
             groupConfigFile = pm.getStaticFile(HydroConstants.GROUP_DEFINITION);
-        	
-            if (!groupConfigFile.exists()) {
-	            statusHandler.handle(Priority.PROBLEM,
-	                    "Unable to locate group configuration file - "
-								+ groupConfigFile.getAbsolutePath());
-	            this.groupConfigFilePath = null;
+
+            if (groupConfigFile == null || !groupConfigFile.exists()) {
+                String name = HydroConstants.GROUP_DEFINITION;
+                if (name.startsWith("/")) {
+                    name = name.substring(1);
+                }
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to locate group configuration file - " + name);
+                this.groupConfigFilePath = null;
             } else {
-            	this.groupConfigFilePath = groupConfigFile.getAbsolutePath();
-            	statusHandler.handle(Priority.PROBLEM, "Using standard AWIPS 2 group_definition.cfg file.  "
-										+ "Unable to locate specified group configuration file.");
+                this.groupConfigFilePath = groupConfigFile.getAbsolutePath();
+                statusHandler
+                        .handle(Priority.PROBLEM,
+                                "Using standard AWIPS 2 group_definition.cfg file.  "
+                                        + "Unable to locate specified group configuration file.");
             }
         } else {
             this.groupConfigFilePath = groupConfigFile.getAbsolutePath();
         }
-        waitCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_WAIT);
-        arrowCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_ARROW);
     }
 
+    /**
+     * Used by the updateAndOpen methods to proper update the dialogs.
+     */
+    private void updateOpen() {
+        if (!isOpen()) {
+            open();
+        } else {
+            try {
+                populateStationList();
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+            setCurrentData();
+            opened();
+            bringToTop();
+        }
+    }
+
+    /**
+     * Update dialog and make sure it is open.
+     * 
+     * @param lid
+     */
+    public void updateAndOpen(String lid, boolean displayGraph) {
+        this.currentLid = lid;
+        this.displayGraph = displayGraph;
+        openTimeSeriesDisplays = true;
+        updateOpen();
+    }
+
+    /**
+     * Update dialog and make sure it is open.
+     * 
+     * @param lid
+     */
+    public void updateAndOpen(String lid, String PE, String TS,
+            boolean dispalyGraph) {
+        this.currentLid = lid;
+        this.currentPe = PE;
+        this.currentTs = TS;
+        this.displayGraph = dispalyGraph;
+        openTimeSeriesDisplays = true;
+        updateOpen();
+    }
+
+    /**
+     * Update dialog and make sure it is open.
+     * 
+     * @param lid
+     */
+    public void updateAndOpen(GageData gageData, boolean displayGraph) {
+        currentLid = gageData.getLid();
+        this.displayGraph = displayGraph;
+        openTimeSeriesDisplays = true;
+        this.gageData = gageData;
+        updateOpen();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -635,39 +624,46 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         return mainLayout;
     }
 
+    /**
+     * Allow others to give focus to the dialog.
+     */
     public void setFocus() {
         shell.setFocus();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
-        if (font.isDisposed() == false) {
-            font.dispose();
-        }
-        if (waitCursor.isDisposed() == false) {
-            waitCursor.dispose();
-        }
-        if (arrowCursor.isDisposed() == false) {
-            arrowCursor.dispose();
-        }
+        font.dispose();
     }
 
-    public void disposeDialogTS() {
-        if (!shell.isDisposed())
-            shell.dispose();
-    }
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
 
         font = new Font(shell.getDisplay(), "Monospace", 11, SWT.NORMAL);
 
-        // Initialize all of the controls and layoutsendCal
+        // Initialize all of the controls
         initializeComponents();
         setCurrentData();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#opened()
+     */
     @Override
     protected void opened() {
         if (openTimeSeriesDisplays) {
@@ -677,7 +673,8 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             openTimeSeriesDisplays = false;
         }
 
-        AbstractVizResource<?,?> rsc = HydroDisplayManager.getInstance().getDisplayedResource();
+        AbstractVizResource<?, ?> rsc = HydroDisplayManager.getInstance()
+                .getDisplayedResource();
         if (rsc instanceof MultiPointResource) {
             ((MultiPointResource) rsc).setTs(this);
         }
@@ -726,7 +723,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         } catch (VizException e) {
             statusHandler.error("Failed to populate station list", e);
         }
-        
+
         if (startMode.equals("GROUP") && (displayGraph == false)) {
             modeCbo.select(0);
             stackLayout.topControl = groupGroup;
@@ -985,6 +982,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                         stnLayoutDisplayed = true;
                     }
                     prevModeIdx = modeCbo.getSelectionIndex();
+                    checkBottomButtons();
                 }
             }
         });
@@ -1091,7 +1089,6 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             public void keyReleased(KeyEvent event) {
                 String search = searchTF.getText();
                 if (!search.equals("") && !search.equals(" ")) {
-
                     /* Iterate over the location Ids in the list */
                     ListIterator<String> iter = lidList.listIterator();
                     while (iter.hasNext()) {
@@ -1113,10 +1110,8 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                             }
                         }
                     }
-                } else {
-                    // topDataList.setSelection(0); // Commented to more closely
-                    // match legacy app
                 }
+
                 if (topDataList.getSelectionIndex() > 0) {
                     populateBottomList(
                             lidList.get(topDataList.getSelectionIndex()),
@@ -1136,13 +1131,14 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         idRdo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.setCursor(waitCursor);
+                setCursorBusy(true);
                 try {
                     populateStationList();
+                    checkBottomButtons();
                 } catch (VizException e) {
                     statusHandler.error("Failed to populate station list", e);
                 }
-                shell.setCursor(arrowCursor);
+                setCursorBusy(false);
             }
         });
 
@@ -1164,7 +1160,8 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                     String line = topDataList.getItem(topDataList
                             .getSelectionIndex());
                     String selectedLid = line.substring(0, line.indexOf(" "));
-                    populateBottomList(selectedLid, tsOrderCbo.getSelectionIndex());
+                    populateBottomList(selectedLid,
+                            tsOrderCbo.getSelectionIndex());
                 }
             }
         });
@@ -1180,15 +1177,30 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         nameRdo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.setCursor(waitCursor);
+                setCursorBusy(true);
                 try {
                     populateStationList();
+                    checkBottomButtons();
                 } catch (VizException e) {
                     statusHandler.error("Failed to populate station list", e);
                 }
-                shell.setCursor(arrowCursor);
+                setCursorBusy(false);
             }
         });
+    }
+
+    /**
+     * Clear or set the shell's cursor to the current wait cursor.
+     * 
+     * @param state
+     *            - true set to busy cursor
+     */
+    private void setCursorBusy(boolean state) {
+        Cursor waitCursor = null;
+        if (state) {
+            waitCursor = getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
+        }
+        shell.setCursor(waitCursor);
     }
 
     /**
@@ -1212,6 +1224,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                             lidList.get(topDataList.getSelectionIndex()),
                             tsOrderCbo.getSelectionIndex());
                 }
+                checkBottomButtons();
             }
         });
     }
@@ -1252,6 +1265,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         bottomDataList.setLayoutData(gd);
         bottomDataList.setFont(font);
         bottomDataList.addListener(SWT.Selection, new Listener() {
+            @Override
             public void handleEvent(Event e) {
                 correctSelections();
             }
@@ -1318,7 +1332,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -1372,7 +1386,11 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         endDayBtn.setText(String.valueOf(endCal.get(Calendar.DAY_OF_MONTH)));
         endHourBtn.setText(String.valueOf(endCal.get(Calendar.HOUR_OF_DAY)));
     }
-    
+
+    /**
+     * Update the time button values based on beginCal and endCal current
+     * values.
+     */
     private void updateTimeButtons() {
         beginYearBtn.setText(String.valueOf(beginCal.get(Calendar.YEAR)));
         beginMonthBtn.setText(String.valueOf(beginCal.get(Calendar.MONTH) + 1));
@@ -1458,6 +1476,22 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     }
 
     /**
+     * Update the enable status of the bottom buttons.
+     */
+    private void checkBottomButtons() {
+        boolean enabled = false;
+        if (modeCbo.getText().equals(PREDEFINED_GROUP)) {
+            enabled = true;
+        } else {
+            enabled = topDataList.getSelectionCount() > 0;
+        }
+
+        graphButton.setEnabled(enabled);
+        tableButton.setEnabled(enabled);
+        bothButton.setEnabled(enabled);
+    }
+
+    /**
      * Populate the details list
      */
     private void populateBottomList(String selectedLid, int tsSelection) {
@@ -1488,7 +1522,6 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 si.setTs((String) row[2]);
                 si.setExt((String) row[3]);
                 si.setDur((Integer) row[4]);
-                // siteInfoList.add(si);
 
                 if (si.getPe().startsWith("H")) {
                     if (!si.getPe().equals(prevPE)) {
@@ -1573,6 +1606,14 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         } else {
             this.populateGroupListForStandalone();
         }
+
+        for (GroupInfo gi : this.groupList) {
+            for (PageInfo pi : gi.getPageInfoList()) {
+                for (GraphData gd : pi.getGraphDataList()) {
+                    gd.saveTraceInfo();
+                }
+            }
+        }
     }
 
     /**
@@ -1586,7 +1627,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         File file = pm.getStaticFile(HydroConstants.GROUP_DEFINITION);
 
         if (file != null) {
-            groupConfigFilePath = file.getAbsolutePath();           
+            groupConfigFilePath = file.getAbsolutePath();
         }
         this.readGroupList();
     }
@@ -1600,7 +1641,6 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         groupDataList.removeAll();
 
         if (this.groupConfigFilePath != null) {
-        
             this.readGroupList();
         }
     }
@@ -1609,6 +1649,10 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
      * Read the Group List file.
      */
     private void readGroupList() {
+        GroupInfo groupInfo = null;
+        PageInfo pageInfo = null;
+        GraphData graphData = null;
+
         try {
             BufferedReader in = new BufferedReader(new FileReader(
                     groupConfigFilePath));
@@ -1620,11 +1664,153 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 if (str.trim().equals("")) {
                     continue;
                 }
-                processGroupData(str);
+
+                boolean showpp_flag = false;
+
+                // Remove any leading whitespace
+                String line = str.replaceAll("^\\s+", "");
+
+                if (line.startsWith(GROUP)) {
+                    groupInfo = new GroupInfo();
+                    groupInfo.setGroupSelected(true);
+                    groupList.add(groupInfo);
+                }
+                String[] parts = line.split(":");
+
+                if (parts[0].equals(GROUP)) {
+                    String[] pairs = parts[1].split(",");
+                    for (String s : pairs) {
+                        String[] values = s.split("=", 2);
+
+                        // make sure we have values to go with the key
+                        if (values.length > 1) {
+                            if ((values[0] != null)
+                                    && values[0].equalsIgnoreCase(NAME)) {
+                                if (values[1] != null)
+                                    groupInfo.setGroupName(values[1]);
+                                groupDataList.add(groupInfo.getGroupName());
+                            } else if (values[0].equalsIgnoreCase(DESCRIPT)) {
+                                groupInfo.setDescription(values[1]);
+                            } else if (values[0].equalsIgnoreCase(GRID)) {
+                                if (values[1].equalsIgnoreCase("T")) {
+                                    groupInfo.setGridLines(true);
+                                } else {
+                                    groupInfo.setGridLines(false);
+                                }
+                            } else if (values[0].equalsIgnoreCase(TRACEMODE)) {
+                                groupInfo.setTraceMode(values[1]);
+                            } else if (values[0].equalsIgnoreCase(PASTHOURS)) {
+                                groupInfo.setPastHours(Integer
+                                        .parseInt(values[1]));
+                            } else if (values[0].equalsIgnoreCase(FUTUREHOURS)) {
+                                groupInfo.setFutureHours(Integer
+                                        .parseInt(values[1]));
+                            } else {
+                                statusHandler.warn("Invalid key/value pair: "
+                                        + s);
+                            }
+                        }
+                    }
+                } else if (parts[0].equals(PAGE)) {
+                    String[] values = parts[1].split("=", 2);
+                    if (values.length > 1) {
+                        pageInfo = new PageInfo();
+                        pageInfo.setTitle(values[1]);
+                        groupInfo.addPageInfo(pageInfo);
+                    }
+                } else if (parts[0].equals(GRAPH)) {
+                    graphData = new GraphData();
+
+                    String[] pairs = parts[1].split(",");
+                    for (String s : pairs) {
+                        String[] values = s.split("=", 2);
+                        if (values.length > 1) {
+                            if (values[0].equalsIgnoreCase(POS)) {
+                                graphData.setGraph_pos(Integer
+                                        .parseInt(values[1]));
+                            } else if (values[0].equalsIgnoreCase(XSIZE)) {
+                                graphData.setXsize(Integer.parseInt(values[1]));
+                            } else if (values[0].equalsIgnoreCase(YSIZE)) {
+                                graphData.setYsize(Integer.parseInt(values[1]));
+                            } else if (values[0].equalsIgnoreCase(YLINEAR)) {
+                                graphData.setYlinear(values[1]);
+                            } else if (values[0].equalsIgnoreCase(YSCALE)) {
+                                graphData.setYscale(values[1]);
+                            } else if (values[0].equalsIgnoreCase(SHOWCAT)) {
+                                if (values[1].equalsIgnoreCase("T")) {
+                                    graphData.setShowcat(true);
+                                } else {
+                                    graphData.setShowcat(false);
+                                }
+                            } else if (values[0].equalsIgnoreCase(DERIVEPP)) {
+                                graphData.setDerivepp(values[1]);
+                            } else if (values[0].equalsIgnoreCase(SHOWPP)) {
+                                if (values[1].equalsIgnoreCase("T")) {
+                                    showpp_flag = true;
+                                } else {
+                                    showpp_flag = false;
+                                }
+                            } else if (values[0]
+                                    .equalsIgnoreCase(LATESTFCSTONLY)) {
+                                if (values[1].equalsIgnoreCase("T")) {
+                                    graphData.setLatestfcstonly(true);
+                                } else {
+                                    graphData.setLatestfcstonly(false);
+                                }
+                            } else {
+                                statusHandler.warn("Invalid key/value pair: "
+                                        + s);
+                            }
+                        }
+                    }
+
+                    // handle the case where there isn't a page element when
+                    // there should be
+                    if (pageInfo == null) {
+                        pageInfo = new PageInfo();
+                        groupInfo.addPageInfo(pageInfo);
+                    }
+                    pageInfo.addGraphData(graphData);
+                } else if (parts[0].equals(TRACE)) {
+                    TraceData td = new TraceData();
+                    String[] pairs = parts[1].split(",");
+                    for (String s : pairs) {
+                        String[] values = s.split("=", 2);
+                        if (values.length > 1) {
+                            if (values[0].equalsIgnoreCase(STN)) {
+                                td.setLid(values[1]);
+                            } else if (values[0]
+                                    .equalsIgnoreCase(HydroConstants.PC)) {
+                                td.setPc(values[1]);
+                                if (showpp_flag == true)
+                                    graphData.setShowpp(true);
+                                else
+                                    graphData.setShowpp(false);
+                            } else if (values[0].equalsIgnoreCase(COLOR)) {
+                                td.setColorName(values[1]);
+                            }
+                        }
+                    }
+                    graphData.addTrace(td);
+
+                    graphData.setBeginDate(beginDate);
+                    graphData.setEndDate(endDate);
+                } else {
+                    statusHandler
+                            .warn("Error in Group Definition Config file: "
+                                    + line);
+                }
+
+                // select the first item in the list
+                if (groupDataList.getItemCount() > 0) {
+                    groupDataList.select(0);
+                }
+
             }
             in.close();
         } catch (IOException e) {
-            statusHandler.error("Failed to read group definition configuration.", e);
+            statusHandler.error(
+                    "Failed to read group definition configuration.", e);
         }
     }
 
@@ -1786,7 +1972,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             }
         }
 
-        // Reset the siteInfoList selections
+        // Reset the selections
         int selectedIndex = bottomDataList.getSelectionIndex();
 
         for (int i = 0; i < siteInfoList.size(); i++) {
@@ -1831,7 +2017,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
 
         return result;
     }
-    
+
     /**
      * Action called when the both button is pressed.
      */
@@ -1846,143 +2032,6 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         bothButton.setEnabled(true);
         tabularDlg.getShell().moveAbove(this.shell);
         timeSeriesDisplayDlg.getShell().moveAbove(this.shell);
-    }
-
-    /**
-     * Process the lines in the group config file.
-     * 
-     * @param line
-     */
-    private void processGroupData(String line) {
-    	Boolean showpp_flag = false;
-
-    	// Remove any leading whitespace
-        line = line.replaceAll("^\\s+", "");
-
-        if (line.startsWith(GROUP)) {
-            groupInfo = new GroupInfo();
-            groupInfo.setGroupSelected(true);
-            groupList.add(groupInfo);
-        }
-        String[] parts = line.split(":");
-      
-        if (parts[0].equals(GROUP)) {    
-            String[] pairs = parts[1].split(",");
-            for (String s : pairs) {
-                String[] values = s.split("=", 2);
-
-                // make sure we have values to go with the key
-                if (values.length > 1) {
-                    if ((values[0] != null) && values[0].equalsIgnoreCase(NAME)) {
-                        if (values[1] != null)
-                            groupInfo.setGroupName(values[1]);
-                        groupDataList.add(groupInfo.getGroupName());
-                    } else if (values[0].equalsIgnoreCase(DESCRIPT)) {
-                        groupInfo.setDescription(values[1]);
-                    } else if (values[0].equalsIgnoreCase(GRID)) {
-                        if (values[1].equalsIgnoreCase("T")) {
-                            groupInfo.setGridLines(true);
-                        } else {
-                            groupInfo.setGridLines(false);
-                        }
-                    } else if (values[0].equalsIgnoreCase(TRACEMODE)) {
-                        groupInfo.setTraceMode(values[1]);                     
-                    } else if (values[0].equalsIgnoreCase(PASTHOURS)) {
-                        groupInfo.setPastHours(Integer.parseInt(values[1]));
-                    } else if (values[0].equalsIgnoreCase(FUTUREHOURS)) {
-                        groupInfo.setFutureHours(Integer.parseInt(values[1]));
-                    } else {
-                        statusHandler.warn("Invalid key/value pair: " + s);
-                    }
-                }
-            }
-        } else if (parts[0].equals(PAGE)) {
-            String[] values = parts[1].split("=", 2);
-            if (values.length > 1) {
-                pageInfo = new PageInfo();
-                pageInfo.setTitle(values[1]);
-                groupInfo.addPageInfo(pageInfo);
-            }
-        } else if (parts[0].equals(GRAPH)) {
-            graphData = new GraphData();
-            
-            String[] pairs = parts[1].split(",");
-            for (String s : pairs) {
-                String[] values = s.split("=", 2);
-                if (values.length > 1) {
-                    if (values[0].equalsIgnoreCase(POS)) {
-                        graphData.setGraph_pos(Integer.parseInt(values[1]));
-                    } else if (values[0].equalsIgnoreCase(XSIZE)) {
-                        graphData.setXsize(Integer.parseInt(values[1]));
-                    } else if (values[0].equalsIgnoreCase(YSIZE)) {
-                        graphData.setYsize(Integer.parseInt(values[1]));
-                    } else if (values[0].equalsIgnoreCase(YLINEAR)) {
-                        graphData.setYlinear(values[1]);
-                    } else if (values[0].equalsIgnoreCase(YSCALE)) {
-                        graphData.setYscale(values[1]);
-                    } else if (values[0].equalsIgnoreCase(SHOWCAT)) {
-                        if (values[1].equalsIgnoreCase("T")) {
-                            graphData.setShowcat(true);
-                        } else {
-                            graphData.setShowcat(false);
-                        }
-                    } else if (values[0].equalsIgnoreCase(DERIVEPP)) {
-                        graphData.setDerivepp(values[1]);
-                    } else if (values[0].equalsIgnoreCase(SHOWPP)) {
-                        if (values[1].equalsIgnoreCase("T")) {                        
-                        	showpp_flag = true;
-                        } else {                        
-                        	showpp_flag = false;
-                        }
-                    } else if (values[0].equalsIgnoreCase(LATESTFCSTONLY)) {
-                        if (values[1].equalsIgnoreCase("T")) {
-                            graphData.setLatestfcstonly(true);
-                        } else {
-                            graphData.setLatestfcstonly(false);
-                        }
-                    } else {
-                        statusHandler.warn("Invalid key/value pair: " + s);
-                    }
-                }
-            }
-            // handle the case where there isn't a page element when
-            // there should be
-            if (pageInfo == null) {
-                pageInfo = new PageInfo();
-            }
-            pageInfo.addGraphData(graphData);
-        } else if (parts[0].equals(TRACE)) {
-            TraceData td = new TraceData();
-            String[] pairs = parts[1].split(",");
-            for (String s : pairs) {
-                String[] values = s.split("=", 2);
-                if (values.length > 1) {
-                    if (values[0].equalsIgnoreCase(STN)) {
-                        td.setLid(values[1]);
-                    } else if (values[0].equalsIgnoreCase(HydroConstants.PC)) {
-                        td.setPc(values[1]);
-                        if (showpp_flag == true)
-                        	graphData.setShowpp(true);
-                        else
-                        	graphData.setShowpp(false);
-                    } else if (values[0].equalsIgnoreCase(COLOR)) {
-                        td.setColorName(values[1]);
-                    }
-                }
-            }
-            graphData.addTrace(td);                       
-            
-            graphData.setBeginDate(beginDate);
-            graphData.setEndDate(endDate);
-
-        } else {
-            statusHandler.warn("Error in Group Definition Config file: " + line);
-        }       
-        
-        // select the first item in the list 
-        if (groupDataList.getItemCount() > 0) {
-        	groupDataList.select(0);
-        }
     }
 
     /**
@@ -2004,7 +2053,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             tabInfoList.clear();
 
             if ((tabularDlg != null) && tabularDlg.isOpen()) {
-                tabularDlg.disposeTabularTS();
+                tabularDlg.disposeDialog();
             }
 
             tabularDlg = new TabularTimeSeriesDlg(shell, beginCal.getTime(),
@@ -2016,7 +2065,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
 
             /* Set up the GraphData objects */
             if (modeCbo.getText().equals(STATION_SELECTION)) {
-                groupInfo = new GroupInfo();
+                GroupInfo groupInfo = new GroupInfo();
                 groupInfo.setCurrentPage(0);
 
                 /* Get the data from the station list */
@@ -2050,7 +2099,8 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             } else {
 
                 /* Set the group info object */
-                groupInfo = groupList.get(groupDataList.getSelectionIndex());
+                GroupInfo groupInfo = groupList.get(groupDataList
+                        .getSelectionIndex());
                 tabularDlg.setGroupInfo(groupInfo);
 
                 for (PageInfo pi : groupInfo.getPageInfoList()) {
@@ -2092,11 +2142,10 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         } else {
 
             if (timeSeriesDisplayDlg != null) {
-                bounds = timeSeriesDisplayDlg.getDialogBounds();
                 timeSeriesDisplayDlg.disposeDialog();
             }
 
-            timeSeriesDisplayDlg = new TimeSeriesDisplayDlg(shell, bounds, this);
+            timeSeriesDisplayDlg = new TimeSeriesDisplayDlg(shell, this);
 
             PageInfo pageInfo = new PageInfo();
             LIDData firstLidData = new LIDData();
@@ -2106,7 +2155,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             /* Set up the GraphData objects */
             if (modeCbo.getText().equals(STATION_SELECTION)) {
                 int numberGraphs = 1;
-                groupInfo = new GroupInfo();
+                GroupInfo groupInfo = new GroupInfo();
                 groupInfo.setCurrentPage(0);
 
                 /* Get the data from the station list */
@@ -2122,7 +2171,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 String s = bottomDataList.getItem(indices[0]);
                 String[] s2 = s.split("\\s+");
                 firstLidData.setPe(s2[0]);
-                                
+
                 firstLidData.setDur(TimeSeriesUtil.convertDurNameToValue(s));
 
                 ArrayList<TraceData> dataList = new ArrayList<TraceData>();
@@ -2135,8 +2184,9 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                     String selection = bottomDataList.getItem(indices[i]);
                     String[] pieces2 = selection.split("\\s+");
                     LIDData lidData = new LIDData();
-                   
-                    String  durValue = TimeSeriesUtil.convertDurNameToValue(selection);
+
+                    String durValue = TimeSeriesUtil
+                            .convertDurNameToValue(selection);
                     lidData.setDur(durValue);
                     lidData.setPe(pieces2[0]);
 
@@ -2146,11 +2196,11 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                     td.setPe(pieces2[0]);
                     td.setTs(pieces2[1]);
                     td.setExtremum(pieces2[2]);
-                   
+
                     if (pieces2[3].contains("=")) {
                         td.setDur("0");
                     } else {
-                    	td.setDur(durValue);
+                        td.setDur(durValue);
                     }
 
                     dataList.add(td);
@@ -2246,24 +2296,25 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                         .getSelectionIndex());
 
                 if (prevGroupInfo == null || !prevGroupInfo.equals(groupInfo)) {
-	                int pastHours = groupInfo.getPastHours();
-	                int futureHours = groupInfo.getFutureHours();
-	                beginCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-	                beginCal.add(Calendar.HOUR_OF_DAY, pastHours * -1);
-	
-	                endCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-	                endCal.add(Calendar.HOUR_OF_DAY, futureHours);
-	               
-	                beginDate = beginCal.getTime();
-	                endDate = endCal.getTime();
-	                
-	                updateTimeButtons();
-	
-	                groupInfo.setPastHours(pastHours);
-	                groupInfo.setFutureHours(futureHours);
+                    int pastHours = groupInfo.getPastHours();
+                    int futureHours = groupInfo.getFutureHours();
+                    beginCal = Calendar
+                            .getInstance(TimeZone.getTimeZone("GMT"));
+                    beginCal.add(Calendar.HOUR_OF_DAY, pastHours * -1);
+
+                    endCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+                    endCal.add(Calendar.HOUR_OF_DAY, futureHours);
+
+                    beginDate = beginCal.getTime();
+                    endDate = endCal.getTime();
+
+                    updateTimeButtons();
+
+                    groupInfo.setPastHours(pastHours);
+                    groupInfo.setFutureHours(futureHours);
                 }
                 timeSeriesDisplayDlg.setGroupInfo(groupInfo);
-                
+
                 prevGroupInfo = groupInfo;
             }
             timeSeriesDisplayDlg.setBeginDate(beginDate);
@@ -2274,7 +2325,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             } else {
                 timeSeriesDisplayDlg.createNewGraph();
             }
-            
+
             graphButton.setEnabled(true);
         }
     }
@@ -2385,96 +2436,98 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             LinkedHashMap<String, ArrayList<SiteInfo>> dataMap,
             boolean tsSelected) {
         if (dataMap.size() > 0) {
-        	final String OTHER = "OTHER";
+            final String OTHER = "OTHER";
             Set<String> peSet = dataMap.keySet();
             Iterator<String> iter = peSet.iterator();
             Map<String, ArrayList<SiteInfo>> tsMap = new HashMap<String, ArrayList<SiteInfo>>();
-            for (String ts: TS_ORDER) {
-            	tsMap.put(ts, new ArrayList<SiteInfo>());
+            for (String ts : TS_ORDER) {
+                tsMap.put(ts, new ArrayList<SiteInfo>());
             }
             tsMap.put(OTHER, new ArrayList<SiteInfo>());
-            
+
             ArrayList<SiteInfo> list = null;
-            
-        	String selectedTs = tsOrderCbo.getItem(tsOrderCbo
+
+            String selectedTs = tsOrderCbo.getItem(tsOrderCbo
                     .getSelectionIndex());
 
             while (iter.hasNext()) {
                 String pe = iter.next();
                 list = dataMap.get(pe);
-                
-                for (String ts: TS_ORDER) {
-                	tsMap.get(ts).clear();
+
+                for (String ts : TS_ORDER) {
+                    tsMap.get(ts).clear();
                 }
-                
+
                 tsMap.get(OTHER).clear();
-                
-                OUTER: for (SiteInfo si: list) {
-                	for (String ts: TS_ORDER) {
-                		if (si.getTs().startsWith(ts)) {
-                			tsMap.get(ts).add(si);
-                			continue OUTER;
-                		}
-                	}
-                	
-                	tsMap.get(OTHER).add(si);
+
+                OUTER: for (SiteInfo si : list) {
+                    for (String ts : TS_ORDER) {
+                        if (si.getTs().startsWith(ts)) {
+                            tsMap.get(ts).add(si);
+                            continue OUTER;
+                        }
+                    }
+
+                    tsMap.get(OTHER).add(si);
                 }
-                
+
                 if (tsSelected) {
-                	ArrayList<SiteInfo> siList = tsMap.get(selectedTs.substring(0,1));
-                	ArrayList<SiteInfo> numList = new ArrayList<SiteInfo>();
-                	for (SiteInfo si: siList) {
-                		// Add the selected TS
-                		if (si.getTs().equals(selectedTs)) {
-                		    // Check for TS values with a digit, those go after the TS
-                		    // values not containing digits
-                		    if (si.getTs().matches("\\D*\\d+\\D*")) {
-                		        numList.add(si);
-                		    } else {
-                		        bottomDataList.add(formatDataLine(si));
-                		        siteInfoList.add(si);
-                		    }
-                		}
-                	}
-                	for (SiteInfo si: numList) {
-                        bottomDataList.add(formatDataLine(si));
-                        siteInfoList.add(si);
-                	}
-                } 
-                
-                ArrayList<SiteInfo> numList = new ArrayList<SiteInfo>();
-                for (String ts: TS_ORDER) {
-                	ArrayList<SiteInfo> siList = tsMap.get(ts);
-                	for (SiteInfo si: siList) {
-                		if (!siteInfoList.contains(si)) {
+                    ArrayList<SiteInfo> siList = tsMap.get(selectedTs
+                            .substring(0, 1));
+                    ArrayList<SiteInfo> numList = new ArrayList<SiteInfo>();
+                    for (SiteInfo si : siList) {
+                        // Add the selected TS
+                        if (si.getTs().equals(selectedTs)) {
+                            // Check for TS values with a digit, those go after
+                            // the TS
+                            // values not containing digits
                             if (si.getTs().matches("\\D*\\d+\\D*")) {
                                 numList.add(si);
                             } else {
                                 bottomDataList.add(formatDataLine(si));
                                 siteInfoList.add(si);
                             }
-                		}
-                	}
-                	
-                    for (SiteInfo si: numList) {
+                        }
+                    }
+                    for (SiteInfo si : numList) {
+                        bottomDataList.add(formatDataLine(si));
+                        siteInfoList.add(si);
+                    }
+                }
+
+                ArrayList<SiteInfo> numList = new ArrayList<SiteInfo>();
+                for (String ts : TS_ORDER) {
+                    ArrayList<SiteInfo> siList = tsMap.get(ts);
+                    for (SiteInfo si : siList) {
+                        if (!siteInfoList.contains(si)) {
+                            if (si.getTs().matches("\\D*\\d+\\D*")) {
+                                numList.add(si);
+                            } else {
+                                bottomDataList.add(formatDataLine(si));
+                                siteInfoList.add(si);
+                            }
+                        }
+                    }
+
+                    for (SiteInfo si : numList) {
                         bottomDataList.add(formatDataLine(si));
                         siteInfoList.add(si);
                     }
                     numList.clear();
                 }
-                
+
                 numList.clear();
-            	ArrayList<SiteInfo> siList = tsMap.get(OTHER);
-            	for (SiteInfo si: siList) {
+                ArrayList<SiteInfo> siList = tsMap.get(OTHER);
+                for (SiteInfo si : siList) {
                     if (si.getTs().matches("\\D*\\d+\\D*")) {
                         numList.add(si);
                     } else {
                         bottomDataList.add(formatDataLine(si));
                         siteInfoList.add(si);
                     }
-            	}
-            	
-                for (SiteInfo si: numList) {
+                }
+
+                for (SiteInfo si : numList) {
                     bottomDataList.add(formatDataLine(si));
                     siteInfoList.add(si);
                 }
@@ -2483,6 +2536,12 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         }
     }
 
+    /**
+     * Update the dialog prepare for open.
+     * 
+     * @param gageData
+     * @param displayGraph
+     */
     public void updateSelection(GageData gageData, boolean displayGraph) {
         currentLid = gageData.getLid();
         this.displayGraph = displayGraph;
@@ -2497,12 +2556,10 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         }
         setCurrentData();
         opened();
-//        topDataList.select(topDataList.getSelectionIndex());
-//        topDataList.showSelection();
     }
 
     /**
-     * Build a Bottom Data List entry.
+     * Build a Bottom Data List entry. opened *
      * 
      * @param si
      *            The SiteInfo object
@@ -2539,5 +2596,16 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
 
     public void enableBothButton() {
         this.bothButton.setEnabled(true);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
+     */
+    @Override
+    protected void preOpened() {
+        super.preOpened();
+        checkBottomButtons();
     }
 }

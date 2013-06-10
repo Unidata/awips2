@@ -48,6 +48,9 @@ import com.raytheon.viz.core.gl.objects.GLTextureObject;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 18, 2011            mschenke     Initial creation
+ * Feb 14, 2013 1616       bsteffen    Add option for interpolation of colormap
+ *                                     parameters, disable colormap interpolation
+ *                                     by default.
  * 
  * </pre>
  * 
@@ -130,7 +133,7 @@ public class GLColormappedImageExtension extends AbstractGLSLImagingExtension
             gl.glActiveTexture(GL.GL_TEXTURE1);
             cmapTexture.bind(gl, GL.GL_TEXTURE_1D);
 
-            if (glImage.isInterpolated()) {
+            if (usedColorMapParameters.isInterpolate()) {
                 gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MIN_FILTER,
                         GL.GL_LINEAR);
                 gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MAG_FILTER,

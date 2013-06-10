@@ -26,6 +26,8 @@ import com.raytheon.uf.common.time.DataTime;
  * Date         Ticket#    Engineer        Description
  * ------------ ---------- --------------- ------------------------
  * 12/05/2012   865        qzhou, sgurung  Initial creation.
+ * 01/07/2013   865        qzhou           Change "_" to "-". Add wavelength default "NA". Add "Site" for Halpha.
+ * 01/28/2013   865        qzhou           Changed float to double for intTime.
  * </pre>
  * 
  * @author qzhou, sgurung
@@ -46,6 +48,8 @@ public class SolarImageDecoder extends AbstractDecoder {
     private static final String OBSERVATORY = "OBSRVTRY";
 
     private static final String INT_TIME = "INT_TIME";
+
+    private static final String SITE = "SITE";
 
     private static final String[] OBS_TIME_STRINGS = { "DATE_OBS", "DATE-OBS", "DATEOBS"};
     
@@ -89,7 +93,7 @@ public class SolarImageDecoder extends AbstractDecoder {
         } catch (FitsException e) {
             // TODO Auto-generated catch block. Please revise as appropriate.
             logger.error(e);
-            return new PluginDataObject[0];
+            //return new PluginDataObject[0];
         }
 
         if (hdu == null) {
@@ -99,15 +103,29 @@ public class SolarImageDecoder extends AbstractDecoder {
 
         record.setReportType("SOLARIMAGE");
         record.setImageHDUNum(imageHDUNum);
-        record.setInstrument(hdu.getInstrument() + ((hdu.getTrimmedString(DETECTOR)!=null) ? "-" + hdu.getTrimmedString(DETECTOR) :""));
+        
+         // combine instrument-detector to instrument
+         String instrument = hdu.getInstrument();
+         String detector = hdu.getTrimmedString(DETECTOR);
+         if (instrument == null)
+             instrument = "NA";
+         else
+             instrument = instrument.replaceAll("_", "-");       
+         record.setInstrument(instrument + ((detector!=null) ? "-" + detector.replaceAll("_", "-") :""));
+  
        
         String telescope = hdu.getTelescope();
         if (telescope != null && telescope.startsWith("SDO/"))
         		telescope = telescope.substring(0, 3);	
-        if (telescope != null && telescope.equals(STEREO))  // find which one (A or B)
-        		telescope = hdu.getTrimmedString(OBSERVATORY);	
-        record.setSatellite(telescope);
+         if (telescope != null && telescope.equals(STEREO)) { // find which one (A or B)
+             telescope = hdu.getTrimmedString(OBSERVATORY);  //STEREO_A, STEREO_B
+         }
+         record.setSatellite(telescope.replaceAll("_", "-"));
 
+         if (telescope.equals("NSO-GONG"))
+             record.setSite(hdu.getTrimmedString(SITE));
+         else
+             record.setSite("NA");
 
         String wavelen = hdu.getTrimmedString(WAVELENGTH);
         if (wavelen == null) {
@@ -115,35 +133,29 @@ public class SolarImageDecoder extends AbstractDecoder {
             if (hdu.getHeader().containsKey(WAVELENGTH))
                 wavelen = hdu.getHeader().findCard(WAVELENGTH).getValue();
         }
-        record.setWavelength(wavelen);
+            
+         if (wavelen == null || wavelen.isEmpty() || wavelen.trim().equals("0") || wavelen.trim().equals("0.0"))
+             wavelen = "NA";
+        
+         record.setWavelength(wavelen.toUpperCase().replaceAll("_", "-"));
 
         // Temporary hack for Thematic data
-        if (wavelen == null && hdu.getTelescope().startsWith("SDO/AIA")) {
+        if (hdu.getTrimmedString(WAVELENGTH) == null && hdu.getTelescope().startsWith("SDO/AIA")) {
             BasicHDU tempHDU = fits.getHDU(1);
             if (tempHDU != null) {
                 String value = tempHDU.getTrimmedString("TTYPE1");
                 if (value != null ) {
                 	for (String str: THEMATIC) {
                 		if (value.contains(str)) {
-                			record.setWavelength("Thematic");
+                			record.setWavelength("THEMATIC");
                 			break;
                 		}
                 	}
                 }
             }
         }
-//        if (wavelen == null) {
-//            String themes = "themes";
-//            BasicHDU tempHDU = fits.getHDU(1);
-//            if (tempHDU != null) {
-//                String value = tempHDU.getTrimmedString("TTYPE1");
-//                if (value != null && value.equals(themes)) {
-//                    record.setWavelength(themes);
-//                }
-//            }
-//        }
 
-        record.setIntTime(hdu.getHeader().getFloatValue(INT_TIME));
+        record.setIntTime(hdu.getHeader().getDoubleValue(INT_TIME));
 
         Calendar obTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         obTime.setTime(getObservationTime(hdu));

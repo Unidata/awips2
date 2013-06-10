@@ -21,8 +21,8 @@ package com.raytheon.uf.common.dataplugin.ffmp;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,6 +31,7 @@ import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOUR
 import com.raytheon.uf.common.monitor.xml.SourceXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * FFMP Data Container
@@ -45,6 +46,8 @@ import com.raytheon.uf.common.status.UFStatus;
  * 07/31/12     578      D.Hladky    finished it
  * 09/27/12		DR 15471 G.Zhang	 Fixed ConcurrentModificationException
  * 01/27/13     1478     D. Hladky   Re-worked to help with memory size and NAS read write stress
+ * Apr 16, 2013 1912        bsteffen    Initial bulk hdf5 access for ffmp
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -56,11 +59,11 @@ public class FFMPDataContainer {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPDataContainer.class);
 
-    private final ConcurrentHashMap<String, FFMPBasinData> basinDataMap = new ConcurrentHashMap<String, FFMPBasinData>();// DR
+    private final Map<String, FFMPBasinData> basinDataMap = new ConcurrentHashMap<String, FFMPBasinData>();// DR
 
     private String sourceName = null;
-
-    private String filePath = null;
+    
+    private boolean isPurged = false;
 
     public FFMPDataContainer() {
 
@@ -72,7 +75,7 @@ public class FFMPDataContainer {
      */
     public FFMPDataContainer(String sourceName) {
         this.sourceName = sourceName;
-        basinDataMap.put("ALL", new FFMPBasinData("ALL"));
+        basinDataMap.put(FFMPRecord.ALL, new FFMPBasinData(FFMPRecord.ALL));
         // System.out.println("Creating source: " + sourceName);
     }
 
@@ -280,9 +283,10 @@ public class FFMPDataContainer {
     public boolean containsKey(Date date) {
         boolean contains = false;
 
-        if (getBasinData("ALL") != null) {
+        if (getBasinData(FFMPRecord.ALL) != null) {
 
-            HashMap<Long, FFMPBasin> basins = getBasinData("ALL").getBasins();
+            Map<Long, FFMPBasin> basins = getBasinData(FFMPRecord.ALL)
+                    .getBasins();
 
             synchronized (basins) {
                 for (Entry<Long, FFMPBasin> entry : basins.entrySet()) {
@@ -305,7 +309,7 @@ public class FFMPDataContainer {
      */
     public boolean containsKey(String sourceName) {
         boolean contains = false;
-        HashMap<Long, FFMPBasin> basins = getBasinData("ALL").getBasins();
+        Map<Long, FFMPBasin> basins = getBasinData(FFMPRecord.ALL).getBasins();
 
         synchronized (basins) {
             for (Entry<Long, FFMPBasin> entry : basins.entrySet()) {
@@ -338,10 +342,6 @@ public class FFMPDataContainer {
         }
     }
 
-    public String getFilePath() {
-        return filePath;
-    }
-
     public Set<String> getKeys() {
         return basinDataMap.keySet();
     }
@@ -359,7 +359,8 @@ public class FFMPDataContainer {
     public double getMaxValue(ArrayList<Long> pfafs, Date backDate,
             Date currDate, long expirationTime, boolean rate) {
 
-        double val = getBasinData("ALL").getAccumMaxValue(pfafs, currDate,
+        double val = getBasinData(FFMPRecord.ALL).getAccumMaxValue(pfafs,
+                currDate,
                 backDate, expirationTime, rate);
 
         return val;
@@ -373,7 +374,8 @@ public class FFMPDataContainer {
     public Date getNewest() {
         try {
 
-            HashMap<Long, FFMPBasin> basins = getBasinData("ALL").getBasins();
+            Map<Long, FFMPBasin> basins = getBasinData(FFMPRecord.ALL)
+                    .getBasins();
 
             synchronized (basins) {
                 for (Entry<Long, FFMPBasin> entry : basins.entrySet()) {
@@ -400,7 +402,8 @@ public class FFMPDataContainer {
      */
     public Date getOldest() {
         try {
-            HashMap<Long, FFMPBasin> basins = getBasinData("ALL").getBasins();
+            Map<Long, FFMPBasin> basins = getBasinData(FFMPRecord.ALL)
+                    .getBasins();
 
             synchronized (basins) {
                 for (Entry<Long, FFMPBasin> entry : basins.entrySet()) {
@@ -428,7 +431,8 @@ public class FFMPDataContainer {
     public List<Date> getOrderedTimes(Date barrierTime) {
         ArrayList<Date> orderedTimes = new ArrayList<Date>();
         try {
-            HashMap<Long, FFMPBasin> basins = getBasinData("ALL").getBasins();
+            Map<Long, FFMPBasin> basins = getBasinData(FFMPRecord.ALL)
+                    .getBasins();
 
             synchronized (basins) {
                 for (Entry<Long, FFMPBasin> entry : basins.entrySet()) {
@@ -457,7 +461,8 @@ public class FFMPDataContainer {
     public List<Long> getOrderedTimes() {
         ArrayList<Long> orderedTimes = new ArrayList<Long>();
         try {
-            HashMap<Long, FFMPBasin> basins = getBasinData("ALL").getBasins();
+            Map<Long, FFMPBasin> basins = getBasinData(FFMPRecord.ALL)
+                    .getBasins();
 
             synchronized (basins) {
                 for (Entry<Long, FFMPBasin> entry : basins.entrySet()) {
@@ -490,9 +495,11 @@ public class FFMPDataContainer {
      * @param backDate
      */
     public void purge(Date backDate) {
+        statusHandler.handle(Priority.INFO, "Purging "+getSourceName()+" Container back to: "+backDate);
         for (String huc : basinDataMap.keySet()) {
             getBasinData(huc).purgeData(backDate);
         }
+        setPurged(true);
     }
 
     /**
@@ -500,7 +507,7 @@ public class FFMPDataContainer {
      * 
      * @param cacheRecord
      */
-    public void setCacheData(FFMPAggregateRecord cacheRecord) {
+    public void setAggregateData(FFMPAggregateRecord cacheRecord) {
 
         // create a record from the cache record
         FFMPRecord record = new FFMPRecord(cacheRecord);
@@ -536,10 +543,6 @@ public class FFMPDataContainer {
         basinDataMap.put(huc, fftiData);
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
-    }
-
     public void setSourceName(String sourceName) {
         this.sourceName = sourceName;
     }
@@ -552,7 +555,7 @@ public class FFMPDataContainer {
      */
     public int size() {
 
-        HashMap<Long, FFMPBasin> basins = getBasinData("ALL").getBasins();
+        Map<Long, FFMPBasin> basins = getBasinData(FFMPRecord.ALL).getBasins();
 
         synchronized (basins) {
             for (Entry<Long, FFMPBasin> entry : basins.entrySet()) {
@@ -575,7 +578,7 @@ public class FFMPDataContainer {
     	if(fbd==null || key==null) 
     		return;
     	
-    	HashMap<Long,FFMPBasin> basins = fbd.getBasins();
+        Map<Long, FFMPBasin> basins = fbd.getBasins();
     	if(basins == null)
     		return;
     	
@@ -588,8 +591,24 @@ public class FFMPDataContainer {
      * Gets the basin data map
      * @return
      */
-    public ConcurrentHashMap<String, FFMPBasinData> getBasinMap() {
+    public Map<String, FFMPBasinData> getBasinMap() {
         return basinDataMap;
+    }
+
+    /**
+     * Sets whether this container has been purged or not
+     * @param isPurged
+     */
+    public void setPurged(boolean isPurged) {
+        this.isPurged = isPurged;
+    }
+
+    /**
+     * Has this container been purged?
+     * @return
+     */
+    public boolean isPurged() {
+        return isPurged;
     }
 
 }

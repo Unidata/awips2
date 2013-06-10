@@ -363,7 +363,7 @@ public class ConnectivityPreferenceDialog extends Dialog {
     }
 
     private void validateLocalization() {
-        ConnectivityManager.checkServer(localization, localizationCallback);
+        ConnectivityManager.checkHttpServer(localization, localizationCallback);
     }
 
     private void validateAlertviz() {

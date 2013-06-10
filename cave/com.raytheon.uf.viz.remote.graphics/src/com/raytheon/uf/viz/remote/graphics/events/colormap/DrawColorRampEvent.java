@@ -37,6 +37,9 @@ import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 3, 2012            mschenke     Initial creation
+ * Feb 14, 2013 1616       bsteffen    Add option for interpolation of colormap
+ *                                     parameters, disable colormap interpolation
+ *                                     by default.
  * 
  * </pre>
  * 
@@ -120,7 +123,6 @@ public class DrawColorRampEvent extends AbstractRemoteGraphicsRenderEvent {
         this.alpha = colorMap.alpha;
         this.brightness = colorMap.brightness;
         this.contrast = colorMap.contrast;
-        this.interpolate = colorMap.interpolate;
         this.extent = colorMap.extent;
     }
 
@@ -129,7 +131,6 @@ public class DrawColorRampEvent extends AbstractRemoteGraphicsRenderEvent {
         colorMap.alpha = alpha;
         colorMap.brightness = brightness;
         colorMap.contrast = contrast;
-        colorMap.interpolate = interpolate;
         colorMap.extent = extent;
         return colorMap;
     }

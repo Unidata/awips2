@@ -69,7 +69,7 @@ public enum DisplayFieldData {
     private String displayString;
 
     private DisplayFieldData(String dirToken, String displayString) {
-        this(dirToken, displayString, 3600, null);
+        this(dirToken, displayString, 1, null);
     }
 
     private DisplayFieldData(String dirToken, String displayString,
@@ -106,5 +106,20 @@ public enum DisplayFieldData {
     @Override
     public String toString() {
         return displayString;
+    }
+
+    /**
+     * A case-insensitive version of {@link DisplayFieldData#valueOf(String)}
+     * 
+     * @param displayFieldData
+     * @return
+     */
+    public static DisplayFieldData fromString(String displayFieldData) {
+        for (DisplayFieldData fieldData : DisplayFieldData.values()) {
+            if (fieldData.name().equalsIgnoreCase(displayFieldData)) {
+                return fieldData;
+            }
+        }
+        return null;
     }
 }

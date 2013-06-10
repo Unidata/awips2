@@ -76,6 +76,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
@@ -128,6 +129,8 @@ import com.vividsolutions.jts.operation.distance.DistanceOp;
  * 08/12		#760		B. Yin		Modify line factory to apply world wrap.
  * 09/12					B. Hebbard  Merge out RTS changes from OB12.9.1 - adds reset()
  * 11/12		#901/917  	J. Wu		Set the symbol in GFA text box in proper location/size
+ * 05/13                    Chin Chen   use IDescriptor instead of IMapDescriptor for used by Nsharp wind barb drawing
+ * 										
  * </pre>
  * 
  * @author sgilbert
@@ -148,7 +151,7 @@ public class DisplayElementFactory {
 	/**
 	 * Map Descriptor used for Lat/Lon to pixel coordinate transformations
 	 */
-	private IMapDescriptor mapDescriptor;
+	private IDescriptor/*IMapDescriptor*/ iDescriptor;
 	private GeometryFactory gf;
 	
 	/**
@@ -213,7 +216,15 @@ public class DisplayElementFactory {
 			IMapDescriptor mapDescriptor) {
 		
 		this.target = target;
-		this.mapDescriptor = mapDescriptor;
+		this.iDescriptor = mapDescriptor;
+		gf = new GeometryFactory();
+
+	}
+	public DisplayElementFactory(IGraphicsTarget target,
+			IDescriptor iDescriptor) {
+		
+		this.target = target;
+		this.iDescriptor = iDescriptor;
 		gf = new GeometryFactory();
 
 	}
@@ -226,26 +237,26 @@ public class DisplayElementFactory {
 	 * @return A list of IDisplayable elements
 	 */
 	public ArrayList<IDisplayable> createDisplayElements(ILine de, PaintProperties paintProps, boolean worldWrap) {
-	    
-		if ( worldWrap ) {
-	    elem = de;
-			ArrayList<IDisplayable> list = new ArrayList<IDisplayable>();
 
+		if ( worldWrap ) {
+			elem = de;
+			ArrayList<IDisplayable> list = new ArrayList<IDisplayable>();
+			
 			WorldWrapCorrector corrector = new WorldWrapCorrector(
-					mapDescriptor.getGridGeometry());
-	    
+					iDescriptor.getGridGeometry());
+
 			// put line points in a coordinate array 
 			Coordinate[] coord;
 			if ( de.isClosedLine() ){
 				coord = new Coordinate[de.getLinePoints().length+1];
 				for ( int ii = 0; ii < de.getLinePoints().length; ii++ ) {
 					coord[ ii ] = new Coordinate( de.getLinePoints()[ii].x,  de.getLinePoints()[ii].y);
-		}
+				}
 				coord[ de.getLinePoints().length ] = new Coordinate( de.getLinePoints()[0].x,  de.getLinePoints()[0].y);
 			}
 			else {
 				coord = new Coordinate[de.getLinePoints().length];
-		
+
 				for ( int ii = 0; ii < de.getLinePoints().length; ii++ ) {
 					coord[ ii ] = new Coordinate( de.getLinePoints()[ii].x,  de.getLinePoints()[ii].y);
 				}
@@ -261,25 +272,25 @@ public class DisplayElementFactory {
 			catch ( Exception e ){
 				System.out.println( "World wrap error: " + e.getMessage() );
 				return list;
-	    }
-		
+			}
+
 			if ( geo != null && geo.getNumGeometries() > 1 ){
 				for ( int ii = 0; ii < geo.getNumGeometries(); ii++ ){
 					Geometry geo1 = geo.getGeometryN( ii ); 
-					double[][] pixels = PgenUtil.latlonToPixel( geo1.getCoordinates(), mapDescriptor);
+					double[][] pixels = PgenUtil.latlonToPixel( geo1.getCoordinates(), (IMapDescriptor)iDescriptor);
 					double[][] smoothpts;
 					float density;
 
 					 //  Apply parametric smoothing on pixel coordinates, if required
-		if ( de.getSmoothFactor() > 0 ) {
-			float devScale = 50.0f;
-  	    	if ( de.getSmoothFactor() == 1 )  density = devScale / 1.0f;
-  	    	else density = devScale / 5.0f;
-  	    	smoothpts = CurveFitter.fitParametricCurve(pixels, density);
-  	    }
-		else {
-			smoothpts = pixels;
-		}
+					if ( de.getSmoothFactor() > 0 ) {
+						float devScale = 50.0f;
+						if ( de.getSmoothFactor() == 1 )  density = devScale / 1.0f;
+						else density = devScale / 5.0f;
+						smoothpts = CurveFitter.fitParametricCurve(pixels, density);
+					}
+					else {
+						smoothpts = pixels;
+					}
 
 					list.addAll( createDisplayElementsForLines( de, smoothpts, paintProps));					
 					
@@ -401,9 +412,9 @@ public class DisplayElementFactory {
 		ArrayList<IDisplayable> list = new ArrayList<IDisplayable>();
 		wfs = new IWireframeShape[ dspClr.length];
 		for ( int i=0; i< dspClr.length; i++) {
-			wfs[i] = target.createWireframeShape(false, mapDescriptor);
+			wfs[i] = target.createWireframeShape(false, iDescriptor);
 		}
-	    ss = target.createShadedShape(false, mapDescriptor, true);
+	    ss = target.createShadedShape(false, iDescriptor, true);
 	    
 		/*
 		 * Create arrow head, if needed
@@ -450,7 +461,7 @@ public class DisplayElementFactory {
 		else {
 			wfs[0].addLineSegment(pts);
 		}
-
+		
 		if ( isFilled ){
 			list.add( createFill(pts) );
 		}
@@ -516,7 +527,7 @@ public class DisplayElementFactory {
 		/*
 		 * convert lat/lon coordinates to pixel coordinates
 		 */
-	    pixels = PgenUtil.latlonToPixel(pts, mapDescriptor);
+	    pixels = PgenUtil.latlonToPixel(pts,(IMapDescriptor) iDescriptor);
 
 	    /*
 		 *  If line is closed, make sure last point is same as first point
@@ -539,7 +550,7 @@ public class DisplayElementFactory {
 		}
 		
 		list.addAll( createDisplayElementsForLines( de, smoothpts, paintProps));
-
+		
 		/*
 	     *   Draw labels for contour lines.
 		 */ 
@@ -605,12 +616,12 @@ public class DisplayElementFactory {
         		}
         		else cntyUnion = gf.buildGeometry( gCollection );
 
-        		IShadedShape theShadedShape = target.createShadedShape(false, mapDescriptor, true);
+        		IShadedShape theShadedShape = target.createShadedShape(false, iDescriptor, true);
 
         //		IWireframeShape theWireframeShape = target.createWireframeShape(false, mapDescriptor);
 
         		JTSCompiler compiler = new JTSCompiler( theShadedShape,
-        					null, mapDescriptor, PointStyle.CROSS);
+        					null, iDescriptor, PointStyle.CROSS);
 
         		try {
 					compiler.handle((Geometry) cntyUnion.clone(), 
@@ -721,12 +732,12 @@ public class DisplayElementFactory {
         double sfactor = deviceScale * de.getSizeScale();
 
         ArrayList<IDisplayable> slist = new ArrayList<IDisplayable>();
-        sym = target.createWireframeShape(false, mapDescriptor);
-        ss = target.createShadedShape(false, mapDescriptor, true);
-    	IWireframeShape mask = target.createWireframeShape(false, mapDescriptor);
+        sym = target.createWireframeShape(false, iDescriptor);
+        ss = target.createShadedShape(false, iDescriptor, true);
+    	IWireframeShape mask = target.createWireframeShape(false, iDescriptor);
 
         double[] tmp = { de.getLocation().x, de.getLocation().y, 0.0 };
-        double[] center = mapDescriptor.worldToPixel(tmp);
+        double[] center = iDescriptor.worldToPixel(tmp);
 	    
         /*
 	     * Get color for creating displayables.
@@ -818,7 +829,7 @@ public class DisplayElementFactory {
          * Create the List to be returned, and wireframe shape
          */
         ArrayList<IDisplayable> slist = new ArrayList<IDisplayable>();
-        IWireframeShape kinkLine = target.createWireframeShape(false, mapDescriptor);
+        IWireframeShape kinkLine = target.createWireframeShape(false, iDescriptor);
 
 	    /*
 	     * Get color for creating displayables.
@@ -829,10 +840,10 @@ public class DisplayElementFactory {
          * Convert Map to pixel coordinates for the start and end points
          */ 
         double[] tmp = { kline.getStartPoint().x, kline.getStartPoint().y, 0.0 };
-        double[] first = mapDescriptor.worldToPixel(tmp);
+        double[] first = iDescriptor.worldToPixel(tmp);
         Coordinate startPixel = new Coordinate( first[0], first[1]);
         double[] tmp2 = { kline.getEndPoint().x, kline.getEndPoint().y, 0.0 };
-        double[] last = mapDescriptor.worldToPixel(tmp2);
+        double[] last = iDescriptor.worldToPixel(tmp2);
         Coordinate endPixel = new Coordinate( last[0], last[1]);
         
 		/*
@@ -877,7 +888,7 @@ public class DisplayElementFactory {
         	 * create new ShadedShape and FillDisplayElement for the filled arrow head,
         	 * and add it to return list
         	 */
-        	IShadedShape head = target.createShadedShape(false, mapDescriptor, false);
+        	IShadedShape head = target.createShadedShape(false, iDescriptor, false);
         	head.addPolygonPixelSpace(toLineString(ahead), new RGB (dspClr.getRed(),
         			                                                dspClr.getGreen(),
         			                                                dspClr.getBlue() ));
@@ -1013,18 +1024,18 @@ public class DisplayElementFactory {
         	else if ( tparent instanceof ContourMinmax ) {
         		if ( ((Text)txt).getAuto() != null &&  ((Text)txt).getAuto() ) {
         		    Coordinate loc = ((ISinglePoint)((ContourMinmax)tparent).getSymbol()).getLocation();
-        		    double[] pixel = mapDescriptor.worldToPixel( new double[] { loc.x, loc.y, 0.0 } );        	        
+        		    double[] pixel = iDescriptor.worldToPixel( new double[] { loc.x, loc.y, 0.0 } );        	        
         		    double sfactor = deviceScale * ((ContourMinmax)tparent).getSymbol().getSizeScale();
 
         		    pixel[1] = pixel[1] + sfactor * 5;
-        		    double[] nloc = mapDescriptor.pixelToWorld(new double[] { pixel[0], pixel[1], 0.0 } );
+        		    double[] nloc = iDescriptor.pixelToWorld(new double[] { pixel[0], pixel[1], 0.0 } );
                     ((Text)txt).setLocationOnly( new Coordinate( nloc[0], nloc[1])  );
         		}
          	}
         }
 
         double[] tmp = { txt.getPosition().x, txt.getPosition().y, 0.0 };
-        double[] loc = mapDescriptor.worldToPixel(tmp);
+        double[] loc = iDescriptor.worldToPixel(tmp);
         
         double horizRatio = paintProps.getView().getExtent().getWidth() / paintProps.getCanvasBounds().width;
         double vertRatio = paintProps.getView().getExtent().getHeight() / paintProps.getCanvasBounds().height;
@@ -1087,7 +1098,7 @@ public class DisplayElementFactory {
                        
         if ( adjustOffset ) {
             double[] tmp1 = { loc[0], loc[1], 0.0 };
-            double[] newloc = mapDescriptor.pixelToWorld( tmp1 );
+            double[] newloc = iDescriptor.pixelToWorld( tmp1 );
             ((Text)txt).setLocationOnly( new Coordinate( newloc[0], newloc[1] ) );
             ((Text)txt).setXOffset( 0 );
             ((Text)txt).setYOffset( 0 );
@@ -1371,15 +1382,15 @@ public class DisplayElementFactory {
          * Create the List to be returned, and wireframe shape
          */
         ArrayList<IDisplayable> slist = new ArrayList<IDisplayable>();
-        IWireframeShape arcpts = target.createWireframeShape(false, mapDescriptor);
+        IWireframeShape arcpts = target.createWireframeShape(false, iDescriptor);
 
         /*
          * Convert center and circumference point from lat/lon to pixel coordinates.
          */
         double[] tmp = { arc.getCenterPoint().x, arc.getCenterPoint().y, 0.0 };
-        double[] center = mapDescriptor.worldToPixel(tmp);
+        double[] center = iDescriptor.worldToPixel(tmp);
         double[] tmp2 = { arc.getCircumferencePoint().x, arc.getCircumferencePoint().y, 0.0 };
-        double[] circum = mapDescriptor.worldToPixel(tmp2);
+        double[] circum = iDescriptor.worldToPixel(tmp2);
         
         /*
          * calculate angle of major axis
@@ -1632,7 +1643,7 @@ public class DisplayElementFactory {
         /*
          * convert lat/lons to pixel coords
          */
-        double[][] pts = PgenUtil.latlonToPixel( symbolSet.getLocations(), mapDescriptor );
+        double[][] pts = PgenUtil.latlonToPixel( symbolSet.getLocations(), (IMapDescriptor)iDescriptor );
 
         /*
          * Create SymbolSetElement and return it
@@ -1662,7 +1673,7 @@ public class DisplayElementFactory {
     		 */
     		Coordinate[] loc = new Coordinate[] {de.getLocation()};
     		double[] worldPixel =  new double[] { loc[0].x, loc[0].y, 0.0};
-    		double[] pixel = mapDescriptor.worldToPixel(worldPixel);
+    		double[] pixel = iDescriptor.worldToPixel(worldPixel);
 
     	    /*
     	     * Get color for creating displayables.
@@ -1673,7 +1684,7 @@ public class DisplayElementFactory {
     		 * Calculate the offset for the first symbol ( upper left ) and convert
     		 * back to world coordinates.
     		 */
-    		double[] locUL = mapDescriptor.pixelToWorld(new double[] { pixel[0] - ( 0.5 * scale ),
+    		double[] locUL = iDescriptor.pixelToWorld(new double[] { pixel[0] - ( 0.5 * scale ),
     				                                                   pixel[1] - ( 0.25 * scale ), 0.0 } );
     		Coordinate[] loc1 = new Coordinate[] { new Coordinate(locUL[0], locUL[1]) };
     		
@@ -1687,7 +1698,7 @@ public class DisplayElementFactory {
     		 * Calculate the offset for the second symbol ( lower right ) and convert
     		 * back to world coordinates
     		 */
-    		double[] locLR = mapDescriptor.pixelToWorld(new double[] { pixel[0] + ( 0.5 * scale ),
+    		double[] locLR = iDescriptor.pixelToWorld(new double[] { pixel[0] + ( 0.5 * scale ),
     				                                                   pixel[1] + ( 0.25 * scale ), 0.0 } );
     		Coordinate[] loc2 = new Coordinate[] { new Coordinate(locLR[0], locLR[1]) };
     		
@@ -1887,7 +1898,7 @@ public class DisplayElementFactory {
 		 */
 		Coordinate[] loc = new Coordinate[] {avntxt.getPosition()};
 		double[] worldPixel =  new double[] { loc[0].x, loc[0].y, 0.0};
-		double[] pixel = mapDescriptor.worldToPixel(worldPixel);
+		double[] pixel = iDescriptor.worldToPixel(worldPixel);
 		
 		/*
 		 * Calculate pixel offset for symbol
@@ -1911,7 +1922,7 @@ public class DisplayElementFactory {
 		 */
 		if ( ids.length == 1 ) {
 			//  convert pixel back to map coordinates
-			double[] locSym = mapDescriptor.pixelToWorld(new double[] { pixel[0], pixel[1], 0.0 } );
+			double[] locSym = iDescriptor.pixelToWorld(new double[] { pixel[0], pixel[1], 0.0 } );
 			Coordinate loc1 = new Coordinate( locSym[0], locSym[1] );
 			
 			/*
@@ -1925,7 +1936,7 @@ public class DisplayElementFactory {
 
 			double newX = pixel[0] - (0.3333 * bounds.getWidth() * horizRatio );
 			//  convert pixel back to map coordinates
-			double[] locSym = mapDescriptor.pixelToWorld(new double[] { newX, pixel[1], 0.0 } );
+			double[] locSym = iDescriptor.pixelToWorld(new double[] { newX, pixel[1], 0.0 } );
 			Coordinate loc1 = new Coordinate( locSym[0], locSym[1] );
 			
 			/*
@@ -1937,7 +1948,7 @@ public class DisplayElementFactory {
 			
 			newX = pixel[0] + (0.3333 * bounds.getWidth() * horizRatio );
 			//  convert pixel back to map coordinates
-			locSym = mapDescriptor.pixelToWorld(new double[] { newX, pixel[1], 0.0 } );
+			locSym = iDescriptor.pixelToWorld(new double[] { newX, pixel[1], 0.0 } );
 			Coordinate loc2 = new Coordinate( locSym[0], locSym[1] );
 
 			/*
@@ -1974,7 +1985,7 @@ public class DisplayElementFactory {
          * convert position from map to pixel coordinates
          */
         double[] tmp = { avntxt.getPosition().x, avntxt.getPosition().y, 0.0 };
-        double[] center = mapDescriptor.worldToPixel(tmp);
+        double[] center = iDescriptor.worldToPixel(tmp);
         // Adjust position based on justification
 		if ( avntxt.getJustification() == TextJustification.LEFT_JUSTIFY) {
 			center[0] += (bounds.getWidth() * horizRatio * 0.5);
@@ -2014,12 +2025,12 @@ public class DisplayElementFactory {
          */
         if ( box != null ) {
         	RGB bg = backgroundColor.getColor(BGColorMode.EDITOR);
-        	IShadedShape fill = target.createShadedShape(false, mapDescriptor, false);
+        	IShadedShape fill = target.createShadedShape(false, iDescriptor, false);
         	fill.addPolygonPixelSpace( toLineString(box), bg );
         	fill.compile();
         	dlist.add( new FillDisplayElement(fill, 1.0f ) );
         	
-        	IWireframeShape outline = target.createWireframeShape(false, mapDescriptor);
+        	IWireframeShape outline = target.createWireframeShape(false, iDescriptor);
         	outline.addLineSegment(box);
         	outline.compile();
         	dlist.add( new LineDisplayElement(outline, getDisplayColor( avntxt.getTextColor() ), 1.0f ) );
@@ -2047,7 +2058,7 @@ public class DisplayElementFactory {
          * convert position from map to pixel coordinates
          */
         double[] tmp = { avntxt.getPosition().x, avntxt.getPosition().y, 0.0 };
-        double[] center = mapDescriptor.worldToPixel(tmp);
+        double[] center = iDescriptor.worldToPixel(tmp);
         // adjust position based on justification
 		if ( avntxt.getJustification() == TextJustification.LEFT_JUSTIFY) {
 			center[0] += (bounds.getWidth() * horizRatio * 0.5);
@@ -2064,7 +2075,7 @@ public class DisplayElementFactory {
         double[] left = new double[] { center[0] - xoffset, center[1] + yoffset, 0.0 };
         double[] right = new double[] { center[0] + xoffset, center[1] + yoffset, 0.0 };
         double[][] seg = new double[][] { left, right };
-        IWireframeShape line = target.createWireframeShape(false, mapDescriptor);
+        IWireframeShape line = target.createWireframeShape(false, iDescriptor);
         line.addLineSegment(seg);
         line.compile();
         return new LineDisplayElement(line, getDisplayColor( avntxt.getTextColor() ), 1.0f );
@@ -2451,7 +2462,7 @@ public class DisplayElementFactory {
 		 */
 		Coordinate[] loc = new Coordinate[] {midtxt.getPosition()};
 		double[] worldPixel =  new double[] { loc[0].x, loc[0].y, 0.0};
-		double[] pixel = mapDescriptor.worldToPixel(worldPixel);
+		double[] pixel = iDescriptor.worldToPixel(worldPixel);
 		
 		/*
 		 * Calculate pixel offset for symbol
@@ -2475,7 +2486,7 @@ public class DisplayElementFactory {
 		 */
 		if ( ids.length == 1 ) {
 			//  convert pixel back to map coordinates
-			double[] locSym = mapDescriptor.pixelToWorld(new double[] { pixel[0], pixel[1], 0.0 } );
+			double[] locSym = iDescriptor.pixelToWorld(new double[] { pixel[0], pixel[1], 0.0 } );
 			Coordinate loc1 = new Coordinate( locSym[0], locSym[1] );
 			
 			/*
@@ -2489,7 +2500,7 @@ public class DisplayElementFactory {
 
 			double newX = pixel[0] - ( bounds.getWidth() * horizRatio );
 			//  convert pixel back to map coordinates
-			double[] locSym = mapDescriptor.pixelToWorld(new double[] { newX, pixel[1], 0.0 } );
+			double[] locSym = iDescriptor.pixelToWorld(new double[] { newX, pixel[1], 0.0 } );
 			Coordinate loc1 = new Coordinate( locSym[0], locSym[1] );
 			
 			/*
@@ -2501,7 +2512,7 @@ public class DisplayElementFactory {
 			
 			newX = pixel[0] + ( bounds.getWidth() * horizRatio );
 			//  convert pixel back to map coordinates
-			locSym = mapDescriptor.pixelToWorld(new double[] { newX, pixel[1], 0.0 } );
+			locSym = iDescriptor.pixelToWorld(new double[] { newX, pixel[1], 0.0 } );
 			Coordinate loc2 = new Coordinate( locSym[0], locSym[1] );
 
 			/*
@@ -3016,7 +3027,7 @@ public class DisplayElementFactory {
 		/*
 		 * create ShadedShape for fill area
 		 */
-		IShadedShape fillarea = target.createShadedShape(false, mapDescriptor, true);
+		IShadedShape fillarea = target.createShadedShape(false, iDescriptor, true);
 		
 		/*
 		 * If Requested Fill is not SOLID or TRANSPARENCY, get the fill pattern
@@ -3105,10 +3116,10 @@ public class DisplayElementFactory {
 		 * original location.  
 		 */
         double[] south = { loc.x, loc.y - delta, 0.0 };
-        double[] pt1 = mapDescriptor.worldToPixel(south);
+        double[] pt1 = iDescriptor.worldToPixel(south);
 
         double[] north = { loc.x, loc.y + delta, 0.0 };
-        double[] pt2 = mapDescriptor.worldToPixel(north);
+        double[] pt2 = iDescriptor.worldToPixel(north);
         
         // TODO - Orientation issues here!
 		return -90.0 - Math.toDegrees(Math.atan2( (pt2[1]-pt1[1]), (pt2[0]-pt1[0]) ));
@@ -3131,13 +3142,13 @@ public class DisplayElementFactory {
          * Create the List to be returned, and wireframe shape
          */
         ArrayList<IDisplayable> slist = new ArrayList<IDisplayable>();
-        IWireframeShape hash = target.createWireframeShape(false, mapDescriptor);
+        IWireframeShape hash = target.createWireframeShape(false, iDescriptor);
 
         /*
          * Convert location from lat/lon coordinates to pixel coordinates
          */
         double[] tmp = { vect.getLocation().x, vect.getLocation().y, 0.0 };
-        double[] start = mapDescriptor.worldToPixel(tmp);
+        double[] start = iDescriptor.worldToPixel(tmp);
         
         //TODO - Orientation issues
         /*
@@ -3206,7 +3217,7 @@ public class DisplayElementFactory {
     		 */    		
     		IWireframeShape hashMarks = hashMarkMap.get(color);
     		if (hashMarks == null) {
-    			hashMarks = target.createWireframeShape(false, mapDescriptor);
+    			hashMarks = target.createWireframeShape(false, iDescriptor);
     		    hashMarkMap.put(color, hashMarks);
     		}
 
@@ -3214,7 +3225,7 @@ public class DisplayElementFactory {
     		 * Convert location from lat/lon coordinates to pixel coordinates
     		 */
     		double[] tmp = { vect.getLocation().x, vect.getLocation().y, 0.0 };
-    		double[] start = mapDescriptor.worldToPixel(tmp);
+    		double[] start = iDescriptor.worldToPixel(tmp);
 
     		//TODO - Orientation issues
     		/*
@@ -3281,13 +3292,13 @@ public class DisplayElementFactory {
          * Create the List to be returned, and wireframe shape
          */
         ArrayList<IDisplayable> slist = new ArrayList<IDisplayable>();
-        IWireframeShape arrow = target.createWireframeShape(false, mapDescriptor);
+        IWireframeShape arrow = target.createWireframeShape(false, iDescriptor);
 
         /*
          * Convert location from lat/lon coordinates to pixel 
          */
         double[] tmp = { vect.getLocation().x, vect.getLocation().y, 0.0 };
-        double[] start = mapDescriptor.worldToPixel(tmp);
+        double[] start = iDescriptor.worldToPixel(tmp);
 
         /*
          * calculate the length of the arrow, and its direction
@@ -3323,7 +3334,7 @@ public class DisplayElementFactory {
 				pointAngle, angle, height, ArrowHeadType.FILLED );
 		Coordinate[] ahead = head.getArrowHeadShape();
 		Color clr = getDisplayColor( vect.getColor() );
-		IShadedShape arrowHead = target.createShadedShape(false, mapDescriptor, false);
+		IShadedShape arrowHead = target.createShadedShape(false, iDescriptor, false);
 		arrowHead.addPolygonPixelSpace(toLineString(ahead), new RGB (clr.getRed(),
 												clr.getGreen(), clr.getBlue() ));
         
@@ -3342,7 +3353,7 @@ public class DisplayElementFactory {
 			 * Add shaft and arrow head coordinates to mask wireframe,
 			 * and add mask wireframe to return list
 			 */
-	        IWireframeShape mask = target.createWireframeShape(false, mapDescriptor);
+	        IWireframeShape mask = target.createWireframeShape(false, iDescriptor);
 	        mask.addLineSegment(new double[][] { start, end } );
 	        mask.addLineSegment(toDouble(ahead));
 	        mask.compile();
@@ -3402,7 +3413,7 @@ public class DisplayElementFactory {
     		 */    		
     		IWireframeShape arrows = arrowMap.get(color);
     		if (arrows == null) {
-    			arrows = target.createWireframeShape(false, mapDescriptor);
+    			arrows = target.createWireframeShape(false, iDescriptor);
     			arrowMap.put(color, arrows);
     		}
     		IWireframeShape masks = null;
@@ -3411,13 +3422,13 @@ public class DisplayElementFactory {
 			    bgColor = new Color(bg.red, bg.green, bg.blue);
     			masks = maskMap.get(bgColor);
     			if (masks == null) {
-    			    masks = target.createWireframeShape(false, mapDescriptor);
+    			    masks = target.createWireframeShape(false, iDescriptor);
     			    maskMap.put(bgColor, masks);
     			}
     		}
     		IShadedShape arrowHeads = arrowHeadMap.get(color);
     		if (arrowHeads == null) {
-    			arrowHeads = target.createShadedShape(false, mapDescriptor, false);
+    			arrowHeads = target.createShadedShape(false, iDescriptor, false);
     		    arrowHeadMap.put(color, arrowHeads);
     		}
 
@@ -3425,7 +3436,7 @@ public class DisplayElementFactory {
     		 * Convert location from lat/lon coordinates to pixel 
     		 */
     		double[] tmp = { vect.getLocation().x, vect.getLocation().y, 0.0 };
-    		double[] start = mapDescriptor.worldToPixel(tmp);
+    		double[] start = iDescriptor.worldToPixel(tmp);
 
     		/*
     		 * calculate the length of the arrow, and its direction
@@ -3519,10 +3530,10 @@ public class DisplayElementFactory {
          * Create the List to be returned, and wireframe shape
          */
         ArrayList<IDisplayable> slist = new ArrayList<IDisplayable>();
-        IWireframeShape barb = target.createWireframeShape(false, mapDescriptor);
-        IShadedShape flags = target.createShadedShape(false, mapDescriptor, false);
+        IWireframeShape barb = target.createWireframeShape(false, iDescriptor);
+        IShadedShape flags = target.createShadedShape(false, iDescriptor, false);
         if ( vect.hasBackgroundMask() ) {
-        	mask = target.createWireframeShape(false, mapDescriptor);
+        	mask = target.createWireframeShape(false, iDescriptor);
 			RGB bg = backgroundColor.getColor(BGColorMode.EDITOR);
 			bgColor = new Color(bg.red, bg.green, bg.blue);
         }
@@ -3536,7 +3547,7 @@ public class DisplayElementFactory {
          * Convert location from lat/lon coordinates to pixel 
          */
         double[] tmp = { vect.getLocation().x, vect.getLocation().y, 0.0 };
-        double[] start = mapDescriptor.worldToPixel(tmp);
+        double[] start = iDescriptor.worldToPixel(tmp);
         
         /*
          * If calm wind, draw circle
@@ -3695,7 +3706,7 @@ public class DisplayElementFactory {
     		 */
     		IWireframeShape barbs = barbMap.get(color);
     		if (barbs == null) {
-    		    barbs = target.createWireframeShape(false, mapDescriptor);
+    		    barbs = target.createWireframeShape(false, iDescriptor);
     		    barbMap.put(color, barbs);
     		}
     		IWireframeShape masks = null;
@@ -3704,13 +3715,13 @@ public class DisplayElementFactory {
 			    bgColor = new Color(bg.red, bg.green, bg.blue);
     			masks = maskMap.get(bgColor);
     			if (masks == null) {
-    			    masks = target.createWireframeShape(false, mapDescriptor);
+    			    masks = target.createWireframeShape(false, iDescriptor);
     			    maskMap.put(bgColor, masks);
     			}
     		}
     		IShadedShape flags = flagMap.get(color);
     		if (flags == null) {
-    		    flags = target.createShadedShape(false, mapDescriptor, false);
+    		    flags = target.createShadedShape(false, iDescriptor, false);
     		    flagMap.put(color, flags);
     		}
 
@@ -3718,7 +3729,7 @@ public class DisplayElementFactory {
     		 * Convert location from lat/lon coordinates to pixel 
     		 */
     		double[] tmp = { vect.getLocation().x, vect.getLocation().y, 0.0 };
-    		double[] start = mapDescriptor.worldToPixel(tmp);
+    		double[] start = iDescriptor.worldToPixel(tmp);
 
     		/*
     		 * If calm wind, draw circle
@@ -3904,7 +3915,7 @@ public class DisplayElementFactory {
         font.setScaleFont(false);
       
         return font;
-	}
+ 	}
     
     /**
      * Set some display attributes for all elements on a layer.
@@ -4009,12 +4020,12 @@ public class DisplayElementFactory {
 		ArrayList<IDisplayable> list = new ArrayList<IDisplayable>();
 		wfs = new IWireframeShape[ dspClr.length];
 		for ( int i=0; i< dspClr.length; i++) {
-			wfs[i] = target.createWireframeShape(false, mapDescriptor);
+			wfs[i] = target.createWireframeShape(false, iDescriptor);
 		}
 	  	    
 	    Coordinate[] pts = sigmet.getLinePoints();	
 	 	
-	    pixels = PgenUtil.latlonToPixel(pts, mapDescriptor);
+	    pixels = PgenUtil.latlonToPixel(pts, (IMapDescriptor)iDescriptor);
 	    		
 	    if ( sigmet.isClosedLine() ) {
 	    	pixels = ensureClosed(pixels);
@@ -4051,27 +4062,27 @@ public class DisplayElementFactory {
 		    	if("ESOL".equalsIgnoreCase(lineString[1])){		    		
 		    		
 		    		Coordinate[][] sides = SigmetInfo.getSides(pts, widthInNautical);
-		    		Coordinate[][] sidesWithArcIntsc = SigmetInfo.getSidesWithArcIntsc(mapDescriptor, pts, sides[0], sides[1]);
+		    		Coordinate[][] sidesWithArcIntsc = SigmetInfo.getSidesWithArcIntsc((IMapDescriptor)iDescriptor, pts, sides[0], sides[1]);
 		    		
-		    		double[][] sa1=PgenUtil.latlonToPixel(sidesWithArcIntsc[0], mapDescriptor); 
-		    		double[][] sa2=PgenUtil.latlonToPixel(sidesWithArcIntsc[1], mapDescriptor);
+		    		double[][] sa1=PgenUtil.latlonToPixel(sidesWithArcIntsc[0], (IMapDescriptor)iDescriptor); 
+		    		double[][] sa2=PgenUtil.latlonToPixel(sidesWithArcIntsc[1], (IMapDescriptor)iDescriptor);
 
-		    		handleLinePattern(pattern, PgenUtil.latlonToPixel(sidesWithArcIntsc[0], mapDescriptor));
-		    		handleLinePattern(pattern, PgenUtil.latlonToPixel(sidesWithArcIntsc[1], mapDescriptor));
+		    		handleLinePattern(pattern, PgenUtil.latlonToPixel(sidesWithArcIntsc[0], (IMapDescriptor)iDescriptor));
+		    		handleLinePattern(pattern, PgenUtil.latlonToPixel(sidesWithArcIntsc[1],(IMapDescriptor) iDescriptor));
 		    		
 		    		if(sigmet.getPgenType().equals(VaaInfo.PGEN_TYEP_CLOUD)){  
 		    			sigmet.setColors(fillClr); 
-		    			list.add( createFill(SigmetInfo.getESOLArea(sidesWithArcIntsc[1], sidesWithArcIntsc[0], mapDescriptor)) );
+		    			list.add( createFill(SigmetInfo.getESOLArea(sidesWithArcIntsc[1], sidesWithArcIntsc[0], (IMapDescriptor)iDescriptor)) );
 		    		}
 		    		
 		    	}else{		    		
-		            Coordinate[] sides = SigmetInfo.getSOLCoors(pts, lineString[1], widthInNautical, mapDescriptor);		            
-		            handleLinePattern(pattern, PgenUtil.latlonToPixel(sides, mapDescriptor));   		            
+		            Coordinate[] sides = SigmetInfo.getSOLCoors(pts, lineString[1], widthInNautical, (IMapDescriptor)iDescriptor);		            
+		            handleLinePattern(pattern, PgenUtil.latlonToPixel(sides,(IMapDescriptor) iDescriptor));   		            
 		    	}
 		    	
 		    }else if(sigmet.ISOLATED.equals(lineType)){		
 		    	
-		    	IWireframeShape arcpts = target.createWireframeShape(false, mapDescriptor);
+		    	IWireframeShape arcpts = target.createWireframeShape(false, iDescriptor);
 	    		Coordinate[] locs = sigmet.getLinePoints(); 		
 	            ArrayList<IDisplayable> slist = new ArrayList<IDisplayable>();	            	            
 	            
@@ -4081,7 +4092,7 @@ public class DisplayElementFactory {
 	            slist.addAll(createDisplayElements(centerSign,paintProps));
 	         
 	            try{ 
-	            	arcpts.addLineSegment( SigmetInfo.getIsolated(locs[locs.length-1], widthInNautical, mapDescriptor) );
+	            	arcpts.addLineSegment( SigmetInfo.getIsolated(locs[locs.length-1], widthInNautical, (IMapDescriptor)iDescriptor) );
 	            }catch(Throwable e){System.out.println("Isolated: "+e.getCause());}//OutOfMemoryError
 
 	            arcpts.compile();
@@ -4222,14 +4233,14 @@ public class DisplayElementFactory {
 				 * Get pixel value for the world location
 				 */
 				double[] worldPixel =  new double[] { loc1.x, loc1.y, 0.0};
-				double[] pixel = mapDescriptor.worldToPixel(worldPixel);
+				double[] pixel = iDescriptor.worldToPixel(worldPixel);
 				
 				//  convert pixel back to map coordinates
-				double[] locSym = mapDescriptor.pixelToWorld(new double[] { pixel[0], 
-						pixel[1] + vertRatio * relativePosition * bounds.getHeight() - 1, 0.0} );
+				double[] locSym = iDescriptor.pixelToWorld(new double[] { pixel[0], 
+				        pixel[1] + vertRatio * relativePosition * bounds.getHeight() - 1, 0.0} );
 				
 				loc1 = new Coordinate( locSym[0], locSym[1] );
-				
+								
 				Symbol sym = new Symbol(null, getDisplayColors( elem.getColors()), 1.5f, 1.0f, false, loc1, 
 						"Symbol", gfa.getSymbolType() );
 				list.addAll(createDisplayElements((ISymbol)sym, paintProps) );
@@ -4266,7 +4277,7 @@ public class DisplayElementFactory {
 				String dir = sigmet.getEditableAttrPhenomDirection();
 				Coordinate[] coors = sigmet.getLinePoints();
 				
-				ArrayList<Coordinate> spdCoors = CcfpInfo.getDirMostPts(dir, coors, mapDescriptor);
+				ArrayList<Coordinate> spdCoors = CcfpInfo.getDirMostPts(dir, coors,(IMapDescriptor) iDescriptor);
 				if(spdCoors.size() > 1){
 										
 					gov.noaa.nws.ncep.ui.pgen.elements.Vector vv = new gov.noaa.nws.ncep.ui.pgen.elements.Vector();
@@ -4322,7 +4333,7 @@ public class DisplayElementFactory {
 				Coordinate loc2;
 				ArrayList<Coordinate> locs = new ArrayList<Coordinate>();		
 				
-				loc2 = CcfpInfo.getSigCentroid2(sigmet,mapDescriptor);		
+				loc2 = CcfpInfo.getSigCentroid2(sigmet,(IMapDescriptor)iDescriptor);		
 				
 				java.awt.geom.Point2D pts = null;
 				
@@ -4368,7 +4379,7 @@ public class DisplayElementFactory {
 	    double sfactor = deviceScale * vect.getSizeScale();
 	
 	    double[] tmp = { vect.getLocation().x, vect.getLocation().y, 0.0 };
-	    double[] start = mapDescriptor.worldToPixel(tmp);
+	    double[] start = iDescriptor.worldToPixel(tmp);
 	
 	    double speed = 9;       
 	    if ( ! vect.hasDirectionOnly() ) speed = vect.getSpeed();
@@ -4381,7 +4392,7 @@ public class DisplayElementFactory {
 	    end[1] = start[1] + (arrowLength * Math.sin(Math.toRadians(angle)) );
 	    end[2] = 0.0;
 	    
-	    double[] c = mapDescriptor.pixelToWorld(end);
+	    double[] c = iDescriptor.pixelToWorld(end);
 	    return new Coordinate(c[0],c[1]);
 	}
 
@@ -4583,7 +4594,7 @@ public class DisplayElementFactory {
 	    		 loc[0] = txtPositions.get(kk).x;
 	    		 loc[1] = txtPositions.get(kk).y;
 		         
-	    		 tps = mapDescriptor.pixelToWorld( loc );
+	    		 tps = iDescriptor.pixelToWorld( loc );
 	    		 if ( txt.getAuto() != null && txt.getAuto() ) {
 	    		     txt.setLocationOnly( new Coordinate( tps[0], tps[1] ) );
 	    		 }
@@ -4650,7 +4661,7 @@ public class DisplayElementFactory {
 				 *  Adjust the position - either in the middle or slightly off the last point.
 				 */
        		    int pp = Math.max( actualLength/2, actualLength - 5);
-        		double[] loc = mapDescriptor.pixelToWorld(new double[] { visiblePts[pp][0] - offset/2, visiblePts[pp][1], 0.0 } );
+        		double[] loc = iDescriptor.pixelToWorld(new double[] { visiblePts[pp][0] - offset/2, visiblePts[pp][1], 0.0 } );
     			Coordinate loc1 = new Coordinate( loc[0], loc[1] );
         		labelText.setLocationOnly( loc1 );
 			}
@@ -4682,7 +4693,7 @@ public class DisplayElementFactory {
 			String dir = spdDir[2];//sigmet.getEditableAttrPhenomDirection();
 			Coordinate[] coors = ccfp.getPrimaryDE().getPoints().toArray(new Coordinate[]{});//.getAreaLine().getLinePoints();//sigmet.getLinePoints();
 			
-			ArrayList<Coordinate> spdCoors = CcfpInfo.getDirMostPts(dir, coors, mapDescriptor);
+			ArrayList<Coordinate> spdCoors = CcfpInfo.getDirMostPts(dir, coors, (IMapDescriptor)iDescriptor);
 			if(spdCoors.size() > 1){
 									
 				gov.noaa.nws.ncep.ui.pgen.elements.Vector vv = new gov.noaa.nws.ncep.ui.pgen.elements.Vector();
@@ -4747,9 +4758,9 @@ public class DisplayElementFactory {
          * Convert center and circumference point from lat/lon to pixel coordinates.
          */
         double[] tmp = { arc.getCenterPoint().x, arc.getCenterPoint().y, 0.0 };
-        double[] center = mapDescriptor.worldToPixel(tmp);
+        double[] center = iDescriptor.worldToPixel(tmp);
         double[] tmp2 = { arc.getCircumferencePoint().x, arc.getCircumferencePoint().y, 0.0 };
-        double[] circum = mapDescriptor.worldToPixel(tmp2);
+        double[] circum = iDescriptor.worldToPixel(tmp2);
         
         double radius = Math.sqrt( (center[0] - circum[0])*(center[0] - circum[0]) +
         							(center[1] - circum[1])*(center[1] - circum[1]) );
@@ -4769,7 +4780,7 @@ public class DisplayElementFactory {
        	pt[0] = center[0] + (radius * thisCosine );
         pt[1] = center[1] + (radius * thisSine );
         
-        double mapPt[] = mapDescriptor.pixelToWorld(pt);
+        double mapPt[] = iDescriptor.pixelToWorld(pt);
         
         return new Coordinate( mapPt[0], mapPt[1]);
 	}	

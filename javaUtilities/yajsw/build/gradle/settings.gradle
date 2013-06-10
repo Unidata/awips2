@@ -1,0 +1,2 @@
+// defines a list of subprojects
+include "wrapper", "wrapper-app", "ahessian", "hessian4", "srvmgr"

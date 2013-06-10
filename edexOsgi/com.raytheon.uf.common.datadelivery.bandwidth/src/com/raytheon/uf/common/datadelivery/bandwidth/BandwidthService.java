@@ -19,24 +19,18 @@
  **/
 package com.raytheon.uf.common.datadelivery.bandwidth;
 
-import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.raytheon.uf.common.auth.resp.SuccessfulExecution;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest.RequestType;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
-import com.raytheon.uf.common.serialization.ExceptionWrapper;
-import com.raytheon.uf.common.serialization.comm.RequestRouter;
-import com.raytheon.uf.common.serialization.comm.response.ServerErrorResponse;
+import com.raytheon.uf.common.datadelivery.service.BasePrivilegedDataDeliveryService;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -61,7 +55,9 @@ import com.raytheon.uf.common.util.LogUtil;
  * @author djohnson
  * @version 1.0
  */
-public class BandwidthService implements IBandwidthService {
+public class BandwidthService extends
+        BasePrivilegedDataDeliveryService<IBandwidthRequest> implements
+        IBandwidthService {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(BandwidthService.class);
@@ -76,7 +72,7 @@ public class BandwidthService implements IBandwidthService {
         request.setNetwork(network);
 
         try {
-            return ((Integer) sendRequest(request)).intValue();
+            return sendRequest(request, Integer.class).intValue();
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to set available bandwidth for network [" + network
@@ -98,7 +94,7 @@ public class BandwidthService implements IBandwidthService {
         request.setBandwidth(bandwidth);
 
         try {
-            return ((Set<Subscription>) sendRequest(request));
+            return sendRequest(request, Set.class);
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to set available bandwidth for network [" + network
@@ -119,7 +115,7 @@ public class BandwidthService implements IBandwidthService {
         request.setBandwidth(bandwidth);
 
         try {
-            return ((Boolean) sendRequest(request)).booleanValue();
+            return sendRequest(request, Boolean.class).booleanValue();
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to set available bandwidth for network [" + network
@@ -153,7 +149,7 @@ public class BandwidthService implements IBandwidthService {
 
         try {
             @SuppressWarnings("unchecked")
-            Set<String> retVal = (Set<String>) sendRequest(request);
+            Set<String> retVal = sendRequest(request, Set.class);
             return retVal;
         } catch (Exception e) {
             LogUtil.logIterable(
@@ -184,7 +180,7 @@ public class BandwidthService implements IBandwidthService {
         request.setSubscriptions(subscriptions);
 
         try {
-            return (IProposeScheduleResponse) sendRequest(request);
+            return sendRequest(request, IProposeScheduleResponse.class);
         } catch (Exception e) {
             LogUtil.logIterable(
                     statusHandler,
@@ -220,7 +216,7 @@ public class BandwidthService implements IBandwidthService {
         request.setSubscriptions(Arrays.<Subscription> asList(sub));
         request.setRequestType(RequestType.GET_ESTIMATED_COMPLETION);
         try {
-            return (Date) sendRequest(request);
+            return sendRequest(request, Date.class);
         } catch (Exception e) {
             statusHandler
                     .handle(Priority.PROBLEM,
@@ -239,32 +235,13 @@ public class BandwidthService implements IBandwidthService {
         IBandwidthRequest request = new IBandwidthRequest();
         request.setRequestType(RequestType.GET_BANDWIDTH_GRAPH_DATA);
         try {
-            return (BandwidthGraphData) sendRequest(request);
+            return sendRequest(request, BandwidthGraphData.class);
         } catch (Exception e) {
             statusHandler
                     .handle(Priority.PROBLEM,
                     "Unable to retrieve bandwidth graph data, returning null.",
                             e);
             return null;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @VisibleForTesting
-    protected Object sendRequest(IBandwidthRequest request) throws Exception {
-        Object object = RequestRouter.route(request,
-                DataDeliveryConstants.DATA_DELIVERY_SERVER);
-        if (object instanceof SuccessfulExecution) {
-            SuccessfulExecution response = (SuccessfulExecution) object;
-            return response.getResponse();
-        } else {
-            throw new RemoteException(
-                    "Error communicating with bandwidth service!",
-                    ExceptionWrapper
-                            .unwrapThrowable(((ServerErrorResponse) object)
-                                    .getException()));
         }
     }
 }

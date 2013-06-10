@@ -78,6 +78,7 @@ public class IscSendRecord implements IPersistableDataObject, Serializable,
     @GeneratedValue()
     private int key;
 
+    // TODO: Normalize with parmId table
     @DynamicSerializeElement
     @Column(nullable = false)
     @Type(type = "com.raytheon.uf.common.dataplugin.gfe.db.type.ParmIdType")
@@ -143,7 +144,7 @@ public class IscSendRecord implements IPersistableDataObject, Serializable,
      */
     @Override
     public IscSendRecord clone() throws CloneNotSupportedException {
-        IscSendRecord rval = new IscSendRecord(this.parmID.clone(),
+        IscSendRecord rval = new IscSendRecord(this.parmID,
                 this.timeRange.clone(), this.xmlDest, this.state);
         rval.setInsertTime((Date) this.insertTime.clone());
         return rval;

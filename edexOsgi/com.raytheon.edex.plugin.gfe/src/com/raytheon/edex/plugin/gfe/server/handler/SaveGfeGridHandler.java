@@ -19,11 +19,8 @@
  **/
 package com.raytheon.edex.plugin.gfe.server.handler;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
@@ -39,6 +36,12 @@ import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.SaveGridRequest;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * GFE task for saving grids
@@ -51,13 +54,18 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 01/29/09     #1271      njensen     Rewrote for thrift capabilities
  * 06/24/09                njensen     Added sending notifications
  * 09/22/09     3058       rjpeter     Converted to IRequestHandler
+ * 02/12/2013        #1597 randerso    Added logging to support GFE Performance investigation
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
 public class SaveGfeGridHandler implements IRequestHandler<SaveGfeGridRequest> {
-    protected final transient Log logger = LogFactory.getLog(getClass());
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SaveGfeGridHandler.class);
+
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("GFE:");
 
     @Override
     public ServerResponse<?> handleRequest(SaveGfeGridRequest request)
@@ -72,14 +80,23 @@ public class SaveGfeGridHandler implements IRequestHandler<SaveGfeGridRequest> {
         }
 
         try {
+            ITimer timer = TimeUtil.getTimer();
+            timer.start();
             sr = GridParmManager.saveGridData(saveRequest, workstationID,
                     siteID);
+            timer.stop();
+            perfLog.logDuration("Save Grids: GridParmManager.saveGridData",
+                    timer.getElapsedTime());
 
             // check for sending to ISC
+            timer.reset();
+            timer.start();
             IFPServerConfig serverConfig = IFPServerConfigManager
                     .getServerConfig(siteID);
             String iscrta = serverConfig.iscRoutingTableAddress().get("ANCF");
             if (serverConfig.requestISC() && clientSendStatus && iscrta != null) {
+                List<IscSendRecord> iscSendRequests = new ArrayList<IscSendRecord>(
+                        saveRequest.size());
                 for (SaveGridRequest save : saveRequest) {
                     DatabaseID dbid = save.getParmId().getDbId();
                     // ensure Fcst database
@@ -91,19 +108,26 @@ public class SaveGfeGridHandler implements IRequestHandler<SaveGfeGridRequest> {
                                 save.getParmId(),
                                 save.getReplacementTimeRange(), "",
                                 serverConfig.sendiscOnSave());
-                        IscSendQueue.sendToQueue(Arrays.asList(sendReq));
+                        iscSendRequests.add(sendReq);
                     }
                 }
+                IscSendQueue.sendToQueue(iscSendRequests);
+
+                timer.stop();
+                perfLog.logDuration("Save Grids: Queueing ISC send requests",
+                        timer.getElapsedTime());
             }
 
         } catch (GfeException e) {
-            logger.error("Error getting discrete or wx definition", e);
+            statusHandler.error("Error getting discrete or wx definition", e);
             sr = new ServerResponse<Object>();
             sr.addMessage("Error getting discrete or wx definition on server");
         }
 
         if (sr.isOkay()) {
             try {
+                ITimer timer = TimeUtil.getTimer();
+                timer.start();
                 ServerResponse<?> notifyResponse = SendNotifications.send(sr
                         .getNotifications());
                 if (!notifyResponse.isOkay()) {
@@ -111,8 +135,11 @@ public class SaveGfeGridHandler implements IRequestHandler<SaveGfeGridRequest> {
                         sr.addMessage(msg.getMessage());
                     }
                 }
+                timer.stop();
+                perfLog.logDuration("Save Grids: Sending notifications",
+                        timer.getElapsedTime());
             } catch (Exception e) {
-                logger.error("Error sending save notification", e);
+                statusHandler.error("Error sending save notification", e);
                 sr.addMessage("Error sending save notification - "
                         + e.getMessage());
             }

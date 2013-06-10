@@ -30,6 +30,7 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
 import com.raytheon.viz.radar.interrogators.RadarDMDInterrogator;
+import com.raytheon.viz.radar.interrogators.RadarGFMInterrogator;
 import com.raytheon.viz.radar.interrogators.RadarDefaultInterrogator;
 import com.raytheon.viz.radar.interrogators.RadarEETInterrogator;
 import com.raytheon.viz.radar.interrogators.RadarGraphicInterrogator;
@@ -57,6 +58,8 @@ import com.raytheon.viz.radar.ui.xy.RadarXsectXYResource;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 4, 2010            mnash     Initial creation
+ * 03/04/2013   DCS51     zwang     Handle GFM product
+ * 05/02/2013   DR 14587  D. Friedman  Add isVelocityProductCode
  * 
  * </pre>
  * 
@@ -93,6 +96,9 @@ public class RadarProductFactory {
         } else if ("Graphic".equals(format)) {
             if (productCode == 149) {
                 interrogator = new RadarDMDInterrogator();
+            } 
+            else if (productCode == 140) {
+                interrogator = new RadarGFMInterrogator();
             } else {
                 interrogator = new RadarGraphicInterrogator();
             }
@@ -145,5 +151,9 @@ public class RadarProductFactory {
                     interrogator);
         }
         return resource;
+    }
+
+    public static boolean isVelocityProductCode(int productCode) {
+        return velocities.contains(productCode);
     }
 }

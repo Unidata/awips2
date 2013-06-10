@@ -35,6 +35,10 @@ import com.raytheon.edex.plugin.sfcobs.decoder.SfcObsDecoderFactory;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
@@ -66,6 +70,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  *                                     time in the future.
  * 20080215     887        jkorman     Added null checks in decode.
  * 20080218     887        jkorman     Reverse null checks in findDuplicate.
+ * Mar 19, 2013 1785       bgonzale    Added performance status handler and added status
+ *                                     to decode.
  * </pre>
  * 
  * @author jkorman
@@ -76,6 +82,9 @@ public class SfcObsDecoder extends AbstractDecoder {
     // private static final long ALLOWABLE_TIME = 15 * 60 * 1000;
     // Name of the plugin controlling this decoder.
     public static final String PLUGIN_NAME = "sfcobs";
+
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("SfcObs:");
 
     /** The logger */
     private Log logger = LogFactory.getLog(getClass());
@@ -124,6 +133,9 @@ public class SfcObsDecoder extends AbstractDecoder {
         SfcObsSeparator separator = SfcObsSeparator.separate(data, headers);
         List<PluginDataObject> retVal = new ArrayList<PluginDataObject>();
         HashMap<String, Boolean> obsMap = new HashMap<String, Boolean>();
+        ITimer timer = TimeUtil.getTimer();
+
+        timer.start();
         while (separator.hasNext()) {
             SfcObsDecoderInput input = separator.next();
             PluginDataObject report = null;
@@ -169,7 +181,8 @@ public class SfcObsDecoder extends AbstractDecoder {
                 }
             }
         }
-
+        timer.stop();
+        perfLog.logDuration("Time to Decode", timer.getElapsedTime());
         return retVal.toArray(new PluginDataObject[retVal.size()]);
     }
 

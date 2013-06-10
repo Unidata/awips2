@@ -44,6 +44,7 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.IRequestTrendGraphData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 3, 2009  #3039      lvenable     Initial creation
+ * Apr 29, 2013 #1945      lvenable    Code cleanup for SCAN performance.
  * 
  * </pre>
  * 
@@ -59,13 +60,28 @@ public class SCANCellTableComp extends SCANTableTrendGraphLayer {
     private static final String UNWARNED_SVR_TOOLTIP = "\nA storm meeting Severe "
             + "Weather warning\ncriteria is outside any SVR warning polygon.";
 
-    // private Point mouseMovePt = new Point(0, 0);
-    //
-    // private Point mouseDownPt = new Point(0, 0);
-    //
-    // private Point prevMousePt = new Point(-9999, -9999);
+    /** Radius interpolation column name. */
+    private String radVarColName = "";
 
-    public SCANCellTableComp(Composite parent, SCANTableData tableData, ITableAction tableActionCB,
+    /** Clutter control column name. */
+    private String clutterCoName = "";
+
+    /**
+     * Constructor.
+     * 
+     * @param parent
+     *            Parent composite.
+     * @param tableData
+     *            Table data.
+     * @param tableActionCB
+     *            Table action callback
+     * @param requestDataCallback
+     *            Request data callback
+     * @param site
+     *            The site.
+     */
+    public SCANCellTableComp(Composite parent, SCANTableData tableData,
+            ITableAction tableActionCB,
             IRequestTrendGraphData requestDataCallback, String site) {
         super(parent, tableData, tableActionCB, requestDataCallback, site);
 
@@ -105,22 +121,24 @@ public class SCANCellTableComp extends SCANTableTrendGraphLayer {
             if (colIndex == 0) {
                 tableIndex = rowIndex;
                 if ((tableIndex >= 0) || (tableIndex > table.getItemCount())) {
-                    tableActionCB.centerByStormId(table.getItem(tableIndex).getText());
+                    tableActionCB.centerByStormId(table.getItem(tableIndex)
+                            .getText());
                     redrawTable();
                 }
             } else {
                 String name = (String) table.getColumn(colIndex).getData();
 
                 if (scanCfg.canViewTrend(scanTable, name) == true) {
-                    String ident = tableData.getTableRows().get(rowIndex).getTableCellData(0).getCellText();
+                    String ident = tableData.getTableRows().get(rowIndex)
+                            .getTableCellData(0).getCellText();
 
-                    System.out.println("Display trend graph dialog for " + ident);
                     displayTrendGraphDialog(ident, name);
                 }
             }
         } else if (event.button == 3) {
             if (colIndex == 0) {
-                String ident = tableData.getTableRows().get(rowIndex).getTableCellData(0).getCellText();
+                String ident = tableData.getTableRows().get(rowIndex)
+                        .getTableCellData(0).getCellText();
                 displayTrendSetsGraphDialog(ident);
             }
         }
@@ -141,10 +159,10 @@ public class SCANCellTableComp extends SCANTableTrendGraphLayer {
         }
 
         Rectangle rect;
-        // rect = item.getBounds(table.getColumnCount() - 1);
         rect = item.getBounds(scanCfg.getCountyColumnIndex(scanTable));
 
-        if (scanCfg.showTips(scanTable) == false && rect.contains(mouseMovePt) == false) {
+        if (scanCfg.showTips(scanTable) == false
+                && rect.contains(mouseMovePt) == false) {
             prevMousePt.x = -9999;
             prevMousePt.y = -9999;
             table.setToolTipText(null);
@@ -162,17 +180,22 @@ public class SCANCellTableComp extends SCANTableTrendGraphLayer {
                 prevMousePt.x = mouseMovePt.x;
                 prevMousePt.y = mouseMovePt.y;
 
-                String toolTip = toolTipMgr.getTableCellTip(scanTable, (String) table.getColumn(i).getData());
+                String toolTip = toolTipMgr.getTableCellTip(scanTable,
+                        (String) table.getColumn(i).getData());
 
                 if (i == 0) {
-                    WARN_TYPE wt = tableData.getTableRows().get(table.indexOf(item)).getTableCellData(0).getWarnType();
+                    WARN_TYPE wt = tableData.getTableRows()
+                            .get(table.indexOf(item)).getTableCellData(0)
+                            .getWarnType();
                     if (wt == WARN_TYPE.SEVERE) {
                         toolTip = toolTip.concat(UNWARNED_SVR_TOOLTIP);
                     } else if (wt == WARN_TYPE.TVS) {
                         toolTip = toolTip.concat(UNWARNED_TOR_TOOLTIP);
                     }
-                } else if (((String) table.getColumn(i).getData()).equals(CELLTable.COUNTY.getColName())) {
-                    toolTip = tableData.getTableRows().get(table.indexOf(item)).getTableCellData(i).getCellText();
+                } else if (((String) table.getColumn(i).getData())
+                        .equals(CELLTable.COUNTY.getColName())) {
+                    toolTip = tableData.getTableRows().get(table.indexOf(item))
+                            .getTableCellData(i).getCellText();
                 }
 
                 table.setToolTipText(toolTip);
@@ -191,6 +214,17 @@ public class SCANCellTableComp extends SCANTableTrendGraphLayer {
      */
     @Override
     protected void setColumnImages() {
+
+        /*
+         * If the Radius Interpolation, Clutter Control, or sort column hasn't
+         * changed then return because the images will not change.
+         */
+        if (scanCfg.isRadVar(scanTable, radVarColName)
+                && scanCfg.isClutterControl(scanTable, clutterCoName)
+                && lastSortColIndex == sortedColumnIndex) {
+            return;
+        }
+
         TableColumn[] tCols = table.getColumns();
 
         for (int i = 0; i < tCols.length; i++) {
@@ -215,13 +249,16 @@ public class SCANCellTableComp extends SCANTableTrendGraphLayer {
              */
 
             if (scanCfg.isRadVar(scanTable, colName) == true) {
+                radVarColName = colName;
                 gc.setBackground(scanCfg.getScanColor(ScanColors.RadVar));
             }
 
             // Set the foreground color to the clutter control color if the
             // column is a clutter control.
             if (scanCfg.isClutterControl(scanTable, colName) == true) {
-                gc.setForeground(scanCfg.getScanColor(ScanColors.ClutterControl));
+                clutterCoName = colName;
+                gc.setForeground(scanCfg
+                        .getScanColor(ScanColors.ClutterControl));
             }
 
             // Set the background color to the sort color if that column is
@@ -237,12 +274,12 @@ public class SCANCellTableComp extends SCANTableTrendGraphLayer {
                 gc.setBackground(scanCfg.getScanColor(ScanColors.Sort));
             }
 
+            lastSortColIndex = sortedColumnIndex;
+
             gc.fillRectangle(0, 0, imageWidth, imageHeight);
 
             int colNameExt = gc.stringExtent(colName).x;
 
-            // int xCoord = (imageWidth / 2) - (colName.length() * textWidth /
-            // 2);
             int xCoord = (imageWidth / 2) - (colNameExt / 2);
 
             gc.drawText(colName, xCoord, 3, true);

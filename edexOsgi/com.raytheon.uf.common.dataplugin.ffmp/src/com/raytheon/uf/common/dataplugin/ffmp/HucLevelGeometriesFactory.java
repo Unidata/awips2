@@ -50,7 +50,10 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 
 /**
- * TODO Add Description
+ * Manage a cache of geometries and envelopes for different areas/resolutions.
+ * The first time FFMP is loaded the geometries will be simplified and stored to
+ * localization for faster retrieval. All geometries and envelopes are held in
+ * memory by a soft reference or until they are explicitly cleared.
  * 
  * <pre>
  * 
@@ -59,6 +62,9 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 9, 2010            rjpeter     Initial creation
+ * Apr 25, 2013 1954       bsteffen    Decompress ffmp geometries to save time
+ *                                     loading them.
+ * Apr 25, 2013 1954       bsteffen    Undo last commit to avoid invalid geoms.
  * 
  * </pre>
  * 
@@ -147,7 +153,7 @@ public class HucLevelGeometriesFactory {
 
             if (pfafsToGenerate.size() > 0) {
                 Map<Long, Geometry> tmp = null;
-                if ("ALL".equals(huc)) {
+                if (FFMPRecord.ALL.equals(huc)) {
                     tmp = generateSimplifiedGeometry(template, dataKey, cwa,
                             pfafs);
                 } else {
@@ -281,7 +287,7 @@ public class HucLevelGeometriesFactory {
      * @return
      */
     protected String getChildHuc(FFMPTemplates tempate, String huc) {
-        String rval = "ALL";
+        String rval = FFMPRecord.ALL;
         if (huc.startsWith("HUC")) {
             int totalHuc = tempate.getTotalHucLevels();
 
@@ -307,7 +313,7 @@ public class HucLevelGeometriesFactory {
             FFMPTemplates template, String dataKey, String cwa, String huc,
             String childHuc) {
 
-        if ("ALL".equals(childHuc)) {
+        if (FFMPRecord.ALL.equals(childHuc)) {
             return (Map<Long, Collection<Long>>) template.getMap(dataKey, cwa,
                     huc);
         } else if (childHuc.startsWith("HUC")) {
