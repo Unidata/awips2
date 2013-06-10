@@ -33,11 +33,12 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
 
 import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasMapCoverage;
 import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasRecord;
+import gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
+import gov.noaa.nws.ncep.viz.common.display.PredefinedAreasMngr;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
-import gov.noaa.nws.ncep.viz.resources.manager.PredefinedAreasMngr;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap;
-import gov.noaa.nws.ncep.viz.ui.display.IGridGeometryProvider;
 
 /**
  * Resource data for satellite data
@@ -96,7 +97,7 @@ public class SatelliteResourceData extends AbstractNatlCntrsRequestableResourceD
 	private AbstractSatelliteResource satRsc = null;
 	
 	private GeneralGridGeometry gridGeom=null;
-	
+
     public SatelliteResourceData() {
         super();
         
@@ -359,8 +360,8 @@ public class SatelliteResourceData extends AbstractNatlCntrsRequestableResourceD
 			// return something meaningful
 			if( gridGeom == null ) {
 				try {
-					gridGeom = PredefinedAreasMngr.getPredefinedArea(  
-							NmapCommon.getDefaultMap() ).getGridGeometry();
+					gridGeom = PredefinedAreasMngr.getDefaultPredefinedAreaForDisplayType(  
+							NcDisplayType.NMAP_DISPLAY ).getGridGeometry();
 				} catch (VizException e) {
 				}
 			}

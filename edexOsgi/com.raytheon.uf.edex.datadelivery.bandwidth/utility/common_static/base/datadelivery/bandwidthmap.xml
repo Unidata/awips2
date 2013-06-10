@@ -2,4 +2,6 @@
 <!-- bandwidth is specified in kilobytes/second (kB/s) -->
 <bandwidthMap>
     <route planDays="2" network="OPSNET" defaultBandwidth="768" bucketSizeMinutes="3" />
+    <!-- TODO: What is the bandwidth allocated on the SBN for data delivery? -->
+    <route planDays="2" network="SBN" defaultBandwidth="768" bucketSizeMinutes="3" />
 </bandwidthMap>

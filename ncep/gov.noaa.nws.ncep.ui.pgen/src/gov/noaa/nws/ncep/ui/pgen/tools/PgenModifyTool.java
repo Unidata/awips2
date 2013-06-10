@@ -119,7 +119,7 @@ public class PgenModifyTool extends AbstractPgenTool {
         @Override	   	
         public boolean handleMouseDown( int anX, int aY, int button ) { 
         	if ( !isResourceEditable() ) return false;
-       	
+
         	preempt = false;
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
@@ -268,7 +268,7 @@ public class PgenModifyTool extends AbstractPgenTool {
         @Override
         public boolean handleMouseMove(int x, int y) {
         	if ( !isResourceEditable() ) return false;
-       	
+
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(x, y);
         	if ( loc == null ) return false;

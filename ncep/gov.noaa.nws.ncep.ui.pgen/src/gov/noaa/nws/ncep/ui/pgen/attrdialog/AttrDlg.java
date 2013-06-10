@@ -15,6 +15,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -58,6 +59,9 @@ import gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.*;
  * 10/10		#?			B. Yin		Changed DrawableElement de to AbstractDrawableComponent
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 08/12		#?			B. Yin		Fixed the mouse-over issue for PGEN palette.
+ * 03/13		#928		B. Yin		Make the button bar smaller.
+ * 04/13 		#874		B. Yin		Handle collection when OK is pressed for multi-selection.
+ * 04/13        TTR399      J. Wu  		Make the dialog compact
  *
  * </pre>
  * 
@@ -66,6 +70,11 @@ import gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.*;
 
 //public abstract class AttrDlg extends CaveJFACEDialog implements IAttribute {
 public abstract class AttrDlg extends Dialog implements IAttribute {
+	
+	public static int ctrlBtnWidth = 70;
+	public static int ctrlBtnHeight = 28;
+//	public static int ctrlBtnWidth = 90;
+//	public static int ctrlBtnHeight = 30;
 	
 	/**
 	 * A handler to the current PGEN drawing layer, which is used to
@@ -103,9 +112,16 @@ public abstract class AttrDlg extends Dialog implements IAttribute {
 
 	@Override
 	public void createButtonsForButtonBar(Composite parent){
+		((GridLayout)parent.getLayout()).verticalSpacing = 0;
+		((GridLayout)parent.getLayout()).marginHeight = 3;
+		
 		super.createButtonsForButtonBar(parent);
   		this.getButton(IDialogConstants.CANCEL_ID).setEnabled(false);
   		this.getButton(IDialogConstants.OK_ID).setEnabled(false);
+  		
+  		this.getButton(IDialogConstants.CANCEL_ID).setLayoutData( new GridData(ctrlBtnWidth,ctrlBtnHeight));
+  		this.getButton(IDialogConstants.OK_ID).setLayoutData( new GridData(ctrlBtnWidth,ctrlBtnHeight));
+
 	}
 
 	@Override
@@ -113,6 +129,8 @@ public abstract class AttrDlg extends Dialog implements IAttribute {
 		
 		Control bar = super.createButtonBar(parent);
 		GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+		gd.heightHint = ctrlBtnHeight + 5;
+
 		bar.setLayoutData(gd);
 		return bar;
 		
@@ -124,6 +142,8 @@ public abstract class AttrDlg extends Dialog implements IAttribute {
 	 */
 	@Override
 	public void handleShellCloseEvent() {
+		drawingLayer.removeSelected();
+		drawingLayer.removeGhostLine();
 		super.handleShellCloseEvent();
 		PgenUtil.setSelectingMode();
 	}
@@ -228,7 +248,17 @@ public abstract class AttrDlg extends Dialog implements IAttribute {
 
 						// Update the new Element with these current attributes
 						newEl.update(this);
-						newList.add(newEl);
+						
+						if ( adc instanceof DECollection && el.getParent() == adc ){
+							//for collections
+							DECollection dec = (DECollection) adc.copy();
+							dec.remove(dec.getPrimaryDE());
+							dec.add(0, newEl);
+							newList.add(dec);
+						}
+						else {
+							newList.add(newEl);
+						}
 					}
 				}
 				
@@ -237,7 +267,7 @@ public abstract class AttrDlg extends Dialog implements IAttribute {
 				}
 				
 				ArrayList<AbstractDrawableComponent> oldList = new ArrayList<AbstractDrawableComponent>(adcList);
-				drawingLayer.replaceElements(oldList, newList);
+				drawingLayer.replaceElements(null, oldList, newList);
 			}
 
 			drawingLayer.removeSelected();
@@ -281,7 +311,7 @@ public abstract class AttrDlg extends Dialog implements IAttribute {
 		}
 		
 		final Shell shell = this.getShell();
-		// When the editor pane is activated, the tool manager will re-activate all tools and thus
+		// When the editor pane is being activated, the tool manager will re-activate all tools and thus
 		// the PGEN attribute dialog will re-open. However if the PGEN palette gets activated by a mouse
 		// click (or mouse over) before the attribute dialog is open, you will get an exception that
 		// activates PGEN palette in the middle of activating the editor. The reason why this happens is that
@@ -301,7 +331,7 @@ public abstract class AttrDlg extends Dialog implements IAttribute {
 				}
 			}
 		});
-		
+	
    	    return OK;
 	}
 	
@@ -452,4 +482,28 @@ public abstract class AttrDlg extends Dialog implements IAttribute {
     public void resetLabeledLineBtns(){
     	
     }
+    
+	/*
+	 * Create a GridLayout without any spacing and no equal width.
+	 */
+	protected GridLayout getCompactGridLayout(int numCol) {		        
+        return getGridLayout( numCol,false, 0, 0, 0, 0);		
+	}
+
+	/*
+	 * Create a GridLayout with specified numCol, equal_width, marginHeight, 
+	 * marginWidth, horizontalSpacing, and verticalSpacing
+	 */
+	protected GridLayout getGridLayout(int numCol, boolean equal_width, 
+			int marginHeight, int marginWidth, int horizontalSpacing, int verticalSpacing) {
+		
+		GridLayout gl = new GridLayout( numCol, equal_width );
+        gl.marginHeight = marginHeight;
+        gl.marginWidth = marginWidth;
+        gl.horizontalSpacing = horizontalSpacing;
+        gl.verticalSpacing = verticalSpacing;
+        
+        return gl;		
+	}
+
 }

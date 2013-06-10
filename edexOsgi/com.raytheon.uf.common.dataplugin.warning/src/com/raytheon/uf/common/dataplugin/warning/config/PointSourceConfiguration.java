@@ -27,6 +27,7 @@ import com.raytheon.uf.common.dataquery.requests.RequestableMetadataMarshaller;
  * ------------ ---------- ----------- --------------------------
  * Aug 17, 2011            mschenke     Initial creation
  * Jan 31, 2013 1557       jsanchez     Added the XMLElement allowDuplicates.
+ * Mar 26, 2013 1819       jsanchez     Added inclusionPercent, inclusionArea, inclusionAndOr.
  * 
  * </pre>
  * 
@@ -87,6 +88,15 @@ public class PointSourceConfiguration {
     @XmlElementWrapper(name = "sortBy")
     @XmlElement(name = "sort")
     private String[] sortBy;
+
+    @XmlElement
+    private double inclusionPercent = 0.00;
+
+    @XmlElement
+    private String inclusionAndOr = "AND";
+
+    @XmlElement
+    private double inclusionArea = 0.00;
 
     public String getVariable() {
         return variable;
@@ -183,6 +193,30 @@ public class PointSourceConfiguration {
 
     public void setAllowDuplicates(boolean allowDuplicates) {
         this.allowDuplicates = allowDuplicates;
+    }
+
+    public double getInclusionPercent() {
+        return inclusionPercent;
+    }
+
+    public void setInclusionPercent(double inclusionPercent) {
+        this.inclusionPercent = inclusionPercent;
+    }
+
+    public String getInclusionAndOr() {
+        return inclusionAndOr;
+    }
+
+    public void setInclusionAndOr(String inclusionAndOr) {
+        this.inclusionAndOr = inclusionAndOr;
+    }
+
+    public double getInclusionArea() {
+        return inclusionArea;
+    }
+
+    public void setInclusionArea(double inclusionArea) {
+        this.inclusionArea = inclusionArea;
     }
 
 }

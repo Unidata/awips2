@@ -22,6 +22,7 @@ package com.raytheon.uf.common.datadelivery.registry.handlers;
 import java.util.List;
 import java.util.Set;
 
+import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -39,6 +40,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * Sep 18, 2012 1169       djohnson     Initial creation
  * Oct 03, 2012 1241       djohnson     More query methods.
  * Oct 10, 2012 0726       djohnson     Add {@link #getActive()}.
+ * Feb 20, 2013 1543       djohnson     Add ability to filter on routes.
  * 
  * </pre>
  * 
@@ -110,4 +112,27 @@ public interface IBaseSubscriptionHandler<T extends Subscription> extends
      *             on error
      */
     List<T> getActive() throws RegistryHandlerException;
+
+    /**
+     * Retrieve all active subscriptions for the specified route.
+     * 
+     * @param route
+     *            the route
+     * @return the list of subscriptions meeting the criteria
+     * @throws RegistryHandlerException
+     *             on error
+     */
+    List<T> getActiveForRoute(Network route) throws RegistryHandlerException;
+
+    /**
+     * Retrieve all active subscriptions for the specified route.
+     * 
+     * @param routes
+     *            the routes
+     * @return the list of subscriptions meeting the criteria
+     * @throws RegistryHandlerException
+     *             on error
+     */
+    List<T> getActiveForRoutes(Network... routes)
+            throws RegistryHandlerException;
 }

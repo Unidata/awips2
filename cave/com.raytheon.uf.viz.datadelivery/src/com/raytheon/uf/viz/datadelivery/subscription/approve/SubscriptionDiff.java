@@ -53,6 +53,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 24, 2012 1157       mpduff       Use InitialPendingSubsription.
  * Dec 10, 2012 1259       bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Jan 25, 2013 1528       djohnson     Compare priorities as primitive ints.
+ * Jan 30, 2013 1543       djohnson     Use List instead of ArrayList.
  * 
  * </pre>
  * 
@@ -239,8 +240,8 @@ public class SubscriptionDiff {
             diffMap.put("coverage", true);
         }
 
-        ArrayList<Parameter> subParamList = sub.getParameter();
-        ArrayList<Parameter> pendingSubParamList = pendingSub.getParameter();
+        List<Parameter> subParamList = sub.getParameter();
+        List<Parameter> pendingSubParamList = pendingSub.getParameter();
 
         ArrayList<String> subParams = new ArrayList<String>();
         ArrayList<String> pendingSubParams = new ArrayList<String>();

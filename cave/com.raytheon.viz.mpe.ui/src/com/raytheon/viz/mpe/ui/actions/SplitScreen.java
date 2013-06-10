@@ -27,7 +27,6 @@ import org.eclipse.ui.IEditorPart;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.SaveBestEstimateProvider;
-import com.raytheon.viz.mpe.ui.rsc.XmrgResource;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 
@@ -55,36 +54,24 @@ public class SplitScreen extends AbstractHandler {
      * .ExecutionEvent)
      */
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
+    public Object execute(ExecutionEvent event) throws ExecutionException {
         IEditorPart editor = EditorUtil.getActiveEditor();
         if (editor instanceof IMultiPaneEditor) {
             IMultiPaneEditor multiPane = (IMultiPaneEditor) editor;
-            if (multiPane.getNumberofPanes() < 2) {
-                IDisplayPane activePane = multiPane.getActiveDisplayPane();
-                multiPane.addPane(activePane.getRenderableDisplay()
-                        .createNewDisplay());
+            IDisplayPane[] panes = multiPane.getDisplayPanes();
+            if (panes.length == 1) {
+                IDisplayPane activePane = panes[0];
+                MPEDisplayManager activeMgr = MPEDisplayManager
+                        .getInstance(activePane);
+                IDisplayPane newPane = multiPane.addPane(activePane
+                        .getRenderableDisplay().createNewDisplay());
+                MPEDisplayManager newMgr = MPEDisplayManager
+                        .getInstance(newPane);
 
-                SaveBestEstimateProvider.getProvider(arg0).setEnabled(true);
+                // Synchronize newMgr with activeMgr
+                newMgr.synchronize(activeMgr);
 
-                IDisplayPane[] panes = multiPane.getDisplayPanes();
-                for (IDisplayPane pane : panes) {
-                    if (pane != activePane) {
-                        MPEDisplayManager newMgr = MPEDisplayManager
-                                .getInstance(pane);
-                        MPEDisplayManager activeMgr = MPEDisplayManager
-                                .getInstance(activePane);
-                        newMgr.setCurrentDate(activeMgr.getCurrentDate());
-                        XmrgResource xmrg = (XmrgResource) newMgr
-                                .getDisplayedResource();
-                        xmrg.updateXmrg(true);
-                        break;
-                    }
-                }
-
-            } else {
-                for (IDisplayPane pane : multiPane.getDisplayPanes()) {
-                    multiPane.showPane(pane);
-                }
+                SaveBestEstimateProvider.getProvider(event).setEnabled(true);
             }
         }
         return null;

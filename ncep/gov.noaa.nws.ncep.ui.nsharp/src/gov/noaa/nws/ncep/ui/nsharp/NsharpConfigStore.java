@@ -20,7 +20,9 @@
  */
 package gov.noaa.nws.ncep.ui.nsharp;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -47,17 +49,37 @@ public class NsharpConfigStore implements ISerializableObject{
 		}
 	}
 	/*
-	 * When new development adding parameters, existing configuration xml may not have such parameters. Add defaults to it.
+	 * #1 When new development adding parameters, existing configuration xml may not have such parameters. Add defaults to it.
+	 * OR, 
+	 * #2 if an old parameter is not supported anymore, remove it from map.
 	 */
 	public void upToDateLinePropertyMap (){
+		//#1 job
 		int i =0;
 		for(String lnName: NsharpConstants.lineNameArray){
 			if(linePropertyMap.get(lnName) == null){
 				NsharpLineProperty lp = NsharpConstants.defaultLineProperty[i];
-
+			
 				linePropertyMap.put(lnName, lp);
 			}
 			i++;
+		}
+		// #2 job
+		List<String> deleteLsit = new ArrayList<String>();
+		for(String key: linePropertyMap.keySet()){
+			boolean found=false;
+			for(String lnName: NsharpConstants.lineNameArray){
+				if(key.equals(lnName)){
+					found= true;
+					break;
+				}
+			}
+			if(found==false){
+				deleteLsit.add(key);
+			}
+		}
+		for(String key: deleteLsit){
+			linePropertyMap.remove(key);
 		}
 	}
 	@XmlElement

@@ -116,6 +116,7 @@ public class PointDataPlotInfoRetriever extends AbstractDbPlotInfoRetriever {
             dq = getQueryObject(metadataMap);
         }
         List<PlotInfo> info = runStationQuery(dq);
-        listener.resourceChanged(ChangeType.DATA_UPDATE, info.toArray());
+        listener.resourceChanged(ChangeType.DATA_UPDATE,
+                info.toArray(new PlotInfo[0]));
     }
 }

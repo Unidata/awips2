@@ -41,6 +41,7 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 8/31/10      5875        bphillip    Initial Creation
+ * Mar 26, 2013 1821        bsteffen    Optimize FFG version query.
  * 
  * </pre>
  * 
@@ -61,6 +62,15 @@ public class FFGGribPostProcessor implements IDecoderPostProcessor {
 
             DatabaseQuery query = new DatabaseQuery(GridRecord.class);
             query.addReturnedField(GridConstants.SECONDARY_ID);
+            // The dataURI constraint does the final selection but the other
+            // constraints help the db optimize efficiently.
+            query.addQueryParam(GridConstants.DATASET_ID, record.getDatasetId());
+            query.addQueryParam(GridConstants.PARAMETER_ABBREVIATION, record
+                    .getParameter().getAbbreviation());
+            query.addQueryParam(GridConstants.LEVEL_ID, record.getLevel()
+                    .getId());
+            query.addQueryParam(GridConstants.LOCATION_ID, record.getLocation()
+                    .getId());
             query.addQueryParam("dataURI", record.getDataURI(),
                     QueryOperand.LIKE);
             List<?> result = gribDao.queryByCriteria(query);

@@ -25,6 +25,7 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -34,10 +35,12 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.geotools.coverage.grid.GridGeometry2D;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.dataplugin.scan.data.ModelData;
 import com.raytheon.uf.common.dataplugin.scan.data.ScanTableData;
 import com.raytheon.uf.common.dataplugin.scan.data.SoundingData;
@@ -47,8 +50,12 @@ import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Rehash of SCAN
@@ -60,6 +67,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 03/17/10     2521     D. Hladky   Initial release
+ * 02/01/13     1649      D. Hladky  better logging,
+ * Feb 28, 2013 1731        bsteffen    Optimize construction of scan resource.
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 8, 2013  1293        bkowal      Removed references to hdffileid.
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * 
  * </pre>
  * 
@@ -68,17 +80,31 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "scanseq")
 @Table(name = "scan", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "scan",
+		indexes = {
+				@Index(name = "scan_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class ScanRecord extends ServerSpecificPersistablePluginDataObject {
+public class ScanRecord extends PersistablePluginDataObject {
 
     /**
      * 
      */
     private static final long serialVersionUID = 5983810116816447875L;
-
+    
+    private static final IUFStatusHandler statusHandler = UFStatus
+    .getHandler(ScanRecord.class);
+   
     @Column(length = 7)
     @DataURI(position = 1)
     @DynamicSerializeElement
@@ -121,6 +147,14 @@ public class ScanRecord extends ServerSpecificPersistablePluginDataObject {
     @Transient
     /* cell data only */
     public ModelData md = null;
+
+    public ScanRecord() {
+        super();
+    }
+
+    public ScanRecord(String uri) {
+        super(uri);
+    }
 
     @Override
     public IDecoderGettable getDecoderGettable() {
@@ -252,6 +286,21 @@ public class ScanRecord extends ServerSpecificPersistablePluginDataObject {
     }
 
     /**
+     * Set the TableData from the serialized form that is stored in hdf5.
+     * 
+     * @param byteData
+     * @throws SerializationException
+     */
+    public void setTableData(ByteDataRecord byteData)
+            throws SerializationException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(
+                byteData.getByteData());
+        Object o = DynamicSerializationManager.getManager(
+                SerializationType.Thrift).deserialize(bais);
+        setTableData((ScanTableData<?>) o);
+    }
+
+    /**
      * Gets the Hash out of the datastore by HUC
      * 
      * @param dataStore
@@ -261,13 +310,9 @@ public class ScanRecord extends ServerSpecificPersistablePluginDataObject {
         try {
             ByteDataRecord byteData = (ByteDataRecord) dataStore.retrieve(
                     getDataURI(), getType(), Request.ALL);
-            ByteArrayInputStream bais = new ByteArrayInputStream(
-                    byteData.getByteData());
-            Object o = DynamicSerializationManager.getManager(
-                    SerializationType.Thrift).deserialize(bais);
-            setTableData((ScanTableData<?>) o);
+            setTableData(byteData);
         } catch (Throwable e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "Couldn't load Table data!" + getDataURI());
         }
     }
 
@@ -286,7 +331,7 @@ public class ScanRecord extends ServerSpecificPersistablePluginDataObject {
                     SerializationType.Thrift).deserialize(bais);
             setSoundingData((SoundingData) o);
         } catch (Throwable e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "Couldn't load Sounding data!" + getDataURI());
         }
     }
 
@@ -305,7 +350,7 @@ public class ScanRecord extends ServerSpecificPersistablePluginDataObject {
                     SerializationType.Thrift).deserialize(bais);
             setModelData((ModelData) o);
         } catch (Throwable e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "Couldn't load Model data!" + getDataURI());
         }
     }
 

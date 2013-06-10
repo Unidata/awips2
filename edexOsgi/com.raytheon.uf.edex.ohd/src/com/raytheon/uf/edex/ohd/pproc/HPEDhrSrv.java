@@ -20,16 +20,15 @@
 
 package com.raytheon.uf.edex.ohd.pproc;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -53,6 +52,9 @@ import com.raytheon.uf.edex.ohd.MainMethod;
  * Jan 20, 2010  4200       snaples    Initial creation
  * Mar 09, 2012  417        dgilling   Refactor to use two-stage queue
  *                                     process.
+ * Mar 20, 2013 1804       bsteffen    Switch all radar decompressing to be in
+ *                                     memory.
+ * 
  * </pre>
  * 
  * @author snaples
@@ -174,22 +176,14 @@ public class HPEDhrSrv {
      * @param hpeFile
      *            The radar file to check.
      */
-    public void filter(File hpeFile) {
+    public void filter(byte[] fileContents, Headers headers) {
         // logger.info("Starting HPE Check message.");
-        byte[] fileContents = new byte[0];
-        try {
-            fileContents = readHpeFile(hpeFile);
-        } catch (FileNotFoundException e) {
-            logger.handle(Priority.PROBLEM,
-                    "HPE Cannot find file: " + hpeFile.toString(), e);
-        } catch (IOException e) {
-            logger.handle(Priority.PROBLEM, "HPE Error reading file: "
-                    + hpeFile.toString(), e);
-        }
 
         if (fileContents.length < 80) {
             return;
         }
+
+        File hpeFile = new File(headers.get("ingestfilename").toString());
 
         // check header
         String fileStartStr = new String(fileContents, 0, 80);
@@ -216,36 +210,6 @@ public class HPEDhrSrv {
         }
 
         // logger.info("Finished HPE CheckFile. ");
-    }
-
-    /**
-     * Reads the given radar file to memory for later processing by the
-     * <code>filter</code> function.
-     * 
-     * @param hpeFile
-     *            The file to read.
-     * @return The contents of the file.
-     * @throws FileNotFoundException
-     *             If the specified file does not exist or cannot be opened.
-     * @throws IOException
-     *             If an I/O error occurs while reading the file.
-     */
-    private byte[] readHpeFile(File hpeFile) throws FileNotFoundException,
-            IOException {
-        BufferedInputStream inStream = null;
-        byte[] fileContents = null;
-
-        try {
-            inStream = new BufferedInputStream(new FileInputStream(hpeFile));
-            fileContents = new byte[(int) hpeFile.length()];
-            inStream.read(fileContents);
-        } finally {
-            if (inStream != null) {
-                inStream.close();
-            }
-        }
-
-        return fileContents;
     }
 
     /**

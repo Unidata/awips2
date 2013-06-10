@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.common.dataplugin.gfe.request;
 
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+
 /**
  * Request object for getting the latest database ID for a given model name and
  * site ID.
@@ -26,9 +29,11 @@ package com.raytheon.uf.common.dataplugin.gfe.request;
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 17, 2010            dgilling     Initial creation
+ * May 22, 2013  2025      dgilling     Add DynamicSerialize support.
  * 
  * </pre>
  * 
@@ -36,17 +41,18 @@ package com.raytheon.uf.common.dataplugin.gfe.request;
  * @version 1.0
  */
 
+@DynamicSerialize
 public class GetLatestModelDbIdRequest extends AbstractGfeRequest {
-
-    /**
-     * The site identifier to perform the request for.
-     */
-    private String siteId;
 
     /**
      * The model name to perform the request for.
      */
+    @DynamicSerializeElement
     private String modelName;
+
+    public GetLatestModelDbIdRequest() {
+        // no-op
+    }
 
     /**
      * Creates a new GetLatestModelDbIdRequest object given a model name and
@@ -58,38 +64,24 @@ public class GetLatestModelDbIdRequest extends AbstractGfeRequest {
      *            The name of the model to search for.
      */
     public GetLatestModelDbIdRequest(String siteId, String modelName) {
-        this.siteId = siteId;
+        super();
         this.modelName = modelName;
+        this.siteID = siteId;
     }
 
-    /**
-     * @return the siteId
-     */
     public String getSiteId() {
-        return siteId;
+        return getSiteID();
     }
 
-    /**
-     * @param siteId
-     *            the siteId to set
-     */
     public void setSiteId(String siteId) {
-        this.siteId = siteId;
+        setSiteID(siteId);
     }
 
-    /**
-     * @return the modelName
-     */
     public String getModelName() {
         return modelName;
     }
 
-    /**
-     * @param modelName
-     *            the modelName to set
-     */
     public void setModelName(String modelName) {
         this.modelName = modelName;
     }
-
 }

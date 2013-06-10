@@ -1,0 +1,30 @@
+#!/bin/ksh
+
+# File name: start_rivermonitor
+# Author   : Varalakshmi Rajaram
+
+# This allows you to run this script from outside of ./bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for WHFS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+export SYS_JAVA_DIR=$(get_apps_defaults sys_java_dir)
+export WHFS_BIN_DIR=$(get_apps_defaults whfs_bin_dir)
+
+# set java classpath
+export CLASSPATH=$DB_DRIVER_PATH:$WHFS_BIN_DIR/RiverMonitor.jar:$CLASSPATH
+
+MISSING_REPRESENTATION=' '
+
+#Execute the RiverMonitor
+
+if [[ $# > 0 ]]
+then
+MONITOR_NAME="$1"
+else
+MONITOR_NAME="River"
+fi
+
+xterm -T $MONITOR_NAME"Monitor" -iconic \
+-e $SYS_JAVA_DIR/bin/java -Xms64m -Xmx512m ohd.hseb.monitor.Monitor $JDBCURL "$MISSING_REPRESENTATION" $MONITOR_NAME &
+

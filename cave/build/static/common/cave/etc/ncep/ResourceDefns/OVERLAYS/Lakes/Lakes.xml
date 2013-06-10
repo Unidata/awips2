@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <isEnabled>true</isEnabled>
     <resourceDefnName>Lakes</resourceDefnName>
     <resourceCategory>OVERLAY</resourceCategory>
     <resourceParameters>
@@ -9,7 +8,6 @@ tableName=mapdata.lake
 labelField=name
 mapName=Lakes
     </resourceParameters>
-    <filterLabels>NaturalFeatures</filterLabels>
     <rscImplementation>DbOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>

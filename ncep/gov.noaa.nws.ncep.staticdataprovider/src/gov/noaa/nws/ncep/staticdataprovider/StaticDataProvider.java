@@ -25,6 +25,7 @@ import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Polygon;
 
 import gov.noaa.nws.ncep.common.staticdata.CostalWater;
 import gov.noaa.nws.ncep.common.staticdata.Cwa;
@@ -50,6 +51,7 @@ import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
  * 02/12		?			B. Yin   	Moved from PGEN 
  * 06/12        734         J. Zeng     add getAllRfcs() and getAllCwas()
  * 08/12        #770        Q. Zhou     added loadContWatchNum()
+ * 01/13		#966		B. Yin		Added methods to load bounds info.
 
  * </pre>
  * 
@@ -335,6 +337,22 @@ public class StaticDataProvider implements IStaticDataProvider {
 			e.printStackTrace();
 		}
 		return watchNum;
+	}
+
+	@Override
+	public List<String> getBoundsTableList() {
+		return BoundsProvider.getBoundsList();
+	}
+
+	@Override
+	public List<String> getBoundsNames( String table ) {
+		return BoundsProvider.loadBoundsNames( table );
+	}
+
+	@Override
+	public Polygon loadBounds(String boundsTable, String boundsName) {
+		return BoundsProvider.loadBounds( boundsTable, boundsName );
+
 	}
 
 }

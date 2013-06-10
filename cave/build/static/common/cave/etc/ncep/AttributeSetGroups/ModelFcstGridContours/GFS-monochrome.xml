@@ -2,5 +2,5 @@
 <AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
     <resource>GFS</resource>
     <attrSetGroupName>monochrome</attrSetGroupName>
-    <attrSetNames>bl_thte_wind_mono_global,pmsl_thkn_wind_mono_global.attr</attrSetNames>
+    <attrSetNames>bl_thte_wind_mono_global,pmsl_thkn_wind_mono_global</attrSetNames>
 </AttributeSetGroup>

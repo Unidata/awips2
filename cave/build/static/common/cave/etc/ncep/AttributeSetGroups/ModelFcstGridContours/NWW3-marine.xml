@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType">
     <resource>NWW3</resource>
     <attrSetGroupName>marine</attrSetGroupName>
-    <attrSetNames>sig_wave_cont_fill_feet,sig_wave_cont_fill_meters,sig_wave_and_mslp_feet,sig_wave_and_mslp_meters,sig_wave_gridded_feet,sig_wave_gridded_meters,sig_wave_gridded_mslp_feet,sig_wave_gridded_mslp_meters,peak_swell_period_contoured</attrSetNames>
+    <attrSetNames>sig_wave_cont_fill_feet,sig_wave_cont_fill_meters,sig_wave_gridded_meters,peak_swell_period_contoured</attrSetNames>
 </AttributeSetGroup>

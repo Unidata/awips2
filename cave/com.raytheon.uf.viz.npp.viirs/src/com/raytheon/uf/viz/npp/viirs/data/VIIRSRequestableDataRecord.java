@@ -35,6 +35,7 @@ import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 30, 2012            mschenke     Initial creation
+ * Apr 8, 2013  1293       bkowal       Removed references to hdffileid.
  * 
  * </pre>
  * 
@@ -55,8 +56,6 @@ public class VIIRSRequestableDataRecord extends VIIRSDataRecord {
         boolean channelsSame = true;
         Double lastWavelength = null;
         boolean wavelengthsSame = true;
-        Integer lastHdf5FileId = null;
-        boolean hdf5FileIdsSame = true;
         String lastChannelType = null;
         boolean channelTypeSame = true;
         // We will build ourself from our base records, anything that isn't
@@ -73,7 +72,6 @@ public class VIIRSRequestableDataRecord extends VIIRSDataRecord {
                 lastChannelType = record.getChannelType();
                 lastChannel = record.getChannel();
                 lastWavelength = record.getWavelength();
-                lastHdf5FileId = record.getHdfFileId();
             } else {
                 if (channelTypeSame
                         && equals(lastChannelType, record.getChannelType()) == false) {
@@ -86,10 +84,6 @@ public class VIIRSRequestableDataRecord extends VIIRSDataRecord {
                 if (wavelengthsSame
                         && equals(lastWavelength, record.getWavelength()) == false) {
                     wavelengthsSame = false;
-                }
-                if (hdf5FileIdsSame
-                        && equals(lastHdf5FileId, record.getHdfFileId()) == false) {
-                    hdf5FileIdsSame = false;
                 }
                 if (record.getLevels() < getLevels()) {
                     // We want minimum levels of all base records
@@ -107,9 +101,6 @@ public class VIIRSRequestableDataRecord extends VIIRSDataRecord {
         }
         if (wavelengthsSame) {
             setWavelength(lastWavelength);
-        }
-        if (hdf5FileIdsSame) {
-            setHdfFileId(lastHdf5FileId);
         }
         setParameter(requestableData.getParameter());
         try {

@@ -175,6 +175,7 @@ public class DDS implements Cloneable {
      * 
      * @return a clone of this <code>DDS</code>.
      */
+    @Override
     public Object clone() {
         try {
             DDS d = (DDS) super.clone();
@@ -516,16 +517,16 @@ public class DDS implements Cloneable {
      *            the <code>PrintWriter</code> to use for output.
      */
     public void print(PrintWriter os) {
-        // os.println("Dataset {");
-        // for (Enumeration e = vars.elements(); e.hasMoreElements();) {
-        // BaseType bt = (BaseType) e.nextElement();
-        //
-        // bt.printDecl(os);
-        // }
-        // os.print("} ");
-        // if (name != null)
-        // os.print(name);
-        // os.println(";");
+        os.println("Dataset {");
+        for (Enumeration e = vars.elements(); e.hasMoreElements();) {
+            BaseType bt = (BaseType) e.nextElement();
+
+            bt.printDecl(os);
+        }
+        os.print("} ");
+        if (name != null)
+            os.print(name);
+        os.println(";");
     }
 
     /**
@@ -538,7 +539,7 @@ public class DDS implements Cloneable {
     public final void print(OutputStream os) {
         PrintWriter pw = new PrintWriter(new BufferedWriter(
                 new OutputStreamWriter(os)));
-        // print(pw);
+        print(pw);
         pw.flush();
     }
 

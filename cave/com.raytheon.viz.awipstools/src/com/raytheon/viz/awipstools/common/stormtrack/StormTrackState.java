@@ -45,6 +45,7 @@ import com.vividsolutions.jts.geom.Point;
  *                                     indexes.
  * 10-27-2010   #6964      bkowal      Added a public class member for the LineStyle.
  * 11/29/2012   15571      Qinglu Lin  Added compuateCurrentStormCenter();
+ * 15Mar2013	15693	mgamazaychikov Added magnification.
  * 
  * </pre>
  * 
@@ -191,6 +192,9 @@ public class StormTrackState {
     /** Set if you the duration needs to be calculated from the end time */
     public Calendar endTime = null;
     
+    /** set magnification to default value */
+    public float magnification = 1.0f;
+
     /** Compute the coordinate of the storm center at the time defined by dataTime via interpolation. */
     public boolean compuateCurrentStormCenter(Coordinate coord, DataTime dateTime) {
     	if (futurePoints == null) return false;

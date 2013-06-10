@@ -59,7 +59,7 @@ import com.raytheon.viz.aviation.monitor.AvnPyUtil;
  * Apr 14, 2011 8065       rferrel     Implemented enqueue to place
  *                                     Alerts at the front of the queue
  *                                     and work with data caching.
- * Nov 28, 2012 1363        rferrel    No longer add a dispose listner so the
+ * Nov 28, 2012 1363        rferrel    No longer add a dispose listener so the
  *                                      creation of instance can be done on
  *                                      any thread.
  * 

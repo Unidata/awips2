@@ -50,10 +50,14 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.CommitGridRequest;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.PythonPreferenceStore;
@@ -77,6 +81,7 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * Sep 01, 2009      #1370 randerso    Completely reworked
  * Aug 05, 2010 6698       mpduff      Moved Publish work to its own thread.
  * Oct 25, 2012 1287       rferrel     Code cleanup for non-blocking dialog.
+ * 02/12/2013        #1597 randerso    Added logging to support GFE Performance metrics
  * 
  * </pre>
  * 
@@ -86,6 +91,9 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
 public class PublishDialog extends CaveJFACEDialog {
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PublishDialog.class);
+
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("GFE:");
 
     private final int MAX_LIST_HEIGHT = 10;
 
@@ -412,6 +420,9 @@ public class PublishDialog extends CaveJFACEDialog {
     }
 
     private void publishCB() {
+        final ITimer timer = TimeUtil.getTimer();
+        timer.start();
+
         final Cursor origCursor = getShell().getCursor();
         getShell().setCursor(
                 getShell().getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
@@ -435,8 +446,6 @@ public class PublishDialog extends CaveJFACEDialog {
 
             @Override
             protected IStatus run(IProgressMonitor monitor) {
-                long t0 = System.currentTimeMillis();
-
                 try {
                     // publish the data by calling the dataManager
                     // publish function
@@ -455,11 +464,12 @@ public class PublishDialog extends CaveJFACEDialog {
                     public void run() {
                         PublishDialog.this.getShell().setCursor(origCursor);
                         PublishDialog.super.okPressed();
+
+                        timer.stop();
+                        perfLog.logDuration("Publish Grids",
+                                timer.getElapsedTime());
                     }
                 });
-
-                long t1 = System.currentTimeMillis();
-                System.out.println("GFE Publish took " + (t1 - t0) + " ms");
 
                 return Status.OK_STATUS;
             }

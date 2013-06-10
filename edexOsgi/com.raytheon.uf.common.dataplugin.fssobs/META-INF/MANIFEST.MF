@@ -11,7 +11,8 @@ Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.time,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.status,
- com.raytheon.uf.common.datastorage
+ com.raytheon.uf.common.datastorage,
+ org.hibernate;bundle-version="1.0.0"
 Import-Package: com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.monitor.data,
  com.raytheon.uf.common.pointdata,

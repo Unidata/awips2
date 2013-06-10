@@ -49,10 +49,6 @@ public class NsharpParcelDialog extends Dialog {
 	private String MUP = "Most Unstable Parcel";
 	private String UDL=  "User Defined Level";
 	private String EFF = "Mean Effective Layer";
-	//private boolean surface=false, forcast=false, mml=false, mup=true, udl=false, eff=false;
-	//ParcelData surfacePar=null, forcastPar=null, mmlPar=null, mupPar=null, udlPar=null, effPar=null;
-	//private static short currentParcel = NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE;
-	//private static short prevParcel = currentParcel;
 	private static int userDefdParcelMb = 850; //default value
 	private int btnWidth = 300;
 	private int btnHeight = 20;
@@ -62,7 +58,6 @@ public class NsharpParcelDialog extends Dialog {
 	private short curParcelType;
 	private Button curSfcBtn,frcstBtn,effBtn,mmlBtn, mupBtn,udlBtn;
 	private Text userDefdMbtext;	
-	//private List<ParcelData> parcelList = new ArrayList<ParcelData>(); 
 	public static int getUserDefdParcelMb() {
 		return userDefdParcelMb;
 	}
@@ -72,38 +67,9 @@ public class NsharpParcelDialog extends Dialog {
 		userDefdParcelMb = 850;
 	}
 	public void reset(){
-		//parcelList.clear();
-		//addParcelToList(mupPar);
 		userDefdParcelMb = 850;
 		curParcelType = NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE;
-		//mup=true;
-		//surface= forcast=mml= udl= eff=false;
 	}
-	/*
-	public void setCurrentParcelButton(int parcelType){
-		switch(parcelType){
-		case NsharpNativeConstants.PARCELTYPE_OBS_SFC:
-			curSfcBtn.setSelection(true);
-			break;
-		case NsharpNativeConstants.PARCELTYPE_EFF:
-			effBtn.setSelection(true);
-			break;
-		case NsharpNativeConstants.PARCELTYPE_FCST_SFC:
-			frcstBtn.setSelection(true);
-			break;
-		case NsharpNativeConstants.PARCELTYPE_MEAN_MIXING:
-			mmlBtn.setSelection(true);
-			break;
-		case NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE:
-			mupBtn.setSelection(true);
-			break;
-		case NsharpNativeConstants.PARCELTYPE_USER_DEFINED:
-			udlBtn.setSelection(true);
-			break;
-		default:
-			break;
-		}
-	}*/
 	public static NsharpParcelDialog getInstance( Shell parShell){
 
 		if ( thisDialog == null ){
@@ -129,41 +95,7 @@ public class NsharpParcelDialog extends Dialog {
 	protected NsharpParcelDialog(Shell parentShell) throws VizException {
 		super(parentShell);
 		thisDialog = this;
-		/*NsharpResourceHandler skewtRsc = NsharpEditor.getActiveNsharpEditor().getRscHandler();
-		if(skewtRsc!=null){
-			surfacePar = skewtRsc.new ParcelData();
-			surfacePar.setParcelLayerPressure(NsharpNativeConstants.OBS_LAYER);
-			surfacePar.setParcelType(NsharpNativeConstants.PARCELTYPE_OBS_SFC);
-			forcastPar = skewtRsc.new ParcelData();
-			forcastPar.setParcelLayerPressure(NsharpNativeConstants.FCST_LAYER);
-			forcastPar.setParcelType(NsharpNativeConstants.PARCELTYPE_FCST_SFC);
-			mmlPar = skewtRsc.new ParcelData();
-			mmlPar.setParcelLayerPressure(NsharpNativeConstants.MML_LAYER);
-			mmlPar.setParcelType(NsharpNativeConstants.PARCELTYPE_MEAN_MIXING);
-			mupPar = skewtRsc.new ParcelData();
-			mupPar.setParcelLayerPressure(NsharpNativeConstants.MU_LAYER);
-			mupPar.setParcelType(NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE);
-			udlPar = skewtRsc.new ParcelData();
-			udlPar.setParcelLayerPressure(NsharpNativeConstants.USER_LAYER);
-			udlPar.setParcelType(NsharpNativeConstants.PARCELTYPE_USER_DEFINED);
-			effPar = skewtRsc.new ParcelData();
-			effPar.setParcelLayerPressure(NsharpNativeConstants.EFF_LAYER);
-			effPar.setParcelType(NsharpNativeConstants.PARCELTYPE_EFF);
-			
-			//addParcelToList(mupPar);
-			
-		}*/
-		}
-	//private void addParcelToList(ParcelData parcel){
-	//	if(parcel!=null){
-	//		parcelList.add(parcel);
-	//	}
-	//}
-	/*private void deleteParcelFromList(ParcelData parceldata){
-		if( parceldata!=null){
-			parcelList.remove(parceldata);
-		}
-	}*/
+	}
 	
 	private void createDialogContents(Composite parent){
 		
@@ -178,34 +110,6 @@ public class NsharpParcelDialog extends Dialog {
 						Button button = (Button) child;
 						if (button.getSelection()) {
 							curParcelType = Short.parseShort(button.getData().toString());
-							/*switch(parcelType){
-							case NsharpNativeConstants.PARCELTYPE_OBS_SFC:
-								parcelList.clear();
-								parcelList.add(surfacePar);
-								break;
-							case NsharpNativeConstants.PARCELTYPE_EFF:
-								parcelList.clear();
-								parcelList.add(effPar);
-								break;
-							case NsharpNativeConstants.PARCELTYPE_FCST_SFC:
-								parcelList.clear();
-								parcelList.add(forcastPar);
-								break;
-							case NsharpNativeConstants.PARCELTYPE_MEAN_MIXING:
-								parcelList.clear();
-								parcelList.add(mmlPar);
-								break;
-							case NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE:
-								parcelList.clear();
-								parcelList.add(mupPar);
-								break;
-							case NsharpNativeConstants.PARCELTYPE_USER_DEFINED:
-								parcelList.clear();
-								parcelList.add(udlPar);
-								break;
-							default:
-								return;
-							}*/
 							
 							NsharpEditor editor = NsharpEditor.getActiveNsharpEditor();
 							if(editor != null){
@@ -229,25 +133,6 @@ public class NsharpParcelDialog extends Dialog {
 		curSfcBtn.setData(NsharpNativeConstants.PARCELTYPE_OBS_SFC);
 		curSfcBtn.addListener( SWT.MouseUp,radioGpLsner);
 		
-		/*
-		if(surface == true)
-			curSfcBtn.setSelection(true);
-		else
-			curSfcBtn.setSelection(false);
-		
-		curSfcBtn.addListener( SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) {   
-				if(surface == true){
-					surface=false;
-					deleteParcelFromList(surfacePar);
-				}
-				else{
-					surface=true;
-					addParcelToList(surfacePar);
-				}
-			}          		            	 	
-		} );  
-		*/
 		frcstBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
 		frcstBtn.setText(FRCST_SFC);
 		frcstBtn.setEnabled( true );
@@ -255,98 +140,24 @@ public class NsharpParcelDialog extends Dialog {
 		frcstBtn.setData(NsharpNativeConstants.PARCELTYPE_FCST_SFC);
 		frcstBtn.addListener( SWT.MouseUp,radioGpLsner);
 		
-		/*if(forcast==true)
-			frcstBtn.setSelection(true);
-		else
-			frcstBtn.setSelection(false);
-		frcstBtn.addListener( SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) { 
-				if(forcast == true){
-					forcast=false;
-					deleteParcelFromList(forcastPar);
-				}
-				else{
-					forcast=true;
-					addParcelToList(forcastPar);
-				}
-				//prevParcel =  currentParcel;
-				//currentParcel =  NsharpNativeConstants.PARCELTYPE_FCST_SFC;
-				//userDefdMbtext.setEnabled(false);
-				//userDefdMbtext.setVisible(false);
-			}          		            	 	
-		} );  */
 		mmlBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
 		mmlBtn.setText(MML);
 		mmlBtn.setEnabled( true );
 		mmlBtn.setBounds(btnGp.getBounds().x+ btnGapX, frcstBtn.getBounds().y + frcstBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
 		mmlBtn.setData(NsharpNativeConstants.PARCELTYPE_MEAN_MIXING);
 		mmlBtn.addListener( SWT.MouseUp,radioGpLsner);
-		/*if(mml == true)
-			mmlBtn.setSelection(true);
-		else
-			mmlBtn.setSelection(false);
-		mmlBtn.addListener( SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) {  
-				if(mml == true){
-					mml=false;
-					deleteParcelFromList(mmlPar);
-				}
-				else{
-					mml=true;
-					addParcelToList(mmlPar);
-				}
-				
-			}          		            	 	
-		} );  */
 		mupBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
 		mupBtn.setText(MUP);
 		mupBtn.setEnabled( true );
 		mupBtn.setBounds(btnGp.getBounds().x+ btnGapX, mmlBtn.getBounds().y + mmlBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
 		mupBtn.setData(NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE);
 		mupBtn.addListener( SWT.MouseUp,radioGpLsner);
-		/*if(mup == true)
-			mupBtn.setSelection(true);
-		else
-			mupBtn.setSelection(false);
-		mupBtn.addListener( SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) {  
-				if(mup == true){
-					mup=false;
-					deleteParcelFromList(mupPar);
-				}
-				else{
-					mup=true;
-					addParcelToList(mupPar);
-				}
-				//prevParcel =  currentParcel;
-				//currentParcel = NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE ;
-				//userDefdMbtext.setEnabled(false);
-				//userDefdMbtext.setVisible(false);
-			}          		            	 	
-		} );  */
 		effBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
 		effBtn.setText(EFF);
 		effBtn.setEnabled( true );
 		effBtn.setBounds(btnGp.getBounds().x+ btnGapX, mupBtn.getBounds().y + mupBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
 		effBtn.setData(NsharpNativeConstants.PARCELTYPE_EFF);
 		effBtn.addListener( SWT.MouseUp,radioGpLsner);
-		/*if(eff == true)
-			effBtn.setSelection(true);
-		else
-			effBtn.setSelection(false);
-		effBtn.addListener( SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) {  
-				System.out.println("EFF picked");
-				if(eff == true){
-					eff=false;
-					deleteParcelFromList(effPar);
-				}
-				else{
-					eff=true;
-					addParcelToList(effPar);
-				}
-			}          		            	 	
-		} );  */
 		
 		udlBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
 		udlBtn.setText(UDL);
@@ -354,27 +165,6 @@ public class NsharpParcelDialog extends Dialog {
 		udlBtn.setBounds(btnGp.getBounds().x+ btnGapX, effBtn.getBounds().y + effBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
 		udlBtn.setData(NsharpNativeConstants.PARCELTYPE_USER_DEFINED);
 		udlBtn.addListener( SWT.MouseUp,radioGpLsner);
-		/*if(udl == true)
-			udlBtn.setSelection(true);
-		else
-			udlBtn.setSelection(false);
-		udlBtn.addListener( SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) { 
-				System.out.println("UDL picked");
-				if(udl == true){
-					udl=false;
-					deleteParcelFromList(udlPar);
-				}
-				else{
-					udl=true;
-					addParcelToList(udlPar);
-				}
-				//prevParcel =  currentParcel;
-				//currentParcel = NsharpNativeConstants.PARCELTYPE_USER_DEFINED ;
-				//userDefdMbtext.setEnabled(true);
-				//userDefdMbtext.setVisible(true);
-			}          		            	 	
-		} );  */
 		
 		udlBtn.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -388,15 +178,8 @@ public class NsharpParcelDialog extends Dialog {
 		userDefdMbtext = new Text (btnGp, SWT.BORDER | SWT.SINGLE);
 		userDefdMbtext.setBounds (btnGp.getBounds().x+ btnGapX, udlBtn.getBounds().y + udlBtn.getBounds().height+ btnGapY, btnWidth/4,btnHeight);
 		userDefdMbtext.setText(Integer.toString(userDefdParcelMb));
-		//if(udlBtn.getSelection()){
-			userDefdMbtext.setEnabled(true);
-			userDefdMbtext.setVisible(true);
-		//}
-		//else {
-		////	userDefdMbtext.setEnabled(false);
-		//	userDefdMbtext.setVisible(false);
-		//}
-		
+		userDefdMbtext.setEnabled(true);
+		userDefdMbtext.setVisible(true);
 
 		//to make sure user enter digits only
 		userDefdMbtext.addListener (SWT.Verify, new Listener () {
@@ -416,8 +199,8 @@ public class NsharpParcelDialog extends Dialog {
 		});
 		NsharpResourceHandler skewtRsc = NsharpEditor.getActiveNsharpEditor().getRscHandler();
 		if(skewtRsc!=null){
-			int parcelType = skewtRsc.getCurrentParcel();
-			switch(parcelType){
+			curParcelType = skewtRsc.getCurrentParcel();
+			switch(curParcelType){
 			case NsharpNativeConstants.PARCELTYPE_OBS_SFC:
 				curSfcBtn.setSelection(true);
 				break;
@@ -457,27 +240,15 @@ public class NsharpParcelDialog extends Dialog {
 				}
 				NsharpResourceHandler skewtRsc = NsharpEditor.getActiveNsharpEditor().getRscHandler();
 				skewtRsc.setCurrentParcel(curParcelType);
-				//if(udl == true) 
-				//udlPar.setParcelLayerPressure(userDefdParcelMb);
-				
-				//skewtRsc.setParcelList(parcelList);
-				//skewtRsc.setCurrentParcelData(NsharpNativeConstants.PARCELTYPE_USER_DEFINED,userDefdParcelMb);
-				//else {
-				//	parceldata.setParcelLayerPressure(NsharpNativeConstants.parcelToLayerMap.get(currentParcel));
-				//}
-				//skewtRsc.addParcelToList(parceldata);
-				//skewtRsc.setCurrentTextPage(2); 
-				//move close from okPressed() to here
 				close();
 			}          		            	 	
 		} );  
 
 		Button canBtn = createButton(parent, IDialogConstants.CANCEL_ID,
-				IDialogConstants.CANCEL_LABEL, false);
+				IDialogConstants.CLOSE_LABEL, false);
 		canBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {    
-				//System.out.println("cancel listener is called");
-				//currentParcel = prevParcel;
+				close();
 			}          		            	 	
 		} );  
 	}
@@ -540,7 +311,5 @@ public class NsharpParcelDialog extends Dialog {
 		//System.out.println("parcel close called");
 		return (super.close());
     }
-
-
 
 }

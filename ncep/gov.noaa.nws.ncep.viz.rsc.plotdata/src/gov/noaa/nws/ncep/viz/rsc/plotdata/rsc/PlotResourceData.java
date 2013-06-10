@@ -48,8 +48,10 @@ import com.raytheon.viz.pointdata.rsc.retrieve.AbstractDbPlotInfoRetriever;
  * 11/01/2011    #482      ghull       added plotDensity, comment out unimplemented plugins
  * 04/09/2012    #615      sgurung     Added conditionalFilterName and conditionalFilter
  * 02/05/2012    #606      ghull       rm reportType as member variable
+ * 10/19/2012    #896      sgurung     Use NcPlotResource2
  * 11/04/2012    #944      ghull       rm FcsPlotResource
  * 12/19/2012    #947      ghull       save ConditionalFilter object to the RBD.
+ * 04/15/2013    #864      ghull       rm isForecastResource()
  *                           
  * </pre>
  * 
@@ -149,20 +151,20 @@ INatlCntrsResourceData {
         sfcPlugins.add("bufrmosGFS");
         sfcPlugins.add("bufrmosNAM");
         sfcPlugins.add("bufrmosHPC");
-        sfcPlugins.add("bufrmosMRF");
+        sfcPlugins.add("bufrmosMRF");    
     }
 
-    // taf is an exception to the rule that forecast resources have cycle times.
-    //
-    @Override
-	public boolean isForecastResource() {
-		if( getPluginName().equals("nctaf") ) {
-			return true;
-		}
-		else { // or could base off of fcstPlugins...same result
-			return super.isForecastResource();
-		}
-	}
+//    // taf is an exception to the rule that forecast resources have cycle times.
+//    //
+//    @Override
+//	public boolean isForecastResource() {
+//		if( getPluginName().equals("nctaf") ) {
+//			return true;
+//		}
+//		else { // or could base off of fcstPlugins...same result
+//			return super.isForecastResource();
+//		}
+//	}
 
 	public PlotResourceData( ) {
 		super();
@@ -193,12 +195,12 @@ INatlCntrsResourceData {
 		String pluginName = this.metadataMap.get("pluginName").getConstraintValue();
 		
         if (pluginNames.contains(pluginName)) {
-        		return new PlotResource2(this, loadProperties);
-        	}
+	       	return new NcPlotResource2(this, loadProperties);
+		}
 		else {
 			System.out.println("Plugin "+ pluginName + " not supported by PlotResource2");
 			return null; //new PlotResource( this, loadProperties );
-	}
+		}
 	}
 		
 	public String getLegendString() {

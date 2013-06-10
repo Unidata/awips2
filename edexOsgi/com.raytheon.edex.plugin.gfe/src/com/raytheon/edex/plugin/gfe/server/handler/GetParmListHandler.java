@@ -38,6 +38,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * ------------ ---------- ----------- --------------------------
  * 04/08/08     #875       bphillip    Initial Creation
  * 09/22/09     3058       rjpeter     Converted to IRequestHandler
+ * 05/02/13     #1969      randerso    Fixed null pointer if getParmList fails
  * </pre>
  * 
  * @author bphillip
@@ -52,8 +53,11 @@ public class GetParmListHandler implements IRequestHandler<GetParmListRequest> {
         ServerResponse<List<ParmID>> sr = new ServerResponse<List<ParmID>>();
         for (DatabaseID id : request.getDbIds()) {
             ServerResponse<List<ParmID>> ssr = GridParmManager.getParmList(id);
-            retVal.addAll(ssr.getPayload());
-            sr.addMessages(ssr);
+            if (ssr.isOkay()) {
+                retVal.addAll(ssr.getPayload());
+            } else {
+                sr.addMessages(ssr);
+            }
         }
         if (sr.isOkay()) {
             sr.setPayload(retVal);

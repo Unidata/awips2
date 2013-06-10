@@ -1,6 +1,7 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd;
 
 
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd.ResourceSelectionControl.IResourceSelectedListener;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 
@@ -33,6 +34,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 06/13/10      #273       Greg Hull    
  * 04/20/11                 Greg Hull    args to set the style and title
  * 10/25/11      #467       Greg Hull    add Replace Resource 
+ * 02/22/13      #972       G. Hull     Only show resources for given NcDisplayType
  * 
  * </pre>
  * 
@@ -63,7 +65,9 @@ public class ResourceSelectionDialog extends Dialog {
     public Object open( Boolean replaceVisible,
     					Boolean replaceEnabled,
     					ResourceName initRsc, 
-    			        Boolean multiPane, int style ) {
+    			        Boolean multiPane,
+    			        NcDisplayType dispType,
+    			        int style ) {
     	
         replaceBtnVisible =replaceVisible;
     	replaceBtnEnabled = replaceEnabled;
@@ -77,7 +81,7 @@ public class ResourceSelectionDialog extends Dialog {
     	
     	shell = new Shell( parent, style );
     	shell.setText( title );
-    	shell.setSize( 600, 520 ); // pack later
+//    	shell.setSize( 800, 520 ); // pack later
 
     	GridLayout mainLayout = new GridLayout(1, true);
     	mainLayout.marginHeight = 1;
@@ -100,7 +104,9 @@ public class ResourceSelectionDialog extends Dialog {
 			sel_rsc_cntrl = new ResourceSelectionControl( sel_rscs_grp, 
 					replaceBtnVisible, 
 					replaceBtnEnabled, 
-					initRscName, multiPane );
+					initRscName, 
+					multiPane,
+					dispType );
 		} catch (VizException e) {
 			e.printStackTrace();
 			close();
@@ -109,7 +115,6 @@ public class ResourceSelectionDialog extends Dialog {
 			close();
 		}
 		
-    	
         Button can_btn = new Button( shell, SWT.PUSH );
         can_btn.setText("  Close  ");
     	gd = new GridData();
@@ -133,7 +138,7 @@ public class ResourceSelectionDialog extends Dialog {
     	}
     	shell.setLocation( parent.getLocation().x+100, 
     					   parent.getLocation().y+100);
-    	shell.setMinimumSize(400, 300);
+    	shell.setMinimumSize(500, 300);
 
     	shell.pack();
     	shell.open();

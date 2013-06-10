@@ -10,6 +10,7 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 //import gov.noaa.nws.ncep.viz.ui.display.AbstractNCModalMapTool;
 //import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
@@ -29,6 +30,8 @@ import com.raytheon.viz.ui.tools.AbstractModalTool;
  * 05/09		79			B. Yin		Added 'delete obj' flag
  * 										Set the flag in the execute method
  * 29/09        169         Greg Hull   Use AbstractNCModalMapTool
+ * 03/13		927			B. Yin 		Added setHandler, getDefaultMouseHandler,
+ * 										resetMouseHandler, and setWorkingComponent
  * 
  * </pre>
  * 
@@ -155,5 +158,42 @@ import com.raytheon.viz.ui.tools.AbstractModalTool;
 	protected boolean isResourceEditable(){
 		if ( drawingLayer == null ) return false;
 		else return drawingLayer.isEditable();
+	}
+	
+	/**
+	 * Sets mouse handler. 
+	 * @param handler
+	 */
+	public void setHandler( IInputHandler handler){
+	}
+	
+	/**
+	 * Gets the default mouse handler.
+	 * @return
+	 */
+	protected IInputHandler getDefaultMouseHandler(){
+		return null;
+	}
+	
+	/**
+	 * Resets the mouse handler to the default. If there is no default, set to selecting mode.
+	 */
+	protected void resetMouseHandler(){
+		IInputHandler dmh = getDefaultMouseHandler();
+		if ( dmh == null) {
+			PgenUtil.setSelectingMode();
+		}
+		else {
+			this.setHandler( dmh );
+		}
+		
+	}
+	
+	/**
+	 * Sets the working component.
+	 * @param adc
+	 */
+	protected void setWorkingComponent( AbstractDrawableComponent adc ){
+		
 	}
 }

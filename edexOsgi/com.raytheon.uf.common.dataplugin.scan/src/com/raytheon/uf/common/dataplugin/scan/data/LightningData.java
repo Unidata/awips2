@@ -24,16 +24,27 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
+/**
+ * 
+ * SCAN Lightning Data
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 02/01/13     1569        D. Hladky   removed XML where not needed
+ * </pre>
+ * 
+ * @author dhladky
+ * @version 1.0
+ * 
+ */
+
 @DynamicSerialize
 public class LightningData implements ISerializableObject {
 
@@ -119,7 +130,7 @@ public class LightningData implements ISerializableObject {
     private void purge(Date date) {
 
         // keep no more than 15 minutes worth
-        long timeBarrier = 15 * 60 * 1000;
+        long timeBarrier = 15 * TimeUtil.MILLIS_PER_MINUTE;
         Date backTime = new Date(date.getTime() - timeBarrier);
         ArrayList<Date> old = new ArrayList<Date>();
         // purge old records

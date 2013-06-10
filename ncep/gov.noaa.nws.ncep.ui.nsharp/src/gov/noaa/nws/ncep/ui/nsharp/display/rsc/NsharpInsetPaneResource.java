@@ -212,8 +212,8 @@ public class NsharpInsetPaneResource extends NsharpAbstractPaneResource{
     			// Chin: Note: 
     			// To fix an initial watch type not correct issue: TTR6191.
     			// always create it when painting.
-    				WGraphics WGc = psblWatchTypeBackground.getWorld();
-    				createBkgPsblWatchShape(WGc);
+    			WGraphics WGc = psblWatchTypeBackground.getWorld();
+    			createBkgPsblWatchShape(WGc); 
     			extent = new PixelExtent(psblWatchTypeBackground.getRectangle());
     			target.setupClippingPlane(extent);
     			target.drawWireframeShape(psblWatchTypeBkgShape, wwTypeColor, commonLinewidth, LineStyle.SOLID,font12);
@@ -366,7 +366,7 @@ public class NsharpInsetPaneResource extends NsharpAbstractPaneResource{
 	}*/
 	private String decideWWType(){
 		String wwtypeStr;
-        if(soundingLys == null){
+		if(soundingLys == null){
 			wwtypeStr = "NONE";
 			wwTypeColor = NsharpConstants.color_gold;
 		}

@@ -7,7 +7,7 @@
 ! J. Carr/HPC            6/97   Changed boundary level to comply with EMC changes
 ! D.W.Plummer/NCEP	 8/97	Added FILTER parameter and changed TEXT value
 !
-GLEVEL=700!700!30:0!0
+GLEVEL=700!700!0:30!0
 GVCORD=pres!pres!pdly!none
 SKIP=
 FILTER=y
@@ -21,7 +21,7 @@ FLINE=0;24;30;14;2
 HILO=0!0!0!6/H#;L#/1020-1070;900-1012
 HLSYM=!!!1.5;1.5//22;22/3;3/hw
 WIND=
-TITLE=1/-1/~ K INDEX, 700mb TMP (>6 C), BL (0-30 MB AGL) DWPT (deg F), EMSL!0
+TITLE=1/-1/~ K INDEX, 700mb TMP (GREATER THAN 6 C), BL (0-30 MB AGL) DWPT (deg F), EMSL!0
 COLORS=2                                                                       
 MARKER=2                                                                       
 GRDLBL=5                                                                       
