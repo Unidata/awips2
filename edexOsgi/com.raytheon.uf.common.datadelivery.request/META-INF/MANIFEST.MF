@@ -1,6 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Request
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-SymbolicName: com.raytheon.uf.common.datadelivery.request
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: com.raytheon.uf.common.auth;bundle-version="1.12.1174",
@@ -11,3 +12,4 @@ Require-Bundle: com.raytheon.uf.common.auth;bundle-version="1.12.1174",
 Export-Package: com.raytheon.uf.common.datadelivery.request;uses:="com.raytheon.uf.common.auth.req,com.raytheon.uf.common.serialization",
  com.raytheon.uf.common.datadelivery.request.user;uses:="com.raytheon.uf.common.auth.user",
  com.raytheon.uf.common.datadelivery.service
+Eclipse-BuddyPolicy: ext, registered, global

@@ -28,7 +28,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.stats.data.StatsEventData;
 import com.raytheon.uf.common.stats.xml.StatisticsAggregate;
 import com.raytheon.uf.common.stats.xml.StatisticsConfig;
-import com.raytheon.uf.common.stats.xml.StatisticsEventConfig;
+import com.raytheon.uf.common.stats.xml.StatisticsEvent;
 import com.raytheon.uf.common.stats.xml.StatisticsGroup;
 
 /**
@@ -40,8 +40,7 @@ import com.raytheon.uf.common.stats.xml.StatisticsGroup;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov  8, 2012 728        mpduff      Initial creation
- * May 22, 2013 1917       rjpeter     Renamed StatisticsEvent to StatisticsEventConfig
+ * Nov 8, 2012     728     mpduff      Initial creation
  *
  * </pre>
  *
@@ -84,7 +83,7 @@ public class StatsUiUtils {
      */
     @VisibleForTesting
     void processConfig(StatisticsConfig config) {
-        for (StatisticsEventConfig event: config.getEvents()) {
+        for (StatisticsEvent event: config.getEvents()) {
             processEvent(event);
         }
     }
@@ -95,7 +94,7 @@ public class StatsUiUtils {
      * @param event event config object
      */
     @VisibleForTesting
-    void processEvent(StatisticsEventConfig event) {
+    void processEvent(StatisticsEvent event) {
         if (!eventMap.containsKey(event.getCategory())) {
             eventMap.put(event.getCategory(), new HashMap<String, StatsEventData>());
         }
@@ -144,7 +143,7 @@ public class StatsUiUtils {
     public Map<String, String> getEventAttributes(String category, String type) {
         Map<String, String> attMap = new TreeMap<String, String>();
         for (StatisticsConfig config: configList) {
-            for (StatisticsEventConfig event: config.getEvents()) {
+            for (StatisticsEvent event: config.getEvents()) {
                 if (event.getCategory().equals(category) && event.getDisplayName().equals(type)) {
                     for (StatisticsAggregate agg: event.getAggregateList()) {
                         attMap.put(agg.getDisplayName(), agg.getField());
@@ -187,7 +186,7 @@ public class StatsUiUtils {
     public StatisticsAggregate getAggregateConfig(String category,
             String typeID, String attributeDisplayName) {
         for (StatisticsConfig config : configList) {
-            for (StatisticsEventConfig event: config.getEvents()) {
+            for (StatisticsEvent event: config.getEvents()) {
                 if (event.getCategory().equals(category) && event.getType().equals(typeID)) {
                     for (StatisticsAggregate agg: event.getAggregateList()) {
                         if (agg.getDisplayName().equals(attributeDisplayName)) {

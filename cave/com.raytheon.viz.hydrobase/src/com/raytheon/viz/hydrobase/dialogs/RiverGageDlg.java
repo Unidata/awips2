@@ -21,7 +21,6 @@ package com.raytheon.viz.hydrobase.dialogs;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -290,10 +289,10 @@ public class RiverGageDlg extends CaveSWTDialog implements
      * Value for no Forecast Group assignment
      */
     private final String NO_FCST_GROUP_SELECTED = "(Not a Forecast Point)";
-    
+
     /** Original latitude value */
     private String origLat;
-    
+
     /** Original longitude value */
     private String origLon;
 
@@ -307,12 +306,13 @@ public class RiverGageDlg extends CaveSWTDialog implements
     /**
      * text from the remark text box
      */
-    private String currentRemarkText=null;
-    
+    private String currentRemarkText = null;
+
     /**
      * maximum number of character allowed in the remark text box
      */
-    private final int MAX_REMARK_CHAR=255;
+    private final int MAX_REMARK_CHAR = 255;
+
     /**
      * Constructor.
      * 
@@ -633,20 +633,21 @@ public class RiverGageDlg extends CaveSWTDialog implements
         remarksTF.setLayoutData(gd);
         remarksTF.setFont(controlFont);
         remarksTF.setTextLimit(MAX_REMARK_CHAR);
-        
-        /*Note: use this method to control number of character in remarkTF
-         * because a bug in the Text class. 
-         * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=43004*/
-        currentRemarkText=remarksTF.getText();
+
+        /*
+         * Note: use this method to control number of character in remarkTF
+         * because a bug in the Text class. See
+         * https://bugs.eclipse.org/bugs/show_bug.cgi?id=43004
+         */
+        currentRemarkText = remarksTF.getText();
         ModifyListener listener = new ModifyListener() {
-        	public void modifyText(ModifyEvent e) {
-        		if (remarksTF.getText().length()>MAX_REMARK_CHAR){
-        			remarksTF.setText(currentRemarkText);
-        			shell.getDisplay().beep();
-        		}
-        		else
-        			currentRemarkText=remarksTF.getText();
-        	}
+            public void modifyText(ModifyEvent e) {
+                if (remarksTF.getText().length() > MAX_REMARK_CHAR) {
+                    remarksTF.setText(currentRemarkText);
+                    shell.getDisplay().beep();
+                } else
+                    currentRemarkText = remarksTF.getText();
+            }
         };
 
         remarksTF.addModifyListener(listener);
@@ -900,14 +901,14 @@ public class RiverGageDlg extends CaveSWTDialog implements
         RiverStatData seedData = new RiverStatData();
         seedData.setLid(lid);
 
-        ArrayList<RiverStatData> data = null;
+        java.util.List<RiverStatData> data = null;
         try {
             data = HydroDBDataManager.getInstance().getData(seedData);
 
             RPFFcstPointData seedDataGroup = new RPFFcstPointData();
             seedDataGroup.setLid(lid);
 
-            ArrayList<RPFFcstPointData> dataGroup = HydroDBDataManager
+            java.util.List<RPFFcstPointData> dataGroup = HydroDBDataManager
                     .getInstance().getData(seedDataGroup);
 
             if (dataGroup.size() > 0) {
@@ -940,17 +941,15 @@ public class RiverGageDlg extends CaveSWTDialog implements
 
             // Lat/Lon
             latitudeTF
-                    .setText((riverGageData.getLatitude() != HydroConstants.MISSING_VALUE) ? 
-                            String.valueOf(riverGageData.getLatitude())
-                            : "");
+                    .setText((riverGageData.getLatitude() != HydroConstants.MISSING_VALUE) ? String
+                            .valueOf(riverGageData.getLatitude()) : "");
             origLat = latitudeTF.getText();
-            
+
             longitudeTF
-                    .setText((riverGageData.getLongitude() != HydroConstants.MISSING_VALUE) ?
-                    		String.valueOf(riverGageData.getLongitude())
-                            : "");
+                    .setText((riverGageData.getLongitude() != HydroConstants.MISSING_VALUE) ? String
+                            .valueOf(riverGageData.getLongitude()) : "");
             origLon = longitudeTF.getText();
-            
+
             // Drainage Area
             drainageAreaTF.setText(HydroDataUtils
                     .getDisplayString(riverGageData.getDrainageArea()));
@@ -1161,58 +1160,58 @@ public class RiverGageDlg extends CaveSWTDialog implements
         // Latitude
         String latTxt = latitudeTF.getText();
         if (!latTxt.equals(origLat)) {
-	        double lat = HydroConstants.MISSING_VALUE;
-	        if (!latTxt.equals("")) {
-	            boolean invalidLat = false;
-	
-	            try {
-	                lat = GeoUtil.getInstance().cvt_spaced_format(latTxt, 0);
-	            } catch (Exception e) {
-	                invalidLat = true;
-	            }
-	
-	            if ((lat < -90) || (lat > 90) || invalidLat) {
-	                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-	                mb.setText("Invalid Value");
-	                mb
-	                        .setMessage("Please enter a VALID (-90 to 90) Latitude\nin the form: DD MM SS");
-	                mb.open();
-	
-	                return successful;
-	            }
-	        }
-	        newData.setLatitude(lat);
+            double lat = HydroConstants.MISSING_VALUE;
+            if (!latTxt.equals("")) {
+                boolean invalidLat = false;
+
+                try {
+                    lat = GeoUtil.getInstance().cvt_spaced_format(latTxt, 0);
+                } catch (Exception e) {
+                    invalidLat = true;
+                }
+
+                if ((lat < -90) || (lat > 90) || invalidLat) {
+                    MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR
+                            | SWT.OK);
+                    mb.setText("Invalid Value");
+                    mb.setMessage("Please enter a VALID (-90 to 90) Latitude\nin the form: DD MM SS");
+                    mb.open();
+
+                    return successful;
+                }
+            }
+            newData.setLatitude(lat);
         } else {
-        	newData.setLatitude(this.riverGageData.getLatitude());
+            newData.setLatitude(this.riverGageData.getLatitude());
         }
-        
+
         // Longitude
         String lonTxt = longitudeTF.getText();
         if (!lonTxt.equals(origLon)) {
-	        double lon = HydroConstants.MISSING_VALUE;
-	        if (!lonTxt.equals("")) {
-	            boolean invalidLon = false;
-	
-	            try {
-	                lon = GeoUtil.getInstance().cvt_spaced_format(lonTxt, 0);
-	            } catch (Exception e) {
-	                invalidLon = true;
-	                e.printStackTrace();
-	            }
-	
-	            if ((lon > 180) || (lon < -180) || invalidLon) {
-	                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-	                mb.setText("Invalid Value");
-	                mb
-	                        .setMessage("Please enter a VALID (-180 to 180) Longitude\nin the form: DD MM SS");
-	                mb.open();
-	
-	                return successful;
-	            }
-	        }
-	        newData.setLongitude(lon);
+            double lon = HydroConstants.MISSING_VALUE;
+            if (!lonTxt.equals("")) {
+                boolean invalidLon = false;
+
+                try {
+                    lon = GeoUtil.getInstance().cvt_spaced_format(lonTxt, 0);
+                } catch (Exception e) {
+                    invalidLon = true;
+                    e.printStackTrace();
+                }
+
+                if ((lon > 180) || (lon < -180) || invalidLon) {
+                    MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR
+                            | SWT.OK);
+                    mb.setText("Invalid Value");
+                    mb.setMessage("Please enter a VALID (-180 to 180) Longitude\nin the form: DD MM SS");
+                    mb.open();
+
+                    return successful;
+                }
+            }
+            newData.setLongitude(lon);
         } else {
-        	newData.setLongitude(riverGageData.getLongitude());
+            newData.setLongitude(riverGageData.getLongitude());
         }
 
         // Remarks
@@ -1279,13 +1278,11 @@ public class RiverGageDlg extends CaveSWTDialog implements
         // Rating Date
         if (!dateRatingTF.getText().equals("")) {
             try {
-                newData.setDateOfRating(dateFormat
-                        .parse(dateRatingTF.getText()));
+                newData.setDateOfRating(dateFormat.parse(dateRatingTF.getText()));
             } catch (ParseException e) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Invalid Value");
-                mb
-                        .setMessage("Please enter a Date of Rating\nin the form: YYYY-MM-DD");
+                mb.setMessage("Please enter a Date of Rating\nin the form: YYYY-MM-DD");
                 mb.open();
 
                 e.printStackTrace();
@@ -1325,8 +1322,7 @@ public class RiverGageDlg extends CaveSWTDialog implements
         } catch (VizException e) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
             mb.setText("Unable to Save");
-            mb
-                    .setMessage("An error occurred while trying to save the River Gage");
+            mb.setMessage("An error occurred while trying to save the River Gage");
             mb.open();
 
             e.printStackTrace();
@@ -1392,8 +1388,8 @@ public class RiverGageDlg extends CaveSWTDialog implements
         RPFFcstPointData seedData = new RPFFcstPointData();
         seedData.setLid(lid);
 
-        ArrayList<RPFFcstPointData> data = HydroDBDataManager.getInstance()
-                .getData(seedData);
+        java.util.List<RPFFcstPointData> data = HydroDBDataManager
+                .getInstance().getData(seedData);
 
         if (data.size() > 0) {
             // Should be only one record per lid
@@ -1426,8 +1422,7 @@ public class RiverGageDlg extends CaveSWTDialog implements
             } catch (VizException e) {
                 mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Unable to Delete");
-                mb
-                        .setMessage("An error occurred while trying to delete the River Gage");
+                mb.setMessage("An error occurred while trying to delete the River Gage");
                 mb.open();
 
                 e.printStackTrace();

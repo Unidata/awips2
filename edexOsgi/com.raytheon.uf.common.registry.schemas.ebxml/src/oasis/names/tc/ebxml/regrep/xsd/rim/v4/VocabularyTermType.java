@@ -24,6 +24,7 @@ import java.io.Serializable;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -66,7 +67,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "VocabularyTermType")
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "VocabularyTerm")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 public class VocabularyTermType implements Serializable {
 
     private static final long serialVersionUID = -7560901570669843677L;

@@ -22,6 +22,7 @@ package com.raytheon.viz.satellite.data.prep;
 import java.awt.Rectangle;
 import java.nio.ByteBuffer;
 
+import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.Request;
@@ -98,9 +99,9 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
                         "Error retrieving satellite data", e);
             }
         }
-        ColorMapDataType dataType = ColorMapDataType.BYTE;
+        ColorMapData.ColorMapDataType dataType = ColorMapData.ColorMapDataType.BYTE;
         if (signed) {
-            dataType = ColorMapDataType.SIGNED_BYTE;
+            dataType = ColorMapData.ColorMapDataType.SIGNED_BYTE;
         }
         return new ColorMapData(satBuffer, new int[] { datasetBounds.width,
                 datasetBounds.height }, dataType);

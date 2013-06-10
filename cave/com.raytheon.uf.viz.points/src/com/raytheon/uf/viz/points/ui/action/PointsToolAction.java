@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.viz.points.ui.action;
 
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
-import com.raytheon.uf.viz.core.rsc.tools.action.AbstractMapToolAction;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
 import com.raytheon.uf.viz.points.ui.layer.PointsToolLayer;
 
 /**
@@ -41,7 +41,7 @@ import com.raytheon.uf.viz.points.ui.layer.PointsToolLayer;
  * @author ebabin
  * @version 1
  */
-public class PointsToolAction extends AbstractMapToolAction<PointsToolLayer> {
+public class PointsToolAction extends AbstractGenericToolAction<PointsToolLayer> {
 
     /*
      * (non-Javadoc)
@@ -50,8 +50,8 @@ public class PointsToolAction extends AbstractMapToolAction<PointsToolLayer> {
      * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
      */
     @Override
-    protected AwipsToolsResourceData<PointsToolLayer> getResourceData() {
-        return new AwipsToolsResourceData<PointsToolLayer>(
+    protected GenericToolsResourceData<PointsToolLayer> getResourceData() {
+        return new GenericToolsResourceData<PointsToolLayer>(
                 PointsToolLayer.DEFAULT_NAME, PointsToolLayer.class);
 
     }

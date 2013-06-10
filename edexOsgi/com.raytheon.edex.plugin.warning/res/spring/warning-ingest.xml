@@ -1,7 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
   
 	<bean id="vtecFilter" class="com.raytheon.edex.plugin.warning.util.WarningHasVTECFilter" />
@@ -68,7 +67,7 @@
 					<bean ref="warningDecoder" method="decode" />
 					<bean ref="index" method="index" />
 					<multicast parallelProcessing="false">
-						<to uri="directvm:warningIngestAlert" />
+						<to uri="direct-vm:warningIngestAlert" />
 						<to uri="jms-warning:queue:edex.spcWatch" />
 						<to uri="jms-warning:queue:edex.tpcWatch" />
 						<filter>
@@ -85,7 +84,7 @@
 		</route>
 
 		<route id="warningIngestAlert">
-			<from uri="directvm:warningIngestAlert" />
+			<from uri="direct-vm:warningIngestAlert" />
 			<bean ref="toDataURI" method="toDataURI" />
 			<bean ref="processUtil" method="log" />
 			<to uri="vm:stageNotification" />

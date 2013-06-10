@@ -31,7 +31,6 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
-import com.raytheon.edex.util.UnitConv;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -44,6 +43,7 @@ import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.mpe.util.XmrgFile;
 import com.raytheon.uf.common.mpe.util.XmrgFile.XmrgHeader;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.units.UnitConv;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 
@@ -56,6 +56,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 8, 2009            snaples     Initial creation
+ * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * 
  * </pre>
  * 

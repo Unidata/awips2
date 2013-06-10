@@ -19,9 +19,18 @@
  **/
 package com.raytheon.uf.edex.event;
 
+import java.util.List;
+
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import com.raytheon.uf.common.event.Event;
 import com.raytheon.uf.common.event.IEventBusHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * EDEX implementation of {@link IEventBusHandler}
@@ -32,7 +41,9 @@ import com.raytheon.uf.common.event.IEventBusHandler;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 5, 2013    1580     mpduff      Initial creation.
+ * Feb 5, 2013  1580       mpduff      Initial creation.
+ * 3/18/2013    1802       bphillip    Modified to use transaction synchronization
+ * May 9, 2013  1989       njensen     Spring 3.1.4 compatibility
  * 
  * </pre>
  * 
@@ -40,7 +51,20 @@ import com.raytheon.uf.common.event.IEventBusHandler;
  * @version 1.0
  */
 
-public class EdexEventBusHandler implements IEventBusHandler {
+public class EdexEventBusHandler implements IEventBusHandler,
+        TransactionSynchronization {
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(EdexEventBusHandler.class);
+
+    private static ThreadLocal<List<Event>> eventStorageList = new ThreadLocal<List<Event>>() {
+
+        @Override
+        protected List<Event> initialValue() {
+            return Lists.newArrayList();
+        }
+
+    };
 
     @VisibleForTesting
     EdexEventBusHandler(GoogleEventBusFactory eventBusFactory) {
@@ -64,7 +88,32 @@ public class EdexEventBusHandler implements IEventBusHandler {
      */
     @Override
     public void publish(Event event) {
-        this.googleEventBus.post(event);
+        if (isTransactionActive()) {
+
+            if (TransactionSynchronizationManager.isSynchronizationActive()) {
+                if (!TransactionSynchronizationManager.getSynchronizations()
+                        .contains(this)) {
+                    TransactionSynchronizationManager
+                            .registerSynchronization(this);
+                }
+            }
+            eventStorageList.get().add(event);
+        } else {
+            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                statusHandler
+                        .debug("Sending event from non-transactional operation");
+            }
+            this.googleEventBus.post(event);
+        }
+    }
+
+    /**
+     * Check to see if a transaction is active.
+     * 
+     * @return true if a transaction is active
+     */
+    protected boolean isTransactionActive() {
+        return TransactionSynchronizationManager.isActualTransactionActive();
     }
 
     /**
@@ -83,4 +132,46 @@ public class EdexEventBusHandler implements IEventBusHandler {
         this.googleEventBus.unregister(subscriber);
     }
 
+    @Override
+    public void suspend() {
+    }
+
+    @Override
+    public void resume() {
+    }
+
+    @Override
+    public void beforeCommit(boolean readOnly) {
+    }
+
+    @Override
+    public void beforeCompletion() {
+    }
+
+    @Override
+    public void afterCommit() {
+
+    }
+
+    @Override
+    public void afterCompletion(int status) {
+        List<Event> list = eventStorageList.get();
+        if (status == TransactionSynchronization.STATUS_COMMITTED) {
+            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                statusHandler.debug("Posting " + list.size()
+                        + " events on the event bus");
+            }
+            for (Event event : list) {
+                this.googleEventBus.post(event);
+            }
+        } else if (status == TransactionSynchronization.STATUS_ROLLED_BACK) {
+            statusHandler.info("Transaction rolled back. Discarding "
+                    + list.size() + " events.");
+        }
+        list.clear();
+    }
+
+    @Override
+    public void flush() {
+    }
 }

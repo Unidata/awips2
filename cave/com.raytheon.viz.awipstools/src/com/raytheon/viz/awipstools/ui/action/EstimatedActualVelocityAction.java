@@ -19,7 +19,7 @@
  **/
 package com.raytheon.viz.awipstools.ui.action;
 
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.viz.awipstools.ui.layer.EstimatedActualVelocityLayer;
 import com.raytheon.viz.awipstools.ui.layer.ShearLayer;
 
@@ -48,8 +48,8 @@ public class EstimatedActualVelocityAction extends ShearAction {
      * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
      */
     @Override
-    protected AwipsToolsResourceData<ShearLayer> getResourceData() {
-        return new AwipsToolsResourceData<ShearLayer>(
+    protected GenericToolsResourceData<ShearLayer> getResourceData() {
+        return new GenericToolsResourceData<ShearLayer>(
                 EstimatedActualVelocityLayer.EST_ACT_VEL_LOCATION,
                 EstimatedActualVelocityLayer.class);
     }

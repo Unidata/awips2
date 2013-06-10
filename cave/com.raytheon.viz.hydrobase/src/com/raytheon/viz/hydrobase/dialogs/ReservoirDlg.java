@@ -21,7 +21,6 @@ package com.raytheon.viz.hydrobase.dialogs;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
@@ -43,6 +42,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.DamTypeData;
 import com.raytheon.viz.hydrocommon.data.ReservoirData;
@@ -64,6 +66,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 05/05/2009         mpduff      Added form validation.
  * 11/03/2011	11440       lbousaidi	removed form validation and only kept one 
  * 										validation check for date to match AWIPSI.
+ * Apr 25, 2013 1790        rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -71,6 +74,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ReservoirDlg.class);
 
     /**
      * Name text control.
@@ -212,17 +217,17 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
     /**
      * Dam Type Data.
      */
-    private ArrayList<DamTypeData> damTypesData;
+    private java.util.List<DamTypeData> damTypesData;
 
     /**
      * Reservoir Owner Data.
      */
-    private ArrayList<ReservoirOwnerData> resOwnerData;
+    private java.util.List<ReservoirOwnerData> resOwnerData;
 
     /**
      * Reservoir Data.
      */
-    private ArrayList<ReservoirData> resData;
+    private java.util.List<ReservoirData> resData;
 
     /**
      * Location Identifier.
@@ -235,19 +240,24 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 
     /**
-     * Constructor.
+     * Non-blocking Constructor.
      * 
      * @param parent
      *            Parent shell.
      */
     public ReservoirDlg(Shell parent, String titleInfo, String lid) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Reservoir" + titleInfo);
 
         this.lid = lid;
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -258,9 +268,16 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
+        setReturnValue(lid);
         // Initialize all of the controls and layouts
         createInformationGroup();
 
@@ -586,7 +603,7 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
             public void widgetSelected(SelectionEvent event) {
                 if (validateDateForm()) {
                     if (saveRecord()) {
-                        shell.dispose();
+                        close();
                     }
                 }
             }
@@ -600,7 +617,7 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -633,7 +650,8 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
         try {
             damTypesData = HydroDBDataManager.getInstance().getData(seedData1);
         } catch (VizException e) {
-            // e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to get dam type data. ", e);
         }
 
         // Get the Reservoir Owner Data
@@ -646,7 +664,8 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
         try {
             resOwnerData = HydroDBDataManager.getInstance().getData(seedData2);
         } catch (VizException e) {
-            // e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to get reservoir owner data. ", e);
         }
 
         // Type combo
@@ -662,8 +681,10 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
 
     }
 
-    /**
-     * Get the reservoir data from the database that matched the location ID.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#getDialogData()
      */
     @Override
     public void getDialogData() {
@@ -678,14 +699,18 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
         try {
             resData = HydroDBDataManager.getInstance().getData(seedData);
         } catch (VizException e) {
-            // e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to get reservioir data. ", e);
         }
 
         updateDialogDisplay();
     }
 
-    /**
-     * Update the reservoir data.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.hydrobase.dialogs.IHydroDialog#updateDialogDisplay()
      */
     @Override
     public void updateDialogDisplay() {
@@ -718,8 +743,7 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
             topTF.setText(HydroDataUtils.getDisplayString(currData.getTop()));
             maxSurchargeTF.setText(HydroDataUtils.getDisplayString(currData
                     .getSurchg()));
-            gatesTF.setText(HydroDataUtils
-                    .getDisplayString(currData.getGates()));
+            gatesTF.setText(HydroDataUtils.getDisplayString(currData.getGates()));
             impoundTF.setText((currData.getImpounded() != null) ? dateFormat
                     .format(currData.getImpounded()) : "");
             floodControlChk
@@ -752,8 +776,10 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
         updateDialogState();
     }
 
-    /**
-     * Update the dialog's state.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#updateDialogState()
      */
     @Override
     public void updateDialogState() {
@@ -773,10 +799,20 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#updateInformation()
+     */
     @Override
     public void updateInformation() {
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#getSelectedDatum()
+     */
     @Override
     public ReservoirData getSelectedDatum() {
         return resData.get(0);
@@ -827,26 +863,27 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
      * @return true if form is correctly filled out
      */
     private boolean validateDateForm() {
-        boolean isValid = true;      
+        boolean isValid = true;
 
-       if (impoundTF.getText().equals("")) {       
-        	 isValid = false;
+        if (impoundTF.getText().equals("")) {
+            isValid = false;
         }
 
         if (!isValid) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
             mb.setText("Invalid Date");
-            mb
-                    .setMessage("Please enter a valid date in the form:MM/DD/YYYY");
-            
+            mb.setMessage("Please enter a valid date in the form:MM/DD/YYYY");
+
             mb.open();
         }
 
         return isValid;
     }
 
-    /**
-     * Save the record to the database.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#saveRecord()
      */
     @Override
     public boolean saveRecord() {
@@ -859,31 +896,32 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
         dataToSave.setType(typeCbo.getText());
         dataToSave.setOwner(ownerCbo.getText());
         if (!deadTF.getText().equals("")) {
-        	dataToSave.setDeadpool(Double.parseDouble(deadTF.getText()));
+            dataToSave.setDeadpool(Double.parseDouble(deadTF.getText()));
         }
-        if (!conservationTF.getText().equals("")){
-        	dataToSave.setConserpool(Double.parseDouble(conservationTF.getText()));
+        if (!conservationTF.getText().equals("")) {
+            dataToSave.setConserpool(Double.parseDouble(conservationTF
+                    .getText()));
         }
-        if (!floodTF.getText().equals("")){
-        	dataToSave.setFloodpool(Double.parseDouble(floodTF.getText()));
+        if (!floodTF.getText().equals("")) {
+            dataToSave.setFloodpool(Double.parseDouble(floodTF.getText()));
         }
         if (!spillwayTF.getText().equals("")) {
-        	dataToSave.setSpillway(Double.parseDouble(spillwayTF.getText()));
+            dataToSave.setSpillway(Double.parseDouble(spillwayTF.getText()));
         }
         if (!sillTF.getText().equals("")) {
-        	dataToSave.setSill(Double.parseDouble(sillTF.getText()));
+            dataToSave.setSill(Double.parseDouble(sillTF.getText()));
         }
         if (!reservoirTF.getText().equals("")) {
-        	dataToSave.setElev(Double.parseDouble(reservoirTF.getText()));
+            dataToSave.setElev(Double.parseDouble(reservoirTF.getText()));
         }
         if (!topTF.getText().equals("")) {
-        	dataToSave.setTop(Double.parseDouble(topTF.getText()));
+            dataToSave.setTop(Double.parseDouble(topTF.getText()));
         }
         if (!maxSurchargeTF.getText().equals("")) {
-        	dataToSave.setSurchg(Double.parseDouble(maxSurchargeTF.getText()));
+            dataToSave.setSurchg(Double.parseDouble(maxSurchargeTF.getText()));
         }
         if (!gatesTF.getText().equals("")) {
-        	dataToSave.setGates(Integer.parseInt(gatesTF.getText()));
+            dataToSave.setGates(Integer.parseInt(gatesTF.getText()));
         }
         if (!impoundTF.getText().equals("")) {
             try {
@@ -892,8 +930,7 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
             } catch (ParseException e) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Invalid Date");
-                mb
-                        .setMessage("Please enter a valid date in the form: MM/DD/YYYY");
+                mb.setMessage("Please enter a valid date in the form: MM/DD/YYYY");
                 mb.open();
                 return false;
             }
@@ -919,9 +956,6 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
             // Synchronize StnClass table
             StnClassSyncUtil.setStnClass(lid);
         } catch (VizException e) {
-            MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-            mb.setText("Unable to Save");
-            mb.setMessage("An error occurred while trying to save.");
 
             String cause = e.getCause().getMessage();
 
@@ -929,6 +963,9 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
 
             // If the exception contain the SQL exception "ERROR:"
             if (causeStart > 0) {
+                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+                mb.setText("Unable to Save");
+                mb.setMessage("An error occurred while trying to save.");
                 int causeEnd = cause.indexOf("\n", causeStart);
 
                 cause = cause.substring(causeStart, causeEnd);
@@ -937,11 +974,11 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
                     mb.setMessage("Please enter data for " + lid
                             + " in the River Gauge dialog first");
                 }
+                mb.open();
+            } else {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to save record. ", e);
             }
-
-            mb.open();
-
-            e.printStackTrace();
             return false;
         }
 
@@ -950,8 +987,10 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
         return true;
     }
 
-    /**
-     * Delete the record from the database.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#deleteRecord()
      */
     @Override
     public void deleteRecord() {
@@ -975,21 +1014,15 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
                     MessageBox mbDel = new MessageBox(shell, SWT.ICON_ERROR
                             | SWT.OK);
                     mbDel.setText("Unable to Delete");
-                    mbDel
-                            .setMessage("No item is selected in the reservoir list");
+                    mbDel.setMessage("No item is selected in the reservoir list");
                     mbDel.open();
                 }
 
                 clearForm();
 
             } catch (VizException e) {
-                MessageBox mbDel = new MessageBox(shell, SWT.ICON_ERROR
-                        | SWT.OK);
-                mbDel.setText("Unable to Delete");
-                mbDel.setMessage("An error occurred while trying to delete.");
-                mbDel.open();
-
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to delete record. ", e);
             }
         }
 
@@ -997,25 +1030,10 @@ public class ReservoirDlg extends CaveSWTDialog implements IHydroDialog {
         getDialogData();
     }
 
-    /**
-     * Check for an empty or null string.
+    /*
+     * (non-Javadoc)
      * 
-     * @param value
-     *            The String to check
-     * @return True if value is valid string
-     */
-    private boolean checkString(String value) {
-        boolean isValid = true;
-
-        if ((value == null) || value.trim().equals("")) {
-            isValid = false;
-        }
-
-        return isValid;
-    }
-
-    /**
-     * Clear the text fields in the form.
+     * @see com.raytheon.viz.hydrobase.dialogs.IHydroDialog#clearForm()
      */
     @Override
     public void clearForm() {

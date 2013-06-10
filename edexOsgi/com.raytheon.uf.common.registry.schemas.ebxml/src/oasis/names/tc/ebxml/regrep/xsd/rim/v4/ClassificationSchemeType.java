@@ -64,8 +64,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "ClassificationSchemeType")
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
-@Table(name = "ClassificationScheme")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
+@Table(schema = "ebxml", name = "ClassificationScheme")
 public class ClassificationSchemeType extends TaxonomyElementType {
 
     @XmlAttribute(required = true)

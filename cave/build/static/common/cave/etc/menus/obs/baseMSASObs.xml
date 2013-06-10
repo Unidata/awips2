@@ -21,7 +21,6 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
        <contribute xsi:type="bundleItem" file="bundles/MsasQCPlot.xml" 
                menuText="NWS MSL Pressure" id="msasMSLnwsPressure">
-           <dataURI>/obs/%</dataURI>
            <substitute key="svgPrefix" value="msasMSLnwsPressure"/>
            <substitute key="legend" value="msas MSLP-nws Obs(mb*10)"/> 
            <substitute key="posOffset" value="1800"/>
@@ -31,7 +30,6 @@
        </contribute>
        <contribute xsi:type="bundleItem" file="bundles/MsasQCPlot.xml" 
                menuText="MSAS MSL Pressure" id="msasMAPSPressure">
-           <dataURI>/obs/%</dataURI>
            <substitute key="svgPrefix" value="msasMAPSPressure"/>
            <substitute key="legend" value="msas MSL Obs(mb*10)"/> 
            <substitute key="posOffset" value="1800"/>
@@ -41,7 +39,6 @@
        </contribute>
        <contribute xsi:type="bundleItem" file="bundles/MsasQCPlot.xml" 
                menuText="Altimeter" id="msasAltimeter">
-           <dataURI>/obs/%</dataURI>
            <substitute key="svgPrefix" value="msasAltimeter"/>
            <substitute key="legend" value="msas altimeter Obs(mb*10)"/> 
            <substitute key="posOffset" value="1800"/>
@@ -51,7 +48,6 @@
        </contribute>
        <contribute xsi:type="bundleItem" file="bundles/MsasQCPlot.xml" 
          menuText="3hr Pressure Change" id="msas3hrPressureChange">
-           <dataURI>/obs/%</dataURI>
            <substitute key="svgPrefix" value="msas3hrPressureChange"/>
            <substitute key="legend" value="msas 3hr press change Obs(mb*10)"/> 
            <substitute key="posOffset" value="1800"/>
@@ -61,7 +57,6 @@
        </contribute>
        <contribute xsi:type="bundleItem" file="bundles/MsasQCPlot.xml" 
                menuText="Wind" id="msasWind">
-           <dataURI>/obs/%</dataURI>
            <substitute key="svgPrefix" value="msasWind"/>
            <substitute key="legend" value="msas wind Obs(kts)"/> 
            <substitute key="posOffset" value="1800"/>
@@ -71,7 +66,6 @@
        </contribute>
        <contribute xsi:type="bundleItem" file="bundles/MsasQCPlot.xml" 
                menuText="Potential Temp" id="msasPotentialTemp">
-           <dataURI>/obs/%</dataURI>
            <substitute key="svgPrefix" value="msasPotentialTemp"/>
            <substitute key="legend" value="msas theta Obs(K)"/> 
            <substitute key="posOffset" value="1800"/>
@@ -81,7 +75,6 @@
        </contribute>
        <contribute xsi:type="bundleItem" file="bundles/MsasQCPlot.xml" 
                menuText="Dewpoint" id="msasDewpoint">
-           <dataURI>/obs/%</dataURI>
            <substitute key="svgPrefix" value="msasDewpoint"/>
            <substitute key="legend" value="msas dewpoint Obs(F)"/> 
            <substitute key="posOffset" value="1800"/>
@@ -91,7 +84,6 @@
        </contribute>
        <contribute xsi:type="bundleItem" file="bundles/MsasQCPlot.xml" 
                menuText="Dewpoint Depression" id="msasDewpointDepression">
-           <dataURI>/obs/%</dataURI>
            <substitute key="svgPrefix" value="msasDewpointDepression"/>
            <substitute key="legend" value="msas dewpoint dep Obs(F)"/> 
            <substitute key="posOffset" value="1800"/>

@@ -20,11 +20,15 @@
 package com.raytheon.uf.viz.datadelivery.utils;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
@@ -39,8 +43,11 @@ import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
+import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionManagerRowData;
+import com.raytheon.uf.viz.datadelivery.subscription.approve.SubscriptionApprovalRowData;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -64,6 +71,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 14, 2013 1286       djohnson     Fix IndexOutOfBounds exception from getMaxLatency.
  * Jan 22, 2013 1519       djohnson     Correct getMaxLatency() calculations.
  * Jan 30, 2013 1543       djohnson     Use List instead of ArrayList.
+ * Apr 08, 2013 1826       djohnson     Add getDisplayData() method to subscription columns.
+ * Apr 10, 2013 1891       djohnson     Add getDisplayData() method to pending subscription columns.
+ * May 15, 2013 1040       mpduff       Using Set for office Ids.
+ * May 20, 2013 2000       djohnson     Add message to inform the user changes were applied.
  * </pre>
  * 
  * @author mpduff
@@ -160,34 +171,114 @@ public class DataDeliveryUtils {
     /** Enumeration to use for subscription table columns */
     public static enum SubColumnNames {
         /** Column Name */
-        NAME("Name", null),
+        NAME("Name", null) {
+            @Override
+            public String getDisplayData(SubscriptionManagerRowData rd) {
+                return rd.getName();
+            }
+        },
         /** Column Owner */
-        OWNER("Owner", null),
+        OWNER("Owner", null) {
+            @Override
+            public String getDisplayData(SubscriptionManagerRowData rd) {
+                return rd.getOwner();
+            }
+        },
         /** Column Status */
-        STATUS("Status", null),
+        STATUS("Status", null) {
+            @Override
+            public String getDisplayData(SubscriptionManagerRowData rd) {
+                return rd.getStatus();
+            }
+        },
         /** Column Priority */
-        PRIORITY("Priority", null),
+        PRIORITY("Priority", null) {
+            @Override
+            public String getDisplayData(SubscriptionManagerRowData rd) {
+                return String.valueOf(rd.getPriority());
+            }
+        },
         /** Column Description */
-        DESCRIPTION("Description", null),
+        DESCRIPTION("Description", null) {
+            @Override
+            public String getDisplayData(SubscriptionManagerRowData rd) {
+                return rd.getDescription();
+            }
+        },
         /** Column Subscription Start */
-        SUBSCRIPTION_START("Subscription Start", "Date subscription will begin"),
+        SUBSCRIPTION_START("Subscription Start", "Date subscription will begin") {
+            @Override
+            public String getDisplayData(SubscriptionManagerRowData rd) {
+                Date date = rd.getSubscriptionStart();
+                if (date != null) {
+                    return formatMMddyyyyHH(date);
+                }
+                return null;
+            }
+        },
         /** Column Subscription Expiration */
         SUBSCRIPTION_EXPIRATION("Subscription Expiration",
-                "Date subscription will expire"),
+                "Date subscription will expire") {
+            @Override
+            public String getDisplayData(SubscriptionManagerRowData rd) {
+                Date date = rd.getSubscriptionEnd();
+                if (date == null) {
+                    return "No Expiration";
+                } else {
+                    return formatMMddyyyyHH(date);
+                }
+            }
+        },
         /** Column Active Period Start */
-        ACTIVE_START("Active Period Start", null),
+        ACTIVE_START("Active Period Start", null) {
+            @Override
+            public String getDisplayData(SubscriptionManagerRowData rd) {
+                Date date = rd.getActiveStart();
+                if (date != null) {
+                    return formatMMddHH(date);
+                }
+                return null;
+            }
+        },
         /** Column Active Period Start */
-        ACTIVE_END("Active Period End", null),
-        /** Column Delivery */
-        DELIVERY("Delivery/Notify", "Delivery or Notify indicator"),
+        ACTIVE_END("Active Period End", null) {
+            @Override
+            public String getDisplayData(SubscriptionManagerRowData rd) {
+                Date date = rd.getActiveEnd();
+                if (date != null) {
+                    return formatMMddHH(date);
+                }
+                return null;
+            }
+        },
         /** Column Office Id */
-        OFFICE_ID("Office ID", null),
+        OFFICE_ID("Office ID", null) {
+            @Override
+            public String getDisplayData(SubscriptionManagerRowData rd) {
+                return rd.getOfficeIdsDisplayList();
+            }
+        },
         /** Column Full Dataset */
-        FULL_DATA_SET("Full Dataset", null),
+        FULL_DATA_SET("Full Dataset", null) {
+            @Override
+            public String getDisplayData(SubscriptionManagerRowData rd) {
+                return rd.getFullDataSet().toString();
+            }
+        },
         /** Column Data Size */
-        DATA_SIZE("Data Size", null),
+        DATA_SIZE("Data Size", null) {
+            @Override
+            public String getDisplayData(SubscriptionManagerRowData rd) {
+                return String.valueOf(rd.getDataSetSize());
+            }
+        },
         /** Column Group Name */
-        GROUP_NAME("Group Name", null);
+        GROUP_NAME("Group Name", null) {
+            @Override
+            public String getDisplayData(SubscriptionManagerRowData rd) {
+                return rd.getGroupName();
+            }
+        };
 
         /** Column name */
         private final String columnName;
@@ -221,6 +312,37 @@ public class DataDeliveryUtils {
         @Override
         public String toString() {
             return columnName;
+        }
+
+        public abstract String getDisplayData(SubscriptionManagerRowData rd);
+
+        /**
+         * @param name
+         * @return
+         */
+        public static SubColumnNames fromDisplayString(String name) {
+            for (SubColumnNames subColumnName : values()) {
+                if (subColumnName.toString().equals(name)) {
+                    return subColumnName;
+                }
+            }
+            throw new IllegalArgumentException(
+                    "Unable to find enumeration with display string [" + name
+                            + "]");
+        }
+
+        private static String formatMMddyyyyHH(Date date) {
+            return formatDate(date, "MM/dd/yyyy HH");
+        }
+
+        private static String formatMMddHH(Date date) {
+            return formatDate(date, "MM/dd HH");
+        }
+
+        private static String formatDate(Date date, String format) {
+            SimpleDateFormat sdf2 = new SimpleDateFormat(format);
+            sdf2.setTimeZone(TimeZone.getTimeZone("GMT"));
+            return sdf2.format(date) + "Z";
         }
     }
 
@@ -270,17 +392,47 @@ public class DataDeliveryUtils {
      */
     public static enum PendingSubColumnNames {
         /** Subscription name */
-        NAME("Subscription Name", null),
+        NAME("Subscription Name", null) {
+            @Override
+            public String getDisplayData(SubscriptionApprovalRowData rd) {
+                return rd.getSubName();
+            }
+        },
         /** Requested Action */
-        ACTION("Action", null),
+        ACTION("Action", null) {
+            @Override
+            public String getDisplayData(SubscriptionApprovalRowData rd) {
+                return rd.getAction();
+            }
+        },
         /** Subscription owner */
-        OWNER("Owner", null),
+        OWNER("Owner", null) {
+            @Override
+            public String getDisplayData(SubscriptionApprovalRowData rd) {
+                return rd.getOwner();
+            }
+        },
         /** Change ID */
-        CHANGE_ID("Requested Change", null),
+        CHANGE_ID("Requested Change", null) {
+            @Override
+            public String getDisplayData(SubscriptionApprovalRowData rd) {
+                return rd.getChangeOwner();
+            }
+        },
         /** Office ID */
-        OFFICE("Office Id", null),
+        OFFICE("Office Id", null) {
+            @Override
+            public String getDisplayData(SubscriptionApprovalRowData rd) {
+                return rd.getOfficeIdsAsList();
+            }
+        },
         /** Description */
-        DESCRIPTION("Description", null);
+        DESCRIPTION("Description", null) {
+            @Override
+            public String getDisplayData(SubscriptionApprovalRowData rd) {
+                return rd.getDescription();
+            }
+        };
 
         private final String columnName;
 
@@ -324,6 +476,15 @@ public class DataDeliveryUtils {
             // default to NAME.
             return NAME;
         }
+
+        /**
+         * Get the data this column displays for the row.
+         * 
+         * @param rd
+         *            the row data
+         * @return the display value
+         */
+        public abstract String getDisplayData(SubscriptionApprovalRowData rd);
     }
 
     /**
@@ -430,6 +591,17 @@ public class DataDeliveryUtils {
     }
 
     /**
+     * Inform the user their changes were applied.
+     * 
+     * @param shell
+     *            the shell reference
+     */
+    public static void showChangesWereAppliedMessage(Shell shell) {
+        showMessage(shell, SWT.OK, "Changes Applied",
+                "The changes were successfully applied.");
+    }
+
+    /**
      * Provides the text for the subscription details dialog
      * 
      * @param sub
@@ -438,7 +610,7 @@ public class DataDeliveryUtils {
      * @return The formated details string
      */
     public static String formatDetails(Subscription sub) {
-        final String newline = System.getProperty("line.separator");
+        final String newline = StringUtil.NEWLINE;
         final String space = " ";
         final String comma = ", ";
 
@@ -452,24 +624,26 @@ public class DataDeliveryUtils {
                 .append(newline);
         fmtStr.append("Dataset Size: ").append(sub.getDataSetSize())
                 .append(newline);
-        fmtStr.append("Provider : ").append(sub.getProvider()).append(newline);
-        fmtStr.append("Office ID: ").append(sub.getOfficeID()).append(newline);
-        fmtStr.append("Priority : ")
+        fmtStr.append("Provider: ").append(sub.getProvider()).append(newline);
+        fmtStr.append("Office IDs: ")
+                .append(getFormatedList(sub.getOfficeIDs())).append(newline);
+        fmtStr.append("Priority: ")
                 .append(sub.getPriority().getPriorityValue()).append(newline);
+        fmtStr.append("Network: ").append(sub.getRoute()).append(newline);
 
         fmtStr.append("Coverage: ").append(newline);
         final Coverage coverage = sub.getCoverage();
         if (coverage.getProjection() != null) {
-            fmtStr.append("------ Projection : ")
+            fmtStr.append("------ Projection: ")
                     .append(coverage.getProjection()).append(newline);
         } else {
-            fmtStr.append("------ Projection : ").append(newline);
+            fmtStr.append("------ Projection: ").append(newline);
         }
         final DecimalFormat decimalFormat = format.get();
         final Coordinate requestLowerRight = coverage.getRequestLowerRight();
         final Coordinate requestUpperLeft = coverage.getRequestUpperLeft();
         if (requestLowerRight == null || requestUpperLeft == null) {
-            fmtStr.append("------ Upper Left : ")
+            fmtStr.append("------ Upper Left:  ")
                     .append(decimalFormat.format(coverage.getUpperLeft().x))
                     .append(comma)
                     .append((decimalFormat.format(coverage.getUpperLeft().y)))
@@ -480,7 +654,7 @@ public class DataDeliveryUtils {
                     .append(decimalFormat.format(coverage.getLowerRight().y))
                     .append(newline);
         } else {
-            fmtStr.append("------ Upper Left : ")
+            fmtStr.append("------ Upper Left:  ")
                     .append(decimalFormat.format(requestUpperLeft.x))
                     .append(comma)
                     .append(decimalFormat.format(requestUpperLeft.y))
@@ -523,14 +697,14 @@ public class DataDeliveryUtils {
                     .append(newline);
             fmtStr.append("------ Definition: ").append(p.getDefinition())
                     .append(newline);
-            fmtStr.append("------ Data Type : ").append(p.getDataType())
+            fmtStr.append("------ Data Type: ").append(p.getDataType())
                     .append(newline);
 
             fmtStr.append("------ Level Type: ").append(newline);
             for (DataLevelType dlt : p.getLevelType()) {
                 fmtStr.append("------------ Type: ").append(dlt.getType())
                         .append(newline);
-                fmtStr.append("------------ ID  : ").append(dlt.getId())
+                fmtStr.append("------------ ID: ").append(dlt.getId())
                         .append(newline);
                 if (dlt.getUnit() != null) {
                     fmtStr.append("------------ Unit: ").append(dlt.getUnit())
@@ -542,6 +716,17 @@ public class DataDeliveryUtils {
         }
 
         return fmtStr.toString();
+    }
+
+    /**
+     * Get a formatted list.
+     * 
+     * @param list
+     *            List of items
+     * @return a formatted list as a String
+     */
+    public static String getFormatedList(Set<String> list) {
+        return StringUtil.getIndentedList(list, "            ");
     }
 
     /**
@@ -587,7 +772,8 @@ public class DataDeliveryUtils {
             final int nextIndex = i + 1;
             if (nextIndex < size) {
                 int tempMax = cycles.get(nextIndex) - cycles.get(i);
-                maximumTimeBetweenCycles = Math.max(maximumTimeBetweenCycles, tempMax);
+                maximumTimeBetweenCycles = Math.max(maximumTimeBetweenCycles,
+                        tempMax);
             }
         }
 

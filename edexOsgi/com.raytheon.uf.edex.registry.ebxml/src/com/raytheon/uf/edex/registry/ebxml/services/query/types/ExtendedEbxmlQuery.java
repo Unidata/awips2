@@ -24,7 +24,7 @@ import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnsupportedCapabilityExceptionType;
 
-import com.raytheon.uf.edex.registry.ebxml.constants.ErrorSeverity;
+import com.raytheon.uf.common.registry.constants.ErrorSeverity;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 
 /**

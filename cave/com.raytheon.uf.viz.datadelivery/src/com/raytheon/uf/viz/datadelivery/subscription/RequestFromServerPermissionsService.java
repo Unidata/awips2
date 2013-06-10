@@ -22,6 +22,8 @@ package com.raytheon.uf.viz.datadelivery.subscription;
 import java.rmi.RemoteException;
 
 import com.raytheon.uf.common.auth.user.IUser;
+import com.raytheon.uf.common.datadelivery.registry.SharedSubscription;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
@@ -41,6 +43,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Jan 04, 2013 1441       djohnson     Initial creation
  * Jan 21, 2013 1441       djohnson     Use RequestRouter.
  * Feb 26, 2013 1643       djohnson     Extends base class.
+ * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
  * 
  * </pre>
  * 
@@ -86,7 +90,7 @@ public class RequestFromServerPermissionsService extends
             return (isAuthorized()) ? response.isAuthorized(permission) : false;
         }
     }
-
+    
     /**
      * {@inheritDoc}
      */
@@ -94,6 +98,21 @@ public class RequestFromServerPermissionsService extends
     public IAuthorizedPermissionResponse checkPermissionToChangeSubscription(
             final IUser user, String notAuthorizedMessage,
             final Subscription subscription) throws VizException {
+
+        // TODO: Can this be done better?
+        if (subscription instanceof SiteSubscription) {
+            return checkPermissionToChangeSubscription(user,
+                    notAuthorizedMessage, (SiteSubscription) subscription);
+        } else {
+            return checkPermissionToChangeSubscription(user,
+                    notAuthorizedMessage, (SharedSubscription) subscription);
+        }
+
+    }
+
+    private IAuthorizedPermissionResponse checkPermissionToChangeSubscription(
+            final IUser user, String notAuthorizedMessage,
+            final SiteSubscription subscription) throws VizException {
 
         final IAuthorizedPermissionResponse r = checkPermissions(user,
                 notAuthorizedMessage,
@@ -123,6 +142,18 @@ public class RequestFromServerPermissionsService extends
         }
     }
 
+    private IAuthorizedPermissionResponse checkPermissionToChangeSubscription(
+            final IUser user, String notAuthorizedMessage,
+            final SharedSubscription subscription) throws VizException {
+
+        // TODO: New permission to approve/change shared subscriptions?
+        final IAuthorizedPermissionResponse r = checkPermissions(user,
+                notAuthorizedMessage,
+                DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE);
+
+        return r;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -146,7 +177,6 @@ public class RequestFromServerPermissionsService extends
         request.setUser(user);
         request.addRequestedPermissions(permissions);
         request.setNotAuthorizedMessage(notAuthorizedMessage);
-
 
         try {
             DataDeliveryAuthRequest r = sendRequest(request,

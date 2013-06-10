@@ -35,6 +35,7 @@ import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.TabFolder;
 
 import com.raytheon.viz.gfe.Activator;
+import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.FormatterLauncherDialog;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.ConfigData.productStateEnum;
 import com.raytheon.viz.gfe.tasks.AbstractGfeTask;
@@ -45,7 +46,7 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
 
 /**
  * Composite containing the product area and its controls.
- *
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -58,12 +59,14 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  *                                     based on VTECMessageType setting.
  * 10 AUG 2012 15178  	   mli		   Add autoWrite and autoStore capability
  * 26 SEP 2012 15423       ryu         Fix product correction in practice mode
- *
+ * 15 MAY 2013  1842       dgilling    Change constructor signature to accept a
+ *                                     DataManager instance.
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
- *
+ * 
  */
 public class ProductAreaComp extends Composite implements
         TextProductFinishListener, ITransmissionState {
@@ -189,25 +192,29 @@ public class ProductAreaComp extends Composite implements
 
     private TextProductManager textProductMgr;
 
+    private final DataManager dataMgr;
+
     private boolean practiceMode;
 
     private boolean isTabClosed = false;
 
     /**
      * Constructor.
-     *
+     * 
      * @param parent
      *            Parent composite.
      */
     public ProductAreaComp(TabFolder parent, IProductTab productTabCB,
             String productName, boolean editorCorrectionMode,
-            TextProductManager textProductMgr, boolean practiceMode) {
+            TextProductManager textProductMgr, DataManager dataMgr,
+            boolean practiceMode) {
         super(parent, SWT.NONE);
 
         this.productName = productName;
         this.editorCorrectionMode = editorCorrectionMode;
         this.productTabCB = productTabCB;
         this.textProductMgr = textProductMgr;
+        this.dataMgr = dataMgr;
         this.practiceMode = practiceMode;
 
         init();
@@ -439,14 +446,14 @@ public class ProductAreaComp extends Composite implements
                         .get("pil");
             }
             if (pil != null) {
-                String vtecMode = textProductMgr.getVtecMessageType(
-                                       pil.substring(0, 3));
+                String vtecMode = textProductMgr.getVtecMessageType(pil
+                        .substring(0, 3));
                 if (vtecMode == null) {
-                	pracType = 0;
+                    pracType = 0;
                 } else if ("O".equals(vtecMode)) {
                     pracType = 1;
                 } else if ("E".equals(vtecMode)) {
-                	pracType = 2;
+                    pracType = 2;
                 } else if ("X".equals(vtecMode)) {
                     pracType = 3;
                 } else if ("T".equals(vtecMode)) {
@@ -592,7 +599,7 @@ public class ProductAreaComp extends Composite implements
     private void createProductEditorComp() {
         productEditorComp = new ProductEditorComp(stackGridComp,
                 textProductMgr.getProductDefinition(productName), productName,
-                editorCorrectionMode, this);
+                editorCorrectionMode, this, dataMgr);
         ((GridData) productEditorComp.getLayoutData()).exclude = true;
         productEditorComp.setVisible(false);
         stackGridComp.layout();
@@ -609,7 +616,7 @@ public class ProductAreaComp extends Composite implements
     }
 
     /**
-     *
+     * 
      * @return the textProductManager
      */
     public TextProductManager getTextProductManager() {
@@ -618,7 +625,7 @@ public class ProductAreaComp extends Composite implements
 
     /**
      * Sets the textProductManager
-     *
+     * 
      * @param textProductManager
      */
     public void setTextProductManager(TextProductManager textProductManager) {

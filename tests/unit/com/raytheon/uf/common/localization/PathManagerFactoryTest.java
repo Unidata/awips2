@@ -25,6 +25,9 @@ import java.io.File;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -43,6 +46,7 @@ import com.raytheon.uf.common.util.TestUtil;
  * ------------ ---------- ----------- --------------------------
  * Jul 18, 2012 740        djohnson     Initial creation
  * Oct 23, 2012 1286       djohnson     Handle executing tests in Eclipse/command-line transparently.
+ * Apr 18, 2013 1914       djohnson     Allow initializing test localization support from Spring.
  * 
  * </pre>
  * 
@@ -50,7 +54,7 @@ import com.raytheon.uf.common.util.TestUtil;
  * @version 1.0
  */
 
-public class PathManagerFactoryTest {
+public class PathManagerFactoryTest implements BeanFactoryPostProcessor {
 
     private static File savedLocalizationFileDir;
 
@@ -91,6 +95,21 @@ public class PathManagerFactoryTest {
      */
     private static boolean isRunningInEclipse() {
         return new File("..", "edexOsgi").isDirectory();
+    }
+
+    /**
+     * Initializes test localization support before any Spring beans are
+     * created.
+     * 
+     * @param beanFactory
+     *            the bean factory
+     * @throws BeansException
+     *             shouldn't happen
+     */
+    @Override
+    public void postProcessBeanFactory(
+            ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        PathManagerFactoryTest.initLocalization();
     }
 
     @Before
@@ -153,4 +172,5 @@ public class PathManagerFactoryTest {
                 file.getParentFile().getAbsolutePath()
                         .startsWith(savedLocalizationFileDir.getAbsolutePath()));
     }
+
 }

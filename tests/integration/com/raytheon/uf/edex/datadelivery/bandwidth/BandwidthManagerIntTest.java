@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -61,6 +62,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Time;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -100,6 +102,9 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Jan 30, 2013 1501       djohnson     Fix broken calculations for determining required latency.
  * Feb 14, 2013 1595       djohnson     Fix expired subscription updates that weren't scheduling retrievals.
  * Feb 14, 2013 1596       djohnson     Add test duplicating errors deleting multiple subscriptions for the same provider/dataset.
+ * Mar 11, 2013 1645       djohnson     Test configuration file modifications.
+ * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * Apr 29, 2013 1910       djohnson     Always shutdown bandwidth managers in tests.
  * 
  * </pre>
  * 
@@ -414,8 +419,10 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
     public void expiredSubscriptionUpdatedToNonExpiredIsScheduled()
             throws Exception {
 
-        final Date yesterday = new Date(TimeUtil.currentTimeMillis() - TimeUtil.MILLIS_PER_DAY);
-        final Date oneHourAgo = new Date(TimeUtil.currentTimeMillis() - TimeUtil.MILLIS_PER_HOUR);
+        final Date yesterday = new Date(TimeUtil.currentTimeMillis()
+                - TimeUtil.MILLIS_PER_DAY);
+        final Date oneHourAgo = new Date(TimeUtil.currentTimeMillis()
+                - TimeUtil.MILLIS_PER_HOUR);
 
         Subscription subscription = createSubscriptionThatFillsHalfABucket();
         subscription.setSubscriptionStart(yesterday);
@@ -424,7 +431,8 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         bandwidthManager.subscriptionUpdated(subscription);
 
         // Make sure nothing is scheduled when the subscription is expired
-        assertThat(bandwidthDao.getBandwidthAllocations(subscription.getRoute()),
+        assertThat(
+                bandwidthDao.getBandwidthAllocations(subscription.getRoute()),
                 is(empty()));
 
         // No longer expired
@@ -649,77 +657,89 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         subscription.getTime().setCycleTimes(Arrays.asList(Integer.valueOf(0)));
 
         bandwidthManager.schedule(subscription);
-        final BandwidthManager proposed = bandwidthManager
-                .startProposedBandwidthManager(BandwidthMap
-                        .load(EdexBandwidthContextFactory
-                                .getBandwidthMapConfig()));
+        BandwidthManager bwProposed = null;
+        try {
+            bwProposed = bandwidthManager
+                    .startProposedBandwidthManager(BandwidthMap
+                            .load(EdexBandwidthContextFactory
+                                    .getBandwidthMapConfig()));
+            final BandwidthManager proposed = bwProposed;
 
-        final BlockingQueue<Exception> queue = new ArrayBlockingQueue<Exception>(
-                1);
+            final BlockingQueue<Exception> queue = new ArrayBlockingQueue<Exception>(
+                    1);
 
-        final int invocationCount = 10;
-        final CountDownLatch waitForAllThreadsReadyLatch = new CountDownLatch(
-                invocationCount * 2);
-        final CountDownLatch doneLatch = new CountDownLatch(invocationCount * 2);
-        for (int i = 0; i < invocationCount; i++) {
-            final int current = i;
-            Thread thread = new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        // Wait for all threads to check in, then they all start
-                        // working at once
-                        waitForAllThreadsReadyLatch.countDown();
-                        waitForAllThreadsReadyLatch.await();
-                        proposed.updateDataSetMetaData(OpenDapGriddedDataSetMetaDataFixture.INSTANCE
-                                .get(current));
-                    } catch (Exception e) {
-                        queue.offer(e);
+            final int invocationCount = 10;
+            final CountDownLatch waitForAllThreadsReadyLatch = new CountDownLatch(
+                    invocationCount * 2);
+            final CountDownLatch doneLatch = new CountDownLatch(
+                    invocationCount * 2);
+            for (int i = 0; i < invocationCount; i++) {
+                final int current = i;
+                Thread thread = new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            // Wait for all threads to check in, then they all
+                            // start
+                            // working at once
+                            waitForAllThreadsReadyLatch.countDown();
+                            waitForAllThreadsReadyLatch.await();
+                            proposed.updateDataSetMetaData(OpenDapGriddedDataSetMetaDataFixture.INSTANCE
+                                    .get(current));
+                        } catch (Exception e) {
+                            queue.offer(e);
+                        }
+                        doneLatch.countDown();
                     }
-                    doneLatch.countDown();
-                }
-            };
-            thread.start();
-        }
+                };
+                thread.start();
+            }
 
-        for (int i = 0; i < invocationCount; i++) {
-            final int current = i;
-            Thread thread = new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        final Subscription subscription2 = SubscriptionFixture.INSTANCE
-                                .get(current);
-                        subscription2.addParameter(ParameterFixture.INSTANCE
-                                .get(1));
-                        subscription2.addParameter(ParameterFixture.INSTANCE
-                                .get(2));
-                        subscription2.addParameter(ParameterFixture.INSTANCE
-                                .get(3));
-                        subscription2.getTime().setCycleTimes(
-                                Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-                                        11, 12, 13, 14, 15, 16, 17));
-                        subscription2.setLatencyInMinutes(current);
-                        // Wait for all threads to check in, then they all start
-                        // working at once
-                        waitForAllThreadsReadyLatch.countDown();
-                        waitForAllThreadsReadyLatch.await();
-                        proposed.schedule(subscription2);
-                    } catch (Exception e) {
-                        queue.offer(e);
+            for (int i = 0; i < invocationCount; i++) {
+                final int current = i;
+                Thread thread = new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            final Subscription subscription2 = SubscriptionFixture.INSTANCE
+                                    .get(current);
+                            subscription2
+                                    .addParameter(ParameterFixture.INSTANCE
+                                            .get(1));
+                            subscription2
+                                    .addParameter(ParameterFixture.INSTANCE
+                                            .get(2));
+                            subscription2
+                                    .addParameter(ParameterFixture.INSTANCE
+                                            .get(3));
+                            subscription2.getTime().setCycleTimes(
+                                    Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9,
+                                            10, 11, 12, 13, 14, 15, 16, 17));
+                            subscription2.setLatencyInMinutes(current);
+                            // Wait for all threads to check in, then they all
+                            // start
+                            // working at once
+                            waitForAllThreadsReadyLatch.countDown();
+                            waitForAllThreadsReadyLatch.await();
+                            proposed.schedule(subscription2);
+                        } catch (Exception e) {
+                            queue.offer(e);
+                        }
+                        doneLatch.countDown();
                     }
-                    doneLatch.countDown();
-                }
-            };
-            thread.start();
-        }
+                };
+                thread.start();
+            }
 
-        // Wait for all threads to finish
-        doneLatch.await();
+            // Wait for all threads to finish
+            doneLatch.await();
 
-        final Exception exception = queue.poll();
-        if (exception != null) {
-            throw exception;
+            final Exception exception = queue.poll();
+            if (exception != null) {
+                throw exception;
+            }
+        } finally {
+            shutdownBandwidthManager(bwProposed);
         }
     }
 
@@ -796,7 +816,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
 
         final int numberOfSubscriptionsWithSameProviderDataSet = 4;
 
-        final Subscription templateSubscription = createSubscriptionThatFillsUpABucket();
+        final SiteSubscription templateSubscription = createSubscriptionThatFillsUpABucket();
         final Network route = templateSubscription.getRoute();
         templateSubscription.setDataSetSize(templateSubscription
                 .getDataSetSize()
@@ -808,7 +828,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         final Subscription[] subscriptions = new Subscription[numberOfSubscriptionsWithSameProviderDataSet];
         for (int i = 0; i < numberOfSubscriptionsWithSameProviderDataSet; i++) {
 
-            final Subscription currentSubscription = new Subscription(
+            final SiteSubscription currentSubscription = new SiteSubscription(
                     templateSubscription, "ILookLikeTheOtherGuys-" + i);
             subscriptions[i] = currentSubscription;
 
@@ -956,6 +976,25 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
                 subscriptionDaosAfterDelete.size());
     }
 
+    @Test
+    public void testModifiedConfigurationFileWillReinitializeBandwidthManager() {
+        IntegrationTestBandwidthContextFactory
+                .getIntegrationTestBandwidthMapConfigFile().setLastModified(
+                        Long.MAX_VALUE);
+        bandwidthManager.watchForConfigFileChanges.run();
+
+        assertThat(EdexBandwidthContextFactory.getInstance(),
+                is(not(sameInstance(bandwidthManager))));
+    }
+
+    @Test
+    public void testUnmodifiedConfigurationFileWillNotReinitializeBandwidthManager() {
+        bandwidthManager.watchForConfigFileChanges.run();
+
+        assertThat(EdexBandwidthContextFactory.getInstance(),
+                is(sameInstance(bandwidthManager)));
+    }
+
     private void testSubscriptionCyclesAreAllocatedOncePerCyclePerPlanDay(
             List<Integer> cycles) throws SerializationException {
         Subscription subscription = SubscriptionFixture.INSTANCE.get();
@@ -976,7 +1015,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
     private void sendDeletedSubscriptionEvent(Subscription subscription) {
         RemoveRegistryEvent event = new RemoveRegistryEvent(
                 subscription.getOwner(), subscription.getId());
-        event.setObjectType(DataDeliveryRegistryObjectTypes.SUBSCRIPTION);
+        event.setObjectType(DataDeliveryRegistryObjectTypes.SITE_SUBSCRIPTION);
         bandwidthManager.subscriptionRemoved(event);
     }
 

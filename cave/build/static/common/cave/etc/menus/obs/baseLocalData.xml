@@ -21,7 +21,6 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
  	<contribute xsi:type="bundleItem" file="bundles/LDADMesoPlot.xml" 
               menuText="30 min stn plot" id="local30minstnplot">
-        <dataURI>/ldadmesonet/%</dataURI>
         <substitute key="svg" value="ldadMesoDesign.svg"/>
         <substitute key="legend" value="30 min Local Data Plot"/>
      	<substitute key="posOffset" value="900"/>
@@ -29,7 +28,6 @@
 	</contribute>
     <contribute xsi:type="bundleItem" file="bundles/LDADMesoQCPlot.xml" 
               menuText="30 min stn plot + QC" id="local30minstnQCplot">
-        <dataURI>/qc/%</dataURI>
         <substitute key="svgPrefix" value="ldadQC"/>
         <substitute key="legend" value="30 min LDAD QC Plot"/>
         <substitute key="posOffset" value="900"/>
@@ -40,7 +38,6 @@
 	<contribute xsi:type="subMenu" menuText="Other Local Plots">
 		<contribute xsi:type="bundleItem" file="bundles/LDADMesoPlot.xml" 
 	        	menuText="15 min stn plot" id="local15minstnplot">
-	        <dataURI>/ldadmesonet/%</dataURI>
 	        <substitute key="svg" value="ldadMesoDesign.svg"/>
 	        <substitute key="legend" value="15 min Local Data Plot"/>
 	     	<substitute key="posOffset" value="450"/>
@@ -48,7 +45,6 @@
 		</contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/LDADMesoQCPlot.xml" 
 	              menuText="15 min stn plot + QC" id="local15minstnQCplot">
-	        <dataURI>/qc/%</dataURI>
 	        <substitute key="svgPrefix" value="ldadQC"/>
 	        <substitute key="legend" value="15 min LDAD QC Plot"/>
 	        <substitute key="posOffset" value="450"/>
@@ -58,7 +54,6 @@
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/LDADMesoPlot.xml" 
 	        	menuText="5 min stn plot" id="local5minstnplot">
-	        <dataURI>/ldadmesonet/%</dataURI>
 	        <substitute key="svg" value="ldadMesoDesign.svg"/>
 	     	<substitute key="legend" value="5 min Local Data Plot"/>
 	     	<substitute key="posOffset" value="150"/>
@@ -66,7 +61,6 @@
 		</contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/LDADMesoPlot.xml" 
 	        	menuText="1 min stn plot" id="local1minstnplot">
-	        <dataURI>/ldadmesonet/%</dataURI>
 			<substitute key="svg" value="ldadMesoDesign.svg"/>
 	     	<substitute key="legend" value="1 min Local Data Plot"/>
 	     	<substitute key="posOffset" value="30"/>
@@ -74,7 +68,6 @@
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/LDADMesoPlot.xml" 
 	        	menuText="WindCh/HeatIdx" id="localWindChHeatIdx">
-	        <dataURI>/ldadmesonet/%</dataURI>
 			<substitute key="svg" value="ldadMesoHiWcDesign.svg"/>
 	     	<substitute key="legend" value="Local WindChill/HeatIndex Plot"/>
 	     	<substitute key="posOffset" value="900"/>
@@ -87,7 +80,6 @@
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/LDADHydroPlot.xml" 
 	        	menuText="3 hr Precip" id="local3hrPrecip">
-	        <dataURI>/ldadhydro/%</dataURI>
 	        <substitute key="svg" value="ldadHydro3hrPrecipDesign.svg"/>
 	        <substitute key="legend" value="3 hr Precip Plot"/>
 	        <substitute key="posOffset" value="5400"/>
@@ -95,7 +87,6 @@
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/LDADHydroPlot.xml" 
 	        	menuText="1 hr Precip" id="local1hrPrecip">
-	        <dataURI>/ldadhydro/%</dataURI>
 	        <substitute key="svg" value="ldadHydro1hrPrecipDesign.svg"/>
 	        <substitute key="legend" value="1 hr Precip Plot"/>
 	        <substitute key="posOffset" value="1800"/>
@@ -103,7 +94,6 @@
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/LDADHydroPlot.xml" 
 	        	menuText="30 min Precip" id="local30minPrecip">
-	        <dataURI>/ldadhydro/%</dataURI>
 	        <substitute key="svg" value="ldadHydro30minPrecipDesign.svg"/>
 	        <substitute key="legend" value="30 min Precip Plot"/>
 	        <substitute key="posOffset" value="900"/>
@@ -111,7 +101,6 @@
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/LDADHydroPlot.xml" 
 	        	menuText="15 min Precip" id="local15minPrecip">
-	        <dataURI>/ldadhydro/%</dataURI>
 	        <substitute key="svg" value="ldadHydro15minPrecipDesign.svg"/>
 	        <substitute key="legend" value="15 min Precip Plot"/>
 	        <substitute key="posOffset" value="450"/>
@@ -119,7 +108,6 @@
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/LDADHydroPlot.xml" 
 	        	menuText="5 min Precip" id="local5minPrecip">
-	        <dataURI>/ldadhydro/%</dataURI>
 	        <substitute key="svg" value="ldadHydro5minPrecipDesign.svg"/>
 	        <substitute key="legend" value="5 min Precip Plot"/>
 	        <substitute key="posOffset" value="150"/>

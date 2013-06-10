@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.dataplugin.gfe.type.Pair;
+import com.raytheon.uf.common.util.Pair;
 import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.widgets.ToggleSelectList;

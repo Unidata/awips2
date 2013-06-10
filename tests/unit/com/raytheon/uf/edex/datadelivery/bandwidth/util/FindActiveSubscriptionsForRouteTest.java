@@ -31,6 +31,7 @@ import org.junit.Test;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBuilder;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -46,6 +47,7 @@ import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 19, 2013 1543       djohnson     Initial creation
+ * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * 
  * </pre>
  * 
@@ -62,15 +64,16 @@ public class FindActiveSubscriptionsForRouteTest {
                 .getSubscriptionHandler();
 
         // Two OPSNET subscriptions
-        final Subscription opsnetSub1 = new SubscriptionBuilder()
+        final SiteSubscription opsnetSub1 = new SubscriptionBuilder()
                 .withName("opsnetSub1").withRoute(Network.OPSNET).build();
-        final Subscription opsnetSub2 = new Subscription(opsnetSub1,
+        final SiteSubscription opsnetSub2 = new SiteSubscription(opsnetSub1,
                 "opsnetSub2");
 
         // Two SBN subscriptions
-        final Subscription sbnSub1 = new SubscriptionBuilder()
+        final SiteSubscription sbnSub1 = new SubscriptionBuilder()
                 .withName("sbnSub1").withRoute(Network.SBN).build();
-        final Subscription sbnSub2 = new Subscription(sbnSub1, "sbnSub2");
+        final SiteSubscription sbnSub2 = new SiteSubscription(sbnSub1,
+                "sbnSub2");
 
         // Store all subscriptions
         for (Subscription sub : new Subscription[] { opsnetSub1, opsnetSub2,

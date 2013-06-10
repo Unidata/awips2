@@ -29,16 +29,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.eclipse.swt.graphics.Rectangle;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource.ResourceStatus;
@@ -91,7 +92,7 @@ public class MapRenderableDisplay extends AbstractRenderableDisplay implements
         super();
     }
 
-    public MapRenderableDisplay(MapDescriptor desc) {
+    public MapRenderableDisplay(IMapDescriptor desc) {
         this();
         setDescriptor(desc);
     }

@@ -200,6 +200,10 @@ function lookupRPM()
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.version"
       return 0
    fi
+   if [ "${1}" = "awips2-common-base" ]; then
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.common-base"
+      return 0
+   fi
 
    # foss rpms.
    if [ "${1}" = "-qpid" ]; then
@@ -215,6 +219,10 @@ function lookupRPM()
    fi
    if [ "${1}" = "awips2-java" ]; then
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.java"
+      return 0
+   fi
+   if [ "${1}" = "awips2-groovy" ]; then
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.groovy"
       return 0
    fi
    if [ "${1}" = "awips2-ldm" ]; then

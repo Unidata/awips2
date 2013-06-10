@@ -36,6 +36,15 @@
                 </rim:Description>
             </rim:ClassificationNode-->
 
+            <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:SubjectRole:ContentOwner" code="ContentOwner" id="urn:oasis:names:tc:ebxml-regrep:SubjectRole:ContentOwner" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:SubjectRole">
+                <rim:Name>
+                    <rim:LocalizedString xml:lang="en-US" value="Content Owner"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString xml:lang="en-US" value="Role representing owner of a RegistryObject. Such role typically has maximal priviliges with owned resources."/>
+                </rim:Description>
+            </rim:ClassificationNode>
+
              <rim:ClassificationNode lid="urn:oasis:names:tc:ebxml-regrep:SubjectRole:RegistryLocalAdministrator" code="RegistryLocalAdministrator" id="urn:oasis:names:tc:ebxml-regrep:SubjectRole:RegistryLocalAdministrator" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ClassificationNode" parent="urn:oasis:names:tc:ebxml-regrep:classificationScheme:SubjectRole">
                 <rim:Name>
                     <rim:LocalizedString xml:lang="en-US" value="Registry Local Administrator"/>

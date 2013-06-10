@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.hydrobase.dialogs;
 
-import java.util.ArrayList;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -52,6 +50,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * 02 Sep 2008             lvenable    Initial creation.
  * 05 Dec 2008  1744       askripsky   Connected data
+ * 17 Apr 2013  1790       rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -104,15 +103,15 @@ public class CoopAgencyOfficeDlg extends CaveSWTDialog {
     /**
      * Cache of available agencies/offices
      */
-    private ArrayList<AgencyOfficeData> availData;
+    private java.util.List<AgencyOfficeData> availData;
 
     /**
      * Cache of selected agencies/offices
      */
-    private ArrayList<LocationAgencyOfficeData> selectedData;
+    private java.util.List<LocationAgencyOfficeData> selectedData;
 
     /**
-     * Constructor.
+     * Non-blocking Constructor.
      * 
      * @param parent
      *            Parent shell.
@@ -120,12 +119,17 @@ public class CoopAgencyOfficeDlg extends CaveSWTDialog {
      *            Dialog title information.
      */
     public CoopAgencyOfficeDlg(Shell parent, String titleInfo, String lid) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Cooperating Agencies/Offices" + titleInfo);
 
         this.lid = lid;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -136,11 +140,23 @@ public class CoopAgencyOfficeDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -287,7 +303,7 @@ public class CoopAgencyOfficeDlg extends CaveSWTDialog {
         closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -328,8 +344,8 @@ public class CoopAgencyOfficeDlg extends CaveSWTDialog {
             selectedList.removeAll();
 
             for (LocationAgencyOfficeData currAO : selectedData) {
-                selectedList.add(String.format("%-11S %S", currAO
-                        .getAgencyCode(), currAO.getOffice()));
+                selectedList.add(String.format("%-11S %S",
+                        currAO.getAgencyCode(), currAO.getOffice()));
             }
 
             availList.setSelection(0);
@@ -382,9 +398,11 @@ public class CoopAgencyOfficeDlg extends CaveSWTDialog {
         populateListControl();
     }
 
+    /***
+     * Get the selected agency/office and send the object to the datamanager to
+     * delete from the DB.
+     */
     private void deleteData() {
-        // Get the selected agency/office and
-        // Send the object to the datamanager to delete from the DB
         if (selectedList.getSelectionCount() > 0) {
             try {
                 HydroDBDataManager.getInstance().deleteRecord(
@@ -405,6 +423,9 @@ public class CoopAgencyOfficeDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Update display with current selection.
+     */
     private void updateDisplay() {
         if (availList.getItemCount() > 0) {
             AgencyOfficeData currOffice = availData.get(availList
