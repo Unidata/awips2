@@ -1,0 +1,29 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+
+    <bean id="bandwidthManagerCreator"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.ncf.NcfBandwidthManagerCreator" />
+
+    <bean id="sbnSubscriptionRetrievalAgentPrototype"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.SubscriptionRetrievalAgent"
+        scope="prototype">
+        <constructor-arg value="SBN" />
+        <constructor-arg value="notifyRetrieval" />
+        <constructor-arg ref="retrievalAgentNotifier" />
+        <constructor-arg value="${bandwidth.default.retrieval.priority}" />
+        <constructor-arg ref="retrievalManager" />
+        <constructor-arg ref="bandwidthDao" />
+        <constructor-arg ref="retrievalDao" />
+    </bean>
+
+    <util:map id="retrievalAgents">
+        <entry key="Retrievals-1" value-ref="sbnSubscriptionRetrievalAgentPrototype" />
+        <entry key="Retrievals-2" value-ref="sbnSubscriptionRetrievalAgentPrototype" />
+        <entry key="Retrievals-3" value-ref="sbnSubscriptionRetrievalAgentPrototype" />
+        <entry key="Retrievals-4" value-ref="sbnSubscriptionRetrievalAgentPrototype" />
+        <entry key="Retrievals-5" value-ref="sbnSubscriptionRetrievalAgentPrototype" />
+    </util:map>
+
+</beans>
