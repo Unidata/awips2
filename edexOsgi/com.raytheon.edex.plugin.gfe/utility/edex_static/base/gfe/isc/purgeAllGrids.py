@@ -17,79 +17,25 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
-import string, sys, re, time, types, getopt, LogStream, fnmatch, os
-import JUtil
-import siteConfig
-pytime = time
+
+import sys
+
+import LogStream
+
 from com.raytheon.edex.plugin.gfe.smartinit import IFPDB
-from com.raytheon.edex.plugin.gfe.server import GridParmManager
 
 #--------------------------------------------------------------------------
 # Main program purges all grids from a database.
 #--------------------------------------------------------------------------
 
-#--------------------------------------------------------------------------
-# Prints usage statement.
-#--------------------------------------------------------------------------
-def usage():
-    ustr = """\
-Usage: purgeAllGrids -h hostname -p rpcport -d databaseID
-    -h hostname:    ifpServer host name
-    -p rpcport:     rpc port number of ifpServer
-    -d databaseID:  database identifier\n"""
-    sys.stderr.write(ustr)
-
-#--------------------------------------------------------------------------
-# Parses command line options and sets internal flags
-#--------------------------------------------------------------------------
-def getOpts(argv):
-    Options = {'host': None, 'port': None, 'databaseID': None, 'purgeAll':None}
-    try:
-        optl, args = getopt.getopt(argv[1:], "h:p:d:a:")
-        for opt in optl:
-            if opt[0] == '-h':
-                Options['host'] = opt[1]
-            elif opt[0] == '-p':
-                Options['port'] = int(opt[1])
-            elif opt[0] == '-d':
-                Options['databaseID'] = opt[1]
-            elif opt[0] == '-a':
-                Options['purgeAll'] = opt[1]
-    except:
-        usage()
-
-    if Options['host'] is None:
-        Options['host'] = siteConfig.GFESUITE_SERVER
-    
-    if Options['port'] is None:
-        Options['port'] = siteConfig.GFESUITE_PORT
-
-    if Options['host'] is None or Options['port'] is None:
-        usage()
-        raise SyntaxError, "Command line error"
-
-    return Options
 
 #--------------------------------------------------------------------------
 # process function
 #--------------------------------------------------------------------------
-def process(opts): 
-
-    
-
-    if opts['purgeAll'] is None:
-        purgeDB(opts['databaseID'])
-    else:
-        dbList = JUtil.javaStringListToPylist(GridParmManager.getDbInventory(opts['purgeAll']).getPayload())
-        for db in dbList:
-            purgeDB(db)
-
-
-
-
-def purgeDB(dbname):
-    # get list of parms
+def process(dbname):
     LogStream.logEvent("Purging all grids from: ", dbname)
+
+    # get list of parms
     db = IFPDB(dbname)
     parms = db.getKeys()
 
@@ -100,13 +46,19 @@ def purgeDB(dbname):
         inv = we.getKeys()
         for i in range(0, inv.size()):
             we.removeItem(inv.get(i))
+            
 #--------------------------------------------------------------------------
 # Main program
 #--------------------------------------------------------------------------
-def main(argv):
-    argv = JUtil.javaStringListToPylist(argv)
-    Options = getOpts(argv)
+def executeFromJava(databaseID):
     LogStream.logEvent("PurgeAllGrids starting")
-    process(Options)
-    LogStream.logEvent("PurgeAllGrids finished")
+    try:
+        process(databaseID)
+        LogStream.logEvent("PurgeAllGrids finished")
+        sys.exit(0)
+    except SystemExit:
+        pass
+    except:
+        LogStream.logProblem("Caught exception\n", LogStream.exc())
+    
 

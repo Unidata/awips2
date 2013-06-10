@@ -33,6 +33,7 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.npp.viirs.projection.VIIRSMapProjectionFactory;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
@@ -53,6 +54,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * ------------ ---------- ----------- --------------------------
  * Dec 1, 2011            mschenke     Initial creation
  * Feb 21, 2012  #30      mschenke     Removed unused envelopePercentage field
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 
  * </pre>
  * 
@@ -61,6 +63,16 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @Table(name = "viirs_spatial")
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "viirs_spatial",
+		indexes = {
+				@Index(name = "viirs_spatial_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @DynamicSerialize
 public class VIIRSSpatialCoverage extends PersistableDataObject implements
         ISpatialObject {

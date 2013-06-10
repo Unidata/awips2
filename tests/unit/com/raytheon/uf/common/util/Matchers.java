@@ -19,14 +19,16 @@
  **/
 package com.raytheon.uf.common.util;
 
-import java.text.DateFormat;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.internal.matchers.TypeSafeMatcher;
+import org.junit.Ignore;
+
+import com.raytheon.uf.common.util.DateMatchers.DateFormatMatcher;
+import com.raytheon.uf.common.util.FileMatchers.DirectoryNumberOfFilesMatcher;
 
 /**
  * Custom Hamcrest matcher implementations.
@@ -44,37 +46,8 @@ import org.junit.internal.matchers.TypeSafeMatcher;
  * @author djohnson
  * @version 1.0
  */
-
+@Ignore
 public final class Matchers {
-
-    private static class DateFormatMatcher extends TypeSafeMatcher<Date> {
-
-        private final DateFormat format;
-
-        private final String expectedDateFormat;
-
-        private DateFormatMatcher(DateFormat format, Date expected) {
-            this.format = format;
-            this.expectedDateFormat = format.format(expected);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void describeTo(Description description) {
-            description.appendText("a formatted date of ").appendText(
-                    expectedDateFormat);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean matchesSafely(Date item) {
-            return format.format(item).equals(expectedDateFormat);
-        }
-    }
 
     private static final SimpleDateFormat YYYY_MM_DD_FORMAT = new SimpleDateFormat(
             "yyyyMMdd");
@@ -87,6 +60,14 @@ public final class Matchers {
 
     public static <T> Matcher<Date> yyyyMmDdMatches(Date expected) {
         return new DateFormatMatcher(YYYY_MM_DD_FORMAT, expected);
+    }
+
+    public static <T> Matcher<File> hasNumberOfFiles(final int numberOfFiles) {
+        return new DirectoryNumberOfFilesMatcher(numberOfFiles);
+    }
+
+    public static <T> Matcher<File> hasNoFiles() {
+        return hasNumberOfFiles(0);
     }
 
 }

@@ -19,19 +19,13 @@
  **/
 package com.raytheon.viz.mpe.ui.actions;
 
-import java.util.Map;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.handlers.RadioState;
-import org.eclipse.ui.menus.UIElement;
 
-import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager.GageColor;
-import com.raytheon.viz.ui.EditorUtil;
 
 /**
  * TODO Add Description
@@ -49,7 +43,8 @@ import com.raytheon.viz.ui.EditorUtil;
  * @version 1.0
  */
 
-public class ToggleGageColor extends AbstractHandler implements IElementUpdater {
+public class ToggleGageColor extends AbstractHandler {
+
     /*
      * (non-Javadoc)
      * 
@@ -61,27 +56,8 @@ public class ToggleGageColor extends AbstractHandler implements IElementUpdater 
     public Object execute(ExecutionEvent event) throws ExecutionException {
         String g = event.getParameter(RadioState.PARAMETER_ID);
         GageColor gc = GageColor.valueOf(g);
-        MPEDisplayManager.getCurrent().setGageColor(gc);
+        MPEDisplayManager.setGageColor(gc);
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public void updateElement(UIElement element, Map parameters) {
-        MPEDisplayManager dm = MPEDisplayManager.getCurrent();
-        if (dm == null) {
-            return;
-        }
-
-        GageColor color = dm.getGageColor();
-        String g = (String) parameters.get(RadioState.PARAMETER_ID);
-        GageColor val = GageColor.valueOf(g);
-        element.setChecked(color.equals(val));
-
-        IDisplayPaneContainer container = EditorUtil
-                .getActiveEditorAs(IDisplayPaneContainer.class);
-        if (container != null) {
-            container.refresh();
-        }
-    }
 }

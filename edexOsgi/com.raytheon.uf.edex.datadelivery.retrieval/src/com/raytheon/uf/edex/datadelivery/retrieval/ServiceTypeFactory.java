@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval;
 
 import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
+import com.raytheon.uf.common.util.ServiceLoaderUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
 import com.raytheon.uf.edex.datadelivery.retrieval.opendap.OpenDapServiceFactory;
 import com.raytheon.uf.edex.datadelivery.retrieval.wcs.WcsServiceFactory;
@@ -46,6 +47,35 @@ import com.raytheon.uf.edex.datadelivery.retrieval.wxxm.WxxmServiceFactory;
  */
 
 public final class ServiceTypeFactory {
+    
+    /**
+     * Default {@link IServiceFactoryLookup} to be used in production code.
+     */
+    private static class ServiceTypeFactoryLookup implements
+            IServiceFactoryLookup {
+        @Override
+        public ServiceFactory getProviderServiceFactory(Provider provider) {
+            final ServiceType serviceType = provider.getServiceType();
+            switch (serviceType) {
+            case OPENDAP:
+                return new OpenDapServiceFactory(provider);
+            case WCS:
+                return new WcsServiceFactory();
+            case WFS:
+                return new WfsServiceFactory();
+            case WXXM:
+                return new WxxmServiceFactory();
+            default:
+                throw new IllegalArgumentException(String.format(
+                        "No %s available to handle service type [%s]!",
+                        ServiceFactory.class.getSimpleName(), serviceType));
+            }
+        }
+    }
+
+    private static final IServiceFactoryLookup SERVICE_FACTORY_LOOKUP = ServiceLoaderUtil
+            .load(IServiceFactoryLookup.class,
+                    new ServiceTypeFactoryLookup());
 
     private ServiceTypeFactory() {
 
@@ -60,21 +90,7 @@ public final class ServiceTypeFactory {
      * @return the factory
      */
     public static ServiceFactory retrieveServiceFactory(Provider provider) {
-        final ServiceType serviceType = provider.getServiceType();
-        switch (serviceType) {
-        case OPENDAP:
-            return new OpenDapServiceFactory(provider);
-        case WCS:
-            return new WcsServiceFactory();
-        case WFS:
-            return new WfsServiceFactory();
-        case WXXM:
-            return new WxxmServiceFactory();
-        default:
-            throw new IllegalArgumentException(String.format(
-                    "No %s available to handle service type [%s]!",
-                    ServiceFactory.class.getSimpleName(), serviceType));
-        }
+        return SERVICE_FACTORY_LOOKUP.getProviderServiceFactory(provider);
     }
 
     /**

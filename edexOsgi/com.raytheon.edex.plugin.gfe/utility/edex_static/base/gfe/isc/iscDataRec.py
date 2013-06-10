@@ -41,7 +41,8 @@ exec $GFESUITE_HOME/bin/run/iscDataRec1 -S -O $0 ${1+"$@"}
 
 import iscMosaic,iscUtil
 import os, stat, sys, re, string, traceback, types
-import time, xml, LogStream, siteConfig, IrtAccess
+import time, xml, LogStream, IrtAccess
+import IrtServer
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element, SubElement
 from java.util import ArrayList
@@ -55,6 +56,10 @@ from java.util import ArrayList
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    07/06/09        1995          bphillip       Initial Creation.
+#    01/29/13        1447          dgilling       Implement VTEC table sharing.
+#    03/12/13        1759          dgilling       Bypass command-line processing
+#                                                 for iscMosaic, support changes
+#                                                 to IscReceiveSrv.
 #    
 # 
 #
@@ -92,7 +97,8 @@ def purgeFiles(msgid, files):
 
 
 def execIscDataRec(MSGID,SUBJECT,FILES):
-
+    import siteConfig
+    
     try:
        # logEvent('*** iscDataRec ***', sys.argv[1:]) 
         logEvent('SUBJECT:', SUBJECT, 'MSGID:', MSGID,"FILES:",FILES)
@@ -193,61 +199,49 @@ def execIscDataRec(MSGID,SUBJECT,FILES):
                 continue   #this destination is for someone else.
         
             # transmit the data to the ifpServer
-            #try:
-               # c = PyNet.IFPClient((destServer['host'], int(destServer['port'])), 
-               #   int(destServer['protocol']))
-            fp = open(dataFile, "rb")
-            time2 = time.clock() 
+            with open(dataFile, "rb") as fp:
+                fpData = fp.read()
+            time2 = time.clock()
     
             if SUBJECT == 'PUT_ACTIVE_TABLE':
-                pass
-                #c.putVTECActiveTable(fp.read(), None)
+                IrtServer.putVTECActiveTable(fpData, None)
             elif SUBJECT == 'PUT_ACTIVE_TABLE2':
-                pass
-                #c.putVTECActiveTable(fp.read(), xmlFileBuf)
+                IrtServer.putVTECActiveTable(fpData, xmlFileBuf)
             elif SUBJECT == 'GET_ACTIVE_TABLE':
-                pass
-                #c.getVTECActiveTable(fp.read(), None)
+                IrtServer.getVTECActiveTable(fpData, None)
             elif SUBJECT == 'GET_ACTIVE_TABLE2':
-                pass
-                #c.getVTECActiveTable(fp.read(), xmlFileBuf) 
+                IrtServer.getVTECActiveTable(fpData, xmlFileBuf) 
             elif SUBJECT in ['ISCGRIDS', 'ISCGRIDS2']:
-                files = ArrayList()
-                files.add(dataFile)
-                
-                args = []
-                args.append(" ")
-                args.append("-h")
-                args.append(siteConfig.GFESUITE_SERVER)
-                args.append("-r")
-                args.append(siteConfig.GFESUITE_PORT)
-                args.append("-d")
-                args.append(siteConfig.GFESUITE_SITEID+"_GRID__ISC_00000000_0000")
-                args.append("-T")
-                args.append("-b")
-                
-                for i in range(0,files.size()):
-                    args.append("-f")
-                    args.append(files.get(i))
-                    
-                args.append("-w")
-                args.append("ISC: ")
-                args.append("-k")
-                args.append("-o")
-                
+                args = {"siteID": siteConfig.GFESUITE_SITEID, 
+                        "userID": 'SITE', 
+                        "databaseID": siteConfig.GFESUITE_SITEID+"_GRID__ISC_00000000_0000",
+                        "parmsToProcess": [], 
+                        "blankOtherPeriods": True, 
+                        "startTime": None,
+                        "endTime": None, 
+                        "altMask": None,
+                        "replaceOnly": False, 
+                        "eraseFirst": False,
+                        "announce": "ISC: ", 
+                        "renameWE": True,
+                        "iscSends": False, 
+                        "inFiles": [dataFile],
+                        "ignoreMask": False, 
+                        "adjustTranslate": True,
+                        "deleteInput": True, 
+                        "parmsToIgnore": [],
+                        "gridDelay": 0.0, 
+                        "logFileName": None}                
                 mosaic = iscMosaic.IscMosaic(args)
                 mosaic.execute() 
     
             elif SUBJECT == 'ISCREQUEST':
-                import IrtServer
-                IrtServer.serviceISCRequest(fp.read()) 
+                IrtServer.serviceISCRequest(fpData)
             else:
                 nosend = True
                 logProblem("unknown subject: ", SUBJECT)
-                fp.close()
                 continue
             time3 = time.clock()
-            fp.close()
             delta1 = time2-time1
             delta2 = time3-time2
             logEvent('Sent to:', 
@@ -283,14 +277,14 @@ def execIscDataRec(MSGID,SUBJECT,FILES):
 def main(argv):
     initLogger()
     try:
-        if type(argv) != 'list':
+        if type(argv) is not list:
             import JUtil
-            argv = JUtil.javaStringListToPylist(argv)
-        logEvent('*** iscDataRec ***', argv[1:])
+            argv = JUtil.javaObjToPyVal(argv)
+        logEvent('*** iscDataRec ***', argv)
         try:
-            MSGID = argv[1]
-            SUBJECT = argv[2]
-            FILES = argv[3].split(',')
+            MSGID = argv[0]
+            SUBJECT = argv[1]
+            FILES = argv[2].split(',')
         
             logEvent('SUBJECT:', SUBJECT, 'MSGID:', MSGID)
             #log the incoming files and size

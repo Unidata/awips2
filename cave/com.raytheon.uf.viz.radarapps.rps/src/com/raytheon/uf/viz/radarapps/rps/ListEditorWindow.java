@@ -98,6 +98,21 @@ import com.raytheon.uf.viz.radarapps.client.RcmWaiter;
 import com.raytheon.uf.viz.radarapps.core.RadarApps;
 import com.raytheon.uf.viz.radarapps.products.ui.RadarProductUI;
 
+/**
+ * RPS List Editor window
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2009-04-22   #2286      D. Friedman Initial checkin
+ * ...
+ * 2013-01-31   DR 15458   D. Friedman Send RPS list so that it will be
+ *                                     accepted for any VCP.
+ * </pre>
+ * 
+ */
 public class ListEditorWindow {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ListEditorWindow.class);
@@ -463,7 +478,10 @@ public class ListEditorWindow {
         SendRpsList msg = new SendRpsList();
         msg.radarIDs = Arrays.asList(rpg);
         msg.requests = Arrays.asList(listEditor.getRpsList().getRequests());
-        msg.vcp = listEditor.getVcp();
+        /* Specify that the RadarServer should accept this list no matter 
+         * what VCP the RPG is currently using.
+         */
+        msg.vcp = RpsList.UNSPECIFIED_VCP;
         String error = null;
         try {
             error = client.sendRequest(msg, 2000).error;
@@ -831,7 +849,7 @@ public class ListEditorWindow {
         RpsList newList = null;
         Exception exc = null;
         int opMode = -1;
-        int vcp = -1;
+        int vcp = RpsList.UNSPECIFIED_VCP;
         Selector sel = null;
         try {
             sel = Awips1RpsListUtil.parseName(f.getName());
@@ -864,7 +882,7 @@ public class ListEditorWindow {
             return;
         }
 
-        if (newList.getVcp() < 0) {
+        if (newList.getVcp() == RpsList.UNSPECIFIED_VCP) {
             VCPInfo vcpInfo = chooseVcp("Could not determine VCP from the file.  Please select a VCP.");
             if (vcpInfo == null)
                 return;

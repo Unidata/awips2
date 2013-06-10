@@ -58,6 +58,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jun 04, 2012 DR14992  mgamazaychikov Fix the problem with plotting expiration time for 
  *                                  NEW warning when CAN warning is issued
  * Sep 27, 2012  1149     jsanchez     Refactored methods from AbstractWarningsResource into this class.
+ * Apr 18, 2013  1877     jsanchez     Ordered the records the same for update and initial load.
+ *                                     Removed no longer needed frameAltered. Do not set wire frame for a CAN.
  * </pre>
  * 
  * @author jsanchez
@@ -104,6 +106,7 @@ public class WarningsResource extends AbstractWWAResource {
      */
     public WarningsResource(WWAResourceData data, LoadProperties props) {
         super(data, props);
+        comparator = new WarningRecordComparator();
         resourceName = "Warnings";
     }
 
@@ -148,7 +151,7 @@ public class WarningsResource extends AbstractWWAResource {
             synchronized (WarningsResource.this) {
                 {
                     try {
-                        addRecord(pdo);
+                        addRecord(sort(pdo));
                     } catch (VizException e) {
                         statusHandler.handle(Priority.SIGNIFICANT,
                                 e.getLocalizedMessage(), e);
@@ -199,14 +202,21 @@ public class WarningsResource extends AbstractWWAResource {
                 if (wfs != null) {
                     wfs.dispose();
                 }
+                WarningAction act = WarningAction.valueOf(record.getAct());
+                // Do not paint a wire frame shape for a CAN
+                if (act != WarningAction.CAN) {
+                    wfs = target.createWireframeShape(false, descriptor);
+                    geo = (Geometry) record.getGeometry().clone();
 
-                wfs = target.createWireframeShape(false, descriptor);
-                geo = (Geometry) record.getGeometry().clone();
-
-                JTSCompiler jtsCompiler = new JTSCompiler(null, wfs, descriptor);
-                jtsCompiler.handle(geo);
-                wfs.compile();
-                entry.wireframeShape = wfs;
+                    JTSCompiler jtsCompiler = new JTSCompiler(null, wfs,
+                            descriptor);
+                    jtsCompiler.handle(geo);
+                    wfs.compile();
+                    entry.wireframeShape = wfs;
+                } else {
+                    // Prevents sampling and a label to be painted
+                    entry.record.setGeometry(null);
+                }
             } catch (Exception e) {
                 statusHandler.handle(Priority.ERROR,
                         "Error creating wireframe", e);
@@ -241,28 +251,18 @@ public class WarningsResource extends AbstractWWAResource {
                                 // changing end time
                                 entry.timeAltered = warnrec.getStartTime()
                                         .getTime();
-                                // prevents the original entry and the modified
-                                // entry to be displayed in the same frame
-                                entry.frameAltered = frames[info
-                                        .getFrameIndex()].getRefTime();
-
-                                // if cancellation, set end time to start time
-                                // of this action
 
                                 // DR14992: fix the problem with plotting
-                                // expiration time for
-                                // NEW warning when CAN warning is issued
-                                if (act == WarningAction.CAN
-                                        && WarningAction.valueOf(entry.record
-                                                .getAct()) == WarningAction.CAN) {
-                                    entry.record.setEndTime((Calendar) warnrec
-                                            .getStartTime().clone());
-                                }
-
-                                if (!rec.getCountyheader().equals(
-                                        warnrec.getCountyheader())
-                                        && act == WarningAction.CAN) {
-                                    entry.partialCancel = true;
+                                // expiration time for NEW warning when CAN
+                                // warning is issued
+                                if (act == WarningAction.CAN) {
+                                    if (!rec.getCountyheader().equals(
+                                            warnrec.getCountyheader())) {
+                                        entry.partialCancel = true;
+                                    } else {
+                                        // complete cancellation
+                                        createShape = warnrec;
+                                    }
                                 }
 
                                 // if it's a con, need to have a new entry for a

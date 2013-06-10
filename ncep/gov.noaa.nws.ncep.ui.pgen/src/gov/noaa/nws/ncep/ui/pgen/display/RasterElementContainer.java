@@ -45,7 +45,7 @@ public class RasterElementContainer extends AbstractElementContainer {
 				DisplayProperties dprops) {
 		draw(target, paintProps, dprops, false);
 	}
-		
+
 	/* 	 
  	 * Draws to the given graphics target.  Recreates the IDisplayable objects  
 	 * if the Layer properties change.

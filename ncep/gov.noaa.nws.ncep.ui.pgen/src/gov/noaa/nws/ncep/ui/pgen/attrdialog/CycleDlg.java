@@ -8,19 +8,24 @@
 package gov.noaa.nws.ncep.ui.pgen.attrdialog;
 
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
-import gov.noaa.nws.ncep.ui.pgen.elements.*;
+import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
 
 import java.util.HashMap;
 
-import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.viz.core.exception.VizException;
 
@@ -35,6 +40,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 01/11		TTR381		J. Wu	    Update cycle/hour for all GFA 
  *                                      elements.
  * 02/11		TTR381		J. Wu	    Reset PGEN IDisplayable for redraw. 
+ * 03/13		#928		B. Yin		Added a separator above the button bar.
  * 
  * </pre>
  * 
@@ -154,13 +160,8 @@ public class CycleDlg extends AttrDlg {
 		updateBtn = new Button(group, SWT.RADIO);
 		updateBtn.setSelection(!PgenCycleTool.isRoutine());
 		updateBtn.setText("Update");
-	}
+        addSeparator(top.getParent());
 
-	@Override
-	public void createButtonsForButtonBar(Composite parent) {
-		super.createButtonsForButtonBar(parent);
-		getButton(IDialogConstants.CANCEL_ID).setEnabled(true);
-		getButton(IDialogConstants.OK_ID).setEnabled(true);
 	}
 
 	@Override

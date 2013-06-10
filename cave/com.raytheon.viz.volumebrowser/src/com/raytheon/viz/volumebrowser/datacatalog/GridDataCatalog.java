@@ -35,8 +35,10 @@ import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.referencing.operation.MathTransform;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -47,7 +49,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.level.LevelUtilities;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
@@ -77,10 +78,12 @@ import com.vividsolutions.jts.geom.LineString;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 27, 2009 #2161      lvenable     Initial creation
- * 10-21-09     #1711      bsteffen    Updated Baseline and Points to use new ToolsDataManager
- * 11/17/2009   #3120      rjpeter     Updated to use LevelMappingFactory.
- * 07/31/2012   #875       rferrel     Now uses points.
+ * May 27, 2009 2161       lvenable    Initial creation
+ * Oct 21, 2009 1711       bsteffen    Updated Baseline and Points to use new
+ *                                     ToolsDataManager
+ * Nov 17, 2009 3120       rjpeter     Updated to use LevelMappingFactory.
+ * Jul 31, 2012 875        rferrel     Now uses points.
+ * May 30, 2013 2055       bsteffen    Remove modelName from sounding pointName.
  * 
  * </pre>
  * 
@@ -182,11 +185,12 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
                 // Get all possible levels for the selected levels
                 List<Level> selectedLevels = Collections.emptyList();
                 try {
-                    LevelMappingFactory lmf = LevelMappingFactory.getInstance();
+                    LevelMappingFactory lmf = LevelMappingFactory
+                            .getInstance(LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE);
                     selectedLevels = new ArrayList<Level>(lmf
                             .getLevelMappingForKey(
                                     catalogEntry.selectedPlanesKey).getLevels());
-                } catch (VizCommunicationException e) {
+                } catch (CommunicationException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
                 }
@@ -275,8 +279,7 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
             D2DNSharpResourceData tmpData = new GribNSharpResourceData(
                     catalogEntry.getSelectedData().getSourcesKey());
             tmpData.setCoordinate(getPointCoordinate(catalogEntry));
-            String pointName = catalogEntry.getSelectedData().getSourcesText()
-                    + "-" + catalogEntry.getSelectedData().getPlanesKey();
+            String pointName = catalogEntry.getSelectedData().getPlanesKey();
             tmpData.setPointName(pointName);
             rscData = tmpData;
             break;
@@ -422,8 +425,8 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
                                     .getCoordinateReferenceSystem());
                     Envelope2D env = gridGeom.getEnvelope2D();
                     for (String letter : pointLetters) {
-                    Coordinate c = PointsDataManager.getInstance()
-                            .getCoordinate(letter);
+                        Coordinate c = PointsDataManager.getInstance()
+                                .getCoordinate(letter);
                         DirectPosition2D dp = new DirectPosition2D(c.x, c.y);
                         llToCRS.transform(dp, dp);
                         if (env.contains(dp.x, dp.y)) {
@@ -508,8 +511,8 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
                             .getTransformFromLatLon(gridGeom
                                     .getCoordinateReferenceSystem());
                     Envelope2D env = gridGeom.getEnvelope2D();
-                for (String letter : pdm.getPointNames()) {
-                    Coordinate c = pdm.getCoordinate(letter);
+                    for (String letter : pdm.getPointNames()) {
+                        Coordinate c = pdm.getCoordinate(letter);
                         DirectPosition2D dp = new DirectPosition2D(c.x, c.y);
                         llToCRS.transform(dp, dp);
                         if (env.contains(dp.x, dp.y)) {

@@ -1,5 +1,25 @@
 package com.raytheon.uf.viz.monitor.ffmp.ui.rsc;
 
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,7 +32,6 @@ import org.eclipse.swt.graphics.RGB;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord.FIELDS;
 import com.raytheon.uf.common.monitor.xml.DomainXML;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FFMPTableData;
 
 /**
@@ -25,6 +44,9 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FFMPTableData;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 04/23/10     4494        D. Hladky   Initial release
+ * 02/01/13     1569        D. Hladky   Added constants
+ * Apr 25, 2013 1954        bsteffen    Skip extent checking for FFMP shape
+ *                                      generation.
  * 
  * </pre>
  * 
@@ -58,14 +80,9 @@ public class FFMPDrawable {
 
     private DataTime time = null;
 
-    private PixelExtent ext = null;
-
     private double dtime = 0.0;
 
     protected HashMap<Long, Float> worstCaseHash = new HashMap<Long, Float>();
-
-    private ConcurrentMap<String, Set<Long>> basins = new ConcurrentHashMap<String, Set<Long>>(
-            10, 0.75f, 5);
 
     private String guidType = null;
 
@@ -74,7 +91,7 @@ public class FFMPDrawable {
     }
 
     public void setValidDomains(Collection<DomainXML> domains) {
-        Set<String> cwasToRemove = new HashSet<String>(basins.keySet());
+        Set<String> cwasToRemove = new HashSet<String>(colorMaps.keySet());
         for (DomainXML domain : domains) {
             cwasToRemove.remove(domain.getCwa());
         }
@@ -103,7 +120,7 @@ public class FFMPDrawable {
      * Disposes of currently drawn shapes.
      */
     public void disposeImage() {
-        for (String cwa : basins.keySet()) {
+        for (String cwa : colorMaps.keySet()) {
             disposeCwa(cwa);
         }
     }
@@ -114,8 +131,6 @@ public class FFMPDrawable {
             colorMap.clear();
             colorMap = null;
         }
-
-        basins.remove(cwa);
         // tableData.clear();
         worstCaseHash.clear();
     }
@@ -202,22 +217,6 @@ public class FFMPDrawable {
 
     public void setWorstCase(boolean isWorstCase) {
         this.isWorstCase = isWorstCase;
-    }
-
-    public PixelExtent getExt() {
-        return ext;
-    }
-
-    public void setExt(PixelExtent ext) {
-        this.ext = ext;
-    }
-
-    public Set<Long> getBasins(String cwa) {
-        return basins.get(cwa);
-    }
-
-    public void setBasins(String cwa, Set<Long> basins) {
-        this.basins.put(cwa, basins);
     }
 
     public void setTableData(String thuc, FFMPTableData tData) {

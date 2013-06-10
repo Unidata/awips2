@@ -46,6 +46,10 @@ function startEnvironmentInternal()
       echo "ERROR: The ${env_name} environment is corrupt. Recreate it."
       return 1
    fi
+   if [ ! -f ${EDEX_ENV_DIR}/${env_name}/edex-environment/httpd-pypies ]; then
+      echo "ERROR: The ${env_name} environment is corrupt. Recreate it."
+      return 1
+   fi
    if [ ! -f ${EDEX_ENV_DIR}/${env_name}/edex-environment/qpidd ]; then
       echo "ERROR: The ${env_name} environment is corrupt. Recreate it."
       return 1
@@ -57,6 +61,10 @@ function startEnvironmentInternal()
    # Start PostgreSQL.
    /bin/bash edex_postgres start
    echo 
+   sleep 10
+   # Start httpd-pypies
+   /bin/bash httpd-pypies start
+   echo
    sleep 10
    # Start QPID.
    /bin/bash qpidd start

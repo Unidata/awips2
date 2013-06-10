@@ -36,8 +36,8 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 2, 2012            dgilling     Initial creation
- * 
+ * Nov 2, 2012             dgilling    Initial creation
+ * May 08, 2013 1814       rjpeter     Added time to live to topic.
  * </pre>
  * 
  * @author dgilling
@@ -47,7 +47,7 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
 public class DeleteAllGridDataHandler implements
         IRequestHandler<DeleteAllGridDataRequest> {
 
-    private static final String PLUGIN_PURGED_TOPIC = "jms-generic:topic:pluginPurged";
+    private static final String PLUGIN_PURGED_TOPIC = "jms-generic:topic:pluginPurged?timeToLive=60000";
 
     /*
      * (non-Javadoc)

@@ -65,6 +65,7 @@
 	<alias base="HCTL">HCTL</alias>
 	<alias base="HCY">HCLY</alias>
 	<alias base="HSCLW">HTSLW</alias>
+	<alias base="HTFL">FRZH</alias> 
 	<alias base="HTFL">HTFL</alias>
 	<alias base="HTGL">HGHT</alias>
 	<alias base="HTSLW">HTSLW</alias>
@@ -111,6 +112,7 @@
 	<alias base="OSEQ">OSEQ</alias>
 	<alias base="OSEQD">OSEQ</alias>
 	<alias base="PBL">PLBL</alias>
+	<alias base="BL">PDLY</alias> 
 	<alias base="PDLY">PDLY</alias>
 	<alias base="PLBL">PLBL</alias>
 	<alias base="PV">POTV</alias>
@@ -132,4 +134,8 @@
 	<alias base="TROP">TROP</alias>
 	<alias base="VPT">POTV</alias>
 	<alias base="WBZ">LWBZ</alias>
+	<alias base="CCBL">CCBL</alias>
+	<alias base="GCBL">GCBL</alias>
+	<alias base="SCBL">SCBL</alias>
+    <alias base="SCTL">SCTL</alias>
 </aliasList>

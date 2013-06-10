@@ -38,6 +38,7 @@ import org.apache.commons.lang.StringUtils;
  * Oct 20, 2011            rferrel     Initial creation
  * Jul 13, 2012 740        djohnson    Add join.
  * Nov 09, 2012 1322       djohnson    Add NEWLINE, createMessage.
+ * Mar 02, 2013 1970       bgonzale    Added fast string replacement method.
  * 
  * </pre>
  * 
@@ -184,5 +185,28 @@ public final class StringUtil {
         }
 
         return msg.toString();
+    }
+
+    /**
+     * Fast replacement of all String target elements in String source with
+     * String replacement.
+     * 
+     * @param source
+     *            String that instances will be replaced in.
+     * @param target
+     * @param replacement
+     * @return a new String equivalent to source with target Strings replaced by
+     *         String replacement
+     */
+    public static String replace(final String source, final String target,
+            final String replacement) {
+        int targetIndex = 0;
+        StringBuilder sb = new StringBuilder(source);
+
+        while ((targetIndex = sb.indexOf(target, targetIndex)) > -1) {
+            sb.replace(targetIndex, targetIndex + target.length(), replacement);
+            targetIndex += replacement.length();
+        }
+        return sb.toString();
     }
 }

@@ -87,8 +87,7 @@ public class MPERadarRingOverlayResource extends RadarRingOverlayResource {
                         MPEDisplayManager displayManager = MPEDisplayManager
                                 .getCurrent();
                         if (displayManager != null) {
-                            Date displayDate = displayManager.getCurrentDate();
-
+                            Date displayDate = displayManager.getCurrentEditDate();
                             for (RadarRingOverlayData rdata : dataMap.values()) {
                                 dao.getRadarAvailable(rdata, displayDate);
                                 if (rdata.isRadAvail()) {

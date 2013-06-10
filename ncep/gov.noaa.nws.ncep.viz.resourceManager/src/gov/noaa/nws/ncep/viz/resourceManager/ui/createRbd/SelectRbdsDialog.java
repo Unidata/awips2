@@ -1,26 +1,19 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd;
 
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resourceManager.ui.loadRbd.RbdViewComposite;
-import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
+import gov.noaa.nws.ncep.viz.resources.manager.AbstractRBD;
+import gov.noaa.nws.ncep.viz.resources.manager.NcMapRBD;
 import gov.noaa.nws.ncep.viz.resources.manager.SpfsManager;
-import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
-import gov.noaa.nws.ncep.viz.ui.display.PaneID;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
+import gov.noaa.nws.ncep.viz.ui.display.NcPaneID;
 
-import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -46,11 +39,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 
 /**
@@ -69,6 +59,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 07/19/2012    #568       Greg Hull    Use new RbdViewComposite
  * 07/21/2012    #568       Greg Hull    Changed name to SelectRbdsDialog and allowed
  *                                       multi-select and select from Displays
+ * 02/22/2013    #972       Greg Hull    work with AbstractRBD
  * 
  * </pre>
  * 
@@ -114,7 +105,7 @@ public class SelectRbdsDialog extends Dialog {
     
     private Button ok_btn = null;
     
-    private ArrayList<RbdBundle> seldRbdsList = null;
+    private ArrayList<AbstractRBD<?>> seldRbdsList = null;
             
     // might be nice one day to save the group and spf name 
     // so that we can init the SaveRBD dialog with these values??
@@ -130,7 +121,7 @@ public class SelectRbdsDialog extends Dialog {
     	multiSelectEnabled = multiSel;
     	importSinglePane = singlePane;
     	
-    	seldRbdsList = new ArrayList<RbdBundle>();    	
+    	seldRbdsList = new ArrayList<AbstractRBD<?>>();    	
     }
       
     public Boolean open( ) {
@@ -170,7 +161,7 @@ public class SelectRbdsDialog extends Dialog {
     	return oked;// ? currRbdSel : null );
     }
     
-    public RbdBundle getSelectedRBD() {
+    public AbstractRBD<?> getSelectedRBD() {
     	// should have checked the status from open() before calling this.
     	if( seldRbdsList.isEmpty() ) {
     		return null;
@@ -181,7 +172,7 @@ public class SelectRbdsDialog extends Dialog {
     }
     
 	// should have checked the status from open() before calling this.
-    public ArrayList<RbdBundle> getSelectedRBDs() {
+    public ArrayList<AbstractRBD<?>> getSelectedRBDs() {
     	return seldRbdsList;
     }
 
@@ -409,7 +400,7 @@ public class SelectRbdsDialog extends Dialog {
         rbdLviewer.setContentProvider( new IStructuredContentProvider() {
 			@Override
 			public Object[] getElements(Object inputElement) {
-		 		ArrayList<RbdBundle> rbdBndls = (ArrayList<RbdBundle>)inputElement;		 		
+		 		ArrayList<AbstractRBD<?>> rbdBndls = (ArrayList<AbstractRBD<?>>)inputElement;		 		
 				return rbdBndls.toArray();										
 			}
 			@Override
@@ -422,8 +413,8 @@ public class SelectRbdsDialog extends Dialog {
 
         rbdLviewer.setLabelProvider( new LabelProvider() {
 	    	public String getText( Object element ) {
-	    		if( element instanceof RbdBundle ) {
-	    			return ((RbdBundle)element).getRbdName();
+	    		if( element instanceof AbstractRBD<?> ) {
+	    			return ((AbstractRBD<?>)element).getRbdName();
 	    		}
 	    		else  return "Error: bad RBD element";
 	    	}
@@ -444,7 +435,7 @@ public class SelectRbdsDialog extends Dialog {
        	
        	pane_combo.addSelectionListener( new SelectionAdapter() {
    			public void widgetSelected(SelectionEvent e) {
-   				PaneID seldPaneId = PaneID.parsePaneId( pane_combo.getText() );
+   				NcPaneID seldPaneId = NcPaneID.parsePaneId( pane_combo.getText() );
    				
    	    		if( seldRbdsList.size() == 1 ) {
    	    			// Note that if selecting panes is allowed, multi-select is not
@@ -561,7 +552,7 @@ public class SelectRbdsDialog extends Dialog {
     		return;
     	}
     	 
-    	List<RbdBundle> rbdBndls;
+    	List<AbstractRBD<?>> rbdBndls;
     	
 		try {
 			rbdBndls = SpfsManager.getInstance().getRbdsFromSpf(
@@ -596,7 +587,7 @@ public class SelectRbdsDialog extends Dialog {
    			seldRbdsList.clear();
    			
    			while( sel_iter.hasNext() ) {
-   				seldRbdsList.add( (RbdBundle)sel_iter.next() );
+   				seldRbdsList.add( (AbstractRBD<?>)sel_iter.next() );
    			}
 
    			// set the pane combo items and preselect 
@@ -604,12 +595,13 @@ public class SelectRbdsDialog extends Dialog {
    			
    			if( seldRbdsList.size() == 1 ) {
 
-   				RbdBundle seldRbd = seldRbdsList.get(0);
+   				AbstractRBD<?> seldRbd = seldRbdsList.get(0);
 
-   				for( int r=0 ; r<seldRbd.getPaneLayout().getRows() ; r++ ) {
-   					for( int c=0 ; c<seldRbd.getPaneLayout().getColumns() ; c++ ) {
-   						pane_combo.add( new PaneID(r,c).toString() );
-   					}
+   				for( int paneIndx=0 ; paneIndx<seldRbd.getPaneLayout().getNumberOfPanes() ; paneIndx++ ) {
+//   					for( int c=0 ; c<seldRbd.getPaneLayout().getColumns() ; c++ ) {
+   						pane_combo.add( 
+   								seldRbd.getPaneLayout().createPaneId(paneIndx).toString() );
+//   					}
    				}
 
    				if( pane_combo.getItemCount() == 0 ) {
@@ -632,25 +624,22 @@ public class SelectRbdsDialog extends Dialog {
     }     
     
     
-	private ArrayList<RbdBundle> getRbdsFromAllDisplays() {
+	private ArrayList<AbstractRBD<?>> getRbdsFromAllDisplays() {
 		
-		List<NCMapEditor> allNcDisplays = NmapUiUtils.getAllNCDisplays();
-		ArrayList<RbdBundle> rbdsFromDisplays = new ArrayList<RbdBundle>();
+		List<AbstractEditor> allNcDisplays = NcDisplayMngr.getAllNcDisplays();
+		ArrayList<AbstractRBD<?>> rbdsFromDisplays = new ArrayList<AbstractRBD<?>>();
 		
-		// get RbdBundle from selected display
-		for( NCMapEditor ncDisplay : allNcDisplays ) {
-
-			RbdBundle rbdFromDisplay = new RbdBundle();
-
+		// get AbstractRBD<?> from selected display
+		for( AbstractEditor ncDisplay : allNcDisplays ) {
 			try {
-				rbdFromDisplay.initFromEditor( ncDisplay );
+				AbstractRBD<?> rbdFromDisplay = AbstractRBD.createRbdFromEditor( ncDisplay );
 
-				rbdsFromDisplays.add( RbdBundle.clone( rbdFromDisplay ) );
+				rbdsFromDisplays.add( AbstractRBD.clone( rbdFromDisplay ) );
 				
 			} catch (VizException e) {
 				MessageDialog errDlg = new MessageDialog( 
 						shell, "Error", null, 
-						"Error getting Rbd from "+ncDisplay.getDisplayName()+".\n" +
+						"Error getting Rbd from "+ NcEditorUtil.getDisplayName(ncDisplay)+".\n" +
 							e.getMessage(),
 						MessageDialog.ERROR, new String[]{"OK"}, 0);
 				errDlg.open();

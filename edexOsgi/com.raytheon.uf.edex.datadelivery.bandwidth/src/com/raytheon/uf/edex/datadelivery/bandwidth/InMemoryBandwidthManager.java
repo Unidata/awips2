@@ -42,6 +42,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 30, 2012 1286       djohnson     Initial creation
+ * Feb 20, 2013 1543       djohnson     For now assume all in-memory bandwidth managers are WFOs.
  * 
  * </pre>
  * 
@@ -53,9 +54,12 @@ class InMemoryBandwidthManager extends BandwidthManager {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(InMemoryBandwidthManager.class);
 
+    // TODO DPJ: The NCF and WFO bandwidth managers probably each need an
+    // in-memory version
     public static final String[] IN_MEMORY_BANDWIDTH_MANAGER_FILES = new String[] {
             JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-inmemory-impl.xml"),
-            JarUtil.getResResourcePath("/spring/bandwidth-datadelivery.xml") };
+            JarUtil.getResResourcePath("/spring/bandwidth-datadelivery.xml"),
+            JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-wfo.xml") };
 
     /**
      * {@link BandwidthInitializer} which will make a copy of the current

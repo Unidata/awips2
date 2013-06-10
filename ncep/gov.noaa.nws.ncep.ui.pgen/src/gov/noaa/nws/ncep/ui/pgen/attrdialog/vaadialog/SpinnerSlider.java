@@ -35,6 +35,8 @@ public class SpinnerSlider  extends Composite {
         GridLayout layout = new GridLayout((horizontal ? 2 : 1), false);
         layout.marginHeight = 0;
         layout.marginWidth = 0;
+        layout.horizontalSpacing= 0;
+        layout.verticalSpacing = 0;
         setLayout(layout);
 
         GridData layoutData;

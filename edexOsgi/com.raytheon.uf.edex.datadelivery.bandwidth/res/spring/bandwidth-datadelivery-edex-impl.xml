@@ -1,9 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:util="http://www.springframework.org/schema/util" xmlns:amq="http://activemq.apache.org/schema/core"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
     <!-- Stores beans that are used in bandwidth-datadelivery.xml, but that 
@@ -13,10 +11,26 @@
         <!-- This bean version is used to set the EDEX instance of BandwidthManager -->
         <constructor-arg ref="bandwidthManager" />
     </bean>
-    
+
+    <!-- Used as the context for creating the BandwidthManager -->
     <bean id="bandwidthContextFactory"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory">
-        <!-- Used as the context for creating the BandwidthManager -->
+        <!-- The bandwidth dao implementation -->
+        <constructor-arg ref="hibernateBandwidthDao" />
+        <!-- The bandwidth manager initializer -->
+        <constructor-arg>
+            <bean
+                class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthInitializer">
+                <constructor-arg>
+                    <bean
+                        class="com.raytheon.uf.edex.datadelivery.bandwidth.util.FindActiveSubscriptionsForRoute">
+                        <constructor-arg ref="subscriptionRoutesToSchedule" />
+                    </bean>
+                </constructor-arg>
+            </bean>
+        </constructor-arg>
+        <!-- The strategy for how to create the bandwidth manager -->
+        <constructor-arg ref="bandwidthManagerCreator" />
     </bean>
 
     <util:map id="retrievalAgents">
@@ -26,7 +40,7 @@
         <entry key="Retrievals-4" value-ref="subscriptionRetrievalAgentPrototype" />
         <entry key="Retrievals-5" value-ref="subscriptionRetrievalAgentPrototype" />
     </util:map>
-
+    
     <camelContext id="BandwidthManager-context"
         xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 

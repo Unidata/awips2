@@ -312,7 +312,7 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 		    untilTime.setTimeInMillis( cal.getTimeInMillis() );		
 		    gfa.addAttribute( Gfa.UNTIL_TIME, untilTime );
 		}
-		
+
 		cal = this.getAttribute( Gfa.OUTLOOK_END_TIME, Calendar.class );
 		if ( cal != null ) {
 		    Calendar  otlkEndTime = Calendar.getInstance(); 
@@ -351,19 +351,19 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 			setGfaHazard(attr.getGfaHazard());
 			
 			if ( !attr.getGfaTag().isEmpty() ){
-			setGfaTag(attr.getGfaTag());
+				setGfaTag(attr.getGfaTag());
 			}
 			
 			if ( !attr.getGfaDesk().isEmpty() ){
-			setGfaDesk(attr.getGfaDesk());
+				setGfaDesk(attr.getGfaDesk());
 			}
 			
 			if ( !attr.getGfaIssueType().isEmpty() ){
-			setGfaIssueType(attr.getGfaIssueType());
+				setGfaIssueType(attr.getGfaIssueType());
 			}
 			
 			if ( attr.getGfaType() != null && !attr.getGfaType().isEmpty() ){
-			setGfaType(attr.getGfaType());
+				setGfaType(attr.getGfaType());
 			}
 			
 			if ( attr.getGfaFcstHr() != null && !attr.getGfaFcstHr().isEmpty()){
@@ -486,7 +486,7 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 			typeToDisplay = typeToDisplay.replaceAll(n.valueOf("@originalText"), 
 					n.valueOf("@displayAs").replace(",,", "\n"));
 		}
-
+        		
 		if("FZLVL".equals(hazard)) {
 			typeToDisplay = typeToDisplay.replaceAll("FZLVL", "0°:" + getGfaValue(Gfa.LEVEL));
 		}
@@ -1038,7 +1038,7 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 		
 		return s;
 	}
-
+	
 	/**
 	 * Check if this GFA is valid.
 	 * @param gfa
