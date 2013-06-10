@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NavigableSet;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.measure.unit.Unit;
@@ -34,6 +35,7 @@ import com.raytheon.uf.common.dataplugin.level.CompareType;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 
 /**
@@ -57,8 +59,8 @@ public class LevelUtilities {
 
     static {
         try {
-            hPa = (Unit<?>) UnitFormat.getUCUMInstance().parseProductUnit(
-                    "hPa", new ParsePosition(0));
+            hPa = UnitFormat.getUCUMInstance().parseProductUnit("hPa",
+                    new ParsePosition(0));
         } catch (Exception e) {
             // this is bad
         }
@@ -122,7 +124,15 @@ public class LevelUtilities {
 
             };
             Map<String, NavigableSet<Level>> masterLevelToOrderedSet = new HashMap<String, NavigableSet<Level>>();
-            for (Level level : LevelMappingFactory.getInstance().getAllLevels()) {
+            Set<Level> allLevels;
+            try {
+                allLevels = LevelMappingFactory.getInstance(
+                        LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                        .getAllLevels();
+            } catch (CommunicationException e) {
+                throw new VizCommunicationException(e);
+            }
+            for (Level level : allLevels) {
                 NavigableSet<Level> levels = masterLevelToOrderedSet.get(level
                         .getMasterLevel().getName());
                 if (levels == null) {

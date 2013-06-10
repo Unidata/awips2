@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.monitor.ffmp.ui.dialogs;
 
-import org.eclipse.swt.SWT;
-
 import com.raytheon.uf.viz.monitor.ui.dialogs.ISortColumn;
 
 /**
@@ -34,6 +32,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ISortColumn;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 7, 2009            lvenable     Initial creation
+ * May 7, 2013    1986   njensen   Sped up compareTo()
  * 
  * </pre>
  * 
@@ -138,36 +137,16 @@ public class FFMPTableRowData implements Comparable<FFMPTableRowData> {
     @Override
     public int compareTo(FFMPTableRowData otherObj) {
         int selectedIndex = sortCB.getSortColumn();
-        int direction = sortCB.getSortDirection();
-        int x = 0;
 
-        Object thisData = rowCells[selectedIndex].sortByObject(direction);
-        Object otherData = otherObj.rowCells[selectedIndex]
-                .sortByObject(direction);
-
-        if (thisData instanceof String) {
-            x = ((String) thisData).compareTo((String) otherData);
-        } else if (thisData instanceof Number) {
-            double thisNumber = (Float) thisData;
-            double otherNumber = (Float) otherData;
-
-            if (thisNumber < otherNumber) {
-                x = -1;
-            } else if (thisNumber > otherNumber) {
-                x = 1;
-            } else {
-                x = 0;
-            }
+        FFMPTableCellData selectedCell = rowCells[selectedIndex];
+        if (selectedCell.getCellText() != null) {
+            String thisText = selectedCell.getCellText();
+            String otherText = otherObj.rowCells[selectedIndex].getCellText();
+            return thisText.compareTo(otherText);
+        } else {
+            float thisFloat = selectedCell.sortByNumber();
+            float otherFloat = otherObj.rowCells[selectedIndex].sortByNumber();
+            return Float.compare(thisFloat, otherFloat);
         }
-
-        if (direction == SWT.DOWN) {
-            if (x < 0) {
-                return 1;
-            } else if (x > 0) {
-                return -1;
-            }
-        }
-
-        return x;
     }
 }

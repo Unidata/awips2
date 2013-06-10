@@ -20,25 +20,37 @@
 
 package com.raytheon.uf.common.dataplugin.gfe.db.objects;
 
-import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Set;
 import java.util.TimeZone;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.gfe.serialize.DatabaseIDAdapter;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdapter;
 
 /**
- * 
  * Object used to identify an hdf5 grid "database".<br>
  * This is a port from original DatabaseID found in AWIPS I
  * 
@@ -47,23 +59,22 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 3/6/08       875        bphillip    Initial Creation
- * 8/19/09     2899        njensen     Rewrote equals() for performance
- * 5/08/12     #600        dgilling    Implement clone().
- * 6/25/12     #766        dgilling    Fix isValid().
- * 01/18/13    #1504       randerso    Removed setters since class should be immutable
- * 
+ * 8/19/09      2899       njensen     Rewrote equals() for performance
+ * 5/08/12      600        dgilling    Implement clone().
+ * 6/25/12      766        dgilling    Fix isValid().
+ * 01/18/13     1504       randerso    Removed setters since class should be immutable
+ * 03/28/13     1949       rjpeter     Normalized database structure.
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
-@XmlJavaTypeAdapter(value = DatabaseIDAdapter.class)
+@Entity
+@Table(name = "gfe_dbid", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "siteId", "modelName", "modelTime", "dbType" }) })
 @DynamicSerialize
 @DynamicSerializeTypeAdapter(factory = DatabaseIDAdapter.class)
-public class DatabaseID implements Serializable, Comparable<DatabaseID>,
-        ISerializableObject, Cloneable {
+public class DatabaseID implements Comparable<DatabaseID> {
 
     private static final long serialVersionUID = 5792890762609478694L;
 
@@ -92,26 +103,58 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
         NONE, GRID
     };
 
+    /**
+     * Auto-generated surrogate key
+     */
+    @Id
+    @SequenceGenerator(name = "GFE_DBID_GENERATOR", sequenceName = "gfe_dbid_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GFE_DBID_GENERATOR")
+    private int id;
+
     /** The site identifier */
+    @Column(length = 4, nullable = false)
+    @DataURI(position = 0)
     private String siteId;
 
     /** The database format */
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    // will this ever not be GRID for any persisted database?
     private DataType format;
 
     /** Optional database type */
+    @Column(length = 15)
+    @DataURI(position = 3)
     private String dbType;
 
     /** The model name */
+    @Column(length = 64, nullable = false)
+    @DataURI(position = 1)
     private String modelName;
 
+    // TODO: Use actual time for db column
     /** Model Time yyyymmdd_hhmm */
-    private String modelTime;
+    @Column(length = 13, nullable = false)
+    @DataURI(position = 2)
+    private String modelTime = NO_MODEL_TIME;
 
     /** The model identifier */
+    @Transient
     private String modelId;
 
     /** The short model identifier */
+    @Transient
     private String shortModelId;
+
+    /**
+     * Used only for hibernate mappings to allow a cascade delete to all child
+     * parmIds when the databaseId is deleted. These should not be loaded by or
+     * referenced normally from code from this object.
+     */
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "dbId", cascade = { CascadeType.REMOVE })
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @SuppressWarnings("unused")
+    private Set<ParmID> parmIds;
 
     /**
      * Creates a new DatabaseID
@@ -126,9 +169,7 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
      * @param dbIdentifier
      */
     public DatabaseID(String dbIdentifier) {
-        if (decodeIdentifier(dbIdentifier)) {
-            encodeIdentifier();
-        } else {
+        if (!decodeIdentifier(dbIdentifier)) {
             // set to default values
             format = DataType.NONE;
             dbType = "";
@@ -181,7 +222,6 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
         this.dbType = dbType;
         this.modelName = modelName;
         this.modelTime = modelTime;
-        encodeIdentifier();
     }
 
     /**
@@ -200,6 +240,15 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
     public DatabaseID(String siteId, DataType format, String dbType,
             String modelName) {
         this(siteId, format, dbType, modelName, NO_MODEL_TIME);
+    }
+
+    /**
+     * Returns the id field, auto-generated surrogate key.
+     * 
+     * @return
+     */
+    public int getId() {
+        return id;
     }
 
     /**
@@ -269,7 +318,7 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
      */
 
     public DatabaseID stripType() {
-        if (modelTime.equals(DatabaseID.NO_MODEL_TIME)) {
+        if (NO_MODEL_TIME.equals(modelTime)) {
             return new DatabaseID(siteId, format, "", modelName);
         } else {
             return new DatabaseID(siteId, format, "", modelName, modelTime);
@@ -366,7 +415,7 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
             shortModelId += "_" + dbType;
         }
 
-        if (!modelTime.equals(NO_MODEL_TIME)) {
+        if (!NO_MODEL_TIME.equals(modelTime)) {
             modelId += "_" + modelTime;
             shortModelId += "_" + modelTime.substring(6, 8)
                     + modelTime.substring(9, 11);
@@ -379,7 +428,7 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
 
     @Override
     public String toString() {
-        return modelId;
+        return getModelId();
     }
 
     /**
@@ -426,6 +475,10 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
      */
 
     public String getModelId() {
+        if (modelId == null) {
+            encodeIdentifier();
+        }
+
         return modelId;
     }
 
@@ -434,6 +487,10 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
      */
 
     public String getShortModelId() {
+        if (shortModelId == null) {
+            encodeIdentifier();
+        }
+
         return shortModelId;
     }
 
@@ -448,7 +505,9 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
         int result = 1;
         result = prime * result + (dbType == null ? 0 : dbType.hashCode());
         result = prime * result + (format == null ? 0 : format.hashCode());
-        result = prime * result + (modelId == null ? 0 : modelId.hashCode());
+        String localModelId = getModelId();
+        result = prime * result
+                + (localModelId == null ? 0 : localModelId.hashCode());
         result = prime * result
                 + (modelTime == null ? 0 : modelTime.hashCode());
         result = prime * result + (siteId == null ? 0 : siteId.hashCode());
@@ -488,6 +547,7 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
         return date;
     }
 
+    // TODO: DELETE THIS METHOD
     public Date getModelTimeAsDate() {
         if (this.modelTime.equals(NO_MODEL_TIME)) {
             return new Date(0);
@@ -538,16 +598,4 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
         int time = -this.getModelTimeAsDate().compareTo(o.getModelTimeAsDate());
         return time;
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#clone()
-     */
-    @Override
-    protected DatabaseID clone() throws CloneNotSupportedException {
-        return new DatabaseID(this.siteId, this.format, this.dbType,
-                this.modelName, this.modelTime);
-    }
-
 }

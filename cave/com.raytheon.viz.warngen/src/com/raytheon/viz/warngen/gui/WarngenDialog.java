@@ -128,13 +128,17 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Nov 02, 2012 DR 15455    Qinglu Lin  Added warngenLayer.setWarningAction() in resetPressed() 
  *                                       and in updateListSelected().
  *  Dec 20, 2012 DR 15537    Qinglu Lin  Changed the assigned value to trackEditable from false 
- *                                       to true in boxSelected().                                      
+ *                                       to true in boxSelected().
  *  Jan 24, 2013 DR 15723    Qinglu Lin  Invoked WarngenLayer's initRemovedGids().
  *  Feb  7, 2013 DR 15799    Qinglu Lin  Added setPolygonLocked(false) to conSelected(), newSelected(); added
  *                                       setPolygonLocked(true) below conSelected() is called in corSelected(),
  *                                       and removed it from updateListSelected().
- *  Mar 25, 2013 DR 15974    D. Friedman Do not track removed GIDs.
- * 
+ *  Feb 18, 2013 #1633       rferrel     Changed checkFollowupSelection to use SimulatedTime.
+ *  Mar 28, 2013 DR 15974    D. Friedman Do not track removed GIDs.
+ *  Apr 11, 2013 1894        jsanchez    Removed the ability to load/unload maps via bullet selection. This will be resolved in a follow on ticket.
+ *  Apr 30, 2013 DR 16118    Qinglu Lin  For reissue (followup NEW), called redrawFromWarned() in okPressed().
+ *  May 17, 2013 DR 16118    Qinglu Lin  Copied the fix from 13.4.1.
+ *  May 17, 2013 2012        jsanchez    Preserved the warned area if the hatched area source is the same when changing templates.
  * </pre>
  * 
  * @author chammack
@@ -150,6 +154,17 @@ public class WarngenDialog extends CaveSWTDialog implements
     private static final int BULLET_HEIGHT = 230;
 
     private static final int FONT_HEIGHT = 9;
+
+    static {
+        // Ensure TemplateRunner gets initialized for use
+        new Job("Template Runner Initialization") {
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                TemplateRunner.initialize();
+                return Status.OK_STATUS;
+            }
+        }.schedule();
+    }
 
     private String result;
 
@@ -977,6 +992,11 @@ public class WarngenDialog extends CaveSWTDialog implements
             return;
         }
 
+        if (followupData != null && WarningAction.valueOf(followupData
+                .getAct()) == WarningAction.NEW) {
+            redrawFromWarned();
+        }
+        
         if ((followupData == null || (WarningAction.valueOf(followupData
                 .getAct()) == WarningAction.CON && warngenLayer
                 .conWarnAreaChanged(followupData)))
@@ -1102,7 +1122,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         }
 
         if (timeRange != null
-                && timeRange.contains(Calendar.getInstance().getTime()) == false) {
+                && timeRange.contains(SimulatedTime.getSystemTime().getTime()) == false) {
             // The action is no longer available in the follow up/update list
             statusHandler.handle(Priority.PROBLEM,
                     "Follow up product has nothing to follow up.");
@@ -1388,7 +1408,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             return;
 
         String lastAreaSource = warngenLayer.getConfiguration()
-                .getGeospatialConfig().getAreaSource();
+                .getHatchedAreaSource().getAreaSource();
 
         // reset values
         setPolygonLocked(false);
@@ -1414,7 +1434,6 @@ public class WarngenDialog extends CaveSWTDialog implements
                 .getBullets(), warngenLayer.getConfiguration()
                 .getDamInfoBullets());
         refreshBulletList();
-        updateMaps(bulletListManager.getMapsToLoad());
 
         // duration
         boolean enableDuration = warngenLayer.getConfiguration()
@@ -1451,12 +1470,17 @@ public class WarngenDialog extends CaveSWTDialog implements
             warngenLayer.clearWarningGeometries();
         }
 
-        boolean snapHatchedAreaToPolygon = !warngenLayer.getConfiguration()
-                .getGeospatialConfig().getAreaSource()
+        boolean isDifferentAreaSources = !warngenLayer.getConfiguration()
+                .getHatchedAreaSource().getAreaSource()
                 .equalsIgnoreCase(lastAreaSource);
-
+        boolean snapHatchedAreaToPolygon = isDifferentAreaSources;
+        boolean preservedSelection = !isDifferentAreaSources;
+        // If template has a different hatched area source from the previous
+        // template, then the warned area would be based on the polygon and not
+        // preserved.
         try {
-            warngenLayer.updateWarnedAreas(snapHatchedAreaToPolygon, true);
+            warngenLayer.updateWarnedAreas(snapHatchedAreaToPolygon,
+                    preservedSelection);
         } catch (VizException e1) {
             statusHandler.handle(Priority.PROBLEM, "WarnGen Error", e1);
         }
@@ -1614,7 +1638,10 @@ public class WarngenDialog extends CaveSWTDialog implements
                 bulletListManager.recreateBullets(warngenLayer
                         .getConfiguration().getBullets(), warngenLayer
                         .getConfiguration().getDamInfoBullets());
-                updateMaps(bulletListManager.getMapsToLoad());
+                // TODO Repair load/unload maps via bullet selection
+                // A follow on ticket will be written to fix the existing broken
+                // functionality of loading/unloading maps
+                // updateMaps(bulletListManager.getMapsToLoad());
             } else {
                 bulletListManager.recreateBulletsFromFollowup(
                         warngenLayer.getConfiguration(), action, oldWarning);
@@ -1717,7 +1744,10 @@ public class WarngenDialog extends CaveSWTDialog implements
         bulletList.deselectAll();
         bulletList.setItems(bulletListManager.getAllBulletTexts());
         bulletList.select(bulletListManager.getSelectedIndices());
-        updateMaps(bulletListManager.getMapsToLoad());
+        // TODO Repair load/unload maps via bullet selection
+        // A follow on ticket will be written to fix the existing broken
+        // functionality of loading/unloading maps
+        // updateMaps(bulletListManager.getMapsToLoad());
     }
 
     private void updateMaps(ArrayList<String> mapsToLoad) {

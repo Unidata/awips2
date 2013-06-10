@@ -60,13 +60,6 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.datastorage.hdf5"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.common.datastorage"
          download-size="0"
          install-size="0"
@@ -284,13 +277,6 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.spatial"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.common.jms"
          download-size="0"
          install-size="0"
@@ -345,5 +331,26 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.dataplugin.maps"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.image"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+	id="com.raytheon.uf.common.python.concurrent"
+	download-size="0"
+	install-size="0"
+	version="0.0.0"
+	unpack="false"/> 
 
 </feature>

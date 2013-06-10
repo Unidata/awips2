@@ -17,15 +17,43 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
-from qmf.console import Session 
+##
+# Returns the client ids of all connections established to qpid.
+# 
+# 
+# SOFTWARE HISTORY
+# 
+# Date       	Ticket#		Engineer	Description
+# ------------	----------	-----------	--------------------------
+# 03/21/13      1814        rjpeter     Updated to use rest API for java broker
+##
+import httplib
+import json
 
-def getConnections(brokerHost):
-    sess = Session()
-    broker = sess.addBroker("amqp://quest/quest@" + brokerHost + ":5672")
-    sessions = sess.getObjects(_class="session", _package="org.apache.qpid.broker")
-    result = []
-    for s in sessions:
-        result.append(s.name)
-    sess.delBroker(broker)
-    return result
+def getConnections(brokerHost, port=8180):
+    # Use rest services to pull connection clientId
+    # http://cp1f:9090/rest/connection
+    # port needs to be passed as a parameter
+    # parse json response for clientId, recommend using a hash of some kind
+    if (port is None):
+        httpConn = httplib.HTTPConnection(brokerHost)
+    else:
+        httpConn = httplib.HTTPConnection(brokerHost, port)
 
+    httpConn.connect()
+    httpConn.request("GET", "/rest/connection/edex")
+    response = httpConn.getresponse()
+
+    if (response.status != 200):
+        raise Exception("Unable to post request to server")
+
+    jsonStr = response.read()
+    jsonObjArray = json.loads(jsonStr)
+    resultSet = set()
+
+    for statDict in jsonObjArray:
+        clientId = statDict.get("clientId")
+        if clientId:
+            resultSet.add(clientId)
+
+    return list(resultSet)

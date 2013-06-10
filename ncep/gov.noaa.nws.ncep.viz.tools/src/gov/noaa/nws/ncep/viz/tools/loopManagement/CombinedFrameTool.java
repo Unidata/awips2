@@ -1,14 +1,14 @@
 package gov.noaa.nws.ncep.viz.tools.loopManagement;
 
 
-import gov.noaa.nws.ncep.viz.common.AbstractNcEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.tools.AbstractTool;
 
 /**
@@ -24,6 +24,7 @@ import com.raytheon.viz.ui.tools.AbstractTool;
  *    Oct 10, 2009    169      Greg Hull   Check for time synced multipanes
  *    Sept 28, 2010   317      Xilin Guo   Create Loop Management and copy it from dwellRate. Remove dwellRate
  *    07/15/11                 C Chen      fix looping buttons not coordinated issue. Clean up code.
+ *    02/12/13        972      G. Hull     call NcEditorUtil.refreshGUIElements in place of AbstractNcEditor
  *                                          
  *   
  * </pre>
@@ -60,10 +61,9 @@ public class CombinedFrameTool extends AbstractTool {
         	}
         }
         editor.refresh();
-        if(editor != null && editor instanceof AbstractNcEditor){
-        	AbstractNcEditor e = (AbstractNcEditor)editor;
-        	e.refreshGUIElements();
-        }
+        
+        NcEditorUtil.refreshGUIElements( (AbstractEditor) editor );
+
         return null;
 
     }

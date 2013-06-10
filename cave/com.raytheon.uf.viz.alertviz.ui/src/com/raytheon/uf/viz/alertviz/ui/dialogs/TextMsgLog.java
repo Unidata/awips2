@@ -55,6 +55,9 @@ import com.raytheon.uf.viz.alertviz.Container;
  *                                     and a new Category to sortable list.
  * 02 Feb 2011  6500       cjeanbap    Added additional space.  
  * 01 Mar 2011  5632       cjeanbap    Added Category Sort functionality.
+ * 06 Feb 2013	14501	   Xiaochuan   Added getCategoriesFromConfig; object
+ * 									   clearOptionCbo can't be changed when
+ * 									   the logs coming and Clear actived.		
  * </pre>
  * 
  * @author lvenable
@@ -156,10 +159,6 @@ public class TextMsgLog {
             clearOptionCbo.add("All");
 
             Set<String> keySet = catNames.keySet();
-
-            for (String key : keySet) {
-                clearOptionCbo.add(key);
-            }
 
             clearOptionCbo.select(0);
         }
@@ -288,7 +287,6 @@ public class TextMsgLog {
 
         getCategoriesFromMessages();
         populateLogList();
-        populateClearOptionsCombo();
     }
 
     /**
@@ -439,6 +437,11 @@ public class TextMsgLog {
         return tabIndex;
     }
 
+    public String[] getCategoriesFromConfig()
+    {
+    	return categories;
+    }
+    
     public void displayCategoryMessages(String category) {
         logList.removeAll();
 
@@ -457,10 +460,8 @@ public class TextMsgLog {
     public void updateClearOptionsCombo(String category) {
         if (clearOptionCbo != null && !clearOptionCbo.isDisposed()) {
             if (!catNames.containsKey(category)) {
-                clearOptionCbo.add(category);
-                catNames.put(category, null);
-                clearOptionCbo.redraw();
-            }
+				catNames.put(category, null);
+			}
         }
     }
 

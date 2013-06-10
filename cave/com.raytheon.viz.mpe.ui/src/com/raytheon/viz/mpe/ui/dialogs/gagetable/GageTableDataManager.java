@@ -59,6 +59,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 29, 2009 2476       mpduff      Initial creation.
  * Jan 28, 2010 4415       mpduff      Fixed problem with column 
  *                                       header creation.
+ * May 20, 2013 15962      lbousaidi   Added a new routine getRadarIdsTrue()
+ *                                     for Radar Sites dialog.                                    
  * 
  * </pre>
  * 
@@ -252,6 +254,30 @@ public class GageTableDataManager {
 
         return radarIds;
     }
+    
+    /**
+     * Get the list of Radar Ids from radarloc.
+     * only the one with use_radar= T
+     * @return the radarIds
+     * @throws VizException
+     */
+    public String[] getRadarIdsTrue() throws VizException {
+
+        if (radarIds == null) {
+            String query = "select radid from radarloc where use_radar='T' " +
+                                        "order by radid asc";
+            List<Object[]> rs = DirectDbQuery.executeQuery(query,
+                    HydroConstants.IHFS, QueryLanguage.SQL);
+
+            radarIds = new String[rs.size()];
+            for (int i = 0; i < rs.size(); i++) {
+                Object[] oa = rs.get(i);
+                radarIds[i] = (String) oa[0];
+            }
+        }
+
+        return radarIds;
+    }
 
     /**
      * Lookup the Radar Id for the gage.
@@ -270,7 +296,7 @@ public class GageTableDataManager {
         MPEDataManager mpeDataManager = MPEDataManager.getInstance();
         MPEDisplayManager displayManager = MPEDisplayManager.getCurrent();
 
-        Date currentDate = displayManager.getCurrentDate();
+        Date currentDate = displayManager.getCurrentEditDate();
         String radarId = "ZZZ";
         HRAPSubGrid subGrid = null;
         DisplayFieldData dataType = DisplayFieldData.Index;
@@ -337,7 +363,7 @@ public class GageTableDataManager {
     public short[][] getXmrgData(String path, String type, Rectangle extent)
             throws IOException {
         MPEDisplayManager displayManager = MPEDisplayManager.getCurrent();
-        Date currentDate = displayManager.getCurrentDate();
+        Date currentDate = displayManager.getCurrentEditDate();
 
         if (type.equalsIgnoreCase(GageTableProductManager.MPE_AVGRMOSAIC)) {
             if ((avgrMosaic == null) || !currentDate.equals(dataDate)) {
@@ -926,7 +952,7 @@ public class GageTableDataManager {
             String cv_use = dataType.getCv_use();
             String dirname = appsDefaults.getToken(dataType.getDirToken());
             String fname = FileUtil.join(dirname,
-                    cv_use + sdf.format(displayManager.getCurrentDate()) + "z");
+                    cv_use + sdf.format(displayManager.getCurrentEditDate()) + "z");
 
             Rectangle extent = dataManager.getHRAPExtent();
 
@@ -966,7 +992,7 @@ public class GageTableDataManager {
      */
     public List<MPEGageData> readGageData() {
         MPEDisplayManager displayManager = MPEDisplayManager.getCurrent();
-        Date currentDate = displayManager.getCurrentDate();
+        Date currentDate = displayManager.getCurrentEditDate();
 
         if ((mpeGageDataList == null) || !currentDate.equals(dataDate)) {
             MPEDataManager mpeDataManager = MPEDataManager.getInstance();

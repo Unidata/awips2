@@ -59,6 +59,8 @@ import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
  *    ------------ ----------  ----------- --------------------------
  *    Sep 5, 2007              chammack    Initial Creation.
  *    Apr 9, 2009  1288        rjpeter     Added iterator implementation to fix remove.
+ *    Apr 24, 2013 1950        bsteffen    Sort resources before instantiation.
+ * 
  * </pre>
  * 
  * @author chammack
@@ -76,6 +78,33 @@ public class ResourceList extends CopyOnWriteArrayList<ResourcePair> implements
 
     private static final int LOWEST = RenderingOrderFactory.ResourceOrder.LOWEST.value;
 
+    private static final Comparator<ResourcePair> INSTANTIATION_ORDERER = new Comparator<ResourcePair>() {
+
+        @Override
+        public int compare(ResourcePair rp1, ResourcePair rp2) {
+            if (rp1.getProperties().isSystemResource()) {
+                if (rp2.getProperties().isSystemResource()) {
+                    return 0;
+                } else {
+                    return -1;
+                }
+            } else if (rp2.getProperties().isSystemResource()) {
+                return 1;
+            }
+            if (rp1.getProperties().isMapLayer()) {
+                if (rp2.getProperties().isMapLayer()) {
+                    return 0;
+                } else {
+                    return -1;
+                }
+            } else if (rp2.getProperties().isMapLayer()) {
+                return 1;
+            }
+            return 0;
+        }
+
+    };
+    
     private final transient Set<AddListener> preAddListeners;
 
     private final transient Set<AddListener> postAddListeners;
@@ -868,15 +897,14 @@ public class ResourceList extends CopyOnWriteArrayList<ResourcePair> implements
             boolean fireListeners) {
         List<ResourcePair> orderedList = null;
         synchronized (resourcesToInstantiate) {
-            if (descriptor.getTimeMatcher() != null) {
-                orderedList = new ArrayList<ResourcePair>(descriptor
-                        .getTimeMatcher().getResourceLoadOrder(
-                                resourcesToInstantiate));
-            } else {
-                orderedList = new ArrayList<ResourcePair>(
-                        resourcesToInstantiate);
-            }
+            orderedList = new ArrayList<ResourcePair>(resourcesToInstantiate);
             resourcesToInstantiate.removeAll(orderedList);
+        }
+
+        Collections.sort(orderedList, INSTANTIATION_ORDERER);
+        if (descriptor.getTimeMatcher() != null) {
+            orderedList = new ArrayList<ResourcePair>(descriptor
+                    .getTimeMatcher().getResourceLoadOrder(orderedList));
         }
 
         Iterator<ResourcePair> iterator = orderedList.iterator();
@@ -1025,4 +1053,6 @@ public class ResourceList extends CopyOnWriteArrayList<ResourcePair> implements
         }
         return resources;
     }
+
+
 }

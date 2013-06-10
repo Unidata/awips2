@@ -21,7 +21,6 @@ package com.raytheon.uf.common.serialization.comm;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.registry.GenericRegistry;
 import com.raytheon.uf.common.util.registry.RegistryException;
 
@@ -38,6 +37,7 @@ import com.raytheon.uf.common.util.registry.RegistryException;
  * Nov 15, 2012 1322       djohnson    Add ability to route by server key.
  * Mar 05, 2013 1754       djohnson    Prevent infinite loop when request.server router not registered,
  *                                     info log when router registered.
+ * Apr 04, 2013 1786       mpduff      Simplify logging.
  * 
  * </pre>
  * 
@@ -127,19 +127,10 @@ public final class RequestRouter {
         final IRequestRouter router = routerRegistry
                 .getRegisteredObject(service);
         if (router == null) {
-            if (REQUEST_SERVICE.equals(service)) {
-                final String errorMessage = "There is no registered router for service ["
-                        + service + "].  The request cannot be processed!";
-                statusHandler.handle(Priority.FATAL, errorMessage);
+            final String errorMessage = "There is no registered router for service ["
+                    + service + "].  The request cannot be processed!";
 
-                throw new IllegalStateException(errorMessage);
-            } else {
-                statusHandler
-                        .error("There is no registered router for service ["
-                                + service
-                                + "].  Routing to the request service, but the request may not be able to be processed!");
-                return route(request);
-            }
+            throw new IllegalStateException(errorMessage);
         } else {
             return router.route(request);
         }

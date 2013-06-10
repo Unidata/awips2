@@ -22,6 +22,10 @@ import gov.noaa.nws.ncep.viz.rsc.ffa.util.FFAConstant;
 import gov.noaa.nws.ncep.viz.rsc.ffa.util.FFAUtil;
 import gov.noaa.nws.ncep.viz.rsc.ffa.util.StringUtil;
 import gov.noaa.nws.ncep.viz.rsc.ffa.util.UGCUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import java.awt.Color;
 import java.math.BigDecimal;
@@ -60,6 +64,7 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKBReader;
@@ -81,6 +86,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * 05/23/12       785       Q. Zhou     Added getName for legend.
  * 17 Aug 2012    655       B. Hebbard  Added paintProps as parameter to IDisplayable draw
  * 09/11/12      852        Q. Zhou     Modified time string and alignment in drawLabel().
+ * 02/01/13      972        G. Hull     define on NcMapDescriptor instead of IMapDescriptor
  * </pre>
  * 
  * @author mgao 
@@ -88,7 +94,7 @@ import com.vividsolutions.jts.io.WKBReader;
  */
 
 
-public class FFAResource extends AbstractNatlCntrsResource<FFAResourceData, IMapDescriptor> 
+public class FFAResource extends AbstractNatlCntrsResource<FFAResourceData, NCMapDescriptor> 
 	implements     INatlCntrsResource, IStationField { 
 
 	private Logger logger = Logger.getLogger(this.getClass()); 
@@ -754,7 +760,7 @@ else if (FFAConstant.FLOOD_WATCH/*.FLASH_FLOOD_STATEMENT*/.equalsIgnoreCase(each
 		Envelope env = null;	
 		try {
 			PixelExtent extent = (PixelExtent) paintProps.getView().getExtent();
-			Envelope e = descriptor.pixelToWorld(extent, descriptor.getCRS());
+			Envelope e = getNcMapDescriptor().pixelToWorld(extent, descriptor.getCRS());
 			ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(e, descriptor.getCRS());
 			env = referencedEnvelope.transform(MapUtil.LATLON_PROJECTION, true);
 		} catch (Exception e) {
@@ -805,7 +811,7 @@ else if (FFAConstant.FLOOD_WATCH/*.FLASH_FLOOD_STATEMENT*/.equalsIgnoreCase(each
 					
 					String[] text = new String[3];
 					List<String> enabledText = new ArrayList<String>();
-
+					
 					if(ffaRscData.getCountyOrZoneNameEnable() ){
 						enabledText.add(getCountyOrZoneAndStateNameValue(eachCountyOrZoneAndStateName)); 
 					}
@@ -817,7 +823,7 @@ else if (FFAConstant.FLOOD_WATCH/*.FLASH_FLOOD_STATEMENT*/.equalsIgnoreCase(each
 					if(ffaRscData.getImmediateCauseEnable() ){
 						enabledText.add(getImmediateCauseDesc(ffaData.immediateCause)); 
 					}
-
+					
 					for (int j=enabledText.size(); j<3; j++)
 						enabledText.add("");
 					
@@ -828,7 +834,7 @@ else if (FFAConstant.FLOOD_WATCH/*.FLASH_FLOOD_STATEMENT*/.equalsIgnoreCase(each
 			                / paintProps.getCanvasBounds().width;
 
 					graphicsTarget.drawStrings(font, text,   
-							labelPix[0], labelPix[1]+3*ratio, 0.0, TextStyle.NORMAL,
+							labelPix[0], labelPix[1]+ 3*ratio, 0.0, TextStyle.NORMAL,
 							new RGB[] {color, color, color},
 							HorizontalAlignment.LEFT, 
 							VerticalAlignment.TOP );
@@ -868,7 +874,7 @@ else if (FFAConstant.FLOOD_WATCH/*.FLASH_FLOOD_STATEMENT*/.equalsIgnoreCase(each
     			"Symbol",
     			symbolType);
 
-    	DisplayElementFactory df = new DisplayElementFactory( graphicsTarget, this.descriptor );
+    	DisplayElementFactory df = new DisplayElementFactory( graphicsTarget, getNcMapDescriptor() );
 		ArrayList<IDisplayable> displayElsPoint = df.createDisplayElements(symbol, paintProps );
 		for ( IDisplayable each : displayElsPoint ) {
 			      each.draw(graphicsTarget, paintProps);
@@ -1028,12 +1034,12 @@ else if (FFAConstant.FLOOD_WATCH/*.FLASH_FLOOD_STATEMENT*/.equalsIgnoreCase(each
 		if(eventStartTime != null)
 			builder.append(eventStartTime.toString().substring(8, 10) +"/" +eventEndTime.toString().substring(11, 13) +eventStartTime.toString().substring(14, 16));
 		else
-			builder.append(" - ");
+			builder.append("-");
 		builder.append("-"); 
 		if(eventEndTime != null)
 			builder.append(eventEndTime.toString().substring(8, 10) +"/" +eventEndTime.toString().substring(11, 13) +eventEndTime.toString().substring(14, 16)); 
 		else
-			builder.append(" - ");
+			builder.append("-");
 		return builder.toString(); 
 	}
 	
@@ -1179,11 +1185,12 @@ else if (FFAConstant.FLOOD_WATCH/*.FLASH_FLOOD_STATEMENT*/.equalsIgnoreCase(each
     @Override
 	protected boolean postProcessFrameUpdate() {
     	
-    	gov.noaa.nws.ncep.viz.ui.display.NCMapEditor ncme = 
-    				gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils.getActiveNatlCntrsEditor();
+    	AbstractEditor ncme = 
+    				NcDisplayMngr.getActiveNatlCntrsEditor();
     	
-    	zrJob.setRequest(ncme.getActiveDisplayPane().getTarget(), descriptor, null, false, false, null); 
-    	
+    	zrJob.setRequest(ncme.getActiveDisplayPane().getTarget(), 
+    					 getNcMapDescriptor(), null, false, false, null); 
+    	 
     	return true;
     }
 	
@@ -1509,7 +1516,7 @@ for(FfaRscDataObj extWrdo : map.values())//no bracket needed
     				//Collection<Geometry> gw = new ArrayList<Geometry>();
     				
     				for(FfaRscDataObj frdo : fd.ffaDataMap.values()){//list){    					
-Collection<Geometry> gw = new ArrayList<Geometry>();//2011-10-05 FrameData's fDataMap not used   					
+    					Collection<Geometry> gw = new ArrayList<Geometry>();//2011-10-05 FrameData's fDataMap not used   					
     					for(int i=0; i<frdo.fips.size(); i++){
     						
     						for(ArrayList<Object[]> zones : queryResult.getZoneResult(frdo.fips.get(i))){
@@ -1613,7 +1620,7 @@ Collection<Geometry> gw = new ArrayList<Geometry>();//2011-10-05 FrameData's fDa
 	 *  called in the constructor.
 	 */
 	private void addRDChangedListener(){
-		com.raytheon.viz.ui.editor.AbstractEditor editor = gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils.getActiveNatlCntrsEditor();
+		AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
 		editor.addRenderableDisplayChangedListener(this.new FfaDCListener());
 	}
     

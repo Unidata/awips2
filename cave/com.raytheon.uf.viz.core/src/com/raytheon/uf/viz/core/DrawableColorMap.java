@@ -33,6 +33,9 @@ import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 20, 2011            mschenke     Initial creation
+ * Feb 14, 2013 1616       bsteffen    Add option for interpolation of colormap
+ *                                     parameters, disable colormap interpolation
+ *                                     by default.
  * 
  * </pre>
  * 
@@ -55,9 +58,6 @@ public class DrawableColorMap {
 
     /** The contrast to draw at */
     public float contrast = 1.0f;
-
-    /** Specify whether the colormap should be interpolated */
-    public boolean interpolate = true;
 
     /**
      * Uses the ColorMapParameters passed in for drawing color map

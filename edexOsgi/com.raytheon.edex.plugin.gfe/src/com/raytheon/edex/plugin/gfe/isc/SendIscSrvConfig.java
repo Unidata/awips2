@@ -30,8 +30,8 @@ import java.util.concurrent.Executor;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 20, 2011            dgilling     Initial creation
- * 
+ * Oct 20, 2011            dgilling    Initial creation
+ * Apr 30, 2013 1949       rjpeter     Removed initial delay.
  * </pre>
  * 
  * @author dgilling
@@ -47,8 +47,6 @@ public class SendIscSrvConfig {
     protected int runningTimeOutMillis;
 
     protected int threadSleepInterval;
-
-    protected int initialDelay;
 
     public int getThreads() {
         return threads;
@@ -80,13 +78,5 @@ public class SendIscSrvConfig {
 
     public void setThreadSleepInterval(int threadSleepInterval) {
         this.threadSleepInterval = threadSleepInterval;
-    }
-
-    public int getInitialDelay() {
-        return initialDelay;
-    }
-
-    public void setInitialDelay(int initialDelay) {
-        this.initialDelay = initialDelay;
     }
 }

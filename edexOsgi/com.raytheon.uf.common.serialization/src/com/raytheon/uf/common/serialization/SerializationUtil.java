@@ -30,6 +30,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
+import com.raytheon.uf.common.util.ServiceLoaderUtil;
 
 /**
  * Provides utilities for serialization support
@@ -43,6 +44,8 @@ import com.raytheon.uf.common.serialization.DynamicSerializationManager.Serializ
  * Sep 07, 2012 1102       djohnson     Overload jaxbUnmarshall and transformFromThrift methods 
  *                                      to accept class parameter, deprecate old versions.  Improve performance
  *                                      of getJaxbManager().
+ * Feb 07, 2013 1543       djohnson     Use ServiceLoader to find how to load jaxbable classes, defaulting to SerializableManager.
+ * May 01, 2013 1968       djohnson     Prevent deadlock due to SerializableManager threads needing to serialize things.
  * 
  * </pre>
  * 
@@ -52,8 +55,7 @@ import com.raytheon.uf.common.serialization.DynamicSerializationManager.Serializ
 
 public final class SerializationUtil {
 
-    // @VisibleForTesting
-    static volatile JAXBManager jaxbManager;
+    private static volatile JAXBManager jaxbManager;
 
 	private SerializationUtil() {
 
@@ -74,8 +76,13 @@ public final class SerializationUtil {
             synchronized (SerializationUtil.class) {
                 result = jaxbManager;
                 if (result == null) {
-                    List<Class<ISerializableObject>> jaxbClasses = SerializableManager
-                            .getInstance().getJaxbables();
+                    // This cannot be eagerly created as
+                    // SerializableManager.getInstance() spawns threads which
+                    // were causing a deadlock
+                    List<Class<ISerializableObject>> jaxbClasses = ServiceLoaderUtil
+                            .load(IJaxbableClassesLocator.class,
+                                    SerializableManager.getInstance())
+                            .getJaxbables();
                     jaxbManager = result = new JAXBManager(
                             jaxbClasses.toArray(new Class[jaxbClasses.size()]));
 
@@ -357,6 +364,28 @@ public final class SerializationUtil {
                     // ignore
                 }
             }
+        }
+    }
+
+
+    /**
+     * Transforms an InputStream byte data from the thrift protocol to an object using
+     * DynamicSerialize.
+     * 
+     * @param is
+     *            the input stream to read from
+     * @return the Java object
+     * @throws SerializationException
+     *             if a serialization or class cast exception occurs
+     */
+    public static <T> T transformFromThrift(Class<T> clazz, InputStream is)
+            throws SerializationException {
+        DynamicSerializationManager dsm = DynamicSerializationManager
+                .getManager(SerializationType.Thrift);
+        try {
+            return clazz.cast(dsm.deserialize(is));
+        } catch (ClassCastException cce) {
+            throw new SerializationException(cce);
         }
     }
 }

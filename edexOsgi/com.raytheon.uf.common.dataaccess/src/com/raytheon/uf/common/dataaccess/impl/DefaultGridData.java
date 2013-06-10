@@ -65,6 +65,8 @@ public class DefaultGridData implements IGridData {
 
     protected Map<String, Object> attributes;
 
+    protected String locationName;
+
     public DefaultGridData(DataSource data, GridGeometry2D gridGeometry) {
         this.data = data;
         this.gridGeometry = gridGeometry;
@@ -105,14 +107,20 @@ public class DefaultGridData implements IGridData {
     }
 
     @Override
+    public String getLocationName() {
+        return locationName;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
     public DataDestination populateData(DataDestination destination) {
         if (destination == null) {
             throw new IllegalArgumentException(
                     "Data destination must not be null");
         }
 
-        for (int x = 0; x < gridGeometry.axisDimensionX; x++) {
-            for (int y = 0; y < gridGeometry.axisDimensionY; y++) {
+        for (int x = 0; x < gridGeometry.getGridRange2D().width; x++) {
+            for (int y = 0; y < gridGeometry.getGridRange2D().height; y++) {
                 destination.setDataValue(data.getDataValue(x, y), x, y);
             }
         }
@@ -137,6 +145,10 @@ public class DefaultGridData implements IGridData {
 
     public void setAttributes(Map<String, Object> attrs) {
         this.attributes = attrs;
+    }
+
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
     }
 
 }

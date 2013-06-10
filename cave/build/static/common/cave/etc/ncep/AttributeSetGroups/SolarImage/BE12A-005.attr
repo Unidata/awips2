@@ -1,0 +1,8 @@
+colorMapName=Blue
+colorBar=@ColorBars/SolarImage/dfltSolarImageColorBar.xml
+wavelength=BE12A
+intTime=0.05
+displayUnitStr=DN/sec
+alpha=1.0
+brightness=1.0
+contrast=1.0

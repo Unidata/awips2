@@ -10,7 +10,6 @@ import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.ConditionalFilter;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.ConditionalFilterMngr;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.EditConditionalFilterAttrDialog;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModel;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
@@ -54,6 +53,7 @@ import org.eclipse.swt.widgets.Text;
  * 02/16/2012    #639       Q. Zhou     Changed density text listener. Changed density duration to 30. Adjusted field size.
  * 04/02/2012    #615       S. Gurung   Added code related to Conditional Filtering
  * 02/05/2012    #606       Greg Hull   Don't get level attr for non-sounding resources
+ * 10/18/2012    #431       S. Gurung   Enable "Edit" for conditional filter when opened from Resource Manager
  * 12/25/2012    #947       Greg Hull   Allow pre-load conditional filter editing.
  * 12/29/2012    #947       Greg Hull   Add unimplemented level type
  *

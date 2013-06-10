@@ -1,0 +1,5 @@
+! Attributes for the GFSXMOS resource with "min_mm" plot model
+!
+plotModel=@PlotModels/bufrmosMRF/min_mm.xml
+plotDensity=10
+conditionalFilter=

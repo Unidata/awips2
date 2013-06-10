@@ -26,7 +26,7 @@
 		This build script expects the following projects to exist at the same
 		level as this project's folder. com.raytheon.rcm.lib
 		com.raytheon.rcm.server com.raytheon.rcm.server.mq
-		com.raytheon.rcm.tools org.apache.tools.bzip2 The projects must be
+		com.raytheon.rcm.tools org.itadaki.bzip2 The projects must be
 		built before running this script.
 	-->
 	&substitute-targets;
@@ -133,7 +133,7 @@
 				<include name="**/spring-context*.jar" />
 				<include name="**/quartz-all*.jar" />
 			</fileset>
-			<fileset dir="../org.apache.tools.bzip2" includes="**/*.jar" />
+			<fileset dir="../org.itadaki.bzip2" includes="**/*.jar" />
 		</copy>
 
 		<delete dir="bin" />

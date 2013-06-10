@@ -1,0 +1,55 @@
+#!/bin/ksh
+# file name: process_hydro_model_data
+# Created: 04/01/2004
+
+# This allows you to run this script from outside of ./bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for WHFS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+export SSHP_JAVA_PROCESS_HOST=$(get_apps_defaults sshp_java_process_host)
+export SSHP_LOG_DIR=$(get_apps_defaults sshp_log_dir)
+export SSHP_INCOMING_DIR=$(get_apps_defaults sshp_incoming_dir)
+export WHFS_BIN_DIR=$(get_apps_defaults whfs_bin_dir)
+
+# setup the AWIPS environment
+#
+. $FXA_HOME/readenv.sh
+
+FILENAME=$1
+SUBJECT=$2
+MSGTYPE=$3
+
+# use a shell function to extract the argument from the subject line
+# the subject string is a quoted string with the a descriptive term,
+# followed by a space, followed by the product identifier.
+#
+parseSubject()
+{
+ORIGINAL_FILE_NAME=$1
+PRODUCTID=$2
+return
+}
+#
+# get the product id from the subject
+#
+parseSubject $SUBJECT
+
+ORIGINAL_FILE_PATH=$SSHP_INCOMING_DIR/$ORIGINAL_FILE_NAME
+
+# Keeps the last 1200 lines of the log file
+
+LOGFILE=$SSHP_LOG_DIR/process_hydro_model_data.log
+TMPFILE=$SSHP_LOG_DIR/process_hydro_model_data.tmp
+
+tail -1200 $LOGFILE > $TMPFILE
+mv $TMPFILE $LOGFILE
+
+cp -f $FILENAME $ORIGINAL_FILE_PATH
+
+# used to remove the header and ^Ms from the transferred XML file
+sed '1,2d' $ORIGINAL_FILE_PATH > $SSHP_INCOMING_DIR/temp.xml
+cat $SSHP_INCOMING_DIR/temp.xml | tr -d '\015' > $ORIGINAL_FILE_PATH 
+rm -f $SSHP_INCOMING_DIR/temp.xml
+
+ssh -oBatchMode=yes $SSHP_JAVA_PROCESS_HOST $WHFS_BIN_DIR/run_SSHP_data_decode >$LOGFILE 2>>$LOGFILE

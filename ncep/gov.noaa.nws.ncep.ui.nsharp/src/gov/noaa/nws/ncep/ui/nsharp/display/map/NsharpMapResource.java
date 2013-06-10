@@ -12,6 +12,7 @@
  * -------		------- 	-------- 	-----------
  * 03/23/2010	229			Chin Chen	Initial coding
  * 08/17/2012	655			B. Hebbard	Added paintProps as parameter to IDisplayable draw (2)
+ * 03/11/2013   972         Greg Hull   NatlCntrsEditor
  * 
  * </pre>
  * 
@@ -52,12 +53,18 @@ import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.input.EditableManager;
 
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
-import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceBndlLoader;
+import gov.noaa.nws.ncep.viz.ui.display.NatlCntrsEditor;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NatlCntrsEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo;
@@ -65,14 +72,12 @@ import gov.noaa.nws.ncep.ui.nsharp.view.NsharpPaletteWindow;
 import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
 import gov.noaa.nws.ncep.ui.pgen.elements.SymbolLocationSet;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 
 public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceData,MapDescriptor> 
 	implements RemoveListener{
 	private static NsharpMapResource mapRsc=null;
-	private static NCMapEditor mapEditor=null;
+	private static NatlCntrsEditor mapEditor=null;
 	private static  NsharpMapMouseHandler mouseHandler;
 	private static Cursor waitCursor=null;
 	private static Control cursorControl;
@@ -89,7 +94,7 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 		}
 		
 	}
-	public static NCMapEditor getMapEditor() {
+	public static NatlCntrsEditor getMapEditor() {
 		return mapEditor;
 	}
 
@@ -158,25 +163,29 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 	@SuppressWarnings("unused")
 	private static void createMapEditor(){
 		// create an editor MapEditor
-		try {
+		try {			
+			AbstractEditor ed = NcDisplayMngr.getActiveNatlCntrsEditor();
 			
-			IEditorPart ep = EditorUtil.getActiveEditor();
-	        if (ep instanceof NCMapEditor) {
-	        	mapEditor= (NCMapEditor) ep;
-	        }else {
-	        	mapEditor = NmapUiUtils.createNatlCntrsEditor("BasicWX-US","NSHARP" );
+			// Is this called in D2D. Should we only check for NcMapEditors.
+			// If this isn't a NatlCntrsEditor should we look for one or just create a new one.
+			//
+	        if( NcEditorUtil.getNcDisplayType( ed ) == NcDisplayType.NMAP_DISPLAY ) {        	
+	        	mapEditor= (NatlCntrsEditor) ed;
+	        }
+	        else {
+	        	mapEditor = (NatlCntrsEditor)NcDisplayMngr.createNatlCntrsEditor( 
+	        							NcDisplayType.NMAP_DISPLAY, "Select NSharp Source" );
 	        }
 		
-	       
-	        for(int i=0; i< mapEditor.getDescriptor().getResourceList().size(); i++)
-	        	System.out.println( "A resourcename="+mapEditor.getDescriptor().getResourceList().get(i).getResource().getName());
-			RbdBundle rbd = RbdBundle.getDefaultRBD();
+//	        for(int i=0; i< mapEditor.getDescriptor().getResourceList().size(); i++)
+//	        	System.out.println( "A resourcename="+mapEditor.getDescriptor().getResourceList().get(i).getResource().getName());
+	        
 			ResourceBndlLoader rbdLoader = new ResourceBndlLoader("DefaultMap");
-			rbdLoader.addRBD( rbd, mapEditor );
+			rbdLoader.addDefaultRBD(NcDisplayType.NMAP_DISPLAY, mapEditor );
 			VizApp.runSync( rbdLoader );
 			//System.out.println("NsharpMapResource create editor "+ mapEditor.toString());
-			for(int i=0; i< mapEditor.getDescriptor().getResourceList().size(); i++)
-	        	System.out.println( "B resourcename="+mapEditor.getDescriptor().getResourceList().get(i).getResource().getName());
+//			for(int i=0; i< mapEditor.getDescriptor().getResourceList().size(); i++)
+//	        	System.out.println( "B resourcename="+mapEditor.getDescriptor().getResourceList().get(i).getResource().getName());
 			
 		}
 		catch ( Exception ve ) {
@@ -184,34 +193,34 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 			ve.printStackTrace();
 		}
 	}
-	private static void createMapEditorTest(){
-		// create an editor MapEditor
-		try {
-
-			IEditorPart ep = EditorUtil.getActiveEditor();
-			if (ep instanceof NCMapEditor) {
-				mapEditor= (NCMapEditor) ep;
-				//System.out.println("NsharpMapResource using existing editor ");
-			}else {
-				mapEditor = NmapUiUtils.createNatlCntrsEditor("BasicWX-US","NSHARP" );
-
-				RbdBundle rbd = RbdBundle.getDefaultRBD();
-				ResourceBndlLoader rbdLoader = new ResourceBndlLoader("DefaultMap");
-				rbdLoader.addRBD( rbd, mapEditor );
-				VizApp.runSync( rbdLoader );
-				//System.out.println("NsharpMapResource create new editor "+ mapEditor.toString());
-			}
-
-			//for(int i=0; i< mapEditor.getDescriptor().getResourceList().size(); i++)
-				//System.out.println( "Editor resource "+ i+" name="+mapEditor.getDescriptor().getResourceList().get(i).getResource().getName());
-
-		}
-		catch ( Exception ve ) {
-			System.out.println("NsharpMapResource Could not load initial editor: " + ve.getMessage());
-			ve.printStackTrace();
-		}
-		
-	}
+//	private static void createMapEditorTest(){
+//		// create an editor MapEditor
+//		try {
+//
+//			IEditorPart ep = EditorUtil.getActiveEditor();
+//			if (ep instanceof NCMapEditor) {
+//				mapEditor= (NCMapEditor) ep;
+//				//System.out.println("NsharpMapResource using existing editor ");
+//			}else {
+//				mapEditor = NmapUiUtils.createNatlCntrsEditor("BasicWX-US","NSHARP" );
+//
+//				RbdBundle rbd = RbdBundle.getDefaultRBD();
+//				ResourceBndlLoader rbdLoader = new ResourceBndlLoader("DefaultMap");
+//				rbdLoader.addRBD( rbd, mapEditor );
+//				VizApp.runSync( rbdLoader );
+//				//System.out.println("NsharpMapResource create new editor "+ mapEditor.toString());
+//			}
+//
+//			//for(int i=0; i< mapEditor.getDescriptor().getResourceList().size(); i++)
+//				//System.out.println( "Editor resource "+ i+" name="+mapEditor.getDescriptor().getResourceList().get(i).getResource().getName());
+//
+//		}
+//		catch ( Exception ve ) {
+//			System.out.println("NsharpMapResource Could not load initial editor: " + ve.getMessage());
+//			ve.printStackTrace();
+//		}
+//		
+//	}
 	public static void registerMouseHandler(){
 		if(mouseHandlerRegistered)
 			return;
@@ -238,7 +247,7 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
     public static NsharpMapResource getOrCreateNsharpMapResource() {
     	if(mapRsc == null ){
     		if(mapEditor == null){
-    			createMapEditorTest();//createMapEditor();
+    			createMapEditor();//createMapEditor();
     			
     		}
     		if(mapEditor!=null){
@@ -319,16 +328,6 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 	public String getName() {
 
 		return "NSHARP Resource";
-
-	}
-
-
-	/* (non-Javadoc)
-	 * @see com.raytheon.viz.core.rsc.IVizResource#getShortName()
-	 */
-	public String getShortName() {	
-
-		return null;
 
 	}
 

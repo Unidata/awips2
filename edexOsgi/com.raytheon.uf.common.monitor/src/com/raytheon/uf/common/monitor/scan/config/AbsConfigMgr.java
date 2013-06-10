@@ -23,8 +23,12 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.data.CommonTableConfig.SortDirection;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanThresholdColor;
@@ -42,6 +46,7 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 21, 2009 3039       lvenable     Initial creation
+ * Apr 25, 2013   1926     njensen      Improved initialization speed
  * 
  * </pre>
  * 
@@ -52,12 +57,12 @@ public abstract class AbsConfigMgr {
     /**
      * Map of attribute names and SCANAttributesXML.
      */
-    HashMap<String, SCANAttributesXML> attrMap;
+    protected Map<String, SCANAttributesXML> attrMap;
 
     /**
      * Map of attribute names and column index.
      */
-    HashMap<String, Integer> indexMap;
+    protected Map<String, Integer> indexMap;
 
     /**
      * Default XML name.
@@ -76,7 +81,6 @@ public abstract class AbsConfigMgr {
         indexMap = new HashMap<String, Integer>();
 
         init();
-        createAttributeMap(getAttributes());
     }
 
     /**
@@ -109,12 +113,16 @@ public abstract class AbsConfigMgr {
             SCANAbstractXML cfgXML = null;
 
             IPathManager pm = PathManagerFactory.getPathManager();
-            String path = pm.getStaticFile(getFullDefaultConfigName())
-                    .getAbsolutePath();
-
-            cfgXML = (SCANAbstractXML) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(path.toString());
-
+            LocalizationFile lfile = pm.getLocalizationFile(pm.getContext(
+                    LocalizationType.CAVE_STATIC, LocalizationLevel.SITE),
+                    getFullDefaultConfigName());
+            if (lfile == null || !lfile.exists()) {
+                lfile = pm.getLocalizationFile(pm.getContext(
+                        LocalizationType.CAVE_STATIC, LocalizationLevel.BASE),
+                        getFullDefaultConfigName());
+            }
+            cfgXML = SerializationUtil.jaxbUnmarshalFromXmlFile(
+                    SCANAbstractXML.class, lfile.getFile());
             return cfgXML;
         } catch (Exception e) {
             e.printStackTrace();
@@ -142,8 +150,8 @@ public abstract class AbsConfigMgr {
             IPathManager pm = PathManagerFactory.getPathManager();
             String path = pm.getStaticFile(newConfigFile).getAbsolutePath();
 
-            cfgXML = (SCANAbstractXML) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(path.toString());
+            cfgXML = SerializationUtil.jaxbUnmarshalFromXmlFile(
+                    SCANAbstractXML.class, path.toString());
 
             return cfgXML;
         } catch (Exception e) {

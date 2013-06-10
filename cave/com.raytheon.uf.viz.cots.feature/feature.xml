@@ -121,30 +121,6 @@
          fragment="true"/>
 
    <plugin
-         id="ncsa.hdf5"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="ncsa.hdf5.linux32"
-         os="linux"
-         arch="x86"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
-
-   <plugin
-         id="ncsa.hdf5.win32"
-         os="win32"
-         arch="x86"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
-
-   <plugin
          id="net.sf.cglib"
          download-size="0"
          install-size="0"
@@ -224,12 +200,6 @@
 
    <plugin
          id="org.apache.qpid"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.apache.tools.bzip2"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

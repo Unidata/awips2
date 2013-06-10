@@ -105,6 +105,9 @@ import com.vividsolutions.jts.geom.Point;
  *    Jan 31, 2013 1557       jsanchez    Used allowDuplicates flag to collect points with duplicate names.
  *    Feb 12, 2013 1600       jsanchez    Used adjustAngle method from AbstractStormTrackResource.
  *    Mar  5, 2013 1600       jsanchez    Used AdjustAngle instead of AbstractStormTrackResource to handle angle adjusting.
+ *    Mar 25, 2013 1605       jsanchez    Checks if a storm location is over an urban bound area.
+ *    Apr 24, 2013 1943       jsanchez    Calculated partOfArea for a storm location over an urban bound area.
+ *    May  2, 2013 1963       jsanchez    Referenced calculateLocationPortion from GisUtil.
  * 
  * </pre>
  * 
@@ -325,7 +328,7 @@ public class Wx {
 
                 if (pathcastConfiguration.isWithinPolygon()) {
                     // Means that all points returned must be within the polygon
-                    bufferedPathCastArea = warningPolygon;
+                    bufferedPathCastArea = warningPolygon.intersection(geom);
                 } else {
                     bufferedPathCastArea = geom;
                 }
@@ -722,6 +725,21 @@ public class Wx {
                         latLonToLocal);
 
                 double distance = localDistanceGeom.distance(localPt);
+                // Tests if storm location is over an urban bound area even if
+                // it may be outside the warning polygon
+                if (cp.prepGeom != null && config.isTrackEnabled()
+                        && isWithinPolygon == false) {
+                    // When isWithinPolygon is true, partOfArea
+                    // has already been set in DbAreaSoureDataAdapter
+                    Point reference = gf.createPoint(coords[i]);
+                    if (cp.prepGeom.intersects(reference)) {
+                        cp.partOfArea = GisUtil.asStringList(GisUtil
+                                .calculateLocationPortion(
+                                        cp.prepGeom.getGeometry(), reference,
+                                        false));
+                        distance = 0;
+                    }
+                }
                 if (distance <= thresholdInMeters) {
                     if (allowDuplicates) {
                         // collect all points that are within the threshold

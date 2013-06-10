@@ -13,6 +13,7 @@
  * 12/24/2009		TBD		Chin Chen	Initial coding
  * 06/28/2011       T402       X. Guo   Re-format NCTEXT view panel, check
  *                                      the click action on nctext legend
+ * 02/15/2012     #972      G. Hull     NatlCntrsEditor 
  *
  * </pre>
  * 
@@ -57,8 +58,8 @@ import gov.noaa.nws.ncep.ui.nctextui.dbutil.EReportTimeRange;
 import gov.noaa.nws.ncep.ui.nctextui.dbutil.NctextDbQuery;
 import gov.noaa.nws.ncep.ui.nctextui.dbutil.NctextStationInfo;
 import gov.noaa.nws.ncep.ui.nctextui.rsc.NctextuiResource;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.NatlCntrsEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 
 public class NctextuiPaletteWindow extends ViewPart implements SelectionListener,
@@ -199,8 +200,8 @@ public class NctextuiPaletteWindow extends ViewPart implements SelectionListener
 			return;
 		File rbdFile = LocalizationManager.getInstance().getLocalizationFile("defaultRBDFile");
 		try {
-			mapEditor = NmapUiUtils.createNatlCntrsEditor("NCText-Map","NCTEXT" );
-			RbdBundle rbd = RbdBundle.unmarshalRBD( rbdFile, null );
+			mapEditor = NcDisplayMngr.createNatlCntrsEditor("NCText-Map","NCTEXT" );
+			NcMapRBD rbd = NcMapRBD.unmarshalRBD( rbdFile, null );
 			rbd.setNcEditor( mapEditor );
 			ResourceBndlLoader rbdLoader = new ResourceBndlLoader("DefaultMap");
 			rbdLoader.addRBD( rbd );
@@ -278,8 +279,9 @@ public class NctextuiPaletteWindow extends ViewPart implements SelectionListener
 	    	super.dispose();
 
 
-	    	NCMapEditor editor = NctextuiResource.getMapEditor();
-	    	if ( editor !=null ) {
+	    	NatlCntrsEditor editor = NctextuiResource.getMapEditor();
+	    	
+	    	if( editor !=null ) {
 	    		for ( IRenderableDisplay display : UiUtil.getDisplaysFromContainer(editor) ) {
 	    			//System.out.println("display " + display.toString());
 	    			for ( ResourcePair rp : display.getDescriptor().getResourceList() ) {
@@ -307,7 +309,7 @@ public class NctextuiPaletteWindow extends ViewPart implements SelectionListener
         IViewPart vpart = wpage.findView( "gov.noaa.nws.ncep.ui.NCTEXTUI" );
         wpage.hideView(vpart);
         
-        NmapUiUtils.setPanningMode();
+        NcDisplayMngr.setPanningMode();
 	}
 	/**
 	 * Invoked by the workbench, this method sets up the SWT controls for the nctext palette
@@ -440,7 +442,7 @@ public class NctextuiPaletteWindow extends ViewPart implements SelectionListener
 			}
 			nextBtn.setEnabled(false);
 			prevBtn.setEnabled(false);
-			NCMapEditor mapEditor = NctextuiResource.getMapEditor();
+			NatlCntrsEditor mapEditor = NctextuiResource.getMapEditor();
 			if(mapEditor!=null){
 				mapEditor.refresh();
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().bringToTop(mapEditor);
@@ -472,7 +474,7 @@ public class NctextuiPaletteWindow extends ViewPart implements SelectionListener
 
 			nextBtn.setEnabled(false);
 			prevBtn.setEnabled(false);
-			NCMapEditor mapEditor = NctextuiResource.getMapEditor();
+			NatlCntrsEditor mapEditor = NctextuiResource.getMapEditor();
 			if(mapEditor!=null){
 				mapEditor.refresh();
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().bringToTop(mapEditor);
@@ -812,7 +814,7 @@ public class NctextuiPaletteWindow extends ViewPart implements SelectionListener
 	}
 
 	public void displayProduct(NctextStationInfo StnPt) {
-		NCMapEditor mapEditor = NctextuiResource.getMapEditor();
+		NatlCntrsEditor mapEditor = NctextuiResource.getMapEditor();
 		
 		if(StnPt != null && (mapEditor!= null)){
 			//add RED "X" marker(s) on picked stn
@@ -833,7 +835,7 @@ public class NctextuiPaletteWindow extends ViewPart implements SelectionListener
 			}
 			else{
 				rtnStateStnLst.add(StnPt);
-			}   
+			}  
 			Text text = nctextuiPaletteWindow.getText();
 			if(nctextuiPaletteWindow.isReplaceText() == false){
 				//APPEND mode

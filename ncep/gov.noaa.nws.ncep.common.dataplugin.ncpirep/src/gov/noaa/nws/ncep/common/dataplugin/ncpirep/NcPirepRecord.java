@@ -25,6 +25,7 @@ import javax.measure.unit.Unit;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -33,6 +34,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -61,13 +64,27 @@ import com.vividsolutions.jts.geom.Geometry;
  * 08/30/2011    286        qzhou      Use IDecoderConstantsN.INTEGER_MISSING instead -9999 in visibility. 
  * 08/31/2011    286        qzhou      Created project and moved this from ~edex.plugin.pirep
  * 09/19/2011    286        Q.Zhou      Changed reportType to string,
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * 04/08/2013    1293       bkowal     Removed references to hdffileid.
+ * Apr 12, 2013  1857      bgonzale    Added SequenceGenerator annotation.
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ncpirepseq")
 @Table(name = "ncpirep", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "ncpirep",
+		indexes = {
+				@Index(name = "ncpirep_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -797,15 +814,6 @@ public class NcPirepRecord extends PluginDataObject implements ISpatialEnabled,
 
 	@Override
 	public void setPersistenceTime(Date persistTime) {
-	}
-
-	@Override
-	public Integer getHdfFileId() {
-		return null;
-	}
-
-	@Override
-	public void setHdfFileId(Integer hdfFileId) {
 	}
 
 	/*

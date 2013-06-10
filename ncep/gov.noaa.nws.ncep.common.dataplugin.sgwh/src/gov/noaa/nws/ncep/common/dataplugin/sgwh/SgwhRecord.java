@@ -10,6 +10,9 @@
  * ------------ -----------	----------- --------------------------
  * Aug17 2011	   		    Chin Chen	Initial Coding (Following BufrsgwhRecord to refactor for 
  * 										saving data to HDF5)
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 8, 2013  1293        bkowal      Removed references to hdffileid.
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * </pre>
  * 
  * @author chin chen
@@ -26,9 +29,12 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -40,7 +46,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "sgwhseq")
 @Table(name = "sgwh", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "sgwh",
+		indexes = {
+				@Index(name = "sgwh_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @DynamicSerialize
 public class SgwhRecord extends PluginDataObject implements IDecoderGettable,
 		IPointData, IPersistable {
@@ -1689,18 +1706,6 @@ public class SgwhRecord extends PluginDataObject implements IDecoderGettable,
 
 	@Override
 	public void setPersistenceTime(Date persistTime) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public Integer getHdfFileId() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setHdfFileId(Integer hdfFileId) {
 		// TODO Auto-generated method stub
 
 	}

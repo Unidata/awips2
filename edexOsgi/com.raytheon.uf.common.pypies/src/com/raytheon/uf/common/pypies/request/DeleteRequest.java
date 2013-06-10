@@ -31,6 +31,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 10, 2010            njensen     Initial creation
+ * Feb 12, 2013     #1608  randerso    Added support for explicitly deleting grous and datasets
  * 
  * </pre>
  * 
@@ -42,14 +43,25 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 public class DeleteRequest extends AbstractRequest {
 
     @DynamicSerializeElement
-    private String[] locations;
+    private String[] datasets;
 
-    public String[] getLocations() {
-        return locations;
+    @DynamicSerializeElement
+    private String[] groups;
+
+    public String[] getDatasets() {
+        return datasets;
     }
 
-    public void setLocations(String[] locations) {
-        this.locations = locations;
+    public void setDatasets(String[] datasets) {
+        this.datasets = datasets;
+    }
+
+    public String[] getGroups() {
+        return groups;
+    }
+
+    public void setGroups(String[] groups) {
+        this.groups = groups;
     }
 
 }

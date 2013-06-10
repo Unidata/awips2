@@ -19,5 +19,6 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  javax.measure.unit,
  javax.persistence
 Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
- com.raytheon.uf.common.dataplugin
+ com.raytheon.uf.common.dataplugin,
+ org.hibernate;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.common.dataplugin.pirep

@@ -211,4 +211,25 @@
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.geomag"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>         
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.ntrans"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.pgen"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>

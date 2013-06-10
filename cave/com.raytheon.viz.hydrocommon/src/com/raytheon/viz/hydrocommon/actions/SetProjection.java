@@ -29,7 +29,6 @@ import javax.measure.unit.SI;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -66,6 +65,19 @@ public class SetProjection extends AbstractTool {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SetProjection.class);
 
+    public static enum Projection {
+        FLAT, POLAR, HRAP;
+
+        public static Projection fromString(String projection) {
+            for (Projection p : Projection.values()) {
+                if (p.name().equalsIgnoreCase(projection)) {
+                    return p;
+                }
+            }
+            return null;
+        }
+    }
+
     private static final double NMI_PER_DEG = 60.0;
 
     private static final UnitConverter converter = NonSI.NAUTICAL_MILE
@@ -85,7 +97,7 @@ public class SetProjection extends AbstractTool {
         String projection = arg0.getParameter("projection");
         String prefix = arg0.getParameter("prefix");
 
-        setProjection(editor, projection, prefix);
+        setProjection(editor, Projection.fromString(projection), prefix);
         return null;
     }
 
@@ -94,7 +106,7 @@ public class SetProjection extends AbstractTool {
         AppsDefaults appsDefaults = AppsDefaults.getInstance();
         String projection = appsDefaults.getToken(prefix + "_map_projection",
                 "FLAT");
-        setProjection(editor, projection, prefix);
+        setProjection(editor, Projection.fromString(projection), prefix);
     }
 
     /**
@@ -104,7 +116,10 @@ public class SetProjection extends AbstractTool {
      *            should be one of "FLAT", "POLAR", or "HRAP"
      */
     public static void setProjection(IDisplayPaneContainer editor,
-            String projection, String prefix) {
+            Projection projection, String prefix) {
+        if (projection == null) {
+            projection = Projection.FLAT;
+        }
         // get these from the token file
         AppsDefaults appsDefaults = AppsDefaults.getInstance();
         double centerLat = appsDefaults.getDouble(prefix + "_center_lat", 0.0);
@@ -117,20 +132,22 @@ public class SetProjection extends AbstractTool {
         double zoomLimit = 4.0;
 
         try {
-            GridGeometry2D gridGeometry;
-            if ("FLAT".equals(projection)) {
-                CoordinateReferenceSystem crs = MapUtil.LATLON_PROJECTION;
+            CoordinateReferenceSystem crs;
+            GridGeometry2D gridGeometry = null;
+            switch (projection) {
+            case FLAT:
+                crs = MapUtil.LATLON_PROJECTION;
 
                 double height_in_degrees = widthInNmi / NMI_PER_DEG * zoomLimit;
 
                 gridGeometry = MapDescriptor.createGridGeometry(crs,
                         new Coordinate(centerLon, centerLat),
                         height_in_degrees, height_in_degrees);
-
-            } else if ("POLAR".equals(projection)) {
-                CoordinateReferenceSystem crs = MapUtil
-                        .constructNorthPolarStereo(MapUtil.AWIPS_EARTH_RADIUS,
-                                MapUtil.AWIPS_EARTH_RADIUS, 60, centerLon);
+                break;
+            case POLAR:
+                crs = MapUtil.constructNorthPolarStereo(
+                        MapUtil.AWIPS_EARTH_RADIUS, MapUtil.AWIPS_EARTH_RADIUS,
+                        60, centerLon);
 
                 double width_in_meters = converter.convert(widthInNmi)
                         * zoomLimit;
@@ -138,33 +155,16 @@ public class SetProjection extends AbstractTool {
                 gridGeometry = MapDescriptor.createGridGeometry(crs,
                         new Coordinate(centerLon, centerLat), width_in_meters,
                         width_in_meters);
-
-            } else if ("HRAP".equals(projection)) {
+                break;
+            case HRAP:
                 HRAP hrap = HRAP.getInstance();
-                Coordinate ll = hrap.gridCoordinateToLatLon(
-                        hrap.getGridPointLL(), PixelOrientation.LOWER_LEFT);
 
                 Point p = hrap.getGridPointUR();
                 p.x++;
                 p.y++;
-                Coordinate ur = hrap.gridCoordinateToLatLon(p,
-                        PixelOrientation.LOWER_LEFT);
 
                 Rectangle extent = HRAPCoordinates.getHRAPCoordinates();
                 HRAPSubGrid subGrid = new HRAPSubGrid(extent);
-                GridGeometry2D subGridGeo = MapUtil.getGridGeometry(subGrid);
-                // Make sure our location is contained within the default HRAP
-                // grid
-                // if (hrap.getGridGeometry().getEnvelope2D()
-                // .contains(subGridGeo.getEnvelope2D())) {
-                // CoordinateReferenceSystem crs = subGridGeo
-                // .getCoordinateReferenceSystem();
-                //
-                // gridGeometry = MapDescriptor
-                // .createGridGeometry(crs, ll, ur);
-                // If not recompute the projection, with a zoom factor of
-                // 40%
-                // } else {
                 int nx = (subGrid.getNx() + ((subGrid.getNx()) * 6));
                 int ny = (subGrid.getNy() + ((subGrid.getNy()) * 6));
                 int factorNx = Math.abs((subGrid.getNx() - nx) / 2);
@@ -174,9 +174,8 @@ public class SetProjection extends AbstractTool {
                 Rectangle newExtent = new Rectangle(newX, newY, nx, ny);
                 HRAPSubGrid newSubGrid = new HRAPSubGrid(newExtent);
                 gridGeometry = MapUtil.getGridGeometry(newSubGrid);
-                // }
-
-            } else {
+                break;
+            default:
                 statusHandler.handle(Priority.PROBLEM, "\"" + projection
                         + "\" is not a recognized projection.");
                 return;
@@ -185,7 +184,7 @@ public class SetProjection extends AbstractTool {
             if (editor == null) {
                 editor = EditorUtil.getActiveVizContainer();
             }
-            
+
             for (IDisplayPane pane : editor.getDisplayPanes()) {
                 IMapDescriptor md = (IMapDescriptor) pane.getDescriptor();
                 md.setGridGeometry(gridGeometry);

@@ -67,20 +67,20 @@ class IrtAccess():
 
     def __checkArgs(self,parmsWanted, gridDims,gridBoundBox, iscWfosWanted):
         
-        if type(parmsWanted) != "list":
+        if type(parmsWanted) is not list:
             parmsWanted = JUtil.javaStringListToPylist(parmsWanted)
 
-        if type(gridDims) != "list":
+        if type(gridDims) is not list:
             pylist = []
             size = gridDims.size() 
             for i in range(size):
                 pylist.append(gridDims.get(i).intValue())
             gridDims = pylist
         
-        if type(gridBoundBox) != "tuple":
+        if type(gridBoundBox) is not tuple:
             gridBoundBox = ((gridBoundBox.get(0).doubleValue(),gridBoundBox.get(1).doubleValue()),(gridBoundBox.get(2).doubleValue(),gridBoundBox.get(3).doubleValue()))
 
-        if type(iscWfosWanted) != "list":
+        if type(iscWfosWanted) is not list:
             iscWfosWanted = JUtil.javaStringListToPylist(iscWfosWanted)
         
         
@@ -184,7 +184,7 @@ class IrtAccess():
     # routine to get the list of servers that are active for the given list
     # of domains. Returns status flag and XML string.
     def getServers(self, wfos):
-        if type(wfos) != "list":
+        if type(wfos) is not list:
             wfos = JUtil.javaStringListToPylist(wfos)
         wfoDict  = {'wfoids': ",".join(wfos)}
         status, xml, transIRT = self.__callIRT('getservers', wfoDict)

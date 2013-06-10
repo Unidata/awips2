@@ -20,9 +20,9 @@
 package com.raytheon.uf.viz.core.maps.rsc;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
+import com.raytheon.uf.common.dataplugin.maps.dataaccess.util.MapsQueryUtil;
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
@@ -41,6 +41,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * ------------ ---------- ----------- --------------------------
  * Dec 9, 2011             bsteffen    Initial creation
  * Sep 18, 2012      #1019 randerso    cleaned up geometry type query
+ * Jan 30, 2013      #1551 bkowal      Refactored
  * 
  * </pre>
  * 
@@ -64,47 +65,12 @@ public class DefaultDbMapQuery implements DbMapQuery {
     @Override
     public QueryResult queryWithinEnvelope(Envelope env, List<String> columns,
             List<String> additionalConstraints) throws VizException {
-        // add the geospatial constraint
-        if (env != null) {
-            // copy before modifying
-            if (additionalConstraints == null) {
-                additionalConstraints = new ArrayList<String>();
-            } else {
-                additionalConstraints = new ArrayList<String>(
-                        additionalConstraints);
-            }
-            // geospatial constraint will be first
-            additionalConstraints.add(0, String.format(
-                    "%s && ST_SetSrid('BOX3D(%f %f, %f %f)'::box3d,4326)",
-                    geomField, env.getMinX(), env.getMinY(), env.getMaxX(),
-                    env.getMaxY()));
-        }
 
-        StringBuilder query = new StringBuilder("SELECT ");
-        if (columns != null && !columns.isEmpty()) {
-            Iterator<String> iter = columns.iterator();
-            query.append(iter.next());
-            while (iter.hasNext()) {
-                query.append(", ");
-                query.append(iter.next());
-            }
-        }
-
-        query.append(" FROM ");
-        query.append(table);
-
-        // add any additional constraints
-        if (additionalConstraints != null && !additionalConstraints.isEmpty()) {
-            query.append(" WHERE ");
-            Iterator<String> iter = additionalConstraints.iterator();
-            query.append(iter.next());
-            while (iter.hasNext()) {
-                query.append(" AND ");
-                query.append(iter.next());
-            }
-        }
-
-        query.append(';');
+        /*
+         * Build the query using the common method.
+         */
+        final String query = MapsQueryUtil.assembleMapsTableQuery(env, columns,
+                additionalConstraints, this.table, this.geomField);
 
         return DirectDbQuery.executeMappedQuery(query.toString(), MAPS,
                 QueryLanguage.SQL);

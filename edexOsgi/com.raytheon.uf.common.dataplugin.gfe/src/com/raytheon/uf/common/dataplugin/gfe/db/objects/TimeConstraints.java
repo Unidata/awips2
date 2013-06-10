@@ -23,14 +23,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-
+import com.raytheon.uf.common.dataplugin.gfe.serialize.TimeConstraintsAdapter;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdapter;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * A TimeConstraint represents a parm's quantum and time block alignments.
@@ -40,6 +41,8 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 2/19/2008               chammack    Ported from AWIPS I
+ * 03/20/2013     #1774    randerso    Added isValid method, use TimeUtil constants,
+ *                                     added serialization adapter, removed setters.
  * 
  * </pre>
  * 
@@ -47,26 +50,22 @@ import com.raytheon.uf.common.time.TimeRange;
  * @version 1.0
  */
 
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
+@DynamicSerializeTypeAdapter(factory = TimeConstraintsAdapter.class)
 public class TimeConstraints implements ISerializableObject {
-    public static final int HOUR = 3600;
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(TimeConstraints.class);
 
-    public static final int DAY = 24 * HOUR;
-
-    @XmlAttribute
     @DynamicSerializeElement
     private int duration;
 
-    @XmlAttribute
     @DynamicSerializeElement
     private int repeatInterval;
 
-    @XmlAttribute
     @DynamicSerializeElement
     private int startTime;
 
-    private static final int MilliSecInDay = (DAY * 1000);
+    boolean valid;
 
     /**
      * Default Constructor
@@ -75,23 +74,35 @@ public class TimeConstraints implements ISerializableObject {
         duration = 0;
         repeatInterval = 0;
         startTime = 0;
+        valid = false;
     }
 
     public TimeConstraints(int duration, int repeatInterval, int startTime) {
-
-        if (duration == 0 && repeatInterval == 0 && startTime == 0) {
-            // all zeroes is OK
-        } else if (repeatInterval <= 0 || repeatInterval > DAY
-                || DAY % repeatInterval != 0 || repeatInterval < duration
-                || startTime < 0 || startTime > DAY || duration < 0
-                || duration > DAY) {
-            throw new IllegalArgumentException(
-                    "Bad init values for timeConstraints");
-        }
-
         this.duration = duration;
         this.repeatInterval = repeatInterval;
         this.startTime = startTime;
+
+        if (this.duration == 0 && this.repeatInterval == 0
+                && this.startTime == 0) {
+            valid = true;
+        } else {
+            if (repeatInterval <= 0
+                    || repeatInterval > TimeUtil.SECONDS_PER_DAY
+                    || TimeUtil.SECONDS_PER_DAY % repeatInterval != 0
+                    || repeatInterval < duration || startTime < 0
+                    || startTime > TimeUtil.SECONDS_PER_DAY || duration < 0
+                    || duration > TimeUtil.SECONDS_PER_DAY) {
+                statusHandler.warn("Bad init values for TimeConstraints: "
+                        + this);
+                valid = false;
+                this.duration = 0;
+                this.repeatInterval = 0;
+                this.startTime = 0;
+            } else {
+                valid = true;
+            }
+        }
+
     }
 
     /**
@@ -103,14 +114,16 @@ public class TimeConstraints implements ISerializableObject {
      *            the time that the range should contain
      */
     public TimeRange constraintTime(Date absTime) {
-
-        if (!anyConstraints()) {
+        if (!valid) {
+            return new TimeRange();
+        } else if (!anyConstraints()) {
             return TimeRange.allTimes();
         }
 
-        long secSinceMidnight = absTime.getTime() % MilliSecInDay;
+        long secSinceMidnight = absTime.getTime() % TimeUtil.MILLIS_PER_DAY;
 
-        long midnight = (absTime.getTime() / MilliSecInDay) * MilliSecInDay;
+        long midnight = (absTime.getTime() / TimeUtil.MILLIS_PER_DAY)
+                * TimeUtil.MILLIS_PER_DAY;
 
         int tStart = startTime - repeatInterval;
 
@@ -119,12 +132,12 @@ public class TimeConstraints implements ISerializableObject {
             tStart -= repeatInterval; // keep going until below 0
         }
 
-        while (tStart < DAY) {
+        while (tStart < TimeUtil.SECONDS_PER_DAY) {
             int tEnd = tStart + duration;
-            if ((tStart * 1000) <= secSinceMidnight
-                    && secSinceMidnight < (tEnd * 1000)) {
-                return new TimeRange(midnight + 1000 * tStart, midnight + 1000
-                        * tEnd);
+            if ((tStart * TimeUtil.MILLIS_PER_SECOND) <= secSinceMidnight
+                    && secSinceMidnight < (tEnd * TimeUtil.MILLIS_PER_SECOND)) {
+                return new TimeRange(midnight + TimeUtil.MILLIS_PER_SECOND
+                        * tStart, midnight + TimeUtil.MILLIS_PER_SECOND * tEnd);
             }
             tStart += repeatInterval;
         }
@@ -151,35 +164,10 @@ public class TimeConstraints implements ISerializableObject {
     }
 
     /**
-     * @param duration
-     *            the duration to set
-     */
-    public void setDuration(int duration) {
-        if (duration < 0 || duration > DAY) {
-            throw new IllegalArgumentException("Bad duration");
-        }
-        this.duration = duration;
-    }
-
-    /**
      * @return the repeatInterval
      */
     public int getRepeatInterval() {
         return repeatInterval;
-    }
-
-    /**
-     * @param repeatInterval
-     *            the repeatInterval to set
-     */
-    public void setRepeatInterval(int repeatInterval) {
-        if (repeatInterval < 0 || repeatInterval > DAY
-                || (repeatInterval != 0 && DAY % repeatInterval != 0)
-                || repeatInterval < duration) {
-            throw new IllegalArgumentException("Bad repeatInterval");
-        }
-
-        this.repeatInterval = repeatInterval;
     }
 
     /**
@@ -190,14 +178,10 @@ public class TimeConstraints implements ISerializableObject {
     }
 
     /**
-     * @param startTime
-     *            the startTime to set
+     * @return true if valid
      */
-    public void setStartTime(int startTime) {
-        if (startTime < 0 || startTime > DAY) {
-            throw new IllegalArgumentException("Bad startTime");
-        }
-        this.startTime = startTime;
+    public boolean isValid() {
+        return valid;
     }
 
     /*
@@ -213,7 +197,7 @@ public class TimeConstraints implements ISerializableObject {
 
         TimeConstraints rhs = (TimeConstraints) obj;
 
-        return (duration == rhs.duration
+        return (valid == rhs.valid && duration == rhs.duration
                 && repeatInterval == rhs.repeatInterval && startTime == rhs.startTime);
 
     }
@@ -232,7 +216,8 @@ public class TimeConstraints implements ISerializableObject {
 
         // get the constraint times for the given time range
         TimeRange tr1 = constraintTime(tr.getStart());
-        TimeRange tr2 = constraintTime(new Date(tr.getEnd().getTime() - 1000));
+        TimeRange tr2 = constraintTime(new Date(tr.getEnd().getTime()
+                - TimeUtil.MILLIS_PER_SECOND));
 
         // checking
         if (!tr1.isValid() || !tr2.isValid()) {
@@ -255,7 +240,7 @@ public class TimeConstraints implements ISerializableObject {
      * @return possible time ranges
      */
     public TimeRange[] constraintTimes(final TimeRange timeRange) {
-        if (!timeRange.isValid()) {
+        if (!valid || !timeRange.isValid()) {
             return new TimeRange[0]; // return empty sequence
         } else if (!anyConstraints()) {
             TimeRange maxTR = TimeRange.allTimes();
@@ -266,7 +251,8 @@ public class TimeConstraints implements ISerializableObject {
         // is beyond the time range given
         List<TimeRange> sbs = new ArrayList<TimeRange>(); // returned value
         TimeRange tr = firstSB(timeRange.getStart());
-        while (timeRange.getEnd().getTime() + (duration * 1000) > tr.getEnd()
+        while (timeRange.getEnd().getTime()
+                + (duration * TimeUtil.MILLIS_PER_SECOND) > tr.getEnd()
                 .getTime()) {
             if (tr.overlaps(timeRange)) {
                 sbs.add(tr);
@@ -286,8 +272,9 @@ public class TimeConstraints implements ISerializableObject {
      */
     private TimeRange nextSB(final TimeRange timeRange) {
         long nextStart = timeRange.getStart().getTime()
-                + (repeatInterval * 1000);
-        long nextEnd = timeRange.getEnd().getTime() + (repeatInterval * 1000);
+                + (repeatInterval * TimeUtil.MILLIS_PER_SECOND);
+        long nextEnd = timeRange.getEnd().getTime()
+                + (repeatInterval * TimeUtil.MILLIS_PER_SECOND);
         return new TimeRange(nextStart, nextEnd);
     }
 
@@ -300,15 +287,17 @@ public class TimeConstraints implements ISerializableObject {
      * @return first time constraint
      */
     private TimeRange firstSB(Date searchTime) {
-        long midnightMilliSeconds = (searchTime.getTime() / MilliSecInDay)
-                * MilliSecInDay;
+        long midnightMilliSeconds = (searchTime.getTime() / TimeUtil.MILLIS_PER_DAY)
+                * TimeUtil.MILLIS_PER_DAY;
 
-        long ystdMidnight = midnightMilliSeconds - MilliSecInDay; // to catch
-        // overlap
+        // to catch overlap
+        long ystdMidnight = midnightMilliSeconds - TimeUtil.MILLIS_PER_DAY;
 
         // calculate the first time range
-        Date startT = new Date(ystdMidnight + (startTime * 1000));
-        Date endT = new Date(startT.getTime() + (duration * 1000));
+        Date startT = new Date(ystdMidnight
+                + (startTime * TimeUtil.MILLIS_PER_SECOND));
+        Date endT = new Date(startT.getTime()
+                + (duration * TimeUtil.MILLIS_PER_SECOND));
         return new TimeRange(startT, endT);
     }
 
@@ -319,11 +308,21 @@ public class TimeConstraints implements ISerializableObject {
      */
     @Override
     public String toString() {
-        if (!anyConstraints()) {
+        if (!valid) {
+            return "<Invalid>";
+        } else if (!anyConstraints()) {
             return "<NoConstraints>";
         } else {
-            return "[s=" + startTime / 3600 + "h" + ",i=" + repeatInterval
-                    / 3600 + "h" + ",d=" + duration / 3600 + "h]";
+            StringBuilder sb = new StringBuilder();
+            sb.append("[s=");
+            sb.append(startTime / TimeUtil.SECONDS_PER_HOUR);
+            sb.append("h, i=");
+            sb.append(repeatInterval / TimeUtil.SECONDS_PER_HOUR);
+            sb.append("h, d=");
+            sb.append(duration / TimeUtil.SECONDS_PER_HOUR);
+            sb.append("h]");
+
+            return sb.toString();
         }
 
     }
@@ -338,7 +337,7 @@ public class TimeConstraints implements ISerializableObject {
      */
     public TimeRange expandTRToQuantum(final TimeRange timeRange) {
 
-        if (!timeRange.isValid()) {
+        if (!valid || !timeRange.isValid()) {
             return new TimeRange();
         }
 
@@ -353,7 +352,7 @@ public class TimeConstraints implements ISerializableObject {
             // <=)
             TimeRange tr1 = constraintTime(timeRange.getStart());
             TimeRange tr2 = constraintTime(new Date(timeRange.getEnd()
-                    .getTime() - 1000));
+                    .getTime() - TimeUtil.MILLIS_PER_SECOND));
             if (!tr1.isValid() || !tr2.isValid()) {
                 return new TimeRange();
             }

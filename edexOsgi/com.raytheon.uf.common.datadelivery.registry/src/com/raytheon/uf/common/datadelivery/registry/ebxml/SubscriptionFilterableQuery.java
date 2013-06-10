@@ -1,11 +1,14 @@
 package com.raytheon.uf.common.datadelivery.registry.ebxml;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.registry.ebxml.AdhocRegistryQuery;
 import com.raytheon.uf.common.registry.ebxml.BooleanAttribute;
 import com.raytheon.uf.common.registry.ebxml.CalendarAttribute;
@@ -29,6 +32,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Aug 02, 2012 955        djohnson    Add generics and results retrieval to registry queries.
  * Oct 03, 2012 1241       djohnson    Move query parameters in from SubscriptionQuery.
  * Oct 10, 2012 0726       djohnson    Add {@link #setActive(boolean)}.
+ * Feb 20, 2013 1543       djohnson    Add ability to filter on routes.
  * 
  * </pre>
  * 
@@ -157,5 +161,19 @@ public abstract class SubscriptionFilterableQuery<T> extends
      */
     public void setProviderNames(List<String> providerNames) {
         setAttribute("provider", new StringAttribute(providerNames));
+    }
+
+    /**
+     * Set the routes to match.
+     * 
+     * @param routes
+     *            the routes
+     */
+    public void setRoutes(List<Network> routes) {
+        List<String> enumValues = new ArrayList<String>(routes.size());
+        for (Network route : routes) {
+            enumValues.add(route.toString());
+        }
+        setAttribute(Subscription.ROUTE_SLOT, new StringAttribute(enumValues));
     }
 }

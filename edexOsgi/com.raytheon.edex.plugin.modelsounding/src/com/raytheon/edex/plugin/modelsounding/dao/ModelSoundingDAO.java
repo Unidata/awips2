@@ -19,8 +19,10 @@
  **/
 package com.raytheon.edex.plugin.modelsounding.dao;
 
+import java.io.File;
 import java.util.List;
 
+import com.raytheon.edex.plugin.modelsounding.common.ModelSoundingPathProvider;
 import com.raytheon.edex.plugin.modelsounding.common.SoundingSite;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -35,6 +37,10 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20080303           1026 jkorman     Initial implementation.
+ * 20130426           1861 bkowal      Added report type and forecast seconds as
+ *                                     required keys for the hdf5 file name. Create
+ *                                     a new method to generate hdf5 file names that
+ *                                     will use the path provider.
  * 
  * </pre>
  * 
@@ -50,6 +56,7 @@ public class ModelSoundingDAO extends PointDataPluginDao<SoundingSite> {
      */
     public ModelSoundingDAO(String pluginName) throws PluginException {
         super(pluginName);
+        this.pathProvider = new ModelSoundingPathProvider();
     }
 
     /**
@@ -118,7 +125,7 @@ public class ModelSoundingDAO extends PointDataPluginDao<SoundingSite> {
 
     @Override
     public String[] getKeysRequiredForFileName() {
-        return new String[] { "dataTime.refTime" };
+        return new String[] { "reportType", "dataTime.refTime", "fcstSeconds" };
     }
 
     @Override
@@ -130,5 +137,13 @@ public class ModelSoundingDAO extends PointDataPluginDao<SoundingSite> {
     public SoundingSite newObject() {
         return new SoundingSite();
     }
-
+    
+    @Override
+    protected String generatePointDataFileName(SoundingSite bean) {
+        return this.pluginName
+        + File.separator
+        + this.pathProvider.getHDFPath(this.pluginName, bean)
+        + File.separator
+        + this.pathProvider.getHDFFileName(this.pluginName, bean);           
+    }
 }
