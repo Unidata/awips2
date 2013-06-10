@@ -1,0 +1,23 @@
+  	
+    <table class="featureInfo">
+    <caption class="featureInfo">${type.name}</caption>
+      <tr>
+#foreach( $attribute in $type.getAttributeDescriptors() )
+        <th>${attribute.getLocalName()}</th>
+#end ##foreach attribute in attributes
+      </tr>
+#set( $odd = false )
+#foreach( $feature in $features )
+#if ( $odd )
+      <tr class="odd">
+#{else}
+      <tr>
+#end ##if odd
+#set( $odd = !$odd )
+#foreach( $attribute in $feature.getAttributes() )
+        <td>${attribute.toString()}</td>
+#end ##foreach attribute in attributes
+      </tr>
+#end ##foreach feature in features
+    </table>
+    <br/>
