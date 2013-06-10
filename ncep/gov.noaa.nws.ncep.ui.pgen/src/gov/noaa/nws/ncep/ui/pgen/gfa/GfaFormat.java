@@ -160,7 +160,7 @@ public class GfaFormat {
 					((Gfa)adc ).isSnapshot() &&
 							(Gfa.getHourMinInt(((Gfa)adc).getGfaFcstHr())[0] +
 							Gfa.getHourMinInt(((Gfa)adc).getGfaFcstHr())[1]/60.0) > 6 )) {
-			oldList.add(adc);
+				oldList.add(adc);
 			}
 			
 			if ( ( (Gfa)adc ).isSnapshot() 
@@ -347,7 +347,7 @@ public class GfaFormat {
 //				return;
 				continue;
 			}
-						          
+	
 			/*
 			 *  Snapping (the first point/last point are not the same)
 			 *  
@@ -433,9 +433,9 @@ public class GfaFormat {
 			
 			// Temp save, then apply rules after all the smears and outlooks are created 
 			listOfLists.add( clippedWithRegions );
-			
+		    
 		}
-		
+
 		
 		/*
 		 *  Apply other GFA rules (area, reduce points, wording ......
@@ -849,7 +849,7 @@ public class GfaFormat {
 	 */
 	public static HashMap<String, String> findGfaTopBots( ArrayList<Gfa> list ) {
 		
-		Gfa g = (Gfa)list.get( 0 );
+		Gfa g = (Gfa)list.get( 0 );		
         
 		/** Need to check the logic **/
 		Comparator<String> comp = new Comparator<String>() {
@@ -1109,7 +1109,7 @@ public class GfaFormat {
     	}
     		    	
     }
-	
+    
     /*
      * Validate Gfas in all activities and warn for invalid Gfas in the resource.
      */   
@@ -1175,7 +1175,7 @@ public class GfaFormat {
     				MessageDialog.WARNING, new String[]{"OK"}, 0 );
 
     		confirmDlg.open();
-}
+    	}
     }
 }
 

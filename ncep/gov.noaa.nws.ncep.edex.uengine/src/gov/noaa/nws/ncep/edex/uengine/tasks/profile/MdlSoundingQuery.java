@@ -70,7 +70,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 
 public class MdlSoundingQuery {
-	private static final String NCGRIB_TBL_NAME = "ncgrib";
+	private static final String NCGRIB_TBL_NAME = "ncgrib";//obsoleting....
 	private static final String D2DGRIB_TBL_NAME = "grid";
 	
 	private static String NC_PARMS = "HGHT, UREL, VREL, TMPK, OMEG, RELH";
@@ -89,10 +89,11 @@ public class MdlSoundingQuery {
 			.getConverterTo(SI.CELSIUS);
 	private static final UnitConverter metersPerSecondToKnots = SI.METERS_PER_SECOND.getConverterTo(NonSI.KNOT);
 
+	//Note; we are using NCInventory now. So, this api is actually not used.
 	public static NcSoundingTimeLines getMdlSndTimeLine(String mdlType,
 			String currentDBTblName) {
 		NcSoundingTimeLines tl = new NcSoundingTimeLines();
-
+		/*
 		if(currentDBTblName.equals(NCGRIB_TBL_NAME)){
 			Object[] refTimeAry = null;
 			String queryStr = new String("Select Distinct reftime FROM "
@@ -120,8 +121,19 @@ public class MdlSoundingQuery {
 				e.printStackTrace();
 			}
 			
-		}
+		} */
 		
+		//Chin: modified for Unified Grid DB
+		// Use the following SQL statement
+		//Select Distinct reftime FROM grid FULL JOIN grid_info ON grid.info_id=grid_info.id where grid_info.datasetid='gfs' ORDER BY reftime DESC
+		Object[] refTimeAry = null;
+		String queryStr = new String("Select Distinct reftime FROM grid FULL JOIN grid_info ON grid.info_id=grid_info.id where grid_info.datasetid='"
+				+ mdlType
+				+ "' ORDER BY reftime DESC");
+
+		CoreDao dao = new CoreDao(DaoConfig.forClass(NcgribRecord.class));
+		refTimeAry = (Object[]) dao.executeSQLQuery(queryStr);
+		tl.setTimeLines(refTimeAry);
 		
 
 		return tl;
@@ -130,6 +142,7 @@ public class MdlSoundingQuery {
 	public static NcSoundingTimeLines getMdlSndRangeTimeLine(String mdlType,
 			String refTimeStr, String currentDBTblName) {
 		NcSoundingTimeLines tl = new NcSoundingTimeLines();
+		/*
 		if(currentDBTblName.equals(NCGRIB_TBL_NAME)){
 			Object[] refTimeAry = null;
 			String queryStr = new String("Select Distinct rangestart FROM "
@@ -159,9 +172,56 @@ public class MdlSoundingQuery {
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}*/
+		//Chin: modified for Unified Grid DB
+		// make sure data in DB is not just nHour data, as those data are not used by Nsharp. And when query to it, the returned will be
+		// null. We do not want to show such sounding time line to user.
+		// use this SQL query string for gfs as example.
+		/*
+		 *  Select Distinct rangestart FROM grid FULL JOIN grid_info ON grid.info_id=grid_info.id where
+		 *   grid.reftime = '2012-01-26 00:00:00' AND grid.rangestart = grid.rangeend AND grid_info.datasetid='mesoEta212' AND
+		 *   grid_info.parameter_abbreviation='T' order by rangestart
+		 */
+		Object[] soundingTimeAry = null;
+		List<Object> reSoundingTimeAry = new ArrayList<Object>();
+		String queryStr = new String("Select Distinct rangestart FROM grid FULL JOIN grid_info ON grid.info_id=grid_info.id where grid.reftime = '"
+				+ refTimeStr + ":00:00' AND grid.rangestart = grid.rangeend AND grid_info.datasetid='"+mdlType+"' AND grid_info.parameter_abbreviation='T' order by rangestart");
+		//System.out.println("queryStr  " + queryStr);
 			
+		CoreDao dao = new CoreDao(DaoConfig.forClass(GridRecord.class));
+		soundingTimeAry = (Object[]) dao.executeSQLQuery(queryStr);
+		for(int i=0; i< soundingTimeAry.length; i++){
+			/*
+			 * Chin: make sure the time line has more than 5 T(temp) values at pressure (levelone) greater/equal than/to 100 hPa (mbar)
+			 * use this SQL : 
+			 * Select count(rangestart) FROM (select   rangestart FROM grid FULL JOIN grid_info ON grid.info_id=grid_info.id 
+			 * FULL JOIN level ON grid_info.level_id= level.id 
+			 * where grid.rangestart = '2012-01-26 03:00:00.0' AND 
+			 * grid.rangestart = grid.rangeend AND grid_info.datasetid='mesoEta212' AND
+			 *  grid_info.parameter_abbreviation='T' AND level.levelonevalue > 99) X HAVING count(X.rangestart) >5
+			 */
+			String queryStr1 = new String("Select count(rangestart) FROM (select   rangestart FROM grid FULL JOIN grid_info ON grid.info_id=grid_info.id FULL JOIN level ON grid_info.level_id= level.id where grid.rangestart = '"
+					+ soundingTimeAry[i] + "' AND grid.rangestart = grid.rangeend AND grid_info.datasetid='"+mdlType+"' AND grid_info.parameter_abbreviation='T' AND level.levelonevalue > 99) X HAVING count(X.rangestart) >5");
+			Object[] countAry = null;
+			//System.out.println("queryStr1  " + queryStr1);
+			countAry = (Object[]) dao.executeSQLQuery(queryStr1);
+			java.math.BigInteger count = new java.math.BigInteger("0");
+			if(countAry.length >0 ){
+				//System.out.println("rangestart =" +soundingTimeAry[i]+" number="+countAry[0]);
+				count = (java.math.BigInteger)countAry[0];
+			}
+			//else{
+			//	System.out.println("rangestart =" +soundingTimeAry[i]+" return null");
+			//}
+			if(count.intValue() > 5){
+				Object timeLine= soundingTimeAry[i];
+				reSoundingTimeAry.add(timeLine);
+			}
 		}
+		
+		tl.setTimeLines(reSoundingTimeAry.toArray());
+			
+		//}
 		return tl;
 	}	// public static NcSoundingProfile getMdlSndData(double lat, double lon,
 	// String stn, long refTimeL, long validTimeL, String sndTypeStr,

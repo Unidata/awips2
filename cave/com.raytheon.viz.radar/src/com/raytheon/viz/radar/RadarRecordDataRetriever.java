@@ -42,6 +42,8 @@ import com.raytheon.uf.viz.core.cache.CacheObject.IObjectRetrieverAndDisposer;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 26, 2011            mschenke     Initial creation
+ * Mar 18, 2013 1804       bsteffen    Remove AlphanumericValues from radar
+ *                                     HDF5.
  * 
  * </pre>
  * 
@@ -87,7 +89,6 @@ public class RadarRecordDataRetriever implements
         object.setSymbologyBlock(null);
         object.setSymbologyData(null);
         object.setProductVals(null);
-        object.setAlphanumericValues(null);
         object.setMapRecordVals(null);
         object.setGsmMessage(null);
         object.setStormIDs(null);
@@ -128,9 +129,6 @@ public class RadarRecordDataRetriever implements
         }
         if (object.getMapProductVals() != null) {
             objs.add(object.getMapProductVals());
-        }
-        if (object.getAlphanumericValues() != null) {
-            objs.add(object.getAlphanumericValues());
         }
         if (object.getMapRecordVals() != null) {
             objs.add(object.getMapRecordVals());

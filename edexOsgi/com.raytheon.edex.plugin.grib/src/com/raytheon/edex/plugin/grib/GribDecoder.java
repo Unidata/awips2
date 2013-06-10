@@ -21,18 +21,25 @@ package com.raytheon.edex.plugin.grib;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
+
+import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
 
 import ucar.grib.GribChecker;
 import ucar.unidata.io.RandomAccessFile;
 
-import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.python.decoder.PythonDecoder;
 
 /**
@@ -43,54 +50,66 @@ import com.raytheon.uf.edex.python.decoder.PythonDecoder;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 3/12/10      4758       bphillip     Initial creation
+ * 02/12/2013   1615       bgonzale     public decode method to a Processor exchange method.
+ * Mar 19, 2013 1785       bgonzale     Added performance status handler and added status
+ *                                      to process.
  * </pre>
  * 
  * @author njensen
  * @version 1.0
  */
 
-public class GribDecoder {
+public class GribDecoder implements Processor {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GribDecoder.class);
 
-    public GribDecoder() {
+    private static final String[] DecoderNames = { "Grib1", "Grib2" };
 
-    }
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("");
 
-    public GridRecord[] decode(File file, Headers headers) {
-        GridRecord[] records = null;
+    /**
+     * @see org.apache.camel.Processor.process(Exchange)
+     */
+    @Override
+    public void process(Exchange exchange) throws Exception {
+        final String DATA_TYPE = "dataType";
+        final String GRIB = "grib";
+
+        File file = (File) exchange.getIn().getBody();
+        Map<String, Object> headers = exchange.getIn().getHeaders();
+
         RandomAccessFile raf = null;
         int edition = 0;
+        GridRecord[] records = null;
         try {
+            ITimer timer = TimeUtil.getTimer();
+            String decoderName;
+
             raf = new RandomAccessFile(file.getAbsolutePath(), "r");
             raf.order(RandomAccessFile.BIG_ENDIAN);
             edition = GribChecker.getEdition(raf);
+            exchange.getIn().setHeader(DATA_TYPE, GRIB + edition);
 
-            if (edition == 1) {
+            timer.start();
+            switch (edition) {
+            case 1:
+                decoderName = DecoderNames[0];
                 records = new Grib1Decoder().decode(file.getAbsolutePath());
-            } else if (edition == 2) {
-                PythonDecoder pythonDecoder = new PythonDecoder();
-                pythonDecoder.setPluginName("grib");
-                pythonDecoder.setPluginFQN("com.raytheon.edex.plugin.grib");
-                pythonDecoder.setModuleName("GribDecoder");
-                pythonDecoder.setRecordClassname(GridRecord.class.toString());
-                pythonDecoder.setCache(true);
-                try {
-                    PluginDataObject[] pdos = pythonDecoder.decode(file);
-                    records = new GridRecord[pdos.length];
-                    for (int i = 0; i < pdos.length; i++) {
-                        records[i] = (GridRecord) pdos[i];
-                    }
-                } catch (Exception e) {
-                    throw new GribException("Error decoding grib file!", e);
-                }
-            } else {
+                break;
+            case 2:
+                decoderName = DecoderNames[1];
+                records = decodeGrib2(file);
+                break;
+            default:
                 throw new GribException("Unknown grib version detected ["
                         + edition + "]");
             }
+
             String datasetId = (String) headers.get("datasetid");
             String secondaryId = (String) headers.get("secondaryid");
             String ensembleId = (String) headers.get("ensembleid");
+
             if (secondaryId != null || datasetId != null || ensembleId != null) {
                 for (GridRecord record : records) {
                     if (datasetId != null) {
@@ -106,6 +125,9 @@ public class GribDecoder {
                     record.constructDataURI();
                 }
             }
+            timer.stop();
+            perfLog.logDuration(decoderName + ": Time to Decode",
+                    timer.getElapsedTime());
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, "Failed to decode file: ["
                     + file.getAbsolutePath() + "]", e);
@@ -119,6 +141,36 @@ public class GribDecoder {
                 statusHandler.handle(Priority.ERROR,
                         "Unable to close RandomAccessFile!", e);
             }
+        }
+        exchange.getIn().setBody(records);
+    }
+
+    /**
+     * Decode a grib 2 file.
+     * 
+     * @param file
+     *            Grib 2 file
+     * @return Array of GribRecords parsed from the file.
+     * @throws PluginException
+     */
+    private GridRecord[] decodeGrib2(File file)
+            throws PluginException {
+        GridRecord[] records = null;
+        PythonDecoder pythonDecoder = new PythonDecoder();
+
+        pythonDecoder.setPluginName("grib");
+        pythonDecoder.setPluginFQN("com.raytheon.edex.plugin.grib");
+        pythonDecoder.setModuleName("GribDecoder");
+        pythonDecoder.setRecordClassname(GridRecord.class.toString());
+        pythonDecoder.setCache(true);
+        try {
+            PluginDataObject[] pdos = pythonDecoder.decode(file);
+            records = new GridRecord[pdos.length];
+            for (int i = 0; i < pdos.length; i++) {
+                records[i] = (GridRecord) pdos[i];
+            }
+        } catch (Exception e) {
+            throw new GribException("Error decoding grib file!", e);
         }
         return records;
     }

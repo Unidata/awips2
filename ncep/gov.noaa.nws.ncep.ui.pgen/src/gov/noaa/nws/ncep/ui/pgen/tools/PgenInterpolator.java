@@ -307,10 +307,10 @@ public class PgenInterpolator {
 			//  calculate the fractional distance of the new object from the original
 			double fraction = (double)( i - start )  / (double)(end - start) ;
 			
-	/*
+			/*
 			 * calculate the interpolated coordinate at the specified fractional distance
 			 * from the start point. 
-	 */
+			 */
 			double dx = ( ptsCoord[1].x - ptsCoord[0].x ) * fraction;
 			double dy = ( ptsCoord[1].y - ptsCoord[0].y ) * fraction;
 

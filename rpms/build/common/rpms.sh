@@ -7,7 +7,7 @@ function buildQPID()
 
    pushd . > /dev/null 2>&1
 
-   cd ${WORKSPACE}/rpms/awips2.qpid/deploy.builder
+   cd ${WORKSPACE}/rpms/awips2.qpid
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build the qpid rpms."
       return 1
@@ -19,58 +19,88 @@ function buildQPID()
       return 1
    fi
 
-   cd ${WORKSPACE}/rpms/awips2.qpid
-   if [ ! -d RPMS/i386 ]; then
-      echo "ERROR: Unable to locate the rpms that were built."
+   # ensure that the destination rpm directories exist
+   if [ ! -d ${AWIPSII_TOP_DIR}/RPMS/noarch ]; then
+      mkdir -p ${AWIPSII_TOP_DIR}/RPMS/noarch
+      if [ $? -ne 0 ]; then
+         exit 1
+      fi
+   fi
+   if [ ! -d ${AWIPSII_TOP_DIR}/RPMS/i386 ]; then
+      mkdir -p ${AWIPSII_TOP_DIR}/RPMS/i386
+      if [ $? -ne 0 ]; then
+         exit 1
+      fi
+   fi
+
+   pushd . > /dev/null 2>&1
+   # Copy the 0.18 qpid rpms
+   cd 0.18/RPMS/noarch
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build Qpid v0.18."
+      return 1
+   fi
+   /bin/cp -v *.rpm ${AWIPSII_TOP_DIR}/RPMS/noarch
+   if [ $? -ne 0 ]; then
+      return 1
+   fi
+   popd > /dev/null 2>&1
+
+   pushd . > /dev/null 2>&1
+   # Copy the 0.7 qpid rpms
+   cd 0.7/RPMS/i386
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build Qpid v0.7."
       return 1
    fi
 
    # Copy the qpid rpms from the local build directory to the rpm
    # "staging" directory.
-   /bin/cp RPMS/i386/awips2-qpid-client-0.7.946106-*.i386.rpm \
-      ${AWIPSII_TOP_DIR}/RPMS/i386
+   /bin/cp -v awips2-qpid-client-0.7.946106-*.i386.rpm \
+      ${AWIPSII_TOP_DIR}/RPMS/i386/
    if [ $? -ne 0 ]; then
-      exit 1
+      return 1
    fi
-   /bin/cp RPMS/i386/awips2-qpid-server-0.7.946106-*.i386.rpm \
-      ${AWIPSII_TOP_DIR}/RPMS/i386
+   /bin/cp -v awips2-qpid-server-0.7.946106-*.i386.rpm \
+      ${AWIPSII_TOP_DIR}/RPMS/i386/
    if [ $? -ne 0 ]; then
-      exit 1
+      return 1
    fi
-   /bin/cp RPMS/i386/awips2-qpid-server-store-0.7.946106-*.i386.rpm \
-      ${AWIPSII_TOP_DIR}/RPMS/i386
+   /bin/cp -v awips2-qpid-server-store-0.7.946106-*.i386.rpm \
+      ${AWIPSII_TOP_DIR}/RPMS/i386/
    if [ $? -ne 0 ]; then
-      exit 1
+      return 1
    fi
 
    # if the -ade argument has been specified. Also copy the qpid
    # devel rpms.
    if [ "${1}" = "-ade" ]; then
-      /bin/cp RPMS/i386/awips2-qpid-client-devel-0.7.946106-*.i386.rpm \
-         ${AWIPSII_TOP_DIR}/RPMS/i386
+      /bin/cp -v awips2-qpid-client-devel-0.7.946106-*.i386.rpm \
+         ${AWIPSII_TOP_DIR}/RPMS/i386/
       if [ $? -ne 0 ]; then
-         exit 1
+         return 1
       fi
 
-      /bin/cp RPMS/i386/awips2-qpid-client-devel-docs-0.7.946106-*.i386.rpm \
-         ${AWIPSII_TOP_DIR}/RPMS/i386
+      /bin/cp -v awips2-qpid-client-devel-docs-0.7.946106-*.i386.rpm \
+         ${AWIPSII_TOP_DIR}/RPMS/i386/
       if [ $? -ne 0 ]; then
-         exit 1
+         return 1
       fi
 
-      /bin/cp RPMS/i386/awips2-qpid-server-devel-0.7.946106-*.i386.rpm \
-         ${AWIPSII_TOP_DIR}/RPMS/i386
+      /bin/cp -v awips2-qpid-server-devel-0.7.946106-*.i386.rpm \
+         ${AWIPSII_TOP_DIR}/RPMS/i386/
       if [ $? -ne 0 ]; then
-         exit 1
+         return 1
       fi
 
-      /bin/cp RPMS/i386/qpid-cpp-mrg-debuginfo-0.7.946106-*.i386.rpm \
-         ${AWIPSII_TOP_DIR}/RPMS/i386
+      /bin/cp qpid-cpp-mrg-debuginfo-0.7.946106-*.i386.rpm \
+         ${AWIPSII_TOP_DIR}/RPMS/i386/
       if [ $? -ne 0 ]; then
-         exit 1
+         return 1
       fi
    fi
 
+   popd > /dev/null 2>&1
    popd > /dev/null 2>&1
 
    return 0
@@ -153,6 +183,7 @@ function buildLocalizationRPMs()
       fi
       export LOCALIZATION_DIRECTORY="${localization}"
       export COMPONENT_NAME="awips2-localization-${site}"
+      export site=${site}
 
       echo "Building localization rpm for site: ${site}."
 
@@ -163,6 +194,7 @@ function buildLocalizationRPMs()
          --define '_component_name %(echo ${COMPONENT_NAME})' \
          --define '_baseline_workspace %(echo ${WORKSPACE})' \
          --define '_localization_directory %(echo ${LOCALIZATION_DIRECTORY})' \
+         --define '_localization_site %(echo ${site})' \
          --buildroot ${AWIPSII_BUILD_ROOT} \
          ${localization_SPECIFICATION}
       RC=$?

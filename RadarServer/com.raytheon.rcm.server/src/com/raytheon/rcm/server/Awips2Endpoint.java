@@ -27,15 +27,15 @@ import java.io.InputStream;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
-import org.apache.tools.bzip2.CBZip2InputStream;
+import org.itadaki.bzip2.BZip2InputStream;
 
 import com.raytheon.rcm.event.ConfigEvent;
 import com.raytheon.rcm.event.RadarEvent;
 import com.raytheon.rcm.event.RadarEventAdapter;
 import com.raytheon.rcm.message.GraphicProduct;
+import com.raytheon.rcm.message.GraphicProduct.PDB;
 import com.raytheon.rcm.message.Message;
 import com.raytheon.rcm.message.MessageFormatException;
-import com.raytheon.rcm.message.GraphicProduct.PDB;
 
 /**
  * A radar server component that delivers radar products to an EDEX file
@@ -172,11 +172,7 @@ public class Awips2Endpoint extends RadarEventAdapter {
                     try {
                         InputStream ins = new ByteArrayInputStream(msg, 120,
                                 msg.length - 120);
-                        char c1 = (char) ins.read();
-                        char c2 = (char) ins.read();
-                        if (c1 != 'B' || c2 != 'Z')
-                            throw new IOException("Not a bzip2 stream");
-                        ins = new CBZip2InputStream(ins);
+                        ins = new BZip2InputStream(ins, false);
                         // ByteArrayOutputStream outs = new
                         // ByteArrayOutputStream(uncompressedSize);
                         uncompressed = new byte[uncompressedSize];

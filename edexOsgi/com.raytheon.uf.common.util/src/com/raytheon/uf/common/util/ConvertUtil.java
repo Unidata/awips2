@@ -20,10 +20,6 @@
 package com.raytheon.uf.common.util;
 
 import java.lang.reflect.Field;
-import java.util.Calendar;
-import java.util.Date;
-
-import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
@@ -39,6 +35,8 @@ import org.apache.commons.beanutils.Converter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 19, 2009            njensen     Initial creation
+ * Mar 13, 2013 1789       bsteffen    Move Calendar and Date parsing out of
+ *                                     ConvertUtil and also fix date parsing.
  * 
  * </pre>
  * 
@@ -88,22 +86,6 @@ public class ConvertUtil {
         }
         if (desiredClass.isEnum()) {
             return Enum.valueOf((Class<? extends Enum>) desiredClass, value);
-        }
-        if (desiredClass.equals(Calendar.class)) {
-            try {
-                // see if string is in ISO 8601
-                return DatatypeConverter.parseDateTime(value);
-            } catch (Exception e) {
-                // let convertUtils try
-            }
-        }
-        if (desiredClass.equals(Date.class)) {
-            try {
-                // see if string is in ISO 8601
-                return DatatypeConverter.parseDateTime(value).getTime();
-            } catch (Exception e) {
-                // let convertUtils try
-            }
         }
         return ConvertUtils.convert(value, desiredClass);
     }

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -37,13 +37,16 @@ import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
 import com.raytheon.uf.common.python.concurrent.IPythonExecutor;
 import com.raytheon.uf.common.python.concurrent.PythonJobCoordinator;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
-import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.IParmManager;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
@@ -59,17 +62,19 @@ import com.raytheon.viz.gfe.smarttool.script.SmartToolController;
 
 /**
  * Ported from Tool.py
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 27, 2007            njensen     Initial creation
  * Jan 08, 2013  1486      dgilling    Support changes to BaseGfePyController.
- * 2/14/2013     1506      mnash       Change QueryScript to use new Python concurrency
- * 
+ * 02/14/2013              mnash       Change QueryScript to use new Python concurrency
+ * 02/20/2013        #1597 randerso    Added logging to support GFE Performance metrics
+ * 04/10/2013    16028     ryu         Check for null seTime in execute()
+ *
  * </pre>
- * 
+ *
  * @author njensen
  * @version 1.0
  */
@@ -77,6 +82,9 @@ import com.raytheon.viz.gfe.smarttool.script.SmartToolController;
 public class Tool {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(Tool.class);
+
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("GFE:");
 
     private static final String CANCEL_MSG_START = "jep.JepException: <type 'exceptions.RuntimeError'>: Cancel: Cancel >>>";
 
@@ -98,11 +106,11 @@ public class Tool {
      */
     private ReferenceData trueEditArea;
 
-    private PythonJobCoordinator coordinator = null;
+    private PythonJobCoordinator<QueryScript> coordinator = null;
 
     /**
      * Constructor
-     * 
+     *
      * @param aParmMgr
      *            the parm manager
      * @param aToolName
@@ -125,7 +133,7 @@ public class Tool {
         coordinator = PythonJobCoordinator.newInstance(factory);
         try {
             if (!tool.isInstantiated(toolName)) {
-                tool.instantiatePythonTool(toolName);
+                tool.instantiatePythonScript(toolName);
             }
         } catch (JepException e) {
             throw new SmartToolException("Error instantiating python tool "
@@ -135,7 +143,7 @@ public class Tool {
 
     /**
      * Returns the objects that should be passed to the smart tool in python
-     * 
+     *
      * @param args
      *            the names of the arguments
      * @param gridTimeRange
@@ -149,7 +157,7 @@ public class Tool {
      * @return
      * @throws SmartToolException
      */
-    public Object[] getArgValues(String[] args, TimeRange gridTimeRange,
+    public Object[] getArgValues(List<String> args, TimeRange gridTimeRange,
             TimeRange toolTimeRange, ReferenceData editArea,
             MissingDataMode dataMode) throws SmartToolException {
 
@@ -218,7 +226,7 @@ public class Tool {
 
     /**
      * Returns the attribute for a particular parm's name
-     * 
+     *
      * @param arg
      *            the name of the parm
      * @param attrStr
@@ -253,7 +261,7 @@ public class Tool {
 
     /**
      * Returns the grid data for the specified parameters
-     * 
+     *
      * @param arg
      *            the name of the parm
      * @param mode
@@ -302,7 +310,7 @@ public class Tool {
 
     /**
      * Returns the grid history corresponding to the parm name and time range
-     * 
+     *
      * @param arg
      *            the name of the parm
      * @param gridTimeRange
@@ -342,7 +350,7 @@ public class Tool {
 
     /**
      * Returns the grid info corresponding to the parm name and time range
-     * 
+     *
      * @param arg
      *            the name of the parm
      * @param gridTimeRange
@@ -376,7 +384,7 @@ public class Tool {
 
     /**
      * Executes a smart tool
-     * 
+     *
      * @param toolName
      *            the name of the tool
      * @param inputParm
@@ -392,6 +400,9 @@ public class Tool {
             final ReferenceData editArea, TimeRange timeRange, String varDict,
             MissingDataMode missingDataMode, IProgressMonitor monitor)
             throws SmartToolException {
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
+
         MissingDataMode dataMode;
         if (missingDataMode == null) {
             dataMode = Message.inquireLastMessage(MissingDataModeMsg.class)
@@ -434,9 +445,10 @@ public class Tool {
         if (grids.length == 0) {
             String message = "Smart Tool " + toolName
                     + ": No Grids To Edit for " + inputParm.expressionName();
-            throw new SmartToolException(message);
-            // AFPS.UserAlertMsg_send_mh(self.__msgHand, message, "A", "GFE")
+            statusHandler.handle(Priority.EVENTA, message);
+            return;
         }
+        int numberOfGrids = grids.length;
 
         // Make sure parm is mutable
         if (parmToEdit != null) {
@@ -458,14 +470,12 @@ public class Tool {
 
             // Iterate over time range
             // Process each grid in the time range.
-            int numberOfGrids = grids.length;
-            for (int i = 0; i < numberOfGrids; i++) {
+            boolean first = true;
+            for (IGridData grid : grids) {
                 if (monitor.isCanceled()) {
                     return;
                 }
 
-                IGridData grid = grids[i];
-                int index = i;
                 // # Show progress on a grid basis for numeric and parm-based
                 // if toolType == "numeric" or toolType == "parm-based":
                 // percent = (index+1)/numberOfGrids * 100.0
@@ -479,22 +489,15 @@ public class Tool {
                 }
 
                 final Date timeInfluence;
-                Date seTime = DataManager.getCurrentInstance()
+                Date seTime = DataManagerUIFactory.getCurrentInstance()
                         .getSpatialDisplayManager().getSpatialEditorTime();
-                if (grids.length == 1 && grid.getGridTime().contains(seTime)) {
+                if (seTime != null &&
+                        grids.length == 1 && grid.getGridTime().contains(seTime)) {
                     timeInfluence = seTime;
                 } else {
                     timeInfluence = grid.getGridTime().getStart();
                 }
                 TimeRange gridTimeRange = grid.getGridTime();
-                boolean first = false;
-                // boolean last = false;
-                if (index == 0) {
-                    first = true;
-                }
-                // if (index == numberOfGrids - 1) {
-                // last = true;
-                // }
 
                 // Re-evaluate edit area if a query
                 if (editArea.isQuery()) {
@@ -505,7 +508,7 @@ public class Tool {
                         IPythonExecutor<QueryScript, ReferenceData> executor = new QueryScriptExecutor(
                                 "evaluate", argMap);
                         try {
-                            Tool.this.trueEditArea = (ReferenceData) coordinator
+                            Tool.this.trueEditArea = coordinator
                                     .submitSyncJob(executor);
                         } catch (Exception e) {
                             statusHandler.handle(Priority.PROBLEM,
@@ -528,6 +531,7 @@ public class Tool {
 
                     numeric(parmToEdit, first, trueEditArea, gridTimeRange,
                             timeRange, timeInfluence, dataMode);
+                    first = false;
 
                     if (monitor.isCanceled()) {
                         return;
@@ -567,12 +571,17 @@ public class Tool {
                     + toolName + ": " + e.getLocalizedMessage(), e);
         } finally {
             cleanUp(parmToEdit, saveParams, toolName, dataMode);
+            timer.stop();
+            perfLog.logDuration("Running smartTool " + toolName + " for "
+                    + numberOfGrids + " "
+                    + this.inputParm.getParmID().getParmName() + " grids",
+                    timer.getElapsedTime());
         }
     }
 
     /**
      * Executes the numeric smart tool
-     * 
+     *
      * @param parmToEdit
      *            the parm to edit
      * @param first
@@ -623,13 +632,13 @@ public class Tool {
                 }
             }
         }
-        String[] executeArgs = tool.getMethodArguments(toolName, "execute");
+        List<String> executeArgs = tool.getMethodArguments(toolName, "execute");
         Object gridResult = null;
         Object[] argValues = getArgValues(executeArgs, gridTimeRange,
                 toolTimeRange, editArea, dataMode);
         HashMap<String, Object> argMap = new HashMap<String, Object>();
-        for (int i = 0; i < executeArgs.length; i++) {
-            argMap.put(executeArgs[i], argValues[i]);
+        for (int i = 0; i < executeArgs.size(); i++) {
+            argMap.put(executeArgs.get(i), argValues[i]);
         }
 
         gridResult = tool.executeTool(parmToEdit, toolName, argMap);
@@ -644,7 +653,7 @@ public class Tool {
     /**
      * Cleans up a smart tool execution or failure and displays any missing data
      * message
-     * 
+     *
      * @param parmToEdit
      *            the parm to edit
      * @param save
@@ -701,13 +710,13 @@ public class Tool {
             ReferenceData editArea, MissingDataMode dataMode)
             throws SmartToolException, JepException {
         if (tool.hasMethod(toolName, methodName)) {
-            String[] prePostToolArgs = tool.getMethodArguments(toolName,
+            List<String> prePostToolArgs = tool.getMethodArguments(toolName,
                     methodName);
             Object[] prePostToolObjs = getArgValues(prePostToolArgs,
                     gridTimeRange, toolTimeRange, editArea, dataMode);
             HashMap<String, Object> prePostToolMap = new HashMap<String, Object>();
-            for (int i = 0; i < prePostToolArgs.length; i++) {
-                prePostToolMap.put(prePostToolArgs[i], prePostToolObjs[i]);
+            for (int i = 0; i < prePostToolArgs.size(); i++) {
+                prePostToolMap.put(prePostToolArgs.get(i), prePostToolObjs[i]);
             }
             tool.runToolMethod(toolName, methodName, prePostToolMap);
         }

@@ -10,6 +10,7 @@ package gov.noaa.nws.ncep.viz.rsc.mosaic.rsc;
 
 
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -77,7 +78,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-public abstract class AbstractRadarResource<D extends IDescriptor> extends AbstractNatlCntrsResource<RadarResourceData, MapDescriptor> 
+public abstract class AbstractRadarResource<D extends IDescriptor> extends AbstractNatlCntrsResource<RadarResourceData, NCMapDescriptor> 
         implements IRadarConfigListener, IResourceDataChanged, IRangeableResource,
                    IDataScaleResource, IRadarTextGeneratingResource {
 	

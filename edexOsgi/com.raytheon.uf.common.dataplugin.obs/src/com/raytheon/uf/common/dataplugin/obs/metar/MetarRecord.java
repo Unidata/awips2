@@ -42,6 +42,7 @@ import javax.measure.unit.Unit;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -50,7 +51,10 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.annotations.Index;
+
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.obs.metar.util.SkyCover;
 import com.raytheon.uf.common.dataplugin.obs.metar.util.WeatherCondition;
@@ -83,13 +87,26 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *                                       Added @DynamicSerializeElement to location.
  *  20090528          2225  jsanchez    Implemented tempFromTenths and dewPointFromTenths.
  *  20090629          2538  jsanchez    Made the sort public.
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013       1857  bgonzale    Added SequenceGenerator annotation.
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "obsseq")
 @Table(name = "obs", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "obs",
+		indexes = {
+				@Index(name = "obs_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize

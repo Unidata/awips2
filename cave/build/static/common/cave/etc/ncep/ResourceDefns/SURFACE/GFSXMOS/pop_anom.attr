@@ -1,5 +1,5 @@
-! Attributes for the GFSXMOS resource with "popanom" plot model
+! Attributes for the GFSXMOS resource with "pop_anom" plot model
 !
-plotModelName=popanom
+plotModel=@PlotModels/bufrmosMRF/pop_anom.xml
 plotDensity=10
-conditionalFilterName=conditionalFilter=
+conditionalFilter=

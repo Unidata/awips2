@@ -35,19 +35,20 @@ import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
  *  12/05/2011             sgurung     Modify populateFrame() to fix a bug (calculateProgDisc being called multiple times)
  *  02/12/2012     #555    sgurung     Removed method populateFrame()
  *  05/23/2012     785     Q. Zhou     Added getName for legend.
+ *  10/18/2012     896     sgurung     Extend NcPlotResource2. Comment out initResource() and getName().
  * </pre>
  * 
  * @author ghull
  * @version 1.0
  */
-public class TafPlotResource extends PlotResource2 {
+public class TafPlotResource extends NcPlotResource2 {
 
 	public TafPlotResource(PlotResourceData data, LoadProperties props) {
 		super(data, props);
 		data.setPlotInfoRetriever( new TafPlotInfoRetriever() );
 	}
 	
-	@Override
+	/*@Override
     public void initResource( IGraphicsTarget aTarget ) throws VizException {
 		super.initResource(aTarget);
 		
@@ -80,9 +81,9 @@ public class TafPlotResource extends PlotResource2 {
         }
         
         //processNewRscDataList();
-	}
+	}*/
 	
-	@Override
+	/*@Override
 	public String getName() {
 		String legendString = super.getName();
 		FrameData fd = (FrameData) getCurrentFrame();
@@ -97,5 +98,5 @@ public class TafPlotResource extends PlotResource2 {
 		else {
 			return legendString + " "+NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
 		}
-	}
+	}*/
 }

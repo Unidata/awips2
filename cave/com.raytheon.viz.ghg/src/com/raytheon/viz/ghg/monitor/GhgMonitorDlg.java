@@ -113,6 +113,7 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  *                                      Changes for non-blocking GhgAlertDlg.
  * 03 Dec 2012  1353       rferrel     Changes for non-blocking GhgFilterDlg.
  *                                      Changes for non-blocking GhgSaveDeleteFilterDlg.
+ * 16 Jan 2013  1492       rferrel     Changes for non-blocking GhgFontDlg.
  * 
  * </pre>
  * 
@@ -133,6 +134,8 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
     private GhgColorDlg colorDlg;
 
     private GhgFilterDlg filterDlg;
+
+    private GhgFontDlg fontDlg;
 
     private GhgSaveDeleteFilterDlg deleteFilterDlg;
 
@@ -1163,14 +1166,22 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
      * Display the Font dialog.
      */
     private void showFontDialog() {
-        GhgFontDlg fontDlg = new GhgFontDlg(getShell(),
-                GhgConfigData.getInstance());
-        currentFontData = (FontData) fontDlg.open();
+        if (fontDlg == null) {
+            fontDlg = new GhgFontDlg(getShell(), GhgConfigData.getInstance());
+            fontDlg.setCloseCallback(new ICloseCallback() {
 
-        // Update the data fonts in the table.
-        if (currentFontData != null) {
-            ghgTableComp.updateTableFont(currentFontData);
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof FontData) {
+                        // Update the data fonts in the table.
+                        currentFontData = (FontData) returnValue;
+                        ghgTableComp.updateTableFont(currentFontData);
+                    }
+                    fontDlg = null;
+                }
+            });
         }
+        fontDlg.open();
     }
 
     /**

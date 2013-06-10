@@ -46,7 +46,7 @@
 
 	<bean class="com.raytheon.uf.edex.plugin.grid.dao.GridDao"
 		factory-method="setPurgeModelCacheTopic">
-		<constructor-arg value="jms-generic:topic:purgeGridInfoCache" />
+		<constructor-arg value="jms-generic:topic:purgeGridInfoCache?timeToLive=60000" />
 	</bean>
 
 	<camelContext id="grid-common-camel" xmlns="http://camel.apache.org/schema/spring"

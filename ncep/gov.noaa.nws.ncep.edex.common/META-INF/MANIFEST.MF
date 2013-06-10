@@ -29,10 +29,11 @@ Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.11.12",
  com.raytheon.uf.edex.pointdata;bundle-version="1.12.1174",
  com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
  com.raytheon.uf.common.status;bundle-version="1.12.1174"
+ 
 Import-Package: com.raytheon.edex.uengine.tasks.query,
- gov.noaa.nws.ncep.common.tools,
- com.raytheon.uf.common.message.response,
  com.raytheon.uf.common.dataplugin.radar,
+ com.raytheon.uf.common.message.response,
+ gov.noaa.nws.ncep.common.tools,
  javax.measure.converter,
  javax.measure.quantity,
  javax.measure.unit

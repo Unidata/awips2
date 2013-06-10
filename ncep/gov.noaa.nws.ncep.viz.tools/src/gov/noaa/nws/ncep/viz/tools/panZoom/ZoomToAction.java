@@ -1,38 +1,23 @@
 package gov.noaa.nws.ncep.viz.tools.panZoom;
 
-import java.util.Iterator;
-
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
+import gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider;
+import gov.noaa.nws.ncep.viz.common.display.INatlCntrsRenderableDisplay;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
-import gov.noaa.nws.ncep.viz.resources.manager.PredefinedAreasMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
-import gov.noaa.nws.ncep.viz.ui.display.IGridGeometryProvider;
-import gov.noaa.nws.ncep.viz.ui.display.NCDisplayPane;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
-import gov.noaa.nws.ncep.viz.ui.display.PaneID;
-import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.ui.PlatformUI;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
 
-import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.viz.core.GraphicsFactory;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IExtent;
@@ -41,7 +26,7 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.viz.core.CorePlugin;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * handler to zoom to a given zoom level
@@ -50,7 +35,8 @@ import com.raytheon.viz.core.CorePlugin;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * Nov 18, 2012   #630       G. Hull      
+ *   11/18/12   #630       G. Hull      
+ *   02/22/13   #972       G. Hull       AbstractNcEditor instead of NCMapEditor
  * 
  * </pre>
  * 
@@ -123,7 +109,7 @@ public class ZoomToAction extends AbstractHandler {
 
         } catch (VizException e) {        	
         	MessageDialog errDlg = new MessageDialog( 
-        			NmapUiUtils.getCaveShell(), "Error", null, 
+        			NcDisplayMngr.getCaveShell(), "Error", null, 
         			"Error Zooming:\n\n"+e.getMessage(),
         			MessageDialog.ERROR, new String[]{"OK"}, 0);
         	errDlg.open();
@@ -137,17 +123,22 @@ public class ZoomToAction extends AbstractHandler {
      * @throws VizException 
      */
     public static void zoomToResource( ResourceName zoomRscName ) throws VizException {
-    	// get the resource
     	// get the pane of the selected resource.
-    	NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor();
+    	AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
 
     	// get the panes to set the area in.
-    	NCDisplayPane pane = (NCDisplayPane)editor.getActiveDisplayPane();
+    	IDisplayPane pane = (IDisplayPane)editor.getActiveDisplayPane();
 
-    	NCMapRenderableDisplay rendDisp = 
-    		(NCMapRenderableDisplay) pane.getRenderableDisplay();
+    	// Note : currently this only makes sense for a MapRenderableDisplay
+    	
+    	INatlCntrsRenderableDisplay rendDisp = (INatlCntrsRenderableDisplay)pane.getRenderableDisplay();
 
-    	NCMapDescriptor mapDescr = rendDisp.getDescriptor();    	
+    	if( !(rendDisp instanceof NCMapRenderableDisplay ) ) {
+    		throw new VizException( "Error: can't zoom to resource in the renderable display : "+
+    				rendDisp.getClass().getName() );
+    	}
+    	
+    	NCMapDescriptor mapDescr = ((NCMapRenderableDisplay)rendDisp).getDescriptor();    	
     	ResourceList rList = mapDescr.getResourceList();
     	IGridGeometryProvider zoomRsc = null;
     
@@ -183,8 +174,10 @@ public class ZoomToAction extends AbstractHandler {
             double[] center = mapDescr.pixelToWorld(new double[] {
                     xdimArea / 2, ydimArea / 2, 0. });
 
-            NCMapRenderableDisplay newDisplay = new NCMapRenderableDisplay(
-            							rendDisp.getPaneId(), mapDescr );
+            NCMapRenderableDisplay newDisplay = new NCMapRenderableDisplay();
+//            							rendDisp.getPaneId() );//, mapDescr );
+            newDisplay.setPaneId( rendDisp.getPaneId() );
+            newDisplay.setDescriptor( mapDescr );
 
             newDisplay.setExtent( new PixelExtent(pane.getBounds()) );
             mapDescr.setSuspendZoom( true );
@@ -193,7 +186,7 @@ public class ZoomToAction extends AbstractHandler {
             pane.setRenderableDisplay( newDisplay );
             
 //          ZoomUtil.suspendZoom( editor) ;
-            editor.refreshGUIElements();
+            NcEditorUtil.refreshGUIElements( editor );
 
         } catch (VizException e) {
             // TODO Auto-generated catch block
@@ -244,10 +237,10 @@ public class ZoomToAction extends AbstractHandler {
     
     public void zoomToZoombox( Rectangle zoomRect) {
         
-    	NCMapEditor ed = NmapUiUtils.getActiveNatlCntrsEditor();
+    	AbstractEditor ed = NcDisplayMngr.getActiveNatlCntrsEditor();
 
-    	IDisplayPane[] zoomPanes = ( ed.arePanesGeoSynced() ? 
-    								 ed.getDisplayPanes() : ed.getSelectedPanes() );
+    	IDisplayPane[] zoomPanes = ( NcEditorUtil.arePanesGeoSynced( ed   ) ? 
+    		  ed.getDisplayPanes() : NcEditorUtil.getSelectedPanes(ed) );
 
     	for( IDisplayPane pane : zoomPanes ) {
 

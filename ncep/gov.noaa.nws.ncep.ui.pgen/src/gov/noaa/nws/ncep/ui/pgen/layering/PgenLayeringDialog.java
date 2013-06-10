@@ -63,7 +63,7 @@ public class PgenLayeringDialog extends Dialog {
     protected Layer			currentLayer = null;                 
 	
 	protected Point shellLocation;
-    
+   
     /**
      * Constructor.
      */
@@ -118,7 +118,7 @@ public class PgenLayeringDialog extends Dialog {
         }
         
         shell.addListener( SWT.Close, new shellCloseListener() );
-        
+       
         // Pack and open
         shell.pack();
         shell.open();
@@ -168,8 +168,8 @@ public class PgenLayeringDialog extends Dialog {
      */
     public void setDefaultLocation( Shell parent ) {
 		if ( shellLocation == null) {
-        Point pt = parent.getLocation();
-        shell.setLocation( pt.x,  pt.y );
+	        Point pt = parent.getLocation();
+	        shell.setLocation( pt.x,  pt.y );	   	    
 		} else {
 			shell.setLocation(shellLocation);
 		}
@@ -219,13 +219,13 @@ public class PgenLayeringDialog extends Dialog {
      *  Check the dialog is opened or not
      */
     public void close() {
-        if ( shell != null && !shell.isDisposed() ) {
+		if ( shell != null && !shell.isDisposed() ){
 			Rectangle bounds = shell.getBounds();
 			shellLocation = new Point(bounds.x, bounds.y);
-        	shell.dispose();
-        }
+			shell.dispose();
+		}
     }   
-   
+    
     /*
      * A listener to handle the event when the user clicks on the "X" on the dialog.
      */

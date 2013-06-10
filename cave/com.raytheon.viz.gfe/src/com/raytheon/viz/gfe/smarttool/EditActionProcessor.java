@@ -20,7 +20,6 @@
 package com.raytheon.viz.gfe.smarttool;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -62,6 +61,7 @@ import com.raytheon.viz.gfe.dialogs.TimeRangeWarningDialog;
  * May 3, 2010            njensen     Initial creation
  * Nov 7, 2012  1298       rferrel     Keep EmptyEditAreaWarningDialog blocking.
  *                                     Keep TimeRangeWarningdialog blocking.
+ * Jan 8, 2013  1486       dgilling    Support changes to BaseGfePyController.
  * 
  * </pre>
  * 
@@ -408,9 +408,8 @@ public class EditActionProcessor {
                 @Override
                 public void run() {
                     try {
-                        String[] args = dataMgr.getProcedureInterface()
+                        List<String> argList = dataMgr.getProcedureInterface()
                                 .getMethodArguments(name, "execute");
-                        List<String> argList = Arrays.asList(args);
                         if (!argList.contains("timeRange")
                                 && checkedList.contains("EmptyTimeRange")) {
                             checkedList.remove("EmptyTimeRange");

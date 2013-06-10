@@ -23,6 +23,7 @@ import java.util.Calendar;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -31,11 +32,14 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.annotations.Index;
+
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
@@ -68,18 +72,33 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 20080107            720  jkorman     remove default assignments from attributes.
  * 20080708           1174  jkorman     Added persistenceTime handling.
  * 20090206           1990  bphillip    Removed populateDataStore method
+ * 20130227        DCS 152  jgerth/elau Support for WWLLN and multiple sources
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * 20130408           1293  bkowal      Removed references to hdffileid.
+ * Apr 12, 2013       1857  bgonzale    Added SequenceGenerator annotation.
  * </pre>
  * 
  * @author jkorman
  * @version 1
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "binlightningseq")
 @Table(name = "binlightning", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "binlightning",
+		indexes = {
+				@Index(name = "binlightning_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
 public class BinLightningRecord extends
-        ServerSpecificPersistablePluginDataObject implements IPersistable {
+        PersistablePluginDataObject implements IPersistable {
 
     /** Serializable id * */
     private static final long serialVersionUID = 1L;
@@ -135,6 +154,13 @@ public class BinLightningRecord extends
     @DynamicSerializeElement
     @XmlAttribute
     private Calendar stopTime;
+    
+    // JJG - source of lightning data
+    @Column(length = 5)
+    @DataURI(position = 3)
+    @XmlAttribute
+    @DynamicSerializeElement
+    private String lightSource;
 
     // Used to track
     @Transient
@@ -207,7 +233,24 @@ public class BinLightningRecord extends
      *            A strike report to add.
      */
     public void addStrike(LightningStrikePoint strike) {
-        if (insertIndex < obsTimes.length) {
+		// jjg add
+		if (lightSource == null) {
+			if (strike.getLightSource() == null) {
+				lightSource = (String) "NLDN";
+			} else if (strike.getLightSource().isEmpty()) {
+				lightSource = (String) "UNKN";
+			} else {
+				lightSource = (String) strike.getLightSource();
+			}
+		} else {
+			if (strike.getLightSource() == null) {
+				lightSource = (String) "NLDN";
+			} else if (!lightSource.equals(strike.getLightSource()))
+				lightSource = (String) "UNKN";
+		}
+		// end
+
+    	if (insertIndex < obsTimes.length) {
             long t1 = startTimeMillis;
 
             Calendar c = TimeTools.getBaseCalendar(strike.getYear(),
@@ -380,6 +423,24 @@ public class BinLightningRecord extends
         return strikeCounts;
     }
 
+    /**
+     * JJG - Get the lightning source
+     * 
+     * @return
+     */
+    public String getLightSource() {
+        return lightSource;
+    }
+
+    /**
+     * JJG - Set the lightning source
+     * 
+     * @param lightSource
+     */
+    public void setLightSource(String lightSource) {
+        this.lightSource = lightSource;
+    }
+    
     /**
      * Get the IDecoderGettable reference for this record.
      * 

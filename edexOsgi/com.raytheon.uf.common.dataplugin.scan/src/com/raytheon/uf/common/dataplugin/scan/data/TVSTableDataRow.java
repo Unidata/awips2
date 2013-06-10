@@ -19,10 +19,7 @@
  **/
 package com.raytheon.uf.common.dataplugin.scan.data;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -37,14 +34,14 @@ import com.raytheon.uf.common.time.DataTime;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * April 29, 2009   2037    dhladky     Initial creation
+ * 02/01/13     1569        D. Hladky   removed XML where not needed
  * </pre>
  * 
  * @author dhladky
  * @version 1.0
  * 
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
+
 @DynamicSerialize
 public class TVSTableDataRow extends ScanTableDataRow {
 
@@ -63,23 +60,18 @@ public class TVSTableDataRow extends ScanTableDataRow {
 	
 	/** Storm ID **/
 	@DynamicSerializeElement
-    @XmlElement
 	public String strmID = null;
 	/** DMD Ident **/
 	@DynamicSerializeElement
-    @XmlElement
 	public String DMDIdent = null;
 	/** type of TVS **/
 	@DynamicSerializeElement
-    @XmlElement
 	public String type = TVS_TYPE.NONE.getTVSName();
 	/** average delta velocity **/
 	@DynamicSerializeElement
-    @XmlElement
 	public Double avgDv = 0.0;
 	/** average low level delta velocity **/
 	@DynamicSerializeElement
-    @XmlElement
 	public Double llDV = 0.0;
 	/** maximum delta velocity **/
 	@DynamicSerializeElement
@@ -87,27 +79,21 @@ public class TVSTableDataRow extends ScanTableDataRow {
 	public Double maxDV = 0.0;
 	/** maximum delta velocity height kft **/
 	@DynamicSerializeElement
-    @XmlElement
 	public Double maxDvHt = 0.0;
 	/** base height kft **/
 	@DynamicSerializeElement
-    @XmlElement
 	public Double base = 0.0;
 	/** depth of circulation kft **/
 	@DynamicSerializeElement
-    @XmlElement
 	public Double depth = 0.0;
 	/** top of circulation kft **/
 	@DynamicSerializeElement
-    @XmlElement
 	public Double top = 0.0;
 	/** shear value m/s/km **/
 	@DynamicSerializeElement
-    @XmlElement
 	public Double shear = 0.0;
 	/** height of maximum shear kft **/
 	@DynamicSerializeElement
-    @XmlElement
 	public Double shrHt = 0.0;
 	
 	/**

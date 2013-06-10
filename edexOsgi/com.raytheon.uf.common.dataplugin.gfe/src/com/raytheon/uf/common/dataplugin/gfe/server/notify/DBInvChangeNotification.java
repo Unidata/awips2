@@ -20,7 +20,7 @@
 
 package com.raytheon.uf.common.dataplugin.gfe.server.notify;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 08/17/10     #6742      bphillip    Initial Creation
+ * 05/02/13     #1969      randerso    Removed inventory field, general cleanup
  * 
  * </pre>
  * 
@@ -47,20 +48,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 public class DBInvChangeNotification extends GfeNotification implements
         ISerializableObject {
 
-    /** The current database inventory */
-
-    @DynamicSerializeElement
-    private List<DatabaseID> inventory = new ArrayList<DatabaseID>();
-
     /** The additions to the database inventory */
-
     @DynamicSerializeElement
-    private List<DatabaseID> additions = new ArrayList<DatabaseID>();
+    private List<DatabaseID> additions = Collections.emptyList();
 
     /** The deletions to the database inventory */
-
     @DynamicSerializeElement
-    private List<DatabaseID> deletions = new ArrayList<DatabaseID>();
+    private List<DatabaseID> deletions = Collections.emptyList();
 
     /**
      * Creates a new DBInvChangeNotification
@@ -72,21 +66,24 @@ public class DBInvChangeNotification extends GfeNotification implements
     /**
      * Creates a new DBInvChangeNotification
      * 
-     * @param inventory
-     *            The current database inventory
      * @param additions
-     *            The DatabaseIDs that have been added to the inventory
+     *            The DatabaseIDs that have been added to the inventory. Can be
+     *            null if none.
      * @param deletions
-     *            The DatabaseIDs that have been deleted from the inventory
+     *            The DatabaseIDs that have been deleted from the inventory Can
+     *            be null if none.
      */
-    public DBInvChangeNotification(List<DatabaseID> inventory,
-            List<DatabaseID> additions, List<DatabaseID> deletions,
-            String siteId) {
-        // super(siteId);
-        this.inventory = inventory;
-        this.additions = additions;
-        this.deletions = deletions;
-        this.siteID = siteId;
+    public DBInvChangeNotification(List<DatabaseID> additions,
+            List<DatabaseID> deletions, String siteId) {
+        super(siteId);
+
+        if (additions != null) {
+            this.additions = additions;
+        }
+
+        if (deletions != null) {
+            this.deletions = deletions;
+        }
     }
 
     @Override
@@ -96,8 +93,7 @@ public class DBInvChangeNotification extends GfeNotification implements
         }
         DBInvChangeNotification rhs = (DBInvChangeNotification) obj;
 
-        if (inventory.containsAll(rhs.getInventory())
-                && additions.containsAll(rhs.getAdditions())
+        if (additions.containsAll(rhs.getAdditions())
                 && deletions.containsAll(rhs.getDeletions())
                 && siteID.equals(rhs.getSiteID())) {
             return true;
@@ -109,25 +105,9 @@ public class DBInvChangeNotification extends GfeNotification implements
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
-        str.append("Inventory: ").append(this.inventory).append("\n");
         str.append("Additions: ").append(this.additions).append("\n");
         str.append("Deletions: ").append(this.deletions).append("\n");
         return str.toString();
-    }
-
-    /**
-     * @return the inventory
-     */
-    public List<DatabaseID> getInventory() {
-        return inventory;
-    }
-
-    /**
-     * @param inventory
-     *            the inventory to set
-     */
-    public void setInventory(List<DatabaseID> inventory) {
-        this.inventory = inventory;
     }
 
     /**

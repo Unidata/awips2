@@ -58,6 +58,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Dec 07, 2012 1278       bgonzale   additional param to AreaComp ctor.
  * Dec 18, 2012 1439       mpduff     Redo subset name validation.
  * Dec 10, 2012   1259     bsteffen   Switch Data Delivery from LatLon to referenced envelopes.
+ * Feb 20, 2013   1589     mpduff     Fix to allow saving custom areas.
  * 
  * </pre>
  * 
@@ -251,7 +252,6 @@ public class SpatialSubsetTab extends SubsetTab implements IDataSize {
             return;
         }
 
-
         AreaXML area = getSaveInfo();
 
         SubsetFileManager.getInstance()
@@ -346,12 +346,12 @@ public class SpatialSubsetTab extends SubsetTab implements IDataSize {
      */
     public AreaXML getSaveInfo() {
         ReferencedEnvelope envelope = null;
-        if(useDataSetSize){
+        if (useDataSetSize) {
             envelope = fullEnvelope;
         } else {
             envelope = areaComp.getEnvelope();
         }
-        
+
         AreaXML area = new AreaXML();
 
         if (envelope != null) {
@@ -362,6 +362,8 @@ public class SpatialSubsetTab extends SubsetTab implements IDataSize {
 
         if (areaComp.selectCombo.getEnabled()) {
             area.setRegionName(name);
+        } else {
+            area.setRegionName(getRegionSaveText());
         }
         return area;
     }

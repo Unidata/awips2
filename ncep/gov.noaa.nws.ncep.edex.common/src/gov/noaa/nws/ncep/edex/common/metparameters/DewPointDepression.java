@@ -1,6 +1,7 @@
 package gov.noaa.nws.ncep.edex.common.metparameters;
 
 import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -29,21 +30,23 @@ implements javax.measure.quantity.Temperature , ISerializableObject {
 	private static final long serialVersionUID = -8246047973579792393L;
 
 	public DewPointDepression() throws Exception {
-		 super( new UnitAdapter().marshal(UNIT) );
+		 super( UNIT );
 	}
 	
 	@DeriveMethod
-	public DewPointDepression derive( AirTemperature t, DewPointTemp d) throws InvalidValueException, NullPointerException {
+	public DewPointDepression derive( AirTemperature t, DewPointTemp d) throws Exception {
 		if ( t.hasValidValue() &&  d.hasValidValue() ){
-			Amount dwdpAmount = PRLibrary.prDdep( t, d );
-			if (t.getUnit().equals(SI.KELVIN) && d.getUnit().equals(SI.KELVIN) ) {
-				// Dew point depression is the difference in degrees Celsius between the temperature 
-				// and the dew point, therefore, need to convert the amount to celcius.
-				double dwdp = (Double)dwdpAmount.getValue(); 
-			    dwdp = dwdp + 273.15;
-			    dwdpAmount = new Amount ( dwdp , t.getUnit()); 					
-			}
-			this.setValue(dwdpAmount);
+			String unitStrNeeded = getUnitStr();
+			UnitAdapter ua = new UnitAdapter();
+			Unit<?> unit = ua.unmarshal(unitStrNeeded);
+
+			Amount tempAmount = new Amount(t.getValueAs( unit ), unit );
+			Amount dewPointAmount = new Amount(d.getValueAs( unit ), unit );
+			
+			
+            Amount dwdpFinal = new Amount(tempAmount.doubleValue() - dewPointAmount.doubleValue(),unit);    
+            setValue(dwdpFinal );
+            setUnit(unit);
 		}
 		else
               setValueToMissing();

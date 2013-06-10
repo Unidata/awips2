@@ -1,0 +1,34 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+    <bean id="bandwidthAllocationDao"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.BandwidthAllocationDao">
+        <property name="sessionFactory" ref="metadataSessionFactory" />
+    </bean>
+
+    <bean id="bandwidthSubscriptionDao"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.BandwidthSubscriptionDao">
+        <property name="sessionFactory" ref="metadataSessionFactory" />
+    </bean>
+
+    <bean id="subscriptionRetrievalDao"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.SubscriptionRetrievalDao">
+        <property name="sessionFactory" ref="metadataSessionFactory" />
+    </bean>
+
+    <bean id="bandwidthDataSetUpdateDao"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.BandwidthDataSetUpdateDao">
+        <property name="sessionFactory" ref="metadataSessionFactory" />
+    </bean>
+
+    <bean id="hibernateBandwidthDao"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDao">
+        <property name="bandwidthAllocationDao" ref="bandwidthAllocationDao" />
+        <property name="bandwidthSubscriptionDao" ref="bandwidthSubscriptionDao" />
+        <property name="subscriptionRetrievalDao" ref="subscriptionRetrievalDao" />
+        <property name="bandwidthDataSetUpdateDao" ref="bandwidthDataSetUpdateDao" />
+    </bean>
+
+</beans>

@@ -1,5 +1,5 @@
-! Attributes for the GFSXMOS resource with "maxminpopan" plot model
+! Attributes for the GFSXMOS resource with "maxminpop_an" plot model
 !
-plotModel=maxminpopan
+plotModel=@PlotModels/bufrmosMRF/maxminpop_an.xml
 plotDensity=10
 conditionalFilter=

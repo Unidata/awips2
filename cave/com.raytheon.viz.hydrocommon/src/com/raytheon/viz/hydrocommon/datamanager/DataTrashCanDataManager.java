@@ -20,6 +20,7 @@
 package com.raytheon.viz.hydrocommon.datamanager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.IGetSortType;
@@ -36,6 +37,7 @@ import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
  * ------------ ---------- ----------- --------------------------
  * 03Sept2008   #1509      dhladky     Initial Creation
  * 30Oct2008               askripsky   Connect to DB and refactor.
+ * 06Feb2013    #1578      rferrel     Code clean up for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -45,7 +47,7 @@ import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
 
 public class DataTrashCanDataManager extends RejectedDataManager {
 
-    private static DataTrashCanDataManager manager = null;
+    private static final DataTrashCanDataManager manager = new DataTrashCanDataManager();
 
     private static final String SELECT_PE_FILTER_QUERY = "SELECT distinct shef.pe, shef.name "
             + "FROM shefpe shef, ingestfilter ing "
@@ -64,12 +66,8 @@ public class DataTrashCanDataManager extends RejectedDataManager {
      * 
      * @return manager
      */
-    public static synchronized DataTrashCanDataManager getInstance() {
-        if (manager == null) {
-            manager = new DataTrashCanDataManager();
-        }
-
-        return (DataTrashCanDataManager) manager;
+    public static DataTrashCanDataManager getInstance() {
+        return manager;
     }
 
     /**
@@ -77,9 +75,9 @@ public class DataTrashCanDataManager extends RejectedDataManager {
      * 
      * @return String[]
      */
-    public ArrayList<DataTrashCanData> getDataTrashCanData(IGetSortType sortType)
+    public List<DataTrashCanData> getDataTrashCanData(IGetSortType sortType)
             throws VizException {
-        ArrayList<DataTrashCanData> rval = new ArrayList<DataTrashCanData>();
+        List<DataTrashCanData> rval = new ArrayList<DataTrashCanData>();
 
         for (Object[] currData : RejectedDataManager.getInstance()
                 .getRejectedDataRawData()) {
@@ -89,10 +87,10 @@ public class DataTrashCanDataManager extends RejectedDataManager {
         return rval;
     }
 
-    public ArrayList<String> getPEList() throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+    public List<String> getPEList() throws VizException {
+        List<String> rval = new ArrayList<String>();
 
-        ArrayList<Object[]> data = runQuery(SELECT_PE_FILTER_QUERY);
+        List<Object[]> data = runQuery(SELECT_PE_FILTER_QUERY);
 
         for (Object[] currData : data) {
             rval.add((String) currData[0] + " " + (String) currData[1]);
@@ -107,9 +105,9 @@ public class DataTrashCanDataManager extends RejectedDataManager {
      * @param recordsToDelete
      * @throws VizException
      */
-    public void deleteTrashRecords(ArrayList<DataTrashCanData> recordsToDelete)
+    public void deleteTrashRecords(List<DataTrashCanData> recordsToDelete)
             throws VizException {
-        ArrayList<RejectedData> rejected = new ArrayList<RejectedData>();
+        List<RejectedData> rejected = new ArrayList<RejectedData>();
 
         for (RejectedData currData : recordsToDelete) {
             rejected.add((RejectedData) currData);
@@ -125,7 +123,7 @@ public class DataTrashCanDataManager extends RejectedDataManager {
      * @param currentlySelectedRange
      * @throws VizException
      */
-    public void repostData(ArrayList<DataTrashCanData> dataToRepost)
+    public void repostData(List<DataTrashCanData> dataToRepost)
             throws VizException {
 
         for (DataTrashCanData currData : dataToRepost) {

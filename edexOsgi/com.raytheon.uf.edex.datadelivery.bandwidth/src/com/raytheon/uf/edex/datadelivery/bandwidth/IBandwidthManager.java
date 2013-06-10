@@ -126,7 +126,7 @@ public interface IBandwidthManager {
     /**
      * The callback method for BandwidthEventBus to use to notify
      * BandwidthManager that retrievalManager has completed the retrievals for a
-     * Subscription. The updated SubscriptionDao Object is placed on the
+     * Subscription. The updated BandwidthSubscription Object is placed on the
      * BandwidthEventBus.
      * 
      * @param subscription

@@ -109,7 +109,7 @@ public class FFMPDao extends PluginDao {
                                 record.getSiteKey(), domain.getCwa(), key);
 
                         int size = 0;
-                        if (key.equals("ALL")) {
+                        if (key.equals(FFMPRecord.ALL)) {
                             for (Entry<String, FFMPVirtualGageBasinMetaData> entry : vmap
                                     .entrySet()) {
                                 if (entry.getValue() != null) {
@@ -130,7 +130,7 @@ public class FFMPDao extends PluginDao {
                         float[] dataRec = new float[size];
                         int i = 0;
 
-                        if (key.equals("ALL")) {
+                        if (key.equals(FFMPRecord.ALL)) {
                             for (Entry<String, FFMPVirtualGageBasinMetaData> entry : vmap
                                     .entrySet()) {
                                 if (entry.getValue() != null) {

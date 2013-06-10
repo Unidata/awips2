@@ -32,7 +32,6 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDbInit;
-import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthInitializer;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
@@ -48,6 +47,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 24, 2012 1286       djohnson     Initial creation
+ * Feb 20, 2013 1543       djohnson     Add IEdexBandwidthManagerCreator.
  * 
  * </pre>
  * 
@@ -56,25 +56,63 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  */
 class EdexBandwidthContextFactory implements BandwidthContextFactory {
 
+    /**
+     * Pluggable strategy for how to create the {@link BandwidthManager}.
+     * Intentionally package-private.
+     */
+    static interface IEdexBandwidthManagerCreator {
+
+        /**
+         * Get the bandwidth manaager.
+         * 
+         * @param dbInit
+         * @param bandwidthDao
+         * @param retrievalManager
+         * @param bandwidthDaoUtil
+         * @return the bandwidth manager
+         */
+        IBandwidthManager getBandwidthManager(IBandwidthDbInit dbInit,
+                IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
+                BandwidthDaoUtil bandwidthDaoUtil);
+    }
+
     private static BandwidthManager instance;
+
+    private final IBandwidthDao bandwidthDao;
+
+    private final BandwidthInitializer bandwidthInitializer;
+
+    private final IEdexBandwidthManagerCreator bandwidthManagerCreator;
 
     /**
      * Intentionally package-private constructor, as it is created from Spring
      * which is able to reflectively instantiate.
      * 
-     * @param instance
-     *            the {@link BandwidthManager} instance
+     * @param bandwidthDao
+     * @param findSubscriptionStrategy
      */
-    EdexBandwidthContextFactory() {
+    EdexBandwidthContextFactory(IBandwidthDao bandwidthDao,
+            BandwidthInitializer bandwidthInitializer,
+            IEdexBandwidthManagerCreator bandwidthManagerCreator) {
+        this.bandwidthDao = bandwidthDao;
+        this.bandwidthInitializer = bandwidthInitializer;
+        this.bandwidthManagerCreator = bandwidthManagerCreator;
     }
 
     /**
-     * Intentionally package-private constructor, as it is created from Spring
-     * which is able to reflectively instantiate.
+     * Intentionally private constructor, as it is created from Spring which is
+     * able to reflectively instantiate. It is only used to set the
+     * {@link BandwidthManager} instance.
+     * 
+     * @param instance
+     *            the {@link BandwidthManager} instance
      */
     @SuppressWarnings("unused")
     private EdexBandwidthContextFactory(BandwidthManager instance) {
         EdexBandwidthContextFactory.instance = instance;
+        this.bandwidthDao = null;
+        this.bandwidthInitializer = null;
+        this.bandwidthManagerCreator = null;
     }
 
     /**
@@ -108,7 +146,8 @@ class EdexBandwidthContextFactory implements BandwidthContextFactory {
      */
     @Override
     public IBandwidthDbInit getBandwidthDbInit() {
-        return new HibernateBandwidthDbInit(HibernateBandwidthDao.getInstance());
+        return new HibernateBandwidthDbInit(
+                HibernateBandwidthDao.class.cast(getBandwidthDao()));
     }
 
     /**
@@ -116,7 +155,7 @@ class EdexBandwidthContextFactory implements BandwidthContextFactory {
      */
     @Override
     public IBandwidthDao getBandwidthDao() {
-        return HibernateBandwidthDao.getInstance();
+        return bandwidthDao;
     }
 
     /**
@@ -124,7 +163,7 @@ class EdexBandwidthContextFactory implements BandwidthContextFactory {
      */
     @Override
     public BandwidthInitializer getBandwidthInitializer() {
-        return new HibernateBandwidthInitializer();
+        return bandwidthInitializer;
     }
 
     /**
@@ -142,7 +181,7 @@ class EdexBandwidthContextFactory implements BandwidthContextFactory {
     public IBandwidthManager getBandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
             BandwidthDaoUtil bandwidthDaoUtil) {
-        return new EdexBandwidthManager(dbInit, bandwidthDao, retrievalManager,
-                bandwidthDaoUtil);
+        return bandwidthManagerCreator.getBandwidthManager(dbInit,
+                bandwidthDao, retrievalManager, bandwidthDaoUtil);
     }
 }

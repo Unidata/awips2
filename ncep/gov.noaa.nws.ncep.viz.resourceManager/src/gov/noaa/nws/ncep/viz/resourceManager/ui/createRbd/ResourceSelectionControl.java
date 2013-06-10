@@ -1,15 +1,20 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd;
 
 import static java.lang.System.out;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.common.preferences.NcepGeneralPreferencesPage;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.gempak.util.GempakGrid;
+import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData.TimeMatchMethod;
+import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData.TimelineGenMethod;
 import gov.noaa.nws.ncep.viz.resources.manager.AttributeSet;
+import gov.noaa.nws.ncep.viz.resources.manager.ResourceCategory;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
+import org.eclipse.swt.graphics.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -76,6 +81,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 08/26/2012     #          Greg Hull   allow for disabling resources
  * 08/29/2012     #860       Greg Hull   show latest time with attr sets
  * 12/17/2012     #957       Greg Hull   change content of attrSetListViewer from String to to AttributeSet 
+ * 02/22/2013     #972       G. Hull     Only show resources for given NcDisplayType
+ * 04/11/2013     #864       G. Hull     rm special case for taf and use USE_FCST_FRAME_INTERVAL_FROM_REF_TIME
+ * 04/15/2013     #864       G. Hull     attach LViewers to positions and save previous width
  *
  * </pre>
  * 
@@ -91,18 +99,18 @@ public class ResourceSelectionControl extends Composite {
 
 	private String seldFilterStr = "";	
 	
-	private static String prevSeldCat = "";
+	private static ResourceCategory prevSeldCat = ResourceCategory.NullCategory;
 
 	// a map to store the previous selections for each category.
-	private static HashMap<String,ResourceName> prevCatSeldRscNames;
+	private static HashMap<ResourceCategory,ResourceName> prevCatSeldRscNames;
 	
 	private Boolean isPgenMode = false;
-
+	
 	// this list must stay in sync with the cycleTimeCombo.
 	private ArrayList<DataTime> cycleTimes = new ArrayList<DataTime>();
 		
     private Composite sel_rsc_comp = null;
-
+    
     private Text   seldRscNameTxt = null;
     private Label  availDataTimeLbl = null;
     private Label  cycleTimeLbl = null;
@@ -128,6 +136,7 @@ public class ResourceSelectionControl extends Composite {
     private ListViewer rscAttrSetLViewer = null;
     
 	private final static int rscListViewerHeight = 220;
+	private static Rectangle prevShellBounds = new Rectangle( 0,0, 800, 460 );
 	
 	private Boolean showLatestTimes = false;
 	private Boolean onlyShowResourcesWithData = false;
@@ -140,16 +149,21 @@ public class ResourceSelectionControl extends Composite {
     
     private Set<IResourceSelectedListener> rscSelListeners = new HashSet<IResourceSelectedListener>();
 
+    private NcDisplayType seldDisplayType;
+    
     public ResourceSelectionControl( Composite parent, 
     		Boolean replaceVisible,
     		Boolean replaceEnabled,
     		ResourceName initRscName, 
-    		Boolean multiPane )   throws VizException {
+    		Boolean multiPane,
+    		NcDisplayType dispType )   throws VizException {
         super(parent, SWT.SHADOW_NONE );
+        
+        seldDisplayType = dispType;
         
         showLatestTimes = NmapCommon.getNcepPreferenceStore().getBoolean( NcepGeneralPreferencesPage.ShowLatestResourceTimes );
         onlyShowResourcesWithData = false; //NmapCommon.getNcepPreferenceStore().getBoolean( NcepGeneralPreferencesPage.OnlyShowResourcesWithData );
-
+        
         rscDefnsMngr = ResourceDefnsMngr.getInstance();
         
         replaceBtnVisible =replaceVisible;
@@ -163,7 +177,7 @@ public class ResourceSelectionControl extends Composite {
         }
         
         if( prevCatSeldRscNames == null ) {
-            prevCatSeldRscNames = new HashMap<String,ResourceName>();        	        
+            prevCatSeldRscNames = new HashMap<ResourceCategory,ResourceName>();        	        
         }
         
     	sel_rsc_comp = this;
@@ -173,17 +187,26 @@ public class ResourceSelectionControl extends Composite {
     	gd.grabExcessVerticalSpace = true;
     	gd.horizontalAlignment = SWT.FILL;
     	gd.verticalAlignment = SWT.FILL;
+    	gd.widthHint = prevShellBounds.width;
+    	gd.heightHint = prevShellBounds.height;
     	sel_rsc_comp.setLayoutData( gd );
     	
     	sel_rsc_comp.setLayout( new FormLayout() );
-                    	   		                
+                    	   		   
+    	sel_rsc_comp.addListener(SWT.Resize, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+        		prevShellBounds = sel_rsc_comp.getBounds();	
+            }
+        });
+
         createSelectResourceGroup( multiPane );
 
         // set up the content providers for the ListViewers
         setContentProviders();
         addSelectionListeners();
 
-        initWidgets();        
+        initWidgets();    
     }
 
 
@@ -191,16 +214,18 @@ public class ResourceSelectionControl extends Composite {
     	return NmapCommon.createFileContentProvider( new String[]{".xml"} );
     }
 
-
     // create all the widgets in the Resource Selection (top) section of the sashForm.  
     // 
     private void createSelectResourceGroup( Boolean multiPane ) {
     	
     	rscCatLViewer = new ListViewer( sel_rsc_comp, 
     			             SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
-    	FormData fd = new FormData(80, rscListViewerHeight);
+    	FormData fd = new FormData();//100, rscListViewerHeight);
+    	fd.height = rscListViewerHeight;
     	fd.top = new FormAttachment( 0, 75 );
     	fd.left = new FormAttachment( 0, 10 );
+//    	fd.right = new FormAttachment( 15, 0 );
+    	fd.right = new FormAttachment( 0, 110);
     	
     	// This allows a resize to change the size of the lists.
     	fd.bottom = new FormAttachment( 100, -125 );
@@ -217,9 +242,12 @@ public class ResourceSelectionControl extends Composite {
     	// first create the lists and then attach the label to the top of them
         rscTypeLViewer = new ListViewer( sel_rsc_comp, 
         		                SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
-    	fd = new FormData(150, rscListViewerHeight);
+    	fd = new FormData();//150, rscListViewerHeight);
+    	fd.height = rscListViewerHeight;
     	fd.top = new FormAttachment( rscCatLViewer.getList(), 0, SWT.TOP );
-    	fd.left = new FormAttachment( rscCatLViewer.getList(), 10, SWT.RIGHT );
+    	fd.left = new FormAttachment( rscCatLViewer.getList(), 8, SWT.RIGHT );
+    	fd.right = new FormAttachment( 37, 0 );
+
     	fd.bottom = new FormAttachment( rscCatLViewer.getList(), 0, SWT.BOTTOM );
     	rscTypeLViewer.getList().setLayoutData( fd );
 
@@ -249,9 +277,12 @@ public class ResourceSelectionControl extends Composite {
     	// first create the lists and then attach the label to the top of them
         rscGroupLViewer = new ListViewer( sel_rsc_comp, 
         		                SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
-    	fd = new FormData(150,rscListViewerHeight);
+    	fd = new FormData();//150, rscListViewerHeight);
+    	fd.height = rscListViewerHeight;
     	fd.top = new FormAttachment( rscTypeLViewer.getList(), 0, SWT.TOP );
-    	fd.left = new FormAttachment( rscTypeLViewer.getList(), 10, SWT.RIGHT );
+    	fd.left = new FormAttachment( rscTypeLViewer.getList(), 8, SWT.RIGHT );
+    	fd.right = new FormAttachment( 62, 0 );
+
     	fd.bottom = new FormAttachment( rscTypeLViewer.getList(), 0, SWT.BOTTOM );
     	rscGroupLViewer.getList().setLayoutData( fd );
 
@@ -264,9 +295,10 @@ public class ResourceSelectionControl extends Composite {
        	
         rscAttrSetLViewer = new ListViewer( sel_rsc_comp, 
                 SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
-        fd = new FormData(260,rscListViewerHeight);
+    	fd = new FormData();//260, rscListViewerHeight);
+    	fd.height = rscListViewerHeight;
         fd.top = new FormAttachment( rscGroupLViewer.getList(), 0, SWT.TOP );
-        fd.left = new FormAttachment( rscGroupLViewer.getList(), 10, SWT.RIGHT );
+        fd.left = new FormAttachment( rscGroupLViewer.getList(), 8, SWT.RIGHT );
         fd.right = new FormAttachment( 100, -10 );
         fd.bottom = new FormAttachment( rscGroupLViewer.getList(), 0, SWT.BOTTOM );
         rscAttrSetLViewer.getList().setLayoutData( fd );
@@ -366,7 +398,8 @@ public class ResourceSelectionControl extends Composite {
 			@Override
 			public Object[] getElements(Object inputElement) {
 				
-				return rscDefnsMngr.getResourceCategories( false ); // don't show disabled dfns
+				return rscDefnsMngr.getResourceCategories( false, 
+						new NcDisplayType[]{ seldDisplayType } ); // don't show disabled dfns
 			}
 
 			@Override
@@ -382,11 +415,12 @@ public class ResourceSelectionControl extends Composite {
 			@Override
 			public Object[] getElements(Object inputElement) {
 				//String rscCat = (String)inputElement;				
-				if( !seldResourceName.getRscCategory().isEmpty() ) {
+				if( seldResourceName.getRscCategory() != ResourceCategory.NullCategory ) {
 					try {
 						List<ResourceDefinition> rscTypes = 
 							rscDefnsMngr.getResourceDefnsForCategory( 
 								seldResourceName.getRscCategory(), seldFilterStr, 
+								seldDisplayType,
 								true,    // include generated types 
 								false ); // only include enabled types
 						
@@ -394,7 +428,7 @@ public class ResourceSelectionControl extends Composite {
 					}
 					catch ( VizException e ) {
 			        	MessageDialog errDlg = new MessageDialog( 
-			        			NmapUiUtils.getCaveShell(), 
+			        			NcDisplayMngr.getCaveShell(), 
 			        			"Error", null, 
 			        			"Error getting Resource Types\n"+ e.getMessage(),
 			        			MessageDialog.ERROR, new String[]{"OK"}, 0);
@@ -466,7 +500,7 @@ public class ResourceSelectionControl extends Composite {
 						}
 						catch ( VizException e ) {
 				        	MessageDialog errDlg = new MessageDialog( 
-				        			NmapUiUtils.getCaveShell(), 
+				        			NcDisplayMngr.getCaveShell(), 
 				        			"Error", null, 
 				        			"Error getting sub-types\n"+ e.getMessage(),
 				        			MessageDialog.ERROR, new String[]{"OK"}, 0);
@@ -511,7 +545,7 @@ public class ResourceSelectionControl extends Composite {
 					for( AttributeSet as : attrSets ) {
 						if( as != null && as.getName().length() > maxLengthOfSelectableAttrSets ) {
 							maxLengthOfSelectableAttrSets = as.getName().length();
-				}
+						}
 					}
 
 					return attrSets.toArray( new AttributeSet[0] );
@@ -560,7 +594,7 @@ public class ResourceSelectionControl extends Composite {
 	    		
 	    		ResourceDefinition rscDefn = rscDefnsMngr.getResourceDefinition( 
 	    				rscName.getRscType() );
-
+	    		
 	    		if( rscDefn == null ) {
 	    			return "";
 	    		}
@@ -573,8 +607,8 @@ public class ResourceSelectionControl extends Composite {
 	    		
 				while( attrSetName.length() < maxLengthOfSelectableAttrSets ) {
 					attrSetName = attrSetName + " ";
-	    	}
-    
+				}
+				
 				// If we aren't using the inventory then the query is too slow for the gui.
 				// TODO : If the inventory doesn't pan out then we could either 
 				//   implement this in another thread and accept the delay or add a
@@ -638,14 +672,14 @@ public class ResourceSelectionControl extends Composite {
     	rscCatLViewer.addSelectionChangedListener( new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
             	StructuredSelection seld_elem = (StructuredSelection) event.getSelection();            	
-            	String seldCat = (String)seld_elem.getFirstElement();            	
+            	ResourceCategory seldCat = (ResourceCategory)seld_elem.getFirstElement();            	
             	
             	// get the previously selected resource for this category
 
         		seldResourceName = new ResourceName( ); 
         		seldResourceName.setRscCategory( seldCat );
             	
-        		prevSeldCat = seldCat;
+        		prevSeldCat = seldResourceName.getRscCategory();
         		
         		// if a resource was previously selected for this category, select it
         		// 
@@ -772,12 +806,12 @@ public class ResourceSelectionControl extends Composite {
 		addToAllPanesBtn.setSelection( false );
 		
 		// if 
-		if( prevSeldCat.isEmpty() ) {
+		if( prevSeldCat == ResourceCategory.NullCategory ) {
    			// if no cat is selected, select the first
 			if( rscCatLViewer.getList().getItemCount() > 0 ) { 
 				rscCatLViewer.getList().select(0);
 				StructuredSelection seld_elem = (StructuredSelection)rscCatLViewer.getSelection();
-				seldResourceName.setRscCategory( (String)seld_elem.getFirstElement() );
+				seldResourceName.setRscCategory( (ResourceCategory)seld_elem.getFirstElement() );
 			}
 		}
 		else { // if a resource was previously selected for this category, select it
@@ -789,12 +823,13 @@ public class ResourceSelectionControl extends Composite {
     		}
 		}
   			   			
-   		if( !seldResourceName.getRscCategory().isEmpty() ) {
+   		if( seldResourceName.getRscCategory() != ResourceCategory.NullCategory ) {
    			for( int itmIndx=0 ; 
    			itmIndx < rscCatLViewer.getList().getItemCount() ; itmIndx++ )  {
 
    				if( rscCatLViewer.getList().getItem(itmIndx).equals( 
-   						seldResourceName.getRscCategory() ) ) {
+   					seldResourceName.getRscCategory() ) ) {
+   					
    					rscCatLViewer.getList().select( itmIndx );
    					break;
    				}
@@ -843,10 +878,10 @@ public class ResourceSelectionControl extends Composite {
 	// get a list of all the possible filter labels from all of the resources 
 	// in this category
 	private void updateResourceFilters(  ) {
-		String seldCat = seldResourceName.getRscCategory();
+		ResourceCategory seldCat = seldResourceName.getRscCategory();
 		
 		// TODO : add code to save the prev seld filter for each cat
-		List<String> filtLabels = rscDefnsMngr.getFilterLabelsForResourceCategory( seldCat );
+		List<String> filtLabels = rscDefnsMngr.getAllFilterLabelsForCategory( seldCat, seldDisplayType );
 		filtLabels.add(0, "All");
 		filterCombo.setItems( filtLabels.toArray( new String[0] ) );
    		filterCombo.select( 0 );
@@ -1009,7 +1044,7 @@ public class ResourceSelectionControl extends Composite {
 		}
 		
 		// 
-		if( enableSelections ) { 
+		if( enableSelections ) {
 //			if( onlyShowResourcesWithData ) {
 				try {
 // this call will query just for the inventory params needed to instantiate the resource 
@@ -1029,15 +1064,15 @@ public class ResourceSelectionControl extends Composite {
 						// TODO : If the inventory doesn't pan out then we could either 
 						//   implement this in another thread and accept the delay or add a
 						// 'Check Availability' button.
-							DataTime latestTime = rscDefn.getLatestDataTime( seldResourceName );
+						DataTime latestTime = rscDefn.getLatestDataTime( seldResourceName );
 
 						if( latestTime.isNull() ) {
-								enableSelections = false;
-							}
-							else {
-								availMsg = "Latest Data: "+ NmapCommon.getTimeStringFromDataTime( latestTime, "/" );
-							}
+							enableSelections = false;
 						}
+						else {
+							availMsg = "Latest Data: "+ NmapCommon.getTimeStringFromDataTime( latestTime, "/" );
+						}
+					}
 				}
 				catch ( VizException vizex ) {
 					out.println( vizex.getMessage() );
@@ -1221,8 +1256,13 @@ public class ResourceSelectionControl extends Composite {
             
         	List<DataTime> availableTimes = null;
 
-        	// for nctaf, only add cycle times at 00Z
-        	if( rscDefn.getPluginName().equals( "nctaf" ) ) {
+        	// If the timeline is generated using frame intervals from a given
+        	// reference/cycle time, then get a list of selectable ref times.
+        	// Ideally this would also specify a way to generate the ref times but its really
+        	// just for nctaf right now so just do it like taf needs.
+        	if( rscDefn.getTimelineGenMethod() == TimelineGenMethod.USE_FCST_FRAME_INTERVAL_FROM_REF_TIME ) { 
+//        			rscDefn.getPluginName().equals( "nctaf" ) ) {
+        	//	Integer frameIntvl = rscDefn.getFrameSpan() * 
         		availableTimes = rscDefn.getNormalizedDataTimes( seldResourceName, 24*60 );
         	}
         	else {
@@ -1267,7 +1307,7 @@ public class ResourceSelectionControl extends Composite {
 
         } catch (VizException ve ) {
         	MessageDialog errDlg = new MessageDialog( 
-        			NmapUiUtils.getCaveShell(), 
+        			NcDisplayMngr.getCaveShell(), 
         			"Error", null, 
         			"Error Requesting Cycle Times:"+ve.getMessage(),
         			MessageDialog.ERROR, new String[]{"OK"}, 0);
@@ -1293,5 +1333,5 @@ public class ResourceSelectionControl extends Composite {
     
     public ResourceName getPrevSelectedResource() {
     	return seldResourceName;
-    }
+    }    
 }

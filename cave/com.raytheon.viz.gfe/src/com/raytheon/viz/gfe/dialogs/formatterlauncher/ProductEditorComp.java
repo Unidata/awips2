@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- *
+ * 
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- *
+ * 
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- *
+ * 
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -59,6 +59,8 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -99,6 +101,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.notification.INotificationObserver;
@@ -120,7 +123,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Composite containing the product editor controls.
- *
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -143,13 +146,17 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     Changes for non-blocking FindReplaceDlg.
  *                                     Changes for non-blocking StoreTransmitDlg.
  *                                     Changes for non-blocking WrapLengthDialog.
+ * 08 Feb 2013 12851   	   jzeng       Add menuToAddTo in create*Menu
+ *                                     Create createEditorPopupMenu() 
+ *                                     Add mouselistener in createTextControl() for StyledText	                                     
  * 28 Feb 2013 15889       ryu         Removed detachAttributionPhrase and getVTECActionCodes
- *
+ * 02/12/2013        #1597 randerso    Code cleanup. Fixed possible widget disposed errors on shut down.
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
- *
+ * 
  */
 public class ProductEditorComp extends Composite implements
         INotificationObserver {
@@ -167,6 +174,11 @@ public class ProductEditorComp extends Composite implements
      * Toolbar used to mimic a menu bar.
      */
     private ToolBar toolbar;
+
+    /**
+     * Pop-up Menu
+     */
+    private Menu popupMenu;
 
     /**
      * File menu.
@@ -351,7 +363,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Enumeration of product types.
-     *
+     * 
      * @author lvenable
      */
     public enum productTypeEnum {
@@ -396,7 +408,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Constructor.
-     *
+     * 
      * @param parent
      *            Parent composite.
      */
@@ -505,6 +517,7 @@ public class ProductEditorComp extends Composite implements
         transDisabledImg = getImageRegistry().get("transmitDisabled");
         transLiveImg = getImageRegistry().get("transmitLive");
         checkImg = getImageRegistry().get("checkmark");
+        menuItems = new ArrayList<MenuItem>();
 
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         GridLayout gl = new GridLayout(1, false);
@@ -567,10 +580,14 @@ public class ProductEditorComp extends Composite implements
     private void createToolbar() {
         toolbar = new ToolBar(this, SWT.NONE);
 
-        createFileMenu();
-        createEditMenu();
-        createOptionsMenu();
-        createCallToActionsMenu();
+        fileMenu = new Menu(parent.getShell(), SWT.POP_UP);
+        createFileMenu(fileMenu);
+        editMenu = new Menu(parent.getShell(), SWT.POP_UP);
+        createEditMenu(editMenu);
+        optionsMenu = new Menu(parent.getShell(), SWT.POP_UP);
+        createOptionsMenu(optionsMenu);
+        callToActionsMenu = new Menu(parent.getShell(), SWT.POP_UP);
+        createCallToActionsMenu(callToActionsMenu);
 
         fileTI = new ToolItem(toolbar, SWT.DROP_DOWN);
         fileTI.setText("File");
@@ -628,12 +645,9 @@ public class ProductEditorComp extends Composite implements
     /**
      * Create the file menu.
      */
-    private void createFileMenu() {
-        fileMenu = new Menu(parent.getShell(), SWT.POP_UP);
+    private void createFileMenu(Menu menuToAddTo) {
 
-        menuItems = new ArrayList<MenuItem>();
-
-        MenuItem saveFileMI = new MenuItem(fileMenu, SWT.PUSH);
+        MenuItem saveFileMI = new MenuItem(menuToAddTo, SWT.PUSH);
         saveFileMI.setText("Save File...");
         saveFileMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -642,7 +656,7 @@ public class ProductEditorComp extends Composite implements
             }
         });
 
-        MenuItem storeMI = new MenuItem(fileMenu, SWT.PUSH);
+        MenuItem storeMI = new MenuItem(menuToAddTo, SWT.PUSH);
         storeMI.setText("Store...");
         storeMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -654,7 +668,7 @@ public class ProductEditorComp extends Composite implements
 
         // we can't color the background of the menu item so
         // we use an image like the tab folder.
-        transmitMI = new MenuItem(fileMenu, SWT.PUSH);
+        transmitMI = new MenuItem(menuToAddTo, SWT.PUSH);
         transmitMI.setText("Transmit...");
         transmitMI.setImage(transLiveImg);
         transmitMI.addSelectionListener(new SelectionAdapter() {
@@ -666,9 +680,9 @@ public class ProductEditorComp extends Composite implements
         menuItems.add(transmitMI);
 
         // Menu Separator
-        new MenuItem(fileMenu, SWT.SEPARATOR);
+        new MenuItem(menuToAddTo, SWT.SEPARATOR);
 
-        MenuItem printMI = new MenuItem(fileMenu, SWT.PUSH);
+        MenuItem printMI = new MenuItem(menuToAddTo, SWT.PUSH);
         printMI.setText("Print");
         printMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -699,10 +713,10 @@ public class ProductEditorComp extends Composite implements
         });
 
         // Menu Separator
-        new MenuItem(fileMenu, SWT.SEPARATOR);
+        new MenuItem(menuToAddTo, SWT.SEPARATOR);
 
         if (editorCorrectionMode) {
-            MenuItem loadDraftMI = new MenuItem(fileMenu, SWT.PUSH);
+            MenuItem loadDraftMI = new MenuItem(menuToAddTo, SWT.PUSH);
             loadDraftMI.setText("Open File...");
             loadDraftMI.addSelectionListener(new SelectionAdapter() {
                 @Override
@@ -711,7 +725,7 @@ public class ProductEditorComp extends Composite implements
                 }
             });
 
-            MenuItem saveDraftMI = new MenuItem(fileMenu, SWT.PUSH);
+            MenuItem saveDraftMI = new MenuItem(menuToAddTo, SWT.PUSH);
             saveDraftMI.setText("Load Product / Make Correction...");
             saveDraftMI.addSelectionListener(new SelectionAdapter() {
                 @Override
@@ -720,7 +734,7 @@ public class ProductEditorComp extends Composite implements
                 }
             });
         } else {
-            MenuItem loadDraftMI = new MenuItem(fileMenu, SWT.PUSH);
+            MenuItem loadDraftMI = new MenuItem(menuToAddTo, SWT.PUSH);
             loadDraftMI.setText("Load Draft");
             loadDraftMI.addSelectionListener(new SelectionAdapter() {
                 @Override
@@ -730,7 +744,7 @@ public class ProductEditorComp extends Composite implements
             });
             menuItems.add(loadDraftMI);
 
-            MenuItem saveDraftMI = new MenuItem(fileMenu, SWT.PUSH);
+            MenuItem saveDraftMI = new MenuItem(menuToAddTo, SWT.PUSH);
             saveDraftMI.setText("Save Draft");
             saveDraftMI.addSelectionListener(new SelectionAdapter() {
                 @Override
@@ -745,21 +759,20 @@ public class ProductEditorComp extends Composite implements
     /**
      * Create the edit menu.
      */
-    private void createEditMenu() {
-        editMenu = new Menu(parent.getShell(), SWT.POP_UP);
+    private void createEditMenu(Menu menuToAddTo) {
 
-        MenuItem undoMI = new MenuItem(editMenu, SWT.PUSH);
+        MenuItem undoMI = new MenuItem(menuToAddTo, SWT.PUSH);
         undoMI.setText("Undo");
         undoMI.setEnabled(false);
 
-        MenuItem redoMI = new MenuItem(editMenu, SWT.PUSH);
+        MenuItem redoMI = new MenuItem(menuToAddTo, SWT.PUSH);
         redoMI.setText("Redo");
         redoMI.setEnabled(false);
 
         // Menu Separator
-        new MenuItem(editMenu, SWT.SEPARATOR);
+        new MenuItem(menuToAddTo, SWT.SEPARATOR);
 
-        MenuItem cutMI = new MenuItem(editMenu, SWT.PUSH);
+        MenuItem cutMI = new MenuItem(menuToAddTo, SWT.PUSH);
         cutMI.setText("Cut");
         cutMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -768,7 +781,7 @@ public class ProductEditorComp extends Composite implements
             }
         });
 
-        MenuItem copyMI = new MenuItem(editMenu, SWT.PUSH);
+        MenuItem copyMI = new MenuItem(menuToAddTo, SWT.PUSH);
         copyMI.setText("Copy");
         copyMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -777,7 +790,7 @@ public class ProductEditorComp extends Composite implements
             }
         });
 
-        MenuItem pasteMI = new MenuItem(editMenu, SWT.PUSH);
+        MenuItem pasteMI = new MenuItem(menuToAddTo, SWT.PUSH);
         pasteMI.setText("Paste");
         pasteMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -787,9 +800,9 @@ public class ProductEditorComp extends Composite implements
         });
 
         // Menu Separator
-        new MenuItem(editMenu, SWT.SEPARATOR);
+        new MenuItem(menuToAddTo, SWT.SEPARATOR);
 
-        MenuItem findMI = new MenuItem(editMenu, SWT.PUSH);
+        MenuItem findMI = new MenuItem(menuToAddTo, SWT.PUSH);
         findMI.setText("Find...");
         findMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -798,7 +811,7 @@ public class ProductEditorComp extends Composite implements
             }
         });
 
-        MenuItem replaceMI = new MenuItem(editMenu, SWT.PUSH);
+        MenuItem replaceMI = new MenuItem(menuToAddTo, SWT.PUSH);
         replaceMI.setText("Replace...");
         replaceMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -807,7 +820,7 @@ public class ProductEditorComp extends Composite implements
             }
         });
 
-        MenuItem spellCheckMI = new MenuItem(editMenu, SWT.PUSH);
+        MenuItem spellCheckMI = new MenuItem(menuToAddTo, SWT.PUSH);
         spellCheckMI.setText("Spell Check...");
         spellCheckMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -821,9 +834,9 @@ public class ProductEditorComp extends Composite implements
         });
 
         // Menu Separator
-        new MenuItem(editMenu, SWT.SEPARATOR);
+        new MenuItem(menuToAddTo, SWT.SEPARATOR);
 
-        MenuItem wrapSelectedMI = new MenuItem(editMenu, SWT.PUSH);
+        MenuItem wrapSelectedMI = new MenuItem(menuToAddTo, SWT.PUSH);
         wrapSelectedMI.setText("Wrap Selected");
         wrapSelectedMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -836,10 +849,8 @@ public class ProductEditorComp extends Composite implements
     /**
      * Create the options menu.
      */
-    private void createOptionsMenu() {
-        optionsMenu = new Menu(parent.getShell(), SWT.POP_UP);
-
-        autoWrapMI = new MenuItem(optionsMenu, SWT.CHECK);
+    private void createOptionsMenu(Menu menuToAddTo) {
+        autoWrapMI = new MenuItem(menuToAddTo, SWT.CHECK);
         autoWrapMI.setText("Auto Wrap");
         autoWrapMI.setSelection(wrapMode);
         autoWrapMI.addSelectionListener(new SelectionAdapter() {
@@ -849,7 +860,7 @@ public class ProductEditorComp extends Composite implements
             }
         });
 
-        framingCodeMI = new MenuItem(optionsMenu, SWT.CHECK);
+        framingCodeMI = new MenuItem(menuToAddTo, SWT.CHECK);
         framingCodeMI.setText("Highlight Framing Codes");
         framingCodeMI.setSelection(Activator.getDefault().getPreferenceStore()
                 .getBoolean("HighlightFramingCodes"));
@@ -863,7 +874,7 @@ public class ProductEditorComp extends Composite implements
 
         });
 
-        MenuItem wrapLengthMI = new MenuItem(optionsMenu, SWT.PUSH);
+        MenuItem wrapLengthMI = new MenuItem(menuToAddTo, SWT.PUSH);
         wrapLengthMI.setText("Wrap Length...");
         wrapLengthMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -896,10 +907,8 @@ public class ProductEditorComp extends Composite implements
     /**
      * Create the call to actions menu.
      */
-    private void createCallToActionsMenu() {
-        callToActionsMenu = new Menu(parent.getShell(), SWT.POP_UP);
-
-        MenuItem hazardMI = new MenuItem(callToActionsMenu, SWT.PUSH);
+    private void createCallToActionsMenu(Menu menuToAddTo) {
+        MenuItem hazardMI = new MenuItem(menuToAddTo, SWT.PUSH);
         hazardMI.setText("Hazard...");
         hazardMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -908,7 +917,7 @@ public class ProductEditorComp extends Composite implements
             }
         });
 
-        MenuItem productMI = new MenuItem(callToActionsMenu, SWT.PUSH);
+        MenuItem productMI = new MenuItem(menuToAddTo, SWT.PUSH);
         productMI.setText("Product...");
         productMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -917,7 +926,7 @@ public class ProductEditorComp extends Composite implements
             }
         });
 
-        MenuItem genericMI = new MenuItem(callToActionsMenu, SWT.PUSH);
+        MenuItem genericMI = new MenuItem(menuToAddTo, SWT.PUSH);
         genericMI.setText("Generic...");
         genericMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -936,6 +945,17 @@ public class ProductEditorComp extends Composite implements
         textComp.setWrapColumn(wrapColumn);
 
         textComp.setAutoWrapMode(wrapMode);
+
+        createEditorPopupMenu();
+
+        textComp.getTextEditorST().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseDown(MouseEvent e) {
+                if (e.button == 3) {
+                    popupMenu.setVisible(true);
+                }
+            }
+        });
     }
 
     /**
@@ -1055,7 +1075,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Store or Transmit text product.
-     *
+     * 
      * @param action
      *            STORE: show the Store dialog TRANSMITT: shows the Transmit
      *            dialog. AUTOSTORE: implement autoStore
@@ -1490,7 +1510,8 @@ public class ProductEditorComp extends Composite implements
             // check the ending time and transmission time
             if ((action.equals("EXP") || action.equals("CAN"))
                     && vtecEnd != null) {
-                vtecEnd.setTime(vtecEnd.getTime() + 30 * 60 * 1000);
+                vtecEnd.setTime(vtecEnd.getTime() + 30
+                        * TimeUtil.MILLIS_PER_MINUTE);
             }
 
             if (vtecEnd != null
@@ -1510,7 +1531,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Decodes the start and end times of VTEC, return null if all zeros.
-     *
+     * 
      * @param vt
      *            The VTEC date string in "yyMMdd'T'HHmm'Z'" format
      * @return Date object that corresponds to the specified VTEC time or null
@@ -1822,7 +1843,8 @@ public class ProductEditorComp extends Composite implements
         }
 
         // seconds
-        long offset = (maxPurgeTime - pitTime.getTime()) / 1000L;
+        long offset = (maxPurgeTime - pitTime.getTime())
+                / TimeUtil.MILLIS_PER_SECOND;
 
         // Round up to nearest 15 minutes
         long extra = offset % 900;
@@ -1831,7 +1853,7 @@ public class ProductEditorComp extends Composite implements
         }
 
         // convert to hours and check bounds
-        Float purgeOffset = offset / 3600.0F;
+        Float purgeOffset = (float) (offset / TimeUtil.SECONDS_PER_HOUR);
         purgeOffset = Math.min(purgeOffset, 24F);
         purgeOffset = Math.max(purgeOffset, 1F);
 
@@ -1841,7 +1863,7 @@ public class ProductEditorComp extends Composite implements
     /**
      * Returns a Date from an encoded YYMMDD and hhmm string. Function name is a
      * misnomer, but kept from porting AWIPS1 equivalent function.
-     *
+     * 
      * @param day
      *            The "calendar day" of the time in Java's "yyMMdd" format.
      * @param time
@@ -1865,7 +1887,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Convert time string in DDHHMM format to a Date.
-     *
+     * 
      * @param dtgString
      *            time string in DDHHMM format
      * @return time converted from input string
@@ -1900,10 +1922,15 @@ public class ProductEditorComp extends Composite implements
     }
 
     private void updateExpireTime() {
+        if (textComp.isDisposed() || hoursSpnr.isDisposed()
+                || dateTimeLbl.isDisposed()) {
+            return; // we're shutting down just return
+        }
 
-        int hours = hoursSpnr.getSelection() / 100;
-        int minuteInc = (hoursSpnr.getSelection() % 100) / 25;
-        int purgeOffset = hours * 60 + minuteInc * 15; // minutes
+        int sel = hoursSpnr.getSelection();
+        int hours = sel / 100;
+        int minuteInc = (sel % 100) / 25;
+        int purgeOffset = hours * TimeUtil.MINUTES_PER_HOUR + minuteInc * 15; // minutes
 
         Date now = SimulatedTime.getSystemTime().getTime();
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -2023,14 +2050,14 @@ public class ProductEditorComp extends Composite implements
      * returns the appropriate expiration time. Expiration time is the earliest
      * of the specified expiration time, 1 hr if a CAN code is detected, or the
      * ending time of ongoing events (CON, EXT, EXB, NEW).
-     *
+     * 
      * @param issTime
      *            issue time
      * @param expTime
      *            expire time
      * @param vtecStr
      *            vtec string
-     *
+     * 
      * @return expire time
      */
     public Date getExpireTime(Date issTime, Date expTime, String vtecStr) {
@@ -2091,13 +2118,16 @@ public class ProductEditorComp extends Composite implements
         }
 
         // round to next "roundMinutes"
-        long roundSec = roundMinutes * 60;
-        long expireTimeSec = expireTime.getTime() / 1000; // converting to
-                                                          // seconds
+        long roundSec = roundMinutes * TimeUtil.SECONDS_PER_MINUTE;
+
+        // converting to seconds
+        long expireTimeSec = expireTime.getTime() / TimeUtil.MILLIS_PER_SECOND;
         long delta = expireTimeSec % roundSec;
-        long baseTime = (expireTimeSec / roundSec) * roundSec * 1000;
-        if (delta / 60 >= 1) {
-            expireTime.setTime(baseTime + (roundSec * 1000));
+        long baseTime = (expireTimeSec / roundSec) * roundSec
+                * TimeUtil.MILLIS_PER_SECOND;
+        if (delta / TimeUtil.SECONDS_PER_MINUTE >= 1) {
+            expireTime.setTime(baseTime
+                    + (roundSec * TimeUtil.MILLIS_PER_SECOND));
         } else { // within 1 minute, don't add next increment
             expireTime.setTime(baseTime);
         }
@@ -2213,13 +2243,15 @@ public class ProductEditorComp extends Composite implements
     public void doAutoStuff() {
         int autoWrite = 0;
         Object autoWrite_obj = productDefinition.get("autoWrite");
-        if (autoWrite_obj != null)
+        if (autoWrite_obj != null) {
             autoWrite = (Integer) autoWrite_obj;
+        }
 
         int autoStore = 0;
         Object autoStore_obj = productDefinition.get("autoStore");
-        if (autoStore_obj != null)
+        if (autoStore_obj != null) {
             autoStore = (Integer) autoStore_obj;
+        }
 
         if (autoWrite == 1) {
             autoWrite();
@@ -2237,8 +2269,9 @@ public class ProductEditorComp extends Composite implements
         String fname = null;
         if (productDefinition.get("outputFile") != null) {
             fname = getDefString("outputFile");
-            if (fname.equals(EMPTY))
+            if (fname.equals(EMPTY)) {
                 return;
+            }
         } else {
             return;
         }
@@ -2259,8 +2292,9 @@ public class ProductEditorComp extends Composite implements
      * Replace {prddir} with siteConfig.GFESUITE_PRDDIR if applicable.
      */
     private String fixfname(String fname) {
-        if (fname.contains("{prddir}"))
+        if (fname.contains("{prddir}")) {
             fname = fname.replace("{prddir}", prdDir);
+        }
 
         return fname;
     }
@@ -2276,7 +2310,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Get the directory.
-     *
+     * 
      * @return The directory
      */
     private String getDir() {
@@ -2411,7 +2445,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Display the Find or Find & Replace dialog.
-     *
+     * 
      * @param findAndReplace
      *            If true show the Find & Replace dialog, false shows the Find
      *            dialog.
@@ -2643,7 +2677,7 @@ public class ProductEditorComp extends Composite implements
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @seecom.raytheon.uf.viz.core.notification.INotificationObserver#
      * notificationArrived
      * (com.raytheon.uf.viz.core.notification.NotificationMessage[])
@@ -2814,7 +2848,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Word-wrap the text selected by the user.
-     *
+     * 
      */
     private void doWrapSelection() {
         StyledText styledText = textComp.getTextEditorST();
@@ -2895,7 +2929,7 @@ public class ProductEditorComp extends Composite implements
 
         /*
          * (non-Javadoc)
-         *
+         * 
          * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.
          * IProgressMonitor)
          */
@@ -2910,8 +2944,9 @@ public class ProductEditorComp extends Composite implements
             // reschedule job to run at the top of the next minute
             Calendar cal = Calendar.getInstance();
             cal.setTime(SimulatedTime.getSystemTime().getTime());
-            int nextMinute = 60 - cal.get(Calendar.SECOND);
-            schedule(nextMinute * 1000);
+            int secondsTilNextMinute = TimeUtil.SECONDS_PER_MINUTE
+                    - cal.get(Calendar.SECOND);
+            schedule(secondsTilNextMinute * TimeUtil.MILLIS_PER_SECOND);
             return Status.OK_STATUS;
         }
 
@@ -2932,5 +2967,37 @@ public class ProductEditorComp extends Composite implements
         }
 
         return str;
+    }
+
+    /*
+     * Add Pop-up GUI for File, Edit, Options, and CallToActions at the location
+     * of mouse, when right click the mouse
+     */
+    private void createEditorPopupMenu() {
+        popupMenu = new Menu(textComp);
+
+        MenuItem fileMI = new MenuItem(popupMenu, SWT.CASCADE);
+        fileMI.setText("File");
+        Menu fileSubMenu = new Menu(popupMenu);
+        fileMI.setMenu(fileSubMenu);
+        createFileMenu(fileSubMenu);
+
+        MenuItem editMI = new MenuItem(popupMenu, SWT.CASCADE);
+        editMI.setText("Edit");
+        Menu editSubMenu = new Menu(popupMenu);
+        editMI.setMenu(editSubMenu);
+        createEditMenu(editSubMenu);
+
+        MenuItem optionsMI = new MenuItem(popupMenu, SWT.CASCADE);
+        optionsMI.setText("Options");
+        Menu optionsSubMenu = new Menu(popupMenu);
+        optionsMI.setMenu(optionsSubMenu);
+        createOptionsMenu(optionsSubMenu);
+
+        MenuItem callToActionsMI = new MenuItem(popupMenu, SWT.CASCADE);
+        callToActionsMI.setText("CallToActions");
+        Menu callToActionsSubMenu = new Menu(popupMenu);
+        callToActionsMI.setMenu(callToActionsSubMenu);
+        createCallToActionsMenu(callToActionsSubMenu);
     }
 }

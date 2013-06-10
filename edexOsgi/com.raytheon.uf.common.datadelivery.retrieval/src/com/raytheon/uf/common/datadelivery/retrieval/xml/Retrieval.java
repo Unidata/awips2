@@ -22,6 +22,7 @@ package com.raytheon.uf.common.datadelivery.retrieval.xml;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -48,7 +49,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 07, 2011    191      dhladky     Initial creation
- * Nov 19, 2012 1166        djohnson    Clean up JAXB representation of registry objects.
+ * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
+ * Feb 07, 2013 1543       djohnson     Never have null attributes.
  * 
  * </pre>
  * 
@@ -78,7 +80,7 @@ public class Retrieval implements ISerializableObject, Serializable {
     @XmlElement
     @DynamicSerializeElement
     private String owner;
-    
+
     @XmlElement
     @DynamicSerializeElement
     private ProviderType providerType;
@@ -93,7 +95,7 @@ public class Retrieval implements ISerializableObject, Serializable {
 
     @XmlElements({ @XmlElement(name = "attribute", type = RetrievalAttribute.class) })
     @DynamicSerializeElement
-    private ArrayList<RetrievalAttribute> attribute;
+    private List<RetrievalAttribute> attributes = new ArrayList<RetrievalAttribute>();
 
     /**
      * Add another Attribute entry
@@ -101,16 +103,11 @@ public class Retrieval implements ISerializableObject, Serializable {
      * @param pdo
      */
     public void addAttribute(RetrievalAttribute att) {
-        if (attribute != null) {
-            attribute.add(att);
-        } else {
-            attribute = new ArrayList<RetrievalAttribute>();
-            attribute.add(att);
-        }
+        attributes.add(att);
     }
 
-    public ArrayList<RetrievalAttribute> getAttribute() {
-        return attribute;
+    public List<RetrievalAttribute> getAttributes() {
+        return attributes;
     }
 
     public Connection getConnection() {
@@ -128,7 +125,7 @@ public class Retrieval implements ISerializableObject, Serializable {
      * @return
      */
     public RetrievalAttribute getProviderAttributeByName(String name) {
-        for (RetrievalAttribute att : getAttribute()) {
+        for (RetrievalAttribute att : getAttributes()) {
             if (att.getParameter().getName().equals(att)) {
                 return att;
             }
@@ -151,13 +148,11 @@ public class Retrieval implements ISerializableObject, Serializable {
      * @param pdo
      */
     public void removeAttribute(RetrievalAttribute att) {
-        if (attribute != null) {
-            attribute.remove(att);
-        }
+        attributes.remove(att);
     }
 
-    public void setAttribute(ArrayList<RetrievalAttribute> attribute) {
-        this.attribute = attribute;
+    public void setAttributes(List<RetrievalAttribute> attribute) {
+        this.attributes = attribute;
     }
 
     public void setConnection(Connection connection) {

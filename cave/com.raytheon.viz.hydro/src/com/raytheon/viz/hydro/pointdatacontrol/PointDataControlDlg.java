@@ -78,6 +78,7 @@ import com.raytheon.viz.hydrocommon.colorscalemgr.NamedColorSetGroup;
 import com.raytheon.viz.hydrocommon.events.StationDisplayUpdateEvent;
 import com.raytheon.viz.hydrocommon.pdc.PDCOptionData;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * This class displays the Point Data Control dialog for Hydroview.
@@ -96,13 +97,16 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     The actionListeners for certain controls
  *                                     have been updated so that they will set it
  *                                     to true when an update is actually required.
- *
+ * 
  * 03 OCT 2012 #15395                  Added code to handle TimeStep when default is set 
  * 									   to be "30 minutes Instantaneous" in the database.
  * 09 OCT 2012 #15396				   Fixed Instantaneous precip index so legend and map display 
  * 									   will change each time duration is incremented or decremented
  * 									   for the "30 minutes Instantaneous" rainfall map .
  * 04 Dec 2012 15602     wkwock        Fix Hrs hour capped at 100.
+ * 07 Feb 2013 1578        rferrel     Changes for non-blocking FilteringDlg.
+ *                                     Changes for non-blocking PDC_SaveDlg.
+ *                                     (TODO More code clean up when this dialog is converted.)
  * 
  * </pre>
  * 
@@ -165,6 +169,18 @@ public class PointDataControlDlg extends CaveSWTDialog {
 
             // WIND
             "WIND SPEED", "WIND DIRECTION" };
+
+    /** Filter dialog for Type/Source. */
+    private FilteringDlg typeSourceDlg;
+
+    /** Filter dialog for Service Area. */
+    private FilteringDlg serviceDlg;
+
+    /** Filter dialog for Data Source . */
+    private FilteringDlg dataSourceDlg;
+
+    /** Dialog to save preset options */
+    private PDC_SaveDlg saveDlg;
 
     /**
      * The Stack Composite.
@@ -606,10 +622,12 @@ public class PointDataControlDlg extends CaveSWTDialog {
         timeTF.setText(dateTimeFmt.format(cal.getTime()));
 
         populatePresetData(null);
-        
-        /* this is when in the database, the timeStep is set to be the 
-           default one */
-         
+
+        /*
+         * this is when in the database, the timeStep is set to be the default
+         * one
+         */
+
         if (timeStepRdo.getSelection() == true) {
             handleQueryModeSelection(PDCConstants.QueryMode.TIME_STEP_MODE);
             previousQueryMode = PDCConstants.QueryMode.TIME_STEP_MODE;
@@ -874,18 +892,18 @@ public class PointDataControlDlg extends CaveSWTDialog {
         upPrecipBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-            	PDCOptionData pcOptions = PDCOptionData.getInstance();
+                PDCOptionData pcOptions = PDCOptionData.getInstance();
                 if (precipIndex >= HydroConstants.InstPrecipSelection.values().length - 1) {
                     precipIndex = 0;
                 } else {
                     precipIndex++;
-                    if  (precipIndex == HydroConstants.InstPrecipSelection.
-                            values().length - 1) {
-                    	precipIndex=0;
+                    if (precipIndex == HydroConstants.InstPrecipSelection
+                            .values().length - 1) {
+                        precipIndex = 0;
                     }
 
                 }
-            	pcOptions.setInstPrecipAccumTimeSelection(precipIndex);
+                pcOptions.setInstPrecipAccumTimeSelection(precipIndex);
                 setInstPrecipAccumText();
                 shell.setCursor(waitCursor);
                 updateData = true;
@@ -899,20 +917,19 @@ public class PointDataControlDlg extends CaveSWTDialog {
         downPrecipBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-            	PDCOptionData pcOptions = PDCOptionData.getInstance();
+                PDCOptionData pcOptions = PDCOptionData.getInstance();
                 if (precipIndex == 0) {
-                    precipIndex = HydroConstants.InstPrecipSelection.
-                    								values().length - 1;
-                    if  (precipIndex == HydroConstants.InstPrecipSelection.
-                    										values().length - 1) {
-                    	precipIndex=HydroConstants.InstPrecipSelection.
-                            							values().length - 2;
-                    } 
+                    precipIndex = HydroConstants.InstPrecipSelection.values().length - 1;
+                    if (precipIndex == HydroConstants.InstPrecipSelection
+                            .values().length - 1) {
+                        precipIndex = HydroConstants.InstPrecipSelection
+                                .values().length - 2;
+                    }
 
                 } else {
                     precipIndex--;
                 }
-                
+
                 pcOptions.setInstPrecipAccumTimeSelection(precipIndex);
                 setInstPrecipAccumText();
                 shell.setCursor(waitCursor);
@@ -1117,17 +1134,21 @@ public class PointDataControlDlg extends CaveSWTDialog {
         typeSourceBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                FilteringDlg typeSourceDlg = new FilteringDlg(shell,
-                        "Type Source Selection Dialog",
-                        FilteringDlg.DialogType.TYPE_SOURCE,
-                        physicalElementCbo.getItem(physicalElementCbo
-                                .getSelectionIndex()));
-                boolean redraw = (Boolean) typeSourceDlg.open();
-                if (redraw) {
-                    shell.setCursor(waitCursor);
-                    drawMap();
-                    shell.setCursor(arrowCursor);
+                if (typeSourceDlg == null) {
+                    typeSourceDlg = new FilteringDlg(shell,
+                            "Type Source Selection Dialog",
+                            FilteringDlg.DialogType.TYPE_SOURCE,
+                            physicalElementCbo.getItem(physicalElementCbo
+                                    .getSelectionIndex()));
+                    typeSourceDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            redrawCheck(returnValue);
+                        }
+                    });
                 }
+                typeSourceDlg.open();
             }
         });
 
@@ -1188,14 +1209,18 @@ public class PointDataControlDlg extends CaveSWTDialog {
         serviceAreaBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                FilteringDlg serviceDlg = new FilteringDlg(shell,
-                        "Service Area", FilteringDlg.DialogType.SERVICE_AREA);
-                boolean redraw = (Boolean) serviceDlg.open();
-                if (redraw) {
-                    shell.setCursor(waitCursor);
-                    drawMap();
-                    shell.setCursor(arrowCursor);
+                if (serviceDlg == null) {
+                    serviceDlg = new FilteringDlg(shell, "Service Area",
+                            FilteringDlg.DialogType.SERVICE_AREA);
+                    serviceDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            redrawCheck(returnValue);
+                        }
+                    });
                 }
+                serviceDlg.open();
             }
         });
 
@@ -1225,14 +1250,18 @@ public class PointDataControlDlg extends CaveSWTDialog {
         dataSourceBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                FilteringDlg dataSourceDlg = new FilteringDlg(shell,
-                        "Data Source", FilteringDlg.DialogType.DATA_SOURCE);
-                boolean redraw = (Boolean) dataSourceDlg.open();
-                if (redraw) {
-                    shell.setCursor(waitCursor);
-                    drawMap();
-                    shell.setCursor(arrowCursor);
+                if (dataSourceDlg == null) {
+                    dataSourceDlg = new FilteringDlg(shell, "Data Source",
+                            FilteringDlg.DialogType.DATA_SOURCE);
+                    dataSourceDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            redrawCheck(returnValue);
+                        }
+                    });
                 }
+                dataSourceDlg.open();
             }
         });
 
@@ -1941,8 +1970,10 @@ public class PointDataControlDlg extends CaveSWTDialog {
     }
 
     private void openSaveDialog() {
-        PDC_SaveDlg saveDlg = new PDC_SaveDlg(shell,
-                selPresetCbo.getSelectionIndex(), this);
+        if (saveDlg == null) {
+            saveDlg = new PDC_SaveDlg(shell, selPresetCbo.getSelectionIndex(),
+                    this);
+        }
         saveDlg.open();
     }
 
@@ -2889,6 +2920,23 @@ public class PointDataControlDlg extends CaveSWTDialog {
         }
 
         return mode;
+    }
+
+    /**
+     * Determine if a redraw needs to be performed.
+     * 
+     * @param returnValue
+     *            - return value from the Filtering dialog.
+     */
+    private void redrawCheck(Object returnValue) {
+        if (returnValue instanceof Boolean) {
+            boolean redraw = (Boolean) returnValue;
+            if (redraw) {
+                shell.setCursor(waitCursor);
+                drawMap();
+                shell.setCursor(arrowCursor);
+            }
+        }
     }
 
     /**

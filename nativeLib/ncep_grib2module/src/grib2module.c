@@ -29,6 +29,7 @@
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
+ * Mar 25, 2013 1821        bsteffen    Make grib2 decoding more multithreaded
  *
  * </pre>
  *
@@ -138,7 +139,9 @@ static PyObject * grib2_getData(PyObject *self, PyObject* args)
 	long numfields;
 	npy_intp dimSize[1];
 	PyObject *response = PyDict_New();
+	Py_BEGIN_ALLOW_THREADS
 	numfields = getRecord(fptr, &gfld, recordNumber, fieldNumber, 1);
+	Py_END_ALLOW_THREADS
 
 	PyObject * numberOfFields = PyInt_FromLong(numfields);
 	PyDict_SetItemString(response, "numFields", numberOfFields);

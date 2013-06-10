@@ -123,6 +123,7 @@
 136|256 | 0 | 4.0  |   0 | SO  | SuperOb (SO)                  | SuperOb |   |   |   |   |   |   |   |   |   |82
 137| 16 | 9 | 1.0  | 230 | ULR | User Selectable Lyr Refl (ULR)| Radial  |   |   |   |   |   |   |   |   |   |88
 139|  0 | 0 | 0.0  | 230 | MRU | Rapid Update Mesocyclone (MRU)| Graphic | y |   |   |   |   |   |   |   |   |91
+140|  0 | 0 | 0.0  | 230 | GFM | Gust Front MIGFA (GFM)        | Generic |   |   |   |   |   |   |   |   |   |28
 141|  0 | 0 | 0.0  | 230 | MD  | Mesocyclone (MD)              | Graphic |   |   |   |   |   |   |   |   |   |92
 143|  0 | 0 | 0.0  | 230 | TRU | TVS Rapid Update (TRU)        | Graphic | y |   |   |   |   |   |   |   |   |93
 149|  0 | 0 | 0.0  | 230 | DMD | Digital Meso Detection (DMD)  | Generic | y |   |   |   |   |   |   |   |   |94

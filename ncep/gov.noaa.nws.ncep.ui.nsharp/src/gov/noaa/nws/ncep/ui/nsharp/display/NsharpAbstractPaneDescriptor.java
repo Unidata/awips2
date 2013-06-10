@@ -11,6 +11,7 @@
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 05/02/2012	229			Chin Chen	Initial coding for multiple display panes implementation
+ * 03/11/2013   972         Greg Hull   rm paneNumber
  *
  * </pre>
  * 
@@ -36,9 +37,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.graphing.GraphDescriptor;
 @XmlAccessorType(XmlAccessType.NONE)
 public class NsharpAbstractPaneDescriptor extends GraphDescriptor {
-	@XmlElement
-	protected int paneNumber;
-    
+//	@XmlElement
+//	protected int paneNumber;
+	
 	protected NsharpResourceHandler rscHandler=null;
     
 	
@@ -50,13 +51,13 @@ public class NsharpAbstractPaneDescriptor extends GraphDescriptor {
 		this.rscHandler = rscHandler;
 	}
 
-    public int getPaneNumber() {
-		return paneNumber;
-	}
-
-	public void setPaneNumber(int paneNumber) {
-		this.paneNumber = paneNumber;
-	}
+//	public int getPaneNumber() {
+//		return paneNumber;
+//	}
+//
+//	public void setPaneNumber(int paneNumber) {
+//		this.paneNumber = paneNumber;
+//	}
     
     public NsharpAbstractPaneDescriptor() {
 		super();
@@ -69,7 +70,7 @@ public class NsharpAbstractPaneDescriptor extends GraphDescriptor {
     }
     public NsharpAbstractPaneDescriptor(PixelExtent pe, int paneNumber) {
         super(pe);
-        this.paneNumber = paneNumber;
+//        this.paneNumber = paneNumber;
         //System.out.println("NsharpAbstractPaneDescriptor  created " + this.toString());       
     }
     @SuppressWarnings("deprecation") 

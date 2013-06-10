@@ -1,0 +1,200 @@
+#!/bin/ksh
+
+###############################################################################
+# FILENAME:        create_whfs_geodata
+#
+# DESCRIPTION:     This script automates the process of creating the WHFS 
+#                  overlay files required by Hydroview/MPE.  The following
+#                  files are created:
+#
+#                  This script is to be used by sites during the installation
+#                  of Hydroview/MPE.  It runs both the process_geoarea and 
+#                  the process_geoline scripts for all geodata types.  It 
+#                  first checks to see if the .dat files are in the whfs
+#                  geo data directory.  If not, it unloads them from the
+#                  database.  In the process of doing this, all overlays,
+#                  and navigation files are created.  Also, the LineSegs
+#                  table is updated for all of the geoarea types (except
+#                  the RESRVR type).
+#
+#                  The following files are created:
+#
+#                  GeoArea-based files:
+#
+#                  basins_latlon.OS        --> Basins overlay
+#                  resvrs_latlon.OS        --> Reservoirs overlay
+#                  grid_to_basin_hrap.OS   --> HRAP grid to basin
+#                                              navigation file
+#                  grid_to_county_hrap.OS  --> HRAP grid to county
+#                                              navigation file
+#
+#                  GeoLine-based files:
+#
+#                  hiways_latlon.OS        --> Highways overlays
+#                  roads_latlon.OS         --> Road overlay
+#                  rivers_latlon.OS        --> Rivers overlay
+#                  streams_latlon.OS       --> Streams overlay
+#
+# ORIGINAL AUTHOR: Bryon Lawrence
+# CREATION DATE:   November 20, 2003
+# ORGANIZATION:    HSEB-OHD
+# MACHINE:         HP-UX, Redhat Linux.
+# MODIFICATION HISTORY:
+#  DATE            PROGRAMMER        DESCRIPTION/REASON
+#  11/20/2003      Bryon Lawrence    Original Coding      
+################################################################################
+#
+
+geo_area_types_filenames="BASIN:basins.dat COUNTY:counties.dat RESRVR:resvrs.dat ZONE:zones.dat"
+geo_line_types_filenames="ROAD:HIWAYS:hiways.dat:1 ROAD:ROADS:roads.dat:2 STREAM:RIVERS:rivers.dat:1 STREAM:STREAMS:streams.dat:2"
+
+#
+# Source set_hydro_env
+RUN_FROM_DIR=`dirname $0`
+. $RUN_FROM_DIR/../../set_hydro_env
+export WHFS_GEODATA_DIR=$(get_apps_defaults whfs_geodata_dir)
+export WHFS_UTIL_LOG_DIR=$(get_apps_defaults whfs_util_log_dir)
+export WHFS_BIN_DIR=$(get_apps_defaults whfs_bin_dir)
+export DB_NAME=$(get_apps_defaults db_name)
+
+#
+#  Create the log directory.
+LOGNAME=$WHFS_UTIL_LOG_DIR/create_whfs_geodata.log
+
+rm -f $LOGNAME
+
+date=`date -u +"%A, %B %d, %Y %H:%M:%S"`
+
+echo "=====================================" | tee -a $LOGNAME
+echo "Starting create_whfs_geodata on $date ..." | tee -a $LOGNAME
+printf "Logging to $LOGNAME.\n"
+
+# Check the existence of each of the .dat files.  If the .dat file
+# does not exist for a particular GeoArea or GeoLine type, then
+# unload it from the database.
+
+# First the existence of the .dat files containing GeoArea data is checked.
+# Any files that are missing are created by unloading data for the
+# correct boundary_type from the GeoArea table.
+for i in $geo_area_types_filenames
+do
+
+   filetype=`echo $i | cut -d: -f1`
+   filename=`echo $i | cut -d: -f2`
+
+   if [[ ! -a $WHFS_GEODATA_DIR/$filename || \
+         ! -r $WHFS_GEODATA_DIR/$filename  ]]
+   then
+
+      printf "\nFile $filename does not exist. Unloading it from the\n" \
+          | tee -a $LOGNAME
+      printf "GeoArea table\n" | tee -a $LOGNAME
+      printf "Running $WHFS_BIN_DIR/process_geoarea -u\n" \
+          | tee -a $LOGNAME
+      printf "-d$DB_NAME -t$filetype $WHFS_GEODATA_DIR/$filename\n" \
+          | tee -a $LOGNAME
+
+      $WHFS_BIN_DIR/process_geoarea -u -d$DB_NAME -t$filetype \
+          $WHFS_GEODATA_DIR/$filename 2>&1 > /dev/null
+
+      if [ $? -ne 0 ]
+      then
+         printf "\nThe call to process_geoarea failed.\n" | tee -a $LOGNAME
+      fi
+   fi 
+
+done
+
+#  Now, the existence of the .dat files containing geoline data is checked.
+#  Any missing files are created by unloading data from the GeoLine table
+#  for the correct vector type.
+for i in $geo_line_types_filenames
+do
+
+   filetype=`echo $i | cut -d: -f1`
+   typename=`echo $i | cut -d: -f2`
+   filename=`echo $i | cut -d: -f3`
+   rank=`echo $i | cut -d: -f4`
+
+   if [[ ! -a $WHFS_GEODATA_DIR/$filename || \
+         ! -r $WHFS_GEODATA_DIR/$filename ]]
+   then
+
+      printf "\nFile $filename does not exist. Unloading it from the\n" \
+         | tee -a $LOGNAME
+      printf "GeoLine table\n" | tee -a $LOGNAME
+      printf "Running $WHFS_BIN_DIR/process_geoline -u \n" \
+         | tee -a $LOGNAME
+      printf "-d$DB_NAME -t$filetype -n$typename -r$rank " \
+         | tee -a $LOGNAME
+      printf "$WHFS_GEODATA_DIR/$filename\n" | tee -a $LOGNAME
+
+      $WHFS_BIN_DIR/process_geoline -u -d$DB_NAME -t$filetype \
+          -n$typename -r$rank $WHFS_GEODATA_DIR/$filename 2>&1 > /dev/null
+
+      if [ $? -ne 0 ]
+      then
+         printf "The call to process_geoline failed.\n" | tee -a $LOGNAME
+      fi
+   fi 
+
+done
+
+#
+#  Any .dat files which needed to be created have been created.  It is now
+#  time to load them into the GeoArea and GeoLine tables.  First the 
+# .dat files containing GeoArea data are loaded into the GeoArea table.
+#
+#  Load all of the GeoArea .dat files into the database.  The process_geoarea
+#  routine will decide which overlay and navigation files to create.
+
+for i in $geo_area_types_filenames
+do
+
+   filetype=`echo $i | cut -d: -f1`
+   filename=`echo $i | cut -d: -f2`
+
+   printf "Running $WHFS_BIN_DIR/process_geoarea -l -d$DB_NAME\n" \
+          | tee -a $LOGNAME 
+   printf "-t$filetype $WHFS_GEODATA_DIR/$filename\n" \
+          | tee -a $LOGNAME
+
+   $WHFS_BIN_DIR/process_geoarea -l -d$DB_NAME -t$filetype \
+        $WHFS_GEODATA_DIR/$filename 2>&1 > /dev/null
+
+   if [ $? -ne 0 ]
+   then
+      printf "The call to process_geoarea failed.\n" | tee -a $LOGNAME
+   fi
+
+done
+
+#  Load all of the GeoLine .dat files into the database.  The process_geoline
+#  routine will decide which overlay files to create.
+for i in $geo_line_types_filenames
+do
+
+   filetype=`echo $i | cut -d: -f1`
+   typename=`echo $i | cut -d: -f2`
+   filename=`echo $i | cut -d: -f3`
+   rank=`echo $i | cut -d: -f4`
+
+   printf "Running $WHFS_BIN_DIR/process_geoline -l -d$DB_NAME\n" \
+       | tee -a $LOGNAME
+   printf "-t$filetype -n$typename -r$rank $WHFS_GEODATA_DIR/$filename\n" \
+       | tee -a $LOGNAME
+
+   $WHFS_BIN_DIR/process_geoline -l -d$DB_NAME -t$filetype \
+               -n$typename -r$rank $WHFS_GEODATA_DIR/$filename 2>&1 > /dev/null 
+
+   if [ $? -ne 0 ]
+   then
+
+      printf "The call to process_geoline failed.\n" | tee -a $LOGNAME
+
+   fi
+
+done
+
+date=`date -u +"%A, %B %d, %Y %H:%M:%S"`
+printf "create_whfs_geodata completed on $date\n" | tee -a $LOGNAME

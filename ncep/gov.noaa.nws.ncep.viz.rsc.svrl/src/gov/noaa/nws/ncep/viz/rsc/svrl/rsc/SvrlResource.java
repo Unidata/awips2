@@ -52,6 +52,7 @@ import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
@@ -63,6 +64,8 @@ import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 import gov.noaa.nws.ncep.edex.common.stationTables.IStationField;
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.edex.common.stationTables.StationTable;
@@ -81,14 +84,15 @@ import gov.noaa.nws.ncep.common.dataplugin.aww.AwwVtec;
  * ------------ ---------- ----------- --------------------------
  * 
  * 09/11/12      852        Q. Zhou     Modified time string and alignment in drawTimeLabelWatchNumber().
+ * 02/25/13      972        Greg Hull   define on NCMapDescriptor instead of IMapDescriptor
+ * 
  * </pre>
  * 
  * @author qzhou 
  * @version 1.0
  */
-
-public class SvrlResource  extends AbstractNatlCntrsResource< SvrlResourceData, IMapDescriptor> 
-implements     INatlCntrsResource, IStationField { 
+public class SvrlResource  extends AbstractNatlCntrsResource< SvrlResourceData, NCMapDescriptor> 
+implements     INatlCntrsResource, IStationField  { 
 
 	private IFont font;
 	private StationTable stationTable; 
@@ -355,9 +359,9 @@ implements     INatlCntrsResource, IStationField {
 		stationTable = new StationTable( 
 				NcPathManager.getInstance().getStaticFile( 
 						NcPathConstants.COUNTY_STN_TBL ).getAbsolutePath() );
-		HashMap<String, RequestConstraint> metadataMap =new HashMap<String, RequestConstraint>(resourceData.getMetadataMap());
-		metadataMap.put("reportType",new RequestConstraint("SEVERE_WEATHER_STATEMENT"));
-		resourceData.setMetadataMap(metadataMap);
+//		HashMap<String, RequestConstraint> metadataMap =new HashMap<String, RequestConstraint>(resourceData.getMetadataMap());
+//		metadataMap.put("reportType",new RequestConstraint("SEVERE_WEATHER_STATEMENT"));
+//		resourceData.setMetadataMap(metadataMap);
 		queryRecords();
 	}
 
@@ -516,7 +520,7 @@ drawCountyOutline2(svrlData,target,color,symbolWidth,lineStyle,paintProps);//T45
 		Envelope env = null;	
 		try {
 			PixelExtent extent = (PixelExtent) paintProps.getView().getExtent();
-			Envelope e = descriptor.pixelToWorld(extent, descriptor.getCRS());
+			Envelope e = getNcMapDescriptor().pixelToWorld(extent, descriptor.getCRS());
 			ReferencedEnvelope ref = new ReferencedEnvelope(e, descriptor.getCRS());
 			env = ref.transform(MapUtil.LATLON_PROJECTION, true);
 		} catch (Exception e) {
@@ -811,10 +815,9 @@ String key = wData.datauri;//.getKey(); //TODO other key?
     @Override
 	protected boolean postProcessFrameUpdate() {
     	
-    	gov.noaa.nws.ncep.viz.ui.display.NCMapEditor ncme = 
-    				gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils.getActiveNatlCntrsEditor();
+    	AbstractEditor ed = NcDisplayMngr.getActiveNatlCntrsEditor();
     	
-    	crjob.setRequest(ncme.getActiveDisplayPane().getTarget(), descriptor, null, false, false, null); 
+    	crjob.setRequest( ed.getActiveDisplayPane().getTarget(), getNcMapDescriptor(), null, false, false, null); 
     	
     	return true;
     }
@@ -823,9 +826,9 @@ String key = wData.datauri;//.getKey(); //TODO other key?
 	/**
 	 *  called in the constructor.
 	 */
-	private void addRDChangedListener(){
-		com.raytheon.viz.ui.editor.AbstractEditor editor = gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils.getActiveNatlCntrsEditor();
-		editor.addRenderableDisplayChangedListener(this.new SvrlDCListener());
+	private void addRDChangedListener() {
+    	AbstractEditor ed = NcDisplayMngr.getActiveNatlCntrsEditor();
+		ed.addRenderableDisplayChangedListener(this.new SvrlDCListener());
 	}
     
     /**

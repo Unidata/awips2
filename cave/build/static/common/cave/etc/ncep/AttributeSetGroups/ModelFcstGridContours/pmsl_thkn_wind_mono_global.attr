@@ -20,7 +20,7 @@ HILO   =    !! 23;23/H#;L#/1018-1070;900-1012//30;30/y
 HLSYM  =   2;1.5//21//hw
 !CLRBAR=  1                                                                       
 WIND   =    23/0.8/1/112
-TITLE  =   23/-1/~ PMSL, 1000-500 MB THICKNESS, BL (~995 MB)WIND   =!0
+TITLE  =   23/-1/~ PMSL, 1000-500 MB THICKNESS, BL (~995 MB)WIND !0
 COLORS =  2                                                                       
 MARKER =  2                                                                       
 GRDLBL =  5                                                                       

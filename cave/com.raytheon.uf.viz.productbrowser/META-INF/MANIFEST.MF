@@ -25,7 +25,6 @@ Export-Package: com.raytheon.uf.viz.productbrowser;
  com.raytheon.uf.viz.productbrowser.actions;uses:="org.eclipse.core.commands",
  com.raytheon.uf.viz.productbrowser.bookmarks,
  com.raytheon.uf.viz.productbrowser.xml
-Import-Package: com.raytheon.edex.scriptfactory,
+Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.message.response,
- com.raytheon.uf.common.serialization,
- com.raytheon.uf.viz.core.catalog
+ com.raytheon.uf.common.serialization

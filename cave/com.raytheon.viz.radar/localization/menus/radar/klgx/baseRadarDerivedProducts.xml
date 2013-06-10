@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+	<!--
+		This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+		pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+		U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+		This_software_product_contains_export-restricted_data_whose
+		export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+		to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+		an_export_license_or_other_authorization.
+
+		Contractor_Name:________Raytheon_Company
+		Contractor_Address:_____6825_Pine_Street,_Suite_340
+		________________________Mail_Stop_B8
+		________________________Omaha,_NE_68106
+		________________________402.291.0100
+
+		See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+		further_licensing_information.
+	-->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<contribute xsi:type="titleItem" titleText="------ Reflectivity Based ------"
+			id="${icao}DerivedProductsReflectivityBased" />
+		<contribute xsi:type="subMenu" menuText="Hydrometeor Classification"
+			id="${icao}SubMenuBestResHC">
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+				menuText="0.0 HC" id="${icao}00HydroMeteor">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="mode" value="" />
+				<substitute key="product1" value="165" />
+				<substitute key="product2" value="164" />
+				<substitute key="product3" value="" />
+				<substitute key="product4" value="" />
+				<substitute key="elevation" value="0.0--0.0" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+				menuText="0.5 HC" id="${icao}05HydroMeteor">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="mode" value="" />
+				<substitute key="product1" value="165" />
+				<substitute key="product2" value="164" />
+				<substitute key="product3" value="" />
+				<substitute key="product4" value="" />
+				<substitute key="elevation" value="0.5--0.5" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+				menuText="0.9 HC" id="${icao}09HydroMeteor">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="mode" value="" />
+				<substitute key="product1" value="165" />
+				<substitute key="product2" value="164" />
+				<substitute key="product3" value="" />
+				<substitute key="product4" value="" />
+				<substitute key="elevation" value="0.9--0.9" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+				menuText="1.5 HC" id="${icao}15HydroMeteor">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="mode" value="" />
+				<substitute key="product1" value="165" />
+				<substitute key="product2" value="164" />
+				<substitute key="product3" value="" />
+				<substitute key="product4" value="" />
+				<substitute key="elevation" value="1.5--1.5" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+				menuText="1.8 HC" id="${icao}18HydroMeteor">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="mode" value="" />
+				<substitute key="product1" value="165" />
+				<substitute key="product2" value="164" />
+				<substitute key="product3" value="" />
+				<substitute key="product4" value="" />
+				<substitute key="elevation" value="1.8--1.8" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+				menuText="2.4 HC" id="${icao}24HydroMeteor">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="mode" value="" />
+				<substitute key="product1" value="165" />
+				<substitute key="product2" value="164" />
+				<substitute key="product3" value="" />
+				<substitute key="product4" value="" />
+				<substitute key="elevation" value="2.4--2.4" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+				menuText="3.4 HC" id="${icao}34HydroMeteor">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="mode" value="" />
+				<substitute key="product1" value="165" />
+				<substitute key="product2" value="164" />
+				<substitute key="product3" value="" />
+				<substitute key="product4" value="" />
+				<substitute key="elevation" value="3.4--3.4" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+				menuText="4.3 HC" id="${icao}43HydroMeteor">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="mode" value="" />
+				<substitute key="product1" value="165" />
+				<substitute key="product2" value="164" />
+				<substitute key="product3" value="" />
+				<substitute key="product4" value="" />
+				<substitute key="elevation" value="4.3--4.3" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+				menuText="5.3 HC" id="${icao}53HydroMeteor">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="mode" value="" />
+				<substitute key="product1" value="165" />
+				<substitute key="product2" value="164" />
+				<substitute key="product3" value="" />
+				<substitute key="product4" value="" />
+				<substitute key="elevation" value="5.3--5.3" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+				menuText="6.0 HC" id="${icao}60HydroMeteor">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="mode" value="" />
+				<substitute key="product1" value="165" />
+				<substitute key="product2" value="164" />
+				<substitute key="product3" value="" />
+				<substitute key="product4" value="" />
+				<substitute key="elevation" value="6.0--6.0" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+				menuText="7.5 HC" id="${icao}75HydroMeteor">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="mode" value="" />
+				<substitute key="product1" value="165" />
+				<substitute key="product2" value="164" />
+				<substitute key="product3" value="" />
+				<substitute key="product4" value="" />
+				<substitute key="elevation" value="7.5--7.5" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+				menuText="8.7 HC" id="${icao}87HydroMeteor">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="mode" value="" />
+				<substitute key="product1" value="165" />
+				<substitute key="product2" value="164" />
+				<substitute key="product3" value="" />
+				<substitute key="product4" value="" />
+				<substitute key="elevation" value="8.7--8.7" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+				menuText="10.0 HC" id="${icao}100HydroMeteor">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="mode" value="" />
+				<substitute key="product1" value="165" />
+				<substitute key="product2" value="164" />
+				<substitute key="product3" value="" />
+				<substitute key="product4" value="" />
+				<substitute key="elevation" value="10.0--10.0" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+				menuText="12.0 HC" id="${icao}120HydroMeteor">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="mode" value="" />
+				<substitute key="product1" value="165" />
+				<substitute key="product2" value="164" />
+				<substitute key="product3" value="" />
+				<substitute key="product4" value="" />
+				<substitute key="elevation" value="12.0--12.0" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+				menuText="14.0 HC" id="${icao}140HydroMeteor">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="mode" value="" />
+				<substitute key="product1" value="165" />
+				<substitute key="product2" value="164" />
+				<substitute key="product3" value="" />
+				<substitute key="product4" value="" />
+				<substitute key="elevation" value="14.0--14.0" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+				menuText="16.7 HC" id="${icao}167HydroMeteor">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="mode" value="" />
+				<substitute key="product1" value="165" />
+				<substitute key="product2" value="164" />
+				<substitute key="product3" value="" />
+				<substitute key="product4" value="" />
+				<substitute key="elevation" value="16.7--16.7" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+				menuText="19.5 HC" id="${icao}1655HydroMeteor">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="mode" value="" />
+				<substitute key="product1" value="165" />
+				<substitute key="product2" value="164" />
+				<substitute key="product3" value="" />
+				<substitute key="product4" value="" />
+				<substitute key="elevation" value="19.5--19.5" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
+				menuText="HC (All)" id="${icao}HydroMeteorAll">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="mode" value="" />
+				<substitute key="product1" value="165" />
+				<substitute key="product2" value="164" />
+				<substitute key="product3" value="" />
+				<substitute key="product4" value="" />
+				<substitute key="elevation" value="0.0--360.0" />
+			</contribute>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarCompRefl.xml"
+			menuText="1km and 4km Composite Ref (CZ)" id="${icao}CompositeRefCZ">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="mode" value="" />
+		</contribute>
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarImageWithGraphic.xml" menuText="1km Composite Ref (CZ)"
+			id="${icao}1kmCompositeRef">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="37" />
+			<substitute key="mode1" value="" />
+			<substitute key="mode2" value="CZ-Pg" />
+			<substitute key="latest" value="false" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarImageWithGraphic.xml" menuText="4km Composite Ref (CZ)"
+			id="${icao}4kmCompositeRef">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="38" />
+			<substitute key="mode1" value="" />
+			<substitute key="mode2" value="CZ-Pg" />
+			<substitute key="latest" value="false" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarVILCompRefl.xml"
+			menuText="VIL/Comp Ref" id="${icao}VILCompRef">
+			<substitute key="icao" value="${icao}" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+			menuText="Vert Integ Liquid (VIL)" id="${icao}VertIntegLiquidVIL">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="57" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+			menuText="Digital VIL (DVL)" id="${icao}DigitalVilDVL">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="134" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+			menuText="Echo Tops (ET)" id="${icao}EchoTopsET">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="41" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+			menuText="Enhanced Echo Tops (EET)" id="${icao}EnhancedEchoTopsEET">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="135" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+		<contribute xsi:type="separator" id="${icao}DerivedProductsReflectivity" />
+		<contribute xsi:type="titleItem" titleText="------ Velocity Based ------"
+			id="${icao}DerivedProductsVelocityBased" />
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarXY.xml"
+			menuText="VAD Wind Profile (VWP)" id="${icao}VADWindProfile"
+			editorType="com.raytheon.viz.radar.ui.xy.RadarXYEditor">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="48" />
+			<substitute key="insetMap" value="false" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarXY.xml"
+			menuText="Vel Az Display (VAD)" id="${icao}VelAzDisplay"
+			editorType="com.raytheon.viz.radar.ui.xy.RadarXYEditor">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="84" />
+			<substitute key="insetMap" value="false" />
+		</contribute>
+		<contribute xsi:type="separator" id="${icao}DerivedProductsLayerMaxZ" />
+		<contribute xsi:type="titleItem" titleText="------ Layer Max Z ------"
+			id="${icao}LayerMaxZ" />
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+			menuText="User Sel Lyr Ref (ULR)" id="${icao}UserSelLyrRefULR">
+			<dataURI>/radar/%/${icao}/137/%</dataURI>
+	        <substitute key="product" value="137"/>
+	        <substitute key="elevation" value="0.0--0.0"/>
+	    </contribute>	
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml" 
+				menuText="Layer 1 Max Z (LRM)" id="${icao}Layer1MaxRefl">
+			<substitute key="icao" value="${icao}"/>
+	        <substitute key="product" value="65"/>
+	        <substitute key="elevation" value="0.0--360.0"/>
+	    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml" 
+				menuText="Layer 2 Max Z" id="${icao}Layer2MaxRefl">
+			<substitute key="icao" value="${icao}"/>
+	        <substitute key="product" value="66"/>
+	        <substitute key="elevation" value="0.0--360.0"/>
+	    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml" 
+				menuText="Layer 3 Max Z" id="${icao}Layer3MaxRefl">	
+			<substitute key="icao" value="${icao}"/>
+	        <substitute key="product" value="90"/>
+	        <substitute key="elevation" value="0.0--0.0"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+			menuText="Layer 1 AP Removed (APR)" id="${icao}DerivedProductsLayer1APRemoved">
+			<substitute key="product" value="67" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+		<contribute xsi:type="separator" id="${icao}DerivedProductsCrossSection" />
+		<contribute xsi:type="titleItem" titleText="------ Cross Section ------"
+			id="${icao}CrossSection" />
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarXY.xml" 
+				menuText="Reflectivity (RCS)" id="${icao}ReflectivityRCS" editorType="com.raytheon.viz.radar.ui.xy.RadarXYEditor">
+			<substitute key="icao" value="${icao}"/>
+	        <substitute key="product" value="50"/>
+	        <substitute key="insetMap" value="true"/>
+	    </contribute>	
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarXY.xml" 
+				menuText="Velocity (VCS)" id="${icao}VelocityVCS" editorType="com.raytheon.viz.radar.ui.xy.RadarXYEditor">
+			<substitute key="icao" value="${icao}"/>
+	        <substitute key="product" value="51"/>
+	        <substitute key="insetMap" value="true"/>
+	    </contribute>	
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarXY.xml" 
+				menuText="3-Bit Refl (XSR)" id="${icao}3BitReflXSR" editorType="com.raytheon.viz.radar.ui.xy.RadarXYEditor">
+			<substitute key="icao" value="${icao}"/>
+	        <substitute key="product" value="85"/>
+	        <substitute key="insetMap" value="true"/>
+	    </contribute>	
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarXY.xml"
+				menuText="3-Bit Vel (XSV)" id="${icao}3BitVelXSV" editorType="com.raytheon.viz.radar.ui.xy.RadarXYEditor">	
+			<substitute key="icao" value="${icao}"/>
+	        <substitute key="product" value="86"/>
+	        <substitute key="insetMap" value="true"/>
+	    </contribute>
+
+		<contribute xsi:type="separator" id="${icao}DerivedProductsCellTrend" />
+		<contribute xsi:type="titleItem" titleText="------ Cell Trends ------"
+			id="${icao}CellTrends" />
+		<contribute xsi:type="bundleItem" file="bundles/DefaultCellTrend.xml" 
+				menuText="point A" id="${icao}pointA" editorType="com.raytheon.viz.radar.ui.xy.RadarGraphEditor">
+	        <substitute key="product" value="62"/>
+	        <substitute key="elevation" value="0"/>
+	        <substitute key="pointid" value="A"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultCellTrend.xml" 
+				menuText="point B" id="${icao}pointB" editorType="com.raytheon.viz.radar.ui.xy.RadarGraphEditor">
+	        <substitute key="product" value="62"/>
+	        <substitute key="elevation" value="0"/>
+	        <substitute key="pointid" value="B"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultCellTrend.xml"
+	    		menuText="point C" id="${icao}pointC" editorType="com.raytheon.viz.radar.ui.xy.RadarGraphEditor">
+	        <substitute key="product" value="62"/>
+	        <substitute key="elevation" value="0"/>
+	        <substitute key="pointid" value="C"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultCellTrend.xml"
+	    		menuText="point D" id="${icao}pointD" editorType="com.raytheon.viz.radar.ui.xy.RadarGraphEditor">
+	        <substitute key="product" value="62"/>
+	        <substitute key="elevation" value="0"/>
+	        <substitute key="pointid" value="D"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultCellTrend.xml"
+	    		menuText="point E" id="${icao}pointE" editorType="com.raytheon.viz.radar.ui.xy.RadarGraphEditor">
+	        <substitute key="product" value="62"/>
+	        <substitute key="elevation" value="0"/>
+	        <substitute key="pointid" value="E"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultCellTrend.xml"
+	    		menuText="point F" id="${icao}pointF" editorType="com.raytheon.viz.radar.ui.xy.RadarGraphEditor">
+	        <substitute key="product" value="62"/>
+	        <substitute key="elevation" value="0"/>
+	        <substitute key="pointid" value="F"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultCellTrend.xml"
+	    		menuText="point G" id="${icao}pointG" editorType="com.raytheon.viz.radar.ui.xy.RadarGraphEditor">
+	        <substitute key="product" value="62"/>
+	        <substitute key="elevation" value="0"/>
+	        <substitute key="pointid" value="G"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultCellTrend.xml"
+	    		menuText="point H" id="${icao}pointH" editorType="com.raytheon.viz.radar.ui.xy.RadarGraphEditor">
+	        <substitute key="product" value="62"/>
+	        <substitute key="elevation" value="0"/>
+	        <substitute key="pointid" value="H"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultCellTrend.xml"
+	    		menuText="point I" id="${icao}pointI" editorType="com.raytheon.viz.radar.ui.xy.RadarGraphEditor">
+	        <substitute key="product" value="62"/>
+	        <substitute key="elevation" value="0"/>
+	        <substitute key="pointid" value="I"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultCellTrend.xml"
+	    		menuText="point J" id="${icao}pointJ" editorType="com.raytheon.viz.radar.ui.xy.RadarGraphEditor">
+	        <substitute key="product" value="62"/>
+	        <substitute key="elevation" value="0"/>
+	        <substitute key="pointid" value="J"/>
+	    </contribute>
+</menuTemplate>

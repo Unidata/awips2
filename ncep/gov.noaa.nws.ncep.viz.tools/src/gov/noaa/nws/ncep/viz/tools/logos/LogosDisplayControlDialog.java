@@ -1,10 +1,11 @@
 package gov.noaa.nws.ncep.viz.tools.logos;
 
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.tools.logos.LogoInfo.LogoEntry;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,8 +36,10 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 
 /**
@@ -49,6 +52,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * June 2009  	105        M. Li    	Initial creation. 
  * Nov  2009               G. Hull      migrate to to11d6
  * July 2011    #450       G. Hull      get Logos from Localization.
+ * 02/11/13     #972       G. Hull      AbstractEditor instead of NCMapEditor
  * 
  * </pre>
  * 
@@ -78,7 +82,7 @@ public class LogosDisplayControlDialog extends Dialog {
     
     private static final int MIN_SCALER_VALUE = 50;
     
-    protected NCMapEditor theEditor;
+    protected AbstractEditor theEditor;
     
     protected LogosResource logosResource;
 	
@@ -287,7 +291,7 @@ public class LogosDisplayControlDialog extends Dialog {
     
     private void initialize() {
     	
-    	theEditor = NmapUiUtils.getActiveNatlCntrsEditor();
+    	theEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
 		logosResource = null;
     	logosResource = getLogosResource(false);
     	
@@ -458,28 +462,22 @@ public class LogosDisplayControlDialog extends Dialog {
     
     private LogosResource getLogosResource(boolean toCreate) {
     	// See if an logos resource is there
-    	if (theEditor == null)
-    		theEditor = NmapUiUtils.getActiveNatlCntrsEditor();
+    	if (theEditor == null) {
+    		theEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
+    	}
     	
-        ResourceList rscs = theEditor.getDescriptor().getResourceList();
+        NcDisplayMngr.findResource( LogosResource.class, theEditor );
         
-        for (ResourcePair r : rscs) {
-            if (r.getResource() instanceof LogosResource) {
-            	logosResource = (LogosResource) r.getResource();
-                break;
-            }
-        }
-
         // Create new resource for logos
         if (toCreate) {
         	//logosResource = new LogosResource();
             try {
             	LogosResourceData srd = new LogosResourceData();
-            	logosResource = srd.construct(new LoadProperties(), theEditor.getDescriptor());
-            	theEditor.getDescriptor().getResourceList().add(
-            			logosResource);
-                logosResource.init(theEditor.getActiveDisplayPane()
-                        .getTarget());
+            	IDescriptor descr = NcEditorUtil.getDescriptor(theEditor);
+            	logosResource = srd.construct(new LoadProperties(), descr );
+            	descr.getResourceList().add( logosResource );
+            	
+                logosResource.init(theEditor.getActiveDisplayPane().getTarget());
                 
             } catch (VizException e) {
                 e.printStackTrace();
@@ -492,7 +490,7 @@ public class LogosDisplayControlDialog extends Dialog {
     
     private void removeLogosResource() {
     	if (logosResource != null) {
-    		theEditor.getDescriptor().getResourceList().removeRsc(logosResource);
+    		NcEditorUtil.getDescriptor(theEditor).getResourceList().removeRsc(logosResource);
     		logosResource = null;
     		theEditor.refresh();
     	}
