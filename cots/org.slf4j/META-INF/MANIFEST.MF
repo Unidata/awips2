@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Slf4j Plug-in
 Bundle-SymbolicName: org.slf4j
-Bundle-Version: 1.6.1
-Bundle-ClassPath: slf4j-api-1.6.1.jar,
- slf4j-log4j12-1.6.1.jar
+Bundle-Version: 1.7.5
+Bundle-ClassPath: slf4j-api-1.7.5.jar,
+ slf4j-log4j12-1.7.5.jar
 Export-Package: org.slf4j,
  org.slf4j.helpers,
  org.slf4j.spi

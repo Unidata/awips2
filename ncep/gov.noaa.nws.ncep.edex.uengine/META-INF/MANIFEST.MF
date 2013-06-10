@@ -22,7 +22,7 @@ Require-Bundle: com.raytheon.edex.uengine,
  com.raytheon.edex.plugin.modelsounding;bundle-version="1.12.1174",
  com.raytheon.edex.plugin.bufrua;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
- com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.pointdata;bundle-version="1.12.1174",
  gov.noaa.nws.ncep.edex.plugin.ncgrib;bundle-version="1.0.0",
  gov.noaa.nws.ncep.common.dataplugin.ncuair;bundle-version="1.0.0",
  com.raytheon.uf.common.gridcoverage;bundle-version="1.0.0"

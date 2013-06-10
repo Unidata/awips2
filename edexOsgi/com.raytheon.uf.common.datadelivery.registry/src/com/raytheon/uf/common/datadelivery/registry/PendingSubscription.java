@@ -19,18 +19,8 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import com.raytheon.uf.common.registry.annotations.AssociationMapping;
-import com.raytheon.uf.common.registry.annotations.RegistryObject;
-import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-
 /**
- * Pending Subscription Object.
+ * Pending Subscription definition.
  * 
  * <pre>
  * 
@@ -38,38 +28,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 8, 2012            mpduff     Initial creation
- * Aug 27, 2012 0743      djohnson   Fix copy constructor, add association annotations.
- * Sep 14, 2012 1169      djohnson   Include owner in the registry id and association.
- * Sep 24, 2012 1157      mpduff     Changed to extend IniitialPendingSubscription.
- * Nov 19, 2012 1166      djohnson   Clean up JAXB representation of registry objects.
+ * Apr 04, 2013 1841      djohnson      Initial creation
  * 
  * </pre>
  * 
- * @author mpduff
+ * @author djohnson
  * @version 1.0
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
-@DynamicSerialize
-@RegistryObject(objectType = InitialPendingSubscription.class,
-        value = { Subscription.PROVIDER_NAME_SLOT,
-        Subscription.NAME_SLOT, Subscription.DATA_SET_SLOT,
-        Subscription.OWNER_SLOT,
-        InitialPendingSubscription.CHANGE_REQUEST_ID_SLOT }, associationMappings = { @AssociationMapping(associationType = RegistryUtil.ASSOCIATION_RELATED_TO, keyFields = {
-        Subscription.PROVIDER_NAME_SLOT, Subscription.NAME_SLOT,
-        Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT }, required = false, targetObject = Subscription.class) })
-public class PendingSubscription extends InitialPendingSubscription
-        implements ISerializableObject {
 
-    public PendingSubscription() {
-
-    }
-
-    public PendingSubscription(Subscription subscription,
-            String currentUser) {
-        super(subscription, currentUser);
-    }
-
+public interface PendingSubscription extends InitialPendingSubscription {
 
 }

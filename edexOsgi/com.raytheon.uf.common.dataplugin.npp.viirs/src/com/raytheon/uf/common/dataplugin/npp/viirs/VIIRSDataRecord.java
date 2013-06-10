@@ -23,6 +23,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -54,6 +56,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Nov 30, 2011            mschenke     Initial creation
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869       bsteffen    Remove dataURI column from
+ *                                     PluginDataObject.
  * 
  * </pre>
  * 
@@ -291,5 +295,11 @@ public class VIIRSDataRecord extends PersistablePluginDataObject implements
     @Override
     public IDecoderGettable getDecoderGettable() {
         return null;
+    }
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
     }
 }

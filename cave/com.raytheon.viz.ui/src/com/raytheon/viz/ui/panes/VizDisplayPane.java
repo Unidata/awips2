@@ -198,17 +198,17 @@ public class VizDisplayPane implements IDisplayPane {
             boolean enableContextualMenus) throws VizException {
         this.container = container;
         this.canvasComp = canvasComp;
-        this.canvasComp.addDisposeListener(new DisposeListener() {
-            @Override
-            public void widgetDisposed(DisposeEvent e) {
-                VizDisplayPane.this.dispose();
-            }
-        });
 
         // create the graphics adapter
         graphicsAdapter = display.getGraphicsAdapter();
         // create the canvas
         this.canvas = graphicsAdapter.constrcutCanvas(canvasComp);
+        this.canvas.addDisposeListener(new DisposeListener() {
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                VizDisplayPane.this.disposePane();
+            }
+        });
         // set the renderable display
         setRenderableDisplay(display);
 
@@ -378,12 +378,7 @@ public class VizDisplayPane implements IDisplayPane {
         return target;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.gl.IDisplayPane#dispose()
-     */
-    public void dispose() {
+    private void disposePane() {
         synchronized (this) {
             DrawCoordinatorJob.getInstance().unregisterPane(this.container,
                     this);
@@ -400,10 +395,21 @@ public class VizDisplayPane implements IDisplayPane {
                 container.notifyRenderableDisplayChangedListeners(this,
                         renderableDisplay, DisplayChangeType.REMOVE);
             }
+        }
+    }
 
-            if (canvas.isDisposed() == false) {
-                canvasComp.dispose();
-            }
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.core.gl.IDisplayPane#dispose()
+     */
+    public void dispose() {
+        disposePane();
+
+        if (canvas.isDisposed() == false) {
+            // Dispose was called outside of our own canvas listener so
+            // destroy the canvas composite so the pane disappears
+            canvasComp.dispose();
         }
     }
 
@@ -812,11 +818,11 @@ public class VizDisplayPane implements IDisplayPane {
     /**
      * Resize the pane
      */
-    public void resize() {
+    protected void resize() {
         synchronized (this) {
-
+            // Schedule this to run so resize can finish if doing multiple panes and 
+            // only called once if layout changing a lot
             VizApp.runAsync(new Runnable() {
-
                 @Override
                 public void run() {
                     if (canvas == null || canvas.isDisposed()) {
@@ -826,26 +832,14 @@ public class VizDisplayPane implements IDisplayPane {
                     target.resize();
 
                     Rectangle clientArea = canvas.getClientArea();
-
-                    if (renderableDisplay != null
-                            && renderableDisplay.getExtent() == null) {
-                        scaleToClientArea();
-
-                        zoomLevel = renderableDisplay
-                                .recalcZoomLevel(renderableDisplay
-                                        .getDimensions());
-                        refresh();
-
-                    } else if (renderableDisplay != null) {
+                    if (renderableDisplay != null) {
                         renderableDisplay.calcPixelExtent(clientArea);
                         zoomLevel = renderableDisplay
                                 .recalcZoomLevel(renderableDisplay
                                         .getDimensions());
-                        refresh();
                     }
                 }
             });
-
         }
     }
 
@@ -912,6 +906,13 @@ public class VizDisplayPane implements IDisplayPane {
      */
     public Canvas getCanvas() {
         return canvas;
+    }
+
+    /**
+     * @return the pane composite
+     */
+    public Composite getComposite() {
+        return canvasComp;
     }
 
     /*

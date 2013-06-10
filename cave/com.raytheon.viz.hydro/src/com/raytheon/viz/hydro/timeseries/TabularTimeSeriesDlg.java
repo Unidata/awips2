@@ -125,6 +125,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 									   and highlight the row that was updated.
  * Feb 05,2013 1578        rferrel     Changes for non-blocking singleton TimeSeriesDlg.
  *                                     Code clean up for non-blocking dialog.
+ * Feb 27,2013 1790        rferrel     Bug fix for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -1028,10 +1029,12 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
         reviewSendScriptBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (sendConfigDlg == null) {
+                if (sendConfigDlg == null || sendConfigDlg.isDisposed()) {
                     sendConfigDlg = new SendConfigDlg(shell);
+                    sendConfigDlg.open();
+                } else {
+                    sendConfigDlg.bringToTop();
                 }
-                sendConfigDlg.open();
 
             }
         });

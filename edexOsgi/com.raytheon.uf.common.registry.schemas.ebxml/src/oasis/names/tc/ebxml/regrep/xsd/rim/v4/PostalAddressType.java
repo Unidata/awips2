@@ -23,6 +23,7 @@ package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -70,12 +71,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "PostalAddressType")
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "PostalAddress")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "PostalAddress")
 public class PostalAddressType extends ExtensibleObjectType {
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "PostalAddressTypeGenerator", schema = "ebxml", sequenceName = "ebxml.PostalAddress_sequence")
+    @GeneratedValue(generator = "PostalAddressTypeGenerator")
     @XmlTransient
     private Integer key;
 

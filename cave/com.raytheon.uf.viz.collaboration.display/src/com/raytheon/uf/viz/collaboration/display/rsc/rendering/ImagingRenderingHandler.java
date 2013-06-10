@@ -25,6 +25,8 @@ import java.util.List;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.colormap.IColorMap;
+import com.raytheon.uf.common.colormap.image.ColorMapData;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.display.Activator;
 import com.raytheon.uf.viz.core.DrawableImage;
@@ -34,7 +36,6 @@ import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;

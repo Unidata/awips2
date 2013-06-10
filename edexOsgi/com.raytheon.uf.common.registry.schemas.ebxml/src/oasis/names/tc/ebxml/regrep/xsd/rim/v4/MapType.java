@@ -24,10 +24,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -38,7 +41,6 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -75,14 +77,15 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "MapType", propOrder = { "entry" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "MapType")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "Map")
 public class MapType implements Serializable {
 
     private static final long serialVersionUID = 5533297201296624269L;
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "MapTypeGenerator", schema = "ebxml", sequenceName = "ebxml.Map_sequence")
+    @GeneratedValue(generator = "MapTypeGenerator")
     @XmlTransient
     protected Integer key;
 
@@ -92,9 +95,17 @@ public class MapType implements Serializable {
 
     @XmlElement(name = "Entry")
     @DynamicSerializeElement
-    @Cascade(value = { org.hibernate.annotations.CascadeType.SAVE_UPDATE })
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(schema = "ebxml")
     protected List<EntryType> entry;
+
+    public MapType() {
+
+    }
+
+    public MapType(List<EntryType> entry) {
+        this.entry = entry;
+    }
 
     /**
      * Gets the value of the entry property.

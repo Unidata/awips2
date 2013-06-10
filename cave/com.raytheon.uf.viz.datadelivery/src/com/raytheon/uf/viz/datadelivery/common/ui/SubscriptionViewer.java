@@ -52,6 +52,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Jun 21, 2012   736      djohnson   Change OPERATION_STATUS to OperationStatus.
  * Dec 03, 2012  1269      mpduff     Change to take a list of subscriptions for the view mode.
  * Dec 10, 2012  1300      bgonzale   Table filtering by dataset and provider.
+ * May 23, 2012  2020      mpduff     Implement method.
  * </pre>
  * 
  * @author mpduff
@@ -64,13 +65,13 @@ public class SubscriptionViewer extends AbstractViewDlg implements
     /**
      * Provider name associated with subscriptions. i.e. NOMADS, NCDC,...
      */
-    private String providerName;
+    private final String providerName;
 
     /**
      * Dataset name that the subscriptions are associated with. i.e. gfs,
      * nam,...
      */
-    private String datasetName;
+    private final String datasetName;
 
     /** Table composite */
     private SubscriptionTableComp tableComp;
@@ -106,7 +107,7 @@ public class SubscriptionViewer extends AbstractViewDlg implements
 
     /**
      * Constructor taking a list of subscriptions.
-     *
+     * 
      * @param parent
      *            Parent Shell
      * @param subscriptionList
@@ -125,7 +126,7 @@ public class SubscriptionViewer extends AbstractViewDlg implements
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
      */
     @Override
@@ -138,7 +139,7 @@ public class SubscriptionViewer extends AbstractViewDlg implements
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayoutData()
      */
@@ -149,7 +150,7 @@ public class SubscriptionViewer extends AbstractViewDlg implements
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
      * .eclipse.swt.widgets.Shell)
@@ -229,12 +230,20 @@ public class SubscriptionViewer extends AbstractViewDlg implements
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionAction#
      * activateButtonUpdate(java.lang.String)
      */
     @Override
     public void activateButtonUpdate(String text) {
+        // Not used.
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateControls() {
         // Not used.
     }
 }

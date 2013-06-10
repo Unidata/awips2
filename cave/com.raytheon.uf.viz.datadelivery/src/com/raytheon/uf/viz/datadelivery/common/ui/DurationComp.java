@@ -44,7 +44,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 
 /**
- * This is the subscription duration composite. This class is intended to be 
+ * This is the subscription duration composite. This class is intended to be
  * extended so common classes can be created and shared.
  * 
  * <pre>
@@ -53,7 +53,8 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 27, 2012   702      jpiatt     Initial creation.
+ * Jun 27, 2012   702      jpiatt      Initial creation.
+ * May 15, 2013  1040      mpduff      Fixed button width.
  * 
  * </pre>
  * 
@@ -65,13 +66,13 @@ public class DurationComp extends Composite {
     /** Status Handler */
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DurationComp.class);
-    
+
     /** TableItem object. */
     private final Composite parentComp;
-    
+
     /** The indefinite option radio button */
     private Button indefiniteChk;
-    
+
     /** The start date text field */
     private Text startText;
 
@@ -83,13 +84,13 @@ public class DurationComp extends Composite {
 
     /** The end date text field */
     private Text endText;
-    
+
     /** The starting date */
     private Date startDate;
 
     /** The ending date */
     private Date endDate;
-    
+
     /**
      * Constructor.
      * 
@@ -120,7 +121,7 @@ public class DurationComp extends Composite {
         createDurationGroup();
 
     }
-    
+
     /**
      * Create the Subscription Duration Group
      */
@@ -145,11 +146,9 @@ public class DurationComp extends Composite {
                 endText.setEnabled(inDef);
                 endDateBtn.setEnabled(inDef);
 
-            } 
+            }
         });
 
-        int buttonWidth = 85;
-        GridData btnData = new GridData(buttonWidth, SWT.DEFAULT);
         int textWidth = 100;
         GridData textData = new GridData(textWidth, SWT.DEFAULT);
 
@@ -157,9 +156,9 @@ public class DurationComp extends Composite {
         Composite periodComp = new Composite(durationGrp, SWT.NONE);
         periodComp.setLayout(new GridLayout(3, false));
         periodComp.setLayoutData(gd);
-        
+
         gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
-        
+
         Label startLbl = new Label(periodComp, SWT.LEFT);
         startLbl.setLayoutData(gd);
         startLbl.setText("Start Date: ");
@@ -171,17 +170,19 @@ public class DurationComp extends Composite {
 
             @Override
             public void focusLost(FocusEvent e) {
-                if (!DataDeliveryGUIUtils.validateDate(false, startText.getText())) {
-                    DataDeliveryUtils.showMessage(getShell(), SWT.ERROR, "Invalid Date/Time",
-                            "Invalid Starting Date/Time entered.\n\n" + "Please use the Select Date button\n"
+                if (!DataDeliveryGUIUtils.validateDate(false,
+                        startText.getText())) {
+                    DataDeliveryUtils.showMessage(getShell(), SWT.ERROR,
+                            "Invalid Date/Time",
+                            "Invalid Starting Date/Time entered.\n\n"
+                                    + "Please use the Select Date button\n"
                                     + "to select the date/time.");
                 }
             }
         });
 
         startDateBtn = new Button(periodComp, SWT.PUSH);
-        startDateBtn.setText("Select Date");
-        startDateBtn.setLayoutData(btnData);
+        startDateBtn.setText(" Select Date ");
         startDateBtn.setEnabled(false);
         startDateBtn.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -191,7 +192,7 @@ public class DurationComp extends Composite {
         });
 
         gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
-        
+
         Label endLbl = new Label(periodComp, SWT.LEFT);
         endLbl.setLayoutData(gd);
         endLbl.setText("Expiration Date: ");
@@ -205,17 +206,17 @@ public class DurationComp extends Composite {
             @Override
             public void focusLost(FocusEvent e) {
                 if (!DataDeliveryGUIUtils.validateDate(false, endText.getText())) {
-                    DataDeliveryUtils.showMessage(getShell(), SWT.ERROR, "Invalid Date/Time",
-                            "Invalid End Date/Time entered.\n\n" + "Please use the Select Date button\n"
+                    DataDeliveryUtils.showMessage(getShell(), SWT.ERROR,
+                            "Invalid Date/Time",
+                            "Invalid End Date/Time entered.\n\n"
+                                    + "Please use the Select Date button\n"
                                     + "to select the date/time.");
                 }
             }
         });
 
-        btnData = new GridData(buttonWidth, SWT.DEFAULT);
         endDateBtn = new Button(periodComp, SWT.PUSH);
-        endDateBtn.setText("Select Date");
-        endDateBtn.setLayoutData(btnData);
+        endDateBtn.setText(" Select Date ");
         endDateBtn.setEnabled(false);
         endDateBtn.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -224,7 +225,7 @@ public class DurationComp extends Composite {
             }
         });
     }
-    
+
     /**
      * Get the start date selected by the user
      */
@@ -233,15 +234,17 @@ public class DurationComp extends Composite {
         if (d != null) {
             startDate = d;
             try {
-                startText.setText(DataDeliveryGUIUtils.getSubscriptionFormat().format(startDate) + "Z");
+                startText.setText(DataDeliveryGUIUtils.getSubscriptionFormat()
+                        .format(startDate) + "Z");
             } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM, "Invalid date format - format needs to be " +
-                        "MM/dd/yyyy HH", e);
+                statusHandler.handle(Priority.PROBLEM,
+                        "Invalid date format - format needs to be "
+                                + "MM/dd/yyyy HH", e);
             }
         }
 
     }
-    
+
     /**
      * Get the end date selected by the user
      */
@@ -250,10 +253,12 @@ public class DurationComp extends Composite {
         if (d != null) {
             endDate = d;
             try {
-                endText.setText(DataDeliveryGUIUtils.getSubscriptionFormat().format(endDate) + "Z");
+                endText.setText(DataDeliveryGUIUtils.getSubscriptionFormat()
+                        .format(endDate) + "Z");
             } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM, "Invalid date format - format needs to be " +
-                		"MM/dd/yyyy HH", e);
+                statusHandler.handle(Priority.PROBLEM,
+                        "Invalid date format - format needs to be "
+                                + "MM/dd/yyyy HH", e);
             }
         }
     }
@@ -274,29 +279,28 @@ public class DurationComp extends Composite {
         Object obj = ac.open();
 
         if ((obj != null) && (obj instanceof Calendar)) {
-            return ((Calendar)obj).getTime();
+            return ((Calendar) obj).getTime();
         }
 
         return null;
     }
-    
+
     /**
      * Get the does not expire radio button selection.
      * 
-     * @return boolean
-     *            true if checked
+     * @return boolean true if checked
      */
     public boolean isIndefiniteChk() {
-		return indefiniteChk.getSelection();
-	}
+        return indefiniteChk.getSelection();
+    }
 
-	/**
-	 * Set the does not expire check box.
-	 * 
-	 * @param flag
-	 */
+    /**
+     * Set the does not expire check box.
+     * 
+     * @param flag
+     */
     public void setNoExpiration(boolean flag) {
-    	indefiniteChk.setSelection(flag);
+        indefiniteChk.setSelection(flag);
     }
 
     /**
@@ -310,13 +314,13 @@ public class DurationComp extends Composite {
         } else {
             return null;
         }
-        
+
     }
-    
+
     /**
      * Enable or disable text boxes.
      * 
-     * @param flag 
+     * @param flag
      */
     public void resetTextBoxes(boolean flag) {
         this.startText.setEnabled(flag);
@@ -351,7 +355,7 @@ public class DurationComp extends Composite {
      * @param flag
      */
     public void setStartBtnEnabled(boolean flag) {
-        startDateBtn.setEnabled(flag); 
+        startDateBtn.setEnabled(flag);
     }
 
     /**
@@ -360,70 +364,79 @@ public class DurationComp extends Composite {
      * @param flag
      */
     public void setEndBtnEnabled(boolean flag) {
-        endDateBtn.setEnabled(flag); 
+        endDateBtn.setEnabled(flag);
     }
-	
-	/**
+
+    /**
      * Set the start date.
      * 
      * @param startDate
      */
     public void setStartDate(Date startDate) {
-        startText.setText(DataDeliveryGUIUtils.getSubscriptionFormat().format(startDate) + "Z");
+        startText.setText(DataDeliveryGUIUtils.getSubscriptionFormat().format(
+                startDate)
+                + "Z");
         startText.setEnabled(true);
-        startDateBtn.setEnabled(true); 
+        startDateBtn.setEnabled(true);
         this.startDate = startDate;
     }
 
-	/**
+    /**
      * Set the end date.
      * 
      * @param endDate
-     */	
-	public void setEndDate(Date endDate) {
-        endText.setText(DataDeliveryGUIUtils.getSubscriptionFormat().format(endDate) + "Z");
+     */
+    public void setEndDate(Date endDate) {
+        endText.setText(DataDeliveryGUIUtils.getSubscriptionFormat().format(
+                endDate)
+                + "Z");
         endText.setEnabled(true);
-        endDateBtn.setEnabled(true); 
+        endDateBtn.setEnabled(true);
         this.endDate = endDate;
-	}
+    }
 
-	/**
-	 * Check if dates are valid. 
-	 * @return true if dates are valid
-	 */
-	public boolean isValidChk() {
-	    boolean datesValid = false;
-	    boolean dateOrderValid = false;
+    /**
+     * Check if dates are valid.
+     * 
+     * @return true if dates are valid
+     */
+    public boolean isValidChk() {
+        boolean datesValid = false;
+        boolean dateOrderValid = false;
 
-	    if (!isIndefiniteChk()) {
-	        boolean validateDur = DataDeliveryGUIUtils.validateDate(false, getStartText());
-	        if (validateDur) {
+        if (!isIndefiniteChk()) {
+            boolean validateDur = DataDeliveryGUIUtils.validateDate(false,
+                    getStartText());
+            if (validateDur) {
 
-	                validateDur = DataDeliveryGUIUtils.validateDate(false, getEndText());
-	                if (validateDur) {
-	                    datesValid = true;
-	                    dateOrderValid = DataDeliveryGUIUtils.checkDateOrder(getStartText(), getEndText(), true);
-	                }
-	        }
-	    }
-	    else {
-	        datesValid = true;
-	        dateOrderValid = true;
-	    }
+                validateDur = DataDeliveryGUIUtils.validateDate(false,
+                        getEndText());
+                if (validateDur) {
+                    datesValid = true;
+                    dateOrderValid = DataDeliveryGUIUtils.checkDateOrder(
+                            getStartText(), getEndText(), true);
+                }
+            }
+        } else {
+            datesValid = true;
+            dateOrderValid = true;
+        }
 
-	    // Display error message
-	    if (!datesValid) {
-	        DataDeliveryUtils.showMessage(parentComp.getShell(), SWT.ERROR, "Invalid Date/Time",
-	                "Invalid Subscription Duration values entered.\n\n" + "Please use the Select Date button\n"
-	                + "to select the date/time.");
-	    }
-	    else if (!dateOrderValid) {
-	        DataDeliveryUtils.showMessage(parentComp.getShell(), SWT.ERROR, "Invalid Start/End Dates",
-	                "Invalid Start or Expiration Duration Date entered.\n\n"
-	                + "The expiration date is before the start date.");
-	    }
+        // Display error message
+        if (!datesValid) {
+            DataDeliveryUtils.showMessage(parentComp.getShell(), SWT.ERROR,
+                    "Invalid Date/Time",
+                    "Invalid Subscription Duration values entered.\n\n"
+                            + "Please use the Select Date button\n"
+                            + "to select the date/time.");
+        } else if (!dateOrderValid) {
+            DataDeliveryUtils.showMessage(parentComp.getShell(), SWT.ERROR,
+                    "Invalid Start/End Dates",
+                    "Invalid Start or Expiration Duration Date entered.\n\n"
+                            + "The expiration date is before the start date.");
+        }
 
-	    return datesValid && dateOrderValid;
-	}
+        return datesValid && dateOrderValid;
+    }
 
 }

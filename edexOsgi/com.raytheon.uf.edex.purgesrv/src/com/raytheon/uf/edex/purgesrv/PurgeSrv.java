@@ -73,12 +73,15 @@ public class PurgeSrv {
 
     /** The purge cron message */
     public static final String PURGE_CRON = "PURGE_CRON";
+    
+    private PurgeManager purgeManager;
 
     /**
      * Constructs a new PurgeSrv. This method verifies the metadata database has
      * been constructed and exports the schema if necessary
      */
-    public PurgeSrv() {
+    public PurgeSrv(PurgeManager purgeManager) {
+        this.purgeManager = purgeManager;
     }
 
     public void purgeCron() throws Exception {
@@ -126,10 +129,10 @@ public class PurgeSrv {
             purgeAllData();
         } else if (message.startsWith(DELETE_PLUGIN_DATA)) {
             String pluginToPurge = message.replace(DELETE_PLUGIN_DATA, "");
-            PurgeManager.getInstance().purgeExpiredData(pluginToPurge);
+            purgeManager.purgeExpiredData(pluginToPurge);
         } else if (message.startsWith(DELETE_ALL_PLUGIN_DATA)) {
             String pluginToPurge = message.replace(DELETE_ALL_PLUGIN_DATA, "");
-            PurgeManager.getInstance().purgeAllData(pluginToPurge);
+            purgeManager.purgeAllData(pluginToPurge);
         } else if (message.equals(PURGE_CRON)
                 || message.equals(DELETE_EXPIRED_DATA)) {
             purgeExpiredData();
@@ -160,7 +163,7 @@ public class PurgeSrv {
                 .getInstance().getRegisteredObjects());
         for (String pluginName : availablePlugins) {
             if (PluginRegistry.getInstance().getRegisteredObject(pluginName) != null) {
-                PurgeManager.getInstance().purgeAllData(pluginName);
+                purgeManager.purgeAllData(pluginName);
             }
         }
         PurgeLogger.logInfo("Purge All Data Completed at: " + new Date(),
@@ -183,7 +186,7 @@ public class PurgeSrv {
 
         for (String pluginName : availablePlugins) {
             if (PluginRegistry.getInstance().getRegisteredObject(pluginName) != null) {
-                PurgeManager.getInstance().purgeExpiredData(pluginName);
+                purgeManager.purgeExpiredData(pluginName);
             }
         }
     }

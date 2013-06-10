@@ -37,7 +37,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.tools.AbstractMovableToolLayer;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.viz.awipstools.ui.action.LapsToolsData;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
@@ -75,7 +75,7 @@ public class LapsToolLayer extends AbstractMovableToolLayer<Coordinate>
 
     private IWireframeShape gridShape;
 
-    public LapsToolLayer(AwipsToolsResourceData<LapsToolLayer> resourceData,
+    public LapsToolLayer(GenericToolsResourceData<LapsToolLayer> resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties, false);
         selectLocationAction = new AbstractRightClickAction() {

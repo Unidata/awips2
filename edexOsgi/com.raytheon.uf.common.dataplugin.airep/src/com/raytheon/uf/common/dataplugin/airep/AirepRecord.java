@@ -35,6 +35,8 @@ import javax.measure.quantity.Velocity;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -72,11 +74,12 @@ import com.vividsolutions.jts.geom.Geometry;
  * 20120405            435 dgilling    Prevent NullPointerExceptions in
  *                                     buildMessageData().
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * ======================================
- * AWIPS2 DR Work
  * 20120911           1011 jkorman     Added ability to report turbulence from decoded
  *                                     TB group.
  * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869       bsteffen    Remove dataURI column from
+ *                                     PluginDataObject.
+ * 
  * </pre>
  * 
  * @author jkorman
@@ -862,4 +865,10 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
         return true;
     }
 
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }

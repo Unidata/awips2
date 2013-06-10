@@ -19,7 +19,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.core.rsc;bundle-version="1.0.0",
  com.raytheon.uf.viz.ui.menus;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin.maps;bundle-version="1.0.0",
- com.raytheon.uf.viz.localization;bundle-version="1.12.1174"
+ com.raytheon.uf.viz.localization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: com.raytheon.uf.viz.core
@@ -27,4 +28,5 @@ Export-Package: com.raytheon.uf.viz.core.maps,
  com.raytheon.uf.viz.core.maps.actions,
  com.raytheon.uf.viz.core.maps.display,
  com.raytheon.uf.viz.core.maps.menus,
- com.raytheon.uf.viz.core.maps.rsc
+ com.raytheon.uf.viz.core.maps.rsc,
+ com.raytheon.uf.viz.core.maps.scales

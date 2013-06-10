@@ -23,19 +23,12 @@ package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 import java.io.Serializable;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.Embeddable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
+import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -62,30 +55,23 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "VersionInfoType")
+@Embeddable
+@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-@Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "VersionInfo")
-public class VersionInfoType implements Serializable {
+public class VersionInfoType implements Serializable,
+        IPersistableDataObject<String> {
 
     private static final long serialVersionUID = -2869857115641981790L;
 
-    @Id
+    @Column
     @XmlAttribute
     @DynamicSerializeElement
-    protected String versionName;
+    protected String versionName = "1";
 
-    @Id
+    @Column
     @XmlAttribute
     @DynamicSerializeElement
     protected String userVersionName;
-
-    @Column
-    @XmlTransient
-    private int versionNumber;
 
     /**
      * Gets the value of the versionName property.
@@ -106,7 +92,6 @@ public class VersionInfoType implements Serializable {
      */
     public void setVersionName(String value) {
         this.versionName = value;
-        this.versionNumber = Integer.parseInt(this.versionName);
     }
 
     /**
@@ -135,12 +120,9 @@ public class VersionInfoType implements Serializable {
         return versionName + "_" + userVersionName;
     }
 
-    public int getVersionNumber() {
-        return versionNumber;
-    }
-
-    public void setVersionNumber(int versionNumber) {
-        this.versionNumber = versionNumber;
+    @Override
+    public String getIdentifier() {
+        return versionName;
     }
 
 }

@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * Jul 11, 2008 1250        jelkins     Initial creation
+ * Mar 14, 2013 1794        djohnson    FileUtil.listFiles now returns List.
  * </pre>
  * 
  * @author jelkins
@@ -257,7 +258,7 @@ public class EDEXLocalizationAdapter implements ILocalizationAdapter {
 
         for (LocalizationContext ctx : context) {
 
-            ArrayList<File> fileList = com.raytheon.uf.common.util.FileUtil
+            List<File> fileList = com.raytheon.uf.common.util.FileUtil
                     .listFiles(getPath(ctx, path), null, recursive);
 
             for (File file : fileList) {

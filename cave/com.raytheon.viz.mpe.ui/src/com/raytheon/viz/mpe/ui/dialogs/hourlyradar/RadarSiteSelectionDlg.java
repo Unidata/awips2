@@ -48,8 +48,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 21, 2009            mpduff     Initial creation
- * May 20, 2013  15962     lbousaidi  changed getActiveRadarIds() call to
- *                                    getRadarIdsTrue(). 
+ * 
  * </pre>
  * 
  * @author mpduff
@@ -181,7 +180,7 @@ public class RadarSiteSelectionDlg extends CaveSWTDialog {
     private void populateBox() {
         String[] radarIds = null;
         try {
-            radarIds = GageTableDataManager.getInstance().getRadarIdsTrue();
+            radarIds = GageTableDataManager.getInstance().getActiveRadarIds();
             for (String s : radarIds) {
                 radarListBox.add(s);
             }

@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.raytheon.edex.msg.DataURINotificationMessage;
 import com.raytheon.edex.plugin.gfe.cache.d2dparms.D2DParmIdCache;
 import com.raytheon.edex.plugin.gfe.config.GFESiteActivation;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
@@ -51,6 +50,7 @@ import com.raytheon.uf.common.dataplugin.gfe.server.notify.DBInvChangeNotificati
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GfeNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotification;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.message.WsId;
@@ -74,6 +74,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * Sep 19, 2012			   jdynina		DR 15442 fix
  * Jan 18, 2013      #1504 randerso     Moved D2D to GFE parameter name translation from
  *                                      D2DParmIdCache to GfeIngestNotificationFilter
+ * Feb 15, 2013 1638       mschenke     Moved DataURINotificationMessage to uf.common.dataplugin
  * Mar 25, 2013       1823 dgilling     Trigger SAT smart init based only on record's
  *                                      SectorId and PhysicalElement.
  * Mar 20, 2013      #1774 randerso     Refactor to use grid durations from D2DGridDatabase

@@ -28,8 +28,6 @@
   
   <parameter name="wmoStaNum" numDims="1" type="INT" />
   <parameter name="staName" numDims="1" type="STRING" size="10" />
-  <parameter name="validTime" numDims="1" type="LONG" />
-  <parameter name="relTime" numDims="1" type="LONG" />
   <parameter name="sfcPressure" numDims="1" type="FLOAT" unit="Pa" />
 
   <!-- Mandatory level data -->

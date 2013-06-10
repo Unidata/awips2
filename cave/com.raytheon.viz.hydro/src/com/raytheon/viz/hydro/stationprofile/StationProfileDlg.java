@@ -22,11 +22,8 @@ package com.raytheon.viz.hydro.stationprofile;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
@@ -53,7 +50,6 @@ import com.raytheon.uf.common.dataplugin.shef.tables.Statprof;
 import com.raytheon.viz.hydro.util.MaxObsFcst;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
-import com.raytheon.viz.hydrocommon.data.RiverDataPoint;
 import com.raytheon.viz.hydrocommon.datamanager.RiverDataManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -67,7 +63,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 29 NOV 2007  373        lvenable    Initial creation 
  * 15 Nov 2008  1628       dhladky     Made it work.
  * 15 Jun 2010  4304       mpduff      Added some null checks.
- * 30 Nov 2011  11253      lbousaidi   used List instead of TreeMap	
+ * 30 Nov 2011  11253      lbousaidi   used List instead of TreeMap
+ * 29 Mar 2013  1790       rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -80,7 +77,7 @@ public class StationProfileDlg extends CaveSWTDialog {
      * Rounding factor.
      */
     private static final int SCALE_ROUNDING = 5;
-    
+
     private static final int MIN_RIVER_MILES = 200;
 
     /**
@@ -228,11 +225,9 @@ public class StationProfileDlg extends CaveSWTDialog {
      * selectedLid
      */
     private String selectedLid = null;
-    
+
     private Map<String, HydroDataReport> allReports = new HashMap<String, HydroDataReport>();
 
-    private LinkedHashMap<String, RiverDataPoint> riverPoints = null;
-    
     private List<Statprof> stationList = new ArrayList<Statprof>();
 
     private boolean displayDlg = true;
@@ -244,11 +239,11 @@ public class StationProfileDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public StationProfileDlg(Shell parent, String selectedLid) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Station Profile");
 
         this.selectedLid = selectedLid;
-
+        setReturnValue(selectedLid);
         loadStationProfileData();
         if (stationProfData != null) {
             calculateValues();
@@ -257,21 +252,37 @@ public class StationProfileDlg extends CaveSWTDialog {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         font.dispose();
         profileColor.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
         profileColor = new Color(getDisplay(), 216, 212, 100);
         font = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
 
         initializeComponents();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#shouldOpen()
+     */
     @Override
     protected boolean shouldOpen() {
         if (displayDlg) {
@@ -281,6 +292,7 @@ public class StationProfileDlg extends CaveSWTDialog {
             mb.setText("Data Not Available");
             mb.setMessage("Unable to retrieve station information.");
             mb.open();
+            setReturnValue(null);
             return false;
         }
     }
@@ -377,14 +389,10 @@ public class StationProfileDlg extends CaveSWTDialog {
         gd = new GridData(100, SWT.DEFAULT);
         stationCbo = new Combo(infoComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         populateStationCbo();
-        int j = 0;
-        for (int i = 0; i < stationCbo.getItemCount(); i++) {
-            if (stationCbo.getItem(i).equals(selectedLid)) {
-                j = i;
-                break;
-            }
+        int j = stationCbo.indexOf(selectedLid);
+        if (j >= 0) {
+            stationCbo.select(j);
         }
-        stationCbo.select(j);
         stationCbo.setLayoutData(gd);
         stationCbo.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -674,7 +682,7 @@ public class StationProfileDlg extends CaveSWTDialog {
             sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
             int i = 0;
 
-            for (Statprof station: stationList) {
+            for (Statprof station : stationList) {
                 // Skip gage if the river mile is not valid
                 if (station.getId().getMile() == HydroConstants.MISSING_VALUE) {
                     continue;
@@ -688,41 +696,43 @@ public class StationProfileDlg extends CaveSWTDialog {
                 // hash mark at each site
                 e.gc.drawLine(x, y, x, y + POINT_HASH);
 
-                /* 
-                 * determine color of staff, based on proximity to action
-                 * or flood STAGE or DISCHARGE as appropriate. 
+                /*
+                 * determine color of staff, based on proximity to action or
+                 * flood STAGE or DISCHARGE as appropriate.
                  */
-                HydroDataReport report = allReports.get(station.getId().getLid());
+                HydroDataReport report = allReports.get(station.getId()
+                        .getLid());
 
                 RGB rgb = new RGB(0, 255, 0);
                 if (report != null) {
                     if (station.getId().getPrimaryPe().startsWith("H")) {
-                        if ((report.getValue() > station.getId().getFs()) && 
-                                (station.getId().getFs() > 0)) {
+                        if ((report.getValue() > station.getId().getFs())
+                                && (station.getId().getFs() > 0)) {
                             rgb = new RGB(255, 0, 0);
-                        } else if ((report.getValue() > station.getId().getWstg()) &&
-                                (station.getId().getWstg() > 0)) {
+                        } else if ((report.getValue() > station.getId()
+                                .getWstg()) && (station.getId().getWstg() > 0)) {
                             rgb = new RGB(255, 255, 0);
                         } // else use default green
                     } else {
-                        if ((report.getValue() > station.getId().getFq()) && 
-                                (station.getId().getFs() > 0)) {
+                        if ((report.getValue() > station.getId().getFq())
+                                && (station.getId().getFs() > 0)) {
                             rgb = new RGB(255, 0, 0);
-                        } else if ((report.getValue() > station.getId().getActionFlow()) &&
-                                (station.getId().getWstg() > 0)) {
+                        } else if ((report.getValue() > station.getId()
+                                .getActionFlow())
+                                && (station.getId().getWstg() > 0)) {
                             rgb = new RGB(255, 255, 0);
                         } // else use default green
                     }
                 }
 
-              if (rgb != null) {
-                  Color color = new Color(getDisplay(), rgb.red, rgb.green,
-                          rgb.blue);
-                  e.gc.setBackground(color);
-                  e.gc.fillRectangle(x - BAR_WIDTH / 2, y - BAR_HEIGHT,
-                          BAR_WIDTH, BAR_HEIGHT);
-                  color.dispose();
-              }
+                if (rgb != null) {
+                    Color color = new Color(getDisplay(), rgb.red, rgb.green,
+                            rgb.blue);
+                    e.gc.setBackground(color);
+                    e.gc.fillRectangle(x - BAR_WIDTH / 2, y - BAR_HEIGHT,
+                            BAR_WIDTH, BAR_HEIGHT);
+                    color.dispose();
+                }
 
                 // Get the label locations and store in object
 
@@ -887,7 +897,7 @@ public class StationProfileDlg extends CaveSWTDialog {
             int lastY = points.get(5);
 
             // Get gage bar points
-            for (Statprof station: stationList) {
+            for (Statprof station : stationList) {
                 // Skip gage if the river mile is not valid
                 if (station.getId().getMile() == HydroConstants.MISSING_VALUE) {
                     continue;
@@ -961,11 +971,11 @@ public class StationProfileDlg extends CaveSWTDialog {
     /**
      * Populate the station combo box.
      */
-    private void populateStationCbo() {       
-    	if (stationList !=null) {
-    		for (Statprof station : stationList) {         
-    			String stations = station.getId().getLid();
-    			stationCbo.add(stations);                        
+    private void populateStationCbo() {
+        if (stationList != null) {
+            for (Statprof station : stationList) {
+                String stations = station.getId().getLid();
+                stationCbo.add(stations);
             }
         }
     }
@@ -974,16 +984,16 @@ public class StationProfileDlg extends CaveSWTDialog {
      * Update the station profile information fields using the selected station.
      */
     private void updateInformationFields() {
-        if (stationProfData != null) {
-            Statprof data = stationProfData.getStationData(stationCbo
-                    .getText());
+        if (stationProfData != null && stationCbo.getSelectionIndex() >= 0) {
+            Statprof data = stationProfData
+                    .getStationData(stationCbo.getText());
             String name = null;
             if (data.getId().getProximity() == null) {
-                name = String.format("%s %s %s", data.getId().getStream(), "AT",
-                        data.getId().getName());
-            } else {
                 name = String.format("%s %s %s", data.getId().getStream(),
-                        data.getId().getProximity(), data.getId().getName());
+                        "AT", data.getId().getName());
+            } else {
+                name = String.format("%s %s %s", data.getId().getStream(), data
+                        .getId().getProximity(), data.getId().getName());
             }
 
             if (name != null) {
@@ -993,12 +1003,13 @@ public class StationProfileDlg extends CaveSWTDialog {
             if (data.getId().getReach() != null) {
                 reachTF.setText(data.getId().getReach());
             }
-            
+
             if (data.getId().getPrimaryPe().startsWith("H")) {
                 actionTF.setText(String.format("%5.2f", data.getId().getWstg()));
                 floodTF.setText(String.format("%5.2f", data.getId().getFs()));
             } else {
-                actionTF.setText(String.format("%5.2f", data.getId().getActionFlow()));
+                actionTF.setText(String.format("%5.2f", data.getId()
+                        .getActionFlow()));
                 floodTF.setText(String.format("%5.2f", data.getId().getFq()));
             }
         }
@@ -1040,14 +1051,15 @@ public class StationProfileDlg extends CaveSWTDialog {
                     (int) maxElevation, (int) minElevation);
             double maxMile = getMaxMile(stationList);
             double minMile = getMinMile(stationList);
-            
+
             mileRange = (maxMile - minMile) * 1.5;
             if (mileRange < (MIN_RIVER_MILES)) {
                 mileRange = MIN_RIVER_MILES;
             }
-            
-            for (Statprof station: stationList) {
-                stationProfData.addStationData(station.getId().getLid(), station);
+
+            for (Statprof station : stationList) {
+                stationProfData.addStationData(station.getId().getLid(),
+                        station);
             }
         }
     }
@@ -1080,7 +1092,7 @@ public class StationProfileDlg extends CaveSWTDialog {
         if (max < 0) {
             max = 0;
         }
-        
+
         return max;
     }
 
@@ -1108,11 +1120,11 @@ public class StationProfileDlg extends CaveSWTDialog {
         /* round off to nice even values, and return. */
         long lmin = (long) min / SCALE_ROUNDING;
         min = (lmin - 100) * SCALE_ROUNDING;
-        
+
         if (min > 19999) {
             min = 0;
         }
-        
+
         return min;
     }
 
@@ -1170,17 +1182,17 @@ public class StationProfileDlg extends CaveSWTDialog {
         if (mod == (long) min % 10) {
             min += mod;
         }
-        
+
         return min;
     }
-    
+
     /**
      * Load the data reports into memory.
      * 
-     * @param dataList - List of Statprof objects
+     * @param dataList
+     *            - List of Statprof objects
      */
-    private void loadStatProfReports(
-            List<Statprof> dataList) {
+    private void loadStatProfReports(List<Statprof> dataList) {
         int hoursBack = 72;
         int fcstBasisHoursAgo = 72;
 
@@ -1189,7 +1201,7 @@ public class StationProfileDlg extends CaveSWTDialog {
             if (sp == null) {
                 continue;
             }
-            
+
             /* get the river data for the current station */
             MaxObsFcst mof = new MaxObsFcst(sp.getId().getLid(), sp.getId()
                     .getPrimaryPe(), hoursBack, fcstBasisHoursAgo);
@@ -1210,6 +1222,19 @@ public class StationProfileDlg extends CaveSWTDialog {
             } else {
                 allReports.put(sp.getId().getLid(), new HydroDataReport());
             }
+        }
+    }
+
+    /**
+     * Select the desired station and update the display.
+     * 
+     * @param station
+     */
+    public void setStation(String station) {
+        if (stationCbo != null && !shell.isDisposed()) {
+            int j = stationCbo.indexOf(station);
+            stationCbo.select(j);
+            updateInformationFields();
         }
     }
 }

@@ -1,5 +1,8 @@
 package com.raytheon.uf.edex.datadelivery.event.handler;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.raytheon.uf.common.datadelivery.event.notification.NotificationRecord;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -10,15 +13,34 @@ import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.datadelivery.event.notification.NotificationDao;
 
 /**
+ * 
  * Abstract class to provide the send and store capabilities to subclasses.
  * 
- * @author jsanchez
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 3/18/2013    1802       bphillip    Implemented transactional boundaries
+ * 
+ * </pre>
+ * 
+ * @author djohnson
+ * @version 1.0
  */
+@Service
+@Transactional
 public abstract class AbstractHandler {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractHandler.class);
+
+    protected NotificationDao notificationDao;
+
+    protected AbstractHandler() {
+
+    }
 
     /**
      * Sends the object to 'notifyRoute'.
@@ -43,9 +65,13 @@ public abstract class AbstractHandler {
      */
     void storeAndSend(NotificationRecord record, String endpoint) {
         if (record != null) {
-            NotificationDao dao = new NotificationDao();
-            dao.persist(record);
+            notificationDao.createOrUpdate(record);
             send(record, endpoint);
         }
     }
+
+    public void setNotificationDao(NotificationDao notificationDao) {
+        this.notificationDao = notificationDao;
+    }
+
 }

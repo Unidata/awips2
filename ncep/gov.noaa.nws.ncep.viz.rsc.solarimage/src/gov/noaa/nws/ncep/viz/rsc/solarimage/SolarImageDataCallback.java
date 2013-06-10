@@ -7,6 +7,8 @@ import java.io.File;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 
+import com.raytheon.uf.common.colormap.image.ColorMapData;
+import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;

@@ -83,6 +83,23 @@ public class DrawableString extends AbstractDrawableObject {
      */
     public RGB boxColor;
 
+    public DrawableString(DrawableString that) {
+        this.basics.alpha = that.basics.alpha;
+        this.basics.color = that.basics.color;
+        this.basics.xOrColors = that.basics.xOrColors;
+        this.setCoordinates(that.basics.x, that.basics.y, that.basics.z);
+        this.text = that.text;
+        this.colors = that.colors;
+        this.font = that.font;
+        this.horizontalAlignment = that.horizontalAlignment;
+        this.verticallAlignment = that.verticallAlignment;
+        this.magnification = that.magnification;
+        this.rotation = that.rotation;
+        this.textStyle = that.textStyle;
+        this.shadowColor = that.shadowColor;
+        this.boxColor = that.boxColor;
+    }
+
     /**
      * Construct parameters with text, splits by newline, all text will be drawn
      * with color "color"

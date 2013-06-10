@@ -27,16 +27,19 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode;
-import com.raytheon.uf.common.dataplugin.shef.util.SHEFTimezone;
 import com.raytheon.edex.plugin.shef.util.SHEFDate;
 import com.raytheon.edex.plugin.shef.util.ShefUtil;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode;
+import com.raytheon.uf.common.dataplugin.shef.util.SHEFTimezone;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.time.DataTime;
@@ -49,6 +52,8 @@ import com.raytheon.uf.common.time.DataTime;
  * June2006		3,14		Phillippe	Initial Creation.	
  * 20071129     472         jkorman     Added IDecoderGettable interface.
  * 19Mar2008    387         M. Duff     Modified to store SHEF data.
+ * May 07, 2013	1869      	bsteffen   	Remove dataURI column from
+ *                                      PluginDataObject.
  * 
  * </pre>
  * 
@@ -614,4 +619,10 @@ public class ShefRecord extends PluginDataObject {
         return sb.toString();
     }
     
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }

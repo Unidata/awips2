@@ -32,6 +32,7 @@ import java.util.ServiceLoader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 04, 2013 1451       djohnson     Initial creation
+ * Mar 21, 2013 1794       djohnson     Requires the requesting class, for osgi support.
  * 
  * </pre>
  * 
@@ -51,6 +52,8 @@ public final class ServiceLoaderUtil {
      * {@link ServiceLoader}. If no results are found, will return the provided
      * default implementation.
      * 
+     * @param requestingClass
+     *            the class to use the classloader from
      * @param interfaceClass
      *            the class instance to search for a service loader
      *            implementation of
@@ -59,8 +62,10 @@ public final class ServiceLoaderUtil {
      * @return the loaded implementation, or the default implementation is no
      *         configuration file found
      */
-    public static <T> T load(Class<T> interfaceClass, T defaultImplementation) {
-        ServiceLoader<T> overridden = ServiceLoader.load(interfaceClass);
+    public static <T> T load(Class<?> requestingClass, Class<T> interfaceClass,
+            T defaultImplementation) {
+        ServiceLoader<T> overridden = ServiceLoader.load(interfaceClass,
+                requestingClass.getClassLoader());
 
         final Iterator<T> iter = overridden.iterator();
         if (iter.hasNext()) {

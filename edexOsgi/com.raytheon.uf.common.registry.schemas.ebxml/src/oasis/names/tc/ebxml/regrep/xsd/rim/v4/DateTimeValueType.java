@@ -69,8 +69,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "DateTimeValueType", propOrder = { "dateTimeValue" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "DateTimeValue")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "DateTimeValue")
 public class DateTimeValueType extends ValueType {
 
     @Column(name = "DateTimeValue")
@@ -81,6 +81,14 @@ public class DateTimeValueType extends ValueType {
     protected XMLGregorianCalendar dateTimeValue;
 
     private static final String COLUMN_NAME = "dateTimeValue";
+
+    public DateTimeValueType() {
+
+    }
+
+    public DateTimeValueType(XMLGregorianCalendar dateTimeValue) {
+        this.dateTimeValue = dateTimeValue;
+    }
 
     @Override
     public String getColumnName() {

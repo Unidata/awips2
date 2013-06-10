@@ -24,7 +24,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -60,10 +59,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.data.FloodStatementData;
 import com.raytheon.viz.hydrocommon.data.LocationData;
 import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
@@ -148,10 +144,11 @@ public class ImpactStatementDlg extends CaveSWTDialog {
      * Text editor control.
      */
     private StyledText textEditor;
+
     /**
      * text from the remark text box
      */
-    private String currentImpactText=null;
+    private String currentImpactText = null;
 
     /**
      * OK button.
@@ -201,7 +198,7 @@ public class ImpactStatementDlg extends CaveSWTDialog {
     /**
      * Cache of data for location
      */
-    private ArrayList<FloodStatementData> statementData;
+    private java.util.List<FloodStatementData> statementData;
 
     /**
      * Used by the print methods
@@ -223,8 +220,6 @@ public class ImpactStatementDlg extends CaveSWTDialog {
     private int x, y;
 
     private int index, end;
-
-    private String tabs;
 
     private StringBuffer wordBuffer;
 
@@ -466,16 +461,15 @@ public class ImpactStatementDlg extends CaveSWTDialog {
         textEditor.setEditable(fullControl);
         textEditor.setWordWrap(true);
         textEditor.setTextLimit(512);
-        currentImpactText=textEditor.getText();
+        currentImpactText = textEditor.getText();
         ModifyListener listener = new ModifyListener() {
-        	public void modifyText(ModifyEvent e) {
-        		if (textEditor.getText().length()>512){
-        			textEditor.setText(currentImpactText);
-        			shell.getDisplay().beep();
-        		}
-        		else
-        			currentImpactText=textEditor.getText();
-        	}
+            public void modifyText(ModifyEvent e) {
+                if (textEditor.getText().length() > 512) {
+                    textEditor.setText(currentImpactText);
+                    shell.getDisplay().beep();
+                } else
+                    currentImpactText = textEditor.getText();
+            }
         };
 
         textEditor.addModifyListener(listener);
@@ -628,39 +622,6 @@ public class ImpactStatementDlg extends CaveSWTDialog {
         return labelStr;
     }
 
-    // ---------------------------------------------------------
-    // Query the Floodstmt Table in the IHFS database using SQL.
-    // ---------------------------------------------------------
-    private void queryFloodstmt() {
-        // ---------------------------------
-        // Populate data list
-        // ---------------------------------
-
-        String fmtStr = "%8S %13S %25S %11S %29S";
-        String myQuery = "select * from floodstmt where lid = '" + lid + "'";
-
-        ArrayList<Object[]> data;
-        try {
-            data = (ArrayList<Object[]>) DirectDbQuery.executeQuery(myQuery,
-                    HydroConstants.IHFS, QueryLanguage.SQL);
-            for (Object[] rowData : data) {
-                String risingIndicator;
-                if (rowData[3].toString().equals("R")) {
-                    risingIndicator = RISING;
-                } else {
-                    risingIndicator = FALLING;
-                }
-
-                String tmpStr = String.format(fmtStr, rowData[1].toString(),
-                        rowData[6].toString(), rowData[4].toString(),
-                        rowData[5].toString(), risingIndicator);
-                dataList.add(tmpStr);
-            }
-        } catch (VizException e) {
-            e.printStackTrace();
-        }
-    }
-
     // -----------------------------------------------
     // Populate characteristics of selected statement.
     // -----------------------------------------------
@@ -728,8 +689,8 @@ public class ImpactStatementDlg extends CaveSWTDialog {
 
         return String.format(fmtStr, currStatement.getImpactValue(),
                 currStatement.getImpactPE(), currStatement.getDateStart(),
-                currStatement.getDateEnd(), (currStatement.getRiseFall()
-                        .equals("R")) ? RISING : FALLING);
+                currStatement.getDateEnd(),
+                (currStatement.getRiseFall().equals("R")) ? RISING : FALLING);
     }
 
     private void clearInformation() {
@@ -774,8 +735,7 @@ public class ImpactStatementDlg extends CaveSWTDialog {
                 } catch (VizException e) {
                     mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                     mb.setText("Unable to Delete");
-                    mb
-                            .setMessage("An error occurred while trying to delete the record.");
+                    mb.setMessage("An error occurred while trying to delete the record.");
                     mb.open();
 
                     e.printStackTrace();
@@ -830,9 +790,7 @@ public class ImpactStatementDlg extends CaveSWTDialog {
                     + endDayTF.getText();
 
             try {
-                newData
-                        .setDateEnd(dateFormat
-                                .format(dateFormat.parse(endDate)));
+                newData.setDateEnd(dateFormat.format(dateFormat.parse(endDate)));
             } catch (Exception e) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Unable to Save");
@@ -958,7 +916,7 @@ public class ImpactStatementDlg extends CaveSWTDialog {
 
         LocationData seedData = new LocationData();
         seedData.setLid(lid);
-        ArrayList<LocationData> locData = null;
+        java.util.List<LocationData> locData = null;
         try {
             locData = HydroDBDataManager.getInstance().getData(seedData);
         } catch (VizException e) {
@@ -969,14 +927,13 @@ public class ImpactStatementDlg extends CaveSWTDialog {
             // Should only be one record for the LID
             LocationData currLoc = locData.get(0);
 
-            outputStr.append(String.format("%s %s - %s COUNTY, %s\n", currLoc
-                    .getLid(), currLoc.getName(), currLoc.getCounty(), currLoc
-                    .getState()));
+            outputStr.append(String.format("%s %s - %s COUNTY, %s\n",
+                    currLoc.getLid(), currLoc.getName(), currLoc.getCounty(),
+                    currLoc.getState()));
         } else {
             outputStr
                     .append(String
-                            .format(
-                                    "The name, county, and state for station %s are not available.\n",
+                            .format("The name, county, and state for station %s are not available.\n",
                                     lid));
         }
 
@@ -986,12 +943,12 @@ public class ImpactStatementDlg extends CaveSWTDialog {
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date now = Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime();
-        outputStr.append(String.format("GENERATED %s\n\n\n", dateFormat
-                .format(now)));
+        outputStr.append(String.format("GENERATED %s\n\n\n",
+                dateFormat.format(now)));
 
         for (FloodStatementData currStatement : statementData) {
-            outputStr.append(String.format("IMPACT PE: %s  ", currStatement
-                    .getImpactPE()));
+            outputStr.append(String.format("IMPACT PE: %s  ",
+                    currStatement.getImpactPE()));
 
             if (currStatement.getImpactPE().equals("QR")) {
                 outputStr.append(String.format("IMPACT VALUE:  %9.2f CFS. ",
@@ -1217,8 +1174,7 @@ public class ImpactStatementDlg extends CaveSWTDialog {
             } else {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Unable to Save");
-                mb
-                        .setMessage("Data for the location must be add via the River Gauge dialog first.");
+                mb.setMessage("Data for the location must be add via the River Gauge dialog first.");
                 mb.open();
             }
         } catch (VizException e) {

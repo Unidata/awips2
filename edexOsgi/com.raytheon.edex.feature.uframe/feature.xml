@@ -37,6 +37,14 @@
    </license>
 
    <includes
+         id="com.raytheon.uf.common.base.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.base.feature"
+         version="0.0.0"/>
+
+   <includes
          id="com.raytheon.uf.edex.cots.feature"
          version="0.0.0"/>
 
@@ -94,10 +102,6 @@
 
    <includes
          id="com.raytheon.uf.edex.ost.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.edex.event.feature"
          version="0.0.0"/>
 
    <includes

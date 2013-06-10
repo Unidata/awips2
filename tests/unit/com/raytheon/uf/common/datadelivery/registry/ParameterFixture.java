@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.datadelivery.registry;
 
 import java.util.Arrays;
+import java.util.Random;
 
 import com.raytheon.uf.common.util.AbstractFixture;
 
@@ -55,7 +56,7 @@ public class ParameterFixture extends AbstractFixture<Parameter> {
      * {@inheritDoc}
      */
     @Override
-    public Parameter get(long seedValue) {
+    public Parameter getInstance(long seedValue, Random random) {
         Parameter obj = new Parameter();
         obj.setBaseType("baseType" + seedValue);
         obj.setDataType(DataType.GRID);
