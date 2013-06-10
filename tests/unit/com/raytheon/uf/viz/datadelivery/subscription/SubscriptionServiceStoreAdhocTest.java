@@ -21,12 +21,15 @@ package com.raytheon.uf.viz.datadelivery.subscription;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
@@ -118,8 +121,7 @@ public class SubscriptionServiceStoreAdhocTest extends
 
     @Override
     String getExpectedForceApplyMessage() {
-        return "The following subscriptions would not fully schedule with the bandwidth management system if this action were performed:\n"
-                + sub1Name + "\n" + sub2Name + "\n\nWhat would you like to do?";
+        return "The following subscriptions would not fully schedule with the bandwidth management system if this action were performed:";
     }
 
     @Override
@@ -148,6 +150,15 @@ public class SubscriptionServiceStoreAdhocTest extends
         // Adhoc subscriptions no longer interact with the registry
     }
 
+    @Override
+    protected void verifyOnlyCheckingForDuplicateSubscriptions()
+            throws RegistryHandlerException {
+        // Adhocs don't check for duplicates
+        final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
+                .getSubscriptionHandler();
+        verifyNoMoreInteractions(subscriptionHandler);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -164,6 +175,18 @@ public class SubscriptionServiceStoreAdhocTest extends
     @Override
     Subscription getExpectedDisplayForceApplyPromptSubscription() {
         return adhoc;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    ForceApplyPromptConfiguration getExpectedForceApplyPromptConfiguration() {
+        return new ForceApplyPromptConfiguration(service.TITLE,
+                getExpectedForceApplyMessage(), REQUIRED_LATENCY, 40,
+                REQUIRED_DATASET_SIZE, mockPromptDisplayText,
+                getExpectedDisplayForceApplyPromptSubscription(),
+                subNameResults);
     }
 
 }

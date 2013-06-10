@@ -33,7 +33,7 @@ import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetFixture
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.ParameterFixture;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 
 /**
  * Test {@link BaseSubscriptionVerifier}.
@@ -59,7 +59,7 @@ public class BaseSubscriptionVerifierTest {
     private final OpenDapGriddedDataSet dataSet = OpenDapGriddedDataSetFixture.INSTANCE
             .get();
 
-    private final Subscription subscription = SubscriptionFixture.INSTANCE
+    private final Subscription subscription = SiteSubscriptionFixture.INSTANCE
             .get();
 
 

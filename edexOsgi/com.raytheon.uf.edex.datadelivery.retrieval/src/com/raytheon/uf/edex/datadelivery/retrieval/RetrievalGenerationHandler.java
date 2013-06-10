@@ -25,6 +25,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.raytheon.uf.common.datadelivery.registry.ProviderType;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBundle;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -85,9 +86,6 @@ public class RetrievalGenerationHandler implements IGenerateRetrieval {
                 List<Retrieval> retrievals = rg.buildRetrieval(bundle);
 
                 if (!CollectionUtil.isNullOrEmpty(retrievals)) {
-                    // need to track in case something fails early
-                    int numFinished = 0;
-
                     String owner = bundle.getSubscription().getOwner();
                     String provider = bundle.getSubscription().getProvider();
                     int priority = 3;
@@ -101,12 +99,15 @@ public class RetrievalGenerationHandler implements IGenerateRetrieval {
                             retrievals.size());
                     long cumultTime1 = 0;
                     int index = 0;
+                    final ProviderType providerType = bundle.getProvider()
+                            .getProviderType(bundle.getDataType());
+                    final String plugin = providerType.getPlugin();
                     for (Retrieval retrieval : retrievals) {
 
                         RetrievalRequestRecord rec = new RetrievalRequestRecord(
                                 subscriptionName, index++, -1L);
                         rec.setOwner(owner);
-                        rec.setPlugin(retrieval.getProviderType().getPlugin());
+                        rec.setPlugin(plugin);
                         rec.setProvider(provider);
                         rec.setSubscriptionType(retrieval.getSubscriptionType());
                         rec.setNetwork(retrieval.getNetwork());
@@ -125,7 +126,6 @@ public class RetrievalGenerationHandler implements IGenerateRetrieval {
                                     + subscriptionName
                                     + " Failed to serialize request ["
                                     + retrieval + "]", e);
-                            numFinished++;
                             rec.setRetrieval(new byte[0]);
                             rec.setState(State.FAILED);
                         }

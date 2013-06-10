@@ -114,7 +114,7 @@ if [ "${1}" = "-64bit" ]; then
    buildRPM "awips2-python-werkzeug"
    buildRPM "awips2-python-pygtk"
    buildRPM "awips2-python-pycairo"
-   buildRPM "awips2-java"
+   buildJava
    buildRPM "awips2"
    buildRPM "awips2-python-shapely"
    buildRPM "awips2-notification"
@@ -210,7 +210,7 @@ if [ "${1}" = "-full" ]; then
       exit 1
    fi
    buildRPM "awips2-httpd-pypies"
-   buildRPM "awips2-java"
+   buildJava
    buildRPM "awips2-groovy"
    buildLocalizationRPMs
    if [ $? -ne 0 ]; then

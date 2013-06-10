@@ -15,7 +15,6 @@ import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.datadelivery.registry.Projection.ProjectionType;
-import com.raytheon.uf.common.datadelivery.registry.Provider.ProviderType;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -96,7 +95,7 @@ public class Collection implements ISerializableObject {
 
     @XmlAttribute
     @DynamicSerializeElement
-    private ProviderType dataType;
+    private DataType dataType;
 
     @XmlAttribute
     @DynamicSerializeElement
@@ -170,7 +169,7 @@ public class Collection implements ISerializableObject {
         return format;
     }
 
-    public ProviderType getDataType() {
+    public DataType getDataType() {
         return dataType;
     }
 
@@ -353,7 +352,7 @@ public class Collection implements ISerializableObject {
         return ignore;
     }
 
-    public void setDataType(ProviderType dataType) {
+    public void setDataType(DataType dataType) {
         this.dataType = dataType;
     }
 

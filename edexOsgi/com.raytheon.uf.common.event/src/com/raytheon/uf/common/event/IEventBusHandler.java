@@ -29,6 +29,7 @@ package com.raytheon.uf.common.event;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 5, 2013    1580     mpduff      Initial creation.
+ * May 28, 2013   1650     djohnson    Extract out the general event bus contract for reuse.
  * 
  * </pre>
  * 
@@ -36,30 +37,5 @@ package com.raytheon.uf.common.event;
  * @version 1.0
  */
 
-public interface IEventBusHandler {
-
-    /**
-     * Publishes events for all subscribers to receive
-     * 
-     * @param event
-     *            the event
-     */
-    void publish(Event event);
-
-    /**
-     * Register an object with the event bus.
-     * 
-     * @param subscriber
-     *            the subscriber to register
-     */
-    void register(Object subscriber);
-
-    /**
-     * Unregister an object with the event bus.
-     * 
-     * @param subscriber
-     *            the object subscribed to the event buss
-     */
-    void unregister(Object subscriber);
-
+public interface IEventBusHandler extends IBaseEventBusHandler<Event> {
 }
