@@ -19,7 +19,11 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth.util;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -31,6 +35,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -38,6 +43,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.collect.Maps;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBuilder;
@@ -70,6 +76,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Oct 24, 2012 1286       djohnson     Initial creation
  * Feb 07, 2013 1543       djohnson     Remove unnecessary test setup methods.
  * Feb 14, 2013 1595       djohnson     Fix retrieval plan/subscription time intersections.
+ * Jun 05, 2013 2038       djohnson     Use public API for getting retrieval times.
  * 
  * </pre>
  * 
@@ -110,6 +117,11 @@ public class BandwidthDaoUtilTest {
 
         map = BandwidthMap.load(lf.getFile());
         plan = new RetrievalPlan(Network.OPSNET, map, mockDao);
+
+        Map<Network, RetrievalPlan> retrievalPlans = Maps
+                .newEnumMap(Network.class);
+        retrievalPlans.put(Network.OPSNET, plan);
+        when(retrievalManager.getRetrievalPlans()).thenReturn(retrievalPlans);
     }
 
     @After
@@ -130,10 +142,8 @@ public class BandwidthDaoUtilTest {
         TreeSet<Integer> cycles = new TreeSet<Integer>(subscription.getTime()
                 .getCycleTimes());
 
-        SortedSet<Calendar> subscriptionTimes = new TreeSet<Calendar>();
-
-        subscriptionTimes = bandwidthDaoUtil.getRetrievalTimes(subscription,
-                cycles, plan, subscriptionTimes);
+        SortedSet<Calendar> subscriptionTimes = bandwidthDaoUtil
+                .getRetrievalTimes(subscription, cycles);
 
         final List<Integer> daysOfTheYear = Arrays.asList(3, 4);
         verifySubscriptionTimesContainsCyclesForSpecifiedDays(daysOfTheYear,
@@ -154,10 +164,8 @@ public class BandwidthDaoUtilTest {
         TreeSet<Integer> cycles = new TreeSet<Integer>(subscription.getTime()
                 .getCycleTimes());
 
-        SortedSet<Calendar> subscriptionTimes = new TreeSet<Calendar>();
-
-        subscriptionTimes = bandwidthDaoUtil.getRetrievalTimes(subscription,
-                cycles, plan, subscriptionTimes);
+        SortedSet<Calendar> subscriptionTimes = bandwidthDaoUtil
+                .getRetrievalTimes(subscription, cycles);
 
         final List<Integer> daysOfTheYear = Arrays.asList(4);
         verifySubscriptionTimesContainsCyclesForSpecifiedDays(daysOfTheYear,
@@ -181,10 +189,8 @@ public class BandwidthDaoUtilTest {
         TreeSet<Integer> cycles = new TreeSet<Integer>(subscription.getTime()
                 .getCycleTimes());
 
-        SortedSet<Calendar> subscriptionTimes = new TreeSet<Calendar>();
-
-        subscriptionTimes = bandwidthDaoUtil.getRetrievalTimes(subscription,
-                cycles, plan, subscriptionTimes);
+        SortedSet<Calendar> subscriptionTimes = bandwidthDaoUtil
+                .getRetrievalTimes(subscription, cycles);
 
         final List<Integer> daysOfTheYear = Arrays.asList(3);
         verifySubscriptionTimesContainsCyclesForSpecifiedDays(daysOfTheYear,
@@ -215,6 +221,47 @@ public class BandwidthDaoUtilTest {
         verify(retrievalManager).remove(alloc1);
         // Don't remove the unscheduled one
         verify(retrievalManager, never()).remove(alloc2);
+    }
+
+    @Test
+    public void testGetRetrievalTimesReturnsEachIntervalMinuteOfEachHourInPlanWindow() {
+        Subscription subscription = new SubscriptionBuilder()
+                .withActivePeriodStart(plan.getPlanStart().getTime())
+                .withActivePeriodEnd(plan.getPlanEnd().getTime())
+                .withSubscriptionStart(TimeUtil.newImmutableDate()).build();
+
+        // A 30 minute interval should provide 0 and 30 minutes of every hour
+        // Make sure the subscription is "active" within the plan period
+        final int interval = 30;
+        SortedSet<Calendar> subscriptionTimes = bandwidthDaoUtil
+                .getRetrievalTimes(subscription, interval);
+
+        // Expected size is two per hour (0 and 30 minutes), for every hour,
+        // over the retrieval plan days (2), plus 1 because the retrieval plan
+        // ends on a 0 minute time
+        final int expectedSize = TimeUtil.HOURS_PER_DAY * plan.getPlanDays()
+                * 2 + 1;
+        assertThat(subscriptionTimes, hasSize(expectedSize));
+
+        // Make sure we have the expected number of 0 and 30 minute scheduled
+        // times
+        int numberOfZeroMinuteTimes = 0;
+        int numberOfThirtyMinuteTimes = 0;
+        for (Calendar subscriptionTime : subscriptionTimes) {
+            final int minuteField = subscriptionTime.get(Calendar.MINUTE);
+            if (minuteField == 0) {
+                numberOfZeroMinuteTimes++;
+            } else if (minuteField == 30) {
+                numberOfThirtyMinuteTimes++;
+            }
+        }
+
+        final int halfTheTimes = subscriptionTimes.size() / 2;
+        assertThat(numberOfZeroMinuteTimes, is(equalTo(halfTheTimes + 1)));
+        assertThat(numberOfThirtyMinuteTimes, is(equalTo(halfTheTimes)));
+
+        // Would be nice to verify the days and hours, but the cycle based tests already
+        // do that and the code was reused, maybe add it later
     }
 
     /**
