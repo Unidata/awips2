@@ -21,11 +21,14 @@ package com.raytheon.edex.plugin.radar.util;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.edex.plugin.radar.dao.RadarStationDao;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -37,6 +40,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 19, 2010 #4473      rjpeter     Initial creation.
+ * Mar 19, 2013 1804       bsteffen    Cache db queries in radar decoder.
  * 
  * </pre>
  * 
@@ -44,6 +48,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 public class RadarSpatialUtil {
+
+    private static Map<Integer, RadarStation> rpgIdDec2radarStation = new ConcurrentHashMap<Integer, RadarStation>();
 
     /**
      * Gets the closest RadarStation entry for a given wfo, lat, lon
@@ -90,6 +96,24 @@ public class RadarSpatialUtil {
         }
 
         return rval;
+    }
+
+    /**
+     * Provides a level of caching around RadarStationDao.queryByRpgIdDec.
+     * 
+     * @param rpgIdDec
+     * @return
+     * @throws DataAccessLayerException
+     */
+    public static RadarStation getRadarStationByRpgIdDec(int rpgIdDec)
+            throws DataAccessLayerException {
+        RadarStation station = rpgIdDec2radarStation.get(rpgIdDec);
+        if (station == null) {
+            RadarStationDao stat = new RadarStationDao();
+            station = stat.queryByRpgIdDec(String.format("%03d", rpgIdDec));
+            rpgIdDec2radarStation.put(rpgIdDec, station);
+        }
+        return station;
     }
 
 }

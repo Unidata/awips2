@@ -1,23 +1,20 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui;
 
 
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
+import gov.noaa.nws.ncep.viz.resourceManager.Activator;
+import gov.noaa.nws.ncep.viz.resources.manager.RscBundleDisplayMngr;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
+import gov.noaa.nws.ncep.viz.ui.display.NcPaneLayout;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.ui.editor.AbstractEditor;
-
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
-import gov.noaa.nws.ncep.viz.resourceManager.Activator;
-import gov.noaa.nws.ncep.viz.resources.manager.RscBundleDisplayMngr;
 
 
 /**
@@ -39,7 +36,6 @@ import gov.noaa.nws.ncep.viz.resources.manager.RscBundleDisplayMngr;
  */
 public class ResourceManagerAction extends AbstractHandler {
 
-	static  RscBundleDisplayMngr rbdMngr = new RscBundleDisplayMngr();
 	static  ResourceManagerDialog id = null;
 	
     /*
@@ -62,7 +58,12 @@ public class ResourceManagerAction extends AbstractHandler {
     		return null;
     	}
         try {
-            id = new ResourceManagerDialog( NmapUiUtils.getCaveShell(),
+        	// TODO : create a user preference for the default display type.
+        	// (SWPC probably doesn't want to constantly change the type every time.)        	
+        	RscBundleDisplayMngr rbdMngr = new RscBundleDisplayMngr( 
+        			new NcPaneLayout(6,6), NcDisplayType.NMAP_DISPLAY );
+
+            id = new ResourceManagerDialog( NcDisplayMngr.getCaveShell(),
             		                        "Resource Manager", rbdMngr, mode );    
             id.open();
             id = null;

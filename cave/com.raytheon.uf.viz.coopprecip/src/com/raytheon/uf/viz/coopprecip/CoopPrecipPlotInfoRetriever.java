@@ -83,7 +83,8 @@ public class CoopPrecipPlotInfoRetriever extends AbstractPlotInfoRetriever {
                 info.add(stationInfo);
             }
         }
-        listener.resourceChanged(ChangeType.DATA_UPDATE, info.toArray());
+        listener.resourceChanged(ChangeType.DATA_UPDATE,
+                info.toArray(new PlotInfo[0]));
 
     }
 

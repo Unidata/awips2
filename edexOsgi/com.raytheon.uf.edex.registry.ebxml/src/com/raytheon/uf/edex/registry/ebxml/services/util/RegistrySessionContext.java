@@ -26,10 +26,10 @@ import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
 
 import com.raytheon.uf.common.event.Event;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.session.SessionContext;
-import com.raytheon.uf.edex.event.EventBus;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
 
 /**
@@ -43,6 +43,7 @@ import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 26, 2012 1187       djohnson     Moved in from {@link RegistrySessionManager}.
+ * Feb 05, 2013 1580       mpduff       EventBus refactor.
  * 
  * </pre>
  * 
@@ -81,9 +82,8 @@ public class RegistrySessionContext implements SessionContext {
                 // Now that the Objects are persisted in the database, send
                 // the notifications to the other components that might be
                 // looking for them.
-                EventBus eventBus = EventBus.getInstance();
                 for (Event event : events) {
-                    eventBus.publish(event);
+                    EventBus.publish(event);
                 }
 
                 statusHandler
@@ -110,8 +110,7 @@ public class RegistrySessionContext implements SessionContext {
      * @throws IllegalStateException
      *             If an attempt is made to add an event to an inactive Session.
      */
-    public void postEvent(Event event)
-            throws IllegalStateException {
+    public void postEvent(Event event) throws IllegalStateException {
         if (!transaction.isActive()) {
             throw new IllegalStateException(
                     "Attempt to add event to an inactive transaction.");

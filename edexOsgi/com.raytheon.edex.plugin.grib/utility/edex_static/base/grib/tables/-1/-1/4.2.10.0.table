@@ -1,7 +1,7 @@
 # Product Discipline 10: Oceanographic products, Parameter Category 0: Waves
-0:0:Wave spectra (1)::WVSP1:WSp1
-1:1:Wave spectra (2)::WVSP2:WSp2
-2:2:Wave spectra (3)::WVSP3:WSp3
+0:0:Wave spectra (1)::WVSP1:WSP1
+1:1:Wave spectra (2)::WVSP2:WSP2
+2:2:Wave spectra (3)::WVSP3:WSP3
 3:3:Significant height of combined wind waves and swell:m:HTSGW
 4:4:Direction of wind waves:Degree:WVDIR
 5:5:Significant height of wind waves (m):m:WVHGT
@@ -13,8 +13,37 @@
 11:11:Primary wave mean period:s:PERPW
 12:12:Secondary wave direction:Degree:DIRSW
 13:13:Secondary wave mean periods:s:PERSW
+14:14:Direction of combined wind waves and swell:Degree:WWSDIR
+15:15:Mean period of combined wind waves and swell:s:MWSPER
+16:16:Coefficient of Drag With Waves::CDWW
+17:17:Friction Velocity:m/s:FRICV
+18:18:Wave Stress:N/m^2:WSTR
+19:19:Normalised Waves Stress::NWSTR
+20:20:Mean square slope of waves::M2SPW
+21:21:U-component Surface Stokes Drift:m/s:USSD
+22:22:V-component Surface Stokes Drift:m/s:VSSD
+23:23:Period of Maximum Individual Wave Height:s:PMAXWH
+24:24:Maximum Individual Wave Height:m:MAXWH
+25:25:Inverse Mean Wave Frequency:s:IMWF
+26:26:Inverse Mean Frequency of The Wind Waves:s:IMFWW
+27:27:Inverse Mean Frequency of The Total Swell:s:IMFTSW
+28:28:Mean Zero-Crossing Wave Period:s:MZWPER
+29:29:Mean Zero-Crossing Period of The Wind Waves:s:MZPWW
+30:30:Mean Zero-Crossing Period of The Total Swell:s:MZPTSW
+31:31:Wave Directional Width::WDIRW
+32:32:Spectal directional width of the wind waves::DWWW
+33:33:Directional Width of The Wind Waves::DIRWWW
+34:34:Peak Wave Period:s:PWPER
+35:35:Peak Period of The Wind Waves:s:PPERWW
+36:36:Peak Period of The Total Swell:s:PPERTS
+37:37:Altimeter wave height:m:AWVH
+38:38:Altimeter corrected wave height:m:ACWVH
+39:39:Altimeter Range Relative Correction::ALRRC
+40:40:10 Metre neutral wind speed over waves:m/s:WSPD
+41:41:10 Metre Wind Direction Over Waves:Degree:WDRT
+42:42:Wave Engery Spectrum:s/m^2:WESP
+43:43:Kurtosis of The Sea Surface Elevation Due to Waves::BENINX
+45:45:Spectral Peakedness Factor:s^-1:SPFTR
 # 14-191 Reserved
 # 192-254 Reserved for local use
 255:255:Missing
-
-

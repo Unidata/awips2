@@ -49,10 +49,7 @@ import com.raytheon.uf.common.gridcoverage.PolarStereoGridCoverage;
 import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
 import com.raytheon.uf.common.gridcoverage.subgrid.SubGrid;
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.msgs.GetServersRequest;
-import com.raytheon.uf.common.localization.msgs.GetServersResponse;
 import com.raytheon.uf.common.parameter.lookup.ParameterLookup;
-import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -66,6 +63,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 14, 2012            bsteffen     Initial creation
+ * Jan 14, 2013 1469       bkowal       No longer needs to retrieve the location
+ *                                      of the hdf5 data directory.
  * 
  * </pre>
  * 
@@ -74,8 +73,6 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class GridDataRetriever {
-
-    protected static String serverDataDir;
 
     protected GridRecord record;
 
@@ -331,28 +328,7 @@ public class GridDataRetriever {
         String fileName = pathProvider.getHDFFileName(record.getPluginName(),
                 record);
 
-        return new File(getServerDataDir() + IPathManager.SEPARATOR
-                + record.getPluginName() + IPathManager.SEPARATOR + path
+        return new File(record.getPluginName() + IPathManager.SEPARATOR + path
                 + IPathManager.SEPARATOR + fileName);
-    }
-
-    private static synchronized String getServerDataDir()
-            throws StorageException {
-        if (serverDataDir == null) {
-            // TODO cave already knows the server data dir in VizApp, and edex
-            // has it in system properties but we can't access either because
-            // this is common code, architecturally we need some way around
-            // this. For now this will send it's own request which is slightly
-            // wasteful but not terribly harmful.
-            try {
-                GetServersResponse response = (GetServersResponse) RequestRouter
-                        .route(new GetServersRequest());
-                serverDataDir = response.getServerDataDir();
-            } catch (Exception e) {
-                throw new StorageException("Error communicating with server.",
-                        null, e);
-            }
-        }
-        return serverDataDir;
     }
 }

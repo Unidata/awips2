@@ -30,20 +30,6 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            id="com.raytheon.viz.volumebrowser.originalVolumeBrowser"
-            name="Volume Browser">
-      </command>
-   </extension>
-   <extension
-         point="org.eclipse.ui.handlers">
-      <handler
-            class="com.raytheon.viz.volumebrowser.ui.OriginalVolumeBrowserAction"
-            commandId="com.raytheon.viz.volumebrowser.originalVolumeBrowser">
-      </handler>
-   </extension>
-   <extension
-         point="org.eclipse.ui.commands">
-      <command
             id="com.raytheon.viz.volumebrowser.volumeBrowserRef"
             name="Volume Browser">
       </command>
@@ -54,6 +40,9 @@
             class="com.raytheon.viz.volumebrowser.vbui.VolumeBrowserAction"
             commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef">
       </handler>
+   </extension>
+   <extension point="com.raytheon.uf.viz.core.alterBundle">
+          <alterBundle id="tools" class="com.raytheon.viz.volumebrowser.ToolsAlterBundleContributor"/>
    </extension>
    <extension point="com.raytheon.uf.viz.core.alterBundle">
    	  <alterBundle id="grids" class="com.raytheon.viz.volumebrowser.GridAlterBundleContributor"/>

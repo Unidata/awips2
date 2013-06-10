@@ -22,6 +22,7 @@ import java.util.TreeSet;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -31,6 +32,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -64,6 +66,9 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 11/03/2011               sgurung     Added probable weather and method to calculate ceiling. 
  * 11/04/2011               sgurung     Sort sky_cover before calculating ceiling. 
  * 									    Change startRefTime to nearest hour to get hourly refTimes
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * 04/08/2013   1293        bkowal      Removed references to hdffileid.
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * 
  * </pre
  * 
@@ -71,7 +76,18 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * @version 1.0
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "nctafseq")
 @Table(name = "nctaf", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "nctaf",
+		indexes = {
+				@Index(name = "nctaf_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
@@ -698,11 +714,6 @@ public class NcTafRecord extends PluginDataObject implements ISpatialEnabled,
 		this.pointDataView = pointDataView;
 	}
 
-	@Override
-	public Integer getHdfFileId() {
-		return null;
-	}
-
 	/**
 	 * Get the time to use for persisting this data.
 	 * 
@@ -714,11 +725,6 @@ public class NcTafRecord extends PluginDataObject implements ISpatialEnabled,
 			return null;
 		else
 			return getInsertTime().getTime();
-	}
-
-	@Override
-	public void setHdfFileId(Integer hdfFileId) {
-		// this.hdfFileId = hdfFileId;
 	}
 
 	/**

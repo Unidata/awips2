@@ -21,7 +21,6 @@ package com.raytheon.uf.common.dataaccess;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.raytheon.uf.common.dataaccess.exception.DataFactoryNotFoundException;
 
@@ -38,6 +37,8 @@ import com.raytheon.uf.common.dataaccess.exception.DataFactoryNotFoundException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 10, 2012            njensen     Initial creation
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -47,7 +48,7 @@ import com.raytheon.uf.common.dataaccess.exception.DataFactoryNotFoundException;
 
 public class DataFactoryRegistry {
 
-    private Map<String, Map<Class<IDataRequest<?>>, IDataFactory<?, ?>>> datatypeMap;
+    private Map<String, IDataFactory> datatypeMap;
 
     private static DataFactoryRegistry instance;
 
@@ -55,7 +56,7 @@ public class DataFactoryRegistry {
      * Constructor
      */
     private DataFactoryRegistry() {
-        datatypeMap = new HashMap<String, Map<Class<IDataRequest<?>>, IDataFactory<?, ?>>>();
+        datatypeMap = new HashMap<String, IDataFactory>();
     }
 
     /**
@@ -83,16 +84,9 @@ public class DataFactoryRegistry {
      *            the factory that will support requests of this datatype and
      *            type
      */
-    public IDataFactory<?, ?> register(String datatype,
-            Class<IDataRequest<?>> requestType, IDataFactory<?, ?> factory) {
+    public IDataFactory register(String datatype, IDataFactory factory) {
         datatype = datatype.toLowerCase();
-        Map<Class<IDataRequest<?>>, IDataFactory<?, ?>> requestTypeMap = datatypeMap
-                .get(datatype);
-        if (requestTypeMap == null) {
-            requestTypeMap = new HashMap<Class<IDataRequest<?>>, IDataFactory<?, ?>>();
-            datatypeMap.put(datatype, requestTypeMap);
-        }
-        requestTypeMap.put(requestType, factory);
+        datatypeMap.put(datatype, factory);
         return factory;
     }
 
@@ -107,30 +101,13 @@ public class DataFactoryRegistry {
      * @throws DataFactoryNotFoundException
      * @throws IllegalArgumentException
      */
-    @SuppressWarnings("unchecked")
-    public <R extends IDataRequest<D>, D extends IData> IDataFactory<R, D> getFactory(
-            R request) {
+    public IDataFactory getFactory(IDataRequest request) {
         String datatype = request.getDatatype().toLowerCase();
         if (datatype != null) {
-            Map<Class<IDataRequest<?>>, IDataFactory<?, ?>> requestTypeMap = datatypeMap
+            IDataFactory factory = datatypeMap
                     .get(datatype);
-            if (requestTypeMap != null) {
-                IDataFactory<?, ?> factory = null;
-                for (Entry<Class<IDataRequest<?>>, IDataFactory<?, ?>> entry : requestTypeMap
-                        .entrySet()) {
-                    if (entry.getKey().isInstance(request)) {
-                        factory = entry.getValue();
-                        break;
-                    }
-                }
-                if (factory != null) {
-                    return (IDataFactory<R, D>) factory;
-                } else {
-                    throw new DataFactoryNotFoundException(
-                            "No data access support for requests of datatype "
-                                    + datatype + " and type "
-                                    + request.getClass());
-                }
+            if (factory != null) {
+                return factory;
             } else {
                 throw new DataFactoryNotFoundException(
                         "No data access support registered to datatype key: "

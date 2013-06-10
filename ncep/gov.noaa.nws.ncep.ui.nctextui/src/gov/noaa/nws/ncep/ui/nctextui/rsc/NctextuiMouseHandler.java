@@ -5,6 +5,7 @@
  * ------------ ---------- ----------- --------------------------
  * 07/18/2012   #751       S. Gurung   Removed handleMouseDownMove(...) since this functionality
  * 									   is handled by NcPanHandler.handleMouseDownMove(...).
+ * 02/15/2012     #972      G. Hull     NatlCntrsEditor 
  * 
  *                                     
  */
@@ -22,7 +23,8 @@ import gov.noaa.nws.ncep.ui.nctextui.dbutil.NctextDbQuery;
 import gov.noaa.nws.ncep.ui.nctextui.dbutil.NctextStationInfo;
 import gov.noaa.nws.ncep.ui.nctextui.palette.NctextuiPaletteWindow;
 import gov.noaa.nws.ncep.ui.pgen.tools.*;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NatlCntrsEditor;
 
 public class NctextuiMouseHandler extends InputHandlerDefaultImpl {
 	 
@@ -111,7 +113,7 @@ public class NctextuiMouseHandler extends InputHandlerDefaultImpl {
     	
     	// button 1 is left mouse button
     	if (button == 1 ){
-    		NCMapEditor mapEditor = NctextuiResource.getMapEditor();
+    		NatlCntrsEditor mapEditor = NctextuiResource.getMapEditor();
     		if(mapEditor!= null){
     			//  Check if mouse is in geographic extent
     			Coordinate loc = mapEditor.translateClick(x, y);
@@ -265,7 +267,7 @@ public class NctextuiMouseHandler extends InputHandlerDefaultImpl {
     	NctextStationInfo thePoint = null;
     	double	minDistance = NctextuiPointMinDistance; 	
       	GeodeticCalculator gc;
-      	NCMapEditor mapEditor = NctextuiResource.getMapEditor();
+      	NatlCntrsEditor mapEditor = NctextuiResource.getMapEditor();
 		if(mapEditor != null ){
 			IMapDescriptor desc;
 			desc = (IMapDescriptor) mapEditor.getActiveDisplayPane().getRenderableDisplay().getDescriptor();

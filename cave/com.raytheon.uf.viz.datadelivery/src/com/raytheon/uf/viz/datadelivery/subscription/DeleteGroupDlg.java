@@ -30,7 +30,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.service.IGroupDefinitionService;
-import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -51,6 +50,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * Jan 2, 2013  1441       djohnson     Initial creation
  * Jan 18, 2013 1441       djohnson     Use group definition service.
+ * Feb 26, 2013 1643       djohnson     Catch any exception.
  * 
  * </pre>
  * 
@@ -157,7 +157,7 @@ public class DeleteGroupDlg extends CaveSWTDialog {
                                             .getByName(groupName));
                     groupAction.loadGroupNames();
                     return true;
-                } catch (RegistryHandlerException e) {
+                } catch (Exception e) {
                     statusHandler.handle(Priority.ERROR,
                             "Unable to delete a group.", e);
                 }

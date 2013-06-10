@@ -27,6 +27,7 @@ import com.raytheon.uf.common.dataplugin.gfe.server.notify.GfeNotification;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.util.CollectionUtil;
 
 /**
  * Encapsulates messages sent from the server to the client.
@@ -36,7 +37,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 06/24/08     #875       bphillip    Initial Creation
- * 
+ * 04/24/13     #1949      rjpeter     Create lists on demand
  * </pre>
  * 
  * @author bphillip
@@ -47,14 +48,14 @@ public class ServerResponse<T> implements ISerializableObject {
 
     /** Messages indicating an error */
     @DynamicSerializeElement
-    private ArrayList<ServerMsg> messages = new ArrayList<ServerMsg>();
+    private List<ServerMsg> messages = null;
 
     /** List of return objects from uEngine tasks */
     @DynamicSerializeElement
     private T payload;
 
     @DynamicSerializeElement
-    private List<GfeNotification> notifications = new ArrayList<GfeNotification>();
+    private List<GfeNotification> notifications = null;
 
     /**
      * Constructs and empty ServerResponse
@@ -64,10 +65,14 @@ public class ServerResponse<T> implements ISerializableObject {
     }
 
     public boolean isOkay() {
-        return messages.isEmpty();
+        return (messages == null) || messages.isEmpty();
     }
 
     public void addMessage(String message) {
+        if (messages == null) {
+            messages = new ArrayList<ServerMsg>();
+        }
+
         messages.add(new ServerMsg(message));
     }
 
@@ -78,11 +83,21 @@ public class ServerResponse<T> implements ISerializableObject {
      *            The ServerResponse to add
      */
     public void addMessages(ServerResponse<?> ssr) {
-        for (ServerMsg message : ssr.getMessages()) {
-            messages.add(message);
+        List<ServerMsg> ssrMsgs = ssr.getMessages();
+        if (!CollectionUtil.isNullOrEmpty(ssrMsgs)) {
+            if (messages == null) {
+                messages = new ArrayList<ServerMsg>(ssrMsgs.size());
+            }
+            messages.addAll(ssrMsgs);
         }
-        for (GfeNotification notify : ssr.getNotifications()) {
-            notifications.add(notify);
+
+        List<GfeNotification> ssrNotifs = ssr.getNotifications();
+        if (!CollectionUtil.isNullOrEmpty(ssrNotifs)) {
+            if (notifications == null) {
+                notifications = new ArrayList<GfeNotification>(ssrNotifs.size());
+            }
+
+            notifications.addAll(ssrNotifs);
         }
     }
 
@@ -91,7 +106,11 @@ public class ServerResponse<T> implements ISerializableObject {
      * 
      * @return The messages
      */
-    public ArrayList<ServerMsg> getMessages() {
+    public List<ServerMsg> getMessages() {
+        if (messages == null) {
+            messages = new ArrayList<ServerMsg>(0);
+        }
+
         return messages;
     }
 
@@ -100,7 +119,7 @@ public class ServerResponse<T> implements ISerializableObject {
      * 
      * @param messages
      */
-    public void setMessages(ArrayList<ServerMsg> messages) {
+    public void setMessages(List<ServerMsg> messages) {
         this.messages = messages;
     }
 
@@ -112,7 +131,7 @@ public class ServerResponse<T> implements ISerializableObject {
     public String message() {
         if (!isOkay()) {
             StringBuffer buf = new StringBuffer();
-            for (ServerMsg message : messages) {
+            for (ServerMsg message : getMessages()) {
                 buf.append(message);
                 buf.append("\n");
             }
@@ -122,6 +141,7 @@ public class ServerResponse<T> implements ISerializableObject {
         }
     }
 
+    @Override
     public String toString() {
         return message();
     }
@@ -135,6 +155,10 @@ public class ServerResponse<T> implements ISerializableObject {
     }
 
     public List<GfeNotification> getNotifications() {
+        if (notifications == null) {
+            notifications = new ArrayList<GfeNotification>(0);
+        }
+
         return notifications;
     }
 
@@ -143,6 +167,10 @@ public class ServerResponse<T> implements ISerializableObject {
     }
 
     public void addNotifications(GfeNotification notify) {
-        this.notifications.add(notify);
+        if (notifications == null) {
+            notifications = new ArrayList<GfeNotification>();
+        }
+
+        notifications.add(notify);
     }
 }

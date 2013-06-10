@@ -32,6 +32,8 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -71,6 +73,8 @@ import com.raytheon.viz.ui.dialogs.ModeListener;
  * Sep 9, 2009            mnash     Initial creation
  * Oct 31,2011  8510       rferrel     Cleaned up code made more robust
  * Sep 20,2011  1196       rferrel     Change dialogs so they do not block.
+ * Mar 05,2013  15173   mgamazaychikov Set the initial location and dimension of 
+ * 									   dialog as it is in A1.
  * 
  * </pre>
  * 
@@ -115,6 +119,10 @@ public class AlarmAlertDlg extends CaveSWTDialog {
     private java.util.List<AlarmAlertProduct> papList = new ArrayList<AlarmAlertProduct>();
 
     private static File currentFile;
+
+    private static final int HEIGHT_HINT = 150;
+    private static final int WIDTH_HINT = 500;
+    private static Point shellLocation = null;
 
     private ILocalizationFileObserver listener = new ILocalizationFileObserver() {
         @Override
@@ -182,13 +190,27 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         preOpened();
 
         opened();
+
+        setLocation();
     }
 
-    @Override
+    /**
+     * Sets the shell location.
+     */
+	private void setLocation() {
+		int shellSizeX = getShell().getSize().x;
+		int shellSizeY = getShell().getSize().y;
+		Rectangle displayArea = shell.getDisplay().getClientArea();
+		int locationX = displayArea.width - shellSizeX;
+		int locationY = displayArea.y + shellSizeY;
+		shellLocation = new Point(locationX, locationY);
+		shell.setLocation(locationX, locationY);
+		return;
+	}
+
+	@Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
-
-        shell.setMinimumSize(500, 0);
 
         // make a composite that covers the entire shell
         shellComp = new Composite(shell, SWT.NONE);
@@ -200,6 +222,11 @@ public class AlarmAlertDlg extends CaveSWTDialog {
 
         // Initialize all of the controls and layouts
         initializeComponents();
+        
+        // Set the shell location
+		if (shellLocation != null) {
+			shell.setLocation(shellLocation);
+		}
 
         shell.addShellListener(new ShellAdapter() {
             public void shellClosed(ShellEvent event) {
@@ -535,7 +562,8 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         alarmAlertLabel.setLayoutData(gd);
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        gd.heightHint = 200;
+        gd.widthHint = WIDTH_HINT;
+        gd.heightHint = HEIGHT_HINT;
         aaList = new List(shellComp, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
         aaList.setLayoutData(gd);
         aaList.addSelectionListener(new SelectionAdapter() {
@@ -567,7 +595,8 @@ public class AlarmAlertDlg extends CaveSWTDialog {
         proximityAlarmLabel.setLayoutData(gd);
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        gd.heightHint = 200;
+        gd.widthHint = WIDTH_HINT;
+        gd.heightHint = HEIGHT_HINT;
         paList = new List(shellComp, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
         paList.setLayoutData(gd);
         paList.addSelectionListener(new SelectionAdapter() {

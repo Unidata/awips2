@@ -517,7 +517,7 @@ float helicity(float lower, float upper, float sdir, float sspd,
 	   /* ----- Finish with interpolated top layer ----- */
 	   sru2 = kt_to_mps(i_wndu(i_pres(msl(upper)), I_PRES) - cx);
 	   srv2 = kt_to_mps(i_wndv(i_pres(msl(upper)), I_PRES) - cy);
-
+	   
 	   lyrh = (sru2 * srv1) - (sru1 * srv2);
 	   if (lyrh > 0.0) {
 	     *phel += lyrh;

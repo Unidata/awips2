@@ -18,7 +18,7 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="K/hPa/s*1.0E5" name="Equiv Pot Vort" abbreviation="pVeq" xmlns:ns2="group">
+<DerivedParameter unit="K/hPa/s" name="Equiv Pot Vort" abbreviation="pVeq" xmlns:ns2="group">
     <Method levels="S,MB,K" name="PotVortMB">
         <Field level="upper" abbreviation="EPT"/>
         <Field abbreviation="EPT"/>

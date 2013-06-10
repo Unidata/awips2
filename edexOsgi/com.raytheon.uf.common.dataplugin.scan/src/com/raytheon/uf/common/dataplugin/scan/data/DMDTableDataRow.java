@@ -21,10 +21,7 @@ package com.raytheon.uf.common.dataplugin.scan.data;
 
 import java.util.ArrayList;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -40,14 +37,13 @@ import com.raytheon.uf.common.time.DataTime;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * April 29, 2009   2037    dhladky     Initial creation
+ * 02/01/13     1569        D. Hladky   removed XML where not needed
  * </pre>
  * 
  * @author dhladky
  * @version 1.0
  * 
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class DMDTableDataRow extends ScanTableDataRow {
 
@@ -68,126 +64,101 @@ public class DMDTableDataRow extends ScanTableDataRow {
 
     /** storm ID **/
     @DynamicSerializeElement
-    @XmlElement
     public String strmID = "N/A";
 
     /** Low level rotational velocity **/
     @DynamicSerializeElement
-    @XmlElement
     public Double llVr = 0.0;
 
     /** low level gate to gate velocity **/
     @DynamicSerializeElement
-    @XmlElement
     public Double llgtg = 0.0;
 
     /** base of circulation height kft **/
     @DynamicSerializeElement
-    @XmlElement
     public Double base = 0.0;
 
     /** depth of circulation depth kft **/
     @DynamicSerializeElement
-    @XmlElement
     public Double depth = 0.0;
 
     /** relative depth % **/
     @DynamicSerializeElement
-    @XmlElement
     public Double relDepth = 0.0;
 
     /** low level diameter **/
     @DynamicSerializeElement
-    @XmlElement
     public Double llDiam = 0.0;
 
     /** max rotational velocity **/
     @DynamicSerializeElement
-    @XmlElement
     public Double maxVr = 0.0;
 
     /** height of max rotational velocity **/
     @DynamicSerializeElement
-    @XmlElement
     public Double htMxVr = 0.0;
 
     /** low level convergence **/
     @DynamicSerializeElement
-    @XmlElement
     public Double llConv = 0.0;
 
     /** mid level convergence **/
     @DynamicSerializeElement
-    @XmlElement
     public Double mlConv = 0.0;
 
     /** Low level shear **/
     @DynamicSerializeElement
-    @XmlElement
     public Double llShear = 0.0;
 
     /** tvs Tornado Vortex Sig **/
     @DynamicSerializeElement
-    @XmlElement
     public String tvs = "N/A";
 
     /** MSI mean strength index **/
     @DynamicSerializeElement
-    @XmlElement
     public Integer msi = 0;
 
     /** age of storm **/
     @DynamicSerializeElement
-    @XmlElement
     public Integer age = 0;
 
     /** zero level elevation **/
     @DynamicSerializeElement
-    @XmlElement
     public String elev0 = "N/A";
 
     /** status **/
     @DynamicSerializeElement
-    @XmlElement
     public String status = "N/A";
 
     /** rank **/
     @DynamicSerializeElement
-    @XmlElement
     public String rank = "N/A";
 
     /** rankType **/
     @DynamicSerializeElement
-    @XmlElement
     public String rankType = "";
 
     /** overlap **/
     @DynamicSerializeElement
-    @XmlElement
     public boolean overlap = false;
 
     /** fcst lat **/
     @DynamicSerializeElement
-    @XmlElement
     public ArrayList<Double> fcstLat = null;
 
     /** fsct lon **/
     @DynamicSerializeElement
-    @XmlElement
     public ArrayList<Double> fcstLon = null;
 
     @DynamicSerializeElement
-    @XmlElement
     public ArrayList<Double> pastLat = null;
 
     /** fsct lon **/
     @DynamicSerializeElement
-    @XmlElement
     public ArrayList<Double> pastLon = null;
 
     /** timeHeight_height **/
     @DynamicSerializeElement
-    @XmlElement
     public ArrayList<Double> timeHeightHeight = null;
 
     /** timeHeight_diam **/
@@ -197,37 +168,30 @@ public class DMDTableDataRow extends ScanTableDataRow {
 
     /** timeHeight_rotvel **/
     @DynamicSerializeElement
-    @XmlElement
     public ArrayList<Double> timeHeightRotvel = null;
 
     /** timeHeight_shear **/
     @DynamicSerializeElement
-    @XmlElement
     public ArrayList<Double> timeHeightShear = null;
 
     /** timeHeight_gtgmax **/
     @DynamicSerializeElement
-    @XmlElement
     public ArrayList<Double> timeHeightGtgMax = null;
 
     /** timeHeight_rank **/
     @DynamicSerializeElement
-    @XmlElement
     public ArrayList<Double> timeHeightRank = null;
 
     /** angles **/
     @DynamicSerializeElement
-    @XmlElement
     public ArrayList<Double> timeHeightElevationAngles = null;
 
     /** indexes **/
     @DynamicSerializeElement
-    @XmlElement
     public ArrayList<Double> timeHeightElevationIndexes = null;
 
     /** times **/
     @DynamicSerializeElement
-    @XmlElement
     public ArrayList<Double> timeHeightTimes = null;
 
     /**

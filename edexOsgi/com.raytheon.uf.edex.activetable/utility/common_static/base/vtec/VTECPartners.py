@@ -17,6 +17,7 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+
 #VTEC_Partners.py - configuration file to control filtering and merging
 #of VTEC active table.
 
@@ -46,7 +47,7 @@ VTEC_DECODER_SITES = []
 # The following list is a set of product categories (e.g., ZFP, WOU) that
 # when decoded, the text for each segment is captured.  The text is not
 # normally needed to be captured except for warning-style products.
-VTEC_CAPTURE_TEXT_CATEGORIES = []#['WSW', 'NPW', 'RFW', 'FFA', 'CFW', 'MWS', 'HLS', 'MWW']
+VTEC_CAPTURE_TEXT_CATEGORIES = ['WSW', 'NPW', 'RFW', 'FFA', 'CFW', 'MWS', 'HLS', 'MWW']
 
 # Remapping of product pils.  This is required for certain VTEC events
 # if a hazard is created in one pil and then updated or cancelled in another

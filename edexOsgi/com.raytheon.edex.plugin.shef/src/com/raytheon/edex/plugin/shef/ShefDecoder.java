@@ -55,6 +55,7 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  * 01/14/2009   1864        J. Sanchez  Update parse method to handle missing record identifier.    
  * 01/15/2009   1892        J. Sanchez  Update parse method, set obsTimeFlag to false when done.
  * 12/--/2009               jkorman     Major refactor - split into ShefDecoder/SHEFParser
+ * 03/07/2013   15071       W. Kwock    Skip empty data files.
  * </pre>
  */
 public class ShefDecoder {
@@ -93,6 +94,10 @@ public class ShefDecoder {
         
         String traceId = null;
 
+        if (data == null || data.length == 0){
+        	return null;
+        }
+        
         if (headers != null) {
             traceId = (String) headers.get(DecoderTools.INGEST_FILE_NAME);
         }

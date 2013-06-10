@@ -22,6 +22,21 @@ package com.raytheon.uf.viz.monitor.ffmp.ui.rsc;
 
 import java.util.Date;
 
+/**
+ * Time Window Object
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 22 April, 2012 2521          dhladky     Initial creation
+ * 02/01/13     1569       D. Hladky   Added constants
+ * </pre>
+ * 
+ * @author dhladky
+ * @version 1.0
+ */
+
 public class FFMPTimeWindow {
     
     Date beforeTime = null;

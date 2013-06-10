@@ -32,6 +32,7 @@ STATIC_DATA_DIR="database/sqlScripts/share/sql/maps"
 SHARED_SQL_DIR="${1}/database/sqlScripts/share"
 DATABASEDIR=${1}/${STATIC_DATA_DIR}
 POSTGRESDIR=${1}/postgresql
+POSTGIS_CONTRIB=${POSTGRESDIR}/share/contrib/postgis-2.0
 PGBINDIR=${1}/postgresql/bin
 PSQLBINDIR=${1}/psql/bin
 
@@ -48,8 +49,8 @@ else
 fi
 
 ${PSQLBINDIR}/psql -d postgres -U $PGUSER -q -p $PGPORT -f ${DATABASEDIR}/createMapsDb.sql
-${PSQLBINDIR}/psql -d maps -U $PGUSER -q -p $PGPORT -f ${SHARED_SQL_DIR}/lwpostgis.sql
-${PSQLBINDIR}/psql -d maps -U $PGUSER -q -p $PGPORT -f ${SHARED_SQL_DIR}/spatial_ref_sys.sql
+${PSQLBINDIR}/psql -d maps -U $PGUSER -q -p $PGPORT -f ${POSTGIS_CONTRIB}/postgis.sql
+${PSQLBINDIR}/psql -d maps -U $PGUSER -q -p $PGPORT -f ${POSTGIS_CONTRIB}/spatial_ref_sys.sql
 if [ -f ${DATABASEDIR}/maps.db ] ; then
     ${PSQLBINDIR}/psql -d maps -U ${PGUSER} -q -p ${PGPORT} -c "DROP TABLE IF EXISTS mapdata.map_version"
     ${PGBINDIR}/pg_restore -d maps -U $PGUSER -p $PGPORT -n mapdata ${DATABASEDIR}/maps.db

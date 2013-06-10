@@ -1390,8 +1390,8 @@ public class GfaClip {
 					 kk2 = kk;
 			     }
 			     else {
-			     ePts.addAll( cwGfaPts );
-			 }
+				     ePts.addAll( cwGfaPts );			    	 
+			     }
 			 }
 			 else {				 
 			     ePts.clear();

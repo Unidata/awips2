@@ -55,6 +55,7 @@ import com.raytheon.uf.common.util.TestUtil;
  * Sep 11, 2012 1102       djohnson     Initial creation
  * Sep 14, 2012 1169       djohnson     Test dynamically serializing a throwable.
  * Sep 28, 2012 1187       djohnson     Test dynamically serializing with a field level adapter.
+ * Feb 07, 2013 1543       djohnson     Moved JAXB_CLASSES into ServiceLoader implementation class.
  * 
  * </pre>
  * 
@@ -68,63 +69,8 @@ public class SerializationUtilTest {
 
     private static String PROVIDER_XML;
 
-    /**
-     * An ever-growing list of JAXB-able classes. Basically this array should
-     * duplicate the contents of the ISerializableContext files at some point
-     * (as they are needed).
-     */
-    private static final Class<?>[] JAXB_CLASSES = {
-            com.raytheon.uf.common.datadelivery.registry.AdhocSubscription.class,
-            com.raytheon.uf.common.datadelivery.registry.Connection.class,
-            com.raytheon.uf.common.datadelivery.registry.Coverage.class,
-            com.raytheon.uf.common.datadelivery.registry.DataLevelType.class,
-            com.raytheon.uf.common.datadelivery.registry.DataSet.class,
-            com.raytheon.uf.common.datadelivery.registry.DataSetMetaData.class,
-            com.raytheon.uf.common.datadelivery.registry.DataSetName.class,
-            com.raytheon.uf.common.datadelivery.registry.Ensemble.class,
-            com.raytheon.uf.common.datadelivery.registry.GriddedCoverage.class,
-            com.raytheon.uf.common.datadelivery.registry.GriddedDataSet.class,
-            com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData.class,
-            com.raytheon.uf.common.datadelivery.registry.GriddedProjection.class,
-            com.raytheon.uf.common.datadelivery.registry.GroupDefinition.class,
-            com.raytheon.uf.common.datadelivery.registry.Levels.class,
-            com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSet.class,
-            com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaData.class,
-            com.raytheon.uf.common.datadelivery.registry.Parameter.class,
-            com.raytheon.uf.common.datadelivery.registry.ParameterLevel.class,
-            com.raytheon.uf.common.datadelivery.registry.PendingSubscription.class,
-            com.raytheon.uf.common.datadelivery.registry.Projection.class,
-            com.raytheon.uf.common.datadelivery.registry.Provider.class,
-            com.raytheon.uf.common.datadelivery.registry.Subscription.class,
-            com.raytheon.uf.common.datadelivery.registry.SubscriptionBundle.class,
-            com.raytheon.uf.common.datadelivery.registry.Time.class,
-            com.raytheon.uf.common.datadelivery.retrieval.xml.ParameterLookup.class,
-            com.raytheon.uf.common.datadelivery.retrieval.xml.ParameterConfig.class,
-            com.raytheon.uf.edex.datadelivery.bandwidth.dao.DataSetMetaDataDao.class,
-            com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionDao.class,
-            com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval.class,
-            com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation.class,
-            com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap.class,
-            com.raytheon.uf.common.datadelivery.retrieval.xml.ServiceConfig.class,
-            com.raytheon.uf.common.datadelivery.retrieval.xml.UnitLookup.class,
-            com.raytheon.uf.common.datadelivery.retrieval.xml.LevelLookup.class };
-
-    /**
-     * Enables the use of {@link SerializationUtil} within tests.
-     */
-    public static void initSerializationUtil() {
-        try {
-            SerializationUtil.jaxbManager = new JAXBManager(JAXB_CLASSES);
-        } catch (JAXBException e) {
-            throw new IllegalStateException(
-                    "Unable to install the jaxbManager instance in SerializationUtil!");
-        }
-    }
-
     @BeforeClass
     public static void staticSetup() throws JAXBException {
-        SerializationUtilTest.initSerializationUtil();
-
         PROVIDER = ProviderFixture.INSTANCE.get();
         PROVIDER_XML = SerializationUtil.marshalToXml(PROVIDER);
     }

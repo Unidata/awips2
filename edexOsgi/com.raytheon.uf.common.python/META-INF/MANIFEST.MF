@@ -5,7 +5,10 @@ Bundle-SymbolicName: com.raytheon.uf.common.python
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.jep;bundle-version="1.0.0"
+Require-Bundle: org.jep;bundle-version="1.0.0",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ com.raytheon.uf.common.localization;bundle-version="1.12.1174"
 Export-Package: com.raytheon.uf.common.python,
+ com.raytheon.uf.common.python.controller,
  com.raytheon.uf.common.python.multiprocessing,
  com.raytheon.uf.common.python.thread

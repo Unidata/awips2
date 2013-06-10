@@ -56,11 +56,17 @@
 		<!-- Begin Radar routes -->
 		<route id="radarIngestRoute">
 			<from uri="jms-radar:queue:Ingest.Radar?destinationResolver=#qpidDurableResolver" />
+ 			<setHeader headerName="dataType">
+ 				<constant>radar-sbn</constant>
+			</setHeader>
 			<to uri="direct:radarcommon" />
 		</route>
 		
 		<route id="radarRadarServerIngestRoute">
 			<from uri="jms-radar:queue:Ingest.RadarRadarServer?destinationResolver=#qpidDurableResolver" />
+			<setHeader headerName="dataType">
+				<constant>radar-local</constant>
+			</setHeader>
 			<to uri="direct:radarcommon" />
 		</route>
 

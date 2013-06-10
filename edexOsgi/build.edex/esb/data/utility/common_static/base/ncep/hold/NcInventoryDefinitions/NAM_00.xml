@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<NcInventoryDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<NcInventoryDefinition xmlns:ns2="com.raytheon.uf.common.datadelivery.registry" xmlns:ns3="http://www.example.org/productType">
     <inventoryName>NAM_00</inventoryName>
     <inventoryParameters>pluginName,dataTime</inventoryParameters>
     <baseConstraints>

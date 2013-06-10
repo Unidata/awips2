@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: NCSA HDF5 Win32 Fragment
-Bundle-SymbolicName: ncsa.hdf5.win32
-Bundle-Version: 2.4.0
-Bundle-Vendor: Raytheon-bundled OSS
-Fragment-Host: ncsa.hdf5;bundle-version="2.4.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Eclipse-PlatformFilter: (& (osgi.os=win32) (osgi.arch=x86))

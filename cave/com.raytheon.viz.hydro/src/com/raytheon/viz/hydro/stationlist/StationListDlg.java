@@ -69,6 +69,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 12/21/2008              mduff       Implement single and double clicks.
  * 01/10/2008   1802       askripsk    Finished single and double clicks.
  * 07/03/2010   5906       mduff       Fixed the list to match the data.
+ * 02/05/2013   1578       rferrel     Changes for non-blocking singleton TimeSeriesDlg.
  * 
  * </pre>
  * 
@@ -195,9 +196,12 @@ public class StationListDlg extends CaveSWTDialog implements MapUpdateListener,
                 String[] parts = selection.trim().split("\\s+");
                 GageData data = dataMap.get(parts[0]);
                 if (data != null) {
+                    shell.setCursor(getDisplay().getSystemCursor(
+                            SWT.CURSOR_WAIT));
                     HydroDisplayManager.getInstance().setCurrentData(data);
-                    TimeSeriesDlg tsd = new TimeSeriesDlg(shell, data.getLid());
-                    tsd.open();
+                    TimeSeriesDlg.getInstance().updateAndOpen(data.getLid(),
+                            false);
+                    shell.setCursor(null);
                 }
             }
 
@@ -293,13 +297,13 @@ public class StationListDlg extends CaveSWTDialog implements MapUpdateListener,
             String format = "%5s %s  [%3.2f %3.2f]";
             dataList.removeAll();
             dataMap.clear();
-            
+
             // populate the dataMap
             for (int i = 0; i < gageDataList.size(); i++) {
                 GageData data = gageDataList.get(i);
                 dataMap.put(data.getLid(), data);
             }
-            
+
             // Populate the list widget
             Iterator<GageData> iter = dataMap.values().iterator();
             while (iter.hasNext()) {
@@ -328,7 +332,7 @@ public class StationListDlg extends CaveSWTDialog implements MapUpdateListener,
         if (dataList.getSelectionIndex() == -1) {
             return;
         }
-        
+
         String selection = dataList.getItem(dataList.getSelectionIndex());
         String[] parts = selection.trim().split("\\s+");
         if (dataMap != null) {
@@ -382,7 +386,7 @@ public class StationListDlg extends CaveSWTDialog implements MapUpdateListener,
         VizApp.runSync(new Runnable() {
 
             @Override
-            public void run() {                
+            public void run() {
                 dataList.removeAll();
                 populateStationList();
             }

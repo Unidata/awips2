@@ -29,6 +29,22 @@ import com.raytheon.uf.viz.core.rsc.sampling.LatLonReadoutResource;
 import com.raytheon.uf.viz.core.sampling.ISamplingResource;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 
+/**
+ * 
+ * Enable or Disable Lat/Lon display on an editor
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Jun 1, 2007             chammack    Initial Creation.
+ * Jan 28, 2013   14465    snaples     Updated run() method to set sampling false when disabling readout.
+ * 
+ * </pre>
+ * 
+ * @author chammack
+ * @version 1.0
+ */
 public class LatLonReadoutAction extends AbstractRightClickAction {
 
     /*
@@ -36,7 +52,9 @@ public class LatLonReadoutAction extends AbstractRightClickAction {
      * 
      * @see org.eclipse.jface.action.Action#run()
      */
-    private String actionText;
+    private final String actionText;
+
+    private boolean sampled = false;
 
     private boolean hasLatLonReadout = false;
 
@@ -64,9 +82,20 @@ public class LatLonReadoutAction extends AbstractRightClickAction {
                 for (LatLonReadoutResource rsc : rscs) {
                     pane.getDescriptor().getResourceList().removeRsc(rsc);
                 }
+                List<ISamplingResource> samplers = pane.getDescriptor()
+                .getResourceList()
+                .getResourcesByTypeAsType(ISamplingResource.class);
+                for (ISamplingResource sampler : samplers) {
+                    if (sampled) {
+                        break;
+                    } else {
+                        sampler.setSampling(false);
+                    }
+                }
             }
         } else {
             // add resource
+            sampled = false;
             for (IDisplayPane pane : container.getDisplayPanes()) {
                 pane.getDescriptor()
                         .getResourceList()
@@ -79,7 +108,12 @@ public class LatLonReadoutAction extends AbstractRightClickAction {
                         .getResourceList()
                         .getResourcesByTypeAsType(ISamplingResource.class);
                 for (ISamplingResource sampler : samplers) {
-                    sampler.setSampling(true);
+                    if (sampler.isSampling()) {
+                        sampled = true;
+                        break;
+                    } else {
+                        sampler.setSampling(true);
+                    }
                 }
             }
         }

@@ -168,7 +168,7 @@ public abstract class FieldsPopulator extends CompoundContributionItem {
         public void run() {
             if (menuData.handler == null) {
                 SetDisplayField.setDisplayField(
-                        EditorUtil.getActiveVizContainer(), data.name());
+                        EditorUtil.getActiveVizContainer(), data);
             } else {
                 try {
                     ICommandService commandService = (ICommandService) PlatformUI

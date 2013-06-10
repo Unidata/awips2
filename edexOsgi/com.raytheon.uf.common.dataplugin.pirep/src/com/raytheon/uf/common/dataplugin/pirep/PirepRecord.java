@@ -39,6 +39,7 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -47,6 +48,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -70,11 +73,13 @@ import com.vividsolutions.jts.geom.Geometry;
  * 20090408            952 jsanchez    Updated getValue and getStrings methods.
  *                                      Added getMessageData method.
  * 20090521          2338  jsanchez    Changed the unit of the alititude.
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * ======================================
  * AWIPS2 DR Work
  * 08/09/2012         1011 jkorman     Added separate max icing level as well
  * as separated code to generate distinct max icing/turbulence levels. Removed
  * code that used "display" boolean to determine data access.
+ * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
  * 
  * </pre>
  * 
@@ -82,7 +87,18 @@ import com.vividsolutions.jts.geom.Geometry;
  * @version 1.0
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "pirepseq")
 @Table(name = "pirep", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "pirep",
+		indexes = {
+				@Index(name = "pirep_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize

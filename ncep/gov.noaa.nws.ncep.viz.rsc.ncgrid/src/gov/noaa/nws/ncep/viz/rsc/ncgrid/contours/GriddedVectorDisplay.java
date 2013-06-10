@@ -48,6 +48,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 										 to handle vector type changes
  * Apr 03, 2012            X. Guo       Added createWireFrame
  * May 23, 2012            X. Guo       Loaded ncgrib logger
+ * Apr 26, 2013			   B. Yin		Don't plot missing values.
  * </pre>
  * 
  * @author bsteffen
@@ -265,6 +266,9 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
 
     private void paintBarb(Coordinate plotLoc, double adjSize, double spd,
             double dir) {
+    	//Don't plot missing value
+    	if ( spd < 0 ) return;
+    	
         if (spd < 2.5) {
             double[][] line = new double[9][2];
 

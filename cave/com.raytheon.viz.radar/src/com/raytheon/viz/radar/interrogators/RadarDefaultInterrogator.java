@@ -44,11 +44,10 @@ import com.raytheon.uf.viz.core.style.StyleRule;
 import com.raytheon.uf.viz.core.style.VizStyleException;
 import com.raytheon.viz.core.style.image.ImagePreferences;
 import com.raytheon.viz.core.units.PiecewisePixel;
-import com.raytheon.viz.radar.util.DataUtilities;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Default interrogator for radar resource.
  * 
  * <pre>
  * 
@@ -56,6 +55,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 4, 2010            mnash     Initial creation
+ * 05/02/2013   DR 14587   D. Friedman Refactor to store multiple types.
  * 
  * </pre>
  * 
@@ -104,8 +104,22 @@ public class RadarDefaultInterrogator implements IRadarInterrogator {
         dataMap.put("Angle", radarRecord.getPrimaryElevationAngle().toString());
 
         int dataValue = addParameters(radarRecord, latLon, dataMap);
+        addValueToMap(dataValue, "", radarRecord, params, dataMap);
 
-        dataMap.put("numericValue", String.valueOf(dataValue));
+        computeValues(radarRecord, dataMap, dataValue, params);
+        return dataMap;
+    }
+
+    /**
+     * @param dataValue
+     * @param baseName
+     * @param dataMap
+     */
+    protected void addValueToMap(int dataValue, String baseName,
+            RadarRecord radarRecord, ColorMapParameters params,
+            Map<String, String> dataMap) {
+        String numericValueKey = baseName + "numericValue";
+        dataMap.put(numericValueKey, String.valueOf(dataValue));
         String dataValueString = "";
 
         if (radarRecord.getNumLevels() <= 16 && radarRecord.getNumLevels() != 0
@@ -124,7 +138,7 @@ public class RadarDefaultInterrogator implements IRadarInterrogator {
                 units = UnitFormat.getUCUMInstance().format(dispUnit);
             }
             if (dataValue == 0) {
-                dataMap.put("numericValue", null);
+                dataMap.put(numericValueKey, null);
                 dataValueString = "NO DATA";
             } else if (th0 instanceof Float) {
                 double f0 = (Float) th0;
@@ -132,7 +146,7 @@ public class RadarDefaultInterrogator implements IRadarInterrogator {
                 if (converter != null) {
                     f0 = converter.convert(dataValue);
                 }
-                dataMap.put("numericValue", String.valueOf(f0));
+                dataMap.put(numericValueKey, String.valueOf(f0));
 
                 if (dataValue < 15) {
                     Object th1 = radarRecord.getDecodedThreshold(dataValue + 1);
@@ -179,16 +193,14 @@ public class RadarDefaultInterrogator implements IRadarInterrogator {
             // Handle cases where the the actual value is used
             // /////////////////////////////////////////////////////////
             if (dataValue == 0) {
-                dataMap.put("numericValue", null);
+                dataMap.put(numericValueKey, null);
                 dataValueString = "NO DATA";
             } else {
-                dataValueString = decodeValues(dataValue, dataMap, radarRecord,
+                dataValueString = decodeValues(dataValue, baseName, dataMap, radarRecord,
                         params);
             }
         }
-        dataMap.put("Value", dataValueString);
-        computeValues(radarRecord, dataMap, dataValue, params);
-        return dataMap;
+        dataMap.put(baseName + "Value", dataValueString);
     }
 
     public void computeValues(RadarRecord radarRecord,
@@ -203,11 +215,11 @@ public class RadarDefaultInterrogator implements IRadarInterrogator {
      * @param dataMap
      * @return
      */
-    public String decodeValues(int dataValue, Map<String, String> dataMap,
+    public String decodeValues(int dataValue, String baseName, Map<String, String> dataMap,
             RadarRecord radarRecord, ColorMapParameters params) {
         UnitConverter converter = getConverter(params, radarRecord);
         double dispVal = converter.convert(dataValue);
-        dataMap.put("numericValue", String.valueOf(dispVal));
+        dataMap.put(baseName + "numericValue", String.valueOf(dispVal));
         if (params.getDataMapping() != null) {
             for (DataMappingEntry entry : params.getDataMapping().getEntries()) {
                 if (entry.getSample() == null) {
@@ -264,7 +276,7 @@ public class RadarDefaultInterrogator implements IRadarInterrogator {
     protected UnitConverter getConverter(ColorMapParameters params,
             RadarRecord radarRecord) {
         UnitConverter converter = null;
-        Unit<?> dataUnit = DataUtilities.getDataUnit(radarRecord);
+        Unit<?> dataUnit = radarRecord.getDataUnit();
         if (dataUnit != null && !dataUnit.equals(params.getDataUnit())) {
             Unit<?> displayUnit = params.getDisplayUnit();
             if (dataUnit.isCompatible(displayUnit)) {

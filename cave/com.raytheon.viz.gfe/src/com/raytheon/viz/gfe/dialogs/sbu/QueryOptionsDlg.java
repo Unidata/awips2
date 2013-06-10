@@ -31,7 +31,7 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
- * TODO Add Description
+ * Asks the user if they want to import digital data and/or start GFE.
  * 
  * <pre>
  * 
@@ -39,7 +39,9 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2011            randerso     Initial creation
+ * Aug 04, 2011            randerso     Initial creation
+ * Mar 20, 2013   1447     dgilling     Implement changes from A1 DR 21404,
+ *                                      make default selections match A1.
  * 
  * </pre>
  * 
@@ -54,9 +56,11 @@ public class QueryOptionsDlg extends CaveJFACEDialog {
     private boolean importGrids;
 
     private boolean startGfe;
-    
+
+    private boolean trMode;
+
     private Button importGridsBtn;
-    
+
     private Button startGfeBtn;
 
     /**
@@ -96,23 +100,37 @@ public class QueryOptionsDlg extends CaveJFACEDialog {
         if (doImCon) {
             importGridsBtn = new Button(top, SWT.CHECK);
             importGridsBtn.setText("Import Digital Forecast");
+            importGridsBtn.setSelection(true);
             importGridsBtn.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
                     importGrids = importGridsBtn.getSelection();
                 }
             });
-            importGridsBtn.getSelection();
+            importGrids = importGridsBtn.getSelection();
+
+            final Button trModeBtn = new Button(top, SWT.CHECK);
+            trModeBtn.setText("Troubleshooting Mode (no ISC/VTEC AT sharing)");
+            trModeBtn.setSelection(false);
+            trModeBtn.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    trMode = trModeBtn.getSelection();
+                }
+            });
+            trMode = trModeBtn.getSelection();
         }
 
         startGfeBtn = new Button(top, SWT.CHECK);
         startGfeBtn.setText("Start GFE");
+        startGfeBtn.setSelection(true);
         startGfeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 startGfe = startGfeBtn.getSelection();
             }
         });
+        startGfe = startGfeBtn.getSelection();
 
         return top;
     }
@@ -123,5 +141,9 @@ public class QueryOptionsDlg extends CaveJFACEDialog {
 
     public boolean startGFE() {
         return this.startGfe;
+    }
+
+    public boolean trMode() {
+        return this.trMode;
     }
 }

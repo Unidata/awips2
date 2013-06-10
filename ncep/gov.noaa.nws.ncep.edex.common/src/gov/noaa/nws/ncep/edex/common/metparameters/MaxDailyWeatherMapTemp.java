@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  
 /**
@@ -25,8 +26,8 @@ public class MaxDailyWeatherMapTemp extends AbstractMetParameter
 	 */
 	private static final long serialVersionUID = 65484313692581090L;
 
-	public MaxDailyWeatherMapTemp() {
-		super( UNIT );
+	public MaxDailyWeatherMapTemp() throws Exception {
+		super( new UnitAdapter().marshal(UNIT) );
 	}
 	
 	@DeriveMethod
