@@ -34,7 +34,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.stats.StatsRecord;
 import com.raytheon.uf.common.stats.xml.StatisticsConfig;
-import com.raytheon.uf.common.stats.xml.StatisticsEvent;
+import com.raytheon.uf.common.stats.xml.StatisticsEventConfig;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.stats.dao.StatsDao;
@@ -79,7 +79,7 @@ public class StatsHandler {
     public static void setValidEventTypes(List<StatisticsConfig> configurations) {
         validEventTypes = new HashSet<String>();
         for (StatisticsConfig config : configurations) {
-            for (StatisticsEvent event : config.getEvents()) {
+            for (StatisticsEventConfig event : config.getEvents()) {
                 validEventTypes.add(event.getType());
             }
         }
@@ -106,7 +106,7 @@ public class StatsHandler {
         HashSet<String> myValidEventTypes = new HashSet<String>();
 
         for (StatisticsConfig config : configLoader.getConfigurations()) {
-            for (StatisticsEvent event : config.getEvents()) {
+            for (StatisticsEventConfig event : config.getEvents()) {
                 myValidEventTypes.add(event.getType());
             }
         }

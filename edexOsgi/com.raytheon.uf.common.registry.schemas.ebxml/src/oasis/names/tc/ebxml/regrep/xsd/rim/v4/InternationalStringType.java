@@ -103,11 +103,11 @@ public class InternationalStringType implements Serializable {
     }
 
     public InternationalStringType(String lang, String value) {
-        this.localizedString.add(new LocalizedStringType(lang, value));
+        this.getLocalizedString().add(new LocalizedStringType(lang, value));
     }
 
     public InternationalStringType(String value) {
-        this.localizedString.add(new LocalizedStringType(value));
+        this.getLocalizedString().add(new LocalizedStringType(value));
     }
 
     /**

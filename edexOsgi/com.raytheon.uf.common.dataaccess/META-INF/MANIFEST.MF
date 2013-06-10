@@ -21,4 +21,6 @@ Export-Package: com.raytheon.uf.common.dataaccess,
  com.raytheon.uf.common.dataaccess.geom,
  com.raytheon.uf.common.dataaccess.grid,
  com.raytheon.uf.common.dataaccess.impl,
+ com.raytheon.uf.common.dataaccess.request,
+ com.raytheon.uf.common.dataaccess.response,
  com.raytheon.uf.common.dataaccess.util

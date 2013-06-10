@@ -45,7 +45,9 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.IRequestTrendGraphData;
  * ------------ ---------- ----------- --------------------------
  * Dec 3, 2009  #3039      lvenable     Initial creation
  * Apr 29, 2013 #1945      lvenable    Code cleanup for SCAN performance.
- * 
+ * Jun 04, 2013 #1984      lvenable    Save images instead of disposing them when setting
+ *                                     the table column images.  This is to fix the Windows
+ *                                     issue on the images being blank and throwing errors.
  * </pre>
  * 
  * @author lvenable
@@ -227,6 +229,8 @@ public class SCANCellTableComp extends SCANTableTrendGraphLayer {
 
         TableColumn[] tCols = table.getColumns();
 
+        disposeColumnImages();
+
         for (int i = 0; i < tCols.length; i++) {
             String colName = (String) tCols[i].getData();
             Image img = new Image(this.getDisplay(), imageWidth, imageHeight);
@@ -287,7 +291,7 @@ public class SCANCellTableComp extends SCANTableTrendGraphLayer {
             gc.dispose();
             tCols[i].setImage(img);
 
-            img.dispose();
+            columnImgs.add(img);
         }
     }
 }

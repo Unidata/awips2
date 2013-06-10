@@ -40,12 +40,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Sets;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSet;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBuilder;
-import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
-import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.time.CalendarBuilder;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -91,6 +92,7 @@ public class CreateSubscriptionPresenterTest {
         dataSet.setDataSetName("name");
         dataSet.setProviderName("provider");
         dataSet.setForecastHours(Sets.newHashSet(0, 3, 6));
+        dataSet.setDataSetType(DataType.GRID);
         dataSet.setCycles(Sets.newHashSet(0, 6, 12));
     }
 
@@ -160,7 +162,7 @@ public class CreateSubscriptionPresenterTest {
     @Test
     public void verifySubscriptionIsSubmittedToSubscriptionService()
             throws RegistryHandlerException {
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
 
         final ISubscriptionServiceResult result = mock(ISubscriptionServiceResult.class);
         when(
@@ -176,7 +178,7 @@ public class CreateSubscriptionPresenterTest {
     @Test
     public void verifyIfMessageIsNotReturnedFromSubscriptionServiceThenItIsNotDisplayed()
             throws RegistryHandlerException {
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
 
         final ISubscriptionServiceResult result = mock(ISubscriptionServiceResult.class);
         when(result.hasMessageToDisplay()).thenReturn(false);

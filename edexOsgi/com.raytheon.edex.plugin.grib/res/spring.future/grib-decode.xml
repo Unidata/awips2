@@ -1,6 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean id="gribDecoder" class="com.raytheon.edex.plugin.grib.GribDecoder" />
@@ -84,7 +84,6 @@
 								<bean ref="stringToFile" />
 								<bean ref="largeFileChecker" />
 								<bean ref="gribDecoder" />
-								<bean ref="gribSplitter" method="clean" />
 								<!-- send for processing -->
 								<bean ref="gribPostProcessor" method="process" />
 								<to uri="direct-vm:persistIndexAlert" />
@@ -94,6 +93,7 @@
 								<to uri="log:grib?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
 							</doCatch>
 							<doFinally>
+								<bean ref="gribSplitter" method="clean" />
 								<bean ref="largeFileLockRelease" />
 							</doFinally>
 						</doTry>

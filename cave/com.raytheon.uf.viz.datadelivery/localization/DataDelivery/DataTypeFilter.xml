@@ -6,7 +6,7 @@
 		<filterID>Level</filterID>
 		<filterID>Parameter</filterID>
 	</DataType>
-	<DataType Name="Obs">
+	<DataType Name="Point">
 		<filterID>Data Provider</filterID>
 		<filterID>Data Set</filterID>
 	</DataType>

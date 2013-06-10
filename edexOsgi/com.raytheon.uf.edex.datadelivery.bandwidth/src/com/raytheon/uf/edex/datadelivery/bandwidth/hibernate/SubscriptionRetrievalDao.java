@@ -20,11 +20,15 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
 import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
-import org.hibernate.jdbc.Work;
-
+import com.google.common.collect.Sets;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
+import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 
 /**
  * * DAO that handles {@link SubscriptionRetrieval} instances.
@@ -37,7 +41,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
  * ------------ ---------- ----------- --------------------------
  * Feb 13, 2013 1543       djohnson     Initial creation
  * Feb 22, 2013 1543       djohnson     Made public as YAJSW doesn't like Spring exceptions.
- * 4/9/2013     1802       bphillip    Changed to use new query method signatures in SessionManagedDao
+ * 4/9/2013     1802       bphillip     Changed to use new query method signatures in SessionManagedDao
+ * Jun 03, 2013 2038       djohnson     Add method to get subscription retrievals by provider, dataset, and status.
  * 
  * </pre>
  * 
@@ -48,17 +53,21 @@ public class SubscriptionRetrievalDao extends
         BaseBandwidthAllocationDao<SubscriptionRetrieval> implements
         ISubscriptionRetrievalDao {
 
-    private static final String GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET_BASE = "from SubscriptionRetrieval sr where "
-            + " sr.bandwidthSubscription.id in ("
-            + "  select sub.id from BandwidthSubscription sub where "
-            + "  sub.provider = :provider and "
-            + "  sub.dataSetName = :dataSetName";
+    private static final String GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET = "from SubscriptionRetrieval sr where "
+            + "sr.bandwidthSubscription.provider = :provider and "
+            + "sr.bandwidthSubscription.dataSetName = :dataSetName";
 
-    private static final String GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET = GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET_BASE
-            + ")";
+    private static final String GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET_AND_BASEREFERENCETIME = GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET
+            + " and sr.bandwidthSubscription.baseReferenceTime = :baseReferenceTime)";
 
-    private static final String GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET_AND_BASEREFERENCETIME = GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET_BASE
-            + " and sub.baseReferenceTime = :baseReferenceTime)";
+    private static final String GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET_AND_STATUS = GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET
+            + " and sr.status = :status order by sr.startTime";
+
+    private static final String GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_DATASET_STATUS_AND_DATES = GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET
+            + " and sr.status = :status"
+            + " and sr.startTime >= :startDate"
+            + " and sr.startTime <= :endDate"
+            + " order by sr.startTime ";
 
     /**
      * {@inheritDoc}
@@ -87,15 +96,66 @@ public class SubscriptionRetrievalDao extends
     public List<SubscriptionRetrieval> getByProviderDataSet(String provider,
             String dataSetName) {
         return query(GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET,
-                "provider", provider, "dataSetName", dataSetName);
+                    "provider", provider, "dataSetName", dataSetName);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    // TODO: Remove the requirement of this method
-    public void doWork(Work work) {
-        template.getSessionFactory().getCurrentSession().doWork(work);
+    public SortedSet<SubscriptionRetrieval> getByProviderDataSetAndStatus(
+            String provider, String dataSetName, RetrievalStatus status) {
+
+        final List<SubscriptionRetrieval> results = query(
+                GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET_AND_STATUS,
+                "provider", provider, "dataSetName", dataSetName, "status",
+                status);
+
+        return orderByStart(results);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SortedSet<SubscriptionRetrieval> getByProviderDataSetStatusAndDateRange(
+            String provider, String dataSetName, RetrievalStatus status,
+            Date earliestDate, Date latestDate) {
+
+        final Calendar startDate = Calendar.getInstance();
+        startDate.setTime(earliestDate);
+
+        final Calendar endDate = Calendar.getInstance();
+        endDate.setTime(latestDate);
+
+        final List<SubscriptionRetrieval> results = query(
+                GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_DATASET_STATUS_AND_DATES,
+                "provider", provider, "dataSetName", dataSetName, "status",
+                status, "startDate", startDate, "endDate", endDate);
+
+        return orderByStart(results);
+    }
+
+    /**
+     * Returns a {@link SortedSet} that orders the subscription retrievals by
+     * start date.
+     * 
+     * @param results
+     *            the results
+     * @return the set
+     */
+    private SortedSet<SubscriptionRetrieval> orderByStart(
+            List<SubscriptionRetrieval> results) {
+        final TreeSet<SubscriptionRetrieval> treeSet = Sets
+                .newTreeSet(new Comparator<SubscriptionRetrieval>() {
+                    @Override
+                    public int compare(SubscriptionRetrieval o1,
+                            SubscriptionRetrieval o2) {
+                        return o1.getStartTime().compareTo(o2.getStartTime());
+                    }
+                });
+        treeSet.addAll(results);
+        return treeSet;
+    }
+
 }

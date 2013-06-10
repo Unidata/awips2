@@ -33,7 +33,7 @@ import com.raytheon.uf.common.util.FileUtil;
 
 /**
  * This class uses a obtains information on a File in a Job in order to remove
- * from the UI thread.
+ * from the UI thread. Use DirInfo instead.
  * 
  * <pre>
  * 
@@ -48,7 +48,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * @author rferrel
  * @version 1.0
  */
-
+@Deprecated
 public class FileInfo {
     private static final SizeJob sizeJob = new FileInfo.SizeJob();
 
@@ -103,7 +103,7 @@ public class FileInfo {
                 }
 
                 for (IUpdateListener listener : listeners) {
-                    listener.update(list);
+                    // listener.update(list);
                 }
             }
 

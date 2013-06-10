@@ -1,6 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean id="pythonThreadPool" class="com.raytheon.edex.productsrv.PythonExecThreadPool"
@@ -63,9 +63,9 @@
 	<camelContext id="uengine-camel" xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
 		<endpoint id="uEngineHttpThrift_from"
-			uri="jetty:http://0.0.0.0:${http.port}/services/pyproductthrift?disableStreamCache=true&amp;chunked=false&amp;httpBindingRef=#binaryHttpBinding" />
+			uri="jetty:http://0.0.0.0:${HTTP_PORT}/services/pyproductthrift?disableStreamCache=true&amp;chunked=false&amp;httpBindingRef=#binaryHttpBinding" />
 		<endpoint id="uEngineHttpJaxb_from"
-			uri="jetty:http://0.0.0.0:${http.port}/services/pyproductjaxb" />
+			uri="jetty:http://0.0.0.0:${HTTP_PORT}/services/pyproductjaxb" />
 
 		<!-- UEngine routes -->
 		<route id="uEngineHttpThrift" streamCache="false">

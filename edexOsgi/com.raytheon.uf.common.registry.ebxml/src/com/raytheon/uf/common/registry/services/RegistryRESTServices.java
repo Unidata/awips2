@@ -31,6 +31,7 @@ import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.raytheon.uf.common.registry.constants.RegistryAvailability;
 import com.raytheon.uf.common.registry.services.rest.IRegistryAvailableRestService;
 import com.raytheon.uf.common.registry.services.rest.IRegistryObjectsRestService;
 import com.raytheon.uf.common.registry.services.rest.IRepositoryItemsRestService;
@@ -197,8 +198,9 @@ public class RegistryRESTServices {
      */
     public static boolean isRegistryAvailable(String baseURL) {
         try {
-            getRegistryAvailableService(baseURL).isRegistryAvailable();
-            return true;
+            String response = getRegistryAvailableService(baseURL)
+                    .isRegistryAvailable();
+            return RegistryAvailability.AVAILABLE.equals(response);
         } catch (Throwable t) {
             statusHandler.error(
                     "Registry at [" + baseURL + "] not available: ",

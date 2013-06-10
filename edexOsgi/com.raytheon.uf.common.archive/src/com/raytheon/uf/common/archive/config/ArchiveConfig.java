@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.archive.config;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +55,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 1, 2013  1966       rferrel     Initial creation
+ * May  1, 2013 1966       rferrel     Initial creation
+ * May 31, 2013 1965       bgonzale    Added getCategory(categoryName)
  * 
  * </pre>
  * 
@@ -128,11 +130,16 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
 
     /**
      * Set the fully qualified name of the directory all components are relative
+     * to.
      * 
      * @param rootDir
      */
     public void setRootDir(String rootDir) {
-        this.rootDir = rootDir;
+        if (rootDir != null && !rootDir.endsWith(File.separator)) {
+            this.rootDir = rootDir + File.separator;
+        } else {
+            this.rootDir = rootDir;
+        }
     }
 
     /**
@@ -160,6 +167,19 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
      */
     public List<CategoryConfig> getCategoryList() {
         return new ArrayList<CategoryConfig>(categoryList);
+    }
+    
+    /**
+     * @param categoryName
+     * @return The named CategoryConfig; null if not found
+     */
+    public CategoryConfig getCategory(String categoryName) {
+        for (CategoryConfig category : categoryList) {
+            if (category.getName().equals(categoryName)) {
+                return category;
+            }
+        }
+        return null;
     }
 
     /**
@@ -193,4 +213,5 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
         sb.append("]");
         return sb.toString();
     }
+
 }

@@ -52,9 +52,7 @@ public class MockGridMetaDataAdapter extends GridMetadataAdapter {
      * @param attXML
      * @throws InstantiationException
      */
-    public MockGridMetaDataAdapter(RetrievalAttribute attXML)
-            throws InstantiationException {
-        super(attXML);
+    public MockGridMetaDataAdapter() {
     }
 
     /**

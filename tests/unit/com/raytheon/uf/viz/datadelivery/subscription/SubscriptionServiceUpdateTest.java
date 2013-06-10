@@ -61,8 +61,7 @@ public class SubscriptionServiceUpdateTest extends SubscriptionServiceStoreTest 
 
     @Override
     String getExpectedForceApplyMessage() {
-        return "The following subscriptions would not fully schedule with the bandwidth management system if this action were performed:\n"
-                + sub1Name + "\n" + sub2Name + "\n\nWhat would you like to do?";
+        return "The following subscriptions would not fully schedule with the bandwidth management system if this action were performed:";
     }
 
     @Override

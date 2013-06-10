@@ -1,17 +1,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:util="http://www.springframework.org/schema/util"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd   
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
-  http://www.springframework.org/schema/util
-  http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"    
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
     <bean id="requestDataDeliveryRouter" class="com.raytheon.uf.edex.auth.RemoteServerRequestRouter">
-        <constructor-arg value="${datadelivery.server}" />
+        <constructor-arg value="${DATADELIVERY_SERVER}" />
     </bean>
     
     <bean id="requestRegistryRouter" class="com.raytheon.uf.edex.auth.RemoteServerRequestRouter">
-        <constructor-arg value="${ebxml.registry.service}" />
+        <constructor-arg value="${EBXML_REGISTRY_SERVICE}" />
     </bean>
     
     <!-- Registers the IRequestRouter handler for data delivery -->
@@ -28,23 +24,23 @@
     <!-- Registry service location registration -->
     <bean factory-bean="serverLocationRegistry" factory-method="register">
         <constructor-arg ref="ebxmlRegistryServiceKey" />
-        <constructor-arg value="${ebxml.registry.service}" />
+        <constructor-arg value="${EBXML_REGISTRY_SERVICE}" />
     </bean>
 
     <bean factory-bean="serverLocationRegistry" factory-method="register">
         <constructor-arg ref="ebxmlLcmServiceKey" />
-        <constructor-arg value="${ebxml.registry.lcm.service}" />
+        <constructor-arg value="${EBXML_REGISTRY_LCM_SERVICE}" />
     </bean>
 
     <bean factory-bean="serverLocationRegistry" factory-method="register">
         <constructor-arg ref="ebxmlQueryServiceKey" />
-        <constructor-arg value="${ebxml.registry.query.service}" />
+        <constructor-arg value="${EBXML_REGISTRY_QUERY_SERVICE}" />
     </bean>
 
     <!-- Data Delivery server location registration -->
     <bean factory-bean="serverLocationRegistry" factory-method="register">
         <constructor-arg ref="dataDeliveryServerKey" />
-        <constructor-arg value="${datadelivery.server}" />
+        <constructor-arg value="${DATADELIVERY_SERVER}" />
     </bean>
 
 </beans>

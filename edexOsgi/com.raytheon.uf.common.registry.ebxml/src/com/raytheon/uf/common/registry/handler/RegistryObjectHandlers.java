@@ -19,11 +19,13 @@
  **/
 package com.raytheon.uf.common.registry.handler;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.registry.annotations.RegistryObject;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.registry.GenericRegistry;
+import com.raytheon.uf.common.util.registry.RegistryException;
 
 /**
  * Register or find {@link IRegistryObjectHandler} implementations.
@@ -36,6 +38,7 @@ import com.raytheon.uf.common.registry.annotations.RegistryObject;
  * ------------ ---------- ----------- --------------------------
  * Sep 17, 2012 1169       djohnson     Initial creation
  * Oct 16, 2012 0726       djohnson     Add the ability to use a pojo instance which delegates to static methods.
+ * Jun 03, 2013 2038       djohnson     Change to use a {@link GenericRegistry}.
  * 
  * </pre>
  * 
@@ -45,7 +48,11 @@ import com.raytheon.uf.common.registry.annotations.RegistryObject;
 
 public final class RegistryObjectHandlers {
 
-    private static final ConcurrentMap<String, IRegistryObjectHandler<?>> handlers = new ConcurrentHashMap<String, IRegistryObjectHandler<?>>();
+    private static IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RegistryObjectHandlers.class);
+
+    private static final GenericRegistry<String, IRegistryObjectHandler<?>> handlers = new GenericRegistry<String, IRegistryObjectHandler<?>>() {
+    };
 
     // Used to simplify the Spring files
     private static final RegistryObjectHandlers INSTANCE = new RegistryObjectHandlers();
@@ -87,8 +94,10 @@ public final class RegistryObjectHandlers {
      *            the registry object handler interface
      * @param handler
      *            the handler
+     * @throws IllegalArgumentException
+     *             if the handlerInterface parameter is not an interface
      * @throws IllegalStateException
-     *             if a second handler is registered for any interface
+     *             on an error registering the handler
      */
     public static <T extends IRegistryObjectHandler<?>> void register(
             Class<T> handlerInterface, T handler) throws IllegalStateException {
@@ -98,14 +107,16 @@ public final class RegistryObjectHandlers {
                     "Implementations must be registered under their interfaces!");
         }
 
-        IRegistryObjectHandler<?> previous = handlers.putIfAbsent(
-                handlerInterface.getName(), handler);
-        if (previous != null) {
-            throw new IllegalStateException(
-                    String.format(
-                            "Attempt to associate handler [%s] with handler interface [%s] fails, because [%s] is already associated with it!",
-                            handler.getClass().getName(), handlerInterface
-                                    .getName(), previous.getClass().getName()));
+        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+            statusHandler.handle(Priority.DEBUG, String.format(
+                    "Associating handler [%s] with handler interface [%s]",
+                    handler.getClass().getName(), handlerInterface.getName()));
+        }
+
+        try {
+            handlers.register(handlerInterface.getName(), handler);
+        } catch (RegistryException e) {
+            throw new IllegalStateException(e);
         }
     }
 
@@ -114,7 +125,7 @@ public final class RegistryObjectHandlers {
      */
     @VisibleForTesting
     static void clear() {
-        handlers.clear();
+        handlers.getRegisteredObjects().clear();
     }
 
 /**
@@ -123,9 +134,10 @@ public final class RegistryObjectHandlers {
      *  the handler interface
      * @return
      *  the implementation
+     * @throws IllegalArgumentException if no handler is registered for the specific interface
      */
     public static <T> T get(Class<T> handlerInterface) {
-        Object obj = handlers.get(handlerInterface.getName());
+        Object obj = handlers.getRegisteredObject(handlerInterface.getName());
 
         if (obj == null) {
             throw new IllegalArgumentException(
