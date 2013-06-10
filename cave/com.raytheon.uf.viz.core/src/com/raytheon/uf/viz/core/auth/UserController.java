@@ -55,6 +55,7 @@ import com.raytheon.uf.viz.core.requests.INotAuthHandler;
  * Nov 06, 2012 1302       djohnson     Add ability to retrieve the {@link IUserManager}.
  * Jan 04, 2013 1451       djohnson     Move static block code to an implementation of an interface.
  * Mar 21, 2013 1794       djohnson     ServiceLoaderUtil now requires the requesting class.
+ * Jun 07, 2013 1981       mpduff       Add ability to update with the user id as a string.
  * 
  * </pre>
  * 
@@ -166,6 +167,12 @@ public class UserController {
                         return Collections.emptyList();
                     }
 
+                    @Override
+                    public void updateUserObject(String userId,
+                            IAuthenticationData authData) {
+
+                    }
+
                 };
             }
             return manager;
@@ -192,6 +199,16 @@ public class UserController {
 
     public static void updateUserData(IAuthenticationData data) {
         manager.updateUserObject(manager.getUserObject(), data);
+    }
+
+    /**
+     * Update the user's id.
+     * 
+     * @param userID
+     *            The user id
+     */
+    public static void updateUserData(String userID) {
+        manager.updateUserObject(userID, null);
     }
 
     public static INotAuthHandler getNotAuthHandler() {

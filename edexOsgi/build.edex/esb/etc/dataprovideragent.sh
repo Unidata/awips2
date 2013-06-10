@@ -20,15 +20,12 @@
 ##
 
 export INIT_MEM=512 # in Meg
+export MAX_MEM=1536 # in Meg
 
-if [ $HIGH_MEM_FLAG == "on" ]; then
-    export MAX_MEM=1536 # in Meg
-else
-    export MAX_MEM=896 # in Meg
-fi
 export METADATA_POOL_MIN=10
 export EDEX_DEBUG_PORT=5010
 export EDEX_JMX_PORT=1621
 export LOG4J_CONF=log4j-dataprovideragent.xml
 export MGMT_PORT=9606
+export DB_DIALECT=org.hibernatespatial.postgis.PostgisDialect
 

@@ -121,6 +121,7 @@ import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
  * 30 Jan 2013 15264       wkwock      Fix the missing group_definition.cfg file crash           
  * 05 Feb 2013 1578        rferrel     Dialog made non-blocking and a singleton.
  * 06 May 2013  1976       mpduff      Code cleanup.
+ * 06 Jun 2013 2076        mpduff      Fix station list selection and graph button enabling.
  * </pre>
  * 
  * @author lvenable
@@ -678,6 +679,8 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         if (rsc instanceof MultiPointResource) {
             ((MultiPointResource) rsc).setTs(this);
         }
+
+        checkBottomButtons();
     }
 
     /**
@@ -1460,7 +1463,9 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             while (iter2.hasNext()) {
                 if (idRdo.getSelection()) {
                     if (iter2.next().equalsIgnoreCase(currentLid)) {
-                        topDataList.setSelection(iter2.previousIndex());
+                        // Bug with show selection requires the select(0) first.
+                        topDataList.select(0);
+                        topDataList.select(iter2.previousIndex());
                         topDataList.showSelection();
 
                         /* set to null so we don't enter this block again */
@@ -2606,6 +2611,5 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     @Override
     protected void preOpened() {
         super.preOpened();
-        checkBottomButtons();
     }
 }

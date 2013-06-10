@@ -24,9 +24,12 @@ import java.util.List;
 
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtensibleObjectType;
+
 import org.junit.Ignore;
 
 import com.raytheon.uf.common.monitor.xml.FFMPTemplateXML;
+import com.raytheon.uf.edex.registry.ebxml.services.query.adhoc.AdhocQueryExpression;
 
 /**
  * Implementation of {@link IJaxbableClassesLocator} that returns a static list
@@ -40,6 +43,7 @@ import com.raytheon.uf.common.monitor.xml.FFMPTemplateXML;
  * ------------ ---------- ----------- --------------------------
  * Feb 06, 2013 1543       djohnson     Moved out of SerializationUtilTest.
  * Apr 17, 2013 1914       djohnson     Add W3CEndpointReference.
+ * May 29, 2013 1965       bgonzale     Added archive classes.
  * 
  * </pre>
  * 
@@ -58,6 +62,8 @@ public class TestJaxbableClassesLocator implements IJaxbableClassesLocator {
     private static final List JAXB_CLASSES;
     static {
         Class<?>[] array = new Class<?>[] {
+                com.raytheon.uf.common.archive.config.ArchiveConfig.class,
+                com.raytheon.uf.common.archive.config.CategoryConfig.class,
                 com.raytheon.edex.plugin.redbook.decoder.RedbookFcstMap.class,
                 com.raytheon.uf.common.datadelivery.registry.AdhocSubscription.class,
                 com.raytheon.uf.common.datadelivery.registry.Connection.class,
@@ -95,7 +101,8 @@ public class TestJaxbableClassesLocator implements IJaxbableClassesLocator {
                 com.raytheon.uf.common.datadelivery.retrieval.xml.LevelLookup.class,
                 com.raytheon.uf.common.monitor.xml.FFMPSourceConfigXML.class,
                 com.raytheon.uf.common.monitor.xml.FFMPRunConfigXML.class,
-                FFMPTemplateXML.class, W3CEndpointReference.class };
+                FFMPTemplateXML.class, W3CEndpointReference.class,
+                AdhocQueryExpression.class, ExtensibleObjectType.class };
 
         JAXB_CLASSES = Arrays.asList(array);
     }

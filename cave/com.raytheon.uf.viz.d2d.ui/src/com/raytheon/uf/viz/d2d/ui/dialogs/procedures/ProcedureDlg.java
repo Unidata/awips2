@@ -75,6 +75,7 @@ import com.raytheon.uf.viz.core.procedures.Procedure;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureComm.BundlePair;
 import com.raytheon.viz.ui.HistoryList;
 import com.raytheon.viz.ui.UiUtil;
@@ -100,7 +101,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Jan 15, 2013  DR 15699  D. Friedman Prompt for save when close button clicked. 
  * Jan 16, 2013  DR 15367  D. Friedman Enable save button for Up/Down changes. 
  * Feb 25, 2013 1640       bsteffen    Dispose old display in BundleLoader
- * 
+ * Jun 7, 2013  2074       mnash       Remove resource if doesn't instantiate correctly
  * </pre>
  * 
  * @author unknown
@@ -193,15 +194,26 @@ public class ProcedureDlg extends CaveSWTDialog {
         if (p != null && p.getBundles() != null) {
             Bundle[] bund = p.getBundles();
             for (Bundle b : bund) {
+                // remove any bad resource pairs from each display
+                for (AbstractRenderableDisplay display : b.getDisplays()) {
+                    ResourceList rList = display.getDescriptor()
+                            .getResourceList();
+                    // modify the resource list so that we remove any null
+                    // resource datas
+                    for (ResourcePair rp : rList) {
+                        if (rp.getResourceData() == null) {
+                            rList.remove(rp);
+                        }
+                    }
+                }
                 // Check to see if frozen
                 for (AbstractRenderableDisplay display : b.getDisplays()) {
-                    for (ResourcePair rp : display.getDescriptor()
-                            .getResourceList()) {
-                        if (rp.getResourceData() != null) {
-                            if (rp.getResourceData().isFrozen()) {
-                                frozen = true;
-                                break;
-                            }
+                    ResourceList rList = display.getDescriptor()
+                            .getResourceList();
+                    for (ResourcePair rp : rList) {
+                        if (rp.getResourceData().isFrozen()) {
+                            frozen = true;
+                            break;
                         }
                     }
                     if (frozen) {
@@ -958,8 +970,7 @@ public class ProcedureDlg extends CaveSWTDialog {
         }
     }
 
-    private void handleCloseRequest()
-    {
+    private void handleCloseRequest() {
         if (saved) {
             close();
         } else {
@@ -972,7 +983,8 @@ public class ProcedureDlg extends CaveSWTDialog {
      * to close it
      */
     private void showConfirmSaveDlg() {
-        CaveSWTDialog dlg = new CaveSWTDialog(shell, SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL, CAVE.DO_NOT_BLOCK) {
+        CaveSWTDialog dlg = new CaveSWTDialog(shell, SWT.DIALOG_TRIM
+                | SWT.PRIMARY_MODAL, CAVE.DO_NOT_BLOCK) {
 
             @Override
             protected void initializeComponents(Shell shell) {
