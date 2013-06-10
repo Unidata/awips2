@@ -123,7 +123,8 @@ public final class StringUtil {
      *            the character to join them with
      * @return the concatenated string
      */
-    public static <T> String join(final Collection<T> portions, final char joinCharacter) {
+    public static <T> String join(final Collection<T> portions,
+            final char joinCharacter) {
         StringBuilder stringBuilder = new StringBuilder();
 
         if (CollectionUtil.isNullOrEmpty(portions)) {
@@ -208,5 +209,67 @@ public final class StringUtil {
             targetIndex += replacement.length();
         }
         return sb.toString();
+    }
+
+    /**
+     * Get a string as a separated list showing up to the limit of items.
+     * 
+     * @param list
+     *            List of items to put in the "list"
+     * @param delimiter
+     *            Delimiting String
+     * @param limit
+     *            number of items to display
+     * @return the list
+     */
+    public static String getDisplayList(Collection<String> list,
+            String delimiter, int limit) {
+        StringBuilder sb = new StringBuilder();
+        if (list.size() < limit) {
+            limit = list.size();
+        }
+
+        int count = 0;
+        for (String s : list) {
+            if (count < limit) {
+                sb.append(s).append(delimiter);
+            } else {
+                // remove the trailing space
+                sb.replace(sb.length() - 1, sb.length(), "");
+                sb.append("...");
+                break;
+            }
+            count++;
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Create a list with all the lines except the first indented.
+     * 
+     * @param list
+     *            list of items
+     * @param indent
+     *            String of spaces making up the indent
+     * @return the list
+     */
+    public static String getIndentedList(Collection<String> list,
+            final String indent) {
+        StringBuilder sb = new StringBuilder();
+
+        int count = 0;
+        for (String id : list) {
+            if (count == 10) {
+                sb.append(StringUtil.NEWLINE);
+                sb.append(indent);
+                count = 0;
+            }
+            sb.append(id).append(" ");
+            count++;
+        }
+
+        return sb.toString();
+
     }
 }

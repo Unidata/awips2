@@ -54,7 +54,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 
 import com.raytheon.uf.common.colormap.ColorMap;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 
 public class ColorBar extends Composite implements MouseListener,
         MouseMoveListener {

@@ -54,7 +54,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.ui.menus.xml.IncludeMenuItem;
 
 /**
@@ -78,6 +77,7 @@ import com.raytheon.uf.viz.ui.menus.xml.IncludeMenuItem;
  * Apr 27, 2012   #562     dgilling     Ensure call to MenuCreationJob
  *                                      uses proper method to retrieve
  *                                      localized site.
+ * Mar 20, 2013       1638 mschenke     Removed menu creation job use
  * 
  * </pre>
  * 
@@ -94,34 +94,13 @@ public class DiscoverMenuContributions {
     public static Schema schema;
 
     public static void discoverContributions() {
-        discoverContributions(new String[] { "menus" }, true);
-    }
-
-    public static void discoverContributions(boolean scheduleJob) {
-        discoverContributions(new String[] { "menus" }, scheduleJob);
-    }
-
-    public static void discoverContributions(final String[] menuArray) {
-        discoverContributions(menuArray, true);
+        discoverContributions(new String[] { "menus" });
     }
 
     public static synchronized void discoverContributions(
-            final String[] menuArray, boolean scheduleJob) {
+            final String[] menuArray) {
         if (ran) {
             return;
-        }
-
-        if (scheduleJob) {
-            MenuCreationJob job = new MenuCreationJob(LocalizationManager
-                    .getInstance().getSite());
-
-            job.schedule();
-            try {
-                job.join();
-            } catch (InterruptedException e2) {
-                statusHandler.handle(Priority.PROBLEM,
-                        e2.getLocalizedMessage(), e2);
-            }
         }
 
         ran = true;

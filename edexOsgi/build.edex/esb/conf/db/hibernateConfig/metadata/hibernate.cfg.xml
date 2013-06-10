@@ -67,7 +67,7 @@
 		<property name="hibernate.c3p0.max_size">${db.metadata.pool.max}</property>
 
 		<property name="hibernate.generate_statistics">false</property>
-		
+		<property name="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
 		<property name="hibernate.cache.use_second_level_cache">false</property>
 		<property name="hibernate.jdbc.use_streams_for_binary">false</property>
 		<property name="cache.use_query_cache">false</property>

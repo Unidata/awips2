@@ -17,41 +17,38 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
+
 package com.raytheon.uf.edex.stats.dao;
 
 import java.util.Calendar;
 import java.util.List;
 
-import org.hibernate.Query;
-import org.hibernate.StatelessSession;
-
-import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
 import com.raytheon.uf.common.stats.StatsRecord;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.database.dao.CoreDao;
-import com.raytheon.uf.edex.database.dao.DaoConfig;
-import com.raytheon.uf.edex.database.query.DatabaseQuery;
+import com.raytheon.uf.edex.database.dao.SessionManagedDao;
 
 /**
- * Data access object for raw statistics.
+ * Stats object data access object
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 21, 2012            jsanchez    Initial creation
- * May 22, 2013 1917       rjpeter     Added reclaimSpace.
+ * 3/18/2013    1082       bphillip     Modified to extend sessionmanagedDao and use spring injection
+ * 
  * </pre>
  * 
- * @author jsanchez
+ * @author bphillip
+ * @version 1.0
  */
-public class StatsDao extends CoreDao {
+public class StatsDao extends SessionManagedDao<Integer, StatsRecord> {
     /**
      * Creates a new data access object
      */
     public StatsDao() {
-        super(DaoConfig.forClass("metadata", StatsRecord.class));
+
     }
 
     /**
@@ -65,49 +62,20 @@ public class StatsDao extends CoreDao {
      *         size 0 will be returned.
      * @throws DataAccessLayerException
      */
-    @SuppressWarnings("unchecked")
     public List<StatsRecord> retrieveRecords(Calendar limit, String eventType,
             int maxResults) throws DataAccessLayerException {
-        DatabaseQuery query = new DatabaseQuery(StatsRecord.class);
-        query.addQueryParam("eventType", eventType, QueryOperand.EQUALS);
-        query.addQueryParam("date", limit, QueryOperand.LESSTHAN);
-        query.addOrder("date", true);
-
-        if (maxResults > 0) {
-            query.setMaxResults(maxResults);
-        }
-
-        return (List<StatsRecord>) queryByCriteria(query);
+        String hql = "from StatsRecord rec where rec.eventType = :eventType and rec.date < :date order by rec.date asc";
+        return this.query(hql, maxResults, "eventType", eventType, "date",
+                limit);
     }
 
-    /**
-     * Manually runs vacuum due to large numbers of inserts and deletes to keep
-     * table size to a minimum.
-     */
-    public void reclaimSpace() {
-        StatelessSession sess = null;
+    @Override
+    public StatsRecord getById(Integer id) {
+        return super.getById(id);
+    }
 
-        try {
-            sess = getHibernateTemplate().getSessionFactory()
-                    .openStatelessSession();
-            // vacuum can't run within a transaction, hack to allow vacuum to
-            // run from within hibernate
-            Query query = sess
-                    .createSQLQuery("rollback; VACUUM ANALYZE events.stats");
-            query.executeUpdate();
-            statusHandler.info("stats vacuumed");
-        } catch (Exception e) {
-            statusHandler.error(
-                    "Error occurred running VACUUM on events.stats", e);
-        } finally {
-            if (sess != null) {
-                try {
-                    sess.close();
-                } catch (Exception e) {
-                    statusHandler.error(
-                            "Error occurred closing database session", e);
-                }
-            }
-        }
+    @Override
+    protected Class<StatsRecord> getEntityClass() {
+        return StatsRecord.class;
     }
 }

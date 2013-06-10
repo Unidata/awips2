@@ -32,6 +32,5 @@ Import-Package: com.raytheon.edex.meteoLib,
  com.raytheon.uf.viz.core.datastructure,
  com.raytheon.uf.viz.core.exception,
  com.raytheon.uf.viz.core.status,
- com.raytheon.uf.viz.core.topo,
  com.raytheon.viz.core.map,
  com.raytheon.viz.pointdata

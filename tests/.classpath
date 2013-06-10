@@ -49,7 +49,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.core"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.database"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.mchange"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.ebxml"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.commons.management"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.facebook.thrift"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.datastorage"/>
@@ -58,7 +57,7 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.event"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/javax.measure"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/javax.vecmath"/>
-	<classpathentry exported="true" kind="lib" path="lib/hsqldb.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/h2-1.3.171.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.gridcoverage"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.datadelivery.service"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.viz.ui"/>
@@ -76,6 +75,7 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.edex.plugin.redbook"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.plugin.level"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.dataplugin.level"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.archive"/>
 	<classpathentry kind="src" path="/com.raytheon.uf.common.dataplugin.ffmp"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataaccess"/>
 	<classpathentry kind="src" path="/com.raytheon.uf.common.monitor"/>
@@ -83,9 +83,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.log"/>
 	<classpathentry kind="src" path="/com.raytheon.viz.core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.decodertools"/>
-	<classpathentry kind="lib" path="/opt/uframe-eclipse/plugins/org.eclipse.swt.gtk.linux.x86_3.6.1.v3655c.jar"/>
-	<classpathentry kind="lib" path="/opt/uframe-eclipse/plugins/org.eclipse.swt.gtk.linux.x86_64.source_3.6.1.v3655c.jar"/>
-	<classpathentry kind="lib" path="/opt/uframe-eclipse/plugins/org.eclipse.swt.gtk.linux.x86_64_3.6.1.v3655c.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.jep">
 		<attributes>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="org.jep.linux32"/>
@@ -93,5 +90,8 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/javax.servlet_2.5.0.v200910301333.jar"/>
 	<classpathentry kind="lib" path="/com.raytheon.edex.plugin.redbook/res/conf"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.datadelivery.harvester"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/javax.jms"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.commons.cxf"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

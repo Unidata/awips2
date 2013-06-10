@@ -3,6 +3,8 @@ package gov.noaa.nws.ncep.common.dataplugin.ncccfp;
 
 import java.util.Calendar;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
@@ -35,6 +37,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 26/05/2010	155			F. J. Yen	Refactored to dataplugin for migration to to11dr11
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869     bsteffen    Remove dataURI column from
+ *                                   PluginDataObject.
  * 
  * </pre>
  * 
@@ -331,5 +335,12 @@ public class NcccfpRecord extends PluginDataObject implements ISpatialEnabled {
     public void setLocation (NcccfpLocation location) {
         this.location = location;
 	}
+
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 
 }

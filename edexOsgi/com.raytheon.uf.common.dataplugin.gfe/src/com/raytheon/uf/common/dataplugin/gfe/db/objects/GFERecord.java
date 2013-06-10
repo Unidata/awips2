@@ -44,7 +44,6 @@ import org.hibernate.annotations.Index;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
@@ -64,14 +63,20 @@ import com.raytheon.uf.common.time.TimeRange;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * --------            ---  randerso    Initial creation    
- * 20070914     379         jkorman     Added populateDataStore() and
- *                                      getPersistenceTime() from new IPersistable
- * 20071129     472         jkorman     Added IDecoderGettable interface.  
- * 06/17/08     940         bphillip    Implemented GFE Locking
- * Apr 4, 2013  1846        bkowal      Added an index on refTime and forecastTime 
+ *                          randerso    Initial creation
+ * Sep 14, 2007 379         jkorman     Added populateDataStore() and
+ *                                      getPersistenceTime() from new
+ *                                      IPersistable
+ * Nov 29, 2007 472         jkorman     Added IDecoderGettable interface.
+ * Jun 17, 2008 940         bphillip    Implemented GFE Locking
+ * Apr 04, 2013 1846        bkowal      Added an index on refTime and
+ *                                      forecastTime
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * Apr 23, 2013 1949        rjpeter     Normalized database structure.
+ * May 07, 2013 1869        bsteffen    Remove dataURI column from
+ *                                      PluginDataObject.
+ * May 13, 2013 1869        bsteffen    Remove DataURI column from GFE.
+ * 
  * </pre>
  * 
  * @author randerso
@@ -185,11 +190,6 @@ public class GFERecord extends PluginDataObject {
      */
     public GFERecord(String uri) {
         super(uri);
-    }
-
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
     }
 
     public void setGridHistory(GridDataHistory[] history) {

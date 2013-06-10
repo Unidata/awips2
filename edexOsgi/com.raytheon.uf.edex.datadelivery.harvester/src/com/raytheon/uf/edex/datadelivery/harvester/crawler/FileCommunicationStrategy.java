@@ -20,7 +20,6 @@
 package com.raytheon.uf.edex.datadelivery.harvester.crawler;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +32,9 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.raytheon.uf.common.datadelivery.harvester.CrawlAgent;
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
+import com.raytheon.uf.common.datadelivery.harvester.ProtoCollection;
 import com.raytheon.uf.common.datadelivery.registry.Collection;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -53,10 +55,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.StringUtil;
+import com.raytheon.uf.common.util.file.FilenameFilters;
 import com.raytheon.uf.edex.datadelivery.harvester.CrawlMetaDataHandler;
-import com.raytheon.uf.edex.datadelivery.harvester.config.CrawlAgent;
-import com.raytheon.uf.edex.datadelivery.harvester.config.HarvesterConfig;
-import com.raytheon.uf.edex.datadelivery.harvester.config.ProtoCollection;
 import com.raytheon.uf.edex.datadelivery.retrieval.LinkStore;
 import com.raytheon.uf.edex.datadelivery.retrieval.ProviderCollectionLinkStore;
 
@@ -72,6 +72,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.ProviderCollectionLinkStore;
  * Jul 17, 2012 740        djohnson     Initial creation
  * Aug 06, 2012 1022       djohnson     Add shutdown(), write out millis with filename to prevent overwriting.
  * Sep 10, 2012 1154       djohnson     Use JAXB instead of thrift, allowing introspection of links, return files in ascending order.
+ * Mar 14, 2013 1794       djohnson     Consolidate common FilenameFilter implementations.
  * 
  * </pre>
  * 
@@ -306,12 +307,8 @@ class FileCommunicationStrategy implements CommunicationStrategy {
 
     private File[] readFilesInDir(final File dir, final String fileExtension) {
         if (dir.isDirectory()) {
-            File[] files = dir.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return name.endsWith(fileExtension);
-                }
-            });
+            File[] files = dir.listFiles(FilenameFilters
+                    .byFileExtension(fileExtension));
 
             // order the files in time order
             Arrays.sort(files, new Comparator<File>() {

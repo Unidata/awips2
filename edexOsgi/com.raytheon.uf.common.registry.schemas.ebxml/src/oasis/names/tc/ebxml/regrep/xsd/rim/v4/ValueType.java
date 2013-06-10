@@ -25,6 +25,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -71,13 +72,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
         DurationValueType.class, CollectionValueType.class })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "Value")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "Value")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class ValueType {
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "ValueTypeGenerator", schema = "ebxml", sequenceName = "ebxml.Value_sequence")
+    @GeneratedValue(generator = "ValueTypeGenerator")
     @XmlTransient
     protected Integer key;
 

@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.datadelivery.service.services;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionDeleteRequest;
@@ -27,7 +29,6 @@ import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
 import com.raytheon.uf.common.util.ReflectionUtil;
 import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
-import com.raytheon.uf.edex.registry.ebxml.services.util.RegistrySessionManager;
 
 /**
  * Handles deleting subscriptions or pending subscriptions, also any association
@@ -42,6 +43,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.util.RegistrySessionManager;
  * Sep 27, 2012 1187       djohnson     Initial creation
  * Nov 05, 2012 1306       djohnson     Remove dynamic serialize field level adapters.
  * Nov 15, 2012 1286       djohnson     Prevent NPE if user is null.
+ * 3/18/2013    1802       bphillip     Modified to use proper transaction boundaries
  * 
  * </pre>
  * 
@@ -55,27 +57,21 @@ public class SubscriptionDeleteHandler extends
     /**
      * {@inheritDoc}
      */
+    @Transactional
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Object handleRequest(SubscriptionDeleteRequest request)
             throws Exception {
-        try {
-            RegistrySessionManager.openSession();
 
-            Class handlerClass = ReflectionUtil.forName(request
-                    .getHandlerClass());
+        Class handlerClass = ReflectionUtil.forName(request.getHandlerClass());
 
-            IBaseSubscriptionHandler handler = RegistryObjectHandlers
-                    .get(handlerClass);
-            final IUser user = request.getUser();
-            final String username = (user == null) ? null : user.uniqueId()
-                    .toString();
+        IBaseSubscriptionHandler handler = RegistryObjectHandlers
+                .get(handlerClass);
+        final IUser user = request.getUser();
+        final String username = (user == null) ? null : user.uniqueId()
+                .toString();
 
-            handler.deleteByIds(username,
-                    request.getSubscriptionIds());
-        } finally {
-            RegistrySessionManager.closeSession();
-        }
+        handler.deleteByIds(username, request.getSubscriptionIds());
         return null;
     }
 

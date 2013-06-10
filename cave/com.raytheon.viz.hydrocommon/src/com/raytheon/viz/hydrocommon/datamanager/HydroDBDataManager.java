@@ -23,6 +23,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
@@ -40,6 +41,7 @@ import com.raytheon.viz.hydrocommon.data.HydroDBData;
  * Nov 17, 2008 1697       askripsky   Initial Creation
  * Nov 21, 2008 1697       askripsky   Changed to use reflection and filter generic methods
  * Nov 03, 2011 11273      lbousaidi   added updateNewData and putNewData.
+ * Apr 18, 2013 1790       rferrel     Code cleanup part of non-blocking dialogs.
  * </pre>
  * 
  * @author askripsky
@@ -47,7 +49,7 @@ import com.raytheon.viz.hydrocommon.data.HydroDBData;
  */
 
 public class HydroDBDataManager extends HydroDataManager {
-    private static HydroDBDataManager manager = null;
+    private static final HydroDBDataManager manager = new HydroDBDataManager();
 
     /**
      * Private constructor.
@@ -61,10 +63,6 @@ public class HydroDBDataManager extends HydroDataManager {
      * @return manager
      */
     public static synchronized HydroDBDataManager getInstance() {
-        if (manager == null) {
-            manager = new HydroDBDataManager();
-        }
-
         return manager;
     }
 
@@ -74,8 +72,8 @@ public class HydroDBDataManager extends HydroDataManager {
      * @param recordsToDelete
      * @throws VizException
      */
-    public <T extends HydroDBData> void deleteRecords(
-            ArrayList<T> recordsToDelete) throws VizException {
+    public <T extends HydroDBData> void deleteRecords(List<T> recordsToDelete)
+            throws VizException {
         for (T currData : recordsToDelete) {
             deleteRecord(currData);
         }
@@ -91,8 +89,8 @@ public class HydroDBDataManager extends HydroDataManager {
     public <T extends HydroDBData> void deleteRecord(T recordToDelete)
             throws VizException {
         try {
-            String deleteQuery = (String) recordToDelete.getClass().getMethod(
-                    "getDeleteStatement").invoke(recordToDelete);
+            String deleteQuery = (String) recordToDelete.getClass()
+                    .getMethod("getDeleteStatement").invoke(recordToDelete);
 
             runStatement(deleteQuery);
         } catch (Exception e) {
@@ -105,13 +103,13 @@ public class HydroDBDataManager extends HydroDataManager {
      * 
      * @param clazz
      *            The data type to run the query for.
-     * @return ArrayList containing the data type that is passed in containing
-     *         data from the DB.
+     * @return List containing the data type that is passed in containing data
+     *         from the DB.
      * @throws VizException
      */
-    public <T extends HydroDBData> ArrayList<T> getData(Class<T> clazz)
+    public <T extends HydroDBData> List<T> getData(Class<T> clazz)
             throws VizException {
-        ArrayList<T> rval = new ArrayList<T>();
+        List<T> rval = new ArrayList<T>();
 
         try {
             String selectStatement = (String) clazz.getMethod(
@@ -124,8 +122,8 @@ public class HydroDBDataManager extends HydroDataManager {
 
             if (result.getResultCount() > 0) {
                 for (QueryResultRow currRow : result.getRows()) {
-                    rval.add(dataConstructor.newInstance(currRow, result
-                            .getColumnNames()));
+                    rval.add(dataConstructor.newInstance(currRow,
+                            result.getColumnNames()));
                 }
             }
         } catch (Exception e) {
@@ -154,18 +152,17 @@ public class HydroDBDataManager extends HydroDataManager {
      * 
      * @param clazz
      *            The data type to run the query for.
-     * @return ArrayList containing the data type that is passed in containing
-     *         data from the DB.
+     * @return List containing the data type that is passed in containing data
+     *         from the DB.
      * @throws VizException
      */
     @SuppressWarnings("unchecked")
-    public <T extends HydroDBData> ArrayList<T> getData(T data)
-            throws VizException {
-        ArrayList<T> rval = new ArrayList<T>();
+    public <T extends HydroDBData> List<T> getData(T data) throws VizException {
+        List<T> rval = new ArrayList<T>();
 
         try {
-            String selectQuery = (String) data.getClass().getMethod(
-                    "getConstrainedSelectStatement").invoke(data);
+            String selectQuery = (String) data.getClass()
+                    .getMethod("getConstrainedSelectStatement").invoke(data);
 
             QueryResult result = runMappedQuery(selectQuery);
 
@@ -174,8 +171,8 @@ public class HydroDBDataManager extends HydroDataManager {
                     .getClass());
 
             for (QueryResultRow currRow : result.getRows()) {
-                rval.add(dataConstructor.newInstance(currRow, result
-                        .getColumnNames()));
+                rval.add(dataConstructor.newInstance(currRow,
+                        result.getColumnNames()));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -219,8 +216,8 @@ public class HydroDBDataManager extends HydroDataManager {
     public <T extends HydroDBData> void updateData(T data) throws VizException {
         try {
             // Get the update statement with the values filled in
-            String updateQuery = (String) data.getClass().getMethod(
-                    "getUpdateStatement").invoke(data);
+            String updateQuery = (String) data.getClass()
+                    .getMethod("getUpdateStatement").invoke(data);
 
             if (updateQuery != null) {
                 runStatement(updateQuery);
@@ -238,25 +235,27 @@ public class HydroDBDataManager extends HydroDataManager {
      * @param updateData
      * @throws VizException
      * */
-    public <T extends HydroDBData> void updateNewData(T newData, T updateData) throws VizException {
-    	try {
-    		
-        	String updateQuery = (String) newData.getClass().getMethod(
-        	"getUpdateStatement").invoke(newData);
-        	        	
-        	String pkquery= (String) updateData.getClass().getMethod(
-        	"getPKStatement").invoke(updateData);
-        	        	
-        	String updateQueryToRun= updateQuery + "WHERE " + pkquery ;
-        	
-        	if (updateQueryToRun != null) {
-        		runStatement(updateQueryToRun);
-        	}
+    public <T extends HydroDBData> void updateNewData(T newData, T updateData)
+            throws VizException {
+        try {
+
+            String updateQuery = (String) newData.getClass()
+                    .getMethod("getUpdateStatement").invoke(newData);
+
+            String pkquery = (String) updateData.getClass()
+                    .getMethod("getPKStatement").invoke(updateData);
+
+            String updateQueryToRun = updateQuery + "WHERE " + pkquery;
+
+            if (updateQueryToRun != null) {
+                runStatement(updateQueryToRun);
+            }
         } catch (Exception e) {
-        	e.printStackTrace();
+            e.printStackTrace();
         }
-       
+
     }
+
     /**
      * Inserts into the respective DB table with the data passed in.
      * 
@@ -319,29 +318,30 @@ public class HydroDBDataManager extends HydroDataManager {
             insertData(newData);
         }
     }
-    
+
     /**
-     * Checks to see if the newData passed in already exists in the DB based on the
-     * primary key for the data's respective table. If the data exists, an
-     * UPDATE is performed by replacing the updateData with NewData. 
-     * If not, an INSERT of newData is performed.
+     * Checks to see if the newData passed in already exists in the DB based on
+     * the primary key for the data's respective table. If the data exists, an
+     * UPDATE is performed by replacing the updateData with NewData. If not, an
+     * INSERT of newData is performed.
      * 
      * @param <T>
      * @param lid
      * @param newData
      * @throws VizException
      */
-    public <T extends HydroDBData> void putNewData(T newData, T updateData, boolean insert) throws VizException {
-        // Check if it's going to be an update 
-    	
-    	if ((insert) && (checkData(newData)==0) ) {
-    			// Do an insert    	
-    			insertData(newData);
-    			 
-    	} else if (checkData(updateData) > 0) {
-    			// Do an update
-            	updateNewData(newData, updateData);
+    public <T extends HydroDBData> void putNewData(T newData, T updateData,
+            boolean insert) throws VizException {
+        // Check if it's going to be an update
+
+        if ((insert) && (checkData(newData) == 0)) {
+            // Do an insert
+            insertData(newData);
+
+        } else if (checkData(updateData) > 0) {
+            // Do an update
+            updateNewData(newData, updateData);
         }
     }
-    
+
 }

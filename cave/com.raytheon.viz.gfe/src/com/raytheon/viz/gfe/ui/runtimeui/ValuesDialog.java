@@ -47,6 +47,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Jun 3, 2008	1164		jelkins     Initial creation
  * Oct 15, 2008             njensen     Static methods to keep UI
  *                                      thread working
+ * Mar 28, 2013 1790        rferrel     Make dialog modal except when the static openDialog is used.
  * 
  * </pre>
  * 
@@ -83,9 +84,9 @@ public class ValuesDialog extends CaveJFACEDialog {
      *            a list of field definitions this dialog will display.
      * @param dataMgr
      */
-    public ValuesDialog(String title, List<FieldDefinition> fieldDefs,
-            DataManager dataMgr) {
-        super(new Shell());
+    public ValuesDialog(Shell parentShell, String title,
+            List<FieldDefinition> fieldDefs, DataManager dataMgr) {
+        super(parentShell);
         this.title = title + " Values";
         this.fieldDefs = fieldDefs;
         this.dataMgr = dataMgr;
@@ -93,7 +94,7 @@ public class ValuesDialog extends CaveJFACEDialog {
         this.values = new HashMap<Object, Object>();
         this.closeAfterRun = false;
 
-        this.setShellStyle(SWT.MODELESS | SWT.TITLE | SWT.RESIZE);
+        this.setShellStyle(SWT.APPLICATION_MODAL | SWT.TITLE | SWT.RESIZE);
     }
 
     /*
@@ -284,13 +285,24 @@ public class ValuesDialog extends CaveJFACEDialog {
         return ValuesDialog.class.getClassLoader();
     }
 
+    /**
+     * This method used by python to create a blocking, non-modal dialog.
+     * 
+     * @param title
+     * @param fieldDefs
+     * @param dataMgr
+     * @return
+     */
     public static ValuesDialog openDialog(final String title,
             final List<FieldDefinition> fieldDefs, final DataManager dataMgr) {
         VizApp.runSync(new Runnable() {
 
             @Override
             public void run() {
-                syncedDialog = new ValuesDialog(title, fieldDefs, dataMgr);
+                syncedDialog = new ValuesDialog(new Shell(), title, fieldDefs,
+                        dataMgr);
+                syncedDialog.setShellStyle(SWT.MODELESS | SWT.TITLE
+                        | SWT.RESIZE);
                 syncedDialog.open();
             }
         });

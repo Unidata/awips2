@@ -24,7 +24,7 @@ import java.util.List;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RoleType;
 
-import com.raytheon.uf.edex.registry.ebxml.constants.AssociationTypes;
+import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
 /**
@@ -37,19 +37,23 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 7/30/2012    724        bphillip     Initial creation
+ * 3/13/2013    1082       bphillip    Modified to use spring injection and transaction boundaries
+ * 4/9/2013     1802       bphillip    Removed exception catching
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-public class RoleDao extends RegistryObjectTypeDao {
+public class RoleDao extends RegistryObjectTypeDao<RoleType> {
+
+    private AssociationDao associationDao;
 
     /**
      * Creates a new Role data access object
      */
     public RoleDao() {
-        super(RoleType.class);
+
     }
 
     /**
@@ -62,7 +66,6 @@ public class RoleDao extends RegistryObjectTypeDao {
      *             If errors occur during interaction with the database
      */
     public RoleType getUserRole(String user) throws EbxmlRegistryException {
-        AssociationDao associationDao = new AssociationDao();
         List<AssociationType> associations = associationDao.getBySourceAndType(
                 user, AssociationTypes.HAS_ROLE);
         if (associations.isEmpty()) {
@@ -70,6 +73,15 @@ public class RoleDao extends RegistryObjectTypeDao {
         }
         AssociationType roleAssociation = associations.get(0);
         return this.getById(roleAssociation.getTargetObject());
+    }
+
+    public void setAssociationDao(AssociationDao associationDao) {
+        this.associationDao = associationDao;
+    }
+
+    @Override
+    protected Class<RoleType> getEntityClass() {
+        return RoleType.class;
     }
 
 }

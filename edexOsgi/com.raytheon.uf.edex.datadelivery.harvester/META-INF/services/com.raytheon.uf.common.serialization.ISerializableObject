@@ -1,5 +1,0 @@
-com.raytheon.uf.edex.datadelivery.harvester.config.HarvesterConfig
-com.raytheon.uf.edex.datadelivery.harvester.config.CrawlAgent
-com.raytheon.uf.edex.datadelivery.harvester.config.Agent
-com.raytheon.uf.edex.datadelivery.harvester.config.OGCAgent
-

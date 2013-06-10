@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Archive
+Bundle-SymbolicName: com.raytheon.uf.viz.archive;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: com.raytheon.uf.viz.archive.Activator
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.eclipse.ui;bundle-version="3.8.2",
+ org.eclipse.core.runtime,
+ com.raytheon.viz.ui;bundle-version="1.12.1174",
+ com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.localization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.archive;bundle-version="1.0.0",
+ com.raytheon.uf.common.time;bundle-version="1.12.1174",
+ com.raytheon.uf.common.util;bundle-version="1.12.1174"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy

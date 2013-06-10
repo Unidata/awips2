@@ -23,6 +23,7 @@ package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -72,12 +73,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "SimpleLinkType")
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "SimpleLink")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "SimpleLink")
 public class SimpleLinkType {
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "SimpleLinkTypeGenerator", schema = "ebxml", sequenceName = "ebxml.SimpleLink_sequence")
+    @GeneratedValue(generator = "SimpleLinkTypeGenerator")
     @XmlTransient
     private Integer key;
 

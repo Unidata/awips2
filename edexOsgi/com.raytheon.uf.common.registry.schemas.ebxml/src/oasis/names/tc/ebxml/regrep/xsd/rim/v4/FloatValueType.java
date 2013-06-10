@@ -66,8 +66,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "FloatValueType", propOrder = { "floatValue" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "FloatValue")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "FloatValue")
 public class FloatValueType extends ValueType {
     @Column(name = COLUMN_NAME)
     @XmlElement(name = "Value")
@@ -75,6 +75,14 @@ public class FloatValueType extends ValueType {
     protected Float floatValue;
 
     private static final String COLUMN_NAME = "floatValue";
+
+    public FloatValueType() {
+
+    }
+
+    public FloatValueType(Float floatValue) {
+        this.floatValue = floatValue;
+    }
 
     @Override
     public String getColumnName() {
