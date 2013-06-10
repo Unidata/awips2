@@ -20,13 +20,18 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
+import java.util.Collection;
+
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import org.hibernate.annotations.Cache;
@@ -64,13 +69,35 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "QueryType")
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "Query")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "Query")
 public class QueryType extends ExtensibleObjectType {
+
     @Id
+    @SequenceGenerator(name = "QueryTypeGenerator", schema = "ebxml", sequenceName = "ebxml.Query_sequence")
+    @GeneratedValue(generator = "QueryTypeGenerator")
+    @XmlTransient
+    private Integer key;
+
     @XmlAttribute(required = true)
     @DynamicSerializeElement
     protected String queryDefinition;
+
+    public QueryType() {
+
+    }
+
+    public QueryType(String queryDefinition, Collection<SlotType> slots) {
+        super(slots);
+        this.queryDefinition = queryDefinition;
+    }
+
+    public QueryType(String queryDefinition, SlotType... slots) {
+        this.queryDefinition = queryDefinition;
+        for (SlotType slot : slots) {
+            this.getSlot().add(slot);
+        }
+    }
 
     /**
      * Gets the value of the queryDefinition property.
@@ -91,6 +118,14 @@ public class QueryType extends ExtensibleObjectType {
      */
     public void setQueryDefinition(String value) {
         this.queryDefinition = value;
+    }
+
+    public Integer getKey() {
+        return key;
+    }
+
+    public void setKey(Integer key) {
+        this.key = key;
     }
 
 }

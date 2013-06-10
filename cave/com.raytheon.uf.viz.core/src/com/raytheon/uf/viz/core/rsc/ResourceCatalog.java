@@ -163,9 +163,7 @@ public class ResourceCatalog implements IDisposeListener {
         // Nothing points to this resource
         // remove it from the map, and invoke dispose.
         theMapping.remove(resource);
-        if (resource.getResourceData() instanceof AbstractRequestableResourceData) {
-            DataUpdateTree.getInstance().remove(resource);
-        }
+
         if (resource instanceof IResourceGroup) {
             ((IResourceGroup) resource).getResourceList().clear();
         }

@@ -60,9 +60,7 @@ public class ProviderFixture extends AbstractFixture<Provider> {
      * {@inheritDoc}
      */
     @Override
-    public Provider get(long seedValue) {
-        Random random = new Random(seedValue);
-
+    public Provider getInstance(long seedValue, Random random) {
         Provider provider = new Provider();
         provider.setConnection(ConnectionFixture.INSTANCE.get(seedValue));
         provider.setErrorResponsePattern("error");

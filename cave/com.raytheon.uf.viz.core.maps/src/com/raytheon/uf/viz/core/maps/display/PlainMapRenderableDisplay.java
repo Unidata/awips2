@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.viz.core.map.MapDescriptor;
+import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 
 /**
@@ -57,7 +57,7 @@ public class PlainMapRenderableDisplay extends MapRenderableDisplay {
     /**
      * @param desc
      */
-    public PlainMapRenderableDisplay(MapDescriptor desc) {
+    public PlainMapRenderableDisplay(IMapDescriptor desc) {
         super(desc);
     }
 

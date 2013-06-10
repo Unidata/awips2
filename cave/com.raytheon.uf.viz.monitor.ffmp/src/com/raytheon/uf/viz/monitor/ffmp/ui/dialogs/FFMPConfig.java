@@ -59,7 +59,7 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML;
  * Aug 01, 2012 14168      mpduff       Add convenience methods for 
  *                                      getting ColorCell and ReverseFilter
  * Apr 12, 2013  1902      mpduff       Speed up cell coloring.
- * Apr 15. 2013  1890      dhladky      Added Mikes fix for singleton.
+ * Apr 15, 2013   1904     mpduff       Don't allow this class to be nulled out
  * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
  * 
  * </pre>
@@ -134,7 +134,7 @@ public class FFMPConfig {
         init();
     }
 
-    public static synchronized FFMPConfig getInstance() {
+    public static FFMPConfig getInstance() {
         return classInstance;
     }
 

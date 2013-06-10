@@ -143,27 +143,46 @@ public class TabularDisplayDlg extends CaveSWTDialog {
      */
     private java.util.List<GageData> recordList = new ArrayList<GageData>();
 
-    /* Vars used in the printing methods */
+    /** The connection to the printer. */
     private Printer printer;
 
+    /** Line height for printing. */
     private int lineHeight = 0;
 
+    /** Tab width for printing. */
     private int tabWidth = 0;
 
+    /** Printer's left margin. */
     private int leftMargin;
 
+    /** Printer's right margin. */
     private int rightMargin;
 
+    /** Printer's top margin. */
     private int topMargin;
 
+    /** Printer's bottom margin. */
     private int bottomMargin;
 
-    private int x, y;
+    /** Printer's current horizontal location. */
+    private int x;
 
-    private int index, end;
+    /** Printer's current vertical location. */
+    private int y;
 
+    /**
+     * Index into the text of the current character being processed for
+     * printing.
+     */
+    private int index;
+
+    /** Length of the text being printed. */
+    private int end;
+
+    /** The currently line to send to the printer. */
     private StringBuffer wordBuffer;
 
+    /** Used to draw the characters for the printer. */
     private GC gc;
 
     /**
@@ -173,10 +192,15 @@ public class TabularDisplayDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public TabularDisplayDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Point Data Tabular Display");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -186,6 +210,11 @@ public class TabularDisplayDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         if ((font != null) && (font.isDisposed() == false)) {
@@ -193,6 +222,13 @@ public class TabularDisplayDlg extends CaveSWTDialog {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -710,10 +746,6 @@ public class TabularDisplayDlg extends CaveSWTDialog {
      */
     private GageData getSelection() {
         HydroDisplayManager displayManager = HydroDisplayManager.getInstance();
-        PointDataControlManager pdcManager = PointDataControlManager
-                .getInstance();
-        java.util.List<GageData> reportList = pdcManager.getObsReportList();
-        String pe = null;
 
         String[] array = dataList.getSelection();
         if (array.length != 1) {

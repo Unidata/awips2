@@ -72,7 +72,6 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPLoaderEvent;
  * Apr 9, 2013   1890     dhladky    removed loading of phantom Virtual template and cache file processing.
  * Apr 18, 2013 1912       bsteffen    Increase bulk requests to pypies.
  * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
- * May 22, 2013 1902       mpduff      Check for null times.
  * 
  * </pre>
  * 
@@ -106,9 +105,9 @@ public class FFMPDataLoader extends Thread {
 
     private FFMPConfig config = null;
 
-    private final ArrayList<FFMPLoadListener> loadListeners = new ArrayList<FFMPLoadListener>();
+    private ArrayList<FFMPLoadListener> loadListeners = new ArrayList<FFMPLoadListener>();
 
-    private final CountDownLatch latch;
+    private CountDownLatch latch;
 
     public FFMPDataLoader(FFMPResourceData resourceData, Date timeBack,
             Date mostRecentTime, LOADER_TYPE loadType, List<String> hucsToLoad) {
@@ -196,8 +195,9 @@ public class FFMPDataLoader extends Thread {
             }
             if ((loadType == LOADER_TYPE.INITIAL || loadType == LOADER_TYPE.GENERAL)
                     && !product.getRate().equals(product.getQpe())) {
-                Map<Date, List<String>> rateURIs = monitor.getAvailableUris(
-                        siteKey, dataKey, product.getRate(), mostRecentTime);
+                Map<Date, List<String>> rateURIs = monitor
+                .getAvailableUris(siteKey, dataKey, product.getRate(),
+                        mostRecentTime);
                 if (rateURIs.containsKey(mostRecentTime)) {
                     rateURI = rateURIs.get(mostRecentTime).get(0);
                 }
@@ -243,12 +243,10 @@ public class FFMPDataLoader extends Thread {
 
                     NavigableMap<Date, List<String>> iguidURIs = null;
                     Date guidTime = timeBack;
+
                     if (loadType == LOADER_TYPE.GENERAL) {
                         guidTime = monitor.getPreviousQueryTime(siteKey,
                                 guidSource.getSourceName());
-                    }
-                    if (guidTime == null) {
-                        continue;
                     }
 
                     iguidURIs = monitor.getAvailableUris(siteKey, dataKey,
@@ -294,11 +292,10 @@ public class FFMPDataLoader extends Thread {
 
                 SourceXML source = sourceConfig.getSource(product.getQpe());
 
-                qpeCache = readAggregateRecord(source, dataKey, wfo);
+                 qpeCache = readAggregateRecord(source, dataKey, wfo);
 
                 if (qpeCache != null) {
-                    monitor.insertFFMPData(qpeCache, qpeURIs, siteKey,
-                            product.getQpe());
+                    monitor.insertFFMPData(qpeCache, qpeURIs, siteKey, product.getQpe());
                 }
             }
 

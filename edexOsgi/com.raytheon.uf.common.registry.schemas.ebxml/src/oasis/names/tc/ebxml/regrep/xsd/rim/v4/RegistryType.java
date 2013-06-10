@@ -79,7 +79,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @Entity
 @Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "Registry")
+@Table(schema = "ebxml", name = "Registry")
 public class RegistryType extends RegistryObjectType {
 
     @XmlAttribute(required = true)

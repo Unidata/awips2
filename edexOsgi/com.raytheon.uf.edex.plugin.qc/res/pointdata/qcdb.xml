@@ -23,6 +23,6 @@
   <parameter name="longitude" queryName="location.longitude" type="FLOAT" unit="°" />
   <parameter name="elevation" queryName="location.elevation" type="FLOAT" unit="m" />
   <parameter name="stationName" queryName="location.stationId" type="STRING" />
+  <parameter name="stationId" queryName="location.stationId" type="STRING" />
   <parameter name="qcType" queryName="qcType" type="STRING" />
-  <parameter name="dataURI" queryName="dataURI" type="STRING" />
 </pointDataDbDescription>

@@ -1,11 +1,9 @@
 <pointDataDescription>
   <dimension name="maxLevels" length="50"/>
   
-  <parameter name="validTime" numDims="1" type="LONG" />
   <parameter name="satelliteID" numDims="1" type="INT" />
   <parameter name="satProc" numDims="1" type="INT" />
   
-  <parameter name="invTime" numDims="1" type="INT" />
   <parameter name="terrain" numDims="1" type="INT" />
   <parameter name="dayNight" numDims="1" type="INT" />
   <parameter name="landSea" numDims="1" type="INT" />

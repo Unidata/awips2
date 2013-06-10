@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.datadelivery.services;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
 import com.raytheon.uf.common.datadelivery.service.IGroupDefinitionService;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
+import com.raytheon.uf.common.datadelivery.service.subscription.ISubscriptionOverlapService;
 import com.raytheon.uf.viz.datadelivery.subscription.IPermissionsService;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
 
@@ -36,7 +37,8 @@ import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 9, 2012  1286      djohnson     Initial creation
+ * Nov 09, 2012 1286       djohnson     Initial creation
+ * May 20, 2013 2000       djohnson     Add subscription overlap service.
  * 
  * </pre>
  * 
@@ -46,32 +48,33 @@ import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
 
 public final class DataDeliveryServices {
 
-    private static final DataDeliveryServices INSTANCE = new DataDeliveryServices();
+    private static IBandwidthService bandwidthService;
 
-    private IBandwidthService bandwidthService;
+    private static ISubscriptionService subscriptionService;
 
-    private ISubscriptionService subscriptionService;
+    private static ISubscriptionNotificationService subscriptionNotificationService;
 
-    private ISubscriptionNotificationService subscriptionNotificationService;
+    private static IPermissionsService permissionsService;
 
-    private IPermissionsService permissionsService;
+    private static IGroupDefinitionService groupDefinitionService;
 
-    private IGroupDefinitionService groupDefinitionService;
-
-    /**
-     * Disabled constructor.
-     */
-    private DataDeliveryServices() {
-    }
+    private static ISubscriptionOverlapService subscriptionOverlapService;
 
     /**
-     * Used by Spring to populate the various services. Non Spring code should
-     * use the static getter methods to retrieve services.
-     * 
-     * @return the instance
+     * Spring only constructor. All access should be through static methods.
      */
-    public static DataDeliveryServices getInstance() {
-        return INSTANCE;
+    private DataDeliveryServices(IBandwidthService bandwidthService,
+            ISubscriptionService subscriptionService,
+            ISubscriptionNotificationService subscriptionNotificationService,
+            IPermissionsService permissionsService,
+            IGroupDefinitionService groupDefinitionService,
+            ISubscriptionOverlapService subscriptionOverlapService) {
+        DataDeliveryServices.bandwidthService = bandwidthService;
+        DataDeliveryServices.subscriptionService = subscriptionService;
+        DataDeliveryServices.subscriptionNotificationService = subscriptionNotificationService;
+        DataDeliveryServices.permissionsService = permissionsService;
+        DataDeliveryServices.groupDefinitionService = groupDefinitionService;
+        DataDeliveryServices.subscriptionOverlapService = subscriptionOverlapService;
     }
 
     /**
@@ -80,17 +83,7 @@ public final class DataDeliveryServices {
      * @return the subscriptionService the subscription service
      */
     public static ISubscriptionService getSubscriptionService() {
-        return INSTANCE.subscriptionService;
-    }
-
-    /**
-     * Set the subscription service.
-     * 
-     * @param subscriptionService
-     *            the subscriptionService to set
-     */
-    public void setSubscriptionService(ISubscriptionService subscriptionService) {
-        this.subscriptionService = subscriptionService;
+        return DataDeliveryServices.subscriptionService;
     }
 
     /**
@@ -99,17 +92,7 @@ public final class DataDeliveryServices {
      * @return the bandwidthService
      */
     public static IBandwidthService getBandwidthService() {
-        return INSTANCE.bandwidthService;
-    }
-
-    /**
-     * Set the bandwidth service.
-     * 
-     * @param bandwidthService
-     *            the bandwidthService to set
-     */
-    public void setBandwidthService(IBandwidthService bandwidthService) {
-        this.bandwidthService = bandwidthService;
+        return DataDeliveryServices.bandwidthService;
     }
 
     /**
@@ -118,18 +101,7 @@ public final class DataDeliveryServices {
      * @return the subscription notification service
      */
     public static ISubscriptionNotificationService getSubscriptionNotificationService() {
-        return INSTANCE.subscriptionNotificationService;
-    }
-
-    /**
-     * Set the subscription notification service.
-     * 
-     * @param subscriptionNotificationService
-     *            the subscription notification service to set
-     */
-    public void setSubscriptionNotificationService(
-            ISubscriptionNotificationService subscriptionNotificationService) {
-        this.subscriptionNotificationService = subscriptionNotificationService;
+        return DataDeliveryServices.subscriptionNotificationService;
     }
 
     /**
@@ -138,17 +110,7 @@ public final class DataDeliveryServices {
      * @return the permissions service
      */
     public static IPermissionsService getPermissionsService() {
-        return INSTANCE.permissionsService;
-    }
-
-    /**
-     * Set the permissions service.
-     * 
-     * @param permissionsService
-     *            the permissionsService to set
-     */
-    public void setPermissionsService(IPermissionsService permissionsService) {
-        this.permissionsService = permissionsService;
+        return DataDeliveryServices.permissionsService;
     }
 
     /**
@@ -157,17 +119,15 @@ public final class DataDeliveryServices {
      * @return the groupDefinitionService
      */
     public static IGroupDefinitionService getGroupDefinitionService() {
-        return INSTANCE.groupDefinitionService;
+        return DataDeliveryServices.groupDefinitionService;
     }
 
     /**
-     * Set the group definition service.
+     * Get the subscription overlap service.
      * 
-     * @param groupDefinitionService
-     *            the groupDefinitionService to set
+     * @return the subscriptionOverlapService
      */
-    public void setGroupDefinitionService(
-            IGroupDefinitionService groupDefinitionService) {
-        this.groupDefinitionService = groupDefinitionService;
+    public static ISubscriptionOverlapService getSubscriptionOverlapService() {
+        return DataDeliveryServices.subscriptionOverlapService;
     }
 }

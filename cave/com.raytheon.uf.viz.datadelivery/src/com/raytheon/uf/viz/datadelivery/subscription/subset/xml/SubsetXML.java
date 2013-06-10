@@ -28,8 +28,8 @@ import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.datadelivery.registry.Ensemble;
+import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.datadelivery.common.xml.AreaXML;
 import com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml;
 
@@ -44,6 +44,7 @@ import com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml;
  * ------------ ---------- ----------- --------------------------
  * Mar 29, 2012            mpduff       Initial creation
  * Aug 10, 2012 1022       djohnson     {@link SubsetXML} requires provider name.
+ * Feb 15, 2013 1638       mschenke     Moved Util.EOL into FileUtil
  * 
  * </pre>
  * 
@@ -191,15 +192,15 @@ public class SubsetXML<TIMEXML extends TimeXML> implements IDisplayXml {
     @Override
     public String getDisplayXmlString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Subset Name : ").append(subsetName).append(Util.EOL);
-        sb.append("Dataset Name: ").append(datasetName).append(Util.EOL);
+        sb.append("Subset Name : ").append(subsetName).append(FileUtil.EOL);
+        sb.append("Dataset Name: ").append(datasetName).append(FileUtil.EOL);
         sb.append("Provider: " + providerName);
         
         for (VerticalXML v: verticalList) {
             sb.append(v.getDisplayXmlString());
         }
         
-        sb.append(Util.EOL);
+        sb.append(FileUtil.EOL);
         
         sb.append(area.getDisplayXmlString());
         

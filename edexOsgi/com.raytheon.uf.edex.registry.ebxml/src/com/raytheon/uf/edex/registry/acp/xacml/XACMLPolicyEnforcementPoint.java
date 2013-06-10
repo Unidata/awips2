@@ -31,6 +31,8 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.opensaml.xacml.ctx.DecisionType.DECISION;
 import org.opensaml.xacml.ctx.ResponseType;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.registry.IRegistryRequest;
@@ -57,11 +59,14 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 8/17/2012    724          bphillip    Initial Coding
+ * 3/18/2013    1802         bphillip    Modified to use transaction boundaries and spring injection
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
+@Service
+@Transactional
 public class XACMLPolicyEnforcementPoint extends
         AbstractPhaseInterceptor<SoapMessage> {
 
@@ -69,23 +74,13 @@ public class XACMLPolicyEnforcementPoint extends
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(XACMLPolicyEnforcementPoint.class);
 
-    /** The singleton instance */
-    private static XACMLPolicyEnforcementPoint instance = new XACMLPolicyEnforcementPoint();
+    private XACMLContextHandler xacmlContextHandler;
 
     /**
      * Private constructor
      */
-    private XACMLPolicyEnforcementPoint() {
+    public XACMLPolicyEnforcementPoint() {
         super(Phase.PRE_INVOKE);
-    }
-
-    /**
-     * Gets the singleton instance of the XACMLPolicyEnforcementPoint
-     * 
-     * @return
-     */
-    public static XACMLPolicyEnforcementPoint getInstance() {
-        return instance;
     }
 
     /**
@@ -104,8 +99,8 @@ public class XACMLPolicyEnforcementPoint extends
         String requestId = EbxmlObjectUtil.getUUID();
         logRequest(theUser, "IRegistryRequest", requestId);
         try {
-            ResponseType response = XACMLContextHandler.getInstance()
-                    .authorize(theUser, request);
+            ResponseType response = xacmlContextHandler.authorize(theUser,
+                    request);
             DECISION decision = response.getResult().getDecision()
                     .getDecision();
             logResult(decision, requestId);
@@ -145,8 +140,7 @@ public class XACMLPolicyEnforcementPoint extends
                 + "] Enpoint: [" + requestUri + "]");
         ResponseType response;
         try {
-            response = XACMLContextHandler.getInstance().authorize(userName,
-                    content);
+            response = xacmlContextHandler.authorize(userName, content);
         } catch (MsgRegistryException e) {
             throw new SoapFault("Error processing XACML request. "
                     + e.getLocalizedMessage(), Soap12.getInstance()
@@ -193,4 +187,9 @@ public class XACMLPolicyEnforcementPoint extends
         statusHandler.info("Authorization Result for Authorization Request ["
                 + id + "]:  " + decision);
     }
+
+    public void setXacmlContextHandler(XACMLContextHandler xacmlContextHandler) {
+        this.xacmlContextHandler = xacmlContextHandler;
+    }
+
 }

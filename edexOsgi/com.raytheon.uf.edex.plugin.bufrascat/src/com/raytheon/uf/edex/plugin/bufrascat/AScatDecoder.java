@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.bufrascat.AScatObs;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.edex.bufrtools.AbstractBUFRDecoder;
@@ -35,14 +34,16 @@ import com.raytheon.uf.edex.plugin.bufrascat.decoder.AScatDataAdapter;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
- * 
+ * Decoder for ascat data.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 21, 2009       1939 jkorman     Initial creation
+ * Jan 21, 2009 1939       jkorman     Initial creation
+ * May 17, 2013 1869       bsteffen    Remove DataURI column from sat plot
+ *                                     types.
  * 
  * </pre>
  * 
@@ -99,12 +100,6 @@ public class AScatDecoder extends AbstractBUFRDecoder {
 
                 if (ascatObs != null) {
                     ascatObs.setTraceId(traceId);
-                    try {
-                        ascatObs.constructDataURI();
-                    } catch (PluginException e) {
-                        logger.error(traceId + "- Unable to construct dataURI",
-                                e);
-                    }
                     decodedData.add(ascatObs);
                 }
             }

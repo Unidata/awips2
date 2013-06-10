@@ -29,11 +29,11 @@ import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.raytheon.edex.db.dao.spatial.ObStationDao;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 
 import gov.noaa.nws.ncep.common.dataplugin.ncscd.NcScdRecord;
 import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;

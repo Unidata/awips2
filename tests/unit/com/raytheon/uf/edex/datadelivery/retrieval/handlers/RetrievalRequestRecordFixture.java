@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
+import java.util.Random;
+
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverageFixture;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.registry.ProviderFixture;
@@ -69,7 +71,7 @@ public class RetrievalRequestRecordFixture extends
      * {@inheritDoc}
      */
     @Override
-    public RetrievalRequestRecord get(long seedValue) {
+    public RetrievalRequestRecord getInstance(long seedValue, Random random) {
         Subscription subscription = SubscriptionFixture.INSTANCE.get(seedValue);
         final Provider provider = ProviderFixture.INSTANCE.get(seedValue);
 

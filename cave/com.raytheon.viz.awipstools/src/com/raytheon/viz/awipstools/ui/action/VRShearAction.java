@@ -19,7 +19,7 @@
  **/
 package com.raytheon.viz.awipstools.ui.action;
 
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.viz.awipstools.ui.layer.ShearLayer;
 import com.raytheon.viz.awipstools.ui.layer.VRShearLayer;
 
@@ -48,8 +48,8 @@ public class VRShearAction extends ShearAction {
      * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
      */
     @Override
-    protected AwipsToolsResourceData<ShearLayer> getResourceData() {
-        return new AwipsToolsResourceData<ShearLayer>(
+    protected GenericToolsResourceData<ShearLayer> getResourceData() {
+        return new GenericToolsResourceData<ShearLayer>(
                 VRShearLayer.VRSHEAR_LOCATION, VRShearLayer.class);
     }
 

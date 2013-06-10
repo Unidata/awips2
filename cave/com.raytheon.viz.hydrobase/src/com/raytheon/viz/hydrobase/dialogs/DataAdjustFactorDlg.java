@@ -36,11 +36,14 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.*;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.data.DataAdjustFactorData;
@@ -64,6 +67,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Mar 05, 2010 1928        mpduff      Added additional form validation.
  * Oct 26, 2010 5937        Judy Wang   Converted lower case to upper
  *                                      case in Location box.
+ * Apr 18, 2013 1790        rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -71,6 +75,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class DataAdjustFactorDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DataAdjustFactorDlg.class);
 
     /**
      * Control font.
@@ -134,10 +140,15 @@ public class DataAdjustFactorDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public DataAdjustFactorDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Data Adjustment Factors");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         GridLayout mainLayout = new GridLayout(1, false);
@@ -147,11 +158,23 @@ public class DataAdjustFactorDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -236,21 +259,21 @@ public class DataAdjustFactorDlg extends CaveSWTDialog {
         locationTF = new Text(selectedItemGroup, SWT.BORDER);
         locationTF.setLayoutData(gd);
         locationTF.setTextLimit(8);
-        locationTF.addListener(SWT.Verify, new Listener(){
-        	public void handleEvent(Event e){
-        		String newStr = e.text;
-        		char[] newChars = new char[newStr.length()];
-        		newStr.getChars(0, newChars.length, newChars, 0);
-        		for (int i = 0; i < newChars.length; i++){
-        			if (!('0' <= newChars[i] && newChars[i] <= '9') && 
-        				!('a' <= newChars[i] && newChars[i] <= 'z') &&
-        				!('A' <= newChars[i] && newChars[i] <= 'Z')) {
-        				e.doit = false;  
-        			}
-        		}
-        		e.text = e.text.toUpperCase();	
-        	}
-        });  
+        locationTF.addListener(SWT.Verify, new Listener() {
+            public void handleEvent(Event e) {
+                String newStr = e.text;
+                char[] newChars = new char[newStr.length()];
+                newStr.getChars(0, newChars.length, newChars, 0);
+                for (int i = 0; i < newChars.length; i++) {
+                    if (!('0' <= newChars[i] && newChars[i] <= '9')
+                            && !('a' <= newChars[i] && newChars[i] <= 'z')
+                            && !('A' <= newChars[i] && newChars[i] <= 'Z')) {
+                        e.doit = false;
+                    }
+                }
+                e.text = e.text.toUpperCase();
+            }
+        });
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.verticalSpan = 4;
         Label filler = new Label(selectedItemGroup, SWT.NONE);
@@ -377,7 +400,7 @@ public class DataAdjustFactorDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -440,8 +463,8 @@ public class DataAdjustFactorDlg extends CaveSWTDialog {
             }
 
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Problem getting dialog data ", e);
         }
 
     }
@@ -482,8 +505,8 @@ public class DataAdjustFactorDlg extends CaveSWTDialog {
                 peList.add(currPE);
             }
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Problem loading static data ", e);
         }
     }
 
@@ -553,8 +576,7 @@ public class DataAdjustFactorDlg extends CaveSWTDialog {
 
             getDialogData(true);
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Probem saving record ");
         }
     }
 
@@ -609,8 +631,8 @@ public class DataAdjustFactorDlg extends CaveSWTDialog {
         }
 
         // Divisor
-        divisorTF.setText(HydroDataUtils
-                .getDisplayString(currData.getDivisor()));
+        divisorTF
+                .setText(HydroDataUtils.getDisplayString(currData.getDivisor()));
 
         // Base
         baseTF.setText(HydroDataUtils.getDisplayString(currData.getBase()));
@@ -693,7 +715,8 @@ public class DataAdjustFactorDlg extends CaveSWTDialog {
                 try {
                     HydroDBDataManager.getInstance().deleteRecord(currData);
                 } catch (VizException e) {
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Problem deleting record ", e);
                 }
 
                 getDialogData(true);
@@ -704,6 +727,12 @@ public class DataAdjustFactorDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Display error message.
+     * 
+     * @param title
+     * @param message
+     */
     private void showMessage(String title, String message) {
         MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
         mb.setText(title);

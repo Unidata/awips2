@@ -24,14 +24,13 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.uf.common.colormap.ColorMap;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelCoverage;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
@@ -72,7 +71,7 @@ public class SolarImageDisplay implements IRenderable {
 
     private boolean isInterpolated = true;
 
-    private SolarImageRecord record;
+    private final SolarImageRecord record;
 
     private SolarImageDataCallback dataCallback;
 
@@ -80,9 +79,9 @@ public class SolarImageDisplay implements IRenderable {
     
     private boolean isColorMapChanged =  false;
 
-    private GeneralGridGeometry gridGeom;
+    private final GeneralGridGeometry gridGeom;
 
-    private boolean logConvert;
+    private final boolean logConvert;
 
     private WCSConverter transform;
 
@@ -92,11 +91,11 @@ public class SolarImageDisplay implements IRenderable {
 
     private MathTransform pixelToWorld;
     
-    private HeaderData headerData;
-    private Header header;
+    private final HeaderData headerData;
+    private final Header header;
     
-    private int nx;
-    private int ny;
+    private final int nx;
+    private final int ny;
     
     private double scale;
     private AffineTransform at;
@@ -120,8 +119,7 @@ public class SolarImageDisplay implements IRenderable {
         if (this.logConvert){
             dataCallback = new LogSolarImageDataCallback(record);
             imageData = dataCallback.getImageData();
-        }
-        else {
+        } else {
             dataCallback = new SolarImageDataCallback(record);
             imageData = dataCallback.getImageData();
         }

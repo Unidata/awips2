@@ -35,7 +35,8 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * {@link #persistSubscription(AbstractDataRecord) persist a subscription},
  * {@link #getSubscriptions() get list of available subscriptions},
  * {@link #removeSubscription(AbstractDataRecord) delete a subscription}, and
- * {@link #updateSubscription(AbstractDataRecord) update an existing subscription}.
+ * {@link #updateSubscription(AbstractDataRecord) update an existing
+ * subscription}.
  * <p>
  * 
  * <pre>
@@ -87,7 +88,7 @@ public class SubscribeDAO extends CoreDao {
     public List<Subscription> getSubscriptions()
             throws DataAccessLayerException {
         // executeHQLQuery("select datauri from awips.subscription");
-        return getHibernateTemplate().loadAll(daoClass);
+        return (List<Subscription>) getHibernateTemplate().loadAll(daoClass);
     }
 
     /**
@@ -108,7 +109,8 @@ public class SubscribeDAO extends CoreDao {
         /*
          * Object retVal = null; List result; try { result =
          * findSubscription(dataURI); } catch (Exception e) { throw new
-         * DataAccessLayerException("Unable to get subscription information for " +
+         * DataAccessLayerException
+         * ("Unable to get subscription information for " +
          * Util.printString(dataURI),e); } if (result.size() > 0) { retVal =
          * result.get(0); } else { throw new DataAccessLayerException("No
          * subscriptions exist for " + Util.printString(dataURI)); } return

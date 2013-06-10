@@ -20,6 +20,7 @@
 package com.raytheon.viz.hydrocommon.datamanager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
@@ -36,6 +37,8 @@ import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 8, 2008 1697       askripsky   Initial Creation
+ * Apr 18,2013 1790       rferrel     Cleanup method interfaces; 
+ *                                      part of non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -46,13 +49,13 @@ import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
 public class QcAlertAlarmLimitsDataManager {
     protected static QcAlertAlarmLimitsDataManager manager = null;
 
-    private ArrayList<DataLimitData> defaultData = null;
+    private List<DataLimitData> defaultData = null;
 
-    private ArrayList<DataLimitData> defaultDataFiltered = null;
+    private List<DataLimitData> defaultDataFiltered = null;
 
-    private ArrayList<LocationDataLimitData> locationData = null;
+    private List<LocationDataLimitData> locationData = null;
 
-    private ArrayList<LocationDataLimitData> locationDataFiltered = null;
+    private List<LocationDataLimitData> locationDataFiltered = null;
 
     /**
      * Private constructor.
@@ -79,8 +82,8 @@ public class QcAlertAlarmLimitsDataManager {
      * @return The duration from the DB
      * @throws VizException
      */
-    public ArrayList<String> getShefDur() throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+    public List<String> getShefDur() throws VizException {
+        List<String> rval = new ArrayList<String>();
 
         String durQuery = "SELECT name, dur FROM shefdur ORDER BY dur";
 
@@ -100,14 +103,13 @@ public class QcAlertAlarmLimitsDataManager {
         return rval;
     }
 
-    public ArrayList<DataLimitData> getDefaultLimits(boolean filterByPE,
-            ArrayList<String> selectedPE) throws VizException {
+    public List<DataLimitData> getDefaultLimits(boolean filterByPE,
+            List<String> selectedPE) throws VizException {
         return getDefaultLimits(filterByPE, selectedPE, false);
     }
 
-    public ArrayList<DataLimitData> getDefaultLimits(boolean filterByPE,
-            ArrayList<String> selectedPE, boolean forceLoad)
-            throws VizException {
+    public List<DataLimitData> getDefaultLimits(boolean filterByPE,
+            List<String> selectedPE, boolean forceLoad) throws VizException {
         if (defaultData == null || forceLoad) {
             defaultData = HydroDBDataManager.getInstance().getData(
                     DataLimitData.class);
@@ -134,8 +136,8 @@ public class QcAlertAlarmLimitsDataManager {
 
         // PE Dur MonthStart MonthEnd
         defaultString.append(String.format("%13s%7s%7s%8s  ", currData.getPe(),
-                currData.getDur(), currData.getMonthDayStart(), currData
-                        .getMonthDayEnd()));
+                currData.getDur(), currData.getMonthDayStart(),
+                currData.getMonthDayEnd()));
 
         // Gross Min/Max
         defaultString.append(HydroDataUtils.getDisplayString("%9s", "%9.1f",
@@ -186,17 +188,16 @@ public class QcAlertAlarmLimitsDataManager {
         return defaultString.toString();
     }
 
-    public ArrayList<LocationDataLimitData> getLocationLimits(
-            boolean filterByLID, String lidFilter, boolean filterByPE,
-            ArrayList<String> selectedPE) throws VizException {
+    public List<LocationDataLimitData> getLocationLimits(boolean filterByLID,
+            String lidFilter, boolean filterByPE, List<String> selectedPE)
+            throws VizException {
         return getLocationLimits(filterByLID, lidFilter, filterByPE,
                 selectedPE, false);
     }
 
-    public ArrayList<LocationDataLimitData> getLocationLimits(
-            boolean filterByLID, String lidFilter, boolean filterByPE,
-            ArrayList<String> selectedPE, boolean forceLoad)
-            throws VizException {
+    public List<LocationDataLimitData> getLocationLimits(boolean filterByLID,
+            String lidFilter, boolean filterByPE, List<String> selectedPE,
+            boolean forceLoad) throws VizException {
         if (locationData == null || forceLoad) {
             locationData = HydroDBDataManager.getInstance().getData(
                     LocationDataLimitData.class);
@@ -228,9 +229,9 @@ public class QcAlertAlarmLimitsDataManager {
         StringBuffer defaultString = new StringBuffer();
 
         // PE Dur MonthStart MonthEnd
-        defaultString.append(String.format("%-10s%3s%7s%7s%8s  ", currData
-                .getLid(), currData.getPe(), currData.getDur(), currData
-                .getMonthDayStart(), currData.getMonthDayEnd()));
+        defaultString.append(String.format("%-10s%3s%7s%7s%8s  ",
+                currData.getLid(), currData.getPe(), currData.getDur(),
+                currData.getMonthDayStart(), currData.getMonthDayEnd()));
 
         // Gross Min/Max
         defaultString.append(HydroDataUtils.getDisplayString("%9s", "%9.1f",
@@ -281,7 +282,7 @@ public class QcAlertAlarmLimitsDataManager {
         return defaultString.toString();
     }
 
-    private void filterDefaultByPE(ArrayList<String> selectedPE) {
+    private void filterDefaultByPE(List<String> selectedPE) {
         if (defaultDataFiltered == null) {
             defaultDataFiltered = new ArrayList<DataLimitData>();
         }
@@ -297,9 +298,9 @@ public class QcAlertAlarmLimitsDataManager {
         }
     }
 
-    private void filterLocationByPE(ArrayList<String> selectedPE) {
+    private void filterLocationByPE(List<String> selectedPE) {
         // Temp array to hold values that will stay
-        ArrayList<LocationDataLimitData> temp = new ArrayList<LocationDataLimitData>();
+        List<LocationDataLimitData> temp = new ArrayList<LocationDataLimitData>();
 
         for (String peFilter : selectedPE) {
             for (LocationDataLimitData currData : locationDataFiltered) {
@@ -314,11 +315,11 @@ public class QcAlertAlarmLimitsDataManager {
 
     private void filterLocationByLID(String lidFilter) {
         // Temp array to hold values that will stay
-        ArrayList<LocationDataLimitData> temp = new ArrayList<LocationDataLimitData>();
+        List<LocationDataLimitData> temp = new ArrayList<LocationDataLimitData>();
 
         for (LocationDataLimitData currData : locationDataFiltered) {
-            if (currData.getLid().toUpperCase().contains(
-                    lidFilter.toUpperCase())) {
+            if (currData.getLid().toUpperCase()
+                    .contains(lidFilter.toUpperCase())) {
                 temp.add(currData);
             }
         }

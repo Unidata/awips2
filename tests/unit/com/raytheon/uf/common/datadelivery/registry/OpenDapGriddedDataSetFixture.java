@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeSet;
 
 import com.raytheon.uf.common.util.AbstractFixture;
@@ -61,7 +62,7 @@ public class OpenDapGriddedDataSetFixture extends
      * {@inheritDoc}
      */
     @Override
-    public OpenDapGriddedDataSet get(long seedValue) {
+    public OpenDapGriddedDataSet getInstance(long seedValue, Random random) {
         OpenDapGriddedDataSet obj = new OpenDapGriddedDataSet();
         obj.setCollectionName("collectionName-" + seedValue);
         // TODO: CoverageFixture

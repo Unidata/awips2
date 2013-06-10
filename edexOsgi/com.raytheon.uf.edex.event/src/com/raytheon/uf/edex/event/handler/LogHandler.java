@@ -6,7 +6,6 @@ import org.apache.commons.logging.LogFactory;
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.event.Event;
-import com.raytheon.uf.common.event.EventBus;
 
 /**
  * 
@@ -21,6 +20,8 @@ import com.raytheon.uf.common.event.EventBus;
  * Mar 1, 2012            jsanchez     Initial creation
  * Nov 5, 2012  #1305     bgonzale     Added log level Event logging.
  * Feb 05, 2013 1580      mpduff       EventBus refactor.
+ * 3/13/2013              bphillip     Modified to make event bus registration a post construct operation
+ * 3/27/2013    1802      bphillip     Moved event bus registration from a PostConstruct method to Spring static method
  * 
  * </pre>
  * 
@@ -35,7 +36,6 @@ public class LogHandler {
      * Creates a new object
      */
     public LogHandler() {
-        EventBus.register(this);
         logger = LogFactory.getLog("Event");
     }
 

@@ -31,16 +31,20 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.datadelivery.event.retrieval.DataRetrievalEvent;
@@ -53,8 +57,10 @@ import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.common.util.TestUtil;
+import com.raytheon.uf.common.util.file.FilenameFilters;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.ServiceTypeFactory;
@@ -77,6 +83,9 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * Feb 07, 2013 1543       djohnson     Add test to simulate SBN retrieval task behavior.
  * Feb 12, 2013 1543       djohnson     Retrieval responses are now sent further down the chain.
  * Feb 15, 2013 1543       djohnson     Class renames.
+ * Mar 05, 2013 1647       djohnson     Pass wmo header strategy to constructor.
+ * Mar 19, 2013 1794       djohnson     RetrievalTasks integrate at a queue.
+ * Apr 29, 2013 1910       djohnson     Unregister from EventBus after each test.
  * 
  * </pre>
  * 
@@ -139,6 +148,7 @@ public class RetrievalTaskTest {
     private RetrievalRequestRecord sbnRetrieval;
 
     @Autowired
+    @Qualifier(value = "retrievalDao")
     private IRetrievalDao dao;
 
     private final PlaceInCollectionProcessor retrievedDataProcessor = new PlaceInCollectionProcessor();
@@ -155,6 +165,11 @@ public class RetrievalTaskTest {
         sbnRetrieval.setNetwork(Network.SBN);
 
         EventBus.register(this);
+    }
+
+    @After
+    public void tearDown() {
+        EventBus.unregister(this);
     }
 
     @Test
@@ -220,16 +235,17 @@ public class RetrievalTaskTest {
         IRetrievalsFinder retrievalDataFinder = new PerformRetrievalsThenReturnFinder(
                 Network.OPSNET, dao);
 
+        final ConcurrentLinkedQueue<String> retrievalQueue = new ConcurrentLinkedQueue<String>();
         final File testDirectory = TestUtil
                 .setupTestClassDir(RetrievalTaskTest.class);
         IRetrievalPluginDataObjectsProcessor serializeToDirectory = new SerializeRetrievedDataToDirectory(
-                testDirectory);
+                testDirectory, new AlwaysSameWmoHeader("SMYG10 LYBM 280000"));
 
         RetrievalTask downloadTask = new RetrievalTask(Network.OPSNET,
                 retrievalDataFinder, serializeToDirectory,
                 mock(IRetrievalResponseCompleter.class), dao);
         RetrievalTask readDownloadsTask = new RetrievalTask(Network.OPSNET,
-                new DeserializeRetrievedDataFromDirectory(testDirectory),
+                new DeserializeRetrievedDataFromIngest(retrievalQueue),
                 retrievedDataProcessor, new RetrievalResponseCompleter(
                         mock(SubscriptionNotifyTask.class), dao), dao);
 
@@ -238,6 +254,11 @@ public class RetrievalTaskTest {
         final List<RetrievalRequestRecord> all = dao.getAll();
         for (RetrievalRequestRecord request : all) {
             assertThat(request.getState(), is(State.RUNNING));
+        }
+
+        for (File file : FileUtil.listFiles(testDirectory,
+                FilenameFilters.ACCEPT_FILES, false)) {
+            retrievalQueue.add(FileUtil.file2String(file));
         }
 
         readDownloadsTask.run();
@@ -255,7 +276,9 @@ public class RetrievalTaskTest {
     /**
      * Stage the retrievals in the database.
      */
+    @Transactional
     private void stageRetrievals() {
+
         dao.create(opsnetRetrieval);
         dao.create(sbnRetrieval);
     }

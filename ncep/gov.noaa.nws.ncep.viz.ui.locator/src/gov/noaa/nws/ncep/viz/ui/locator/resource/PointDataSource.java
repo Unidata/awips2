@@ -30,7 +30,6 @@ import org.geotools.referencing.datum.DefaultEllipsoid;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.vividsolutions.jts.geom.Coordinate;

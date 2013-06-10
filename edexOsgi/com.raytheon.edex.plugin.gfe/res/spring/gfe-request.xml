@@ -1,7 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean id="commitGridsHandler"
@@ -260,13 +259,6 @@
 			value="com.raytheon.uf.common.dataplugin.gfe.request.GetSiteTimeZoneInfoRequest" />
 		<constructor-arg ref="siteTimeZoneHandler" />
 	</bean>
-	<bean id="sendGridsToNDFDHandler"
-		class="com.raytheon.edex.plugin.gfe.server.handler.SendGridsToNDFDHandler" />
-	<bean factory-bean="handlerRegistry" factory-method="register">
-		<constructor-arg
-			value="com.raytheon.uf.common.dataplugin.gfe.request.SendGridsToNDFDRequest" />
-		<constructor-arg ref="sendGridsToNDFDHandler" />
-	</bean>
 	<bean id="statusUpdateHandler"
 		class="com.raytheon.edex.plugin.gfe.server.handler.ServiceBackupStatusUpdateRequestHandler" />
 	<bean factory-bean="handlerRegistry" factory-method="register">
@@ -308,20 +300,6 @@
         <constructor-arg
             value="com.raytheon.uf.common.dataplugin.gfe.request.CreateNewDbRequest" />
         <constructor-arg ref="createNewDbHandler" />
-    </bean>
-    <bean id="getLatestDbInsertTimeHandler"
-        class="com.raytheon.edex.plugin.gfe.server.handler.GetLatestDbTimeHandler" />
-    <bean factory-bean="handlerRegistry" factory-method="register">
-        <constructor-arg
-            value="com.raytheon.uf.common.dataplugin.gfe.request.GetLatestDbTimeRequest" />
-        <constructor-arg ref="getLatestDbInsertTimeHandler" />
-    </bean>
-    <bean id="getLatestDbIdHandler"
-        class="com.raytheon.edex.plugin.gfe.server.handler.GetLatestModelDbIdHandler" />
-    <bean factory-bean="handlerRegistry" factory-method="register">
-        <constructor-arg
-            value="com.raytheon.uf.common.dataplugin.gfe.request.GetLatestModelDbIdRequest" />
-        <constructor-arg ref="getLatestDbIdHandler" />
     </bean>
 
 
@@ -375,20 +353,20 @@
 		<constructor-arg ref="CheckPermissionsRequestHandler" />
 	</bean>
 	
+	<bean id="CheckPrimarySiteHandler"
+		class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.CheckServiceBackupPrimarySiteHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.dataplugin.gfe.request.CheckServiceBackupPrimarySiteRequest" />
+		<constructor-arg ref="CheckPrimarySiteHandler" />
+	</bean>
+	
 	<bean id="CleanupSvcBuLogRequestHandler"
 		class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.CleanupSvcBuLogRequestHandler" />
 	<bean factory-bean="handlerRegistry" factory-method="register">
 		<constructor-arg
 			value="com.raytheon.uf.common.dataplugin.gfe.request.CleaunpSvcBuLogRequest" />
 		<constructor-arg ref="CleanupSvcBuLogRequestHandler" />
-	</bean>
-	
-	<bean id="NcCheckRequestHandler"
-		class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.NcCheckRequestHandler" />
-	<bean factory-bean="handlerRegistry" factory-method="register">
-		<constructor-arg
-			value="com.raytheon.uf.common.dataplugin.gfe.request.NcCheckRequest" />
-		<constructor-arg ref="NcCheckRequestHandler" />
 	</bean>
 
 	<bean id="ExportConfRequestHandler"

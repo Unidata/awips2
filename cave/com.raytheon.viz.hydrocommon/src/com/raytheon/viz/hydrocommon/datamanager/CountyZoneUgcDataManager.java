@@ -21,6 +21,7 @@ package com.raytheon.viz.hydrocommon.datamanager;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.CountiesData;
@@ -38,6 +39,8 @@ import com.raytheon.viz.hydrocommon.data.ZoneInfoData;
  * Jan 5, 2009  1802       askripsky   Initial Creation
  * Sep 11,2012  15362      wkwock      Fix selected zones
  * Dec 4, 2012  15522      wkwock      Fix added zones
+ * Apr 18,2013  1790       rferrel     Cleanup method interfaces; 
+ *                                      part of non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -46,259 +49,259 @@ import com.raytheon.viz.hydrocommon.data.ZoneInfoData;
  */
 
 public class CountyZoneUgcDataManager {
-	protected static CountyZoneUgcDataManager manager = null;
+    protected static CountyZoneUgcDataManager manager = null;
 
-	// Cache for selected counties
-	private ArrayList<CountyInfoData> countiesSelected = null;
+    // Cache for selected counties
+    private List<CountyInfoData> countiesSelected = null;
 
-	// Cache for available counties
-	private ArrayList<CountiesData> countiesAvailable = null;
+    // Cache for available counties
+    private List<CountiesData> countiesAvailable = null;
 
-	// Cache for selected zones
-	private ArrayList<ZoneInfoData> zonesSelected = null;
+    // Cache for selected zones
+    private List<ZoneInfoData> zonesSelected = null;
 
-	// Cache for available zones
-	private ArrayList<EligZoneData> zonesAvailable = null;
+    // Cache for available zones
+    private List<EligZoneData> zonesAvailable = null;
 
-	// Counties/Zones for this Location
-	private String lid = "";
+    // Counties/Zones for this Location
+    private String lid = "";
 
-	/**
-	 * Private constructor.
-	 */
-	private CountyZoneUgcDataManager() {
-	}
+    /**
+     * Private constructor.
+     */
+    private CountyZoneUgcDataManager() {
+    }
 
-	/**
-	 * Singleton pattern of data manager.
-	 * 
-	 * @return manager
-	 */
-	public static synchronized CountyZoneUgcDataManager getInstance() {
-		if (manager == null) {
-			manager = new CountyZoneUgcDataManager();
-		}
+    /**
+     * Singleton pattern of data manager.
+     * 
+     * @return manager
+     */
+    public static synchronized CountyZoneUgcDataManager getInstance() {
+        if (manager == null) {
+            manager = new CountyZoneUgcDataManager();
+        }
 
-		return (CountyZoneUgcDataManager) manager;
-	}
+        return (CountyZoneUgcDataManager) manager;
+    }
 
-	/**
-	 * Sets the location for the data.
-	 * 
-	 * @param lid
-	 *            The location for the counties/zones
-	 */
-	public void setLid(String lid) {
-		this.lid = lid;
-	}
+    /**
+     * Sets the location for the data.
+     * 
+     * @param lid
+     *            The location for the counties/zones
+     */
+    public void setLid(String lid) {
+        this.lid = lid;
+    }
 
-	/**
-	 * Gets the available counties.
-	 * 
-	 * @return The counties available.
-	 * @throws VizException
-	 */
-	public ArrayList<CountiesData> getCountiesAvailable() throws VizException {
-		if (countiesAvailable == null) {
-			countiesAvailable = HydroDBDataManager.getInstance().getData(
-					CountiesData.class);
-		}
+    /**
+     * Gets the available counties.
+     * 
+     * @return The counties available.
+     * @throws VizException
+     */
+    public List<CountiesData> getCountiesAvailable() throws VizException {
+        if (countiesAvailable == null) {
+            countiesAvailable = HydroDBDataManager.getInstance().getData(
+                    CountiesData.class);
+        }
 
-		return countiesAvailable;
-	}
+        return countiesAvailable;
+    }
 
-	/**
-	 * Gets the selected counties.
-	 * 
-	 * @return The counties selected.
-	 * @throws VizException
-	 */
-	public ArrayList<CountyInfoData> getCountiesSelected() throws VizException {
-		return getCountiesSelected(false);
-	}
+    /**
+     * Gets the selected counties.
+     * 
+     * @return The counties selected.
+     * @throws VizException
+     */
+    public List<CountyInfoData> getCountiesSelected() throws VizException {
+        return getCountiesSelected(false);
+    }
 
-	/**
-	 * Gets the selected counties.
-	 * 
-	 * @return The counties selected.
-	 * @throws VizException
-	 */
-	public ArrayList<CountyInfoData> getCountiesSelected(boolean forceLoad)
-			throws VizException {
-		if (countiesSelected == null || forceLoad) {
-			CountyInfoData seedData = new CountyInfoData();
-			seedData.setLid(lid);
+    /**
+     * Gets the selected counties.
+     * 
+     * @return The counties selected.
+     * @throws VizException
+     */
+    public List<CountyInfoData> getCountiesSelected(boolean forceLoad)
+            throws VizException {
+        if (countiesSelected == null || forceLoad) {
+            CountyInfoData seedData = new CountyInfoData();
+            seedData.setLid(lid);
 
-			countiesSelected = HydroDBDataManager.getInstance().getData(
-					seedData);
-		}
+            countiesSelected = HydroDBDataManager.getInstance().getData(
+                    seedData);
+        }
 
-		Collections.sort(countiesSelected);
+        Collections.sort(countiesSelected);
 
-		return countiesSelected;
-	}
+        return countiesSelected;
+    }
 
-	/**
-	 * Gets the available zones.
-	 * 
-	 * @return The zones available.
-	 * @throws VizException
-	 */
-	public ArrayList<EligZoneData> getZonesAvailable() throws VizException {
-		if (zonesAvailable == null) {
-			zonesAvailable = HydroDBDataManager.getInstance().getData(
-					EligZoneData.class);
-		}
+    /**
+     * Gets the available zones.
+     * 
+     * @return The zones available.
+     * @throws VizException
+     */
+    public List<EligZoneData> getZonesAvailable() throws VizException {
+        if (zonesAvailable == null) {
+            zonesAvailable = HydroDBDataManager.getInstance().getData(
+                    EligZoneData.class);
+        }
 
-		return zonesAvailable;
-	}
+        return zonesAvailable;
+    }
 
-	/**
-	 * Gets the selected Zones.
-	 * 
-	 * @return The zones selected.
-	 * @throws VizException
-	 */
-	public ArrayList<ZoneInfoData> getZonesSelected() throws VizException {
-		return getZonesSelected(false);
-	}
+    /**
+     * Gets the selected Zones.
+     * 
+     * @return The zones selected.
+     * @throws VizException
+     */
+    public List<ZoneInfoData> getZonesSelected() throws VizException {
+        return getZonesSelected(false);
+    }
 
-	/**
-	 * Gets the selected Zones.
-	 * 
-	 * @return The zones selected.
-	 * @throws VizException
-	 */
-	public ArrayList<ZoneInfoData> getZonesSelected(boolean forceLoad)
-			throws VizException {
-		if (zonesSelected == null || forceLoad) {
-			ZoneInfoData seedData = new ZoneInfoData();
-			seedData.setLid(lid);
+    /**
+     * Gets the selected Zones.
+     * 
+     * @return The zones selected.
+     * @throws VizException
+     */
+    public List<ZoneInfoData> getZonesSelected(boolean forceLoad)
+            throws VizException {
+        if (zonesSelected == null || forceLoad) {
+            ZoneInfoData seedData = new ZoneInfoData();
+            seedData.setLid(lid);
 
-			zonesSelected = HydroDBDataManager.getInstance().getData(seedData);
-		}
+            zonesSelected = HydroDBDataManager.getInstance().getData(seedData);
+        }
 
-		Collections.sort(zonesSelected);
+        Collections.sort(zonesSelected);
 
-		return zonesSelected;
-	}
+        return zonesSelected;
+    }
 
-	/**
-	 * Adds the available county to the selected counties.
-	 * 
-	 * @param selectedAvailableCounty
-	 *            The index of the selected available county to select.
-	 */
-	public void addSelectedCounty(int selectedAvailableCounty) {
-		CountiesData availableCounty = countiesAvailable
-				.get(selectedAvailableCounty);
+    /**
+     * Adds the available county to the selected counties.
+     * 
+     * @param selectedAvailableCounty
+     *            The index of the selected available county to select.
+     */
+    public void addSelectedCounty(int selectedAvailableCounty) {
+        CountiesData availableCounty = countiesAvailable
+                .get(selectedAvailableCounty);
 
-		CountyInfoData countyToAdd = new CountyInfoData();
-		countyToAdd.setLid(lid);
-		countyToAdd.setState(availableCounty.getState());
-		countyToAdd.setCounty(availableCounty.getCounty());
-		countyToAdd.setCountyNumber(availableCounty.getCountyNumber());
+        CountyInfoData countyToAdd = new CountyInfoData();
+        countyToAdd.setLid(lid);
+        countyToAdd.setState(availableCounty.getState());
+        countyToAdd.setCounty(availableCounty.getCounty());
+        countyToAdd.setCountyNumber(availableCounty.getCountyNumber());
 
-		if (!countiesSelected.contains(countyToAdd)) {
-			countiesSelected.add(countyToAdd);
-		}
-	}
+        if (!countiesSelected.contains(countyToAdd)) {
+            countiesSelected.add(countyToAdd);
+        }
+    }
 
-	/**
-	 * Adds the available zone to the selected zones.
-	 * 
-	 * @param selectedAvailableZone
-	 *            The index of the selected available zone to select.
-	 */
-	public void addSelectedZone(int selectedAvailableZone) {
-		EligZoneData availableZone = zonesAvailable.get(selectedAvailableZone);
+    /**
+     * Adds the available zone to the selected zones.
+     * 
+     * @param selectedAvailableZone
+     *            The index of the selected available zone to select.
+     */
+    public void addSelectedZone(int selectedAvailableZone) {
+        EligZoneData availableZone = zonesAvailable.get(selectedAvailableZone);
 
-		ZoneInfoData zoneToAdd = new ZoneInfoData();
-		zoneToAdd.setLid(lid);
-		zoneToAdd.setState(availableZone.getState());
-		zoneToAdd.setZoneNumber(availableZone.getZoneNumber());
-		zoneToAdd.setDescription(availableZone.getDescription());
+        ZoneInfoData zoneToAdd = new ZoneInfoData();
+        zoneToAdd.setLid(lid);
+        zoneToAdd.setState(availableZone.getState());
+        zoneToAdd.setZoneNumber(availableZone.getZoneNumber());
+        zoneToAdd.setDescription(availableZone.getDescription());
 
-		if (!zonesSelected.contains(zoneToAdd)) {
-			zonesSelected.add(zoneToAdd);
-		}
-	}
+        if (!zonesSelected.contains(zoneToAdd)) {
+            zonesSelected.add(zoneToAdd);
+        }
+    }
 
-	/**
-	 * Removes all existing counties for the station and inserts all of selected
-	 * counties.
-	 * 
-	 * @throws VizException
-	 */
-	public void saveCounties() throws VizException {
-		// Remove all counties for the lid
-		CountyInfoData dataToDelete = new CountyInfoData();
-		dataToDelete.setLid(lid);
-		HydroDBDataManager.getInstance().deleteRecord(dataToDelete);
+    /**
+     * Removes all existing counties for the station and inserts all of selected
+     * counties.
+     * 
+     * @throws VizException
+     */
+    public void saveCounties() throws VizException {
+        // Remove all counties for the lid
+        CountyInfoData dataToDelete = new CountyInfoData();
+        dataToDelete.setLid(lid);
+        HydroDBDataManager.getInstance().deleteRecord(dataToDelete);
 
-		// Insert the currently selected counties
-		for (CountyInfoData currCounty : countiesSelected) {
-			HydroDBDataManager.getInstance().putData(currCounty);
-		}
-	}
+        // Insert the currently selected counties
+        for (CountyInfoData currCounty : countiesSelected) {
+            HydroDBDataManager.getInstance().putData(currCounty);
+        }
+    }
 
-	/**
-	 * Removes all existing zones for the station and inserts all of selected
-	 * zones.
-	 * 
-	 * @throws VizException
-	 */
-	public void saveZones() throws VizException {
-		// Remove all zones for the lid
-		ZoneInfoData dataToDelete = new ZoneInfoData();
-		dataToDelete.setLid(lid);
-		HydroDBDataManager.getInstance().deleteRecord(dataToDelete);
+    /**
+     * Removes all existing zones for the station and inserts all of selected
+     * zones.
+     * 
+     * @throws VizException
+     */
+    public void saveZones() throws VizException {
+        // Remove all zones for the lid
+        ZoneInfoData dataToDelete = new ZoneInfoData();
+        dataToDelete.setLid(lid);
+        HydroDBDataManager.getInstance().deleteRecord(dataToDelete);
 
-		// Insert the currently selected zones
-		for (ZoneInfoData currZone : zonesSelected) {
-			HydroDBDataManager.getInstance().putData(currZone);
-		}
-	}
+        // Insert the currently selected zones
+        for (ZoneInfoData currZone : zonesSelected) {
+            HydroDBDataManager.getInstance().putData(currZone);
+        }
+    }
 
-	/**
-	 * Removes the selected county.
-	 * 
-	 * @param selectedIndex
-	 *            The county to be removed.
-	 */
-	public void removeSelectedCounty(int selectedIndex) {
-		countiesSelected.remove(selectedIndex);
-	}
+    /**
+     * Removes the selected county.
+     * 
+     * @param selectedIndex
+     *            The county to be removed.
+     */
+    public void removeSelectedCounty(int selectedIndex) {
+        countiesSelected.remove(selectedIndex);
+    }
 
-	/**
-	 * Removes the selected zone.
-	 * 
-	 * @param selectedIndex
-	 *            The zone to be removed.
-	 */
-	public void removeSelectedZone(int selectedIndex) {
-		zonesSelected.remove(selectedIndex);
-	}
+    /**
+     * Removes the selected zone.
+     * 
+     * @param selectedIndex
+     *            The zone to be removed.
+     */
+    public void removeSelectedZone(int selectedIndex) {
+        zonesSelected.remove(selectedIndex);
+    }
 
-	/**
-	 * Removes all selected counties.
-	 */
-	public void clearSelectedCounties() {
-		if (countiesSelected != null) {
-			countiesSelected.clear();
-		} else {
-			countiesSelected = new ArrayList<CountyInfoData>();
-		}
-	}
+    /**
+     * Removes all selected counties.
+     */
+    public void clearSelectedCounties() {
+        if (countiesSelected != null) {
+            countiesSelected.clear();
+        } else {
+            countiesSelected = new ArrayList<CountyInfoData>();
+        }
+    }
 
-	/**
-	 * Removes all selected zones.
-	 */
-	public void clearSelectedZones() {
-		if (zonesSelected != null) {
-			zonesSelected.clear();
-		} else {
-			zonesSelected = new ArrayList<ZoneInfoData>();
-		}
-	}
+    /**
+     * Removes all selected zones.
+     */
+    public void clearSelectedZones() {
+        if (zonesSelected != null) {
+            zonesSelected.clear();
+        } else {
+            zonesSelected = new ArrayList<ZoneInfoData>();
+        }
+    }
 }

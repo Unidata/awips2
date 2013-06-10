@@ -6,12 +6,12 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.xy.crosssection.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.ui;bundle-version="3.4.1"
+ org.eclipse.ui;bundle-version="3.4.1",
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: com.raytheon.uf.viz.core, com.raytheon.viz.core
 Import-Package: com.raytheon.edex.meteoLib,
- com.raytheon.uf.common.colormap,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.common.dataquery.requests,
@@ -38,7 +38,6 @@ Import-Package: com.raytheon.edex.meteoLib,
  com.raytheon.uf.viz.core.status,
  com.raytheon.uf.viz.core.style,
  com.raytheon.uf.viz.core.style.level,
- com.raytheon.uf.viz.core.topo,
  com.raytheon.uf.viz.d2d.core.map,
  com.raytheon.uf.viz.d2d.ui,
  com.raytheon.uf.viz.xy,

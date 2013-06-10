@@ -19,10 +19,6 @@
  **/
 package com.raytheon.uf.common.registry.ebxml;
 
-import com.raytheon.uf.common.registry.OperationStatus;
-import com.raytheon.uf.common.registry.RegistryQuery;
-import com.raytheon.uf.common.registry.RegistryQueryResponse;
-
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManager;
@@ -31,7 +27,12 @@ import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.UpdateObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
+
+import com.raytheon.uf.common.registry.OperationStatus;
+import com.raytheon.uf.common.registry.RegistryQuery;
+import com.raytheon.uf.common.registry.RegistryQueryResponse;
 
 /**
  * Extends {@link FactoryRegistryHandler} to allow it to be testable.
@@ -43,6 +44,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 20, 2012 0743       djohnson     Initial creation
+ * Apr 23, 2013 1910       djohnson     RegistryResponseStatus is now an enum.
  * 
  * </pre>
  * 
@@ -50,12 +52,11 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
  * @version 1.0
  */
 public class TestableFactoryRegistryHandler extends FactoryRegistryHandler
-        implements LifecycleManagerFactory, QueryManagerFactory,
-        RegistryTxManager, QueryManager, LifecycleManager {
+        implements LifecycleManagerFactory, QueryManagerFactory, QueryManager,
+        LifecycleManager {
     public TestableFactoryRegistryHandler() {
         setLcmFactory(this);
         setQueryFactory(this);
-        setTxManager(this);
     }
 
     /**
@@ -67,22 +68,6 @@ public class TestableFactoryRegistryHandler extends FactoryRegistryHandler
         response.setStatus(OperationStatus.SUCCESS);
 
         return response;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public TxManager getTxManager() {
-        return new TxManager() {
-            @Override
-            public void startTransaction() throws Exception {
-            }
-
-            @Override
-            public void closeTransaction() {
-            }
-        };
     }
 
     /**
@@ -145,7 +130,7 @@ public class TestableFactoryRegistryHandler extends FactoryRegistryHandler
      */
     private QueryResponse getQueryResponse() {
         QueryResponse response = new QueryResponse();
-        response.setStatus(RegistryUtil.RESPONSE_SUCCESS);
+        response.setStatus(RegistryResponseStatus.SUCCESS);
         return response;
     }
 }

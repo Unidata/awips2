@@ -24,7 +24,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.stats.AggregateRecord;
 import com.raytheon.uf.common.stats.GraphDataRequest;
@@ -32,11 +33,9 @@ import com.raytheon.uf.common.stats.GraphDataResponse;
 import com.raytheon.uf.common.stats.data.GraphData;
 import com.raytheon.uf.common.stats.xml.StatisticsAggregate;
 import com.raytheon.uf.common.stats.xml.StatisticsConfig;
-import com.raytheon.uf.common.stats.xml.StatisticsEventConfig;
+import com.raytheon.uf.common.stats.xml.StatisticsEvent;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.database.dao.CoreDao;
-import com.raytheon.uf.edex.database.dao.DaoConfig;
-import com.raytheon.uf.edex.database.query.DatabaseQuery;
+import com.raytheon.uf.edex.stats.dao.AggregateRecordDao;
 import com.raytheon.uf.edex.stats.data.StatsDataAccumulator;
 import com.raytheon.uf.edex.stats.util.ConfigLoader;
 
@@ -49,19 +48,18 @@ import com.raytheon.uf.edex.stats.util.ConfigLoader;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 11, 2012 728        mpduff      Initial creation
+ * Sep 11, 2012   728      mpduff      Initial creation
  * Jan 07, 2013 1451       djohnson    Use newGmtCalendar().
- * May 22, 2013 1917       rjpeter     Renamed StatisticsEvent to StatisticsEventConfig.
+ * 
  * </pre>
  * 
  * @author mpduff
  * @version 1.0
  */
-
+@Transactional
 public class GraphDataHandler implements IRequestHandler<GraphDataRequest> {
     /** Aggregate Record DAO */
-    private final CoreDao dao = new CoreDao(DaoConfig.forClass("metadata",
-            AggregateRecord.class));
+    private AggregateRecordDao aggregateRecordDao;
 
     private static final String START_DATE = "startDate";
 
@@ -123,23 +121,31 @@ public class GraphDataHandler implements IRequestHandler<GraphDataRequest> {
      */
     private GraphDataResponse getGraphData(GraphDataRequest request)
             throws Exception {
+        List<Object> params = new ArrayList<Object>();
+        StringBuffer query = new StringBuffer();
+        query.append("from AggregateRecord rec where rec.startDate >= :startDate and rec.endDate <= :endDate");
         GraphDataResponse response = new GraphDataResponse();
-        DatabaseQuery query = new DatabaseQuery(AggregateRecord.class.getName());
         Calendar start = convertToCalendar(request.getTimeRange().getStart());
         Calendar end = convertToCalendar(request.getTimeRange().getEnd());
-        query.addQueryParam(START_DATE, start, QueryOperand.GREATERTHANEQUALS);
-        query.addQueryParam(END_DATE, end, QueryOperand.LESSTHANEQUALS);
+        params.add(START_DATE);
+        params.add(start);
+        params.add(END_DATE);
+        params.add(end);
 
         if (request.getEventType() != null) {
-            query.addQueryParam(EVENT_TYPE, request.getEventType(),
-                    QueryOperand.EQUALS);
+            query.append(" and rec.eventType = :eventType");
+            params.add(EVENT_TYPE);
+            params.add(request.getEventType());
         }
 
         if (request.getField() != null) {
-            query.addQueryParam(FIELD, request.getField(), QueryOperand.EQUALS);
+            query.append(" and rec.field = :field");
+            params.add(FIELD);
+            params.add(request.getField());
         }
 
-        List<?> results = dao.queryByCriteria(query);
+        List<?> results = aggregateRecordDao.executeHQLQuery(query.toString(),
+                params.toArray(new Object[params.size()]));
 
         if (!results.isEmpty()) {
             List<AggregateRecord> arList = new ArrayList<AggregateRecord>();
@@ -199,7 +205,7 @@ public class GraphDataHandler implements IRequestHandler<GraphDataRequest> {
         for (StatisticsConfig config : configList) {
             for (String cat : config.getCategories()) {
                 if (cat.equals(category)) {
-                    for (StatisticsEventConfig event : config.getEvents()) {
+                    for (StatisticsEvent event : config.getEvents()) {
                         if (event.getType().equals(type)) {
                             for (StatisticsAggregate agg : event
                                     .getAggregateList()) {
@@ -214,6 +220,10 @@ public class GraphDataHandler implements IRequestHandler<GraphDataRequest> {
         }
 
         return unit;
+    }
+
+    public void setAggregateRecordDao(AggregateRecordDao aggregateRecordDao) {
+        this.aggregateRecordDao = aggregateRecordDao;
     }
 
 }

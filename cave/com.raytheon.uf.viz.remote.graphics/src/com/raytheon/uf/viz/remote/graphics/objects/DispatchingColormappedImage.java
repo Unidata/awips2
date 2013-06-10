@@ -20,8 +20,8 @@
 package com.raytheon.uf.viz.remote.graphics.objects;
 
 import com.raytheon.uf.common.colormap.IColorMap;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
-import com.raytheon.uf.viz.core.drawables.IColorMapParametersListener;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
+import com.raytheon.uf.common.colormap.prefs.IColorMapParametersListener;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;

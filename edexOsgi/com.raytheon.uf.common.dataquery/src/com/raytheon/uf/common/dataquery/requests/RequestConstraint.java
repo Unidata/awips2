@@ -19,14 +19,17 @@
  **/
 package com.raytheon.uf.common.dataquery.requests;
 
+import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -482,4 +485,77 @@ public class RequestConstraint implements ISerializableObject, Cloneable {
         return getConstraintType().name() + " " + getConstraintValue();
     }
 
+    /**
+     * Creates a constraint map based on an object field mapping.
+     * {@link ConstraintType} will be to {@link ConstraintType#EQUALS} with
+     * {@link Object#toString()} being called on the field value for values that
+     * are not null. If field value is a {@link Collection} or an array type,
+     * {@link ConstraintType#IN} will be used as the constraint type and each
+     * field will have {@link Object#toString()} called on it. If field value is
+     * null, {@link ConstraintType#ISNULL} will be used instead as the
+     * {@link ConstraintType}
+     * 
+     * @param fieldMapping
+     * @return
+     */
+    public static Map<String, RequestConstraint> toConstraintMapping(
+            Map<String, Object> fieldMapping) {
+        return toConstraintMapping(fieldMapping, true);
+    }
+
+    /**
+     * Same functionality as {@link #toConstraintMapping(Map)} except null
+     * values are not included in the resultant constraint map
+     * 
+     * @param fieldMapping
+     * @return
+     */
+    public static Map<String, RequestConstraint> toConstraintMappingExcludeNull(
+            Map<String, Object> fieldMapping) {
+        return toConstraintMapping(fieldMapping, false);
+    }
+
+    private static Map<String, RequestConstraint> toConstraintMapping(
+            Map<String, Object> fieldMapping, boolean includeNulls) {
+        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
+        for (String key : fieldMapping.keySet()) {
+            Object value = fieldMapping.get(key);
+            ConstraintType constraintType = ConstraintType.EQUALS;
+            String constraintValue = null;
+            if (value == null) {
+                constraintType = ConstraintType.ISNULL;
+            } else {
+                constraintValue = value.toString();
+                if (value.getClass().isArray() || value instanceof Collection) {
+                    constraintType = ConstraintType.IN;
+                }
+            }
+            RequestConstraint constraint = new RequestConstraint(
+                    constraintValue, constraintType);
+            if (constraintType == ConstraintType.IN) {
+                // Set constraint value list
+                List<String> constraintValueList = new ArrayList<String>();
+                if (value.getClass().isArray()) {
+                    int size = Array.getLength(value);
+                    for (int i = 0; i < size; ++i) {
+                        Object arrayValue = Array.get(value, i);
+                        if (arrayValue != null) {
+                            constraintValueList.add(arrayValue.toString());
+                        }
+                    }
+                } else if (value instanceof Collection) {
+                    for (Object collValue : ((Collection<?>) value)) {
+                        if (collValue != null) {
+                            constraintValueList.add(collValue.toString());
+                        }
+                    }
+                }
+                constraint.setConstraintValueList(constraintValueList);
+            }
+            if (value != null || includeNulls) {
+                constraints.put(key, constraint);
+            }
+        }
+        return constraints;
+    }
 }
