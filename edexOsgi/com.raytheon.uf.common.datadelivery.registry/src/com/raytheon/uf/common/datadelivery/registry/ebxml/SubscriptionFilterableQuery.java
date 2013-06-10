@@ -2,6 +2,7 @@ package com.raytheon.uf.common.datadelivery.registry.ebxml;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -33,6 +34,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Oct 03, 2012 1241       djohnson    Move query parameters in from SubscriptionQuery.
  * Oct 10, 2012 0726       djohnson    Add {@link #setActive(boolean)}.
  * Feb 20, 2013 1543       djohnson    Add ability to filter on routes.
+ * May 28, 2013 1650       djohnson    More information when failing to schedule.
  * 
  * </pre>
  * 
@@ -76,7 +78,32 @@ public abstract class SubscriptionFilterableQuery<T> extends
      *        The value of the name attribute to search for.
      */
     public void setName(String name) {
-        setAttribute("name", new StringAttribute(name));
+        setAttribute(Subscription.NAME_SLOT, new StringAttribute(name));
+    }
+
+    /**
+     * A setter for the queryable attribute name is like a String value. Using
+     * this setter will equate to an HQL "like" query against the specified
+     * column name.
+     * 
+     * @param name
+     *            The HQL compliant like value to use to query name attribute.
+     */
+    public void setNameLike(String name) {
+        setAttribute(Subscription.NAME_SLOT, new StringAttribute(name, true));
+    }
+
+    /**
+     * A setter for the queryable attribute providerName equals a List of String
+     * values. Using this setter will equate to an HQL "in list" query against
+     * the specified column name.
+     * 
+     * @param collectionNames
+     *            The values of the name attribute to search for.
+     */
+    public void setNames(Collection<String> names) {
+        setAttribute(Subscription.NAME_SLOT, new StringAttribute(
+                new ArrayList<String>(names)));
     }
 
     /**

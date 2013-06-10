@@ -3,15 +3,12 @@ package com.raytheon.uf.common.datadelivery.registry;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.registry.annotations.RegistryObject;
@@ -51,58 +48,6 @@ import com.raytheon.uf.common.time.domain.api.IDuration;
 @DynamicSerialize
 @RegistryObject({ "name" })
 public class Provider implements ISerializableObject {
-
-    /**
-     * Enumeration of provider types, we know so far
-     * 
-     * <pre>
-     * 
-     * SOFTWARE HISTORY
-     * 
-     * Date         Ticket#    Engineer    Description
-     * ------------ ---------- ----------- --------------------------
-     * Feb 16, 2012            dhladky      Initial creation
-     * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
-     * Jan 14, 2013 1286       djohnson     Extracted {@link IDuration}.
-     * 
-     * </pre>
-     * 
-     * @author dhladky
-     * @version 1.0
-     */
-    @XmlEnum
-    public enum ProviderType {
-        @XmlEnumValue(ProviderType.GRID_STRING_VALUE)
-        GRID(ProviderType.GRID_STRING_VALUE, "grid"), @XmlEnumValue(ProviderType.POINT_STRING_VALUE)
-        POINT(ProviderType.POINT_STRING_VALUE, "point");
-
-        private static final String GRID_STRING_VALUE = "Grid";
-
-        private static final String POINT_STRING_VALUE = "Point";
-
-        private final String providerType;
-
-        private final String plugin;
-
-        private ProviderType(String name, String plugin) {
-            providerType = name;
-            this.plugin = plugin;
-        }
-
-        @Override
-        public String toString() {
-            return providerType;
-        }
-
-        /**
-         * Return the name of the plugin responsible for the type of data.
-         * 
-         * @return the plugin name
-         */
-        public String getPlugin() {
-            return plugin;
-        }
-    }
 
     /**
      * Service Type
@@ -145,9 +90,6 @@ public class Provider implements ISerializableObject {
     }
 
     private static final Integer BYTES_IN_FLOAT = Float.SIZE / Byte.SIZE;
-
-    private static final Pattern POSTED_FILE_DELAY_PATTERN = Pattern
-            .compile("\\s*(\\d+)\\s+([^\\s]+)\\s*");
 
     @XmlAttribute(name = "name", required = true)
     @DynamicSerializeElement
@@ -321,6 +263,19 @@ public class Provider implements ISerializableObject {
      */
     public void setTimeBetweenCrawlRequests(int timeBetweenCrawlRequests) {
         this.timeBetweenCrawlRequests = timeBetweenCrawlRequests;
+    }
+
+    /**
+     * @param dataSetType
+     * @return
+     */
+    public ProviderType getProviderType(DataType dataSetType) {
+        for (ProviderType providerType : getProviderType()) {
+            if (providerType.getDataType().equals(dataSetType)) {
+                return providerType;
+            }
+        }
+        return null;
     }
 
 }

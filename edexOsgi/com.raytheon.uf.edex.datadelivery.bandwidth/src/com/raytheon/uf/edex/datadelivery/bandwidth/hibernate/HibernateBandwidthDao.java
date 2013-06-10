@@ -20,7 +20,9 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.SortedSet;
 
 import org.hibernate.dialect.Dialect;
 import org.hibernate.jdbc.Work;
@@ -52,6 +54,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Feb 07, 2013 1543       djohnson     Moved session management context to CoreDao.
  * Feb 11, 2013 1543       djohnson     Use Spring transactions.
  * Feb 13, 2013 1543       djohnson     Converted into a service, created new DAOs as required.
+ * Jun 03, 2013 2038       djohnson     Add method to get subscription retrievals by provider, dataset, and status.
  * 
  * </pre>
  * 
@@ -208,6 +211,28 @@ public class HibernateBandwidthDao implements IBandwidthDao {
      * {@inheritDoc}
      */
     @Override
+    public SortedSet<SubscriptionRetrieval> getSubscriptionRetrievals(
+            String provider, String dataSetName, RetrievalStatus status) {
+        return subscriptionRetrievalDao.getByProviderDataSetAndStatus(provider,
+                dataSetName, status);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SortedSet<SubscriptionRetrieval> getSubscriptionRetrievals(
+            String provider, String dataSetName, RetrievalStatus status,
+            Date earliestDate, Date latestDate) {
+        return this.subscriptionRetrievalDao
+                .getByProviderDataSetStatusAndDateRange(provider, dataSetName,
+                        status, earliestDate, latestDate);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public List<BandwidthSubscription> getBandwidthSubscriptions() {
         return bandwidthSubscriptionDao.getAll();
     }
@@ -339,7 +364,7 @@ public class HibernateBandwidthDao implements IBandwidthDao {
      *            The unit of work to do.
      */
     public void doWork(Work work) {
-        subscriptionRetrievalDao.doWork(work);
+        subscriptionRetrievalDao.executeWork(work);
     }
 
     /**

@@ -1,20 +1,37 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:context="http://www.springframework.org/schema/context"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
-  
-    <!-- These handlers are in-memory handlers -->  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+    <!-- These handlers are in-memory handlers -->
 
     <bean name="SubscriptionHandler"
-        class="com.raytheon.uf.common.datadelivery.registry.handlers.MemorySubscriptionHandler" />
-        
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.SubscriptionHandler">
+        <constructor-arg>
+            <bean
+                class="com.raytheon.uf.common.datadelivery.registry.handlers.MemorySiteSubscriptionHandler" />
+        </constructor-arg>
+        <constructor-arg>
+            <bean
+                class="com.raytheon.uf.common.datadelivery.registry.handlers.MemorySharedSubscriptionHandler" />
+        </constructor-arg>
+    </bean>
+
     <bean name="PendingSubscriptionHandler"
-        class="com.raytheon.uf.common.datadelivery.registry.handlers.MemoryPendingSubscriptionHandler" />
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.PendingSubscriptionHandler">
+        <constructor-arg>
+            <bean
+                class="com.raytheon.uf.common.datadelivery.registry.handlers.MemoryPendingSharedSubscriptionHandler" />
+        </constructor-arg>
+        <constructor-arg>
+            <bean
+                class="com.raytheon.uf.common.datadelivery.registry.handlers.MemoryPendingSiteSubscriptionHandler" />
+        </constructor-arg>
+    </bean>
 
     <bean name="GroupDefinitionHandler"
         class="com.raytheon.uf.common.datadelivery.registry.handlers.MemoryGroupDefinitionHandler" />
-        
+
     <bean name="ProviderHandler"
         class="com.raytheon.uf.common.datadelivery.registry.handlers.MemoryProviderHandler" />
 
@@ -22,7 +39,7 @@
         class="com.raytheon.uf.common.datadelivery.registry.handlers.MemoryDataSetNameHandler" />
 
     <bean name="ParameterHandler"
-        class="com.raytheon.uf.common.datadelivery.registry.handlers.MemoryParameterHandler" />                
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.MemoryParameterHandler" />
 
     <bean name="ParameterLevelHandler"
         class="com.raytheon.uf.common.datadelivery.registry.handlers.MemoryParameterLevelHandler" />

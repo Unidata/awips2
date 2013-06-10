@@ -38,6 +38,7 @@ import com.raytheon.uf.common.serialization.comm.RequestRouter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 5, 2013    1580     mpduff      Initial creation.
+ * May 28, 2013  1650      djohnson    Return subscriber on register method for Spring.
  * 
  * </pre>
  * 
@@ -71,6 +72,10 @@ public class CaveEventBusHandler implements IEventBusHandler {
      */
     @Override
     public void publish(final Event event) {
+        if (event == null) {
+            throw new IllegalArgumentException("Cannot publish a null event");
+        }
+
         executor.execute(new Runnable() {
             @Override
             public void run() {
@@ -89,7 +94,7 @@ public class CaveEventBusHandler implements IEventBusHandler {
      * UnsupportedOperationException.
      */
     @Override
-    public void register(Object subscriber) {
+    public Object register(Object subscriber) {
         throw new UnsupportedOperationException();
     }
 

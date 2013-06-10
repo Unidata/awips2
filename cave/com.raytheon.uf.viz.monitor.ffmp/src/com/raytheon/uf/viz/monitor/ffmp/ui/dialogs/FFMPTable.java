@@ -69,6 +69,10 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML;
  * Mar 15,2012	DR 14406  gzhang       Fixing QPF Column Title Missing 
  * Mar 20,2012	DR 14250  gzhang       Eliminating column Missing values 
  * Aug 01, 2012 14168     mpduff       Only allow filtering if ColorCell is true
+ * Jun 04, 2013 #1984     lvenable     Save images instead of disposing them when setting
+ *                                     the table column images.  This is to fix the Windows
+ *                                     issue on the images being blank and throwing errors.
+ *                                     Also cleaned up some code.
  * </pre>
  * 
  * @author lvenable
@@ -149,11 +153,14 @@ public abstract class FFMPTable extends Composite {
 
     protected int textHeight = 0;
 
-    private String centeredAggregateKey;
-
     private ArrayList<Integer> indexArray = new ArrayList<Integer>();
 
     private Point extent = new Point(0, 0);
+
+    /**
+     * Array of images displayed in the table columns.
+     */
+    protected List<Image> columnImgs = new ArrayList<Image>();
 
     /**
      * Constructor.
@@ -212,6 +219,7 @@ public abstract class FFMPTable extends Composite {
                 lineColor.dispose();
                 columnFont.dispose();
                 sortColor.dispose();
+                disposeColumnImages();
             }
         });
     }
@@ -677,10 +685,7 @@ public abstract class FFMPTable extends Composite {
             }
         }
 
-        imageWidth = maxTextLength * textWidth + EXTRA_COLUMN_WIDTH;// DR14406:
-                                                                    // old value
-                                                                    // 6 too
-                                                                    // small
+        imageWidth = maxTextLength * textWidth + EXTRA_COLUMN_WIDTH;
         imageHeight = textHeight * 2;
 
         gc.dispose();
@@ -699,6 +704,8 @@ public abstract class FFMPTable extends Composite {
 
         TableColumn tc;
 
+        disposeColumnImages();
+
         // Loop over the column name keys
         for (int i = 0; i < colNameKeys.length; i++) {
             String colName = ffmpTableCfgData
@@ -716,7 +723,6 @@ public abstract class FFMPTable extends Composite {
 
             // Set the background color to the sort color if that column is
             // sorted.
-            // if (table.indexOf(tc) == ffmpConfig.getStartSortIndex()) {
             if (tc == sortedTableColumn) {
                 gc.setBackground(sortColor);
             }
@@ -731,45 +737,43 @@ public abstract class FFMPTable extends Composite {
             int xCoord = 0;
             int yCoord = 0;
             if (colName.indexOf("\n") > 0) {
-                int maxTextLen = 0;
                 String[] tmpArray = colName.split("\n");
 
                 for (int j = 0; j < tmpArray.length; j++) {
-                    // if (tmpArray[j].length() > maxTextLen) {
-                    // maxTextLen = tmpArray[j].length();
-                    // }
-                    // }
 
+                    /*
+                     * Fixes for DR14406
+                     */
                     xCoord = Math.round((imageWidth / 2)
-                            - (tmpArray[j].length() /*
-                                                     * DR14406: old value:
-                                                     * maxTextLen
-                                                     */* textWidth / 2));
-                    yCoord = j * (textHeight + 1);// DR14406: old value 0 is
-                                                  // only for the 1st line
-                    gc.drawText(tmpArray[j], xCoord, yCoord, true);// DR14406:
-                                                                   // draw each
-                                                                   // line
-                                                                   // separately
+                            - (tmpArray[j].length() * textWidth / 2));
+                    yCoord = j * (textHeight + 1);
+                    gc.drawText(tmpArray[j], xCoord, yCoord, true);
                 }
             } else {
                 xCoord = Math.round((imageWidth / 2)
                         - (colName.length() * textWidth / 2));
                 yCoord = imageHeight / 2 - textHeight / 2 - 1;
-                gc.drawText(colName, xCoord, yCoord, true);// DR14406: draw text
-                                                           // with a single line
+                gc.drawText(colName, xCoord, yCoord, true);
             }
-
-            // System.out.println("Column name = " + colName);
-            // DR14406: move the below text drawing code into the if-else blocks
-            // gc.drawText(colName, xCoord, yCoord, true);
 
             gc.dispose();
             tc.setImage(img);
 
-            // Dispose of the image
-            img.dispose();
+            columnImgs.add(img);
         }
+    }
+
+    /**
+     * Dispose of all the table column images and clear the array of images.
+     */
+    protected void disposeColumnImages() {
+        for (Image img : columnImgs) {
+            if (img != null) {
+                img.dispose();
+            }
+        }
+
+        columnImgs.clear();
     }
 
     /**
@@ -818,8 +822,7 @@ public abstract class FFMPTable extends Composite {
                         tCols[i].setWidth(defaultColWidth);
                     }
 
-                    setQPFColName(tCols[i], col);// DR14406: set QPF title with
-                                                 // quicker response
+                    setQPFColName(tCols[i], col);
                 } else {
                     tCols[i].setWidth(0);
                 }
@@ -833,14 +836,6 @@ public abstract class FFMPTable extends Composite {
     public void showHideTableColumns() {
         AttributesDlgData attrData = ffmpConfig.getVisibleColumns(siteKey);
         showHideTableColumns(attrData);
-    }
-
-    public void setCenteredAggregationKey(Object key) {
-        if (key instanceof Long) {
-            this.centeredAggregateKey = String.valueOf(key);
-        } else {
-            this.centeredAggregateKey = (String) key;
-        }
     }
 
     /**

@@ -25,6 +25,9 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ValueType;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import com.raytheon.uf.common.serialization.SerializationException;
 
 /**
@@ -39,7 +42,8 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 7, 2012  1102       djohnson     Initial creation
+ * Sep 07, 2012 1102       djohnson     Initial creation
+ * Jun 03, 2013 2038       djohnson     Add equals/hashcode.
  * 
  * </pre>
  * 
@@ -54,7 +58,19 @@ abstract class ContentSlotBasedEncoder<SLOT_VALUE_TYPE extends ValueType, CONTEN
      * the object.
      */
     private static final String CONTENT_SLOT = "content";
+
+    /**
+     * The type of encoder it is.
+     */
+    private final RegistryEncoders.Type type;
     
+    /**
+     * Constructor. Intentionally package-private.
+     */
+    ContentSlotBasedEncoder(RegistryEncoders.Type type) {
+        this.type = type;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -91,6 +107,32 @@ abstract class ContentSlotBasedEncoder<SLOT_VALUE_TYPE extends ValueType, CONTEN
         slot.setSlotValue(sv);
 
         return slot;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ContentSlotBasedEncoder) {
+            ContentSlotBasedEncoder<?, ?> other = (ContentSlotBasedEncoder<?, ?>) obj;
+
+            EqualsBuilder builder = new EqualsBuilder();
+            builder.append(this.type, other.type);
+            return builder.isEquals();
+        }
+        return super.equals(obj);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        HashCodeBuilder builder = new HashCodeBuilder();
+        builder.append(type);
+
+        return builder.toHashCode();
     }
 
     /**
