@@ -1,0 +1,33 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="archivePurge" class="com.raytheon.uf.edex.archive.purge.ArchivePurger"/>
+
+    <camelContext id="archivePurge-context"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+
+        <endpoint id="archivePurgeCron" uri="clusteredquartz://archive/archivePurgeScheduled/?cron=${archivePurge.cron}"/>
+
+        <!-- Run archivePurge on Scheduled timer -->
+        <route id="archivePurgeScheduled">
+            <from uri="archivePurgeCron" />
+            <to uri="jms-generic:queue:archivePurgeScheduledWork" />
+        </route>
+
+        <route id="archivePurgeScheduledWork">
+            <from uri="jms-generic:queue:archivePurgeScheduledWork" />
+            <doTry>
+                <bean ref="archivePurge" method="purge" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:archivePurge?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+
+</beans>

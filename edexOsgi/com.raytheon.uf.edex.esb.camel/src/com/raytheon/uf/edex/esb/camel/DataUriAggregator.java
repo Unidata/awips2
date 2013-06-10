@@ -22,8 +22,8 @@ package com.raytheon.uf.edex.esb.camel;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.edex.msg.DataURINotificationMessage;
-import com.raytheon.edex.msg.PracticeDataURINotificationMessage;
+import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
+import com.raytheon.uf.common.dataplugin.message.PracticeDataURINotificationMessage;
 
 /**
  * Combines multiple messages of URIs into a single message that can be
@@ -34,6 +34,7 @@ import com.raytheon.edex.msg.PracticeDataURINotificationMessage;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 10, 2008            njensen     Initial creation
+ * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * </pre>
  * 
  * @author njensen

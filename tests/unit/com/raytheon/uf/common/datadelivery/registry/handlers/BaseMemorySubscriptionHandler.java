@@ -39,6 +39,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2012 0726       djohnson     Initial creation
  * Feb 20, 2013 1543       djohnson     Implement route filtering.
+ * May 15, 2013 1040       mpduff       Office Id now a set.
  * 
  * </pre>
  * 
@@ -113,12 +114,12 @@ public class BaseMemorySubscriptionHandler<T extends Subscription> extends
      * {@inheritDoc}
      */
     @Override
-    public List<T> getByFilters(String group, String officeId)
+    public List<T> getByFilters(String group, String officeIds)
             throws RegistryHandlerException {
         List<T> retVal = new ArrayList<T>();
         for (T obj : getAll()) {
             if (matches(group, obj.getGroupName())
-                    && matches(officeId, obj.getOfficeID())) {
+                    && matches(officeIds, obj.getOfficeIDs())) {
                 retVal.add(obj);
             }
         }

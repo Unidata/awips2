@@ -20,10 +20,14 @@
 
 package com.raytheon.uf.edex.database.plugin;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.persistence.Table;
 
 import org.apache.commons.beanutils.ConstructorUtils;
 
+import com.raytheon.uf.common.dataplugin.IPluginClassMapper;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.PluginProperties;
@@ -41,17 +45,18 @@ import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 06/14/06                garmendariz Initial check-in 
- * 05/29/07     312         bphillip    Removed unused methods
- * 02/06/09     1990        bphillip   Refactored to use spring container
- * 03/20/09                njensen     Refactored to use PluginProperties
+ * Jun 14, 2006            garmendariz Initial check-in
+ * May 29, 2007 312        bphillip    Removed unused methods
+ * Feb 06, 2009 1990       bphillip    Refactored to use spring container
+ * Mar 20, 2009            njensen     Refactored to use PluginProperties
+ * May 16, 2013 1869       bsteffen    Rewrite dataURI property mappings.
  * 
  * </pre>
  * 
  * @author garmendariz
  * @version 1.0
  */
-public class PluginFactory {
+public class PluginFactory implements IPluginClassMapper {
 
     /** The instance of the PluginFactory class */
     private static final PluginFactory instance = new PluginFactory();
@@ -67,6 +72,10 @@ public class PluginFactory {
     public static PluginFactory getInstance() {
         return instance;
     }
+
+    private Map<String, PluginDao> pluginDaoMap = new HashMap<String, PluginDao>();
+
+    private Object daoMapLock = new Object();
 
     /**
      * Private constructor
@@ -91,23 +100,36 @@ public class PluginFactory {
      * @throws PluginException
      *             If the dao cannot be instantiated
      */
-    @SuppressWarnings("unchecked")
     public PluginDao getPluginDao(String pluginName) throws PluginException {
-        PluginProperties props = PluginRegistry.getInstance()
-                .getRegisteredObject(pluginName);
-        if (props != null) {
-            try {
-                Class<PluginDao> clz = (Class<PluginDao>) props.getDao();
-                return (PluginDao) ConstructorUtils.invokeConstructor(clz,
-                        pluginName);
-            } catch (Exception e) {
-                throw new PluginException("Error instantiating DAO for "
-                        + pluginName + " plugin!", e);
+        PluginDao dao = pluginDaoMap.get(pluginName);
+        if (dao == null) {
+            PluginProperties props = PluginRegistry.getInstance()
+                    .getRegisteredObject(pluginName);
+            if (props != null) {
+                try {
+                    synchronized (daoMapLock) {
+                        // Create dao
+                        dao = (PluginDao) ConstructorUtils.invokeConstructor(
+                                props.getDao(), pluginName);
+
+                        // Copy dao mapping
+                        Map<String, PluginDao> pluginDaoMapCopy = new HashMap<String, PluginDao>(
+                                pluginDaoMap);
+                        // Add dao
+                        pluginDaoMapCopy.put(pluginName, dao);
+                        // Reset mapping
+                        pluginDaoMap = pluginDaoMapCopy;
+                    }
+                } catch (Exception e) {
+                    throw new PluginException("Error instantiating DAO for "
+                            + pluginName + " plugin!", e);
+                }
+            } else {
+                throw new PluginException("Plugin " + pluginName
+                        + " is not registered with the PluginRegistry");
             }
-        } else {
-            throw new PluginException("Plugin " + pluginName
-                    + " is not registered with the PluginRegistry");
         }
+        return dao;
     }
 
     /**

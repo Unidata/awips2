@@ -32,11 +32,13 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.edex.registry.ebxml;bundle-version="1.0.0",
  com.raytheon.uf.common.registry.ebxml;bundle-version="1.0.0",
  com.raytheon.uf.common.stats;bundle-version="1.0.0",
- com.raytheon.uf.common.comm;bundle-version="1.12.1174"
+ com.raytheon.uf.common.comm;bundle-version="1.12.1174",
+ com.raytheon.uf.common.datadelivery.harvester;bundle-version="1.0.0",
+ com.raytheon.uf.edex.purgesrv;bundle-version="1.12.1174",
+ org.quartz;bundle-version="1.8.6"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.datadelivery.harvester;uses:="com.raytheon.uf.edex.datadelivery.harvester.crawler",
- com.raytheon.uf.edex.datadelivery.harvester.config;uses:="com.raytheon.uf.common.serialization,com.raytheon.uf.common.datadelivery.registry",
  com.raytheon.uf.edex.datadelivery.harvester.crawler;
   uses:="com.raytheon.uf.edex.datadelivery.harvester.interfaces,
    com.raytheon.uf.edex.datadelivery.retrieval,

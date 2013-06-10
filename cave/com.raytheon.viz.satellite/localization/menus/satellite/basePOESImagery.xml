@@ -23,21 +23,16 @@
 			titleText="------ POES Imagery ------" id="POESLine"/>		
 	    <contribute xsi:type="bundleItem" file="bundles/POESSatellite.xml" 
                menuText="IR Window" id="irWindow">
-	        <dataURI>/satellite/%/NESDIS/NOAA18/%/Polar_IR</dataURI>
 	        <substitute key="element" value="Polar IR"/>	
 	    </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/POESSatellite.xml" 
                menuText="Visible" id="visible">
-	        <dataURI>/satellite/%/NESDIS/NOAA18/%/Polar_Vis</dataURI>
 	        <substitute key="element" value="Polar Vis"/>
 	    </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/POESSatellite.xml" 
                 menuText="3.7u" id="3.7u">
-        	<dataURI>/satellite/%/NESDIS/NOAA18/%/Polar_3.7u</dataURI>
         	<substitute key="element" value="Polar 3.7u"/>
     	</contribute>
     	<contribute xsi:type="bundleItem" file="bundles/DerivedPOESSatellite.xml" 
-                menuText="11-3.7u" id="11-3.7u">
-        	<dataURI>/satellite/%/NESDIS/NOAA18/%/Polar_IR</dataURI>
-    	</contribute>
+                menuText="11-3.7u" id="11-3.7u" />
 </menuTemplate>

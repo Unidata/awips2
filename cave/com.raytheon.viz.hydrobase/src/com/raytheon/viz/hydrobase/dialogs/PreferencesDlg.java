@@ -32,10 +32,13 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrobase.PreferencesData;
-import com.raytheon.viz.hydrobase.PreferencesDataManager;
 import com.raytheon.viz.hydrobase.PreferencesData.SortCriteria;
+import com.raytheon.viz.hydrobase.PreferencesDataManager;
 import com.raytheon.viz.hydrobase.listeners.IPreferencesListener;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -47,6 +50,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Sep 5, 2008				lvenable	Initial creation
+ * Apr 19, 2013 1790        rferrel     Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -54,6 +58,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class PreferencesDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(PreferencesDlg.class);
 
     /**
      * Handbook V identifier check box.
@@ -108,7 +114,7 @@ public class PreferencesDlg extends CaveSWTDialog {
     /**
      * Field included array.
      */
-    private ArrayList<Button> fieldIncArray;
+    private java.util.List<Button> fieldIncArray;
 
     /**
      * Maximum number of checked check boxes.
@@ -118,19 +124,24 @@ public class PreferencesDlg extends CaveSWTDialog {
     /**
      * Listeners to notify main HB Dialog of settings
      */
-    private ArrayList<IPreferencesListener> preferencesListeners;
+    private java.util.List<IPreferencesListener> preferencesListeners;
 
     /**
-     * Constructor.
+     * Non-blocking Constructor.
      * 
      * @param parent
      *            Parent shell.
      */
     public PreferencesDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Preferences");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -141,6 +152,13 @@ public class PreferencesDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -273,7 +291,7 @@ public class PreferencesDlg extends CaveSWTDialog {
             public void widgetSelected(SelectionEvent event) {
                 savePreferences();
                 fireUpdateEvent();
-                shell.dispose();
+                close();
             }
         });
 
@@ -283,7 +301,7 @@ public class PreferencesDlg extends CaveSWTDialog {
         cancelBtn.setLayoutData(gd);
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -410,9 +428,9 @@ public class PreferencesDlg extends CaveSWTDialog {
         PreferencesDataManager dm = PreferencesDataManager.getInstance();
 
         // Save display columns
-        dm.setSelectedColumns(stateCountyChk.getSelection(), basinChk
-                .getSelection(), riverStreamChk.getSelection(), latLonChk
-                .getSelection());
+        dm.setSelectedColumns(stateCountyChk.getSelection(),
+                basinChk.getSelection(), riverStreamChk.getSelection(),
+                latLonChk.getSelection());
 
         // Save sort preference
         if (stationRdo.getSelection())
@@ -423,14 +441,14 @@ public class PreferencesDlg extends CaveSWTDialog {
             dm.setSortCriteria(SortCriteria.STATE_COUNTY);
 
         // Save dialog preferences
-        dm.setTitleString(handbookVIdChk.getSelection(), locationNameChk
-                .getSelection());
+        dm.setTitleString(handbookVIdChk.getSelection(),
+                locationNameChk.getSelection());
 
         try {
             dm.savePreferences();
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to save preferences. ", e);
         }
     }
 

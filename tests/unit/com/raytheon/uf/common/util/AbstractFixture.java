@@ -48,7 +48,7 @@ public abstract class AbstractFixture<T> {
      * 
      * @return the instance
      */
-    public T get() {
+    public final T get() {
         return get(DEFAULT_SEED);
     }
 
@@ -59,7 +59,22 @@ public abstract class AbstractFixture<T> {
      *            the seed value
      * @return the instance based on the seed value
      */
-    public abstract T get(long seedValue);
+    public final T get(long seedValue) {
+        Random random = new Random(seedValue);
+
+        return getInstance(seedValue, random);
+    }
+
+    /**
+     * Retrieve the instance generated via the specified seed value.
+     * 
+     * @param seedValue
+     *            the seed value
+     * @param random
+     *            the random instance, if a random value is needed
+     * @return the instance
+     */
+    protected abstract T getInstance(long seedValue, Random random);
 
     /**
      * Get a random enum value.

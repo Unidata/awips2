@@ -21,6 +21,7 @@
 package oasis.names.tc.ebxml.regrep.xsd.query.v4;
 
 import java.math.BigInteger;
+import java.util.Collection;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -31,6 +32,7 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -73,6 +75,33 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 public class QueryRequest extends RegistryRequestType {
 
+    /** The queryID canonical query parameter name */
+    public static final String QUERY_ID = "queryId";
+
+    /** The depth canonical query parameter name */
+    public static final String DEPTH = "depth";
+
+    /** The format canonical query parameter name */
+    public static final String FORMAT = "format";
+
+    /** The federated canonical query parameter name */
+    public static final String FEDERATED = "federated";
+
+    /** The federation canonical query parameter name */
+    public static final String FEDERATION = "federation";
+
+    /** The matchOlderVersion canonical query parameter name */
+    public static final String MATCH_OLDER_VERSIONS = "matchOlderVersions";
+
+    /** The startIndex canonical query parameter name */
+    public static final String START_INDEX = "startIndex";
+
+    /** The lang canonical query parameter name */
+    public static final String LANG = "lang";
+
+    /** The maxResults canonical query parameter name */
+    public static final String MAX_RESULTS = "maxResults";
+
     @XmlElement(name = "ResponseOption", required = true)
     @DynamicSerializeElement
     protected ResponseOptionType responseOption;
@@ -113,6 +142,46 @@ public class QueryRequest extends RegistryRequestType {
     @XmlAttribute
     @DynamicSerializeElement
     protected Boolean matchOlderVersions;
+
+    public QueryRequest() {
+
+    }
+
+    public QueryRequest(String id, String comment, Collection<SlotType> slots,
+            ResponseOptionType responseOption, QueryType query,
+            Boolean federated, String federation, String format, String lang,
+            Integer startIndex, Integer maxResults, Integer depth,
+            Boolean matchOlderVersions) {
+        super(id, comment, slots);
+        this.responseOption = responseOption;
+        this.query = query;
+        this.federated = federated;
+        this.federation = federation;
+        this.format = format;
+        this.lang = lang;
+        this.startIndex = BigInteger.valueOf(startIndex.longValue());
+        this.maxResults = BigInteger.valueOf(maxResults.longValue());
+        this.depth = BigInteger.valueOf(depth.longValue());
+        this.matchOlderVersions = matchOlderVersions;
+    }
+
+    public QueryRequest(String id, String comment,
+            ResponseOptionType responseOption, QueryType query,
+            Boolean federated, String federation, String format, String lang,
+            Integer startIndex, Integer maxResults, Integer depth,
+            Boolean matchOlderVersions) {
+        super(id, comment, null);
+        this.responseOption = responseOption;
+        this.query = query;
+        this.federated = federated;
+        this.federation = federation;
+        this.format = format;
+        this.lang = lang;
+        this.startIndex = BigInteger.valueOf(startIndex.longValue());
+        this.maxResults = BigInteger.valueOf(maxResults.longValue());
+        this.depth = BigInteger.valueOf(depth.longValue());
+        this.matchOlderVersions = matchOlderVersions;
+    }
 
     @Override
     public String toString() {

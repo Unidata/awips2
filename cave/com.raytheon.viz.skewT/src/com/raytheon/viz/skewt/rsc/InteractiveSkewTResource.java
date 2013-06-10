@@ -44,14 +44,14 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.edex.util.Equations;
-import com.raytheon.edex.util.UAPoint;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.sounding.ParcelLift.PARCEL_TYPE;
 import com.raytheon.uf.common.sounding.SoundingLayer;
 import com.raytheon.uf.common.sounding.SoundingLayer.DATA_TYPE;
 import com.raytheon.uf.common.sounding.VerticalSounding;
 import com.raytheon.uf.common.sounding.WxMath;
+import com.raytheon.uf.common.sounding.util.Equations;
+import com.raytheon.uf.common.sounding.util.UAPoint;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -83,6 +83,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 22, 2009            randerso     Initial creation
+ * Feb 15, 2013 1638       mschenke    Moved Equations/UAPoint from edex.common util
+ *                                     to common.sounding
  * 
  * </pre>
  * 

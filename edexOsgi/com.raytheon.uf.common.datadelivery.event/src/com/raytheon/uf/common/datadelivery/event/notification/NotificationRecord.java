@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -28,6 +29,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            jsanchez     Initial creation
+ * 3/18/2012    1802       bphillip    Modified to implement IPersistableDataObject
  * 
  * </pre>
  * 
@@ -39,7 +41,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class NotificationRecord implements ISerializableObject {
+public class NotificationRecord implements ISerializableObject,
+        IPersistableDataObject<Integer> {
 
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
@@ -117,6 +120,11 @@ public class NotificationRecord implements ISerializableObject {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    @Override
+    public Integer getIdentifier() {
+        return this.id;
     }
 
 }

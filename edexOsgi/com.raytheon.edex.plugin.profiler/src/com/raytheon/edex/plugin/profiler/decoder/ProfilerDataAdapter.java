@@ -57,7 +57,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080303            969 jkorman     Initial implementation.
+ * Mar 03, 2008 969        jkorman     Initial implementation.
+ * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
+ *                                     work without dataURI.
  * 
  * </pre>
  * 
@@ -224,7 +226,6 @@ public class ProfilerDataAdapter {
                         obsData.setTimeObs(TimeTools.copy(baseTime));
                         DataTime dt = new DataTime(TimeTools.copy(baseTime));
                         obsData.setDataTime(dt);
-                        view.setLong("validTime", baseTime.getTimeInMillis());
                     } else {
                         logger.error(traceId
                                 + "-Time information missing or incorrect");

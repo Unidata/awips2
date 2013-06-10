@@ -19,23 +19,26 @@
  **/
 package com.raytheon.edex.monitors;
 
-import java.io.File;
 import java.io.FilenameFilter;
+
+import com.raytheon.uf.common.util.file.FilenameFilters;
 
 /**
  * An abstract base class for directory monitors.
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 08May2008    1113       MW Fegan    Initial creation.
+ * Mar 14, 2013 1794       djohnson    Consolidate common FilenameFilter implementations.
  * 
  * </pre>
- *
+ * 
  * @author mfegan
- * @version 1.0	
+ * @version 1.0
  */
 
 public abstract class AEdexDirMonitor extends AEdexMonitor {
@@ -48,11 +51,7 @@ public abstract class AEdexDirMonitor extends AEdexMonitor {
     protected String dirToCheck = ".";
 
     /* file filter that screens out "dot" files */
-    protected FilenameFilter filter =  new FilenameFilter() {
-        public boolean accept(final File dir, final String name) {
-            return !name.startsWith(".");
-        }
-    };
+    protected FilenameFilter filter = FilenameFilters.NO_LINUX_HIDDEN_FILES;
 
     /**
      * Constructor. Takes no action.

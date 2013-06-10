@@ -79,7 +79,6 @@ import com.raytheon.viz.ui.tools.ModalToolManager;
  * @author randerso
  * @version 1.0
  */
-
 public abstract class AbstractVizPerspectiveManager implements
         IBackgroundColorChangedListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus

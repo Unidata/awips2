@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry;
 
+import java.util.Random;
+
 import com.raytheon.uf.common.util.AbstractFixture;
 
 /**
@@ -40,7 +42,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  */
 
 public class PendingSubscriptionFixture extends
-        BaseSubscriptionFixture<PendingSubscription> {
+        BaseSiteSubscriptionFixture<PendingSiteSubscription> {
 
     public static final PendingSubscriptionFixture INSTANCE = new PendingSubscriptionFixture();
 
@@ -54,8 +56,8 @@ public class PendingSubscriptionFixture extends
      * {@inheritDoc}
      */
     @Override
-    public PendingSubscription get(long seedValue) {
-        PendingSubscription sub = super.get(seedValue);
+    public PendingSiteSubscription getInstance(long seedValue, Random random) {
+        PendingSiteSubscription sub = super.getInstance(seedValue, random);
         sub.setChangeReqId("change" + seedValue);
 
         return sub;
@@ -65,8 +67,8 @@ public class PendingSubscriptionFixture extends
      * {@inheritDoc}
      */
     @Override
-    protected PendingSubscription getSubscription() {
-        return new PendingSubscription();
+    protected PendingSiteSubscription getSubscription() {
+        return new PendingSiteSubscription();
     }
 
 }

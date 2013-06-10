@@ -41,7 +41,7 @@ import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.viz.awipstools.common.IRadialVelocityToolSource;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
@@ -84,7 +84,7 @@ public class VRShearLayer extends ShearLayer {
      * @param props
      * @param descriptor
      */
-    public VRShearLayer(AwipsToolsResourceData<VRShearLayer> data,
+    public VRShearLayer(GenericToolsResourceData<VRShearLayer> data,
             LoadProperties props, MapDescriptor descriptor) {
         super(data, props, descriptor);
         // add magnification capability

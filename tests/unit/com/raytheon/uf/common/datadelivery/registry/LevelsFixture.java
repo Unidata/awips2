@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.datadelivery.registry;
 
 import java.util.Arrays;
+import java.util.Random;
 
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType.LevelType;
 import com.raytheon.uf.common.util.AbstractFixture;
@@ -58,7 +59,7 @@ public class LevelsFixture extends AbstractFixture<Levels> {
      * {@inheritDoc}
      */
     @Override
-    public Levels get(long seedValue) {
+    public Levels getInstance(long seedValue, Random random) {
         Levels obj = new Levels();
         obj.setLevel(Arrays.<Double> asList(1D, 2D, 3D));
         obj.setLevelType(LevelType.SFC.getLevelTypeId());

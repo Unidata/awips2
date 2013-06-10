@@ -28,6 +28,7 @@ import java.util.Set;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.pointdata.PointDataConstants;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
@@ -46,7 +47,8 @@ import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 13, 2012            bsteffen     Initial creation
+ * Apr 13, 2012            bsteffen    Initial creation
+ * May 14, 2013 1869       bsteffen    Get plots working without dataURI
  * 
  * </pre>
  * 
@@ -55,6 +57,15 @@ import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
  */
 
 public class PointMetadataContainer extends MetadataContainer {
+
+    /**
+     * Parameters which should be requested for all levels.
+     */
+    private static final List<String> constantParameters = Arrays.asList("id",
+            "latitude", "longitude", "dataURI",
+            PointDataConstants.DATASET_STATIONID,
+            PointDataConstants.DATASET_REFTIME,
+            PointDataConstants.DATASET_FORECASTHR);
 
     private final PointDataCubeAdapter pdca;
 
@@ -97,9 +108,13 @@ public class PointMetadataContainer extends MetadataContainer {
         if (baseParams.isEmpty()) {
             return;
         }
-        if (requestedParameters.contains("dataURI")) {
-            baseParams.add("dataURI");
+        for (String parameter : requestedParameters) {
+            if (constantParameters.contains(parameter)
+                    && !baseParams.contains(parameter)) {
+                baseParams.add(parameter);
+            }
         }
+
         pdc = pdca.getBaseRecords(baseParams, originalConstraints);
         for (PointDataLevelNode node : nodes) {
             Set<AbstractRequestableData> cacheSet = new HashSet<AbstractRequestableData>();
@@ -107,7 +122,7 @@ public class PointMetadataContainer extends MetadataContainer {
                 IDataRecord rec = pdc.getParameterRecord(node.getParameter());
                 cacheSet.add(new PointRequestableData(rec, pdc.getDescription(
                         node.getParameter()).getUnitObject()));
-                if (!Arrays.asList("id", "latitude", "longitude", "dataURI")
+                if (!constantParameters
                         .contains(rec.getName())) {
                     pdc.remove(rec.getName());
                 }

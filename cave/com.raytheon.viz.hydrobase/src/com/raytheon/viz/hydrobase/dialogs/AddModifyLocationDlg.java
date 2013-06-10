@@ -59,6 +59,7 @@ import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
 import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
 import com.raytheon.viz.hydrocommon.whfslib.GeoUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * This class displays the Add/Modify location dialog. A flag is passed into the
@@ -77,7 +78,11 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     case in Location box.
  * 10 May 2011  9309       djingtao    the elevation fields should be defaults as 0.0 when user
  *                                     wipe out the field (e.g. blank)
- * 26 Nov 2012 15440       lbousaidi   display lat/lon in the GUI in decimal degrees                                   
+ * 26 Nov 2012 15440       lbousaidi   display lat/lon in the GUI in decimal degrees
+ * 16 Apr 2013  1790       rferrel     Make dialog non-blocking.
+ *                                     Changes for non-blocking CoopAgencyOfficeDlg.
+ *                                     Changes for non-blocking CopyNewLocationDlg.
+ *                                     Changes for non-blocking CountyStateDlg.
  * 
  * 
  * </pre>
@@ -88,6 +93,21 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 public class AddModifyLocationDlg extends CaveSWTDialog implements
         ICountyStateListener {
+
+    /**
+     * Allow one Coop Agency Office dialog.
+     */
+    private CoopAgencyOfficeDlg coopAgencyOfficeDlg;
+
+    /**
+     * Allow one Copy New dialog.
+     */
+    private CopyNewLocationDlg copyDlg;
+
+    /**
+     * Allow one County/State dialog.
+     */
+    private CountyStateDlg countyStateDlg;
 
     /**
      * Font used for controls.
@@ -219,11 +239,11 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
      * Remarks text control.
      */
     private Text remarksTF;
- 
+
     /**
      * text from the remark text box
      */
-    private String currentRemarkText=null;
+    private String currentRemarkText = null;
 
     /**
      * Forecast Point check box.
@@ -369,7 +389,7 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
     /**
      * Listeners to notify main HB Dialog of station list changes
      */
-    private ArrayList<IStationListener> stationListeners;
+    private java.util.List<IStationListener> stationListeners;
 
     /**
      * States for the dialog
@@ -393,7 +413,7 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
      */
     public AddModifyLocationDlg(Shell parent, boolean modifyFlag, String lid,
             String titleString) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
 
         this.lid = lid;
         this.titleString = titleString;
@@ -403,6 +423,11 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
         locDate.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         GridLayout mainLayout = new GridLayout(1, false);
@@ -412,14 +437,26 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
+        setReturnValue(lid);
 
         // Initialize all of the controls and layouts
         initializeComponents();
@@ -492,10 +529,20 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
         copyToNewLocationBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                CopyNewLocationDlg copyDlg = new CopyNewLocationDlg(shell,
-                        locData);
-                copyDlg.open();
-                fireUpdateEvent();
+                if (copyDlg == null) {
+                    copyDlg = new CopyNewLocationDlg(shell, locData);
+                    copyDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            copyDlg = null;
+                            fireUpdateEvent();
+                        }
+                    });
+                    copyDlg.open();
+                } else {
+                    copyDlg.bringToTop();
+                }
             }
         });
     }
@@ -791,16 +838,15 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
         remarksTF.setLayoutData(gd);
         remarksTF.setFont(controlFont);
         remarksTF.setTextLimit(255);
-        currentRemarkText=remarksTF.getText();
+        currentRemarkText = remarksTF.getText();
         ModifyListener listener = new ModifyListener() {
-        	public void modifyText(ModifyEvent e) {
-        		if (remarksTF.getText().length()>255){
-        			remarksTF.setText(currentRemarkText);
-        			shell.getDisplay().beep();
-        		}
-        		else
-        			currentRemarkText=remarksTF.getText();
-        	}
+            public void modifyText(ModifyEvent e) {
+                if (remarksTF.getText().length() > 255) {
+                    remarksTF.setText(currentRemarkText);
+                    shell.getDisplay().beep();
+                } else
+                    currentRemarkText = remarksTF.getText();
+            }
         };
 
         remarksTF.addModifyListener(listener);
@@ -1068,10 +1114,21 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
         coopAgencyOfficeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                CoopAgencyOfficeDlg coopAgencyOfficeDlg = new CoopAgencyOfficeDlg(
-                        shell, titleString, lid);
-                coopAgencyOfficeDlg.open();
-                updateCoops();
+                if (coopAgencyOfficeDlg == null) {
+                    coopAgencyOfficeDlg = new CoopAgencyOfficeDlg(shell,
+                            titleString, lid);
+                    coopAgencyOfficeDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            coopAgencyOfficeDlg = null;
+                            updateCoops();
+                        }
+                    });
+                    coopAgencyOfficeDlg.open();
+                } else {
+                    coopAgencyOfficeDlg.bringToTop();
+                }
             }
         });
 
@@ -1112,7 +1169,7 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
             public void widgetSelected(SelectionEvent event) {
                 saveRecord();
                 fireUpdateEvent();
-                shell.dispose();
+                close();
             }
         });
 
@@ -1137,7 +1194,7 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -1243,7 +1300,7 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
         StationClassData seedData = new StationClassData();
         seedData.setLid(lid);
 
-        ArrayList<StationClassData> classData = new ArrayList<StationClassData>();
+        java.util.List<StationClassData> classData = new ArrayList<StationClassData>();
         try {
             classData = HydroDBDataManager.getInstance().getData(seedData);
 
@@ -1323,12 +1380,12 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
         basinTF.setText(locData.getRiverBasin());
 
         // Only Display Lat/Lon if not missing
-      
-       latTF.setText((locData.getLatitude() != HydroConstants.MISSING_VALUE) ?
-                String.valueOf(locData.getLatitude()): "");
-       lonTF.setText((locData.getLongitude() != HydroConstants.MISSING_VALUE) ?
-              String.valueOf(locData.getLongitude()): "");
-       
+
+        latTF.setText((locData.getLatitude() != HydroConstants.MISSING_VALUE) ? String
+                .valueOf(locData.getLatitude()) : "");
+        lonTF.setText((locData.getLongitude() != HydroConstants.MISSING_VALUE) ? String
+                .valueOf(locData.getLongitude()) : "");
+
         // Only display elevation if it isn't missing, i.e. null in DB
         elevationTF
                 .setText((locData.getElevation() != HydroConstants.MISSING_VALUE) ? String
@@ -1437,7 +1494,7 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
         coopAgencyOfficeList.removeAll();
 
         try {
-            ArrayList<String> offices = AddModifyLocationDataManager
+            java.util.List<String> offices = AddModifyLocationDataManager
                     .getInstance().getSelectedAgenciesAndOffices(lid);
 
             for (String currOffice : offices) {
@@ -1467,7 +1524,7 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
                 AddModifyLocationDataManager.getInstance()
                         .deleteRecord(locData);
 
-                shell.dispose();
+                close();
                 fireUpdateEvent();
             } catch (VizException e) {
                 MessageBox mbFail = new MessageBox(shell, SWT.ICON_ERROR
@@ -1521,7 +1578,7 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
     private void setDefaultHsaWfo() {
         // If adding location, HSA and WFO default to Admin table values
         try {
-            ArrayList<AdministrationData> data = HydroDBDataManager
+            java.util.List<AdministrationData> data = HydroDBDataManager
                     .getInstance().getData(AdministrationData.class);
 
             if (data.size() > 0) {
@@ -1816,10 +1873,15 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
     }
 
     private void openCountyStateDlg() {
-        CountyStateDlg countyStateDlg = new CountyStateDlg(shell);
-        countyStateDlg.addListener(this);
+        if (countyStateDlg == null || countyStateDlg.isDisposed()) {
+            countyStateDlg = new CountyStateDlg(shell);
+            countyStateDlg.addListener(this);
+            countyStateDlg.open();
+        } else {
+            countyStateDlg.bringToTop();
+        }
 
-        // Open the county/state dlg
+        // Set the selection county/state dlg
         if (!countyStateTF.getText().equals("")) {
             // Set selection in dialog to current location's settings
             CountiesData currCountyState = new CountiesData();
@@ -1829,12 +1891,8 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
             currCountyState.setState(countyState[1].trim());
 
             // Tell county/state dialog what to select
-            countyStateDlg.open(currCountyState);
-        } else {
-            countyStateDlg.open();
+            countyStateDlg.setSelection(currCountyState);
         }
-
-        countyStateDlg.removeListener(this);
     }
 
     @Override

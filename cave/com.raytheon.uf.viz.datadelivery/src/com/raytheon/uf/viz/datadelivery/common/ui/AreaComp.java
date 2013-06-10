@@ -55,9 +55,9 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.maps.scales.MapScales;
+import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
 import com.raytheon.uf.viz.core.procedures.Bundle;
-import com.raytheon.uf.viz.d2d.core.map.MapScales;
-import com.raytheon.uf.viz.d2d.core.map.MapScales.MapScale;
 import com.raytheon.uf.viz.datadelivery.common.xml.AreaXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.IDataSize;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.ISubset;
@@ -89,6 +89,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      to determine if starting in manual entry mode.
  * Dec 10, 2012  1259      bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Dec 11, 2012  1264      mpduff       Fix validaiton of lat/lon text fields.
+ * Mar 21, 2013  1638      mschenke     Changed map scales not tied to d2d
  *
  * </pre>
  *

@@ -24,6 +24,8 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 import java.util.Calendar;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
@@ -59,6 +61,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 10/19/2011    858        Greg Hull   remove forecastHr
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869       	bsteffen    Remove dataURI column from
+ *                                      PluginDataObject.
  * 
  * </pre>
  * 
@@ -740,5 +744,12 @@ public class StormTrackRecord extends PluginDataObject {
 	public void setUserData(String userData) {
 		this.userData = userData;
 	}
+
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 
 }

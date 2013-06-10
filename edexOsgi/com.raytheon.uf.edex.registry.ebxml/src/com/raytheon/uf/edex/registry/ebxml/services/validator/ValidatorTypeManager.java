@@ -26,14 +26,12 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtensibleObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.IdentifiableType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsResponse;
 
 import com.raytheon.uf.edex.registry.ebxml.services.validator.types.ClassificationTypeValidator;
 import com.raytheon.uf.edex.registry.ebxml.services.validator.types.ExtensibleObjectTypeValidator;
 import com.raytheon.uf.edex.registry.ebxml.services.validator.types.IdentifiableTypeValidator;
 import com.raytheon.uf.edex.registry.ebxml.services.validator.types.RegistryObjectTypeValidator;
-import com.raytheon.uf.edex.registry.ebxml.services.validator.types.VersionInfoTypeValidator;
 
 /**
  * This class is responsible for managing validator implementations.
@@ -45,6 +43,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.validator.types.VersionInfoT
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 2/13/12      184        bphillip     Initial creation
+ * 3/18/2013    1082       bphillip     Removed reference to version type validator
  * 
  * </pre>
  * 
@@ -66,7 +65,6 @@ public class ValidatorTypeManager {
                 new RegistryObjectTypeValidator());
         validatorMap.put(ClassificationType.class,
                 new ClassificationTypeValidator());
-        validatorMap.put(VersionInfoType.class, new VersionInfoTypeValidator());
     }
 
     /** The singleton instance */

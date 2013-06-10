@@ -31,7 +31,6 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.msg.DataURINotificationMessage;
 import com.raytheon.edex.subscription.data.ReplacementRecord;
 import com.raytheon.edex.subscription.data.SubscriptionRecord;
 import com.raytheon.edex.subscription.runners.ISubscribeRunner;
@@ -41,6 +40,7 @@ import com.raytheon.edex.uengine.runners.IMicroEngine;
 import com.raytheon.edex.uengine.runners.MicroEngine;
 import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.message.Header;
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
@@ -71,6 +71,7 @@ import com.raytheon.uf.edex.core.EdexException;
  *                                     separate log file.
  * 30Aug2011    10581      rferrel     executeScript now sending proper trigger 
  *                                     argument to the engine.
+ * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * 
  * </pre>
  * 

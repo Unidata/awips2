@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth.dao;
 
+import java.util.Random;
+
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.SubscriptionRetrievalAgent;
 
@@ -55,8 +57,8 @@ public class SubscriptionRetrievalFixture extends
      * {@inheritDoc}
      */
     @Override
-    public SubscriptionRetrieval get(long seedValue) {
-        SubscriptionRetrieval entity = super.get(seedValue);
+    public SubscriptionRetrieval getInstance(long seedValue, Random random) {
+        SubscriptionRetrieval entity = super.getInstance(seedValue, random);
         entity.setDataSetAvailablityDelay(0);
         entity.setAgentType(SubscriptionRetrievalAgent.SUBSCRIPTION_AGENT);
         entity.setEstimatedSize(seedValue);

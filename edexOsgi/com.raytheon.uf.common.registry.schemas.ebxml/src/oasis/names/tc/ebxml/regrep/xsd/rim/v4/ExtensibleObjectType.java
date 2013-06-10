@@ -20,7 +20,11 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -46,6 +50,8 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * 
@@ -87,12 +93,81 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
 public abstract class ExtensibleObjectType {
 
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ExtensibleObjectType.class);
+
     @BatchSize(size = 500)
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(inverseJoinColumns = @JoinColumn(name = "child_slot_key"))
+    @JoinTable(schema = "ebxml", inverseJoinColumns = @JoinColumn(name = "child_slot_key"))
     @XmlElement(name = "Slot")
     @DynamicSerializeElement
     protected Set<SlotType> slot;
+
+    private static final Map<Class<?>, Class<?>> SLOT_VALUE_TYPE_MAP;
+
+    static {
+        Map<Class<?>, Class<?>> map = new HashMap<Class<?>, Class<?>>();
+        map.put(String.class, StringValueType.class);
+        map.put(Integer.class, IntegerValueType.class);
+        map.put(Float.class, FloatValueType.class);
+        SLOT_VALUE_TYPE_MAP = Collections.unmodifiableMap(map);
+
+    }
+
+    protected ExtensibleObjectType() {
+
+    }
+
+    protected ExtensibleObjectType(Collection<SlotType> slots) {
+        if (slots != null) {
+            getSlot().addAll(slots);
+        }
+    }
+
+    protected ExtensibleObjectType(Object... slotNameValues) {
+        if (slotNameValues.length % 2 != 0) {
+            throw new IllegalArgumentException(
+                    "Incorrect number of arguments submitted to ExtensibleObjectType constructor");
+        }
+        for (int i = 0; i < slotNameValues.length; i += 2) {
+            addSlot((String) slotNameValues[i], slotNameValues[i + 1]);
+        }
+    }
+
+    public SlotType createSlot(String slotName, Object slotValue) {
+        SlotType slot = new SlotType();
+        slot.setName(slotName);
+        Class<?> slotValueTypeClass = SLOT_VALUE_TYPE_MAP.get(slotValue
+                .getClass());
+        ValueType slotValueObject = null;
+        if (slotValueTypeClass != null) {
+            try {
+                slotValueObject = (ValueType) slotValueTypeClass.newInstance();
+            } catch (Exception e) {
+                statusHandler.error("Error instantiating slot value!", e);
+            }
+        } else {
+            throw new IllegalArgumentException(
+                    "Unable to create slot for type: " + slotValue.getClass());
+        }
+        slotValueObject.setValue(slotValue);
+        slot.setSlotValue(slotValueObject);
+        return slot;
+    }
+
+    public void addSlot(String slotName, Object slotValue) {
+        getSlot().add(createSlot(slotName, slotValue));
+    }
+
+    public void updateSlot(String slotName, Object slotValue) {
+        for (SlotType slot : getSlot()) {
+            if (slot.getName().equals(slotName)) {
+                slot.getSlotValue().setValue(slotValue);
+                return;
+            }
+        }
+        addSlot(slotName, slotValue);
+    }
 
     /**
      * Gets the value of the slot property.
@@ -125,6 +200,18 @@ public abstract class ExtensibleObjectType {
 
     public void setSlot(Set<SlotType> slot) {
         this.slot = slot;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Object> T getSlotValue(String slotName) {
+        Object retVal = null;
+        for (SlotType slot : getSlot()) {
+            if (slot.getName().equals(slotName)) {
+                retVal = slot.getSlotValue().getValue();
+                break;
+            }
+        }
+        return (T) retVal;
     }
 
     /*

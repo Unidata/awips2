@@ -25,49 +25,41 @@
 			titleText="------ GE and GW CONUS Sounder Imagery ------" id="SounderLine"/>
         <contribute xsi:type="bundleItem" file="bundles/DefaultCONUSSatellite.xml" 
                 menuText="IR Window" id="irWindow">
-	        <dataURI>/satellite/%/NESDIS/GOES%/%/Sounder_11.03_micron_imagery</dataURI>
 	        <substitute key="element" value="Sounder 11.03 micron imagery"/>
 	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/DefaultCONUSSatellite.xml" 
 	                menuText="Water Vapor (6.5u)" id="waterVapor6.5u">
-	        <dataURI>/satellite/%/NESDIS/GOES%/%/Sounder_6.51_micron_imagery</dataURI>
 	        <substitute key="element" value="Sounder 6.51 micron imagery"/>
 	        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/DefaultCONUSSatellite.xml" 
 	                menuText="Water Vapor (7.0u)" id="waterVapor7.0u">
-	        <dataURI>/satellite/%/NESDIS/GOES%/%/Sounder_7.02_micron_imagery</dataURI>
 	        <substitute key="element" value="Sounder 7.02 micron imagery"/>
 	        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
 	    </contribute>
         <contribute xsi:type="bundleItem" file="bundles/DefaultCONUSSatellite.xml" 
                 menuText="Water Vapor (7.4u)" id="waterVapor7.4u">
-	        <dataURI>/satellite/%/NESDIS/GOES%/%/Sounder_7.43_micron_imagery</dataURI>
 	        <substitute key="element" value="Sounder 7.43 micron imagery"/>
 	        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/DefaultCONUSSatellite.xml" 
 	                menuText="Visible" id="visible">
-	        <dataURI>/satellite/%/NESDIS/GOES%/%/Sounder_Visible_imagery</dataURI>
 	        <substitute key="element" value="Sounder Visible imagery"/>
 	        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/DefaultCONUSSatellite.xml" 
 	                menuText="4.0u" id="4.0u">
-	        <dataURI>/satellite/%/NESDIS/GOES%/%/Sounder_3.98_micron_imagery</dataURI>
 	        <substitute key="element" value="Sounder 3.98 micron imagery"/>
 	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/DefaultCONUSSatellite.xml" 
 	                menuText="4.5u" id="4.5u">
-	        <dataURI>/satellite/%/NESDIS/GOES%/%/Sounder_4.45_micron_imagery</dataURI>
 	        <substitute key="element" value="Sounder 4.45 micron imagery"/>
 	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/DefaultCONUSSatellite.xml" 
 	                menuText="14.1u" id="14.1u">
-	        <dataURI>/satellite/%/NESDIS/GOES%/%/Sounder_14.06_micron_imagery</dataURI>
 	        <substitute key="element" value="Sounder 14.06 micron imagery"/>
 	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
 	    </contribute>
@@ -77,56 +69,48 @@
 		<contribute xsi:type="subMenu" menuText="N. Atlantic and Gulf of Mexico">
 	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	                menuText="IR Window" id="irWindow">
-		        <dataURI>/satellite/%/NESDIS/GOES%/Puerto_Rico_Regional/Imager_11_micron_IR</dataURI>
 		        <substitute key="element" value="Imager 11 micron IR"/>
 		        <substitute key="sector" value="Puerto Rico Regional"/>
 		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
 		    </contribute>
 		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 		                menuText="Water Vapor (6.5u)" id="waterVapor6.5u">
-		        <dataURI>/satellite/%/NESDIS/GOES%/Puerto_Rico_National/Sounder_6.51_micron_imagery</dataURI>
 		        <substitute key="element" value="Sounder 6.51 micron imagery"/>
 		        <substitute key="sector" value="Puerto Rico National"/>
 		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
 		    </contribute>
 		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
 		                menuText="Water Vapor (7.0u)" id="waterVapor7.0u">
-		        <dataURI>/satellite/%/NESDIS/GOES%/Puerto_Rico_National/Sounder_7.02_micron_imagery</dataURI>
 		        <substitute key="element" value="Sounder 7.02 micron imagery"/>
 		        <substitute key="sector" value="Puerto Rico National"/>
 		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
 		    </contribute>
 	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	                menuText="Water Vapor (7.4u)" id="waterVapor7.4u">
-		        <dataURI>/satellite/%/NESDIS/GOES%/Puerto_Rico_National/Sounder_7.43_micron_imagery</dataURI>
 		        <substitute key="element" value="Sounder 7.43 micron imagery"/>
 		        <substitute key="sector" value="Puerto Rico National"/>
 		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
 		    </contribute>
 		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 		                menuText="Visible" id="visible">
-		        <dataURI>/satellite/%/NESDIS/GOES%/Puerto_Rico_Regional/Imager_Visible</dataURI>
 		        <substitute key="element" value="Imager Visible"/>
 		        <substitute key="sector" value="Puerto Rico Regional"/>
 		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
 		    </contribute>
 		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
 		                menuText="4.0u" id="4.0u">
-		        <dataURI>/satellite/%/NESDIS/GOES%/Puerto_Rico_National/Sounder_3.98_micron_imagery</dataURI>
 		        <substitute key="element" value="Sounder 3.98 micron imagery"/>
 		        <substitute key="sector" value="Puerto Rico National"/>
 		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
 		    </contribute>
 		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 		                menuText="4.5u" id="4.5u">
-		        <dataURI>/satellite/%/NESDIS/GOES%/Puerto_Rico_National/Sounder_4.45_micron_imagery</dataURI>
 		        <substitute key="element" value="Sounder 4.45 micron imagery"/>
 		        <substitute key="sector" value="Puerto Rico National"/>
 		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
 		    </contribute>
 		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 		                menuText="14.1u" id="14.1u">
-		        <dataURI>/satellite/%/NESDIS/GOES%/Puerto_Rico_National/Sounder_14.06_micron_imagery</dataURI>
 		        <substitute key="element" value="Sounder 14.06 micron imagery"/>
 		        <substitute key="sector" value="Puerto Rico National"/>
 		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
@@ -135,56 +119,48 @@
 	    <contribute xsi:type="subMenu" menuText="N. Pacific">
 	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	                menuText="IR Window" id="irWindow">
-		        <dataURI>/satellite/%/NESDIS/GOES%/Hawaii_Regional/Imager_11_micron_IR</dataURI>
 		        <substitute key="element" value="Imager 11 micron IR"/>
 		        <substitute key="sector" value="Hawaii Regional"/>
 		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
 		    </contribute>
 		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 		                menuText="Water Vapor (6.5u)" id="waterVapor6.5u">
-		        <dataURI>/satellite/%/NESDIS/GOES%/Hawaii_National/Sounder_6.51_micron_imagery</dataURI>
 		        <substitute key="element" value="Sounder 6.51 micron imagery"/>
 		        <substitute key="sector" value="Hawaii National"/>
 		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
 		    </contribute>
 		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
 		                menuText="Water Vapor (7.0u)" id="waterVapor7.0u">
-		        <dataURI>/satellite/%/NESDIS/GOES%/Hawaii_National/Sounder_7.02_micron_imagery</dataURI>
 		        <substitute key="element" value="Sounder 7.02 micron imagery"/>
 		        <substitute key="sector" value="Hawaii National"/>
 		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
 		    </contribute>
 	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	                menuText="Water Vapor (7.4u)" id="waterVapor7.4u">
-		        <dataURI>/satellite/%/NESDIS/GOES%/Hawaii_National/Sounder_7.43_micron_imagery</dataURI>
 		        <substitute key="element" value="Sounder 7.43 micron imagery"/>
 		        <substitute key="sector" value="Hawaii National"/>
 		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
 		    </contribute>
 		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 		                menuText="Visible" id="visible">
-		        <dataURI>/satellite/%/NESDIS/GOES%/Hawaii_Regional/Imager_Visible</dataURI>
 		        <substitute key="element" value="Imager Visible"/>
 		        <substitute key="sector" value="Hawaii Regional"/>
 		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
 		    </contribute>
 		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
 		                menuText="4.0u" id="4.0u">
-		        <dataURI>/satellite/%/NESDIS/GOES%/Hawaii_National/Sounder_3.98_micron_imagery</dataURI>
 		        <substitute key="element" value="Sounder 3.98 micron imagery"/>
 		        <substitute key="sector" value="Hawaii National"/>
 		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
 		    </contribute>
 		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 		                menuText="4.5u" id="4.5u">
-		        <dataURI>/satellite/%/NESDIS/GOES%/Hawaii_National/Sounder_4.45_micron_imagery</dataURI>
 		        <substitute key="element" value="Sounder 4.45 micron imagery"/>
 		        <substitute key="sector" value="Hawaii National"/>
 		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
 		    </contribute>
 		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 		                menuText="14.1u" id="14.1u">
-		        <dataURI>/satellite/%/NESDIS/GOES%/Hawaii_National/Sounder_14.06_micron_imagery</dataURI>
 		        <substitute key="element" value="Sounder 14.06 micron imagery"/>
 		        <substitute key="sector" value="Hawaii National"/>
 		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>

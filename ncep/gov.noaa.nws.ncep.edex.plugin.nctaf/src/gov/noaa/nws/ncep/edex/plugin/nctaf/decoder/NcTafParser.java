@@ -30,7 +30,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.db.dao.spatial.ObStationDao;
 import com.raytheon.edex.exception.DecoderException;
 import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafChangeGroup;
 import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafPeriod;
@@ -40,6 +39,7 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**

@@ -16,8 +16,7 @@ Require-Bundle: com.raytheon.edex.common,
  org.apache.commons.logging,
  javax.persistence,
  javax.measure
-Import-Package: com.raytheon.uf.common.dataplugin.bufrssmi,
- com.raytheon.uf.common.pointdata,
+Import-Package: com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.status,
  com.raytheon.uf.edex.decodertools.time,
  com.raytheon.uf.edex.pointdata

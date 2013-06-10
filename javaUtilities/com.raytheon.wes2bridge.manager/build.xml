@@ -11,27 +11,27 @@
                 <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
                 <attribute name="Rsrc-Main-Class" value="com.raytheon.wes2bridge.manager.Wes2BridgeManager"/>
                 <attribute name="Class-Path" value="."/>
-                <attribute name="Rsrc-Class-Path" value="./ commons-collections-3.2.jar commons-logging-1.1.1.jar geronimo-jms_1.1_spec-1.1.1.jar org.eclipse.ui_3.6.1.M20100826-1330.jar org.eclipse.swt_3.6.1.v3655c.jar org.eclipse.swt.gtk.linux.x86_3.6.1.v3655c.jar org.eclipse.jface_3.6.1.M20100825-0800.jar org.eclipse.core.commands_3.6.0.I20100512-1500.jar org.eclipse.ui.workbench_3.6.1.M20100826-1330.jar org.eclipse.core.runtime_3.6.0.v20100505.jar org.eclipse.osgi_3.6.1.R36x_v20100806.jar org.eclipse.equinox.common_3.6.0.v20100503.jar org.eclipse.core.jobs_3.5.1.R36x_v20100824.jar runtime_registry_compatibility.jar org.eclipse.equinox.registry_3.5.0.v20100503.jar org.eclipse.equinox.preferences_3.3.0.v20100503.jar org.eclipse.core.contenttype_3.4.100.v20100505-1235.jar org.eclipse.equinox.app_1.3.1.R36x_v20100803.jar log4j-1.2.16.jar log4j.extras-1.0.jar commons-beanutils-1.8.3.jar commons-digester-1.8.1.jar commons-lang-2.3.jar commons-configuration-1.6.jar"/>
+                <attribute name="Rsrc-Class-Path" value="./ commons-collections-3.2.jar commons-logging-1.1.1.jar geronimo-jms_1.1_spec-1.1.1.jar org.eclipse.ui_3.8.2.v20121018-234953.jar org.eclipse.swt_3.8.1.v3836b.jar org.eclipse.swt.gtk.linux.x86_3.8.1.v3836b.jar org.eclipse.jface_3.8.0.v20120912-135020.jar org.eclipse.core.commands_3.6.1.v20120912-135020.jar org.eclipse.ui.workbench_3.8.2.v20121128-133708.jar org.eclipse.core.runtime_3.8.0.v20120521-2346.jar org.eclipse.osgi_3.8.2.v20130124-134944.jar org.eclipse.equinox.common_3.6.100.v20120522-1841.jar org.eclipse.core.jobs_3.5.200.v20120521-2346.jar runtime_registry_compatibility.jar org.eclipse.equinox.registry_3.5.200.v20120522-1841.jar org.eclipse.equinox.preferences_3.5.1.v20121031-182809.jar org.eclipse.core.contenttype_3.4.200.v20120523-2004.jar org.eclipse.equinox.app_1.3.100.v20120522-1841.jar log4j-1.2.16.jar log4j.extras-1.0.jar commons-beanutils-1.8.3.jar commons-digester-1.8.1.jar commons-lang-2.3.jar commons-configuration-1.6.jar"/>
             </manifest>
             <zipfileset src="${basedir}/../build.wes2bridge.utility/lib/jar-in-jar-loader.zip"/>
             <zipfileset dir="${baseline.directory}/org.apache.commons.collections" includes="commons-collections-3.2.jar"/>
             <zipfileset dir="${baseline.directory}/org.apache.commons.logging" includes="commons-logging-1.1.1.jar"/>
             <zipfileset dir="${baseline.directory}/javax.jms" includes="geronimo-jms_1.1_spec-1.1.1.jar"/>
-            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.ui_3.6.1.M20100826-1330.jar"/>
-            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.swt_3.6.1.v3655c.jar"/>
-            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.swt.gtk.linux.x86_3.6.1.v3655c.jar"/>
-            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.jface_3.6.1.M20100825-0800.jar"/>
-            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.core.commands_3.6.0.I20100512-1500.jar"/>
-            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.ui.workbench_3.6.1.M20100826-1330.jar"/>
-            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.core.runtime_3.6.0.v20100505.jar"/>
-            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.osgi_3.6.1.R36x_v20100806.jar"/>
-            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
-            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.core.jobs_3.5.1.R36x_v20100824.jar"/>
-            <zipfileset dir="${eclipse.directory}/plugins/org.eclipse.core.runtime.compatibility.registry_3.3.0.v20100520" includes="runtime_registry_compatibility.jar"/>
-            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.equinox.registry_3.5.0.v20100503.jar"/>
-            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.equinox.preferences_3.3.0.v20100503.jar"/>
-            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.core.contenttype_3.4.100.v20100505-1235.jar"/>
-            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.equinox.app_1.3.1.R36x_v20100803.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.ui_3.8.2.v20121018-234953.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.swt_3.8.1.v3836b.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.swt.gtk.linux.x86_3.8.1.v3836b.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.jface_3.8.0.v20120912-135020.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.core.commands_3.6.1.v20120912-135020.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.ui.workbench_3.8.2.v20121128-133708.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.core.runtime_3.8.0.v20120521-2346.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.osgi_3.8.2.v20130124-134944.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.equinox.common_3.6.100.v20120522-1841.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.core.jobs_3.5.200.v20120521-2346.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins/org.eclipse.core.runtime.compatibility.registry_3.5.100.v20120521-2346" includes="runtime_registry_compatibility.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.equinox.registry_3.5.200.v20120522-1841.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.equinox.preferences_3.5.1.v20121031-182809.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.core.contenttype_3.4.200.v20120523-2004.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.equinox.app_1.3.100.v20120522-1841.jar"/>
             <zipfileset dir="${baseline.directory}/org.apache.log4j" includes="log4j-1.2.16.jar"/>
             <zipfileset dir="${baseline.directory}/org.apache.log4j" includes="log4j.extras-1.0.jar"/>
             <zipfileset dir="${baseline.directory}/org.apache.commons.beanutils" includes="commons-beanutils-1.8.3.jar"/>

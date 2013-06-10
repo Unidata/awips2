@@ -120,9 +120,9 @@ public class NsharpTimeLineConfigDialog extends Dialog {
     			if (timeLineList.getSelectionCount() > 0 ) {  	
     				selectedTimeList.clear();
     				for(int i=0; i < timeLineList.getSelectionCount(); i++) {
-    					selectedSndTime = timeLineList.getSelection()[i]; 
+    					selectedSndTime = timeLineList.getSelection()[i];
     					//remove "--InActive" or "--Active"
-    					selectedSndTime= selectedSndTime.substring(0, selectedSndTime.indexOf("--"));
+    					selectedSndTime= selectedSndTime.substring(0, selectedSndTime.indexOf('-'));
     					selectedTimeList.add(selectedSndTime);
     				}
     				
