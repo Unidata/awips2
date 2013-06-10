@@ -19,8 +19,8 @@
  **/
 package com.raytheon.viz.awipstools.ui.action;
 
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
-import com.raytheon.uf.viz.core.rsc.tools.action.AbstractMapToolAction;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
 import com.raytheon.viz.awipstools.ui.layer.RangeRingsLayer;
 
 /**
@@ -38,7 +38,7 @@ import com.raytheon.viz.awipstools.ui.layer.RangeRingsLayer;
  * @version 1.0
  */
 
-public class RangeRingsAction extends AbstractMapToolAction<RangeRingsLayer> {
+public class RangeRingsAction extends AbstractGenericToolAction<RangeRingsLayer> {
 
     /*
      * (non-Javadoc)
@@ -47,8 +47,8 @@ public class RangeRingsAction extends AbstractMapToolAction<RangeRingsLayer> {
      * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
      */
     @Override
-    protected AwipsToolsResourceData<RangeRingsLayer> getResourceData() {
-        return new AwipsToolsResourceData<RangeRingsLayer>(
+    protected GenericToolsResourceData<RangeRingsLayer> getResourceData() {
+        return new GenericToolsResourceData<RangeRingsLayer>(
                 RangeRingsLayer.DEFAULT_NAME, RangeRingsLayer.class);
 
     }

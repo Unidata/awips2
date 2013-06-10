@@ -24,12 +24,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
-import com.raytheon.edex.uengine.tasks.query.CatalogQuery;
-import com.raytheon.edex.uengine.tasks.query.MetadataCatalogQuery;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.derivparam.tree.DataTree;
 import com.raytheon.uf.common.pointdata.GetPointDataTreeRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.serialization.comm.RequestRouter;
 
 /**
  * 
@@ -79,9 +81,15 @@ public class GetPointDataTreeHandler implements
     private String[] getAvailableTypes(String pluginName, String typeKey) {
         if (!typeKey.equals(PLUGIN_NAME)) {
             try {
-                CatalogQuery query = new MetadataCatalogQuery(pluginName);
-                query.setDistinctField(typeKey);
-                String[] result = query.execute().getValues();
+                DbQueryRequest request = new DbQueryRequest();
+                request.addConstraint(PLUGIN_NAME, new RequestConstraint(
+                        pluginName));
+                request.addRequestField(typeKey);
+                request.setDistinct(true);
+                DbQueryResponse response = (DbQueryResponse) RequestRouter
+                        .route(request);
+                String[] result = response.getFieldObjects(typeKey,
+                        String.class);
                 return result;
             } catch (Exception e) {
                 e.printStackTrace();

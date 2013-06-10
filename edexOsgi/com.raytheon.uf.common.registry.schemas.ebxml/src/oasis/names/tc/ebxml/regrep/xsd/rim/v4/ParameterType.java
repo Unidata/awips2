@@ -28,6 +28,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -82,12 +83,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "ParameterType", propOrder = { "name", "description" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "Parameter")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "Parameter")
 public class ParameterType extends ExtensibleObjectType implements Serializable {
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "ParameterTypeGenerator", schema = "ebxml", sequenceName = "ebxml.Parameter_sequence")
+    @GeneratedValue(generator = "ParameterTypeGenerator")
     @XmlTransient
     protected Integer key;
 

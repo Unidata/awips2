@@ -42,6 +42,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jul 3, 2008				mpduff	Initial creation
+ * Apr 18,2013  1790        rferrel     Minor code clean up.
  * 
  * </pre>
  * 
@@ -75,7 +76,7 @@ public class GageLegend extends CaveSWTDialog {
 
         GridData gd = new GridData(150, 350);
         GridLayout layout = new GridLayout(1, false);
-        Browser browser;
+        Browser browser = null;
         try {
             browser = new Browser(shell, SWT.NONE);
         } catch (SWTError e) {
@@ -83,7 +84,7 @@ public class GageLegend extends CaveSWTDialog {
                     .getDefault()
                     .getLog()
                     .log(new Status(Status.ERROR, CorePlugin.PLUGIN_NAME,
-                            "Could not instantiate Browser", e));
+                            "Could not instantiate Browser ", e));
             return;
         }
         browser.setLayout(layout);
@@ -130,7 +131,7 @@ public class GageLegend extends CaveSWTDialog {
         sb.append(" <td align=\"center\" bgcolor=\"#C0C0C0\">Missing Data</td>");
         sb.append("</tr><tr>");
         sb.append(" <td align=\"center\" bgcolor=\"#228B22\">Missing Stage Data</td>");
-        sb.append("</tr></table></html>");
+        sb.append("</tr></table></body></html>");
 
         return sb.toString();
     }

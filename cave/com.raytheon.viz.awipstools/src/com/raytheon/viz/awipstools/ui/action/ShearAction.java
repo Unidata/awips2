@@ -26,7 +26,7 @@ import org.eclipse.ui.PlatformUI;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.tools.action.AbstractMapToolAction;
+import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
 import com.raytheon.viz.awipstools.ui.layer.ShearLayer;
 import com.raytheon.viz.ui.input.InputAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -47,7 +47,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-public abstract class ShearAction extends AbstractMapToolAction<ShearLayer> {
+public abstract class ShearAction extends AbstractGenericToolAction<ShearLayer> {
 
     protected ShearLayer getResource(LoadProperties loadProperties,
             IDescriptor descriptor) throws VizException {

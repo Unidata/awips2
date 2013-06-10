@@ -57,4 +57,15 @@
             commandId="com.raytheon.uf.viz.productbrowser.productBrowser">
       </handler>
    </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:browsers">
+   			<command
+        	  commandId="com.raytheon.uf.viz.productbrowser.productBrowser"
+        	  label="Product Browser"
+              style="push">
+        	</command>
+      </menuContribution>
+   </extension>
 </plugin>

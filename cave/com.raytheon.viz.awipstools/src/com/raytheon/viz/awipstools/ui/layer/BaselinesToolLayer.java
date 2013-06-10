@@ -20,7 +20,7 @@
 package com.raytheon.viz.awipstools.ui.layer;
 
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 
 /**
  * Strictly here so bundles don't break
@@ -56,7 +56,7 @@ public class BaselinesToolLayer extends InteractiveBaselinesLayer {
      * @param loadProperties
      */
     public BaselinesToolLayer(
-            AwipsToolsResourceData<InteractiveBaselinesLayer> resourceData,
+            GenericToolsResourceData<InteractiveBaselinesLayer> resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
     }

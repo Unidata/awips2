@@ -60,7 +60,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.edex.topo.TopoQuery;
+import com.raytheon.uf.common.topo.TopoQuery;
 
 /**
  * Manages the TopoDatabase instances of active GFE sites
@@ -73,6 +73,7 @@ import com.raytheon.uf.edex.topo.TopoQuery;
  * Jul 10, 2009            njensen     Initial creation
  * May 04, 2012  #574      dgilling    Re-port to better match AWIPS1.
  * Feb 12, 2013  #1608     randerso    Changed to use explicit deleteGroups
+ * Feb 15, 2013  1638     mschenke    Deleted topo edex plugin, moved code into common topo
  * 
  * </pre>
  * 

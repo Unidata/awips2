@@ -29,7 +29,6 @@ import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.maps.MapManager;
-import com.raytheon.uf.viz.core.maps.display.MapRenderableDisplay;
 import com.raytheon.uf.viz.core.rsc.sampling.actions.LatLonReadoutAction;
 import com.raytheon.uf.viz.core.rsc.sampling.actions.SampleAction;
 import com.raytheon.viz.hydro.gagedisplay.StationDisplay;
@@ -50,6 +49,7 @@ import com.raytheon.viz.ui.perspectives.AbstractCAVEPerspectiveManager;
  * Jun 17, 2008				M. Duff 	Initial creation
  * Apr 27, 2010             mschenke    refactor for common perspective switching
  * Mar 01, 2011    5367     jnjanga     Enabled point data displays upon hydroview launch.
+ * Mar 14, 2013 1790        rferrel     Changes for non-blocking PointDataControlDlg.
  * 
  * </pre>
  * 
@@ -58,111 +58,125 @@ import com.raytheon.viz.ui.perspectives.AbstractCAVEPerspectiveManager;
  */
 
 public class HydroPerspectiveManager extends AbstractCAVEPerspectiveManager {
-	/** The Hydro Perspective Class */
-	public static final String HYDRO_PERSPECTIVE = "com.raytheon.viz.hydro.HydroPerspective";
+    /** The Hydro Perspective Class */
+    public static final String HYDRO_PERSPECTIVE = "com.raytheon.viz.hydro.HydroPerspective";
 
-	private static final SampleAction sampleAction = new SampleAction();
+    private static final SampleAction sampleAction = new SampleAction();
 
-	private static final LatLonReadoutAction readoutAction = new LatLonReadoutAction();
+    private static final LatLonReadoutAction readoutAction = new LatLonReadoutAction();
 
-	private static final UnloadAllProductsAction unloadAllAction = new UnloadAllProductsAction();
+    private static final UnloadAllProductsAction unloadAllAction = new UnloadAllProductsAction();
 
-	@Override
-	public void open() {
-		loadDefaultBundle(getBundleToLoad());
-		String[] maps;
-		
-		// Get the maps configured for display at startup
-		String displayMaps = AppsDefaults.getInstance().getToken("display_maps", "statesCounties");
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager#open()
+     */
+    @Override
+    public void open() {
+        loadDefaultBundle(getBundleToLoad());
+        String[] maps;
 
-		if (displayMaps.contains(",")) {
-			maps = displayMaps.split(",");
-		} else {
-			maps = new String[1];
-			maps[0] = displayMaps;
-		}
-		
-		IDisplayPaneContainer currentEditor = EditorUtil
-				.getActiveVizContainer();
-		MapManager mapMgr = MapManager.getInstance((IMapDescriptor) currentEditor.getActiveDisplayPane()
-				.getDescriptor());
-		
+        // Get the maps configured for display at startup
+        String displayMaps = AppsDefaults.getInstance().getToken(
+                "display_maps", "statesCounties");
+
+        if (displayMaps.contains(",")) {
+            maps = displayMaps.split(",");
+        } else {
+            maps = new String[1];
+            maps[0] = displayMaps;
+        }
+
+        IDisplayPaneContainer currentEditor = EditorUtil
+                .getActiveVizContainer();
+        MapManager mapMgr = MapManager
+                .getInstance((IMapDescriptor) currentEditor
+                        .getActiveDisplayPane().getDescriptor());
+
         // Load the configured maps
-		for (String map : maps) {
+        for (String map : maps) {
             mapMgr.loadMapByBundleName(map.trim());
         }
-		
-		StationDisplay.getInstance().getMultiPointResource();
-		SetProjection.setDefaultProjection(currentEditor, "hv");
-		displayGages();
-	}
 
-	@Override
-	public void activate() {
-		if ((perspectiveEditors.size() == 0) && opened) {
-			opened = false;
-			super.activate();
-		} else {
-			super.activate();
-		}
+        StationDisplay.getInstance().getMultiPointResource();
+        SetProjection.setDefaultProjection(currentEditor, "hv");
+        displayGages();
+    }
 
-		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
-				.layout(true, true);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager#activate()
+     */
+    @Override
+    public void activate() {
+        if ((perspectiveEditors.size() == 0) && opened) {
+            opened = false;
+            super.activate();
+        } else {
+            super.activate();
+        }
 
-	/**
-	 * Hydro bundle to load
-	 * 
-	 * @return
-	 */
-	protected String getBundleToLoad() {
-		return "hydro/default-procedure.xml";
-	}
+        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
+                .layout(true, true);
+    }
 
-	/**
-	 * Hydro context id
-	 * 
-	 * @return
-	 */
-	protected String getContextId() {
-		return "com.raytheon.viz.hydro.Hydro";
-	}
+    /**
+     * Hydro bundle to load
+     * 
+     * @return
+     */
+    protected String getBundleToLoad() {
+        return "hydro/default-procedure.xml";
+    }
 
-	private void displayGages() {
-		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-				.getShell();
-		PointDataControlDlg dlg = PointDataControlDlg.getInstance(shell);
-		dlg.open();
-		dlg.hide();
-	}
+    /**
+     * Hydro context id
+     * 
+     * @return
+     */
+    protected String getContextId() {
+        return "com.raytheon.viz.hydro.Hydro";
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.raytheon.viz.ui.AbstractVizPerspective#addContextMenuItems(org.eclipse
-	 * .jface.action.IMenuManager, com.raytheon.viz.core.IDisplayPaneContainer,
-	 * com.raytheon.viz.core.IDisplayPane)
-	 */
-	@Override
-	public void addContextMenuItems(IMenuManager menuManager,
-			IDisplayPaneContainer container, IDisplayPane pane) {
-		super.addContextMenuItems(menuManager, container, pane);
+    private void displayGages() {
+        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                .getShell();
+        PointDataControlDlg dlg = PointDataControlDlg.getInstance(shell);
+        dlg.openDialog();
+        dlg.hide();
+    }
 
-		sampleAction.setContainer(container);
-		unloadAllAction.setContainer(container);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.AbstractVizPerspective#addContextMenuItems(org.eclipse
+     * .jface.action.IMenuManager, com.raytheon.viz.core.IDisplayPaneContainer,
+     * com.raytheon.viz.core.IDisplayPane)
+     */
+    @Override
+    public void addContextMenuItems(IMenuManager menuManager,
+            IDisplayPaneContainer container, IDisplayPane pane) {
+        super.addContextMenuItems(menuManager, container, pane);
 
-		menuManager.add(new ZoomMenuAction(container));
-		menuManager.add(new Separator());
-		menuManager.add(sampleAction);
+        sampleAction.setContainer(container);
+        unloadAllAction.setContainer(container);
 
-		readoutAction.setContainer(container);
-		menuManager.add(readoutAction);
-		readoutAction.setSelectedRsc(null);
+        menuManager.add(new ZoomMenuAction(container));
+        menuManager.add(new Separator());
+        menuManager.add(sampleAction);
 
-		menuManager.add(new Separator());
-		menuManager.add(unloadAllAction);
+        readoutAction.setContainer(container);
+        menuManager.add(readoutAction);
+        readoutAction.setSelectedRsc(null);
 
-		sampleAction.setSelectedRsc(null);
-	}
+        menuManager.add(new Separator());
+        menuManager.add(unloadAllAction);
+
+        sampleAction.setSelectedRsc(null);
+    }
 }

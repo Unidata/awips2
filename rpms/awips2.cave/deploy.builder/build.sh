@@ -183,14 +183,45 @@ function buildFeatureRPMs()
 
    for feature in `cat ${CONST_FEATURES_TXT}`;
    do
-      java -jar ${PROCESS_FEATURE_JAR} \
-         -p \
-         ${CONST_FEATURE_DIR}/${feature} \
-         ${CONST_SETUP_DIR_FULL}
-      RC=$?
-      if [ ${RC} -ne 0 ]; then
-         echo "ERROR: ${PROCESS_FEATURE_JAR} Failed."
-         exit 1
+      if [ "${feature}" = "com.raytheon.uf.common.base.feature" ]; then
+         continue
+      fi
+
+      echo "feature = ${feature}"
+      if [ "${feature}" = "com.raytheon.uf.viz.cots.feature" ] ||
+         [ "${feature}" = "com.raytheon.uf.viz.base.feature" ] ||
+         [ "${feature}" = "com.raytheon.uf.viz.localization.perspective.feature" ]; then
+
+         _component_name=""
+         _downstream_requires="awips2-common-base"
+         if [ "${feature}" = "com.raytheon.uf.viz.cots.feature" ]; then
+            _component_name="awips2-cave-viz-cots"
+         fi
+         if [ "${feature}" = "com.raytheon.uf.viz.base.feature" ]; then
+            _component_name="awips2-cave-viz-base"
+         fi
+         if [ "${feature}" = "com.raytheon.uf.viz.localization.perspective.feature" ]; then
+            _component_name="awips2-cave-viz-localization-perspective"
+            _downstream_requires="awips2-common-base awips2-cave-viz-base"
+         fi
+
+         echo 'export COMPONENT_NAME="${_component_name}"' > \
+            ${CONST_SETUP_DIR}/feature.setup
+         echo 'export COMPONENT_FEATURE="${feature}"' >> \
+            ${CONST_SETUP_DIR}/feature.setup
+         echo 'export COMPONENT_DESC="${_component_name}"' >> \
+            ${CONST_SETUP_DIR}/feature.setup
+         echo 'export DOWNSTREAM_REQUIRES="${_downstream_requires}"' >> \
+            ${CONST_SETUP_DIR}/feature.setup         
+      else
+         java -jar ${PROCESS_FEATURE_JAR} \
+            -p \
+            ${CONST_FEATURE_DIR}/${feature} \
+            ${CONST_SETUP_DIR_FULL}
+         if [ $? -ne 0 ]; then
+            echo "ERROR: ${PROCESS_FEATURE_JAR} Failed."
+            exit 1
+         fi
       fi
 
       if [ ! -f ${CONST_SETUP_DIR}/feature.setup ]; then

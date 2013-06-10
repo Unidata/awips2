@@ -25,5 +25,4 @@
   <parameter name="stationId" queryName="location.stationId" type="STRING" />
   <parameter name="reportType" queryName="reportType" type="STRING" />
   <parameter name="dataProvider" queryName="dataProvider" type="STRING" />
-  <parameter name="dataURI" queryName="dataURI" type="STRING" />
 </pointDataDbDescription>

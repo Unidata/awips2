@@ -27,6 +27,8 @@ import org.opensaml.xacml.ctx.RequestType;
 import org.opensaml.xacml.ctx.ResponseType;
 import org.opensaml.xacml.ctx.StatusCodeType;
 import org.opensaml.xacml.policy.ObligationType;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.edex.registry.acp.xacml.engine.policy.Evaluator;
 import com.raytheon.uf.edex.registry.acp.xacml.exception.XACMLProcessingException;
@@ -49,11 +51,14 @@ import com.raytheon.uf.edex.registry.acp.xacml.util.XACMLObjectUtil;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 8/17/2012    724          bphillip    Initial Coding
+ * 3/18/2013    1802         bphillip    Modified to use transaction boundaries and spring injection
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
+@Service
+@Transactional
 public class XACMLPolicyDecisionPoint {
 
     /** The obligations to evaluate */
@@ -64,6 +69,10 @@ public class XACMLPolicyDecisionPoint {
 
     /** The Request being evaluated */
     private RequestType request;
+
+    public XACMLPolicyDecisionPoint() {
+
+    }
 
     /**
      * Creates a new XACMLPolicyDecisionPoint

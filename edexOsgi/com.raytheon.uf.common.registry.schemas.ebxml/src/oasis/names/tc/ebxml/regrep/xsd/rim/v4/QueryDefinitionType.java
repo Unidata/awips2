@@ -25,6 +25,7 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -73,13 +74,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
         "queryExpression" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "QueryDefinition")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "QueryDefinition")
 public class QueryDefinitionType extends RegistryObjectType {
 
     @ManyToMany(cascade = CascadeType.ALL)
     @XmlElement(name = "Parameter")
     @DynamicSerializeElement
+    @JoinTable(schema = "ebxml")
     protected List<ParameterType> parameter;
 
     @ManyToOne(cascade = CascadeType.ALL)

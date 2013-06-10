@@ -36,8 +36,9 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 8, 2013            mschenke     Initial creation
+ * Jan 8, 2013             mschenke    Initial creation
  * Feb 25, 2013 1640       bsteffen    Dispose old display in BundleLoader
+ * Mar 22, 2013 1638       mschenke    Made not throw errors when no time matcher
  * 
  * </pre>
  * 
@@ -164,13 +165,17 @@ public class BundleLoader extends Job {
                 if (i == 0) {
                     IRenderableDisplay loadFrom = items[i].loadFrom;
                     IDisplayPane loadTo = items[i].loadTo;
-                    AbstractTimeMatcher srcTimeMatcher = loadFrom
+
+                    AbstractTimeMatcher destTimeMatcher = loadTo
                             .getDescriptor().getTimeMatcher();
-                    if (srcTimeMatcher != null) {
-                        loadTo.getDescriptor().getTimeMatcher()
-                                .copyFrom(srcTimeMatcher);
+                    if (destTimeMatcher != null) {
+                        AbstractTimeMatcher srcTimeMatcher = loadFrom
+                                .getDescriptor().getTimeMatcher();
+                        if (srcTimeMatcher != null) {
+                            destTimeMatcher.copyFrom(srcTimeMatcher);
+                        }
+                        destTimeMatcher.resetMultiload();
                     }
-                    loadTo.getDescriptor().getTimeMatcher().resetMultiload();
                     t.run();
                 } else {
                     t.start();

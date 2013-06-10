@@ -44,7 +44,7 @@ import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.stats.StatsGrouping;
 import com.raytheon.uf.common.stats.StatsGroupingColumn;
 import com.raytheon.uf.common.stats.xml.StatisticsConfig;
-import com.raytheon.uf.common.stats.xml.StatisticsEventConfig;
+import com.raytheon.uf.common.stats.xml.StatisticsEvent;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.stats.util.ConfigLoader;
 
@@ -70,7 +70,8 @@ public class AggregateManagerTest {
 
     @BeforeClass
     public static void classSetUp() throws JAXBException {
-        jaxbManager = new JAXBManager(StatisticsConfig.class);
+        jaxbManager = new JAXBManager(StatisticsConfig.class,
+                StatsGroupingColumn.class);
     }
 
     @Before
@@ -89,8 +90,7 @@ public class AggregateManagerTest {
         final StatisticsConfig statisticsConfig = lf.jaxbUnmarshal(
                 StatisticsConfig.class, jaxbManager);
 
-        ConfigLoader.validate(
-                Maps.<String, StatisticsEventConfig> newHashMap(),
+        ConfigLoader.validate(Maps.<String, StatisticsEvent> newHashMap(),
                 statisticsConfig);
 
         MockEvent mockEvent = new MockEvent();
@@ -102,13 +102,19 @@ public class AggregateManagerTest {
         List<StatsGrouping> groupList = new ArrayList<StatsGrouping>();
         groupList.add(new StatsGrouping("pluginName", "somePlugin"));
         groupList.add(new StatsGrouping("fileName", "someFileName"));
-        StatsGroupingColumn expectedGroupingColumn = new StatsGroupingColumn();
-        expectedGroupingColumn.setGroup(groupList);
+        StatsGroupingColumn column = new StatsGroupingColumn();
+        column.setGroup(groupList);
 
-        final StatsGroupingColumn actualGroupingColumn = AggregateManager
+        final String expectedGroupRepresentation = jaxbManager
+                .marshalToXml(column);
+        JAXBManager aggregateManagerJaxbManager = new JAXBManager(
+                StatsGroupingColumn.class);
+        new AggregateManager("60").setJaxbManager(aggregateManagerJaxbManager);
+        final String actualGroupRepresentation = AggregateManager
                 .determineGroupRepresentationForEvent(statisticsConfig
                         .getEvents().iterator().next(), mockEvent);
-        assertThat(actualGroupingColumn, is(equalTo(expectedGroupingColumn)));
+        assertThat(actualGroupRepresentation,
+                is(equalTo(expectedGroupRepresentation)));
     }
 
 }

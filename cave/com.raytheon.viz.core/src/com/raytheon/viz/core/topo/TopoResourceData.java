@@ -19,10 +19,13 @@
  **/
 package com.raytheon.viz.core.topo;
 
+import java.io.File;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
@@ -39,6 +42,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 19, 2009            chammack    Initial creation
+ * Apr 24, 2013       1638 mschenke    Made topo configurable for source data
  * 
  * </pre>
  * 
@@ -47,6 +51,11 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 public class TopoResourceData extends AbstractResourceData {
+
+    private static final String TOPO_DIR = "topo";
+
+    @XmlElement
+    private String topoFile = "srtm30.hdf";
 
     /** The human readable name */
     @XmlElement
@@ -75,7 +84,24 @@ public class TopoResourceData extends AbstractResourceData {
     @Override
     public TopoResource construct(LoadProperties loadProperties,
             IDescriptor descriptor) throws VizException {
-        return new TopoResource(this, loadProperties);
+        return new TopoResource(this, loadProperties, new File(TOPO_DIR
+                + IPathManager.SEPARATOR + topoFile));
+    }
+
+    public String getTopoFile() {
+        return topoFile;
+    }
+
+    public void setTopoFile(String topoFile) {
+        this.topoFile = topoFile;
+    }
+
+    public String getMapName() {
+        return mapName;
+    }
+
+    public void setMapName(String mapName) {
+        this.mapName = mapName;
     }
 
     /*
@@ -92,22 +118,23 @@ public class TopoResourceData extends AbstractResourceData {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (obj == null || obj instanceof TopoResourceData == false) {
+        if (obj == null)
             return false;
-        }
+        if (getClass() != obj.getClass())
+            return false;
         TopoResourceData other = (TopoResourceData) obj;
-
-        if (this.mapName != null && other.mapName == null) {
+        if (mapName == null) {
+            if (other.mapName != null)
+                return false;
+        } else if (!mapName.equals(other.mapName))
             return false;
-        } else if (this.mapName == null && other.mapName != null) {
+        if (topoFile == null) {
+            if (other.topoFile != null)
+                return false;
+        } else if (!topoFile.equals(other.topoFile))
             return false;
-        } else if (this.mapName != null
-                && this.mapName.equals(other.mapName) == false) {
-            return false;
-        }
         return true;
     }
 

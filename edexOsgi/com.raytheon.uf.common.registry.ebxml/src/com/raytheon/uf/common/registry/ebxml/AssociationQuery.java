@@ -11,6 +11,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 
 import com.raytheon.uf.common.registry.BaseQuery;
+import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -32,6 +33,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jun 21, 2012 #736       djohnson    Add thrift serialization annotations.
  * Aug 27, 2012 0743       djohnson    Fixes to serializable attribute getter/setters.
  * Oct 05, 2012 1195       djohnson    Remove see javadoc tie back to RegistryManager.
+ * 4/9/2013     1802       bphillip    Modified to use constants in constants package instead of RegistryUtil
  * 
  * </pre>
  * 
@@ -49,7 +51,7 @@ public class AssociationQuery extends BaseQuery<Object> {
     @XmlAttribute
     @DynamicSerializeElement
     protected String associationType;
-    
+
     @XmlAttribute
     @DynamicSerializeElement
     protected String sourceObjectId;
@@ -57,22 +59,22 @@ public class AssociationQuery extends BaseQuery<Object> {
     @XmlAttribute
     @DynamicSerializeElement
     protected String sourceObjectType;
-    
+
     @XmlAttribute
     @DynamicSerializeElement
     protected String targetObjectId;
-    
+
     @XmlAttribute
     @DynamicSerializeElement
     protected String targetObjectType;
-    
+
     /**
-     * Queries of this type can return non-homogeneous results, so
-     * the return type is Object.  Runtime inspection of the returned
-     * Objects is required to determine their type.
+     * Queries of this type can return non-homogeneous results, so the return
+     * type is Object. Runtime inspection of the returned Objects is required to
+     * determine their type.
      * 
-     * @return The java typed Class Object to use to assign the 
-     *         runtime type of the Objects retrieved from the registry.
+     * @return The java typed Class Object to use to assign the runtime type of
+     *         the Objects retrieved from the registry.
      */
     @Override
     public Class<Object> getObjectType() {
@@ -80,68 +82,71 @@ public class AssociationQuery extends BaseQuery<Object> {
     }
 
     /**
-     * Querying the registry requires the use of a QueryRequest Object.
-     * This base Object supports different types of queries.  This method 
-     * provides the RegistryManager a means to determine the query type 
-     * that should be used in conjunction with the slots provided by
-     * the getSlots() method to produce the correct query to locate 
-     * registry Objects. 
-     *  
-     * @return The constant "FindAssociatedObjects" to mark queries 
-     *         generated using this Class as finding associated 
-     *         objects. 
+     * Querying the registry requires the use of a QueryRequest Object. This
+     * base Object supports different types of queries. This method provides the
+     * RegistryManager a means to determine the query type that should be used
+     * in conjunction with the slots provided by the getSlots() method to
+     * produce the correct query to locate registry Objects.
+     * 
+     * @return The constant "FindAssociatedObjects" to mark queries generated
+     *         using this Class as finding associated objects.
      */
     @Override
     public String getQueryType() {
         if (returnObjects) {
-            return RegistryUtil.QUERY_TYPE_ASSOCIATED_OBJECTS;
+            return CanonicalQueryTypes.FIND_ASSOCIATED_OBJECTS;
         } else {
-            return RegistryUtil.QUERY_TYPE_ASSOCIATIONS;
+            return CanonicalQueryTypes.FIND_ASSOCIATIONS;
         }
     }
 
     /**
-     * Querying the registry requires the use of a QueryRequest Object.
-     * This Object queries the registry based on the slots add to the
-     * query.  This method provides the slots necessary to execute a
-     * FindAssociatedObjects query.
-     *  
-     * @return The slots to add to a QueryRequest to find the desired
-     *         registry Objects. 
+     * Querying the registry requires the use of a QueryRequest Object. This
+     * Object queries the registry based on the slots add to the query. This
+     * method provides the slots necessary to execute a FindAssociatedObjects
+     * query.
+     * 
+     * @return The slots to add to a QueryRequest to find the desired registry
+     *         Objects.
      */
     @Override
     public List<SlotType> getSlots() {
         List<SlotType> slots = new ArrayList<SlotType>();
 
         if (sourceObjectId != null) {
-            slots.add(RegistryUtil.newStringSlot("sourceObjectId", sourceObjectId));    
-        }    
+            slots.add(RegistryUtil.newStringSlot("sourceObjectId",
+                    sourceObjectId));
+        }
 
         if (targetObjectId != null) {
-            slots.add(RegistryUtil.newStringSlot("targetObjectId", targetObjectId));    
-        }    
+            slots.add(RegistryUtil.newStringSlot("targetObjectId",
+                    targetObjectId));
+        }
 
         if (sourceObjectType != null) {
-            slots.add(RegistryUtil.newStringSlot("sourceObjectType", sourceObjectType));    
-        }    
+            slots.add(RegistryUtil.newStringSlot("sourceObjectType",
+                    sourceObjectType));
+        }
 
         if (targetObjectType != null) {
-            slots.add(RegistryUtil.newStringSlot("targetObjectType", targetObjectType));    
-        }    
+            slots.add(RegistryUtil.newStringSlot("targetObjectType",
+                    targetObjectType));
+        }
 
         if (associationType != null) {
-            slots.add(RegistryUtil.newStringSlot("associationType", associationType));    
-        }    
+            slots.add(RegistryUtil.newStringSlot("associationType",
+                    associationType));
+        }
 
         return slots;
     }
 
     /**
-     * Retrieve the isReturnObjects attribute from this Query.  If true,
-     * when this Query is submitted to the <code>RegistryManager</code>
-     * the resulting <code>List</code> will contain the referenced Objects
-     * stored in the Registry.  If false, a <code>List</code> of <code>AssociationType</code>
-     * Objects will be returned. 
+     * Retrieve the isReturnObjects attribute from this Query. If true, when
+     * this Query is submitted to the <code>RegistryManager</code> the resulting
+     * <code>List</code> will contain the referenced Objects stored in the
+     * Registry. If false, a <code>List</code> of <code>AssociationType</code>
+     * Objects will be returned.
      * 
      * @return
      * 
@@ -150,13 +155,13 @@ public class AssociationQuery extends BaseQuery<Object> {
     public boolean isReturnObjects() {
         return returnObjects;
     }
-    
+
     /**
      * Matches Associations whose type attribute references a ClassificationNode
-     * where rim:ClassificationNode/@path matches specified value. 
-     *
+     * where rim:ClassificationNode/@path matches specified value.
+     * 
      * @param associationType
-     *        The value of the associationType attribute to search for.
+     *            The value of the associationType attribute to search for.
      */
     public void setAssociationType(String associationType) {
         this.associationType = associationType;
@@ -174,56 +179,56 @@ public class AssociationQuery extends BaseQuery<Object> {
     }
 
     /**
-     * A setter for the queryable attribute source object id equals a
-     * String.  The String may contain the wildcard characters '%', to
-     * match multiple characters, or '?' to wildcard a single character.
+     * A setter for the queryable attribute source object id equals a String.
+     * The String may contain the wildcard characters '%', to match multiple
+     * characters, or '?' to wildcard a single character.
      * 
      * For the AssociationQuery to execute correctly, one of the attributes
      * sourceObjectId or targetObjectId MUST be set.
-     *   
+     * 
      * @param sourceObjectId
-     *        The value of the sourceObjectId attribute to search for.
+     *            The value of the sourceObjectId attribute to search for.
      */
     public void setSourceObjectId(String sourceObjectId) {
         this.sourceObjectId = sourceObjectId;
     }
-    
+
     /**
-     * Match associations whose sourceObject attribute references a 
-     * RegistryObject whose objectType attribute matches the id of the 
-     * ClassificationNode where rim:ClassificationNode/@path matches 
-     * specified value  
-     *   
+     * Match associations whose sourceObject attribute references a
+     * RegistryObject whose objectType attribute matches the id of the
+     * ClassificationNode where rim:ClassificationNode/@path matches specified
+     * value
+     * 
      * @param sourceObjectId
-     *        The value of the path attribute to search for.
+     *            The value of the path attribute to search for.
      */
     public void setSourceObjectType(String sourceObjectType) {
         this.sourceObjectType = sourceObjectType;
     }
 
     /**
-     * A setter for the queryable attribute target object id equals a
-     * String.  The String may contain the wildcard characters '%', to
-     * match multiple characters, or '?' to wildcard a single character.
-     *   
+     * A setter for the queryable attribute target object id equals a String.
+     * The String may contain the wildcard characters '%', to match multiple
+     * characters, or '?' to wildcard a single character.
+     * 
      * For the AssociationQuery to execute correctly, one of the attributes
      * sourceObjectId or targetObjectId MUST be set.
      * 
      * @param targetObjectId
-     *        The value of the targetObjectId attribute to search for.
+     *            The value of the targetObjectId attribute to search for.
      */
     public void setTargetObjectId(String targetObjectId) {
         this.targetObjectId = targetObjectId;
     }
-    
+
     /**
-     * Match associations whose targetObject attribute references a 
-     * RegistryObject whose objectType attribute matches the id of the 
-     * ClassificationNode where rim:ClassificationNode/@path matches 
-     * specified value  
-     *   
+     * Match associations whose targetObject attribute references a
+     * RegistryObject whose objectType attribute matches the id of the
+     * ClassificationNode where rim:ClassificationNode/@path matches specified
+     * value
+     * 
      * @param targetObjectType
-     *        The value of the path attribute to search for.
+     *            The value of the path attribute to search for.
      */
     public void setTargetObjectType(String targetObjectType) {
         this.targetObjectType = targetObjectType;

@@ -19,8 +19,8 @@
  ******************************************************************************************/
 package com.raytheon.viz.awipstools.ui.action;
 
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
-import com.raytheon.uf.viz.core.rsc.tools.action.AbstractMapToolAction;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
 import com.raytheon.viz.awipstools.ui.layer.FeatureFollowingZoomLayer;
 
 /**
@@ -40,7 +40,7 @@ import com.raytheon.viz.awipstools.ui.layer.FeatureFollowingZoomLayer;
  */
 
 public class FeatureFollowingZoomAction extends
-        AbstractMapToolAction<FeatureFollowingZoomLayer> {
+        AbstractGenericToolAction<FeatureFollowingZoomLayer> {
 
     /*
      * (non-Javadoc)
@@ -49,8 +49,8 @@ public class FeatureFollowingZoomAction extends
      * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
      */
     @Override
-    protected AwipsToolsResourceData<FeatureFollowingZoomLayer> getResourceData() {
-        return new AwipsToolsResourceData<FeatureFollowingZoomLayer>(
+    protected GenericToolsResourceData<FeatureFollowingZoomLayer> getResourceData() {
+        return new GenericToolsResourceData<FeatureFollowingZoomLayer>(
                 "Feature Following Zoom", FeatureFollowingZoomLayer.class);
     }
 }

@@ -16,7 +16,6 @@ Require-Bundle: org.eclipse.ui,
  org.geotools;bundle-version="2.6.4",
  com.raytheon.uf.common.time,
  com.raytheon.uf.common.datadelivery.registry;bundle-version="1.0.0",
- com.raytheon.uf.viz.d2d.core;bundle-version="1.12.1174",
  com.raytheon.uf.common.registry.schemas.ebxml;bundle-version="1.0.0",
  com.raytheon.uf.common.geospatial;bundle-version="1.11.9",
  com.raytheon.uf.common.datadelivery.request;bundle-version="1.0.0",
@@ -31,13 +30,16 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.datadelivery.bandwidth;bundle-version="1.0.0",
  com.raytheon.uf.common.datadelivery.retrieval;bundle-version="1.0.0",
  com.raytheon.uf.common.datadelivery.service;bundle-version="1.0.0",
- com.raytheon.uf.common.units;bundle-version="1.0.0"
+ com.raytheon.uf.common.units;bundle-version="1.0.0",
+ com.raytheon.uf.common.site;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.datadelivery;uses:="org.eclipse.ui.plugin,org.osgi.framework",
  com.raytheon.uf.viz.datadelivery.actions;uses:="org.eclipse.core.commands",
  com.raytheon.uf.viz.datadelivery.comm,
  com.raytheon.uf.viz.datadelivery.subscription;uses:="com.raytheon.uf.viz.datadelivery.test.subscription.xml,com.raytheon.viz.ui.dialogs,org.eclipse.swt.widgets",
+ com.raytheon.uf.viz.datadelivery.subscription.subset,
  com.raytheon.uf.viz.datadelivery.subscription.xml;uses:="com.raytheon.uf.common.serialization"
 Import-Package: com.raytheon.uf.common.comm,
  com.raytheon.uf.common.message
+Eclipse-BuddyPolicy: ext, registered, global

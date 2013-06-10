@@ -95,12 +95,24 @@ def read(ds, request):
     elif rt == 'SLAB':
         minIndex = request.getMinIndexForSlab()
         maxIndex = request.getMaxIndexForSlab()
+        
+        # Get all sizes and slices in reverse order
+        slices = []
+        sizes = []
+        numIndices = len(minIndex)
+         # Get all sizes and slices in reverse order
+        for i in reversed(range(numIndices)):
+            slices.append(slice(minIndex[i], maxIndex[i]))
+            sizes.append(maxIndex[i] - minIndex[i])
+        
         sel = h5py.selections.HyperSelection(ds.shape)
+        # mask the request slices
         sel[()] = False
-        # reverse x and y for hdf5
-        sel[minIndex[1]:maxIndex[1], minIndex[0]:maxIndex[0]] = True        
+        sel[tuple(slices)] = True
+        
+        # Resize data to desired slab size        
         result = ds[sel]
-        result.resize(maxIndex[1]-minIndex[1], maxIndex[0]-minIndex[0])        
+        result.resize(tuple(sizes))
     else:
         raise NotImplementedException('Only read requests supported are ' +
                                       'ALL, POINT, XLINE, YLINE, and SLAB')
