@@ -20,11 +20,11 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.message;bundle-version="1.11.22",
  gov.noaa.nws.ncep.viz.localization;bundle-version="1.0.0",
  com.raytheon.uf.common.pointdata,
- gov.noaa.nws.ncep.edex.common
+ gov.noaa.nws.ncep.edex.common,
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.edex.scriptfactory,
- com.raytheon.uf.common.dataplugin,
+Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.time,
  com.raytheon.uf.viz.core.rsc,

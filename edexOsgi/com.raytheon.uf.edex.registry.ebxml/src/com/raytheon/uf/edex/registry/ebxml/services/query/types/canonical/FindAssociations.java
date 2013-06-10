@@ -20,14 +20,13 @@
 package com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationNodeType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 
+import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.edex.registry.ebxml.dao.ClassificationNodeDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.HqlQueryUtil;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
@@ -74,6 +73,8 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 2/13/2012    #184       bphillip     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
+ * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
  * 
  * </pre>
  * 
@@ -81,9 +82,6 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * @version 1.0
  */
 public class FindAssociations extends CanonicalEbxmlQuery {
-
-    public static final String QUERY_DEFINITION = QUERY_CANONICAL_PREFIX
-            + "FindAssociations";
 
     /** The valid query parameter for this query **/
     private static final List<String> QUERY_PARAMETERS = new ArrayList<String>();
@@ -96,9 +94,11 @@ public class FindAssociations extends CanonicalEbxmlQuery {
         QUERY_PARAMETERS.add(QueryConstants.TARGET_OBJECT_TYPE);
     }
 
+    private ClassificationNodeDao classificationNodeDao;
+
     private String getTypeClause(String associationType)
             throws EbxmlRegistryException {
-        ClassificationNodeType node = new ClassificationNodeDao()
+        ClassificationNodeType node = classificationNodeDao
                 .getByPath(associationType);
         if (node == null) {
             throw new EbxmlRegistryException(
@@ -110,10 +110,9 @@ public class FindAssociations extends CanonicalEbxmlQuery {
 
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    protected List<AssociationType> query(QueryType queryType,
-            QueryResponse queryResponse) throws EbxmlRegistryException {
+    protected void query(QueryType queryType, QueryResponse queryResponse,
+            String client) throws EbxmlRegistryException {
         QueryParameters parameters = this.getParameterMap(queryType.getSlot(),
                 queryResponse);
         String associationType = parameters
@@ -151,7 +150,7 @@ public class FindAssociations extends CanonicalEbxmlQuery {
                     .executeHQLQuery("select id from RegistryObjectType obj where obj.objectType = '"
                             + targetObjectType + "'");
             if (ids.isEmpty()) {
-                return Collections.emptyList();
+                return;
             } else {
                 StringBuilder clause = new StringBuilder();
                 clause.append(" association.sourceObject in (");
@@ -170,7 +169,7 @@ public class FindAssociations extends CanonicalEbxmlQuery {
                     .executeHQLQuery("select id from RegistryObjectType obj where obj.objectType = '"
                             + targetObjectType + "'");
             if (ids.isEmpty()) {
-                return Collections.emptyList();
+                return;
             } else {
                 StringBuilder clause = new StringBuilder();
                 clause.append(" association.targetObject in (");
@@ -197,7 +196,9 @@ public class FindAssociations extends CanonicalEbxmlQuery {
                 }
             }
         }
-        return registryObjectDao.executeHQLQuery(query);
+        setResponsePayload(queryResponse,
+                registryObjectDao.executeHQLQuery(query.toString()));
+
     }
 
     @Override
@@ -207,7 +208,12 @@ public class FindAssociations extends CanonicalEbxmlQuery {
 
     @Override
     public String getQueryDefinition() {
-        return QUERY_DEFINITION;
+        return CanonicalQueryTypes.FIND_ASSOCIATIONS;
+    }
+
+    public void setClassificationNodeDao(
+            ClassificationNodeDao classificationNodeDao) {
+        this.classificationNodeDao = classificationNodeDao;
     }
 
 }

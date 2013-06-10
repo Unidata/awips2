@@ -25,13 +25,13 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarRecordUtil;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;

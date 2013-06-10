@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription.approve;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -38,7 +37,6 @@ import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.service.ApprovedPendingSubscriptionNotificationResponse;
-import com.raytheon.uf.common.datadelivery.service.BaseSubscriptionNotificationResponse;
 import com.raytheon.uf.common.datadelivery.service.DeniedPendingSubscriptionNotificationResponse;
 import com.raytheon.uf.common.datadelivery.service.PendingSubscriptionNotificationResponse;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -46,8 +44,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.notification.NotificationException;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
+import com.raytheon.uf.viz.core.notification.NotificationMessageContainsType;
 import com.raytheon.uf.viz.datadelivery.common.ui.SortImages.SortDirection;
 import com.raytheon.uf.viz.datadelivery.common.ui.TableComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.TableCompConfig;
@@ -74,6 +72,8 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Nov 28, 2012 1286       djohnson     Remove sysout.
  * Dec 19, 2012 1413       bgonzale     In the notificationArrived method, check for approved or
  *                                      denied pending messages.
+ * Apr 05, 2013 1841       djohnson     Refresh entire table on receiving a notification of the correct type.
+ * Apr 10, 2013 1891       djohnson     Move logic to get column display text to the column definition, fix sorting.
  * </pre>
  * 
  * @author lvenable
@@ -98,10 +98,15 @@ public class SubApprovalTableComp extends TableComp {
         private Action(String action) {
             this.action = action;
         }
+
+        @Override
+        public String toString() {
+            return this.action;
+        }
     }
 
     /** Status Handler */
-    private final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubApprovalTableComp.class);
 
     /** Pending Subscription Manager Data object */
@@ -112,6 +117,13 @@ public class SubApprovalTableComp extends TableComp {
 
     /** Callback to the main dialog */
     private final ISubscriptionApprovalAction callback;
+
+    /** Checks notification message for types we care about. **/
+    private final NotificationMessageContainsType notificationMessageChecker = new NotificationMessageContainsType(
+            PendingSubscription.class,
+            PendingSubscriptionNotificationResponse.class,
+            ApprovedPendingSubscriptionNotificationResponse.class,
+            DeniedPendingSubscriptionNotificationResponse.class);
 
     /**
      * Constructor.
@@ -188,28 +200,9 @@ public class SubApprovalTableComp extends TableComp {
      * @return Cell text string.
      */
     private String getCellText(String columnName, SubscriptionApprovalRowData rd) {
-        String returnValue = null;
-
-        if (columnName.equals(PendingSubColumnNames.NAME.getColumnName())) {
-            returnValue = rd.getSubName();
-        } else if (columnName.equals(PendingSubColumnNames.OWNER
-                .getColumnName())) {
-            returnValue = rd.getOwner();
-        } else if (columnName.equals(PendingSubColumnNames.CHANGE_ID
-                .getColumnName())) {
-            returnValue = rd.getChangeOwner();
-        } else if (columnName.equals(PendingSubColumnNames.OFFICE
-                .getColumnName())) {
-            returnValue = rd.getOfficeId();
-        } else if (columnName.equals(PendingSubColumnNames.DESCRIPTION
-                .getColumnName())) {
-            returnValue = rd.getDescription();
-        } else if (columnName.equals(PendingSubColumnNames.ACTION
-                .getColumnName())) {
-            returnValue = rd.getAction();
-        }
-
-        return returnValue;
+        PendingSubColumnNames column = PendingSubColumnNames
+                .valueOfColumnName(columnName);
+        return column.getDisplayData(rd);
     }
 
     /**
@@ -219,7 +212,7 @@ public class SubApprovalTableComp extends TableComp {
      *            Updated subscriptions.
      */
     public synchronized void updateTable(
-            ArrayList<InitialPendingSubscription> updatedSubscriptions) {
+            List<InitialPendingSubscription> updatedSubscriptions) {
         for (Subscription s : updatedSubscriptions) {
             if (s != null) {
                 if (s.isDeleted()) {
@@ -349,16 +342,11 @@ public class SubApprovalTableComp extends TableComp {
 
         pendingSubData.sortData();
 
-        ArrayList<SubscriptionApprovalRowData> sardArray = pendingSubData
+        List<SubscriptionApprovalRowData> sardArray = pendingSubData
                 .getDataArray();
 
         for (SubscriptionApprovalRowData sard : sardArray) {
-            TableItem ti = new TableItem(this.table, SWT.NONE);
-            ti.setText(0, sard.getSubName());
-            ti.setText(1, sard.getOwner());
-            ti.setText(2, sard.getChangeOwner());
-            ti.setText(3, sard.getOfficeId());
-            ti.setText(4, sard.getDescription());
+            convertRowDataToTableItem(table.getColumns(), sard);
         }
     }
 
@@ -381,16 +369,11 @@ public class SubApprovalTableComp extends TableComp {
      */
     @Override
     protected void createColumns() {
-        String[] columns = new String[PendingSubColumnNames.values().length];
-        TableColumn tc;
+        final PendingSubColumnNames[] columnNames = PendingSubColumnNames.values();
 
-        for (int i = 0; i < columns.length; i++) {
-            columns[i] = PendingSubColumnNames.values()[i].getColumnName();
-        }
-
-        for (int i = 0; i < columns.length; i++) {
-            tc = new TableColumn(table, SWT.LEFT);
-            tc.setText(columns[i]);
+        for (int i = 0; i < columnNames.length; i++) {
+            TableColumn tc = new TableColumn(table, SWT.LEFT);
+            tc.setText(columnNames[i].getColumnName());
 
             tc.setResizable(true);
 
@@ -400,6 +383,8 @@ public class SubApprovalTableComp extends TableComp {
                     handleColumnSelection(event);
                 }
             });
+
+            sortDirectionMap.put(tc.getText(), SortDirection.ASCENDING);
 
             if (i == 0) {
                 sortedColumn = tc;
@@ -422,16 +407,7 @@ public class SubApprovalTableComp extends TableComp {
 
         for (SubscriptionApprovalRowData rd : this.pendingSubData
                 .getDataArray()) {
-            int idx = 0;
-            TableItem item = new TableItem(table, SWT.NONE);
-            for (TableColumn column : columns) {
-                String text = getCellText(column.getText(), rd);
-                if (text == null) {
-                    item.setText(idx++, "");
-                } else {
-                    item.setText(idx++, text);
-                }
-            }
+            convertRowDataToTableItem(columns, rd);
         }
 
         if (sortedColumn == null) {
@@ -442,6 +418,20 @@ public class SubApprovalTableComp extends TableComp {
         }
 
         updateColumnSortImage();
+    }
+
+    private void convertRowDataToTableItem(TableColumn[] columns,
+            SubscriptionApprovalRowData rd) {
+        int idx = 0;
+        TableItem item = new TableItem(table, SWT.NONE);
+        for (TableColumn column : columns) {
+            String text = getCellText(column.getText(), rd);
+            if (text == null) {
+                item.setText(idx++, "");
+            } else {
+                item.setText(idx++, text);
+            }
+        }
     }
 
     /*
@@ -515,42 +505,12 @@ public class SubApprovalTableComp extends TableComp {
      */
     @Override
     public void notificationArrived(NotificationMessage[] messages) {
-        final ArrayList<InitialPendingSubscription> updatedSubscriptions = new ArrayList<InitialPendingSubscription>();
-        try {
-            for (NotificationMessage msg : messages) {
-                Object obj = msg.getMessagePayload();
-                if (obj instanceof PendingSubscription) {
-                    updatedSubscriptions.add((PendingSubscription) obj);
-                } else if (obj instanceof PendingSubscriptionNotificationResponse) {
-                    PendingSubscriptionNotificationResponse response = (PendingSubscriptionNotificationResponse) obj;
-                    InitialPendingSubscription sub = response.getSubscription();
-                    updatedSubscriptions.add(sub);
-                } else if (obj instanceof ApprovedPendingSubscriptionNotificationResponse) {
-                    BaseSubscriptionNotificationResponse<InitialPendingSubscription> response = (BaseSubscriptionNotificationResponse<InitialPendingSubscription>) obj;
-                    InitialPendingSubscription dummySubForApproved = response
-                            .getSubscription();
-                    dummySubForApproved.setDeleted(true);
-                    updatedSubscriptions.add(dummySubForApproved);
-                } else if (obj instanceof DeniedPendingSubscriptionNotificationResponse) {
-                    DeniedPendingSubscriptionNotificationResponse response = (DeniedPendingSubscriptionNotificationResponse) obj;
-                    InitialPendingSubscription dummySubForDenied = new InitialPendingSubscription();
-                    dummySubForDenied.setId(response.getId());
-                    dummySubForDenied.setDeleted(true);
-                    updatedSubscriptions.add(dummySubForDenied);
-                }
-            }
-        } catch (NotificationException e) {
-            statusHandler.error("Error when receiving notification", e);
-        } catch (RuntimeException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
-
-        if (updatedSubscriptions.isEmpty() == false) {
+        if (notificationMessageChecker.matchesCondition(messages)) {
             VizApp.runAsync(new Runnable() {
                 @Override
                 public void run() {
-                    if (isDisposed() == false) {
-                        updateTable(updatedSubscriptions);
+                    if (!isDisposed()) {
+                        repopulate();
                     }
                 }
             });

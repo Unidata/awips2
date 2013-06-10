@@ -20,9 +20,7 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.hibernate.jdbc.Work;
 
@@ -39,6 +37,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
  * ------------ ---------- ----------- --------------------------
  * Feb 13, 2013 1543       djohnson     Initial creation
  * Feb 22, 2013 1543       djohnson     Made public as YAJSW doesn't like Spring exceptions.
+ * 4/9/2013     1802       bphillip    Changed to use new query method signatures in SessionManagedDao
  * 
  * </pre>
  * 
@@ -46,7 +45,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
  * @version 1.0
  */
 public class SubscriptionRetrievalDao extends
-        BaseBandwidthAllocationDao<SubscriptionRetrieval> implements ISubscriptionRetrievalDao {
+        BaseBandwidthAllocationDao<SubscriptionRetrieval> implements
+        ISubscriptionRetrievalDao {
 
     private static final String GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET_BASE = "from SubscriptionRetrieval sr where "
             + " sr.bandwidthSubscription.id in ("
@@ -74,25 +74,20 @@ public class SubscriptionRetrievalDao extends
     @Override
     public List<SubscriptionRetrieval> getByProviderDataSetReferenceTime(
             String provider, String dataSetName, Calendar baseReferenceTime) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("provider", provider);
-        params.put("dataSetName", dataSetName);
-        params.put("baseReferenceTime", baseReferenceTime);
         return query(
                 GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET_AND_BASEREFERENCETIME,
-                params);
+                "provider", provider, "dataSetName", dataSetName,
+                "baseReferenceTime", baseReferenceTime);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<SubscriptionRetrieval> getByProviderDataSet(
-            String provider, String dataSetName) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("provider", provider);
-        params.put("dataSetName", dataSetName);
-        return query(GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET, params);
+    public List<SubscriptionRetrieval> getByProviderDataSet(String provider,
+            String dataSetName) {
+        return query(GET_SUBSCRIPTIONRETRIEVAL_BY_PROVIDER_AND_DATASET,
+                "provider", provider, "dataSetName", dataSetName);
     }
 
     /**

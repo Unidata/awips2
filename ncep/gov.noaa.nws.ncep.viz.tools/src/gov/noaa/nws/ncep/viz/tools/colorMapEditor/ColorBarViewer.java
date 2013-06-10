@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import org.eclipse.swt.widgets.Composite;
 
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.viz.ui.dialogs.colordialog.ColorBar;
 import com.raytheon.viz.ui.dialogs.colordialog.ColorData;
 import com.raytheon.viz.ui.dialogs.colordialog.IColorBarAction;

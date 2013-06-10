@@ -61,6 +61,7 @@ public interface IRegistryQuery {
      *             If the query fails
      */
     public void executeQuery(QueryRequest queryRequest,
-            QueryResponse queryResponse) throws EbxmlRegistryException;
+            QueryResponse queryResponse, String client)
+            throws EbxmlRegistryException;
 
 }

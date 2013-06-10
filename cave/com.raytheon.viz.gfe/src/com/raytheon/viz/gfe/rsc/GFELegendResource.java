@@ -35,12 +35,12 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
-import com.raytheon.uf.common.dataplugin.gfe.type.Pair;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.util.Pair;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.RGBColors;

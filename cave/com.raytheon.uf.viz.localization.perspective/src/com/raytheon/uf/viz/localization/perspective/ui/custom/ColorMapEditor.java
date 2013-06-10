@@ -34,9 +34,9 @@ import org.eclipse.ui.part.EditorPart;
 
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.IColorMap;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.viz.ui.dialogs.colordialog.ColorData;
 import com.raytheon.viz.ui.dialogs.colordialog.ColorEditComposite;
 import com.raytheon.viz.ui.dialogs.colordialog.IColorEditCompCallback;

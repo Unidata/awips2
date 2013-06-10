@@ -21,7 +21,6 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 		   	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                         menuText="Blended Rain Rate" id="rainfallRate">
-	                <dataURI>/satellite/%/NESDIS/POES-NPOESS/Supernational/Rain_fall_rate</dataURI>
 	                <substitute key="element" value="Rain fall rate"/>
 	                <substitute key="entity" value="POES-NPOESS"/>
 	                <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
@@ -31,14 +30,12 @@
 					
 			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	                menuText="Blended Total Precip Water" id="blendedTotalPrecipWater">
-		        <dataURI>/satellite/%/NESDIS/Miscellaneous/Supernational/Sounder_Based_Derived_Precipitable_Water_(PW)</dataURI>
 		    	<substitute key="element" value="Sounder Based Derived Precipitable Water (PW)"/>
 		        <substitute key="entity" value="Miscellaneous"/>
 		        <substitute key="colormap" value="Sat/Precip Water/Blended Total Precip Water"/>
 		    </contribute>
 			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	                menuText="Percent of Normal TPW" id="percentofNormalTPW">
-		        <dataURI>/satellite/%/NESDIS/Miscellaneous/Supernational/Percent_of_Normal_TPW</dataURI>
 		        <substitute key="element" value="Percent of Normal TPW"/>
 		        <substitute key="entity" value="Miscellaneous"/>
 		        <substitute key="colormap" value="Sat/Precip Water/Percent of Normal TPW"/>

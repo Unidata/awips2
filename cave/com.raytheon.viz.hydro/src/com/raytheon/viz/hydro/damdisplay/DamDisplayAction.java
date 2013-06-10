@@ -40,6 +40,7 @@ import org.eclipse.ui.PlatformUI;
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  randerso    Initial Creation.
  * 12/10/2013   1353        rferrel     Changes for non-blocking DamDisplayControlDlg.
+ * 03/27/2013   1790        rferrel     Bug fix for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -58,12 +59,14 @@ public class DamDisplayAction extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (damDisplayDlg == null) {
+        if (damDisplayDlg == null || damDisplayDlg.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
             damDisplayDlg = new DamDisplayControlDlg(shell);
+            damDisplayDlg.open();
+        } else {
+            damDisplayDlg.bringToTop();
         }
-        damDisplayDlg.open();
 
         return null;
     }

@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.raytheon.edex.db.dao.spatial.ObStationDao;
 import com.raytheon.edex.plugin.bufrua.dao.BufrUADao;
 import com.raytheon.edex.plugin.bufrua.decoder.AbstractBUFRUAAdapter;
 import com.raytheon.edex.plugin.bufrua.decoder.BUFRUAAdapterFactory;
@@ -47,6 +46,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.descriptors.DefaultDescriptorDelegate;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
+import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
@@ -76,6 +76,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  *                                     in findDuplicate.
  * 20080408           1039 jkorman     Added traceId for tracing data.
  * 11/25/08          #1684 chammack    Camel Refactor
+ * Feb 27, 2013 1638       mschenke   Moved ObStationDao to edex pointdata plugin
  * Mar 19, 2013 1785       bgonzale    Added performance status handler and added status
  *                                     to decodeData.
  * </pre>

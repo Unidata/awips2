@@ -31,7 +31,6 @@ import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.poessounding.decoder.POESSoundingDataAdapter;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.poessounding.POESSounding;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
@@ -55,8 +54,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080303           1026 jkorman     Initial implementation.
- * 20080408           1039 jkorman     Added traceId for tracing data.
+ * Mar 03, 2008 1026       jkorman     Initial implementation.
+ * Apr 08, 2008 1039       jkorman     Added traceId for tracing data.
+ * May 15, 2013 1869       bsteffen    Remove DataURI from goes/poes soundings.
  * 
  * </pre>
  * 
@@ -145,12 +145,6 @@ public class POESSoundingDecoder extends AbstractDecoder implements
                         if (soundingData != null) {
                             soundingData.setTraceId(traceId);
                             soundingData.setPluginName(PLUGIN_NAME);
-                            try {
-                                soundingData.constructDataURI();
-                            } catch (PluginException e) {
-                                logger.error(traceId
-                                        + "- Unable to construct dataURI", e);
-                            }
                             pdoList.add(soundingData);
                         }
                     }

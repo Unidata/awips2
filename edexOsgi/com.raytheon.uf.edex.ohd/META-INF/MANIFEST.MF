@@ -28,4 +28,5 @@ Require-Bundle: com.raytheon.edex.common,
  javax.measure;bundle-version="1.0.0",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
  com.raytheon.uf.common.monitor,
- com.raytheon.uf.common.parameter;bundle-version="1.0.0"
+ com.raytheon.uf.common.parameter;bundle-version="1.0.0",
+ com.raytheon.uf.common.units;bundle-version="1.0.0"

@@ -26,9 +26,9 @@ import java.util.List;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 
-import com.raytheon.edex.util.Equations;
-import com.raytheon.edex.util.UAPoint;
 import com.raytheon.uf.common.sounding.WxMath;
+import com.raytheon.uf.common.sounding.util.Equations;
+import com.raytheon.uf.common.sounding.util.UAPoint;
 
 /**
  * 
@@ -40,6 +40,8 @@ import com.raytheon.uf.common.sounding.WxMath;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 28Sept2008  #1529       dhladky     initial.
+ * Feb 15, 2013 1638       mschenke    Moved Equations/UAPoint from edex.common util
+ *                                     to common.sounding
  * 
  * </pre>
  * 

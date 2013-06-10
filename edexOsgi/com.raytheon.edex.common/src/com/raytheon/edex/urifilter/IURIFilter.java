@@ -19,7 +19,7 @@
  **/
 package com.raytheon.edex.urifilter;
 
-import com.raytheon.edex.msg.DataURINotificationMessage;
+import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 
 /**
  * Interface IURIFilter
@@ -33,6 +33,8 @@ import com.raytheon.edex.msg.DataURINotificationMessage;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 06Feb2009    1981       dhladky     Creation.
+ * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
+ *
  * author dhladky
  * @version 1.0
  */

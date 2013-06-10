@@ -23,9 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.bufrmthdw.BufrMTHDWObs;
 import com.raytheon.uf.common.dataplugin.bufrmthdw.dao.BufrMTHDWObsDao;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
@@ -37,20 +35,22 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 
 /**
- * TODO Add Description
+ * Decoder for MTSAT High Density Wind data.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 26, 2010            jkorman     Initial creation
- *
+ * May 17, 2013 1869       bsteffen    Remove DataURI column from sat plot
+ *                                     types.
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class MTHDWDecoder extends AbstractBUFRDecoder  {
@@ -95,12 +95,6 @@ public class MTHDWDecoder extends AbstractBUFRDecoder  {
                 BufrMTHDWObs hdwObs = adapter.createData(iterator, wmoHeader);
                 if (hdwObs != null) {
                     hdwObs.setTraceId(traceId);
-                    try {
-                        hdwObs.constructDataURI();
-                    } catch (PluginException e) {
-                        logger.error(traceId
-                                + "- Unable to construct dataURI", e);
-                    }
                     decodedData.add(hdwObs);
                 }
             }

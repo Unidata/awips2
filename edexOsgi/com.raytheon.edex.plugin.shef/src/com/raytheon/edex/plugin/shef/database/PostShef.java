@@ -105,8 +105,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 05/28/2009   2410       J. Sanchez  Posted data for unknstnvalue.
  * 12/11/2009   2488       M. Duff     Fixed problem with storing text products.
  * 03/07/2013   15545      w. kwock    Added Observe time to log
- * 03/21/2013   15967      w. kwock    Fix the error in buildTsFcstRiv riverstatus table issue
- * 04/05/2013   16036      w. kwock    Fixed no ts=RZ in ingestfilter table but posted to height table 
+ * 03/21/2013   15967      w. kwock    Fix the error in buildTsFcstRiv riverstatus table issue 
  * 
  * </pre>
  * 
@@ -2411,9 +2410,9 @@ public class PostShef {
                 errorMsg.setLength(0);
                 errorMsg.append("Error on saveOrUpdate stnclass table: " + sql);
                 dao.saveOrUpdate(stnClass);
-                /* since a record was added, set the match_found variable */
-                matchFound = true;
-           }
+            }
+            /* since a record was added, set the match_found variable */
+            matchFound = true;
         } catch (Exception e) {
             log.error("Query = [" + sql + "]");
             log.error(shefRecord.getTraceId() + " - " + errorMsg.toString());

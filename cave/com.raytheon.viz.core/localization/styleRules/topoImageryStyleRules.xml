@@ -19,14 +19,17 @@
         further_licensing_information.
     -->
 <styleRuleset>
-
-<!-- GOES Satellite Rules -->
 <styleRule>
   <paramLevelMatches>
-     <parameter>topo</parameter>
+     <parameter>srtm30.hdf</parameter>
   </paramLevelMatches>
   <imageStyle>
      <displayUnits>kft</displayUnits>
+     <range scale="LINEAR">
+     	<!-- This kft range matches original -19m to 5000m from code -->
+     	<minValue>-0.0062</minValue>
+     	<maxValue>16.404</maxValue>
+     </range>
      <defaultColormap>topo</defaultColormap>
      <colorbarLabeling> 
  	    <values>0 2 4 6 8 10 12 14</values> 

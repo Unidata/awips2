@@ -21,7 +21,6 @@
 <pointDataDescription>
   <dimension name="maxLevels" length="50"/>
 
-  <parameter name="validTime" numDims="1" type="LONG" unit="s" />
   <parameter name="wmoHeader" numDims="1" type="STRING" />
 
   <parameter name="cloudAmt" numDims="1" type="FLOAT" unit="percent" />

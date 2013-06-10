@@ -22,7 +22,6 @@ package com.raytheon.edex.plugin.grib.decoderpostprocessors;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -50,6 +49,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.common.util.file.FilenameFilters;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
@@ -70,6 +70,7 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/09/10      4638        bphillip    Initial Creation
+ * Mar 14, 2013 1794        djohnson    FileUtil.listFiles now returns List.
  * Mar 27, 2013 1821        bsteffen    Reduce db and pypies requests in grid
  *                                      assembler.
  * 
@@ -105,14 +106,12 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
         File commonPath = pm.getFile(pm.getContext(
                 LocalizationType.EDEX_STATIC, LocalizationLevel.BASE),
                 "/grib/thinnedModels");
-        FilenameFilter filter = new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return (!new File(dir.getPath() + File.separator + name)
-                        .isDirectory() && name.endsWith(".xml"));
-            }
-        };
-        ArrayList<File> thinnedModelFiles = FileUtil.listFiles(commonPath,
+
+        FilenameFilter filter = FilenameFilters.byFilters(
+                FilenameFilters.ACCEPT_FILES,
+                FilenameFilters.byFileExtension(".xml"));
+
+        List<File> thinnedModelFiles = FileUtil.listFiles(commonPath,
                 filter, false);
 
         for (File file : thinnedModelFiles) {
@@ -128,6 +127,7 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
         }
     }
 
+    @Override
     public GridRecord[] process(GridRecord rec) throws GribException {
         String compositeModel = getCompositeModel(rec.getDatasetId());
         if (compositeModel != null) {

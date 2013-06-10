@@ -35,6 +35,7 @@ import org.hibernate.jdbc.Work;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.edex.database.dao.SessionManagedDao;
 
 /**
  * The DbInit class is responsible for ensuring that the appropriate tables are
@@ -90,6 +91,9 @@ public abstract class DbInit {
 
     /** The logging application db name **/
     private final String application;
+
+    /** The dao for executing database commands **/
+    private SessionManagedDao<?, ?> dao;
 
     /**
      * Constructor.
@@ -205,20 +209,8 @@ public abstract class DbInit {
             throws SQLException {
         statusHandler.info("Verifying the database for application ["
                 + application + "] against entity classes...");
-        final List<String> existingTables = new ArrayList<String>();
-        List<String> definedTables = new ArrayList<String>();
-        final Work work = new Work() {
-            @Override
-            public void execute(Connection connection) throws SQLException {
-                Statement stmt = connection.createStatement();
-                ResultSet results = stmt.executeQuery(getTableCheckQuery());
-                while (results.next()) {
-                    existingTables.add(results.getString(1));
-                }
-            }
-        };
-        executeWork(work);
 
+        final List<String> definedTables = new ArrayList<String>();
         final String[] dropSqls = aConfig
                 .generateDropSchemaScript(getDialect());
         for (String sql : dropSqls) {
@@ -238,6 +230,20 @@ public abstract class DbInit {
             }
         }
 
+        final String schemaPrefix = generateSchemaPrefix(definedTables);
+        final List<String> existingTables = new ArrayList<String>();
+        final Work work = new Work() {
+            @Override
+            public void execute(Connection connection) throws SQLException {
+                Statement stmt = connection.createStatement();
+                ResultSet results = stmt.executeQuery(getTableCheckQuery());
+                while (results.next()) {
+                    existingTables.add(schemaPrefix + results.getString(1));
+                }
+            }
+        };
+        executeWork(work);
+
         // Check if the table set defined by Hibernate matches the table set
         // defined in the database already
         if (existingTables.size() != definedTables.size()
@@ -247,6 +253,24 @@ public abstract class DbInit {
         return true;
     }
 
+    /**
+     * Generates a schema prefix if required.
+     * 
+     * @param definedTables
+     *            the defined tables
+     * @return
+     */
+    private String generateSchemaPrefix(List<String> definedTables) {
+        if (!definedTables.isEmpty()) {
+            final String table = definedTables.iterator().next();
+            final int indexOfPeriod = table.indexOf(".");
+            if (indexOfPeriod != -1) {
+                // Returns the <schema>. if present
+                return table.substring(0, indexOfPeriod + 1);
+            }
+        }
+        return "";
+    }
 
     /**
      * Drops the union set of tables defined by Hibernate and exist in the
@@ -314,27 +338,35 @@ public abstract class DbInit {
     }
 
     /**
-     * Get the query that will return the list of current table names used for
-     * this db init.
+     * Execute the work.
      * 
-     * @return the query
+     * @param work
+     *            the work
      */
-    protected abstract String getTableCheckQuery();
+    protected void executeWork(final Work work) {
+        dao.executeWork(work);
+    }
 
     /**
      * Get the dialect.
      * 
      * @return
      */
-    protected abstract Dialect getDialect();
+    protected Dialect getDialect() {
+        return dao.getDialect();
+    }
+    
+    public void setDao(SessionManagedDao<?, ?> dao) {
+        this.dao = dao;
+    }
 
     /**
-     * Execute the work.
+     * Get the query that will return the list of current table names used for
+     * this db init.
      * 
-     * @param work
-     *            the work
+     * @return the query
      */
-    protected abstract void executeWork(Work work);
+    protected abstract String getTableCheckQuery();
 
     /**
      * Get the {@link AnnotationConfiguration} to use.

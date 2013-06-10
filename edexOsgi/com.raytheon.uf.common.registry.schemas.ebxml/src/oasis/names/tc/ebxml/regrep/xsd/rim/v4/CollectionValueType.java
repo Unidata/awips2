@@ -26,6 +26,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -74,14 +75,15 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "CollectionValueType", propOrder = { "collectionValue" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "CollectionValue")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "CollectionValue")
 public class CollectionValueType extends ValueType {
 
     @XmlElement(name = "Element")
     @DynamicSerializeElement
     @Column(name = COLUMN_NAME)
     @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(schema = "ebxml")
     protected List<ValueType> collectionValue;
 
     @XmlAttribute
@@ -89,6 +91,16 @@ public class CollectionValueType extends ValueType {
     protected String collectionType;
 
     private static final String COLUMN_NAME = "collectionValue";
+
+    public CollectionValueType() {
+
+    }
+
+    public CollectionValueType(List<ValueType> collectionValue,
+            String collectionType) {
+        this.collectionValue = collectionValue;
+        this.collectionType = collectionType;
+    }
 
     @Override
     public String getColumnName() {

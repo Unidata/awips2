@@ -29,9 +29,9 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -41,7 +41,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.TimeConstraints;
@@ -52,6 +51,7 @@ import com.raytheon.uf.common.dataplugin.gfe.slice.VectorGridSlice;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.UIFormat;
 import com.raytheon.viz.gfe.core.UIFormat.FilterType;
@@ -79,6 +79,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      change gridInfoText from Label to Text
  *                                      to make sure the info get displayed inside the screen
  *                                      and can be scrolled.
+ * Feb 15, 2013  1638      mschenke    Moved Util.getUnixTime into TimeUtil
  * 
  * </pre>
  * 
@@ -314,7 +315,7 @@ public class GridInfoDialog extends CaveJFACEDialog implements
                 String upTime = gmtFormatter.format(h.getUpdateTime());
                 String ago = this.formatAgo(h.getUpdateTime());
                 String pubTime = "";
-                if (Util.getUnixTime(h.getPublishTime()) != 0) {
+                if (TimeUtil.getUnixTime(h.getPublishTime()) != 0) {
                     pubTime = " PUBLISHED";
                 }
                 info.append(site).append(" ").append(upTime).append(" ")
@@ -335,7 +336,7 @@ public class GridInfoDialog extends CaveJFACEDialog implements
                 String timeMod = "Not Modified";
                 String ago = "";
                 String user = "";
-                if (Util.getUnixTime(h.getTimeModified()) != 0) {
+                if (TimeUtil.getUnixTime(h.getTimeModified()) != 0) {
                     timeMod = gmtFormatter.format(h.getTimeModified());
                     ago = this.formatAgo(h.getTimeModified());
                     user = this.whoLabel(h.getModified());

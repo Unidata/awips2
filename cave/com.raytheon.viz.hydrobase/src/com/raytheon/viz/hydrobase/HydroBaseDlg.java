@@ -20,6 +20,8 @@
 package com.raytheon.viz.hydrobase;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
@@ -52,7 +54,6 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -104,6 +105,7 @@ import com.raytheon.viz.hydrocommon.ratingcurve.RatingCurveDlg;
 import com.raytheon.viz.hydrocommon.textreport.TextReportDataManager;
 import com.raytheon.viz.hydrocommon.textreport.TextReportDlg;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * This class displays the main Hydrobase dialog.
@@ -128,6 +130,29 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      an update.
  * 
  * 05/09/2011   9151	   lbousaid     open Modify Location window on double click
+ * 04/16/2013   1790        rferrel     Changes for non-blocking AddModifyLocationDlg.
+ *                                      Changes for non-blocking AdministrationDlg.
+ *                                      Changes for non-blocking ArealDefinitionsDlg.
+ *                                      Changes for non-blocking BenchmarkDlg.
+ *                                      Changes for non-blocking CountyZoneUgcDlg.
+ *                                      Changes for non-blocking DataAdjustFactorDlg.
+ *                                      Changes for non-blocking DataIngestFilterDlg.
+ *                                      Changes for non-blocking DataPurgeParamsDlg.
+ *                                      Changes for non-blocking DatumDlg.
+ *                                      Changes for non-blocking DescriptionDlg.
+ *                                      Changes for non-blocking FloodCategoryDlg.
+ *                                      Changes for non-blocking FloodDamageDlg.
+ *                                      Changes for non-blocking GageHistoryDlg.
+ *                                      Changes for non-blocking HydroGenConfigDlg.
+ *                                      Changes for non-blocking LowWaterDlg.
+ *                                      Changes for non-blocking NwrTransmitterDlg.
+ *                                      Changes for non-blocking PreferencesDlg.
+ *                                      Changes for non-blocking PublicationsDlg.
+ *                                      Changes for non-blocking QcAlertAlarmLimitsDlg.
+ *                                      Changes for non-blocking RadarLocationsDlg.
+ *                                      Changes for non-blocking ReferenceFieldsDlg.
+ *                                      Changes for non-blocking ReferencesDlg.
+ *                                      Changes for non-blocking ReservoirDlg.
  * 
  * </pre>
  * 
@@ -137,8 +162,128 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         IPreferencesListener, IStationFilterListener, IStationListener,
         KeyListener {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(HydroBaseDlg.class);
+
+    /**
+     * Allow only one dialog
+     */
+    private AddModifyLocationDlg addLocDlg;
+
+    /**
+     * Allow only one dialog per location.
+     */
+    private final Map<String, AddModifyLocationDlg> modLocDlgMap = new HashMap<String, AddModifyLocationDlg>();
+
+    /**
+     * Administration information dialog.
+     */
+    private AdministrationDlg adminDlg;
+
+    /**
+     * Allow one areal definitions dialog.
+     */
+    private ArealDefinitionsDlg arealDlg;
+
+    /**
+     * Allow one benchmark dialog per location.
+     */
+    private final Map<String, BenchmarkDlg> benchmarkDlgMap = new HashMap<String, BenchmarkDlg>();
+
+    /**
+     * Allow one County/Zone UGC dialog per location.
+     */
+    private final Map<String, CountyZoneUgcDlg> czDlgMap = new HashMap<String, CountyZoneUgcDlg>();;
+
+    /**
+     * Allow one Data Adjustment Factor dialog.
+     */
+    private DataAdjustFactorDlg dataAdjustDlg;
+
+    /**
+     * Allow one Ingest Filter Dialog.
+     */
+    private DataIngestFilterDlg dataIngestDlg;
+
+    /*
+     * Allow one data purge paramertres dialog.
+     */
+    private DataPurgeParamsDlg dataPurgeDlg;
+
+    /**
+     * Allow one dataum dialog per station.
+     */
+    private final Map<String, DatumDlg> datumDlgMap = new HashMap<String, DatumDlg>();
+
+    /**
+     * Allow one description dialog per station.
+     */
+    private final Map<String, DescriptionDlg> descDlgMap = new HashMap<String, DescriptionDlg>();
+
+    /**
+     * Allow one flood category dialog per station.
+     */
+    private final Map<String, FloodCategoryDlg> floodCatDlgMap = new HashMap<String, FloodCategoryDlg>();;
+
+    /**
+     * Allow one flood damage dialog per station.
+     */
+    private final Map<String, FloodDamageDlg> floodDamDlgMap = new HashMap<String, FloodDamageDlg>();
+
+    /**
+     * Allow one gage history dialog per station.
+     */
+    private final Map<String, GageHistoryDlg> ghDlgMap = new HashMap<String, GageHistoryDlg>();
+
+    /**
+     * Allow one Hydrogen configuration dialog.
+     */
+    private HydroGenConfigDlg hydroGenDlg;
+
+    /**
+     * Allow one low water dialog per station.
+     */
+    private final Map<String, LowWaterDlg> lowWaterDlgMap = new HashMap<String, LowWaterDlg>();
+
+    /**
+     * Allow one NWR Transmitter Towers dialog.
+     */
+    private NwrTransmitterDlg nwrTransDlg;
+
+    /**
+     * Allow one preferences dialog.
+     */
+    private PreferencesDlg prefDlg;
+
+    /**
+     * Allow one publication dialog per station.
+     */
+    private final Map<String, PublicationsDlg> publicationsDlgMap = new HashMap<String, PublicationsDlg>();
+
+    /**
+     * Allow one QC alart/alarm limits dialog.
+     */
+    private QcAlertAlarmLimitsDlg qcAlertAlarmDlg;
+
+    /**
+     * Allow one Radar locations dialog.
+     */
+    private RadarLocationsDlg radarLocDlg;
+
+    /**
+     * Allow one Reference Field dialog.
+     */
+    private ReferenceFieldsDlg referenceDlg;
+
+    /**
+     * Allow one References dialog per station.
+     */
+    private final Map<String, ReferencesDlg> referencesDlgMap = new HashMap<String, ReferencesDlg>();
+
+    /**
+     * Allow one Reservoir dialog per station.
+     */
+    private final Map<String, ReservoirDlg> reservoirDlgMap = new HashMap<String, ReservoirDlg>();
 
     /**
      * Flood category menu item.
@@ -263,6 +408,11 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         this.selectedLid = selectedLid;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -273,15 +423,27 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
 
         // release the text report data
         TextReportDataManager.getInstance().dispose();
-        shell.dispose();
+        close();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -376,10 +538,13 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
     }
 
     private void openPreferencesDialog() {
-        PreferencesDlg prefDlg = new PreferencesDlg(shell);
-        prefDlg.addListener(this);
-        prefDlg.open();
-        prefDlg.removeListener(this);
+        if (prefDlg == null || prefDlg.isDisposed()) {
+            prefDlg = new PreferencesDlg(shell);
+            prefDlg.addListener(this);
+            prefDlg.open();
+        } else {
+            prefDlg.bringToTop();
+        }
     }
 
     /**
@@ -451,9 +616,26 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         countyZoneUgcMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                CountyZoneUgcDlg czDlg = new CountyZoneUgcDlg(shell,
-                        getStationAndName(), getSelectedLocation().getStation());
-                czDlg.open();
+                String lid = getSelectedLocation().getStation();
+                CountyZoneUgcDlg czDlg = czDlgMap.get(lid);
+                if (czDlg == null) {
+                    czDlg = new CountyZoneUgcDlg(shell, getStationAndName(),
+                            lid);
+                    czDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof String) {
+                                String lid = returnValue.toString();
+                                czDlgMap.remove(lid);
+                            }
+                        }
+                    });
+                    czDlgMap.put(lid, czDlg);
+                    czDlg.open();
+                } else {
+                    czDlg.bringToTop();
+                }
             }
         });
 
@@ -464,9 +646,26 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         gageHistoryMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                GageHistoryDlg ghDlg = new GageHistoryDlg(shell,
-                        getStationAndName(), getSelectedLocation().getStation());
-                ghDlg.open();
+                String lid = getSelectedLocation().getStation();
+                GageHistoryDlg ghDlg = ghDlgMap.get(lid);
+
+                if (ghDlg == null) {
+                    ghDlg = new GageHistoryDlg(shell, getStationAndName(), lid);
+                    ghDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof String) {
+                                String lid = returnValue.toString();
+                                ghDlgMap.remove(lid);
+                            }
+                        }
+                    });
+                    ghDlgMap.put(lid, ghDlg);
+                    ghDlg.open();
+                } else {
+                    ghDlg.bringToTop();
+                }
             }
         });
 
@@ -528,9 +727,27 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         floodCategoryMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                FloodCategoryDlg floodCatDlg = new FloodCategoryDlg(shell,
-                        getStationAndName(), getSelectedLocation().getStation());
-                floodCatDlg.open();
+                String lid = getSelectedLocation().getStation();
+                FloodCategoryDlg floodCatDlg = floodCatDlgMap.get(lid);
+
+                if (floodCatDlg == null) {
+                    floodCatDlg = new FloodCategoryDlg(shell,
+                            getStationAndName(), lid);
+                    floodCatDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof String) {
+                                String lid = returnValue.toString();
+                                floodCatDlgMap.remove(lid);
+                            }
+                        }
+                    });
+                    floodCatDlgMap.put(lid, floodCatDlg);
+                    floodCatDlg.open();
+                } else {
+                    floodCatDlg.bringToTop();
+                }
             }
         });
         riverGageMenuItems.add(floodCategoryMI);
@@ -572,9 +789,27 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         floodDamageMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                FloodDamageDlg floodDamDlg = new FloodDamageDlg(shell,
-                        getStationAndName(), getSelectedLocation().getStation());
-                floodDamDlg.open();
+                String lid = getSelectedLocation().getStation();
+                FloodDamageDlg floodDamDlg = floodDamDlgMap.get(lid);
+
+                if (floodDamDlg == null) {
+                    floodDamDlg = new FloodDamageDlg(shell,
+                            getStationAndName(), lid);
+                    floodDamDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof String) {
+                                String lid = returnValue.toString();
+                                floodDamDlgMap.remove(lid);
+                            }
+                        }
+                    });
+                    floodDamDlgMap.put(lid, floodDamDlg);
+                    floodDamDlg.open();
+                } else {
+                    floodDamDlg.bringToTop();
+                }
             }
         });
         riverGageMenuItems.add(floodDamageMI);
@@ -629,9 +864,27 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         lowWaterMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                LowWaterDlg lowWaterDlg = new LowWaterDlg(shell,
-                        getStationAndName(), getSelectedLocation().getStation());
-                lowWaterDlg.open();
+                String lid = getSelectedLocation().getStation();
+                LowWaterDlg lowWaterDlg = lowWaterDlgMap.get(lid);
+
+                if (lowWaterDlg == null) {
+                    lowWaterDlg = new LowWaterDlg(shell, getStationAndName(),
+                            lid);
+                    lowWaterDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof String) {
+                                String lid = returnValue.toString();
+                                lowWaterDlgMap.remove(lid);
+                            }
+                        }
+                    });
+                    lowWaterDlgMap.put(lid, lowWaterDlg);
+                    lowWaterDlg.open();
+                } else {
+                    lowWaterDlg.bringToTop();
+                }
             }
         });
         riverGageMenuItems.add(lowWaterMI);
@@ -645,9 +898,26 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         benchmarkMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                BenchmarkDlg benchmarkDlg = new BenchmarkDlg(shell,
-                        getStationAndName(), getSelectedLocation().getStation());
-                benchmarkDlg.open();
+                String lid = getSelectedLocation().getStation();
+                BenchmarkDlg benchmarkDlg = benchmarkDlgMap.get(lid);
+                if (benchmarkDlg == null) {
+                    benchmarkDlg = new BenchmarkDlg(shell, getStationAndName(),
+                            lid);
+                    benchmarkDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof String) {
+                                String lid = returnValue.toString();
+                                benchmarkDlgMap.remove(lid);
+                            }
+                        }
+                    });
+                    benchmarkDlgMap.put(lid, benchmarkDlg);
+                    benchmarkDlg.open();
+                } else {
+                    benchmarkDlg.bringToTop();
+                }
             }
         });
         riverGageMenuItems.add(benchmarkMI);
@@ -659,9 +929,25 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         datumMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                DatumDlg datumDlg = new DatumDlg(shell, getStationAndName(),
-                        getSelectedLocation().getStation());
-                datumDlg.open();
+                String lid = getSelectedLocation().getStation();
+                DatumDlg datumDlg = datumDlgMap.get(lid);
+                if (datumDlg == null) {
+                    datumDlg = new DatumDlg(shell, getStationAndName(), lid);
+                    datumDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof String) {
+                                String lid = returnValue.toString();
+                                datumDlgMap.remove(lid);
+                            }
+                        }
+                    });
+                    datumDlgMap.put(lid, datumDlg);
+                    datumDlg.open();
+                } else {
+                    datumDlg.bringToTop();
+                }
             }
         });
         riverGageMenuItems.add(datumMI);
@@ -673,9 +959,27 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         descriptionMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                DescriptionDlg descDlg = new DescriptionDlg(shell,
-                        getStationAndName(), getSelectedLocation().getStation());
-                descDlg.open();
+                String lid = getSelectedLocation().getStation();
+                DescriptionDlg descDlg = descDlgMap.get(lid);
+
+                if (descDlg == null) {
+                    descDlg = new DescriptionDlg(shell, getStationAndName(),
+                            lid);
+                    descDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof String) {
+                                String lid = returnValue.toString();
+                                descDlgMap.remove(lid);
+                            }
+                        }
+                    });
+                    descDlgMap.put(lid, descDlg);
+                    descDlg.open();
+                } else {
+                    descDlg.bringToTop();
+                }
             }
         });
         riverGageMenuItems.add(descriptionMI);
@@ -689,9 +993,26 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         publicationsMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                PublicationsDlg publicationsDlg = new PublicationsDlg(shell,
-                        getStationAndName(), getSelectedLocation().getStation());
-                publicationsDlg.open();
+                String lid = getSelectedLocation().getStation();
+                PublicationsDlg publicationsDlg = publicationsDlgMap.get(lid);
+                if (publicationsDlg == null) {
+                    publicationsDlg = new PublicationsDlg(shell,
+                            getStationAndName(), lid);
+                    publicationsDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof String) {
+                                String lid = returnValue.toString();
+                                publicationsDlgMap.remove(lid);
+                            }
+                        }
+                    });
+                    publicationsDlgMap.put(lid, publicationsDlg);
+                    publicationsDlg.open();
+                } else {
+                    publicationsDlg.bringToTop();
+                }
             }
         });
         riverGageMenuItems.add(publicationsMI);
@@ -703,9 +1024,26 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         referencesMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                ReferencesDlg referencesDlg = new ReferencesDlg(shell,
-                        getStationAndName(), getSelectedLocation().getStation());
-                referencesDlg.open();
+                String lid = getSelectedLocation().getStation();
+                ReferencesDlg referencesDlg = referencesDlgMap.get(lid);
+                if (referencesDlg == null) {
+                    referencesDlg = new ReferencesDlg(shell,
+                            getStationAndName(), lid);
+                    referencesDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof String) {
+                                String lid = returnValue.toString();
+                                referencesDlgMap.remove(lid);
+                            }
+                        }
+                    });
+                    referencesDlgMap.put(lid, referencesDlg);
+                    referencesDlg.open();
+                } else {
+                    referencesDlg.bringToTop();
+                }
             }
         });
         riverGageMenuItems.add(referencesMI);
@@ -739,9 +1077,24 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         reservoirMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                ReservoirDlg reservoirDlg = new ReservoirDlg(shell,
-                        getStationAndName(), getSelectedLocation().getStation());
-                reservoirDlg.open();
+                String lid = getSelectedLocation().getStation();
+                ReservoirDlg reservoirDlg = reservoirDlgMap.get(lid);
+                if (reservoirDlg == null) {
+                    reservoirDlg = new ReservoirDlg(shell, getStationAndName(),
+                            lid);
+                    reservoirDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof String) {
+                                String lid = returnValue.toString();
+                                reservoirDlgMap.remove(lid);
+                            }
+                        }
+                    });
+                    reservoirDlgMap.put(lid, reservoirDlg);
+                    reservoirDlg.open();
+                }
             }
         });
     }
@@ -773,9 +1126,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         ingestFilterMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                DataIngestFilterDlg dataIngetsDlg = new DataIngestFilterDlg(
-                        shell);
-                dataIngetsDlg.open();
+                if (dataIngestDlg == null || dataIngestDlg.isDisposed()) {
+                    dataIngestDlg = new DataIngestFilterDlg(shell);
+                    dataIngestDlg.open();
+                } else {
+                    dataIngestDlg.bringToTop();
+                }
             }
         });
 
@@ -785,9 +1141,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         adjustmentFactorsMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                DataAdjustFactorDlg dataAdjustDlg = new DataAdjustFactorDlg(
-                        shell);
-                dataAdjustDlg.open();
+                if (dataAdjustDlg == null || dataAdjustDlg.isDisposed()) {
+                    dataAdjustDlg = new DataAdjustFactorDlg(shell);
+                    dataAdjustDlg.open();
+                } else {
+                    dataAdjustDlg.bringToTop();
+                }
             }
         });
 
@@ -797,9 +1156,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         qcAlertAlarmMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                QcAlertAlarmLimitsDlg qcAlertAlarmDlg = new QcAlertAlarmLimitsDlg(
-                        shell);
-                qcAlertAlarmDlg.open();
+                if (qcAlertAlarmDlg == null || qcAlertAlarmDlg.isDisposed()) {
+                    qcAlertAlarmDlg = new QcAlertAlarmLimitsDlg(shell);
+                    qcAlertAlarmDlg.open();
+                } else {
+                    qcAlertAlarmDlg.bringToTop();
+                }
             }
         });
 
@@ -809,8 +1171,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         purgeParamsMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                DataPurgeParamsDlg dataPurgeDlg = new DataPurgeParamsDlg(shell);
-                dataPurgeDlg.open();
+                if (dataPurgeDlg == null || dataPurgeDlg.isDisposed()) {
+                    dataPurgeDlg = new DataPurgeParamsDlg(shell);
+                    dataPurgeDlg.open();
+                } else {
+                    dataPurgeDlg.bringToTop();
+                }
             }
         });
     }
@@ -893,8 +1259,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         adminMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                AdministrationDlg adminDlg = new AdministrationDlg(shell);
-                adminDlg.open();
+                if (adminDlg == null || adminDlg.isDisposed()) {
+                    adminDlg = new AdministrationDlg(shell);
+                    adminDlg.open();
+                } else {
+                    adminDlg.bringToTop();
+                }
             }
         });
 
@@ -915,9 +1285,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         referenceFieldsMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-
-                ReferenceFieldsDlg referenceDlg = new ReferenceFieldsDlg(shell);
-                referenceDlg.open();
+                if (referenceDlg == null || referenceDlg.isDisposed()) {
+                    referenceDlg = new ReferenceFieldsDlg(shell);
+                    referenceDlg.open();
+                } else {
+                    referenceDlg.bringToTop();
+                }
             }
         });
 
@@ -967,8 +1340,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         radarLocationsMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                RadarLocationsDlg radarLocDlg = new RadarLocationsDlg(shell);
-                radarLocDlg.open();
+                if (radarLocDlg == null || radarLocDlg.isDisposed()) {
+                    radarLocDlg = new RadarLocationsDlg(shell);
+                    radarLocDlg.open();
+                } else {
+                    radarLocDlg.bringToTop();
+                }
             }
         });
 
@@ -980,23 +1357,14 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         arealDefinitionsMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                ArealDefinitionsDlg arealDlg = new ArealDefinitionsDlg(shell);
-                arealDlg.open();
+                if (arealDlg == null || arealDlg.isDisposed()) {
+                    arealDlg = new ArealDefinitionsDlg(shell);
+                    arealDlg.open();
+                } else {
+                    arealDlg.bringToTop();
+                }
             }
         });
-
-        // Vector Definitions menu item
-        // Vector Definitions menu not needed in AWIPS 2
-        // MenuItem vectorDefinitionsMI = new MenuItem(setupMenu, SWT.NONE);
-        // vectorDefinitionsMI.setText("&Vector Definitions...");
-        // vectorDefinitionsMI.addSelectionListener(new SelectionAdapter() {
-        // @Override
-        // public void widgetSelected(SelectionEvent event) {
-        // VectorDefinitionsDlg vectorDefDlg = new VectorDefinitionsDlg(
-        // shell);
-        // vectorDefDlg.open();
-        // }
-        // });
 
         new MenuItem(setupMenu, SWT.SEPARATOR);
 
@@ -1006,8 +1374,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         nwrTransmitterMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                NwrTransmitterDlg nwrTransDlg = new NwrTransmitterDlg(shell);
-                nwrTransDlg.open();
+                if (nwrTransDlg == null || nwrTransDlg.isDisposed()) {
+                    nwrTransDlg = new NwrTransmitterDlg(shell);
+                    nwrTransDlg.open();
+                } else {
+                    nwrTransDlg.bringToTop();
+                }
             }
         });
 
@@ -1048,8 +1420,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         hydroGenConfMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                HydroGenConfigDlg hydroGenDlg = new HydroGenConfigDlg(shell);
-                hydroGenDlg.open();
+                if (hydroGenDlg == null || hydroGenDlg.isDisposed()) {
+                    hydroGenDlg = new HydroGenConfigDlg(shell);
+                    hydroGenDlg.open();
+                } else {
+                    hydroGenDlg.bringToTop();
+                }
             }
         });
     }
@@ -1169,8 +1545,10 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         stationCountLbl.setText("( " + size + " Stations )");
     }
 
-    /**
-     * Get the sort type.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrocommon.IGetSortType#getSortType()
      */
     @Override
     public String getSortType() {
@@ -1294,6 +1672,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         sortAndUpdateListControl();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.hydrobase.listeners.IPreferencesListener#notifyUpdate()
+     */
     @Override
     public void notifyUpdate() {
         applyPreferences();
@@ -1335,12 +1719,23 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         sortAndUpdateListControl();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.swt.events.KeyListener#keyPressed(org.eclipse.swt.events.
+     * KeyEvent)
+     */
     @Override
     public void keyPressed(KeyEvent e) {
     }
 
-    /**
-     * Handles the Station Search functionality
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.swt.events.KeyListener#keyReleased(org.eclipse.swt.events
+     * .KeyEvent)
      */
     @Override
     public void keyReleased(KeyEvent e) {
@@ -1362,6 +1757,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrobase.listeners.IStationFilterListener#
+     * notifyFilterChange()
+     */
     @Override
     public void notifyFilterChange() {
         populateListControl();
@@ -1378,6 +1779,13 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         stationFilterDlg.removeListener(this);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.hydrobase.listeners.IStationListener#notifyStationUpdate
+     * (java.lang.String)
+     */
     @Override
     public void notifyStationUpdate(String lid) {
         populateListControl();
@@ -1388,8 +1796,8 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                 handleSiteSelection();
                 return;
             }
-        } 
-        
+        }
+
         dataList.setSelection(0);
         dataList.showSelection();
         handleSiteSelection();
@@ -1400,20 +1808,41 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
      * Open the Add Location Dialog.
      */
     private void openAddDlg() {
-        AddModifyLocationDlg addLocDlg = new AddModifyLocationDlg(shell, false,
-                getSelectedLocation().getStation(), getStationAndName());
-        addLocDlg.addListener(this);
-        addLocDlg.open();
+        if (addLocDlg == null || addLocDlg.isDisposed()) {
+            addLocDlg = new AddModifyLocationDlg(shell, false,
+                    getSelectedLocation().getStation(), getStationAndName());
+            addLocDlg.addListener(this);
+            addLocDlg.open();
+        } else {
+            addLocDlg.bringToTop();
+        }
     }
 
     /**
      * Open the Modify Location Dialog.
      */
     private void openModifyDlg() {
-        AddModifyLocationDlg modLocDlg = new AddModifyLocationDlg(shell, true,
-                getSelectedLocation().getStation(), getStationAndName());
-        modLocDlg.addListener(this);
-        modLocDlg.open();
+        String lid = getSelectedLocation().getStation();
+        AddModifyLocationDlg modLocDlg = modLocDlgMap.get(lid);
+        if (modLocDlg == null) {
+            modLocDlg = new AddModifyLocationDlg(shell, true,
+                    getSelectedLocation().getStation(), getStationAndName());
+            modLocDlg.addListener(this);
+            modLocDlgMap.put(lid, modLocDlg);
+            modLocDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        String lid = returnValue.toString();
+                        modLocDlgMap.remove(lid);
+                    }
+                }
+            });
+            modLocDlg.open();
+        } else {
+            modLocDlg.bringToTop();
+        }
     }
 
     /**
@@ -1589,7 +2018,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         private String getPassword() {
             String pw = null;
             try {
-                ArrayList<AdministrationData> data = HydroDBDataManager
+                java.util.List<AdministrationData> data = HydroDBDataManager
                         .getInstance().getData(AdministrationData.class);
 
                 // if no data is returned, clear the current display data

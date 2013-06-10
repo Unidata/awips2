@@ -40,7 +40,7 @@ import org.eclipse.ui.PlatformUI;
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial Creation.
  * 02/07/2013   1578        rferrel     Changes for non-blocking questionableDlg.
- * 
+ * 03/27/2013   1790        rferrel     Bug fix for non-blocking dialogs.
  * </pre>
  * 
  * @author lvenable
@@ -58,12 +58,14 @@ public class QuestionableDataAction extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (questionableDlg == null) {
+        if (questionableDlg == null || questionableDlg.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
             questionableDlg = new QuestionableBadDataDlg(shell);
+            questionableDlg.open();
+        } else {
+            questionableDlg.bringToTop();
         }
-        questionableDlg.open();
 
         return null;
     }

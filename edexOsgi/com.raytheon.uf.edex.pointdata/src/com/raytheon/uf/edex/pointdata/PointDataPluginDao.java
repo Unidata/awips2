@@ -69,6 +69,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * ------------ ---------- ----------- --------------------------
  * Apr 13, 2009            chammack     Initial creation
  * Jan 14, 2013 1469       bkowal       Removed the hdf5 data directory.
+ * Feb 27, 2013 1638       mschenke    Switched logger to use statusHandler
  * Apr 15, 2013 1868       bsteffen    Rewrite mergeAll in PluginDao.
  * Apr 29, 2013 1861       bkowal      Refactor hdf5 filename generation during reads
  *                                     into its own method so modelsounding dao can
@@ -118,7 +119,7 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
         }
 
     };
-    
+
     private final LinkedBlockingQueue<BeanMap> beanMapCache;
 
     protected PointDataDbDescription dbDataDescription;
@@ -254,7 +255,7 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
                     dbDataDescription = PointDataDbDescription
                             .fromStream(stream);
                 } catch (JAXBException e) {
-                    logger.error("Unable to load " + pluginName
+                    statusHandler.error("Unable to load " + pluginName
                             + " Point Data Database Description", e);
                 }
             }
@@ -269,7 +270,7 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
                         .getClass().getResourceAsStream(
                                 "/res/pointdata/" + pluginName + ".xml"));
             } catch (JAXBException e) {
-                logger.error("Unable to load " + pluginName
+                statusHandler.error("Unable to load " + pluginName
                         + " Point Data Description", e);
             }
         }

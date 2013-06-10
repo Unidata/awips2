@@ -5,6 +5,7 @@ import java.nio.Buffer;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
+import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.RasterMode;

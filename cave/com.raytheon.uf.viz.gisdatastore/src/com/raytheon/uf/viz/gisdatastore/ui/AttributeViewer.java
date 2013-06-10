@@ -59,7 +59,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
-import com.raytheon.uf.common.dataplugin.gfe.type.Pair;
+import com.raytheon.uf.common.util.Pair;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -78,7 +78,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 30, 2012      #1326 randerso     Initial creation
+ * Oct 30, 2012      #1326 randerso    Initial creation
+ * Mar 21, 2013       1638 mschenke    Created Pair class internal so no dependencies on GFE
  * 
  * </pre>
  * 

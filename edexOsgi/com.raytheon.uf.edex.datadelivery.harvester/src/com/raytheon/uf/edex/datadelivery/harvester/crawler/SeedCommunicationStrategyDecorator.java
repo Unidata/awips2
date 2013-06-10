@@ -25,13 +25,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import com.raytheon.uf.common.datadelivery.harvester.CrawlAgent;
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
+import com.raytheon.uf.common.datadelivery.harvester.ProtoCollection;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.datadelivery.harvester.config.CrawlAgent;
-import com.raytheon.uf.edex.datadelivery.harvester.config.HarvesterConfig;
-import com.raytheon.uf.edex.datadelivery.harvester.config.ProtoCollection;
 import com.raytheon.uf.edex.datadelivery.retrieval.ProviderCollectionLinkStore;
 
 /**

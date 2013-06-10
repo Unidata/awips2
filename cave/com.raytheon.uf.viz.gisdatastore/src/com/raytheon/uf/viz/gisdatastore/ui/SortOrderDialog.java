@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.dataplugin.gfe.type.Pair;
+import com.raytheon.uf.common.util.Pair;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
@@ -47,7 +47,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 29, 2012            randerso     Initial creation
+ * Nov 29, 2012            randerso    Initial creation
+ * Mar 21, 2013       1638 mschenke    Created Pair class internal so no dependencies on GFE
  * 
  * </pre>
  * 

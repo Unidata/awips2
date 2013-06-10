@@ -169,12 +169,29 @@
                 			<include name="plugins/**" />
                 		</fileset>
 					</copy>
+        			
+            	 	<shellscript shell="bash"
+            	 	dir="${builder}/postBuild/${edex.root.directory}/lib">
+            	 		cd plugins
+            	 		for directory in `find -type d -maxdepth 1`; 
+            	 		do
+            	 			if [ ${directory} != "." ]; then
+            	 				cd ${directory}
+            	 				/awips2/java/bin/jar cmf \
+            	 					META-INF/MANIFEST.MF \
+            	 					../${directory}.jar \
+            	 					*
+            	 				cd ..
+            	 				rm -rf ${directory}
+            	 			fi
+            	 		done
+            	 	</shellscript>
         	
         			<move todir="${builder}/postBuild/${edex.root.directory}/lib">
         				<fileset dir="${builder}/postBuild/${edex.root.directory}/lib">
         					<include name="**/*.jar" />
         				</fileset>
-        				<mapper type="regexp" from="^(.*)_(.*).jar" to="\1.jar" />
+        				<mapper type="regexp" from="^(.+?)_(.+).jar" to="\1.jar" />
         			</move>
         		</then>
         	</if>
@@ -191,6 +208,37 @@
         		<fileset dir="${builder}"
         			includes="dependencies-stash/**" />
         	</delete>
+	
+			<!--
+				Remove all PDE-generated FOSS artifacts from the
+				plugins directory.
+			-->
+			<loadfile property="includefile.foss"
+				srcfile="${builder}/includes/cots.includes" />
+			<var name="index" value="1" />
+	
+			<for param="line" list="${includefile.foss}"
+			delimiter="${line.separator}">
+				<sequential>
+					<!-- skip the first line -->
+					<if>
+						<not>
+							<equals arg1="${index}" arg2="1" />
+						</not>
+						<then>
+							<!--
+								Remove the empty FOSS jar from plugins.
+							-->
+							<delete file="${builder}/postBuild/${edex.root.directory}/lib/plugins/@{line}.jar" />	
+						</then>
+					</if>
+					<math result="index"
+						operand1="${index}"
+						operation="+"
+						operand2="1"
+						datatype="int" />
+				</sequential>
+			</for>
         	
         	<!-- manipulate the topLevelElementId - the feature -->
         	<propertyregex property="edex.component"

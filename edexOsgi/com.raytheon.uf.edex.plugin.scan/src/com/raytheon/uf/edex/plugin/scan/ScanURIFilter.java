@@ -31,12 +31,12 @@ import java.util.regex.Pattern;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 
-import com.raytheon.edex.msg.DataURINotificationMessage;
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.scan.data.CellTableData;
 import com.raytheon.uf.common.dataplugin.scan.data.DMDTableData;

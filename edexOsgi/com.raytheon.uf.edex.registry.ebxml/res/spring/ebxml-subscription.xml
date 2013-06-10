@@ -1,0 +1,41 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <bean id="notificationListenerFactory"
+        class="com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationListenerFactory">
+        <constructor-arg ref="EmailSender" />
+    </bean>
+
+	<bean name="EmailSender"
+		class="com.raytheon.uf.edex.registry.ebxml.services.notification.EmailSender">
+		<constructor-arg ref="ebxmlEmailEnabled" />
+        <constructor-arg ref="extrinsicObjectDao" />
+	</bean>
+
+	<bean name="RegistryNotificationManager"
+		class="com.raytheon.uf.edex.registry.ebxml.services.notification.RegistryNotificationManager">
+		<property name="auditableEventDao" ref="AuditableEventTypeDao" />
+		<property name="notificationDao" ref="notificationTypeDao" />
+	</bean>
+
+	<bean name="RegistrySubscriptionManager"
+		class="com.raytheon.uf.edex.registry.ebxml.services.notification.RegistrySubscriptionManager">
+		<constructor-arg ref="ebxmlSubscriptionsEnabled" /> 
+		<property name="subscriptionDao" ref="subscriptionTypeDao" />
+		<property name="queryManager" ref="queryServiceImpl" />
+		<property name="notificationManager" ref="RegistryNotificationManager" />
+        <property name="notificationListenerFactory" ref="notificationListenerFactory" />
+	</bean>
+	
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod"
+            value="com.raytheon.uf.common.event.EventBus.register" />
+        <property name="arguments">
+            <list>
+                <ref bean="RegistrySubscriptionManager" />
+            </list>
+        </property>
+    </bean>
+
+</beans>

@@ -136,10 +136,12 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 if [ ${LIGHTNING} = true ]; then
-   /awips2/ant/bin/ant -f build.xml -Dlightning=true
+   /awips2/ant/bin/ant -f build.xml -Dlightning=true \
+      -Duframe.eclipse=${UFRAME_ECLIPSE}
    RC=$?
 else
-   /awips2/ant/bin/ant -f build.xml
+   /awips2/ant/bin/ant -f build.xml \
+      -Duframe.eclipse=${UFRAME_ECLIPSE}
    RC=$?
 fi
 if [ ${RC} -ne 0 ]; then
@@ -151,7 +153,7 @@ setTargetArchitecture
 # Adjust Our Execution Position.
 cd ../
 
-buildRPM "Installer.edex-base"
+buildRPM "Installer.edex"
 buildRPM "Installer.edex-configuration"
 buildRPM "Installer.edex-shapefiles"
 # build the edex-datadelivery rpm
@@ -172,7 +174,8 @@ do
    # do not build edex-datadelivery since it is now built differently from the other edex feature rpms
    # since this is currently the only case, the exclusion will be hard-coded
    
-   if [ ! "${edex_component}" = "edex-datadelivery" ]; then
+   if [ ! "${edex_component}" = "edex-datadelivery" ] &&
+      [ ! "${edex_component}" = "common-base" ]; then
       export COMPONENT_NAME="${edex_component}"
       buildRPM "Installer.edex-component"
    fi

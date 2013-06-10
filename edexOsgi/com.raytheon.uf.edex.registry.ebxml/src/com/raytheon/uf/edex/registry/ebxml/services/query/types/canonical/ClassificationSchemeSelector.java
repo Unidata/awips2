@@ -30,6 +30,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.TaxonomyElementType;
 
+import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
@@ -64,6 +65,8 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 2/13/2012    #184       bphillip    Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
+ * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
  * 
  * </pre>
  * 
@@ -73,18 +76,17 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
 
 public class ClassificationSchemeSelector extends CanonicalEbxmlQuery {
 
-    public static final String QUERY_DEFINITION = QUERY_CANONICAL_PREFIX
-            + "ClassificationSchemeSelector";
-
     /** The valid query parameter for this query **/
     private static final List<String> QUERY_PARAMETERS = new ArrayList<String>();
     static {
         QUERY_PARAMETERS.add(QueryConstants.CLASSIFICATION_SCHEME_ID);
     }
 
+    private RegistryObjectTypeDao<ClassificationSchemeType> classificationSchemeTypeDao;
+
     @Override
-    protected List<RegistryObjectType> query(QueryType queryType,
-            QueryResponse queryResponse) throws EbxmlRegistryException {
+    protected void query(QueryType queryType, QueryResponse queryResponse,
+            String client) throws EbxmlRegistryException {
         List<RegistryObjectType> retVal = new ArrayList<RegistryObjectType>();
         QueryParameters parameters = this.getParameterMap(queryType.getSlot(),
                 queryResponse);
@@ -102,13 +104,12 @@ public class ClassificationSchemeSelector extends CanonicalEbxmlQuery {
          * a list as per the requirements of this canonical query described in
          * the class description
          */
-        RegistryObjectTypeDao registryObjectDao = new RegistryObjectTypeDao(
-                ClassificationSchemeType.class);
-        ClassificationSchemeType classificationScheme = registryObjectDao
+        ClassificationSchemeType classificationScheme = classificationSchemeTypeDao
                 .getById((String) parameters
                         .getFirstParameter(QueryConstants.CLASSIFICATION_SCHEME_ID));
         getNodeList(classificationScheme, retVal);
-        return retVal;
+        queryResponse.getRegistryObjectList().getRegistryObject()
+                .addAll(retVal);
     }
 
     /**
@@ -141,6 +142,12 @@ public class ClassificationSchemeSelector extends CanonicalEbxmlQuery {
 
     @Override
     public String getQueryDefinition() {
-        return QUERY_DEFINITION;
+        return CanonicalQueryTypes.CLASSIFICATION_SCHEME_SELECTOR;
     }
+
+    public void setClassificationSchemeTypeDao(
+            RegistryObjectTypeDao<ClassificationSchemeType> classificationSchemeTypeDao) {
+        this.classificationSchemeTypeDao = classificationSchemeTypeDao;
+    }
+
 }

@@ -18,107 +18,12 @@
    </license>
 
    <requires>
+      <import feature="com.raytheon.uf.viz.base.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.viz.cots.feature" version="1.0.0.qualifier"/>
    </requires>
 
    <plugin
-         id="com.raytheon.uf.common.auth"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.colormap"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.comm"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.dataquery"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.datastorage"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.derivparam"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.common.dissemination"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.geospatial"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="com.raytheon.uf.common.units"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="com.raytheon.uf.common.localization"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.menus"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.message"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.pointdata"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.pypies"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.python"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -132,38 +37,11 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.serialization"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.serialization.comm"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.common.site"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.status"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.time"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.topo"
@@ -173,28 +51,7 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.util"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.alertmonitor"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.edex.common"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.dataplugin"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -209,20 +66,6 @@
 
    <plugin
          id="com.raytheon.uf.edex.database"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.dataplugin.level"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.edex.topo"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -284,34 +127,40 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.stats"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.event"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.dataaccess"
+         id="meteolib.jni"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="com.raytheon.uf.common.image"
+         id="meteolib.jni.linux32"
+         os="linux"
+         arch="x86"
          download-size="0"
          install-size="0"
          version="0.0.0"
-         unpack="false"/>
+         fragment="true"/>
 
    <plugin
-         id="com.raytheon.uf.common.python.concurrent"
+         id="meteolib.jni.linux64"
+         os="linux"
+         arch="x86_64"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
+
+   <plugin
+         id="meteolib.jni.win32"
+         os="win32"
+         arch="x86"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
+
+   <plugin
+         id="javax.servlet"
          download-size="0"
          install-size="0"
          version="0.0.0"
