@@ -32,6 +32,8 @@ set -o nounset
 #                                      - Add C_COMPILER arguments
 # Apr 9,  2009             jelkins     - Support lex files
 # Oct 1,  2009			   jelkins     - Support configurable file type "plugins"
+# June 4, 2013  #2021      bkowal      - handle the case when there is a space between
+#                                        the -o directive and the name of the output
 # 
 # 
 # @author: jelkins
@@ -56,6 +58,7 @@ INCLUDE=
 OUT_FILE=
 IN_FILE=
 OPTIONS=
+_out_next=false
 
 # --- Determine the includes, options, input file, and output file
 
@@ -67,16 +70,24 @@ do
             ;;
         -o*)
             OUT_FILE="${section/-o/}"
+            if [ "${OUT_FILE}" = "" ]; then
+               _out_next=true
+            fi
             ;;
         -*)
             OPTIONS="$OPTIONS $section"
             ;;
         *)
-            IN_FILE="$IN_FILE $section"
-            
-            # add the IN_FILE_DIRECTORY to the include path     
-            IN_FILE_DIRECTORY="`dirname $IN_FILE`"
-            INCLUDE="-I'$IN_FILE_DIRECTORY' $INCLUDE"
+            if [ ${_out_next} = true ]; then
+               _out_next=false
+               OUT_FILE="${section}"
+            else
+               IN_FILE="$section"
+               
+               # add the IN_FILE_DIRECTORY to the include path     
+               IN_FILE_DIRECTORY="`dirname $IN_FILE`"
+               INCLUDE="-I'$IN_FILE_DIRECTORY' $INCLUDE"
+            fi               
             ;;
     esac
 done

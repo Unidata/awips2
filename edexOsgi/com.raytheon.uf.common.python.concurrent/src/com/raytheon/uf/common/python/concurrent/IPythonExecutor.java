@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.python.concurrent;
 
+import jep.JepException;
+
 import com.raytheon.uf.common.python.PythonInterpreter;
 
 /**
@@ -31,7 +33,9 @@ import com.raytheon.uf.common.python.PythonInterpreter;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 5, 2013            mnash     Initial creation
+ * Feb 05, 2013            mnash       Initial creation
+ * Jun 04, 2013 2041       bsteffen    Improve exception handling for concurrent
+ *                                     python.
  * 
  * </pre>
  * 
@@ -47,5 +51,5 @@ public interface IPythonExecutor<P extends PythonInterpreter, R extends Object> 
      * @param script
      * @return
      */
-    public abstract R execute(P script);
+    public abstract R execute(P script) throws JepException;
 }

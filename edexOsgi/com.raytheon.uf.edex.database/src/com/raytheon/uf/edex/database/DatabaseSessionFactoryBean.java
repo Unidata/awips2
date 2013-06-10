@@ -80,8 +80,7 @@ public class DatabaseSessionFactoryBean extends AnnotationSessionFactoryBean {
             throws org.hibernate.AnnotationException {
         Configuration config = getConfiguration();
         AnnotationConfiguration tmp = loadNewConfigForClasses(classes);
-        return tmp.generateSchemaCreationScript(Dialect.getDialect(config
-                .getProperties()));
+        return tmp.generateSchemaCreationScript(config.buildSettings().getDialect());
     }
 
     /**
@@ -99,8 +98,7 @@ public class DatabaseSessionFactoryBean extends AnnotationSessionFactoryBean {
             throws org.hibernate.AnnotationException {
         Configuration config = getConfiguration();
         AnnotationConfiguration tmp = loadNewConfigForClasses(classes);
-        return tmp.generateDropSchemaScript(Dialect.getDialect(config
-                .getProperties()));
+        return tmp.generateDropSchemaScript(config.buildSettings().getDialect());
     }
 
     private AnnotationConfiguration loadNewConfigForClasses(

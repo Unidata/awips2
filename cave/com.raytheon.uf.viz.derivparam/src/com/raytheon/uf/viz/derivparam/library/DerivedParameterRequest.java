@@ -21,11 +21,8 @@ package com.raytheon.uf.viz.derivparam.library;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.TimeUnit;
 
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
  * The DerivedParameteRequest is the way for a class to communicate a request
@@ -36,8 +33,10 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * <pre>
  * SOFTWARE HISTORY
  * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jul 9, 2008				brockwoo	Initial creation
+ * ------------ ----------  ----------- --------------------------
+ * Jul 09, 2008             brockwoo    Initial creation
+ * Jun 04, 2013 2041        bsteffen    Switch derived parameters to use
+ *                                      concurrent python for threading.
  * 
  * </pre>
  * 
@@ -56,10 +55,7 @@ public class DerivedParameterRequest {
 
     private DataTime baseTime;
 
-    private SynchronousQueue<List<?>> queue;
-
     public DerivedParameterRequest() {
-        this.queue = new SynchronousQueue<List<?>>();
         this.baseParam = new ArrayList<Object>();
     }
 
@@ -162,43 +158,6 @@ public class DerivedParameterRequest {
      */
     public void setArgumentRecords(Object[] argumentRecords) {
         this.argumentRecords = argumentRecords;
-    }
-
-    /**
-     * This method will return the data calculated by the derived parameter
-     * script. It is important to call this method right after the request has
-     * been submitted to the derived parameter thread as it will block for 30
-     * seconds waiting for the response.
-     * 
-     * @return the raw data calculated by the script
-     */
-    public List<?> getQueue() throws VizException {
-        try {
-            List<?> result = queue.poll(30, TimeUnit.SECONDS);
-            if (result == null) {
-                throw new VizException("Derived Parameter Timed Out");
-            }
-            return result;
-        } catch (InterruptedException e) {
-            throw new VizException(e);
-        }
-    }
-
-    /**
-     * Used by the derived parameter generator to return the calculated data to
-     * the thread requesting it. This will block until <code>getQueue</code> is
-     * called.
-     * 
-     * @param queue
-     *            the data being returned to the thread making the request
-     * @throws VizException
-     */
-    public void setQueue(List<?> queue) {
-        try {
-            this.queue.offer(queue, 15, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
 }

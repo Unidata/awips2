@@ -1,6 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
 	<bean id="propertyPlaceholderConfigurer"
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -11,6 +11,8 @@
 			</list>
 		</property>
 	</bean>
+    
+    <bean id="bandwidthEventBus" class="com.raytheon.uf.edex.datadelivery.bandwidth.notification.BandwidthEventBusBean" />
 
 	<bean id="bandwidthDao" factory-bean="bandwidthContextFactory"
 		factory-method="getBandwidthDao" />
@@ -35,12 +37,6 @@
 		<constructor-arg ref="bandwidthDaoUtil" />
 		<property name="aggregator" ref="aggregator" />
 		<property name="initializer" ref="bandwidthManagerInitializer" />
-	</bean>
-
-	<bean id="dataSetAvailabilityCalculator"
-		class="com.raytheon.uf.edex.datadelivery.bandwidth.util.SimpleAvailablityCalculator">
-		<property name="delay"
-			value="${bandwidth.dataSetAvailabilityCalculator.delay}" />
 	</bean>
 
 	<bean id="bandwidthUtil"
@@ -99,16 +95,6 @@
 		<constructor-arg ref="bandwidthDao" />
 		<constructor-arg ref="retrievalAgentNotifier" />
 		<property name="retrievalPlans" ref="retrievalPlans" />
-	</bean>
-
-	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-		<property name="staticMethod"
-			value="com.raytheon.uf.common.event.EventBus.register" />
-		<property name="arguments">
-			<list>
-				<ref bean="retrievalManager" />
-			</list>
-		</property>
 	</bean>
 
 	<bean id="BandwidthManagerProcessor"

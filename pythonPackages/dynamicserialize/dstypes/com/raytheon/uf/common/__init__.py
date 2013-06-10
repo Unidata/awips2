@@ -24,6 +24,7 @@ __all__ = [
             'activetable',
             'alertviz',
             'auth',
+            'dataaccess',
             'dataplugin',
             'datastorage',
             'localization',

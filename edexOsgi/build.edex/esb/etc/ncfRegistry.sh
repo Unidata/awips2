@@ -20,6 +20,7 @@
 ##
 
 export MAX_MEM=1536 # in Meg
+export MAX_PERM_SIZE=192m
 export METADATA_POOL_MIN=10
 export EDEX_DEBUG_PORT=5011
 export EDEX_JMX_PORT=1622

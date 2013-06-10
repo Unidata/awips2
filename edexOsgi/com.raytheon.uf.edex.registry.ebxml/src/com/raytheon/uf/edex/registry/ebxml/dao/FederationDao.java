@@ -39,9 +39,19 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.FederationType;
  */
 public class FederationDao extends RegistryObjectTypeDao<FederationType> {
 
+    private static final String COUNT_QUERY = "select count(*) FROM FederationType";
+
     @Override
     protected Class<FederationType> getEntityClass() {
         return FederationType.class;
+    }
+
+    public long getFederationCount() {
+        return (Long) this.executeHQLQuery(COUNT_QUERY).get(0);
+    }
+
+    public boolean federationsExist() {
+        return getFederationCount() > 0;
     }
 
 }

@@ -10,6 +10,7 @@ import java.util.List;
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
+import com.raytheon.uf.common.datadelivery.registry.ProviderType;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBundle;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
@@ -186,6 +187,9 @@ public class SubscriptionRetrievalAgent extends
             timer.start();
 
             final int numberOfRetrievals = retrievals.size();
+            final ProviderType providerType = bundle.getProvider()
+                    .getProviderType(bundle.getDataType());
+            final String plugin = providerType.getPlugin();
             for (int i = 0; i < numberOfRetrievals; i++) {
                 Retrieval retrieval = retrievals.get(i);
                 RetrievalRequestRecord rec = new RetrievalRequestRecord(
@@ -196,7 +200,7 @@ public class SubscriptionRetrievalAgent extends
                 rec.setInsertTime(insertTime);
                 rec.setNetwork(retrieval.getNetwork());
                 rec.setProvider(provider);
-                rec.setPlugin(retrieval.getProviderType().getPlugin());
+                rec.setPlugin(plugin);
                 rec.setSubscriptionType(retrieval.getSubscriptionType());
 
                 try {
