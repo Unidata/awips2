@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--  default keep 3 hours -->
+<purgeRuleSet>
+	<defaultRule>
+		<period>00-03:00:00</period>
+	</defaultRule>
+</purgeRuleSet>

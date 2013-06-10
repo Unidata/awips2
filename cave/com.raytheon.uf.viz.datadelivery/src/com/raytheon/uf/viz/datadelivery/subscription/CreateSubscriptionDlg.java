@@ -49,7 +49,6 @@ import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.DataSetQuery;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -319,91 +318,89 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         GridLayout gl = new GridLayout(2, false);
 
-        if (DataDeliveryConstants.PHASE3_ENABLED) {
-            final Group group = new Group(mainComp, SWT.NONE);
-            group.setLayout(gl);
-            group.setLayoutData(gd);
-            group.setText(" Shared Sites ");
+        final Group group = new Group(mainComp, SWT.NONE);
+        group.setLayout(gl);
+        group.setLayoutData(gd);
+        group.setText(" Shared Sites ");
 
-            gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
-            gl = new GridLayout(2, false);
-            final Composite c = new Composite(group, SWT.NONE);
-            c.setLayout(gl);
-            c.setLayoutData(gd);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
+        gl = new GridLayout(2, false);
+        final Composite c = new Composite(group, SWT.NONE);
+        c.setLayout(gl);
+        c.setLayoutData(gd);
 
-            gl = new GridLayout(1, false);
-            gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-            final Button btn = new Button(c, SWT.NONE);
-            btn.setLayoutData(new GridData(95, SWT.DEFAULT));
-            btn.setText("Select Sites...");
-            btn.setToolTipText("Select sites for sharing");
-            btn.setEnabled(false);
+        gl = new GridLayout(1, false);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        final Button btn = new Button(c, SWT.NONE);
+        btn.setLayoutData(new GridData(95, SWT.DEFAULT));
+        btn.setText("Select Sites...");
+        btn.setToolTipText("Select sites for sharing");
+        btn.setEnabled(false);
 
-            final DataDeliveryPermission permission = DataDeliveryPermission.SHARED_SUBSCRIPTION_CREATE;
-            final IUser user = UserController.getUserObject();
-            final String msg = user.uniqueId()
-                    + " is not authorized to create shared subscriptions. "
-                    + StringUtil.NEWLINE + "Permission: " + permission;
-            try {
-                if (DataDeliveryServices.getPermissionsService()
-                        .checkPermission(user, msg, permission).isAuthorized()) {
-                    btn.setEnabled(true);
-                } else {
-                    c.addMouseTrackListener(new MouseTrackAdapter() {
+        final DataDeliveryPermission permission = DataDeliveryPermission.SHARED_SUBSCRIPTION_CREATE;
+        final IUser user = UserController.getUserObject();
+        final String msg = user.uniqueId()
+                + " is not authorized to create shared subscriptions. "
+                + StringUtil.NEWLINE + "Permission: " + permission;
+        try {
+            if (DataDeliveryServices.getPermissionsService()
+                    .checkPermission(user, msg, permission).isAuthorized()) {
+                btn.setEnabled(true);
+            } else {
+                c.addMouseTrackListener(new MouseTrackAdapter() {
 
-                        @Override
-                        public void mouseExit(MouseEvent e) {
-                            DataDeliveryGUIUtils.hideToolTip();
-                        }
+                    @Override
+                    public void mouseExit(MouseEvent e) {
+                        DataDeliveryGUIUtils.hideToolTip();
+                    }
 
-                        @Override
-                        public void mouseHover(MouseEvent e) {
-                            handleMouseEvent(e, msg, group.getBounds());
-                        }
+                    @Override
+                    public void mouseHover(MouseEvent e) {
+                        handleMouseEvent(e, msg, group.getBounds());
+                    }
 
-                        @Override
-                        public void mouseEnter(MouseEvent e) {
-                            handleMouseEvent(e, msg, group.getBounds());
-                        }
-                    });
-                }
-            } catch (VizException e1) {
-                statusHandler.handle(Priority.PROBLEM,
-                        e1.getLocalizedMessage(), e1);
+                    @Override
+                    public void mouseEnter(MouseEvent e) {
+                        handleMouseEvent(e, msg, group.getBounds());
+                    }
+                });
             }
-            btn.addSelectionListener(new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent e) {
-                    SiteSelectionDlg dlg = new SiteSelectionDlg(shell, "OAX",
-                            sharedSites);
-                    dlg.setCloseCallback(new ICloseCallback() {
-                        @Override
-                        public void dialogClosed(Object returnValue) {
-                            if (returnValue instanceof String[]) {
-                                String[] sites = (String[]) returnValue;
-                                processSites(sites);
-                            }
+        } catch (VizException e1) {
+            statusHandler
+                    .handle(Priority.PROBLEM, e1.getLocalizedMessage(), e1);
+        }
+        btn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                SiteSelectionDlg dlg = new SiteSelectionDlg(shell, "OAX",
+                        sharedSites);
+                dlg.setCloseCallback(new ICloseCallback() {
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        if (returnValue instanceof String[]) {
+                            String[] sites = (String[]) returnValue;
+                            processSites(sites);
                         }
-                    });
-                    dlg.open();
-                }
-            });
+                    }
+                });
+                dlg.open();
+            }
+        });
 
-            selectedSiteLbl = new Label(group, SWT.BORDER);
-            selectedSiteLbl.setFont(font);
-            selectedSiteLbl.setText("");
-            selectedSiteLbl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
-                    true, false));
+        selectedSiteLbl = new Label(group, SWT.BORDER);
+        selectedSiteLbl.setFont(font);
+        selectedSiteLbl.setText("");
+        selectedSiteLbl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+                false));
 
-            if (!create) {
-                if (subscription != null
-                        && subscription.getOfficeIDs().size() > 0) {
-                    String[] siteArr = subscription.getOfficeIDs().toArray(
-                            new String[subscription.getOfficeIDs().size()]);
-                    processSites(siteArr);
-                }
+        if (!create) {
+            if (subscription != null && subscription.getOfficeIDs().size() > 0) {
+                String[] siteArr = subscription.getOfficeIDs().toArray(
+                        new String[subscription.getOfficeIDs().size()]);
+                processSites(siteArr);
             }
         }
+
     }
 
     /**
