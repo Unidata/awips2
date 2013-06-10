@@ -36,8 +36,9 @@ import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Levels;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
-import com.raytheon.uf.common.datadelivery.registry.Provider.ProviderType;
+import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
+import com.raytheon.uf.common.datadelivery.registry.ProviderType;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBundle;
 import com.raytheon.uf.common.datadelivery.registry.Time;
@@ -402,11 +403,7 @@ class OpenDAPRetrievalGenerator extends RetrievalGenerator {
 
         // Coverage and type processing
         Coverage cov = sub.getCoverage();
-        ProviderType pt = null;
-        if (cov instanceof GriddedCoverage){
-            pt = ProviderType.GRID;
-            retrieval.setProviderType(pt);
-        } else {
+        if (!(cov instanceof GriddedCoverage)) {
             throw new UnsupportedOperationException(
                     "OPENDAP retrieval does not yet support coverages other than Gridded. ");
         }
@@ -420,7 +417,18 @@ class OpenDAPRetrievalGenerator extends RetrievalGenerator {
         att.setParameter(lparam);
         att.setEnsemble(ensemble);
         att.setSubName(retrieval.getSubscriptionName());
-        att.setPlugin(pt.getPlugin());
+        Provider provider;
+        try {
+            provider = DataDeliveryHandlers.getProviderHandler().getByName(
+                    sub.getProvider());
+        } catch (RegistryHandlerException e) {
+            throw new IllegalArgumentException(
+                    "Error looking up the provider!", e);
+        }
+        // Look up the provider's configured plugin for this data type
+        ProviderType providerType = provider.getProviderType(sub
+                .getDataSetType());
+        att.setPlugin(providerType.getPlugin());
         att.setProvider(sub.getProvider());
         retrieval.addAttribute(att);
 
@@ -486,30 +494,6 @@ class OpenDAPRetrievalGenerator extends RetrievalGenerator {
         }
 
         return levels;
-
-    }
-
-    /**
-     * clone the param
-     * 
-     * @param original
-     *            parameter
-     * @return
-     */
-    private Parameter processParameter(Parameter origParm) {
-
-        Parameter param = new Parameter();
-        param.setName(origParm.getName());
-        param.setBaseType(origParm.getBaseType());
-        param.setDataType(origParm.getDataType());
-        param.setDefinition(origParm.getDefinition());
-        param.setFillValue(origParm.getFillValue());
-        param.setLevelType(origParm.getLevelType());
-        param.setMissingValue(origParm.getMissingValue());
-        param.setProviderName(origParm.getProviderName());
-        param.setUnits(origParm.getUnits());
-
-        return param;
 
     }
 

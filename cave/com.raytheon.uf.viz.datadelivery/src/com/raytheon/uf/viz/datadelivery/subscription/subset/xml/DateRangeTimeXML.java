@@ -34,6 +34,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 22, 2012 0743       djohnson     Moved in range specific code from TimeXML.
+ * Jun 04, 2013  223       mpduff       Changed hierarchy.
  * 
  * 
  * </pre>
@@ -43,14 +44,14 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "rangeDateTime")
-public class DateRangeTimeXML extends TimeXML {
+public class DateRangeTimeXML extends GriddedTimeXML {
 
     @XmlElement(name = "rangeStart", type = String.class)
     protected String rangeStart;
 
     @XmlElement(name = "rangeEnd", type = String.class)
     protected String rangeEnd;
-   
+
     /**
      * @return the rangeStart
      */

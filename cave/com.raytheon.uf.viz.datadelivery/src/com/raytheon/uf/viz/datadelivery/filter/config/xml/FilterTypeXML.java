@@ -38,7 +38,8 @@ import com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 30, 2012            mpduff     Initial creation
+ * Jan 30, 2012            mpduff      Initial creation.
+ * Jun 04, 2013            mpduff      Changed method name.
  * 
  * </pre>
  * 
@@ -100,7 +101,7 @@ public class FilterTypeXML implements IDisplayXml {
      * ()
      */
     @Override
-    public String getDisplayXmlString() {
+    public String getPreviewString() {
         StringBuilder sb = new StringBuilder();
 
         sb.append("Type: ").append(this.filterType).append("\n");

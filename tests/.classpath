@@ -50,6 +50,7 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.database"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.mchange"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.commons.management"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.commons.io"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.facebook.thrift"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.datastorage"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.event"/>
@@ -75,7 +76,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.edex.plugin.redbook"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.plugin.level"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.dataplugin.level"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.archive"/>
 	<classpathentry kind="src" path="/com.raytheon.uf.common.dataplugin.ffmp"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataaccess"/>
 	<classpathentry kind="src" path="/com.raytheon.uf.common.monitor"/>
@@ -93,5 +93,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.datadelivery.harvester"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/javax.jms"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.commons.cxf"/>
+	<classpathentry kind="src" path="/com.raytheon.uf.common.archive"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

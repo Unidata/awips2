@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.monitor.scan.tables;
 import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -76,6 +77,10 @@ import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlertedAlar
  * 03/15/2012   13939      Mike Duff   For a SCAN Alarms issue
  * Apr 29, 2013 #1945      lvenable    Improved SCAN performance, reworked
  *                                     some bad code, and some code cleanup.
+ * Jun 04, 2013 #1984      lvenable    Save images instead of disposing them when setting
+ *                                     the table column images.  This is to fix the Windows
+ *                                     issue on the images being blank and throwing errors.
+ *                                     Also cleaned up some code.
  * 
  * </pre>
  * 
@@ -152,6 +157,11 @@ public abstract class SCANTable extends Composite {
     protected Point prevMousePt = new Point(-9999, -9999);
 
     /**
+     * Array of images used for the table columns.
+     */
+    protected List<Image> columnImgs = new ArrayList<Image>();
+
+    /**
      * Last sorted column index. This is set to -2 because sortedColumnIndex is
      * set to -1 and they should not have the same initial value at start up.
      */
@@ -221,6 +231,7 @@ public abstract class SCANTable extends Composite {
                 tiFont.dispose();
                 columnFont.dispose();
                 lineColor.dispose();
+                disposeColumnImages();
             }
         });
     }
@@ -236,15 +247,6 @@ public abstract class SCANTable extends Composite {
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.heightHint = 175;
         gd.widthHint = scanCfg.getDefaultTableWidth(scanTable);
-
-        boolean[] visCols = scanCfg.getVisibleColumns(scanTable);
-        int tableWidth = 0;
-
-        for (boolean b : visCols) {
-            if (b) {
-                tableWidth += defaultColWidth;
-            }
-        }
 
         table = new Table(this, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
         table.setLayoutData(gd);
@@ -317,7 +319,6 @@ public abstract class SCANTable extends Composite {
             public void mouseDown(MouseEvent event) {
                 tableMouseDownAction(event);
             }
-
         });
 
         table.addMouseMoveListener(new MouseMoveListener() {
@@ -770,8 +771,6 @@ public abstract class SCANTable extends Composite {
 
         int maxColNameExtent = 0;
 
-        // TODO - use font extents
-
         textWidth = gc.getFontMetrics().getAverageCharWidth();
         textHeight = gc.getFontMetrics().getHeight();
 
@@ -1060,6 +1059,8 @@ public abstract class SCANTable extends Composite {
 
         TableColumn[] tCols = table.getColumns();
 
+        disposeColumnImages();
+
         for (int i = 0; i < tCols.length; i++) {
             String colName = (String) tCols[i].getData();
             Image img = new Image(this.getDisplay(), imageWidth, imageHeight);
@@ -1097,8 +1098,21 @@ public abstract class SCANTable extends Composite {
             gc.dispose();
             tCols[i].setImage(img);
 
-            img.dispose();
+            columnImgs.add(img);
         }
+    }
+
+    /**
+     * Dispose of all the table column images and clear the array of images.
+     */
+    protected void disposeColumnImages() {
+        for (Image img : columnImgs) {
+            if (img != null) {
+                img.dispose();
+            }
+        }
+
+        columnImgs.clear();
     }
 
     /**
@@ -1177,7 +1191,6 @@ public abstract class SCANTable extends Composite {
         }
 
         Rectangle rect;
-        // rect = item.getBounds(table.getColumnCount() - 1);
         rect = item.getBounds(scanCfg.getCountyColumnIndex(scanTable));
 
         if ((scanCfg.showTips(scanTable) == false)

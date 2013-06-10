@@ -31,7 +31,7 @@ import org.junit.Test;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 
@@ -65,9 +65,9 @@ public class SubscriptionOverlapServiceTest {
     private final SubscriptionOverlapService service = new SubscriptionOverlapService(
             duplicateChecker);
 
-    private final Subscription sub1 = SubscriptionFixture.INSTANCE.get(1);
+    private final Subscription sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
 
-    private final Subscription sub2 = SubscriptionFixture.INSTANCE.get(2);
+    private final Subscription sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
 
     @Before
     public void setUp() {

@@ -80,6 +80,8 @@ from com.raytheon.uf.edex.database.cluster import ClusterTask
 #    05/08/13        1988          dgilling       Fix history handling bug in
 #                                                 __getDbGrid().
 #    05/23/13        1759          dgilling       Remove unnecessary imports.
+#    06/05/13        2063          dgilling       Change __siteInDbGrid() to
+#                                                 call IFPWE.history() like A1.
 # 
 # 
 
@@ -1289,13 +1291,14 @@ class IscMosaic:
     def __siteInDbGrid(self, tr):
         if tr is None:
             return None
-        history = self.__dbwe.getItem(iscUtil.toJavaTimeRange(tr)).getHistory()
+        history = self.__dbwe.history(iscUtil.toJavaTimeRange(tr))
         
-        for i in range(0, len(history)):
-            index = string.find(history[i].getCodedString(), self.__siteID + "_GRID")
-            if index != -1:
-                return 1
-        return 0
+        itr = history.iterator()
+        while itr.hasNext():
+            h = str(itr.next())
+            if self.__siteID + "_GRID" in h:
+                return True
+        return False
     
     #---------------------------------------------------------------------
     # validateAdjustDiscreteKeys()

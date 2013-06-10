@@ -41,6 +41,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * Oct 3, 2012  1241      djohnson     Initial creation
  * Nov 19, 2012 1166      djohnson     Clean up JAXB representation of registry objects.
  * Dec 10, 2012 1259      bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
+ * Jun 04, 2013  223      mpduff       Added datatype to the filter.
  * 
  * </pre>
  * 
@@ -74,13 +75,15 @@ public interface IDataSetHandler extends IRegistryObjectHandler<DataSet> {
      *            the levels
      * @param parameterNames
      *            the parameter names
-     * @param coords
-     *            the coordinates for the area, [0] = upper left, [1] = lower
-     *            right
+     * @param dataSetTypes
+     *            List of data set types
+     * @param envelope
+     *            the ReferencedEnvelope
+     * @return
      * @throws RegistryHandlerException
      */
     List<DataSet> getByFilters(List<String> providers,
             List<String> dataSetNames, Set<LevelType> levels,
-            List<String> parameterNames, ReferencedEnvelope envelope)
-            throws RegistryHandlerException;
+            List<String> parameterNames, List<String> dataSetTypes,
+            ReferencedEnvelope envelope) throws RegistryHandlerException;
 }

@@ -208,7 +208,7 @@
         		<fileset dir="${builder}"
         			includes="dependencies-stash/**" />
         	</delete>
-	
+        	
 			<!--
 				Remove all PDE-generated FOSS artifacts from the
 				plugins directory.
@@ -216,6 +216,8 @@
 			<loadfile property="includefile.foss"
 				srcfile="${builder}/includes/cots.includes" />
 			<var name="index" value="1" />
+        	
+        	
 	
 			<for param="line" list="${includefile.foss}"
 			delimiter="${line.separator}">
@@ -227,9 +229,20 @@
 						</not>
 						<then>
 							<!--
-								Remove the empty FOSS jar from plugins.
+								First, determine if the plugin has a source directory.
 							-->
-							<delete file="${builder}/postBuild/${edex.root.directory}/lib/plugins/@{line}.jar" />	
+							<if>
+								<not>
+									<available file="${buildDirectory}/plugins/@{line}/src"
+										type="dir" />
+								</not>
+								<then>
+									<!--
+										Remove the empty FOSS jar from plugins.
+									-->
+									<delete file="${builder}/postBuild/${edex.root.directory}/lib/plugins/@{line}.jar" />
+								</then>
+							</if>
 						</then>
 					</if>
 					<math result="index"

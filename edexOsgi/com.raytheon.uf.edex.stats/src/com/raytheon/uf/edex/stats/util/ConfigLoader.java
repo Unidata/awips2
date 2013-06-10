@@ -41,7 +41,7 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.stats.xml.StatisticsAggregate;
 import com.raytheon.uf.common.stats.xml.StatisticsConfig;
-import com.raytheon.uf.common.stats.xml.StatisticsEvent;
+import com.raytheon.uf.common.stats.xml.StatisticsEventConfig;
 import com.raytheon.uf.common.stats.xml.StatisticsGroup;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -58,11 +58,12 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 21, 2012            jsanchez    Updated error handling and validated config files.
- * Nov 07, 2012   1317     mpduff      Update config files.
- * Nov 29, 2012   1350     rjpeter     Updated to static, fixed localization, increased validation.
- * Jan 15, 2013   1487     djohnson    Make validate() static and public, so it can be run independently.
- * Mar 27, 2013   1834     mpduff      Filter for xml files on localization file read, wrap unmarshall and 
+ * Nov 07, 2012 1317       mpduff      Update config files.
+ * Nov 29, 2012 1350       rjpeter     Updated to static, fixed localization, increased validation.
+ * Jan 15, 2013 1487       djohnson    Make validate() static and public, so it can be run independently.
+ * Mar 27, 2013 1834       mpduff      Filter for xml files on localization file read, wrap unmarshall and 
  *                                     log error if one occurs
+ * May 22, 2013 1917       rjpeter     Updated validate to save typeClass back to StatisticsEventConfig.
  * </pre>
  * 
  * @author jsanchez
@@ -81,7 +82,7 @@ public class ConfigLoader {
 
     private List<StatisticsConfig> configurations = Collections.emptyList();
 
-    private Map<String, StatisticsEvent> classToEventMap = Collections
+    private Map<String, StatisticsEventConfig> classToEventMap = Collections
             .emptyMap();
 
     private static final String STATS_DIR = "stats";
@@ -113,7 +114,7 @@ public class ConfigLoader {
      * 
      * @return
      */
-    public Map<String, StatisticsEvent> getTypeView() {
+    public Map<String, StatisticsEventConfig> getTypeView() {
         return classToEventMap;
     }
 
@@ -144,7 +145,7 @@ public class ConfigLoader {
         if (!statConfs.isEmpty()) {
             List<StatisticsConfig> myConfigurations = new ArrayList<StatisticsConfig>(
                     statConfs.size());
-            Map<String, StatisticsEvent> myEvents = new HashMap<String, StatisticsEvent>();
+            Map<String, StatisticsEventConfig> myEvents = new HashMap<String, StatisticsEventConfig>();
 
             for (LocalizationFile lf : statConfs.values()) {
                 try {
@@ -174,17 +175,17 @@ public class ConfigLoader {
      * @param config
      */
     @VisibleForTesting
-    public static void validate(Map<String, StatisticsEvent> eventMap,
+    public static void validate(Map<String, StatisticsEventConfig> eventMap,
             StatisticsConfig config) {
-        for (Iterator<StatisticsEvent> iter = config.getEvents().iterator(); iter
-                .hasNext();) {
-            StatisticsEvent event = iter.next();
+        for (Iterator<StatisticsEventConfig> iter = config.getEvents()
+                .iterator(); iter.hasNext();) {
+            StatisticsEventConfig event = iter.next();
             String eventType = event.getType();
             if (!eventMap.containsKey(eventType)) {
                 try {
                     Class<?> clazz = Class.forName(eventType);
                     // verify the type is an Event
-                    clazz.asSubclass(Event.class);
+                    event.setTypeClass(clazz.asSubclass(Event.class));
 
                     // validate groupBy fields can be found
                     List<StatisticsGroup> groups = event.getGroupList();

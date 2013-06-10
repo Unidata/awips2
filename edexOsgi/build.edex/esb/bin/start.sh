@@ -97,7 +97,6 @@ CONSOLE_FLAG=on
 CONSOLE_LOGLEVEL=DEBUG
 DEBUG_FLAG=off
 PROFILE_FLAG=off
-HIGH_MEM_FLAG=off
 CONF_FILE="wrapper.conf"
 RUN_MODE=
 for arg in $@
@@ -105,13 +104,12 @@ do
   case $arg in
     -b|-d|--debug|-db|-bd) DEBUG_FLAG=on;;
     -p|--profiler) PROFILE_FLAG=on;;
-    -h|--highmem) HIGH_MEM_FLAG=on;;
+    -h|--highmem) ;;  # does nothing, only here to prevent issues if someone still uses -h
     -noConsole) CONSOLE_FLAG=off;;
     *) RUN_MODE=$arg;;
   esac
 done
 
-export HIGH_MEM_FLAG
 export EDEX_RUN_MODE=$RUN_MODE
 
 if [ $CONSOLE_FLAG == "off" ]; then

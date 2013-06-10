@@ -68,6 +68,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 21 Nov 2012   838        B. Hebbard  Initial creation.
  * 25 Apr 2013   838        G. Hull     add request constraint to the query for the cycle time  
  * 30 Apr 2013   838        B. Hebbard  IOC version (for OB13.4.1)
+ * 30 May 2013   838        B. Hebbard  Update for compatibility with changes by RTS in OB13.3.1
+ *                                      [ DataStoreFactory.getDataStore(...) parameter ]
+
  * 
  * </pre>
  * 
@@ -205,11 +208,11 @@ public class NtransResource extends AbstractNatlCntrsResource<NtransResourceData
 		private byte[] getCgmFromNtrans(NtransRecord nr) {
 
     		// Given the NcscatRecord, locate the associated HDF5 data...
+			
     		File location = HDF5Util.findHDF5Location(nr);
 
-    		String hdf5File = location.getAbsolutePath();  //TODO  same??
     		String group = nr.getDataURI();
-    		String uri = nr.getDataURI();
+    		//String uri = nr.getDataURI();
     		String dataset = "NTRANS";
     		
     		// get filename and directory for IDataStore
@@ -218,10 +221,9 @@ public class NtransResource extends AbstractNatlCntrsResource<NtransResourceData
     		//File file = new File(dir, filename);
 
     		// ...and retrieve it
-    		// get IDataStore
-    		//IDataStore ds = DataStoreFactory.getDataStore(file);
-    		IDataStore ds = DataStoreFactory.getDataStore(new File(hdf5File));
-    		IDataRecord dr;
+
+    		IDataStore ds = DataStoreFactory.getDataStore(location);
+    		IDataRecord dr = null;
     		//IDataRecord[] dr;
     		try {
     			dr = ds.retrieve(group, dataset, Request.ALL);
@@ -245,7 +247,9 @@ public class NtransResource extends AbstractNatlCntrsResource<NtransResourceData
     	}
 		
 		public void dispose() {
-			pictureInfo.dispose();
+			if (pictureInfo != null) {
+				pictureInfo.dispose();
+			}
 			super.dispose();
 		}
     }

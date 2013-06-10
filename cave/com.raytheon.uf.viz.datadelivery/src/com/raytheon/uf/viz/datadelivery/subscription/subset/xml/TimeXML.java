@@ -19,18 +19,9 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription.subset.xml;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
 
-import org.apache.commons.lang.StringUtils;
-
-import com.raytheon.uf.common.util.CollectionUtil;
-import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml;
 
 /**
@@ -45,6 +36,7 @@ import com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml;
  * Mar 29, 2012            mpduff       Initial creation
  * Aug 21, 2012 0743       djohnson     Add specificDate, use append rather than concatenate strings.
  * Feb 15, 2013 1638       mschenke     Moved Util.EOL into FileUtil
+ * Jun 04, 2013  223       mpduff       Changed hierarchy.
  * 
  * </pre>
  * 
@@ -53,111 +45,4 @@ import com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 public abstract class TimeXML implements IDisplayXml {
-
-    @XmlElement(name = "latestData")
-    protected boolean latestData;
-
-    @XmlElements({ @XmlElement(name = "cycle", type = Integer.class) })
-    protected List<Integer> cycleList = new ArrayList<Integer>();
-    
-    @XmlElements({ @XmlElement(name = "fcstHour", type = String.class) })
-    protected List<String> fcstHourList = new ArrayList<String>();
-
-    /**
-     * @return the latestData
-     */
-    public boolean isLatestData() {
-        return latestData;
-    }
-
-    /**
-     * @param latestData the latestData to set
-     */
-    public void setLatestData(boolean latestData) {
-        this.latestData = latestData;
-    }
-
-    /**
-     * @return the cycle
-     */
-    public List<Integer> getCycles() {
-        return cycleList;
-    }
-
-    /**
-     * @param cycle the cycle to set
-     */
-    public void setCycles(List<Integer> cycles) {
-        this.cycleList = cycles;
-    }
-    
-    /**
-     * @param cycle
-     */
-    public void addCycle(int cycle) {
-        this.cycleList.add(cycle);
-    }
-
-    /**
-     * @return the fcstHour
-     */
-    public List<String> getFcstHours() {
-        return fcstHourList;
-    }
-
-    /**
-     * @param fcstHours the fcstHour to set
-     */
-    public void setFcstHours(List<String> fcstHours) {
-        this.fcstHourList = fcstHours;
-    }
-
-    /**
-     * Add Forecast Hour
-     * @param hour
-     */
-    public void addHour(String hour) {
-        this.fcstHourList.add(hour);
-    }
-
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml#getDisplayXmlString()
-     */
-    @Override
-    public String getDisplayXmlString() {
-        StringBuilder sb = new StringBuilder();
-        
-        sb.append(FileUtil.EOL);
-        if (latestData) {
-            sb.append("Requesting Latest Data");
-        } else {
-            sb.append(getNonLatestData());
-        }
-        sb.append(FileUtil.EOL);
-        
-        if (!CollectionUtil.isNullOrEmpty(cycleList)) {
-            sb.append("Cycles:").append(FileUtil.EOL);
-            for (Integer cycle : cycleList) {
-                sb.append(" ").append(
-                        StringUtils.leftPad(cycle.toString(), 2, '0'));
-            }
-            sb.append(FileUtil.EOL);
-        }
-        
-        if (!CollectionUtil.isNullOrEmpty(fcstHourList)) {
-            sb.append("Forecast Hours:").append(FileUtil.EOL);
-            for (String fcst: fcstHourList) {
-                sb.append(" ").append(fcst);
-            }
-            sb.append(FileUtil.EOL);
-        }
-        return sb.toString();
-    }
-
-    /**
-     * Return the display string for non-latest data.
-     * 
-     * @return the display string
-     */
-    protected abstract String getNonLatestData();
 }
