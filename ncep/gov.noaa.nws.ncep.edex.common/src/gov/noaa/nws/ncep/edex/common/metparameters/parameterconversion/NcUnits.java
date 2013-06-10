@@ -1,6 +1,7 @@
 package gov.noaa.nws.ncep.edex.common.metparameters.parameterconversion;
 
 
+import gov.noaa.nws.ncep.edex.common.metparameters.quantity.AmountOfPrecipitation;
 import gov.noaa.nws.ncep.edex.common.metparameters.quantity.HeatFlux;
 import gov.noaa.nws.ncep.edex.common.metparameters.quantity.PotentialForCyclonicUpdraftRotation;
 import gov.noaa.nws.ncep.edex.common.metparameters.quantity.RateOfChangeInPressureWithTime;
@@ -36,6 +37,9 @@ public class NcUnits implements ISerializableObject{
 	public NcUnits(){
 		
 	}
+	
+	@DynamicSerializeElement
+	public static final Unit<AmountOfPrecipitation> KG_PER_METER_SQ  = new ProductUnit<AmountOfPrecipitation>(SI.KILOGRAM.divide(( SI.METER.pow( 2 ) )) ) ;
 	
 	@DynamicSerializeElement
 	public static final Unit<?> GRAMS_PER_KILOGRAM           = SI.GRAM.divide(SI.KILOGRAM) ; 
@@ -103,7 +107,8 @@ public class NcUnits implements ISerializableObject{
 	    UnitFormat.getUCUMInstance().label( PASCALS_PER_SEC, "pascals_per_sec" );
 	    UnitFormat.getUCUMInstance().label( KELVIN_PER_DAY, "kelvin_per_day" );
 		UnitFormat.getUCUMInstance().label( JOULES_PER_KILOGRAM, "joules_per_kg" );
-		UnitFormat.getUCUMInstance().label( INCHES_PER_HOUR, "inches_per_hour" );		
+		UnitFormat.getUCUMInstance().label( INCHES_PER_HOUR, "inches_per_hour" );
+		UnitFormat.getUCUMInstance().label( KG_PER_METER_SQ, "kg_per_meter_squared" );
 //		UnitFormat.getUCUMInstance().label( CELSIUS_PER_KILOMETER, "℃/km" );
 //		UnitFormat.getUCUMInstance().label( KELVIN_PER_MILLIBAR, "K/mb" );
 		

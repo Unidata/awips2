@@ -37,11 +37,10 @@
 
         <!-- delete the shell scripts from ${esbDir}/bin/ -->
         <echo message="Cleaning target directory: ${edex.root.directory}/bin/" />
-        <delete>
+        <delete includeemptydirs="true">
             <fileset dir="${edex.root.directory}/bin/">
                 <include name="*.sh"/>
-            	<include name="wrapper.conf" />
-        		<include name="linux-x86-*/**" />
+        		<include name="yajsw/**" />
             </fileset>
         </delete>
 
@@ -67,9 +66,6 @@
 			</fileset>
 		</copy>
 		
-		<!-- copy the correct wrapper based on architecture. -->
-		<antcall target="deploy.esb.wrapper-${architecture}" />
-		
 		<!-- copy the correct 'libpython.so' based on architecture. -->
 		<mkdir dir="${edex.root.directory}/lib/lib_illusion" />
 		<copy todir="${edex.root.directory}/lib/lib_illusion">
@@ -80,30 +76,6 @@
 		
 		<!-- set executable permissions - start.sh. -->
 		<chmod file="${edex.root.directory}/bin/start.sh" perm="ugo+rx" />
-	</target>
-	
-	<target name="deploy.esb.wrapper-x86">
-		<copy todir="${edex.root.directory}">
-			<fileset dir="${esb.directory}">
-				<include name="**/bin/linux-x86-32/**" />
-			</fileset>
-		</copy>
-		
-		<!-- update permissions on the wrapper. -->
-		<chmod file="${edex.root.directory}/bin/linux-x86-32/wrapper" 
-			perm="ugo+rx" />
-	</target>
-	
-	<target name="deploy.esb.wrapper-x86_64">
-		<copy todir="${edex.root.directory}">
-			<fileset dir="${esb.directory}">
-				<include name="**/bin/linux-x86-64/**" />
-			</fileset>
-		</copy>		
-		
-		<!-- update permissions on the wrapper. -->
-		<chmod file="${edex.root.directory}/bin/linux-x86-64/wrapper" 
-			perm="ugo+rx" />
 	</target>
 
 	<target name="deploy.esb-data">

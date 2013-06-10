@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 import gov.noaa.nws.ncep.viz.common.RGBColorAdapter;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet.RscAttrValue;
@@ -23,6 +24,7 @@ import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr.ResourceP
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr.ResourceParamType;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
 //import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition.InventoryLoadStrategy;
+import gov.noaa.nws.ncep.viz.resources.manager.ResourceCategory;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName.ResourceNameAdapter;
@@ -78,8 +80,10 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
  * Mar 03, 2011    408     ghull       frameInterval -> frameSpan
  * Nov 15, 2011            ghull       add resolveLatestCycleTime, 
  * Nov 29, 2011    518     ghull       add dfltFrameTimes
- * Feb 06, 2012    606     ghull       getDataTimes from Inventory if it exists
- * 
+ * Feb 06, 2012    606     ghull       getDataTimes from Inventory if it exist
+ * Feb 07, 2013    #972    ghull       ResourceCategory class. Supported NcDisplayType
+ * Apr 15, 2013    #864    ghull       add USE_CYCLE_TIME_FCST_HOURS and Event timeMatchMthd
+ * 04/10/2013      #958    qzhou       Added autoupdate for solar in isAutoUpdateable
  * </pre>
  *  * 
  * @author ghull
@@ -144,13 +148,24 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends AbstractR
 		BEFORE_OR_EQUAL, 
 		CLOSEST_BEFORE_OR_EQUAL, 
 		CLOSEST_AFTER_OR_EQUAL, 
-		CLOSEST_BEFORE_OR_AFTER
+		CLOSEST_BEFORE_OR_AFTER,
+		// This was created when the "Event" filter was removed. This now
+		// is an indication of 'Event'-based resources and requires that the
+		// TimelineGenMethod be set to MANUAL. Currently the behaviour of
+		// an EVENT TimeMatchMethod is the same as EXACT in that it sets a 
+		// frames start/end time to the frame time. (ie a frame span of 0.)
+		// 
+		EVENT  
 	}
 
 	public static enum TimelineGenMethod {
-		USE_FRAME_INTERVAL, 
-		USE_DATA_TIMES,
+		USE_FRAME_INTERVAL, // use a frame interval (dflt to frame span) to generate frame times
+		USE_DATA_TIMES,      // use the data times from the dominant source 
+		USE_CYCLE_TIME_FCST_HOURS,  // 
+		USE_FCST_FRAME_INTERVAL_FROM_REF_TIME, // For Taf. 
+		//USE_FCST_FRAME_INTERVAL_FROM_CYCLE_TIME, // currently no implementations of this 
 		USE_MANUAL_TIMELINE
+//		DETERMINE_FROM_RSC_IMPLEMENTATION,
 	}
 
     public AbstractNatlCntrsRequestableResourceData() {
@@ -179,10 +194,11 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends AbstractR
 	// check if the resource Implementation is a satellite or radar.
 	//
 	public boolean isAutoUpdateable() {
-		String rscCat = getResourceName().getRscCategory();
+		ResourceCategory rscCat = getResourceName().getRscCategory();
 		if( rscCat != null && 
-			rscCat.equals( ResourceName.SatelliteRscCategory ) ||
-			rscCat.equals( ResourceName.RadarRscCategory ) ) {			
+			rscCat == ResourceCategory.SatelliteRscCategory ||
+			rscCat == ResourceCategory.RadarRscCategory ||
+			rscCat == ResourceCategory.SpaceRscCategory) {			
 			return true;
 		}			
 		return false;
@@ -270,7 +286,9 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends AbstractR
 	}
 	
 	// if there is a cycle time then this is a forecast resource.
-	// (Taf is a forecast resource w/o a cycle time but it will override this method.)
+	// 
+	// TODO : should we allow for a resource to be a forecast resource w/o having a cycle time?
+	// 
 	public boolean isForecastResource() {
 		return resourceName.isForecastResource();
 	}
@@ -283,6 +301,14 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends AbstractR
 		getMetadataMap().get("pluginName").setConstraintValue( pluginName );		
 	}
 	
+    // implement here as a convienience since almost all of our 
+    // resources are on map based displays. Other resources
+    // that are written to draw to differendt display types will 
+    // need to override this.
+	public NcDisplayType[] getSupportedDisplayTypes() {
+		return new NcDisplayType[] { NcDisplayType.NMAP_DISPLAY };
+	}
+
 	// in D2D the construct method will call setTimeList which will set the TimeMatchingMap in the descriptor. 
 	// but for us the non-dominant resources will not know there frameTimes until the dominant source is constructed since this 
 	// is where the frameTimes are defined for all resources. So... we either need to ensure that the dominant resource is constructed 
@@ -431,111 +457,6 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends AbstractR
 		return availTimesList;
 	}
 	
-//	@SuppressWarnings("unchecked")
-//	public ArrayList<DataTime> generateTimelineAsDominant( DataTime refTime, int timeRange ) {
-//		
-//		ArrayList<DataTime> frameTimes = new ArrayList<DataTime>();
-//
-//		//Date curDate = Calendar.getInstance().getTime();
-//		long refTimeMillisecs = refTime.getRefTime().getTime(); // getRef or getValid???
-//		long frameIntervalMillisecs = ((long)frameInterval)*60*1000;
-//		long timeRangeMillisecs = ((long)timeRange)*60*60*1000;
-//		
-//		// if a frameInterval is set then use it to create a list of times.
-//		//
-//		if( timelineGenMethod == TimelineGenMethod.USE_FRAME_INTERVAL ) {
-//			if( frameInterval == 0 ) {
-//				return null;
-//			}
-//			
-//			DataTime frameTime;
-//			
-//			if( getResourceName().isForecastResource() ) {
-//				frameTime = refTime;
-//			}
-//			else {			
-//				DataTime normRefTime = getNormalizedTime( refTime );
-//				DataTime frameTime = normRefTime;
-//				ArrayList<DataTime> tmpList = new ArrayList<DataTime>();
-//			
-//			while( refTimeMillisecs-frameTime.getRefTime().getTime() <= timeRangeMillisecs ) {
-//				frameTimes.add( frameTime );
-////				tmpList.add( frameTime );
-//				frameTime = new DataTime( 
-//						new Date( frameTime.getRefTime().getTime() - frameIntervalMillisecs ));
-//			}
-//			}
-////			for( DataTime dt : tmpList ) {
-////				frameTimes.add( dt );
-////			}			
-//		}
-//		else { // timelineGenMethod == TimelineGenMethod.USE_DATA_TIMES
-//
-//			DataTime[] availTimes = null;
-//			try {
-//				availTimes = getAvailableTimes();
-//			} catch ( VizException e ) {
-//				System.out.println("Error getting Available Times" );
-//				return null;
-//			}
-//			Date refDate = new Date( refTimeMillisecs );
-//			Date oldDate = new Date( refTimeMillisecs-timeRangeMillisecs-1 );
-//			DataTime oldestTime = new DataTime( oldDate );
-//	        
-//	        for( DataTime time : availTimes ) {
-//	        	if( time.compareTo( oldestTime ) >= 0 &&
-//	        		time.compareTo( refTime ) <= 0 ) {
-//	                frameTimes.add( time );
-//	            }
-//	        }
-////			for( DataTime dt : availTimes ) {
-////				frameTimes.add( dt );
-////			}		
-//	        
-//	        
-//			ArrayList<DataTime> frameTimes = new ArrayList<DataTime>();
-//			
-//			// if this is a forecast resource, get the cycle time and filter out other times and sort by the forecast hours 
-//			// TODO: don't get the cycle time from the resourceName.... 
-//			//
-//			if( getResourceName().getCycleTime() != null ) {
-//				//DataTime cycleTime = getResourceName().getCycleTime(); 
-//				long cycleTimeMs=0;
-//				
-//				// if latest then get the latest time
-//				if( getResourceName().isLatestCycleTime() ) {
-//					for( DataTime dt : availTimes ) {
-//						if( dt.getRefTime().getTime() > cycleTimeMs ) {
-//							cycleTimeMs = dt.getRefTime().getTime();
-//						}
-//					}
-//				}
-//				else {
-//					cycleTimeMs = getResourceName().getCycleTime().getRefTime().getTime();
-//				}
-//				
-//				// add all the forecast times for the given cycleTime.
-//				// (TODO: confirm that duplicate valid times (with different periods are not getting added here.) 
-//				for( DataTime dt : availTimes ) {
-//					if( dt.getRefTime().getTime() == cycleTimeMs ) {
-//						// create a DataTime without a period which may lead to duplicate times.
-//						DataTime frameTime = new DataTime( dt.getRefTime(), dt.getFcstTime() );
-//						if( !frameTimes.contains( frameTime ) ) {
-//							frameTimes.add( frameTime );
-//						}
-//					}
-//				}
-//				
-//				return frameTimes; // for now just assume that forecast resources aren't normalized
-//			}
-//
-//	        
-//	        
-//		}
-//        
-//       return frameTimes;
-//	}
-
 	// get a list of the defined attributes for this resource and 
 	// 
 	public ResourceAttrSet getRscAttrSet() {

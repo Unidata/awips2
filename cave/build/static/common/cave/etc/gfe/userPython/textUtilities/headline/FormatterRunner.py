@@ -88,11 +88,17 @@ def executeFromJava(databaseID, site, username, dataMgr, forecastList, logFile, 
     site = str(site)
     databaseID = str(databaseID)
     username = str(username)    
-    logger.info("TextFormatter Starting")
+
+    startTime = time.time()
+    logger.info("Text Formatter Starting")
+    
     forecasts = runFormatter(databaseID=databaseID, site=site, forecastList=forecastList, testMode=testMode,
                         cmdLineVarDict=cmdLineVarDict, vtecMode=vtecMode, username=username,
                         dataMgr=dataMgr, drtTime=drtTime)
     
+    elapsedTime = (time.time() - startTime)*1000
+    logger.info("Text Formatter Finished, took: %d ms",elapsedTime)
+
     RedirectLogging.restore()
     return forecasts
     
@@ -286,7 +292,6 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
 
     # This also means that you may not import any new modules after this
     # point!!!!!!!!!!!!!!!
-    logger.info("Text Formatter Finished")
     return forecasts
 
 def getAbsTime(timeStr):

@@ -24,11 +24,11 @@ import java.io.Serializable;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAnyElement;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
-import com.raytheon.uf.common.datadelivery.registry.CoverageAdapter;
 import com.raytheon.uf.common.datadelivery.registry.Ensemble;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.Time;
@@ -45,13 +45,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 17, 2011    191      dhladky     Initial creation
+ * Feb 15, 2013 1543       djohnson     Allow any type of Coverage instance without a JAXB adapter.
  * 
  * </pre>
  * 
  * @author dhladky
  * @version 1.0
  */
-
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class RetrievalAttribute implements ISerializableObject, Serializable {
@@ -92,8 +93,7 @@ public class RetrievalAttribute implements ISerializableObject, Serializable {
     @DynamicSerializeElement
     private String plugin;
 
-    @XmlElement(name = "coverage")
-    @XmlJavaTypeAdapter(value = CoverageAdapter.class)
+    @XmlAnyElement(lax = true)
     @DynamicSerializeElement
     private Coverage coverage;
 

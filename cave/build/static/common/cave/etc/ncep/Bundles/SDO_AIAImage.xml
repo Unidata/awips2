@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<bundle editor="gov.noaa.nws.ncep.viz.rsc.fits.SolarImageEditor">
+<bundle editor="gov.noaa.nws.ncep.viz.rsc.solarimage.SolarImageEditor">
 	<displayList>
 	<displays xsi:type="defaultNonMapDisplay" tabTitle="SDO/AIA" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <descriptor xsi:type="xyGraphDescriptor">
@@ -16,13 +16,13 @@
 					<properties isSystemResource="false"
 						isBlinking="false" isMapLayer="false" isHoverOn="false"
 						isVisible="true" />
-					<resourceData xsi:type="fitsResourceData" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+					<resourceData xsi:type="SolarImageResourceData" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
 						<metadataMap>
 					    	<mapping key="pluginName">
-								<constraint constraintValue="fits" constraintType="EQUALS" />
+								<constraint constraintValue="solarimage" constraintType="EQUALS" />
 							</mapping>
-							<mapping key="telescope">
-								<constraint constraintValue="SDO/AIA" constraintType="EQUALS" />
+							<mapping key="satellite">
+								<constraint constraintValue="SDO" constraintType="EQUALS" />
 							</mapping>
 							<mapping key="instrument">
 								<constraint constraintValue="${instrument}" constraintType="EQUALS" />
@@ -33,7 +33,7 @@
 						</metadataMap>
 					</resourceData>
 				</resource>
-                <!--timeMatcher xsi:type="d2dTimeMatcher" deltaFilter="0" forecastFilter="0"/-->
+                <timeMatcher xsi:type="d2DTimeMatcher" loadMode="LATEST" deltaFilter="0" forecastFilter="0"/>
             </descriptor>
         </displays>
 	</displayList>

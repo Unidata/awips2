@@ -44,6 +44,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 1, 2012  14715      rferrel     Initial creation
+ * Mar 21, 2013 15375      zhao        Added methods for handling VFT product
  * 
  * </pre>
  * 
@@ -274,4 +275,42 @@ public class TafQueueDao extends CoreDao {
         }
         return records.size();
     }
+
+    /**
+     * (for DR15375)
+     * Get last xmit time for a forecaster id (for VFT purpose)   
+     * @param forecasterid
+     * @return last xmittime; return null if no record exists
+     * @throws DataAccessLayerException
+     */
+    @SuppressWarnings("unchecked")
+    public Date getLastXmitTimeByForecasterId(int forecasterid) throws DataAccessLayerException {
+		Date lastXmittime = null;
+		DatabaseQuery query = new DatabaseQuery(TafQueueRecord.class.getName());
+		query.addQueryParam("forecasterId", forecasterid, QueryOperand.EQUALS);
+		query.addOrder("xmitTime", false);
+		List<TafQueueRecord> records = (List<TafQueueRecord>) queryByCriteria(query);
+		if ( records.size() > 0 ) {
+			lastXmittime = records.get(0).getXmitTime();
+		}
+		return lastXmittime;
+	}
+
+    /** (for DR15375)
+     * Retrieves a list of TAF records sent since the last VFT product was created 
+     * @param lastVftTime (last VFT creation time)
+     * @param forecasterid (forecaster ID for VFT)
+     * @return a list of TAF records sent since lastVftTime or null when no such records exit 
+     * @throws DataAccessLayerException
+     */
+    @SuppressWarnings("unchecked")
+	public List<TafQueueRecord> getRecordsForVFT(Date lastVftTime, int forecasterid) throws DataAccessLayerException {
+		DatabaseQuery query = new DatabaseQuery(TafQueueRecord.class.getName());
+		query.addQueryParam("xmitTime", lastVftTime, QueryOperand.GREATERTHANEQUALS);
+		query.addQueryParam("forecasterId", forecasterid, QueryOperand.NOTEQUALS);
+		query.addQueryParam("state", TafQueueState.SENT, QueryOperand.EQUALS);
+		query.addOrder("xmitTime", true);
+		List<TafQueueRecord> records = (List<TafQueueRecord>) queryByCriteria(query);
+		return records;
+	}
 }

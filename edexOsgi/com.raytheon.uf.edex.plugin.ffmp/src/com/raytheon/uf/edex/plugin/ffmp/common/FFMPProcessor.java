@@ -73,6 +73,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
@@ -94,7 +95,9 @@ import com.vividsolutions.jts.geom.Polygon;
  * 
  * 07/14/09      2152       D. Hladky   Initial release
  * 10/25/12		DR 15514    G. Zhang	Fix ConcurrentModificationException
+ * 02/01/13     1569        D. Hladky   Added constants
  * 02/25/13     1660        D. Hladky   FFTI design change to help mosaic processing.
+ * 05/01/2013   15684       zhao        Unlock when Exception caught
  * </pre>
  * 
  * @author dhladky
@@ -333,7 +336,7 @@ public class FFMPProcessor {
                 try {
 
                     LinkedHashMap<Long, ?> map = template.getMap(siteKey,
-                            domain.getCwa(), "ALL");
+                            domain.getCwa(), FFMPRecord.ALL);
 
                     // this means the data is outside your domain
                     if (map.keySet().size() > 0) {
@@ -361,13 +364,23 @@ public class FFMPProcessor {
                                                     .getRawGeometries(dataKey,
                                                             domain.getCwa());
                                         }
-
-                                        sbl = (new RadarSBLGenerator(config)
-                                                .generate(sourceId,
-                                                        map.keySet(),
-                                                        cwaGeometries, radarRec));
-                                        generator.setSourceBinList(sbl);
-                                        isSBL = true;
+                                        //DR15684
+                                        try {
+                                            sbl = (new RadarSBLGenerator(config)
+                                                    .generate(sourceId,
+                                                            map.keySet(),
+                                                            cwaGeometries, radarRec));
+                                        } catch (Exception e) {
+                                            statusHandler.handle(Priority.WARN, "caught an Exception while generating Source Bin List");
+                                            e.printStackTrace();
+                                            if (!checkLockStatus()) {
+                                                ClusterLockUtils.unlock(sourceBinTaskName, sourceId);
+                                            }
+                                        }
+                                        if (sbl != null) {
+                                            generator.setSourceBinList(sbl);
+                                            isSBL = true;
+                                        }
 
                                     } else {
                                         continue;
@@ -458,7 +471,7 @@ public class FFMPProcessor {
                         if (sourceId != null) {
                             for (Long key : map.keySet()) {
 
-                                FFMPBasin basin = getBasin(key, "ALL");
+                                FFMPBasin basin = getBasin(key, FFMPRecord.ALL);
                                 Date date = null;
                                 Float val = null;
 
@@ -629,9 +642,8 @@ public class FFMPProcessor {
                     }
 
 					Date backDate = new Date(ffmpRec.getDataTime().getRefTime()
-							.getTime()
-
-							- (3600 * 1000 * 6));
+							.getTime()-(FFMPGenerator.SOURCE_CACHE_TIME * TimeUtil.MILLIS_PER_HOUR));
+					
 					ArrayList<String> hucs = new ArrayList<String>();
 					hucs.add("ALL");
 					FFMPDataContainer ffgContainer = generator
@@ -655,11 +667,11 @@ public class FFMPProcessor {
                             // I switched the greater than and less than so it
                             // will
                             // process
-                            if (guidFrequency < (6 * 3600 * 1000)
-                                    && guidFrequency >= (1 * 3600 * 1000)) {
+                            if (guidFrequency < (FFMPGenerator.SOURCE_CACHE_TIME * TimeUtil.MILLIS_PER_HOUR)
+                                    && guidFrequency >= (TimeUtil.MILLIS_PER_HOUR)) {
 
                                 long newTime = recdate.getTime()
-                                        + (int) (source.getDurationHour() * 1000 * 3600);
+                                        + (int) (source.getDurationHour() * TimeUtil.MILLIS_PER_HOUR);
                                 // this is the new date
                                 recdate = new Date(newTime);
                                 ProductRunXML productRunner = generator
@@ -676,11 +688,16 @@ public class FFMPProcessor {
                                         siteKey, guidFrequency, source,
                                         qpeSource, previousDate, recdate,
                                         generator,
-                                        ffgContainer.getBasinData("ALL"),
+                                        ffgContainer.getBasinData(FFMPRecord.ALL),
                                         ffmpRec);
-                                ffmpRec = figd.calculateDelayedGuidance();
+                                
+                                boolean delayGuidance = figd
+                                        .calculateDelayedGuidance();
                                 // sets the new data time for the record
-                                ffmpRec.setDataTime(new DataTime(recdate));
+                                if (delayGuidance) {
+                                    ffmpRec.setDataTime(new DataTime(recdate));
+                                }
+
                             }
                         }
                     }
@@ -809,7 +826,7 @@ public class FFMPProcessor {
     private FFMPBasin getBasin(Long pfaf, String huc) {
         FFMPBasin basin = getBasinData(huc).get(pfaf);
         if (basin == null) {
-            if (huc.equals("ALL")) {
+            if (huc.equals(FFMPRecord.ALL)) {
                 basin = new FFMPBasin(pfaf, false);
             } else {
                 basin = new FFMPBasin(pfaf, true);
@@ -831,7 +848,7 @@ public class FFMPProcessor {
         FFMPVirtualGageBasin basin = (FFMPVirtualGageBasin) getBasinData(huc)
                 .get(pfaf);
         if (basin == null) {
-            if (huc.equals("ALL")) {
+            if (huc.equals(FFMPRecord.ALL)) {
                 basin = new FFMPVirtualGageBasin(lid, pfaf, false);
             } else {
                 basin = new FFMPVirtualGageBasin(lid, pfaf, true);
@@ -853,7 +870,7 @@ public class FFMPProcessor {
             // Get basins for level, we process VGB's differently because it is
             // a
             // special case
-            if (!huc.equals("VIRTUAL") && !huc.equals("ALL")) {
+            if (!huc.equals(FFMPRecord.VIRTUAL) && !huc.equals(FFMPRecord.ALL)) {
 
                 for (DomainXML domain : template.getDomains()) {
 
@@ -869,7 +886,7 @@ public class FFMPProcessor {
                                     .getAggregatePfafs(pfaf, siteKey, huc);
                             ArrayList<Double> areas = template
                                     .getAreas(aggPfafs);
-                            val = ffmpRec.getBasinData("ALL").getAverageValue(
+                            val = ffmpRec.getBasinData(FFMPRecord.ALL).getAverageValue(
                                     aggPfafs, areas);
                         } catch (Exception e) {
                             // Value is NAN, ignore it.
@@ -881,7 +898,6 @@ public class FFMPProcessor {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
             config.getGenerator().logger.error("Unable to process " + huc
                     + " level data");
         }
@@ -1240,9 +1256,9 @@ public class FFMPProcessor {
                     center = rc.asGridCell(getGridGeometry(),
                             PixelInCell.CELL_CENTER);
                 } catch (TransformException e) {
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.ERROR, "Error transforming pfaf! " +pfaf);
                 } catch (FactoryException e) {
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.ERROR, "Error in geometry! " +pfaf);
                 }
 
                 if (((int) center.x >= 0) && ((int) center.x < getNx())
@@ -1429,7 +1445,7 @@ public class FFMPProcessor {
             gridCell = new Coordinate(x, y, 0.0);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "Unable translate lat lon coordinate! " +latLon);
         }
         return gridCell;
     }
@@ -1447,7 +1463,7 @@ public class FFMPProcessor {
                     Type.GRID_CORNER);
             gridPoint = rc.asLatLon();
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "Unable translate grid coordinate! " +gridPoint);
         }
         return gridPoint;
     }
@@ -1551,7 +1567,7 @@ public class FFMPProcessor {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "Unable to process nest! ", e);
         }
 
         return myPoints;

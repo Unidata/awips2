@@ -20,7 +20,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Label;
@@ -68,7 +67,10 @@ import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
  *                                      the complete color matrix . 
  * 11/10		?			B. Yin		Set the dialog title to the PgenCategory(symbol/combo/marker) 
  * 04/11		#?			B. Yin		Re-factor IAttribute
- * 05/12		756			B. Yin		Added a new method placeSymbol in order for ContourAttrDlg to override
+ * 05/12		#756		B. Yin		Added a new method placeSymbol in order for ContourAttrDlg to override
+ * 03/13		#928		B. Yin		Added a separator above the button bar.
+ * 04/13		#874		B. Yin		Handle labeled symbols in multi-selection.
+ * 04/13		TTR399		J. Wu		Make the dialog compact
  * </pre>
  * 
  * @author	B. Yin
@@ -80,6 +82,9 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 	
 	protected static enum ChkBox { COLOR, CLEAR, WIDTH, SIZE, LAT, LON, LABEL };
 
+	protected final static String PLACE_SYMBOL =  "Place Symbol";
+	protected final static String UNDO_SYMBOL =  "Undo Symbol";
+	protected final static String REDO_SYMBOL =  "Redo Symbol";
 	
 	protected Composite top = null;
 	
@@ -160,12 +165,7 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 	public Control createDialogArea(Composite parent) {
 		
 	        top = (Composite) super.createDialogArea(parent);
-
-	        // Create the main layout for the shell.
-	        GridLayout mainLayout = new GridLayout(3, false);
-	        mainLayout.marginHeight = 3;
-	        mainLayout.marginWidth = 3;
-	        top.setLayout(mainLayout);
+	        top.setLayout( getGridLayout( 1, false, 0, 0, 0, 0 ) );
 
 	        // Initialize all of the menus, controls, and layouts
 	        this.initializeComponents();
@@ -187,13 +187,13 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
         this.getShell().setText(title + " Attributes");
         chkBox = new Button[7];
         
-        createColorAttr();
-        createClearAttr();
+        createColorClearAttr();
         createWidthAttr();
         createSizeAttr();
         createLatAttr();
         createLonAttr();
-        
+        addSeparator(top.getParent());
+
 	}	
 	
 	/**
@@ -243,7 +243,6 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 	public float getLineWidth(){
 		if ( chkBox[ChkBox.WIDTH.ordinal()].getSelection() ){
 			return widthSpinnerSlider.getSelection();
-			//return widthSlider.getSelection();
 		}
 		else {
 			return java.lang.Float.NaN;
@@ -257,7 +256,6 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 	public double getSizeScale(){
 		
 		if ( chkBox[ChkBox.SIZE.ordinal()].getSelection() ){
-			//double d = 1.0; try{d=Double.parseDouble(sizeText.getText());}catch(Exception e){d=(double)sizeSlider.getSelection();}
 			return sizeSpinnerSlider.getSelection()/ Math.pow(10, sizeSpinnerSlider.getDigits());			//return (d==0.0 || d>10.0) ? 1.0 : d;//sizeSlider.getSelection();
 		}
 		else {
@@ -295,8 +293,6 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 	 */
 	private void setLineWidth( float lw ){
 		widthSpinnerSlider.setSelection((int)lw);		
-		//widthSlider.setSelection( (int)(lw) );
-		//widthText.setText(String.valueOf((int)lw));
 	}
 	
 	/**
@@ -305,9 +301,6 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 	 */
 	private void setSize( double size ){
 		sizeSpinnerSlider.setSelection( (int) (size * Math.pow(10, sizeSpinnerSlider.getDigits())) );		
-		//size = ( size==0.0 ? 0.1 : size ); 
-		//sizeSlider.setSelection( (int)(size*10) );				
-		//sizeText.setText(String.format("%1$4.1f", size) );//String.valueOf((int)size));
 	}
 	
 	/**
@@ -413,7 +406,6 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
     		
     		if ( keyEvent ){
 
-    			//undoBtn.setEnabled(false);
     			Text txt = (Text)e.widget;
 
     			try{
@@ -450,8 +442,6 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
     			 * and 'Undo Symbol' button.
     			 */
     			placeBtn.setEnabled(false);
-    			//undoBtn.setEnabled(false);
-
     		}
     	}
 	}
@@ -468,7 +458,6 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
     		
     		if ( keyEvent ){
 
-    			//undoBtn.setEnabled(false);
     			Text txt = (Text)e.widget;
 
     			try{
@@ -504,9 +493,7 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
     			 * If not key event, disable 'Place Symbol' button 
     			 * and 'Undo Symbol' button.
     			 */
-    			placeBtn.setEnabled(false);
-    			//undoBtn.setEnabled(false);
-    			
+    			placeBtn.setEnabled(false);    			
     		}
     	}
 	}
@@ -547,7 +534,17 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 						newEl.setPoints( loc );
 					}
 					
-					newList.add(newEl);
+					//For collections, such as labeled symbol.
+					if ( adc instanceof DECollection && el.getParent() == adc ){
+						//for collections
+						DECollection dec = (DECollection) adc.copy();
+						dec.remove(dec.getPrimaryDE());
+						dec.add(0, newEl);
+						newList.add(dec);
+					}
+					else {
+						newList.add(newEl);
+					}
 
 				}
 			}
@@ -557,7 +554,7 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 			}
 			
 			ArrayList<AbstractDrawableComponent> oldList = new ArrayList<AbstractDrawableComponent>(adcList);
-			drawingLayer.replaceElements(oldList, newList);
+			drawingLayer.replaceElements(null, oldList, newList);
 		}
 		
 		drawingLayer.removeSelected();
@@ -596,8 +593,12 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 	/**
 	 * Create widgets for the Color attribute
 	 */
-	private void createColorAttr(){
-		chkBox[ChkBox.COLOR.ordinal()] = new Button(top, SWT.CHECK);
+	private void createColorAttr( Composite comp ){
+		
+		Composite inCmp = new Composite( comp, SWT.NONE);
+        inCmp.setLayout( getGridLayout( 3, false, 0, 0, 0, 0 ) );
+		
+        chkBox[ChkBox.COLOR.ordinal()] = new Button(inCmp, SWT.CHECK);
 		chkBox[ChkBox.COLOR.ordinal()] .setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT));
 		chkBox[ChkBox.COLOR.ordinal()].addSelectionListener(new SelectionAdapter(){
 
@@ -614,17 +615,21 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 
 		});  
 
-		colorLbl = new Label( top, SWT.LEFT );
-		colorLbl.setText("Color:");
-		cs = new ColorButtonSelector( top );
+		colorLbl = new Label( inCmp, SWT.LEFT );
+		colorLbl.setText("Color ");
+		cs = new ColorButtonSelector( inCmp, 20, 15 );
 		cs.setColorValue( new RGB( 0,255,0 ) );
 	}
 
 	/**
 	 * Create widgets for the Clear attribute
 	 */	
-	private void createClearAttr(){
-		chkBox[ChkBox.CLEAR.ordinal()] = new Button(top, SWT.CHECK);
+	private void createClearAttr(Composite comp){
+
+		Composite inCmp = new Composite( comp, SWT.NONE);
+        inCmp.setLayout( getGridLayout( 3, false, 0, 0, 0, 0 ) );
+
+        chkBox[ChkBox.CLEAR.ordinal()] = new Button(inCmp, SWT.CHECK);
 		chkBox[ChkBox.CLEAR.ordinal()] .setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT));
 		chkBox[ChkBox.CLEAR.ordinal()].addSelectionListener(new SelectionAdapter(){
 
@@ -645,12 +650,11 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 
 		}); 
 
-		clearLbl = new Label(top, SWT.LEFT);
-		clearLbl.setText("Clear:");
+		clearLbl = new Label(inCmp, SWT.LEFT);
+		clearLbl.setText("Clear ");
 
-		Group clearGroup = new Group(top, SWT.NONE);
-		GridLayout gl = new GridLayout(2, false);
-		clearGroup.setLayout(gl);
+		Group clearGroup = new Group(inCmp, SWT.NONE);
+		clearGroup.setLayout( getGridLayout( 2, false, 0, 0, 0, 0 ) );
 
 		clearBtn1 = new Button(clearGroup, SWT.RADIO);
 		clearBtn1.setText("On");
@@ -664,7 +668,10 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 	 * Create widgets for the Width attribute
 	 */
 	private void createWidthAttr(){
-		chkBox[ChkBox.WIDTH.ordinal()] = new Button(top, SWT.CHECK);
+		Composite inCmp = new Composite( top, SWT.NONE );
+        inCmp.setLayout( getGridLayout( 3, false, 0, 0, 0, 0 ) );
+ 
+        chkBox[ChkBox.WIDTH.ordinal()] = new Button(inCmp, SWT.CHECK);
 		chkBox[ChkBox.WIDTH.ordinal()] .setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT));
 		chkBox[ChkBox.WIDTH.ordinal()].addSelectionListener(new SelectionAdapter(){
 
@@ -683,27 +690,12 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 
 		}); 
 
-		widthLbl = new Label(top, SWT.LEFT);
-		widthLbl.setText("Width:");
-
-		GridLayout gl = new GridLayout( 3, false );	
-		Group widthGrp = new Group( top, SWT.NONE ) ;	    
-		widthGrp.setLayout( gl );
-/*		
-		widthSlider = new Slider(widthGrp, SWT.HORIZONTAL);
-		widthSlider.setValues(2, 1, 20+2, 2, 1, 3);	
-		
-		widthText = new Text(widthGrp, SWT.SINGLE|SWT.BORDER);
-		widthText.setLayoutData(new GridData(30,10));
-		gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.SliderTxtKeyLtnVry listener = 
-			new gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.SliderTxtKeyLtnVry(widthSlider, widthText,1,20);
-		widthText.addKeyListener(listener );
-		widthText.addVerifyListener(listener);
-*/		
+		widthLbl = new Label(inCmp, SWT.LEFT);
+		widthLbl.setText("Width ");
 		
         widthSpinnerSlider = 
-        	new gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.SpinnerSlider(widthGrp, SWT.HORIZONTAL,1);
-        widthSpinnerSlider.setLayoutData(new GridData(180,30));
+        	new gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.SpinnerSlider(inCmp, SWT.HORIZONTAL,1);
+        widthSpinnerSlider.setLayoutData(new GridData(164,25));
         widthSpinnerSlider.setMinimum(1);            
         widthSpinnerSlider.setMaximum(10);
         widthSpinnerSlider.setIncrement(1);
@@ -715,7 +707,10 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 	 * Create widgets for the Size attribute
 	 */
 	private void createSizeAttr(){
-		chkBox[ChkBox.SIZE.ordinal()] = new Button(top, SWT.CHECK);
+		Composite inCmp = new Composite( top, SWT.NONE );
+        inCmp.setLayout( getGridLayout( 3, false, 0, 0, 0, 0 ) );
+
+		chkBox[ChkBox.SIZE.ordinal()] = new Button(inCmp, SWT.CHECK);
 		chkBox[ChkBox.SIZE.ordinal()] .setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT));
 		chkBox[ChkBox.SIZE.ordinal()].addSelectionListener(new SelectionAdapter(){
 
@@ -734,30 +729,12 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 
 		}); 
 
-		sizeLbl = new Label(top, SWT.LEFT);
-		sizeLbl.setText("Size:");
+		sizeLbl = new Label(inCmp, SWT.LEFT);
+		sizeLbl.setText("Size ");
 
-		GridLayout gl = new GridLayout( 3, false );	
-		Group sizeGrp = new Group( top, SWT.NONE ) ;	    
-		sizeGrp.setLayout( gl );		
-/*		
-		sizeSlider = new Slider(sizeGrp, SWT.HORIZONTAL);
-		sizeSlider.setValues(20,1,100+20,20,1,10);//2, 1, 20+2, 2, 1, 3);      
-		
-		sizeText = new Text(sizeGrp, SWT.SINGLE|SWT.BORDER);
-		sizeText.setLayoutData(new GridData(30,10));
-		sizeText.setEditable(true);
-		sizeText.setText(""+0.1);
-		gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.SliderTxtKeyLtnVry listener = 
-			new gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.SliderTxtKeyLtnVry(sizeSlider, sizeText,0.1,10.0);
-		sizeText.addKeyListener(listener);
-		sizeText.addVerifyListener(listener);
-*/		
-		
-///*        
         sizeSpinnerSlider = 
-        	new gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.SpinnerSlider(sizeGrp, SWT.HORIZONTAL,1);
-        sizeSpinnerSlider.setLayoutData(new GridData(180,30));
+        	new gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.SpinnerSlider(inCmp, SWT.HORIZONTAL,1);
+        sizeSpinnerSlider.setLayoutData(new GridData(173,25));
         sizeSpinnerSlider.setMinimum(1);            
         sizeSpinnerSlider.setMaximum(100);
         sizeSpinnerSlider.setIncrement(1);
@@ -765,14 +742,17 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
         sizeSpinnerSlider.setDigits(1);
         //default size
 		sizeSpinnerSlider.setSelection( (int) (1 * Math.pow(10, sizeSpinnerSlider.getDigits())) );		
-//*/        
+        
 	}
 	
 	/**
 	 * Create widgets for the Latitude field
 	 */
 	private void createLatAttr(){
-		chkBox[ChkBox.LAT.ordinal()] = new Button(top, SWT.CHECK);
+		Composite inCmp = new Composite( top, SWT.NONE );
+        inCmp.setLayout( getGridLayout( 3, false, 0, 0, 0, 0 ) );
+
+		chkBox[ChkBox.LAT.ordinal()] = new Button(inCmp, SWT.CHECK);
 		chkBox[ChkBox.LAT.ordinal()] .setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT));
 		chkBox[ChkBox.LAT.ordinal()].addSelectionListener(new SelectionAdapter(){
 
@@ -793,21 +773,21 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 
 		chkBox[ChkBox.LAT.ordinal()].setVisible(false);
 
-		latitudeLabel = new Label(top, SWT.NONE);
-		latitudeLabel.setText("Latitude:");
+		latitudeLabel = new Label(inCmp, SWT.NONE);
+		latitudeLabel.setText("Lat ");
 
-		Composite latGroup = new Composite(top, SWT.NONE);
+		Composite latGroup = new Composite(inCmp, SWT.NONE);
 		latGroup.setLayout(new RowLayout(SWT.HORIZONTAL));
 
 		latitudeText = new Text(latGroup, SWT.SINGLE | SWT.RIGHT
 				| SWT.BORDER );
 		latitudeText.setTextLimit(8);
-		latitudeText.setLayoutData(new RowData(new Point(80,20)));
+		latitudeText.setLayoutData(new RowData(new Point(60,15)));
 
 		placeBtn = new Button(latGroup, SWT.PUSH);
-		placeBtn.setText("Place Symbol");
+		placeBtn.setText( PLACE_SYMBOL );
 		placeBtn.setEnabled(false);
-		placeBtn.setLayoutData(new RowData(new Point(120,28)));
+		placeBtn.setLayoutData(new RowData(new Point(104,27)));
 		placeBtn.addListener(SWT.MouseDown, new Listener(){
 
 			@Override
@@ -821,7 +801,10 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 	 * Create widgets for the Longitude field
 	 */
 	private void createLonAttr(){
-		chkBox[ChkBox.LON.ordinal()] = new Button(top, SWT.CHECK);
+		Composite inCmp = new Composite( top, SWT.NONE );
+        inCmp.setLayout( getGridLayout( 3, false, 0, 0, 0, 0 ) );
+
+		chkBox[ChkBox.LON.ordinal()] = new Button(inCmp, SWT.CHECK);
 		chkBox[ChkBox.LON.ordinal()] .setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT));
 		chkBox[ChkBox.LON.ordinal()].addSelectionListener(new SelectionAdapter(){
 
@@ -842,14 +825,14 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 
 		chkBox[ChkBox.LON.ordinal()].setVisible(false);
 
-		longitudeLabel = new Label( top, SWT.None );
-		longitudeLabel.setText("Longitude:");
+		longitudeLabel = new Label( inCmp, SWT.None );
+		longitudeLabel.setText("Lon ");
 
-		Composite lonGroup = new Composite(top, SWT.NONE);
+		Composite lonGroup = new Composite(inCmp, SWT.NONE);
 		lonGroup.setLayout(new RowLayout(SWT.HORIZONTAL));
 		longitudeText = new Text(lonGroup, SWT.SINGLE | SWT.RIGHT | SWT.BORDER );
 		longitudeText.setTextLimit(8);
-		longitudeText.setLayoutData(new RowData(new Point(80,20)));
+		longitudeText.setLayoutData(new RowData(new Point(59,15)));
 
 		latitudeText.addKeyListener( new LatLonKeyListener() );
 		latitudeText.addModifyListener(new LatModifyListener());
@@ -860,26 +843,25 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 		longitudeText.addListener(SWT.Verify, new LatLonVerifyListener());
 
 		undoBtn = new Button(lonGroup, SWT.PUSH);
-		undoBtn.setText("Undo Symbol");
+		undoBtn.setText(UNDO_SYMBOL);
 		undoBtn.setEnabled(false);
-		undoBtn.setLayoutData(new RowData(new Point(120,28)));
-
+		undoBtn.setLayoutData(new RowData(new Point(100,27)));
 
 		undoBtn.addListener(SWT.MouseDown, new Listener(){
 
 			@Override
 			public void handleEvent(Event event) {
 
-				if ( undoBtn.getText().equalsIgnoreCase("Undo Symbol")){
+				if ( undoBtn.getText().equalsIgnoreCase(UNDO_SYMBOL)){
 					
-					undoBtn.setText("Redo Symbol");
+					undoBtn.setText(REDO_SYMBOL);
 					drawingLayer.getCommandMgr().undo();
 					
 					//placeBtn.setEnabled(true);
 					//undoBtn.setEnabled(false);
 				}
-				else if  ( undoBtn.getText().equalsIgnoreCase("Redo Symbol") ) {
-					undoBtn.setText("Undo Symbol");
+				else if  ( undoBtn.getText().equalsIgnoreCase(REDO_SYMBOL) ) {
+					undoBtn.setText(UNDO_SYMBOL);
 					drawingLayer.getCommandMgr().redo();
 					
 				}
@@ -953,10 +935,24 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 			drawingLayer.addElement(elem);
 			placeBtn.setEnabled(false);
 			undoBtn.setEnabled(true);
-			undoBtn.setText("Undo Symbol");
+			undoBtn.setText(UNDO_SYMBOL);
 		}
 
 		mapEditor.refresh();
 
 	}
+	
+	/*
+	 * Create color, clear attribute in one line.
+	 */
+	private void createColorClearAttr(){
+
+		Composite inCmp = new Composite( top, SWT.NONE );
+        inCmp.setLayout( getGridLayout( 2, false, 0, 0, 0, 0 ) );
+		
+        createColorAttr( inCmp );
+        createClearAttr( inCmp );     
+
+	}
+	
 }

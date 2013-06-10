@@ -53,6 +53,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 10/11		#?			J. Wu		Link color/FHR with layer.
  * 02/12		#481,2,3	B. Yin		Fixed VAA text output issues.
+ * 03/13		#928		B. Yin 		Made the button bar smaller. 										
  * </pre>
  * 
  * @author	G. Zhang
@@ -253,6 +254,9 @@ public class VaaCloudDlg extends AttrDlg implements IVaaCloud{
 	@Override
 	public void createButtonsForButtonBar(Composite parent){
 		
+		((GridLayout)parent.getLayout()).verticalSpacing = 0;
+		((GridLayout)parent.getLayout()).marginHeight = 3;
+		
 		// if NOT from select, then no buttons show
 		
 		if(mouseHandlerName==null) return;
@@ -266,6 +270,9 @@ public class VaaCloudDlg extends AttrDlg implements IVaaCloud{
   		// reset it so next create will have NO buttons
   		
   		mouseHandlerName = null;
+  		
+  		this.getButton(IDialogConstants.CANCEL_ID).setLayoutData( new GridData(ctrlBtnWidth,ctrlBtnHeight));
+  		this.getButton(IDialogConstants.OK_ID).setLayoutData( new GridData(ctrlBtnWidth,ctrlBtnHeight));
 	}
 	
 	/**

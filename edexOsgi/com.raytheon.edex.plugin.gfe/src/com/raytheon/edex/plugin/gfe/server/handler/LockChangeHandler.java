@@ -43,6 +43,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 04/08/08     #875       bphillip    Initial Creation
  * 06/17/08     #940       bphillip    Implemented GFE Locking
  * 09/22/09     3058       rjpeter     Converted to IRequestHandler
+ * 04/24/13     1949       rjpeter     Added list sizing
  * </pre>
  * 
  * @author bphillip
@@ -59,8 +60,11 @@ public class LockChangeHandler implements IRequestHandler<LockChangeRequest> {
 
         if (sr.isOkay()) {
             try {
-                List<GfeNotification> notes = new ArrayList<GfeNotification>();
-                for (LockTable table : sr.getPayload()) {
+                List<LockTable> lockTables = sr.getPayload();
+                List<GfeNotification> notes = new ArrayList<GfeNotification>(
+                        lockTables.size());
+
+                for (LockTable table : lockTables) {
                     notes.add(new LockNotification(table, siteID));
                 }
                 ServerResponse<?> notifyResponse = SendNotifications
@@ -75,7 +79,6 @@ public class LockChangeHandler implements IRequestHandler<LockChangeRequest> {
                         + e.getMessage());
             }
         }
-
         return sr;
     }
 }

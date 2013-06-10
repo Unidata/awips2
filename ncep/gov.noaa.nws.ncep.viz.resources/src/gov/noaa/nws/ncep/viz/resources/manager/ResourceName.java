@@ -26,7 +26,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  *  02/16/11      #408        Greg Hull   add 'backup' categories for obs/fcst surface/uair
  *  01/09/11      #561        Greg Hull   generated equals()
  *  09/13/12      #860        Greg Hull   trim()
- *  11/19/12      #630        Greg Hull   getAbbrName() (for satellite-area names)
+ *  11/19/12      #630        Greg Hull   getAbbrName() (for satellite-area names
+ *  02/10/13      #972        Greg Hull   ResourceCategory class
  *
  * </pre>
  * 
@@ -35,26 +36,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
  */
 
 public class ResourceName {
-	
-	public static final String SatelliteRscCategory = "SATELLITE";
-	public static final String RadarRscCategory =     "RADAR";
-	public static final String GridRscCategory =      "GRID";
-	public static final String SurfaceRscCategory =   "SURFACE";
-	public static final String UpperAirRscCategory =  "UPPER_AIR";
-	public static final String PGENRscCategory =      "PGEN";
-	public static final String MiscRscCategory =      "MISC";
-	public static final String EnsembleRscCategory =  "ENSEMBLE";
-	public static final String OverlayRscCategory =   "OVERLAY";
-
-	// NOTE : These are available if the users don't like the SURFACE/UPPER_AIR
-	// categories as configured in the resourceDefinitions file.
-	// 
-	public static final String SurfaceFcstRscCategory =   "SURF_FCST";
-	public static final String UpperAirFcstRscCategory =  "UAIR_FCST";
-	public static final String SurfaceObsRscCategory =   "SURF_OBS";
-	public static final String UpperAirObsRscCategory =  "UAIR_OBS";
-
-	// IMAGE, MODEL, WATCH/WARNING
 	
 	public static class ResourceNameAdapter extends XmlAdapter<String, ResourceName> {
 
@@ -74,7 +55,8 @@ public class ResourceName {
 	public static final String dfltAttrSetName = "default";
 	
 	// public String rscName; // ex. (SURFACE/METAR/standard)
-	private String rscCategory;
+	private ResourceCategory rscCategory = ResourceCategory.NullCategory;
+	
 	private String rscType;
 	private String rscGroup; // this could be either a subType or attrSetGroup
 	private String rscAttrSetName;
@@ -88,7 +70,7 @@ public class ResourceName {
 	private static final DataTime LatestDataTime = new DataTime( new Date(0) ); 
 	
 	public ResourceName() {
-		rscCategory = "";
+		rscCategory = ResourceCategory.NullCategory;
 		rscType = "";
 		rscGroup = "";
 		rscAttrSetName = "";
@@ -103,6 +85,10 @@ public class ResourceName {
 		setFullResourceName( rName );
 	}
 	
+	public ResourceName( ResourceCategory cat, String type, String attrSet ) {
+		this( cat.getCategoryName(), type, attrSet );
+	}
+
 	public ResourceName( String cat, String type, String attrSet ) {
 		
 		setFullResourceName( cat + File.separator + 
@@ -139,7 +125,7 @@ public class ResourceName {
 							 (attrSet == null ? dfltAttrSetName : attrSet.trim() ) );				
 	}
 
-	public void setFullResourceName(String rscName) {
+	public void setFullResourceName(String rscName) {		
 		String[] parts = rscName.split( File.separator );
 		// at minimum we need a c
 		if( parts == null || parts.length < 3 ) {
@@ -147,7 +133,7 @@ public class ResourceName {
 			return;
 		}
 		
-		rscCategory = parts[0].trim();
+		rscCategory = ResourceCategory.getCategory( parts[0].trim() );
 		rscType     = parts[1].trim();
 		rscAttrSetName = parts[ parts.length-1 ].trim();
 		
@@ -190,12 +176,17 @@ public class ResourceName {
 		}
 	}
 
-	public String getRscCategory() {
-		return (rscCategory == null ? "" : rscCategory);
+	public ResourceCategory getRscCategory() {
+		return (rscCategory == null ? ResourceCategory.NullCategory : rscCategory);
 	}
 
-	public void setRscCategory(String rscCategory) {
-		this.rscCategory = (rscCategory == null ? "" : rscCategory.trim() );
+	public void setRscCategory(String rscCatStr) {
+		this.rscCategory = (rscCategory == null ? ResourceCategory.NullCategory : 
+							ResourceCategory.getCategory( rscCatStr ) );
+	}
+
+	public void setRscCategory(ResourceCategory rscCat) {
+		this.rscCategory = (rscCategory == null ? ResourceCategory.NullCategory : rscCat );
 	}
 
 	public String getRscType() {
@@ -265,11 +256,11 @@ public class ResourceName {
 	// public boolean isForecastResource() return if cycleTimes is set?
 	
 	public boolean isPgenResource() {
-		return (rscCategory != null && rscCategory.equals( PGENRscCategory ) );
+		return rscCategory == ResourceCategory.PGENRscCategory;
 	}
 
 	public boolean isOverlayResource() {
-		return (rscCategory != null && rscCategory.equals( OverlayRscCategory ) );
+		return rscCategory == ResourceCategory.OverlayRscCategory;
 	}
 
 	public String getAbbreviatedName() {
@@ -284,7 +275,7 @@ public class ResourceName {
 	}
 	
 	public String toString() {
-		if( rscCategory == null || rscCategory.isEmpty() ||
+		if( rscCategory == null || rscCategory == ResourceCategory.NullCategory ||
 			rscType     == null || rscType.isEmpty() ||
 			rscAttrSetName == null || rscAttrSetName.isEmpty() ) {
 			return "";

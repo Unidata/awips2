@@ -27,16 +27,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
-import com.raytheon.uf.viz.core.level.LevelMapping;
-import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.level.LevelUtilities;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
@@ -73,6 +75,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 10-21-09     #1711      bsteffen    Updated Baseline and Points to use new ToolsDataManager
  * 01/30/2012   DR 14308   D.Friedman  Use correct style for arrow types.
  * 07/31/2012   #875       rferrel     Now uses points.
+ * Feb 21, 2013 1617       bsteffen    fixed vb sounding point selection for
+ *                                     points which contain the word Point
+ * May 03, 2013 DR14824 mgamazaychikov Added alterProductParameters method
  * 
  * 
  * </pre>
@@ -90,6 +95,8 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
 
     /** key representing all point and line planes **/
     public static final String POINT_LINE_KEY = "PointLine";
+
+    public static final Pattern POINT_PATTERN = Pattern.compile("^Point");
 
     /**
      * 
@@ -274,8 +281,9 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
         case VARVSHGT:
         case CROSSSECTION:
         case SOUNDING:
-            pointLetter = catalogEntry.getSelectedData().getPlanesKey()
-                    .replace("Point", "");
+            pointLetter = POINT_PATTERN.matcher(
+                    catalogEntry.getSelectedData().getPlanesKey())
+                    .replaceFirst("");
             break;
         case TIMESERIES:
             pointLetter = catalogEntry.getDialogSettings().getPointsSelection()
@@ -367,12 +375,13 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
             }
         } else {
             try {
-                LevelMappingFactory lmf = LevelMappingFactory.getInstance();
+                LevelMappingFactory lmf = LevelMappingFactory
+                        .getInstance(LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE);
                 LevelMapping lm = lmf.getLevelMappingForKey(planesKey);
                 if (lm != null) {
                     levels = lm.getLevels();
                 }
-            } catch (VizCommunicationException e) {
+            } catch (CommunicationException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }
@@ -494,6 +503,19 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
     protected boolean isPointLine(String plane) {
         return ((plane != null) && (plane.startsWith("Line") || plane
                 .startsWith("Point")));
+    }
+    
+    /**
+     * Alter product parameters
+     * 
+     * @param selectedKey
+     * @param selectedValue
+     * @param productParameters
+     */
+    public void alterProductParameters(
+            String selectedKey,
+            String selectedValue, HashMap<String, RequestConstraint> productParameters) {
+        return;
     }
 
 }

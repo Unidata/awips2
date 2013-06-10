@@ -192,7 +192,11 @@ sqlcmd_bin_dir     : /usr/local/sqlcmd/bin      # location of sqlcmd executable 
 #      Map names can be found in the localization perspective under 
 #      CAVE->Bundles->Maps.  Use the filename without the extension.
 #      statesCounties.xml -> statesCounties
+#
+# display_maps - default display maps for Hydro Perspective
+# mpe_display_maps - default display maps for MPE Perspective
 display_maps       : statesCounties
+mpe_display_maps   : statesCounties
 #################################################################################
 
 #  database selection tokens

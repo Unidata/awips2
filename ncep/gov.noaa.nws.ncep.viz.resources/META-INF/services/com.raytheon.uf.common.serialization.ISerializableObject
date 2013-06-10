@@ -1,5 +1,8 @@
 gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher
-gov.noaa.nws.ncep.viz.resources.manager.RbdBundle
+gov.noaa.nws.ncep.viz.resources.manager.NcMapRBD
+gov.noaa.nws.ncep.viz.resources.manager.NTransRBD
+gov.noaa.nws.ncep.viz.resources.manager.SolarRBD
 gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition
+gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinitionFilters
 gov.noaa.nws.ncep.viz.resources.manager.AttrSetGroup
 gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResourceData

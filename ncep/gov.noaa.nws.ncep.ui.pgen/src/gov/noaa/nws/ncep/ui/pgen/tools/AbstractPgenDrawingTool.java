@@ -18,9 +18,9 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.viz.ui.EditorUtil;
-import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * The abstract super class for all PGEN drawing tools.
@@ -33,6 +33,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 06/09					J. Wu   	Pop up "action" dialog if existing, e.g.
  * 										"Extrap", "Interp", etc.
  * 07/09					B. Yin 		Added several handler methods for Jet
+ * 03/13         #972       G. Hull     call PgenUtil.isNatlCntrsEditor()
+ * 03/13		#927		B. Yin		Added setHandler method.
  *
  * </pre>
  * 
@@ -69,19 +71,20 @@ public abstract class AbstractPgenDrawingTool extends AbstractPgenTool {
     @Override
     protected void activateTool( ) {
     	IEditorPart ep = EditorUtil.getActiveEditor();
-//        if (!(ep instanceof NCMapEditor) ){
-        if (!(ep instanceof AbstractEditor) ){
+
+    	if( !PgenUtil.isNatlCntrsEditor( ep )){
+//    		mapEditor = null;
             return;
         }
         
         if ( !super.isDelObj() ){
-    	/*
-    	 * Activate editor before tool is loaded, so that it is not loaded twice.
-    	 */
-    	PlatformUI.getWorkbench().getActiveWorkbenchWindow().
-    				getActivePage().activate(EditorUtil.getActiveEditor());
+        	/*
+        	 * Activate editor before tool is loaded, so that it is not loaded twice.
+        	 */
+        	PlatformUI.getWorkbench().getActiveWorkbenchWindow().
+        	getActivePage().activate(EditorUtil.getActiveEditor());
         }
-
+        
     	super.activateTool();
       	
     	/*
@@ -126,7 +129,9 @@ public abstract class AbstractPgenDrawingTool extends AbstractPgenTool {
 
     			}
     			
-    			editor.refresh();
+    			if ( ep instanceof IDisplayPaneContainer ){
+    				((IDisplayPaneContainer)ep).refresh();
+    			}
 
     		}
 
@@ -212,15 +217,30 @@ public abstract class AbstractPgenDrawingTool extends AbstractPgenTool {
         	attrDlg = null;
         }
     }
-    
-   protected void setHandler( IInputHandler handler){
-    	
-	   if ( mapEditor != null ) {
-		   mapEditor.unregisterMouseHandler( this.mouseHandler );
-		   mouseHandler = handler;
-		   mapEditor.registerMouseHandler( this.mouseHandler );
-	   }
 
+    /**
+     * Sets the mouse handler for the tool.
+     */
+    public void setHandler( IInputHandler handler){
+
+    	if ( mapEditor != null && handler !=null ) {
+    		mapEditor.unregisterMouseHandler( this.mouseHandler );
+    		mouseHandler = handler;
+    		mapEditor.registerMouseHandler( this.mouseHandler );
+    	}
+
+    	if ( handler instanceof InputHandlerDefaultImpl) {
+    		((InputHandlerDefaultImpl)handler).preprocess();
+    	}
+
+    }
+
+    public AttrDlg getAttrDlg() {
+    	return attrDlg;
+    }
+
+    public void setAttrDlg(AttrDlg attrDlg) {
+    	this.attrDlg = attrDlg;
     }
   
 }   

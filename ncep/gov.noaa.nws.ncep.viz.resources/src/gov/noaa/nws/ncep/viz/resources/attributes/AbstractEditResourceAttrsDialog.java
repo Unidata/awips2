@@ -4,7 +4,7 @@ import java.io.File;
 
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -129,7 +129,7 @@ public abstract class AbstractEditResourceAttrsDialog extends Dialog {
         		public void widgetSelected(SelectionEvent e) {
             		rscData.setRscAttrSet( editedRscAttrSet );
             		rscData.setIsEdited( true );
-            		NmapUiUtils.getActiveNatlCntrsEditor().refresh();
+            		NcDisplayMngr.getActiveNatlCntrsEditor().refresh();
         		}
         	});
         }

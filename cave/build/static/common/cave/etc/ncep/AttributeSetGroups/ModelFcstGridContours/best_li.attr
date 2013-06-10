@@ -4,7 +4,7 @@
 ! Log:
 ! J. Carr/HPC       7/99 	Initial Creation
 !
-GLEVEL=0   !0   !0   !30:0
+GLEVEL=0   !0   !0   !0:30
 GVCORD=none!none!none!pdly
 SKIP=
 FILTER=y

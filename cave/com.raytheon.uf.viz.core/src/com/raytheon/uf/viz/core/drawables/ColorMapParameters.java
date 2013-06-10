@@ -53,6 +53,9 @@ import com.raytheon.uf.viz.core.style.DataMappingPreferences.DataMappingEntry;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Jul 24, 2007             chammack    Initial Creation.
+ *    Feb 14, 2013 1616        bsteffen    Add option for interpolation of
+ *                                         colormap parameters, disable colormap
+ *                                         interpolation by default.
  * 
  * </pre>
  * 
@@ -194,6 +197,9 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
 
     /** Values >0 enable log scaling of the colormap. */
     private float logFactor = -1.0f;
+
+    /** Specify whether the colormap should be interpolated */
+    protected boolean interpolate = false;
 
     public static class LabelEntry {
         private float location;
@@ -933,14 +939,7 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
      * @return
      */
     public RGB getRGBByValue(float value) {
-        float index = getIndexByValue(value);
-        if (index < 0.0f) {
-            index = 0.0f;
-        } else if (index > 1.0f) {
-            index = 1.0f;
-        }
-        return colorToRGB(colorMap.getColors().get(
-                (int) (index * (colorMap.getSize()-1))));
+        return colorToRGB(getColorByValue(value));
     }
 
     /**
@@ -956,7 +955,25 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
         } else if (index > 1.0f) {
             index = 1.0f;
         }
-        return colorMap.getColors().get((int) (index * (colorMap.getSize()-1)));
+        if (isInterpolate()) {
+            index = 0.5f;
+            index = (index * (colorMap.getSize() - 1));
+            int lowIndex = (int) Math.floor(index);
+            int highIndex = (int) Math.ceil(index);
+            float lowWeight = highIndex - index;
+            float highWeight = 1.0f - lowWeight;
+            Color low = colorMap.getColors().get(lowIndex);
+            Color high = colorMap.getColors().get(highIndex);
+            float r = lowWeight * low.getRed() + highWeight * high.getRed();
+            float g = lowWeight * low.getGreen() + highWeight * high.getGreen();
+            float b = lowWeight * low.getBlue() + highWeight * high.getBlue();
+            float a = lowWeight * low.getAlpha() + highWeight * high.getAlpha();
+            return new Color(r, g, b, a);
+        } else {
+            return colorMap.getColors().get(
+                    (int) (index * (colorMap.getSize() - 1)));
+
+        }
     }
 
     public static RGB colorToRGB(Color c) {
@@ -1025,6 +1042,14 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
      */
     public void setNoDataValue(double noDataValue) {
         this.noDataValue = noDataValue;
+    }
+
+    public boolean isInterpolate() {
+        return interpolate;
+    }
+
+    public void setInterpolate(boolean interpolate) {
+        this.interpolate = interpolate;
     }
 
 }

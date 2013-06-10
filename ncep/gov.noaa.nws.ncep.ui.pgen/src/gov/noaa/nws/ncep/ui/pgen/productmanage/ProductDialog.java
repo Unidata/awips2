@@ -112,7 +112,7 @@ public class ProductDialog extends Dialog {
         
         // Create and initialize all of the controls and layouts
         initializeComponents();
-                
+        
         /*
          * Add a "CLOSE" listenser to the shell to handle the event when the 
          * user clicks the "X" in the shell window.
@@ -146,7 +146,7 @@ public class ProductDialog extends Dialog {
 
         return returnValue;
     }
-        
+
     /**
      * Create a new modeless hell by default.
      * 
@@ -163,7 +163,7 @@ public class ProductDialog extends Dialog {
     public void setTitle() {    	
         shell.setText( "" );        
     }
-    
+     
     /**
      *  Creates the main layout for the shell.
      */
@@ -204,7 +204,7 @@ public class ProductDialog extends Dialog {
     /**
      *  Check the dialog is opened or not
      */
-   public boolean isOpen() {
+    public boolean isOpen() {
         return ( shell != null && !shell.isDisposed() );
     }
  
@@ -307,6 +307,6 @@ public class ProductDialog extends Dialog {
     	return PgenSession.getInstance().getPgenResource().getResourceData().isNeedsSaving();
     }  
 
-   
+  
 }
 

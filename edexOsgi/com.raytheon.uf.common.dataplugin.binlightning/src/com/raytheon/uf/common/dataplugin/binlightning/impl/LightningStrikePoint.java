@@ -31,6 +31,7 @@ import com.raytheon.uf.edex.decodertools.core.BasePoint;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20070810            379 jkorman     Initial Coding from prototype.
+ * 20130227        DCS 152 jgerth      Support for WWLLN and multiple sources
  * 
  * </pre>
  *
@@ -49,6 +50,9 @@ public class LightningStrikePoint extends BasePoint
 
     // Number of strikes for this record.
     private int strikeCount;
+
+    // JJG - Lightning data source
+	private String lightSource;
     
     /**
      * Construct a LightningStrikePoint using given data.
@@ -150,6 +154,24 @@ public class LightningStrikePoint extends BasePoint
         this.msgType = msgType;
     }
 
+    /**
+     * JJG - Get the lightning source
+     * @return
+     */
+    public String getLightSource()
+    {
+    	return lightSource;
+    }
+    
+    /**
+     * JJG - Set the lightning source
+     * @param lightSource
+     */
+    public void setLightSource(String lightSource)
+    {
+    	this.lightSource = lightSource;
+    }
+    
     /**
      * Format this lightning strike report using the NCDC strike observation format.
      * 

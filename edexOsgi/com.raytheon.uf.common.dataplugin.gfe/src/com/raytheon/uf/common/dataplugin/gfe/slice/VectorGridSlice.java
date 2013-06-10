@@ -54,6 +54,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * 01/30/2008              chammack    Stubbed-out class based on AWIPS I
  * 02/22/2008   879        rbell       Legacy conversion, extended ScalarSlice
  * 06/10/2009   2159       rjpeter     Updated checkDims to check dirGrid for null
+ * 04/23/2013   1949       rjpeter     Updated wind checks to keep float precision.
  * </pre>
  * 
  * @author chammack
@@ -65,6 +66,8 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(VectorGridSlice.class);
+
+    private static final float DEG_IN_CIRCLE = 360.0f;
 
     @DynamicSerializeElement
     protected Grid2DFloat dirGrid;
@@ -170,7 +173,7 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
      * @return dirGrid
      */
     public Grid2DFloat getDirGrid() {
-        if (useCache && dirCacheId != null) {
+        if (useCache && (dirCacheId != null)) {
             try {
                 @SuppressWarnings("unchecked")
                 ICache<IGrid2D> diskCache = CacheFactory.getInstance()
@@ -232,8 +235,8 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
         Grid2DFloat rhsDirGrid = ((VectorGridSlice) rhs).getDirGrid();
 
         if (rhsDirGrid != null) {
-            if (thisDirGrid.getXdim() != rhsDirGrid.getXdim()
-                    || thisDirGrid.getYdim() != rhsDirGrid.getYdim()) {
+            if ((thisDirGrid.getXdim() != rhsDirGrid.getXdim())
+                    || (thisDirGrid.getYdim() != rhsDirGrid.getYdim())) {
                 throw new IllegalArgumentException(
                         "Supplied grid is not of same dimension");
             }
@@ -276,7 +279,7 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
         }
 
         Grid2DFloat dGrid = getDirGrid();
-        if (dGrid == null || !dGrid.isValid()) {
+        if ((dGrid == null) || !dGrid.isValid()) {
             return "Direction grid is invalid";
         }
 
@@ -357,15 +360,13 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
                                 + v.get(i, j) * v.get(i, j)));
                 float dir = (float) Math.toDegrees(Math.atan2(u.get(i, j),
                         v.get(i, j)));
-                if (dir < 0) {
-                    dir += 360.0;
+                while (dir < 0.0f) {
+                    dir += DEG_IN_CIRCLE;
                 }
-                if (dir >= 360.0) {
-                    dir -= 360.0;
+                while (dir >= DEG_IN_CIRCLE) {
+                    dir -= DEG_IN_CIRCLE;
                 }
-                if (dir == 360.0) {
-                    dir = 360.0f;
-                }
+
                 dirGrid.set(i, j, dir);
             }
         }
@@ -404,15 +405,13 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
                                 + v.get(i, j) * v.get(i, j)));
                 float dir = (float) Math.toDegrees(Math.atan2(u.get(i, j),
                         v.get(i, j)));
-                if (dir < 0) {
-                    dir += 360.0;
+                while (dir < 0.0f) {
+                    dir += DEG_IN_CIRCLE;
                 }
-                if (dir >= 360.0) {
-                    dir -= 360.0;
+                while (dir >= DEG_IN_CIRCLE) {
+                    dir -= DEG_IN_CIRCLE;
                 }
-                if (dir == 360.0) {
-                    dir = 360.0f;
-                }
+
                 dirGrid.set(i, j, dir);
             }
         }
@@ -475,8 +474,8 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
         Grid2DFloat mGrid = getMagGrid();
         Grid2DFloat dGrid = getDirGrid();
 
-        if (mGrid.getXdim() != dGrid.getXdim()
-                || mGrid.getYdim() != dGrid.getYdim()) {
+        if ((mGrid.getXdim() != dGrid.getXdim())
+                || (mGrid.getYdim() != dGrid.getYdim())) {
             return "Magnitude and Direction grids have different dimensions";
         }
 
@@ -497,13 +496,10 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
         for (int i = 0; i < size; i++) {
             float thisDir = dir.get(i);
             while (thisDir < 0.0f) {
-                thisDir += 360.0f;
+                thisDir += DEG_IN_CIRCLE;
             }
-            while (thisDir > 360.0f) {
-                thisDir -= 360.0f;
-            }
-            if (thisDir == 360.0f) {
-                thisDir = 0.0f;
+            while (thisDir >= DEG_IN_CIRCLE) {
+                thisDir -= DEG_IN_CIRCLE;
             }
             dir.put(i, thisDir);
         }
@@ -518,15 +514,15 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
     public ScalarGridSlice verticalMotion(VectorGridSlice gs, Grid2DBit editArea) {
         Grid2DFloat mGrid = getMagGrid();
 
-        if (mGrid.getXdim() != editArea.getXdim()
-                || mGrid.getYdim() != editArea.getYdim()) {
+        if ((mGrid.getXdim() != editArea.getXdim())
+                || (mGrid.getYdim() != editArea.getYdim())) {
             throw new IllegalArgumentException(
                     "This and editArea grids have different dimensions");
         }
 
         Grid2DFloat gsmGrid = gs.getMagGrid();
-        if (mGrid.getXdim() != gsmGrid.getXdim()
-                || mGrid.getYdim() != gsmGrid.getYdim()) {
+        if ((mGrid.getXdim() != gsmGrid.getXdim())
+                || (mGrid.getYdim() != gsmGrid.getYdim())) {
             throw new IllegalArgumentException(
                     "This and supplied grids have different dimensions");
         }
@@ -766,8 +762,8 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
         Grid2DFloat thisMagGrid = getMagGrid();
         Grid2DFloat rhsMagGrid = rhs.getMagGrid();
 
-        if (thisMagGrid.getXdim() != rhsMagGrid.getXdim()
-                || thisMagGrid.getYdim() != rhsMagGrid.getYdim()) {
+        if ((thisMagGrid.getXdim() != rhsMagGrid.getXdim())
+                || (thisMagGrid.getYdim() != rhsMagGrid.getYdim())) {
             throw new IllegalArgumentException(
                     "This and supplied GridSlice are different dimensions");
         }
@@ -815,8 +811,8 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
         Grid2DFloat thisMagGrid = getMagGrid();
         Grid2DFloat rhsMagGrid = rhs.getMagGrid();
 
-        if (thisMagGrid.getXdim() != rhsMagGrid.getXdim()
-                || thisMagGrid.getYdim() != rhsMagGrid.getYdim()) {
+        if ((thisMagGrid.getXdim() != rhsMagGrid.getXdim())
+                || (thisMagGrid.getYdim() != rhsMagGrid.getYdim())) {
             throw new IllegalArgumentException(
                     "This and supplied GridSlice are different dimensions");
         }
@@ -864,7 +860,7 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
 
         Grid2DBit magBits = new Grid2DBit(mGrid.getXdim(), mGrid.getYdim());
         Grid2DBit dirBits = new Grid2DBit(mGrid.getXdim(), mGrid.getYdim());
-        if (mag != 0 || (dir == 0 && mag == 0)) { // Test Magnitude
+        if ((mag != 0) || ((dir == 0) && (mag == 0))) { // Test Magnitude
             for (int i = 0; i < mGrid.getXdim(); i++) {
                 for (int j = 0; j < mGrid.getYdim(); j++) {
                     if (mGrid.get(i, j) == mag) {
@@ -888,8 +884,8 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
             if (cross360) {
                 for (int i = 0; i < mGrid.getXdim(); i++) {
                     for (int j = 0; j < mGrid.getYdim(); j++) {
-                        if (dGrid.get(i, j) >= lower
-                                || dGrid.get(i, j) <= upper) {
+                        if ((dGrid.get(i, j) >= lower)
+                                || (dGrid.get(i, j) <= upper)) {
                             dirBits.set(i, j);
                         }
                     }
@@ -897,15 +893,15 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
             } else {
                 for (int i = 0; i < mGrid.getXdim(); i++) {
                     for (int j = 0; j < mGrid.getYdim(); j++) {
-                        if (dGrid.get(i, j) >= lower
-                                && dGrid.get(i, j) <= upper) {
+                        if ((dGrid.get(i, j) >= lower)
+                                && (dGrid.get(i, j) <= upper)) {
                             dirBits.set(i, j);
                         }
                     }
                 }
             }
         }
-        if (mag != 0 && dir != 0) {
+        if ((mag != 0) && (dir != 0)) {
             // "AND" magnitude and direction
             bits = magBits.and(dirBits);
         } else if (dir != 0) {
@@ -935,7 +931,7 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
         Grid2DBit magBits = new Grid2DBit(mGrid.getXdim(), mGrid.getYdim());
         Grid2DBit dirBits = new Grid2DBit(mGrid.getXdim(), mGrid.getYdim());
 
-        if (mag != 0 || (dir == 0 && mag == 0)) { // Test Magnitude
+        if ((mag != 0) || ((dir == 0) && (mag == 0))) { // Test Magnitude
             for (int i = 0; i < mGrid.getXdim(); i++) {
                 for (int j = 0; j < mGrid.getYdim(); j++) {
                     if (mGrid.get(i, j) > mag) {
@@ -953,7 +949,7 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
                 }
             }
         }
-        if (mag != 0 && dir != 0) {
+        if ((mag != 0) && (dir != 0)) {
             // "AND" magnitude and direction
             bits = magBits.and(dirBits);
         } else if (dir != 0) {
@@ -977,7 +973,7 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
         Grid2DBit magBits = new Grid2DBit(mGrid.getXdim(), mGrid.getYdim());
         Grid2DBit dirBits = new Grid2DBit(mGrid.getXdim(), mGrid.getYdim());
 
-        if (mag != 0 || (dir == 0 && mag == 0)) { // Test Magnitude
+        if ((mag != 0) || ((dir == 0) && (mag == 0))) { // Test Magnitude
             for (int i = 0; i < mGrid.getXdim(); i++) {
                 for (int j = 0; j < mGrid.getYdim(); j++) {
                     if (mGrid.get(i, j) >= mag) {
@@ -995,7 +991,7 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
                 }
             }
         }
-        if (mag != 0 && dir != 0) {
+        if ((mag != 0) && (dir != 0)) {
             // "AND" magnitude and direction
             bits = magBits.and(dirBits);
         } else if (dir != 0) {
@@ -1019,7 +1015,7 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
         Grid2DBit magBits = new Grid2DBit(mGrid.getXdim(), mGrid.getYdim());
         Grid2DBit dirBits = new Grid2DBit(mGrid.getXdim(), mGrid.getYdim());
 
-        if (mag != 0 || (dir == 0 && mag == 0)) { // Test Magnitude
+        if ((mag != 0) || ((dir == 0) && (mag == 0))) { // Test Magnitude
             for (int i = 0; i < mGrid.getXdim(); i++) {
                 for (int j = 0; j < mGrid.getYdim(); j++) {
                     if (mGrid.get(i, j) < mag) {
@@ -1037,7 +1033,7 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
                 }
             }
         }
-        if (mag != 0 && dir != 0) {
+        if ((mag != 0) && (dir != 0)) {
             // "AND" magnitude and direction
             bits = magBits.and(dirBits);
         } else if (dir != 0) {
@@ -1061,7 +1057,7 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
         Grid2DBit magBits = new Grid2DBit(mGrid.getXdim(), mGrid.getYdim());
         Grid2DBit dirBits = new Grid2DBit(mGrid.getXdim(), mGrid.getYdim());
 
-        if (mag != 0 || (dir == 0 && mag == 0)) { // Test Magnitude
+        if ((mag != 0) || ((dir == 0) && (mag == 0))) { // Test Magnitude
             for (int i = 0; i < mGrid.getXdim(); i++) {
                 for (int j = 0; j < mGrid.getYdim(); j++) {
                     if (mGrid.get(i, j) <= mag) {
@@ -1079,7 +1075,7 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
                 }
             }
         }
-        if (mag != 0 && dir != 0) {
+        if ((mag != 0) && (dir != 0)) {
             // "AND" magnitude and direction
             bits = magBits.and(dirBits);
         } else if (dir != 0) {
@@ -1124,7 +1120,7 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
 
         Grid2DBit magBits = new Grid2DBit(mGrid.getXdim(), mGrid.getYdim());
         Grid2DBit dirBits = new Grid2DBit(mGrid.getXdim(), mGrid.getYdim());
-        if (mag != 0 || (dir == 0 && mag == 0)) { // Test Magnitude
+        if ((mag != 0) || ((dir == 0) && (mag == 0))) { // Test Magnitude
             for (int i = 0; i < mGrid.getXdim(); i++) {
                 for (int j = 0; j < mGrid.getYdim(); j++) {
                     if (Math.abs(mGrid.get(i, j) - mag) <= fuzz) {
@@ -1148,8 +1144,8 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
             if (cross360) {
                 for (int i = 0; i < mGrid.getXdim(); i++) {
                     for (int j = 0; j < mGrid.getYdim(); j++) {
-                        if (dGrid.get(i, j) >= lower
-                                || dGrid.get(i, j) <= upper) {
+                        if ((dGrid.get(i, j) >= lower)
+                                || (dGrid.get(i, j) <= upper)) {
                             dirBits.set(i, j);
                         }
                     }
@@ -1157,15 +1153,15 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
             } else {
                 for (int i = 0; i < mGrid.getXdim(); i++) {
                     for (int j = 0; j < mGrid.getYdim(); j++) {
-                        if (dGrid.get(i, j) >= lower
-                                && dGrid.get(i, j) <= upper) {
+                        if ((dGrid.get(i, j) >= lower)
+                                && (dGrid.get(i, j) <= upper)) {
                             dirBits.set(i, j);
                         }
                     }
                 }
             }
         }
-        if (mag != 0 && dir != 0) {
+        if ((mag != 0) && (dir != 0)) {
             // "AND" magnitude and direction
             bits = magBits.and(dirBits);
         } else if (dir != 0) {

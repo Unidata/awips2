@@ -88,7 +88,7 @@ public class PgenExtrapTool extends AbstractPgenDrawingTool {
         @Override	   	
         public boolean handleMouseDown( int anX, int aY, int button ) { 
         	if ( !isResourceEditable() ) return false;
-       	
+
         	preempt = false;
         	
         	//  Check if mouse is in geographic extent

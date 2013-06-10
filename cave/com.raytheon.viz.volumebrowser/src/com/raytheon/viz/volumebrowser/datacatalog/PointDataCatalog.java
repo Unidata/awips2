@@ -32,7 +32,9 @@ import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
@@ -41,9 +43,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.viz.core.catalog.DbQuery;
-import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.d2d.nsharp.rsc.BufruaNSharpResourceData;
@@ -70,6 +70,7 @@ import com.vividsolutions.jts.geom.LineString;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 1, 2009            bsteffen     Initial creation
+ * May 08, 2013 DR14824 mgamazaychikov Added alterProductParameters method
  * 
  * </pre>
  * 
@@ -390,9 +391,11 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
     @Override
     protected Collection<? extends Level> get3DLevels() {
         try {
-            return LevelMappingFactory.getInstance()
+            return LevelMappingFactory
+                    .getInstance(
+                            LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
                     .getLevelMappingForKey("Station").getLevels();
-        } catch (VizCommunicationException e) {
+        } catch (CommunicationException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
             return Collections.emptyList();
         }
@@ -633,5 +636,50 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
         }
         return validPlanes;
     }
+    
+    /**
+     * Alter product parameters
+     * 
+     * @param selectedKey
+     * @param selectedValue
+     * @param productParameters
+     */
+    @Override
+	public void alterProductParameters(String selectedKey,
+			String selectedValue,
+			HashMap<String, RequestConstraint> productParameters) {
+		if (selectedKey.equalsIgnoreCase("line")) {
+			LineString line = ToolsDataManager.getInstance().getBaseline(
+					selectedValue);
+			RequestConstraint stationRC = new RequestConstraint();
+			stationRC.setConstraintType(RequestConstraint.ConstraintType.IN);
+			String sourceKey = productParameters.get("pluginName")
+					.getConstraintValue();
+			Collection<String> closest = new ArrayList<String>();
+			for (Coordinate c : line.getCoordinates()) {
+				SurfaceObsLocation loc = getClosestStation(c, sourceKey,
+						closest);
+				if (loc == null) {
+					break;
+				}
+				closest.add(loc.getStationId());
+				stationRC.addToConstraintValueList(loc.getStationId());
+			}
+			productParameters.put("location.stationId", stationRC);
+		} else if (selectedKey.equalsIgnoreCase("point")) {
+			Coordinate point = PointsDataManager.getInstance().getCoordinate(
+					selectedValue);
+			String sourceKey = productParameters.get("pluginName")
+					.getConstraintValue();
+
+			SurfaceObsLocation closestStation = getClosestStation(point,
+					sourceKey);
+			System.out.println();
+			productParameters.put("location.stationId", new RequestConstraint(
+					closestStation.getStationId()));
+			return;
+		}
+		return;
+	}
 
 }

@@ -12,7 +12,8 @@ Require-Bundle: com.raytheon.edex.common,
  org.apache.commons.logging,
  javax.persistence,
  com.raytheon.uf.common.site;bundle-version="1.12.1174",
- com.raytheon.uf.common.status;bundle-version="1.12.1174"
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ org.apache.commons.lang;bundle-version="2.3.0"
 Export-Package: com.raytheon.edex.plugin.modelsounding,
  com.raytheon.edex.plugin.modelsounding.common,
  com.raytheon.edex.plugin.modelsounding.dao,

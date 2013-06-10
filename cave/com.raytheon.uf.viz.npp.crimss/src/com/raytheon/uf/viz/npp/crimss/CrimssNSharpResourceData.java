@@ -19,15 +19,10 @@
  **/
 package com.raytheon.uf.viz.npp.crimss;
 
-import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingCube;
-import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingCube.QueryStatus;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
-import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile;
-import gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpDataHandling;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -39,19 +34,12 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
 import com.raytheon.uf.common.dataplugin.npp.crimss.CrimssRecord;
-import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.d2d.nsharp.rsc.D2DNSharpResourceData;
-import com.raytheon.viz.pointdata.PointDataRequest;
-import com.vividsolutions.jts.geom.Coordinate;
+import com.raytheon.uf.viz.npp.sounding.rsc.AbstractNPPNSharpResourceData;
 
 /**
- * TODO Add Description
+ * NSharp resource data capable of loading CrIMSS data
  * 
  * <pre>
  * 
@@ -68,9 +56,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 @XmlAccessorType(XmlAccessType.NONE)
-public class CrimssNSharpResourceData extends D2DNSharpResourceData {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(CrimssNSharpResourceData.class);
+public class CrimssNSharpResourceData extends AbstractNPPNSharpResourceData {
 
     private static final String PLUGIN = "crimss";
 
@@ -80,95 +66,28 @@ public class CrimssNSharpResourceData extends D2DNSharpResourceData {
             CrimssRecord.PDV_H2O, CrimssRecord.PDV_P_H2O,
             CrimssRecord.PDV_TEMPERATURE, CrimssRecord.PDV_P_TEMPERATURE };
 
-    private static final Unit<?> PRESSURE_UNIT = SI.HECTO(SI.PASCAL);
-
-    private static final Unit<?> HEIGHT_UNIT = SI.METER;
-
-    private static final Unit<?> TEMPERATURE_UNIT = SI.CELSIUS;
-
-    private static final Unit<?> H2O_UNIT = SI.GRAM.divide(SI.KILOGRAM);
-
-    private static final Unit<?> DEWPOINT_UNIT = SI.CELSIUS;
-
     public CrimssNSharpResourceData() {
-        super("CRiMSS");
-    }
-
-    @Override
-    protected void preparePointInfo() throws VizException {
-        // everything should already be set
-        return;
+        super("CrIMSS", PLUGIN, PARAMETERS);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.uf.viz.d2d.nsharp.rsc.D2DNSharpResourceData#getSoundingCube
-     * (gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo)
+     * @see com.raytheon.uf.viz.npp.sounding.rsc.AbstractNPPNSharpResourceData#
+     * getSoundingLayers(com.raytheon.uf.common.pointdata.PointDataView)
      */
     @Override
-    protected NcSoundingCube getSoundingCube(NsharpStationInfo stnInfo) {
-        DataTime time = new DataTime(stnInfo.getReftime());
-        try {
-            PointDataContainer pdc = PointDataRequest
-                    .requestPointDataAllLevels(time, PLUGIN, PARAMETERS, null,
-                            getMetadataMap());
-            PointDataView pdv = null;
-            Coordinate closest = null;
-            for (int i = 0; i < pdc.getCurrentSz(); i++) {
-                PointDataView testPdv = pdc.readRandom(i);
-                Coordinate p = new Coordinate(
-                        testPdv.getFloat(CrimssRecord.LONGITUDE),
-                        testPdv.getFloat(CrimssRecord.LATITUDE));
-                if (closest == null
-                        || coordinate.distance(p) < coordinate
-                                .distance(closest)) {
-                    pdv = testPdv;
-                    closest = p;
-                }
-            }
-            if (pdv == null) {
-                return null;
-            }
-            List<NcSoundingLayer> layers = new ArrayList<NcSoundingLayer>();
-            layers.add(getSurfacePressureLayer(pdv));
-            layers.addAll(getHeightLayers(pdv));
-            layers.addAll(getTemperatureLayers(pdv));
-            layers.addAll(getDewpointLayers(pdv));
-            Collections.sort(layers,
-                    NsharpDataHandling.reversePressureHeightWindComparator());
-            mergeDuplicates(layers);
-            // We have to interpolate everything so that height,temperature, and
-            // dewpoint are available on all levels.
-            interpolateHeight(layers);
-            interpolateTemperature(layers);
-            interpolateDewpoint(layers);
-            Iterator<NcSoundingLayer> iter = layers.iterator();
-            while (iter.hasNext()) {
-                NcSoundingLayer layer = iter.next();
-                if (layer.getPressure() < 0) {
-                    iter.remove();
-                } else if (layer.getGeoHeight() < 0) {
-                    iter.remove();
-
-                } else if (layer.getTemperature() < -300) {
-                    iter.remove();
-
-                } else if (layer.getDewpoint() < -300) {
-                    iter.remove();
-                }
-            }
-            NcSoundingProfile profile = new NcSoundingProfile();
-            profile.setSoundingLyLst(layers);
-            // TODO populate other fields in profile
-            NcSoundingCube cube = new NcSoundingCube(Arrays.asList(profile));
-            cube.setRtnStatus(QueryStatus.OK);
-            return cube;
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
-        return null;
+    protected List<NcSoundingLayer> getSoundingLayers(PointDataView pdv)
+            throws VizException {
+        List<NcSoundingLayer> layers = new ArrayList<NcSoundingLayer>();
+        layers.add(getSurfacePressureLayer(pdv));
+        layers.addAll(getHeightLayers(pdv));
+        layers.addAll(getTemperatureLayers(pdv));
+        layers.addAll(getDewpointLayers(pdv));
+        Collections.sort(layers,
+                NsharpDataHandling.reversePressureHeightWindComparator());
+        mergeDuplicates(layers);
+        return layers;
     }
 
     private static NcSoundingLayer getSurfacePressureLayer(PointDataView pdv) {
@@ -278,7 +197,6 @@ public class CrimssNSharpResourceData extends D2DNSharpResourceData {
             float pressure = pressureArray[j].floatValue();
             pressure = (float) pressureConverter.convert(pressure);
             float h2o = h2oArray[j].floatValue();
-            h2o = (float) h2oConverter.convert(h2o);
             float dpt = convertH2OtoDewpoint(h2o, pressure);
             dpt = (float) dewpointConverter.convert(dpt);
             NcSoundingLayer layer = new NcSoundingLayer(pressure,
@@ -290,13 +208,6 @@ public class CrimssNSharpResourceData extends D2DNSharpResourceData {
             layers.add(layer);
         }
         return layers;
-    }
-
-    // convert h2o in g/kg and pressure in hPa to dewpoint in kelvin.
-    private static float convertH2OtoDewpoint(float h2o, float pressure) {
-        double eee = pressure * h2o / (622.0 + 0.378 * h2o);
-        double b = 26.66082 - Math.log(eee);
-        return (float) ((b - Math.sqrt(b * b - 223.1986)) / 0.0182758048);
     }
 
     private static void mergeDuplicates(List<NcSoundingLayer> layers) {
@@ -319,82 +230,6 @@ public class CrimssNSharpResourceData extends D2DNSharpResourceData {
             } else {
                 prev = next;
             }
-        }
-    }
-
-    private static void interpolateHeight(List<NcSoundingLayer> layers) {
-        int belowIndex = -1;
-        for (int i = 0; i < layers.size(); i++) {
-            NcSoundingLayer layerAbove = layers.get(i);
-            if (layerAbove.getGeoHeight() < 0) {
-                continue;
-            }
-            if (belowIndex == -1) {
-                belowIndex = i;
-                continue;
-            }
-            NcSoundingLayer layerBelow = layers.get(belowIndex);
-            double diff = layerAbove.getGeoHeight() - layerBelow.getGeoHeight();
-            double pchg1 = Math.log(layerBelow.getPressure()
-                    / layerAbove.getPressure());
-            for (int j = belowIndex + 1; j < i; j += 1) {
-                NcSoundingLayer layer = layers.get(j);
-                double pchg2 = Math.log(layerBelow.getPressure()
-                        / layer.getPressure());
-                layer.setGeoHeight((float) (layerBelow.getGeoHeight() + ((pchg2 / pchg1) * diff)));
-            }
-            belowIndex = i;
-        }
-    }
-
-    private static void interpolateTemperature(List<NcSoundingLayer> layers) {
-        int belowIndex = -1;
-        for (int i = 0; i < layers.size(); i++) {
-            NcSoundingLayer layerAbove = layers.get(i);
-            if (layerAbove.getTemperature() < -300) {
-                continue;
-            }
-            if (belowIndex == -1) {
-                belowIndex = i;
-                continue;
-            }
-            NcSoundingLayer layerBelow = layers.get(belowIndex);
-            double diff = layerAbove.getTemperature()
-                    - layerBelow.getTemperature();
-            double pchg1 = Math.log(layerBelow.getPressure()
-                    / layerAbove.getPressure());
-            for (int j = belowIndex + 1; j < i; j += 1) {
-                NcSoundingLayer layer = layers.get(j);
-                double pchg2 = Math.log(layerBelow.getPressure()
-                        / layer.getPressure());
-                layer.setTemperature((float) (layerBelow.getTemperature() + ((pchg2 / pchg1) * diff)));
-            }
-            belowIndex = i;
-        }
-    }
-
-    private static void interpolateDewpoint(List<NcSoundingLayer> layers) {
-        int belowIndex = -1;
-        for (int i = 0; i < layers.size(); i++) {
-            NcSoundingLayer layerAbove = layers.get(i);
-            if (layerAbove.getDewpoint() < -300) {
-                continue;
-            }
-            if (belowIndex == -1) {
-                belowIndex = i;
-                continue;
-            }
-            NcSoundingLayer layerBelow = layers.get(belowIndex);
-            double diff = layerAbove.getDewpoint() - layerBelow.getDewpoint();
-            double pchg1 = Math.log(layerBelow.getPressure()
-                    / layerAbove.getPressure());
-            for (int j = belowIndex + 1; j < i; j += 1) {
-                NcSoundingLayer layer = layers.get(j);
-                double pchg2 = Math.log(layerBelow.getPressure()
-                        / layer.getPressure());
-                layer.setDewpoint((float) (layerBelow.getDewpoint() + ((pchg2 / pchg1) * diff)));
-            }
-            belowIndex = i;
         }
     }
 

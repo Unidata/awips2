@@ -32,9 +32,7 @@ import org.eclipse.ui.commands.ICommandService;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.Activator;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 
 /**
  * Defines a Tool Manager, which handles the tool registrations and activations
@@ -112,19 +110,28 @@ public class ModalToolManager {
      */
     public synchronized void activateToolSet(String defaultTool)
             throws VizException {
-        try {
-            ICommandService service = (ICommandService) PlatformUI
-                    .getWorkbench().getService(ICommandService.class);
-            if (defaultTool != null) {
-                Command c = service.getCommand(defaultTool);
-                c.executeWithChecks(new ExecutionEvent(c,
-                        new HashMap<Object, Object>(), null, null));
+        boolean found = false;
+        for (AbstractModalTool tool : toolMap.values()) {
+            if (tool != null && tool.commandId.equals(defaultTool)) {
+                found = true;
+                break;
             }
-        } catch (Exception e) {
-            statusHandler.handle(Priority.CRITICAL,
-                    "Error loading tool set", e);
+        }
+        if (!found) {
+            try {
+                ICommandService service = (ICommandService) PlatformUI
+                        .getWorkbench().getService(ICommandService.class);
+                if (defaultTool != null) {
+                    Command c = service.getCommand(defaultTool);
+                    c.executeWithChecks(new ExecutionEvent(c,
+                            new HashMap<Object, Object>(), null, null));
+                }
+            } catch (Exception e) {
+                statusHandler.handle(Priority.CRITICAL,
+                        "Error loading tool set", e);
 
-            throw new VizException("Error loading tool set", e);
+                throw new VizException("Error loading tool set", e);
+            }
         }
     }
 

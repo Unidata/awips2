@@ -30,29 +30,29 @@ public class PgenUndoRedoHandler extends AbstractTool {
 	 */
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-	
+
 		if ( PgenSession.getInstance().getPgenResource() != null &&
 				PgenSession.getInstance().getPgenResource().isEditable() ) {
-		if ( event.getApplicationContext().equals("Undo")) 
-			PgenSession.getInstance().getCommandManager().undo();
-		
-		else if ( event.getApplicationContext().equals("Redo") ) 
-			PgenSession.getInstance().getCommandManager().redo();
-		
-		else{
-		       if(event.getParameter("action") != null && !event.getParameter("action").isEmpty()){
+			if ( event.getApplicationContext().equals("Undo")) 
+				PgenSession.getInstance().getCommandManager().undo();
+
+			else if ( event.getApplicationContext().equals("Redo") ) 
+				PgenSession.getInstance().getCommandManager().redo();
+
+			else{
+				if(event.getParameter("action") != null && !event.getParameter("action").isEmpty()){
 					String actionToDo = new String(event.getParameter("action"));
-                    if(actionToDo.equals("Undo")){
-                    	PgenSession.getInstance().getCommandManager().undo();
-                    }else if(actionToDo.equals("Redo")){
-                    	PgenSession.getInstance().getCommandManager().redo();
-                    }
-		       }
-		}
-		PgenUtil.refresh();
-		
-		//de-activate drawing tools 
-		PgenUtil.setSelectingMode();	
+					if(actionToDo.equals("Undo")){
+						PgenSession.getInstance().getCommandManager().undo();
+					}else if(actionToDo.equals("Redo")){
+						PgenSession.getInstance().getCommandManager().redo();
+					}
+				}
+			}
+			PgenUtil.refresh();
+
+			//de-activate drawing tools 
+			PgenUtil.setSelectingMode();	
 		}
 		return null;
 	}

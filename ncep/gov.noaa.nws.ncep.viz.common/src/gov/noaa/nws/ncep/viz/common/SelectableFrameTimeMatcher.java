@@ -31,6 +31,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date       	Ticket#		Engineer	    Description
  * ------------	----------	---------------	--------------------------
  * 11/28/11       #518      Greg Hull       created
+ * 04/24/13		  689	    Xiaochuan		Add the frame should include end of time.
  * 
  * </pre>
  * 
@@ -93,13 +94,13 @@ public class SelectableFrameTimeMatcher {
 				if( startEndIncrStrs.length > 2 ) {	
 					incr = Integer.parseInt( startEndIncrStrs[2].trim() ) * 60 * 60;
 				}
-
+				
 				// Note : this logic will need to change when we add parsing of
 				// full GDATTIM syntax. 
-				
-				for( Integer f = startTime.getFcstTime() ; f < endTime.getFcstTime() ; f += incr ) {
+				for( Integer f = startTime.getFcstTime() ; f <= endTime.getFcstTime() ; f += incr ) {
 					selectableTimes.add( 
-							new DataTime( startTime.getRefTime(), f ));					
+							new DataTime( startTime.getRefTime(), f ));		
+
 				}
 				
 			}

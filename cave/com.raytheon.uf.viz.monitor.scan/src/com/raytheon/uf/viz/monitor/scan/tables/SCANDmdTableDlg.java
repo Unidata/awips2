@@ -57,7 +57,6 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanColors;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.monitor.IMonitor;
 import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
 import com.raytheon.uf.viz.monitor.events.IMonitorEvent;
@@ -90,6 +89,8 @@ import com.raytheon.viz.ui.EditorUtil;
  * Apr 29, 2010            lvenable     Initial creation
  * 
  * 03/15/2012	13939	   Mike Duff    For a SCAN Alarms issue
+ * Apr 29, 2013 #1945      lvenable    Improved SCAN performance, reworked
+ *                                     some bad code, and some code cleanup.
  * 
  * </pre>
  * 
@@ -315,6 +316,7 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
                 @Override
                 public void run() {
                     Display.getDefault().asyncExec(new Runnable() {
+                        @Override
                         public void run() {
                             if (shell.isDisposed()) {
                                 dmdTableComp.timer.cancel();
@@ -473,11 +475,16 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
         vertChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
         vertChk.setSelection(dmdConfigMgr.getScanDmdCfgXML().getFilterOption());
         vertChk.setLayoutData(gd);
-        vertChk.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-            }
-        });
+
+        /*
+         * The vertical table is a techblocked DR. This will be commented out
+         * until that is addressed.
+         */
+        // vertChk.addSelectionListener(new SelectionAdapter() {
+        // @Override
+        // public void widgetSelected(SelectionEvent e) {
+        // }
+        // });
         setupButtonMouseListeners(vertChk);
 
         gd = new GridData();
@@ -514,7 +521,7 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
                 alarmsDlg.open();
                 if (!alarmBtn.isDisposed()
                         && mgr.getAlertedAlarms(site, scanTable).isEmpty()) {
-                	turnOffAlarm();
+                    turnOffAlarm();
                 }
             }
         });
@@ -522,8 +529,7 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
         gd = new GridData(SWT.DEFAULT, SWT.CENTER, false, true);
         gd.widthHint = 135;
         elevationLbl = new Label(controlComp, SWT.CENTER | SWT.BORDER);
-        elevationLbl.setText("* No Elevation *"); // TODO - need to add
-        // elevation
+        elevationLbl.setText("* No Elevation *");
         elevationLbl.setBackground(elevationLabelColor);
         elevationLbl.setLayoutData(gd);
 
@@ -676,53 +682,6 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
 
         configBtn.setMenu(configPopupMenu);
     }
-
-    /**
-     * Create the Rank popup menu.
-     */
-    // private void createRankPopupMenu() {
-    // rankPopupMenu = new Menu(rankBtn);
-
-    /*
-     * TODO : need to handle default ranking in the list... DMD -- stRank not
-     * really clear on how the legacy system handle this.
-     */
-
-    /*
-     * Default menu item
-     */
-    // MenuItem defaultMI = new MenuItem(rankPopupMenu, SWT.NONE);
-    // defaultMI.setText(SCANConfig.getInstance().getDefaultName());
-    // defaultMI.setData(SCANConfig.getInstance().getDefaultName());
-    // defaultMI.setEnabled(false);
-    // defaultMI.addSelectionListener(new SelectionAdapter()
-    // {
-    // @Override
-    // public void widgetSelected(SelectionEvent event)
-    // {
-    // handleRankMenuEvent(event);
-    // }
-    // });
-    //
-    /*
-     * Create the remaining rank menus from the configuration
-     */
-    // String[] ranks = SCANConfig.getInstance().getRankColumns(scanTable);
-    //
-    // for (String rankStr : ranks) {
-    // MenuItem mi = new MenuItem(rankPopupMenu, SWT.NONE);
-    // mi.setText(rankStr);
-    // mi.setData(rankStr);
-    // mi.addSelectionListener(new SelectionAdapter() {
-    // @Override
-    // public void widgetSelected(SelectionEvent event) {
-    // handleRankMenuEvent(event);
-    // }
-    // });
-    // }
-    //
-    // rankBtn.setMenu(rankPopupMenu);
-    // }
 
     /**
      * Display the Create/Edit trend dialog.
@@ -893,9 +852,6 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
                 linkToFrameChk.getSelection());
         IMonitorConfigurationEvent imce = new IMonitorConfigurationEvent(this);
         this.fireConfigUpdate(imce);
-
-        // System.out.println("######## Link to frame is : " +
-        // linkToFrameChk.getSelection());
     }
 
     /**
@@ -923,15 +879,6 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
             unregisterDialog(colorThresholdDlg);
             colorThresholdDlg = null;
         }
-    }
-
-    /**
-     * Shell close action.
-     */
-    @Override
-    protected void shellCloseAction() {
-        // TODO Auto-generated method stub
-
     }
 
     /**
@@ -970,7 +917,6 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
     @Override
     protected void setShellText() {
         shell.setText(this.site + " DMD Table");
-
     }
 
     /**
@@ -994,18 +940,13 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
     public void notify(IMonitorEvent me) {
         if (me.getSource() instanceof IMonitor) {
             ScanMonitor scan = (ScanMonitor) me.getSource();
-            Date time = null;
-            try {
-                if (getLinkToFrame(scanTable.name())) {
-                    time = (scan).getScanTime(scanTable, site);
-                } else {
-                    time = (scan).getMostRecent(scan, scanTable.name(), site)
-                            .getRefTime();
-                }
-            } catch (Exception e) {
-                statusHandler.handle(Priority.ERROR, "Unable to retrieve time",
-                        e);
+
+            // If scan is null return since nothing will be done.
+            if (scan == null) {
+                return;
             }
+
+            Date time = getScanTime(scan);
 
             if ((time != null) && scan.isInstantiated()) {
                 ScanDataGenerator sdg = new ScanDataGenerator(site);
@@ -1070,7 +1011,9 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
                         && currentTime.equals(scan.getMostRecent(scan,
                                 scanTable.name(), site).getRefTime())
                         && !scanCfg.getAlarmsDisabled(scanTable)) {
-                    dmdTableComp.checkBlink(sdg, scan.getMostRecent(scan, scanTable.name(), site).getRefTime());
+                    dmdTableComp.checkBlink(sdg,
+                            scan.getMostRecent(scan, scanTable.name(), site)
+                                    .getRefTime());
                     if (mgr.getAlertedAlarms(site, scanTable).size() > 0) {
                         alarmBtn.setVisible(true);
                         addAlarmTimer();
@@ -1298,19 +1241,21 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
         dmdTableComp.alarmSelection(ident);
 
     }
-    
-    public void turnOffAlarm() {
-    	if (alarmBtn != null && !alarmBtn.isDisposed()) {
-    		alarmBtn.setVisible(false);
-    	}
-        mgr.setRing(false);
-	}
 
+    @Override
+    public void turnOffAlarm() {
+        if (alarmBtn != null && !alarmBtn.isDisposed()) {
+            alarmBtn.setVisible(false);
+        }
+        mgr.setRing(false);
+    }
+
+    @Override
     public void turnOnAlarm() {
-    	if (alarmBtn != null && !alarmBtn.isDisposed()) {
-    		alarmBtn.setVisible(true);
-    	}
+        if (alarmBtn != null && !alarmBtn.isDisposed()) {
+            alarmBtn.setVisible(true);
+        }
         mgr.setRing(true);
-	}
+    }
 
 }

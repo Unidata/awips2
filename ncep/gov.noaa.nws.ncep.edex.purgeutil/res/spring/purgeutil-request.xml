@@ -54,7 +54,7 @@
     </property>
   </bean>
   
-    <camelContext id="nceppurge-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+    <camelContext id="nceppurge-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                                           
     	
     	<endpoint id="nceppurgeHttp_from"
     		uri="jetty:http://0.0.0.0:${http.port}/services/purgePlugin" />

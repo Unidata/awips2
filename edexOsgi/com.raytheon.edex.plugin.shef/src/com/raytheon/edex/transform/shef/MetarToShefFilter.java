@@ -41,21 +41,20 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.common.ohd.AppsDefaults;
-//import com.raytheon.edex.transform.shef.MetarToShefTransformer;
 import com.raytheon.uf.edex.decodertools.core.filterimpl.AbstractFilterElement;
 import com.raytheon.uf.edex.decodertools.core.filterimpl.AbstractObsFilter;
 import com.raytheon.uf.edex.decodertools.core.filterimpl.PluginDataObjectFilter;
 
 /**
- * Use information in metarToShefFilter.xml, MetarToShefFilter filters out
- * the metar messages before send the message to MetarToShefTransformer to 
- * encode to a SHEF message. 
+ * Use information in metarToShefFilter.xml, MetarToShefFilter filters out the
+ * metar messages before send the message to MetarToShefTransformer to encode to
+ * a SHEF message.
  * 
  * <pre>
  * 
@@ -63,6 +62,7 @@ import com.raytheon.uf.edex.decodertools.core.filterimpl.PluginDataObjectFilter;
  * Date       Ticket# Engineer Description
  * ---------- ------- -------- --------------------------
  * 1/10/2013  15497   wkwock   Initial creation
+ * 2/13/2013   1584   mpduff   Fix creation of "dummy" config.
  * 
  * </pre>
  * 
@@ -72,7 +72,7 @@ import com.raytheon.uf.edex.decodertools.core.filterimpl.PluginDataObjectFilter;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class MetarToShefFilter  {
+public class MetarToShefFilter {
     @XmlElement
     @DynamicSerializeElement
     protected List<MetarToShefRun> metarToShefRun = new ArrayList<MetarToShefRun>();
@@ -82,12 +82,13 @@ public class MetarToShefFilter  {
     private static final String ERROR_2_FMT = "File %s does not exist";
 
     private static final String METAR_CFG = "metar.cfg";
-    
-    public static final String FILTERS_DIR = "plugin-filters";
-    
-    private String metarToShefOptions = AppsDefaults.getInstance().getToken("metar2shef_options");
 
-    private Log logger = LogFactory.getLog(getClass());
+    public static final String FILTERS_DIR = "plugin-filters";
+
+    private final String metarToShefOptions = AppsDefaults.getInstance()
+            .getToken("metar2shef_options");
+
+    private final Log logger = LogFactory.getLog(getClass());
 
     private String filterConfigFile = null;
 
@@ -99,9 +100,10 @@ public class MetarToShefFilter  {
         try {
             File filterDir = null;
             IPathManager manager = PathManagerFactory.getPathManager();
-            if(manager != null) {
-                LocalizationContext context = manager.getContext(EDEX_STATIC, LocalizationLevel.valueOf(localContext));
-                if(context != null) {
+            if (manager != null) {
+                LocalizationContext context = manager.getContext(EDEX_STATIC,
+                        LocalizationLevel.valueOf(localContext));
+                if (context != null) {
                     filterDir = manager.getFile(context, FILTERS_DIR);
                     if (filterDir.exists()) {
                         File srcFile = new File(filterDir, filterConfigFile);
@@ -113,73 +115,84 @@ public class MetarToShefFilter  {
                             stream.read(data);
                             stream.close();
                             Object obj = SerializationUtil
-                            .unmarshalFromXml(new String(data));
-                            if (obj instanceof PluginDataObjectFilter){
-                                logger.info("Found "+filterConfigFile+" is PluginDataObjectFilter");
-                                PluginDataObjectFilter pdof=(PluginDataObjectFilter) obj;
-                                MetarToShefRun mtsr= new MetarToShefRun();
+                                    .unmarshalFromXml(new String(data));
+                            if (obj instanceof PluginDataObjectFilter) {
+                                logger.info("Found " + filterConfigFile
+                                        + " is PluginDataObjectFilter");
+                                PluginDataObjectFilter pdof = (PluginDataObjectFilter) obj;
+                                MetarToShefRun mtsr = new MetarToShefRun();
                                 mtsr.setConfigFileName(METAR_CFG);
                                 mtsr.setMetarToShefOptions(metarToShefOptions);
                                 mtsr.setFilterElements(pdof.getFilterElements());
                                 mtsr.setFilterName(pdof.getFilterName());
                                 this.metarToShefRun.add(mtsr);
-                            }else if (obj instanceof MetarToShefFilter) {
-                            	MetarToShefFilter filter = (MetarToShefFilter) obj;
-                            	this.metarToShefRun=filter.metarToShefRun;
-                                logger.info("Found "+filterConfigFile+" is MetarToShefFilter");
-                           }else {
-                        	   logger.error("Found "+filterConfigFile+" is "+obj.getClass().getCanonicalName());
-                               createDummyFilter();
-                           }
+                            } else if (obj instanceof MetarToShefFilter) {
+                                MetarToShefFilter filter = (MetarToShefFilter) obj;
+                                this.metarToShefRun = filter.metarToShefRun;
+                                logger.info("Found " + filterConfigFile
+                                        + " is MetarToShefFilter");
+                            } else {
+                                logger.error("Found " + filterConfigFile
+                                        + " is "
+                                        + obj.getClass().getCanonicalName());
+                                createDummyFilter();
+                            }
                         } catch (IOException e) {
                             logger.error("Unable to read filter config", e);
                         } catch (JAXBException e) {
-                            logger.error("Unable to unmarshall filter config", e);
+                            logger.error("Unable to unmarshall filter config",
+                                    e);
                         }
                     } else {
-                        logger.error(String.format(ERROR_2_FMT,filterDir.getPath()));
+                        logger.error(String.format(ERROR_2_FMT,
+                                filterDir.getPath()));
                         createDummyFilter();
                     }
                 } else {
-                    logger.error(String.format(ERROR_1_FMT, localContext,configFile));
+                    logger.error(String.format(ERROR_1_FMT, localContext,
+                            configFile));
                     createDummyFilter();
                 }
             } else {
                 // Could not create PathManager
             }
         } catch (Exception e) {
-            logger.error(
-                    "Error creating filter.", e);
+            logger.error("Error creating filter.", e);
             createDummyFilter();
         }
 
-        for (MetarToShefRun mtsr: metarToShefRun){
-        	logger.info("Filter name = " + mtsr.getFilterName()+" with config file: "+mtsr.getConfigFileName());
+        for (MetarToShefRun mtsr : metarToShefRun) {
+            logger.info("Filter name = " + mtsr.getFilterName()
+                    + " with config file: " + mtsr.getConfigFileName());
         }
     }
 
-    private PluginDataObject[] filterARun(PluginDataObject[] reports, List<AbstractFilterElement> filterElements) {
+    private PluginDataObject[] filterARun(PluginDataObject[] reports,
+            List<AbstractFilterElement> filterElements) {
         int reportCount = 0;
         if (reports != null) {
 
-            
             for (int i = 0; i < reports.length; i++) {
                 PluginDataObject r = null;
                 boolean keep = true;
                 for (AbstractFilterElement element : filterElements) {
                     r = element.filter(reports[i]);
-                    
-                    // Only allow keep to be set to true. Once true it stays that way. 
-                    if(AbstractObsFilter.INCLUDE_TYPE.equals(element.getFilterType())) {
+
+                    // Only allow keep to be set to true. Once true it stays
+                    // that way.
+                    if (AbstractObsFilter.INCLUDE_TYPE.equals(element
+                            .getFilterType())) {
                         // Did the filter pass?
-                        if(r == null) {
-                            // If we fail an element, exit now.  
+                        if (r == null) {
+                            // If we fail an element, exit now.
                             keep = false;
                             break;
                         }
-                    } else if(AbstractObsFilter.EXCLUDE_TYPE.equals(element.getFilterType())) {
-                        if(r != null) {
-                            // There was a match, so we want to remove this item.
+                    } else if (AbstractObsFilter.EXCLUDE_TYPE.equals(element
+                            .getFilterType())) {
+                        if (r != null) {
+                            // There was a match, so we want to remove this
+                            // item.
                             keep = false;
                             // And there's no reason for further checks.
                             break;
@@ -208,29 +221,30 @@ public class MetarToShefFilter  {
         }
         return reports;
     }
-    
+
     /**
      * Apply the list of filters against given input data.
      * 
      */
- //   @Override
+    // @Override
     public PluginDataObject[] filter(PluginDataObject[] reports) {
-    	PluginDataObject[] resultRpt=null;
-    	for (MetarToShefRun mtsr : metarToShefRun) {
-        	PluginDataObject[] tmpRprts = reports.clone();
-    		resultRpt=filterARun(tmpRprts,mtsr.getFilterElements());
-    		if (resultRpt!=null && resultRpt.length>=1) {
-    			logger.info("Report matchs in filter "+mtsr.getFilterName());
-    			MetarToShefTransformer.setCfgNOption(mtsr.getConfigFileName(),mtsr.getMetarToShefOptions());
-    			break ;
-    		}
-    	}
+        PluginDataObject[] resultRpt = null;
+        for (MetarToShefRun mtsr : metarToShefRun) {
+            PluginDataObject[] tmpRprts = reports.clone();
+            resultRpt = filterARun(tmpRprts, mtsr.getFilterElements());
+            if (resultRpt != null && resultRpt.length >= 1) {
+                logger.info("Report matchs in filter " + mtsr.getFilterName());
+                MetarToShefTransformer.setCfgNOption(mtsr.getConfigFileName(),
+                        mtsr.getMetarToShefOptions());
+                break;
+            }
+        }
 
         return resultRpt;
     }
 
     private void createDummyFilter() {
-        MetarToShefRun mtsr= new MetarToShefRun();
+        MetarToShefRun mtsr = new MetarToShefRun();
         mtsr.setConfigFileName(METAR_CFG);
         mtsr.setMetarToShefOptions(metarToShefOptions);
 
@@ -242,7 +256,7 @@ public class MetarToShefFilter  {
             }
         };
         dummy.setFilterType(AbstractObsFilter.INCLUDE_TYPE);
-        mtsr.getFilterElements().set(0, dummy);
+        mtsr.getFilterElements().add(dummy);
         mtsr.setFilterName("Created Pass-All filter");
         this.metarToShefRun.add(mtsr);
     }
@@ -262,9 +276,9 @@ public class MetarToShefFilter  {
         }
         return fis;
     }
-    
+
     public void addMetarToShefRun(MetarToShefRun element) {
-    	metarToShefRun.add(element);
+        metarToShefRun.add(element);
     }
 
     /**
@@ -274,13 +288,13 @@ public class MetarToShefFilter  {
     public List<MetarToShefRun> getMetarToShefRun() {
         return metarToShefRun;
     }
-    
+
     /**
      * 
      * @param elements
      */
     public void setMetarToShefRun(List<MetarToShefRun> elements) {
-    	metarToShefRun = elements;
+        metarToShefRun = elements;
     }
 
- }
+}

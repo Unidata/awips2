@@ -25,14 +25,6 @@
          unpack="false"/>
 
    <plugin
-         id="gov.nasa.gsfc.fits"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-
-   <plugin
          id="gov.noaa.nws.ncep.common.dataplugin.airmet"
          download-size="0"
          install-size="0"
@@ -447,6 +439,20 @@
 
    <plugin
          id="gov.noaa.nws.ncep.edex.plugin.solarimage"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.dataplugin.ntrans"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.plugin.ntrans"
          download-size="0"
          install-size="0"
          version="0.0.0"
