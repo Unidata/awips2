@@ -1,6 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean id="notificationHandler"
@@ -9,17 +9,10 @@
 			value="jms-generic:topic:notify.msg?destinationResolver=#qpidDurableResolver" />
 		<property name="notificationDao" ref="notificationDao" />
 	</bean>
-
-	<bean
-		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-		<property name="staticMethod"
-			value="com.raytheon.uf.common.event.EventBus.register" />
-		<property name="arguments">
-			<list>
-				<ref bean="notificationHandler" />
-			</list>
-		</property>
-	</bean>
+    
+    <bean factory-bean="eventBus" factory-method="register">
+        <constructor-arg ref="notificationHandler" />
+    </bean>
 
 	<!-- verify text product info for site, spawns in separate thread to not 
 		delay start up -->

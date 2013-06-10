@@ -22,17 +22,18 @@ package com.raytheon.uf.common.datadelivery.registry.handlers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSharedSubscription;
-import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSiteSubscription;
+import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Network;
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
+import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.util.CollectionUtil;
@@ -50,6 +51,8 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * Sep 18, 2012 1169       djohnson     Initial creation
  * Sep 24, 2012 1157       mpduff       Changed to use InitialPendingSubscription.
  * 4/9/2013     1802      bphillip   Using constant values from constants package instead of RegistryUtil
+ * May 28, 2013 1650       djohnson     Add getByNames.
+ * May 29, 2013 1650       djohnson     Fix ability to delete multiple types of subscriptions at once.
  * 
  * </pre>
  * 
@@ -89,6 +92,19 @@ public class PendingSubscriptionHandler implements IPendingSubscriptionHandler {
             value = sharedSubscriptionHandler.getByName(name);
         }
         return value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<InitialPendingSubscription> getByNames(Collection<String> names)
+            throws RegistryHandlerException {
+        List<InitialPendingSubscription> subs = Lists.newArrayList();
+        subs.addAll(siteSubscriptionHandler.getByNames(names));
+        subs.addAll(sharedSubscriptionHandler.getByNames(names));
+
+        return subs;
     }
 
     /**
@@ -282,16 +298,37 @@ public class PendingSubscriptionHandler implements IPendingSubscriptionHandler {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void delete(Collection<InitialPendingSubscription> objects)
             throws RegistryHandlerException {
         if (!CollectionUtil.isNullOrEmpty(objects)) {
-            final Collection asSubtype = objects;
-            if (objects.iterator().next() instanceof InitialPendingSiteSubscription) {
-                siteSubscriptionHandler.delete(asSubtype);
-            } else {
-                sharedSubscriptionHandler.delete(asSubtype);
+            final Collection<InitialPendingSiteSubscription> siteSubscriptions = Lists
+                    .newArrayList();
+            final Collection<InitialPendingSharedSubscription> sharedSubscriptions = Lists
+                    .newArrayList();
+            for (Iterator<InitialPendingSubscription> iter = objects.iterator(); iter
+                    .hasNext();) {
+                final Subscription sub = iter.next();
+                if (sub instanceof InitialPendingSiteSubscription) {
+                    siteSubscriptions.add((InitialPendingSiteSubscription) sub);
+                } else if (sub instanceof InitialPendingSharedSubscription) {
+                    sharedSubscriptions
+                            .add((InitialPendingSharedSubscription) sub);
+                } else {
+                    throw new RegistryHandlerException(
+                            new IllegalArgumentException(
+                                    "Unable to delete pending subscription of type ["
+                                            + sub.getClass().getName()
+                                            + "].  Did you add a new subscription type?"));
+                }
+            }
+
+            if (!siteSubscriptions.isEmpty()) {
+                siteSubscriptionHandler.delete(siteSubscriptions);
+            }
+
+            if (!sharedSubscriptions.isEmpty()) {
+                sharedSubscriptionHandler.delete(sharedSubscriptions);
             }
         }
     }
@@ -299,17 +336,38 @@ public class PendingSubscriptionHandler implements IPendingSubscriptionHandler {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void delete(String username,
             Collection<InitialPendingSubscription> objects)
             throws RegistryHandlerException {
         if (!CollectionUtil.isNullOrEmpty(objects)) {
-            final Collection asSubtype = objects;
-            if (objects.iterator().next() instanceof SiteSubscription) {
-                siteSubscriptionHandler.delete(username, asSubtype);
-            } else {
-                sharedSubscriptionHandler.delete(username, asSubtype);
+            final Collection<InitialPendingSiteSubscription> siteSubscriptions = Lists
+                    .newArrayList();
+            final Collection<InitialPendingSharedSubscription> sharedSubscriptions = Lists
+                    .newArrayList();
+            for (Iterator<InitialPendingSubscription> iter = objects.iterator(); iter
+                    .hasNext();) {
+                final Subscription sub = iter.next();
+                if (sub instanceof InitialPendingSiteSubscription) {
+                    siteSubscriptions.add((InitialPendingSiteSubscription) sub);
+                } else if (sub instanceof InitialPendingSharedSubscription) {
+                    sharedSubscriptions
+                            .add((InitialPendingSharedSubscription) sub);
+                } else {
+                    throw new RegistryHandlerException(
+                            new IllegalArgumentException(
+                                    "Unable to delete pending subscription of type ["
+                                            + sub.getClass().getName()
+                                            + "].  Did you add a new subscription type?"));
+                }
+            }
+
+            if (!siteSubscriptions.isEmpty()) {
+                siteSubscriptionHandler.delete(siteSubscriptions);
+            }
+
+            if (!sharedSubscriptions.isEmpty()) {
+                sharedSubscriptionHandler.delete(sharedSubscriptions);
             }
         }
     }
