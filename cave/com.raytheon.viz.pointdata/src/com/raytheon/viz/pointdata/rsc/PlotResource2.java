@@ -82,15 +82,16 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- *  11/20/2006             brockwoo    Initial creation.
- *  02/17/2009             njensen     Refactored to new rsc architecture.
- *  03/17/2009      2105   jsanchez    Plot goessounding/poessounding availability.
- *  03/30/2009      2169   jsanchez    Updated initNewFrame.
- *  04/09/2009       952   jsanchez    Plot acars.   
- *  04/13/2009      2251   jsanchez    Plot profilers. 
- *  04/21/2009             chammack    Refactor to common pointData model
- *  02/01/2013     1567   njensen       Refactor handling of updates
- * 
+ * Nov 20, 2006            brockwoo    Initial creation.
+ * Feb 17, 2009            njensen     Refactored to new rsc architecture.
+ * Mar 17, 2009 2105       jsanchez    Plot goessounding/poessounding
+ *                                     availability.
+ * Mar 30, 2009 2169       jsanchez    Updated initNewFrame.
+ * Apr 09, 2009 952        jsanchez    Plot acars.
+ * Apr 13, 2009 2251       jsanchez    Plot profilers.
+ * Apr 21, 2009            chammack    Refactor to common pointData model
+ * Feb 01, 2013 1567       njensen     Refactor handling of updates
+ * May 14, 2013 1869       bsteffen    Get plots working without dataURI
  * 
  * </pre>
  * 
@@ -378,7 +379,9 @@ public class PlotResource2 extends
         }
         boolean dup = false;
         for (int i = 0; i < existingStation.info.length; i++) {
-            if (existingStation.info[i].dataURI.equals(plot.dataURI)) {
+            String curUri = existingStation.info[i].dataURI;
+            String newUri = plot.dataURI;
+            if (curUri == null || curUri.equals(newUri)) {
                 dup = true;
                 break;
             }

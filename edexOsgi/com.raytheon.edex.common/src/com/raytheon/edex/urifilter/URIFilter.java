@@ -32,7 +32,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.msg.DataURINotificationMessage;
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -47,9 +48,10 @@ import com.raytheon.uf.edex.core.EdexException;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 02/07/2009   1981       dhladky    Initial Creation.
- * 05/27/2009   2037       dhladky    Fixed concurrent mod 
- *                                    exception with URI maps on removal
+ * 02/07/2009   1981       dhladky     Initial Creation.
+ * 05/27/2009   2037       dhladky     Fixed concurrent mod 
+ *                                     exception with URI maps on removal
+ * Feb 15, 2013 1638       mschenke    Switched to use DataURI.SEPARATOR
  * 
  * </pre>
  * 
@@ -57,7 +59,8 @@ import com.raytheon.uf.edex.core.EdexException;
  * @version 1.0
  */
 public abstract class URIFilter implements ISerializableObject {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(URIFilter.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(URIFilter.class);
 
     /**
      * 
@@ -110,7 +113,7 @@ public abstract class URIFilter implements ISerializableObject {
     protected String[] previousURIs = null;
 
     /** Separator for URI's */
-    public static final String uriSeperator = "/";
+    public static final String uriSeperator = DataURI.SEPARATOR;
 
     /** sets the start for the forecast hour */
     public static final String forecastTimeSepStart = "(";

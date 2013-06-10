@@ -36,6 +36,7 @@ import com.raytheon.uf.common.geospatial.SpatialQueryResult;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.topo.TopoQuery;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -47,7 +48,6 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.style.level.Level.LevelType;
-import com.raytheon.uf.viz.core.topo.TopoQuery;
 import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
 import com.raytheon.uf.viz.xy.crosssection.rsc.AbstractCrossSectionResource;
 import com.raytheon.uf.viz.xy.graph.AbstractGraph;
@@ -76,6 +76,8 @@ import com.vividsolutions.jts.geom.Point;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 3, 2010            bsteffen     Initial creation
+ * Feb 15, 2013 1638       mschenke    Got rid of viz/edex topo classes 
+ *                                     and moved into common
  * 
  * </pre>
  * 

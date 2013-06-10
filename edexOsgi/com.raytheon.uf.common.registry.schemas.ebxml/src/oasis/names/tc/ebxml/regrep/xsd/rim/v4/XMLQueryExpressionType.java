@@ -22,6 +22,7 @@ package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyElement;
@@ -64,7 +65,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  */
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "XMLQueryExpression")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "XMLQueryExpressionType", propOrder = { "any" })

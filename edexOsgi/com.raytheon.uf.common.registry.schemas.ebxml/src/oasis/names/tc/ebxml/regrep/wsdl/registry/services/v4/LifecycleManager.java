@@ -32,6 +32,8 @@ import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.UpdateObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
+import org.apache.cxf.annotations.GZIP;
+
 /**
  * 
  * The portType for LifecycleManager abstract interface.
@@ -41,6 +43,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
  * source version: 2.1
  * 
  */
+@GZIP(threshold = 0)
 @WebService(name = "LifecycleManager", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:wsdl:registry:interfaces:4.0")
 @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
 @XmlSeeAlso({ oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectFactory.class,

@@ -242,49 +242,53 @@ public class RadarMosaicResourceData extends AbstractRequestableResourceData {
 
     @Override
     public void update(Object updateData) {
-        Map<AbstractResourceData, List<PluginDataObject>> updates = new HashMap<AbstractResourceData, List<PluginDataObject>>();
-        for (PluginDataObject pdo : (PluginDataObject[]) updateData) {
-            try {
-                Map<String, Object> pdoMap = RecordFactory.getInstance()
-                        .loadMapFromUri(pdo.getDataURI());
-                for (ResourcePair pair : validProductList) {
-                    if (pair.getResourceData() instanceof AbstractRequestableResourceData) {
-                        boolean match = true;
-                        HashMap<String, RequestConstraint> constraintMap = ((AbstractRequestableResourceData) pair
-                                .getResourceData()).getMetadataMap();
-                        for (Entry<String, RequestConstraint> entry : constraintMap
-                                .entrySet()) {
-                            Object pdoItem = pdoMap.get(entry.getKey());
-                            if (pdoItem == null) {
-                                match = false;
-                                break;
+        if (updateData instanceof PluginDataObject[]) {
+            Map<AbstractResourceData, List<PluginDataObject>> updates = new HashMap<AbstractResourceData, List<PluginDataObject>>();
+            for (PluginDataObject pdo : (PluginDataObject[]) updateData) {
+                try {
+                    Map<String, Object> pdoMap = RecordFactory.getInstance()
+                            .loadMapFromUri(pdo.getDataURI());
+                    for (ResourcePair pair : validProductList) {
+                        if (pair.getResourceData() instanceof AbstractRequestableResourceData) {
+                            boolean match = true;
+                            HashMap<String, RequestConstraint> constraintMap = ((AbstractRequestableResourceData) pair
+                                    .getResourceData()).getMetadataMap();
+                            for (Entry<String, RequestConstraint> entry : constraintMap
+                                    .entrySet()) {
+                                Object pdoItem = pdoMap.get(entry.getKey());
+                                if (pdoItem == null) {
+                                    match = false;
+                                    break;
+                                }
+                                if (!entry.getValue().evaluate(pdoItem)) {
+                                    match = false;
+                                    break;
+                                }
                             }
-                            if (!entry.getValue().evaluate(pdoItem)) {
-                                match = false;
-                                break;
+                            if (match) {
+                                List<PluginDataObject> pdos = updates.get(pair
+                                        .getResourceData());
+                                if (pdos == null) {
+                                    pdos = new ArrayList<PluginDataObject>();
+                                    updates.put(pair.getResourceData(), pdos);
+                                }
+                                pdos.add(pdo);
                             }
-                        }
-                        if (match) {
-                            List<PluginDataObject> pdos = updates.get(pair
-                                    .getResourceData());
-                            if (pdos == null) {
-                                pdos = new ArrayList<PluginDataObject>();
-                                updates.put(pair.getResourceData(), pdos);
-                            }
-                            pdos.add(pdo);
                         }
                     }
-                }
-            } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error processing mosaic update", e);
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error processing mosaic update", e);
 
+                }
             }
-        }
-        for (Entry<AbstractResourceData, List<PluginDataObject>> entry : updates
-                .entrySet()) {
-            entry.getKey().update(
-                    entry.getValue().toArray(new PluginDataObject[0]));
+            for (Entry<AbstractResourceData, List<PluginDataObject>> entry : updates
+                    .entrySet()) {
+                entry.getKey().update(
+                        entry.getValue().toArray(new PluginDataObject[0]));
+            }
+        } else {
+            super.update(updateData);
         }
     }
 

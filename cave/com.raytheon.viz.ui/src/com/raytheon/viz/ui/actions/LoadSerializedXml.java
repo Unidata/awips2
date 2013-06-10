@@ -62,7 +62,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 6, 2010            mschenke     Initial creation
+ * Apr 6, 2010             mschenke    Initial creation
+ * Mar 21, 2013 1638       mschenke    Added method to load procedure to window
  * 
  * </pre>
  * 
@@ -150,9 +151,15 @@ public class LoadSerializedXml extends AbstractHandler {
                 throw new VizException("Opening perspective failed", e);
             }
         } else {
-            page = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getActivePage();
+            page = windowToLoadTo.getActivePage();
         }
+
+        loadProcedureToScreen(procedure, page.getWorkbenchWindow());
+    }
+
+    public static void loadProcedureToScreen(Procedure procedure,
+            IWorkbenchWindow window) throws VizException {
+        IWorkbenchPage page = window.getActivePage();
 
         // close existing containers
         for (IEditorReference ref : page.getEditorReferences()) {
@@ -167,8 +174,6 @@ public class LoadSerializedXml extends AbstractHandler {
                     .getEditorPresentation();
             editorArea.restoreState(procedure.getLayout());
         }
-
-        windowToLoadTo = page.getWorkbenchWindow();
 
         Bundle[] bundles = procedure.getBundles();
         for (Bundle b : bundles) {
@@ -195,8 +200,7 @@ public class LoadSerializedXml extends AbstractHandler {
                 BundleLoader.loadTo(openedEditor, b);
             } else {
                 // There is a view part specified
-                IViewPart part = UiUtil.findView(windowToLoadTo, b.getView(),
-                        false);
+                IViewPart part = UiUtil.findView(window, b.getView(), false);
 
                 if (part != null && part instanceof IDisplayPaneContainer) {
                     BundleLoader.loadTo((IDisplayPaneContainer) part, b);

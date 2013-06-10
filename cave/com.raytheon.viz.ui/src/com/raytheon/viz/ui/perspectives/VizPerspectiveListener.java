@@ -20,9 +20,10 @@
 package com.raytheon.viz.ui.perspectives;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,7 +53,8 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 21, 2010            mschenke     Initial creation
+ * Apr 21, 2010            mschenke    Initial creation
+ * Mar 21, 2013       1638 mschenke    Added method to get managed perspectives
  * 
  * </pre>
  * 
@@ -64,7 +66,15 @@ public class VizPerspectiveListener implements IPerspectiveListener4 {
 
     private static final String PERSPECTIVE_MANAGER_EXTENSION = "com.raytheon.viz.ui.perspectiveManager";
 
+    private static final String PERSPECTIVE_ID = "perspectiveId";
+
+    private static final String NAME_ID = "name";
+
+    private static final String CLASS_ID = "class";
+
     private static final List<IConfigurationElement> configurationElements = new ArrayList<IConfigurationElement>();
+
+    private static final Set<String> managedPerspectives = new LinkedHashSet<String>();
 
     static {
         IExtensionRegistry registry = Platform.getExtensionRegistry();
@@ -74,8 +84,12 @@ public class VizPerspectiveListener implements IPerspectiveListener4 {
             IExtension[] extensions = point.getExtensions();
 
             for (IExtension ext : extensions) {
-                configurationElements.addAll(Arrays.asList(ext
-                        .getConfigurationElements()));
+                for (IConfigurationElement element : ext
+                        .getConfigurationElements()) {
+                    configurationElements.add(element);
+                    managedPerspectives.add(element
+                            .getAttribute(PERSPECTIVE_ID));
+                }
             }
         }
     }
@@ -98,16 +112,16 @@ public class VizPerspectiveListener implements IPerspectiveListener4 {
         Map<String, AbstractVizPerspectiveManager> referenceMap = new HashMap<String, AbstractVizPerspectiveManager>();
         for (IConfigurationElement cfg : configurationElements) {
             try {
-                String name = cfg.getAttribute("name");
-                String clazz = cfg.getAttribute("class");
-                String perspective = cfg.getAttribute("perspectiveId");
+                String name = cfg.getAttribute(NAME_ID);
+                String clazz = cfg.getAttribute(CLASS_ID);
+                String perspective = cfg.getAttribute(PERSPECTIVE_ID);
                 String refKey = clazz + ":" + name;
 
                 if (referenceMap.containsKey(refKey)) {
                     managerMap.put(perspective, referenceMap.get(refKey));
                 } else {
                     AbstractVizPerspectiveManager mgr = (AbstractVizPerspectiveManager) cfg
-                            .createExecutableExtension("class");
+                            .createExecutableExtension(CLASS_ID);
                     mgr.setPerspectiveWindow(window);
                     mgr.setStatusLineManager(statusLine);
                     mgr.setPerspectiveId(perspective);
@@ -136,6 +150,16 @@ public class VizPerspectiveListener implements IPerspectiveListener4 {
             return listener.getActivePerspectiveManager();
         }
         return null;
+    }
+
+    /**
+     * Returns all perspectives that are managed by an
+     * {@link AbstractVizPerspectiveManager}
+     * 
+     * @return
+     */
+    public static Collection<String> getManagedPerspectives() {
+        return new ArrayList<String>(managedPerspectives);
     }
 
     /**

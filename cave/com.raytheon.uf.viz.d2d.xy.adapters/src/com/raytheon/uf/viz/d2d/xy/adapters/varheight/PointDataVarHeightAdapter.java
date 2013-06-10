@@ -28,9 +28,13 @@ import javax.measure.unit.Unit;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.DataTime.FLAG;
+import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
@@ -38,14 +42,17 @@ import com.raytheon.viz.core.graphing.xy.XYData;
 import com.raytheon.viz.core.graphing.xy.XYWindImageData;
 
 /**
- * TODO Add Description
+ * Adapter for converting pdos that are compatible with the point data api into
+ * data that can be used for Var Height graphs.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 7, 2010            bsteffen     Initial creation
+ * May 07, 2010            bsteffen    Initial creation
+ * May 13, 2013 1869       bsteffen    Modified D2D height Graphs to work
+ *                                     without dataURI column.
  * 
  * </pre>
  * 
@@ -105,29 +112,27 @@ public class PointDataVarHeightAdapter extends
     public List<XYData> loadData(DataTime currentTime) throws VizException {
         double min = Math.min(heightScale.getMinVal(), heightScale.getMaxVal());
         double max = Math.max(heightScale.getMinVal(), heightScale.getMaxVal());
-        RequestConstraint uriConstraint = new RequestConstraint();
-        uriConstraint.setConstraintType(RequestConstraint.ConstraintType.IN);
-        // Perhaps this should just be done using the resource metadatamap
-        for (PluginDataObject pdo : records) {
-            DataTime pdoTime = pdo.getDataTime().clone();
-            pdoTime.setLevelValue(null);
-            if (resourceData.getBinOffset() != null) {
-                pdoTime = resourceData.getBinOffset()
-                        .getNormalizedTime(pdoTime);
-            }
-            DataTime cTime = currentTime.clone();
-            cTime.setLevelValue(null);
-            if (pdoTime.equals(cTime)) {
-                uriConstraint.addToConstraintValueList(pdo.getDataURI());
-            }
+        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>(
+                resourceData.getMetadataMap());
+        if (resourceData.getBinOffset() != null) {
+            TimeRange range = resourceData.getBinOffset().getTimeRange(
+                    currentTime);
+            RequestConstraint timeConstraint = new RequestConstraint();
+            timeConstraint.setConstraintType(ConstraintType.BETWEEN);
+            String start = TimeUtil.formatToSqlTimestamp(range.getStart());
+            String end = TimeUtil.formatToSqlTimestamp(range.getEnd());
+            timeConstraint.setBetweenValueList(new String[] { start, end });
+            constraints.put("dataTime.refTime", timeConstraint);
+        } else if (currentTime.getUtilityFlags().contains(FLAG.FCST_USED)) {
+            constraints.put("dataTime",
+                    new RequestConstraint(currentTime.toString()));
+        } else {
+            constraints.put(
+                    "dataTime.refTime",
+                    new RequestConstraint(TimeUtil
+                            .formatToSqlTimestamp(currentTime.getRefTime())));
         }
         String parameter = resourceData.getParameter();
-        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
-        constraints.put("dataURI", uriConstraint);
-        if (uriConstraint.getConstraintValue() == null
-                || uriConstraint.getConstraintValue().isEmpty()) {
-            return new ArrayList<XYData>();
-        }
         PointDataContainer pdc = DataCubeContainer.getPointData(records
                 .iterator().next().getPluginName(), new String[] { parameter,
                 heightScale.getParameter() }, constraints);

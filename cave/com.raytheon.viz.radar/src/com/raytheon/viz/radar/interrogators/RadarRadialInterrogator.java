@@ -30,10 +30,7 @@ import com.raytheon.uf.common.dataplugin.radar.util.RadarDataInterrogator;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.topo.ITopoQuery;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.uf.viz.core.topo.TopoQuery;
-import com.raytheon.viz.radar.Activator;
+import com.raytheon.uf.common.topo.TopoQuery;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -45,6 +42,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 4, 2010            mnash     Initial creation
+ * Feb 15, 2013 1638       mschenke    Got rid of viz/edex topo classes 
+ *                                     and moved into common
  * 
  * </pre>
  * 
@@ -92,7 +91,7 @@ public class RadarRadialInterrogator extends RadarDefaultInterrogator implements
                     / 1.7e7;
             double topoHeight = Double.NaN;
             if (useTopo) {
-                ITopoQuery topoQuery = TopoQuery.getInstance();
+                TopoQuery topoQuery = TopoQuery.getInstance();
                 if (topoQuery != null) {
                     topoHeight = topoQuery.getHeight(latLon);
                 } else {

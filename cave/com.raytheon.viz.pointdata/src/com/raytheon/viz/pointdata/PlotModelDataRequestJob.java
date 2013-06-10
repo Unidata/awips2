@@ -37,12 +37,14 @@ import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.viz.pointdata.PlotModelFactory2.PlotModelElement;
+import com.raytheon.viz.pointdata.rsc.PlotResourceData;
 import com.raytheon.viz.pointdata.thread.GetDataTask;
 import com.raytheon.viz.pointdata.thread.PlotSampleGeneratorJob;
 
@@ -57,6 +59,7 @@ import com.raytheon.viz.pointdata.thread.PlotSampleGeneratorJob;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 22, 2011            njensen     Initial creation
+ * May 14, 2013 1869       bsteffen    Get plots working without dataURI
  * 
  * </pre>
  * 
@@ -193,20 +196,60 @@ public class PlotModelDataRequestJob extends Job {
             }
         }
 
-        if (!params.contains("dataURI")) {
-            params.add("dataURI");
-        }
+        boolean hasDistinctStationId = PlotResourceData
+                .getPluginProperties(plugin).hasDistinctStationId;
+        String uniquePointDataKey = "stationId";
+        String uniqueQueryKey = "location.stationId";
+        if(!hasDistinctStationId){
+            uniquePointDataKey = "dataURI";
+            uniqueQueryKey = uniquePointDataKey;
 
+        }
+        if (!params.contains(uniquePointDataKey)) {
+            params.add(uniquePointDataKey);
+        }
+        
         Map<String, RequestConstraint> map = new HashMap<String, RequestConstraint>();
         map.putAll(this.constraintMap);
         RequestConstraint rc = new RequestConstraint();
         rc.setConstraintType(ConstraintType.IN);
         List<String> str = new ArrayList<String>(stationQuery.size());
+        DataTime start = null;
+        DataTime end = null;
         for (PlotInfo[] infos : stationQuery) {
             for (PlotInfo info : infos) {
-                str.add(info.dataURI);
-                plotMap.put(info.dataURI, info);
+                String key = null;
+                if (hasDistinctStationId) {
+                    key = info.stationId;
+                }else{
+                    key = info.dataURI;
+                }
+                str.add(key);
+                if (!plotMap.containsKey(key)) {
+                    plotMap.put(key, info);
+                }
+                if (start == null
+                        || start.getValidTime().after(
+                                info.dataTime.getValidTime())) {
+                    start = info.dataTime;
+                }
+                if (end == null
+                        || end.getValidTime().before(
+                                info.dataTime.getValidTime())) {
+                    end = info.dataTime;
+                }
             }
+        }
+
+        if (start.equals(end)) {
+            map.put("dataTime", new RequestConstraint(start.toString()));
+        } else {
+            RequestConstraint r = new RequestConstraint(null,
+                    ConstraintType.BETWEEN);
+            r.setBetweenValueList(new String[] { start.toString(),
+                    end.toString() });
+            map.put("dataTime.refTime", r);
+
         }
 
         int index = 0;
@@ -219,7 +262,7 @@ public class PlotModelDataRequestJob extends Job {
                 index++;
                 j++;
             }
-            map.put("dataURI", rc);
+            map.put(uniqueQueryKey, rc);
             try {
                 // Try and get data from datacube
                 long t0 = System.currentTimeMillis();
@@ -243,8 +286,8 @@ public class PlotModelDataRequestJob extends Job {
                     for (int uriCounter = 0; uriCounter < pdc.getAllocatedSz(); uriCounter++) {
                         PointDataView pdv = pdc.readRandom(uriCounter);
                         if (pdv != null) {
-                            String dataURI = pdv.getString("dataURI");
-                            PlotInfo info = plotMap.get(dataURI);
+                            String unique = pdv.getString(uniquePointDataKey);
+                            PlotInfo info = plotMap.get(unique);
                             // If the id doesn't match, try to match by
                             // location
                             if (info == null) {

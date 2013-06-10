@@ -74,7 +74,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 public abstract class AbstractRenderableDisplay implements IRenderableDisplay {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    protected static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractRenderableDisplay.class);
 
     private static RGB BACKGROUND_COLOR = null;

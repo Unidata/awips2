@@ -91,12 +91,6 @@ public interface IDisplayPane {
     public abstract void refresh();
 
     /**
-     * Perform the resize computations
-     * 
-     */
-    public abstract void resize();
-
-    /**
      * Get bounds of pane
      * 
      * @return the size of the drawing pane in pixel space

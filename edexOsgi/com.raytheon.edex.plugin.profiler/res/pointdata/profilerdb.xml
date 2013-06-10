@@ -25,4 +25,7 @@
   <parameter name="stationId" queryName="location.stationId" type="STRING" />
   <parameter name="dataURI" queryName="dataURI" type="STRING" />
   <parameter name="profilerId" queryName="profilerId" type="STRING" />
+  <parameter name="validTime" queryName="dataTime.refTime" numDims="1" type="LONG" unit="ms"/>  
+  <parameter name="refTime" queryName="dataTime.refTime" numDims="1" type="LONG" unit="ms"/>
+  <parameter name="forecastHr" queryName="dataTime.fcstTime" numDims="1" type="INT" unit="h" dbunit="s"/>
 </pointDataDbDescription>

@@ -70,7 +70,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @Entity
 @Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "ExternalLink")
+@Table(schema = "ebxml", name = "ExternalLink")
 public class ExternalLinkType extends RegistryObjectType {
 
     @XmlElement(name = "ExternalRef", required = true)

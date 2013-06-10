@@ -33,6 +33,9 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.CountiesData;
 import com.raytheon.viz.hydrocommon.data.CountyInfoData;
@@ -51,6 +54,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 02 Sep 2008             lvenable    Initial creation.
  * 30 Dec 2008  1802       askripsk    Connect to database.
  * 04 Dec 2012  15522      wkwock      Fix incorrect zones and not able to add
+ * 18 Apr 2013  1790       rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -59,6 +63,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class CountyZoneUgcDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(CountyZoneUgcDlg.class);
 
     /**
      * Control font.
@@ -96,11 +102,13 @@ public class CountyZoneUgcDlg extends CaveSWTDialog {
     private Button clearBtn;
 
     /**
-     * for keep track whether selected zones are initialized.  false is not initialized.
+     * For keep track whether selected zones are initialized. false is not
+     * initialized.
      */
     private boolean zonesFlag = false;
+
     /**
-     * Constructor.
+     * Non-blocking Constructor.
      * 
      * @param parent
      *            Parent shell.
@@ -108,12 +116,17 @@ public class CountyZoneUgcDlg extends CaveSWTDialog {
      *            Dialog title information.
      */
     public CountyZoneUgcDlg(Shell parent, String titleInfo, String lid) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("County/Zone UGC" + titleInfo);
-
+        setReturnValue(lid);
         CountyZoneUgcDataManager.getInstance().setLid(lid);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -124,6 +137,11 @@ public class CountyZoneUgcDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
@@ -131,7 +149,6 @@ public class CountyZoneUgcDlg extends CaveSWTDialog {
 
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
 
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
 
@@ -162,9 +179,9 @@ public class CountyZoneUgcDlg extends CaveSWTDialog {
         selectionCbo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-				if (!zonesFlag) {
-					getZoneData();
-				}
+                if (!zonesFlag) {
+                    getZoneData();
+                }
                 updateDisplay();
             }
         });
@@ -272,7 +289,7 @@ public class CountyZoneUgcDlg extends CaveSWTDialog {
         okBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 saveRecords();
-                shell.dispose();
+                close();
             }
         });
 
@@ -292,7 +309,7 @@ public class CountyZoneUgcDlg extends CaveSWTDialog {
         cancelBtn.setLayoutData(gd);
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -326,7 +343,8 @@ public class CountyZoneUgcDlg extends CaveSWTDialog {
         try {
             CountyZoneUgcDataManager.getInstance().getCountiesSelected(true);
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler
+                    .handle(Priority.PROBLEM, "Unable to county data. ", e);
         }
     }
 
@@ -336,9 +354,9 @@ public class CountyZoneUgcDlg extends CaveSWTDialog {
     private void getZoneData() {
         try {
             CountyZoneUgcDataManager.getInstance().getZonesSelected(true);
-            zonesFlag=true;
+            zonesFlag = true;
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Unable to zone data. ", e);
         }
     }
 
@@ -365,24 +383,25 @@ public class CountyZoneUgcDlg extends CaveSWTDialog {
         try {
             for (CountiesData availCounty : CountyZoneUgcDataManager
                     .getInstance().getCountiesAvailable()) {
-                availableList.add(String.format(countyFormat, availCounty
-                        .getCountyNumber(), availCounty.getCounty(),
+                availableList.add(String.format(countyFormat,
+                        availCounty.getCountyNumber(), availCounty.getCounty(),
                         availCounty.getState()));
             }
 
             for (CountyInfoData selectedCounty : CountyZoneUgcDataManager
                     .getInstance().getCountiesSelected()) {
-                selectedList.add(String.format(countyFormat, selectedCounty
-                        .getCountyNumber(), selectedCounty.getCounty(),
-                        selectedCounty.getState()));
+                selectedList.add(String.format(countyFormat,
+                        selectedCounty.getCountyNumber(),
+                        selectedCounty.getCounty(), selectedCounty.getState()));
             }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to get county data. ", e);
         }
     }
 
     /**
-     * Displayes the current Zone data.
+     * Displays the current Zone data.
      */
     private void updateZoneDisplay() {
         String zoneFormat = "%3s   %-20s   %2s";
@@ -390,19 +409,22 @@ public class CountyZoneUgcDlg extends CaveSWTDialog {
         try {
             for (EligZoneData availZone : CountyZoneUgcDataManager
                     .getInstance().getZonesAvailable()) {
-                availableList.add(String.format(zoneFormat, availZone
-                        .getZoneNumber(), availZone.getDescription(), availZone
-                        .getState()));
+                availableList.add(String.format(zoneFormat,
+                        availZone.getZoneNumber(), availZone.getDescription(),
+                        availZone.getState()));
             }
 
             for (ZoneInfoData selectedZone : CountyZoneUgcDataManager
                     .getInstance().getZonesSelected()) {
-                selectedList.add(String.format(zoneFormat, selectedZone
-                        .getZoneNumber(), selectedZone.getDescription(),
-                        selectedZone.getState()));
+                selectedList
+                        .add(String.format(zoneFormat,
+                                selectedZone.getZoneNumber(),
+                                selectedZone.getDescription(),
+                                selectedZone.getState()));
             }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to get county data. ", e);
         }
     }
 
@@ -432,6 +454,9 @@ public class CountyZoneUgcDlg extends CaveSWTDialog {
         updateDisplay();
     }
 
+    /**
+     * Delete the selected record and update display.
+     */
     private void deleteRecord() {
         int selectedIndex = selectedList.getSelectionIndex();
 
@@ -448,6 +473,9 @@ public class CountyZoneUgcDlg extends CaveSWTDialog {
         updateDisplay();
     }
 
+    /**
+     * Clear all the records and update the display.
+     */
     private void clearRecords() {
         if (countiesDisplayed()) {
             CountyZoneUgcDataManager.getInstance().clearSelectedCounties();
@@ -458,6 +486,9 @@ public class CountyZoneUgcDlg extends CaveSWTDialog {
         updateDisplay();
     }
 
+    /**
+     * Save records to the manager.
+     */
     private void saveRecords() {
         try {
             if (countiesDisplayed()) {
@@ -466,8 +497,8 @@ public class CountyZoneUgcDlg extends CaveSWTDialog {
                 CountyZoneUgcDataManager.getInstance().saveZones();
             }
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler
+                    .handle(Priority.PROBLEM, "Unable to save records ", e);
         }
 
         getDialogData();

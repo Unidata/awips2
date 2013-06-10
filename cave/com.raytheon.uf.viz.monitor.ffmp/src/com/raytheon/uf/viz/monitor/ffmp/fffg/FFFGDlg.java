@@ -89,6 +89,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                       Changes for non-blocking HelpDlg.
  *                                       Changes for non-blocking RetrieveMergeDlg.
  *                                       Changes for non-blocking LoadSaveDeleteSelectDlg.
+ * Mar 28, 2013 #1790      rferrel      Bug fix for non-blocking dialogs.
  * Apr, 15, 2013 #1911     dhladky       dialog wouldn't open every time to retrieve file.
  * 
  * </pre>
@@ -1623,8 +1624,10 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction,
                         retMergeDlg = null;
                     }
                 });
+                retMergeDlg.open();
+            } else {
+                retMergeDlg.bringToTop();
             }
-            retMergeDlg.open();
         }
     }
 
@@ -1775,30 +1778,36 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction,
      * Help menu popup.
      */
     private void callHelpDlg() {
-        if (helpDlg == null) {
+        if (helpDlg == null || helpDlg.isDisposed()) {
             helpDlg = new HelpDlg(shell);
+            helpDlg.open();
+        } else {
+            helpDlg.bringToTop();
         }
-        helpDlg.open();
     }
 
     /*
      * About menu popup
      */
     private void callAboutDlg() {
-        if (aboutDlg == null) {
+        if (aboutDlg == null || aboutDlg.isDisposed()) {
             aboutDlg = new AboutDlg(shell);
+            aboutDlg.open();
+        } else {
+            aboutDlg.bringToTop();
         }
-        aboutDlg.open();
     }
 
     /*
      * Acknowledgments menu popup
      */
     private void callAcknowledgmentsDlg() {
-        if (acknowledgmentsDlg == null) {
+        if (acknowledgmentsDlg == null || acknowledgmentsDlg.isDisposed()) {
             acknowledgmentsDlg = new AcknowledgmentsDlg(shell);
+            acknowledgmentsDlg.open();
+        } else {
+            acknowledgmentsDlg.bringToTop();
         }
-        acknowledgmentsDlg.open();
     }
 
     /**

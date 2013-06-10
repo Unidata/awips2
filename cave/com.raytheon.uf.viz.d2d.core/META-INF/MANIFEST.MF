@@ -14,13 +14,12 @@ Require-Bundle: org.eclipse.core.runtime,
  org.geotools;bundle-version="2.6.4",
  com.raytheon.viz.core;bundle-version="1.12.1130",
  com.raytheon.viz.ui;bundle-version="1.12.1174",
- com.raytheon.uf.viz.core.maps;bundle-version="1.12.1174"
+ com.raytheon.uf.viz.core.maps;bundle-version="1.12.1174",
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
-Import-Package: com.raytheon.edex.scriptfactory,
- com.raytheon.uf.common.colormap,
- com.raytheon.uf.common.dataplugin,
+Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.serialization,

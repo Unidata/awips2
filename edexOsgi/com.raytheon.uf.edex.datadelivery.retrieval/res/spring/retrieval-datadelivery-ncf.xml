@@ -1,0 +1,44 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+    <!-- A RetrievalTask takes three constructor arguments:
+        1) How to find retrievals, in this case perform the actual retrieval and return it
+        2) What to do with found retrievals, in this case process it and send a notification event 
+        3) How to complete retrievals, in this case update the database and send a notification event 
+     -->
+    <bean id="sbnRetrievalTask"
+        class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalTask">
+        <constructor-arg value="SBN" />
+        <constructor-arg>
+            <bean
+                class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.PerformRetrievalsThenReturnFinder">
+                <constructor-arg value="SBN" />
+                <constructor-arg ref="retrievalDao" />
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean
+                class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.SerializeRetrievedDataToDirectory">
+                <constructor-arg value="${sbn.retrieval.transfer.directory}" />
+                <constructor-arg>
+                    <bean class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.AlwaysSameWmoHeader">
+                        <constructor-arg value="${sbn.retrieval.transfer.wmo.header}" />
+                    </bean>
+                </constructor-arg>
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <util:constant
+                static-field="com.raytheon.uf.edex.datadelivery.retrieval.handlers.IRetrievalResponseCompleter.NULL" />
+        </constructor-arg>
+        <constructor-arg ref="retrievalDao" />
+    </bean>
+
+    <util:list id="retrievalTaskList"
+        value-type="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalTask.RetrievalTask">
+        <ref bean="sbnRetrievalTask" />
+    </util:list>
+
+</beans>

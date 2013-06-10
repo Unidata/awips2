@@ -24,11 +24,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.collect.Sets;
+import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
@@ -43,6 +47,7 @@ import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
 import com.raytheon.uf.edex.auth.roles.IRoleStorage;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
+import com.raytheon.uf.edex.site.SiteAwareRegistry;
 
 /**
  * 
@@ -56,8 +61,11 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * Oct 09, 2009            bphillip    Initial creation
  * Sep 19, 2011 10955      rferrel     make sure process destroy is called.
  * Jun 12, 2012 00609      djohnson    Use EDEXUtil for EDEX_HOME.
- * Nov 15, 2012 15614      jdynina     Added check for national center 
- *
+ * Nov 15, 2012 15614      jdynina     Added check for national center
+ * May 02, 2013 #1762      dgilling    Remove check for national center, add
+ *                                     method to retrieve list of svcbu
+ *                                     sites.
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -76,6 +84,16 @@ public class SvcBackupUtil {
     /** The logger instance */
     protected static transient Log logger = LogFactory
             .getLog(SvcBackupUtil.class);
+
+    /**
+     * A private constructor so that Java does not attempt to create one for us.
+     * As this class should not be instantiated, do not attempt to ever call
+     * this constructor; it will simply throw an AssertionError.
+     * 
+     */
+    private SvcBackupUtil() {
+        throw new AssertionError();
+    }
 
     public static String execute(String... args) throws Exception {
         String[] newArgs = new String[args.length + 1];
@@ -240,17 +258,11 @@ public class SvcBackupUtil {
         String lockDir = SvcBackupUtil.getSvcBackupProperties().getProperty(
                 "LOCK_DIR")
                 + File.separator;
-        lockDir = lockDir.replace("${GFESUITE_HOME}",
-                EDEXUtil.EDEX_HOME + "/../GFESuite"
-                        + File.separator);
-
         return lockDir;
     }
 
-    public static AuthorizationResponse authorizeWithLocalization(
-IUser user,
-            AbstractGfePrivilegedRequest request)
-            throws AuthorizationException {
+    public static AuthorizationResponse authorizeWithLocalization(IUser user,
+            AbstractGfePrivilegedRequest request) throws AuthorizationException {
         AuthManager manager = AuthManagerFactory.getInstance().getManager();
         IRoleStorage roles = manager.getRoleStorage();
         String roleId = request.getRoleId();
@@ -264,13 +276,34 @@ IUser user,
                 + roleId);
     }
 
-    
-    public static boolean ncCheck() {
-    	String nationalCenter = SvcBackupUtil.getSvcBackupProperties()
-    			.getProperty("NATIONAL_CENTER");
-    	if (nationalCenter.equals("1")) {
-    		return true;
-    	}
-    	return false;
+    public static Set<String> getPrimarySites() {
+        Properties svcbuProps = SvcBackupUtil.getSvcBackupProperties();
+        String siteList = SiteUtil.getSite();
+        if (svcbuProps != null) {
+            String propVal = svcbuProps.getProperty("PRIMARY_SITES", "").trim();
+            if (!propVal.isEmpty()) {
+                siteList = propVal;
+            }
+        }
+
+        String[] sites = siteList.split(",");
+        Set<String> retVal = new HashSet<String>(sites.length, 1.0f);
+        Set<String> validSites = Sets.newHashSet(SiteAwareRegistry
+                .getInstance().getActiveSites());
+        for (String site : sites) {
+            String siteId = site.trim().toUpperCase();
+            if (!siteId.isEmpty()) {
+                if (validSites.contains(siteId)) {
+                    retVal.add(siteId);
+                } else {
+                    final String msg = "Service backup primary site "
+                            + site
+                            + " is not a currently activated site. Service backup and export grids tasks cannot be run for this site. Check the PRIMARY_SITES setting in svcbu.properties.";
+                    statusHandler.warn(msg);
+                }
+            }
+        }
+
+        return retVal;
     }
 }

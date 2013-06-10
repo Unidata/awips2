@@ -21,12 +21,12 @@ package com.raytheon.uf.viz.remote.graphics.events.colormap;
 
 import java.nio.Buffer;
 
+import com.raytheon.uf.common.colormap.image.ColorMapData;
+import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapData;
-import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapDataType;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 
 /**
@@ -53,7 +53,7 @@ public class ColorMapDataEvent extends AbstractDispatchingObjectEvent {
     private int[] dimensions;
 
     @DynamicSerializeElement
-    private ColorMapDataType dataType;
+    private ColorMapData.ColorMapDataType dataType;
 
     @DynamicSerializeElement
     private Buffer buffer;
@@ -104,7 +104,7 @@ public class ColorMapDataEvent extends AbstractDispatchingObjectEvent {
     /**
      * @return the dataType
      */
-    public ColorMapDataType getDataType() {
+    public ColorMapData.ColorMapDataType getDataType() {
         return dataType;
     }
 
@@ -112,7 +112,7 @@ public class ColorMapDataEvent extends AbstractDispatchingObjectEvent {
      * @param dataType
      *            the dataType to set
      */
-    public void setDataType(ColorMapDataType dataType) {
+    public void setDataType(ColorMapData.ColorMapDataType dataType) {
         this.dataType = dataType;
     }
 

@@ -41,9 +41,9 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.topo.TopoQuery;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.topo.TopoQuery;
 import com.raytheon.uf.viz.sounding.SoundingParams;
 import com.raytheon.viz.core.map.GeoUtil;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -57,6 +57,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 15, 2009            mschenke     Initial creation
+ * Feb 15, 2013 1638       mschenke    Got rid of viz/edex topo classes 
+ *                                     and moved into common
  * 
  * </pre>
  * 

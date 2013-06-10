@@ -1,4 +1,4 @@
-<project default="p2.build" basedir=".">
+<project default="main" basedir=".">
 
 	<!-- TODO: Verify These Properties References An Actual Directory. -->
 	<property name="eclipse.dir" 
@@ -14,9 +14,9 @@
 	<property name="workspace.dir" value="${basedir}/../" />
 	
 	<property name="pde.build.script"
-		value="org.eclipse.pde.build_3.6.1.R36x_v20100823/scripts/build.xml" />
+		value="org.eclipse.pde.build_3.8.2.v20121114-140810/scripts/build.xml" />
 	<property name="eclipse.launcher.jar"
-		value="org.eclipse.equinox.launcher_1.1.0.v20100507.jar" />
+		value="org.eclipse.equinox.launcher_1.3.0.v20120522-1813.jar" />
 	
 	<!-- Verify That We Have Access To A Copy Of Eclipse -->
 	<target name="verify">
@@ -120,13 +120,6 @@
 				includes="it.*/**" />
 		</copy>
 		<!-- END: Copy The Plugins -->
-		
-		<!-- Copy The Features -->
-		<echo message="FEATURES: *viz*feature*" />
-		<copy todir="${basedir}/cave/p2/features">
-			<fileset dir="${workspace.dir}"
-				includes="*viz*feature*/**" />
-		</copy>
 	</target>
 	
 	<!-- Cleans Up Any Temporary Directories -->
@@ -154,7 +147,18 @@
 			<param name="feature"
 				value="com.raytheon.viz.feature.awips" />
 			<param name="omit"
-				value="false" />
+				value="true" />
+		</antcall>
+		<!-- 
+			we will still build this for the MSFT Windows CAVE. 
+		-->
+		<antcall target="p2.build.repo">
+			<param name="feature"
+				value="com.raytheon.uf.common.base.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature"
+				value="com.raytheon.uf.viz.base.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
@@ -164,6 +168,10 @@
 			<param name="feature"
 				value="com.raytheon.uf.viz.common.core.feature" />
 		</antcall>
+                <antcall target="p2.build.repo">
+                        <param name="feature"
+                                value="com.raytheon.uf.viz.localization.perspective.feature" />
+                </antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
 				value="com.raytheon.uf.viz.core.feature" />
@@ -187,10 +195,6 @@
 		<antcall target="p2.build.repo">
 			<param name="feature"
 				value="com.raytheon.uf.viz.d2d.core.feature" />
-		</antcall>
-		<antcall target="p2.build.repo">
-			<param name="feature"
-				value="com.raytheon.uf.viz.localization.perspective.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
@@ -311,8 +315,33 @@
 
 		<antcall target="cleanup.features" />
 	</target>
+
+	<target name="wa-build" depends="p2.build" description="Builds work assignment specific features after the main build">
+           <for param="wa.feature.list.file">
+               <fileset dir="${basedir}" includes="*-wa-build.properties" />
+               <sequential>
+                   <var name="wa.features" unset="true" />
+                   <property file="@{wa.feature.list.file}" />
+                   <for list="${wa.features}" param="wa.feature">
+                       <sequential>
+                           <antcall target="p2.build.repo">
+                               <param name="feature" value="@{wa.feature}" />
+                           </antcall>
+                       </sequential>
+                   </for>
+               </sequential>
+           </for>           
+	</target>
 	
+        <target name="main" depends="clean, p2.build, wa-build" />
+
 	<target name="p2.build.repo">
+		<!-- Copy The Feature -->
+		<copy todir="${basedir}/cave/p2/features">
+			<fileset dir="${workspace.dir}"
+				includes="${feature}/**" />
+		</copy>
+		
 		<!-- Update The Feature -->
 		<property name="process.feature.tool"
 			value="${workspace.dir}/build/tools/ProcessFeature.jar" />
@@ -410,20 +439,6 @@
 			</then>
 		</if>
 		
-		<!-- Remove 'com.raytheon.uf.viz.eclipse.feature' -->
-		<if>
-			<available 
-				file="${basedir}/cave/p2/features/com.raytheon.uf.viz.eclipse.feature" 
-				type="dir" />
-			<then>
-				<delete includeemptydirs="true">
-					<fileset 
-						dir="${basedir}/cave/p2/features/com.raytheon.uf.viz.eclipse.feature" 
-					/>
-				</delete>
-			</then>
-		</if>
-		
 		<!-- Remove 'com.raytheon.uf.viz.feature.alertviz' -->
 		<if>
 			<available 
@@ -451,20 +466,32 @@
 				</delete>
 			</then>
 		</if>
-
-                <!-- Remove 'com.raytheon.uf.viz.collaboration.product.feature' -->
-                <if>
-                        <available
-                                file="${basedir}/cave/p2/features/com.raytheon.uf.viz.collaboration.product.feature"
-                                type="dir" />
-                        <then>
-                                <delete includeemptydirs="true">
-                                        <fileset
-                                                dir="${basedir}/cave/p2/features/com.raytheon.uf.viz.collaboration.product.feature"
-                                        />
-                                </delete>
-                        </then>
-                </if>
+		<!-- Remove 'com.raytheon.uf.common.base.feature' -->
+		<if>
+			<available 
+				file="${basedir}/cave/p2/features/com.raytheon.uf.common.base.feature" 
+				type="dir" />
+			<then>
+				<delete includeemptydirs="true">
+					<fileset 
+						dir="${basedir}/cave/p2/features/com.raytheon.uf.common.base.feature" 
+					/>
+				</delete>
+			</then>
+		</if>
+        <!-- Remove 'com.raytheon.uf.viz.collaboration.product.feature' -->
+        <if>
+            <available
+                file="${basedir}/cave/p2/features/com.raytheon.uf.viz.collaboration.product.feature"
+                type="dir" />
+            <then>
+                <delete includeemptydirs="true">
+                    <fileset
+                        dir="${basedir}/cave/p2/features/com.raytheon.uf.viz.collaboration.product.feature"
+                    />
+                </delete>
+            </then>
+        </if>
 	</target>
 	
 	<taskdef resource="net/sf/antcontrib/antlib.xml" 

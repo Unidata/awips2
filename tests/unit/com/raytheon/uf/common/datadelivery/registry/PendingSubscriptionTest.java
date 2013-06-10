@@ -33,6 +33,8 @@ import org.junit.Test;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 27, 2012 0743       djohnson     Initial creation
+ * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * May 15, 2013 1040       mpduff       Changed to handle the list of office ids.
  * 
  * </pre>
  * 
@@ -44,9 +46,9 @@ public class PendingSubscriptionTest {
 
     @Test
     public void testCopyConstructorSetsOriginalSubNameAsName() {
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        SiteSubscription subscription = SubscriptionFixture.INSTANCE.get();
 
-        PendingSubscription pendingSubscription = new PendingSubscription(
+        PendingSiteSubscription pendingSubscription = new PendingSiteSubscription(
                 subscription, "djohnson");
         assertEquals(
                 "The original subscription name should have been used for the pending subscription!",
@@ -55,9 +57,9 @@ public class PendingSubscriptionTest {
 
     @Test
     public void testCopyConstructorSetsSubscriptionValuesOnPendingSubscription() {
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        SiteSubscription subscription = SubscriptionFixture.INSTANCE.get();
 
-        PendingSubscription copied = new PendingSubscription(
+        PendingSiteSubscription copied = new PendingSiteSubscription(
                 subscription, "djohnson");
 
         assertEquals(subscription.getActivePeriodEnd(),
@@ -70,8 +72,7 @@ public class PendingSubscriptionTest {
         assertEquals(subscription.getDataSetType(), copied.getDataSetType());
         assertEquals(subscription.getDescription(), copied.getDescription());
         assertEquals(subscription.getGroupName(), copied.getGroupName());
-        assertEquals(subscription.getId(), copied.getId());
-        assertEquals(subscription.getOfficeID(), copied.getOfficeID());
+        assertEquals(subscription.getOfficeIDs(), copied.getOfficeIDs());
         assertEquals(subscription.getPriority(), copied.getPriority());
         assertEquals(subscription.getProvider(), copied.getProvider());
         assertEquals(subscription.getStatus(), copied.getStatus());

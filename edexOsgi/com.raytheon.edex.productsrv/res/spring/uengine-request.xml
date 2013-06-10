@@ -1,7 +1,12 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="pythonThreadPool" class="com.raytheon.edex.productsrv.PythonExecThreadPool"
+		factory-method="getInstance" >
+	    <property name="maxSize" value="50" />	
+	</bean>
 
 	<bean id="uEngine" class="com.raytheon.edex.services.ProductSrv" />
 
@@ -10,9 +15,8 @@
 		init-method="start" destroy-method="stop">
 
 		<property name="threadPool">
-			<bean id="ThreadPool" class="org.eclipse.jetty.util.thread.OldQueuedThreadPool">
-				<property name="minThreads" value="25" />
-				<property name="lowThreads" value="25" />
+			<bean id="ThreadPool" class="org.eclipse.jetty.util.thread.QueuedThreadPool">
+				<property name="minThreads" value="25" />				
 				<property name="maxThreads" value="50" />
 			</bean>
 		</property>
@@ -78,4 +82,5 @@
 		</route>
 
 	</camelContext>
+	
 </beans>  

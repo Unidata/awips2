@@ -112,7 +112,6 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  *  Feb 28,2012 14436		mli		    Add RP.S - Rip Current
  *  Apr 03,2012 436         randerso    Reworked dialog to be called by Python MakeHazard procedure
  *  Apr 09,2012 436         randerso    Merged RNK's MakeHazards_Elevation procedure
- *  May 30,2012 2028        randerso    Cleaned up dialog layout
  * 
  * </pre>
  * 
@@ -787,6 +786,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.minimumHeight = 100;
         gd.minimumWidth = 100;
+        gd.heightHint = this.defaultMapWidth;
         gd.widthHint = this.defaultMapWidth;
         theMapComposite.setLayoutData(gd);
         try {
@@ -1021,8 +1021,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         hazardGroupList = new org.eclipse.swt.widgets.List(hazardTypeGroup,
                 SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.SINGLE);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        gd.heightHint = hazardGroupList.getItemHeight()
-                * Math.min(12, groups.size())
+        gd.heightHint = hazardGroupList.getItemHeight() * 12
                 + hazardGroupList.getBorderWidth();
         hazardGroupList.setLayoutData(gd);
         hazardGroupList.addSelectionListener(selAdapt);

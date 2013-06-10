@@ -30,8 +30,6 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthContextFactory;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
-import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDao;
-import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
@@ -54,13 +52,13 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * @author djohnson
  * @version 1.0
  */
-class EdexBandwidthContextFactory implements BandwidthContextFactory {
+public class EdexBandwidthContextFactory implements BandwidthContextFactory {
 
     /**
      * Pluggable strategy for how to create the {@link BandwidthManager}.
      * Intentionally package-private.
      */
-    static interface IEdexBandwidthManagerCreator {
+    public static interface IEdexBandwidthManagerCreator {
 
         /**
          * Get the bandwidth manaager.
@@ -84,6 +82,8 @@ class EdexBandwidthContextFactory implements BandwidthContextFactory {
 
     private final IEdexBandwidthManagerCreator bandwidthManagerCreator;
 
+    private final IBandwidthDbInit dbInit;
+
     /**
      * Intentionally package-private constructor, as it is created from Spring
      * which is able to reflectively instantiate.
@@ -93,10 +93,12 @@ class EdexBandwidthContextFactory implements BandwidthContextFactory {
      */
     EdexBandwidthContextFactory(IBandwidthDao bandwidthDao,
             BandwidthInitializer bandwidthInitializer,
-            IEdexBandwidthManagerCreator bandwidthManagerCreator) {
+            IEdexBandwidthManagerCreator bandwidthManagerCreator,
+            IBandwidthDbInit dbInit) {
         this.bandwidthDao = bandwidthDao;
         this.bandwidthInitializer = bandwidthInitializer;
         this.bandwidthManagerCreator = bandwidthManagerCreator;
+        this.dbInit = dbInit;
     }
 
     /**
@@ -107,12 +109,12 @@ class EdexBandwidthContextFactory implements BandwidthContextFactory {
      * @param instance
      *            the {@link BandwidthManager} instance
      */
-    @SuppressWarnings("unused")
-    private EdexBandwidthContextFactory(BandwidthManager instance) {
+    EdexBandwidthContextFactory(BandwidthManager instance) {
         EdexBandwidthContextFactory.instance = instance;
         this.bandwidthDao = null;
         this.bandwidthInitializer = null;
         this.bandwidthManagerCreator = null;
+        this.dbInit = null;
     }
 
     /**
@@ -128,8 +130,22 @@ class EdexBandwidthContextFactory implements BandwidthContextFactory {
 
     /**
      * Retrieve the actual bandwidth map configuration file.
+     * 
+     * @return the file reference to the bandwidth map config file, the file may
+     *         or may not exist
      */
     public static File getBandwidthMapConfig() {
+        LocalizationFile lf = getBandwidthMapLocalizationFile();
+        File file = lf.getFile();
+        return file;
+    }
+
+    /**
+     * Retrieve the actual bandwidth map localization file.
+     * 
+     * @return the localization file
+     */
+    public static LocalizationFile getBandwidthMapLocalizationFile() {
         // TODO: Change to be site specific
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
@@ -137,8 +153,7 @@ class EdexBandwidthContextFactory implements BandwidthContextFactory {
 
         LocalizationFile lf = pm.getLocalizationFile(lc,
                 "datadelivery/bandwidthmap.xml");
-        File file = lf.getFile();
-        return file;
+        return lf;
     }
 
     /**
@@ -146,8 +161,7 @@ class EdexBandwidthContextFactory implements BandwidthContextFactory {
      */
     @Override
     public IBandwidthDbInit getBandwidthDbInit() {
-        return new HibernateBandwidthDbInit(
-                HibernateBandwidthDao.class.cast(getBandwidthDao()));
+        return dbInit;
     }
 
     /**

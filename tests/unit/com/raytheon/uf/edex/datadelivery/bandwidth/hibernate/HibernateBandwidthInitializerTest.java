@@ -41,6 +41,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 18, 2013 1543       djohnson     Initial creation
+ * Apr 18, 2013 1914       djohnson     Fix broken test.
  * 
  * </pre>
  * 
@@ -60,8 +61,10 @@ public class HibernateBandwidthInitializerTest {
         IBandwidthManager bandwidthManager = mock(IBandwidthManager.class);
         IBandwidthDbInit dbInit = mock(IBandwidthDbInit.class);
 
-        new HibernateBandwidthInitializer(strategy).init(bandwidthManager,
+        final HibernateBandwidthInitializer initializer = new HibernateBandwidthInitializer(strategy);
+        initializer.init(bandwidthManager,
                 dbInit);
+        initializer.executeAfterRegistryInit();
 
         verify(bandwidthManager).schedule(subscription);
     }

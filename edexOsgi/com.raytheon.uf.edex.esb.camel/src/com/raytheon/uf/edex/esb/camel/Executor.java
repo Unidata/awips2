@@ -24,7 +24,6 @@ import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,14 +36,10 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 
-import javax.management.MBeanServerConnection;
-import javax.management.ObjectInstance;
-import javax.management.ObjectName;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.activemq.console.util.JmxMBeansUtil;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.raytheon.uf.common.util.PropertiesUtil;
@@ -71,6 +66,7 @@ import com.raytheon.uf.edex.esb.camel.spring.EdexModesContainer;
  * Jul 17, 2012  #0740     djohnson     Redo changes since the decomposed repositories lost them.
  * Oct 19, 2012  #1274     bgonzale     Load properties from files in conf 
  *                                         resources directory.
+ * Feb 14, 2013  1638      mschenke     Removing activemq reference in stop
  * Apr 22, 2013  #1932     djohnson     Use countdown latch for a shutdown hook.
  * 
  * </pre>
@@ -111,8 +107,7 @@ public class Executor {
         List<String> xmlFiles = new ArrayList<String>();
 
         List<File> propertiesFiles = new ArrayList<File>();
-        File confDir = new File(EDEXUtil.EDEX_HOME
-                + File.separator + "conf");
+        File confDir = new File(EDEXUtil.EDEX_HOME + File.separator + "conf");
         File resourcesDir = new File(confDir, "resources");
         propertiesFiles.addAll(Arrays.asList(findFiles(resourcesDir,
                 ".properties")));
@@ -312,24 +307,4 @@ public class Executor {
         }
     }
 
-    public static void stop() throws Exception {
-        MBeanServerConnection conn = ManagementFactory.getPlatformMBeanServer();
-
-        List<?> beans = JmxMBeansUtil.getAllBrokers(conn);
-        for (Iterator<?> i = beans.iterator(); i.hasNext();) {
-            ObjectName brokerObjName = ((ObjectInstance) i.next())
-                    .getObjectName();
-
-            String brokerName = brokerObjName.getKeyProperty("BrokerName");
-            System.out.println("Stopping broker: " + brokerName);
-
-            try {
-                conn.invoke(brokerObjName, "terminateJVM",
-                        new Object[] { Integer.valueOf(0) },
-                        new String[] { "int" });
-            } catch (Exception e) {
-
-            }
-        }
-    }
 }

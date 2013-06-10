@@ -22,6 +22,8 @@ package com.raytheon.uf.common.serialization;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.xml.ws.wsaddressing.W3CEndpointReference;
+
 import org.junit.Ignore;
 
 import com.raytheon.uf.common.monitor.xml.FFMPTemplateXML;
@@ -37,6 +39,7 @@ import com.raytheon.uf.common.monitor.xml.FFMPTemplateXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 06, 2013 1543       djohnson     Moved out of SerializationUtilTest.
+ * Apr 17, 2013 1914       djohnson     Add W3CEndpointReference.
  * 
  * </pre>
  * 
@@ -74,17 +77,17 @@ public class TestJaxbableClassesLocator implements IJaxbableClassesLocator {
                 com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaData.class,
                 com.raytheon.uf.common.datadelivery.registry.Parameter.class,
                 com.raytheon.uf.common.datadelivery.registry.ParameterLevel.class,
-                com.raytheon.uf.common.datadelivery.registry.PendingSubscription.class,
+                com.raytheon.uf.common.datadelivery.registry.PendingSharedSubscription.class,
+                com.raytheon.uf.common.datadelivery.registry.PendingSiteSubscription.class,
                 com.raytheon.uf.common.datadelivery.registry.Projection.class,
                 com.raytheon.uf.common.datadelivery.registry.Provider.class,
-                com.raytheon.uf.common.datadelivery.registry.Subscription.class,
-                com.raytheon.uf.common.datadelivery.registry.SubscriptionBundle.class,
+                com.raytheon.uf.common.datadelivery.registry.SharedSubscription.class,
+                com.raytheon.uf.common.datadelivery.registry.SiteSubscription.class,
                 com.raytheon.uf.common.datadelivery.registry.Time.class,
                 com.raytheon.uf.common.datadelivery.retrieval.xml.ParameterLookup.class,
                 com.raytheon.uf.common.datadelivery.retrieval.xml.ParameterConfig.class,
                 com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate.class,
                 com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription.class,
-                com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval.class,
                 com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation.class,
                 com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap.class,
                 com.raytheon.uf.common.datadelivery.retrieval.xml.ServiceConfig.class,
@@ -92,7 +95,7 @@ public class TestJaxbableClassesLocator implements IJaxbableClassesLocator {
                 com.raytheon.uf.common.datadelivery.retrieval.xml.LevelLookup.class,
                 com.raytheon.uf.common.monitor.xml.FFMPSourceConfigXML.class,
                 com.raytheon.uf.common.monitor.xml.FFMPRunConfigXML.class,
-                FFMPTemplateXML.class };
+                FFMPTemplateXML.class, W3CEndpointReference.class };
 
         JAXB_CLASSES = Arrays.asList(array);
     }

@@ -1,9 +1,7 @@
 <beans
   xmlns="http://www.springframework.org/schema/beans"
-  xmlns:amq="http://activemq.apache.org/schema/core"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean id="ncpafmDecoder" class="gov.noaa.nws.ncep.edex.plugin.ncpafm.decoder.NcPafmDecoder">
@@ -59,8 +57,8 @@
 								<bean ref="ncpafmDecoder" method="decode" />
 								<!-- Add next line for h5 version  /-->
 								<bean ref="ncpafmPointDataTransform" method="toPointData" />
-								<!--to uri="directvm:indexAlert" /-->
-								<to uri="directvm:persistIndexAlert" />
+								<!--to uri="direct-vm:indexAlert" /-->
+								<to uri="direct-vm:persistIndexAlert" />
 							</pipeline>
 							<doCatch>
 								<exception>java.lang.Throwable</exception>
