@@ -19,6 +19,10 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription.subset;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -28,6 +32,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.IPointDataTimingSubsetView;
 
 /**
@@ -40,6 +45,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.IPointData
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 29, 2013    223     mpduff      Initial creation.
+ * Jun 06, 2013 2038       djohnson    Place refresh intervals into PointTime so BandwidthManager has access.
  * 
  * </pre>
  * 
@@ -51,7 +57,7 @@ public class PointTimeSubsetTab extends DataTimingSubsetTab implements
         IPointDataTimingSubsetView {
 
     /** Data Retrieval Intervals */
-    private final String[] INTERVALS = new String[] { "5", "10", "15", "30" };
+    private final String[] INTERVALS;
 
     /** Retrieval Interval Selection Combo */
     private Combo intervalCombo;
@@ -69,6 +75,15 @@ public class PointTimeSubsetTab extends DataTimingSubsetTab implements
     public PointTimeSubsetTab(Composite parentComp, IDataSize callback,
             Shell shell) {
         super(parentComp, callback, shell);
+
+        // Use the string version of the refresh intervals found in PointTime
+        final List<String> allowedRefreshIntervals = new ArrayList<String>();
+        for (Iterator<Integer> iter = PointTime.getAllowedRefreshIntervals()
+                .iterator(); iter.hasNext();) {
+            allowedRefreshIntervals.add(Integer.toString(iter.next()));
+        }
+        INTERVALS = allowedRefreshIntervals
+                .toArray(new String[allowedRefreshIntervals.size()]);
     }
 
     /*
