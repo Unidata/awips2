@@ -1,7 +1,7 @@
 package gov.noaa.nws.ncep.viz.tools.loopManagement;
 
-import gov.noaa.nws.ncep.viz.common.AbstractNcEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NCLoopProperties;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
 
 import java.util.Map;
 
@@ -27,6 +27,7 @@ import com.raytheon.viz.ui.tools.AbstractTool;
  *                                      add codes to check Loop Stop.
  * 03/07/11      migration  G. Hull     use NCLoopProperties                                    
  * 07/15/11                 C Chen      fix looping buttons not coordinated issue. Clean up code.
+ * 02/12/13        972      G. Hull     call NcEditorUtil.refreshGUIElements in place of AbstractNcEditor
  * 
  * </pre>
  * 
@@ -84,10 +85,7 @@ public class LoopForwardAction extends AbstractTool {
         editor.setLoopProperties(loopProperties);
     	this.setEnabled(newState);
 
-    	if(editor != null && editor instanceof AbstractNcEditor){
-        	AbstractNcEditor e = (AbstractNcEditor)editor;
-        	e.refreshGUIElements();
-        }
+    	NcEditorUtil.refreshGUIElements( (AbstractEditor) editor );
     	
         return null;
     }

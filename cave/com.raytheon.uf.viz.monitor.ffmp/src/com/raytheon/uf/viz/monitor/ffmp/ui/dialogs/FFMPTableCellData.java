@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.monitor.ffmp.ui.dialogs;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord.FIELDS;
@@ -38,6 +37,8 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FFMPConfig.ThreshColNames;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 6, 2009            lvenable     Initial creation
+ * Apr 12, 2013   1902    mpduff       Optimized the color assignments.
+ * May 7, 2013    1986    njensen      Optimized sortBy
  * 
  * </pre>
  * 
@@ -69,13 +70,15 @@ public class FFMPTableCellData {
 
     private FIELDS columnName;
 
-    private FFMPConfig ffmpCfg = FFMPConfig.getInstance();
+    private static final FFMPConfig ffmpCfg = FFMPConfig.getInstance();
 
     private boolean vgbFlag = false;
 
     private boolean guidForcedFlag = false;
 
     private String displayStr = null;
+
+    private double colorValue;
 
     /**
      * Constructor.
@@ -86,13 +89,7 @@ public class FFMPTableCellData {
      *            The column value
      */
     public FFMPTableCellData(FIELDS columnName, float value) {
-        if (columnName == FIELDS.RATIO) {
-            displayAsInt = true;
-        }
-
-        this.columnName = columnName;
-        this.value = value;
-        this.setColor();
+        this(columnName, value, false);
     }
 
     /**
@@ -113,7 +110,18 @@ public class FFMPTableCellData {
         this.columnName = columnName;
         this.value = value;
         this.guidForcedFlag = forced;
-        this.setColor();
+
+        if (displayAsInt == true) {
+            colorValue = Math.rint(value);
+        } else {
+            if (!this.value.isNaN()) {
+                colorValue = ((Math.round(value * 100.0)) / 100.0);
+            } else {
+                colorValue = Float.NaN;
+            }
+        }
+
+        this.generateCellColor();
     }
 
     /**
@@ -171,16 +179,7 @@ public class FFMPTableCellData {
     /**
      * Set the RGB which is the cell background color.
      */
-    public void setColor() {
-        double tmpVal = value;
-        if (displayAsInt == true) {
-            tmpVal = Math.rint(value);
-        } else {
-        	if (!value.isNaN()) {
-        		tmpVal = (double) ((Math.round(value * 100.0))/100.0);
-        	} 
-        }
-
+    public void generateCellColor() {
         if ((columnName == FIELDS.GUIDANCE) && this.guidForcedFlag) {
             if (this.value.isNaN()) {
                 backgroundColor = ffmpCfg.getCellColor(TableCellColor.Default);
@@ -189,11 +188,11 @@ public class FFMPTableCellData {
                         .getCellColor(TableCellColor.ForcedFFG);
             }
         } else if (columnName == FIELDS.GUIDANCE) {
-            backgroundColor = ffmpCfg.getThresholdColor(ThreshColNames.GUID.name(),
-                    tmpVal);
+            backgroundColor = ffmpCfg.getThresholdColor(
+                    ThreshColNames.GUID.name(), colorValue);
         } else {
             backgroundColor = ffmpCfg.getThresholdColor(columnName.name(),
-                    tmpVal);
+                    colorValue);
         }
     }
 
@@ -206,30 +205,19 @@ public class FFMPTableCellData {
         return this.hoverText;
     }
 
-    /**
-     * Sort by method.
-     * 
-     * @param direction
-     *            Sort direction.
-     * @return Object that is a string or number.
-     */
-    public Object sortByObject(int direction) {
-        if (cellText != null) {
-            return String.format("%-20S", cellText);
-        } else if (value.isNaN() == false) {
+    public float sortByNumber() {
+        if (!value.isNaN()) {
             if (displayAsInt == true) {
-                return new Float(Math.round(value));
+                return (float) Math.round(value);
             }
 
-            return new Float(value);
-        } else if (value.isNaN() == true) {
-            if (direction == SWT.DOWN) {
-                return Float.MAX_VALUE * -1.0f;
-            }
-            return Float.MAX_VALUE;
+            return value.floatValue();
+        } else {
+            // NaN is not displayed in the table when sorting by
+            // this column, so the value to return here is not especially
+            // important
+            return Float.NEGATIVE_INFINITY;
         }
-
-        return "Unknown";
     }
 
     public String displayString() {

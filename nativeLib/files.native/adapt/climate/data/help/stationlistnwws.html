@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<TITLE>HWR NWWS Station List</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (X11; I; HP-UX B.10.20 9000/770) [Netscape]">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<IMG align=left SRC="bc_storm.gif"</A><P>
+<center>
+<H3><b><A NAME=defin>HWR NWWS Station List</A></B></H3>
+</center>
+<HR> 
+<A HREF="stationnwws.html#stationnwws">Station Format</A>, 
+<A HREF="helpnwws.html#helpnwws">HWR NWWS Home</A> 
+<HR>
+<BR><BR>
+<IMG align=left SRC="calfrop.gif"</A><P>
+All of the stations to appear in the output product must be listed in the station list.<BR>
+<BR>
+<P>The station list may contain any combination of the following:<BR>
+<BR>
+* comment lines,<BR>
+* internal station list comment lines,<BR>
+* fixed phrase stations, <BR>
+* SCP stations, and<BR>
+* marine stations.<BR>
+<BR><BR>
+Comment lines can be placed anywhere.  They begin with a tilde "~" as is shown in
+the following examples.<BR>
+~!MOZ005>007-011>016-020-021-028-029-037-043-%DDHHMM%<BR>
+~...West Central and Northwest Missouri... <BR>
+~$$<BR> 
+%DDHHMM% is a symbolic word.  This symbolic word 
+will be replaced with the current date comprised of the month, nominal hour, 
+and minute of the observation.<br> 
+<BR>
+Internal comment lines can be placed anywhere.  They begin with a pound sign "#"
+as is shown in the following example:<BR>
+# Product 1<BR><BR>
+<BR>
+Fixed phrase stations are identified as follows:<BR>
+!!!!!FF_STATIONS <BR>
+/KMKC/KMCI/+KC DOWNTOWN<BR>
+ where <UL TYPE=DISC>
+<LI>!!!!!FF_STATIONS identifies that fixed phrase land stations follow;
+
+<LI>"KMKC" is the METAR identifier; 
+
+<LI>"KMCI" is the SCP station identifier (leave blank when same as METAR identifier);
+
+<LI>"+" signifies that if the METAR is missing, "KC DOWNTOWN NOT AVBL" will be output.  Other options 
+are: <UL TYPE=SQUARE>
+
+<LI>"-" (ignore the station when missing),
+<LI>"=" (same as "+" but also output 6-hourly additive data), and 
+<LI>"&" (ignore the station when missing, but also output 6-hourly additive data when station is not missing).</UL>
+
+<LI>"~$$" signifies the end of a group of stations.
+
+<LI>"KC DOWNTOWN" is the station name which is transferred to the output product. 
+
+</UL>
+<BR>
+Marine stations are identified as follows:
+!!!!!MAR_STATIONS
+/MISM1//+MATINICUS ISLE
+/41002//-%LATLON%
+~$$
+<BR>
+where <UL TYPE=DISC>
+<LI>!!!!!MAR_STATIONS identifies that marine stations follow;
+
+<LI>"MISM1" and "41002" are the marine station identifiers; 
+
+<LI>"+" if marine observation is missing will output MATINICUS ISLE NOT AVBL.  
+Other option when marine observation is missing is "-" (do not output station).
+
+<LI>"MATINICUS ISLE" is the station name which is transferred to the output product. 
+Use the ketword %LATLON% in order to output the latitude and longitude of a station instead
+of its name.
+
+<LI>"~$$" signifies the end of a group of stations.
+</UL>
+<BR>
+<center><A HREF="stationnwws.html#stationnwws">Station</A></center> 
+
+</BODY>
+</HTML>

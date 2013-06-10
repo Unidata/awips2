@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <isEnabled>true</isEnabled>
     <resourceDefnName>VolcanoNames</resourceDefnName>
     <resourceCategory>OVERLAY</resourceCategory>
     <resourceParameters>
 LpiFilename=volcano_names.lpi
 mapName=Volcano Names 
     </resourceParameters>
-    <filterLabels>NaturalFeatures</filterLabels>
     <rscImplementation>LpiOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>

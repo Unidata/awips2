@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Id="8A1F2DCB-5527-4D32-BC7A-E4295EA72940" Name="AWIPS II Runtime Environment" 
-  Language="1033" Version="1.0.1.0" Manufacturer="Raytheon" 
+  Language="1033" Version="1.0.2.0" Manufacturer="Raytheon" 
   UpgradeCode="8924277C-5B6A-4EEB-AE9F-5471481F92A6">
     <Package Manufacturer="Raytheon" InstallerVersion="200" 
       Compressed="yes" InstallScope="perMachine" />
@@ -30,11 +30,11 @@
           <RegistryValue Type="string" Name="JavaInstallDirectory"
           Value="[INSTALLDIR]AWIPS II\Java" KeyPath="yes" />
           <RegistryValue Type="string" Name="JavaJdkDirectory"
-          Value="[INSTALLDIR]AWIPS II\Java\jdk1.6.0_27" />
+          Value="[INSTALLDIR]AWIPS II\Java" />
           <RegistryValue Type="string" Name="JavaJreDirectory"
-          Value="[INSTALLDIR]AWIPS II\Java\jre6" />
+          Value="[INSTALLDIR]AWIPS II\Java\jre" />
           <RegistryValue Type="string" Name="JavaVersion"
-          Value="6.0.270" />
+          Value="6.0.430" />
           <RegistryValue Type="string" Name="JAIVersion"
           Value="1.1.3" />
           <RegistryValue Type="string" Name="JAIImageIOVersion"

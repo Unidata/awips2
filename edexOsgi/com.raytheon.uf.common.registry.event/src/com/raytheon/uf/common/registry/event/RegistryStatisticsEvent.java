@@ -136,4 +136,8 @@ public class RegistryStatisticsEvent extends StatisticsEvent {
         return registryObject;
     }
 
+    @Override
+    public void finalizeEvent() {
+        // not implemented
+    }
 }

@@ -29,7 +29,9 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.services.IDisposable;
 
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.Activator;
@@ -57,6 +59,9 @@ import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 public class TimeMatchingJob extends Job {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TimeMatchingJob.class);
+
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("Core:");
 
     static {
         Activator.getDefault().registerDisposable(new IDisposable() {
@@ -121,8 +126,8 @@ public class TimeMatchingJob extends Job {
             long t0 = System.currentTimeMillis();
             request.getTimeMatcher().redoTimeMatching(request);
             long time = (System.currentTimeMillis() - t0);
-            if (time > 0) {
-                System.out.println("time matching took: " + time + "ms");
+            if (time > 10) {
+                perfLog.logDuration("time matching", time);
             }
             if (!this.keepAround) {
                 map.remove(request);

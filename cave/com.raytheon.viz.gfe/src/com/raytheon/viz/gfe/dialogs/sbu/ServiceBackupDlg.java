@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.gfe.dialogs.sbu;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -39,6 +38,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -57,7 +57,6 @@ import com.raytheon.uf.common.site.requests.GetActiveSitesRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.util.RunProcess;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
@@ -87,10 +86,12 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2011            randerso     Initial creation
- * Sep 19,2011 10955      rferrel      Use RunProcess
- * Oct 25, 2012 1287       rferrel     Code clean up for non-blocking dialog.
- * Nov 15,2012 15614	  jdynina      Added check for national center	 
+ * Aug 04, 2011            randerso     Initial creation
+ * Sep 19, 2011   10955    rferrel      Use RunProcess
+ * Oct 25, 2012    1287    rferrel      Code clean up for non-blocking dialog.
+ * Nov 15, 2012   15614    jdynina      Added check for national center
+ * Mar 20, 2013    1447    dgilling     Port troubleshooting mode changes
+ *                                      from A1 DR 21404, some code cleanup.
  * 
  * </pre>
  * 
@@ -156,7 +157,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
     private Job updateJob;
 
     private boolean authorized;
-    
+
     private boolean nationalCenter;
 
     private SVCBU_OP currentOperation = SVCBU_OP.no_backup;
@@ -342,15 +343,11 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
         helpItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                try {
-                    // DR#10955
-                    RunProcess
-                            .getRunProcess()
-                            .exec("/usr/bin/firefox http://"
-                                    + getServiceBackupServer()
-                                    + ":8080/uEngineWeb/GfeServiceBackup/help/svcbu_help.html");
-                } catch (IOException e1) {
-                    statusHandler.error("Unable to open Help page!", e1);
+                final String url = "http://"
+                        + getServiceBackupServer()
+                        + ":8080/uEngineWeb/GfeServiceBackup/help/svcbu_help.html";
+                if (!Program.launch(url)) {
+                    statusHandler.error("Unable to open Help page: " + url);
                 }
             }
         });
@@ -360,15 +357,12 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
         instructionsItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                try {
-                    // DR#10955
-                    RunProcess
-                            .getRunProcess()
-                            .exec("/usr/bin/firefox http://"
-                                    + getServiceBackupServer()
-                                    + ":8080/uEngineWeb/GfeServiceBackup/help/svcbu_instructions.html");
-                } catch (IOException e1) {
-                    statusHandler.error("Unable to open Help page!", e1);
+                final String url = "http://"
+                        + getServiceBackupServer()
+                        + ":8080/uEngineWeb/GfeServiceBackup/help/svcbu_instructions.html";
+                if (!Program.launch(url)) {
+                    statusHandler.error("Unable to open Instructions page: "
+                            + url);
                 }
             }
         });
@@ -378,15 +372,11 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
         faqItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                try {
-                    // DR#10955
-                    RunProcess
-                            .getRunProcess()
-                            .exec("/usr/bin/firefox http://"
-                                    + getServiceBackupServer()
-                                    + ":8080/uEngineWeb/GfeServiceBackup/help/svcbu_faq.html");
-                } catch (IOException e1) {
-                    statusHandler.error("Unable to open Help page!", e1);
+                final String url = "http://"
+                        + getServiceBackupServer()
+                        + ":8080/uEngineWeb/GfeServiceBackup/help/svcbu_faq.html";
+                if (!Program.launch(url)) {
+                    statusHandler.error("Unable to open FAQ page: " + url);
                 }
             }
         });
@@ -493,7 +483,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
                 jobManager.addJob(new SvcbuDeactivateSiteJob(failedSite,
                         this.site));
                 jobManager.addJob(new SvcbuImportConfJob(site, failedSite,
-                        progress));
+                        false, progress));
                 jobManager.addJob(new SvcbuActivateSiteJob(failedSite,
                         this.site));
                 jobManager.addJob(new SvcbuStartGfeJob(failedSite, this.site));
@@ -544,11 +534,12 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
             if (dlg.open() == Window.OK) {
                 boolean importGrids = dlg.importGrids();
                 boolean startGFE = dlg.startGFE();
+                boolean trMode = dlg.trMode();
                 String failedSite = getFailedSite();
                 jobManager.addJob(new SvcbuDeactivateSiteJob(failedSite,
                         this.site));
                 jobManager.addJob(new SvcbuImportConfJob(site, failedSite,
-                        progress));
+                        trMode, progress));
                 jobManager.addJob(new SvcbuActivateSiteJob(failedSite,
                         this.site));
                 if (importGrids) {
@@ -1191,8 +1182,8 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
             doExGrids.setEnabled(true);
             doExGrids.setText("Export " + this.site
                     + "'s Digital Forecast to the Central Server");
-            updateBanner("YOU ARE NOT IN BACKUP MODE", getShell().getParent()
-                    .getFont(), black, gray);
+            updateBanner("YOU ARE NOT IN BACKUP MODE", getShell().getFont(),
+                    black, gray);
             currentOperation = SVCBU_OP.no_backup;
         }
 

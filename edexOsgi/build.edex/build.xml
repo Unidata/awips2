@@ -84,6 +84,14 @@
         </antcall>
         <antcall target="build">
             <param name="feature"
+                value="com.raytheon.uf.edex.registry.client.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.datadelivery.client.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
                 value="com.raytheon.uf.edex.registry.feature" />
         </antcall>
         <antcall target="build">

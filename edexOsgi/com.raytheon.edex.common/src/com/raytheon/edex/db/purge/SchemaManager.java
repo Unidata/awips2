@@ -43,6 +43,7 @@ import org.hibernate.AnnotationException;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.SerializableManager;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.database.DatabasePluginProperties;
@@ -50,8 +51,8 @@ import com.raytheon.uf.edex.database.DatabasePluginRegistry;
 import com.raytheon.uf.edex.database.DatabaseSessionFactoryBean;
 import com.raytheon.uf.edex.database.IDatabasePluginRegistryChanged;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
-import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
+import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.database.plugin.PluginVersion;
@@ -67,6 +68,8 @@ import com.raytheon.uf.edex.database.plugin.PluginVersionDao;
  * 10/8/2008    1532        bphillip    Initial checkin
  * 2/9/2009     1990       bphillip     Fixed index creation
  * 03/20/09                njensen     Implemented IPluginRegistryChanged
+ * Mar 02, 2013 1970       bgonzale    Added check for abstract entities in sql index naming.
+ *                                     Removed unused private method populateSchema.
  * </pre>
  * 
  * @author bphillip
@@ -83,6 +86,8 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
      * Plugin lock time out override, 2 minutes
      */
     private static final long pluginLockTimeOutMillis = 120000;
+
+    private static final String TABLE = "%TABLE%";
 
     /** The singleton instance */
     private static SchemaManager instance;
@@ -124,52 +129,6 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
         dbPluginRegistry = DatabasePluginRegistry.getInstance();
         pluginDir = PropertiesFactory.getInstance().getEnvProperties()
                 .getEnvValue("PLUGINDIR");
-    }
-
-    private PluginSchema populateSchema(String pluginName, String database,
-            PluginSchema schema, List<String> tableNames) {
-        List<String> ddls = null;
-
-        for (String sql : ddls) {
-            for (String table : tableNames) {
-                if (sql.startsWith("create table " + table.toLowerCase() + " ")) {
-                    schema.addCreateSql(sql);
-                    break;
-                } else if (sql.startsWith("drop table " + table.toLowerCase()
-                        + ";")) {
-                    sql = sql.replace("drop table ", "drop table if exists ");
-                    schema.addDropSql(sql.replace(";", " cascade;"));
-                    break;
-                } else if (sql.startsWith("create index")
-                        && sql.contains(" on " + table.toLowerCase())) {
-                    if (sql.contains("%TABLE%")) {
-                        sql = sql.replaceFirst("%TABLE%", table.toLowerCase());
-                    }
-                    String dropIndexSql = sql.replace("create index",
-                            "drop index if exists");
-                    dropIndexSql = dropIndexSql.substring(0,
-                            dropIndexSql.indexOf(" on "))
-                            + ";";
-                    sql = dropIndexSql + sql;
-                    schema.addCreateSql(sql);
-                    break;
-                } else if (sql.startsWith("alter table " + table.toLowerCase()
-                        + " ")
-                        && sql.contains(" drop ")) {
-                    schema.addDropSql(sql);
-                    break;
-                } else if (sql.startsWith("alter table " + table.toLowerCase()
-                        + " ")
-                        && sql.contains(" add ")) {
-                    if (sql.contains("foreign key")) {
-                        sql = sql.replace(";", " ON DELETE CASCADE;");
-                    }
-                    schema.addCreateSql(sql);
-                    break;
-                }
-            }
-        }
-        return schema;
     }
 
     /**
@@ -294,8 +253,7 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
                     runPluginScripts(props);
                     String database = props.getDatabase();
                     PluginVersion pv = new PluginVersion(props.getPluginName(),
-                            true,
-                            props.getTableName(), database);
+                            true, props.getTableName(), database);
                     pvd.saveOrUpdate(pv);
                     logger.info(pluginName + " plugin initialization complete!");
                 } else if (initialized == false) {
@@ -343,20 +301,24 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
                 createSql.add(sql);
             }
 
-            // only truly want the sql for just this plugin
-            removeAllDependentCreateSql(props, sessFactory, createSql);
-
             for (int i = 0; i < createSql.size(); i++) {
                 String sql = createSql.get(i);
                 if (sql.startsWith("create index")) {
                     Matcher matcher = createIndexTableNamePattern.matcher(sql);
                     if (matcher.matches()) {
-                        createSql.set(i,
-                                sql.replace("%TABLE%", matcher.group(1)));
+                        createSql.set(i, StringUtil.replace(sql, TABLE,
+                                matcher.group(1)));
+                    } else if (sql.contains(TABLE)) {
+                        // replace %TABLE% in sql statements with an empty
+                        // string
+                        createSql.set(i, StringUtil.replace(sql, TABLE, ""));
                     }
                 }
             }
             createSql.trimToSize();
+
+            // only truly want the sql for just this plugin
+            removeAllDependentCreateSql(props, sessFactory, createSql);
 
             pluginCreateSql.put(fqn, createSql);
         }

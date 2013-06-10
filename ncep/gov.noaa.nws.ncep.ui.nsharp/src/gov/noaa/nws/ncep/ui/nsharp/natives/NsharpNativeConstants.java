@@ -386,8 +386,8 @@ public static final String OPC_MIXINGPRESSURE_MISSING = "Mixing Pressure        
     };
 	public static final String TEMP_TRACE = "Temperature Trace"; 
 	public static final String DEWP_TRACE = "Dewpoint Trace";
-	public static final String PARCEL_TRACE= "Parcel Trace";
-	public static final String PARCEL_TRACE_ASCENT= "Parcel Ascent Trace";
+	public static final String PARCEL_VT_TRACE= "Parcel Tv Trace";
+	public static final String PARCEL_T_TRACE= "Parcel Trace";
 	public static final String DCAPE_TRACE = "DCAPE Trace";
 	public static final String VTEMP_TRACE = "Virtual Temperature Trace";
 	public static final String WETBULB_TRACE=  "WetbulbTrace";
@@ -404,7 +404,6 @@ public static final String OPC_MIXINGPRESSURE_MISSING = "Mixing Pressure        
 	public static final String HODOGRAPH = "Hodograph Trace";
 	public static final String EFFECTIVE_LAYER = "Effective Layer";
 	public static final String CLOUD = "Cloud";
-	public static final String WINDBARB = "WindBarb Density(min dist betw barbs, m)";
-	public static final int WINDBARB_DISTANCE_DEFAULT= 400; // in meters
+	public static final String WINDBARB="Wind Barb";
 	public static final float ENTRAIN_DEFAULT = 0.0f;
 }

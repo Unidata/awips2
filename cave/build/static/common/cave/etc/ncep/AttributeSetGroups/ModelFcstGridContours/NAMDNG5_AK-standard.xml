@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType">
+    <resource>NAMDNG5_AK</resource>
+    <attrSetGroupName>standard</attrSetGroupName>
+    <attrSetNames>surface_temperature</attrSetNames>
+</AttributeSetGroup>

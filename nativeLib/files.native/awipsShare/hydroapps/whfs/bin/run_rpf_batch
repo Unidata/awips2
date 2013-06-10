@@ -1,0 +1,112 @@
+#! /bin/ksh
+#
+# run_rpf_batch
+# April, 2005
+#
+#
+# Sample file for running the non-interactive version of RiverPro.
+# This file should be configured to your local office needs.
+#
+# To run the rpf_batch program, its three arguments need to be defined.
+#
+#   -d dbname     = Required name of the IHFS Informix database.
+#
+#   -p pccfile    = Required name of the product content control (pcc) 
+#                   file that contains the high-level instructions for
+#                   generating the product. The pcc filename should include
+#                   the suffix identifying the office
+#                   name such as fls_def.pcc.XXX with the full path name
+#   -s filesuffix = Optional name of the suffix to be appended onto the
+#                   output product and log files created by the program.
+#                   If not specified, the process id will be used.
+#                   Use of the file suffix is strongly suggested to facilitate
+#                   the dissemination of the generated product by allowing
+#                   its filename to be known.
+#   
+#  Note: The product only inlcude the information for
+#  points specified after keyword "INCLUDE_POINTS:" in
+#  the pcc file
+#  
+# After creating the product, the product can be issued to the
+# appropriate communications circuits using the rpf_issue script.
+# 
+# Define some environment variables, including the log directories
+# and the database name.
+
+#     Modification:  JIngtao
+#     Revision:      03/17/2006
+#                    change the generated product name from rpf_product.$SUFFIX
+#                    to work_product.$SUFFIX
+
+# This allows you to run this script outside of ./standard/bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for WHFS applications
+. $RUN_FROM_DIR/../../../set_hydro_env
+export RPF_LOG_DIR=$(get_apps_defaults rpf_log_dir)
+export RPF_TEMPLATE_DIR=$(get_apps_defaults rpf_template_dir)
+export WHFS_PRODUCT_DIR=$(get_apps_defaults whfs_product_dir)
+export WHFS_BIN_DIR=$(get_apps_defaults whfs_bin_dir)
+export DB_NAME=$(get_apps_defaults db_name)
+
+
+
+# Log some info.  Change this as desired. Writes to the log
+# file can be added later in the script as desired.
+
+LOGFILE=$RPF_LOG_DIR/run_rpf_batch.log
+Dte=`date -u`
+echo Invoking run_rpf_batch$OS_SUFFIX at $Dte > $LOGFILE
+
+# This command will create a product using instructions given in the
+# specified pcc file, and with the specified file suffix.  
+# Uncomment this line after defining the two arguments.
+
+SUFFIX=RVS_test
+PCCFILE=filexxx.pcc.ooo
+
+#echo Generating product using pccfile$PCCFILE and suffix $SUFFIX > $LOGFILE
+
+#$WHFS_BIN_DIR/rpf_batch$OS_SUFFIX -d$DB_NAME -p$RPF_TEMPLATE_DIR/$PCCFILE -s$SUFFIX > $LOGFILE
+
+ 
+# The script rpf_issue which has the following arguments:
+# The name of the output product file created by rpf_batch
+# it is uniquely identified by using the suffix argument.
+
+FILENAME=$WHFS_PRODUCT_DIR/work_product.$SUFFIX
+
+# The AWIPS product id is CRITICAL - it should match the definition
+# in the .pcc file and must be a valid ID recognized by AWIPS
+
+PRODUCT_ID=CCCCNNNXXX
+ 
+# Specify OUP [Official User Product] as the product type; rpf_batch does not
+# currently support NWR products
+
+PRODUCT_TYPE=OUP
+
+# Specifies NORMAL issuance of product for the mode; i.e. not test mode.
+
+ISSUE_MODE=NORMAL 
+
+# Specify LOCAL destination; the NON-LOCAL is not supported
+# since rpf_batch does not support NWR products
+
+DESTINATION=LOCAL 
+
+# Specify the identifier for the sending office.  This is used for
+# non-local NWR products only so its value is not important.
+
+WFO_ID=xxx
+                 
+# The formal specification for the call to rpf_issue is:
+# rpf_issue $FILENAME $PRODUCT_ID $PRODUCT_TYPE $ISSUE_MODE $DESTINATION $WFO_ID
+#
+# Using the fixed/known arguments, to make this script operational,
+# uncomment the call below after specifying the suffix and product id above:
+#
+# echo Issuing file $FILENAME > $LOGFILE 
+#rpf_issue $FILENAME $PRODUCT_ID OUP NORMAL LOCAL $WFO_ID 
+
+# end of script

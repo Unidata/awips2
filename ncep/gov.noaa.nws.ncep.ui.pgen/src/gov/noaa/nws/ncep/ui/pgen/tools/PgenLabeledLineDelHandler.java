@@ -102,51 +102,51 @@ public class PgenLabeledLineDelHandler extends InputHandlerDefaultImpl {
 
     			if ( ( nearestComp != null ) && nearestComp.getPgenType().equalsIgnoreCase(labeledLine.getPgenType())){
     				labeledLine = (LabeledLine) nearestComp;
-    			
-    			//make a copy in order for undo/redo to work 
-    			LabeledLine newll = labeledLine.copy();
-    				
-    			AbstractDrawableComponent adc = this.getNearest(loc, newll);	
-    			if ( adc == null ) return false;
 
-    			if ( flip ){
-    				//flip
-    				if ( adc instanceof Line ){
-    					Line newLn = (Line)PgenToolUtils.createReversedDrawableElement((Line)adc);
-    					newll.remove(adc);
-    					newll.add(newLn);
-    				}
-    				else return false;
-    			}
-    			else if ( openClose ){
-    				if ( adc instanceof Line ){
-    					Line newLn = (Line)(adc.copy());
-    					if ( newLn.isClosedLine() ){
-    						newLn.setClosed(false);
-    					}
-    					else {
-    						newLn.setClosed(true);
-    					}
-    					newll.remove(adc);
-    					newll.add(newLn);
-    				}
-    				else return false;
-    			}
-    			else {
-    				//remove
-    				newll.remove(adc);
-    			}
-    			
-    			drawingLayer.replaceElement(labeledLine, newll);
-    			labeledLine = newll;
-    			prevTool.setLabeledLine(newll);
+    				//make a copy in order for undo/redo to work 
+    				LabeledLine newll = labeledLine.copy();
 
-    			if ( drawingLayer.getSelectedDE() != null ) {
-    				this.resetSelected(newll);
+    				AbstractDrawableComponent adc = this.getNearest(loc, newll);	
+    				if ( adc == null ) return false;
+
+    				if ( flip ){
+    					//flip
+    					if ( adc instanceof Line ){
+    						Line newLn = (Line)PgenToolUtils.createReversedDrawableElement((Line)adc);
+    						newll.remove(adc);
+    						newll.add(newLn);
+    					}
+    					else return false;
+    				}
+    				else if ( openClose ){
+    					if ( adc instanceof Line ){
+    						Line newLn = (Line)(adc.copy());
+    						if ( newLn.isClosedLine() ){
+    							newLn.setClosed(false);
+    						}
+    						else {
+    							newLn.setClosed(true);
+    						}
+    						newll.remove(adc);
+    						newll.add(newLn);
+    					}
+    					else return false;
+    				}
+    				else {
+    					//remove
+    					newll.remove(adc);
+    				}
+
+    				drawingLayer.replaceElement(labeledLine, newll);
+    				labeledLine = newll;
+    				prevTool.setLabeledLine(newll);
+
+    				if ( drawingLayer.getSelectedDE() != null ) {
+    					this.resetSelected(newll);
+    				}
+
+    				mapEditor.refresh();
     			}
-    			
-    			mapEditor.refresh();
-    		}
     		}
     		return true;
 

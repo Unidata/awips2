@@ -23,6 +23,7 @@ import java.awt.Color;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
@@ -34,6 +35,7 @@ import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.drawables.IFont;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -55,12 +57,15 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
@@ -81,12 +86,14 @@ import com.vividsolutions.jts.io.ParseException;
  * 16 Feb 2012    555      S. Gurung   Added call to setAllFramesAsPopulated() in queryRecords().
  * 05/23/2012     785      Q. Zhou     Added getName for legend.
  * 17 Aug 2012    655      B. Hebbard  Added paintProps as parameter to IDisplayable draw
+ * 31-Jan-2013    976      Archana         Updated paintFrame() to not render any null strings
+ *                                                                Replaced the depreciated target.drawString() method with target.drawStrings().
  * </pre>
  * 
  * @author archana
  * @version 1.0
  */
-public class WstmResource extends AbstractNatlCntrsResource<WstmResourceData, MapDescriptor >
+public class WstmResource extends AbstractNatlCntrsResource<WstmResourceData, NCMapDescriptor >
 implements INatlCntrsResource{
 	List<String> issueOfficeList = new ArrayList<String>(0);
 	private final String BOUNDS_SCHEMA = "bounds";
@@ -187,7 +194,7 @@ implements INatlCntrsResource{
 			for(WstmRscDataObject eachWstmRscDataObject : wstmRscDataObjCollection){
 				
 				WstmResourceAttributes<RGB, Integer, Float, Boolean> wstmRscAttr = null;
-					String symbolTypeStr = "";
+				String symbolTypeStr = "";
                  
 					/*Retrieve the user-configurable attributes depending on whether the WstmRscDataObject denotes an
 					 * advisory, watch or a warning*/
@@ -222,17 +229,19 @@ implements INatlCntrsResource{
                              }
                              
          					if ( wstmRscAttr != null && wstmRscAttr.getEventEnable()){
+         						RGB colorOfEventRGB = wstmRscAttr.getColorOfEvent();
+         						Color colorOfEvent = new Color( colorOfEventRGB.red,
+         						                                                		      colorOfEventRGB.green,
+         								                                                      colorOfEventRGB.blue);
 							
-         					  Color[] symbolColor = {new Color(wstmRscAttr.getColorOfEvent().red,
-										wstmRscAttr.getColorOfEvent().green,
-										wstmRscAttr.getColorOfEvent().blue)};
+         					  Color[] symbolColor = {colorOfEvent };
 							   /*Retrieve the FIPS zones (names and centroid) to be rendered for the current WstmRscDataObject*/	
          					   List<FipsInfo> listOfFipsInfo =  eachWstmRscDataObject.aListOfFipsInfoObjects;
          					  
          					   if (listOfFipsInfo != null && listOfFipsInfo.size() > 0) {
  								
          						   for (FipsInfo eachFipsInfo : listOfFipsInfo) {
-LatLonPoint thisPoint =  wqr.getLatLonPoint(eachFipsInfo.getFipsCode());//eachFipsInfo.getFipsCentroid();//T456
+         							   LatLonPoint thisPoint =  wqr.getLatLonPoint(eachFipsInfo.getFipsCode());//eachFipsInfo.getFipsCentroid();//T456
 							           Coordinate thisMarkerCoord = this.convertCentroidToWorldCoordinates(thisPoint);
 							           PixelCoordinate pixCoord = null;
 
@@ -244,9 +253,18 @@ LatLonPoint thisPoint =  wqr.getLatLonPoint(eachFipsInfo.getFipsCode());//eachFi
 												pixCoord = new PixelCoordinate(descriptor
 																             .worldToPixel(worldC));
 												pixCoord.addToY(offsetY*1.75);
-										        target.drawString(font,  eachWstmRscDataObject.validTimePeriod, pixCoord.getX(), pixCoord.getY(), 0.0, 
-												                  TextStyle.NORMAL, wstmRscAttr.getColorOfEvent(),HorizontalAlignment.LEFT, 
-														          VerticalAlignment.TOP, 0.0);  												
+												if ( eachWstmRscDataObject.validTimePeriod != null ){
+													  
+													DrawableString validTimePeriodString = new DrawableString(eachWstmRscDataObject.validTimePeriod,colorOfEventRGB);
+													validTimePeriodString.setCoordinates(pixCoord.getX(), pixCoord.getY());
+													validTimePeriodString.textStyle = TextStyle.NORMAL;
+													validTimePeriodString.horizontalAlignment = HorizontalAlignment.LEFT;
+													validTimePeriodString.verticallAlignment = VerticalAlignment.TOP;
+													target.drawStrings(validTimePeriodString);
+//										               target.drawString(font,  eachWstmRscDataObject.validTimePeriod, pixCoord.getX(), pixCoord.getY(), 0.0, 
+//												                                       TextStyle.NORMAL, wstmRscAttr.getColorOfEvent(),HorizontalAlignment.LEFT, 
+//														                               VerticalAlignment.TOP, 0.0);  							
+												}
 
 											}
 							           }
@@ -266,9 +284,18 @@ LatLonPoint thisPoint =  wqr.getLatLonPoint(eachFipsInfo.getFipsCode());//eachFi
 
 											}
 							          }
-											target.drawString(font, wqr.getZoneName(eachFipsInfo.getFipsCode())/*eachFipsInfo.getZoneName()*/, pixCoord.getX(), pixCoord.getY(), 0.0, 
-													TextStyle.NORMAL, wstmRscAttr.getColorOfEvent(),HorizontalAlignment.LEFT, 
-													VerticalAlignment.TOP, 0.0);  
+							        	  String zoneName = wqr.getZoneName(eachFipsInfo.getFipsCode());
+							        	  if ( zoneName != null ){
+												DrawableString zoneNameString = new DrawableString(zoneName,colorOfEventRGB);
+												zoneNameString.setCoordinates(pixCoord.getX(), pixCoord.getY());
+												zoneNameString.textStyle = TextStyle.NORMAL;
+												zoneNameString.horizontalAlignment = HorizontalAlignment.LEFT;
+												zoneNameString.verticallAlignment = VerticalAlignment.TOP;
+												target.drawStrings(zoneNameString);							        		  
+//											target.drawString(font, wqr.getZoneName(eachFipsInfo.getFipsCode())/*eachFipsInfo.getZoneName()*/, pixCoord.getX(), pixCoord.getY(), 0.0, 
+//													TextStyle.NORMAL, wstmRscAttr.getColorOfEvent(),HorizontalAlignment.LEFT, 
+//													VerticalAlignment.TOP, 0.0);
+							        	  }
 							           }
 							          
 							          /*If the outline flag is enabled draw the outline else plot the marker at the centroid of the zone's area*/
@@ -278,7 +305,7 @@ drawOutlineForZone2(eachFipsInfo.getFipsCode()/*eachFipsInfo.fipsNumber*/, targe
 
 									/*Plot the symbol selected by the user from the marker selection panel*/
 							        	   if (thisMarkerCoord != null) {
-													DisplayElementFactory df = new DisplayElementFactory( target, descriptor );
+													DisplayElementFactory df = new DisplayElementFactory( target, getNcMapDescriptor() );
 													ArrayList<IDisplayable> displayEls = new ArrayList<IDisplayable>(0);	
 										            Symbol symbol = new Symbol(
 															null,
@@ -671,7 +698,7 @@ wqr.buildQueryPart(aSetOfAwwFips);	wstmRscDataObject.aListOfFipsInfoObjects=crea
     		
     		if(eventTime != null){
     			builder.append(this.TIME_FORMAT.format(eventTime.getValidPeriod().getStart()));
-        		builder.append(" - ");
+        		builder.append("-");
         		builder.append(this.TIME_FORMAT.format(eventTime.getValidPeriod().getEnd()));
     		}
 
@@ -1380,10 +1407,9 @@ wqr.buildQueryPart(aSetOfAwwFips);	wstmRscDataObject.aListOfFipsInfoObjects=crea
     @Override
 	protected boolean postProcessFrameUpdate() {
     	
-    	gov.noaa.nws.ncep.viz.ui.display.NCMapEditor ncme = 
-    				gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils.getActiveNatlCntrsEditor();
+    	AbstractEditor ncme = NcDisplayMngr.getActiveNatlCntrsEditor();
     	
-    	zrJob.setRequest(ncme.getActiveDisplayPane().getTarget(), descriptor, null, false, false, null); 
+    	zrJob.setRequest(ncme.getActiveDisplayPane().getTarget(), getNcMapDescriptor(), null, false, false, null); 
     	
     	return true;
     }
@@ -1392,7 +1418,7 @@ wqr.buildQueryPart(aSetOfAwwFips);	wstmRscDataObject.aListOfFipsInfoObjects=crea
 	 *  called in the constructor.
 	 */
 	private void addRDChangedListener(){
-		com.raytheon.viz.ui.editor.AbstractEditor editor = gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils.getActiveNatlCntrsEditor();
+		AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
 		editor.addRenderableDisplayChangedListener(this.new WstmDCListener());
 	}
     
@@ -1403,7 +1429,7 @@ wqr.buildQueryPart(aSetOfAwwFips);	wstmRscDataObject.aListOfFipsInfoObjects=crea
 
 		@Override
 		public void renderableDisplayChanged(com.raytheon.uf.viz.core.IDisplayPane pane,
-				com.raytheon.uf.viz.core.drawables.IRenderableDisplay newRenderableDisplay, DisplayChangeType type) {
+				IRenderableDisplay newRenderableDisplay, DisplayChangeType type) {
 			
 			areaChangeFlag = true;
 			

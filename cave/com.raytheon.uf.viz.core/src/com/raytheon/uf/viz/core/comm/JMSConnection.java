@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.core.comm;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+
 import javax.jms.ConnectionFactory;
 
 import org.apache.qpid.client.AMQConnectionFactory;
@@ -41,6 +42,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * Nov 2, 2009  #3067      chammack    Send all jms connections through failover:// to properly reconnect
  * Nov 2, 2011  #7391      bkowal      Ensure that the generated WsId is properly formatted to be
  *                                     included in a url.
+ * May 09, 2013 1814       rjpeter     Updated prefetch to 10.
  * </pre>
  * 
  * @author chammack
@@ -50,7 +52,7 @@ public class JMSConnection {
 
     private static JMSConnection instance;
 
-    private String jndiProviderUrl;
+    private final String jndiProviderUrl;
 
     private AMQConnectionFactory factory;
 
@@ -76,17 +78,18 @@ public class JMSConnection {
             // reconnect
             this.factory = new AMQConnectionFactory(
                     "amqp://guest:guest@"
-                            + URLEncoder.encode(VizApp.getWsId().toString(), "UTF-8")
+                            + URLEncoder.encode(VizApp.getWsId().toString(),
+                                    "UTF-8")
                             + "/edex?brokerlist='"
                             + this.jndiProviderUrl
-                            + "?connecttimeout='5000'&heartbeat='0''&maxprefetch='0'&sync_publish='all'&failover='nofailover'");
+                            + "?connecttimeout='5000'&heartbeat='0''&maxprefetch='10'&sync_publish='all'&failover='nofailover'");
         } catch (URLSyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (UnsupportedEncodingException e1) {
-        	// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
     }
 
     /**

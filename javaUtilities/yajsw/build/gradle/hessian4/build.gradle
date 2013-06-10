@@ -1,0 +1,16 @@
+projectHome = '../../..'
+
+sourceSets.main.java.srcDirs = ["$projectHome/src/hessian"]
+
+dependencies {
+    compile group: 'netty', 							name: 'netty', 										version: "$netty_version"
+}
+
+println '---------------------------'
+println 'dependency jars:'
+println '---------------------------'
+configurations.compile.each { File file -> println file.absolutePath }
+println '---------------------------'
+
+jar.baseName = 'hessian4'
+

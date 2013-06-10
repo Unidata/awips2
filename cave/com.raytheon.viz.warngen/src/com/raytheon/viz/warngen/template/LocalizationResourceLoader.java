@@ -63,6 +63,8 @@ public class LocalizationResourceLoader extends FileResourceLoader implements
 
     private Map<String, LocalizationFile> fileMap = new HashMap<String, LocalizationFile>();
 
+    private ExtendedProperties configuration;
+
     @Override
     public long getLastModified(Resource resource) {
         return getFile(resource.getName()).getTimeStamp().getTime();
@@ -70,12 +72,9 @@ public class LocalizationResourceLoader extends FileResourceLoader implements
 
     @Override
     public void init(ExtendedProperties configuration) {
-        String site = configuration.getString(SITE_KEY);
-        if (site != null && (site.equals(this.site) == false)) {
-            // We changed sites since last time, clear out cache
-            fileMap.clear();
+        if (this.configuration != configuration) {
+            this.configuration = configuration;
         }
-        this.site = site;
         super.init(configuration);
     }
 
@@ -89,18 +88,34 @@ public class LocalizationResourceLoader extends FileResourceLoader implements
         }
     }
 
-    private synchronized LocalizationFile getFile(String name) {
-        LocalizationFile file = fileMap.get(name);
-        if (file == null || file.exists() == false) {
-            try {
+    private synchronized LocalizationFile getFile(String name)
+            throws ResourceNotFoundException {
+        if (configuration == null) {
+            throw new RuntimeException("Unable to locate file: " + name
+                    + ", resource loader has not been initialized");
+        }
+        String site = configuration.getString(SITE_KEY);
+        if (site == null || site.equals(this.site) == false) {
+            // We changed sites since last time, clear out cache
+            for (LocalizationFile file : fileMap.values()) {
+                file.removeFileUpdatedObserver(this);
+            }
+            fileMap.clear();
+            this.site = site;
+        }
+        this.site = site;
+
+        try {
+            LocalizationFile file = fileMap.get(name);
+            if (file == null || file.exists() == false) {
                 file = FileUtil.getLocalizationFile(name, site);
                 file.addFileUpdatedObserver(this);
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException("Error retrieving resource file", e);
+                fileMap.put(name, file);
             }
-            fileMap.put(name, file);
+            return file;
+        } catch (FileNotFoundException e) {
+            throw new ResourceNotFoundException(e);
         }
-        return file;
     }
 
     @Override
@@ -110,16 +125,12 @@ public class LocalizationResourceLoader extends FileResourceLoader implements
 
     @Override
     public boolean resourceExists(String name) {
-        LocalizationFile file = fileMap.get(name);
-        if (file == null || file.exists() == false) {
-            try {
-                file = FileUtil.getLocalizationFile(name, site);
-                file.addFileUpdatedObserver(this);
-            } catch (FileNotFoundException e) {
-                return false;
-            }
-            fileMap.put(name, file);
+        LocalizationFile file;
+        try {
+            file = getFile(name);
+            return file.exists();
+        } catch (ResourceNotFoundException e) {
+            return false;
         }
-        return true;
     }
 }

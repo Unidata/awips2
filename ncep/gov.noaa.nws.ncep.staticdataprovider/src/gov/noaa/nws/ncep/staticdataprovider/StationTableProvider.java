@@ -154,8 +154,8 @@ public class StationTableProvider {
 			if ( rows2 != null ) optional.addAll( rows2 );
 
 			for ( Object[] obj : optional ){
-					String fipsStr = (String)obj[0];
-					String strNoSpace = fipsStr.replaceAll(" ", "");
+				String fipsStr = (String)obj[0];
+				String strNoSpace = fipsStr.replaceAll(" ", "");
 				
 				StringTokenizer token = new StringTokenizer(strNoSpace, "+" );
 				
@@ -163,13 +163,13 @@ public class StationTableProvider {
 
 				while ( token.hasMoreTokens() ){
 					set.add( token.nextToken() );
-						}
+				}
 				
 				for ( String fips : set ){
 					clstTbl.put( fips , (Set<String>) set.clone());
-						}
 				}
-
+			}
+			
 			//For permanent cluster A+C and B+C, three entries are needed.
 			// "A: A+C", "B: B+C", and "C: A+B+C"
 			if ( rows3 != null ){
@@ -187,7 +187,7 @@ public class StationTableProvider {
 						
 						while ( token.hasMoreTokens() ){
 							set.add( token.nextToken() );
-			}
+						}
 						
 						//First FIPS is already in optional cluster table, merge with the permanent table
 						if ( clstTbl.get( firstFips ) != null ){
@@ -212,7 +212,7 @@ public class StationTableProvider {
 				}
 			}
 			
-		}
+		}	
 
 		return clstTbl;
 	}

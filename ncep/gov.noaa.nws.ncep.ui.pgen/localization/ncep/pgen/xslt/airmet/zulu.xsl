@@ -42,7 +42,7 @@
 			<xsl:call-template name="GetOutlookEndTimeZ"/>
 		</xsl:variable>
 		
-		<xsl:variable name="issueTime">
+		<xsl:variable name="issueTime">		
 			<xsl:call-template name="GetIssueTimeZ"/>
 		</xsl:variable>
 
@@ -97,22 +97,22 @@
 		</xsl:if>
 		
 		<!--  add freezing paragraph  -->
-		<xsl:choose>
+	<xsl:choose>
 		<xsl:when test="$numFreezing > 0">
-		        
-		        <xsl:variable name="FRbase">
-	<xsl:call-template name="readFzlvlBase">
-        	<xsl:with-param name="FAarea" select="$area"/>
-        </xsl:call-template>
-		        </xsl:variable>
-		        
-		        <xsl:variable name="FRtop">
-	<xsl:call-template name="readFzlvlTop">
-        	<xsl:with-param name="FAarea" select="$area"/>
-        </xsl:call-template>
-		        </xsl:variable>
-		        
-		        <xsl:call-template name="ZuluFreezing">
+
+			<xsl:variable name="FRbase">
+				<xsl:call-template name="readFzlvlBase">
+					<xsl:with-param name="FAarea" select="$area" />
+				</xsl:call-template>
+			</xsl:variable>
+
+			<xsl:variable name="FRtop">
+				<xsl:call-template name="readFzlvlTop">
+					<xsl:with-param name="FAarea" select="$area" />
+				</xsl:call-template>
+			</xsl:variable>
+
+			<xsl:call-template name="ZuluFreezing">
 		            <xsl:with-param name="FRbase" select="$FRbase"/>
 		            <xsl:with-param name="FRtop" select="$FRtop"/> 
 		            <xsl:with-param name="ZuluArea" select="$area"/> 
@@ -397,7 +397,7 @@
             <xsl:value-of select="$newline"/>
             <xsl:element name="line">
                 <xsl:attribute name="indent">3</xsl:attribute>
-                <xsl:text>MULT FRZLVL </xsl:text><xsl:value-of select="$flightLevelStatement"/>
+                <xsl:text>   MULT FRZLVL </xsl:text><xsl:value-of select="$flightLevelStatement"/>
                 <xsl:text> BOUNDED BY </xsl:text><xsl:value-of select="@textVor"/>
             </xsl:element>
             
@@ -611,20 +611,20 @@
         </xsl:element>
     </xsl:template>
 
-   <xsl:template name="readFzlvlBase">
+	<xsl:template name="readFzlvlBase">
 		<xsl:param name="FAarea">
 			area
 		</xsl:param>
 		<xsl:choose>
 			<xsl:when test="$numFzlvl > 0 ">
-	<xsl:variable name="areaRange">
-          <xsl:for-each select="//Gfa[@fzlRange]">
-            <xsl:if test="contains(@fzlRange, $FAarea)">
+				<xsl:variable name="areaRange">
+					<xsl:for-each select="//Gfa[@fzlRange]">
+						<xsl:if test="contains(@fzlRange, $FAarea)">
 	                        <xsl:value-of select="substring-after(substring-after(@fzlRange, $FAarea), ';')"/>
-                	<xsl:text>;</xsl:text>
-            </xsl:if>
-	  </xsl:for-each>
-	</xsl:variable>
+							<xsl:text>;</xsl:text>
+						</xsl:if>
+					</xsl:for-each>
+				</xsl:variable>
 
 				<xsl:value-of
 					select="substring-before(substring-after($areaRange, ';'),';')" />
@@ -637,24 +637,24 @@
 
 			</xsl:otherwise>
 		</xsl:choose>
-   </xsl:template>
+	</xsl:template>
 
-   <xsl:template name="readFzlvlTop">
+	<xsl:template name="readFzlvlTop">
 		<xsl:param name="FAarea">
 			area
 		</xsl:param>
 
 		<xsl:choose>
 			<xsl:when test="$numFzlvl > 0 ">
-	<xsl:variable name="areaRange">
-          <xsl:for-each select="//Gfa[@fzlRange]">
-            <xsl:if test="contains(@fzlRange, $FAarea)">
+				<xsl:variable name="areaRange">
+					<xsl:for-each select="//Gfa[@fzlRange]">
+						<xsl:if test="contains(@fzlRange, $FAarea)">
 	                        <xsl:value-of select="substring-after(substring-after(@fzlRange, $FAarea), ';')"/>
-            </xsl:if>
-	  </xsl:for-each>
-	</xsl:variable>
+						</xsl:if>
+					</xsl:for-each>
+				</xsl:variable>
 
-	<xsl:value-of select="substring-before($areaRange, ';')"/>
+				<xsl:value-of select="substring-before($areaRange, ';')" />
 
 			</xsl:when>
 			<xsl:otherwise>
@@ -666,6 +666,6 @@
 			</xsl:otherwise>
 		</xsl:choose>
 
-    </xsl:template>
+	</xsl:template>
 
 </xsl:stylesheet>

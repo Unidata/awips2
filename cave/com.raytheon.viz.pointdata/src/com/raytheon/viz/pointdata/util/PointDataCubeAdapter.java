@@ -25,8 +25,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.TimeQueryRequestSet;
@@ -45,8 +47,8 @@ import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.datastructure.CubeUtil;
 import com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter;
 import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
@@ -143,8 +145,15 @@ public class PointDataCubeAdapter implements IDataCubeAdapter {
             source += type;
         }
 
-        List<Level> levels = LevelMappingFactory.getInstance()
-                .getLevelMappingForKey(levelKey).getLevels();
+        List<Level> levels;
+        try {
+            levels = LevelMappingFactory
+                    .getInstance(
+                            LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                    .getLevelMappingForKey(levelKey).getLevels();
+        } catch (CommunicationException e) {
+            throw new VizCommunicationException(e);
+        }
         List<AbstractRequestableNode> nodes = inventory.getNodes(source,
                 Arrays.asList(parameters), levels);
         PointMetadataContainer pmc = new PointMetadataContainer(queryParams,
