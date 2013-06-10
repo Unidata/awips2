@@ -9,7 +9,7 @@
 			<!-- for OGC it's your FQDN -->
 			<url>http://your.url.here:8085</url>
 		</connection>
-		<providerType>Point</providerType>
+        <providerType dataType="POINT" plugin="madis" availabilityDelay="0" />
 		<projection type="LatLon">
 			<name>MetarLatLon</name>
 			<description>METAR Test LatLon Coverage</description>

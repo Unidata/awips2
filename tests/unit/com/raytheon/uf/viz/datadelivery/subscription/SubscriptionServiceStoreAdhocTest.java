@@ -21,12 +21,15 @@ package com.raytheon.uf.viz.datadelivery.subscription;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
@@ -145,6 +148,15 @@ public class SubscriptionServiceStoreAdhocTest extends
     void whenRegistryInteractionOccursThrowException()
             throws RegistryHandlerException {
         // Adhoc subscriptions no longer interact with the registry
+    }
+
+    @Override
+    protected void verifyOnlyCheckingForDuplicateSubscriptions()
+            throws RegistryHandlerException {
+        // Adhocs don't check for duplicates
+        final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
+                .getSubscriptionHandler();
+        verifyNoMoreInteractions(subscriptionHandler);
     }
 
     /**
