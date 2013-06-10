@@ -33,14 +33,16 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.core.mode.CAVEMode;
 
 /**
- * TODO Add Description
+ * Utility class for assigning the next ETN to a VTEC string in a transmitted
+ * VTEC product.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 9, 2009            bwoodle     Initial creation
+ * Feb 09, 2009            bwoodle     Initial creation
+ * May 08, 2013  #1842     dgilling    Code cleanup.
  * 
  * </pre>
  * 
@@ -51,6 +53,19 @@ import com.raytheon.viz.core.mode.CAVEMode;
 public class VtecUtil {
 
     private static final String dateFormat = "%1$ty%1$tm%1$tdT%1$tH%1$tMZ";
+
+    public static final Pattern VTEC_REGEX = Pattern
+            .compile("\\/([OTEX])\\.([A-Z]{3})\\.([A-Za-z0-9]{4})\\.([A-Z]{2})\\.([WAYSFON])\\.(\\d{4})\\.(\\d{6}T\\d{4}Z)-(\\d{6}T\\d{4}Z)\\/");
+
+    /**
+     * A private constructor so that Java does not attempt to create one for us.
+     * As this class should not be instantiated, do not attempt to ever call
+     * this constructor; it will simply throw an AssertionError.
+     * 
+     */
+    private VtecUtil() {
+        throw new AssertionError();
+    }
 
     /**
      * Gets the next available ETN for a specific product and office
@@ -121,15 +136,8 @@ public class VtecUtil {
     }
 
     public static VtecObject parseMessage(String message) {
-        String pVtecParseFormat = "\\/([OTEX])\\.([A-Z]{3})\\.([A-Za-z0-9]{4})\\.([A-Z]{2})\\.([WAYSFON])\\.(\\d{4})\\.(\\d{6}T\\d{4}Z)-(\\d{6}T\\d{4}Z)\\/";
-
-        /**
-         * The pattern used for matching either a P-VTEC or an H-VTEC string.
-         */
-        Pattern cPattern = Pattern.compile(String
-                .format("%s", pVtecParseFormat));
         VtecObject rval = null;
-        Matcher m = cPattern.matcher(message);
+        Matcher m = VTEC_REGEX.matcher(message);
         if (m.find()) {
             rval = new VtecObject(m.group());
         }

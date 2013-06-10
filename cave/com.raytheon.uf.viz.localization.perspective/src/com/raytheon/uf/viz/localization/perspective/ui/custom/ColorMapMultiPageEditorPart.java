@@ -29,11 +29,11 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.wst.xml.ui.internal.tabletree.XMLMultiPageEditorPart;
 
 import com.raytheon.uf.common.colormap.ColorMap;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.viz.ui.UiPlugin;
 import com.raytheon.viz.ui.dialogs.colordialog.ColorData;

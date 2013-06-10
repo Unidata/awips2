@@ -23,6 +23,7 @@ package com.raytheon.uf.common.auth.req;
 import java.rmi.RemoteException;
 
 import com.raytheon.uf.common.auth.resp.SuccessfulExecution;
+import com.raytheon.uf.common.auth.resp.UserNotAuthorized;
 import com.raytheon.uf.common.serialization.ExceptionWrapper;
 import com.raytheon.uf.common.serialization.comm.response.ServerErrorResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -37,7 +38,8 @@ import com.raytheon.uf.common.status.UFStatus;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 23, 2013 1643       djohnson     Initial creation
+ * Jan 23, 2013 1643       djohnson     Initial creation.
+ * May 20, 2013 1040       mpduff       Add check for UserNotAuthorized.
  * 
  * </pre>
  * 
@@ -70,6 +72,8 @@ public class BasePrivilegedServerService<T extends AbstractPrivilegedRequest>
                     ExceptionWrapper
                             .unwrapThrowable(((ServerErrorResponse) object)
                                     .getException()));
+        } else if (object instanceof UserNotAuthorized) {
+            return null;
         } else {
             statusHandler
                     .warn(String

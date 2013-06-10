@@ -32,6 +32,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -66,8 +67,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlSeeAlso({ RegistryObjectType.class })
 @DynamicSerialize
 @MappedSuperclass
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
-public abstract class IdentifiableType extends ExtensibleObjectType {
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
+public abstract class IdentifiableType extends ExtensibleObjectType implements
+        IPersistableDataObject<String> {
 
     @Id
     @XmlAttribute(required = true)
@@ -93,6 +95,10 @@ public abstract class IdentifiableType extends ExtensibleObjectType {
      */
     public void setId(String value) {
         this.id = value;
+    }
+
+    public String getIdentifier() {
+        return id;
     }
 
 }

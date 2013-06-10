@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.CollectionValueType;
@@ -13,6 +14,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ValueType;
 
 import com.raytheon.uf.common.datadelivery.registry.Time.STEP_UNIT;
 import com.raytheon.uf.common.registry.ebxml.CalendarAttribute;
+import com.raytheon.uf.common.registry.ebxml.slots.DateSlotConverter;
 import com.raytheon.uf.common.registry.ebxml.slots.SlotConverter;
 
 /**
@@ -64,8 +66,18 @@ public class TimeSlotConverter implements SlotConverter {
         List<ValueType> collectionValues = new ArrayList<ValueType>();
         CollectionValueType cvt = new CollectionValueType();
         
-        
-        if (slotValue instanceof Time) {
+        // Handle times for Point types
+        if (slotValue instanceof PointTime) {
+            
+            PointTime pt = (PointTime)slotValue;
+            
+            for (Date date: pt.getTimes()) {
+                List<SlotType> ptSlots = DateSlotConverter.INSTANCE.getSlots(slotName, date);
+                slots.add(ptSlots.get(0));
+            }   
+            
+        //TODO:  This will convert to GriddedTime when I execute DR to switch
+        }  else if (slotValue instanceof Time) {
             
             Time t = (Time)slotValue;
             SimpleDateFormat df = new SimpleDateFormat(CalendarAttribute.DATE_TIME_FORMAT);
@@ -113,8 +125,7 @@ public class TimeSlotConverter implements SlotConverter {
                 }
             }
             
-        }
-        else {
+        }  else {
            throw new IllegalArgumentException("Object of type " + slotValue.getClass().getName() +
                    " cannot be converted by " + TimeSlotConverter.class.getName());
         }

@@ -2,14 +2,11 @@ package com.raytheon.uf.edex.datadelivery.event.notification;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.event.notification.NotificationRecord;
-import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.database.dao.CoreDao;
-import com.raytheon.uf.edex.database.dao.DaoConfig;
-import com.raytheon.uf.edex.database.query.DatabaseQuery;
+import com.raytheon.uf.edex.database.dao.SessionManagedDao;
 
 /**
  * 
@@ -22,19 +19,22 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            jsanchez     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transactional boundaries and spring injection of daos
+ * 4/9/2013     1802       bphillip    Changed to use new query method signatures in SessionManagedDao
  * 
  * </pre>
  * 
  * @author jsanchez
  * @version 1.0
  */
-public class NotificationDao extends CoreDao {
+public class NotificationDao extends
+        SessionManagedDao<Integer, NotificationRecord> {
 
     /**
      * Creates a new data access object
      */
     public NotificationDao() {
-        super(DaoConfig.forClass("metadata", NotificationRecord.class));
+
     }
 
     /**
@@ -50,35 +50,41 @@ public class NotificationDao extends CoreDao {
      * @return the Notificaion records based on passed contraints. The records
      *         are in descending order based on date
      */
-    public ArrayList<NotificationRecord> lookupNotifications(String username,
+    public List<NotificationRecord> lookupNotifications(String username,
             Integer hours, Integer maxResults) {
-        DatabaseQuery query = new DatabaseQuery(this.daoClass);
-        if (username != null) {
-            query.addQueryParam("username", username, QueryOperand.IN);
-        }
-
+        String hql = "from NotificationRecord rec";
+        String nameClause = " rec.username=:userName ";
+        String dateClause = " rec.date >= :date ";
+        Calendar latestTime = null;
         if (hours != null) {
-            Calendar latestTime = Calendar.getInstance();
+            latestTime = Calendar.getInstance();
             latestTime.add(Calendar.HOUR, -hours);
-            query.addQueryParam("date", latestTime,
-                    QueryOperand.GREATERTHANEQUALS);
         }
 
-        if (maxResults != null) {
-            query.setMaxResults(maxResults);
+        List<Object> params = new ArrayList<Object>();
+        if (username == null && hours != null) {
+            hql += " where " + dateClause;
+            params.add("date");
+            params.add(latestTime);
+        } else if (username != null && hours == null) {
+            hql += " where " + nameClause;
+            params.add("userName");
+            params.add(username);
+        } else if (username != null && hours != null) {
+            hql += " where " + nameClause + " and " + dateClause;
+            params.add("date");
+            params.add(latestTime);
+            params.add("userName");
+            params.add(username);
         }
+        hql += " order by rec.date desc";
 
-        query.addOrder("date", false);
-
-        ArrayList<NotificationRecord> result = null;
-        try {
-            result = (ArrayList<NotificationRecord>) queryByCriteria(query);
-        } catch (DataAccessLayerException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error querying notification table", e);
+        if (maxResults == null) {
+            return this.query(hql, params.toArray(new Object[params.size()]));
+        } else {
+            return this.query(hql, maxResults,
+                    params.toArray(new Object[params.size()]));
         }
-
-        return result;
     }
 
     /**
@@ -91,9 +97,8 @@ public class NotificationDao extends CoreDao {
      */
     public int purgeExpiredData(Calendar expiration)
             throws DataAccessLayerException {
-        DatabaseQuery deleteStmt = new DatabaseQuery(this.daoClass);
-        deleteStmt.addQueryParam("date", expiration, QueryOperand.LESSTHAN);
-        return this.deleteByCriteria(deleteStmt);
+        String hqlStatement = "delete NotificationRecord r where r.date < :date";
+        return this.executeHQLStatement(hqlStatement, "date", expiration);
     }
 
     /**
@@ -103,18 +108,18 @@ public class NotificationDao extends CoreDao {
      *            the notification ids
      * @return the number of rows deleted
      */
-    public int deleteRecords(ArrayList<Integer> ids)
-            throws DataAccessLayerException {
-        StringBuffer sb = new StringBuffer();
-        for (Integer id : ids) {
-            if (sb.length() != 0) {
-                sb.append(",");
-            }
-            sb.append(String.valueOf(id.intValue()));
-        }
+    public int deleteRecords(List<Integer> ids) throws DataAccessLayerException {
+        String hqlStatement = "delete NotificationRecord r where r.id in :ids";
+        return this.executeHQLStatement(hqlStatement, "ids", ids);
+    }
 
-        DatabaseQuery deleteStmt = new DatabaseQuery(this.daoClass);
-        deleteStmt.addQueryParam("id", sb.toString(), QueryOperand.IN);
-        return this.deleteByCriteria(deleteStmt);
+    @Override
+    public NotificationRecord getById(Integer id) {
+        return super.getById(id);
+    }
+
+    @Override
+    protected Class<NotificationRecord> getEntityClass() {
+        return NotificationRecord.class;
     }
 }

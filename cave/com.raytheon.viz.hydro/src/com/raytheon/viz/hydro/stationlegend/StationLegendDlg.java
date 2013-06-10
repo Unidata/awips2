@@ -48,7 +48,7 @@ import com.raytheon.viz.hydrocommon.data.GageData.ThreatIndex;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
- * TODO Add Description
+ * Dialog to display the various station Legends.
  * 
  * <pre>
  * 
@@ -56,6 +56,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 12, 2009            mpduff     Initial creation
+ * Mar 15, 2013 1790       rferrel     Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -64,33 +65,48 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 
 public class StationLegendDlg extends CaveSWTDialog {
-    private static String STATION_ICON_TEXT = "Station Icons";
 
-    private static String STATION_COLOR_TEXT = "River/Reservoir Station Colors";
+    /** Header for station icon column. */
+    private final String STATION_ICON_TEXT = "Station Icons";
 
-    private static String RIVER_POINT_TEXT = "River Data Point";
+    /* Header for column to display river/reservoir colors. */
+    private final String STATION_COLOR_TEXT = "River/Reservoir Station Colors";
 
-    private static String FORECAST_POINT_TEXT = "River Forecast Point";
+    /** Title for river point icon. */
+    private final String RIVER_POINT_TEXT = "River Data Point";
 
-    private static String RESERVOIR_DATA_POINT_TEXT = "Reservoir Data Point";
+    /** Title for forecast point icon. */
+    private final String FORECAST_POINT_TEXT = "River Forecast Point";
 
-    private static String RESERVOIR_FORECAST_POINT_TEXT = "Reservoir Forecast Point";
+    /** Title for reservoir data point icon. */
+    private final String RESERVOIR_DATA_POINT_TEXT = "Reservoir Data Point";
 
-    private static String MET_STATION_TEXT = "Meteorological Station";
+    /** Title for reservoir forecast point icon. */
+    private final String RESERVOIR_FORECAST_POINT_TEXT = "Reservoir Forecast Point";
 
-    private static String RIVER_FORECAST_MET_POINT_TEXT = "River Forecast Point with Meteorological Station";
+    /** Title for meteorological station icon. */
+    private final String MET_STATION_TEXT = "Meteorological Station";
 
-    private static String MISSING_DATA_TEXT = "River Forecast Point with missing data";
+    /** Title for combined river forecast point and meteorological station icon. */
+    private final String RIVER_FORECAST_MET_POINT_TEXT = "River Forecast Point with Meteorological Station";
 
-    private static String FLOOD_STAGE_TEXT = "River Forecast Point above flood stage";
+    /** Title for river forecast point with missing data icon. */
+    private final String MISSING_DATA_TEXT = "River Forecast Point with missing data";
 
-    private static String ACTION_STAGE_TEXT = "River Forecast Point above action stage";
+    /** Title for river forecast point above flood stage icon. */
+    private final String FLOOD_STAGE_TEXT = "River Forecast Point above flood stage";
 
-    private static String BELOW_ACTION_STAGE_TEXT = "River Forecast Point below action stage";
+    /** Title for river forecast point above action stage icon. */
+    private final String ACTION_STAGE_TEXT = "River Forecast Point above action stage";
 
-    private static String MISSING_STAGE_TEXT = "River Forecast Point missing action/flood stage values";
+    /** Title for river forecast point below action stage icon. */
+    private final String BELOW_ACTION_STAGE_TEXT = "River Forecast Point below action stage";
 
-    private static String STATION_DATA_TEXT = "Station Data";
+    /** Title for river forecast poine missing action/flood stage value icon. */
+    private final String MISSING_STAGE_TEXT = "River Forecast Point missing action/flood stage values";
+
+    /** Title for station data display. */
+    private final String STATION_DATA_TEXT = "Station Data";
 
     /**
      * The width of the dialog.
@@ -102,10 +118,14 @@ public class StationLegendDlg extends CaveSWTDialog {
      */
     private final int windowHeight = 750;
 
-    private int[] columns = new int[4];
+    /** Column offsets. */
+    private final int[] columns = new int[] { 40, 75, 380, 415 };
 
-    private int[] rows = new int[9];
+    /** Row offsets. */
+    private final int[] rows = new int[] { 25, 60, 95, 125, 155, 190, 225, 400,
+            475 };
 
+    /** The canvas use for the display of icons/titles. */
     private Canvas canvas;
 
     /**
@@ -115,31 +135,50 @@ public class StationLegendDlg extends CaveSWTDialog {
      *            The parent shell
      */
     public StationLegendDlg(Shell shell) {
-        super(shell, SWT.DIALOG_TRIM | SWT.MIN);
+        super(shell, SWT.DIALOG_TRIM | SWT.MIN, CAVE.DO_NOT_BLOCK);
         setText("Station Legend");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         return new GridLayout(1, false);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayoutData()
+     */
     @Override
     protected Object constructShellLayoutData() {
         return new GridData(SWT.FILL, SWT.FILL, true, true);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         createCanvas();
-
-        setRowsColumns();
 
         createCloseButton();
 
         canvas.redraw();
     }
 
+    /**
+     * Set up canvas for display.
+     */
     private void createCanvas() {
         /* Create the canvas for drawing */
         GridData gd = new GridData(windowWidth, windowHeight);
@@ -155,6 +194,11 @@ public class StationLegendDlg extends CaveSWTDialog {
         });
     }
 
+    /**
+     * Performs the work of displaying the canvas.
+     * 
+     * @param evt
+     */
     private void drawDialog(Event evt) {
         int fontHeight = (evt.gc.getFontMetrics().getHeight());
         int fontAveWidth = evt.gc.getFontMetrics().getAverageCharWidth();
@@ -168,10 +212,10 @@ public class StationLegendDlg extends CaveSWTDialog {
         }
 
         int rowCount = 0;
-        
+
         evt.gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
         evt.gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
-        
+
         evt.gc.fillRectangle(0, 0, windowWidth, windowHeight);
 
         /* Column 1 Title */
@@ -189,9 +233,7 @@ public class StationLegendDlg extends CaveSWTDialog {
         Image swtIcon = new Image(evt.display, imageData);
 
         evt.gc.drawImage(swtIcon, columns[0], rows[rowCount]);
-        evt.gc
-                .drawString(RIVER_POINT_TEXT, columns[1], rows[rowCount]
-                        + yShift);
+        evt.gc.drawString(RIVER_POINT_TEXT, columns[1], rows[rowCount] + yShift);
 
         gd.setDispClass("RF"); // River forecast point
         icon = HydroImageMaker.getImage(gd, ImageSize.SMALL);
@@ -222,9 +264,7 @@ public class StationLegendDlg extends CaveSWTDialog {
         imageData = convertToSWT(icon);
         swtIcon = new Image(evt.display, imageData);
         evt.gc.drawImage(swtIcon, columns[0], rows[++rowCount]);
-        evt.gc
-                .drawString(MET_STATION_TEXT, columns[1], rows[rowCount]
-                        + yShift);
+        evt.gc.drawString(MET_STATION_TEXT, columns[1], rows[rowCount] + yShift);
 
         gd.setDispClass("RFO"); // Meteoroligical station
         icon = HydroImageMaker.getImage(gd, ImageSize.SMALL);
@@ -254,9 +294,7 @@ public class StationLegendDlg extends CaveSWTDialog {
         imageData = convertToSWT(icon);
         swtIcon = new Image(evt.display, imageData);
         evt.gc.drawImage(swtIcon, columns[2], rows[++rowCount]);
-        evt.gc
-                .drawString(FLOOD_STAGE_TEXT, columns[3], rows[rowCount]
-                        + yShift);
+        evt.gc.drawString(FLOOD_STAGE_TEXT, columns[3], rows[rowCount] + yShift);
 
         gd.setThreatIndex(ThreatIndex.THREAT_ACTION);
         icon = HydroImageMaker.getImage(gd, ImageSize.SMALL);
@@ -323,19 +361,6 @@ public class StationLegendDlg extends CaveSWTDialog {
 
     }
 
-    // private void drawGage(Event evt, GageData gd, int yShift, int column, int
-    // rowCount, String text) {
-    // /* Create the icon */
-    // BufferedImage icon = HydroImageMaker.getImage(gd, ImageSize.SMALL);
-    //        
-    // /* Convert the icon to SWT */
-    // ImageData imageData = convertToSWT(icon);
-    // Image swtIcon = new Image(evt.display, imageData);
-    //        
-    // evt.gc.drawImage(swtIcon, column, rows[rowCount]);
-    // evt.gc.drawString(text, column + 1, rows[rowCount] + yShift);
-    // }
-    //
     /**
      * Convert an AWT BufferedImage to a SWT image.
      * 
@@ -394,6 +419,9 @@ public class StationLegendDlg extends CaveSWTDialog {
         return null;
     }
 
+    /**
+     * Make the close button.
+     */
     private void createCloseButton() {
         /* Add the close button */
         Composite buttonComp = new Composite(shell, SWT.NONE);
@@ -410,28 +438,8 @@ public class StationLegendDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
-    }
-
-    /**
-     * Set the rows and columns xy values.
-     */
-    private void setRowsColumns() {
-        columns[0] = 40;
-        columns[1] = 75;
-        columns[2] = 380;
-        columns[3] = 415;
-
-        rows[0] = 25;
-        rows[1] = 60;
-        rows[2] = 95;
-        rows[3] = 125;
-        rows[4] = 155;
-        rows[5] = 190;
-        rows[6] = 225;
-        rows[7] = 400;
-        rows[8] = 475;
     }
 }

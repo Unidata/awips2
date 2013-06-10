@@ -240,52 +240,57 @@ public class SatBlendedResourceData extends AbstractRequestableResourceData
 
     @Override
     public void update(Object updateData) {
-        Map<AbstractResourceData, List<PluginDataObject>> updates = new HashMap<AbstractResourceData, List<PluginDataObject>>();
-        for (PluginDataObject pdo : (PluginDataObject[]) updateData) {
-            try {
-                Map<String, Object> pdoMap = RecordFactory.getInstance()
-                        .loadMapFromUri(pdo.getDataURI());
-                for (ResourcePair rp : resourceList) {
-                    AbstractResourceData rscData = rp.getResourceData();
+        if (updateData instanceof PluginDataObject[]) {
+            Map<AbstractResourceData, List<PluginDataObject>> updates = new HashMap<AbstractResourceData, List<PluginDataObject>>();
+            for (PluginDataObject pdo : (PluginDataObject[]) updateData) {
+                try {
+                    Map<String, Object> pdoMap = RecordFactory.getInstance()
+                            .loadMapFromUri(pdo.getDataURI());
+                    for (ResourcePair rp : resourceList) {
+                        AbstractResourceData rscData = rp.getResourceData();
 
-                    if (rscData instanceof AbstractRequestableResourceData) {
-                        AbstractRequestableResourceData arData = (AbstractRequestableResourceData) rscData;
-                        for (Map<String, RequestConstraint> metadataMap : DataCubeContainer
-                                .getBaseUpdateConstraints(arData
-                                        .getMetadataMap())) {
-                            boolean match = true;
+                        if (rscData instanceof AbstractRequestableResourceData) {
+                            AbstractRequestableResourceData arData = (AbstractRequestableResourceData) rscData;
+                            for (Map<String, RequestConstraint> metadataMap : DataCubeContainer
+                                    .getBaseUpdateConstraints(arData
+                                            .getMetadataMap())) {
+                                boolean match = true;
 
-                            for (Entry<String, RequestConstraint> entry : metadataMap
-                                    .entrySet()) {
-                                Object pdoItem = pdoMap.get(entry.getKey());
+                                for (Entry<String, RequestConstraint> entry : metadataMap
+                                        .entrySet()) {
+                                    Object pdoItem = pdoMap.get(entry.getKey());
 
-                                if (pdoItem == null
-                                        || !entry.getValue().evaluate(pdoItem)) {
-                                    match = false;
-                                    break;
+                                    if (pdoItem == null
+                                            || !entry.getValue().evaluate(
+                                                    pdoItem)) {
+                                        match = false;
+                                        break;
+                                    }
                                 }
-                            }
-                            if (match) {
-                                List<PluginDataObject> pdos = updates
-                                        .get(arData);
-                                if (pdos == null) {
-                                    pdos = new ArrayList<PluginDataObject>();
-                                    updates.put(arData, pdos);
+                                if (match) {
+                                    List<PluginDataObject> pdos = updates
+                                            .get(arData);
+                                    if (pdos == null) {
+                                        pdos = new ArrayList<PluginDataObject>();
+                                        updates.put(arData, pdos);
+                                    }
+                                    pdos.add(pdo);
                                 }
-                                pdos.add(pdo);
                             }
                         }
                     }
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error processing mosaic update", e);
                 }
-            } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error processing mosaic update", e);
             }
-        }
-        for (Entry<AbstractResourceData, List<PluginDataObject>> entry : updates
-                .entrySet()) {
-            entry.getKey().update(
-                    entry.getValue().toArray(new PluginDataObject[0]));
+            for (Entry<AbstractResourceData, List<PluginDataObject>> entry : updates
+                    .entrySet()) {
+                entry.getKey().update(
+                        entry.getValue().toArray(new PluginDataObject[0]));
+            }
+        } else {
+            super.update(updateData);
         }
     }
 

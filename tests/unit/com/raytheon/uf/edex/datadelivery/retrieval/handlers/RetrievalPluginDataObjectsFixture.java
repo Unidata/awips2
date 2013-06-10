@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
@@ -65,7 +66,7 @@ public class RetrievalPluginDataObjectsFixture extends
      * {@inheritDoc}
      */
     @Override
-    public RetrievalResponseXml get(long seedValue) {
+    public RetrievalResponseXml getInstance(long seedValue, Random random) {
         RetrievalRequestRecord requestRecord = RetrievalRequestRecordFixture.INSTANCE
                 .get(seedValue);
         List<RetrievalResponseWrapper> retrievalAttributePluginDataObjects = new ArrayList<RetrievalResponseWrapper>();

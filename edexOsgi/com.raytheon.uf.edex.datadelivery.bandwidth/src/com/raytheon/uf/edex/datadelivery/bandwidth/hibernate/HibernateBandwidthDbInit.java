@@ -21,8 +21,8 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
 import org.hibernate.cfg.AnnotationConfiguration;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.jdbc.Work;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.edex.database.init.DbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
@@ -45,10 +45,10 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
  * @author jspinks
  * @version 1
  */
+@Transactional
+@Service
 public class HibernateBandwidthDbInit extends DbInit implements
         IBandwidthDbInit {
-
-    private final HibernateBandwidthDao bandwidthDao;
 
     /**
      * Creates a new instance of DbInit. This constructor should only be called
@@ -58,25 +58,8 @@ public class HibernateBandwidthDbInit extends DbInit implements
      *            the dao to use
      * 
      */
-    public HibernateBandwidthDbInit(HibernateBandwidthDao bandwidthDao) {
+    public HibernateBandwidthDbInit() {
         super("bandwidth manager");
-        this.bandwidthDao = bandwidthDao;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void executeWork(final Work work) {
-        bandwidthDao.doWork(work);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Dialect getDialect() {
-        return bandwidthDao.getDialect();
     }
 
     /**

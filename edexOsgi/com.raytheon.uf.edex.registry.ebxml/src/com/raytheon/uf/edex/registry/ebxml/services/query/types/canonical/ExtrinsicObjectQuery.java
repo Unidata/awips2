@@ -20,19 +20,19 @@
 package com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtrinsicObjectType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
-import com.raytheon.uf.edex.registry.ebxml.dao.HqlQueryUtil;
+import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
+import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl.RETURN_TYPE;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryParameters;
 import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQuery;
+import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
  * BsicQuery extension for ExtrinsicObjects. Adds mimeTypes parameter.
@@ -44,6 +44,8 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
+ * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
  * 
  * </pre>
  * 
@@ -55,11 +57,10 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
 
 public class ExtrinsicObjectQuery extends CanonicalEbxmlQuery {
 
-    public static final String QUERY_DEFINITION = QUERY_CANONICAL_PREFIX
-            + "ExtrinsicObjectQuery";
-
     /** The list of valid parameters for this query */
     private static final List<String> QUERY_PARAMETERS = new ArrayList<String>();
+
+    private static final String QUERY_STRING = "FROM ExtrinsicObjectType obj WHERE obj.mimeTypes in (:mimeTypes)";
 
     /* Initializes the list of parameters */
     static {
@@ -72,33 +73,39 @@ public class ExtrinsicObjectQuery extends CanonicalEbxmlQuery {
         QUERY_PARAMETERS.add(QueryConstants.MIME_TYPES);
     }
 
+    private BasicQuery basicQuery;
+
     @Override
-    protected <T extends RegistryObjectType> List<T> query(QueryType queryType,
-            QueryResponse queryResponse) throws EbxmlRegistryException {
+    protected void query(QueryType queryType, QueryResponse queryResponse,
+            String client) throws EbxmlRegistryException {
         QueryParameters params = getParameterMap(queryType.getSlot(),
                 queryResponse);
-        registryObjectDao.setDaoClass(ExtrinsicObjectType.class);
-        @SuppressWarnings("unchecked")
-        List<T> results = (List<T>) new BasicQuery().query(queryType,
-                queryResponse);
-        List<String> ids = new ArrayList<String>();
-        for (RegistryObjectType regObj : results) {
-            ids.add(regObj.getId());
+
+        QueryResponse basicQueryResponse = new QueryResponse();
+        basicQuery.setReturnType(RETURN_TYPE.ObjectRef);
+        basicQuery.query(queryType, basicQueryResponse, client);
+        ObjectRefListType basicQueryResult = basicQueryResponse
+                .getObjectRefList();
+        if (basicQueryResult == null
+                || basicQueryResult.getObjectRef().isEmpty()) {
+            return;
         }
-        if (ids.isEmpty()) {
-            return Collections.emptyList();
-        }
+
+        List<String> ids = EbxmlObjectUtil
+                .getIdsFromObjectRefListType(basicQueryResult);
         List<Object> mimeTypes = params.getParameter(QueryConstants.MIME_TYPES);
         if (mimeTypes == null) {
-            return results;
+            return;
         }
+
         StringBuilder query = new StringBuilder();
-        HqlQueryUtil.assembleSingleParamQuery(query, ExtrinsicObjectType.class,
-                QueryConstants.ID, HqlQueryUtil.IN, ids);
-        query.append(HqlQueryUtil.AND);
-        HqlQueryUtil.assembleSingleParamClause(query, QueryConstants.MIME_TYPE,
-                HqlQueryUtil.IN, mimeTypes);
-        return registryObjectDao.executeHQLQuery(query);
+        if (returnType.equals(RETURN_TYPE.ObjectRef)) {
+            query.append("SELECT obj.id ");
+        } else {
+            query.append("SELECT obj ");
+        }
+        setResponsePayload(queryResponse, registryObjectDao.executeHQLQuery(
+                QUERY_STRING, maxResults, "mimeTypes", ids));
     }
 
     @Override
@@ -108,6 +115,11 @@ public class ExtrinsicObjectQuery extends CanonicalEbxmlQuery {
 
     @Override
     public String getQueryDefinition() {
-        return QUERY_DEFINITION;
+        return CanonicalQueryTypes.EXTRINSIC_OBJECT_QUERY;
     }
+
+    public void setBasicQuery(BasicQuery basicQuery) {
+        this.basicQuery = basicQuery;
+    }
+
 }

@@ -8,10 +8,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import com.raytheon.uf.common.datadelivery.harvester.ProtoCollection;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.datadelivery.harvester.config.ProtoCollection;
 import com.raytheon.uf.edex.datadelivery.harvester.util.OpenDapSeedScanUtilities;
 
 import edu.uci.ics.crawler4j.crawler.Page;

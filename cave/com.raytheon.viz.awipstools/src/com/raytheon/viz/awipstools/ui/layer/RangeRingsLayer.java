@@ -54,7 +54,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.rsc.tools.AbstractMovableToolLayer;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.awipstools.common.RangeRing;
 import com.raytheon.viz.awipstools.common.RangeRing.RangeRingType;
@@ -111,7 +111,7 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
     private static RangeRingDialog ringDialog = null;
 
     public RangeRingsLayer(
-            AwipsToolsResourceData<RangeRingsLayer> resourceData,
+            GenericToolsResourceData<RangeRingsLayer> resourceData,
             LoadProperties loadProperties) throws VizException {
         super(resourceData, loadProperties);
         getCapabilities().addCapability(new OutlineCapability());

@@ -38,6 +38,7 @@ import org.eclipse.ui.PlatformUI;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  randerso    Initial Creation.
+ * 3/14/2013    1790        rferrel     Changes for non-blocking PointDataControlDlg.
  * 
  * </pre>
  * 
@@ -50,7 +51,7 @@ public class PointDataControlAction extends AbstractHandler {
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
-        PointDataControlDlg.getInstance(shell).open();
+        PointDataControlDlg.getInstance(shell).openDialog();
 
         return null;
     }

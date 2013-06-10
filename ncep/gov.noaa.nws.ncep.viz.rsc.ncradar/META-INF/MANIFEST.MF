@@ -22,7 +22,8 @@ Require-Bundle: org.apache.batik;bundle-version="1.6.0",
  com.raytheon.viz.radar,
  gov.noaa.nws.ncep.viz.localization,
  com.raytheon.viz.ui,
- com.raytheon.viz.pointdata
+ com.raytheon.viz.pointdata,
+ com.raytheon.uf.common.units;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.edex.meteoLib,

@@ -25,8 +25,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.viz.core.style.AbstractStylePreferences;
-import com.raytheon.uf.viz.core.style.DataMappingPreferences;
 import com.raytheon.uf.viz.core.style.LabelingPreferences;
 
 /**

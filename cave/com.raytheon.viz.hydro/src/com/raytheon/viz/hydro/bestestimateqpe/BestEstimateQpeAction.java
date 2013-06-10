@@ -40,7 +40,8 @@ import org.eclipse.ui.PlatformUI;
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  randerso    Initial Creation.
  * 8/24/2009    2258        mpduff      Removed not implemented message.
- * 12/05/1212   1363        rferrel     Changes for non-blocking BestEstimateQpeDlg.
+ * 12/05/2012   1363        rferrel     Changes for non-blocking BestEstimateQpeDlg.
+ * 03/27/2013   1790        rferrel     Bug fix for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -52,12 +53,14 @@ public class BestEstimateQpeAction extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (bestEstimateDlg == null) {
+        if (bestEstimateDlg == null || bestEstimateDlg.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
             bestEstimateDlg = new BestEstimateQpeDlg(shell);
+            bestEstimateDlg.open();
+        } else {
+            bestEstimateDlg.bringToTop();
         }
-        bestEstimateDlg.open();
 
         return null;
     }

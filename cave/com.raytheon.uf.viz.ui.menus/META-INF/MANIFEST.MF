@@ -17,8 +17,7 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Import-Package: com.raytheon.edex.scriptfactory,
- com.raytheon.uf.common.localization,
+Import-Package: com.raytheon.uf.common.localization,
  com.raytheon.uf.common.localization.exception,
  com.raytheon.uf.common.localization.msgs,
  com.raytheon.uf.common.serialization,

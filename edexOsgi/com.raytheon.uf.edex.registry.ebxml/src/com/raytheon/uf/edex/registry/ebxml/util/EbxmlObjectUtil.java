@@ -21,29 +21,34 @@ package com.raytheon.uf.edex.registry.ebxml.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.UUID;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.MessageContext;
 
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DeliveryInfoType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtensibleObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
 
-import com.raytheon.uf.edex.registry.ebxml.dao.VersionInfoTypeDao;
-import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 
 /**
  * General utility class containing the ebXML object factories.
@@ -55,6 +60,8 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012 184        bphillip     Initial creation
+ * 3/18/2013    1082       bphillip     Removed utility methods for VersionInfoType
+ * 4/9/2013     1802       bphillip     Removed unused methods and addded a few new ones
  * 
  * </pre>
  * 
@@ -64,15 +71,28 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
 public class EbxmlObjectUtil {
 
-    /**
-     * The ebXML namespace
-     */
-    public static final String EBXML_PREFIX = "urn:oasis:names:tc:ebxml-regrep";
+    /** Default registry base URL */
+    public static final String REGISTRY_BASE_URL = "http://"
+            + System.getenv("EBXML_REGISTRY_HOST") + ":"
+            + System.getenv("EBXML_REGISTRY_WEBSERVER_PORT");
+
+    /** Slot name that holds the source of the notification */
+    public static final String NOTIFICATION_SOURCE_URL_SLOT_NAME = "NotificationSourceURL";
 
     /**
-     * The default launguge
+     * The name of the slot designated to hold the home server address of a
+     * registry object
      */
-    public static final String EN_US = "en-US";
+    public static final String HOME_SLOT_NAME = "urn:oasis:names:tc:ebxml-regrep:rim:RegistryObject:home";
+
+    /** The name of the slot designated to hold the email notification formatter */
+    public static final String EMAIL_NOTIFICATION_FORMATTER_SLOT = "urn:oasis:names:tc:ebxml-regrep:rim:DeliveryInfo:emailNotificationFormatter";
+
+    /**
+     * Slot name of the slot on the subscription object that holds the last run
+     * time
+     */
+    public static final String SUBSCRIPTION_LAST_RUN_TIME_SLOT_NAME = "SubscriptionLastRunTime";
 
     /**
      * The lifecycle manager object factory
@@ -109,70 +129,33 @@ public class EbxmlObjectUtil {
     }
 
     /**
-     * Populates a VersionInfoType object with the next version number. Version
-     * numbering starts at 1.
-     * 
-     * @param version
-     *            The version object to increment
-     * @throws EbxmlRegistryException
-     */
-    public static VersionInfoType getNewVersion(VersionInfoType existingVersion)
-            throws EbxmlRegistryException {
-        String newVersion = String.valueOf(Integer.parseInt(existingVersion
-                .getVersionName()) + 1);
-
-        VersionInfoType versionObj = rimObjectFactory.createVersionInfoType();
-        versionObj.setVersionName(newVersion);
-        versionObj.setUserVersionName("1");
-        return new VersionInfoTypeDao().sync(versionObj);
-    }
-
-    /**
-     * Creates a new VersionInfoType object with the default version numbers
-     * 
-     * @return The new VersionInfoType object
-     * @throws EbxmlRegistryException
-     */
-    public static VersionInfoType newVersionObject()
-            throws EbxmlRegistryException {
-        VersionInfoType version = rimObjectFactory.createVersionInfoType();
-        version.setVersionName("1");
-        version.setUserVersionName("1");
-        return new VersionInfoTypeDao().sync(version);
-    }
-
-    /**
-     * Creates an object reference list from a list of registry object
-     * references
+     * Creates an object reference list from a list of objects. The list may be
+     * a string of ids, ObjectRefType objects or a list of RegistryObjectTypes
      * 
      * @param objList
      *            The list of registry object references
      * @return The ObjectRefListType object containing the given references
      */
     public static ObjectRefListType createObjectRefList(
-            List<ObjectRefType> objList) {
+            Collection<?> objCollection) {
         ObjectRefListType refList = rimObjectFactory.createObjectRefListType();
-        refList.getObjectRef().addAll(objList);
-        return refList;
-    }
-
-    /**
-     * Creates an object reference list from a list of registry objects
-     * 
-     * @param objs
-     *            The list of registry object references
-     * @return The ObjectRefListType object containing the references to the
-     *         given registry objects
-     */
-    public static <T extends RegistryObjectType> ObjectRefListType createObjectRefListFromObjects(
-            List<T> objs) {
-        List<ObjectRefType> refs = new ArrayList<ObjectRefType>();
-        for (RegistryObjectType obj : objs) {
-            ObjectRefType ref = rimObjectFactory.createObjectRefType();
-            ref.setId(obj.getId());
-            refs.add(ref);
+        for (Object obj : objCollection) {
+            ObjectRefType ref = null;
+            if (obj instanceof ObjectRefType) {
+                ref = (ObjectRefType) obj;
+            } else if (obj instanceof RegistryObjectType) {
+                ref = new ObjectRefType();
+                ref.setId(((RegistryObjectType) obj).getId());
+            } else if (obj instanceof String) {
+                ref = new ObjectRefType();
+                ref.setId((String) obj);
+            } else {
+                throw new IllegalArgumentException(
+                        "Invalid type submitted to createObjectRefList");
+            }
+            refList.getObjectRef().add(ref);
         }
-        return createObjectRefList(refs);
+        return refList;
     }
 
     /**
@@ -183,12 +166,20 @@ public class EbxmlObjectUtil {
      *            The registry objects to be put in the list object
      * @return The RegistryObjectListType object containing the given objects
      */
-    public static <T extends RegistryObjectType> RegistryObjectListType createRegistryObjectList(
-            List<T> objList) {
-        RegistryObjectListType refList = rimObjectFactory
+    public static RegistryObjectListType createRegistryObjectList(
+            Collection<?> objCollection) {
+        RegistryObjectListType registryObjectList = rimObjectFactory
                 .createRegistryObjectListType();
-        refList.getRegistryObject().addAll(objList);
-        return refList;
+        for (Object obj : objCollection) {
+            if (obj instanceof RegistryObjectType) {
+                registryObjectList.getRegistryObject().add(
+                        (RegistryObjectType) obj);
+            } else {
+                throw new IllegalArgumentException(
+                        "createRegistryObjectList only excepts collections with RegistryObjectTypes");
+            }
+        }
+        return registryObjectList;
     }
 
     /**
@@ -198,9 +189,9 @@ public class EbxmlObjectUtil {
      * @throws DatatypeConfigurationException
      *             if the time cannot be constructed properly
      */
-    public static XMLGregorianCalendar getCurrentTime()
+    public static XMLGregorianCalendar getCurrentTimeAsXMLGregorianCalendar()
             throws DatatypeConfigurationException {
-        return getTime(System.currentTimeMillis());
+        return getTimeAsXMLGregorianCalendar(System.currentTimeMillis());
     }
 
     /**
@@ -214,52 +205,11 @@ public class EbxmlObjectUtil {
      * @throws DatatypeConfigurationException
      *             if the time cannot be constructed properly
      */
-    public static XMLGregorianCalendar getTime(long timeInMillis)
-            throws DatatypeConfigurationException {
+    public static XMLGregorianCalendar getTimeAsXMLGregorianCalendar(
+            long timeInMillis) throws DatatypeConfigurationException {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeInMillis(timeInMillis);
         return DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
-    }
-
-    /**
-     * Extracts the ids from the given list of ObjectRefType objects and returns
-     * them in a list
-     * 
-     * @param refs
-     *            The ids
-     * @return The ids in a list of Strings
-     */
-    public static List<String> getIdsFromRefs(List<ObjectRefType> refs) {
-        List<String> ids = new ArrayList<String>();
-        for (ObjectRefType ref : refs) {
-            ids.add(ref.getId());
-        }
-        return ids;
-    }
-
-    /**
-     * Utility function to convert an array of objects into a list. The array
-     * may contain collections. Each member of the collection is added to the
-     * returned list.
-     * 
-     * @param objects
-     *            The objects to be moved to a list
-     * @return The compiled list of objects
-     */
-    @SuppressWarnings("unchecked")
-    public static <T extends Object> List<T> getList(T... objects) {
-        List<T> retVal = new ArrayList<T>();
-        for (T obj : objects) {
-            if (obj instanceof Collection<?>) {
-                Collection<?> coll = (Collection<?>) obj;
-                for (Object obj2 : coll) {
-                    retVal.add((T) obj2);
-                }
-            } else {
-                retVal.add(obj);
-            }
-        }
-        return retVal;
     }
 
     /**
@@ -289,91 +239,6 @@ public class EbxmlObjectUtil {
             classes.addAll(findClasses(directory, packageName));
         }
         return classes.toArray(new Class[classes.size()]);
-    }
-
-    public static List<Class<?>> getClassesForPackage(Package pkg) {
-        String pkgname = pkg.getName();
-        ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
-        // Get a File object for the package
-        File directory = null;
-        String fullPath;
-        String relPath = pkgname.replace('.', '/');
-        System.out.println("ClassDiscovery: Package: " + pkgname
-                + " becomes Path:" + relPath);
-        URL resource = ClassLoader.getSystemClassLoader().getResource(relPath);
-        System.out.println("ClassDiscovery: Resource = " + resource);
-        if (resource == null) {
-            throw new RuntimeException("No resource for " + relPath);
-        }
-        fullPath = resource.getFile();
-        System.out.println("ClassDiscovery: FullPath = " + resource);
-
-        try {
-            directory = new File(resource.toURI());
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(
-                    pkgname
-                            + " ("
-                            + resource
-                            + ") does not appear to be a valid URL / URI.  Strange, since we got it from the system...",
-                    e);
-        } catch (IllegalArgumentException e) {
-            directory = null;
-        }
-        System.out.println("ClassDiscovery: Directory = " + directory);
-
-        if (directory != null && directory.exists()) {
-            // Get the list of the files contained in the package
-            String[] files = directory.list();
-            for (int i = 0; i < files.length; i++) {
-                // we are only interested in .class files
-                if (files[i].endsWith(".class")) {
-                    // removes the .class extension
-                    String className = pkgname + '.'
-                            + files[i].substring(0, files[i].length() - 6);
-                    System.out.println("ClassDiscovery: className = "
-                            + className);
-                    try {
-                        classes.add(Class.forName(className));
-                    } catch (ClassNotFoundException e) {
-                        throw new RuntimeException(
-                                "ClassNotFoundException loading " + className);
-                    }
-                }
-            }
-        } else {
-            try {
-                String jarPath = fullPath.replaceFirst("[.]jar[!].*", ".jar")
-                        .replaceFirst("file:", "");
-                JarFile jarFile = new JarFile(jarPath);
-                Enumeration<JarEntry> entries = jarFile.entries();
-                while (entries.hasMoreElements()) {
-                    JarEntry entry = entries.nextElement();
-                    String entryName = entry.getName();
-                    if (entryName.startsWith(relPath)
-                            && entryName.length() > (relPath.length() + "/"
-                                    .length())) {
-                        System.out.println("ClassDiscovery: JarEntry: "
-                                + entryName);
-                        String className = entryName.replace('/', '.')
-                                .replace('\\', '.').replace(".class", "");
-                        System.out.println("ClassDiscovery: className = "
-                                + className);
-                        try {
-                            classes.add(Class.forName(className));
-                        } catch (ClassNotFoundException e) {
-                            throw new RuntimeException(
-                                    "ClassNotFoundException loading "
-                                            + className);
-                        }
-                    }
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(pkgname + " (" + directory
-                        + ") does not appear to be a valid package", e);
-            }
-        }
-        return classes;
     }
 
     /**
@@ -409,4 +274,118 @@ public class EbxmlObjectUtil {
         return classes;
     }
 
+    public static VersionInfoType incrementVersion(
+            VersionInfoType existingVersion) {
+        String newVersion = String.valueOf(Integer.parseInt(existingVersion
+                .getVersionName()) + 1);
+        VersionInfoType versionObj = new VersionInfoType();
+        versionObj.setVersionName(newVersion);
+        versionObj.setUserVersionName(existingVersion.getUserVersionName());
+        return versionObj;
+    }
+
+    public static List<String> getIdsFromObjectRefListType(
+            ObjectRefListType refList) {
+        if (refList == null) {
+            return Collections.emptyList();
+        }
+        return getIdsFromObjectRefList(refList.getObjectRef());
+    }
+
+    public static List<String> getIdsFromObjectRefList(List<ObjectRefType> refs) {
+        List<String> ids = new ArrayList<String>();
+        for (ObjectRefType ref : refs) {
+            ids.add(ref.getId());
+        }
+        return ids;
+    }
+
+    public static void addStringSlot(ExtensibleObjectType object,
+            String slotName, String slotValue, boolean overwrite) {
+        if (containsSlot(object, slotName)) {
+            if (overwrite) {
+                getSlot(object, slotName).getSlotValue().setValue(slotValue);
+            }
+        } else {
+            SlotType slot = RegistryUtil.getSlot(String.class.getName(),
+                    slotName, slotValue);
+            object.getSlot().add(slot);
+        }
+    }
+
+    public static SlotType getSlot(ExtensibleObjectType object, String slotName) {
+        for (SlotType slot : object.getSlot()) {
+            if (slot.getName().equals(slotName)) {
+                ValueType slotValue = slot.getSlotValue();
+                if (slotValue instanceof StringValueType) {
+                    return slot;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static String getStringSlotValue(ExtensibleObjectType object,
+            String slotName) {
+        SlotType slot = getSlot(object, slotName);
+        if (slot == null) {
+            return null;
+        }
+        return ((StringValueType) slot.getSlotValue()).getStringValue();
+    }
+
+    public static boolean containsSlot(ExtensibleObjectType object,
+            String slotName) {
+        for (SlotType slot : object.getSlot()) {
+            if (slot.getName().equals(slotName)) {
+                return true;
+            }
+        }
+        return false;
+
+    }
+
+    public static String getHomeSlot(ExtensibleObjectType object) {
+        return getStringSlotValue(object, HOME_SLOT_NAME);
+    }
+
+    public static String getEmailNotificationFormatterSlot(
+            DeliveryInfoType deliveryInfo) {
+        return getStringSlotValue(deliveryInfo,
+                EMAIL_NOTIFICATION_FORMATTER_SLOT);
+    }
+
+    private static List<String> HTTP_HEADERS;
+    static {
+        HTTP_HEADERS = new ArrayList<String>(5);
+        HTTP_HEADERS.add("X-Forwarded-For");
+        HTTP_HEADERS.add("Proxy-Client-IP");
+        HTTP_HEADERS.add("WL-Proxy-Client-IP");
+        HTTP_HEADERS.add("HTTP_CLIENT_IP");
+        HTTP_HEADERS.add("HTTP_X_FORWARDED_FOR");
+    }
+
+    public static String getClientHost(WebServiceContext wsContext) {
+        if (wsContext == null) {
+            return "INTERNAL";
+        }
+        MessageContext mc = wsContext.getMessageContext();
+        if (mc == null) {
+            return "INTERNAL";
+        }
+        HttpServletRequest request = (HttpServletRequest) mc
+                .get(MessageContext.SERVLET_REQUEST);
+        String ip = null;
+        request.getHeader("X-Forwarded-For");
+
+        for (int i = 0; (i < 5)
+                && (ip == null || ip.isEmpty() || "unknown"
+                        .equalsIgnoreCase(ip)); i++) {
+            ip = request.getHeader(HTTP_HEADERS.get(i));
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        return ip;
+    }
 }

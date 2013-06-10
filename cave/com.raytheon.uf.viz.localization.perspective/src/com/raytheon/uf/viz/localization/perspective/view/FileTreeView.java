@@ -132,6 +132,7 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * May 26, 2010            mnash     Initial creation
  * Feb 13, 2013  1610      mschenke  Fixed null pointer by repopulating LocalizationFileGroupData 
  *                                   objects even if they weren't expanded
+ * May 1st, 2013   1967   njensen    Fix for pydev 2.7
  * 
  * </pre>
  * 
@@ -1235,7 +1236,8 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         IFolder folder = (IFolder) parentData.getResource();
         IResource rsc = null;
         if (file != null) {
-            rsc = folder.getFile(fileItem.getText() + " - "
+            rsc = folder.getFile(file.getContext().getLocalizationLevel() + "_"
+                    + file.getContext().getContextName() + "_"
                     + parentItem.getText());
         } else {
             rsc = createFolder(folder, fileItem.getText());
@@ -1423,26 +1425,30 @@ public class FileTreeView extends ViewPart implements IPartListener2,
     @Override
     public void resourceChanged(IResourceChangeEvent event) {
         for (IEditorReference ref : getSite().getPage().getEditorReferences()) {
-            IEditorInput editorInput = ref.getEditor(false).getEditorInput();
-            if (editorInput instanceof LocalizationEditorInput) {
-                LocalizationEditorInput input = (LocalizationEditorInput) editorInput;
-                IFile inputFile = input.getFile();
-                IResourceDelta rootDelta = event.getDelta();
-                IResourceDelta docDelta = rootDelta.findMember(inputFile
-                        .getFullPath());
-                if (docDelta != null
-                        && docDelta.getKind() == IResourceDelta.CHANGED
-                        && (docDelta.getFlags() & IResourceDelta.CONTENT) == IResourceDelta.CONTENT) {
-                    try {
-                        LocalizationFile file = input.getLocalizationFile();
-                        if (file.getContext().getLocalizationLevel()
-                                .isSystemLevel() == false) {
-                            input.getLocalizationFile().save();
+            IEditorPart part = ref.getEditor(false);
+            if (part != null) {
+                IEditorInput editorInput = part.getEditorInput();
+                if (editorInput instanceof LocalizationEditorInput) {
+                    LocalizationEditorInput input = (LocalizationEditorInput) editorInput;
+                    IFile inputFile = input.getFile();
+                    IResourceDelta rootDelta = event.getDelta();
+                    IResourceDelta docDelta = rootDelta.findMember(inputFile
+                            .getFullPath());
+                    if (docDelta != null
+                            && docDelta.getKind() == IResourceDelta.CHANGED
+                            && (docDelta.getFlags() & IResourceDelta.CONTENT) == IResourceDelta.CONTENT) {
+                        try {
+                            LocalizationFile file = input.getLocalizationFile();
+                            if (file.getContext().getLocalizationLevel()
+                                    .isSystemLevel() == false) {
+                                input.getLocalizationFile().save();
+                            }
+                        } catch (LocalizationOpFailedException e) {
+                            statusHandler.handle(
+                                    Priority.PROBLEM,
+                                    "Error saving file: "
+                                            + e.getLocalizedMessage(), e);
                         }
-                    } catch (LocalizationOpFailedException e) {
-                        statusHandler
-                                .handle(Priority.PROBLEM, "Error saving file: "
-                                        + e.getLocalizedMessage(), e);
                     }
                 }
             }

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -74,16 +75,19 @@ public abstract class PartyType extends RegistryObjectType {
     @XmlElement(name = "PostalAddress")
     @DynamicSerializeElement
     @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(schema = "ebxml")
     protected List<PostalAddressType> postalAddress;
 
     @XmlElement(name = "TelephoneNumber")
     @DynamicSerializeElement
     @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(schema = "ebxml")
     protected List<TelephoneNumberType> telephoneNumber;
 
     @XmlElement(name = "EmailAddress")
     @DynamicSerializeElement
     @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(schema = "ebxml")
     protected List<EmailAddressType> emailAddress;
 
     /**

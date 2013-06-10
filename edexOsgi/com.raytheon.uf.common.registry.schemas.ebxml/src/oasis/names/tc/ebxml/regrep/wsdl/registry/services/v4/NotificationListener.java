@@ -25,9 +25,12 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
+import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
+
+import org.apache.cxf.annotations.GZIP;
 
 /**
  * PortType for a NotificationListener interface
@@ -36,8 +39,9 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
  * source version: 2.1
  * 
  */
+@GZIP(threshold = 0)
 @WebService(name = "NotificationListener", targetNamespace = "urn:oasis:names:tc:ebxml-regrep:wsdl:NotificationListener:interfaces:4.0")
-@SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
+@SOAPBinding(style = Style.RPC, parameterStyle = SOAPBinding.ParameterStyle.BARE)
 @XmlSeeAlso({ oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectFactory.class,
         oasis.names.tc.ebxml.regrep.xsd.spi.v4.ObjectFactory.class,
         oasis.names.tc.ebxml.regrep.xsd.lcm.v4.ObjectFactory.class,

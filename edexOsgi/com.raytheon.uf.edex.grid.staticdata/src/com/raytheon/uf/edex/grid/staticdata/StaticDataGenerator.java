@@ -33,7 +33,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
 
-import com.raytheon.edex.msg.DataURINotificationMessage;
 import com.raytheon.edex.plugin.gfe.paraminfo.GridParamInfoLookup;
 import com.raytheon.edex.plugin.gfe.paraminfo.ParameterInfo;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -41,6 +40,7 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.grid.util.StaticGridData;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
+import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
@@ -69,6 +69,7 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 3, 2010            rjpeter     Initial creation
+ * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * Mar 07, 2013 1587       bsteffen    rewrite static data generation.
  * Mar 14, 2013 1587       bsteffen    Fix persisting to datastore.
  * 

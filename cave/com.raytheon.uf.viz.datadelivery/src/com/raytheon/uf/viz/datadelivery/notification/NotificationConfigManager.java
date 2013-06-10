@@ -32,6 +32,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -40,19 +41,20 @@ import com.raytheon.uf.viz.datadelivery.notification.xml.NotificationFilterXML;
 
 /**
  * Notification Configuration Manager
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 31, 2012            mpduff     Initial creation
  * Feb 23, 2012    418     jpiatt     Added current file save.
  * Aug 15, 2012    430     jpiatt     Added reRead method.
  * Oct 22, 2012   1284     mpduff     Code Cleanup.
+ * Apr 25, 2013   1820     mpduff     Add deleteXml method.
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -115,7 +117,7 @@ public class NotificationConfigManager {
 
     /**
      * Get the instance of this class.
-     *
+     * 
      * @return instance
      */
     public static NotificationConfigManager getInstance() {
@@ -134,7 +136,6 @@ public class NotificationConfigManager {
             String fileName = "dataDelivery" + File.separator
                     + DEFAULT_CONFIG_XML_FILE;
             IPathManager pm = PathManagerFactory.getPathManager();
-
             LocalizationContext context = pm.getContext(
                     LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
             LocalizationFile configLocFile = pm.getLocalizationFile(context,
@@ -225,6 +226,29 @@ public class NotificationConfigManager {
     }
 
     /**
+     * Delete the localization file.
+     * 
+     * @param file
+     *            the file to delete
+     */
+    public void deleteXml(LocalizationFile file) {
+        try {
+            boolean success = file.delete();
+            if (!success) {
+                statusHandler.handle(Priority.WARN,
+                        "Error deleting " + file.getName());
+            }
+
+            if (currentConfigFile.equals(file)) {
+                setConfigFile(this.defaultConfigFile);
+            }
+        } catch (LocalizationOpFailedException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error deleting " + file.getName(), e);
+        }
+    }
+
+    /**
      * Create the JAXB context
      */
     @SuppressWarnings("rawtypes")
@@ -247,40 +271,37 @@ public class NotificationConfigManager {
 
     /**
      * Set the current Configuration File.
-     *
+     * 
      * @param currentConfigFile
      *            the currentConfigFile to set
      */
     public void setConfigFile(LocalizationFile currentConfigFile) {
         this.currentConfigFile = currentConfigFile;
-
     }
 
     /**
      * Set the current Filter File.
-     *
+     * 
      * @param currentFilterFile
      *            the currentFilterFile to set
      */
     public void setFilterFile(LocalizationFile currentFilterFile) {
         this.currentFilterFile = currentFilterFile;
-
     }
 
     /**
      * Set the current default Configuration File.
-     *
+     * 
      * @param defaultConfigFile
      *            the currentConfigFile to set
      */
     public void setDefaultConfigFile(LocalizationFile defaultConfigFile) {
         this.defaultConfigFile = defaultConfigFile;
-
     }
 
     /**
      * Get the configuration xml.
-     *
+     * 
      * @return the notification config xml
      */
     public NotificationConfigXML getConfigXml() {
@@ -289,7 +310,7 @@ public class NotificationConfigManager {
 
     /**
      * Set the configuration xml.
-     *
+     * 
      * @param xml
      *            the notification config xml
      */
@@ -299,7 +320,7 @@ public class NotificationConfigManager {
 
     /**
      * Get the filter xml.
-     *
+     * 
      * @return the filterXml
      */
     public NotificationFilterXML getFilterXml() {
@@ -308,7 +329,7 @@ public class NotificationConfigManager {
 
     /**
      * Set the filter xml.
-     *
+     * 
      * @param filterXml
      *            the filterXml
      */
