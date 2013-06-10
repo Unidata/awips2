@@ -31,7 +31,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.TaxonomyElementType;
 
-import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
+import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryParameters;
@@ -61,6 +61,8 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 2/13/2012    #184       bphillip    Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
+ * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
  * 
  * </pre>
  * 
@@ -70,15 +72,10 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
 
 public class ExportObject extends CanonicalEbxmlQuery {
 
-    public static final String QUERY_DEFINITION = QUERY_CANONICAL_PREFIX
-            + "ExportObject";
-
     private static final BigInteger DEFAULT_DEPTH = new BigInteger("0");
 
     /** The list of valid parameters for this query */
     private static final List<String> QUERY_PARAMETERS = new ArrayList<String>();
-
-    private RegistryObjectTypeDao registryObjectDao = new RegistryObjectTypeDao();
 
     /* Initializes the list of parameters */
     static {
@@ -87,8 +84,8 @@ public class ExportObject extends CanonicalEbxmlQuery {
     }
 
     @Override
-    protected List<RegistryObjectType> query(QueryType queryType,
-            QueryResponse queryResponse) throws EbxmlRegistryException {
+    protected void query(QueryType queryType, QueryResponse queryResponse,
+            String client) throws EbxmlRegistryException {
         List<RegistryObjectType> retVal = new ArrayList<RegistryObjectType>();
 
         QueryParameters parameters = getParameterMap(queryType.getSlot(),
@@ -154,7 +151,8 @@ public class ExportObject extends CanonicalEbxmlQuery {
                 }
             }
         }
-        return retVal;
+        queryResponse.getRegistryObjectList().getRegistryObject()
+                .addAll(retVal);
     }
 
     @Override
@@ -206,6 +204,6 @@ public class ExportObject extends CanonicalEbxmlQuery {
 
     @Override
     public String getQueryDefinition() {
-        return QUERY_DEFINITION;
+        return CanonicalQueryTypes.EXPORT_OBJECT;
     }
 }

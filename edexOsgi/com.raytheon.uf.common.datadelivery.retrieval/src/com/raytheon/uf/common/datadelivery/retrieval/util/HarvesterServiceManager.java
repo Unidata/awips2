@@ -167,7 +167,7 @@ public class HarvesterServiceManager implements ILocalizationFileObserver {
                     statusHandler.handle(
                             Priority.PROBLEM,
                             "Couldn't read the Service Config file: "
-                                    + file.getAbsolutePath());
+                                    + file.getAbsolutePath(), e);
                 }
             } else {
                 // We might not be implementing a particular service so we only

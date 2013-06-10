@@ -21,6 +21,10 @@ package com.raytheon.uf.edex.registry.ebxml.services.query;
 
 import java.math.BigInteger;
 
+import javax.annotation.Resource;
+import javax.xml.bind.JAXBException;
+import javax.xml.ws.WebServiceContext;
+
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManager;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryExceptionType;
@@ -28,14 +32,17 @@ import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnsupportedCapabilityExceptionType;
 
+import org.springframework.transaction.annotation.Transactional;
+
+import com.raytheon.uf.common.registry.constants.ErrorSeverity;
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.registry.ebxml.constants.ErrorSeverity;
-import com.raytheon.uf.edex.registry.ebxml.constants.RegistryResponseStatus;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.types.IRegistryQuery;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
@@ -68,37 +75,44 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012 184        bphillip     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring injection
+ * Apr 24, 2013 1910       djohnson    RegistryResponseStatus is now an enum.
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-
+@Transactional
 public class QueryManagerImpl implements QueryManager {
 
-    protected static final transient IUFStatusHandler statusHandler = UFStatus
+    @Resource
+    private WebServiceContext wsContext;
+
+    private boolean eagerFetch = false;
+
+    protected static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(QueryManagerImpl.class);
 
     private QueryTypeManager queryTypeMgr;
 
     /**
-     * · ObjectRef - This option specifies that the QueryResponse MUST contain a
+     * ObjectRef - This option specifies that the QueryResponse MUST contain a
      * <rim:ObjectRefList> element. The purpose of this option is to return
      * references to objects rather than the actual objects.
      * 
-     * · RegistryObject - This option specifies that the QueryResponse MUST
+     * RegistryObject - This option specifies that the QueryResponse MUST
      * contain a <rim:RegistryObjectList> element containing
-     * <rim:RegistryObject> elements with xsi:type=“rim:RegistryObjectType”.
+     * <rim:RegistryObject> elements with xsi:type=rim:RegistryObjectType.
      * 
-     * · LeafClass - This option specifies that the QueryResponse MUST contain a
+     * LeafClass - This option specifies that the QueryResponse MUST contain a
      * collection of <rim:RegistryObjectList> element containing
      * <rim:RegistryObject> elements that have an xsi:type attribute that
      * corresponds to leaf classes as defined in [regrep-xsd-v4.0]. No
      * RepositoryItems SHOULD be included for any rim:ExtrinsicObjectType
      * instance in the <rim:RegistryObjectList> element.
      * 
-     * · LeafClassWithRepositoryItem - This option is the same as the LeafClass
+     * LeafClassWithRepositoryItem - This option is the same as the LeafClass
      * option with the additional requirement that the response include the
      * RepositoryItems, if any, for every rim:ExtrinsicObjectType instance in
      * the <rim:RegistryObjectList> element.
@@ -143,11 +157,11 @@ public class QueryManagerImpl implements QueryManager {
     @Override
     public QueryResponse executeQuery(QueryRequest queryRequest)
             throws MsgRegistryException {
+        String client = EbxmlObjectUtil.getClientHost(wsContext);
         ITimer timer = TimeUtil.getTimer();
         timer.start();
-
-        statusHandler.info("QueryManager received executeQuery Request\n"
-                + queryRequest);
+        statusHandler.info("QueryManager received executeQuery Request "
+                + queryRequest.getId() + " from [" + client + "]");
         QueryResponse response = EbxmlObjectUtil.queryObjectFactory
                 .createQueryResponse();
         response.setStatus(RegistryResponseStatus.SUCCESS);
@@ -189,21 +203,21 @@ public class QueryManagerImpl implements QueryManager {
 
         if (lang != null) {
             // TODO: Add support for specifying the lang attribute
-            response.getException()
-                    .add(EbxmlExceptionUtil
-                            .createRegistryException(
-                                    UnsupportedCapabilityExceptionType.class,
-                                    "",
-                                    "lang attribute not currently supported",
-                                    "This EBXML registry does not currently support the lang attribute on the QueryRequest object",
-                                    ErrorSeverity.WARNING, statusHandler));
-            response.setStatus(RegistryResponseStatus.PARTIAL_SUCCESS);
+            statusHandler.warn("Lang attribute currently not supported.");
         }
 
         IRegistryQuery query = getQuery(queryType);
 
         try {
-            query.executeQuery(queryRequest, response);
+            query.executeQuery(queryRequest, response, client);
+            if (eagerFetch) {
+                try {
+                    SerializationUtil.getJaxbManager().marshalToXml(response);
+                } catch (JAXBException e) {
+                    throw new EbxmlRegistryException(
+                            "Error eagerly fetching items", e);
+                }
+            }
         } catch (EbxmlRegistryException e) {
             throw EbxmlExceptionUtil.createMsgRegistryException(
                     "Error executing query!", QueryExceptionType.class, "",
@@ -214,8 +228,7 @@ public class QueryManagerImpl implements QueryManager {
         timer.stop();
         String queryRequestId = queryRequest.getId();
         statusHandler.info("QueryManager executeQuery id [" + queryRequestId
-                + "] operation completed in "
-                + timer.getElapsedTime() + " ms");
+                + "] operation completed in " + timer.getElapsedTime() + " ms");
         response.setRequestId(queryRequestId);
         return response;
 
@@ -299,6 +312,10 @@ public class QueryManagerImpl implements QueryManager {
 
     public void setQueryTypeMgr(QueryTypeManager queryTypeMgr) {
         this.queryTypeMgr = queryTypeMgr;
+    }
+
+    public void setEagerFetch(boolean eagerFetch) {
+        this.eagerFetch = eagerFetch;
     }
 
 }

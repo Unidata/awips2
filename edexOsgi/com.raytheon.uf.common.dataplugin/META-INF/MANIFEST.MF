@@ -15,6 +15,7 @@ Import-Package: com.raytheon.uf.common.time,
 Export-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.annotations,
  com.raytheon.uf.common.dataplugin.defaults,
+ com.raytheon.uf.common.dataplugin.message,
  com.raytheon.uf.common.dataplugin.persist,
  com.raytheon.uf.common.dataplugin.request
 Require-Bundle: com.raytheon.uf.common.localization;bundle-version="1.12.1174",

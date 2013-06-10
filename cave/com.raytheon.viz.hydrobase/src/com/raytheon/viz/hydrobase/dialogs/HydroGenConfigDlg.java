@@ -21,9 +21,14 @@ package com.raytheon.viz.hydrobase.dialogs;
 
 import java.util.ArrayList;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -40,6 +45,10 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.HydroGenStationData;
 import com.raytheon.viz.hydrocommon.datamanager.DataTrashCanDataManager;
@@ -56,6 +65,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------	----------	-----------	--------------------------
  * Sep 4, 2008				lvenable	Initial creation
  * Dec 29, 2008 1802        askripsk    Connect to database.
+ * Apr 19, 2013 1790        rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -63,6 +73,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class HydroGenConfigDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(HydroGenConfigDlg.class);
 
     /**
      * Control font.
@@ -102,16 +114,21 @@ public class HydroGenConfigDlg extends CaveSWTDialog {
     /**
      * Cache of display data.
      */
-    private ArrayList<HydroGenStationData> stationData;
+    private java.util.List<HydroGenStationData> stationData;
 
     /**
-     * Constructor.
+     * System wait cursor no need to dispose.
+     */
+    Cursor waitCursor;
+
+    /**
+     * Non-blocking Constructor.
      * 
      * @param parent
      *            Parent shell.
      */
     public HydroGenConfigDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("HydroGen Configuration");
     }
 
@@ -132,6 +149,8 @@ public class HydroGenConfigDlg extends CaveSWTDialog {
 
     @Override
     protected void initializeComponents(Shell shell) {
+        waitCursor = shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
+
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
 
         createSummaryGroup();
@@ -277,7 +296,7 @@ public class HydroGenConfigDlg extends CaveSWTDialog {
         closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -325,7 +344,8 @@ public class HydroGenConfigDlg extends CaveSWTDialog {
                 }
             }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to load static data. ", e);
         }
     }
 
@@ -333,14 +353,32 @@ public class HydroGenConfigDlg extends CaveSWTDialog {
      * Retrieves the hydrogen data from the database.
      */
     private void getDialogData() {
-        try {
-            stationData = HydroDBDataManager.getInstance().getData(
-                    HydroGenStationData.class);
-        } catch (VizException e) {
-            e.printStackTrace();
-        }
+        shell.setCursor(waitCursor);
 
-        updateDialogDisplay();
+        Job job = new Job("HydroGen") {
+
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                try {
+                    stationData = HydroDBDataManager.getInstance().getData(
+                            HydroGenStationData.class);
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to load data. ", e);
+                }
+
+                VizApp.runAsync(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        updateDialogDisplay();
+                        shell.setCursor(null);
+                    }
+                });
+                return Status.OK_STATUS;
+            }
+        };
+        job.schedule();
     }
 
     /**
@@ -354,9 +392,9 @@ public class HydroGenConfigDlg extends CaveSWTDialog {
 
         String displayStr;
         for (HydroGenStationData currData : stationData) {
-            displayStr = String.format(format, currData.getLid(), currData
-                    .getHsa(), currData.getPe(), currData.getTs(), currData
-                    .getForecastTs());
+            displayStr = String.format(format, currData.getLid(),
+                    currData.getHsa(), currData.getPe(), currData.getTs(),
+                    currData.getForecastTs());
 
             locationList.add(displayStr);
         }
@@ -368,8 +406,8 @@ public class HydroGenConfigDlg extends CaveSWTDialog {
      * @return The display string for the TS.
      * @throws VizException
      */
-    public ArrayList<String> getShefTs() throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+    public java.util.List<String> getShefTs() throws VizException {
+        java.util.List<String> rval = new ArrayList<String>();
 
         String tsQuery = "SELECT name, ts FROM shefts WHERE ts LIKE 'P%' or ts LIKE 'R%' ORDER BY ts";
 
@@ -395,8 +433,8 @@ public class HydroGenConfigDlg extends CaveSWTDialog {
      * @return The display string for the TS.
      * @throws VizException
      */
-    public ArrayList<String> getShefFcstTs() throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+    public java.util.List<String> getShefFcstTs() throws VizException {
+        java.util.List<String> rval = new ArrayList<String>();
 
         String tsQuery = "SELECT name, ts FROM shefts WHERE ts LIKE 'C%' or ts LIKE 'F%' ORDER BY ts";
 
@@ -490,13 +528,8 @@ public class HydroGenConfigDlg extends CaveSWTDialog {
                     // Refresh data
                     getDialogData();
                 } catch (VizException e) {
-                    mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-                    mb.setText("Unable to Delete");
-                    mb
-                            .setMessage("An error occurred while trying to delete the record.");
-                    mb.open();
-
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to delete the record. ", e);
                 }
             }
         } else {
@@ -522,13 +555,8 @@ public class HydroGenConfigDlg extends CaveSWTDialog {
                 try {
                     HydroDBDataManager.getInstance().putData(newData);
                 } catch (VizException e) {
-                    MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR
-                            | SWT.OK);
-                    mb.setText("Unable to Save");
-                    mb.setMessage("An error occurred while trying to save.");
-                    mb.open();
-
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to save the data. ", e);
                 }
             }
         } else {
@@ -615,13 +643,12 @@ public class HydroGenConfigDlg extends CaveSWTDialog {
             } else {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Unable to Save");
-                mb
-                        .setMessage("The location must be add via the River Gauge dialog first.");
+                mb.setMessage("The location must be added via the River Gauge dialog first.");
                 mb.open();
             }
         } catch (VizException e) {
-            // don't care, just return false
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to verify constraints. ", e);
         }
 
         return rval;

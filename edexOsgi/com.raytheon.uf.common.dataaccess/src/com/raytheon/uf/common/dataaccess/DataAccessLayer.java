@@ -24,6 +24,7 @@ import com.raytheon.uf.common.dataaccess.exception.TimeAgnosticDataException;
 import com.raytheon.uf.common.dataaccess.exception.UnsupportedOutputTypeException;
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
+import com.raytheon.uf.common.dataaccess.impl.DefaultDataRequest;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
@@ -170,6 +171,15 @@ public class DataAccessLayer {
     public static String[] getAvailableLocationNames(IDataRequest request) {
         IDataFactory factory = getFactory(request);
         return factory.getAvailableLocationNames(request);
+    }
+
+    /**
+     * Shortcut to creating a new request
+     * 
+     * @return
+     */
+    public static IDataRequest newDataRequest() {
+        return new DefaultDataRequest();
     }
 
     /**

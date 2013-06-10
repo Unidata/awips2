@@ -41,11 +41,14 @@ import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.GroupDefinition;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
+import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
+import com.raytheon.uf.common.datadelivery.registry.SharedSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
+import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
@@ -72,7 +75,6 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.viz.ui.presenter.components.ButtonConf;
 import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
 import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
-import com.raytheon.viz.ui.presenter.components.WidgetConf;
 
 /**
  * Create Subscription Dialog Presenter Object.
@@ -104,6 +106,10 @@ import com.raytheon.viz.ui.presenter.components.WidgetConf;
  * Jan 14, 2013 1286       djohnson     Check that message to display is not null or empty, and 
  *                                      only send notification of subscription creation on OK status.
  * Jan 25, 2013 1528       djohnson     Use priority enum instead of raw integers, default to existing priority on edit.
+ * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * Apr 05, 2013 1841       djohnson     Add support for shared subscriptions.
+ * Apr 08, 2013 1826       djohnson     Remove delivery options.
+ * May 15, 2013 1040       mpduff       Add shared sites.
  * </pre>
  * 
  * @author mpduff
@@ -129,14 +135,6 @@ public class CreateSubscriptionDlgPresenter {
 
     /** OK Button config object */
     protected final ButtonConf OK_CONF;
-
-    /** Delivery combo config object */
-    protected final ComboBoxConf DELIVERY_COMBO_CONF = new ComboBoxConf(true,
-            "Select delivery method", WidgetConf.DO_NOTHING);
-
-    /** Delivery options strings */
-    protected final String[] DELIVERY_OPTIONS = new String[] {
-            "Deliver data when available", "Notify when data are available" };
 
     /** Group combo config object */
     protected final ComboBoxConf GROUP_COMBO_CONF;
@@ -183,6 +181,9 @@ public class CreateSubscriptionDlgPresenter {
      * @param dataSet
      *            The dataset
      * @param create
+     *            true for create, false for edit
+     * @param guiThreadTaskExecutor
+     *            task executor
      */
     public CreateSubscriptionDlgPresenter(ICreateSubscriptionDlgView view,
             DataSet dataSet, boolean create,
@@ -236,7 +237,6 @@ public class CreateSubscriptionDlgPresenter {
             }
         };
         this.view.setCycleTimes(cycleTimes);
-        this.view.setSubscription(this.subscription);
         this.view.setPreOpenCallback(callback);
         this.view.openDlg();
     }
@@ -258,6 +258,7 @@ public class CreateSubscriptionDlgPresenter {
      */
     public void setSubscriptionData(Subscription sub) {
         this.subscription = sub;
+        this.view.setSubscription(sub);
     }
 
     /**
@@ -281,9 +282,6 @@ public class CreateSubscriptionDlgPresenter {
      * Initialize the view
      */
     public void init() {
-        view.setDeliveryOptionsComboConf(DELIVERY_COMBO_CONF);
-        view.setDeliveryOptions(DELIVERY_OPTIONS);
-        view.setDeliverySelection(0);
         view.setOkConf(OK_CONF);
 
         final boolean hasCycleTimes = !cycleTimes.isEmpty();
@@ -327,8 +325,6 @@ public class CreateSubscriptionDlgPresenter {
                 && !subscription.getGroupName().equals("None")) {
             view.setGroupName(subscription.getGroupName());
         }
-
-        view.setDeliverySelection(subscription.isNotify() ? 0 : 1);
 
         if (subscription.getSubscriptionEnd() != null) {
             view.setStartDate(subscription.getSubscriptionStart());
@@ -397,6 +393,8 @@ public class CreateSubscriptionDlgPresenter {
         if (!Strings.isNullOrEmpty(subscription.getGroupName())) {
             view.setGroupName(subscription.getGroupName());
         }
+
+        view.setOfficeIds(subscription.getOfficeIDs());
     }
 
     /**
@@ -440,15 +438,20 @@ public class CreateSubscriptionDlgPresenter {
         if (!validate()) {
             return false;
         }
-
-        // Data are valid, now add info to the subscription object and store
-        // to the registry
-        if (view.getDeliverySelection() == 1) {
-            subscription.setNotify(true);
+        String[] sharedSites = view.getSharedSites();
+        if (sharedSites != null && sharedSites.length > 1) {
+            SharedSubscription sharedSub = new SharedSubscription(subscription);
+            sharedSub.setRoute(Network.SBN);
+            Set<String> officeList = Sets.newHashSet(sharedSites);
+            sharedSub.setOfficeIDs(officeList);
+            subscription = sharedSub;
         } else {
-            subscription.setNotify(false);
+            Set<String> officeList = Sets.newHashSet();
+            officeList.add(LocalizationManager.getInstance().getCurrentSite());
+            subscription.setOfficeIDs(officeList);
         }
 
+        // Data are valid, now add info to the subscription object and store
         subscription.setProvider(dataSet.getProviderName());
 
         if (groupValid && view.isGroupSelected()) {
@@ -513,9 +516,6 @@ public class CreateSubscriptionDlgPresenter {
         SubscriptionPriority priority = view.getPriority();
         subscription.setPriority(priority);
 
-        subscription.setOfficeID(LocalizationManager.getInstance()
-                .getCurrentSite());
-
         subscription.setName(view.getSubscriptionName());
 
         subscription.setDescription(view.getSubscriptionDescription());
@@ -525,8 +525,9 @@ public class CreateSubscriptionDlgPresenter {
         subscription.setLatencyInMinutes(view.getLatencyValue());
 
         IUser user = UserController.getUserObject();
-        ISubscriptionHandler handler = RegistryObjectHandlers
-                .get(ISubscriptionHandler.class);
+
+        IPendingSubscriptionHandler handler = DataDeliveryHandlers
+                .getPendingSubscriptionHandler();
 
         String currentUser = LocalizationManager.getInstance().getCurrentUser();
         final String username = user.uniqueId().toString();
@@ -565,45 +566,49 @@ public class CreateSubscriptionDlgPresenter {
                     job.addJobChangeListener(new JobChangeAdapter() {
                         @Override
                         public void done(final IJobChangeEvent event) {
+                            try {
+                                final IStatus status = event.getResult();
 
-                            final IStatus status = event.getResult();
+                                final boolean subscriptionCreated = status
+                                        .isOK();
+                                if (subscriptionCreated) {
+                                    sendSubscriptionNotification(subscription,
+                                            username);
+                                }
 
-                            final boolean subscriptionCreated = status.isOK();
-                            if (subscriptionCreated) {
-                                sendSubscriptionNotification(subscription,
-                                        username);
+                                if (!Strings.isNullOrEmpty(status.getMessage())) {
+                                    guiThreadTaskExecutor
+                                            .runAsync(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    if (!view.isDisposed()) {
+                                                        if (subscriptionCreated) {
+                                                            view.displayPopup(
+                                                                    CREATED_TITLE,
+                                                                    status.getMessage());
+                                                            view.setStatus(Status.OK);
+                                                            view.closeDlg();
+                                                        } else {
+                                                            view.setStatus(Status.CANCEL);
+                                                            view.displayPopup(
+                                                                    "Unable to Create Subscription",
+                                                                    status.getMessage());
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                }
+                            } finally {
+                                DataDeliveryGUIUtils
+                                        .markNotBusyInUIThread(jobShell);
                             }
-
-                            if (!Strings.isNullOrEmpty(status.getMessage())) {
-                                guiThreadTaskExecutor.runAsync(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (!view.isDisposed()) {
-                                            if (subscriptionCreated) {
-                                                view.displayPopup(
-                                                        CREATED_TITLE,
-                                                        status.getMessage());
-                                                view.setStatus(Status.OK);
-                                                view.closeDlg();
-                                            } else {
-                                                view.setStatus(Status.CANCEL);
-                                                view.displayPopup(
-                                                        "Unable to Create Subscription",
-                                                        status.getMessage());
-                                            }
-                                        }
-                                    }
-                                });
-                            }
-                            DataDeliveryGUIUtils
-                                    .markNotBusyInUIThread(jobShell);
-                        };
+                        }
                     });
                     job.schedule();
                     return false;
                 } else {
-                    InitialPendingSubscription pendingSub = new InitialPendingSubscription(
-                            subscription, currentUser);
+                    InitialPendingSubscription pendingSub = subscription
+                            .initialPending(currentUser);
 
                     try {
                         handler.store(pendingSub);
@@ -624,9 +629,8 @@ public class CreateSubscriptionDlgPresenter {
             }
         } else {
             // Check for pending subscription, can only have one pending change
-            PendingSubscription pendingSub = new PendingSubscription(
-                    subscription, LocalizationManager.getInstance()
-                            .getCurrentUser());
+            PendingSubscription pendingSub = subscription
+                    .pending(LocalizationManager.getInstance().getCurrentUser());
             pendingSub.setChangeReason(view.getChangeReason());
 
             // Create the registry ids
@@ -688,7 +692,7 @@ public class CreateSubscriptionDlgPresenter {
                 } else {
                     setSubscriptionId(subscription);
                     try {
-                        handler.update(pendingSub);
+                        pendingSubHandler.update(pendingSub);
 
                         subscriptionNotificationService
                                 .sendCreatedPendingSubscriptionForSubscriptionNotification(
@@ -758,7 +762,6 @@ public class CreateSubscriptionDlgPresenter {
         boolean valid = false;
         boolean datesValid = false;
         boolean activeDatesValid = false;
-        boolean groupDeliverValid = false;
         boolean groupDurValid = false;
         boolean groupActiveValid = false;
         boolean latencyValid = false;
@@ -824,13 +827,6 @@ public class CreateSubscriptionDlgPresenter {
             groupDefinition = GroupDefinitionManager.getGroup(view
                     .getGroupName());
 
-            int deliverOption = groupDefinition.getOption();
-            int formDeliver = view.getDeliverySelection();
-
-            if (deliverOption == formDeliver) {
-                groupDeliverValid = true;
-            }
-
             // Compare the durations from the form to the group definition
             Date durStart = groupDefinition.getSubscriptionStart();
             Date durEnd = groupDefinition.getSubscriptionEnd();
@@ -885,12 +881,11 @@ public class CreateSubscriptionDlgPresenter {
             }
 
         } else {
-            groupDeliverValid = true;
             groupDurValid = true;
             groupActiveValid = true;
         }
 
-        if (!groupDeliverValid || !groupDurValid || !groupActiveValid) {
+        if (!groupDurValid || !groupActiveValid) {
             view.displayErrorPopup(
                     "Invalid Group Values",
                     "Values do not match selected group values.\n\n"
@@ -921,10 +916,6 @@ public class CreateSubscriptionDlgPresenter {
         if (groupDefinition == null) {
             return;
         }
-
-        // Set deliverCombo
-        int delOption = groupDefinition.getOption();
-        view.setDeliverySelection(delOption);
 
         // Set duration info
         Date durStart = groupDefinition.getSubscriptionStart();

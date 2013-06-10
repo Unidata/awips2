@@ -7,7 +7,7 @@ Bundle-Activator: com.raytheon.uf.viz.alertviz.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.apache.activemq;visibility:=reexport,
+ org.apache.activemq,
  com.raytheon.uf.common.localization;visibility:=reexport,
  com.raytheon.uf.common.serialization;visibility:=reexport,
  com.raytheon.uf.viz.core;visibility:=reexport,

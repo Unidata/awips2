@@ -47,7 +47,7 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-@XmlSeeAlso({ GriddedDataSetMetaData.class, OpenDapGriddedDataSetMetaData.class })
+@XmlSeeAlso({ GriddedDataSetMetaData.class, OpenDapGriddedDataSetMetaData.class, PointDataSetMetaData.class })
 @RegistryObject({ "url" })
 public abstract class DataSetMetaData implements ISerializableObject {
     public static final String DATE_SLOT = "date";

@@ -58,7 +58,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080414           1077 jkorman     Initial implementation.
+ * Apr 14, 2008 1077       jkorman     Initial implementation.
+ * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
+ *                                     work without dataURI.
  * 
  * </pre>
  * 
@@ -271,8 +273,6 @@ public class GOESSoundingDataAdapter {
             // TODO: need cloudAmt, cloudTopPressure, precipWater and
             // skinTemp
 
-            view.setLong("validTime", obsData.getDataTime().getValidTime()
-                    .getTimeInMillis());
             view.setString("wmoHeader", obsData.getWmoHeader());
 
             // get the replication sublist for the sounding data

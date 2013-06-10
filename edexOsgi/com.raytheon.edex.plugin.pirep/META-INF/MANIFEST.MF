@@ -6,7 +6,7 @@ Bundle-Version: 1.12.1174.qualifier
 Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common,
- com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.edex.pointdata,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
  org.apache.commons.logging,
  org.geotools,

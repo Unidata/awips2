@@ -69,7 +69,8 @@ class JGeometryData(IGeometryData, JData.JData):
         jparams = self.jobj.getParameters()
         itr = jparams.iterator()
         while itr.hasNext():
-            params.append(itr.next())                
+            params.append(str(itr.next()))
+        return params          
     
     def getString(self, param):
         return str(self.jobj.getString(param))

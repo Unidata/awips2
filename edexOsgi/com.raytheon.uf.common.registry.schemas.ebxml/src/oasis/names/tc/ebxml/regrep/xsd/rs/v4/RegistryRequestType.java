@@ -20,6 +20,9 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rs.v4;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -32,6 +35,7 @@ import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.UpdateObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtensibleObjectType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.CatalogObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.FilterObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsRequest;
@@ -79,6 +83,22 @@ public class RegistryRequestType extends ExtensibleObjectType {
     @XmlAttribute
     @DynamicSerializeElement
     protected String comment;
+
+    public RegistryRequestType() {
+
+    }
+
+    public RegistryRequestType(String id, String comment,
+            Collection<SlotType> slots) {
+        super(slots);
+        this.id = id;
+        this.comment = comment;
+    }
+
+    public RegistryRequestType(String id, String comment) {
+        this(id, comment, Collections.<SlotType> emptySet());
+
+    }
 
     /**
      * Gets the value of the id property.

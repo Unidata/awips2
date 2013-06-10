@@ -37,6 +37,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.msgs.IActivatedParmChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IDisplayedParmListChangedListener;
 import com.raytheon.viz.gfe.core.parm.Parm;
@@ -54,6 +55,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * ------------ ---------- ----------- --------------------------
  * Jun 18, 2009 #1318      randerso    Ported AWIPS I pickup value dialogs
  * Nov 13, 2012 #1298      rferrel     Changes for non-blocking dialog.
+ * Mar 29, 2013 #1790      rferrel     Bug fix for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -83,14 +85,17 @@ public class SetValueDialog extends CaveJFACEDialog implements
     private Composite valueFrame;
 
     public static void openDialog() {
+        // close nulls dialog so no need to check for disposed.
         if (dialog == null) {
             Shell parent = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
-            DataManager dataManager = DataManager.getCurrentInstance();
+            DataManager dataManager = DataManagerUIFactory.getCurrentInstance();
             dialog = new SetValueDialog(parent, dataManager);
             dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
         }
-        dialog.open();
     }
 
     /**

@@ -27,7 +27,9 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -74,23 +76,48 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "RegistryObjectListType", propOrder = { "registryObject" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "RegistryObjectList")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "RegistryObjectList")
 public class RegistryObjectListType implements Serializable {
 
     private static final long serialVersionUID = -254507015539461400L;
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "RegistryObjectListTypeGenerator", schema = "ebxml", sequenceName = "ebxml.RegistryObjectList_sequence")
+    @GeneratedValue(generator = "RegistryObjectListTypeGenerator")
     @XmlTransient
     private Integer key;
 
     @ManyToMany
-    @Cascade(value = { org.hibernate.annotations.CascadeType.SAVE_UPDATE,
-            org.hibernate.annotations.CascadeType.DETACH })
+    @Cascade(value = { org.hibernate.annotations.CascadeType.PERSIST })
+    @JoinTable(schema = "ebxml")
     @XmlElement(name = "RegistryObject")
     @DynamicSerializeElement
     protected List<RegistryObjectType> registryObject;
+
+    /**
+     * Constructor.
+     */
+    public RegistryObjectListType() {
+
+    }
+
+    /**
+     * Constructor.
+     * 
+     * @param registryObjects
+     *            the collection of registry objects
+     */
+    public RegistryObjectListType(List<RegistryObjectType> registryObjects) {
+        // Defensive list copy, not using the original list
+        this.registryObject = new ArrayList<RegistryObjectType>(registryObjects);
+    }
+
+    public RegistryObjectListType(RegistryObjectType registryObject) {
+        List<RegistryObjectType> list = new ArrayList<RegistryObjectType>(1);
+        list.add(registryObject);
+        this.registryObject = list;
+    }
 
     public Integer getKey() {
         return key;

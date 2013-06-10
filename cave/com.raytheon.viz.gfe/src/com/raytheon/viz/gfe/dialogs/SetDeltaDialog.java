@@ -35,6 +35,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.msgs.IActivatedParmChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IDisplayedParmListChangedListener;
 import com.raytheon.viz.gfe.core.parm.Parm;
@@ -53,6 +54,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * ------------ ---------- ----------- --------------------------
  * Sep 16, 2011            dgilling     Initial creation
  * Nov 13, 2012 1298       rferrel     Code clean up for non-blocking dialog.
+ * Mar 29, 2013 1790       rferrel     Bug fix for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -123,14 +125,17 @@ public class SetDeltaDialog extends CaveJFACEDialog implements
      * Allow only one instance of the dialog to exist at any given time.
      */
     public static void openDialog() {
+        // close nulls dialog so no need to check for dispose.
         if (dialog == null) {
             Shell parent = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
-            DataManager dataManager = DataManager.getCurrentInstance();
+            DataManager dataManager = DataManagerUIFactory.getCurrentInstance();
             dialog = new SetDeltaDialog(parent, dataManager);
             dialog.setBlockOnOpen(false);
+            dialog.open();
+        } else {
+            dialog.bringToTop();
         }
-        dialog.open();
     }
 
     /**

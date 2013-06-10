@@ -27,7 +27,9 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -73,18 +75,20 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "ObjectRefListType", propOrder = { "objectRef" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "ObjectRefList")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "ObjectRefList")
 public class ObjectRefListType {
 
     @Id
-    @GeneratedValue
+    @SequenceGenerator(name = "ObjectRefListTypeGenerator", schema = "ebxml", sequenceName = "ebxml.ObjectRefList_sequence")
+    @GeneratedValue(generator = "ObjectRefListTypeGenerator")
     @XmlTransient
     private Integer key;
 
     @XmlElement(name = "ObjectRef")
     @DynamicSerializeElement
     @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(schema = "ebxml")
     protected List<ObjectRefType> objectRef;
 
     public Integer getKey() {
@@ -120,7 +124,6 @@ public class ObjectRefListType {
         }
         return this.objectRef;
     }
-
 
     public void setObjectRef(List<ObjectRefType> objectRef) {
         this.objectRef = objectRef;

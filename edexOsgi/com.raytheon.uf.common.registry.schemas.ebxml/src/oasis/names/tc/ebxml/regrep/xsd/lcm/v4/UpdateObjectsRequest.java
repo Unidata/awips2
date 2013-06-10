@@ -21,6 +21,7 @@
 package oasis.names.tc.ebxml.regrep.xsd.lcm.v4;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -32,6 +33,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -88,6 +90,23 @@ public class UpdateObjectsRequest extends RegistryRequestType {
     @XmlAttribute
     @DynamicSerializeElement
     protected Mode mode;
+
+    public UpdateObjectsRequest() {
+
+    }
+
+    public UpdateObjectsRequest(String id, String comment,
+            Collection<SlotType> slots, QueryType query,
+            ObjectRefListType objectRefList,
+            List<UpdateActionType> updateAction, Boolean checkReferences,
+            Mode mode) {
+        super(id, comment, slots);
+        this.query = query;
+        this.objectRefList = objectRefList;
+        this.updateAction = updateAction;
+        this.checkReferences = checkReferences;
+        this.mode = mode;
+    }
 
     /**
      * Gets the value of the query property.

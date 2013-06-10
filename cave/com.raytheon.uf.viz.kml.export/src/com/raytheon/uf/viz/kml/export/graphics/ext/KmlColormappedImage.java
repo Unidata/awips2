@@ -26,6 +26,8 @@ import java.nio.ShortBuffer;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 
+import com.raytheon.uf.common.colormap.image.ColorMapData;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.geospatial.interpolation.data.ByteBufferWrapper;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
@@ -34,8 +36,6 @@ import com.raytheon.uf.common.geospatial.interpolation.data.ShortBufferWrapper;
 import com.raytheon.uf.common.geospatial.interpolation.data.UnsignedByteBufferWrapper;
 import com.raytheon.uf.common.geospatial.interpolation.data.UnsignedShortBufferWrapper;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
-import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapData;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;

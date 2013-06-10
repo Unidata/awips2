@@ -68,8 +68,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlType(name = "IntegerValueType", propOrder = { "integerValue" })
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "IntegerValue")
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "IntegerValue")
 public class IntegerValueType extends ValueType {
     @Column(name = COLUMN_NAME)
     @XmlElement(name = "Value")
@@ -77,6 +77,22 @@ public class IntegerValueType extends ValueType {
     protected BigInteger integerValue;
 
     private static final String COLUMN_NAME = "integerValue";
+
+    public IntegerValueType() {
+
+    }
+
+    public IntegerValueType(BigInteger integerValue) {
+        this.integerValue = integerValue;
+    }
+
+    public IntegerValueType(Integer integerValue) {
+        this.integerValue = BigInteger.valueOf(integerValue.longValue());
+    }
+
+    public IntegerValueType(int integerValue) {
+        this.integerValue = BigInteger.valueOf(integerValue);
+    }
 
     @Override
     public String getColumnName() {
@@ -103,7 +119,16 @@ public class IntegerValueType extends ValueType {
      */
     @Override
     public void setValue(Object value) {
-        this.integerValue = (BigInteger) value;
+        if (value instanceof Integer) {
+            this.integerValue = BigInteger.valueOf(((Integer) value)
+                    .longValue());
+        } else if (value instanceof BigInteger) {
+            this.integerValue = (BigInteger) value;
+        } else {
+            throw new IllegalArgumentException(
+                    "IntegerValueType cannot have values of type: "
+                            + value.getClass());
+        }
     }
 
     public BigInteger getIntegerValue() {

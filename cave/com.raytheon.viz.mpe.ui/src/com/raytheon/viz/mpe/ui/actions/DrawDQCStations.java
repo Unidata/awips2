@@ -29,16 +29,16 @@ import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
 
 import com.raytheon.uf.common.colormap.ColorMap;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
+import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
-import com.raytheon.uf.viz.core.style.DataMappingPreferences;
 import com.raytheon.viz.hydrocommon.util.MPEColors;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.ColorLookupParameters;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.GetColorValues;

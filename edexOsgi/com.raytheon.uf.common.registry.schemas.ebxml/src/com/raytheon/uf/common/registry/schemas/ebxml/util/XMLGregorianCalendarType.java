@@ -45,6 +45,7 @@ import org.hibernate.usertype.UserType;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 21, 2012 #184       bphillip     Initial creation
+ * 4/9/2013     1802       bphillip    Added null check
  * 
  * </pre>
  * 
@@ -97,6 +98,9 @@ public class XMLGregorianCalendarType implements UserType {
             throws HibernateException, SQLException {
         GregorianCalendar cal = new GregorianCalendar();
         Timestamp date = resultSet.getTimestamp(names[0]);
+        if (date == null) {
+            return null;
+        }
         cal.setTimeInMillis(date.getTime());
 
         try {

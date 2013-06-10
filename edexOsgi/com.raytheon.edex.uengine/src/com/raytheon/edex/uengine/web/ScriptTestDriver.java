@@ -22,9 +22,10 @@ package com.raytheon.edex.uengine.web;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 
-import com.raytheon.edex.scriptfactory.ScriptFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.velocity.VelocityManager;
 import com.raytheon.uf.edex.core.props.EnvProperties;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 
@@ -43,6 +44,7 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  *    05/10/07      #273        brockwoo    Updated script generation to
  *                                          Javascript
  *    11/27/07      #214        brockwoo    Added colormap capability to radar
+ *    Feb 18, 2013  1638        mschenke    Moved ScriptFactory code into common VelocityManager class
  * 
  * </pre>
  * 
@@ -102,9 +104,16 @@ public class ScriptTestDriver {
             if (properties != null) {
                 logDir = properties.getEnvValue("LOGDIR");
             }
-            script = ScriptFactory.getInstance().createScript(DEFAULT_TEMPLATE,
-                    DEFAULT_TEMPLATE.getParentFile(), maxRecords, engine,
-                    library, queryTerms, logDir);
+
+            Map<String, Object> templateObjects = new HashMap<String, Object>();
+            templateObjects.put("scriptMetadata", queryTerms);
+            templateObjects.put("maxRecords", maxRecords);
+            templateObjects.put("scriptLibrary", library);
+            templateObjects.put("mode", engine);
+
+            script = VelocityManager.executeTemplate(DEFAULT_TEMPLATE,
+                    DEFAULT_TEMPLATE.getParentFile(), new File(logDir),
+                    templateObjects);
         } catch (Exception e) {
             System.out.println("Error creating script for " + library);
             e.printStackTrace();

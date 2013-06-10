@@ -57,7 +57,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.rsc.tools.AbstractMovableToolLayer;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackDisplay;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackUIManager;
@@ -188,7 +188,7 @@ public class AzimuthToolLayer extends
 
     };
 
-    public AzimuthToolLayer(AwipsToolsResourceData<AzimuthToolLayer> data,
+    public AzimuthToolLayer(GenericToolsResourceData<AzimuthToolLayer> data,
             LoadProperties props, MapDescriptor descriptor) {
         super(data, props);
         setDescriptor(descriptor);

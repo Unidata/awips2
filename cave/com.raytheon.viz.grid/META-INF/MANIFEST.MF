@@ -26,7 +26,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.gridcoverage,
  org.apache.commons.beanutils;bundle-version="1.8.3",
  com.raytheon.uf.common.dataplugin.grid;bundle-version="1.0.0",
- com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174"
+ com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.grid,
  com.raytheon.viz.grid.inv,
@@ -34,9 +35,7 @@ Export-Package: com.raytheon.viz.grid,
  com.raytheon.viz.grid.rsc.general,
  com.raytheon.viz.grid.util,
  com.raytheon.viz.grid.xml
-Import-Package: com.raytheon.edex.scriptfactory,
- com.raytheon.uf.common.colormap,
- com.raytheon.uf.common.comm,
+Import-Package: com.raytheon.uf.common.comm,
  com.raytheon.uf.common.derivparam.tree,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.message,

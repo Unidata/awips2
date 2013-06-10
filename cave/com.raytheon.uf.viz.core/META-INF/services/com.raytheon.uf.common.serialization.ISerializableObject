@@ -1,5 +1,4 @@
 com.raytheon.uf.viz.core.alerts.DataCubeAlertMessageParser
-com.raytheon.uf.viz.core.drawables.ColorMapParameters
 com.raytheon.uf.viz.core.drawables.ResourcePair
 com.raytheon.uf.viz.core.procedures.Bundle
 com.raytheon.uf.viz.core.procedures.Procedure

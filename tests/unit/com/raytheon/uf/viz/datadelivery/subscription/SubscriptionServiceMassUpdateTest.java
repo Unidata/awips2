@@ -28,7 +28,6 @@ import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -37,7 +36,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.raytheon.uf.common.auth.user.IUser;
-import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
+import com.raytheon.uf.common.datadelivery.registry.InitialPendingSiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
@@ -60,6 +59,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubsc
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 21, 2012 1286       djohnson     Initial creation
+ * May 08, 2000 2013       djohnson     Allow checks for duplicate subscriptions.
  *
  * </pre>
  *
@@ -86,7 +86,7 @@ public class SubscriptionServiceMassUpdateTest extends
 
         service.updateWithPendingCheck(subs, mockPromptDisplayText);
 
-        verifyZeroInteractions(DataDeliveryHandlers.getSubscriptionHandler());
+        verifyOnlyCheckingForDuplicateSubscriptions();
     }
 
     @Test
@@ -340,6 +340,6 @@ public class SubscriptionServiceMassUpdateTest extends
         when(
                 DataDeliveryHandlers.getPendingSubscriptionHandler()
                         .getBySubscription(subscription)).thenReturn(
-                new InitialPendingSubscription());
+                new InitialPendingSiteSubscription());
     }
 }

@@ -83,6 +83,7 @@ import com.raytheon.uf.viz.stats.display.ScaleManager;
  * Oct 03, 2012     728    mpduff      Initial creation.
  * Jan 17, 2013    1357    mpduff      Added mouse listeners.
  * Jan 29, 2013    1523    mpduff      Fix for count units.
+ * Mar 12, 2013    1760    mpduff      Fix for 3 hour graph x axis labels.
  * 
  * </pre>
  * 
@@ -480,15 +481,16 @@ public class StatsDisplayCanvas extends Canvas {
                                 gc.drawPolyline(gridLineArray);
                                 gc.setLineWidth(1);
                             }
-                            minute += 15;
-                            // Roll the minutes and hours, account for rolling
-                            // to the next hour/minute
-                            if (minute >= TimeUtil.MINUTES_PER_HOUR) {
-                                minute = 0;
-                                hr++;
-                                if (hr == TimeUtil.HOURS_PER_DAY) {
-                                    hr = 0;
-                                }
+                        }
+
+                        minute += 15;
+                        // Roll the minutes and hours, account for rolling
+                        // to the next hour/minute
+                        if (minute >= TimeUtil.MINUTES_PER_HOUR) {
+                            minute = 0;
+                            hr++;
+                            if (hr == TimeUtil.HOURS_PER_DAY) {
+                                hr = 0;
                             }
                         }
 

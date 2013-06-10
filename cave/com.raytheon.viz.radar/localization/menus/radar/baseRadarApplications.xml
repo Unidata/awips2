@@ -37,7 +37,7 @@
 	<contribute xsi:type="command"
 		commandId="com.raytheon.uf.viz.radarapps.rps.rpsListEditor" menuText="RPS List Editor..."
 		id="${icao}RPSListEditor" />
-	<contribute xsi:type="subMenu" menuText="Radar Tools" id="${icao}RadarTools">
+	<contribute xsi:type="subMenu" menuText="Radar Tools">
 		<contribute xsi:type="command" commandId="com.raytheon.viz.awipstools.estimatedactualvelocity" menuText="Estimated Actual Velocity" 
 			id="${icao}EstimatedActualVelocity" />
 		<contribute xsi:type="command"

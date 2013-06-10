@@ -24,8 +24,10 @@ import static org.junit.Assert.assertThat;
 
 import java.io.File;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.TestUtil;
 
@@ -40,6 +42,7 @@ import com.raytheon.uf.common.util.TestUtil;
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2013 1543       djohnson     Initial creation
  * Feb 15, 2013 1543       djohnson     Class renames.
+ * Mar 05, 2013 1647       djohnson     Pass wmo header strategy to constructor.
  * 
  * </pre>
  * 
@@ -52,7 +55,12 @@ public class SerializeRetrievedDataToDirectoryTest {
             .setupTestClassDir(SerializeRetrievedDataToDirectoryTest.class);
 
     private final SerializeRetrievedDataToDirectory service = new SerializeRetrievedDataToDirectory(
-            directory);
+            directory, new AlwaysSameWmoHeader("SMYG10 LYBM 280000"));
+
+    @BeforeClass
+    public static void classSetUp() {
+        PathManagerFactoryTest.initLocalization();
+    }
 
     @Test
     public void serializesRetrievedDataToAFileInTheTargetDirectory()

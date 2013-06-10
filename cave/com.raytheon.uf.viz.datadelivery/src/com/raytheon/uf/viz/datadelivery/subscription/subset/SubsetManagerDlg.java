@@ -46,6 +46,7 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.geometry.Envelope;
 import org.opengis.referencing.operation.TransformException;
 
+import com.google.common.base.Preconditions;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
@@ -53,9 +54,12 @@ import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.Levels;
+import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
+import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.datadelivery.retrieval.util.DataSizeUtils;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -127,6 +131,11 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Jan 10, 2013 1444       mpduff       Fix the loading of saved subsets from the saved subset tab.
  * Jan 28, 2013 1530       djohnson     Break out long method chaining into local variables for debugging.
  * Jan 30, 2013 1543       djohnson     Use List instead of ArrayList.
+ * Mar 21, 2013 1794       djohnson     Add option to create a shared subscription, if phase3 code is available.
+ * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * Apr 08, 2013 1826       djohnson     Remove delivery options.
+ * May 15, 2013 1040       mpduff       Implement shared subscriptions.
+ * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
  * </pre>
  * 
  * @author mpduff
@@ -442,7 +451,8 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     /** Create the buttons */
     private void createButtons() {
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        GridLayout gl = new GridLayout(3, false);
+        final int numColumns = (DataDeliveryConstants.PHASE3_ENABLED) ? 4 : 3;
+        GridLayout gl = new GridLayout(numColumns, false);
 
         Composite bottomComp = new Composite(shell, SWT.NONE);
         bottomComp.setLayout(gl);
@@ -451,23 +461,24 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         int buttonWidth = 87;
         GridData btnData = new GridData(buttonWidth, SWT.DEFAULT);
 
-        Button okBtn = new Button(bottomComp, SWT.PUSH);
+        Button subscribeBtn = new Button(bottomComp, SWT.PUSH);
         if (!create) {
-            okBtn.setText("Continue...");
-            okBtn.setToolTipText("Click to continue editing");
+            subscribeBtn.setText("Continue...");
+            subscribeBtn.setToolTipText("Click to continue editing");
         } else {
-            okBtn.setText("Subscribe...");
-            okBtn.setToolTipText("Click to subscribe to subset");
+            subscribeBtn.setText("Subscribe...");
+            subscribeBtn
+                    .setToolTipText("Click to create a subscription to a subset");
         }
-        okBtn.setLayoutData(btnData);
-        okBtn.addSelectionListener(new SelectionAdapter() {
+        subscribeBtn.setLayoutData(btnData);
+        subscribeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                DataDeliveryGUIUtils.markBusyInUIThread(shell);
-                if (handleOK()) {
-                    close();
+                if (subscription == null) {
+                    launchCreateSubscriptionGui(createSubscription(
+                            new SiteSubscription(), Network.OPSNET));
                 } else {
-                    DataDeliveryGUIUtils.markNotBusyInUIThread(shell);
+                    launchCreateSubscriptionGui(subscription);
                 }
             }
         });
@@ -497,16 +508,26 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     }
 
     /**
-     * OK button action handler
+     * Launch the Create Subscription GUI.
      * 
-     * @return true if data are valid
+     * @param sub
+     *            The subscription object
      */
-    private boolean handleOK() {
-        if (this.validated(true)) {
+    public void launchCreateSubscriptionGui(Subscription sub) {
+        DataDeliveryGUIUtils.markBusyInUIThread(shell);
+        if (handleOK(sub)) {
+            close();
+        } else {
+            DataDeliveryGUIUtils.markNotBusyInUIThread(shell);
+        }
+    }
 
-            Subscription sub = createSubscription(new Subscription());
+    /**
+     * Launch the Create Subscription GUI
+     */
+    private boolean handleOK(Subscription sub) {
+        if (this.validated(true)) {
             if (subDlg != null && !subDlg.isDisposed()) {
-                subDlg.setSubscriptionData(sub);
                 subDlg.bringToTop();
             } else {
                 subDlg = new CreateSubscriptionDlgPresenter(
@@ -529,7 +550,8 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
 
         if (valid) {
 
-            AdhocSubscription as = createSubscription(new AdhocSubscription());
+            AdhocSubscription as = createSubscription(new AdhocSubscription(),
+                    Network.OPSNET);
             // null means the user hit cancel on the date/cycle selection dialog
             if (as == null) {
                 return;
@@ -550,24 +572,60 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     }
 
     /**
-     * Create the subscription.
+     * Create the user subscription.
      * 
      * @param <T>
      *            The subscription object reference type
      * @param sub
      *            The subscription to populate
+     * @param the
+     *            route for the subscription
      * 
      * @return the populated subscription
      */
-    protected <T extends Subscription> T createSubscription(T sub) {
+    protected <T extends SiteSubscription> T createSubscription(T sub,
+            Network defaultRoute) {
+
+        Preconditions.checkNotNull(sub, "A subscription must be provided.");
+        Preconditions.checkNotNull(defaultRoute,
+                "A defaultRoute must be provided.");
+
+        sub.setOwner((create) ? LocalizationManager.getInstance()
+                .getCurrentUser() : this.subscription.getOwner());
+
+        return setupCommonSubscriptionAttributes(sub, defaultRoute);
+    }
+
+    /**
+     * Sets up common subscription attributes.
+     * 
+     * @param <T>
+     *            The subscription object reference type
+     * @param sub
+     *            The subscription to populate
+     * @param the
+     *            route for the subscription
+     * 
+     * @return the populated subscription
+     */
+    private <T extends Subscription> T setupCommonSubscriptionAttributes(T sub,
+            Network defaultRoute) {
+
+        Preconditions.checkNotNull(sub, "A subscription must be provided.");
+        Preconditions.checkNotNull(defaultRoute,
+                "A defaultRoute must be provided.");
+
         ArrayList<Parameter> selectedParameterObjs = vTab.getParameters();
 
+        sub.setRoute(defaultRoute);
         sub.setName(nameText.getText());
-        sub.setOfficeID(LocalizationManager.getInstance().getCurrentSite());
-        if (create) {
-            sub.setOwner(LocalizationManager.getInstance().getCurrentUser());
+        if (subscription == null || subscription.getOfficeIDs() == null) {
+            sub.addOfficeID(LocalizationManager.getInstance().getCurrentSite());
         } else {
-            sub.setOwner(this.subscription.getOwner());
+            sub.setOfficeIDs(subscription.getOfficeIDs());
+        }
+
+        if (!create) {
             sub.setGroupName(this.subscription.getGroupName());
             sub.setSubscriptionEnd(this.subscription.getSubscriptionEnd());
             sub.setSubscriptionStart(this.subscription.getSubscriptionStart());
@@ -630,8 +688,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         sub.setDataSetName(dataSet.getDataSetName());
         sub.setSubscriptionId("AdHocID");
         if (this.subscription != null) {
-            sub.setNotify(this.subscription.isNotify());
-
             if (this.subscription.getDescription() != null) {
                 sub.setDescription(subscription.getDescription());
             }
@@ -915,8 +971,7 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
                     final List<Integer> selectedLevelIndices = levels
                             .getSelectedLevelIndices();
                     for (int index : selectedLevelIndices) {
-                        v.addLevel(String.valueOf(levels.getLevel()
-                                .get(index)));
+                        v.addLevel(String.valueOf(levels.getLevel().get(index)));
                     }
                 }
             }

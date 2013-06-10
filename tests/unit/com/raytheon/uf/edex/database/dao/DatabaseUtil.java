@@ -36,6 +36,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 10, 2012 0726       djohnson     Initial creation
+ * Feb 27, 2013 1644       djohnson     Add constant for second in-memory database Spring file.
  * 
  * </pre>
  * 
@@ -49,6 +50,8 @@ public final class DatabaseUtil {
             .getHandler(DatabaseUtil.class);
 
     public static final String UNIT_TEST_DB_BEANS_XML = "/unit-test-db-beans.xml";
+
+    public static final String UNIT_TEST_DB_BEANS2_XML = "/unit-test-db-beans2.xml";
 
     private static ApplicationContext originalApplicationContext;
 

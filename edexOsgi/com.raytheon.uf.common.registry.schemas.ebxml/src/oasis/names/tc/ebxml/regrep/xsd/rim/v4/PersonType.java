@@ -66,7 +66,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @Entity
 @Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(name = "Person")
+@Table(schema = "ebxml", name = "Person")
 public class PersonType extends PartyType {
 
     @XmlElement(name = "PersonName")

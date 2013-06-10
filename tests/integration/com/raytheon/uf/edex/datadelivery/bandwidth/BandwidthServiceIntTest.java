@@ -46,6 +46,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.raytheon.uf.common.datadelivery.bandwidth.BandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
+import com.raytheon.uf.common.datadelivery.bandwidth.WfoBandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.TimeWindowData;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
@@ -77,6 +78,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Dec 06, 2012 1397       djohnson     Add tests for getting bandwidth graph data.
  * Feb 20, 2013 1543       djohnson     Use WFO bandwidth manager.
  * Feb 26, 2013 1643       djohnson     BandwidthService extends reusable class.
+ * Feb 27, 2013 1644       djohnson     Bandwidth service is the WFO version.
  * 
  * </pre>
  * 
@@ -96,7 +98,7 @@ public class BandwidthServiceIntTest extends AbstractBandwidthManagerIntTest {
 
     private static final int ONE_HUNDRED = 100;
 
-    private final BandwidthService service = new BandwidthService() {
+    private final BandwidthService service = new WfoBandwidthService() {
         @Override
         protected Object getResponseFromServer(IBandwidthRequest request)
                 throws Exception {

@@ -44,7 +44,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.db.dao.spatial.ObStationDao;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.taf.common.ChangeGroup;
 import com.raytheon.edex.plugin.taf.common.TafPeriod;
@@ -54,6 +53,7 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
@@ -68,6 +68,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 20080424     1001        jkorman     Initial implementation.
  * 9/4/2008     1444        grichard    Import constants from TafConstants class.
  * Oct 21, 2008       1515  jkorman     Added 30 Hour capability changes.
+ * Feb 27, 2013 1638        mschenke    Moved ObStationDao to edex pointdata plugin
  * </pre>
  * 
  * @author jkorman

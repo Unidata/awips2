@@ -72,7 +72,6 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 16 Aug 2012  843        B. Hebbard  Added OSCAT
  * 17 Aug 2012  655        B. Hebbard  Added paintProps as parameter to IDisplayable draw
  *  12/19/2012    #960     Greg Hull   override propertiesChanged() to update colorBar.
- * 30 May 2013             B. Hebbard  Merge changes by RTS in OB13.3.1 for DataStoreFactory.getDataStore(...)
  * 
  * </pre>
  * 
@@ -132,11 +131,12 @@ public class NcscatResource extends
             // Given the NcscatRecord, locate the associated HDF5 data...
             File location = HDF5Util.findHDF5Location(nsRecord);
 
+            String hdf5File = location.getAbsolutePath();
             String group = nsRecord.getDataURI();
             String dataset = "Ncscat";
 
             // ...and retrieve it
-            IDataStore ds = DataStoreFactory.getDataStore(location);
+            IDataStore ds = DataStoreFactory.getDataStore(new File(hdf5File));
             IDataRecord dr;
             try {
                 dr = ds.retrieve(group, dataset, Request.ALL);

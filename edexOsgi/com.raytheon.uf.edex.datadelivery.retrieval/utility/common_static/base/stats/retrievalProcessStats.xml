@@ -1,8 +1,7 @@
 <statisticsConfig>
     <!-- Event Type should be fully qualified name of stat event -->
     <statisticsEvent type="com.raytheon.uf.common.datadelivery.event.retrieval.SubscriptionRetrievalEvent"
-        displayName="Subscription Retrieval" category="Data Delivery"
-        rawOfflineRetentionDays="-1" aggregateOfflineRetentionDays="90">
+        displayName="Subscription Retrieval" category="Data Delivery">
         <statisticsGroup name="plugin" displayName="Data Type" />
         <statisticsGroup name="provider" displayName="Data Provider" />
         <statisticsGroup name="owner" displayName="Owner" />
