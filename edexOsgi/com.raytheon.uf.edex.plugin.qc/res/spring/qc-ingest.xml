@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
     <bean id="qcScanner" class="com.raytheon.uf.edex.plugin.qc.QCScanner" depends-on="qcProperties">
@@ -21,7 +20,7 @@
                   autoStartup="false">
        <proxy id="qcScannerTarget"
                serviceInterface="com.raytheon.uf.edex.plugin.qc.IQCScannerTarget"
-               serviceUrl="directvm:qcToIndexAlert"/>
+               serviceUrl="direct-vm:qcToIndexAlert"/>
 
         <endpoint id="scheduledQCCron" uri="clusteredquartz://qc/scanQC/?cron=${qc.cron}"/>        
 
@@ -31,14 +30,14 @@
         </route>
 
         <route id="qcToIndexAlert">
-            <from uri="directvm:qcToIndexAlert" />
+            <from uri="direct-vm:qcToIndexAlert" />
             <setHeader headerName="pluginName">
                 <constant>qc</constant>
             </setHeader>
             <setHeader headerName="ingestFileName">
                 <simple>${body.args[0].[last].ncSet}(${body.args[0].[last].ncIndex})</simple>
             </setHeader>
-            <to uri="directvm:indexAlert" pattern="InOnly"/>
+            <to uri="direct-vm:indexAlert" pattern="InOnly"/>
         </route>
         
         <route id="scheduledQCScanWork">

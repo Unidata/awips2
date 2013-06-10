@@ -42,7 +42,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.DisplayType;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.Mode;
 import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
@@ -65,8 +65,9 @@ import com.raytheon.viz.ui.input.EditableManager;
  *                                     retrieve the requested line style so
  *                                     that it can be stored in the 
  *                                     StormTrackState.
+ * 02-12-2013   1600       jsanchez    Changed the visibility of the method adjustAngle
+ * 03-05-2013   1600       jsanchez    Returned the visibility of the method adjustAngle to protected.
  * 15Mar2013    15693  mgamazaychikov  Added magnification to display state.
- * 
  * </pre>
  * 
  * @author mschenke
@@ -94,7 +95,7 @@ public abstract class AbstractStormTrackResource extends
     private int lastFrameCount = -1;
 
     public AbstractStormTrackResource(
-            AwipsToolsResourceData<? extends AbstractStormTrackResource> resourceData,
+            GenericToolsResourceData<? extends AbstractStormTrackResource> resourceData,
             LoadProperties loadProperties, MapDescriptor descriptor) {
         super(resourceData, loadProperties);
         setDescriptor(descriptor);
@@ -269,7 +270,7 @@ public abstract class AbstractStormTrackResource extends
     }
 
     /**
-     * Adjusts the angle from -360/360 to be between -180/180
+     * Adjusts the angle to be within the range -180 to +180 degrees.
      * 
      * @param angle
      * @return

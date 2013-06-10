@@ -20,14 +20,20 @@
 package com.raytheon.viz.hydrobase.dialogs;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -44,6 +50,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.data.DataIngestFilterData;
@@ -63,6 +73,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------	----------	-----------	--------------------------
  * Sep 4, 2008				lvenable	Initial creation
  * Dec 11, 2008 1787        askripsk    Connect to DB
+ * Apr 18, 2013 1790        rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -70,6 +81,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class DataIngestFilterDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DataIngestFilterDlg.class);
 
     /**
      * Control font.
@@ -264,16 +277,31 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
     }
 
     /**
+     * Set to display's wait cursor. No need to dispose.
+     */
+    private Cursor waitCursor;
+
+    /**
+     * Used by setBusy to determine which cursor to display.
+     */
+    private AtomicInteger busyCnt = new AtomicInteger(0);
+
+    /**
      * Constructor.
      * 
      * @param parent
      *            Parent shell.
      */
     public DataIngestFilterDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Data Ingest Filter");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         GridLayout mainLayout = new GridLayout(1, false);
@@ -283,14 +311,28 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
+
+        waitCursor = shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
 
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
         selectedItemControls = new ArrayList<Control>();
@@ -300,9 +342,17 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
         createSelectedItemGroup();
 
         createBottomButtons();
+    }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
+     */
+    @Override
+    protected void preOpened() {
+        super.preOpened();
         populateStaticData();
-
         populateLists(true);
     }
 
@@ -798,7 +848,7 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
         okBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 if (saveRecord()) {
-                    shell.dispose();
+                    close();
                 }
             }
         });
@@ -821,7 +871,7 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
         cancelBtn.setLayoutData(gd);
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -889,17 +939,10 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
                 physElemSelectedList.add(currPE);
             }
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Problem populating static data ", e);
         }
 
-    }
-
-    /**
-     * Populates the main ingest filter list with data from the database cache.
-     */
-    private void populateLists() {
-        populateLists(false);
     }
 
     /**
@@ -911,32 +954,98 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
      */
     private void populateLists(boolean forceLoad) {
         ingestDataList.removeAll();
+        setBusy(true);
 
-        DataIngestFilterDataManager man = DataIngestFilterDataManager
-                .getInstance();
+        getIngestFilter(physElemChk.getSelection(), getSelectedPEs(),
+                locationChk.getSelection(), locationFilterTF.getText(),
+                switchesChk.getSelection(), masterFilterChk.getSelection(),
+                ofsFilterChk.getSelection(), mpeFilterChk.getSelection(),
+                typeSrcChk.getSelection(),
+                getSelectedStringValue(typeSrcFilterCbo), forceLoad);
+    }
 
-        try {
-            ArrayList<DataIngestFilterData> temp = man.getIngestFilter(
-                    physElemChk.getSelection(), getSelectedPEs(), locationChk
-                            .getSelection(), locationFilterTF.getText(),
-                    switchesChk.getSelection(), masterFilterChk.getSelection(),
-                    ofsFilterChk.getSelection(), mpeFilterChk.getSelection(),
-                    typeSrcChk.getSelection(),
-                    getSelectedStringValue(typeSrcFilterCbo), forceLoad);
+    /**
+     * Queries manager for data to populate the ingest data list off the UI
+     * thread.
+     * 
+     * @param physElemChkSelection
+     * @param selectedPEs
+     * @param locationChkSelection
+     * @param locationFilterText
+     * @param switchesChkSelection
+     * @param masterFilterChkSelection
+     * @param ofsFilterChkSelection
+     * @param mpeFilterChkSelection
+     * @param typeSrcChkSelection
+     * @param typeSrcFilterCboValue
+     * @param forceLoad
+     */
+    private void getIngestFilter(final boolean physElemChkSelection,
+            final java.util.List<String> selectedPEs,
+            final boolean locationChkSelection,
+            final String locationFilterText,
+            final boolean switchesChkSelection,
+            final boolean masterFilterChkSelection,
+            final boolean ofsFilterChkSelection,
+            final boolean mpeFilterChkSelection,
+            final boolean typeSrcChkSelection,
+            final String typeSrcFilterCboValue, final boolean forceLoad) {
 
-            for (DataIngestFilterData currData : temp) {
+        Job job = new Job("") {
+
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+
+                DataIngestFilterDataManager man = DataIngestFilterDataManager
+                        .getInstance();
+                java.util.List<DataIngestFilterData> temp = null;
+                try {
+                    temp = man.getIngestFilter(physElemChkSelection,
+                            selectedPEs, locationChkSelection,
+                            locationFilterText, switchesChkSelection,
+                            masterFilterChkSelection, ofsFilterChkSelection,
+                            mpeFilterChkSelection, typeSrcChkSelection,
+                            typeSrcFilterCboValue, forceLoad);
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Problem filter list ", e);
+                } finally {
+                    final java.util.List<DataIngestFilterData> t = temp;
+                    VizApp.runAsync(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            updatePopulateList(t);
+                        }
+                    });
+
+                }
+                return Status.OK_STATUS;
+            }
+        };
+        job.schedule();
+    }
+
+    /**
+     * Update the ingest data list.
+     * 
+     * @param difData
+     */
+    private void updatePopulateList(java.util.List<DataIngestFilterData> difData) {
+        if (difData != null) {
+            DataIngestFilterDataManager man = DataIngestFilterDataManager
+                    .getInstance();
+            for (DataIngestFilterData currData : difData) {
                 ingestDataList.add(man.getIngestFilterString(currData));
             }
-        } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
 
-        if (ingestDataList.getItemCount() > 0) {
-            updateDialogState(DialogStates.DATA_AVAILABLE);
-        } else {
-            updateDialogState(DialogStates.NO_DATA);
+            if (ingestDataList.getItemCount() > 0) {
+                updateDialogState(DialogStates.DATA_AVAILABLE);
+            } else {
+                updateDialogState(DialogStates.NO_DATA);
+            }
         }
+        setBusy(false);
     }
 
     /**
@@ -944,9 +1053,9 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
      * 
      * @return
      */
-    private ArrayList<String> getSelectedPEs() {
+    private java.util.List<String> getSelectedPEs() {
         int[] selectedInd = physElemFilterList.getSelectionIndices();
-        ArrayList<String> peFilter = new ArrayList<String>();
+        java.util.List<String> peFilter = new ArrayList<String>();
 
         for (int i : selectedInd) {
             peFilter.add(physElemFilterList.getItem(i).split(" ")[0]
@@ -1071,12 +1180,7 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
                 successful = true;
             }
         } catch (VizException e) {
-            MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-            mb.setText("Unable to Save");
-            mb.setMessage("An error occurred while saving");
-            mb.open();
-
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Problem saving record ", e);
         }
 
         populateLists(true);
@@ -1108,8 +1212,8 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
                 mb.open();
             }
         } catch (VizException e) {
-            // don't care, just return false
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Problem checking constraints ", e);
         }
 
         return rval;
@@ -1217,13 +1321,8 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
 
                 populateLists(true);
             } catch (VizException e) {
-                MessageBox mbErr = new MessageBox(shell, SWT.ICON_ERROR
-                        | SWT.OK);
-                mbErr.setText("Unable to Save");
-                mbErr.setMessage("An error occurred while saving");
-                mbErr.open();
-
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Problem savings switches ", e);
             }
         }
     }
@@ -1267,14 +1366,8 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
                     // Synchronize StnClass table
                     StnClassSyncUtil.setStnClass(selectedData.getLid());
                 } catch (VizException e) {
-                    MessageBox mbErr = new MessageBox(shell, SWT.ICON_ERROR
-                            | SWT.OK);
-                    mbErr.setText("Delete Failure");
-                    mbErr
-                            .setMessage("An error occurred while trying to delete the record.");
-                    mbErr.open();
-
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Problem deleting record ", e);
                 }
 
                 populateLists(true);
@@ -1329,6 +1422,20 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
             break;
         default:
             break;
+        }
+    }
+
+    /**
+     * Determine what cursor to display.
+     * 
+     * @param busy
+     */
+    private void setBusy(boolean busy) {
+        if (busy) {
+            busyCnt.incrementAndGet();
+            shell.setCursor(waitCursor);
+        } else if (busyCnt.decrementAndGet() == 0) {
+            shell.setCursor(null);
         }
     }
 }

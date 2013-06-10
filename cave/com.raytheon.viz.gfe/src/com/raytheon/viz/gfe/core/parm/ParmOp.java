@@ -37,7 +37,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
@@ -55,6 +54,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEException;
@@ -83,6 +83,7 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
  * 02/23/2012   1876       dgilling    Implement missing clearUndoParmList
  *                                     function.
  * 02/13/2013   #1597      randerso    Added logging to support GFE Performance metrics
+ * Feb 15, 2013 1638       mschenke    Moved Util.getUnixTime into TimeUtil 
  * 
  * </pre>
  * 
@@ -1077,7 +1078,7 @@ public class ParmOp {
             PythonPreferenceStore store = Activator.getDefault()
                     .getPreferenceStore();
             // determine time limits for skipping, round to the hour
-            long current = (Util.getUnixTime(SimulatedTime.getSystemTime()
+            long current = (TimeUtil.getUnixTime(SimulatedTime.getSystemTime()
                     .getTime()) / 3600) * 3600;
             TimeRange limitTime = TimeRange.allTimes();
 

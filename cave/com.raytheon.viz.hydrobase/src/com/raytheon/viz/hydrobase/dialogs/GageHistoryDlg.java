@@ -45,6 +45,9 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.GageDBData;
 import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
@@ -59,6 +62,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------	----------	-----------	--------------------------
  * Sep 4, 2008				lvenable	Initial creation
  * Jan 8, 2008  1802        askripsk    Connect to DB.
+ * Apr 19, 2013 170-        rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -66,6 +70,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class GageHistoryDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GageHistoryDlg.class);
 
     /**
      * Control font.
@@ -106,8 +112,9 @@ public class GageHistoryDlg extends CaveSWTDialog {
      * Location text control.
      */
     private Text locationTF;
-    
-    private String currentLocText=null;
+
+    private String currentLocText = null;
+
     /**
      * OK button.
      */
@@ -126,7 +133,7 @@ public class GageHistoryDlg extends CaveSWTDialog {
     /**
      * Cache of Gages
      */
-    private ArrayList<GageDBData> gageData;
+    private java.util.List<GageDBData> gageData;
 
     /**
      * Date format
@@ -146,7 +153,7 @@ public class GageHistoryDlg extends CaveSWTDialog {
     private String lid;
 
     /**
-     * Constructor.
+     * Non-blocking Constructor.
      * 
      * @param parent
      *            Parent shell.
@@ -163,6 +170,11 @@ public class GageHistoryDlg extends CaveSWTDialog {
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -173,14 +185,26 @@ public class GageHistoryDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
+        setReturnValue(lid);
         // Initialize all of the controls and layouts
         initializeComponents();
 
@@ -322,16 +346,15 @@ public class GageHistoryDlg extends CaveSWTDialog {
         locationTF = new Text(locationGroup, SWT.BORDER | SWT.MULTI | SWT.WRAP);
         locationTF.setLayoutData(gd);
         locationTF.setTextLimit(255);
-        currentLocText=locationTF.getText();
+        currentLocText = locationTF.getText();
         ModifyListener listener = new ModifyListener() {
-        	public void modifyText(ModifyEvent e) {
-        		if (locationTF.getText().length()>255){
-        			locationTF.setText(currentLocText);
-        			shell.getDisplay().beep();
-        		}
-        		else
-        			currentLocText=locationTF.getText();
-        	}
+            public void modifyText(ModifyEvent e) {
+                if (locationTF.getText().length() > 255) {
+                    locationTF.setText(currentLocText);
+                    shell.getDisplay().beep();
+                } else
+                    currentLocText = locationTF.getText();
+            }
         };
 
         locationTF.addModifyListener(listener);
@@ -358,7 +381,7 @@ public class GageHistoryDlg extends CaveSWTDialog {
         okBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 if (saveRecord()) {
-                    shell.dispose();
+                    close();
                 }
             }
         });
@@ -382,7 +405,7 @@ public class GageHistoryDlg extends CaveSWTDialog {
         cancelBtn.setLayoutData(gd);
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -424,6 +447,9 @@ public class GageHistoryDlg extends CaveSWTDialog {
         return labelStr;
     }
 
+    /**
+     * Obtain and display gage static data.
+     */
     private void loadStaticData() {
         typeList.removeAll();
         ownerList.removeAll();
@@ -445,13 +471,22 @@ public class GageHistoryDlg extends CaveSWTDialog {
                 maintList.add(currAgency);
             }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to load static data. ", e);
         }
     }
 
-    private ArrayList<String> getGageData(String table, String column)
+    /**
+     * Get gage data and update the display.
+     * 
+     * @param table
+     * @param column
+     * @return
+     * @throws VizException
+     */
+    private java.util.List<String> getGageData(String table, String column)
             throws VizException {
-        ArrayList<String> rval = new ArrayList<String>();
+        java.util.List<String> rval = new ArrayList<String>();
 
         String query = "SELECT %s FROM %s ORDER BY %s";
         query = String.format(query, column, table, column);
@@ -467,6 +502,9 @@ public class GageHistoryDlg extends CaveSWTDialog {
         return rval;
     }
 
+    /**
+     * Get gage data for the station location.
+     */
     private void getDialogData() {
         GageDBData seedData = new GageDBData();
         seedData.setLid(lid);
@@ -474,12 +512,15 @@ public class GageHistoryDlg extends CaveSWTDialog {
         try {
             gageData = HydroDBDataManager.getInstance().getData(seedData);
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Unable to load data. ", e);
         }
 
         updateDisplay();
     }
 
+    /**
+     * Update display with gage data.
+     */
     private void updateDisplay() {
         String format = "%-15s                  %-15s           %-10s       %-10s";
         dataList.removeAll();
@@ -490,8 +531,8 @@ public class GageHistoryDlg extends CaveSWTDialog {
             for (GageDBData currData : gageData) {
                 endDate = (currData.getEndDate() != null) ? dateFormat
                         .format(currData.getEndDate()) : "";
-                dataList.add(String.format(format, currData.getType(), currData
-                        .getOwner(),
+                dataList.add(String.format(format, currData.getType(),
+                        currData.getOwner(),
                         dateFormat.format(currData.getBeginDate()), endDate));
             }
 
@@ -502,6 +543,9 @@ public class GageHistoryDlg extends CaveSWTDialog {
 
     }
 
+    /**
+     * Display currently selected record's information.
+     */
     private void updateInformation() {
         GageDBData currData = getSelectedRecord();
 
@@ -544,6 +588,11 @@ public class GageHistoryDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Verify and save gage data.
+     * 
+     * @return true when record saved
+     */
     private boolean saveRecord() {
         boolean successful = false;
 
@@ -564,8 +613,7 @@ public class GageHistoryDlg extends CaveSWTDialog {
             } catch (ParseException e) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Unable to Save");
-                mb
-                        .setMessage("Please enter the Begin Date\nin the form: YYYY-MM-DD");
+                mb.setMessage("Please enter the Begin Date\nin the form: YYYY-MM-DD");
                 mb.open();
 
                 return successful;
@@ -581,8 +629,7 @@ public class GageHistoryDlg extends CaveSWTDialog {
                     MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR
                             | SWT.OK);
                     mb.setText("Unable to Save");
-                    mb
-                            .setMessage("Please enter the End Date\nin the form: YYYY-MM-DD");
+                    mb.setMessage("Please enter the End Date\nin the form: YYYY-MM-DD");
                     mb.open();
 
                     return successful;
@@ -610,19 +657,17 @@ public class GageHistoryDlg extends CaveSWTDialog {
                 // Refresh Cache
                 getDialogData();
             } catch (VizException e) {
-                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-                mb.setText("Unable to Save");
-                mb
-                        .setMessage("An error occurred while trying to save the City");
-                mb.open();
-
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error while trying to save the City. ", e);
             }
         }
 
         return successful;
     }
 
+    /**
+     * Delete selected record from data base and update display.
+     */
     private void deleteRecord() {
         GageDBData currData = getSelectedRecord();
 
@@ -641,13 +686,8 @@ public class GageHistoryDlg extends CaveSWTDialog {
                     // Refresh the cache
                     getDialogData();
                 } catch (VizException e) {
-                    mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-                    mb.setText("Unable to Delete");
-                    mb
-                            .setMessage("An error occurred while trying to delete the entry");
-                    mb.open();
-
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to delete entry. ", e);
                 }
             }
         } else {
@@ -658,11 +698,17 @@ public class GageHistoryDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Clear information fields and update to new record.
+     */
     private void newRecord() {
         clearInformation();
         updateDialogState(DialogState.NEW_RECORD);
     }
 
+    /**
+     * Clear all the information list and fields.
+     */
     private void clearInformation() {
         typeList.select(0);
         ownerList.select(0);
@@ -673,6 +719,11 @@ public class GageHistoryDlg extends CaveSWTDialog {
         locationTF.setText("");
     }
 
+    /**
+     * Get the gage data for the current selection in the data list.
+     * 
+     * @return currData
+     */
     private GageDBData getSelectedRecord() {
         GageDBData currData = null;
 
@@ -683,6 +734,11 @@ public class GageHistoryDlg extends CaveSWTDialog {
         return currData;
     }
 
+    /**
+     * Update button enable state base on the state.
+     * 
+     * @param currState
+     */
     private void updateDialogState(DialogState currState) {
         switch (currState) {
         case NEW_RECORD:

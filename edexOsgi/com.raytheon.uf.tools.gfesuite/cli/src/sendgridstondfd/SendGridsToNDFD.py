@@ -18,10 +18,27 @@
 # further licensing information.
 ##
 
+#
+# Provides a command-line utility to a site's grids to a folder and later
+# sent to NDFD.
+#  
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    ??/??/??                      ????????       Initial Creation.
+#    04/05/13         1761         dgilling       Rewrite based on 
+#                                                 ExportGridsRequest. 
+#    
+# 
+#
+
+
 import argparse
 import sys
 
-from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import SendGridsToNDFDRequest
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import ExportGridsRequest
 
 from ufpy import ThriftClient
 from ufpy import UsageArgumentParser
@@ -31,8 +48,9 @@ class SendGridsToNDFD:
     def send(self, site, host, port):       
         thriftClient = ThriftClient.ThriftClient(host, port)
         
-        ndfdRequest = SendGridsToNDFDRequest()
+        ndfdRequest = ExportGridsRequest()
         ndfdRequest.setSite(site)
+        ndfdRequest.setMode("GRIB2")
         
         serverResponse = thriftClient.sendRequest(ndfdRequest)
         if (not serverResponse.isOkay()):

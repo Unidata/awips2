@@ -40,6 +40,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.AnnotationException;
 
+import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.SerializableManager;
@@ -67,7 +68,8 @@ import com.raytheon.uf.edex.database.plugin.PluginVersionDao;
  * ------------ ---------- ----------- --------------------------
  * 10/8/2008    1532        bphillip    Initial checkin
  * 2/9/2009     1990       bphillip     Fixed index creation
- * 03/20/09                njensen     Implemented IPluginRegistryChanged
+ * 03/20/09                njensen      Implemented IPluginRegistryChanged
+ * Mar 29, 2013 1841       djohnson     Remove unused method, warnings, and close streams with utility method.
  * Mar 02, 2013 1970       bgonzale    Added check for abstract entities in sql index naming.
  *                                     Removed unused private method populateSchema.
  * </pre>
@@ -78,7 +80,8 @@ import com.raytheon.uf.edex.database.plugin.PluginVersionDao;
 public class SchemaManager implements IDatabasePluginRegistryChanged {
 
     /** The logger */
-    protected transient Log logger = LogFactory.getLog(getClass());
+    private static final Log logger = LogFactory
+            .getLog(SchemaManager.class);
 
     private static final String resourceSelect = "select relname from pg_class where relname = '";
 
@@ -93,18 +96,18 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
     private static SchemaManager instance;
 
     /** The directory which the plugins reside */
-    private String pluginDir;
+    private final String pluginDir;
 
-    private DatabasePluginRegistry dbPluginRegistry;
+    private final DatabasePluginRegistry dbPluginRegistry;
 
-    private Map<String, ArrayList<String>> pluginCreateSql = new HashMap<String, ArrayList<String>>();
+    private final Map<String, ArrayList<String>> pluginCreateSql = new HashMap<String, ArrayList<String>>();
 
-    private Map<String, ArrayList<String>> pluginDropSql = new HashMap<String, ArrayList<String>>();
+    private final Map<String, ArrayList<String>> pluginDropSql = new HashMap<String, ArrayList<String>>();
 
-    private Pattern createResourceNamePattern = Pattern
+    private final Pattern createResourceNamePattern = Pattern
             .compile("^create (?:table |index |sequence )(?:[A-Za-z_0-9]*\\.)?(.+?)(?: .*)?$");
 
-    private Pattern createIndexTableNamePattern = Pattern
+    private final Pattern createIndexTableNamePattern = Pattern
             .compile("^create index %TABLE%.+? on (.+?) .*$");
 
     /**
@@ -175,25 +178,14 @@ public class SchemaManager implements IDatabasePluginRegistryChanged {
                             "Unable to execute scripts for plugin FQN "
                                     + pluginFQN);
                 } finally {
-                    if (reader != null) {
-                        try {
-                            reader.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    if (stream != null) {
-                        try {
-                            stream.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
+                    Util.close(reader);
+                    Util.close(stream);
                 }
             }
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void pluginAdded(String pluginName) throws PluginException {
         boolean haveLock = false;

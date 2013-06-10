@@ -17,7 +17,10 @@
  * 										    removed xml serialization as well
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 12, 2013 1857            bgonzale    Added SequenceGenerator annotation.
-</pre>
+ * May 07, 2013 1869            bsteffen    Remove dataURI column from
+ *                                          PluginDataObject.
+ *
+ * </pre>
  *
  * @author T.Lee
  * @version 1.0
@@ -29,6 +32,8 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -288,5 +293,12 @@ public class FfgRecord extends PluginDataObject {
     			//fp.setParentID(this);
     		}
     	}*/
+    }
+
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
     }
 }

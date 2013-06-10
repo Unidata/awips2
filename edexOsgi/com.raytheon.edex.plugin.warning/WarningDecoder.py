@@ -32,6 +32,7 @@
 #  ------------ ---------- ----------- --------------------------
 #                                      Initial creation
 #  Feb 19, 2013 1636       rferrel     Use TimeTools to get file timestamp.
+#  May 07, 2013 1973       rferrel     Adjust Issue and Purge times to be relative to start time.
 # </pre>
 #
 # @author rferrel
@@ -142,9 +143,10 @@ class StdWarningDecoder():
 
     def decode(self):
         #get pil and date-time group
+        self._adjustIssueTime = True
         self._productPil, self._issueTime, linePos,\
-          self._completeProductPil  = self._getPilAndDTG()
-          
+          self._completeProductPil, self._issueTimeStr  = self._getPilAndDTG()
+         
          # If this is a WCL - don't go any further. Run WCL procedure and exit.
         if self._productPil[0:3] == "WCL":
             endpoint = "WCLWatch"
@@ -182,9 +184,9 @@ class StdWarningDecoder():
             purgeTime = None
             self._checkForDTG(ugcString)
             if self._hasDTG:
-                purgeTime = self._dtgFromDDHHMM(ugcString[-7:-1])
+                purgeTime = ugcString[-7:-1]
             else:
-                purgeTime = self._getPurgeTimeFromVTEC(vtecStrings)            
+                purgeTime = self._getPurgeTimeStrFromVTEC(vtecStrings)            
             vtecList = self._expandVTEC(ugcString, vtecStrings, segCount,
               segText, cities, purgeTime)
             segCount = segCount + 1
@@ -202,13 +204,13 @@ class StdWarningDecoder():
         else:
             self._hasDTG = False
 
-    def _getPurgeTimeFromVTEC(self, vtecStrings):
+    def _getPurgeTimeStrFromVTEC(self, vtecStrings):
         for vtecS, hvtec in vtecStrings:
             search = re.search(self._vtecRE, vtecS)
             #print "getting time from ", search.group(8)[-2:] + search.group(9)
-            endTime = self._dtgFromDDHHMM(str(search.group(8)[-2:]) + str(search.group(9)))
-            return endTime
-        return 0
+            timeStr = str(search.group(8)[-2:]) + str(search.group(9))
+            return timeStr
+        return None
 
     def _usage(self):
         #Prints out usage information if started without sufficient command
@@ -397,7 +399,7 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
                 LogStream.logVerbose("Pil=", pil_search.group(0))
                 return (self._lines[count+1][0:3],
                   self._dtgFromDDHHMM(dtg_search.group(1)), count+2,
-                    pil_search.group(0))
+                    pil_search.group(0), dtg_search.group(1))
             count = count + 1
             if count >= len(self._lines)-1:
                 LogStream.logProblem("Did not find either the product DTG" +\
@@ -405,7 +407,11 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
                   LogStream.exc())
                 raise Exception, "Product DTG or Pil missing"
 
-    def _dtgFromDDHHMM(self, dtgString):
+    def _dtgFromDDHHMM(self, dtgString, baseTime=None):
+        if dtgString is None:
+            return 0.0
+        if baseTime is None :
+            baseTime = self._time
         #utility function taking a ddhhmm string
         #group1=day, group2=hour, group3=minute
         #returns a time object
@@ -413,9 +419,9 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
         wmo_hour = int(dtgString[2:4])
         wmo_min = int(dtgString[4:6])
 
-        gmtuple = time.gmtime(self._time)
-        wmo_year = gmtuple[0]  #based on current time
-        wmo_month = gmtuple[1] #based on current time
+        gmtuple = time.gmtime(baseTime)
+        wmo_year = gmtuple[0]
+        wmo_month = gmtuple[1]
         current_day = gmtuple[2]
         if current_day - wmo_day > 15:
             # next  month
@@ -773,6 +779,9 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
             template['seg'] = segment
             startTime, zeros = self._calcTime(search.group(6),
               search.group(7), self._issueTime * 1000)
+            if self._adjustIssueTime :
+                self._issueTime = self._dtgFromDDHHMM(self._issueTimeStr, startTime/1000.0)
+                self._adjustIssueTime = False
             endTime, ufn = self._calcTime(search.group(8), 
               search.group(9), self._maxFutureTime * 1000)
             template['startTime'] = long(startTime)
@@ -782,7 +791,7 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
             else:
                 template['ufn'] = False
             template['officeid'] = search.group(2)
-            template['purgeTime'] = long(purgeTime * 1000)
+            template['purgeTime'] = long(self._dtgFromDDHHMM(purgeTime, self._issueTime)*1000)
             template['issueTime'] = long(self._issueTime * 1000)
             template['state'] = "Decoded"
             template['xxxid'] = self._completeProductPil[3:]

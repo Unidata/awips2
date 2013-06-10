@@ -35,7 +35,7 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.edex.urifilter.URIFilter;
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.fog.FogRecord.FOG_THREAT;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
@@ -84,6 +84,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jun 16, 2012 14386      zhao        Auto update County/Zone Table when new fog threat data arrives
  * Oct 26, 2012 1280       skorolev    Made changes for non-blocking dialog and changed HashMap to Map
  * Oct.31  2012 1297       skorolev    Clean code
+ * Feb 15, 2013 1638       mschenke    Changed code to reference DataURI.SEPARATOR instead of URIFilter
  * 
  * </pre>
  * 
@@ -144,11 +145,11 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     private Geometry geoAdjAreas = null;
 
     /** Data URI pattern for fog **/
-    private final Pattern fogPattern = Pattern.compile(URIFilter.uriSeperator
-            + OBS + URIFilter.uriSeperator + wildCard + URIFilter.uriSeperator
-            + wildCard + URIFilter.uriSeperator + cwa + URIFilter.uriSeperator
-            + wildCard + URIFilter.uriSeperator + wildCard
-            + URIFilter.uriSeperator + wildCard + URIFilter.uriSeperator
+    private final Pattern fogPattern = Pattern.compile(DataURI.SEPARATOR
+            + OBS + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR
+            + wildCard + DataURI.SEPARATOR + cwa + DataURI.SEPARATOR
+            + wildCard + DataURI.SEPARATOR + wildCard
+            + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR
             + "fog");
 
     /**

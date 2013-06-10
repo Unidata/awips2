@@ -27,6 +27,7 @@ import org.eclipse.jface.action.IMenuManager;
 
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -37,10 +38,12 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.legend.ILegendDecorator;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.RenderingOrderFactory.ResourceOrder;
 import com.raytheon.viz.ui.cmenu.ContextMenuManager;
 import com.raytheon.viz.ui.cmenu.IContextMenuProvider;
+import com.raytheon.viz.ui.input.InputAdapter;
 
 /**
  * Base legend resource class, does majority of work for drawing legends.
@@ -68,6 +71,56 @@ public abstract class AbstractLegendResource<T extends AbstractResourceData>
 
     private static final int RIGHT_OFFSET_IN_PIXELS = 18;
 
+    private InputAdapter resourceClickedHandler = new InputAdapter() {
+
+        private boolean moved = false;
+
+        private ResourcePair mouseDownRsc;
+
+        @Override
+        public boolean handleMouseDown(int x, int y, int mouseButton) {
+            boolean handle = moved = false;
+            IDisplayPaneContainer container = getResourceContainer();
+            IDisplayPane active = container.getActiveDisplayPane();
+            if (active.getDescriptor() == getDescriptor()) {
+                mouseDownRsc = checkLabelSpace(getDescriptor(),
+                        active.getTarget(), x, y);
+                if (mouseDownRsc != null) {
+                    handle = AbstractLegendResource.this.checkResourceClick(
+                            mouseDownRsc, mouseButton);
+                    if (!handle) {
+                        mouseDownRsc = null;
+                    }
+                }
+            }
+            return handle;
+        }
+
+        @Override
+        public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+            if (mouseDownRsc != null) {
+                moved = true;
+            }
+            return moved;
+        }
+
+        @Override
+        public boolean handleMouseUp(int x, int y, int mouseButton) {
+            if (mouseDownRsc != null) {
+                try {
+                    if (!moved) {
+                        resourceClicked(mouseDownRsc, mouseButton);
+                    }
+                } finally {
+                    mouseDownRsc = null;
+                }
+                return true;
+            }
+            return false;
+        }
+
+    };
+
     /**
      * @param resourceData
      * @param loadProperties
@@ -84,7 +137,10 @@ public abstract class AbstractLegendResource<T extends AbstractResourceData>
      */
     @Override
     protected void disposeInternal() {
-
+        IDisplayPaneContainer container = getResourceContainer();
+        if (container != null) {
+            container.unregisterMouseHandler(resourceClickedHandler);
+        }
     }
 
     /*
@@ -148,7 +204,11 @@ public abstract class AbstractLegendResource<T extends AbstractResourceData>
      */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-
+        IDisplayPaneContainer container = getResourceContainer();
+        if (container != null) {
+            container.registerMouseHandler(resourceClickedHandler,
+                    InputPriority.SYSTEM_RESOURCE);
+        }
     }
 
     protected ResourcePair checkLabelSpace(IDescriptor descriptor,
@@ -288,5 +348,15 @@ public abstract class AbstractLegendResource<T extends AbstractResourceData>
             ResourcePair selectedResource) {
         ContextMenuManager.fillContextMenu(menuManager, selectedResource,
                 getResourceContainer());
+    }
+
+    protected boolean checkResourceClick(ResourcePair mouseDownRsc,
+            int mouseButton) {
+        // Do nothing
+        return false;
+    }
+
+    protected void resourceClicked(ResourcePair resource, int mouseButton) {
+        // Do nothing
     }
 }

@@ -7,8 +7,7 @@ Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
- com.raytheon.uf.common.alertviz;bundle-version="1.0.0",
- com.raytheon.edex.uengine;bundle-version="1.12.1174"
+ com.raytheon.uf.common.alertviz;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Export-Package: com.raytheon.uf.edex.alertviz.handler

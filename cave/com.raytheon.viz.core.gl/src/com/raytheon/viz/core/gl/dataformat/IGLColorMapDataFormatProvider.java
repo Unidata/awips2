@@ -19,8 +19,8 @@
  **/
 package com.raytheon.viz.core.gl.dataformat;
 
+import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
-import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapData;
 
 /**
  * Interface for providing an AbstractGLColorMapDataFormat object given

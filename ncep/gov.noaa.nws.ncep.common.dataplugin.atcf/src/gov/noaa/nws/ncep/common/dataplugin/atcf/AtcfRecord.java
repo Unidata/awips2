@@ -24,6 +24,8 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 import java.util.Calendar;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
@@ -57,6 +59,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 03/10/12        606    G. Hull      added reportType to URI
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869       bsteffen    Remove dataURI column from
+ *                                     PluginDataObject.
  * 
  * </pre>
  * 
@@ -748,4 +752,10 @@ public class AtcfRecord extends PluginDataObject {
 		this.userData = userData;
 	}
 
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }

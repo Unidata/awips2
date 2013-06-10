@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.raytheon.uf.common.colormap.IColorMap;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.DispatchingObject;
 import com.raytheon.uf.viz.remote.graphics.events.DisposeObjectEvent;

@@ -52,7 +52,6 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID.DataType;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
-import com.raytheon.uf.common.site.notify.SendSiteActivationNotifications;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification.ACTIVATIONSTATUS;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification.ACTIVATIONTYPE;
@@ -67,6 +66,7 @@ import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.site.ISiteActivationListener;
+import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
 
 /**
  * Activates the GFE server capabilities for a site
@@ -83,6 +83,7 @@ import com.raytheon.uf.edex.site.ISiteActivationListener;
  * Jul 12, 2012  15162    ryu         added check for invalid db at activation
  * Dec 11, 2012  14360    ryu         log a clean message in case of
  *                                    missing configuration (no stack trace).
+ * Feb 15, 2013  1638      mschenke   Moved sending of site notification messages to edex plugin
  * Feb 28, 2013  #1447    dgilling    Enable active table fetching on site
  *                                    activation.
  * Mar 20, 2013  #1774    randerso    Changed to use GFED2DDao

@@ -83,6 +83,7 @@ import com.raytheon.uf.edex.purgesrv.PurgeJob.PURGE_JOB_TYPE;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 18, 2012 #470       bphillip    Initial creation
+ * Apr 11, 2013 #1959      dhladky     Added method that only processes running plugins
  * 
  * </pre>
  * 
@@ -141,163 +142,176 @@ public class PurgeManager {
 
 	private PurgeDao dao = new PurgeDao();
 
-	private static PurgeManager instance = new PurgeManager();
-
-	public static PurgeManager getInstance() {
-		return instance;
-	}
 
 	/**
 	 * Creates a new PurgeManager
 	 */
-	private PurgeManager() {
+	protected PurgeManager() {
+	    
 	}
 
-	/**
-	 * Executes the purge routine
-	 */
-	public void executePurge() {
-		if (!purgeEnabled) {
-			PurgeLogger.logWarn(
-					"Data purging has been disabled.  No data will be purged.",
-					null);
-			return;
-		}
+    /**
+     * Executes the purge routine
+     */
+    public void executePurge() {
 
-		ClusterTask purgeMgrTask = getPurgeLock();
+        // Gets the list of plugins in ascending order by the last time they
+        // were purged
+        List<String> pluginList = dao.getPluginsByPurgeTime();
 
-		try {
-			// Prune the job map
-			Iterator<PurgeJob> iter = purgeJobs.values().iterator();
-			while (iter.hasNext()) {
-				if (!iter.next().isAlive()) {
-					iter.remove();
-				}
-			}
+        // check for any new plugins or database being purged and needing
+        // entries recreated
+        Set<String> availablePlugins = new HashSet<String>(PluginRegistry
+                .getInstance().getRegisteredObjects());
 
-			Calendar purgeTimeOutLimit = Calendar.getInstance();
-			purgeTimeOutLimit.setTimeZone(TimeZone.getTimeZone("GMT"));
-			purgeTimeOutLimit.add(Calendar.MINUTE, -deadPurgeJobAge);
-			Calendar purgeFrequencyLimit = Calendar.getInstance();
-			purgeFrequencyLimit.setTimeZone(TimeZone.getTimeZone("GMT"));
-			purgeFrequencyLimit.add(Calendar.MINUTE, -purgeFrequency);
+        // Merge the lists
+        availablePlugins.removeAll(pluginList);
 
-			// Gets the list of plugins in ascending order by the last time they
-			// were purged
-			List<String> pluginList = dao.getPluginsByPurgeTime();
+        if (availablePlugins.size() > 0) {
+            // generate new list with them at the beginning
+            List<String> newSortedPlugins = new ArrayList<String>(
+                    availablePlugins);
+            Collections.sort(newSortedPlugins);
+            newSortedPlugins.addAll(pluginList);
+            pluginList = newSortedPlugins;
+        }
 
-			// check for any new plugins or database being purged and needing
-			// entries recreated
-			Set<String> availablePlugins = new HashSet<String>(PluginRegistry
-					.getInstance().getRegisteredObjects());
+        purgeRunner(pluginList);
+    }
 
-			// Merge the lists
-			availablePlugins.removeAll(pluginList);
+    /**
+     * The guts of the actual purge process
+     * @param availablePlugins
+     */
+    protected void purgeRunner(List<String> pluginList) {
 
-			if (availablePlugins.size() > 0) {
-				// generate new list with them at the beginning
-				List<String> newSortedPlugins = new ArrayList<String>(
-						availablePlugins);
-				Collections.sort(newSortedPlugins);
-				newSortedPlugins.addAll(pluginList);
-				pluginList = newSortedPlugins;
-			}
+        if (!purgeEnabled) {
+            PurgeLogger.logWarn(
+                    "Data purging has been disabled.  No data will be purged.",
+                    null);
+            return;
+        }
+        
+        ClusterTask purgeMgrTask = getPurgeLock();
+        
+        try {
+            
+            // Prune the job map
+            Iterator<PurgeJob> iter = purgeJobs.values().iterator();
+            while (iter.hasNext()) {
+                if (!iter.next().isAlive()) {
+                    iter.remove();
+                }
+            }
+            
+            Calendar purgeTimeOutLimit = Calendar.getInstance();
+            purgeTimeOutLimit.setTimeZone(TimeZone.getTimeZone("GMT"));
+            purgeTimeOutLimit.add(Calendar.MINUTE, -deadPurgeJobAge);
+            Calendar purgeFrequencyLimit = Calendar.getInstance();
+            purgeFrequencyLimit.setTimeZone(TimeZone.getTimeZone("GMT"));
+            purgeFrequencyLimit.add(Calendar.MINUTE, -purgeFrequency);
 
-			boolean canPurge = true;
-			int jobsStarted = 0;
-			int maxNumberOfJobsToStart = Math.min(
-					clusterLimit
-							- dao.getRunningClusterJobs(
-									purgeTimeOutLimit.getTime(),
-									fatalFailureCount), serverLimit
-							- getNumberRunningJobsOnServer(purgeTimeOutLimit));
-			for (String plugin : pluginList) {
-				try {
-					// initialize canPurge based on number of jobs started
-					canPurge = jobsStarted < maxNumberOfJobsToStart;
-					PurgeJob jobThread = purgeJobs.get(plugin);
-					PurgeJobStatus job = dao.getJobForPlugin(plugin);
+            boolean canPurge = true;
+            int jobsStarted = 0;
+            int maxNumberOfJobsToStart = Math.min(
+                    clusterLimit
+                            - dao.getRunningClusterJobs(
+                                    purgeTimeOutLimit.getTime(),
+                                    fatalFailureCount), serverLimit
+                            - getNumberRunningJobsOnServer(purgeTimeOutLimit));
+            
+            if (!pluginList.isEmpty()) {
+                for (String plugin : pluginList) {
+                    try {
+                        // initialize canPurge based on number of jobs started
+                        canPurge = jobsStarted < maxNumberOfJobsToStart;
+                        PurgeJob jobThread = purgeJobs.get(plugin);
+                        PurgeJobStatus job = dao.getJobForPlugin(plugin);
 
-					if (job == null) {
-						// no job in database, generate empty job
+                        if (job == null) {
+                            // no job in database, generate empty job
 
-						try {
-							job = new PurgeJobStatus();
-							job.setPlugin(plugin);
-							job.setFailedCount(0);
-							job.setRunning(false);
-							job.setStartTime(new Date(0));
-							dao.create(job);
-						} catch (Throwable e) {
-							PurgeLogger.logError(
-									"Failed to create new purge job entry",
-									plugin, e);
-						}
-					}
+                            try {
+                                job = new PurgeJobStatus();
+                                job.setPlugin(plugin);
+                                job.setFailedCount(0);
+                                job.setRunning(false);
+                                job.setStartTime(new Date(0));
+                                dao.create(job);
+                            } catch (Throwable e) {
+                                PurgeLogger.logError(
+                                        "Failed to create new purge job entry",
+                                        plugin, e);
+                            }
+                        }
 
-					// Check to see if this job has met the fatal failure count
-					if (job.getFailedCount() >= fatalFailureCount) {
-						canPurge = false;
-						PurgeLogger
-								.logFatal(
-										"Purger for this plugin has reached or exceeded consecutive failure limit of "
-												+ fatalFailureCount
-												+ ".  Data will no longer being purged for this plugin.",
-										plugin);
-					}
+                        // Check to see if this job has met the fatal failure
+                        // count
+                        if (job.getFailedCount() >= fatalFailureCount) {
+                            canPurge = false;
+                            PurgeLogger
+                                    .logFatal(
+                                            "Purger for this plugin has reached or exceeded consecutive failure limit of "
+                                                    + fatalFailureCount
+                                                    + ".  Data will no longer being purged for this plugin.",
+                                            plugin);
+                        }
 
-					// is purge job currently running on this server
-					if (jobThread != null) {
-						// job currently running on our server, don't start
-						// another
-						canPurge = false;
+                        // is purge job currently running on this server
+                        if (jobThread != null) {
+                            // job currently running on our server, don't start
+                            // another
+                            canPurge = false;
 
-						if (purgeTimeOutLimit.getTimeInMillis() > jobThread
-								.getStartTime()) {
-							jobThread.printTimedOutMessage(deadPurgeJobAge);
-						}
-					} else {
-						if (job.isRunning()) {
-							// check if job has timed out
-							if (purgeTimeOutLimit.getTime().before(
-									job.getStartTime())) {
-								canPurge = false;
-							}
-							// else if no one else sets canPurge = false will
-							// start purging on this server
-						} else {
-							// not currently running, check if need to be purged
-							Date startTime = job.getStartTime();
-							if (startTime != null
-									&& startTime.after(purgeFrequencyLimit
-											.getTime())) {
-								canPurge = false;
-							}
-						}
-					}
+                            if (purgeTimeOutLimit.getTimeInMillis() > jobThread
+                                    .getStartTime()) {
+                                jobThread.printTimedOutMessage(deadPurgeJobAge);
+                            }
+                        } else {
+                            if (job.isRunning()) {
+                                // check if job has timed out
+                                if (purgeTimeOutLimit.getTime().before(
+                                        job.getStartTime())) {
+                                    canPurge = false;
+                                }
+                                // else if no one else sets canPurge = false
+                                // will
+                                // start purging on this server
+                            } else {
+                                // not currently running, check if need to be
+                                // purged
+                                Date startTime = job.getStartTime();
+                                if (startTime != null
+                                        && startTime.after(purgeFrequencyLimit
+                                                .getTime())) {
+                                    canPurge = false;
+                                }
+                            }
+                        }
 
-					if (canPurge) {
-						purgeJobs.put(plugin, purgeExpiredData(plugin));
-						jobsStarted++;
-					}
-				} catch (Throwable e) {
-					PurgeLogger
-							.logError(
-									"An unexpected error occured during the purge job check for plugin",
-									plugin, e);
-				}
-			}
-		} catch (Throwable e) {
-			PurgeLogger
-					.logError(
-							"An unexpected error occured during the data purge process",
-							StatusConstants.CATEGORY_PURGE, e);
-		} finally {
-			// Unlock the purge task to allow other servers to run.
-			ClusterLockUtils.unlock(purgeMgrTask, false);
-			// PurgeLogger.logInfo(getPurgeStatus(true), null);
-		}
-	}
+                        if (canPurge) {
+                            purgeJobs.put(plugin, purgeExpiredData(plugin));
+                            jobsStarted++;
+                        }
+                    } catch (Throwable e) {
+                        PurgeLogger
+                                .logError(
+                                        "An unexpected error occured during the purge job check for plugin",
+                                        plugin, e);
+                    }
+                }
+            }
+        } catch (Throwable e) {
+            PurgeLogger
+                    .logError(
+                            "An unexpected error occured during the data purge process",
+                            StatusConstants.CATEGORY_PURGE, e);
+        } finally {
+            // Unlock the purge task to allow other servers to run.
+            ClusterLockUtils.unlock(purgeMgrTask, false);
+            // PurgeLogger.logInfo(getPurgeStatus(true), null);
+        }
+    }
 
 	@SuppressWarnings("unused")
 	private String getPurgeStatus(boolean verbose) {
@@ -417,7 +431,7 @@ public class PurgeManager {
 	 */
 	public PurgeJob purgeExpiredData(String plugin) {
 		dao.startJob(plugin);
-		PurgeJob job = new PurgeJob(plugin, PURGE_JOB_TYPE.PURGE_EXPIRED);
+		PurgeJob job = new PurgeJob(plugin, PURGE_JOB_TYPE.PURGE_EXPIRED, this);
 		job.start();
 		return job;
 	}
@@ -433,7 +447,7 @@ public class PurgeManager {
 	 */
 	public PurgeJob purgeAllData(String plugin) {
 		dao.startJob(plugin);
-		PurgeJob job = new PurgeJob(plugin, PURGE_JOB_TYPE.PURGE_ALL);
+		PurgeJob job = new PurgeJob(plugin, PURGE_JOB_TYPE.PURGE_ALL, this);
 		job.start();
 		return job;
 	}

@@ -21,6 +21,7 @@
 package com.raytheon.viz.hydrocommon.colorscalemgr;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.swt.graphics.RGB;
 
@@ -45,6 +46,8 @@ import org.eclipse.swt.graphics.RGB;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 29 NOV 2007  373        lvenable    Initial creation
+ * 18 APR 2013  1790       rferrel     Cleanup method interfaces; 
+ *                                      part of non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -56,17 +59,17 @@ public class ColorScaleSets {
     /**
      * Array containing the original color set data.
      */
-    private ArrayList<ColorScaleData> originalColorSet;
+    private List<ColorScaleData> originalColorSet;
 
     /**
      * Array containing updates to the color set data.
      */
-    private ArrayList<ColorScaleData> updatedColorSet;
+    private List<ColorScaleData> updatedColorSet;
 
     /**
      * Array containing the used color set data.
      */
-    private ArrayList<ColorScaleData> usedColorSet;
+    private List<ColorScaleData> usedColorSet;
 
     /**
      * Constructor.
@@ -85,8 +88,8 @@ public class ColorScaleSets {
      * @param usedColorSet
      *            Used color set array.
      */
-    public ColorScaleSets(ArrayList<ColorScaleData> originalColorSet,
-            ArrayList<ColorScaleData> usedColorSet) {
+    public ColorScaleSets(List<ColorScaleData> originalColorSet,
+            List<ColorScaleData> usedColorSet) {
         this.originalColorSet = new ArrayList<ColorScaleData>(originalColorSet);
         updatedColorSet = new ArrayList<ColorScaleData>(originalColorSet);
         this.usedColorSet = new ArrayList<ColorScaleData>(usedColorSet);
@@ -173,7 +176,7 @@ public class ColorScaleSets {
      * @param array
      *            Array of color scale data.
      */
-    public void setOriginalArray(ArrayList<ColorScaleData> array) {
+    public void setOriginalArray(List<ColorScaleData> array) {
         originalColorSet = new ArrayList<ColorScaleData>(array);
         updatedColorSet = new ArrayList<ColorScaleData>(array);
     }
@@ -184,7 +187,7 @@ public class ColorScaleSets {
      * @param array
      *            Array of color scale data.
      */
-    public void setUsedArray(ArrayList<ColorScaleData> array) {
+    public void setUsedArray(List<ColorScaleData> array) {
         usedColorSet = new ArrayList<ColorScaleData>(array);
     }
 
@@ -243,7 +246,7 @@ public class ColorScaleSets {
      * 
      * @return The update color scale data array.
      */
-    public ArrayList<ColorScaleData> getUpdatedColorSetArray() {
+    public List<ColorScaleData> getUpdatedColorSetArray() {
         return updatedColorSet;
     }
 
@@ -252,7 +255,7 @@ public class ColorScaleSets {
      * 
      * @return The used color scale data array.
      */
-    public ArrayList<ColorScaleData> getUsedColorSetArray() {
+    public List<ColorScaleData> getUsedColorSetArray() {
         return usedColorSet;
     }
 

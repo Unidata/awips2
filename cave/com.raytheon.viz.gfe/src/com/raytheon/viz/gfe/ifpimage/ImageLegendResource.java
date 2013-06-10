@@ -30,9 +30,9 @@ import java.util.TimeZone;
 
 import org.eclipse.swt.graphics.RGB;
 
-import com.raytheon.uf.common.dataplugin.gfe.type.Pair;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.util.Pair;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;

@@ -40,13 +40,16 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 10, 2010 5050       rjpeter     Initial creation
+ * May 13, 2013 1989       njensen     Camel 2.11 compatibility
  * </pre>
  * 
  * @author rjpeter
  * @version 1.0
  */
 public class ContextManager {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(ContextManager.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ContextManager.class);
+
     private List<CamelContext> contextList = new ArrayList<CamelContext>();
 
     private static ContextManager instance = new ContextManager();
@@ -59,14 +62,29 @@ public class ContextManager {
     }
 
     public void startContexts() {
+        statusHandler.info("Context Manager starting routes");
         for (CamelContext camelContext : contextList) {
             try {
-                if (camelContext.getStatus().isStopped()) {
+                /*
+                 * In camel 2.11, all contexts are "started" automatically but
+                 * the isAutoStartup() flag determines if the routes are
+                 * automatically started. The code in DefaultCamelContext is
+                 * safe to call start() on a second time to get the routes
+                 * started.
+                 * 
+                 * For more information, see:
+                 * http://camel.465427.n5.nabble.com/Camel
+                 * -context-autostartup-td5721638.html
+                 * 
+                 * https://issues.apache.org/jira/browse/CAMEL-5759
+                 */
+                if (!camelContext.isAutoStartup()) {
                     camelContext.start();
                 }
             } catch (Exception e) {
                 statusHandler.handle(Priority.ERROR,
-                        "Failed to start route", e);
+                        "Failed to start routes for " + camelContext.getName(),
+                        e);
             }
         }
     }

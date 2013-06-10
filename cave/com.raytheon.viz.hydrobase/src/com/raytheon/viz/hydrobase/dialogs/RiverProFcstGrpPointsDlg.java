@@ -177,12 +177,12 @@ public class RiverProFcstGrpPointsDlg extends CaveSWTDialog {
     /**
      * The group info
      */
-    private ArrayList<RPFFcstGroupData> groupData;
+    private java.util.List<RPFFcstGroupData> groupData;
 
     /**
      * The point info for each group
      */
-    private HashMap<String, ArrayList<RPFFcstPointData>> pointData;
+    private HashMap<String, java.util.List<RPFFcstPointData>> pointData;
 
     /**
      * States for the dialog
@@ -551,8 +551,8 @@ public class RiverProFcstGrpPointsDlg extends CaveSWTDialog {
         secondaryHsaList.removeAll();
 
         try {
-            ArrayList<String> hsa = AddModifyLocationDataManager.getInstance()
-                    .getHSAs();
+            java.util.List<String> hsa = AddModifyLocationDataManager
+                    .getInstance().getHSAs();
 
             for (String currHSA : hsa) {
                 primaryHsaList.add(currHSA);
@@ -574,25 +574,25 @@ public class RiverProFcstGrpPointsDlg extends CaveSWTDialog {
                     RPFFcstGroupData.class);
 
             // Initialize the Point map
-            pointData = new HashMap<String, ArrayList<RPFFcstPointData>>();
+            pointData = new HashMap<String, java.util.List<RPFFcstPointData>>();
 
             // Get the point info
-            ArrayList<RPFFcstPointData> temp = HydroDBDataManager.getInstance()
-                    .getData(RPFFcstPointData.class);
+            java.util.List<RPFFcstPointData> temp = HydroDBDataManager
+                    .getInstance().getData(RPFFcstPointData.class);
 
-            ArrayList<RPFFcstPointData> tempArr;
+            java.util.List<RPFFcstPointData> tempArr;
             for (RPFFcstPointData currPoint : temp) {
-                // Get the ArrayList for the Group ID
+                // Get the List for the Group ID
                 if (pointData.containsKey(currPoint.getGroupID())) {
                     tempArr = pointData.get(currPoint.getGroupID());
                 } else {
                     tempArr = new ArrayList<RPFFcstPointData>();
                 }
 
-                // Add the point to the ArrayList
+                // Add the point to the List
                 tempArr.add(currPoint);
 
-                // Store the ArrayList in the point data
+                // Store the List in the point data
                 pointData.put(currPoint.getGroupID(), tempArr);
             }
 
@@ -630,9 +630,10 @@ public class RiverProFcstGrpPointsDlg extends CaveSWTDialog {
     private String getDisplayString(RPFFcstGroupData currGroup) {
         String rval = "%-8.8s    %-32.32s                %-4.4s               %-1s";
 
-        return String.format(rval, currGroup.getGroupID(), currGroup
-                .getGroupName(), HydroDataUtils.getDisplayString(currGroup
-                .getOrdinal()), currGroup.getRecommendAll());
+        return String.format(rval, currGroup.getGroupID(),
+                currGroup.getGroupName(),
+                HydroDataUtils.getDisplayString(currGroup.getOrdinal()),
+                currGroup.getRecommendAll());
     }
 
     /**
@@ -645,15 +646,20 @@ public class RiverProFcstGrpPointsDlg extends CaveSWTDialog {
     private String getDisplayString(RPFFcstPointData currPoint) {
         String rval = "%-8s  %-30.30s  %3.3s   %-3s   %s     %-3.3s       %-3.3s      %-6.6s  %-6.6s  %6.6s";
 
-        return String.format(rval, currPoint.getLid(), currPoint.getLidName(),
+        return String.format(
+                rval,
+                currPoint.getLid(),
+                currPoint.getLidName(),
                 HydroDataUtils.getDisplayString(currPoint.getOrdinal()),
-                currPoint.getRecordType(), HydroDataUtils.getDisplayString(
-                        "%s", "%.2f", currPoint.getChangeThreshold()),
-                currPoint.getPrimaryBackup(), currPoint.getSecondaryBackup(),
+                currPoint.getRecordType(),
+                HydroDataUtils.getDisplayString("%s", "%.2f",
+                        currPoint.getChangeThreshold()),
+                currPoint.getPrimaryBackup(),
+                currPoint.getSecondaryBackup(),
                 HydroDataUtils.getDisplayString(currPoint.getBackHours()),
                 HydroDataUtils.getDisplayString(currPoint.getForwardHours()),
-                HydroDataUtils.getDisplayString("%s", "%6.1f", currPoint
-                        .getAdjustEndHours()));
+                HydroDataUtils.getDisplayString("%s", "%6.1f",
+                        currPoint.getAdjustEndHours()));
     }
 
     /**
@@ -696,10 +702,9 @@ public class RiverProFcstGrpPointsDlg extends CaveSWTDialog {
             }
 
             updateDialogState(DialogStates.POINTS_AVAILABLE);
-            
-            if (fcstPointList.getItemCount() > 0 )
-            {
-            	fcstPointList.setSelection(0);            	
+
+            if (fcstPointList.getItemCount() > 0) {
+                fcstPointList.setSelection(0);
             }
         } else {
             updateDialogState(DialogStates.NO_POINTS);
@@ -942,9 +947,8 @@ public class RiverProFcstGrpPointsDlg extends CaveSWTDialog {
             MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.OK
                     | SWT.CANCEL);
             mb.setText("Delete Confirmation");
-            mb
-                    .setMessage("Do you want to delete this Forecast Group?\n"
-                            + "(This will remove all Forecast Point associations to this Group.)");
+            mb.setMessage("Do you want to delete this Forecast Group?\n"
+                    + "(This will remove all Forecast Point associations to this Group.)");
 
             int result = mb.open();
 

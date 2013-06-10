@@ -19,20 +19,30 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.XMLGregorianCalendar;
+
+import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 
-import com.raytheon.uf.edex.registry.ebxml.dao.HqlQueryUtil;
-import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectTypeDao;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
+import com.raytheon.uf.edex.registry.ebxml.dao.SubscriptionDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+import com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationDestination;
+import com.raytheon.uf.edex.registry.ebxml.services.notification.RegistrySubscriptionManager;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryParameters;
 import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQuery;
+import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
  * TODO Add Description
@@ -44,17 +54,16 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
+ * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
+ * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-
+@Transactional
 public class GetNotification extends CanonicalEbxmlQuery {
-
-    public static final String QUERY_DEFINITION = QUERY_CANONICAL_PREFIX
-            + "GetNotification";
 
     /** The list of valid parameters for this query */
     private static final List<String> QUERY_PARAMETERS = new ArrayList<String>();
@@ -65,11 +74,15 @@ public class GetNotification extends CanonicalEbxmlQuery {
         QUERY_PARAMETERS.add(QueryConstants.START_TIME);
     }
 
+    /** The subscription manager */
+    private RegistrySubscriptionManager subscriptionManager;
+
+    /** Data access object for accessing registry subscriptions */
+    private SubscriptionDao subscriptionDao;
+
     @Override
-    protected <T extends RegistryObjectType> List<T> query(QueryType queryType,
-            QueryResponse queryResponse) throws EbxmlRegistryException {
-        RegistryObjectTypeDao subscriptionDao = new RegistryObjectTypeDao(
-                SubscriptionType.class);
+    protected void query(QueryType queryType, QueryResponse queryResponse,
+            String client) throws EbxmlRegistryException {
         QueryParameters parameters = getParameterMap(queryType.getSlot(),
                 queryResponse);
         // The client did not specify the required parameter
@@ -84,17 +97,51 @@ public class GetNotification extends CanonicalEbxmlQuery {
 
         String subscriptionId = parameters
                 .getFirstParameter(QueryConstants.SUBSCRIPTION_ID);
-        Object startTime = parameters
+        XMLGregorianCalendar startTime = parameters
                 .getFirstParameter(QueryConstants.START_TIME);
-        StringBuilder query = new StringBuilder();
-        HqlQueryUtil.assembleSingleParamQuery(query, SubscriptionType.class,
-                QueryConstants.ID, HqlQueryUtil.EQUALS, subscriptionId);
-        if (startTime != null) {
-            HqlQueryUtil.assembleSingleParamClause(query,
-                    QueryConstants.START_TIME, HqlQueryUtil.EQUALS,
-                    startTime.toString());
+
+        SubscriptionType subscription = subscriptionDao.getById(subscriptionId);
+        if (subscription == null) {
+            throw new EbxmlRegistryException("No subscription with id: "
+                    + subscriptionId + " present in registry");
         }
-        return subscriptionDao.executeHQLQuery(query);
+
+        List<NotificationDestination> destinations = subscriptionManager
+                .getNotificationDestinations(subscription);
+        if (destinations.isEmpty() && startTime == null) {
+            throw new EbxmlRegistryException(
+                    "Subscription does not define any push delivery addresses. Start time must be defined.");
+        }
+
+        try {
+            if (startTime == null) {
+                BigInteger lastRunTime = subscription
+                        .getSlotValue(EbxmlObjectUtil.SUBSCRIPTION_LAST_RUN_TIME_SLOT_NAME);
+                if (lastRunTime == null) {
+                    startTime = EbxmlObjectUtil
+                            .getTimeAsXMLGregorianCalendar(0);
+
+                } else {
+                    startTime = EbxmlObjectUtil
+                            .getTimeAsXMLGregorianCalendar(lastRunTime
+                                    .longValue());
+                }
+            }
+        } catch (DatatypeConfigurationException e) {
+            throw new EbxmlRegistryException("Error determining start time!", e);
+        }
+
+        try {
+            NotificationType notification = subscriptionManager
+                    .getOnDemandNotification("http://" + client,
+                            subscriptionId, startTime);
+            List<Object> retVal = new ArrayList<Object>();
+            retVal.add(notification);
+            setResponsePayload(queryResponse, retVal);
+        } catch (MsgRegistryException e) {
+            throw new EbxmlRegistryException(
+                    "Error getting on demand notification", e.getCause());
+        }
     }
 
     @Override
@@ -104,6 +151,16 @@ public class GetNotification extends CanonicalEbxmlQuery {
 
     @Override
     public String getQueryDefinition() {
-        return QUERY_DEFINITION;
+        return CanonicalQueryTypes.GET_NOTIFICATION;
     }
+
+    public void setSubscriptionManager(
+            RegistrySubscriptionManager subscriptionManager) {
+        this.subscriptionManager = subscriptionManager;
+    }
+
+    public void setSubscriptionDao(SubscriptionDao subscriptionDao) {
+        this.subscriptionDao = subscriptionDao;
+    }
+
 }

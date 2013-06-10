@@ -69,8 +69,9 @@ import com.vividsolutions.jts.geom.LineString;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 1, 2009            bsteffen     Initial creation
- * May 08, 2013 DR14824 mgamazaychikov Added alterProductParameters method
+ * Dec 01, 2009            bsteffen    Initial creation
+ * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
+ *                                     work without dataURI.
  * 
  * </pre>
  * 
@@ -147,8 +148,6 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
             query.addColumn("location.latitude");
             query.addColumn("location.longitude");
             query.addOrderBy("location.latitude");
-            query.addOrderBy("location.longitude");
-            query.addOrderBy("location.stationId");
             if (type != null && !type.isEmpty()) {
                 query.addConstraint(getTypeKey(sourceKey),
                         new RequestConstraint(type));
@@ -305,6 +304,9 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
                         && closestStation.getStationId() != null) {
                     productParameters.put(constraintKey, new RequestConstraint(
                             closestStation.getStationId()));
+                } else {
+                    productParameters.put(constraintKey, new RequestConstraint(
+                            null, ConstraintType.ISNULL));
                 }
             }
         }
@@ -636,50 +638,5 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
         }
         return validPlanes;
     }
-    
-    /**
-     * Alter product parameters
-     * 
-     * @param selectedKey
-     * @param selectedValue
-     * @param productParameters
-     */
-    @Override
-	public void alterProductParameters(String selectedKey,
-			String selectedValue,
-			HashMap<String, RequestConstraint> productParameters) {
-		if (selectedKey.equalsIgnoreCase("line")) {
-			LineString line = ToolsDataManager.getInstance().getBaseline(
-					selectedValue);
-			RequestConstraint stationRC = new RequestConstraint();
-			stationRC.setConstraintType(RequestConstraint.ConstraintType.IN);
-			String sourceKey = productParameters.get("pluginName")
-					.getConstraintValue();
-			Collection<String> closest = new ArrayList<String>();
-			for (Coordinate c : line.getCoordinates()) {
-				SurfaceObsLocation loc = getClosestStation(c, sourceKey,
-						closest);
-				if (loc == null) {
-					break;
-				}
-				closest.add(loc.getStationId());
-				stationRC.addToConstraintValueList(loc.getStationId());
-			}
-			productParameters.put("location.stationId", stationRC);
-		} else if (selectedKey.equalsIgnoreCase("point")) {
-			Coordinate point = PointsDataManager.getInstance().getCoordinate(
-					selectedValue);
-			String sourceKey = productParameters.get("pluginName")
-					.getConstraintValue();
-
-			SurfaceObsLocation closestStation = getClosestStation(point,
-					sourceKey);
-			System.out.println();
-			productParameters.put("location.stationId", new RequestConstraint(
-					closestStation.getStationId()));
-			return;
-		}
-		return;
-	}
 
 }

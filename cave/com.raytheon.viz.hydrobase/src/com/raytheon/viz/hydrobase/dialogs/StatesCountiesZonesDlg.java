@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.hydrobase.dialogs;
 
-import java.util.ArrayList;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -186,17 +184,17 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
     /**
      * Zone Cache
      */
-    private ArrayList<EligZoneData> zoneData;
+    private java.util.List<EligZoneData> zoneData;
 
     /**
      * County Cache
      */
-    private ArrayList<CountiesData> countyData;
+    private java.util.List<CountiesData> countyData;
 
     /**
      * State Cache
      */
-    private ArrayList<StateData> stateData;
+    private java.util.List<StateData> stateData;
 
     /**
      * Display states for the dialog
@@ -801,8 +799,7 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
             } catch (VizException e) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Unable to Save");
-                mb
-                        .setMessage("An error occurred while trying to save the State");
+                mb.setMessage("An error occurred while trying to save the State");
                 mb.open();
 
                 e.printStackTrace();
@@ -840,8 +837,7 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
             } catch (VizException e) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Unable to Save");
-                mb
-                        .setMessage("An error occurred while trying to save the County");
+                mb.setMessage("An error occurred while trying to save the County");
                 mb.open();
 
                 e.printStackTrace();
@@ -869,8 +865,7 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
             } catch (VizException e) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Unable to Save");
-                mb
-                        .setMessage("An error occurred while trying to save the Zone");
+                mb.setMessage("An error occurred while trying to save the Zone");
                 mb.open();
 
                 e.printStackTrace();
@@ -911,8 +906,7 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
                 } catch (VizException e) {
                     mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                     mb.setText("Unable to Delete");
-                    mb
-                            .setMessage("An error occurred while trying to delete the State");
+                    mb.setMessage("An error occurred while trying to delete the State");
                     mb.open();
 
                     e.printStackTrace();
@@ -946,8 +940,7 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
                 } catch (VizException e) {
                     mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                     mb.setText("Unable to Delete");
-                    mb
-                            .setMessage("An error occurred while trying to delete the County");
+                    mb.setMessage("An error occurred while trying to delete the County");
                     mb.open();
 
                     e.printStackTrace();
@@ -981,8 +974,7 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
                 } catch (VizException e) {
                     mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                     mb.setText("Unable to Delete");
-                    mb
-                            .setMessage("An error occurred while trying to delete the Zone");
+                    mb.setMessage("An error occurred while trying to delete the Zone");
                     mb.open();
 
                     e.printStackTrace();
@@ -1061,8 +1053,8 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
                     // Check if WFO Exists
                     if (data.getResultCount() > 0) {
                         data = HydroDBDataManager.getInstance().runMappedQuery(
-                                String.format(stateQuery, countiesStateTF
-                                        .getText()));
+                                String.format(stateQuery,
+                                        countiesStateTF.getText()));
 
                         // Check if State Exists
                         if (data.getResultCount() > 0) {
@@ -1085,8 +1077,7 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
                     MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR
                             | SWT.OK);
                     mb.setText("Unable to Save");
-                    mb
-                            .setMessage("Please choose a Secondary Backup that exists.");
+                    mb.setMessage("Please choose a Secondary Backup that exists.");
                     mb.open();
                 }
             } else {

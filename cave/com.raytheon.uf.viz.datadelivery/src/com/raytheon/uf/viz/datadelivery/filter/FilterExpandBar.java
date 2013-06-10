@@ -81,6 +81,7 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
  *                                      icon update when loading from a file.
  * Feb 24, 2013   1620     mpduff       Fixed set clean issue when loading configurations.  Set clean 
  *                                      needs to be called after the data load job is complete.
+ * May 15, 2013   1040     mpduff       Called markNotBusyInUIThread.
  * 
  * </pre>
  * 
@@ -193,13 +194,13 @@ public class FilterExpandBar extends Composite implements IFilterUpdate,
 
     private void createExpandItems() {
         if (dataTypes != null && dataTypes.length > 0) {
-            final Shell jobParent = this.getShell();
+            final Shell parentShell = this.getShell();
             final Job job = new Job("Dataset Discovery...") {
                 @Override
                 protected IStatus run(IProgressMonitor monitor) {
                     MetaDataManager dataManager = MetaDataManager.getInstance();
 
-                    DataDeliveryGUIUtils.markBusyInUIThread(jobParent);
+                    DataDeliveryGUIUtils.markBusyInUIThread(parentShell);
                     dataManager.rereadMetaData();
                     dataManager.readMetaData(dataTypes[0]);
                     return Status.OK_STATUS;
@@ -209,45 +210,50 @@ public class FilterExpandBar extends Composite implements IFilterUpdate,
             job.addJobChangeListener(new JobChangeAdapter() {
                 @Override
                 public void done(IJobChangeEvent event) {
-                    DataTypeFilterElementXML dtfe;
-                    HashMap<String, ArrayList<String>> dataFilterMap = new HashMap<String, ArrayList<String>>();
+                    try {
+                        DataTypeFilterElementXML dtfe;
+                        HashMap<String, ArrayList<String>> dataFilterMap = new HashMap<String, ArrayList<String>>();
 
-                    // Get filters for each data type
-                    for (int i = 0; i < dataTypes.length; i++) {
-                        String dataType = dataTypes[i];
-                        dtfe = dataTypeFilterXml.getFilterData(dataType);
-                        ArrayList<String> filterIDList = dtfe.getFilterIDList();
-                        dataFilterMap.put(dataType, filterIDList);
-                    }
-
-                    // Now have a list of available filter types
-                    // Need to find the common filters
-                    FilterDefinitionManager filterMan = FilterDefinitionManager
-                            .getInstance();
-                    filterList = filterMan.findCommon(dataFilterMap);
-
-                    VizApp.runAsync(new Runnable() {
-                        @Override
-                        public void run() {
-                            // Now we have a list of common filters, lets build
-                            // them
-                            for (String filter : filterList) {
-                                final FilterElementsXML fex = filterXml
-                                        .getFilter(filter);
-                                String clazz = fex.getClazz();
-
-                                // TODO use reflection here to instantiate the
-                                // class
-                                if (clazz.equals("FilterComp")) {
-                                    createFilter(fex);
-                                }
-                            }
-                            notifyListeners(SWT.SetData, new Event());
-                            DataDeliveryGUIUtils
-                                    .markNotBusyInUIThread(jobParent);
-                            setClean();
+                        // Get filters for each data type
+                        for (int i = 0; i < dataTypes.length; i++) {
+                            String dataType = dataTypes[i];
+                            dtfe = dataTypeFilterXml.getFilterData(dataType);
+                            ArrayList<String> filterIDList = dtfe
+                                    .getFilterIDList();
+                            dataFilterMap.put(dataType, filterIDList);
                         }
-                    });
+
+                        // Now have a list of available filter types
+                        // Need to find the common filters
+                        FilterDefinitionManager filterMan = FilterDefinitionManager
+                                .getInstance();
+                        filterList = filterMan.findCommon(dataFilterMap);
+
+                        VizApp.runAsync(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Now we have a list of common filters, lets
+                                // build
+                                // them
+                                for (String filter : filterList) {
+                                    final FilterElementsXML fex = filterXml
+                                            .getFilter(filter);
+                                    String clazz = fex.getClazz();
+
+                                    // TODO use reflection here to instantiate
+                                    // the
+                                    // class
+                                    if (clazz.equals("FilterComp")) {
+                                        createFilter(fex);
+                                    }
+                                }
+                                notifyListeners(SWT.SetData, new Event());
+                                setClean();
+                            }
+                        });
+                    } finally {
+                        DataDeliveryGUIUtils.markNotBusyInUIThread(parentShell);
+                    }
                 }
             });
 

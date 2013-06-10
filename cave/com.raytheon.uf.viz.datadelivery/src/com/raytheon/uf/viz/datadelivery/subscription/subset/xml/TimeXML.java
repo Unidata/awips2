@@ -29,8 +29,8 @@ import javax.xml.bind.annotation.XmlElements;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.util.CollectionUtil;
+import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml;
 
 /**
@@ -44,6 +44,7 @@ import com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml;
  * ------------ ---------- ----------- --------------------------
  * Mar 29, 2012            mpduff       Initial creation
  * Aug 21, 2012 0743       djohnson     Add specificDate, use append rather than concatenate strings.
+ * Feb 15, 2013 1638       mschenke     Moved Util.EOL into FileUtil
  * 
  * </pre>
  * 
@@ -126,29 +127,29 @@ public abstract class TimeXML implements IDisplayXml {
     public String getDisplayXmlString() {
         StringBuilder sb = new StringBuilder();
         
-        sb.append(Util.EOL);
+        sb.append(FileUtil.EOL);
         if (latestData) {
             sb.append("Requesting Latest Data");
         } else {
             sb.append(getNonLatestData());
         }
-        sb.append(Util.EOL);
+        sb.append(FileUtil.EOL);
         
         if (!CollectionUtil.isNullOrEmpty(cycleList)) {
-            sb.append("Cycles:").append(Util.EOL);
+            sb.append("Cycles:").append(FileUtil.EOL);
             for (Integer cycle : cycleList) {
                 sb.append(" ").append(
                         StringUtils.leftPad(cycle.toString(), 2, '0'));
             }
-            sb.append(Util.EOL);
+            sb.append(FileUtil.EOL);
         }
         
         if (!CollectionUtil.isNullOrEmpty(fcstHourList)) {
-            sb.append("Forecast Hours:").append(Util.EOL);
+            sb.append("Forecast Hours:").append(FileUtil.EOL);
             for (String fcst: fcstHourList) {
                 sb.append(" ").append(fcst);
             }
-            sb.append(Util.EOL);
+            sb.append(FileUtil.EOL);
         }
         return sb.toString();
     }
