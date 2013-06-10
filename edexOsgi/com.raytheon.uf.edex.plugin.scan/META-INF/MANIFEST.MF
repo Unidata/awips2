@@ -23,5 +23,6 @@ Export-Package: com.raytheon.uf.edex.plugin.scan,
 Import-Package: com.raytheon.uf.common.localization,
  com.raytheon.uf.edex.dat.utils,
  com.raytheon.uf.edex.plugin.scan.common,
+ com.raytheon.uf.edex.menus,
  javax.measure.converter,
  javax.measure.unit

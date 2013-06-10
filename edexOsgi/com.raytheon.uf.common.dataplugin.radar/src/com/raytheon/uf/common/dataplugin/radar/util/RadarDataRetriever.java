@@ -53,6 +53,8 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 21, 2011            mschenke     Initial creation
+ * Mar 18, 2013 1804       bsteffen    Remove AlphanumericValues from radar
+ *                                     HDF5.
  * 
  * </pre>
  * 
@@ -125,14 +127,6 @@ public class RadarDataRetriever {
                             SerializationType.Thrift).deserialize(bais);
                     radarData
                             .setProductVals((HashMap<RadarConstants.MapValues, Map<String, Map<RadarConstants.MapValues, String>>>) o);
-                } else if (record.getName().equals(
-                        RadarStoredData.ALPHANUMERIC_ID)) {
-                    ByteDataRecord byteData = (ByteDataRecord) record;
-                    ByteArrayInputStream bais = new ByteArrayInputStream(
-                            byteData.getByteData());
-                    Object o = DynamicSerializationManager.getManager(
-                            SerializationType.Thrift).deserialize(bais);
-                    radarData.setAlphanumericValues((String) o);
                 } else if (record.getName().equals(
                         RadarStoredData.RECORD_VALS_ID)) {
                     ByteDataRecord byteData = (ByteDataRecord) record;

@@ -21,6 +21,8 @@ package com.raytheon.uf.viz.gisdatastore.ui;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.GC;
@@ -47,6 +49,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 27, 2012            randerso     Initial creation
+ * Apr 9, 2013      #1860  randerso    Fix image disposed issued on Windows
  * 
  * </pre>
  * 
@@ -87,7 +90,7 @@ public class LineStyleDialog extends Dialog {
                 continue;
             }
             TableItem item = new TableItem(table, SWT.NONE);
-            Image image = new Image(d, 128, 10);
+            final Image image = new Image(d, 128, 10);
             Rectangle bounds = image.getBounds();
             int[] dashes = ls.getSWTLineStyle();
             GC gc = new GC(image);
@@ -98,7 +101,14 @@ public class LineStyleDialog extends Dialog {
 
             gc.dispose();
             item.setImage(image);
-            image.dispose();
+            item.addDisposeListener(new DisposeListener() {
+
+                @Override
+                public void widgetDisposed(DisposeEvent e) {
+                    image.dispose();
+                }
+            });
+
             item.setData(ls);
 
             if (ls.equals(this.style)) {

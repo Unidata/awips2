@@ -36,8 +36,6 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -46,10 +44,11 @@ import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.localization.IPathManager;
@@ -98,6 +97,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Oct 16, 2012 1229       rferrel     Changes for non-blocking AlterBundleDlg.
  * Oct 16, 2012 1229       rferrel     Changes to have displayDialog method.
  * Oct 16, 2012 1229       rferrel     Changes for non-blocking ProcedureListDlg.
+ * Jan 15, 2013  DR 15699  D. Friedman Prompt for save when close button clicked. 
+ * Jan 16, 2013  DR 15367  D. Friedman Enable save button for Up/Down changes. 
  * Feb 25, 2013 1640       bsteffen    Dispose old display in BundleLoader
  * 
  * </pre>
@@ -217,6 +218,15 @@ public class ProcedureDlg extends CaveSWTDialog {
                 this.bundles.add(bp);
             }
         }
+
+        addListener(SWT.Close, new Listener() {
+
+            @Override
+            public void handleEvent(Event event) {
+                handleCloseRequest();
+                event.doit = false;
+            }
+        });
     }
 
     @Override
@@ -335,16 +345,13 @@ public class ProcedureDlg extends CaveSWTDialog {
 
         ProcedureComm.getInstance().addCopyOutListener(copyOutListener);
 
-        shell.addShellListener(new ShellAdapter() {
-
+        addListener(SWT.Dispose, new Listener() {
             @Override
-            public void shellClosed(ShellEvent arg0) {
+            public void handleEvent(Event event) {
                 ProcedureComm.getInstance().removeCopyOutListener(
                         copyOutListener);
                 ProcedureComm.getInstance().removeCopyOutStateListener(
                         changeListener);
-
-                font.dispose();
             }
         });
     }
@@ -393,7 +400,7 @@ public class ProcedureDlg extends CaveSWTDialog {
 
     }
 
-    private void saveProcedure() {
+    private void saveProcedure(boolean closeAfterSave) {
         try {
             IPathManager pm = PathManagerFactory.getPathManager();
 
@@ -437,6 +444,9 @@ public class ProcedureDlg extends CaveSWTDialog {
             shell.setText("Procedure - " + fileName);
             saved = true;
             saveBtn.setEnabled(false);
+
+            if (closeAfterSave)
+                close();
         } catch (Exception e) {
             final String errMsg = "Error occurred during procedure save.";
             statusHandler.handle(Priority.PROBLEM, errMsg, e);
@@ -497,6 +507,8 @@ public class ProcedureDlg extends CaveSWTDialog {
                 bundles.add(idx - 1, b);
                 dataList.setSelection(idx - 1);
                 resyncProcedureAndList();
+                saved = false;
+                saveBtn.setEnabled(true);
             }
         });
 
@@ -520,6 +532,8 @@ public class ProcedureDlg extends CaveSWTDialog {
                 bundles.add(idx + 1, b);
                 dataList.setSelection(idx + 1);
                 resyncProcedureAndList();
+                saved = false;
+                saveBtn.setEnabled(true);
             }
         });
 
@@ -779,11 +793,7 @@ public class ProcedureDlg extends CaveSWTDialog {
         saveBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (fileName == null) {
-                    showSaveAsDlg();
-                } else {
-                    saveProcedure();
-                }
+                handleSaveRequest(false);
             }
         });
 
@@ -795,7 +805,7 @@ public class ProcedureDlg extends CaveSWTDialog {
         saveAsBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                showSaveAsDlg();
+                showSaveAsDlg(false);
             }
         });
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
@@ -806,11 +816,7 @@ public class ProcedureDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (saved) {
-                    shell.close();
-                } else {
-                    showConfirmSaveDlg();
-                }
+                handleCloseRequest();
             }
         });
     }
@@ -890,7 +896,7 @@ public class ProcedureDlg extends CaveSWTDialog {
                             try {
                                 // Load was issued in alterBundleDlg
                                 bp.xml = b.toXML();
-                                saveProcedure();
+                                saveProcedure(false);
                                 load(b);
                             } catch (VizException e) {
                                 final String err = "Error altering bundle";
@@ -909,7 +915,15 @@ public class ProcedureDlg extends CaveSWTDialog {
         }
     }
 
-    private void showSaveAsDlg() {
+    private void handleSaveRequest(boolean closeAfterSave) {
+        if (fileName == null) {
+            showSaveAsDlg(closeAfterSave);
+        } else {
+            saveProcedure(closeAfterSave);
+        }
+    }
+
+    private void showSaveAsDlg(final boolean closeAfterSave) {
         if (mustCreate(saveAsDlg)) {
             saveAsDlg = new ProcedureListDlg("Save Procedure As...", shell,
                     ProcedureListDlg.Mode.SAVE);
@@ -934,7 +948,7 @@ public class ProcedureDlg extends CaveSWTDialog {
 
                         frozen = saveAsDlg.isFrozen();
                         fileName = fn;
-                        saveProcedure();
+                        saveProcedure(closeAfterSave);
                     }
                 }
             });
@@ -944,15 +958,25 @@ public class ProcedureDlg extends CaveSWTDialog {
         }
     }
 
+    private void handleCloseRequest()
+    {
+        if (saved) {
+            close();
+        } else {
+            showConfirmSaveDlg();
+        }
+    }
+
     /**
      * Confirm save dialog, for if the user hasn't saved the procedure but tries
      * to close it
      */
     private void showConfirmSaveDlg() {
-        CaveSWTDialog dlg = new CaveSWTDialog(shell, SWT.DIALOG_TRIM, CAVE.NONE) {
+        CaveSWTDialog dlg = new CaveSWTDialog(shell, SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL, CAVE.DO_NOT_BLOCK) {
 
             @Override
             protected void initializeComponents(Shell shell) {
+                final CaveSWTDialog self = this;
                 shell.setText("Confirm Save");
 
                 /*
@@ -971,10 +995,8 @@ public class ProcedureDlg extends CaveSWTDialog {
 
                 Label label = new Label(imageLblComp, SWT.NONE);
 
-                if (fileName == null) {
-                    fileName = "untitled";
-                }
-                label.setText("The procedure \"(" + fileName
+                label.setText("The procedure \"("
+                        + (fileName != null ? fileName : "untitled")
                         + ")\"\ncontains unsaved data.\nSave before closing?");
                 label.setData(gridData);
 
@@ -999,8 +1021,8 @@ public class ProcedureDlg extends CaveSWTDialog {
                 yes.addSelectionListener(new SelectionAdapter() {
                     @Override
                     public void widgetSelected(SelectionEvent event) {
-                        Display.getCurrent().getActiveShell().dispose();
-                        showSaveAsDlg();
+                        self.close();
+                        handleSaveRequest(true);
                     }
                 });
 
@@ -1014,15 +1036,7 @@ public class ProcedureDlg extends CaveSWTDialog {
                 no.addSelectionListener(new SelectionAdapter() {
                     @Override
                     public void widgetSelected(SelectionEvent event) {
-                        Composite composite = Display.getCurrent()
-                                .getActiveShell().getParent();
-                        if (composite instanceof Shell) {
-                            Shell shell = (Shell) composite;
-                            shell.close();
-                        } else {
-                            Display.getCurrent().getActiveShell().getParent()
-                                    .dispose();
-                        }
+                        ProcedureDlg.this.close();
                     }
                 });
 
@@ -1036,7 +1050,7 @@ public class ProcedureDlg extends CaveSWTDialog {
                 cancel.addSelectionListener(new SelectionAdapter() {
                     @Override
                     public void widgetSelected(SelectionEvent event) {
-                        Display.getCurrent().getActiveShell().dispose();
+                        self.close();
                     }
                 });
             }

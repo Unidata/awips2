@@ -20,6 +20,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
  *     ------------	----------	-----------	--------------------------
  *     July 31, 2012  #631        ghull    	Initial Creation.
  *     Sept 11, 2012  #860        ghull     added ShowLatestResourceTimes
+ *     Nov  10, 2012              ghull     onlyShowResourcesWithData
  * 
  * </pre>
  * 
@@ -31,12 +32,15 @@ public class NcepGeneralPreferencesPage extends FieldEditorPreferencePage implem
 
 	public final static String PromptOnDisplayClose = "PromptOnDisplayClose";
 	public final static String ShowLatestResourceTimes = "ShowLatestResourceTimes";
+	public final static String OnlyShowResourcesWithData = "OnlyShowResourcesWithData";
 	
 	private BooleanFieldEditor promptOnDisplayCloseFieldEditor;
 	
 	private BooleanFieldEditor showLatestResourceTimesFieldEditor;
 	
-   	public NcepGeneralPreferencesPage() {
+	private BooleanFieldEditor onlyShowResourcesWithDataFieldEditor;
+
+	public NcepGeneralPreferencesPage() {
 		super(GRID);
 		setPreferenceStore( NmapCommon.getNcepPreferenceStore() );
 	}
@@ -56,6 +60,12 @@ public class NcepGeneralPreferencesPage extends FieldEditorPreferencePage implem
     			"Show Latest Resource Time", BooleanFieldEditor.SEPARATE_LABEL, // put the check box on the right 
     			composite );
         this.addField(showLatestResourceTimesFieldEditor);
+        
+    	onlyShowResourcesWithDataFieldEditor = new BooleanFieldEditor( OnlyShowResourcesWithData, 
+    			"Only Show Available Resources", BooleanFieldEditor.SEPARATE_LABEL, // put the check box on the right 
+    			composite );
+        this.addField(onlyShowResourcesWithDataFieldEditor);
+
     }
 
     /*

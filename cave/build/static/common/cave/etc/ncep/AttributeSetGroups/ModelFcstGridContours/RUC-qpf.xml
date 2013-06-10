@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
-    <resource>RUC</resource>
-    <attrSetGroupName>qpf</attrSetGroupName>
-    <attrSetNames>300mb_ageo_div_isotachs,700mb_hght_wind_dwpt,850mb_hght_wind_dwpt,850mb_thtae_advection,bestcape_cin,sfclifted_index</attrSetNames>
-</AttributeSetGroup>

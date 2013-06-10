@@ -58,6 +58,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 29 NOV 2007  373        lvenable    Initial creation
  * 09 sep 2010  5399	   lbousaidi   changed constructor for both
  * 							 		   openTabularTimeSeries and openGraphTimeSeries
+ * 05 Feb 2013  1578       rferrel     Changes for non-blocking singleton TimeSeriesDlg.
+ *                                     Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -125,12 +127,12 @@ public class QuestionableBadDataDlg extends CaveSWTDialog {
     /**
      * Collection of questionable data.
      */
-    private ArrayList<QuestionableData> questionableData;
+    private java.util.List<QuestionableData> questionableData;
 
     /**
      * Collection of filtered questionable data.
      */
-    private ArrayList<QuestionableData> filteredQuestionableData;
+    private java.util.List<QuestionableData> filteredQuestionableData;
 
     /**
      * Listener for sort options
@@ -144,10 +146,15 @@ public class QuestionableBadDataDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public QuestionableBadDataDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Questionable and Bad Data");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -157,11 +164,23 @@ public class QuestionableBadDataDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         font.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -185,7 +204,16 @@ public class QuestionableBadDataDlg extends CaveSWTDialog {
         createDataListControl();
         createDescriptionControl();
         createBottomButtons();
+    }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
+     */
+    @Override
+    protected void preOpened() {
+        super.preOpened();
         getData();
     }
 
@@ -515,7 +543,8 @@ public class QuestionableBadDataDlg extends CaveSWTDialog {
     private void updateDisplayList() {
         dataList.removeAll();
 
-        ArrayList<QuestionableData> dataToDisplay = (locationChk.getSelection() && (filteredQuestionableData != null)) ? filteredQuestionableData
+        java.util.List<QuestionableData> dataToDisplay = (locationChk
+                .getSelection() && (filteredQuestionableData != null)) ? filteredQuestionableData
                 : questionableData;
 
         if (dataToDisplay.size() == 0) {
@@ -542,6 +571,9 @@ public class QuestionableBadDataDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Updated the QC description for the selected data.
+     */
     private void updateDescription() {
         QuestionableData selectedData = getCurrentlySelectedData();
 
@@ -551,8 +583,11 @@ public class QuestionableBadDataDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Remove the selected data records.
+     */
     private void deleteRecords() {
-        ArrayList<QuestionableData> recordsToDelete = getCurrentlySelectedRange();
+        java.util.List<QuestionableData> recordsToDelete = getCurrentlySelectedRange();
 
         try {
             QuestionableDataManager.getInstance().deleteRecords(
@@ -566,26 +601,39 @@ public class QuestionableBadDataDlg extends CaveSWTDialog {
         getData();
     }
 
+    /**
+     * Display the time series graph for the selected record.
+     */
     private void openGraphTimeSeries() {
         QuestionableData currData = getCurrentlySelectedData();
 
         if (currData != null) {
-            TimeSeriesDlg tsd = new TimeSeriesDlg(shell, currData.getLid(), 
-            		currData.getPe(), currData.getTs() , true);
-            tsd.open();
+            shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+            TimeSeriesDlg.getInstance().updateAndOpen(currData.getLid(),
+                    currData.getPe(), currData.getTs(), true);
+            shell.setCursor(null);
         }
     }
 
+    /**
+     * Open time series tabular information for the selected record.
+     */
     private void openTabularTimeSeries() {
         QuestionableData currData = getCurrentlySelectedData();
 
         if (currData != null) {
-            TimeSeriesDlg tsd = new TimeSeriesDlg(shell, currData.getLid(), 
-            		currData.getPe(), currData.getTs() , false);
-            tsd.open();
+            shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+            TimeSeriesDlg.getInstance().updateAndOpen(currData.getLid(),
+                    currData.getPe(), currData.getTs(), false);
+            shell.setCursor(null);
         }
     }
 
+    /**
+     * The the data record for the selected line.
+     * 
+     * @return questionableData
+     */
     private QuestionableData getCurrentlySelectedData() {
         QuestionableData rval = null;
 
@@ -603,7 +651,12 @@ public class QuestionableBadDataDlg extends CaveSWTDialog {
         return rval;
     }
 
-    private ArrayList<QuestionableData> getCurrentlySelectedRange() {
+    /**
+     * Get a list of records for the selected line(s).
+     * 
+     * @return list
+     */
+    private java.util.List<QuestionableData> getCurrentlySelectedRange() {
         ArrayList<QuestionableData> rval = new ArrayList<QuestionableData>();
 
         for (int i : dataList.getSelectionIndices()) {
@@ -615,7 +668,7 @@ public class QuestionableBadDataDlg extends CaveSWTDialog {
     }
 
     private void setMissing() {
-        ArrayList<QuestionableData> recordsToSetMissing = getCurrentlySelectedRange();
+        java.util.List<QuestionableData> recordsToSetMissing = getCurrentlySelectedRange();
 
         try {
             QuestionableDataManager.getInstance().setMissing(

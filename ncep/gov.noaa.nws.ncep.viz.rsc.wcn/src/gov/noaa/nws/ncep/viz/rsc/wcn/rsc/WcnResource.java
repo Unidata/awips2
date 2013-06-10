@@ -33,6 +33,7 @@ import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -51,6 +52,8 @@ import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 import gov.noaa.nws.ncep.edex.common.stationTables.IStationField;
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.edex.common.stationTables.StationTable;
@@ -82,7 +85,7 @@ import gov.noaa.nws.ncep.common.dataplugin.aww.AwwVtec;
  * @version 1.0
  */
 
-public class WcnResource extends AbstractNatlCntrsResource< WcnResourceData, IMapDescriptor> 
+public class WcnResource extends AbstractNatlCntrsResource< WcnResourceData, NCMapDescriptor> 
 implements     INatlCntrsResource, IStationField {
 	private IFont font;
 	private StationTable stationTable; 
@@ -513,7 +516,8 @@ implements     INatlCntrsResource, IStationField {
 									wcnData.countyLon[i], wcnData.countyLat[i] );					
 							Symbol pointSymbol = new Symbol(null,colors,symbolWidth, symbolSize*0.4 ,false,
 									coord,"Symbol","FILLED_DIAMOND");
-							DisplayElementFactory df = new DisplayElementFactory( target, descriptor );
+							DisplayElementFactory df = new DisplayElementFactory( target, 
+									getNcMapDescriptor() );
 							ArrayList<IDisplayable> displayEls = df.createDisplayElements( pointSymbol , paintProps );
 							for (IDisplayable each : displayEls) {
 								each.draw(target, paintProps);
@@ -527,7 +531,7 @@ implements     INatlCntrsResource, IStationField {
 				}
 				if (wcnRscData.getWatchBoxFillEnable()){if( ! color.equals(wcnData.color) ){ postProcessFrameUpdate(); wcnData.color=color;}
 //					drawCountyOutline(wcnData,target,symbolColor,symbolWidth,lineStyle,paintProps,1);
-drawCountyOutline2(wcnData,target,symbolColor,symbolWidth,lineStyle,paintProps,1);
+				    drawCountyOutline2(wcnData,target,symbolColor,symbolWidth,lineStyle,paintProps,1);
 					if(!wcnRscData.getWatchBoxUnionEnable()) {
 						drawTimeLabelWatchNumber(wcnData,target,color);
 					}//only if watchbox unionenable is false                              
@@ -551,11 +555,11 @@ drawCountyOutline2(wcnData,target,symbolColor,symbolWidth,lineStyle,paintProps,1
 						String[] text = new String[2];
 						List<String> enabledText = new ArrayList<String>();
 						
-						if(wcnRscData.getWatchBoxNumberEnable()){
+						if(wcnRscData.getWatchBoxNumberEnable() ){
 							enabledText.add(wcnData.watchNumber);
 						}
 							
-						if(wcnRscData.getWatchBoxTimeEnable()){
+						if(wcnRscData.getWatchBoxTimeEnable() ){
 							DataTime startTime = new DataTime( wcnData.eventTime.getValidPeriod().getStart() );
 							DataTime endTime = new DataTime( wcnData.eventTime.getValidPeriod().getEnd() );
 							String temp = startTime.toString().substring(11, 13) + startTime.toString().substring(14,16)
@@ -575,12 +579,12 @@ drawCountyOutline2(wcnData,target,symbolColor,symbolWidth,lineStyle,paintProps,1
 								VerticalAlignment.TOP );
 					}
 
-drawCountyOutline2(wcnData,target,color,symbolWidth,lineStyle,paintProps,2);					
+					drawCountyOutline2(wcnData,target,color,symbolWidth,lineStyle,paintProps,2);					
 //					drawCountyOutline(wcnData,target,color,symbolWidth,lineStyle,paintProps,2);
 				}
 				
 				else if(wcnRscData.getWatchBoxOutlineEnable() ){
-drawCountyOutline2(wcnData,target,color,symbolWidth,lineStyle,paintProps,0);//T456
+					drawCountyOutline2(wcnData,target,color,symbolWidth,lineStyle,paintProps,0);//T456
 //					drawCountyOutline(wcnData,target,color,symbolWidth,lineStyle,paintProps,0);
 				}
 
@@ -603,7 +607,7 @@ drawCountyOutline2(wcnData,target,color,symbolWidth,lineStyle,paintProps,0);//T4
 		Envelope env = null;	
 		try {
 			PixelExtent extent = (PixelExtent) paintProps.getView().getExtent();
-			Envelope e = descriptor.pixelToWorld(extent, descriptor.getCRS());
+			Envelope e = getNcMapDescriptor().pixelToWorld(extent, descriptor.getCRS());
 			ReferencedEnvelope ref = new ReferencedEnvelope(e, descriptor.getCRS());
 			env = ref.transform(MapUtil.LATLON_PROJECTION, true);
 		} catch (Exception e) {
@@ -703,7 +707,7 @@ drawCountyOutline2(wcnData,target,color,symbolWidth,lineStyle,paintProps,0);//T4
 				if( labelPix != null ){
 					String[] text = new String[3];
 					List<String> enabledText = new ArrayList<String>();
-
+					
 					if(wcnRscData.getWatchBoxNumberEnable() ){
 						enabledText.add(wcnData.watchNumber);
 					}
@@ -832,7 +836,7 @@ drawCountyOutline2(wcnData,target,color,symbolWidth,lineStyle,paintProps,0);//T4
 						
 					    	WKBReader wkbReader = new WKBReader();
 							for (Object[] result : results) {
-								int k = 0;
+								int k = 0;								
 								byte[] wkb1=(byte[]) result[k];
 								
 								MultiPolygon countyGeo = null;
@@ -946,7 +950,7 @@ drawCountyOutline2(wcnData,target,color,symbolWidth,lineStyle,paintProps,0);//T4
 	 *  called in the constructor.
 	 */
 	private void addRDChangedListener(){
-		com.raytheon.viz.ui.editor.AbstractEditor editor = gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils.getActiveNatlCntrsEditor();
+		AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
 		editor.addRenderableDisplayChangedListener(this.new WcnDCListener());
 	}
 	
@@ -1002,10 +1006,10 @@ drawCountyOutline2(wcnData,target,color,symbolWidth,lineStyle,paintProps,0);//T4
     @Override
 	protected boolean postProcessFrameUpdate() {
     	
-    	gov.noaa.nws.ncep.viz.ui.display.NCMapEditor ncme = 
-    				gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils.getActiveNatlCntrsEditor();
+    	AbstractEditor ncme = NcDisplayMngr.getActiveNatlCntrsEditor();
     	
-    	crJob.setRequest(ncme.getActiveDisplayPane().getTarget(), descriptor, null, false, false, null); 
+    	crJob.setRequest(ncme.getActiveDisplayPane().getTarget(), 
+    			getNcMapDescriptor(), null, false, false, null); 
     	
     	return true;
     }

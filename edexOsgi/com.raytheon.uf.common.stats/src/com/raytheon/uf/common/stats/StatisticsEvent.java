@@ -23,6 +23,9 @@ package com.raytheon.uf.common.stats;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import com.raytheon.uf.common.event.Event;
 
 /**
@@ -35,6 +38,7 @@ import com.raytheon.uf.common.event.Event;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 25, 2012  #1340     dhladky     Initial creation
+ * Feb 10, 2013  #1584     mpduff      Add equals and hashCode.
  * 
  * </pre>
  * 
@@ -52,7 +56,43 @@ public abstract class StatisticsEvent extends Event {
 
     protected abstract Map<String, String> getFieldUnitMap();
 
+    public abstract void finalizeEvent();
+
     public String getStorageUnit(String field) {
         return getFieldUnitMap().get(field);
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        HashCodeBuilder hcBuilder = new HashCodeBuilder();
+        hcBuilder.append(this.date);
+        hcBuilder.append(this.id);
+
+        return hcBuilder.toHashCode();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof StatisticsEvent) {
+            StatisticsEvent other = (StatisticsEvent) obj;
+            EqualsBuilder builder = new EqualsBuilder();
+            builder.append(this.date, other.date);
+            builder.append(this.id, this.id);
+
+            return builder.isEquals();
+        }
+
+        return super.equals(obj);
+    }
+
 }

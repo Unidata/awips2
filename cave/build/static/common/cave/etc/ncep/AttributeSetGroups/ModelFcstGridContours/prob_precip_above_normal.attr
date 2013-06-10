@@ -1,0 +1,23 @@
+!
+! Restore File :prob_precip_above_normal
+!
+! Log:
+!
+GLEVEL=0
+GVCORD=NONE
+SKIP=
+FILTER=n
+SCALE=0
+GDPFUN=PPAN
+TYPE=P
+CINT=0
+LINE=6
+FINT=
+FLINE=0;29;28;27;26;0
+HILO=
+HLSYM=
+WIND=
+TITLE=1/-1/~ PPAN
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

@@ -51,6 +51,9 @@ import com.raytheon.viz.hydrocommon.HydroDisplayManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 19, 2008            randerso     Initial creation
+ * Feb 14, 2013 1616       bsteffen    Add option for interpolation of colormap
+ *                                     parameters, disable colormap interpolation
+ *                                     by default.
  * 
  * </pre>
  * 
@@ -157,7 +160,6 @@ public class MPELegendResource extends
 
                 DrawableColorMap cmap = new DrawableColorMap(rsc.getCapability(
                         ColorMapCapability.class).getColorMapParameters());
-                cmap.interpolate = false;
                 cmap.alpha = alpha;
                 IColorMap cm = cmap.getColorMapParams().getColorMap();
 

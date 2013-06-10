@@ -54,7 +54,7 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * Jul 17, 2009   #2590   	njensen     Multiple site support
  * Jul 28, 2010   #6725  	jdynina		Manual init support
  * Aug 27, 2010   #3688     wkwock      Find model class for a model
- * 
+ * Aug 24, 2013   #1949     rjpeter     Updated start up logic
  * </pre>
  * 
  * @author njensen
@@ -63,7 +63,7 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
 
 public class SmartInitSrv {
 
-    private Map<Long, SmartInitScript> cachedInterpreters = new HashMap<Long, SmartInitScript>();
+    private final Map<Long, SmartInitScript> cachedInterpreters = new HashMap<Long, SmartInitScript>();
 
     private static boolean enabled = true;
 
@@ -84,7 +84,6 @@ public class SmartInitSrv {
             thread.pendingInitMinTimeMillis = cfg.getPendingInitMinTimeMillis();
             thread.runningInitTimeOutMillis = cfg.getRunningInitTimeOutMillis();
             thread.threadSleepInterval = cfg.getThreadSleepInterval();
-            thread.initialDelay = cfg.getInitialDelay();
             executor.execute(thread);
         }
     }
@@ -99,21 +98,18 @@ public class SmartInitSrv {
 
         private final transient Log logger = LogFactory.getLog(getClass());
 
-        private int initialDelay = 120000;
-
         @Override
         public void run() {
-            long curTime = System.currentTimeMillis();
-            while (!EDEXUtil.isRunning()
-                    || System.currentTimeMillis() - curTime < initialDelay) {
-                try {
-                    Thread.sleep(threadSleepInterval);
-                } catch (Throwable t) {
-                    // ignore
-                }
-            }
-
             try {
+                // Wait for server to come fully up due to route dependencies
+                while (!EDEXUtil.isRunning()) {
+                    try {
+                        Thread.sleep(threadSleepInterval);
+                    } catch (InterruptedException e) {
+                        // ignore
+                    }
+                }
+
                 // run forever
                 while (true) {
                     SmartInitRecord record = SmartInitTransactions
@@ -170,7 +166,7 @@ public class SmartInitSrv {
                                     LocalizationLevel.BASE);
 
                             File file = pathMgr.getFile(ctx, "smartinit");
-                            if (file != null && file.exists()) {
+                            if ((file != null) && file.exists()) {
                                 initScript.addSitePath(file.getPath(), pathMgr
                                         .getFile(baseCtx, "smartinit")
                                         .getPath());
@@ -178,7 +174,7 @@ public class SmartInitSrv {
                             }
                             file = pathMgr.getFile(ctx,
                                     FileUtil.join("config", "gfe"));
-                            if (file != null && file.exists()) {
+                            if ((file != null) && file.exists()) {
                                 initScript.addSitePath(
                                         file.getPath(),
                                         pathMgr.getFile(baseCtx,

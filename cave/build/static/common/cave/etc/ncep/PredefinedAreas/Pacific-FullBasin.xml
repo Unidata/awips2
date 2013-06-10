@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<predefinedArea areaName="Pacific_FullBasin"   mapCenter="-169.5 40.5 0.0" >
+<predefinedArea areaName="Pacific-FullBasin"   mapCenter="-169.5 40.5 0.0" >
     <zoomLevel>0.4</zoomLevel>
    <gridGeometry envelopeMaxY="1.3E7" envelopeMinY="-1.3E7" envelopeMaxX="1.3E7" envelopeMinX="-1.3E7" rangeY="0 9999" rangeX="0 9999">
                   <CRS>PROJCS["Lambert_Conformal_Conic_2SP",

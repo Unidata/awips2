@@ -71,6 +71,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 8, 2009            snaples     Initial creation
+ * May 2, 2013  15970     snaples     Updated setColor to use the correct color.
  * 
  * </pre>
  * 
@@ -96,7 +97,7 @@ public class PlotMeanAreaPrecipResource extends
 
     private ColorMapParameters parameters = new ColorMapParameters();
 
-    private List<Colorvalue> colorSet;
+    private final List<Colorvalue> colorSet;
 
     public PlotMeanAreaPrecipResource(MPEDisplayManager displayMgr,
             List<Colorvalue> colorSet) {
@@ -542,12 +543,23 @@ public class PlotMeanAreaPrecipResource extends
             if (i == colorMap.getColors().size()) {
                 break;
             }
+            // DR 15970
+            // Adjusted the index value of the color returned, was
+            // returning one level higher than value should have.
             if (value == entry.getDisplayValue()) {
+            	if (i == 0){
                 gcol = convertC(colorMap.getColors().get(i));
+            	} else {
+            		gcol = convertC(colorMap.getColors().get(i - 1));
+            	}
                 break;
             } else if (value < entry.getDisplayValue()) {
-                gcol = convertC(colorMap.getColors().get(i));
-                break;
+            	if (i == 0){
+                    gcol = convertC(colorMap.getColors().get(i));
+                	} else {
+                		gcol = convertC(colorMap.getColors().get(i - 1));
+                	}
+            	break;
             }
             i++;
         }

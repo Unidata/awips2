@@ -83,7 +83,8 @@ public class IncludeMenuItem extends CommonIncludeMenuItem implements
             throws VizException {
         if (subMenuName != null) {
             submenuCont = new SubmenuContributionItem(incomingSubs,
-                    subMenuName, null, removalsIn) {
+                    "IncludeSubMenuContributionId_" + subMenuName, subMenuName,
+                    null, removalsIn) {
 
                 @Override
                 protected synchronized IContributionItem[][] getContributionItems() {
@@ -97,16 +98,6 @@ public class IncludeMenuItem extends CommonIncludeMenuItem implements
                         }
                     }
                     return this.contributionItems;
-                }
-
-                /*
-                 * (non-Javadoc)
-                 * 
-                 * @see org.eclipse.jface.action.MenuManager#getId()
-                 */
-                @Override
-                public String getId() {
-                    return "IncludeSubMenuContributionId_"+subMenuName;
                 }
             };
             return new IContributionItem[] { submenuCont };

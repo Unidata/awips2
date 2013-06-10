@@ -16,6 +16,15 @@
 # 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
+#
+# Software History
+#
+# 2013/1/17    DR 15655    Melissa Porricelli    Modified final 'result' 
+#                                                calculation to remove multiplication
+#                                                by 0.5.  Displayed values were
+#                                                off by a factor of this amount 
+#                                                in comparison to A1.  
+#                                                A1 calc in pvpres.f.
 ###
 
 from numpy import zeros
@@ -72,7 +81,7 @@ def execute(t_up, t_lo, p_up, p_lo, vector_up, vector_lo, dx, dy, coriolis):
     dtdy = dtdy1 + dtdy2
     av = avort1 + avort2
     
-    result = (-0.5 * (av*dt + (du*dtdy - dv*dtdx)) / dp)*.5
+    result = (-0.5 * (av*dt + (du*dtdy - dv*dtdx)) / dp)
     
     return result
     

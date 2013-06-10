@@ -32,8 +32,9 @@ import JUtil
 #    ------------    ----------    -----------    --------------------------
 #    04/10/08                      chammack       Initial Creation.
 #    09/30/08         1566         wdougher       Quit returning TimeRange from overlaps(), etc.
-#    09/16/09         2899       njensen           Huge performance boost by caching
-#    
+#    09/16/09         2899         njensen        Huge performance boost by caching
+#    04/04/2013      #1787         randerso       Removed isValid check to allow 0 duration
+#                                                 time ranges to be used in python
 # 
 #
 
@@ -159,8 +160,6 @@ def javaTimeRangeListToPyList(timeRanges):
     return pylist
 
 def encodeJavaTimeRange(javaTimeRange):
-    if not javaTimeRange.isValid():
-        return None
     time = TimeRange(javaTimeRange)
     start = time.startTime()
     end = time.endTime()

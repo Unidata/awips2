@@ -46,7 +46,7 @@ public abstract class AbstractHandlerFactory implements
 
     private final String defaultCategory;
 
-    private Map<String, IUFStatusHandler> namedHandlers = new HashMap<String, IUFStatusHandler>();
+    private final Map<String, IUFStatusHandler> namedHandlers = new HashMap<String, IUFStatusHandler>();
 
     private FilterPatternContainer sourceFilters;
 
@@ -55,17 +55,6 @@ public abstract class AbstractHandlerFactory implements
      */
     public AbstractHandlerFactory(String category) {
         this.defaultCategory = category;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.common.status.IUFStatusHandlerFactory#getInstance()
-     */
-    @Override
-    public IUFStatusHandler getInstance() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     /*

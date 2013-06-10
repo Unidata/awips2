@@ -24,6 +24,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -32,9 +33,12 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.annotations.Index;
+
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -56,19 +60,35 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                      getPersistenceTime() from new IPersistable
  * 20071129            472  jkorman     Added IDecoderGettable interface.
  * 20081106           1515  jkorman     Changed units length from 16 to 26
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * - AWIPS2 Baseline Repository --------
- * 07/30/2012    798        jkorman     Support for common satellite data. 
+ * 07/30/2012    798        jkorman     Support for common satellite data.
+ * 03/25/2013   1823        dgilling    Replace underscores with spaces in URI
+ *                                      constructor.
+ * 04/08/2013   1293        bkowal      Removed references to hdffileid.
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "satelliteseq")
 @Table(name = "satellite", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "satellite",
+		indexes = {
+				@Index(name = "satellite_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class SatelliteRecord extends ServerSpecificPersistablePluginDataObject
+public class SatelliteRecord extends PersistablePluginDataObject
         implements ISpatialEnabled {
 
     private static final long serialVersionUID = 1L;
@@ -77,7 +97,7 @@ public class SatelliteRecord extends ServerSpecificPersistablePluginDataObject
      * The default dataset name to use for persisted satellite data.
      */
     public static final String SAT_DATASET_NAME = DataStoreFactory.DEF_DATASET_NAME;
-    
+
     /**
      * The attribute name for a value that will be used to "fill" undefined
      * data.
@@ -178,8 +198,8 @@ public class SatelliteRecord extends ServerSpecificPersistablePluginDataObject
     @XmlAttribute
     @DynamicSerializeElement
     private Integer interpolationLevels;
-    
-    @DataURI(position = 5, embedded=true)
+
+    @DataURI(position = 5, embedded = true)
     @ManyToOne
     @PrimaryKeyJoinColumn
     @XmlElement
@@ -247,7 +267,7 @@ public class SatelliteRecord extends ServerSpecificPersistablePluginDataObject
      *            The table definition associated with this class
      */
     public SatelliteRecord(String uri) {
-        super(uri);
+        super(uri.replace('_', ' '));
     }
 
     public Integer getNumRecords() {
@@ -334,21 +354,24 @@ public class SatelliteRecord extends ServerSpecificPersistablePluginDataObject
 
     /**
      * Get the number of interpolation levels in the data store.
+     * 
      * @return The number of interpolation levels. Data that is not interpolated
-     * should return a value of 0.
+     *         should return a value of 0.
      */
     public Integer getInterpolationLevels() {
         return interpolationLevels;
     }
-    
+
     /**
-     * Set the number of interpolation levels in the data store. If the data
-     * are not interpolated a value of 0 should be used.
-     * @param levels The number of interpolation levels in the data. Any value less than
-     * zero is set to zero.
+     * Set the number of interpolation levels in the data store. If the data are
+     * not interpolated a value of 0 should be used.
+     * 
+     * @param levels
+     *            The number of interpolation levels in the data. Any value less
+     *            than zero is set to zero.
      */
     public void setInterpolationLevels(Integer levels) {
-        if(!DataStoreFactory.isInterpolated(levels)) {
+        if (!DataStoreFactory.isInterpolated(levels)) {
             levels = 0;
         }
         interpolationLevels = levels;
@@ -378,5 +401,4 @@ public class SatelliteRecord extends ServerSpecificPersistablePluginDataObject
         return dataRec;
     }
 
-    
 }

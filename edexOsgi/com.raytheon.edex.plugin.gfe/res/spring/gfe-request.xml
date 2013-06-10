@@ -54,7 +54,9 @@
 		<constructor-arg ref="dbInventoryHandler" />
 	</bean>
 	<bean id="executeIscMosaicHandler"
-		class="com.raytheon.edex.plugin.gfe.server.handler.ExecuteIscMosaicRequestHandler" />
+		class="com.raytheon.edex.plugin.gfe.server.handler.ExecuteIscMosaicRequestHandler">
+		 <constructor-arg ref="iscMosaicPythonThreadPool" />
+	</bean>
 	<bean factory-bean="handlerRegistry" factory-method="register">
 		<constructor-arg
 			value="com.raytheon.uf.common.dataplugin.gfe.request.ExecuteIscMosaicRequest" />
@@ -131,10 +133,12 @@
 		<constructor-arg ref="lockTablesHandler" />
 	</bean>
 	<bean id="netCDFHandler"
-		class="com.raytheon.edex.plugin.gfe.server.handler.CreateNetCDFGridRequestHandler" />
+		class="com.raytheon.edex.plugin.gfe.server.handler.ExecuteIfpNetCDFGridRequestHandler">
+		<constructor-arg ref="ifpnetCDFPythonThreadPool" />
+	</bean>
 	<bean factory-bean="handlerRegistry" factory-method="register">
 		<constructor-arg
-			value="com.raytheon.uf.common.dataplugin.gfe.request.CreateNetCDFGridRequest" />
+			value="com.raytheon.uf.common.dataplugin.gfe.request.ExecuteIfpNetCDFGridRequest" />
 		<constructor-arg ref="netCDFHandler" />
 	</bean>
 	<bean id="purgeGfeGridsHandler"
@@ -298,6 +302,27 @@
 			value="com.raytheon.uf.common.dataplugin.gfe.request.GetSelectTimeRangeRequest" />
 		<constructor-arg ref="GetSelectTRHandler" />
 	</bean>
+    <bean id="createNewDbHandler"
+        class="com.raytheon.edex.plugin.gfe.server.handler.CreateNewDbHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.gfe.request.CreateNewDbRequest" />
+        <constructor-arg ref="createNewDbHandler" />
+    </bean>
+    <bean id="getLatestDbInsertTimeHandler"
+        class="com.raytheon.edex.plugin.gfe.server.handler.GetLatestDbTimeHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.gfe.request.GetLatestDbTimeRequest" />
+        <constructor-arg ref="getLatestDbInsertTimeHandler" />
+    </bean>
+    <bean id="getLatestDbIdHandler"
+        class="com.raytheon.edex.plugin.gfe.server.handler.GetLatestModelDbIdHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.gfe.request.GetLatestModelDbIdRequest" />
+        <constructor-arg ref="getLatestDbIdHandler" />
+    </bean>
 
 
 	<!-- Service Backup Handlers -->
@@ -348,6 +373,14 @@
 		<constructor-arg
 			value="com.raytheon.uf.common.dataplugin.gfe.request.CheckPermissionsRequest" />
 		<constructor-arg ref="CheckPermissionsRequestHandler" />
+	</bean>
+	
+	<bean id="CleanupSvcBuLogRequestHandler"
+		class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.CleanupSvcBuLogRequestHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.dataplugin.gfe.request.CleaunpSvcBuLogRequest" />
+		<constructor-arg ref="CleanupSvcBuLogRequestHandler" />
 	</bean>
 	
 	<bean id="NcCheckRequestHandler"
@@ -453,9 +486,8 @@
 	    <property name="threads" value="1"/>
 	    <property name="runningTimeOutMillis" value="300000"/>
 	    <property name="threadSleepInterval" value="5000"/>
-	    <property name="initialDelay" value="120000"/>
 	</bean>
-  	<bean depends-on="gfeDbRegistered" id="sendIscSrv" class="com.raytheon.edex.plugin.gfe.isc.SendIscSrv">
+  	<bean depends-on="gfeDbRegistered, gfeSitesActive" id="sendIscSrv" class="com.raytheon.edex.plugin.gfe.isc.SendIscSrv">
         <constructor-arg ref="iscSendSrvCfg" />
   	</bean>
   	<!-- End ISC Send Beans -->
@@ -473,8 +505,59 @@
 		<property name="corePoolSize" value="2" />
 		<property name="maxPoolSize" value="2" />
 	</bean>
-  	<bean id="IscReceiveSrv" class="com.raytheon.edex.plugin.gfe.isc.IscReceiveSrv" />
+  	<bean id="IscReceiveSrv" class="com.raytheon.edex.plugin.gfe.isc.IscReceiveSrv">
+  		<constructor-arg ref="iscDataRecPythonThreadPool" />
+	</bean>
   	<!-- End ISC Receive Beans -->
+  	
+  	<!-- Additional ISC Beans -->
+  	
+  	<bean id="ifpnetCDFFactory" class="com.raytheon.edex.plugin.gfe.isc.IscScriptFactory">
+  		<constructor-arg value="ifpnetCDF" />
+  		<constructor-arg value="2" />
+  	</bean>
+  	<bean name="ifpnetCDFPythonThreadPool"
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod"
+            value="com.raytheon.uf.common.python.concurrent.PythonJobCoordinator.newInstance" />
+        <property name="arguments">
+            <list>
+                <ref bean="ifpnetCDFFactory" />
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="iscMosaicFactory" class="com.raytheon.edex.plugin.gfe.isc.IscScriptFactory">
+  		<constructor-arg value="iscMosaic" />
+  		<constructor-arg value="2" />
+  	</bean>
+  	<bean name="iscMosaicPythonThreadPool"
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod"
+            value="com.raytheon.uf.common.python.concurrent.PythonJobCoordinator.newInstance" />
+        <property name="arguments">
+            <list>
+                <ref bean="iscMosaicFactory" />
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="iscDataRecFactory" class="com.raytheon.edex.plugin.gfe.isc.IscScriptFactory">
+  		<constructor-arg value="iscDataRec" />
+  		<constructor-arg value="2" />
+  	</bean>
+  	<bean name="iscDataRecPythonThreadPool"
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod"
+            value="com.raytheon.uf.common.python.concurrent.PythonJobCoordinator.newInstance" />
+        <property name="arguments">
+            <list>
+                <ref bean="iscDataRecFactory" />
+            </list>
+        </property>
+    </bean>
+  	
+  	<!-- End Additional ISC Beans -->
 
 	<bean id="logPurger" class="com.raytheon.edex.plugin.gfe.log.LogPurger" />
 
@@ -489,6 +572,8 @@
 			uri="clusteredquartz://gfe/exportDigitalData/?cron=${gfe.cron}" />
 		<endpoint id="gfeLogPurgeCron"
 			uri="clusteredquartz://gfe/purgeGfeLogs/?cron=${purge.logs.cron}" />
+		<endpoint id="svcbuLogPurgeCron"
+			uri="clusteredquartz://gfe/purgeSvcbuLogs/?cron=${purge.svcbu.logs.cron}" />
 
 		<route id="exportDigitalData">
 			<from uri="exportDigitalDataCron" />
@@ -520,6 +605,22 @@
 			<from uri="jms-generic:queue:purgeGfeLogWork" />
 			<doTry>
 				<bean ref="logPurger" method="purge" />
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to
+						uri="log:svcBackup?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+				</doCatch>
+			</doTry>
+		</route>
+		
+		<route id="purgeSvcbuLogs">
+			<from uri="svcbuLogPurgeCron" />
+			<to uri="jms-generic:queue:purgeSvcbuLogWork" />
+		</route>
+		<route id="purgeSvcbuLogWork">
+			<from uri="jms-generic:queue:purgeSvcbuLogWork" />
+			<doTry>
+				<bean ref="CleanupSvcBuLogRequestHandler" method="svcbuLogCleanupCron" />
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to

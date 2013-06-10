@@ -1,5 +1,5 @@
-! Attributes for the GFSXMOS resource with "pop24mm" plot model
+! Attributes for the GFSXMOS resource with "pop24_mm" plot model
 !
-plotModel=@PlotModels/bufrmosMRF/pop24mm.xml
+plotModel=@PlotModels/bufrmosMRF/pop24_mm.xml
 plotDensity=10
 conditionalFilter=

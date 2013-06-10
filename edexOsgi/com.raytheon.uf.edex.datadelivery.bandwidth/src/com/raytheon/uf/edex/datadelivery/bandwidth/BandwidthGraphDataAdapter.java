@@ -38,7 +38,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionDao;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthReservation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
@@ -123,7 +123,7 @@ class BandwidthGraphDataAdapter {
                         final SubscriptionRetrieval subRetrieval = (SubscriptionRetrieval) allocation;
                         retrievals.put(allocation.getId(), subRetrieval);
                         subNameToRetrievals.put(subRetrieval
-                                .getSubscriptionDao().getName(), subRetrieval);
+                                .getBandwidthSubscription().getName(), subRetrieval);
                     }
                 }
 
@@ -139,7 +139,7 @@ class BandwidthGraphDataAdapter {
         // them with an reservations they have
         for (Entry<Long, SubscriptionRetrieval> entry : retrievals.entrySet()) {
             final SubscriptionRetrieval value = entry.getValue();
-            SubscriptionDao dao = value.getSubscriptionDao();
+            BandwidthSubscription dao = value.getBandwidthSubscription();
             final String subName = dao.getName();
             try {
                 priorityMap.put(subName, dao.getSubscription().getPriority());

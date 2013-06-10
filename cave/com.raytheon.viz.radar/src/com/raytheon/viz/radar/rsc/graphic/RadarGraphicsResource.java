@@ -47,6 +47,7 @@ import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
 import com.raytheon.viz.radar.rsc.AbstractRadarResource;
 import com.raytheon.viz.radar.rsc.RadarResourceData;
 import com.raytheon.viz.radar.ui.RadarDisplayManager;
+import com.raytheon.viz.radar.VizRadarRecord;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -61,6 +62,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * May 13, 2010            mnash     Initial creation
  * Jul 20, 2010 #6187      bkowal    The cache will be cleared out every time
  *                                   a refresh is required.
+ * 03/05/2013   DCS51      zwang     Handle GFM product                                   
  * 
  * </pre>
  * 
@@ -161,7 +163,15 @@ public class RadarGraphicsResource extends AbstractRadarResource<MapDescriptor>
      */
     @Override
     public String[] getUpperText(DataTime time) {
-        // Upper text would interfere with the table
+
+    	VizRadarRecord record = getRadarRecord(time);
+    	
+    	// Use upper text to display gfmCount for GFM (140)
+    	if (record != null && record.getProductCode() == 140) {
+    		return super.getUpperText(time);
+    	}
+        
+    	// Upper text would interfere with the table
         return null;
     }
 

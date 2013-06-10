@@ -62,15 +62,26 @@ import com.raytheon.uf.viz.monitor.scan.ScanMonitor;
 import com.raytheon.uf.viz.monitor.scan.data.ScanDataGenerator;
 import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlertedAlarms;
 
-/* Modification History:
- *  Date         Ticket#    Name        Change
- * ------------ ---------- ------------ --------------------------
- * 02/23/2012	14538	   Xiaochuan	Fix TVS table default rank.
+/**
  * 
- * 03/15/2012	13939	   Mike Duff    For a SCAN Alarms issue 
- * 										
+ * Abstract scan table class used for the CELL, DMD, MESO, and TVS tables..
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 02/23/2012   14538      Xiaochuan   Fix TVS table default rank.
+ * 03/15/2012   13939      Mike Duff   For a SCAN Alarms issue
+ * Apr 29, 2013 #1945      lvenable    Improved SCAN performance, reworked
+ *                                     some bad code, and some code cleanup.
+ * 
+ * </pre>
+ * 
+ * @author lvenable
+ * @version 1.0
  */
-
 public abstract class SCANTable extends Composite {
     protected Table table;
 
@@ -140,6 +151,24 @@ public abstract class SCANTable extends Composite {
 
     protected Point prevMousePt = new Point(-9999, -9999);
 
+    /**
+     * Last sorted column index. This is set to -2 because sortedColumnIndex is
+     * set to -1 and they should not have the same initial value at start up.
+     */
+    protected int lastSortColIndex = -2;
+
+    /**
+     * Constructor.
+     * 
+     * @param parent
+     *            Parent composite.
+     * @param tableData
+     *            Data to be display into the table.
+     * @param tableActionCB
+     *            Callback when the table is clicked.
+     * @param site
+     *            Site name.
+     */
     public SCANTable(Composite parent, SCANTableData tableData,
             ITableAction tableActionCB, String site) {
         super(parent, 0);
@@ -176,8 +205,6 @@ public abstract class SCANTable extends Composite {
 
         createTableItems();
 
-        // packColumns();
-
         sortedColumnIndex = -1;
 
         sortTableUsingConfig();
@@ -185,6 +212,7 @@ public abstract class SCANTable extends Composite {
         showHideTableColumns();
 
         this.addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent arg0) {
                 if ((scanTable == ScanTables.CELL)
                         || (scanTable == ScanTables.DMD)) {
@@ -209,11 +237,6 @@ public abstract class SCANTable extends Composite {
         gd.heightHint = 175;
         gd.widthHint = scanCfg.getDefaultTableWidth(scanTable);
 
-        // **********************************************************
-        // **********************************************************
-        // **********************************************************
-        // **********************************************************
-
         boolean[] visCols = scanCfg.getVisibleColumns(scanTable);
         int tableWidth = 0;
 
@@ -223,17 +246,6 @@ public abstract class SCANTable extends Composite {
             }
         }
 
-        System.out.println("widthHint  = " + gd.widthHint);
-        System.out.println("tableWidth = " + tableWidth);
-
-        // **********************************************************
-        // **********************************************************
-        // **********************************************************
-        // **********************************************************
-        // **********************************************************
-
-        // table = new Table(this, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL
-        // | SWT.FULL_SELECTION);
         table = new Table(this, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
         table.setLayoutData(gd);
         table.setHeaderVisible(true);
@@ -243,12 +255,8 @@ public abstract class SCANTable extends Composite {
         gc.dispose();
 
         table.addListener(SWT.PaintItem, new Listener() {
+            @Override
             public void handleEvent(Event event) {
-
-                // if (scanTable != ScanTables.CELL) {
-                // // System.out.println("scanTable = " + scanTable.name());
-                // // System.out.println("in paintListener");
-                // }
 
                 if (tableData.getTableRows().size() != 0) {
                     table.deselectAll();
@@ -262,10 +270,7 @@ public abstract class SCANTable extends Composite {
                             rect.height);
 
                     // Draw an extra line on the edges of the table cell to hide
-                    // the
-                    // white lines
-                    // dividing the columns;
-                    // event.gc.setLineWidth(2);
+                    // the white lines dividing the columns;
                     event.gc.drawLine(rect.x + rect.width - 2, rect.y - 1,
                             rect.x + rect.width - 2, rect.y - 1 + rect.height);
 
@@ -284,9 +289,6 @@ public abstract class SCANTable extends Composite {
                     }
                 } else {
 
-                    // System.out.println("scanTable = " + scanTable.name());
-                    // System.out.println("event.index = " + event.index);
-
                     if ((event.index >= 0) || (event.index <= 6)) {
                         int offset = 0;
 
@@ -299,7 +301,6 @@ public abstract class SCANTable extends Composite {
 
                         event.gc.setForeground(getParent().getShell()
                                 .getDisplay().getSystemColor(SWT.COLOR_GREEN));
-                        // event.gc.setBackground(display.getSystemColor(SWT.COLOR_BLACK));
 
                         int y = event.y + (event.height - extent.y) / 2;
                         event.gc.drawString(noDataStr, event.x - offset, y);
@@ -357,7 +358,6 @@ public abstract class SCANTable extends Composite {
                 @Override
                 public void widgetSelected(SelectionEvent event) {
                     tableColumnSelectAction(event);
-
                 }
             });
 
@@ -380,13 +380,6 @@ public abstract class SCANTable extends Composite {
         }
 
         setColumnImages();
-
-        //
-        // TODO : Rank is default so we have to sort by the default - fix this
-        //
-        // TableColumn stc = table.getColumn(0);
-
-        // TODO : Will need to fix with the default ranking
         sortedColumnIndex = -1;
     }
 
@@ -545,15 +538,14 @@ public abstract class SCANTable extends Composite {
         tableData = td;
 
         if ((tableData == null) || (tableData.getTableRows().size() == 0)) {
-            // System.out.println("*** no data");
-            // table.setEnabled(true);
+
             table.removeAll();
 
             /*
              * This TableItem is needed to draw "No Detections" on. Do not
              * remove it.
              */
-            TableItem item = new TableItem(table, SWT.NONE);
+            new TableItem(table, SWT.NONE);
 
             table.setBackground(getParent().getShell().getDisplay()
                     .getSystemColor(SWT.COLOR_BLACK));
@@ -629,10 +621,10 @@ public abstract class SCANTable extends Composite {
             return;
         }
 
-	if( scanTable == ScanTables.TVS && sortedIndex == -1)
-        {
+        if (scanTable == ScanTables.TVS && sortedIndex == -1) {
             sortedIndex = TVSTable.valueOf("IDENT").ordinal();
         }
+
         // get the ident, if a row is outlined in blue
         if (tableIndex >= 0) {
             SCANTableRowData stdr = tableData.getTableRows().get(tableIndex);
@@ -670,11 +662,8 @@ public abstract class SCANTable extends Composite {
         } else {
             tableData.sortDefault();
         }
+
         createTableItems();
-
-        // packColumns();
-
-        showHideTableColumns();
 
         if (timer != null) {
             timer.cancel();
@@ -684,11 +673,14 @@ public abstract class SCANTable extends Composite {
         }
 
         ScanDataGenerator sdg = new ScanDataGenerator(site);
-        if ((scanTable == ScanTables.CELL) || ((scanTable == ScanTables.DMD)
-                && !mgr.getAlertedAlarms(site, scanTable).isEmpty())) {
+        if ((scanTable == ScanTables.CELL)
+                || ((scanTable == ScanTables.DMD) && !mgr.getAlertedAlarms(
+                        site, scanTable).isEmpty())) {
             ScanMonitor monitor = ScanMonitor.getInstance();
             if (monitor.getMostRecent(monitor, scanTable.name(), site) != null) {
-                checkBlink(sdg, monitor.getMostRecent(monitor, scanTable.name(), site).getRefTime());
+                checkBlink(sdg,
+                        monitor.getMostRecent(monitor, scanTable.name(), site)
+                                .getRefTime());
             }
         }
 
@@ -753,7 +745,6 @@ public abstract class SCANTable extends Composite {
 
     private void packSingleColumn(TableColumn tc, int index) {
         tc.pack();
-        // tCols[i].setWidth(table.getColumn(i).getWidth() + 5);
         tc.setWidth(table.getColumn(index).getWidth() + 2);
 
         if (tc.getWidth() > defaultColWidth) {
@@ -791,20 +782,11 @@ public abstract class SCANTable extends Composite {
                 maxTextLength = colNames[i].length();
             }
 
-            // System.out.println("--- column name = " + colNames[i]);
-            // System.out.println("--- extent      = " +
-            // gc.stringExtent(colNames[i]));
-
             if (gc.stringExtent(colNames[i]).x > maxColNameExtent) {
                 maxColNameExtent = gc.stringExtent(colNames[i]).x;
             }
         }
 
-        // System.out.println("maxColNameExtent = " + maxColNameExtent + "  -  "
-        // + scanTable.name());
-
-        // imageWidth = maxTextLength * textWidth + 6;
-        // imageWidth = maxColNameExtent + 2;
         imageWidth = maxColNameExtent;
         imageHeight = textHeight + 4;
 
@@ -812,6 +794,9 @@ public abstract class SCANTable extends Composite {
         image.dispose();
     }
 
+    /**
+     * Update the column tooltip text.
+     */
     public void updateColumnTips() {
         if (scanCfg.showTips(scanTable) == false) {
             TableColumn[] tCols = table.getColumns();
@@ -827,8 +812,6 @@ public abstract class SCANTable extends Composite {
                         (String) tCols[i].getData()));
             }
         }
-
-        // TODO - need the column tool tip text to be set
     }
 
     /**
@@ -919,6 +902,7 @@ public abstract class SCANTable extends Composite {
                 @Override
                 public void run() {
                     Display.getDefault().asyncExec(new Runnable() {
+                        @Override
                         public void run() {
                             runTimerTask();
                         }
@@ -932,6 +916,7 @@ public abstract class SCANTable extends Composite {
                 @Override
                 public void run() {
                     Display.getDefault().asyncExec(new Runnable() {
+                        @Override
                         public void run() {
 
                             // Fail-safe check to determine if the we have no
@@ -966,9 +951,7 @@ public abstract class SCANTable extends Composite {
 
     private void runTimerTask() {
         // Fail-safe check to determine if the we have
-        // no
-        // data
-        // in the table data.
+        // no data in the table data.
         if ((timer != null) && (tableData != null)) {
             if (tableData.getTableRows().size() == 0) {
                 if (timer != null) {
@@ -986,27 +969,26 @@ public abstract class SCANTable extends Composite {
                 boolean allClear = true;
 
                 ArrayList<Point> points = new ArrayList<Point>();
-                Set<AlertedAlarms> alarmList = mgr.getAlertedAlarms(site, scanTable);
-                for (int i = 0; i < tableData
-                        .getNumberOfDataRows(); i++) {
+                Set<AlertedAlarms> alarmList = mgr.getAlertedAlarms(site,
+                        scanTable);
+                for (int i = 0; i < tableData.getNumberOfDataRows(); i++) {
                     TableItem ti = table.getItem(i);
                     if (ti == null) {
                         continue;
                     }
 
                     if ((alarmList != null) && (alarmList.size() > 0)) {
-                        for (AlertedAlarms alarm: alarmList) {
-                            if (tableData.getTableRows().get(i).getIdent().equals(alarm.ident)) {
+                        for (AlertedAlarms alarm : alarmList) {
+                            if (tableData.getTableRows().get(i).getIdent()
+                                    .equals(alarm.ident)) {
                                 if (alarm.cleared == false) {
                                     ti.setBackground(alarm.col, blinkColor);
                                     allClear = false;
                                     // handle the beep while
                                     // looking at
                                     // all the cells
-                                    if (SCANConfig
-                                            .getInstance()
-                                            .getAlarmBell(
-                                                    scanTable)) {
+                                    if (SCANConfig.getInstance().getAlarmBell(
+                                            scanTable)) {
                                         mgr.setRing(true);
                                     }
                                 } else {
@@ -1016,10 +998,9 @@ public abstract class SCANTable extends Composite {
                         }
                     }
                 }
-                
+
                 for (int i = 0; i < points.size(); i++) {
-                    updateThresholds(points.get(i).x,
-                            points.get(i).y);
+                    updateThresholds(points.get(i).x, points.get(i).y);
                 }
 
                 // checks if there are no more alarms
@@ -1030,9 +1011,9 @@ public abstract class SCANTable extends Composite {
                     timer.purge();
                 }
             }
-        }        
+        }
     }
-    
+
     public Timer getBlinkTimer() {
         if (timer == null) {
             timer = new Timer();
@@ -1056,6 +1037,9 @@ public abstract class SCANTable extends Composite {
         blinkColor = Display.getDefault().getSystemColor(blinkColorInt);
     }
 
+    /**
+     * Redraw the table.
+     */
     public void redrawTable() {
         table.redraw();
     }
@@ -1066,6 +1050,14 @@ public abstract class SCANTable extends Composite {
      * DMD do this).
      */
     protected void setColumnImages() {
+        /*
+         * If the sort column hasn't changed then return because the images will
+         * not change.
+         */
+        if (lastSortColIndex == sortedColumnIndex) {
+            return;
+        }
+
         TableColumn[] tCols = table.getColumns();
 
         for (int i = 0; i < tCols.length; i++) {
@@ -1082,13 +1074,16 @@ public abstract class SCANTable extends Composite {
 
             // Set the background color to the sort color if that column is
             // sorted.
-	    // sortedColumnIndex=-1 is default sort
+            // sortedColumnIndex=-1 is default sort
             if (sortedColumnIndex == -1) {
                 scanCfg.getDefaultName();
                 String sortColName = scanCfg.getDefaultRank(this.scanTable);
                 int colIndex = scanCfg.getColumnIndex(scanTable, sortColName);
                 sortedColumnIndex = colIndex;
             }
+
+            lastSortColIndex = sortedColumnIndex;
+
             if (table.indexOf(tCols[i]) == sortedColumnIndex) {
                 gc.setBackground(scanCfg.getScanColor(ScanColors.Sort));
             }
@@ -1124,7 +1119,6 @@ public abstract class SCANTable extends Composite {
         }
 
         Rectangle rect;
-        // rect = item.getBounds(table.getColumnCount() - 1);
         rect = item.getBounds(scanCfg.getCountyColumnIndex(scanTable));
 
         if ((scanCfg.showTips(scanTable) == false)
@@ -1229,5 +1223,4 @@ public abstract class SCANTable extends Composite {
      *            Mouse event.
      */
     protected abstract void tableMouseDownAction(MouseEvent event);
-
 }

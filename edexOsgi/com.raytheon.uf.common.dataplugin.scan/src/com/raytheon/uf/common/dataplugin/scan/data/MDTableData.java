@@ -19,10 +19,6 @@
  **/
 package com.raytheon.uf.common.dataplugin.scan.data;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
@@ -36,6 +32,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 11/15/2010   6707       grichard    Initial creation
+ * 02/01/13     1569        D. Hladky   removed XML where not needed
  * 
  * </pre>
  * 
@@ -44,8 +41,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  */
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class MDTableData<T extends ScanTableDataRow> extends ScanTableData {
 

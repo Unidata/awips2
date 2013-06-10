@@ -761,7 +761,9 @@ public class CollaborationGroupView extends CaveFloatingView implements
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
-                usersTreeViewer.refresh(element);
+                if (usersTreeViewer.getControl().isDisposed() == false) {
+                    usersTreeViewer.refresh(element);
+                }
             }
         });
     }

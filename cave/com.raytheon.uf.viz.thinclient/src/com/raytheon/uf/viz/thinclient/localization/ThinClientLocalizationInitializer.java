@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.thinclient.ui.ThinClientConnectivityDialog;
  * ------------ ---------- ----------- --------------------------
  * Nov 23, 2011            bsteffen     Initial creation
  * Dec 06, 2012   1396  njensen     Added setting VizServers
+ * Jan 14, 2013   1469     bkowal       Removed setting the hdf5 data directory
  * 
  * </pre>
  * 
@@ -86,17 +87,10 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
             String servicesProxy = store
                     .getString(ThinClientPreferenceConstants.P_SERVICES_PROXY);
             LocalizationManager.getInstance().setCurrentServer(servicesProxy);
-            String dataDir = VizApp.getServerDataDir();
-            if (dataDir == null || dataDir.isEmpty()) {
-                dataDir = store
-                        .getString(ThinClientPreferenceConstants.P_SERVER_DATA_DIR);
-                VizApp.setServerDataDir(dataDir);
-            }
-            if (!disableJMS || dataDir == null || dataDir.isEmpty()) {
+            if (!disableJMS) {
                 GetServersRequest req = new GetServersRequest();
                 GetServersResponse resp = (GetServersResponse) ThriftClient
                         .sendLocalizationRequest(req);
-                VizApp.setServerDataDir(resp.getServerDataDir());
                 if (!disableJMS) {
                     VizApp.setJmsServer(resp.getJmsServer());
                 }
@@ -117,8 +111,5 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
                 VizApp.setJmsServer(null);
             }
         }
-        store.setValue(ThinClientPreferenceConstants.P_SERVER_DATA_DIR,
-                VizApp.getServerDataDir());
-
     }
 }

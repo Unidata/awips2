@@ -23,14 +23,21 @@
 class DeleteRequest(object):
 
     def __init__(self):
-        self.locations = None
+        self.datasets = None
+        self.groups = None
         self.filename = None
 
-    def getLocations(self):
-        return self.locations
+    def getDatasets(self):
+        return self.datasets
 
-    def setLocations(self, locations):
-        self.locations = locations
+    def setDatasets(self, datasets):
+        self.datasets = datasets
+
+    def getGroups(self):
+        return self.groups
+
+    def setGroups(self, groups):
+        self.groups = groups
 
     def getFilename(self):
         return self.filename

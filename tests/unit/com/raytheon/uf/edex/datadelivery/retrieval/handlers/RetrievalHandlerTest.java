@@ -19,24 +19,17 @@
  **/
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
-import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
-import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
-import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
-import com.raytheon.uf.common.localization.PathManagerFactoryTest;
-import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
-import com.raytheon.uf.edex.event.EventBusTest;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 
 /**
  * Test {@link RetrievalHandler}.
@@ -47,9 +40,12 @@ import com.raytheon.uf.edex.event.EventBusTest;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 06, 2012 740       djohnson     Initial creation
- * Aug 09. 2012 1022      djohnson     Changes to RetrievalHandler.
- * Nov 19, 2012 1166      djohnson     Clean up JAXB representation of registry objects.
+ * Jul 06, 2012 740        djohnson     Initial creation
+ * Aug 09. 2012 1022       djohnson     Changes to RetrievalHandler.
+ * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
+ * Jan 30, 2013 1543       djohnson     RetrievalTask now requires a Network.
+ * Feb 05, 2013 1580       mpduff       EventBus refactor.
+ * Feb 07, 2013 1543       djohnson     Move test to its proper test class, as per peer review comments.
  * 
  * </pre>
  * 
@@ -59,53 +55,23 @@ import com.raytheon.uf.edex.event.EventBusTest;
 
 public class RetrievalHandlerTest {
 
-    private static final String EXCEPTION_MESSAGE = "thrown on purpose";
-
     private final ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
 
-    private final RetrievalDao mockDao = mock(RetrievalDao.class);
+    private final IRetrievalDao mockDao = mock(IRetrievalDao.class);
 
     private final RetrievalTask retrievalTask = mock(RetrievalTask.class);
 
     private final SubscriptionNotifyTask subNotifyTask = mock(SubscriptionNotifyTask.class);
 
-    private final RetrievalHandler handler = new RetrievalHandler(
-            executorService, mockDao, retrievalTask, subNotifyTask);
+    private final IRetrievalResponseCompleter retrievalCompleter = mock(IRetrievalResponseCompleter.class);
 
-    @BeforeClass
-    public static void classSetUp() {
-        EventBusTest.initSynchronous();
-    }
+    private final RetrievalHandler handler = new RetrievalHandler(
+            executorService, mockDao, Arrays.asList(retrievalTask),
+            subNotifyTask);
 
     @Test
     public void testAllRunningRetrievalsAreResetToPendingOnConstruction() {
         verify(mockDao).resetRunningRetrievalsToPending();
-    }
-
-    @Test
-    public void testIllegalStateExceptionThrownDuringProcessWillReturnFalse() {
-
-        PathManagerFactoryTest.initLocalization();
-        Retrieval retrieval = new Retrieval() {
-            private static final long serialVersionUID = 1109443017002028345L;
-
-            @Override
-            public ArrayList<RetrievalAttribute> getAttribute() {
-                throw new IllegalStateException(EXCEPTION_MESSAGE);
-            }
-
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public ServiceType getServiceType() {
-                return ServiceType.OPENDAP;
-            }
-        };
-
-        RetrievalTask task = new RetrievalTask("someDestination", subNotifyTask);
-        assertFalse("Expected false when an IllegalStateException was thrown!",
-                task.process(retrieval));
     }
 
     @Test

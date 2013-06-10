@@ -27,6 +27,12 @@
             capabilityClass="com.raytheon.viz.awipstools.capabilities.RangeRingsOverlayCapability"
             name="Range Rings Capability"
             sortID="2"/>
+      <contextualMenu
+            actionClass="com.raytheon.viz.awipstools.ui.action.VelocitySourceAction"
+            capabilityClass="com.raytheon.viz.awipstools.ui.layer.VRShearLayer"
+            name="Velocity Source"
+            sortID="601">
+      </contextualMenu>
    </extension>
    <extension
          point="com.raytheon.viz.ui.contextualMenu">
@@ -200,9 +206,6 @@
             class="com.raytheon.viz.awipstools.ui.action.ArbitraryHandler"
             commandId="com.raytheon.viz.awipstools.arbitrary">
       </handler>
-   </extension>
-   <extension point="com.raytheon.uf.viz.core.alterBundle">
-   	  <alterBundle class="com.raytheon.viz.awipstools.ToolsAlterBundleContributor"/>
    </extension>
    <extension
          point="org.eclipse.ui.menus">

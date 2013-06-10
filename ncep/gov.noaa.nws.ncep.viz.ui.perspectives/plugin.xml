@@ -56,7 +56,7 @@
                 <reference
                       definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
                 </reference></visibleWhen>
-             <menu
+                         <menu
                    label="New">
                 <command
                      commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
@@ -256,13 +256,14 @@
                    class="gov.noaa.nws.ncep.viz.ui.perspectives.menus.PredefinedAreaMenu"
                    id="gov.noaa.nws.ncep.viz.ui.perspectives.menus.PredefinedAreaMenu">
              </dynamic>
+             <!-- Now done programmatically and only if an area-providing resource is loaded
 			<menu label="From Resource">
                  <dynamic
                        class="gov.noaa.nws.ncep.viz.ui.perspectives.menus.AreasFromResourcesMenu"
                        id="gov.noaa.nws.ncep.viz.ui.perspectives.menus.AreasFromResourcesMenu">
                  </dynamic>
-              </menu>
-<!-- THIS COULD BE UNCOMMENTED TO IMPLEMENT NMAPs 'GET SETTINGS' FUNCTIONALITY
+            </menu>
+ THIS COULD BE UNCOMMENTED TO IMPLEMENT NMAPs 'GET SETTINGS' FUNCTIONALITY
             <menu  label="From Display">
                  <dynamic
                        class="gov.noaa.nws.ncep.viz.ui.perspectives.menus.AreasFromDisplaysMenu"
@@ -272,7 +273,7 @@
  -->
             <command  commandId="gov.noaa.nws.ncep.viz.ui.actions.createCustomProjection"
                     label="Custom...">
-              </command>
+            </command>
            </menu>
            <!--
            <menu id=""
@@ -287,7 +288,7 @@
                    class="gov.noaa.nws.ncep.viz.ui.perspectives.menus.PredefinedAreaMenu"
                    id="gov.noaa.nws.ncep.viz.ui.perspectives.menus.PredefinedAreaMenu">
              </dynamic>
-           <menu
+              <menu
                     label="Resource...">
                  <dynamic
                        class="gov.noaa.nws.ncep.viz.ui.perspectives.menus.PredefinedAreaMenu"
@@ -929,6 +930,16 @@
   			pattern="com\.raytheon\..*/.*">
 		</activityPatternBinding-->
   		
+   </extension>
+  
+   <!-- moved declaration from displays project -->
+   <extension
+          point="org.eclipse.ui.contexts">
+           <context 
+                    description="The Natl Centers Perspective Context"
+                    id="gov.noaa.nws.ncep.viz.ui.perspectives.NCPerspectiveContext"
+                    name="Natl Centers Perspective Context">
+           </context>           
    </extension>
       
       <!--Definition of the NCPerspectiveContext -->

@@ -46,6 +46,10 @@ function stopEnvironmentInternal()
       echo "ERROR: The ${env_name} environment is corrupt. Recreate it."
       return 1
    fi
+   if [ ! -f ${EDEX_ENV_DIR}/${env_name}/edex-environment/httpd-pypies ]; then
+      echo "ERROR: The ${env_name} environment is corrupt. Recreate it."
+      return 1
+   fi
    if [ ! -f ${EDEX_ENV_DIR}/${env_name}/edex-environment/qpidd ]; then
       echo "ERROR: The ${env_name} environment is corrupt. Recreate it."
       return 1
@@ -60,6 +64,10 @@ function stopEnvironmentInternal()
    sleep 10
    # Stop QPID.
    /bin/bash qpidd stop
+   echo
+   sleep 10
+   # Stop httpd-pypies
+   /bin/bash httpd-pypies stop
    echo
    sleep 10
    # Stop PostgreSQL.

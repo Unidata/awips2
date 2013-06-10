@@ -31,6 +31,7 @@ import gov.noaa.nws.ncep.common.dataplugin.nonconvsigmet.NonConvSigmetRecord;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
@@ -62,7 +63,7 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
  * @version 1.0
  */
 public class NonConvSigmetResource extends 
-          AbstractNatlCntrsResource< NonConvSigmetResourceData, IMapDescriptor> implements
+          AbstractNatlCntrsResource< NonConvSigmetResourceData, NCMapDescriptor> implements
         INatlCntrsResource { 
 
 	private NonConvSigmetResourceData ncRscData;
@@ -350,7 +351,7 @@ public class NonConvSigmetResource extends
 			    					false,  //  clear
 			    					coordinateSymbolLocation, category, symbolType);
 			    			//  ...and display it
-			    			DisplayElementFactory df = new DisplayElementFactory( target, descriptor );
+			    			DisplayElementFactory df = new DisplayElementFactory( target, getNcMapDescriptor() );
 			    			ArrayList<IDisplayable> displayEls = df.createDisplayElements( symbol , paintProps );
 			    			for (IDisplayable each : displayEls) {
 			    				each.draw(target, paintProps);

@@ -23,16 +23,10 @@ package com.raytheon.uf.viz.monitor.ffmp.ui.rsc;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.SortedSet;
 
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
-import com.raytheon.uf.common.dataplugin.ffmp.FFMPUtils;
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
-import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
@@ -45,6 +39,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 08/29/09      2152       D. Hladky   Initial release
+ * 02/01/13     1569       D. Hladky   Added constants
  * 
  * </pre>
  * 
@@ -55,77 +50,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 public class FFMPGuiUtils {
 
     public static GeometryFactory factory = new GeometryFactory();
-
-    /**
-     * Gets the upstream basins for the visualization
-     * 
-     * @param cwa
-     * @return
-     */
-    public static Set<Integer> getUpStreamBasins(Long pfaf) {
-
-        String sql = "select upstream1, upstream2, upstream3, upstream4, upstream5, upstream6 from "
-                + FFMPUtils.FFMP_TABLE + " where pfaf_id = '" + pfaf + "'";
-        Set<Integer> basinIds = null;
-
-        try {
-            List<Object[]> results = DirectDbQuery.executeQuery(sql,
-                    FFMPUtils.MAPS_DB, QueryLanguage.SQL);
-
-            if (results.size() > 0) {
-                basinIds = new HashSet<Integer>(
-                        (int) (results.size() * 1.3) + 1);
-                Object[] results2 = results.get(0);
-                for (int i = 0; i < results2.length; i++) {
-                    if (((Long) results2[i]).intValue() != 0) {
-                        basinIds.add(((Long) results2[i]).intValue());
-                    }
-                }
-            }
-
-        } catch (VizException e) {
-            e.printStackTrace();
-        }
-
-        return basinIds;
-    }
-
-    /**
-     * Gets the downstream basins for the visualization
-     * 
-     * @param cwa
-     * @return
-     */
-    public static Set<Long> getDownStreamBasins(int basin_id) {
-
-        String sql = "select pfaf_id from " + FFMPUtils.FFMP_TABLE
-                + " where upstream1 = '" + basin_id + "' OR upstream2 = '"
-                + basin_id + "' OR upstream3 = '" + basin_id
-                + "' OR upstream4 = '" + basin_id + "' OR upstream5 = '"
-                + basin_id + "' OR upstream6 = '" + basin_id + "'";
-        Set<Long> pfafIds = null;
-
-        try {
-            List<Object[]> results = DirectDbQuery.executeQuery(sql,
-                    FFMPUtils.MAPS_DB, QueryLanguage.SQL);
-
-            if (results.size() > 0) {
-                pfafIds = new HashSet<Long>((int) (results.size() * 1.3) + 1);
-                Object[] results2 = results.get(0);
-                for (int i = 0; i < results2.length; i++) {
-                    if (((String) results2[i]) != null) {
-                        pfafIds.add(Long.parseLong((String) results2[i]));
-                    }
-                }
-            }
-
-        } catch (VizException e) {
-            e.printStackTrace();
-        }
-
-        return pfafIds;
-    }
-
+    
     public static HashMap<Double, Integer> getTimeOffsets(
             ArrayList<FFMPRecord> records) {
         HashMap<Double, Integer> ctimes = new HashMap<Double, Integer>();
@@ -176,7 +101,7 @@ public class FFMPGuiUtils {
      * @return
      */
     public static Date get1HourForward(Date timeIn) {
-        return new Date(timeIn.getTime() + (3600 * 1000));
+        return new Date(timeIn.getTime() + (TimeUtil.MILLIS_PER_HOUR));
     }
 
     /**
@@ -186,7 +111,7 @@ public class FFMPGuiUtils {
      * @return
      */
     public static Date getHourDisplacement(Date timeIn, double hour) {
-        return new Date(timeIn.getTime() - (int) (3600 * 1000 * hour));
+        return new Date(timeIn.getTime() - (int) (TimeUtil.MILLIS_PER_HOUR * hour));
     }
 
 }

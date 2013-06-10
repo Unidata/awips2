@@ -160,7 +160,7 @@ public class SigmetInfo {
 		for(Station s : volcanoStnList)	volcanoList.add(s.getStnname());		
 		
 		java.util.Collections.sort(volcanoList);
-		
+        
 		// Put each volcano into its bucket in the drop-down menu.
 		for ( int ii = 1; ii < VOL_NAME_BUCKET_ARRAY.length; ii++ ) {
 			String bktStr = VOL_NAME_BUCKET_ARRAY[ ii ];

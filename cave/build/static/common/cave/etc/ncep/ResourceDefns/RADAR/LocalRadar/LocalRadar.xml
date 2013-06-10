@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <isEnabled>true</isEnabled>
     <inventoryEnabled>true</inventoryEnabled>
     <resourceDefnName>LocalRadar</resourceDefnName>
     <resourceCategory>RADAR</resourceCategory>
@@ -9,7 +8,6 @@ pluginName=radar
 format=Radial,Raster,Graphic
 legendColor=RGB {200, 200, 200}
 	</resourceParameters>
-    <filterLabels>LocalRadar</filterLabels>
     <rscImplementation>LocalRadar</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator>icao</rscTypeGenerator>
