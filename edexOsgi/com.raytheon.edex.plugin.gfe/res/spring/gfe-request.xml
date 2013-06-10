@@ -1,6 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean id="commitGridsHandler"
@@ -300,6 +300,20 @@
         <constructor-arg
             value="com.raytheon.uf.common.dataplugin.gfe.request.CreateNewDbRequest" />
         <constructor-arg ref="createNewDbHandler" />
+    </bean>
+    <bean id="getLatestDbInsertTimeHandler"
+        class="com.raytheon.edex.plugin.gfe.server.handler.GetLatestDbTimeHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.gfe.request.GetLatestDbTimeRequest" />
+        <constructor-arg ref="getLatestDbInsertTimeHandler" />
+    </bean>
+    <bean id="getLatestDbIdHandler"
+        class="com.raytheon.edex.plugin.gfe.server.handler.GetLatestModelDbIdHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.gfe.request.GetLatestModelDbIdRequest" />
+        <constructor-arg ref="getLatestDbIdHandler" />
     </bean>
 
 

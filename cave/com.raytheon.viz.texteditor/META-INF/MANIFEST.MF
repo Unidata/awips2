@@ -24,7 +24,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.site;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
  org.apache.commons.logging,
- com.raytheon.uf.viz.localization
+ com.raytheon.uf.viz.localization,
+ com.raytheon.uf.common.auth;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.texteditor,
  com.raytheon.viz.texteditor.alarmalert.dialogs,

@@ -60,4 +60,5 @@ Bundle-ClassPath: jetty-client-7.6.9.v20130131.jar,
  jetty-xml-7.6.9.v20130131.jar,
  servlet-api-2.5.jar,
  org.apache.jasper.glassfish-2.1.0.v201110031002.jar,
- javax.servlet.jsp-2.1.0.v201105211820.jar
+ javax.servlet.jsp-2.1.0.v201105211820.jar,
+ javax.el-2.1.0.v201105211819.jar

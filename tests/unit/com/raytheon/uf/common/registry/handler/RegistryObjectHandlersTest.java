@@ -67,8 +67,8 @@ public class RegistryObjectHandlersTest {
                 RegistryObjectHandlers.get(IMockRegistryObjectHandler.class));
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testAssociatingTwoHandlersWithSameInterfaceThrowsException() {
+    @Test
+    public void testAssociatingTwoHandlersWithSameInterfaceDoesNotThrowException() {
         RegistryObjectHandlers.register(IMockRegistryObjectHandler.class,
                 new MockRegistryObjectHandler());
         RegistryObjectHandlers.register(IMockRegistryObjectHandler.class,
