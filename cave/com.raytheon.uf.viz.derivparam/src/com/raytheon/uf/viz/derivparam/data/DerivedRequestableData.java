@@ -77,17 +77,14 @@ public class DerivedRequestableData extends AbstractRequestableData {
     public Object getDataValue(Object arg) throws VizException {
         DerivedParameterRequest request = createDerparRequest(arg);
         try {
-            List<?> finalResult = DerivedParameterGenerator.calculate(request);
-            if (finalResult != null && finalResult.size() > 0) {
-                if (finalResult.size() == 1) {
-                    return new IDataRecord[] { ((IDataRecord) finalResult
-                            .get(0)) };
-                } else if (finalResult.size() == 4) {
-                    return new IDataRecord[] {
-                            ((FloatDataRecord) finalResult.get(0)),
-                            ((FloatDataRecord) finalResult.get(1)),
-                            ((FloatDataRecord) finalResult.get(2)),
-                            ((FloatDataRecord) finalResult.get(3)) };
+            List<IDataRecord> finalResult = DerivedParameterGenerator
+                    .calculate(request);
+            if (finalResult != null && !finalResult.isEmpty()) {
+                if (finalResult.size() == 4 || finalResult.size() == 1) {
+                    for (IDataRecord rec : finalResult) {
+                        rec.setName(request.getParameterAbbreviation());
+                    }
+                    return finalResult.toArray(new IDataRecord[0]);
                 } else {
                     throw new VizException(
                             "Error processing derived parameter, expecting scalar or vector data.  Vector data must return speed, dir, u, and v components.");
