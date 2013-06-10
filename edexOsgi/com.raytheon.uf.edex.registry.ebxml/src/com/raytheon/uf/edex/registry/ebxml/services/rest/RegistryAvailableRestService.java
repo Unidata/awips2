@@ -26,9 +26,11 @@ import javax.ws.rs.Produces;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.registry.constants.RegistryAvailability;
 import com.raytheon.uf.common.registry.services.rest.IRegistryAvailableRestService;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.edex.registry.ebxml.dao.DbInit;
 
 /**
  * 
@@ -56,9 +58,6 @@ public class RegistryAvailableRestService implements
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RegistryAvailableRestService.class);
 
-    /** Arbitrary message retured from this service */
-    private static final String REGISTRY_AVAILABLE_MESSAGE = "Registry services available.";
-
     /**
      * Creates a new RegistryAvailableRestService
      */
@@ -70,6 +69,10 @@ public class RegistryAvailableRestService implements
     @Produces("text/plain")
     public String isRegistryAvailable() {
         statusHandler.info("Received request checking registry availability");
-        return REGISTRY_AVAILABLE_MESSAGE;
+        if (DbInit.isDbInitialized()) {
+            return RegistryAvailability.AVAILABLE;
+        } else {
+            return RegistryAvailability.DB_NOT_INITIALIZED;
+        }
     }
 }

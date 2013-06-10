@@ -36,6 +36,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 22, 2010            njensen     Initial creation
+ * May 29, 2013 1989       njensen     Removed high mem mode
  * 
  * </pre>
  * 
@@ -62,32 +63,16 @@ public class EdexModesContainer {
         this.modes = modes;
     }
 
-    public EdexMode getMode(String name, boolean highMemoryEnabled) {
+    public EdexMode getMode(String name) {
         EdexMode ret = null;
-        if (highMemoryEnabled) {
-            // check for high memory name
-            String highMemName = name + "HighMem";
-            for (EdexMode m : modes) {
-                if (m.getName().equalsIgnoreCase(highMemName)) {
-                    ret = m;
-                    if (!ret.isInited()) {
-                        ret.init();
-                    }
-                    break;
-                }
-            }
-        }
 
-        // no high memory mode or no high memory mode name found
-        if (ret == null) {
-            for (EdexMode m : modes) {
-                if (m.getName().equalsIgnoreCase(name)) {
-                    ret = m;
-                    if (!ret.isInited()) {
-                        ret.init();
-                    }
-                    break;
+        for (EdexMode m : modes) {
+            if (m.getName().equalsIgnoreCase(name)) {
+                ret = m;
+                if (!ret.isInited()) {
+                    ret.init();
                 }
+                break;
             }
         }
         return ret;

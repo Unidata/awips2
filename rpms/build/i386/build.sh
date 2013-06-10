@@ -137,6 +137,10 @@ if [ "${1}" = "-postgres" ]; then
    buildRPM "awips2-database"
    buildRPM "awips2-maps-database"
    buildRPM "awips2-pgadmin3"
+   buildRPM "awips2-data.hdf5-gfe.climo"
+   buildRPM "awips2-data.hdf5-topo"
+   buildRPM "awips2-notification"
+   buildRPM "awips2-tools"
 
    exit 0
 fi
@@ -254,7 +258,7 @@ if [ "${1}" = "-full" ]; then
       exit 1
    fi
    buildRPM "awips2-httpd-pypies"
-   buildRPM "awips2-java"
+   buildJava
    buildRPM "awips2-groovy"
    #buildRPM "awips2-ldm"
    buildRPM "awips2-postgres"
@@ -270,7 +274,7 @@ fi
 
 if [ "${1}" = "-ade" ]; then
    buildRPM "awips2-eclipse"
-   buildRPM "awips2-java"
+   buildJava
    buildRPM "awips2-ant"
    buildRPM "awips2-python"
    buildRPM "awips2-python-cherrypy"

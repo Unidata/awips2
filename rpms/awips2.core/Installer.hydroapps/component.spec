@@ -19,7 +19,6 @@ AutoReq: no
 provides: awips2-hydroapps-shared
 obsoletes: awips2-hydroapps
 requires: awips2-edex-base
-requires: awips2-edex-native
 
 %description
 AWIPS II Hydroapps Distribution - Includes applications, configurations, and
