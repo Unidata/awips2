@@ -28,7 +28,6 @@ import com.raytheon.uf.common.localization.msgs.GetServersRequest;
 import com.raytheon.uf.common.localization.msgs.GetServersResponse;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.util.registry.GenericRegistry;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 
 /**
  * Handler class for retrieving the http and jms servers from the
@@ -43,6 +42,7 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * Sep 12, 2012 1167      djohnson     Add datadelivery servers.
  * Jan 14, 2013 1469      bkowal       No longer includes the hdf5 data directory
  *                                     in the response.
+ * May 28, 2013 1989      njensen      Uses env variables instead of system props
  * 
  * </pre>
  * 
@@ -59,9 +59,9 @@ public class GetServersHandler extends GenericRegistry<String, String>
     public GetServersResponse handleRequest(GetServersRequest request)
             throws Exception {
         GetServersResponse response = new GetServersResponse();
-        String httpServer = System.getProperty("http.server");
-        String jmsServer = System.getProperty("jms.server");
-        String pypiesServer = System.getProperty("pypies.server");
+        String httpServer = System.getenv("HTTP_SERVER");
+        String jmsServer = System.getenv("JMS_SERVER");
+        String pypiesServer = System.getenv("PYPIES_SERVER");
 
         logger.info("http.server=" + httpServer);
         logger.info("jms.server=" + jmsServer);

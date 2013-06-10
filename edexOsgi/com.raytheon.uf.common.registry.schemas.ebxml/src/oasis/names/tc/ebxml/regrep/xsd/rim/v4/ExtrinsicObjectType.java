@@ -116,6 +116,15 @@ public class ExtrinsicObjectType extends RegistryObjectType {
     @DynamicSerializeElement
     protected String mimeType;
 
+    public ExtrinsicObjectType() {
+
+    }
+
+    public ExtrinsicObjectType(String id, String lid, String objectType,
+            String owner, String status, String name, String description) {
+        super(id, lid, objectType, owner, status, name, description);
+    }
+
     /**
      * Gets the value of the contentVersionInfo property.
      * 

@@ -21,11 +21,16 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.google.common.collect.Sets;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
@@ -55,6 +60,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * ------------ ---------- ----------- --------------------------
  * Oct 24, 2012 1286       djohnson     Initial creation
  * Dec 12, 2012 1286       djohnson     Use concurrent lists to avoid concurrent modification exceptions.
+ * Jun 03, 2013 2038       djohnson     Add method to get subscription retrievals by provider, dataset, and status.
  * 
  * </pre>
  * 
@@ -87,8 +93,8 @@ class InMemoryBandwidthDao implements IBandwidthDao {
                 .hasNext();) {
             BandwidthAllocation current = iter.next();
             if ((current instanceof SubscriptionRetrieval)
-                    && ((SubscriptionRetrieval) current).getBandwidthSubscription()
-                            .getId() == subscriptionId) {
+                    && ((SubscriptionRetrieval) current)
+                            .getBandwidthSubscription().getId() == subscriptionId) {
                 continue;
             }
 
@@ -158,8 +164,8 @@ class InMemoryBandwidthDao implements IBandwidthDao {
      * {@inheritDoc}
      */
     @Override
-    public List<BandwidthDataSetUpdate> getBandwidthDataSetUpdate(String providerName,
-            String dataSetName) {
+    public List<BandwidthDataSetUpdate> getBandwidthDataSetUpdate(
+            String providerName, String dataSetName) {
         ArrayList<BandwidthDataSetUpdate> results = clone(bandwidthDataSetUpdates);
 
         for (Iterator<BandwidthDataSetUpdate> iter = results.iterator(); iter
@@ -180,10 +186,10 @@ class InMemoryBandwidthDao implements IBandwidthDao {
      * {@inheritDoc}
      */
     @Override
-    public List<BandwidthDataSetUpdate> getBandwidthDataSetUpdate(String providerName,
-            String dataSetName, Calendar baseReferenceTime) {
-        List<BandwidthDataSetUpdate> results = getBandwidthDataSetUpdate(providerName,
-                dataSetName);
+    public List<BandwidthDataSetUpdate> getBandwidthDataSetUpdate(
+            String providerName, String dataSetName, Calendar baseReferenceTime) {
+        List<BandwidthDataSetUpdate> results = getBandwidthDataSetUpdate(
+                providerName, dataSetName);
 
         for (Iterator<BandwidthDataSetUpdate> iter = results.iterator(); iter
                 .hasNext();) {
@@ -205,7 +211,8 @@ class InMemoryBandwidthDao implements IBandwidthDao {
     public List<BandwidthAllocation> getDeferred(Network network,
             Calendar endTime) {
         List<BandwidthAllocation> results = getBandwidthAllocations(network);
-        for (Iterator<BandwidthAllocation> iter = results.iterator(); iter.hasNext();) {
+        for (Iterator<BandwidthAllocation> iter = results.iterator(); iter
+                .hasNext();) {
             BandwidthAllocation current = iter.next();
             if (RetrievalStatus.DEFERRED.equals(current.getStatus())
                     && !current.getEndTime().after(endTime)) {
@@ -252,7 +259,8 @@ class InMemoryBandwidthDao implements IBandwidthDao {
      * {@inheritDoc}
      */
     @Override
-    public List<BandwidthSubscription> getBandwidthSubscription(Subscription subscription) {
+    public List<BandwidthSubscription> getBandwidthSubscription(
+            Subscription subscription) {
         return getBandwidthSubscriptionByRegistryId(subscription.getId());
     }
 
@@ -263,8 +271,8 @@ class InMemoryBandwidthDao implements IBandwidthDao {
     public List<BandwidthSubscription> getBandwidthSubscriptionByRegistryId(
             String registryId) {
         final ArrayList<BandwidthSubscription> results = clone(bandwidthSubscriptions);
-        for (Iterator<BandwidthSubscription> iter = results
-                .iterator(); iter.hasNext();) {
+        for (Iterator<BandwidthSubscription> iter = results.iterator(); iter
+                .hasNext();) {
             final BandwidthSubscription current = iter.next();
             if (registryId.equals(current.getRegistryId())) {
                 continue;
@@ -299,8 +307,7 @@ class InMemoryBandwidthDao implements IBandwidthDao {
         List<SubscriptionRetrieval> results = new ArrayList<SubscriptionRetrieval>(
                 getSubscriptionRetrievals(provider, dataSetName));
         List<BandwidthSubscription> subscriptionsMatching = getBandwidthSubscriptions(
-                provider,
-                dataSetName, baseReferenceTime);
+                provider, dataSetName, baseReferenceTime);
 
         OUTER: for (Iterator<SubscriptionRetrieval> iter = results.iterator(); iter
                 .hasNext();) {
@@ -367,12 +374,12 @@ class InMemoryBandwidthDao implements IBandwidthDao {
      * {@inheritDoc}
      */
     @Override
-    public List<BandwidthSubscription> getBandwidthSubscriptions(String provider,
-            String dataSetName, Calendar baseReferenceTime) {
+    public List<BandwidthSubscription> getBandwidthSubscriptions(
+            String provider, String dataSetName, Calendar baseReferenceTime) {
         List<BandwidthSubscription> bandwidthSubscriptions = getBandwidthSubscriptions();
 
-        for (Iterator<BandwidthSubscription> iter = bandwidthSubscriptions.iterator(); iter
-                .hasNext();) {
+        for (Iterator<BandwidthSubscription> iter = bandwidthSubscriptions
+                .iterator(); iter.hasNext();) {
             BandwidthSubscription current = iter.next();
             if (provider.equals(current.getProvider())
                     && dataSetName.equals(current.getDataSetName())
@@ -405,10 +412,12 @@ class InMemoryBandwidthDao implements IBandwidthDao {
      * {@inheritDoc}
      */
     @Override
-    public BandwidthSubscription newBandwidthSubscription(Subscription subscription,
-            Calendar baseReferenceTime) throws SerializationException {
-        BandwidthSubscription entity = BandwidthUtil.getSubscriptionDaoForSubscription(
-                subscription, baseReferenceTime);
+    public BandwidthSubscription newBandwidthSubscription(
+            Subscription subscription, Calendar baseReferenceTime)
+            throws SerializationException {
+        BandwidthSubscription entity = BandwidthUtil
+                .getSubscriptionDaoForSubscription(subscription,
+                        baseReferenceTime);
 
         update(entity);
 
@@ -429,8 +438,8 @@ class InMemoryBandwidthDao implements IBandwidthDao {
                 .hasNext();) {
             BandwidthAllocation current = iter.next();
             if (current instanceof SubscriptionRetrieval) {
-                if (((SubscriptionRetrieval) current).getBandwidthSubscription()
-                        .getId() == subscriptionId) {
+                if (((SubscriptionRetrieval) current)
+                        .getBandwidthSubscription().getId() == subscriptionId) {
                     results.add((SubscriptionRetrieval) current);
                 }
             }
@@ -540,5 +549,60 @@ class InMemoryBandwidthDao implements IBandwidthDao {
                 break;
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SortedSet<SubscriptionRetrieval> getSubscriptionRetrievals(
+            String provider, String dataSetName, RetrievalStatus status) {
+
+        final List<SubscriptionRetrieval> subscriptionRetrievals = getSubscriptionRetrievals(
+                provider, dataSetName);
+
+        for (Iterator<SubscriptionRetrieval> iter = subscriptionRetrievals
+                .iterator(); iter.hasNext();) {
+            SubscriptionRetrieval subRetrieval = iter.next();
+            if (!status.equals(subRetrieval.getStatus())) {
+                iter.remove();
+            }
+        }
+
+        final TreeSet<SubscriptionRetrieval> treeSet = Sets
+                .newTreeSet(new Comparator<SubscriptionRetrieval>() {
+                    @Override
+                    public int compare(SubscriptionRetrieval o1,
+                            SubscriptionRetrieval o2) {
+                        return o1.getStartTime().compareTo(o2.getStartTime());
+                    }
+                });
+
+        treeSet.addAll(subscriptionRetrievals);
+
+        return treeSet;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SortedSet<SubscriptionRetrieval> getSubscriptionRetrievals(
+            String provider, String dataSetName, RetrievalStatus status,
+            Date earliestDate, Date latestDate) {
+
+        SortedSet<SubscriptionRetrieval> results = getSubscriptionRetrievals(
+                provider, dataSetName, status);
+
+        for (Iterator<SubscriptionRetrieval> iter = results
+                .iterator(); iter.hasNext();) {
+            SubscriptionRetrieval subRetrieval = iter.next();
+            if (earliestDate.after(subRetrieval.getStartTime().getTime())
+                    || latestDate.before(subRetrieval.getStartTime().getTime())) {
+                iter.remove();
+            }
+        }
+
+        return results;
     }
 }

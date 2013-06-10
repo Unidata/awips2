@@ -51,8 +51,13 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 @XmlAccessorType(XmlAccessType.NONE)
 public class ConfigLayer implements ISerializableObject {
 
+    // corresponds to the feature name/type
     @XmlAttribute(name = "name", required = true)
     private String name;
+   
+    // corresponds to the feature namespace
+    @XmlAttribute(name = "namespace", required = true)
+    private String namespace;
 
     @XmlElement(name = "minx", required = true)
     private Double minx;
@@ -68,7 +73,7 @@ public class ConfigLayer implements ISerializableObject {
     
     @XmlElement(name = "crs", required = true)
     private String crs;
-
+    
     @XmlElements({ @XmlElement(name = "parameter", type = Parameter.class, required = true) })
     private List<Parameter> parameters;
 
@@ -137,5 +142,13 @@ public class ConfigLayer implements ISerializableObject {
 
     public String getCrs() {
         return crs;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
+
+    public String getNamespace() {
+        return namespace;
     }
 }
