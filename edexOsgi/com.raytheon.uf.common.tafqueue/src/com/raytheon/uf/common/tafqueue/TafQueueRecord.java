@@ -48,6 +48,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * Aug 27, 2009            avarani     Initial creation
  * Apr 30, 2012 14715      rferrel     Refactored and moved.
+ * Mar 21, 2013 15375      zhao        Modified getInfo() to also handle VFT product
  * 
  * </pre>
  * 
@@ -117,9 +118,9 @@ public class TafQueueRecord implements IPersistableDataObject,
     @Column
     private boolean display;
 
-    public TafQueueRecord() {
-        super();
-    }
+	public TafQueueRecord() {
+		super();
+	}
 
     /**
      * Construct a record with the desired values.
@@ -157,10 +158,14 @@ public class TafQueueRecord implements IPersistableDataObject,
      * @return info
      */
     public String getInfo() {
+    	String productTag = "TAF";
+    	if ( forecasterId == TafQueueVftConfigMgr.getInstance().getFcstid() ) { // for VFT product (DR15375)
+    		productTag = "VFT";
+    	}
         return String
                 .format("%1$03d-%7$s%8$s%5$s-%6$s-%7$s-%2$ty%2$tm%2$td%2$tH%2$tM-%4$s-%9$d",
                         forecasterId, headerTime, tafText, bbb, siteId, wmoId,
-                        stationId, "TAF", (xmitTime.getTime() / 1000));
+                        stationId, productTag, (xmitTime.getTime() / 1000));
     }
 
     /**

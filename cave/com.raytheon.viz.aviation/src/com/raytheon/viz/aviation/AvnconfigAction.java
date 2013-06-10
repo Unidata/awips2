@@ -45,6 +45,7 @@ import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
  *                                      config files in execute.
  * Oct 19, 2010 7347        rferrel     Replace reference to TAF_SITE_CONFIG
  * Oct 08, 2012 1229        rferrel     Changes to work with non-blocking AvnConfigDlg.
+ * Feb 13, 2013 1549        rferrel     Minor code clean up.
  * 
  * </pre>
  * 
@@ -56,8 +57,15 @@ public class AvnconfigAction extends AbstractHandler {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AvnconfigAction.class);
 
-    private AvnconfigDlg avnfspSetupDlg;
+    private AvnconfigDlg avnfpsSetupDlg;
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
+     * .ExecutionEvent)
+     */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         // Do nothing when needed configuration files are missing or unreadable.
@@ -72,15 +80,12 @@ public class AvnconfigAction extends AbstractHandler {
             return null;
         }
 
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        if (avnfspSetupDlg == null || avnfspSetupDlg.getShell() == null
-                || avnfspSetupDlg.isDisposed()) {
-            avnfspSetupDlg = new AvnconfigDlg(shell);
-            avnfspSetupDlg.open();
-        } else {
-            avnfspSetupDlg.bringToTop();
+        if (avnfpsSetupDlg == null) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            avnfpsSetupDlg = new AvnconfigDlg(shell);
         }
+        avnfpsSetupDlg.open();
 
         return null;
     }

@@ -60,6 +60,8 @@ import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 30, 2012            mschenke     Initial creation
+ * Feb 25, 2013 1659       bsteffen    Stop derived parameters from sending
+ *                                     empty requests for cached times
  * 
  * </pre>
  * 
@@ -120,11 +122,14 @@ public abstract class AbstractDataCubeAdapter implements IDataCubeAdapter {
         }
 
         // bulk up all the requests.
-        DbQueryRequestSet requestSet = new DbQueryRequestSet();
-        requestSet.setQueries(fullList.toArray(new DbQueryRequest[0]));
-        DbQueryResponseSet responseSet = (DbQueryResponseSet) ThriftClient
-                .sendRequest(requestSet);
-        DbQueryResponse[] responses = responseSet.getResults();
+        DbQueryResponse[] responses = new DbQueryResponse[0];
+        if (!fullList.isEmpty()) {
+            DbQueryRequestSet requestSet = new DbQueryRequestSet();
+            requestSet.setQueries(fullList.toArray(new DbQueryRequest[0]));
+            DbQueryResponseSet responseSet = (DbQueryResponseSet) ThriftClient
+                    .sendRequest(requestSet);
+            responses = responseSet.getResults();
+        }
         int responseIndex = 0;
         List<List<DataTime>> finalResponse = new ArrayList<List<DataTime>>(
                 requests.size());

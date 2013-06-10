@@ -30,9 +30,29 @@ import com.raytheon.rcm.products.ProductInfo.Selector;
 import com.raytheon.rcm.products.RadarProduct;
 import com.raytheon.rcm.products.RadarProduct.Param;
 
+/**
+ * Representation of an RPS list
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2009-04-22   #1693      D. Friedman Initial checkin
+ * ...
+ * 2013-01-31   DR 15458   D. Friedman Define UNSPECIFIED_VCP
+ * </pre>
+ * 
+ */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.PROPERTY)
 public class RpsList implements Cloneable {
+    /**
+     * Indicates an a list that is appropriate for any VCP or an unspecified
+     * VCP.
+     */
+    public static final int UNSPECIFIED_VCP = -1;
+
 	/* just a guess of what will be useful... */
 	protected int opMode;
 	protected int vcp;

@@ -36,7 +36,6 @@ import org.eclipse.swt.widgets.ScrollBar;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.metadata.spatial.PixelOrientation;
@@ -73,7 +72,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 23, 2011            randerso     Initial creation
+ * Aug 23, 2011            randerso    Initial creation
+ * May 30, 2013 #2028      randerso    Fixed date line issue with map display
  * 
  * </pre>
  * 
@@ -305,25 +305,10 @@ public abstract class AbstractZoneSelector extends PaneManager {
         this.mapRscList = mapRscList;
 
         try {
-            // display envelope in lat/lon
             Envelope env = getBoundingEnvelope();
 
-            // get envelope in the projection
-            ReferencedEnvelope llEnv = new ReferencedEnvelope(env,
-                    MapUtil.LATLON_PROJECTION);
-            ReferencedEnvelope projEnv = llEnv.transform(gloc.getCrs(), true);
-
-            double[] in = new double[] { llEnv.getMinX(), llEnv.getMinY(),
-                    llEnv.getMaxX(), llEnv.getMaxY() };
-            double[] out = new double[in.length];
-
-            MathTransform mt1 = MapUtil.getTransformFromLatLon(gloc.getCrs());
-            mt1.transform(in, 0, out, 0, 2);
-
-            Coordinate llCrs = new Coordinate(projEnv.getMinX(),
-                    projEnv.getMinY());
-            Coordinate urCrs = new Coordinate(projEnv.getMaxX(),
-                    projEnv.getMaxY());
+            Coordinate llCrs = new Coordinate(env.getMinX(), env.getMinY());
+            Coordinate urCrs = new Coordinate(env.getMaxX(), env.getMaxY());
 
             Coordinate llGrid = MapUtil.nativeToGridCoordinate(llCrs,
                     PixelOrientation.CENTER, gloc);
@@ -384,6 +369,8 @@ public abstract class AbstractZoneSelector extends PaneManager {
         for (ZoneSelectorResource mapRsc : this.mapRscList) {
             env.expandToInclude(mapRsc.getBoundingEnvelope());
         }
+        double delta = Math.max(env.getWidth(), env.getHeight()) * 0.02;
+        env.expandBy(delta);
         return env;
     }
 

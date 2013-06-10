@@ -26,6 +26,24 @@ import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
 
+/**
+ * Graph data object used to display 24 hour graph info
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 04/23/10     4494        D. Hladky   Initial release
+ * 02/01/13     1569        D. Hladky   Added constants
+ * 
+ * </pre>
+ * 
+ * @author dhladky
+ * @version 1
+ */
+
 public class FFMPGraphData {
 
     private HashMap<Double, Double> qpes = new HashMap<Double, Double>();

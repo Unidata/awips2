@@ -98,7 +98,7 @@
      </vcordinfo>
      <vcordinfo>
           <name>Pressure difference layer</name>
-          <units>Pa</units>
+          <units>hPa</units>
           <gnam>PDLY</gnam>
           <scale>-2</scale>
      </vcordinfo>

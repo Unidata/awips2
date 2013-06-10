@@ -3,6 +3,7 @@ package gov.noaa.nws.ncep.viz.resourceManager.ui.newResource;
 import java.util.ArrayList;
 import java.util.List;
 
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd.ResourceSelectionDialog;
 import gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd.ResourceSelectionControl.IResourceSelectedListener;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
@@ -11,10 +12,10 @@ import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory.ResourceSelection;
 import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
-import gov.noaa.nws.ncep.viz.ui.display.NCDisplayPane;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -24,8 +25,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.AbstractTimeMatcher;
 import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -34,6 +38,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  *  Select a new resource from the main menu and add to the active editor. 
@@ -45,6 +50,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceProperties;
  * 04/18/11      #           Greg Hull    Initial Creation.
  * 06/07/11       #445       Xilin Guo   Data Manager Performance Improvements
  * 10/22/11      #467        Greg Hull   add to all panes option
+ * 02/22/13      #972        Greg Hull   NcDisplayType
  * 
  * </pre>
  * 
@@ -59,27 +65,26 @@ public class NewResourceAction extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
-		shell = NmapUiUtils.getCaveShell();
+		shell = NcDisplayMngr.getCaveShell();
 		
-		final NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor();
+		final AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
 		
 		if( editor == null ) {
     		MessageDialog errDlg = new MessageDialog( 
-    				NmapUiUtils.getCaveShell(), 
+    				NcDisplayMngr.getCaveShell(), 
     				"Error", null, 
     				"Can't load resource to this type of Display",
     				MessageDialog.ERROR, new String[]{"OK"}, 0);
     		errDlg.open();
     		return null;
 		}
-
-		NCMapRenderableDisplay display = 
-			   (NCMapRenderableDisplay) editor.getSelectedPane().getRenderableDisplay();
 		
-		final NCTimeMatcher timeMatcher = 
-			(NCTimeMatcher) display.getDescriptor().getTimeMatcher();
+		IRenderableDisplay display = 
+			   (IRenderableDisplay)NcEditorUtil.getSelectedPanes(editor)[0].getRenderableDisplay();
 		
-		if( timeMatcher == null ) { // sanity check
+		final AbstractTimeMatcher tm = display.getDescriptor().getTimeMatcher();
+		
+		if( tm == null || !(tm instanceof NCTimeMatcher) ) { // sanity check
 			
 			// TODO ? show an info message that there is no timeline and that the
 			// selected resource will be dominant and use its default timeline?
@@ -87,17 +92,21 @@ public class NewResourceAction extends AbstractHandler {
 //			timeMatcher.getFrameTimes().isEmpty()  ) {
 			
     		MessageDialog errDlg = new MessageDialog( 
-    				NmapUiUtils.getCaveShell(), 
+    				NcDisplayMngr.getCaveShell(), 
     				"Error", null, 
-    				"Can't load resource to a Display with no selected timeline",
+    				"Can't load resource to a Display with/out a timeline",
     				MessageDialog.ERROR, new String[]{"OK"}, 0);
     		errDlg.open();
     		return null;
 		}
 
-		final boolean useNewTimeMatcher = (timeMatcher.getFrameTimes() == null ||
-										   timeMatcher.getFrameTimes().isEmpty());
+		final NCTimeMatcher timeMatcher = (NCTimeMatcher)tm;
+		
+		final boolean useNewTimeMatcher = 
+			( timeMatcher.getFrameTimes() == null ||
+			  timeMatcher.getFrameTimes().isEmpty() );
 				
+		final NcDisplayType dispType = NcEditorUtil.getNcDisplayType( editor );
 
 		// Create the Selection Dialog and add a listener for when a resource is selected.
 		// 
@@ -107,7 +116,7 @@ public class NewResourceAction extends AbstractHandler {
    			@Override
    			public void resourceSelected( ResourceName rscName, 
    								boolean replace, // ignore the replace option 
-   										  boolean addAllPanes, boolean done ) {
+   							    boolean addAllPanes, boolean done ) {
    				try {
 //   	   			System.out.println("Loading Resource " + rscName );   	   				
    					ResourceSelection rscSel = ResourceFactory.createResource( rscName );
@@ -152,8 +161,8 @@ public class NewResourceAction extends AbstractHandler {
 
    					}   	   					
 
-   					IDisplayPane[] panesToLoad = 
-   						(addAllPanes ? editor.getDisplayPanes() : editor.getSelectedPanes() );
+   					IDisplayPane[] panesToLoad = (addAllPanes ? 
+   							editor.getDisplayPanes() : NcEditorUtil.getSelectedPanes(editor) );
    					
    	   				// add the selected resource to the resource list for each pane
    					//
@@ -190,7 +199,7 @@ public class NewResourceAction extends AbstractHandler {
    	   				}   
 
    	   				editor.refresh();
-   	   				editor.refreshGUIElements();
+   	   				NcEditorUtil.refreshGUIElements(editor);
    				}
    				catch (VizException e ) {
    					System.out.println( "Error Adding Resource to List: " + e.getMessage() );
@@ -207,11 +216,12 @@ public class NewResourceAction extends AbstractHandler {
    			}
    		});
 
-   		boolean isMultipane = (editor.getPaneLayout().getNumberOfPanes() > 1 );
+   		boolean isMultipane = (NcEditorUtil.getPaneLayout(editor).getNumberOfPanes() > 1 );
    		
    		rscSelDlg.open( false, // no replaceResource option  
    						false, // replace button not enabled
    						null, isMultipane,
+   						dispType,
 				SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL );
 		return null;
 	}

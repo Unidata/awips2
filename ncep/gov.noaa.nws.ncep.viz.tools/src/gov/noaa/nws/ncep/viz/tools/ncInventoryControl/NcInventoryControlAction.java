@@ -1,6 +1,6 @@
 package gov.noaa.nws.ncep.viz.tools.ncInventoryControl;
 
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -15,7 +15,7 @@ public class NcInventoryControlAction extends AbstractHandler {
 		dlg = null;
 		
 	//	if( dlg == null ) {
-			dlg = new NcInventoryControlDlg( NmapUiUtils.getCaveShell() );
+			dlg = new NcInventoryControlDlg( NcDisplayMngr.getCaveShell() );
 	//	}
 
 //		if( !dlg.isOpen() ) {

@@ -26,7 +26,6 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -70,6 +69,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Apr 29, 2011 DR#8986       zhao         Read in "Counties" instead of "Forecast Zones"
  * Feb 22, 2012 14413         zhao         modified to reduce calls to database
  * Nov 16, 2012 1297          skorolev     Changes for non-blocking dialog.
+ * Feb 06, 2013 1578          skorolev     Fixed a cursor problem for checkboxes.
  * 
  * </pre>
  * 
@@ -166,12 +166,6 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     /** The current site. **/
     protected String currentSite = null;
 
-    /** Wait Cursor **/
-    private Cursor waitCursor = null;
-
-    /** Arrow Cursor **/
-    private Cursor arrowCursor = null;
-
     /** monitor area zones **/
     private java.util.List<String> maZones = null;
 
@@ -232,8 +226,6 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         setText(title);
         this.appName = appName;
         currentSite = LocalizationManager.getInstance().getCurrentSite();
-        waitCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_WAIT);
-        arrowCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_ARROW);
     }
 
     /**
@@ -367,11 +359,14 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         zoneRdo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.setCursor(waitCursor);
+                getShell().setCursor(
+                        getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
                 mode = Mode.Zone;
                 changeZoneStationControls();
                 populateLeftLists();
-                shell.setCursor(arrowCursor);
+                if (!getShell().isDisposed()) {
+                    getShell().setCursor(null);
+                }
             }
         });
 
@@ -380,11 +375,14 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         stationRdo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.setCursor(waitCursor);
+                getShell().setCursor(
+                        getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
                 mode = Mode.Station;
                 changeZoneStationControls();
                 populateLeftLists();
-                shell.setCursor(arrowCursor);
+                if (!getShell().isDisposed()) {
+                    getShell().setCursor(null);
+                }
             }
         });
 
@@ -567,9 +565,12 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         maRdo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.setCursor(waitCursor);
+                getShell().setCursor(
+                        getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
                 populateMaRegionalList();
-                shell.setCursor(arrowCursor);
+                if (!getShell().isDisposed()) {
+                    getShell().setCursor(null);
+                }
             }
         });
 
@@ -583,9 +584,12 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         regionalRdo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.setCursor(waitCursor);
+                getShell().setCursor(
+                        getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
                 populateMaRegionalList();
-                shell.setCursor(arrowCursor);
+                if (!getShell().isDisposed()) {
+                    getShell().setCursor(null);
+                }
             }
         });
 
@@ -1373,8 +1377,6 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
      */
     @Override
     protected void disposed() {
-        waitCursor.dispose();
-        arrowCursor.dispose();
         controlFont.dispose();
     }
 }

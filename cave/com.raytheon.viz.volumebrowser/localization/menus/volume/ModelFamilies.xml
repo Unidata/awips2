@@ -58,14 +58,14 @@
 				<substitute key="frameCount" value="15"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyA.xml"
-				menuText="RUC13" id="ruc13" useReferenceTime="true">
-				<substitute key="modelName" value="RUC130"/>
+				menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
 				<substitute key="TP" value="TP3hr"/>
-				<substitute key="frameCount" value="13"/>
+				<substitute key="frameCount" value="19"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyA.xml"
-				menuText="RUC" id="ruc" useReferenceTime="true">
-				<substitute key="modelName" value="RUC236"/>
+				menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="9"/>
 			</contribute>
@@ -114,14 +114,14 @@
 				<substitute key="frameCount" value="15"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyB.xml"
-				    menuText="RUC13" id="ruc13" useReferenceTime="true">
-				<substitute key="modelName" value="RUC130"/>
+				    menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
 				<substitute key="TP" value="TP3hr"/>
-				<substitute key="frameCount" value="13"/>
+				<substitute key="frameCount" value="19"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyB.xml"
-				    menuText="RUC" id="ruc" useReferenceTime="true">
-				<substitute key="modelName" value="RUC236"/>
+				    menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="9"/>
 			</contribute>
@@ -170,14 +170,14 @@
 				<substitute key="frameCount" value="15"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyC.xml"
-				    menuText="RUC13" id="ruc13" useReferenceTime="true">
-				<substitute key="modelName" value="RUC130"/>
+				    menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
 				<substitute key="TP" value="TP3hr"/>
-				<substitute key="frameCount" value="13"/>
+				<substitute key="frameCount" value="19"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyC.xml"
-				    menuText="RUC" id="ruc" useReferenceTime="true">
-				<substitute key="modelName" value="RUC236"/>
+				    menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="9"/>
 			</contribute>
@@ -226,14 +226,14 @@
 				<substitute key="frameCount" value="15"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyD.xml"
-				    menuText="RUC13" id="ruc13" useReferenceTime="true">
-				<substitute key="modelName" value="RUC130"/>
+				    menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
 				<substitute key="TP" value="TP3hr"/>
-				<substitute key="frameCount" value="13"/>
+				<substitute key="frameCount" value="19"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyD.xml"
-				    menuText="RUC" id="ruc" useReferenceTime="true">
-				<substitute key="modelName" value="RUC236"/>
+				    menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="9"/>
 			</contribute>
@@ -275,13 +275,13 @@
 				<substitute key="TP" value="TP6hr"/>
 				<substitute key="frameCount" value="15"/>
 			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyE.xml" menuText="RUC13" id="ruc13" useReferenceTime="true">
-				<substitute key="modelName" value="RUC130"/>
+			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyE.xml" menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
 				<substitute key="TP" value="TP3hr"/>
-				<substitute key="frameCount" value="13"/>
+				<substitute key="frameCount" value="19"/>
 			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyE.xml" menuText="RUC" id="ruc" useReferenceTime="true">
-				<substitute key="modelName" value="RUC236"/>
+			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyE.xml" menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="9"/>
 			</contribute>
@@ -322,13 +322,13 @@
 				<substitute key="TP" value="TP6hr"/>
 				<substitute key="frameCount" value="15"/>
 			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyF.xml" menuText="RUC13" id="ruc13" useReferenceTime="true">
-				<substitute key="modelName" value="RUC130"/>
+			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyF.xml" menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
 				<substitute key="TP" value="TP3hr"/>
-				<substitute key="frameCount" value="13"/>
+				<substitute key="frameCount" value="19"/>
 			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyF.xml" menuText="RUC" id="ruc" useReferenceTime="true">
-				<substitute key="modelName" value="RUC236"/>
+			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyF.xml" menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="9"/>
 			</contribute>
@@ -369,13 +369,13 @@
 				<substitute key="TP" value="TP6hr"/>
 				<substitute key="frameCount" value="15"/>
 			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyH.xml" menuText="RUC13" id="ruc13" useReferenceTime="true">
-				<substitute key="modelName" value="RUC130"/>
+			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyH.xml" menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
 				<substitute key="TP" value="TP3hr"/>
-				<substitute key="frameCount" value="13"/>
+				<substitute key="frameCount" value="19"/>
 			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyH.xml" menuText="RUC" id="ruc" useReferenceTime="true">
-				<substitute key="modelName" value="RUC236"/>
+			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyH.xml" menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="9"/>
 			</contribute>
@@ -416,13 +416,13 @@
 				<substitute key="TP" value="TP6hr"/>
 				<substitute key="frameCount" value="15"/>
 			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyI.xml" menuText="RUC13" id="ruc13" useReferenceTime="true">
-				<substitute key="modelName" value="RUC130"/>
+			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyI.xml" menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
 				<substitute key="TP" value="TP3hr"/>
-				<substitute key="frameCount" value="13"/>
+				<substitute key="frameCount" value="19"/>
 			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyI.xml" menuText="RUC" id="ruc" useReferenceTime="true">
-				<substitute key="modelName" value="RUC236"/>
+			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyI.xml" menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="9"/>
 			</contribute>
@@ -463,13 +463,13 @@
 				<substitute key="TP" value="TP6hr"/>
 				<substitute key="frameCount" value="15"/>
 			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyJ.xml" menuText="RUC13" id="ruc13" useReferenceTime="true">
-				<substitute key="modelName" value="RUC130"/>
+			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyJ.xml" menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
 				<substitute key="TP" value="TP3hr"/>
-				<substitute key="frameCount" value="13"/>
+				<substitute key="frameCount" value="19"/>
 			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyJ.xml" menuText="RUC" id="ruc" useReferenceTime="true">
-				<substitute key="modelName" value="RUC236"/>
+			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyJ.xml" menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="9"/>
 			</contribute>
@@ -510,13 +510,13 @@
 				<substitute key="TP" value="TP6hr"/>
 				<substitute key="frameCount" value="15"/>
 			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyL.xml" menuText="RUC13" id="ruc13" useReferenceTime="true">
-				<substitute key="modelName" value="RUC130"/>
+			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyL.xml" menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
 				<substitute key="TP" value="TP3hr"/>
-				<substitute key="frameCount" value="13"/>
+				<substitute key="frameCount" value="19"/>
 			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyL.xml" menuText="RUC" id="ruc" useReferenceTime="true">
-				<substitute key="modelName" value="RUC236"/>
+			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyL.xml" menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="9"/>
 			</contribute>
@@ -564,14 +564,14 @@
 				<substitute key="frameCount" value="15"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyM.xml"
-				    menuText="RUC13" id="ruc13" useReferenceTime="true">
-				<substitute key="modelName" value="RUC130"/>
+				    menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
 				<substitute key="TP" value="TP3hr"/>
-				<substitute key="frameCount" value="13"/>
+				<substitute key="frameCount" value="19"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyM.xml"
-				    menuText="RUC" id="ruc" useReferenceTime="true">
-				<substitute key="modelName" value="RUC236"/>
+				    menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="9"/>
 			</contribute>
@@ -620,14 +620,14 @@
 				<substitute key="frameCount" value="15"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyU.xml"
-				    menuText="RUC13" id="ruc13" useReferenceTime="true">
-				<substitute key="modelName" value="RUC130"/>
+				    menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
 				<substitute key="TP" value="TP3hr"/>
-				<substitute key="frameCount" value="13"/>
+				<substitute key="frameCount" value="19"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyU.xml"
-				    menuText="RUC" id="ruc" useReferenceTime="true">
-				<substitute key="modelName" value="RUC236"/>
+				    menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="9"/>
 			</contribute>
@@ -676,14 +676,14 @@
 				<substitute key="frameCount" value="15"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyV.xml"
-				    menuText="RUC13" id="ruc13" useReferenceTime="true">
-				<substitute key="modelName" value="RUC130"/>
+				    menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
 				<substitute key="TP" value="TP3hr"/>
-				<substitute key="frameCount" value="13"/>
+				<substitute key="frameCount" value="19"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyV.xml"
-				    menuText="RUC" id="ruc" useReferenceTime="true">
-				<substitute key="modelName" value="RUC236"/>
+				    menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="9"/>
 			</contribute>
@@ -732,14 +732,14 @@
 				<substitute key="frameCount" value="15"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyW.xml"
-				    menuText="RUC13" id="ruc13" useReferenceTime="true">
-				<substitute key="modelName" value="RUC130"/>
+				    menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
 				<substitute key="TP" value="TP3hr"/>
-				<substitute key="frameCount" value="13"/>
+				<substitute key="frameCount" value="19"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyW.xml"
-				    menuText="RUC" id="ruc" useReferenceTime="true">
-				<substitute key="modelName" value="RUC236"/>
+				    menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="9"/>
 			</contribute>
@@ -788,14 +788,14 @@
 				<substitute key="frameCount" value="15"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyX.xml"
-				    menuText="RUC13" id="ruc13" useReferenceTime="true">
-				<substitute key="modelName" value="RUC130"/>
+				    menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
 				<substitute key="TP" value="TP3hr"/>
-				<substitute key="frameCount" value="13"/>
+				<substitute key="frameCount" value="19"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyX.xml"
-				    menuText="RUC" id="ruc" useReferenceTime="true">
-				<substitute key="modelName" value="RUC236"/>
+				    menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="9"/>
 			</contribute>
@@ -844,14 +844,14 @@
 				<substitute key="frameCount" value="15"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyY.xml"
-				    menuText="RUC13" id="ruc13" useReferenceTime="true">
-				<substitute key="modelName" value="RUC130"/>
+				    menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
 				<substitute key="TP" value="TP3hr"/>
-				<substitute key="frameCount" value="13"/>
+				<substitute key="frameCount" value="19"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyY.xml"
-				    menuText="RUC" id="ruc" useReferenceTime="true">
-				<substitute key="modelName" value="RUC236"/>
+				    menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="9"/>
 			</contribute>
@@ -900,14 +900,14 @@
 				<substitute key="frameCount" value="15"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyYY.xml"
-				    menuText="RUC13" id="ruc13" useReferenceTime="true">
-				<substitute key="modelName" value="RUC130"/>
+				    menuText="RAP13" id="rap13" useReferenceTime="true">
+				<substitute key="modelName" value="${RAP13model}"/>
 				<substitute key="TP" value="TP3hr"/>
-				<substitute key="frameCount" value="13"/>
+				<substitute key="frameCount" value="19"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/volume/ModelFamilyYY.xml"
-				    menuText="RUC" id="ruc" useReferenceTime="true">
-				<substitute key="modelName" value="RUC236"/>
+				    menuText="RAP" id="rap" useReferenceTime="true">
+				<substitute key="modelName" value="${RAPmodel}"/>
 				<substitute key="TP" value="TP3hr"/>
 				<substitute key="frameCount" value="9"/>
 			</contribute>

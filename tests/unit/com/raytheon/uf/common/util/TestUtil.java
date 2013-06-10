@@ -30,6 +30,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -167,8 +169,7 @@ public final class TestUtil {
      */
     @SuppressWarnings("unchecked")
     public static List<List<String>> getInputsAndOutputs(Class<?> callingClass,
-            String file)
-            throws IOException {
+            String file) throws IOException {
         List<String> inputs = new ArrayList<String>();
         List<String> outputs = new ArrayList<String>();
 
@@ -227,7 +228,7 @@ public final class TestUtil {
                 objectUnderTest, objectUnderTest);
         assertEquals("The specified object should have a consistent hashcode!",
                 objectUnderTest.hashCode(), objectUnderTest.hashCode());
-        
+
         for (T equalObject : equalObjects) {
             assertEquals(
                     "The specified object should have been equal, but wasn't!",
@@ -268,9 +269,8 @@ public final class TestUtil {
      *            object under test
      */
     public static <T extends Comparable<? super T>> void assertCompareToContract(
-            T objectUnderTest,
-            Collection<T> lessThanObjects, Collection<T> equalObjects,
-            Collection<T> greaterThanObjects) {
+            T objectUnderTest, Collection<T> lessThanObjects,
+            Collection<T> equalObjects, Collection<T> greaterThanObjects) {
         assertEquals(
                 "The specified object should have been equal with itself!", 0,
                 objectUnderTest.compareTo(objectUnderTest));
@@ -330,6 +330,25 @@ public final class TestUtil {
         }
 
         return bos.toByteArray();
+    }
+
+    /**
+     * Get a file.
+     * 
+     * @param callingClass
+     *            The calling class
+     * @param resource
+     *            The resource to get
+     * @return File instance
+     */
+    public static File getFileForResource(Class<?> callingClass, String resource) {
+        URL url = callingClass.getResource(resource);
+
+        try {
+            return new File(url.toURI());
+        } catch (URISyntaxException e) {
+            return new File(url.getPath());
+        }
     }
 
     /**

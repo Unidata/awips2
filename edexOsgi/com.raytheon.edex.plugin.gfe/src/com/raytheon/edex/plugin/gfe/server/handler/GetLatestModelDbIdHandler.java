@@ -30,9 +30,11 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 17, 2010            dgilling     Initial creation
+ * May 22, 2013  2025      dgilling     Re-implement for new GFE db schema.
  * 
  * </pre>
  * 
@@ -53,9 +55,9 @@ public class GetLatestModelDbIdHandler implements
     @Override
     public DatabaseID handleRequest(GetLatestModelDbIdRequest request)
             throws Exception {
-        DatabaseID dbId = new GFEDao().getLatestModelDbId(request.getSiteId(), request
-                        .getModelName());
-        return dbId;
+        GFEDao dao = new GFEDao();
+        return dao.getLatestDbIdByModelName(request.getSiteID(),
+                request.getModelName());
     }
 
 }

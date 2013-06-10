@@ -35,6 +35,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 07, 2013 1453       djohnson     Initial creation
+ * Jan 30, 2013 1543       djohnson     Add ability to specify route.
  * 
  * </pre>
  * 
@@ -82,6 +83,8 @@ public class SubscriptionBuilder {
 
     private String url = "http://someurl";
 
+    private Network route = Network.OPSNET;
+
     /**
      * Constructor.
      */
@@ -112,6 +115,7 @@ public class SubscriptionBuilder {
         subscription.setSubscriptionStart(subscriptionStart);
         subscription.setSubscriptionEnd(subscriptionEnd);
         subscription.setUrl(url);
+        subscription.setRoute(route);
 
         subscription.setId(RegistryUtil.getRegistryObjectKey(subscription));
 
@@ -289,4 +293,13 @@ public class SubscriptionBuilder {
         return this;
     }
 
+    /**
+     * @param route
+     *            the route to set
+     * @return the {@link SubscriptionBuilder}
+     */
+    public SubscriptionBuilder withRoute(Network route) {
+        this.route = route;
+        return this;
+    }
 }

@@ -35,7 +35,7 @@ import java.util.zip.DeflaterOutputStream;
  */
 public class DataDDS extends DDS {
     /** The ServerVersion returned from the open DODS connection. */
-    private ServerVersion ver;
+    private final ServerVersion ver;
 
     /**
      * Construct the DataDDS with the given server version.
@@ -167,16 +167,16 @@ public class DataDDS extends DDS {
         }
 
         // Redefine PrintWriter here, so the DDS is also compressed if necessary
-        // PrintWriter pw = new PrintWriter(new OutputStreamWriter(bufferedOS));
-        // print(pw);
+        PrintWriter pw = new PrintWriter(new OutputStreamWriter(bufferedOS));
+        print(pw);
         // pw.println("Data:"); // JCARON CHANGED
-        // pw.flush();
-        // bufferedOS.write("\nData:\n".getBytes()); // JCARON CHANGED
-        // bufferedOS.flush();
+        pw.flush();
+        bufferedOS.write("\nData:\n".getBytes()); // JCARON CHANGED
+        bufferedOS.flush();
 
         // Use a DataOutputStream for serialize
         DataOutputStream dataOS = new DataOutputStream(bufferedOS);
-        for (Enumeration<?> e = getVariables(); e.hasMoreElements();) {
+        for (Enumeration e = getVariables(); e.hasMoreElements();) {
             ClientIO bt = (ClientIO) e.nextElement();
             bt.externalize(dataOS);
         }

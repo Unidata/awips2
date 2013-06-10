@@ -17,207 +17,224 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
-import gzip
+
+#
+# MergeVTEC - merges two "active" tables together.
+# Ported from AWIPS1 code, originally written by Mark Mathewson FSL
+#
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    ??/??/??                      wldougher      Initial Creation.
+#    02/22/13        1447          dgilling       Re-ported to better match
+#                                                 requestAT/sendAT.
+# 
+#
+
+import argparse
+import collections
 import cPickle
-import os
-import stat
-import time
+import gzip
 import logging
-import getAT
-#import JUtil
-import dynamicserialize.dstypes.com.raytheon.uf.common.activetable.UpdateActiveTableRequest as UpdateActiveTableRequest
+import os
+import re
+import sys
+
+from dynamicserialize.dstypes.com.raytheon.uf.common.activetable.request import MergeActiveTableRequest
+
 from ufpy import ThriftClient
 from ufpy import TimeUtil
-from getVtecAttribute import getVtecAttribute
-from getFourCharSites import getFourCharSites
+from ufpy import UsageArgumentParser
 
-logging.basicConfig(level=logging.DEBUG)
-log = logging.getLogger("MergeVTEC")
-def merge(removeRemote, remoteATName, atName, inputIsGZIP=False, drt=None,
-      makeBackups=True, xmlIncoming=None, ourSites=None, host='localhost', port=9581):
 
-    oldTable = None
-    siteFilter = _getFilterSites(ourSites, host, port)
+logging.basicConfig(format="%(asctime)s %(name)s %(levelname)s:  %(message)s", 
+                    datefmt="%H:%M:%S", 
+                    level=logging.INFO)
+log = logging.getLogger('MergeVTEC')
+
+
+class CaseInsensitiveStringSet(collections.Set):
+    def __init__(self, iterable):
+        self.__internalSet = frozenset(iterable)
+        
+    def __contains__(self, x):
+        return x.upper() in (item.upper() for item in self.__internalSet)
     
-    if drt is None:
-        drtOffset = 0.0;
-    else:
-        drtOffset = TimeUtil.determineDrtOffset(drt)[0]
-        
-    atName = atName.upper()
-    if "PRACTICE" != atName:
-        atName = "OPERATIONAL"
-        
-    try:
-        oldTable = getAT.getActiveTable(atName, siteFilter, host=host, port=port)
-    except:
-        log.error('Error getting old table for backup :', exc_info=True)
+    def __len__(self):
+        return len(self.__internalSet)
     
-    log.info("Active Table size: %d", len(oldTable))
-        
-    if inputIsGZIP:
-        fd = gzip.open(remoteATName)
-    else:
-        fd = open(remoteATName)
+    def __iter__(self):
+        return iter(self.__internalSet)
 
-    try:
-        newTable = cPickle.load(fd)
-    finally:
+class StoreDrtTimeAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        drtInfoTuple = TimeUtil.determineDrtOffset(values)
+        setattr(namespace, self.dest, drtInfoTuple[0])
+
+class MergeVTEC(object):
+    def __init__(self, serverHost, serverPort, site, removeRemote, 
+      remoteATName, atName, inputIsGZIP, drt=0, makeBackups=True, 
+      xmlIncoming=None, fromIngestAT=False):
+        # serverHost - host name to send merge request to
+        # serverPort - port EDEX is running on
+        # site - site to perform merge operation as
+        # removeRemote (False, True) to remove remote table file upon completion
+        # remoteATName - name of remote active table file
+        # atName (OPERATIONAL, PRACTICE) - name of active table name
+        # inputIsGZIP (False, True) - remote input file is gzipped
+        # drt mode - None, or number of seconds +/- current time
+        # makeBackups (False, True) - make backups of table changes
+        # xmlIncoming - None, or XML data from MHS, only used in ingestAT mode
+        # fromIngestAT (False, True) - run in ingestAT mode, only affects logging
+        self._thriftClient = ThriftClient.ThriftClient(serverHost, serverPort, '/services')
+        self._site = site
+        self._deleteAfterProcessing = removeRemote
+        self._remoteTableFilename = remoteATName
+        self._activeTableFilename = atName
+        drt = 0 if drt is None else drt
+        self._drtInfo = float(drt)
+        self._makeBackups = makeBackups
+        self._xmlIncoming = xmlIncoming
+        self._fromIngestAT = fromIngestAT
+
+        log.info("MergeVTEC Starting")
+        log.info("remoteFN= " + self._remoteTableFilename + 
+          " localFN= " + self._activeTableFilename + 
+          " siteID= " + self._site)
+
+        # read table to merge
+        otherTable = self._readActiveTable(self._remoteTableFilename,
+          inputIsGZIP)
+        log.info("Remote Table size: %d", len(otherTable))
+        
+        self._mergeTable(otherTable)
+        
+        # delete remote file, if desired
+        if self._deleteAfterProcessing:
+            os.remove(self._remoteTableFilename)
+
+        log.info("MergeVTEC Finished")
+    
+    def _mergeTable(self, otherTable):
+        # Send the new active table to the server.
+        # The real merge is done server-side.
+        request = MergeActiveTableRequest(otherTable, self._activeTableFilename, 
+                    self._site, self._drtInfo, self._xmlIncoming, 
+                    self._fromIngestAT, self._makeBackups)        
+        response = self._thriftClient.sendRequest(request)
+        if not response.getTaskSuccess():
+            raise RuntimeError("Error performing merge: " + response.getErrorMessage())
+
+    def _readActiveTable(self, filename, inputIsGZIP=False):
+        # reads the active table and returns the list of records
+
+        records = []
+
+        # get the file and unpickle it
+        if not inputIsGZIP:
+            fd = open(filename, 'rb')
+        else:
+            fd = gzip.open(filename, 'rb')
+
+        buf = fd.read()
         fd.close()
-
-    log.info("Other Table size: %d", len(newTable))
-
-    if len(newTable) > 0 and newTable[0].has_key('oid'):
-        convertToNewFormat(newTable)
+        log.debug("read active table, size: %d", len(buf))
+        records = cPickle.loads(buf)
+        log.debug("cPickle.loads, #records: %d", len(records))
         
-    # Filter out any extra sites in the new table.
-    if siteFilter is not None:
-        newTable = [x for x in newTable if x['officeid'] in siteFilter]
+        if records and records[0].has_key('oid'):
+            self._convertToNewFormat(records)
         
-    log.info("Other Table filtered size: %d", len(newTable))
-
-    # Send the new active table to the server.
-    # The real merge is done server-side.
-    request = UpdateActiveTableRequest()
-    request.setActiveTable(newTable)
-    request.setMode(atName)
-    request.setXmlSource(xmlIncoming)
-    request.setTimeOffset(drtOffset)
-    response = None
+        return records
     
-    thriftClient = ThriftClient.ThriftClient(host, port, "/services")
-    try:
-        response = thriftClient.sendRequest(request)
-        log.info('Other table merged.')
-    except:
-        log.error("Error sending other table to server:", exc_info=True) 
-
-    if response is None:
-        log.error("No response was received from the server.")
-        return
-        
-    errMsg = response.getMessage()
-    if errMsg is not None and "" != errMsg:
-        log.error("Error on server: %s", errMsg)
-        return
-        
-    sourceInfo = response.getSourceInfo()
-    if sourceInfo is not None:
-        if type(sourceInfo) != list:
-            log.info("Converting sourceInfo from " + str(type(sourceInfo)))
-            # sourceInfo = JUtil.javaStringListToPylist(sourceInfo)
-        for source in sourceInfo:
-            log.info("Source Server: %s", str(source))
-    else:
-        log.info("sourceInfo is None")
-        
-    if makeBackups and oldTable:
-        convertToOldFormat(oldTable)
-        dirname = os.path.dirname(os.path.abspath(remoteATName))
-        format = "%Y%m%d_%H%M%S"
-        gmtime = time.gmtime(time.time() + drtOffset)
-        bname = time.strftime(format, gmtime) + 'activeTable.gz'
-        bdirName = os.path.join(dirname, "backup")
-
-        if not os.path.exists(bdirName):
-            # create the dir and give everyone R/W access
-            os.mkdir(bdirName, stat.S_IRWXU | stat.S_IRWXG | stat.S_IROTH | 
-                     stat.S_IWOTH)
-
-        fname = os.path.join(bdirName, bname)
-        saveFile = gzip.open(fname, "wb")
-        save_start = time.time()
-        try:
-            cPickle.dump(oldTable, saveFile)
-        finally:
-            saveFile.close()
+    def _convertToNewFormat(self, table):
+        '''Convert an AWIPS I table to AWIPS 2 internally'''
+    
+        maxFutureTime = long(float(2**31-1)) 
+        for entry in table:
+            entry['officeid'] = entry['oid']
+            entry['vtecstr'] = entry['vstr']
+            entry['endTime'] = int(entry['end'])
+            entry['startTime'] = int(entry['start'])
+            entry['purgeTime'] = int(entry['purgeTime'])
+            entry['issueTime'] = int(entry['issueTime'])
+            entry['phensig'] = entry['key']
+            entry['state'] = 'Decoded'
+            if entry['endTime'] >= maxFutureTime:
+                entry['ufn'] = True
+            else:
+                entry['ufn'] = False
+            entry['productClass'] = entry['vtecstr'][1]
+            if not entry.has_key('rawMessage'):
+                entry['rawMessage'] = ''
             
-        # Give the user and user's group all access, others read access
-        os.chmod(fname, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH)
-        tdiff = time.time() - save_start
-        log.info('Saved Previous Active Table: %s t=%.3f sec. ', fname, tdiff)
-    elif makeBackups:
-        log.info('No old active table to back up.')
-        
-    if removeRemote:
-        os.remove(remoteATName)
-        log.info('Input file ' + remoteATName + ' deleted.')
+            # Note: this is not always correct
+            entry['xxxid'] = entry['officeid'][1:]
+    
+            if entry.has_key('text'):
+                entry['segText'] = entry['text']
+                # adapted from WarningDecoder...
+                lines = entry['segText'].split('\n')
+                for count in xrange(len(lines)-1):
+                    dtg_search = re.search(r' ([0123][0-9][012][0-9][0-5][0-9])', 
+                                           lines[count])
+                    if dtg_search:
+                        pil_search = re.search(r'^([A-Z]{3})(\w{3}|\w{2}|\w{1})', 
+                                               lines[count+1])
+                        if pil_search:
+                            entry['xxxid'] = pil_search.group(2)
+                            break
 
-def _getFilterSites(ourSites, host, port):
-    if ourSites is None:
-        ourSite = os.getenv('GFESUITE_SITEID')
-        if ourSite is None:
-            raise Exception("Specify at least one site or set GFESUITE_SITEID.")
-    else:
-        ourSite = ourSites[0]
-    sites = getVtecAttribute('VTEC_MERGE_SITES', [], ourSite, host, port)
-    if sites is not None:
-        spcSite = getVtecAttribute("VTEC_SPC_SITE", "KWNS", ourSite, host, port) 
-        tpcSite = getVtecAttribute("VTEC_TPC_SITE", "KNHC", ourSite, host, port)
-        sites.extend([spcSite, tpcSite])
-        if ourSites is None:
-            sites.append(ourSite)
-        else:
-            sites.extend(ourSites)  
 
-    sites = getFourCharSites(sites, host, port)
+def process_command_line():
+    parser = UsageArgumentParser.UsageArgumentParser(prog='MergeVTEC', conflict_handler="resolve")
+    parser.add_argument("-h", action="store", dest="serverHost",
+                        required=True, metavar="serverHost",
+                        help="host name of the EDEX server")
+    parser.add_argument("-p", action="store", type=int, dest="serverPort",
+                        required=True, metavar="serverPort",
+                        help="port number for the EDEX server")
+    parser.add_argument("-d", action="store_true", 
+                        dest="removeRemote", 
+                        help="delete remote active table when done")
+    parser.add_argument("-a", action="store", dest="atName", 
+                        choices=CaseInsensitiveStringSet(['OPERATIONAL', 'PRACTICE']), 
+                        required=True, metavar="atName", default="OPERATIONAL", 
+                        help="name of the active table (OPERATIONAL or PRACTICE)")
+    parser.add_argument("-r", action="store", dest="remoteATName",
+                        required=True, metavar="rmtATName",
+                        help="location of the active table (remote)")
+    parser.add_argument("-z", action=StoreDrtTimeAction, dest="drt",
+                        metavar="drtMode", help="Run in DRT mode")
+    parser.add_argument("-n", action="store_false", dest="makeBackups",
+                        help="Don't make backups of vtec table")
+    parser.add_argument("-g", action="store_true", 
+                        dest="inputIsGZIP", 
+                        help="Remote active table is compressed")
+    parser.add_argument("-s", action="store", dest="site", metavar="siteID",
+                        required=True,
+                        help="site to merge AT records into")
+    return vars(parser.parse_args())
 
-    log.debug("Filter Sites: %s", str(sites))
-    return sites
+def merge(serverHost, serverPort, site, removeRemote, remoteATName, 
+      atName, inputIsGZIP=False, drt=0, makeBackups=True, xmlIncoming=None, 
+      fromIngestAT=False):
+    decoder = MergeVTEC(serverHost, serverPort, site, removeRemote, 
+      remoteATName, atName, inputIsGZIP, drt, makeBackups, xmlIncoming, 
+      fromIngestAT)
+    decoder = None
+    return
 
-def convertToNewFormat(newTable):
-    '''Convert an AWIPS I table to AWIPS 2 internally'''
-    import re
-    maxFutureTime = long(float(2**31-1)) 
-    for dct in newTable:
-        dct['officeid'] = dct['oid']
-        dct['vtecstr'] = dct['vstr']
-        dct['endTime'] = int(dct['end'])
-        dct['startTime'] = int(dct['start'])
-        dct['purgeTime'] = int(dct['purgeTime'])
-        dct['issueTime'] = int(dct['issueTime'])
-        dct['phensig'] = dct['key']
-        dct['state'] = 'Decoded'
-        if dct['endTime'] >= maxFutureTime:
-            dct['ufn'] = True
-        else:
-            dct['ufn'] = False
-        dct['productClass'] = dct['vtecstr'][1]
-        if not dct.has_key('rawMessage'):
-            dct['rawMessage'] = ''
-        
-        # Note: this is not always correct
-        dct['xxxid'] = dct['officeid'][1:]
+def main():
+    args = process_command_line()
+    try:
+        merge(**args)
+        sys.exit(0)
+    except:
+        log.exception("Caught Exception: ")
+        sys.exit(1)
 
-        if dct.has_key('text'):
-            dct['segText'] = dct['text']
-            # adapted from WarningDecoder...
-            lines = dct['segText'].split('\n')
-            for count in xrange(len(lines)-1):
-                dtg_search = re.search(r' ([0123][0-9][012][0-9][0-5][0-9])', 
-                                       lines[count])
-                if dtg_search:
-                    pil_search = re.search(r'^([A-Z]{3})(\w{3}|\w{2}|\w{1})', 
-                                           lines[count+1])
-                    if pil_search:
-                        dct['xxxid'] = pil_search.group(2)
-                        break
-
-def convertToOldFormat(backupTable):
-    'Convert an AWIPS 2 table to a table usable by AWIPS 1, in-place.'
-    for dct in backupTable:
-        dct['oid'] = dct['officeid']
-        dct['vstr'] = dct['vtecstr']
-        dct['end'] = dct['endTime']
-        dct['start'] = dct['startTime']
-        dct['key'] = dct['phensig']
-        # remove new fields so we don't pickle two copies
-        del dct['officeid']
-        del dct['vtecstr']
-        del dct['endTime']
-        del dct['phensig']
-        del dct['startTime']
-        
-        if dct.has_key('segText'):
-            dct['text'] = dct['segText']
-            del dct['segText']
+if __name__ == "__main__":
+    main()

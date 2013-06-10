@@ -13,7 +13,6 @@ import java.util.List;
 import gov.noaa.nws.ncep.ui.pgen.PGenException;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
-import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 
 /**
  * Replace a set of existing elements in a layer (product) with a set of new elements.  
@@ -29,6 +28,8 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
  * 08/09		#141		Jun Wu  	Initial Creation.
  * 03/10		#159		B. Yin		Set the parent of output elements to that of
  * 										input elements, instead of active layer. 
+ * 04/13		#874		B. Yin		If the parent is null, loop through every element,
+ * 										find its parent, remove the old DE and add the new DE.
  * 
  * </pre>
  * 
@@ -104,16 +105,27 @@ public class ReplaceElementsCommand extends PgenCommand {
 	@Override
 	public void execute() throws PGenException {
 
-		if ( oldElements != null ) {	
-			for ( AbstractDrawableComponent ade : oldElements ) {
-				parent.removeElement( ade );
+		if ( parent != null ){
+			if ( oldElements != null ) {	
+				for ( AbstractDrawableComponent ade : oldElements ) {
+					parent.removeElement( ade );
+				}
+			}
+
+			if ( newElements != null ) {
+				parent.add( newElements );			
+			}				
+		}	
+		else if ( oldElements.size() == newElements.size() ){
+			for ( int ii = 0; ii < oldElements.size(); ii++ ) {
+				AbstractDrawableComponent ade  = oldElements.get(ii);
+				if ( ade.getParent() != null && ade.getParent() instanceof DECollection ){
+					DECollection dec = (DECollection) ade.getParent();
+					dec.removeElement( ade );
+					dec.add( newElements.get( ii ));
+				}
 			}
 		}
-		
-		if ( newElements != null ) {
-			parent.add( newElements );			
-		}				
-									
 	}
 
 	/**
@@ -123,16 +135,27 @@ public class ReplaceElementsCommand extends PgenCommand {
 	@Override
 	public void undo() throws PGenException {
 
-		if ( newElements != null ) {
-			for ( AbstractDrawableComponent ade : newElements ) {
-				parent.removeElement( ade );
-			}	    	
-	    }
-       
-	    if ( oldElements != null ) {
-	    	parent.add( oldElements );
-	    }
-	    
+		if ( parent != null ){
+			if ( newElements != null ) {
+				for ( AbstractDrawableComponent ade : newElements ) {
+					parent.removeElement( ade );
+				}	    	
+			}
+
+			if ( oldElements != null ) {
+				parent.add( oldElements );
+			}
+		}
+		else if ( oldElements.size() == newElements.size() ){
+			for ( int ii = 0; ii < newElements.size(); ii++ ) {
+				AbstractDrawableComponent ade  = newElements.get(ii);
+				if ( ade.getParent() != null && ade.getParent() instanceof DECollection ){
+					DECollection dec = (DECollection) ade.getParent();
+					dec.removeElement( ade );
+					dec.add( oldElements.get( ii ));
+				}
+			}
+		}
 	}
 
 }

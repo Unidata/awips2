@@ -19,10 +19,9 @@
  **/
 package com.raytheon.uf.common.time;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.TimeZone;
+import java.util.List;
 
 /**
  * Simulated time clock with offset and scale capabilities.
@@ -38,6 +37,8 @@ import java.util.TimeZone;
  * Jul 16, 2008            randerso    Initial creation
  * Aug 24, 2012 0743       djohnson    Add option to use milliseconds for operations, change to singleton.
  * Nov 02, 2012 1302       djohnson    Change mistakenly public constructor to private.
+ * Jan 07, 2013 1442       rferrel     Changes to add/remove/notify Simulated Time Change Listeners.
+ *                                      Use SimulatedTimeTest for unit testing.
  * 
  * </pre>
  * 
@@ -50,6 +51,10 @@ public final class SimulatedTime {
      * The system global simulated time instance
      */
     private static final SimulatedTime systemTime = new SimulatedTime();
+
+    private List<ISimulatedTimeChangeListener> listeners;
+
+    private boolean doNotify;
 
     /**
      * Retrieve the system global simulate time instance
@@ -99,41 +104,19 @@ public final class SimulatedTime {
      * 
      */
     private SimulatedTime() {
+        this.listeners = new ArrayList<ISimulatedTimeChangeListener>();
+        this.doNotify = true;
         setRealTime();
     }
 
-    /**
-     * Creates a simulated time starting at the specified time with
-     * acceleration/deceleration, optionally frozen.
-     * 
-     * @param date
-     *            starting time
-     * @param scale
-     *            1.0 for normal time rate, >1.0 for accelerated time < 1.0 for
-     *            decelerated time. If negative time will run backward.
-     * @param isFrozen
-     *            true to freeze time
-     */
-    private SimulatedTime(Date date, double scale, boolean isFrozen) {
-        this(date.getTime(), scale, isFrozen);
+    public synchronized void addSimulatedTimeChangeListener(
+            ISimulatedTimeChangeListener listener) {
+        listeners.add(listener);
     }
 
-    /**
-     * Creates a simulated time starting at the specified time with
-     * acceleration/deceleration, optionally frozen.
-     * 
-     * @param millis
-     *            starting time in milliseconds
-     * @param scale
-     *            1.0 for normal time rate, >1.0 for accelerated time < 1.0 for
-     *            decelerated time. If negative time will run backward.
-     * @param isFrozen
-     *            true to freeze time
-     */
-    private SimulatedTime(long millis, double scale, boolean isFrozen) {
-        setTime(millis);
-        this.scale = scale;
-        this.isFrozen = isFrozen;
+    public synchronized void removeSimulatedTimeChangeListener(
+            ISimulatedTimeChangeListener listener) {
+        listeners.remove(listener);
     }
 
     /**
@@ -153,6 +136,7 @@ public final class SimulatedTime {
         offset = 0;
         scale = 1.0;
         isFrozen = false;
+        fireTimeChangeListeners();
     }
 
     /**
@@ -193,6 +177,7 @@ public final class SimulatedTime {
             baseTime = now();
             offset = millis - baseTime;
         }
+        fireTimeChangeListeners();
     }
 
     /**
@@ -213,7 +198,10 @@ public final class SimulatedTime {
      *            decelerated time. If negative time will run backward.
      */
     public void setScale(double scale) {
-        this.scale = scale;
+        if (this.scale != scale) {
+            this.scale = scale;
+            fireTimeChangeListeners();
+        }
     }
 
     /**
@@ -243,42 +231,34 @@ public final class SimulatedTime {
             offset = frozenTime - baseTime;
         }
         this.isFrozen = isFrozen;
+        fireTimeChangeListeners();
     }
 
     /**
-     * Test routine
+     * Allows turning off notification of listeners when making several updates
+     * at the same time. Changing to false turns off notification. Changing to
+     * true allows notification and triggers a notification.
      * 
-     * @param args
-     *            N/A
+     * @param doNotify
      */
-    public static void main(String[] args) {
-        String timeFormat = "HH:mm:ss z dd-MMM-yyyy";
-        TimeZone GMT = TimeZone.getTimeZone("GMT");
+    public void notifyListeners(boolean doNotify) {
+        if (this.doNotify != doNotify) {
+            this.doNotify = doNotify;
+            fireTimeChangeListeners();
+        }
+    }
 
-        SimpleDateFormat gmtFormatter = new SimpleDateFormat(timeFormat);
-        gmtFormatter.setTimeZone(GMT);
-
-        SimpleDateFormat local = new SimpleDateFormat(timeFormat);
-
-        Calendar cal = Calendar.getInstance(GMT);
-        cal.clear();
-        cal.set(1960, 5, 5, 0, 0, 0);
-
-        SimulatedTime simTime = new SimulatedTime(cal.getTime(), 2.0, false);
-        for (int i = 0; i < 15; i++) {
-            Date date = simTime.getTime();
-            System.out.println(gmtFormatter.format(date) + ", "
-                    + local.format(date)
-                    + (simTime.isFrozen() ? " frozen" : ""));
-            simTime.setFrozen(i >= 5 && i < 10);
-
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+    /**
+     * Notify listeners of time change.
+     */
+    private void fireTimeChangeListeners() {
+        if (doNotify) {
+            // Copy to make thread safe.
+            List<ISimulatedTimeChangeListener> list = new ArrayList<ISimulatedTimeChangeListener>(
+                    listeners);
+            for (ISimulatedTimeChangeListener listener : list) {
+                listener.timechanged();
             }
         }
-
     }
 }

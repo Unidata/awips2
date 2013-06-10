@@ -13,6 +13,7 @@ import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResource;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResourceData;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBar;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
 import java.awt.Color;
 import java.io.File;
@@ -71,6 +72,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 16 Aug 2012  843        B. Hebbard  Added OSCAT
  * 17 Aug 2012  655        B. Hebbard  Added paintProps as parameter to IDisplayable draw
  *  12/19/2012    #960     Greg Hull   override propertiesChanged() to update colorBar.
+ * 30 May 2013             B. Hebbard  Merge changes by RTS in OB13.3.1 for DataStoreFactory.getDataStore(...)
  * 
  * </pre>
  * 
@@ -78,7 +80,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 public class NcscatResource extends
-        AbstractNatlCntrsResource<NcscatResourceData, IMapDescriptor> implements
+        AbstractNatlCntrsResource<NcscatResourceData, NCMapDescriptor> implements
         INatlCntrsResource {
 
     // DEBUG boolean OVERRIDErainQcFlag = true;
@@ -130,12 +132,11 @@ public class NcscatResource extends
             // Given the NcscatRecord, locate the associated HDF5 data...
             File location = HDF5Util.findHDF5Location(nsRecord);
 
-            String hdf5File = location.getAbsolutePath();
             String group = nsRecord.getDataURI();
             String dataset = "Ncscat";
 
             // ...and retrieve it
-            IDataStore ds = DataStoreFactory.getDataStore(new File(hdf5File));
+            IDataStore ds = DataStoreFactory.getDataStore(location);
             IDataRecord dr;
             try {
                 dr = ds.retrieve(group, dataset, Request.ALL);
@@ -289,14 +290,14 @@ public class NcscatResource extends
                 rainQcFlag = getBit(qualityBits,  0) ||
                              getBit(qualityBits, 15);           // bits 0 OR 15 == 1   rain
                 highWindSpeedFlag = false;
-                lowWindSpeedFlag = false;
-                availRedunFlag = false;
+                lowWindSpeedFlag =  false;
+                availRedunFlag =    false;
                 break;
             case UNKNOWN:
                 rainQcFlag = false;
                 highWindSpeedFlag = false;
-                lowWindSpeedFlag = false;
-                availRedunFlag = false;
+                lowWindSpeedFlag =  false;
+                availRedunFlag =    false;
                 break;
             }
         }
@@ -577,7 +578,7 @@ public class NcscatResource extends
 
         // Display wind vectors for all points
 
-        DisplayElementFactory df = new DisplayElementFactory(target, descriptor);
+        DisplayElementFactory df = new DisplayElementFactory(target, getNcMapDescriptor());
         ArrayList<IDisplayable> displayEls = df.createDisplayElements(windVectors, paintProps);
         for (IDisplayable each : displayEls) {
             each.draw(target, paintProps);
@@ -632,7 +633,7 @@ public class NcscatResource extends
         }
     }
     
-    @Override
+	@Override
     public void propertiesChanged(ResourceProperties updatedProps) {
     	
     	if( cbar1RscPair != null ) {

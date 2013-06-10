@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <isEnabled>true</isEnabled>
     <resourceDefnName>IDFT</resourceDefnName>
     <resourceCategory>SURFACE</resourceCategory>
         <resourceParameters>
 pluginName=idft
 reportType=idft
     </resourceParameters>    
-    <filterLabels>Forecast</filterLabels>
     <rscImplementation>IDFT</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
     <frameSpan>1440</frameSpan>
-    <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
+    <timelineGenMethod>USE_CYCLE_TIME_FCST_HOURS</timelineGenMethod>
     <dfltFrameCount>999</dfltFrameCount>
     <!-- 16 days -->
     <dfltTimeRange>384</dfltTimeRange>

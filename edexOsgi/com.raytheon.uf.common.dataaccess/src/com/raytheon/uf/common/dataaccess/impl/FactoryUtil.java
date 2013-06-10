@@ -21,7 +21,6 @@ package com.raytheon.uf.common.dataaccess.impl;
 
 import java.util.Set;
 
-import com.raytheon.uf.common.dataaccess.IData;
 import com.raytheon.uf.common.dataaccess.IDataFactory;
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.time.BinOffset;
@@ -37,6 +36,8 @@ import com.raytheon.uf.common.time.DataTime;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 14, 2012            njensen     Initial creation
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -59,8 +60,8 @@ public class FactoryUtil {
      *            the bin offset to apply
      * @return the binned times
      */
-    public static <R extends IDataRequest<D>, D extends IData> DataTime[] getAvailableTimes(
-            IDataFactory<R, D> factory, R request, BinOffset binOffset) {
+    public static DataTime[] getAvailableTimes(IDataFactory factory,
+            IDataRequest request, BinOffset binOffset) {
         DataTime[] actualTimes = factory.getAvailableTimes(request);
         if (binOffset != null) {
             Set<DataTime> normalized = binOffset

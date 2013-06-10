@@ -1,0 +1,23 @@
+!
+! Restore File :TP6hr
+!
+! Log:
+!
+GLEVEL=0
+GVCORD=HGHT
+SKIP=
+FILTER=n
+SCALE=0
+GDPFUN=P06M
+TYPE=c
+CINT=0
+LINE=5/1/1
+FINT=50;60;70;80;90
+FLINE=0;29;28;27;26;0
+HILO=
+HLSYM=
+WIND=18/1/1
+TITLE=1/-1/~ TP6HR !0
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

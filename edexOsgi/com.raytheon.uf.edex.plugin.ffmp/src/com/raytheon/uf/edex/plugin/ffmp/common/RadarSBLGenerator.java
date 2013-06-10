@@ -65,6 +65,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.TopologyException;
 
 /**
  * Creates a SourceBinList for given radar and set of basins.
@@ -75,6 +76,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 6, 2011   10593     dfriedma    Initial creation
+ * May 1, 2013   15684     zhao        Add code to handle possible TopologyException 
  * 
  * </pre>
  * 
@@ -227,7 +229,15 @@ public class RadarSBLGenerator {
                     if (i >= 0 && i < searchGridLen && j >= 0 && j < searchGridLen) {
                         for (Long pfaf : searchGrid[j * searchGridLen + i]) {
                             Geometry geom = xformedBasinMap.get(pfaf);
-                            if (geom.contains(p)) {
+                            //DR15684
+                            boolean geomContainsPointP = false;
+                            try {
+                            	geomContainsPointP = geom.contains(p);
+                            } catch (TopologyException e) {
+                            	logger.warn(String.format("RadarSBLGenerator: caught a TopologyException: %s", e.getMessage()));
+                            	throw e;
+                            }
+                            if (geomContainsPointP) {
                                 //lastPfaf = pfaf;
                                 lastBasinGeometry = geom;
                                 lastSBEL = sbeMap.get(pfaf);

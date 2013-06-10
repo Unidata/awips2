@@ -19,17 +19,15 @@
  **/
 package com.raytheon.viz.mpe.ui.rsc;
 
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 
 /**
@@ -55,7 +53,9 @@ public class DisplayMeanArealPrecipResourceData extends AbstractResourceData {
 
     private String boundary;
 
-    private List<Colorvalue> colors;
+    private DisplayFieldData fieldData;
+
+    private int accumInterval;
 
     public DisplayMeanArealPrecipResourceData() {
 
@@ -67,10 +67,11 @@ public class DisplayMeanArealPrecipResourceData extends AbstractResourceData {
      * @param colorSet
      */
     public DisplayMeanArealPrecipResourceData(MPEDisplayManager displayManager,
-            String boundary_type, List<Colorvalue> colorSet) {
+            String boundary_type, DisplayFieldData fieldData, int accumInterval) {
         dm = displayManager;
         boundary = boundary_type;
-        colors = colorSet;
+        this.fieldData = fieldData;
+        this.accumInterval = accumInterval;
     }
 
     /*
@@ -85,7 +86,8 @@ public class DisplayMeanArealPrecipResourceData extends AbstractResourceData {
     public DisplayMeanArealPrecipResource construct(
             LoadProperties loadProperties, IDescriptor descriptor)
             throws VizException {
-        return new DisplayMeanArealPrecipResource(dm, boundary, colors);
+        return new DisplayMeanArealPrecipResource(dm, boundary, fieldData,
+                accumInterval);
     }
 
     /*

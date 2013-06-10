@@ -21,7 +21,6 @@ package com.raytheon.viz.hydro.resource;
 
 import java.awt.image.RenderedImage;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.commands.ExecutionException;
@@ -61,7 +60,7 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.index.strtree.STRtree;
 
 /**
- * Resource to dislpay the DamCrest icons.
+ * Resource to display the DamCrest icons.
  * 
  * <pre>
  * 
@@ -70,6 +69,7 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * ------------ ---------- ----------- --------------------------
  * Apr 20, 2009            mpduff     Initial creation
  * Sep 23, 2009 3069       mpduff      Changed the parent class to HydroPointResource.
+ * Jan 22, 2013 15553      wkwock      Correct DamCrest selection algorithm
  * </pre>
  * 
  * @author mpduff
@@ -310,16 +310,24 @@ public class DamLocationResource extends
                 Coordinate coord = container.translateClick(x, y);
                 Envelope env = new Envelope(coord);
                 List<?> elements = damStrTree.query(env);
+                double curDist=Double.MAX_VALUE;
+                DamMaster foundDam = null;
                 if (elements.size() > 0) {
-                    Iterator<?> iter = elements.iterator();
-                    if (iter.hasNext()) {
-                        DamMaster dam = (DamMaster) iter.next();
-                        try {
-                            AppLauncherHandler alh = new AppLauncherHandler();
-                            alh.execute(DC_BUNDLE_LOC, dam.getNidid());
-                        } catch (ExecutionException e) {
-                            e.printStackTrace();
+                	//find the closest one
+                	for (Object obj : elements) {
+                        DamMaster dam = (DamMaster) obj;
+                        double distance=Math.pow((dam.getLatitudeDam()-coord.y),2) + Math.pow((dam.getLongitudeDam()-coord.x), 2);
+                        if (distance<curDist) {
+                        	curDist=distance;
+                        	foundDam=dam;
                         }
+                	}
+                    
+                	try {
+                        AppLauncherHandler alh = new AppLauncherHandler();
+                        alh.execute(DC_BUNDLE_LOC, foundDam.getNidid());
+                    } catch (ExecutionException e) {
+                         e.printStackTrace();
                     }
                 } else {
                     Shell shell = PlatformUI.getWorkbench()

@@ -240,7 +240,7 @@ public abstract class RadarImageResource<D extends IDescriptor> extends
 		ColorMap colorMap;
 		try {
 			colorMap = (ColorMap) ColorMapUtil.loadColorMap( 
-					radarRscData.getResourceName().getRscCategory(), 
+					radarRscData.getResourceName().getRscCategory().getCategoryName(), 
 					radarRscData.getColorMapName() );
 		} catch (VizException e) {
 			throw new VizException("Error loading colormap: "+ radarRscData.getColorMapName() );
@@ -416,7 +416,7 @@ params = /*new ColorMapParameters();//*/ColorMapParameterFactory.build((Object) 
 		ColorMap colorMap;
 		try {
 			colorMap = (ColorMap) ColorMapUtil.loadColorMap( 
-					radarRscData.getResourceName().getRscCategory(), 
+					radarRscData.getResourceName().getRscCategory().getCategoryName(), 
 					radarRscData.getColorMapName() );
 		} catch (VizException e) {
 			throw new VizException("Error loading colormap: "+ radarRscData.getColorMapName() );

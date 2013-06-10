@@ -28,6 +28,8 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    07/20/10                      njensen       Initial Creation.
+#    02/20/13        DR 15662      M.Porricelli  Modified __do2DPointRequest
+#                                                to check for null points
 #    
 # 
 #
@@ -121,10 +123,14 @@ def __do1DPointRequest(ds, indices):
 
 def __do2DPointRequest(ds, points):
     indices = []
-    for pt in points:        
-        indices.append((pt.getY(), pt.getX()))
+    for pt in points:
+        if pt is not None:       
+            indices.append((pt.getY(), pt.getX()))
+        else:
+            indices.append((float('nan'),float('nan')))
     arr = numpy.asarray(indices)
     sel = h5py.selections.PointSelection(ds.shape)
     sel.set(arr)
     return ds[sel]
+    
     

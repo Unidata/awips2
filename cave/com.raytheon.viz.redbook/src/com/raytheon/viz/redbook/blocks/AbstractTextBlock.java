@@ -22,6 +22,7 @@ package com.raytheon.viz.redbook.blocks;
 import java.nio.ByteBuffer;
 
 import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlock;
+import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlockHeader;
 import com.raytheon.viz.redbook.rsc.RedbookLegend;
 import com.raytheon.viz.redbook.rsc.RedbookLegend.Type;
 
@@ -33,6 +34,7 @@ import com.raytheon.viz.redbook.rsc.RedbookLegend.Type;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * Mar 18, 2010 #3260       dfriedma    Initial creation
+ * Apr 29, 2013 1958        bgonzale    New class RedbookBlockHeader.
  * 
  * </pre>
  * 
@@ -45,8 +47,8 @@ public abstract class AbstractTextBlock extends RedbookBlock {
     protected int origXPos;
     protected int origYPos;
     
-    public AbstractTextBlock(ByteBuffer data) {
-        super(data);
+    public AbstractTextBlock(RedbookBlockHeader header, ByteBuffer data) {
+        super(header, data);
     }
     
     public abstract TextBlock getTextBlock();

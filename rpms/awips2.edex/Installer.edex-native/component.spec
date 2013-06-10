@@ -36,7 +36,7 @@ fi
 if [ -d %{_build_root} ]; then
    rm -rf %{_build_root}
 fi
-mkdir -p %{_build_root}/awips2
+mkdir -p %{_build_root}/awips2/edex
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -48,14 +48,16 @@ fi
 %build
 
 %install
-DIST_NATIVE="%{_baseline_workspace}/dist.native"
+FILES_NATIVE="%{_baseline_workspace}/files.native"
 PACKAGES="%{_awipscm_share}/packages"
 # extract the native libraries
-/bin/tar -xpf ${DIST_NATIVE}/i386-pc-linux-gnu.tar \
-   -C %{_build_root}/awips2 ./edex/lib ./edex/bin
+/bin/cp -rf ${FILES_NATIVE}/edex/lib \
+   ${FILES_NATIVE}/edex/bin \
+   %{_build_root}/awips2/edex
 if [ $? -ne 0 ]; then
    exit 1
 fi
+
 # copy the AWIPS I mhs libraries
 cp ${PACKAGES}/mhs/* \
    %{_build_root}/awips2/edex/lib/native/linux32/awips1
@@ -65,6 +67,7 @@ fi
 
 %pre
 %post
+
 %preun
 %postun
 

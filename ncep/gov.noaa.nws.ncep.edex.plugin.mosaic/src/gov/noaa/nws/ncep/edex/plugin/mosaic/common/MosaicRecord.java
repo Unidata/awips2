@@ -18,6 +18,7 @@ import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -28,10 +29,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Index;
 import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -52,27 +55,42 @@ import com.vividsolutions.jts.geom.Coordinate;
 /**
  * Decoder implementation for mosaic plugin
  * 
+ * <pre>
  * Date         Ticket#         Engineer    Description
  * ------------ ----------      ----------- --------------------------
  * 09/2009      143				L. Lin     	Initial creation
  * 11/2009      143             L. Lin      Add parameters sourceId and
  * 											trueElevationAngle in mosaic record.
  * 1/2011		143				T. Lee		Add resolution to key for AWC 1km NSSL
- *											Extracted prod name from mosaicInfo.txt
+ * 										Extracted prod name from mosaicInfo.txt
  * 6/2012       825             G. Hull     rm prodName from URI. Use prodCode where needed.
  * 09/2012						B. Hebbard  Merge out RTS changes from OB12.9.1
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013 1857            bgonzale    Added SequenceGenerator annotation.
  * 
  * 
  * </pre>
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
+ * 
  * @author L. Lin
  * @version 1.0
  */
 
 
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "mosaicseq")
 @Table(name = "mosaic", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "mosaic",
+		indexes = {
+				@Index(name = "mosaic_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)

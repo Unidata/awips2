@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 
@@ -28,8 +29,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 	 */
 	private static final long serialVersionUID = 3873261645845080924L;
 
-	public UncondProbOfTstorms12hr() {
-		 super( UNIT );
+	public UncondProbOfTstorms12hr()throws Exception {
+		 super( new UnitAdapter().marshal(UNIT) );
 	}
 	 
   }

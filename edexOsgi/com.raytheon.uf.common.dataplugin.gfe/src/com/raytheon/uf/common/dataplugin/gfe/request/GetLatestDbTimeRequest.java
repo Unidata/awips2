@@ -20,26 +20,37 @@
 package com.raytheon.uf.common.dataplugin.gfe.request;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * Request object for getting the latest insert time for a given database ID
+ * Request object for getting the latest insert time for a given database ID.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 8/16/2010    6349       bphillip     Initial creation
+ * Aug 16, 2010  6349      bphillip     Initial creation
+ * May 22, 2013  2025      dgilling     Add DynamicSerialize support.
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
+
+@DynamicSerialize
 public class GetLatestDbTimeRequest extends AbstractGfeRequest {
 
+    @DynamicSerializeElement
     /** The database ID to get the latest insert time for */
     private DatabaseID dbId;
+
+    public GetLatestDbTimeRequest() {
+        // no-op
+    }
 
     /**
      * Creates a new GetLatestDbTimeRequest
@@ -48,6 +59,7 @@ public class GetLatestDbTimeRequest extends AbstractGfeRequest {
      *            The database ID to get the latest insert time for
      */
     public GetLatestDbTimeRequest(DatabaseID dbId) {
+        super();
         this.dbId = dbId;
     }
 
@@ -58,22 +70,15 @@ public class GetLatestDbTimeRequest extends AbstractGfeRequest {
      *            The database ID to get the latest insert time for
      */
     public GetLatestDbTimeRequest(String dbId) {
+        super();
         this.dbId = new DatabaseID(dbId);
     }
 
-    /**
-     * @return the dbId
-     */
     public DatabaseID getDbId() {
         return dbId;
     }
 
-    /**
-     * @param dbId
-     *            the dbId to set
-     */
     public void setDbId(DatabaseID dbId) {
         this.dbId = dbId;
     }
-
 }

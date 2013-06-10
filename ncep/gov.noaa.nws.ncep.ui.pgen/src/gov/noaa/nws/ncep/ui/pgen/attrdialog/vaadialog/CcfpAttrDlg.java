@@ -10,13 +10,12 @@ package gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog;
 
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
-import gov.noaa.nws.ncep.ui.pgen.display.ILine;
+import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.Text;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.LabeledLine;
-import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.AbstractSigmet;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.Ccfp;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.CcfpInfo;
@@ -60,7 +59,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 09/10		322			G. Zhang 	Initial Creation.  
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 03/12        #625,#611   S. Gurung   Change default CCFP polygon colors: Purple for Hi confidence Area, Line and Line(Med) 
-   										Added ability to change SIGMET type (from Area to Line/LineMed and back and forth)
+ *  										Added ability to change SIGMET type (from Area to Line/LineMed and back and forth)
+ * 03/13		#928		B. Yin 		Made the button bar smaller. 										
  *
  * </pre>
  *  
@@ -211,6 +211,8 @@ public class CcfpAttrDlg extends AttrDlg implements ICcfp{
 	@Override
     public void createButtonsForButtonBar(Composite parent) { 
 
+		((GridLayout)parent.getLayout()).verticalSpacing = 0;
+		((GridLayout)parent.getLayout()).marginHeight = 3;
 //    	if("Pgen Select".equals(mouseHandlerName)){//|| withExpandedArea ){
     		createButton(parent, 20091229,"Format...",false);//replace OK_ID which causes old sig NOT found error
     		createButton(parent, 20091021,"Apply",false);
@@ -240,7 +242,12 @@ public class CcfpAttrDlg extends AttrDlg implements ICcfp{
     		});
     		this.getButton(20091229).setEnabled(false);
     		this.getButton(20091021).setEnabled(false); 
-    		this.getButton(IDialogConstants.CANCEL_ID).setEnabled(false);    		
+    		this.getButton(IDialogConstants.CANCEL_ID).setEnabled(false);  
+    		
+      		this.getButton(20091229).setLayoutData( new GridData(ctrlBtnWidth,ctrlBtnHeight));
+      		this.getButton(20091021).setLayoutData( new GridData(ctrlBtnWidth,ctrlBtnHeight));
+      		this.getButton(IDialogConstants.CANCEL_ID).setLayoutData( new GridData(ctrlBtnWidth,ctrlBtnHeight));
+
     	//}else{
     		//createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL,	true);
     	//}

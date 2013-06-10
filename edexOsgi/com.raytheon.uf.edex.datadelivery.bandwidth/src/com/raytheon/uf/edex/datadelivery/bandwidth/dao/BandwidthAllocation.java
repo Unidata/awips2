@@ -49,7 +49,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 @DiscriminatorColumn(name = "dtype", discriminatorType = DiscriminatorType.STRING)
 @DiscriminatorValue("BandwidthAllocation")
 @DynamicSerialize
-@SequenceGenerator(name = "BANDWIDTH_SEQ", sequenceName = "bandwidth_seq", allocationSize = 1)
+@SequenceGenerator(name = "BANDWIDTH_SEQ", sequenceName = "bandwidth_seq", allocationSize = 1, initialValue = 1)
 public class BandwidthAllocation implements IPersistableDataObject<Long>,
         ISerializableObject, Serializable {
 
