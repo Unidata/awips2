@@ -12,7 +12,8 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.17",
  com.raytheon.uf.common.python;bundle-version="1.11.17",
  org.jep;bundle-version="1.0.0",
  com.raytheon.uf.common.localization;bundle-version="1.11.17",
- javax.persistence;bundle-version="1.0.0"
+ javax.persistence;bundle-version="1.0.0",
+ ucar.nc2;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.edex.plugin.qc.common
 Import-Package: com.raytheon.edex.uengine.tasks.query,
  com.raytheon.uf.common.message.response,

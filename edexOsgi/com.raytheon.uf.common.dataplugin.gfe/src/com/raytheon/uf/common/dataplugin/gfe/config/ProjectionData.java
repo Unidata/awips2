@@ -55,6 +55,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * 03/13/08     #1030      randerso    Initial port
  * 04/24/08     #1047      randerso    Made all fields private and created getters
+ * 04/24/13     #1935      randerso    Fixed date line spanning issue
  * 
  * </pre>
  * 
@@ -192,10 +193,6 @@ public class ProjectionData implements ISerializableObject {
             return;
         }
 
-        // fix up corner lons
-        this.latLonLL.x = MapUtil.correctLon(this.latLonLL.x);
-        this.latLonUR.x = MapUtil.correctLon(this.latLonUR.x);
-
         try {
             // transform the projection corner points to CRS units
             MathTransform mt = MapUtil.getTransformFromLatLon(getCrs());
@@ -287,7 +284,9 @@ public class ProjectionData implements ISerializableObject {
                 break;
 
             case LATLON:
-                crs = MapUtil.LATLON_PROJECTION;
+                crs = MapUtil.constructEquidistantCylindrical(
+                        MapUtil.AWIPS_EARTH_RADIUS, MapUtil.AWIPS_EARTH_RADIUS,
+                        this.lonCenter, 0);
                 break;
 
             case NONE:

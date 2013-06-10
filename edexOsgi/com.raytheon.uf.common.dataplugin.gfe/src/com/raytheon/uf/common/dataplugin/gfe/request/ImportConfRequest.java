@@ -31,7 +31,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2011            bphillip     Initial creation
+ * Aug 04, 2011            bphillip     Initial creation
+ * Mar 20, 2013   1447     dgilling     Add support for service backup
+ *                                      troubleshooting mode from A1.
  * 
  * </pre>
  * 
@@ -48,13 +50,18 @@ public class ImportConfRequest extends AbstractGfeRequest {
     @DynamicSerializeElement
     private String failedSite;
 
+    @DynamicSerializeElement
+    private boolean trMode;
+
     public ImportConfRequest() {
 
     }
 
-    public ImportConfRequest(String primarySite, String failedSite) {
+    public ImportConfRequest(String primarySite, String failedSite,
+            boolean trMode) {
         this.primarySite = primarySite;
         this.failedSite = failedSite;
+        this.trMode = trMode;
     }
 
     /**
@@ -85,6 +92,14 @@ public class ImportConfRequest extends AbstractGfeRequest {
      */
     public void setFailedSite(String failedSite) {
         this.failedSite = failedSite;
+    }
+
+    public void setTrMode(boolean trMode) {
+        this.trMode = trMode;
+    }
+
+    public boolean isTrMode() {
+        return trMode;
     }
 
 }

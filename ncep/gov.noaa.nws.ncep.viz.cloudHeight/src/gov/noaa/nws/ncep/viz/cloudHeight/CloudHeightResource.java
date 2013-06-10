@@ -1,7 +1,10 @@
 package gov.noaa.nws.ncep.viz.cloudHeight;
 
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -22,6 +25,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -43,13 +47,15 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 02/16/12      #583       B. Hebbard  On upper air query from DB, only get stations where
  *                                      "nil" flag is FALSE
  * 06/01/12		#747		B. Yin		Comment out the part to draw all stations.
+ * 02/11/2013   972         G. Hull     AbstractEditor instead of NCMapEditor
+ *
  * </pre>
  * 
  * @version 1
  */
-public class CloudHeightResource extends AbstractVizResource<CloudHeightResourceData,MapDescriptor> {
+public class CloudHeightResource extends AbstractVizResource<CloudHeightResourceData, NCMapDescriptor> {
 
-	protected NCMapEditor    mapEditor;
+	protected AbstractEditor    mapEditor;
 	protected String         name;
 	
     private RGB color = new RGB(255, 255, 0);
@@ -91,7 +97,11 @@ public class CloudHeightResource extends AbstractVizResource<CloudHeightResource
     public CloudHeightResource( CloudHeightResourceData resourceData,
     		                    LoadProperties loadProperties ) throws VizException {
     	super( resourceData, loadProperties );
-        mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();
+        mapEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
+        if( NcEditorUtil.getNcDisplayType( mapEditor ) != NcDisplayType.NMAP_DISPLAY ) {
+        	throw new VizException( "Can not use Cloud Height on non-map display type");
+        }
+
         name = "Cloud Height";
         stationDataMap = new HashMap<DataTime, List<StationData>>(0);
     	minimumDistance = INVALID_DISTANCE;

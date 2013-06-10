@@ -20,8 +20,10 @@
 package com.raytheon.uf.viz.d2d.ui.dialogs;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -64,8 +66,6 @@ import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.uf.viz.d2d.ui.Activator;
 import com.raytheon.uf.viz.d2d.ui.map.actions.NewMapEditor;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
@@ -78,7 +78,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 
+ * Jan. 29, 2013  15567     snaples     Remove Orthographic projection from list temporarily
  * 
  * </pre>
  * 
@@ -106,7 +106,7 @@ public class CreateProjectionDialog extends CaveJFACEDialog {
         }
     }
 
-    private Map<Parameter<?>, ParamUI> paramMap = new HashMap<Parameter<?>, ParamUI>();
+    private final Map<Parameter<?>, ParamUI> paramMap = new HashMap<Parameter<?>, ParamUI>();
 
     // private Composite paramComp;
     private Group paramGroup;
@@ -186,15 +186,32 @@ public class CreateProjectionDialog extends CaveJFACEDialog {
 
         factory = new DefaultMathTransformFactory();
         Set<?> methods = factory.getAvailableMethods(Projection.class);
+        //Removed for DR 15567
+//        String[] projections = new String[methods.size()];
 
-        String[] projections = new String[methods.size()];
-        int i = 0;
+        //int i = 0;
+        List<Object> prjj = new ArrayList<Object>();
         for (Object obj : methods) {
             if (obj instanceof MapProjection.AbstractProvider) {
                 MapProjection.AbstractProvider prj = (MapProjection.AbstractProvider) obj;
-                projections[i++] = prj.getName().getCode();
+                // DR15567 Remove "Orthographic" projection temporarily
+                String orthProj = prj.getName().getCode();
+                if (orthProj == "Orthographic"){
+                	continue;
+                } else {
+                	prjj.add(prj.getName().getCode());
+                }
+                //Put this back in when ready to revert the code 
+                //projections[i++] = prj.getName().getCode();
             }
         }
+        // DR15567
+        String[] projections = new String[prjj.size()];
+        int j = 0;
+        for (Object obj : prjj){
+        	projections[j++] = obj.toString();
+        }
+        // End of mods
         Arrays.sort(projections);
 
         new Label(projComp, SWT.NONE).setText("Projection:");

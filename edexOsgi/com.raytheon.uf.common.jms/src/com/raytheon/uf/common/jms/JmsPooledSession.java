@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -39,7 +40,16 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
- * TODO Add Description
+ * Jms Pooled Session. Tracks references to the session to know when the session
+ * can be released to the pool. Any exception will close pooled session instead
+ * of returning to the pool. The consumers/producers are tracked in both active
+ * and available states. An available consumer/producer can be reused by the
+ * next client.
+ * 
+ * Synchronization Principle To prevent deadlocks: Chained sync blocks can only
+ * happen in a downward direction. A manager has a synchronized lock can make a
+ * call down to a wrapper, but not nice versa. Also a session inside a sync
+ * block can make a call down to a producer but not vice versa.
  * 
  * <pre>
  * 
@@ -48,8 +58,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 15, 2011            rjpeter     Initial creation
- * Mar 08, 2012   194   njensen   Improved logging
- * 
+ * Mar 08, 2012 194        njensen     Improved logging
+ * Feb 21, 2013 1642       rjpeter     Fix deadlock scenario
  * </pre>
  * 
  * @author rjpeter
@@ -65,27 +75,28 @@ public class JmsPooledSession {
 
     private final Session sess;
 
+    // The thread this session was most recently used by for tracking a pending
+    // session that is being reserved for a given thread.
     private String threadKey;
 
-    private boolean exceptionOccurred = false;
+    private volatile boolean exceptionOccurred = false;
 
-    private Throwable trappedExc = null;
+    private final Object stateLock = new Object();
 
-    private Object stateLock = new Object();
-
-    private State state = State.InUse;
+    private volatile State state = State.InUse;
 
     // keeps track of number of creates vs. closes to know when it can be
     // returned to the pool
-    List<JmsSessionWrapper> references = new ArrayList<JmsSessionWrapper>(1);
+    private final List<JmsSessionWrapper> references = new ArrayList<JmsSessionWrapper>(
+            1);
 
-    private HashMap<String, AvailableJmsPooledObject<JmsPooledConsumer>> availableConsumers = new HashMap<String, AvailableJmsPooledObject<JmsPooledConsumer>>();
+    private final Map<String, AvailableJmsPooledObject<JmsPooledConsumer>> availableConsumers = new HashMap<String, AvailableJmsPooledObject<JmsPooledConsumer>>();
 
-    private HashMap<String, AvailableJmsPooledObject<JmsPooledProducer>> availableProducers = new HashMap<String, AvailableJmsPooledObject<JmsPooledProducer>>();
+    private final Map<String, AvailableJmsPooledObject<JmsPooledProducer>> availableProducers = new HashMap<String, AvailableJmsPooledObject<JmsPooledProducer>>();
 
-    private HashMap<String, JmsPooledConsumer> inUseConsumers = new HashMap<String, JmsPooledConsumer>();
+    private final Map<String, JmsPooledConsumer> inUseConsumers = new HashMap<String, JmsPooledConsumer>();
 
-    private HashMap<String, JmsPooledProducer> inUseProducers = new HashMap<String, JmsPooledProducer>();
+    private final Map<String, JmsPooledProducer> inUseProducers = new HashMap<String, JmsPooledProducer>();
 
     public JmsPooledSession(JmsPooledConnection conn, Session sess) {
         this.conn = conn;
@@ -250,10 +261,12 @@ public class JmsPooledSession {
 
         List<JmsPooledConsumer> consumersToClose = new ArrayList<JmsPooledConsumer>(
                 inUseConsumers.size() + availableConsumers.size());
+
         synchronized (inUseConsumers) {
             consumersToClose.addAll(inUseConsumers.values());
             inUseConsumers.clear();
         }
+
         synchronized (availableConsumers) {
             for (AvailableJmsPooledObject<JmsPooledConsumer> wrapper : availableConsumers
                     .values()) {
@@ -288,7 +301,7 @@ public class JmsPooledSession {
             // of time this is correct
             success = inUse == producer;
 
-            if (!success && inUse != null) {
+            if (!success && (inUse != null)) {
                 // put the bad removal back in. Done this way instead of
                 // get/remove as 99% of time remove is correct, this
                 // really only here for bullet proofing code against bad
@@ -340,7 +353,7 @@ public class JmsPooledSession {
             JmsPooledProducer inUse = inUseProducers.remove(destKey);
             removed = inUse == producer;
 
-            if (!removed && inUse != null) {
+            if (!removed && (inUse != null)) {
                 // put the bad removal back in. Done this way instead of
                 // get/remove as 95% of time remove is correct, this
                 // really only here for bullet proofing code against bad
@@ -427,7 +440,7 @@ public class JmsPooledSession {
             JmsPooledConsumer inUse = inUseConsumers.remove(destKey);
             removed = inUse == consumer;
 
-            if (!removed && inUse != null) {
+            if (!removed && (inUse != null)) {
                 // put the bad removal back in. Done this way instead of
                 // get/remove as 95% of time remove is correct, this
                 // really only here for bullet proofing code against bad
@@ -449,31 +462,22 @@ public class JmsPooledSession {
         }
 
         if (canClose) {
-            if (trappedExc != null) {
-                statusHandler.handle(Priority.INFO,
-                        "Trapped internal exception", trappedExc);
-            }
-
             closePooledConsumersProducers();
 
             // need to close down all wrappers
             for (JmsSessionWrapper wrapper : references) {
-                wrapper.closeInternal();
+                wrapper.closeWrapper();
             }
 
             references.clear();
 
             conn.removeSession(this);
 
-            // synchronize on the connection to avoid deadlock conditions in
-            // qpid
-            synchronized (conn) {
-                try {
-                    sess.close();
-                } catch (Exception e) {
-                    statusHandler.handle(Priority.INFO,
-                            "Failed to close session " + sess, e);
-                }
+            try {
+                sess.close();
+            } catch (Exception e) {
+                statusHandler.handle(Priority.WARN, "Failed to close session "
+                        + sess, e);
             }
         }
     }
@@ -603,7 +607,8 @@ public class JmsPooledSession {
             }
 
             if (producer == null) {
-                producer = new JmsPooledProducer(this, destKey, destination);
+                producer = new JmsPooledProducer(this, destKey,
+                        sess.createProducer(destination));
             }
 
             inUseProducers.put(destKey, producer);

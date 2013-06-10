@@ -42,7 +42,7 @@ import com.raytheon.uf.common.localization.exception.LocalizationOpFailedExcepti
  * 07/15/2011   450          G. Hull     use new NcPathManager 
  * 03/15/2012   621          S. Gurung   Added methods to read lockedColorMaps.tbl;
  * 										 load/check for locked colormaps.
- * 
+ * 04/10/2013   #958         qzhou       Added SolarImage in getColorMapCategories. 
  * </pre>
  * 
  * @author Q. Zhou
@@ -112,7 +112,7 @@ public class ColorMapUtil {
 
     // TODO : read from Localization
     public static String[] getColorMapCategories() {
-    	return new String[] {"Satellite", "Radar", "Other" };
+    	return new String[] {"Satellite", "Solarimage", "Radar", "Other" };
     }
     
     /**

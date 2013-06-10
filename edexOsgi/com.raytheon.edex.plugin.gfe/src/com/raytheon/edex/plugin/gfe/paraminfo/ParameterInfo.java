@@ -43,6 +43,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * Jun 24, 2010            bphillip     Initial creation
  * Sep 12, 2012  #1117     dgilling     Create field to hold list of
  *                                      valid levels for each parameter.
+ * Mar 20, 2013  #1774     randerso     Added getMinVal and getMaxVal
  * 
  * </pre>
  * 
@@ -52,6 +53,13 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 public class ParameterInfo {
+
+    // The netCDF convention is MINFLOAT to MAXFLOAT.
+    // But we can't use it or GFE will attempt to create
+    // billions and billions of contours.
+    public static final float MIN_VALUE = 0f;
+
+    public static final float MAX_VALUE = 10000f;
 
     @XmlElement
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
@@ -188,6 +196,28 @@ public class ParameterInfo {
      */
     public void setValid_range(float[] valid_range) {
         this.valid_range = valid_range;
+    }
+
+    /**
+     * @return the minimum valid value
+     */
+    public float getMinVal() {
+        float min = MIN_VALUE;
+        if (valid_range != null && valid_range.length == 2) {
+            min = valid_range[0];
+        }
+        return min;
+    }
+
+    /**
+     * @return the maximum valid value
+     */
+    public float getMaxVal() {
+        float min = MAX_VALUE;
+        if (valid_range != null && valid_range.length == 2) {
+            min = valid_range[1];
+        }
+        return min;
     }
 
     /**

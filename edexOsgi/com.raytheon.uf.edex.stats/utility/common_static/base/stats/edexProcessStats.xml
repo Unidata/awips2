@@ -1,0 +1,15 @@
+<statisticsConfig>
+    <!-- Event Type should be fully qualified name of stat event -->
+    <!-- raw and aggregate OfflineRetentionDays: Value less than zero disables saving of raw statistic, zero is never purge -->
+    <statisticsEvent type="com.raytheon.uf.common.stats.ProcessEvent"
+        displayName="Processing Events" category="Data Ingest Events"
+        rawOfflineRetentionDays="-1" aggregateOfflineRetentionDays="90">
+        <statisticsGroup name="dataType" displayName="Data Type" />
+        <!-- Processing time available display units:
+             ms, Seconds, Minutes, Hours -->
+        <statisticsAggregate field="processingTime"
+            displayName="Processing Time" displayUnit="ms" />
+        <statisticsAggregate field="processingLatency"
+            displayName="Processing Latency" displayUnit="ms" />
+    </statisticsEvent>
+</statisticsConfig>

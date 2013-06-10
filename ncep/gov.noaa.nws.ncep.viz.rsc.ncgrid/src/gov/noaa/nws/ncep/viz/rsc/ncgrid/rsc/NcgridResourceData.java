@@ -34,7 +34,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * 09/19/2011				mgamazaychikov	Made changes associated with removal of DatatypeTable class
  * 12/22/2011               G Hull     Updated getGdFile()
  * 12/06/2012   #538        Q. Zhou    Added skip and filter areas and implements. 
- * 03/28/2012               X. Guo     Don't need to convert gdfile toUppercase          
+ * 03/28/2012               X. Guo     Don't need to convert gdfile toUppercase
  * 08/29/2012   #743        Archana    Added CLRBAR          
  * </pre>
  * 
@@ -102,7 +102,7 @@ public class NcgridResourceData extends AbstractNatlCntrsRequestableResourceData
 	
 	@XmlElement
 	protected String hlsym;
-	
+
 	@XmlElement
 	protected String clrbar;
 	
@@ -293,7 +293,7 @@ public class NcgridResourceData extends AbstractNatlCntrsRequestableResourceData
                 && this.hlsym.equals(other.hlsym) == false) {
             return false;
         }
-        
+
         if (this.clrbar != null && other.clrbar == null) {
             return false;
         } else if (this.clrbar == null && other.clrbar != null) {

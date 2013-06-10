@@ -20,31 +20,30 @@
 
 package com.raytheon.uf.common.dataplugin.gfe.server.lock;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
-import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.message.WsId;
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.TimeRange;
 
 /**
- * Represents a lock on a record
+ * Represents a lock on a record. Class is Immutable and is only serializable as
+ * part of a LockTable.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -52,57 +51,56 @@ import com.raytheon.uf.common.time.TimeRange;
  * ------------ ---------- ----------- --------------------------
  * 04/08/08     #875       bphillip    Initial Creation
  * 06/17/08     #940       bphillip    Implemented GFE Locking
- * 
+ * 03/28/13     1949       rjpeter     Normalized database structure, made immutable.
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
 @Entity
-@Table(name = "gfelocktable")
-@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@XmlAccessorType(XmlAccessType.NONE)
-@DynamicSerialize
-public class Lock extends PersistableDataObject implements Cloneable,
-        ISerializableObject {
+@Table(name = "gfe_locks", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "parmId_id", "startTime", "endTime" }) })
+public class Lock {
 
     private static final long serialVersionUID = -7839912817664285509L;
 
-    /** The key for the database */
+    /**
+     * Auto-generated surrogate key
+     */
     @Id
-    @GeneratedValue
-    private int key;
+    @SequenceGenerator(name = "GFE_DBID_GENERATOR", sequenceName = "gfe_lock_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GFE_DBID_GENERATOR")
+    private int id;
 
-    /** The parmID of the lock */
-    @Column
-    @Type(type = "com.raytheon.uf.common.dataplugin.gfe.db.type.ParmIdType")
-    @XmlElement
-    @Index(name = "lock_parmId_idx")
-    @DynamicSerializeElement
+    /**
+     * The parmID of the lock.
+     */
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @PrimaryKeyJoinColumn
     private ParmID parmId;
 
     /** The workstationID of the lock holder */
-    @Column
+    @Column(nullable = false)
     @Type(type = "com.raytheon.uf.common.dataplugin.gfe.db.type.WsIdType")
-    @XmlElement
-    @DynamicSerializeElement
     private WsId wsId;
 
-    /** The start time of the lock */
-    @Column
-    @XmlAttribute
-    @DynamicSerializeElement
-    private long startTime;
-
-    /** The end time of the lock */
-    @Column
-    @XmlAttribute
-    @DynamicSerializeElement
-    private long endTime;
+    /**
+     * Used as the hibernate field so that Database has a human readable field.
+     */
+    @Column(name = "startTime", nullable = false)
+    private Date startDate;
 
     /**
-     * Creates a new Lock. Use of this constructor is discouraged. It is used by
-     * JiBX
+     * Used as the hibernate field so that Database has a human readable field.
+     */
+    @Column(name = "endTime", nullable = false)
+    private Date endDate;
+
+    @Transient
+    private transient TimeRange tr;
+
+    /**
+     * Creates a new Lock. Use of this constructor is discouraged.
      */
     public Lock() {
 
@@ -111,72 +109,74 @@ public class Lock extends PersistableDataObject implements Cloneable,
     /**
      * Creates a new Lock
      * 
+     * @param parmId
+     *            The parmID of the lock.
      * @param timeRange
      *            The time range over which the lock applies
      * @param wsId
      *            The workstation ID of the lock owner
      */
-    public Lock(TimeRange timeRange, WsId wsId) {
-        this.startTime = timeRange.getStart().getTime();
-        this.endTime = timeRange.getEnd().getTime();
+    public Lock(ParmID parmId, TimeRange timeRange, WsId wsId) {
+        this.parmId = parmId;
+        this.startDate = new Date(timeRange.getStart().getTime());
+        this.endDate = new Date(timeRange.getEnd().getTime());
         this.wsId = wsId;
+    }
+
+    /**
+     * Creates a new Lock
+     * 
+     * @param parmId
+     *            The parmID of the lock.
+     * @param timeRange
+     *            The time range over which the lock applies
+     * @param wsId
+     *            The workstation ID of the lock owner
+     */
+    public Lock(ParmID parmId, WsId wsId, long startTime, long endTime) {
+        this.parmId = parmId;
+        this.wsId = wsId;
+        this.startDate = new Date(startTime);
+        this.endDate = new Date(endTime);
     }
 
     public WsId getWsId() {
         return wsId;
     }
 
-    public void setWsId(WsId wsId) {
-        this.wsId = wsId;
-    }
-
     public TimeRange getTimeRange() {
-        return new TimeRange(startTime, endTime);
-    }
+        if (tr == null) {
+            tr = new TimeRange(startDate, endDate);
+        }
 
-    public void setTimeRange(TimeRange timeRange) {
-        this.startTime = timeRange.getStart().getTime();
-        this.endTime = timeRange.getEnd().getTime();
+        return tr;
     }
 
     public ParmID getParmId() {
         return parmId;
     }
 
-    public void setParmId(ParmID parmId) {
-        this.parmId = parmId;
-    }
-
-    public int getKey() {
-        return key;
-    }
-
-    public void setKey(int key) {
-        this.key = key;
+    public int getId() {
+        return id;
     }
 
     public long getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
+        return startDate.getTime();
     }
 
     public long getEndTime() {
-        return endTime;
+        return endDate.getTime();
     }
 
-    public void setEndTime(long endTime) {
-        this.endTime = endTime;
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
     }
 
     @Override
-    public Lock clone() {
-        Lock newLock = new Lock(this.getTimeRange(), wsId);
-        return newLock;
-    }
-
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("TR: ");
@@ -185,5 +185,4 @@ public class Lock extends PersistableDataObject implements Cloneable,
         buffer.append(this.wsId.toPrettyString());
         return buffer.toString();
     }
-
 }

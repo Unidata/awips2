@@ -12,6 +12,7 @@ import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.viz.rsc.wtch.util.WtchUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -59,7 +60,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-public class WtchResource  extends AbstractNatlCntrsResource< WtchResourceData, IMapDescriptor> 
+public class WtchResource  extends AbstractNatlCntrsResource< WtchResourceData, NCMapDescriptor> 
 													implements INatlCntrsResource{
 	private NcepLogger logger = NcepLoggerManager.getNcepLogger(this.getClass()); 
 
@@ -741,8 +742,8 @@ public class WtchResource  extends AbstractNatlCntrsResource< WtchResourceData, 
 		int watchNumber = wtchRscDataObj.watchNumber; 
 		
 		if(wtchResourceData.getColorCodeEnable()){
-		int lastDigitOfWatchNumber = watchNumber%10; 
-		switch(lastDigitOfWatchNumber) {
+			int lastDigitOfWatchNumber = watchNumber%10; 
+			switch(lastDigitOfWatchNumber) {
 			case 0:
 				if(wtchResourceData.getWatchxxx0Enable()) {
 					lineColor = wtchResourceData.getWatchxxx0Color();
@@ -803,7 +804,7 @@ public class WtchResource  extends AbstractNatlCntrsResource< WtchResourceData, 
 					lineWidth = wtchResourceData.getWatchxxx9LineWidth(); 
 				}
 			break; 
-		}
+			}
 		}
 		
 		else {

@@ -31,8 +31,8 @@
 		<substitute key="modelName" value="${NAM40model}"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
-		menuText="RUC40" id="ruc40stdenv" useReferenceTime="true">
-		<substitute key="modelName" value="RUC236"/>
+		menuText="RAP40" id="rap40stdenv" useReferenceTime="true">
+		<substitute key="modelName" value="${RAPmodel}"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
 		menuText="NAM12" id="nam12stdenv" useReferenceTime="true">
@@ -43,8 +43,8 @@
 		<substitute key="modelName" value="GFS212"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultStdEnv.xml"
-		menuText="RUC13" id="ruc13stdenv" useReferenceTime="true">
-		<substitute key="modelName" value="RUC130"/>
+		menuText="RAP13" id="rap13stdenv" useReferenceTime="true">
+		<substitute key="modelName" value="${RAP13model}"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/RaobStdEnv.xml"
 		menuText="RaobOA" id="raoboastdenv" useReferenceTime="true">

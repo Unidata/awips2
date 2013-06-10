@@ -55,7 +55,7 @@ public class NsharpShowTextDialog extends Dialog {
 	private Group textGp;
 	private Font newFont ;
 	private static boolean iAmClosed;
-	private static String textToSave="";
+	//private static String textToSave="";
 	public Text getText() {
 		return text;
 	}
@@ -287,17 +287,17 @@ public class NsharpShowTextDialog extends Dialog {
 				latlonstr = "  LAT=  LON=  ";
 			}
 			String textToShow = rsc.getPickedStnInfo().getSndType() +"  "+rsc.getPickedStnInfoStr() + latlonstr+ "\n" + hdr;
-			textToSave = rsc.getPickedStnInfo().getSndType() +"  "+rsc.getPickedStnInfoStr() + latlonstr + "\n" + hdr;
-			String tempText="", tempSaveText="";
+			//textToSave = rsc.getPickedStnInfo().getSndType() +"  "+rsc.getPickedStnInfoStr() + latlonstr + "\n" + hdr;
+			String tempText="";
 			for (NcSoundingLayer layer: soundLyList){
 				tempText = String.format("%7.2f\t%8.2f %7.2f %7.2f   %6.2f  %6.2f  %9.6f\n", layer.getPressure(),
 						layer.getGeoHeight(),layer.getTemperature(),layer.getDewpoint(), layer.getWindDirection(),
 						layer.getWindSpeed(), layer.getOmega());
-				tempSaveText = String.format("%f %f %f  %f  %f  %f  %f\n", layer.getPressure(),
-						layer.getGeoHeight(),layer.getTemperature(),layer.getDewpoint(), layer.getWindDirection(),
-						layer.getWindSpeed(), layer.getOmega());
+				//tempSaveText = String.format("%f %f %f  %f  %f  %f  %f\n", layer.getPressure(),
+						//layer.getGeoHeight(),layer.getTemperature(),layer.getDewpoint(), layer.getWindDirection(),
+						//layer.getWindSpeed(), layer.getOmega());
 				textToShow = textToShow + tempText;
-				textToSave = textToSave + tempSaveText;
+				//textToSave = textToSave + tempSaveText;
 			}
 			
 			text.setText(textToShow);

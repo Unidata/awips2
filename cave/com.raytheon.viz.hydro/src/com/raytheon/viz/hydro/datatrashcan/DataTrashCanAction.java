@@ -39,6 +39,7 @@ import org.eclipse.ui.PlatformUI;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial Creation.
+ * 2/06/2013    1578        rferrel     Change for non-blocking DataTrashCanDlg.
  * 
  * </pre>
  * 
@@ -47,14 +48,25 @@ import org.eclipse.ui.PlatformUI;
  */
 public class DataTrashCanAction extends AbstractHandler {
 
-	@Override
-	public Object execute(ExecutionEvent arg0) throws ExecutionException {
-	    Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-        .getShell();
-	    DataTrashCanDlg dataTrashCanDlg = new DataTrashCanDlg(shell);
-	    dataTrashCanDlg.open();
+    /** The dialog to display */
+    private DataTrashCanDlg dataTrashCanDlg;
 
-		return null;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
+     * .ExecutionEvent)
+     */
+    @Override
+    public Object execute(ExecutionEvent arg0) throws ExecutionException {
+        if (dataTrashCanDlg == null) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            dataTrashCanDlg = new DataTrashCanDlg(shell);
+        }
+        dataTrashCanDlg.open();
 
+        return null;
+    }
 }

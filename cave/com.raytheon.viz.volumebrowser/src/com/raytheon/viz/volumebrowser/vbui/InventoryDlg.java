@@ -45,6 +45,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 27, 2009 #2161      lvenable     Initial creation
+ * Jan 16, 2013 #1492      rferrel      Made dialog non-blocking.
  * 
  * </pre>
  * 
@@ -78,12 +79,13 @@ public class InventoryDlg extends CaveSWTDialog {
     private ProductInventory inventoryMap;
 
     public InventoryDlg(Shell parent, ProductTableData tableData) {
-        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE);
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         setText("Inventory");
 
         this.productName = tableData.getName();
         this.time = tableData.getTime();
         this.inventoryMap = tableData.getProductInventory();
+        setReturnValue(this.productName);
     }
 
     @Override

@@ -53,22 +53,22 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 	private int labelGap = 20;
 	private int btnGapX = 5;
 	private int btnGapY = 5;
-	private Button tempBtn, dewpBtn, parcelBtn,parcelAscentBtn, dcapeBtn,vTempBtn, wetBulbBtn, mixingRatioBtn, 
+	private Button tempBtn, dewpBtn, parcelTvBtn,parcelBtn, dcapeBtn,vTempBtn, wetBulbBtn, mixingRatioBtn, 
 		dryAdiabatBtn,moisAdiabatBtn,omegaBtn, meanWindVectorBtn, stormMVector3075Btn, stormMVector1585Btn,
 		stormMVectorBunkersRightBtn,stormMVectorBunkersLeftBtn, corfidiVectorBtn, hodoBtn, efflayerBtn, cloudBtn, windBarbBtn;	
-	private Text windBarbText, tempOffsetText;
+	private Text tempOffsetText;
 	//default value for button initial setup
-	private  boolean temp=true, dewp=true, parcel=true,parcelAscent=true,dcape=true, vTemp=true, wetBulb=true, hodo=true,
+	private  boolean temp=true, dewp=true, parcel=true,parcelTv=true,dcape=true, vTemp=true, wetBulb=true, hodo=true,
 		mixratio=false, dryAdiabat=true, moistAdiabat=false, omega=true, meanWind=true, 
 		smv3075=false, smv1585=false, smvBunkersR=true, smvBunkersL=true,corfidiV=false, effLayer=true, cloud=false, windBarb=true;
-	private int windBarbDistance=NsharpNativeConstants.WINDBARB_DISTANCE_DEFAULT;
+	//private int windBarbDistance=NsharpNativeConstants.WINDBARB_DISTANCE_DEFAULT;
 	private int tempOffset = 0;
 	private void updateGraphProperty(){
 		if(graphProperty != null){
 			graphProperty.setTemp(temp);
 			graphProperty.setDewp(dewp);
 			graphProperty.setParcel(parcel);
-			graphProperty.setParcelAscent(parcelAscent);
+			graphProperty.setParcelTv(parcelTv);
 			graphProperty.setDcape(dcape);
 			graphProperty.setVTemp(vTemp);
 			graphProperty.setWetBulb(wetBulb);
@@ -86,7 +86,7 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 			graphProperty.setCorfidiV(corfidiV);
 			graphProperty.setEffLayer(effLayer);
 			graphProperty.setWindBarb(windBarb);
-			graphProperty.setWindBarbDistance(windBarbDistance);
+			//graphProperty.setWindBarbDistance(windBarbDistance);
 			graphProperty.setTempOffset(tempOffset);
 		}
 	}
@@ -170,7 +170,7 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 	}
 
 	public boolean isParcelAscent() {
-		return parcelAscent;
+		return parcelTv;
 	}
 	
 	public  boolean isVTemp() {
@@ -187,9 +187,9 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 	}
 
 
-	public int getWindBarbDistance() {
-		return windBarbDistance;
-	}
+	//public int getWindBarbDistance() {
+	//	return windBarbDistance;
+	//}
 
 
 	public static NsharpParametersSelectionConfigDialog getInstance( Shell parShell){
@@ -227,7 +227,7 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 			temp=graphProperty.isTemp();
 			dewp=graphProperty.isDewp();
 			parcel=graphProperty.isParcel();
-			parcelAscent=graphProperty.isParcelAscent();
+			parcelTv=graphProperty.isParcelTv();
 			dcape = graphProperty.isDcape();
 			vTemp=graphProperty.isVTemp();
 			wetBulb=graphProperty.isWetBulb();
@@ -245,7 +245,7 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 			effLayer=graphProperty.isEffLayer();
 			cloud=graphProperty.isCloud();
 			windBarb=graphProperty.isWindBarb();
-			windBarbDistance = graphProperty.getWindBarbDistance();
+			//windBarbDistance = graphProperty.getWindBarbDistance();
 			tempOffset = graphProperty.getTempOffset();
 		}
 		
@@ -288,10 +288,27 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 				applyChange();
 			}          		            	 	
 		} );  
+		parcelTvBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
+		parcelTvBtn.setText(NsharpNativeConstants.PARCEL_VT_TRACE);
+		parcelTvBtn.setEnabled( true );
+		parcelTvBtn.setBounds(btnGp.getBounds().x+ btnGapX, dewpBtn.getBounds().y + dewpBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
+		if(parcelTv == true)
+			parcelTvBtn.setSelection(true);
+		else
+			parcelTvBtn.setSelection(false);
+		parcelTvBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {  
+				if(parcelTv == true)
+					parcelTv=false;
+				else
+					parcelTv=true;
+				applyChange();
+			}          		            	 	
+		} );  
 		parcelBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
-		parcelBtn.setText(NsharpNativeConstants.PARCEL_TRACE);
+		parcelBtn.setText(NsharpNativeConstants.PARCEL_T_TRACE);
 		parcelBtn.setEnabled( true );
-		parcelBtn.setBounds(btnGp.getBounds().x+ btnGapX, dewpBtn.getBounds().y + dewpBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
+		parcelBtn.setBounds(btnGp.getBounds().x+ btnGapX, parcelTvBtn.getBounds().y + parcelTvBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
 		if(parcel == true)
 			parcelBtn.setSelection(true);
 		else
@@ -304,28 +321,11 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 					parcel=true;
 				applyChange();
 			}          		            	 	
-		} );  
-		parcelAscentBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
-		parcelAscentBtn.setText(NsharpNativeConstants.PARCEL_TRACE_ASCENT);
-		parcelAscentBtn.setEnabled( true );
-		parcelAscentBtn.setBounds(btnGp.getBounds().x+ btnGapX, parcelBtn.getBounds().y + parcelBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
-		if(parcelAscent == true)
-			parcelAscentBtn.setSelection(true);
-		else
-			parcelAscentBtn.setSelection(false);
-		parcelAscentBtn.addListener( SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) {  
-				if(parcelAscent == true)
-					parcelAscent=false;
-				else
-					parcelAscent=true;
-				applyChange();
-			}          		            	 	
 		} ); 
 		dcapeBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
 		dcapeBtn.setText(NsharpNativeConstants.DCAPE_TRACE);
 		dcapeBtn.setEnabled( true );
-		dcapeBtn.setBounds(btnGp.getBounds().x+ btnGapX, parcelAscentBtn.getBounds().y + parcelAscentBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
+		dcapeBtn.setBounds(btnGp.getBounds().x+ btnGapX, parcelBtn.getBounds().y + parcelBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
 		if(dcape == true)
 			dcapeBtn.setSelection(true);
 		else
@@ -599,6 +599,7 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 					applyChange();
 				}          		            	 	
 			} );  
+		/*
 		windBarbText = new Text(btnGp, SWT.BORDER | SWT.SINGLE);
 		windBarbText.setText(Integer.toString(windBarbDistance));
 		windBarbText.setBounds(windBarbBtn.getBounds().x+windBarbBtn.getBounds().width, windBarbBtn.getBounds().y,btnWidth/4,btnHeight);
@@ -620,7 +621,7 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 				}
 				
 			}
-		});
+		});*/
 		Label tempOffsetLbl = new Label(btnGp, SWT.BORDER );
 		tempOffsetLbl.setText("Temperature Range Offset ");
 		tempOffsetLbl.setBounds(btnGp.getBounds().x+ btnGapX, windBarbBtn.getBounds().y + windBarbBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
@@ -732,11 +733,11 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
 		//"Enter" key is pressed, or "Apply" button is pressed.
 		//Chin: handle user entered data and apply its changes.
 		//System.out.println("CR is pressed");
-		String textStr = windBarbText.getText();
-		if((textStr != null) && !(textStr.isEmpty())){
-			windBarbDistance = Integer.decode(textStr);
-		}
-		textStr = tempOffsetText.getText();
+		//String textStr = windBarbText.getText();
+		//if((textStr != null) && !(textStr.isEmpty())){
+		//	windBarbDistance = Integer.decode(textStr);
+		//}
+		String textStr = tempOffsetText.getText();
 		if((textStr != null) && !(textStr.isEmpty())){
 			if(!textStr.contains("-") || textStr.length() > 1){
 				tempOffset = Integer.decode(textStr);
@@ -788,7 +789,7 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
     }
 	@Override
 	public boolean close() {
-		tempBtn= dewpBtn= parcelBtn= parcelAscentBtn=dcapeBtn=vTempBtn= wetBulbBtn= mixingRatioBtn= 
+		tempBtn= dewpBtn= parcelTvBtn= parcelBtn=dcapeBtn=vTempBtn= wetBulbBtn= mixingRatioBtn= 
 		dryAdiabatBtn=moisAdiabatBtn=efflayerBtn=omegaBtn= meanWindVectorBtn= stormMVector3075Btn= stormMVector1585Btn=
 		stormMVectorBunkersRightBtn=stormMVectorBunkersLeftBtn= corfidiVectorBtn= hodoBtn=windBarbBtn=null;
 		//thisDialog= null;
@@ -796,7 +797,7 @@ public class NsharpParametersSelectionConfigDialog extends Dialog {
     }
 
 	public void reset(){
-		windBarbDistance=NsharpNativeConstants.WINDBARB_DISTANCE_DEFAULT;
+		//windBarbDistance=NsharpNativeConstants.WINDBARB_DISTANCE_DEFAULT;
 		tempOffset=0;
 	}
 

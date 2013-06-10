@@ -50,6 +50,9 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 26 Nov 2012    #15554     lbousaidi	 used obstime instead of system time in isNear12Z
  * 										 routine.
  * 4 Dec  2012    #15569     lbousaidi   fixed daily pp value when token is set to USE_REVCODE
+ * 02 Feb 2012    #15845     lbousaidi   added check for data that comes in as -999
+ * 07 May 2013    #15880     lbousaidi   changed pPE parameter because it was inserting to the
+ *                                       wrong hour field.
  * </pre>
  * 
  * @author mnash
@@ -309,6 +312,13 @@ public class GagePP {
                             + MISSING_PRECIP);
                     value = MISSING_PRECIP;
                 }
+                /* This was added for KRF site that was getting missing values -999
+                 * 
+                 */
+                
+                if (value ==-99900.0) {
+                     value = MISSING_PRECIP;
+                }
 
                 /*
                  * Make certain that the value is properly rounded. This will
@@ -551,10 +561,10 @@ public class GagePP {
 
         int minute = dt.get(Calendar.MINUTE);
         
-        if (((pPE.charAt(1) == 'P' && minute >= MINUTES_PER_HOUR
-                - pOptions.getIntlppp()))
-                || (pPE.charAt(1) == 'C' && minute >= MINUTES_PER_HOUR
-                        - pOptions.getIntpc())) {
+        if (rec.getPhysicalElement().getCode().charAt(1) == 'C'
+                          && minute >= MINUTES_PER_HOUR - pOptions.getIntpc()
+                  || (pPE.charAt(1) == 'P'
+                          &&  minute >= MINUTES_PER_HOUR - pOptions.getIntlppp())) {
             hour++;
             dt.add(Calendar.HOUR_OF_DAY, 1);
             rec.setObsTime(dt.getTime());

@@ -93,7 +93,10 @@ import com.raytheon.uf.viz.alertviz.ui.dialogs.ConfigurationFileDlg.Function;
  * 									   setting group to perform the updating.
  * 20 Dec 2012	 13746	   Xiaochuan   Add setNewConfig in omitMenuItem.addSelectionListener
  * 									   to send notify for the changing.	
- * 									   
+ * 07 Feb 2013	 15292	   Xiaochuan   Confirmation message is not necessary when source 
+ * 									   item update;	
+ * 07 Feb 2013	 15490	   Xiaochuan   Past this object to LayoutControlsComp.
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -376,14 +379,7 @@ public class AlertVisConfigDlg extends Dialog implements
                 getLayoutToolTipText());
 
         mttLayout = new MonitorToolTip(layoutGroup, true);
-
-        // layoutGroup.addMouseTrackListener(new MouseTrackAdapter() {
-        // public void mouseHover(MouseEvent e) {
-        // mttLayout.open();
-        // }
-        // });
-
-        layoutControls = new LayoutControlsComp(layoutGroup, configData, this);
+		layoutControls = new LayoutControlsComp(layoutGroup, configData, this, this);
     }
 
     /**
@@ -684,7 +680,7 @@ public class AlertVisConfigDlg extends Dialog implements
                     @Override
                     public void widgetSelected(SelectionEvent ev) {
                         try {
-                            saveWithConfirmDlg();
+							save();
                         } catch (Exception e) {
                             Container
                                     .logInternal(
@@ -1293,7 +1289,6 @@ public class AlertVisConfigDlg extends Dialog implements
         }
 
         if (selectedItem != null) {
-//            sourcesList.select(sourcesList.indexOf(selectedItem));
         	sourcesList.select(index);
         } else {
             sourcesList.select(0);

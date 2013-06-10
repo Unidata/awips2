@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Spinner;
 
 import com.raytheon.uf.common.dataplugin.shef.tables.Rwradarresult;
 import com.raytheon.viz.hydrocommon.whfslib.IHFSDbGenerated;
-import com.raytheon.viz.mpe.MPEConstants;
+import com.raytheon.viz.mpe.MPEDateFormatter;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -233,8 +233,8 @@ public class EditBiasDlg extends CaveSWTDialog {
     private void applyBiasUpdate() {
         String where = "";
         float memspan = -99.0f;
-        Date dt3 = MPEDisplayManager.getCurrent().getCurrentDate();
-        String date = MPEConstants.DATE_FORMAT_YYYYMMDDHHMMSS.format(dt3);
+        Date dt3 = MPEDisplayManager.getCurrent().getCurrentEditDate();
+        String date = MPEDateFormatter.format_yyyyMMddHHmmss(dt3);
 
         ArrayList<Rwradarresult> rwr = new ArrayList<Rwradarresult>();
         Rwradarresult rwrr = new Rwradarresult();

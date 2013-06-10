@@ -139,6 +139,9 @@ public class ArealSelectionDlg extends CaveSWTDialog implements IDataSize {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 if (!areaComp.isEnvelopeValid()) {
+                    DataDeliveryUtils.showMessage(getShell(), SWT.OK,
+                            "Validation Error",
+                                    "The defined area area is invalid\nAdjust the selected area and try again.");
                     return;
                 }
 

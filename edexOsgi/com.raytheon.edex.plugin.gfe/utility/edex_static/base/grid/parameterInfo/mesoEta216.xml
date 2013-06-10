@@ -148,7 +148,7 @@
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>staticCoriolis</short_name>
     <long_name>Coriolis parameter</long_name>
-    <units>/second</units>
+    <units>/s</units>
     <fillValue>-99999.0</fillValue>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">

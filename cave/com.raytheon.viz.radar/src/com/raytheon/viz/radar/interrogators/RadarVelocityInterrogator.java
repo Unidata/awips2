@@ -25,7 +25,9 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
+import com.raytheon.uf.common.dataplugin.radar.util.RadarDataInterrogator;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * TODO Add Description
@@ -36,6 +38,7 @@ import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 5, 2010            mnash     Initial creation
+ * 05/02/2013   DR 14587   D. Friedman Store base velocity in map.
  * 
  * </pre>
  * 
@@ -122,5 +125,15 @@ public class RadarVelocityInterrogator extends RadarRadialInterrogator
 
             dataMap.put("Shear", String.format("%.4f/s", shear));
         }
+    }
+
+    @Override
+    public Map<String, String> sample(RadarRecord radarRecord,
+            Coordinate latLon, ColorMapParameters params) {
+        Map<String, String> map = super.sample(radarRecord, latLon, params);
+        int dataValue = interrogator.getDataValue(latLon,
+                RadarDataInterrogator.DataType.BASE_VELOCITY);
+        addValueToMap(dataValue, "baseVelocity-", radarRecord, params, map);
+        return map;
     }
 }

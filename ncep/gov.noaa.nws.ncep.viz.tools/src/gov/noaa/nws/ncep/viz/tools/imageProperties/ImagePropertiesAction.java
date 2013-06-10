@@ -1,6 +1,6 @@
 package gov.noaa.nws.ncep.viz.tools.imageProperties;
 
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -45,7 +45,7 @@ public class ImagePropertiesAction extends AbstractHandler {
 
     	if( dlg == null ) {
     		try {
-    			dlg = new ImagingDialog( NmapUiUtils.getCaveShell(),
+    			dlg = new ImagingDialog( NcDisplayMngr.getCaveShell(),
     					"Image Properties" );
 
     			dlg.open();

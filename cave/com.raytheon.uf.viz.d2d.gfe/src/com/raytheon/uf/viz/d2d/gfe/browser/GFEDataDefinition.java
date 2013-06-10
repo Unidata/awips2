@@ -20,24 +20,16 @@
 package com.raytheon.uf.viz.d2d.gfe.browser;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.dataplugin.gfe.dataaccess.GFEDataAccessUtil;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
-import com.raytheon.uf.viz.d2d.gfe.GFEUtil;
 import com.raytheon.uf.viz.d2d.gfe.rsc.GFEGridResourceData;
 import com.raytheon.uf.viz.productbrowser.AbstractRequestableProductBrowserDataDefinition;
-import com.raytheon.uf.viz.productbrowser.ProductBrowserLabel;
-import com.raytheon.uf.viz.productbrowser.ProductBrowserPreference;
 import com.raytheon.viz.grid.rsc.GridLoadProperties;
 
 /**
@@ -51,6 +43,9 @@ import com.raytheon.viz.grid.rsc.GridLoadProperties;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 9, 2011            bsteffen     Initial creation
+ * May 02, 2013 1949       bsteffen    Update GFE data access in Product
+ *                                     Browser, Volume Browser, and Data Access
+ *                                     Framework.
  * 
  * </pre>
  * 
@@ -60,22 +55,11 @@ import com.raytheon.viz.grid.rsc.GridLoadProperties;
 public class GFEDataDefinition extends
         AbstractRequestableProductBrowserDataDefinition<GFEGridResourceData> {
 
-    public static final String SITE_ID = "siteId";
-
-    public static final String DB_TYPE = "dbType";
-
-    public static final String MODEL_NAME = "modelName";
-
-    public static final String MODEL_TIME = "modelTime";
-
-    public static final String PARM_NAME = "parmName";
-
-    public static final String PARM_LEVEL = "parmLevel";
-
     public GFEDataDefinition() {
         productName = "gfe";
         displayName = "GFE";
-        order = new String[] { SITE_ID, MODEL_NAME, PARM_NAME, PARM_LEVEL };
+        order = new String[] { GFEDataAccessUtil.SITE_ID, GFEDataAccessUtil.MODEL_NAME,
+                GFEDataAccessUtil.PARM_NAME, GFEDataAccessUtil.PARM_LEVEL };
         order = getOrder();
         loadProperties = new GridLoadProperties();
         loadProperties.setResourceType(getResourceType());
@@ -102,136 +86,4 @@ public class GFEDataDefinition extends
         return type;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.productbrowser.
-     * AbstractRequestableProductBrowserDataDefinition
-     * #buildProductList(java.util.List)
-     */
-    @Override
-    public List<String> buildProductList(List<String> historyList) {
-        String[] parameters = queryData(GFEUtil.PARM_ID,
-                getProductParameters(new String[0], null));
-        List<String> result = new ArrayList<String>();
-        for (String orderString : order) {
-            List<ProductBrowserLabel> labels = formatData(orderString,
-                    parameters);
-            for (ProductBrowserLabel label : labels) {
-                if (!result.contains(label.getName())) {
-                    result.add(label.getName());
-                }
-            }
-        }
-        return Collections.emptyList();
-    }
-
-    @Override
-    public String populateInitial() {
-        if (!isEnabled()) {
-            return null;
-        }
-        String[] parameters = queryData(GFEUtil.PARM_ID,
-                getProductParameters(new String[0], null));
-
-        if (parameters != null) {
-            if (parameters.length > 0) {
-                return displayName;
-            } else {
-                return null;
-            }
-        } else {
-            return null;
-        }
-
-    }
-
-    @Override
-    protected String[] queryData(String param,
-            HashMap<String, RequestConstraint> queryList) {
-        return super.queryData(GFEUtil.PARM_ID, queryList);
-    }
-
-    @Override
-    public List<ProductBrowserLabel> formatData(String param,
-            String[] parameters) {
-        Set<ProductBrowserLabel> labels = new HashSet<ProductBrowserLabel>();
-        for (String value : parameters) {
-            String label = value;
-            try {
-                ParmID parmId = new ParmID(value);
-                if (param.equals(SITE_ID)) {
-                    label = parmId.getDbId().getSiteId();
-                } else if (param.equals(MODEL_NAME)) {
-                    label = parmId.getDbId().getModelName();
-                } else if (param.equals(MODEL_TIME)) {
-                    label = parmId.getDbId().getModelTime();
-                } else if (param.equals(DB_TYPE)) {
-                    label = parmId.getDbId().getDbType();
-                } else if (param.equals(PARM_NAME)) {
-                    label = parmId.getParmName();
-                } else if (param.equals(PARM_LEVEL)) {
-                    label = parmId.getParmLevel();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            labels.add(new ProductBrowserLabel(label, label));
-        }
-        ArrayList<ProductBrowserLabel> finalLabels = new ArrayList<ProductBrowserLabel>(
-                labels);
-        Collections.sort(finalLabels);
-        return finalLabels;
-    }
-
-    @Override
-    public HashMap<String, RequestConstraint> getProductParameters(
-            String[] selection, String[] order) {
-        if (order == null) {
-            order = this.order;
-        }
-        String siteId = "%";
-        String modelName = "%";
-        String modelTime = "%";
-        String dbType = "%";
-        String parmName = "%";
-        String parmLevel = "%";
-
-        HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>();
-        queryList.put(PLUGIN_NAME, new RequestConstraint(productName));
-        if (selection.length > 1) {
-            String[] usedSelection = realignSelection(selection);
-            for (int i = 0; i < usedSelection.length; i++) {
-                if (order[i].equals(SITE_ID)) {
-                    siteId = usedSelection[i];
-                } else if (order[i].equals(MODEL_NAME)) {
-                    modelName = usedSelection[i];
-                } else if (order[i].equals(MODEL_TIME)) {
-                    modelTime = usedSelection[i];
-                } else if (order[i].equals(DB_TYPE)) {
-                    dbType = usedSelection[i];
-                } else if (order[i].equals(PARM_NAME)) {
-                    parmName = usedSelection[i];
-                } else if (order[i - 1].equals(PARM_LEVEL)) {
-                    parmLevel = usedSelection[i];
-                }
-            }
-        }
-        String parmId = String.format(GFEUtil.PARM_ID_FORMAT, parmName,
-                parmLevel, siteId, dbType, modelName, modelTime);
-        queryList.put(GFEUtil.PARM_ID, new RequestConstraint(parmId,
-                ConstraintType.LIKE));
-        return queryList;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.productbrowser.xml.IProductBrowserPreferences#
-     * configurePreferences()
-     */
-    @Override
-    public List<ProductBrowserPreference> configurePreferences() {
-        return super.configurePreferences();
-    }
 }

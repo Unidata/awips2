@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Bzip2
-Bundle-SymbolicName: org.apache.tools.bzip2
-Bundle-Version: 1.0.0.qualifier
-Export-Package: org.apache.tools.bzip2
-Bundle-ClassPath: bzip2.jar

@@ -3,6 +3,7 @@
  */
 package gov.noaa.nws.ncep.viz.resources;
 
+import gov.noaa.nws.ncep.viz.common.display.INatlCntrsDescriptor;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData.TimeMatchMethod;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData.TimelineGenMethod;
 import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
@@ -25,6 +26,7 @@ import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeMode;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeOperation;
 import com.raytheon.uf.viz.core.drawables.IFrameCoordinator;
@@ -52,14 +54,15 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  * 										  Remove frameData.setPopulated(true) from processNewRscDataList().
  * 20 Mar 2012     #700      B. Hebbard   In processNewRscDataList(), when new frame(s) are created by auto update,
  *                                        set frame to LAST and issueRefresh() to force paint (per legacy; TTR 520).
+ * 06 Feb 2013     #972      G. Hull      define on IDescriptor instead of IMapDescriptor
  * 
  * </pre>
  * 
  * @author ghull
  * @version 1
  */
-public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsRequestableResourceData, D extends IMapDescriptor>
-		extends AbstractVizResource<AbstractNatlCntrsRequestableResourceData, IMapDescriptor>
+public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsRequestableResourceData, D extends INatlCntrsDescriptor>
+		extends AbstractVizResource<AbstractNatlCntrsRequestableResourceData, IDescriptor>
 		implements INatlCntrsResource {	
 	
 	// 
@@ -123,6 +126,16 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 		        startTime = new DataTime( frameTime.getValidTime() );
 		        endTime   = new DataTime( frameTime.getValidTime() );
 			}
+			// Note : Currently this is implemented the same as Exact. (ie the frame time
+			// must be between the start/end time of an event.) A more general algorithm 
+			// could be implemented to use the frame span and test whether any part of the
+			// event overlaps with any part of the frame span. But currently, for Event resources,
+			// the frame span is taken as the default frame interval for a manual timeline and so
+			// this would need to be addressed first.)
+			case EVENT : {
+		        startTime = new DataTime( frameTime.getValidTime() );
+		        endTime   = new DataTime( frameTime.getValidTime() );
+			}
 			case CLOSEST_BEFORE_OR_AFTER : {
 		        startTime = new DataTime( new Date(frameMillis - frameInterval*1000*60/2 ) );
 		        endTime   = new DataTime( new Date(frameMillis + frameInterval*1000*60/2-1000 ) );
@@ -163,7 +176,7 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 			
 			switch( resourceData.getTimeMatchMethod() ) {
 
-			case EXACT : {
+			case EXACT : case EVENT : {
 				long frameTimeMillis = frameTime.getValidTime().getTimeInMillis();
 				
 				if( dataTimeRange.isValid() ) {
@@ -430,10 +443,21 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 		return frmTimes;
 	}
 	
-	public NCMapDescriptor getNCMapDescriptor() {
+	@Override
+	public INatlCntrsDescriptor getDescriptor() {
+		if( super.getDescriptor() instanceof INatlCntrsDescriptor ) {
+			return (INatlCntrsDescriptor) super.getDescriptor();			
+		}
+		System.out.println("AbstractNatlCntrResource.getDescriptor() returning null????");
+		return null;
+	}
+	
+	// this should only be called by resources that are instantiated with an NcMapDescriptor
+	protected NCMapDescriptor getNcMapDescriptor() {
 		if( getDescriptor() instanceof NCMapDescriptor ) {
 			return (NCMapDescriptor)getDescriptor();			
 		}
+		System.out.println("GetNcMapDescriptor() returning null????");
 		return null;
 	}
 	
@@ -465,7 +489,7 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
     		//
 //            ((AbstractDescriptor) descriptor).getTimeMatchingMap().put(
 //            		 this, frameTimes.toArray( new DataTime[0] ) );
-            ((NCMapDescriptor) descriptor).setFrameTimesForResource( 
+            ((INatlCntrsDescriptor)descriptor).setFrameTimesForResource( 
             		this, frameTimes.toArray( new DataTime[0] ) );
             // each resource may decide when and how to populate the frameData.
     		initResource( grphTarget );
@@ -482,7 +506,7 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 		
 		if( !newRscDataObjsQueue.isEmpty() ||
 			(!newFrameTimesList.isEmpty() &&
-			  getNCMapDescriptor().isAutoUpdate()) ) {
+			  getDescriptor().isAutoUpdate()) ) {
 			processNewRscDataList();
 		}
 		
@@ -592,7 +616,7 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 		// update the timeline and process the data in the cache.
 		//
 		if( !newFrameTimesList.isEmpty() &&
-			getNCMapDescriptor().isAutoUpdate() ) {
+				getDescriptor().isAutoUpdate() ) {
 			
 			// update the list of times in the timeMatcher.
 			// this will then trigger the descriptor to update its datatimes and 

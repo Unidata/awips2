@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <isEnabled>true</isEnabled>
     <inventoryEnabled>true</inventoryEnabled>
     <resourceDefnName>TAF</resourceDefnName>
     <resourceCategory>SURFACE</resourceCategory>
@@ -11,13 +10,12 @@ spiFile=MTR.spi
 legendString=TAF
 legendColor=RGB {0, 255, 0}
     </resourceParameters>
-    <filterLabels>Forecast</filterLabels>
     <rscImplementation>SurfacePlot</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
     <frameSpan>60</frameSpan>
-    <timelineGenMethod>USE_FRAME_INTERVAL</timelineGenMethod>
+    <timelineGenMethod>USE_FCST_FRAME_INTERVAL_FROM_REF_TIME</timelineGenMethod>
     <dfltFrameCount>999</dfltFrameCount>
     <dfltTimeRange>30</dfltTimeRange>
     <dfltGeogArea>BasicWX_US</dfltGeogArea>

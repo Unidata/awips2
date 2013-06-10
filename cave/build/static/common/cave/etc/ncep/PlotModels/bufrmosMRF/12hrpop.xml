@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<plotModel svgTemplate="standardPlotModelTemplate.svg" plugin="bufrmosMRF" name="12hrpop">
+
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="STID">
+        <Position>BC</Position>
+        <Color red="205" green="133" blue="0"/>  <!-- GEMPAK#18 -->
+    </PlotModelElement>
+
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="PP12">
+        <Position>ML</Position>
+        <Color red="0" green="178" blue="238"/>
+    </PlotModelElement>
+
+  <!-- 
+   <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="PP1A">
+        <Position>MR</Position>
+        <Color red="0" green="178" blue="238"/>
+    </PlotModelElement>
+   --> 
+
+
+
+   
+</plotModel>

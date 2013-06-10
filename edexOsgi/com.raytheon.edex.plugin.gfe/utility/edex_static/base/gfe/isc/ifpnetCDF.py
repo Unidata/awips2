@@ -20,6 +20,7 @@
 
 
 import string, getopt, sys, time, gzip, os, LogStream, stat, traceback
+from collections import OrderedDict
 import numpy
 #import pupynere as NetCDF
 try:
@@ -60,65 +61,22 @@ from com.raytheon.uf.common.localization import LocalizationContext_Localization
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    07/06/09        1995          bphillip       Initial Creation.
-#    
+#    03/11/13        1759          dgilling       Removed unneeded methods.
+#    04/23/13        1937          dgilling       Reimplement WECache to match
+#                                                 A1, big perf improvement.
+#    05/23/13        1759          dgilling       Remove unnecessary imports.
 # 
 #
 
-
-BATCH_WRITE_COUNT = 10 
+# Original A1 BATCH WRITE COUNT was 10, we found doubling that
+# lead to a significant performance increase.
+BATCH_WRITE_COUNT = 20 
 BATCH_DELAY = 0.0
-
-###-------------------------------------------------------------------------###
-###  Prints the usage message
-def usage():
-   print """
- -h hostname:        Host name upon which the ifpServer is running.
- -r RPC port:        RPC port upon which the ifpServer is running.
- -u userID:          The user ID to connect with
- -o output file:     Specifies the name of the output file.
- -d database id:     DatabaseID from which to get the data.
-                         format: (DEN_GRID__eta_19980604_1200)
- -p parmName:        Optional. If none specified, get all parms for
-                         the database listed.  There may be several
-                         parm names specified.
- -s start time:      Optional.  If no start time specified,
-                         make start time = 0.
-                         format: YYYYMMDD_HHMM (e.g. 19980604_1200)
- -e end time:        Optional.  If no end time specified, make end
-                         time = Abstime::MaxFutureTime().
-                         format: (19980604_1200)
- -m mask             Optional. Specifies the edit area to be used
-                         as the clip mask. If no mask was specified
-                         then the entire domain will be used. All
-                         values outside the mask will be assigned
-                         a missing value.
- -t [no argument]    Optional. If present, trim data resolution.
- -g [no argument]    Optional. If present, topography, latitude
-                        and longitude grids will be stored.
- -c [no argument]    Optional. If present, the netCDF file will be
-                        compressed by the gzip.
- -f factor           Optional. When provided in conjunction with the -c switch,
-                        provides the compression factor of gzip (1-9). Default
-                        is 6.
- -k [no argument]    Optional. If present, the netCDF file is really
-                        shrunk, by using bytes and shorts to represent floats.
-                        Requires the -t switch.
- -C configIntervalFilename
-                     Optional. If present, controls the interval/spacing of
-                        the grids. Identifies a configuration file defining
-                        the timing constraints. The filename identifies a
-                        file within the ifpServer TEXT/Utility directory and
-                        must be a Python file.
-
-"""
-
-
 ifpNetcdfLogger=None
 
 ## Logging methods ##
 def initLogger(logFile=None):
     global ifpNetcdfLogger
-    import logging, siteConfig
     ifpNetcdfLogger = iscUtil.getLogger("ifpnetCDF",logFile)
 
 def logEvent(*msg):
@@ -135,177 +93,65 @@ def logVerbose(*msg):
 
 def logDebug(*msg):
     logVerbose(iscUtil.tupleToString(*msg))
-    
-###-------------------------------------------------------------------------###
-###  Parses the command line options and saves the data in argDict
-def getArgs(argv):
-    try:
-        optlist, args = getopt.getopt(argv[1:],
-          'v:h:r:o:p:d:s:e:u:m:gctkf:C:') 
-       # optlist, args = getopt.getopt(sys.argv[1:],
-       #   'h:r:o:p:d:s:e:u:m:gctkf:C:') 
-    except getopt.error, val:
-        print val
-        usage()
-        return
 
-    # initialize input arguments
-    host = ""
-    port = -1 
-    outputFilename = "" 
-    parmList = []
-    databaseID = ""
-    startTime = ""
-    endTime = ""
-    mask = ""
-    geoInfo = 0
-    compressFile = 0
-    trim = 0
-    userID = "SITE"
-    krunch = 0
-    compressFileFactor = 6
-    configFileName = None
-    logFile=None
-
-    try:
-        import siteConfig
-        host = siteConfig.GFESUITE_SERVER 
-        port = int(siteConfig.GFESUITE_PORT)
-    except:
-        pass
-
-    for opt in optlist:
-        if opt[0] == '-h':
-            host = opt[1]
-        elif opt[0] == '-r':
-            port = int(opt[1]) 
-        elif opt[0] == '-o':
-            outputFilename = opt[1]
-        elif opt[0] == '-C':
-            configFileName = opt[1]
-        elif opt[0] == '-p':
-            p = opt[1]
-            # Add SFC if necessary
-            if string.find(p, "_SFC") == -1:
-                p = p + "_SFC"
-            if p not in parmList:
-                parmList.append(p)
-        elif opt[0] == '-d':
-            databaseID = opt[1]
-        elif opt[0] == '-u':
-            userID = opt[1]
-        elif opt[0] == '-s':
-            startTime = opt[1]
-        elif opt[0] == '-f':
-            compressFileFactor = int(opt[1])
-        elif opt[0] == '-e':
-            endTime = opt[1]
-        elif opt[0] == '-m':
-            mask = opt[1]
-        elif opt[0] == '-g':
-            geoInfo = 1
-        elif opt[0] == '-t':
-            trim = 1
-        elif opt[0] == '-k':
-            krunch = 1
-        elif opt[0] == '-c':
-            compressFile = 1
-        elif opt[0] == '-v':
-            logFile=opt[1]
-        
-    # Create dictionary of arguments
-    argDict = {
-        "host" : host,
-        "port" : port,
-        "outputFilename": outputFilename,
-        "parmList": parmList,
-        "databaseID": databaseID,
-        "startTime": startTime,
-        "endTime": endTime,
-        "mask": mask,
-        "geoInfo": geoInfo,
-        "compressFile" : compressFile,
-        "configFileName" : configFileName,
-        "compressFileFactor" : compressFileFactor,
-        "trim" : trim,
-        "krunch" : krunch,
-        "userID" : userID,
-        "logFile" : logFile,
-        }
-    return argDict
-
-###-------------------------------------------------------------------------###
-###  Checks each argument and takes action where appropriate
-def checkArgs(argDict):
-    if argDict['host'] == '':
-        usage()
-        logProblem("You must specify an ifpServer host name.")
-        raise Exception, "You must specify an ifpServer host name."
-    if argDict['port'] == -1:
-        usage()
-        logProblem("You must specify an ifpServer port number.")
-        raise Exception, "You must specify an ifpServer port number."
-    if argDict['databaseID'] == '':
-        usage()
-        logProblem("You must specify a database id.")
-        raise Exception, "You must specify a database id."
-    if argDict['outputFilename'] == '':
-        argDict['outputFilename'] = 'ifpnetCDFFile.cdf'
-
-    # validate start/end times
-    if argDict['startTime'] == '':
-        argDict['startTime'] = '19700101_0000'
-    if argDict['endTime'] == '':
-        argDict['endTime'] = '20371231_2359'
-
-    # must have trim, if krunch specified
-    if argDict['krunch'] == 1 and argDict['trim'] == 0:
-        argDict['krunch'] = 0
-
-
-    return argDict
 
 class WECache(object):
     def __init__(self, we, inv):
         self._we = we
-        self._grids = []
-        self._hist = []
-        self._inv = []
-        lst = []
+        self._inv = OrderedDict()
         lst = list(inv)
         while len(lst):
             i = lst[:BATCH_WRITE_COUNT]
-            self._inv = self._inv + list(i)
+            javaTRs = ArrayList()
+            for tr in i:
+                javaTRs.add(iscUtil.toJavaTimeRange(tr))
+            gridsAndHist = self._we.get(javaTRs, True)
+            for idx, tr in enumerate(i):
+                pair = gridsAndHist.get(idx)
+                g = self.__encodeGridSlice(pair.getFirst())
+                h = self.__encodeGridHistory(pair.getSecond())
+                self._inv[tr] = (g, h)
             lst = lst[BATCH_WRITE_COUNT:]
             time.sleep(BATCH_DELAY)
 
     def keys(self):
-        return tuple(self._inv)
+        return tuple(self._inv.keys())
 
     def __getitem__(self, key):
-        grid = self._we.getItem(iscUtil.toJavaTimeRange(key))
-        history = grid.getGridDataHistory()
-        hist = []
-        for i in range(0, history.size()):
-            hist.append(history.get(i).getCodedString())
+        try:
+            return self._inv[key]
+        except KeyError:
+            grid = self._we.getItem(iscUtil.toJavaTimeRange(key))
+            pyGrid = self.__encodeGridSlice(grid)
+            history = grid.getGridDataHistory()
+            pyHist = self.__encodeGridHistory(history)
+            return (pyGrid, pyHist)
+    
+    def __encodeGridSlice(self, grid):
         gridType = grid.getGridInfo().getGridType().toString()
         if gridType == "SCALAR":
-            return (grid.__numpy__[0], hist)
+            return grid.__numpy__[0]
         elif gridType == "VECTOR":
             vecGrids = grid.__numpy__
-            return ((vecGrids[0], vecGrids[1]), hist)
+            return (vecGrids[0], vecGrids[1])
         elif gridType == "WEATHER":
             keys = grid.getKeys()
             keyList = []
             for theKey in keys:
                 keyList.append(theKey.toString())
-            return ((grid.__numpy__[0],keyList), hist)
+            return (grid.__numpy__[0], keyList)
         elif gridType =="DISCRETE":
             keys = grid.getKey()
             keyList = []
             for theKey in keys:
                 keyList.append(theKey.toString())
-            return ((grid.__numpy__[0],keyList), hist)
+            return (grid.__numpy__[0], keyList)
+    
+    def __encodeGridHistory(self, histories):
+        retVal = []
+        for i in xrange(histories.size()):
+            retVal.append(histories.get(i).getCodedString())
+        return tuple(retVal)
 
 
 ###-------------------------------------------------------------------------###
@@ -1474,24 +1320,39 @@ def determineSamplingValues(samplingDef, parmName, inventory, currentTime):
     return inven
 
 
-
-
-
-def executeIfpNetCDF(host, port, outputFilename, parmList, databaseID, startTime, endTime, mask, geoInfo, compressFileFlag, configFileName, compressFileFactor, trim, krunch, userID):
-
-    if ifpNetcdfLogger is None:
-        initLogger()
-        
-    if type(parmList) != list:
-        parmList = JUtil.javaStringListToPylist(parmList)
-        
-    argDict = {"host":host, "port":port, "outputFilename":outputFilename, "parmList":parmList,
-               "databaseID":databaseID, "startTime":startTime, "endTime":endTime, "mask":mask,
-               "geoInfo":geoInfo, "compressFile":compressFileFlag, "configFileName":configFileName,
-               "compressFileFactor":compressFileFactor, "trim":trim, "krunch":krunch, "userID":userID}
-
-    argDict = checkArgs(argDict) 
+###-------------------------------------------------------------------------###
+### Main program
+def main(outputFilename, parmList, databaseID, startTime,
+         endTime, mask, geoInfo, compressFileFlag, configFileName, 
+         compressFileFactor, trim, krunch, userID, logFileName):
+    initLogger(logFileName)
     
+    
+#    LogStream.ttyLogOn()
+    logEvent("ifpnetCDF Starting")
+#    LogStream.logEvent(AFPS.DBSubsystem_getBuildDate(),
+#      AFPS.DBSubsystem_getBuiltBy(), AFPS.DBSubsystem_getBuiltOn(),
+#      AFPS.DBSubsystem_getBuildVersion())
+
+    try:
+        len(parmList)
+    except TypeError:
+        parmList = JUtil.javaObjToPyVal(parmList)
+    argDict = {"outputFilename": outputFilename, 
+               "parmList": parmList,
+               "databaseID": databaseID, 
+               "startTime": startTime,
+               "endTime": endTime, 
+               "mask": mask, 
+               "geoInfo": bool(geoInfo), 
+               "compressFile": bool(compressFileFlag), 
+               "configFileName": configFileName, 
+               "compressFileFactor": int(compressFileFactor), 
+               "trim": bool(trim), 
+               "krunch": bool(krunch), 
+               "userID": userID}
+    logEvent("Command: ", argDict)
+
     a = os.times()
     cpu0 = a[0] + a[1]
     start = a[4]
@@ -1500,7 +1361,7 @@ def executeIfpNetCDF(host, port, outputFilename, parmList, databaseID, startTime
     try:
         timeRange = makeTimeRange(argDict['startTime'], argDict['endTime'])
     except:
-        return
+        sys.exit(1)
     
     # See if the databaseID is valid.  An exception will be tossed
     db = IFPDB(argDict['databaseID'])
@@ -1617,34 +1478,12 @@ def executeIfpNetCDF(host, port, outputFilename, parmList, databaseID, startTime
       "%-.2f" % (stop - stop1), "/", "%-.2f" % (cpugz - cpu), "compress,",
       "%-.2f" % (stop - start), "/", "%-.2f" % (cpugz - cpu0), "total")
     #logEvent("stats: ", client.getStats())
-    
-
-
-###-------------------------------------------------------------------------###
-### Main program
-def main(argv): 
-    
-    #LogStream.logEvent(AFPS.DBSubsystem_getBuildDate(),
-    #  AFPS.DBSubsystem_getBuiltBy(), AFPS.DBSubsystem_getBuiltOn(),
-    #  AFPS.DBSubsystem_getBuildVersion())
-
-    if type(argv) is not list:
-        argv = JUtil.javaStringListToPylist(argv) 
-    argDict = getArgs(argv) 
-
-    initLogger(argDict["logFile"])
-    logEvent("ifpnetCDF Starting")
-    logEvent("Command: ",iscUtil.tupleToString(*argv))
-
-    executeIfpNetCDF(argDict["host"], argDict["port"], argDict["outputFilename"], argDict["parmList"], argDict["databaseID"],
-                     argDict["startTime"], argDict["endTime"], argDict["mask"], argDict["geoInfo"], argDict["compressFile"],
-                     argDict["configFileName"], argDict["compressFileFactor"], argDict["trim"], argDict["krunch"], argDict["userID"])
-
     logEvent("ifpnetCDF Finished")
 
-if __name__ == "__main__":
-    pass
-    #main()
+
+
+#if __name__ == "__main__":
+#    main()
     # profile stuff
 #     import profile, pstats
 #     profile.run('main()', 'pyprof.out')
@@ -1652,4 +1491,3 @@ if __name__ == "__main__":
 #     p.strip_dirs()
 #     p.sort_stats('time', 'calls').print_stats(15)
 #     p.print_callers(15)
-

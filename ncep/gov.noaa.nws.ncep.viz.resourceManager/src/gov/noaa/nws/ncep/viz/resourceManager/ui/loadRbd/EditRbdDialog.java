@@ -1,8 +1,9 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.loadRbd;
 
 import gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd.CreateRbdControl;
-import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
+import gov.noaa.nws.ncep.viz.resources.manager.AbstractRBD;
 import gov.noaa.nws.ncep.viz.resources.manager.RscBundleDisplayMngr;
+import gov.noaa.nws.ncep.viz.ui.display.NcPaneLayout;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -11,8 +12,6 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
@@ -23,6 +22,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 02/16/11      #408       Greg Hull    Created
+ * 02/22/2013    #972       Greg Hull    work with AbstractRBD
  *                                       
  * </pre>
  * 
@@ -39,11 +39,10 @@ public class EditRbdDialog extends Dialog {
     
     private CreateRbdControl createRbdCntr = null;
     
-	public EditRbdDialog( Shell parShell, RbdBundle seldRbd )  throws VizException {
+	public EditRbdDialog( Shell parShell, AbstractRBD<?> seldRbd ) throws VizException {
     	super(parShell);
 
-    	rbdMngr = new RscBundleDisplayMngr();
-		rbdMngr.init();
+    	rbdMngr = new RscBundleDisplayMngr( new NcPaneLayout(6,6), seldRbd.getDisplayType() );
 
 		shell = new Shell( parShell, SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL );
 		shell.setText( "Edit RBD "+seldRbd.getRbdName() );
@@ -80,7 +79,7 @@ public class EditRbdDialog extends Dialog {
         return isOpen; // shell != null && !shell.isDisposed();
     }
 
-    public RbdBundle open() {
+    public AbstractRBD<?> open() {
     	Shell parent = getParent();
     	Display display = parent.getDisplay();
 

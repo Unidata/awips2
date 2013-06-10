@@ -15,11 +15,12 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.viz.core;bundle-version="1.12.1174",
  com.raytheon.viz.core.graphing;bundle-version="1.12.1174",
  com.raytheon.uf.viz.xy.timeseries;bundle-version="1.12.1174",
- javax.measure;bundle-version="1.0.0"
+ javax.measure;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
+ com.raytheon.uf.common.comm;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.grid,
- com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.common.dataplugin.radar,
  com.raytheon.uf.common.dataplugin.radar.util,
  com.raytheon.uf.common.dataquery.requests,

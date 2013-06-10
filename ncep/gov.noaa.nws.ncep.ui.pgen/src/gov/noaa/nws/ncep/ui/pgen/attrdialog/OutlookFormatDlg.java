@@ -8,9 +8,12 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrdialog;
 
+import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
@@ -20,14 +23,23 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.dom.DOMSource;
 
+import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import gov.noaa.nws.ncep.ui.pgen.clipper.ClipProduct;
+import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
+import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
+import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
+import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
+import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
+import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductConfigureDialog;
+import gov.noaa.nws.ncep.ui.pgen.producttypes.ProductType;
 
 import org.dom4j.Document;
 import org.dom4j.Node;
@@ -50,10 +62,14 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
+import org.geotools.referencing.GeodeticCalculator;
+import org.geotools.referencing.datum.DefaultEllipsoid;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Implementation of outlook format dialog.
@@ -67,6 +83,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 03/12		$703		B. Yin		Generate product text from style sheet
  * 05/12		#710		B. Yin		Format HAIL outlook first
  * 07/12		#789		B. Yin		Change all time to UTC.
+ * 11/12		?			B. Yin		Fixed the otlkAll exception.
+ * 01/13		#966		B. Yin		Added clipping functions.
  *
  * </pre>
  * 
@@ -76,7 +94,9 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 public class OutlookFormatDlg  extends CaveJFACEDialog{
 
 	//Outlook initial time and expiration time document
-	static private Document otlkTimesTbl;
+	private static Document otlkTimesTbl;
+	
+	private static HashMap<String,Polygon> bounds;
 	
 	//instance of the outlook attribute dialog
 	private OutlookAttrDlg otlkDlg;
@@ -198,7 +218,7 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		
 		PgenUtil.setUTCTimeTextField(expDt, expTime,  
 				this.getDefaultExpDT(this.getDays().replaceAll(" Fire", "")),dayGrp, 5);
-		
+			
 		setExpDt(this.getDefaultExpDT(this.getDays().replaceAll(" Fire", "")));
 
 		//forecaster
@@ -279,9 +299,10 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 				if ( confirmDlg.getReturnCode() == MessageDialog.OK){
 					msgDlg = new OutlookFormatMsgDlg(OutlookFormatDlg.this.getParentShell(),
 							OutlookFormatDlg.this, otlk, otlkDlg.drawingLayer.getActiveLayer());
-					msgDlg.setBlockOnOpen(false);
+					msgDlg.setBlockOnOpen(true);
 					msgDlg.setMessage(formatOtlk(otlk, otlkDlg.drawingLayer.getActiveLayer()));
-					msgDlg.open();
+					int rt = msgDlg.open();
+					if ( rt == Dialog.OK )cleanup();
 				}
 			}
 		});
@@ -405,6 +426,9 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 				}
 			}
 		}
+		
+		cleanup();
+
 	}
 
 	/**
@@ -441,13 +465,30 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		//msg += generateLineInfo( ol, "\n");
 		msg += ol.generateLineInfo("\n");
 	*/
-		Layer defaultLayer = new Layer();
-		//add watch collection(box and status line)
-		defaultLayer.addElement(this.issueOutlook(ol));
+		Layer defaultLayer = otlkDlg.drawingLayer.getActiveLayer().copy();
+		defaultLayer.clear();
 
 		Product defaultProduct = new Product();
 		defaultProduct.addLayer(defaultLayer);
 
+		String pdName = otlkDlg.drawingLayer.getActiveProduct().getType();
+		ProductType pt = ProductConfigureDialog.getProductTypes().get( pdName);
+		
+		Polygon boundsPoly = null;
+		
+		if ( pt != null && pt.getClipFlag() != null &&  pt.getClipFlag() ) {
+			boundsPoly = getBoundsPoly(pt.getClipBoundsTable(), pt.getClipBoundsName());
+			if ( boundsPoly != null ){
+				processClip( ol, defaultLayer, boundsPoly); 
+			}
+		}
+		
+		if (pt ==null || pt.getClipFlag() == null || !pt.getClipFlag() || boundsPoly == null ) {
+			//add watch collection(box and status line)
+			defaultLayer.addElement(this.issueOutlook(ol));
+		}
+		
+		
 		ArrayList<Product> prds = new ArrayList<Product>();
 		prds.add( defaultProduct );
 		Products fileProduct = ProductConverter.convert( prds );
@@ -686,7 +727,7 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		ol.setDays(getDays().toUpperCase());
 		ol.setIssueTime(getInitTime());
 		ol.setExpirationTime(getExpTime());
-		ol.setLineInfo(ol.generateLineInfo("new_line"));
+		ol.setLineInfo(generateLineInfo(ol, "new_line"));
 		return ol;
 	}
 
@@ -728,4 +769,277 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		}
 		return ret;
 	}
+	
+	/**
+	 * Removes selected element. Refresh editor. Set PGEN selecting mode.
+	 */
+	private void cleanup(){
+		this.close();
+		this.getOtlkDlg().drawingLayer.removeSelected();
+		this.getOtlkDlg().mapEditor.refresh();
+		this.getOtlkDlg().close();
+		PgenUtil.setSelectingMode();
+	}
+	
+	/**
+	 * Clip the input outlook and put it in the layer.
+	 * @param ol
+	 * @param layer
+	 * @param boundsPoly
+	 */
+	private void processClip(Outlook ol, Layer layer, Polygon boundsPoly ){
+	
+		//Plot the bounds polygon.
+		//Line border = new Line(null, new Color[]{Color.MAGENTA},.5f,.5,true,
+		//		false, Arrays.asList(boundsPoly.getCoordinates()), 0,
+		//		FillPattern.FILL_PATTERN_6,"Lines","LINE_SOLID");
+		//otlkDlg.drawingLayer.addElement( border );
+		
+		//clip
+		Outlook clipped = new ClipProduct( boundsPoly, true).clipOutlook(this.issueOutlook(ol) );
+		
+		//Put it in layer
+		layer.addElement(clipped);
+		this.issueOutlook(clipped);
+
+		///Put it in the map editor. 
+		otlkDlg.drawingLayer.replaceElement(ol, clipped);
+		otlk = clipped;
+		
+		//Clean up. Remove ghost. Re-set selected element.
+		if ( !clipped.isEmpty() && clipped.getPrimaryDE() instanceof Line){
+			otlkDlg.setDrawableElement( clipped.getPrimaryDE() );
+			if ( otlkDlg.drawingLayer.getSelectedComp() != null &&  !clipped.isEmpty()) {
+				otlkDlg.drawingLayer.setSelected( clipped.getPrimaryDE());
+			}
+			otlkDlg.drawingLayer.removeGhostLine();
+			otlkDlg.mapEditor.refresh();
+		}
+		else if (clipped.isEmpty()){
+			otlkDlg.drawingLayer.removeSelected();
+			otlkDlg.drawingLayer.removeGhostLine();
+			otlkDlg.mapEditor.refresh();
+		}
+		
+	}
+	
+	/**
+	 * Gets the bounds polygon.
+	 * @param boundsTbl
+	 * @param boundsName
+	 * @return
+	 */
+	private Polygon getBoundsPoly(String boundsTbl, String boundsName){
+		if ( bounds == null ){
+			bounds = new HashMap<String, Polygon>();
+		}
+		
+		//check if the polygon is still in memory.
+		Polygon boundsPoly = bounds.get( boundsTbl + boundsName);
+		
+		//load the bounds polygon.
+		if ( boundsPoly == null){
+			boundsPoly = PgenStaticDataProvider.getProvider().loadBounds(boundsTbl, boundsName);
+			if ( boundsPoly != null ){ 
+				//only keep one polygon in memory
+				bounds.clear();	
+				bounds.put( boundsTbl + boundsName, boundsPoly);
+			}
+		}
+		
+		return boundsPoly;
+	}
+	
+	
+	/**
+	 * Generate from line information for the outlook
+	 * @param ol - outlook element
+	 * @param lineBreaker - new line character
+	 * @return
+	 */
+	private String generateLineInfo( Outlook ol, String lineBreaker ){
+		
+		if ( ol.getOutlookType().equalsIgnoreCase("EXCE_RAIN")) return excessiveRain(ol, lineBreaker);
+			
+		String lnInfo = "";
+		
+		List<Station> anchors = PgenStaticDataProvider.getProvider().getAnchorTbl().getStationList();
+
+		Iterator<AbstractDrawableComponent> it = ol.getComponentIterator();
+		while( it.hasNext() ){
+			AbstractDrawableComponent adc = it.next();
+			if ( adc.getName().equalsIgnoreCase(Outlook.OUTLOOK_LABELED_LINE)){
+				Iterator<DrawableElement> itDe = ((DECollection)adc).createDEIterator();
+				List<Line> lines = new ArrayList<Line>();
+				gov.noaa.nws.ncep.ui.pgen.elements.Text txt = null;
+				while ( itDe.hasNext() ){
+					DrawableElement de = itDe.next();
+					if ( de instanceof gov.noaa.nws.ncep.ui.pgen.elements.Text ) txt = (gov.noaa.nws.ncep.ui.pgen.elements.Text) de;
+					else if ( de instanceof Line ) lines.add((Line)de);
+				}
+				
+				String lblInfo = "";
+				if ( txt == null ){
+					lblInfo += "LABEL -1 -1" + lineBreaker;
+				}
+				else {
+				//	lblInfo += txt.getText()[0];
+					lblInfo = otlkDlg.getTextForLabel(ol.getOutlookType(), txt.getText()[0]);
+				//	if ( this.outlookType.equalsIgnoreCase("FIREOUTL") ) {
+				//		lblInfo += " AREA FIRE WEATHER";
+				//	}
+					lblInfo += lineBreaker;
+					lblInfo += "LABEL " + String.format("%1$5.2f %2$5.2f", txt.getLocation().y, txt.getLocation().x);
+					lblInfo += lineBreaker;;
+				}
+				
+				if ( !lines.isEmpty() ){
+					for ( Line ln : lines ){
+						lnInfo += lblInfo;
+						
+						ArrayList<Coordinate> points = new ArrayList<Coordinate>();
+						points.addAll(ln.getPoints());
+						
+						if ( ln.isClosedLine() ){
+							points.add( points.get(0));
+						}
+						
+						for (Coordinate pt : points ){
+							Station st = WatchBox.getNearestAnchorPt(pt, anchors);
+							GeodeticCalculator gc = new GeodeticCalculator(DefaultEllipsoid.WGS84);
+
+							gc.setStartingGeographicPoint(st.getLongitude(), st.getLatitude() );
+							gc.setDestinationGeographicPoint(pt.x, pt.y  );
+
+							long dist = Math.round( gc.getOrthodromicDistance()/PgenUtil.SM2M);
+							long dir = Math.round(gc.getAzimuth());
+							if ( dir < 0 ) dir += 360;
+
+							lnInfo += String.format("%1$5.2f %2$7.2f%3$4d %4$-3s%5$4s", pt.y, pt.x, dist, 
+									WatchBox.dirs[(int)Math.round(dir/22.5)], st.getStid());
+							lnInfo += lineBreaker;
+
+						}
+						lnInfo += "$$" + lineBreaker;
+					}
+				}
+			}
+			else if ( adc.getName().equalsIgnoreCase( Outlook.OUTLOOK_LINE_GROUP )){
+				Iterator<DrawableElement> itDe = ((DECollection)adc).createDEIterator();
+				ArrayList<Line> lns =  new ArrayList<Line>();
+				gov.noaa.nws.ncep.ui.pgen.elements.Text txt = null;
+				while ( itDe.hasNext() ){
+					DrawableElement de = itDe.next();
+					if ( de instanceof gov.noaa.nws.ncep.ui.pgen.elements.Text ) txt = (gov.noaa.nws.ncep.ui.pgen.elements.Text) de;
+					else if ( de instanceof Line ) lns.add((Line)de);
+				}
+				
+				if ( txt == null ){
+					lnInfo += "LABEL -1 -1" + lineBreaker;
+				}
+				else {
+					lnInfo += txt.getText()[0] + lineBreaker;
+					lnInfo += "LABEL " + String.format("%1$5.2f %2$5.2f", txt.getLocation().y, txt.getLocation().x);
+					lnInfo += lineBreaker;
+				}
+				
+				int iLines = 0;
+				for (Line ln : lns ){
+					iLines++;
+					for (Coordinate pt : ln.getPoints() ){
+						Station st = WatchBox.getNearestAnchorPt(pt, anchors);
+						GeodeticCalculator gc = new GeodeticCalculator(DefaultEllipsoid.WGS84);
+
+						gc.setStartingGeographicPoint(st.getLongitude(), st.getLatitude() );
+						gc.setDestinationGeographicPoint(pt.x, pt.y  );
+
+						long dist = Math.round( gc.getOrthodromicDistance()/PgenUtil.SM2M);
+						long dir = Math.round(gc.getAzimuth());
+						if ( dir < 0 ) dir += 360;
+						
+						lnInfo += String.format("%1$5.2f %2$7.2f%3$4d %4$-3s%5$4s", pt.y, pt.x, dist, 
+								WatchBox.dirs[(int)Math.round(dir/22.5)], st.getStid());
+						lnInfo += lineBreaker;
+						
+					}
+					if ( iLines < lns.size()) lnInfo += "...CONT..." + lineBreaker;
+				}
+				
+				lnInfo += "$$" + lineBreaker;
+			}
+		}
+		
+		return lnInfo;
+	}
+	
+	private String excessiveRain( Outlook ol, String lineBreaker ){
+		String ret = "";
+		
+		String rainTxt = "RISK OF RAINFALL EXCEEDING FFG TO THE RIGHT OF A LINE FROM";
+		String fiveInch = "TOTAL RAINFALL AMOUNTS OF FIVE INCHES WILL BE POSSIBLE TO THE RIGHT OF A LINE FROM";
+		
+		List<Station> sfstns = PgenStaticDataProvider.getProvider().getSfStnTbl().getStationList();
+
+		Iterator<AbstractDrawableComponent> it = ol.getComponentIterator();
+		while( it.hasNext() ){
+			AbstractDrawableComponent adc = it.next();
+			if ( adc.getName().equalsIgnoreCase(Outlook.OUTLOOK_LABELED_LINE)){
+				Iterator<DrawableElement> itDe = ((DECollection)adc).createDEIterator();
+				List<Line> lines = new ArrayList<Line>();
+				gov.noaa.nws.ncep.ui.pgen.elements.Text txt = null;
+				while ( itDe.hasNext() ){
+					DrawableElement de = itDe.next();
+					if ( de instanceof gov.noaa.nws.ncep.ui.pgen.elements.Text ) txt = (gov.noaa.nws.ncep.ui.pgen.elements.Text) de;
+					else if ( de instanceof Line ) lines.add((Line)de);
+				}
+				
+				String lblInfo = "";
+				if ( txt == null ){
+					break;
+				}
+				else if ( txt.getString()[0].equalsIgnoreCase("5 INCH")){
+					ret += fiveInch;
+				}
+				else if ( txt.getString()[0].equalsIgnoreCase("SLGT")){
+					lblInfo += "SLIGHT ";
+				}
+				else if ( txt.getString()[0].equalsIgnoreCase("MDT")){
+					lblInfo += "MODERATE ";
+				}
+				else if ( txt.getString()[0].equalsIgnoreCase("HIGH")){
+					lblInfo += "HIGH ";
+				}
+				
+				if ( !lblInfo.isEmpty() ) ret += lblInfo + rainTxt;
+				
+				if ( !lines.isEmpty() ){
+					for ( Line ln : lines ){
+						ArrayList<Coordinate> pts = ln.getPoints();
+						if ( ln.isClosedLine() ) pts.add( pts.get(0));
+						for (Coordinate pt : pts ){
+							Station st = WatchBox.getNearestAnchorPt(pt, sfstns);
+							GeodeticCalculator gc = new GeodeticCalculator(DefaultEllipsoid.WGS84);
+
+							gc.setStartingGeographicPoint(st.getLongitude(), st.getLatitude() );
+							gc.setDestinationGeographicPoint(pt.x, pt.y  );
+
+							long dist = Math.round( gc.getOrthodromicDistance()/PgenUtil.SM2M);
+							long dir = Math.round(gc.getAzimuth());
+							if ( dir < 0 ) dir += 360;
+
+							ret += String.format(" %1$d %2$s %3$s", (int)(dist/5*5), 
+									WatchBox.dirs[(int)Math.round(dir/22.5)], st.getStid());
+
+						}
+					}
+					ret += "\n";
+				}
+			}
+			ret += "\n";
+		}
+		
+		return PgenUtil.wrap(ret, 65, "\n", false);
+
+	}
+
 }

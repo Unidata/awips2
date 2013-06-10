@@ -34,9 +34,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
-import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.exception.ConstraintViolationException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.transaction.TransactionStatus;
@@ -70,12 +77,10 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.common.spatial.reprojection.DataReprojector;
-import com.raytheon.uf.common.spatial.reprojection.ReferencedDataRecord;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EdexException;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
@@ -83,8 +88,6 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
 import com.raytheon.uf.edex.database.purge.PurgeRule;
 import com.raytheon.uf.edex.database.purge.PurgeRuleSet;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -103,6 +106,14 @@ import com.vividsolutions.jts.geom.Polygon;
  * 6/29/12      #828       dgilling    Force getPurgeRulesForPlugin()
  *                                     to search only COMMON_STATIC.
  * Oct 10, 2012 1261       djohnson    Add some generics wildcarding.
+ * Jan 14, 2013 1469       bkowal      No longer retrieves the hdf5 data directory
+ *                                     from the environment.
+ * Feb 12, 2013 #1608      randerso    Changed to call deleteDatasets
+ * Mar 27, 2013 1821       bsteffen    Remove extra store in persistToHDF5 for
+ *                                     replace only operations.
+ * Apr 04, 2013            djohnson    Remove formerly removed methods that won't compile.
+ * Apr 15, 2013 1868       bsteffen    Rewrite mergeAll in PluginDao.
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -119,9 +130,10 @@ public abstract class PluginDao extends CoreDao {
     /** The hdf5 file system suffix */
     public static final String HDF5_SUFFIX = ".h5";
 
-    /** The base path of the hdf5 data store */
-    public static final String HDF5_DIR = PropertiesFactory.getInstance()
-            .getEnvProperties().getEnvValue("HDF5DIR");
+    // should match batch size in hibernate config
+    protected static final int COMMIT_INTERVAL = 100;
+
+    protected static final ConcurrentMap<Class<?>, DuplicateCheckStat> pluginDupCheckRate = new ConcurrentHashMap<Class<?>, DuplicateCheckStat>();
 
     /** The base path of the folder containing HDF5 data for the owning plugin */
     public final String PLUGIN_HDF5_DIR;
@@ -131,9 +143,6 @@ public abstract class PluginDao extends CoreDao {
 
     /** The owning plugin name */
     protected String pluginName;
-
-    /** The sql string used to check for duplicates in the database */
-    protected String dupCheckSql = "select id from awips.:tableName where dataURI=':dataURI'";
 
     protected static final String PURGE_VERSION_FIELD = "dataTime.refTime";
 
@@ -156,10 +165,7 @@ public abstract class PluginDao extends CoreDao {
         }
 
         this.pluginName = pluginName;
-        PLUGIN_HDF5_DIR = HDF5_DIR + File.separator + pluginName
-                + File.separator;
-        dupCheckSql = dupCheckSql.replace(":tableName", PluginFactory
-                .getInstance().getPrimaryTable(pluginName));
+        PLUGIN_HDF5_DIR = pluginName + File.separator;
         pathProvider = PluginFactory.getInstance().getPathProvider(pluginName);
     }
 
@@ -191,19 +197,181 @@ public abstract class PluginDao extends CoreDao {
         persistToDatabase(records);
     }
 
-    @SuppressWarnings("unchecked")
     public PluginDataObject[] persistToDatabase(PluginDataObject... records) {
-        List<PersistableDataObject<Object>> toPersist = new ArrayList<PersistableDataObject<Object>>();
+        List<PluginDataObject> toPersist = new ArrayList<PluginDataObject>();
         for (PluginDataObject record : records) {
             toPersist.add(record);
         }
-        List<PersistableDataObject<Object>> duplicates = mergeAll(toPersist);
-        for (PersistableDataObject<Object> pdo : duplicates) {
+        List<PluginDataObject> duplicates = mergeAll(toPersist);
+        for (PluginDataObject pdo : duplicates) {
             logger.info("Discarding duplicate: "
                     + ((PluginDataObject) (pdo)).getDataURI());
             toPersist.remove(pdo);
         }
         return toPersist.toArray(new PluginDataObject[toPersist.size()]);
+    }
+
+    /**
+     * Commits(merges) a list of pdos into the database. Duplicates will not be
+     * committed unless the object allows override.
+     * 
+     * @param objects
+     *            the objects to commit
+     * @return any duplicate objects which already existed in the db.
+     */
+    public List<PluginDataObject> mergeAll(final List<PluginDataObject> objects) {
+        if (objects == null || objects.isEmpty()) {
+            return objects;
+        }
+        List<PluginDataObject> duplicates = new ArrayList<PluginDataObject>();
+        Class<? extends PluginDataObject> pdoClass = objects.get(0).getClass();
+        DuplicateCheckStat dupStat = pluginDupCheckRate.get(pdoClass);
+        if (dupStat == null) {
+            dupStat = new DuplicateCheckStat();
+            pluginDupCheckRate.put(pdoClass, dupStat);
+        }
+        boolean duplicateCheck = dupStat.isDuplicateCheck();
+        int dupCommitCount = 0;
+        int noDupCommitCount = 0;
+
+        Session session = null;
+        try {
+            session = getHibernateTemplate().getSessionFactory().openSession();
+            // process them all in fixed sized batches.
+            for (int i = 0; i < objects.size(); i += COMMIT_INTERVAL) {
+                List<PluginDataObject> subList = objects.subList(i,
+                        Math.min(i + COMMIT_INTERVAL, objects.size()));
+                List<PluginDataObject> subDuplicates = new ArrayList<PluginDataObject>();
+                boolean constraintViolation = false;
+                Transaction tx = null;
+                if (!duplicateCheck) {
+                    // First attempt is to just shove everything in the database
+                    // as fast as possible and assume no duplicates.
+                    try {
+                        tx = session.beginTransaction();
+                        for (PluginDataObject object : subList) {
+                            if (object == null) {
+                                continue;
+                            }
+                            session.save(object);
+                        }
+                        tx.commit();
+                    } catch (ConstraintViolationException e) {
+                        tx.rollback();
+                        session.clear();
+                        constraintViolation = true;
+                    }
+                }
+                if (constraintViolation || duplicateCheck) {
+                    // Second attempt will do duplicate checking, and possibly
+                    // overwrite.
+                    constraintViolation = false;
+                    try {
+                        tx = session.beginTransaction();
+                        for (PluginDataObject object : subList) {
+                            if (object == null) {
+                                continue;
+                            }
+                            try {
+                                Criteria criteria = session
+                                        .createCriteria(pdoClass);
+                                populateDatauriCriteria(criteria, object);
+                                criteria.setProjection(Projections.id());
+                                Integer id = (Integer) criteria.uniqueResult();
+                                if (id != null) {
+                                    object.setId(id);
+                                    if (object.isOverwriteAllowed()) {
+                                        session.update(object);
+                                    } else {
+                                        subDuplicates.add(object);
+                                    }
+                                } else {
+                                    session.save(object);
+                                }
+                            } catch (PluginException e) {
+                                statusHandler.handle(Priority.PROBLEM,
+                                        "Query failed: Unable to insert or update "
+                                                + object.getIdentifier(), e);
+                            }
+                        }
+                        tx.commit();
+                    } catch (ConstraintViolationException e) {
+                        constraintViolation = true;
+                        tx.rollback();
+                        session.clear();
+                    }
+                }
+                if (constraintViolation) {
+                    // Third attempt will commit each pdo individually.
+                    subDuplicates.clear();
+                    for (PluginDataObject object : subList) {
+                        if (object == null) {
+                            continue;
+                        }
+                        try {
+                            tx = session.beginTransaction();
+                            Criteria criteria = session
+                                    .createCriteria(pdoClass);
+                            populateDatauriCriteria(criteria, object);
+                            criteria.setProjection(Projections.id());
+                            Integer id = (Integer) criteria.uniqueResult();
+                            if (id != null) {
+                                object.setId(id);
+                                if (object.isOverwriteAllowed()) {
+                                    session.update(object);
+                                } else {
+                                    subDuplicates.add(object);
+                                }
+                            } else {
+                                session.save(object);
+                            }
+                            tx.commit();
+                        } catch (ConstraintViolationException e) {
+                            subDuplicates.add(object);
+                            tx.rollback();
+                        } catch (PluginException e) {
+                            statusHandler.handle(Priority.PROBLEM,
+                                    "Query failed: Unable to insert or update "
+                                            + object.getIdentifier(), e);
+                        }
+                    }
+                }
+                if (subDuplicates.isEmpty()) {
+                    noDupCommitCount += 1;
+                } else {
+                    dupCommitCount += 1;
+                    duplicates.addAll(subDuplicates);
+                }
+            }
+            dupStat.updateRate(noDupCommitCount
+                    / (noDupCommitCount + dupCommitCount));
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+        return duplicates;
+    }
+
+    private void populateDatauriCriteria(Criteria criteria, PluginDataObject pdo)
+            throws PluginException {
+        criteria.add(Restrictions.eq("dataURI", pdo.getDataURI()));
+
+        // TODO this code block can be used if we drop the dataURI column.
+
+        // for (Entry<String, Object> uriEntry :
+        // pdo.createDataURIMap().entrySet()) {
+        // String key = uriEntry.getKey();
+        // Object value = uriEntry.getValue();
+        // if (key.equals("pluginName")) {
+        // ;// this is not in the db, only used internally.
+        // } else if (value == null) {
+        // criteria.add(Restrictions.isNull(key));
+        // } else {
+        // criteria.add(Restrictions.eq(key, value));
+        // }
+        // }
+
     }
 
     /**
@@ -227,9 +395,7 @@ public abstract class PluginDao extends CoreDao {
                 IPersistable persistable = (IPersistable) pdo;
 
                 // get the directory
-                String directory = HDF5_DIR
-                        + File.separator
-                        + pdo.getPluginName()
+                String directory = pdo.getPluginName()
                         + File.separator
                         + pathProvider.getHDFPath(pdo.getPluginName(),
                                 persistable);
@@ -264,7 +430,7 @@ public abstract class PluginDao extends CoreDao {
             // directory.mkdirs();
             // }
 
-            IDataStore dataStore = DataStoreFactory.getDataStore(file);
+            IDataStore dataStore = null;
             IDataStore replaceDataStore = null;
 
             for (IPersistable persistable : persistables) {
@@ -278,6 +444,9 @@ public abstract class PluginDao extends CoreDao {
 
                         populateDataStore(replaceDataStore, persistable);
                     } else {
+                        if (dataStore == null) {
+                            dataStore = DataStoreFactory.getDataStore(file);
+                        }
                         populateDataStore(dataStore, persistable);
                     }
                 } catch (Exception e) {
@@ -285,14 +454,15 @@ public abstract class PluginDao extends CoreDao {
                 }
             }
 
-            try {
-                StorageStatus s = dataStore.store();
-                // add exceptions to a list for aggregation
-                exceptions.addAll(Arrays.asList(s.getExceptions()));
-            } catch (StorageException e) {
-                logger.error("Error persisting to HDF5", e);
+            if (dataStore != null) {
+                try {
+                    StorageStatus s = dataStore.store();
+                    // add exceptions to a list for aggregation
+                    exceptions.addAll(Arrays.asList(s.getExceptions()));
+                } catch (StorageException e) {
+                    logger.error("Error persisting to HDF5", e);
+                }
             }
-
             if (replaceDataStore != null) {
                 try {
                     StorageStatus s = replaceDataStore.store(StoreOp.REPLACE);
@@ -889,7 +1059,8 @@ public abstract class PluginDao extends CoreDao {
                         if (uris == null) {
                             ds.deleteFiles(null);
                         } else {
-                            ds.delete(uris.toArray(new String[uris.size()]));
+                            ds.deleteDatasets(uris.toArray(new String[uris
+                                    .size()]));
                         }
                     } catch (Exception e) {
                         PurgeLogger.logError("Error occurred purging file: "
@@ -911,7 +1082,7 @@ public abstract class PluginDao extends CoreDao {
                     if (uris == null) {
                         ds.deleteFiles(null);
                     } else {
-                        ds.delete(uris.toArray(new String[uris.size()]));
+                        ds.deleteDatasets(uris.toArray(new String[uris.size()]));
                     }
                 } catch (Exception e) {
                     PurgeLogger.logError("Error occurred purging file: "
@@ -1594,94 +1765,6 @@ public abstract class PluginDao extends CoreDao {
         return (List<PersistableDataObject>) this.queryByCriteria(dbQuery);
     }
 
-    public double getHDF5Value(PluginDataObject pdo,
-            CoordinateReferenceSystem crs, Coordinate coord,
-            double defaultReturn) throws Exception {
-        IDataStore store = getDataStore((IPersistable) pdo);
-        // TODO a cache would probably be good here
-        double rval = defaultReturn;
-        if (pdo instanceof ISpatialEnabled) {
-            ISpatialObject spat = getSpatialObject(pdo);
-            DataReprojector reprojector = getDataReprojector(store);
-            ReferencedEnvelope nativeEnv = getNativeEnvelope(spat);
-            IDataRecord data = reprojector.getProjectedPoints(pdo.getDataURI(),
-                    spat, nativeEnv, crs, new Coordinate[] { coord });
-            Double res = extractSingle(data);
-            if (res != null) {
-                rval = res;
-            }
-        }
-        return rval;
-    }
-
-    /**
-     * @param record
-     * @param crs
-     *            target crs for projected data
-     * @param envelope
-     *            bounding box in target crs
-     * @return null if envelope is disjoint with data bounds
-     * @throws Exception
-     */
-    public ReferencedDataRecord getProjected(PluginDataObject record,
-            CoordinateReferenceSystem crs, Envelope envelope) throws Exception {
-        ReferencedEnvelope targetEnv = new ReferencedEnvelope(
-                envelope.getMinX(), envelope.getMaxX(), envelope.getMinY(),
-                envelope.getMaxY(), crs);
-        return getProjected(record, targetEnv);
-    }
-
-    /**
-     * @param record
-     * @param crs
-     *            target crs for projected data
-     * @param envelope
-     *            bounding box in target crs
-     * @return null if envelope is disjoint with data bounds
-     * @throws Exception
-     */
-    public GridCoverage2D getProjectedCoverage(PluginDataObject record,
-            CoordinateReferenceSystem crs, Envelope envelope) throws Exception {
-        ReferencedEnvelope targetEnv = new ReferencedEnvelope(
-                envelope.getMinX(), envelope.getMaxX(), envelope.getMinY(),
-                envelope.getMaxY(), crs);
-        return getProjectedCoverage(record, targetEnv);
-    }
-
-    /**
-     * @param record
-     * @param targetEnvelope
-     *            bounding box in target crs
-     * @return null if envelope is disjoint with data bounds
-     * @throws Exception
-     */
-    public ReferencedDataRecord getProjected(PluginDataObject record,
-            ReferencedEnvelope targetEnvelope) throws Exception {
-        ISpatialObject spatial = getSpatialObject(record);
-        IDataStore store = getDataStore((IPersistable) record);
-        DataReprojector reprojector = getDataReprojector(store);
-        ReferencedEnvelope nativeEnvelope = getNativeEnvelope(spatial);
-        return reprojector.getReprojected(record.getDataURI(), spatial,
-                nativeEnvelope, targetEnvelope);
-    }
-
-    /**
-     * @param record
-     * @param targetEnvelope
-     *            bounding box in target crs
-     * @return null if envelope is disjoint with data bounds
-     * @throws Exception
-     */
-    public GridCoverage2D getProjectedCoverage(PluginDataObject record,
-            ReferencedEnvelope envelope) throws Exception {
-        ISpatialObject spatial = getSpatialObject(record);
-        IDataStore store = getDataStore((IPersistable) record);
-        DataReprojector reprojector = getDataReprojector(store);
-        ReferencedEnvelope nativeEnvelope = getNativeEnvelope(spatial);
-        return reprojector.getReprojectedCoverage(record.getDataURI(), spatial,
-                nativeEnvelope, envelope);
-    }
-
     protected ISpatialObject getSpatialObject(PluginDataObject record)
             throws Exception {
         if (record instanceof ISpatialEnabled) {
@@ -1689,10 +1772,6 @@ public abstract class PluginDao extends CoreDao {
         } else {
             throw new Exception(record.getClass() + " is not spatially enabled");
         }
-    }
-
-    protected DataReprojector getDataReprojector(IDataStore dataStore) {
-        return new DataReprojector(dataStore);
     }
 
     protected ReferencedEnvelope getNativeEnvelope(ISpatialObject spatial)
@@ -1718,5 +1797,37 @@ public abstract class PluginDao extends CoreDao {
             rval = (double) data[0];
         }
         return rval;
+    }
+
+    protected static class DuplicateCheckStat {
+
+        // percentage of commits that need to succeed without duplicate checking
+        // for a plugin to attempt to skip duplicate checking.
+        protected static final float DUPLICATE_CHECK_THRESHOLD = 0.5f;
+
+        // This number controls the maximum number of transactions to
+        // "remember" which will affect how difficult it is to change the
+        // cumulative rate. The larger the number is, the more successful(or
+        // failed) attempts it will take to change the cumulativeRate.
+        protected static final int DUPLICATE_MEMORY = 5000;
+
+        protected boolean duplicateCheck = false;
+
+        protected float cumulativeRate = 1.0f;
+
+        protected int total = 0;
+
+        protected boolean isDuplicateCheck() {
+            return duplicateCheck;
+        }
+
+        protected void updateRate(float rate) {
+            cumulativeRate = (rate + cumulativeRate * total) / (total + 1);
+            duplicateCheck = cumulativeRate < DUPLICATE_CHECK_THRESHOLD;
+
+            if (total < DUPLICATE_MEMORY) {
+                total++;
+            }
+        }
     }
 }

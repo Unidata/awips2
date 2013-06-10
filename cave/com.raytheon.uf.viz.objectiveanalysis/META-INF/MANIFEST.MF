@@ -23,12 +23,12 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.grid;bundle-version="1.11.17",
  com.raytheon.viz.core.contours;bundle-version="1.11.17",
  com.raytheon.uf.viz.sounding;bundle-version="1.11.17",
- com.raytheon.uf.common.dataplugin.bufrua;bundle-version="1.11.17"
+ com.raytheon.uf.common.dataplugin.bufrua;bundle-version="1.11.17",
+ com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.objectiveanalysis.rsc
 Import-Package: com.raytheon.uf.common.comm,
- com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.common.dataplugin.radar,
  com.raytheon.uf.common.gridcoverage,
  com.raytheon.uf.viz.derivparam.library,

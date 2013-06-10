@@ -108,6 +108,11 @@ public class CategoryFilter implements ElementFilter {
 
 				}
 			}
+			else if ( category.equalsIgnoreCase("Symbol") || category.equalsIgnoreCase("Arc")){
+				if ( adc.getParent().getParent() instanceof Contours ){
+					return false;
+				}
+			}
 			else if ( category.equalsIgnoreCase("Text")){
 				if ( adc.getParent().getParent()!= null && 
 					 adc.getParent().getParent() instanceof Contours ){

@@ -31,6 +31,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 9, 2011            snaples     Initial creation
+ * Mar 5, 2013  15884      wkwock      gridPointLL and gridPointUR should be integer
  * 
  * </pre>
  * 
@@ -62,9 +63,9 @@ public class CommonGridAttributes {
 
     int[] gridSize = new int[2];
 
-    Coordinate gridPointLL = new Coordinate();
+    int[] gridPointLL = new int[2];
 
-    Coordinate gridPointUR = new Coordinate();
+    int[] gridPointUR = new int[2];
 
     /**
      * Time in seconds

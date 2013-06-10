@@ -46,7 +46,7 @@ import gov.noaa.nws.ncep.viz.common.IntegerListAdapter;
  *                                       
  * 06/07/12      #794       Archana       Added a Boolean flag called reverseOrder to enable/disable
  *                                        reversing the order of colors in the color-bar.                                  
- *                                         
+ *
  * 06/18/12      #743       Archana       Added attributes to implement GEMPAK's CLRBAR parameter:
  *                                        xPixelCoordFraction, yPixelCoordFraction,drawColorBar,
  *                                        isDrawBoxAroundColorBar. added the corresponding setter/getter methods
@@ -144,7 +144,7 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 		this.isScalingAttemptedForThisColorMap = isScalingAttemptedForThisColorMap;
 	}
 
-	
+
 	/**
 	 * @return the isScalingAttemptedForThisColorMap
 	 */
@@ -235,7 +235,7 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 		// interval units are pixels
 		dataUnits = null;
 		if (display == null )
-			display = NmapUiUtils.getActiveNatlCntrsEditor().getActiveDisplayPane().getDisplay();
+			display = NcDisplayMngr.getActiveNatlCntrsEditor().getActiveDisplayPane().getDisplay();
 		
 		for (int c = 0; c < reds.length; c++) {
 			RGB rgb = new RGB( scaleCmapValue(reds[c]),
@@ -479,15 +479,15 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 							break;
 						}
 					}
+				}
 			}
-		}
 		return false;
 	}
 
 	public boolean isPixelLabeled(int p) {
 		if(imagePreferences == null)
 			return false;
-
+		
 		DataMappingPreferences dmPref = imagePreferences.getDataMapping();
 		
 		if( dmPref == null ) 
@@ -566,8 +566,8 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 						dmPref.setSerializableEntries(entryArray);
 						imagePreferences.setDataMapping(dmPref);
 					}
+				}
 			}
-		}
 
 	}
 
@@ -712,7 +712,7 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 				return false;
 		} else if (!isScalingAttemptedForThisColorMap.equals(other.isScalingAttemptedForThisColorMap))
 			return false;
-		
+
 
 		if (colorBarAttributesBuilder == null) {
 			if (other.colorBarAttributesBuilder != null)
@@ -805,7 +805,7 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 		this.orientation = orientation;
 		
 	}
-	
+
 	@Override
 	public void setAnchorLoc(ColorBarAnchorLocation anchorLoc) {
          this.anchorLoc = anchorLoc;		
