@@ -1,6 +1,7 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.manageSpf;
 
-import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
+import gov.noaa.nws.ncep.viz.resources.manager.AbstractRBD;
+import gov.noaa.nws.ncep.viz.resources.manager.NcMapRBD;
 import gov.noaa.nws.ncep.viz.resources.manager.SpfsManager;
 
 import java.io.File;
@@ -25,16 +26,29 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-
+/**
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date       	Ticket#		Engineer	Description
+ * ------------	----------	-----------	--------------------------
+ *                                       Created
+ * 02/22/2013     #972       G. Hull     AbstractRBD
+ * 
+ * </pre>
+ * 
+ * @author 
+ * @version 1
+ */
 public class RenameRbdDialog extends Dialog {
 
 	private String dialogTitle = "Rename Rbd"; 
     private Shell myShell;    
     private Text newRbdNameText;
     
-    private RbdBundle rbdToRename;
+    private AbstractRBD<?> rbdToRename;
     
-    public RenameRbdDialog(Shell parentShell, RbdBundle rbd ) {
+    public RenameRbdDialog(Shell parentShell, AbstractRBD<?> rbd ) {
         super(parentShell);
         myShell = parentShell; 
         rbdToRename = rbd;

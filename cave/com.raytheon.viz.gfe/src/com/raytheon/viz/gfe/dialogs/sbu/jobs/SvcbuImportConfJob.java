@@ -49,7 +49,9 @@ import com.raytheon.viz.gfe.dialogs.sbu.ServiceBackupDlg;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 5, 2011            bphillip     Initial creation
+ * Aug 05, 2011            bphillip     Initial creation
+ * Mar 20, 2013   1447     dgilling     Add support for service backup
+ *                                      troubleshooting mode from A1.
  * 
  * </pre>
  * 
@@ -62,6 +64,8 @@ public class SvcbuImportConfJob extends ServiceBackupJob implements
 
     private String failedSite;
 
+    private boolean trMode;
+
     private ProgressDlg progress;
 
     private boolean complete;
@@ -70,21 +74,19 @@ public class SvcbuImportConfJob extends ServiceBackupJob implements
 
     private String errorMsg;
 
-    /**
-     * @param name
-     */
     public SvcbuImportConfJob(String primarySite, String failedSite,
-            ProgressDlg progress) {
+            boolean trMode, ProgressDlg progress) {
         super("Import Configuration: " + failedSite, primarySite);
         this.failedSite = failedSite;
         this.progress = progress;
+        this.trMode = trMode;
         NotificationManagerJob.addObserver(ServiceBackupDlg.NOTIFY_TOPIC, this);
     }
 
     @Override
     public void run() {
         ImportConfRequest request = new ImportConfRequest(primarySite,
-                failedSite);
+                failedSite, trMode);
         try {
             VizApp.runAsync(new Runnable() {
 
@@ -158,7 +160,7 @@ public class SvcbuImportConfJob extends ServiceBackupJob implements
                             + failedSite, e);
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "SERVICE BACKUP: "+e.getLocalizedMessage());
+                    "SERVICE BACKUP: " + e.getLocalizedMessage());
         } finally {
             NotificationManagerJob.removeObserver(
                     ServiceBackupDlg.NOTIFY_TOPIC, this);

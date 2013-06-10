@@ -31,11 +31,14 @@
 #    ------------    ----------    -----------    --------------------------
 #    09/19/11        8804          MHuang         Initial creation
 #    10/09/12        DR 13901      D. Friedman    Limit execution time
+#    02/20/13        DR 15836      D. Friedman    Handle comma-delimited args.
+#                                                 Improve logging.
 ##############################################################################
 
 from ufpy import qpidingest
 from lib.Util import doWithinTime
 
+import logging
 import os
 import os.path
 import sys
@@ -50,7 +53,7 @@ class mhsFileIngest:
         try:
             cnn=qpidingest.IngestViaQPID(host=server, port=5672)
         except:
-            print "Cannot connect qpid server:", server
+            log.error("Cannot connect qpid server: %s", server)
             sys.exit(1)
 
         self.conn = cnn
@@ -59,19 +62,27 @@ class mhsFileIngest:
         cnn = self.conn
         
         #Get uplink files
-        size=len(sys.argv) - 1
-        print size, "files will be sent to EDEX via qpiningest"
+        #
+        # If using WAN backup for the SBN, the list of files is
+        # passed as a single comma-delimited argument.
+        if len(sys.argv) == 2 and ',' in sys.argv[1]:
+            args = sys.argv[1].split(',')
+        else:
+            args = sys.argv[1:]
+
+        size=len(args)
+        log.info("%d files will be sent to EDEX via qpiningest", size)
         
         fileCount=0
         errCount=0
-        for outfile in sys.argv[1:]:
+        for outfile in args:
             #Make sure incoming file exists in /data_store/mhs directory 
 #           print "outfle:", outfile
             if os.path.exists(outfile):
                 try:
                     f=open(outfile, 'r')
-                except(IOerror), e:
-                    print "Unable to open the file", outfile, e
+                except(IOError), e:
+                    log.error("Unable to open the file %s: %s", outfile, e)
                     errCount += 1
                 else:
                     #Parse wmoId header info
@@ -81,24 +92,28 @@ class mhsFileIngest:
                     f.close()
                     #Send message to the external dropbox queue for file to be ingested
                     cnn.sendmessage(outfile, wmoHdr)
-                    print "Sent", outfile, "to EDEX via qpidingest"
+                    log.info("Sent %s to EDEX via qpidingest", outfile)
                     fileCount += 1
             else:
-                print outfile, "does not exist"
+                log.error("%s does not exist", outfile)
                 errCount += 1
 
         cnn.close()
         if fileCount == size:
-            print "Successfully sent", fileCount, "file(s) to EDEX via qpidingest"
+            log.info("Successfully sent %d file(s) to EDEX via qpidingest", fileCount)
             return 0
         elif errCount == size:
-            print "Failed to send", fileCount, "file(s) to EDEX via qpidingest"            
+            log.info("Failed to send %d file(s) to EDEX via qpidingest", fileCount)            
             return 1
         elif errCount > 0 and fileCount < size:
-            print errcount, "out of", size, "failed to be sent to EDEX via qpidingest"
+            log.info("%d out of %d failed to be sent to EDEX via qpidingest", errCount, size)
             return 2
 
 def run():
+    global log
+    logging.basicConfig(level=logging.INFO, datefmt='%H:%M:%S',
+                        format='[%(process)s] %(asctime)s %(levelname)s: %(message)s')
+    log = logging.getLogger('qpidNotify')
     try:
         m = mhsFileIngest()
         doWithinTime(m.startConnection, description='connect to qpid')

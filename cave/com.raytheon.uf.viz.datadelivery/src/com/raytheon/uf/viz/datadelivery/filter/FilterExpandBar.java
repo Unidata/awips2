@@ -79,13 +79,16 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
  * Dec 18, 2012   1436     bgonzale     When creating the filter dialogs, use the loaded
  *                                      configuration when populating the filters. Fixed selection
  *                                      icon update when loading from a file.
+ * Feb 24, 2013   1620     mpduff       Fixed set clean issue when loading configurations.  Set clean 
+ *                                      needs to be called after the data load job is complete.
  * 
  * </pre>
  * 
  * @author lvenable
  * @version 1.0
  */
-public class FilterExpandBar extends Composite implements IFilterUpdate, IExpandControlAction {
+public class FilterExpandBar extends Composite implements IFilterUpdate,
+        IExpandControlAction {
 
     /**
      * Filter expand bar.
@@ -126,10 +129,10 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
     private ReferencedEnvelope envelope;
 
     /**
-     * Constructor. 
+     * Constructor.
      * 
-     * @param parent 
-     *          The parent composite
+     * @param parent
+     *            The parent composite
      */
     public FilterExpandBar(Composite parent) {
         super(parent, SWT.NONE);
@@ -158,7 +161,8 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
         gd.widthHint = 600;
         expandBar.setLayoutData(gd);
 
-        FilterDefinitionManager filterMan = FilterDefinitionManager.getInstance();
+        FilterDefinitionManager filterMan = FilterDefinitionManager
+                .getInstance();
         dataTypeFilterXml = filterMan.getDataTypeXml();
         filterXml = filterMan.getFilterXml();
 
@@ -174,7 +178,8 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
         layout.marginHeight = 0;
         layout.marginWidth = 0;
         composite.setLayout(layout);
-        composite.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+        composite
+                .setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
         ExpandBarControlsConfig expBarConfig = new ExpandBarControlsConfig();
         expBarConfig.setCollapseAll(true);
@@ -240,6 +245,7 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
                             notifyListeners(SWT.SetData, new Event());
                             DataDeliveryGUIUtils
                                     .markNotBusyInUIThread(jobParent);
+                            setClean();
                         }
                     });
                 }
@@ -256,7 +262,7 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
 
         String displayName = data.getDisplayName();
         String filterID = data.getId();
-//        String clazz = data.getClazz();
+        // String clazz = data.getClazz();
         ArrayList<SettingsXML> settingsList = data.getSettingsList();
 
         DualListConfig dualConfig = new DualListConfig();
@@ -266,26 +272,20 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
         for (SettingsXML setting : settingsList) {
             if (setting.getName().equalsIgnoreCase("availableText")) {
                 dualConfig.setAvailableListLabel(setting.getValue());
-            }
-            else if (setting.getName().equalsIgnoreCase("selectedText")) {
+            } else if (setting.getName().equalsIgnoreCase("selectedText")) {
                 dualConfig.setSelectedListLabel(setting.getValue());
-            }
-            else if (setting.getName().equalsIgnoreCase("showUpDownBtns")) {
+            } else if (setting.getName().equalsIgnoreCase("showUpDownBtns")) {
                 dualConfig.setShowUpDownBtns(getBoolean(setting.getValue()));
-            }
-            else if (setting.getName().equalsIgnoreCase("listWidth")) {
+            } else if (setting.getName().equalsIgnoreCase("listWidth")) {
                 dualConfig.setShowUpDownBtns(getBoolean(setting.getValue()));
-            }
-            else if (setting.getName().equalsIgnoreCase("listHeight")) {
+            } else if (setting.getName().equalsIgnoreCase("listHeight")) {
                 dualConfig.setShowUpDownBtns(getBoolean(setting.getValue()));
-            }
-            else if (setting.getName().equalsIgnoreCase("showRegex")) {
+            } else if (setting.getName().equalsIgnoreCase("showRegex")) {
                 filterConfig.setRegExVisible(getBoolean(setting.getValue()));
-            }
-            else if (setting.getName().equalsIgnoreCase("showMatch")) {
-                filterConfig.setMatchControlVisible(getBoolean(setting.getValue()));
-            }
-            else if (setting.getName().equalsIgnoreCase("showDualList")) {
+            } else if (setting.getName().equalsIgnoreCase("showMatch")) {
+                filterConfig.setMatchControlVisible(getBoolean(setting
+                        .getValue()));
+            } else if (setting.getName().equalsIgnoreCase("showDualList")) {
                 filterConfig.setDualListVisible(getBoolean(setting.getValue()));
             }
         }
@@ -324,7 +324,8 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
         filterConfig.setFilterID(filterID);
 
         expItem.setText(displayName);
-        FilterComp filterComp = new FilterComp(expandBar, SWT.NONE, this, filterConfig, idx);
+        FilterComp filterComp = new FilterComp(expandBar, SWT.NONE, this,
+                filterConfig, idx);
 
         expItem.setHeight(filterComp.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
         expItem.setControl(filterComp);
@@ -355,7 +356,7 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
      *            Parent component.
      */
     private void addSeparator(Composite parentComp) {
-        GridLayout gl = (GridLayout)parentComp.getLayout();
+        GridLayout gl = (GridLayout) parentComp.getLayout();
 
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.horizontalSpan = gl.numColumns;
@@ -381,7 +382,8 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
     private void displayEnableFilterDialog() {
 
         if (expandBar.getItemCount() == 0) {
-            MessageBox mb = new MessageBox(this.getShell(), SWT.ICON_ERROR | SWT.OK);
+            MessageBox mb = new MessageBox(this.getShell(), SWT.ICON_ERROR
+                    | SWT.OK);
             mb.setText("Warning");
             mb.setMessage("No filters are available to enable/disable.");
             mb.open();
@@ -389,14 +391,15 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
         }
 
         if (enableFilterDlg == null || enableFilterDlg.isDisposed()) {
-            enableFilterDlg = new EnableFilterDlg(this.getShell(), getFilterNames(), getEnabledFilters());
+            enableFilterDlg = new EnableFilterDlg(this.getShell(),
+                    getFilterNames(), getEnabledFilters());
             enableFilterDlg.open();
 
-            if (enableFilterDlg.getReturnValue() != null && (Boolean)enableFilterDlg.getReturnValue() == true) {
+            if (enableFilterDlg.getReturnValue() != null
+                    && (Boolean) enableFilterDlg.getReturnValue() == true) {
                 this.enableFilters(enableFilterDlg.getSelectedIndexes());
             }
-        }
-        else {
+        } else {
             enableFilterDlg.bringToTop();
         }
     }
@@ -463,7 +466,8 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
         ArrayList<Integer> enabledIndexes = new ArrayList<Integer>();
 
         for (int i = 0; i < expandBar.getItems().length; i++) {
-            AbstractFilterComp afc = (AbstractFilterComp)(expandBar.getItem(i).getControl());
+            AbstractFilterComp afc = (AbstractFilterComp) (expandBar.getItem(i)
+                    .getControl());
             if (afc.isEnabled()) {
                 enabledIndexes.add(i);
             }
@@ -480,11 +484,12 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
      */
     public void enableFilters(ArrayList<Integer> indexes) {
         for (ExpandItem ei : expandBar.getItems()) {
-            ((AbstractFilterComp)ei.getControl()).setEnabled(false);
+            ((AbstractFilterComp) ei.getControl()).setEnabled(false);
         }
 
         for (int idx : indexes) {
-            ((AbstractFilterComp)(expandBar.getItem(idx).getControl())).setEnabled(true);
+            ((AbstractFilterComp) (expandBar.getItem(idx).getControl()))
+                    .setEnabled(true);
         }
     }
 
@@ -551,7 +556,8 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
     @Override
     public void clearAllAction() {
 
-        MessageBox mb = new MessageBox(this.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+        MessageBox mb = new MessageBox(this.getShell(), SWT.ICON_QUESTION
+                | SWT.YES | SWT.NO);
         mb.setText("Clear All Filters");
         mb.setMessage("You are about to clear all of your filter settings.  This\n"
                 + "cannot be undone.\n\nDo you wish to continue?");
@@ -563,7 +569,7 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
 
         for (ExpandItem ei : expandBar.getItems()) {
             if (ei.getControl() instanceof FilterComp) {
-                ((FilterComp)ei.getControl()).resetControls();
+                ((FilterComp) ei.getControl()).resetControls();
             }
         }
     }
@@ -600,7 +606,8 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
     }
 
     private void updateFilterSettings() {
-        ArrayList<FilterTypeXML> filterTypeList = filterSettingsXml.getFilterTypeList();
+        ArrayList<FilterTypeXML> filterTypeList = filterSettingsXml
+                .getFilterTypeList();
         if (filterTypeList != null && filterTypeList.size() > 0) {
             for (FilterTypeXML ftx : filterTypeList) {
                 if (ftx.getFilterType().equals("Data Type")) {
@@ -613,12 +620,12 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
                     break;
                 }
             }
-            
+
             if (filterList != null) {
                 // createExpandItems();
                 for (FilterTypeXML filterTypeXml : filterTypeList) {
                     String filterType = filterTypeXml.getFilterType();
-    
+
                     if (filterList.contains(filterType)) {
                         for (String filter : filterList) {
                             if (filter.equals(filterType)) {
@@ -627,12 +634,18 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
                                     if (ei.getText().equals(filter)) {
                                         Control control = ei.getControl();
                                         if (control instanceof FilterComp) {
-                                            FilterComp fc = (FilterComp)control;
-                                            String[] items = filterTypeXml.getValues().toArray(
-                                                    new String[filterTypeXml.getValues().size()]);
-                                            if (items != null && items.length > 0) {
+                                            FilterComp fc = (FilterComp) control;
+                                            String[] items = filterTypeXml
+                                                    .getValues()
+                                                    .toArray(
+                                                            new String[filterTypeXml
+                                                                    .getValues()
+                                                                    .size()]);
+                                            if (items != null
+                                                    && items.length > 0) {
                                                 fc.selectItems(items);
-                                                ei.setImage(filterImgs.getExpandItemImage(ExpandItemState.Entries));
+                                                ei.setImage(filterImgs
+                                                        .getExpandItemImage(ExpandItemState.Entries));
                                             }
                                         }
                                     }
@@ -646,14 +659,17 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
     }
 
     /**
-     * @param filterSettingsXml 
+     * Populate the filters.
+     * 
+     * @param filterSettingsXml
+     *            Settings to populate
      */
     public void populateFilterSettingsXml(FilterSettingsXML filterSettingsXml) {
         ExpandItem[] items = expandBar.getItems();
         for (ExpandItem item : items) {
             Control control = item.getControl();
             if (control instanceof FilterComp) {
-                FilterComp fc = (FilterComp)control;
+                FilterComp fc = (FilterComp) control;
                 String[] selectedItems = fc.getSelectedListItems();
                 ArrayList<String> values = new ArrayList<String>();
                 for (String selectedItem : selectedItems) {
@@ -687,7 +703,7 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
     public boolean isDirty() {
         ExpandItem[] items = expandBar.getItems();
         for (ExpandItem item : items) {
-            FilterComp comp = (FilterComp)item.getControl();
+            FilterComp comp = (FilterComp) item.getControl();
             if (comp != null) {
                 if (comp.isDirty()) {
                     return true;
@@ -704,16 +720,20 @@ public class FilterExpandBar extends Composite implements IFilterUpdate, IExpand
     public void setClean() {
         ExpandItem[] items = expandBar.getItems();
         for (ExpandItem item : items) {
-            FilterComp comp = (FilterComp)item.getControl();
+            FilterComp comp = (FilterComp) item.getControl();
             if (comp != null) {
                 comp.setDirty(false);
             }
         }
-
     }
 
+    /**
+     * Set the referenced envelope.
+     * 
+     * @param envelope
+     *            The ReferencedEnvelope
+     */
     public void setEnvelope(ReferencedEnvelope envelope) {
         this.envelope = envelope;
     }
-
 }

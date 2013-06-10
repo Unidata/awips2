@@ -7,7 +7,6 @@ Version: %{_component_version}
 Release: %{_component_release}
 Group: AWIPSII
 BuildRoot: /tmp
-Prefix: /awips2
 URL: N/A
 License: N/A
 Distribution: N/A
@@ -40,23 +39,18 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2
 %build
 
 %install
-NATIVE_TAR_FILE="dist.native/i386-pc-linux-gnu.tar"
+FILES_NATIVE="%{_baseline_workspace}/files.native"
 
-/bin/gtar -xpf %{_baseline_workspace}/${NATIVE_TAR_FILE} \
-   -C ${RPM_BUILD_ROOT}/awips2
-
-# Remove Unnecessary Directories.
-rm -rf ${RPM_BUILD_ROOT}/awips2/setup
-rm -rf ${RPM_BUILD_ROOT}/awips2/edex
-rm -rf ${RPM_BUILD_ROOT}/awips2/lib
-rm -rf ${RPM_BUILD_ROOT}/awips2/awipsShare
+/bin/cp -rf ${FILES_NATIVE}/adapt \
+  %{_build_root}/awips2/
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 %pre
-
 %post
 
 %preun
-
 %postun
 
 %clean

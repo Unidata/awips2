@@ -12,6 +12,16 @@
 	         extensionFilter=".tbl,.cmap">
        </path>
     </extension>
+    <extension point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="Predefined Area Menus"
+             recursive="false"
+             value="ncep/PredefinedAreas/menus"
+	          extensionFilter=".tbl">
+       </path>
+    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">   
       <page

@@ -1,19 +1,22 @@
 package gov.noaa.nws.ncep.viz.resources.manager;
 
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
+import gov.noaa.nws.ncep.viz.common.display.INatlCntrsDescriptor;
+import gov.noaa.nws.ncep.viz.common.display.INatlCntrsRenderableDisplay;
+import gov.noaa.nws.ncep.viz.common.display.INcPaneLayout;
+import gov.noaa.nws.ncep.viz.common.display.PredefinedArea;
+import gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider.ZoomLevelStrings;
+import gov.noaa.nws.ncep.viz.common.display.PredefinedArea.AreaSource;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayName;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
-import gov.noaa.nws.ncep.viz.ui.display.IGridGeometryProvider.ZoomLevelStrings;
-import gov.noaa.nws.ncep.viz.ui.display.NCDisplayPane;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
-import gov.noaa.nws.ncep.viz.ui.display.PaneID;
-import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea;
-import gov.noaa.nws.ncep.viz.ui.display.PredefinedArea.AreaSource;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcPaneLayout;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
+import gov.noaa.nws.ncep.viz.ui.display.NcPaneID;
 
-import java.lang.reflect.Constructor;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -26,15 +29,14 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.viz.ui.UiPlugin;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  *  Resource Bundle Loader will load RBDs into new or existing map editors.
@@ -66,6 +68,8 @@ import com.raytheon.viz.ui.UiPlugin;
  * 04/24/12     #629        B. Hebbard    [TTR 356] if loadSelectedPaneOnly, don't clear out
  *                                        other panes
  * 11/25/12     #630        Greg Hull     Resource defined areas.
+ * 02/01/13     #972        Greg Hull     RbdBundleEditorWrapper doesn't need to be a generic
+ * 02/12/13     #972        Greg Hull     NcDisplayType and NatlCntrsEditor
  *
  * </pre>
  * 
@@ -73,43 +77,33 @@ import com.raytheon.viz.ui.UiPlugin;
  */
 public class ResourceBndlLoader implements Runnable {  // extends Job {
 
-	private final class RbdBundleEditorWrapper<RbdBundle, NCMapEditor>{
-		private RbdBundle rbdBundle;
-		private NCMapEditor mapEditor;
-		RbdBundleEditorWrapper(RbdBundle theRbdBundle, NCMapEditor theMapEditor){
-			setRbdBundle( theRbdBundle);
-			setMapEditor( theMapEditor );
+	private final class RbdBundleEditorWrapper {
+		private AbstractRBD<?> rbdBundle;
+		private AbstractEditor ncEditor;
+		private Boolean replaceEditorNameWithRbdName;
+		
+		RbdBundleEditorWrapper(AbstractRBD<?> theRbdBundle, AbstractEditor ed,
+				Boolean useRBDName ){
+			rbdBundle = theRbdBundle;
+			ncEditor = ed;
+			NcEditorUtil.setDisplayAvailable( ed, false );
+			replaceEditorNameWithRbdName = useRBDName;
 		}
 		
-		/**
-		 * @param rbdBundle the rbdBundle to set
-		 */
-		public void setRbdBundle(RbdBundle rbdBundle) {
-			this.rbdBundle = rbdBundle;
-		}
-		
-		/**
-		 * @return the rbdBundle
-		 */
-		public RbdBundle getRbdBundle() {
+		public AbstractRBD<?> getRbdBundle() {
 			return rbdBundle;
 		}
-		/**
-		 * @param mapEditor the mapEditor to set
-		 */
-		public void setMapEditor(NCMapEditor mapEditor) {
-			this.mapEditor = mapEditor;
+		
+		public AbstractEditor getNcEditor() {
+			return ncEditor;
 		}
-		/**
-		 * @return the mapEditor
-		 */
-		public NCMapEditor getMapEditor() {
-			return mapEditor;
+		
+		public Boolean useRbdNameForEditor() {
+			return replaceEditorNameWithRbdName;
 		}
 	}
 	
-//    private final ConcurrentLinkedQueue<RbdBundle> seldRBDs;
-    private final ConcurrentLinkedQueue<RbdBundleEditorWrapper<RbdBundle, NCMapEditor>> seldRBDs;
+    private final ConcurrentLinkedQueue<RbdBundleEditorWrapper> seldRBDs;
         
     // when set we will only load the selected Pane
     private boolean loadSelectedPaneOnly = false;
@@ -121,15 +115,22 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
     public void removeAllSeldRBDs() {
     	seldRBDs.clear();
     }
+    
+    public void addDefaultRBD( NcDisplayType dt, AbstractEditor theEditor ) throws VizException {
+		AbstractRBD<?> rbd = NcMapRBD.getDefaultRBD( NcDisplayType.NMAP_DISPLAY );
+		
+		rbd.resolveLatestCycleTimes(); // shouldn't be needed  but just in case		
+    	seldRBDs.add( new RbdBundleEditorWrapper( rbd, theEditor, false ) );    	
+    }
 
-    public void addRBD( RbdBundle newRBD, NCMapEditor theEditor ) {
-
-    	seldRBDs.add( new RbdBundleEditorWrapper<RbdBundle,NCMapEditor> ( newRBD, theEditor ) );
+    public void addRBD( AbstractRBD<?> newRBD, AbstractEditor theEditor ) {
+    	
+    	seldRBDs.add( new RbdBundleEditorWrapper( newRBD, theEditor, true ) );
     }
 
     public ResourceBndlLoader( String name ) { // name of the Job
 		//super(name);
-		seldRBDs = new ConcurrentLinkedQueue<RbdBundleEditorWrapper<RbdBundle, NCMapEditor>>();
+		seldRBDs = new ConcurrentLinkedQueue<RbdBundleEditorWrapper>();
 	}
         
     private class ErrorMsg implements Runnable {
@@ -152,7 +153,7 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
 //    @Override
 //    protected IStatus run(IProgressMonitor monitor) {
     //public void loadRBDs() {
-    public void run() {
+    public void run() {    	
     	RbdBundleEditorWrapper[] wrapperClassArray= ( RbdBundleEditorWrapper[] ) seldRBDs.toArray ( new RbdBundleEditorWrapper[0] );
 		
     	if( loadSelectedPaneOnly ) {
@@ -162,14 +163,14 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
     		}
     	}
     
-		for ( RbdBundleEditorWrapper<RbdBundle,NCMapEditor> thisWrapper : wrapperClassArray ) {
-        	
+		for ( RbdBundleEditorWrapper thisWrapper : wrapperClassArray ) {        	
+
 			try {
-     		 RbdBundle rbdBndl = thisWrapper.getRbdBundle();
-    		
+				AbstractRBD<?> rbdBndl = thisWrapper.getRbdBundle();
+    		        		
         		// the editor should have already be created with the right 
         		// number of displays and matching paneLayouts 
-        		NCMapEditor editor = thisWrapper.getMapEditor();
+				AbstractEditor editor = thisWrapper.getNcEditor();
         		
         		if( editor == null ) {
         			throw new VizException("??editor is null in rbdLoader?");
@@ -177,95 +178,106 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
         		
         		// If this editor currently has resources loaded, clear them out except for PGEN
         		//
-        		for( int r=0 ; r<rbdBndl.getPaneLayout().getRows() ; r++ ) {
-        			for( int c=0 ; c<rbdBndl.getPaneLayout().getColumns() ; c++ ) {
-        		    	PaneID paneid = new PaneID(r,c);
-        		    	IDisplayPane pane = editor.getDisplayPane( paneid );
-        		    	
-        				if( pane == null ) {
-        					throw new VizException("Could not get pane "+paneid.toString() +
-        							" from the editor.");
-        				}
+        		for( int paneIndx=0 ; paneIndx<rbdBndl.getPaneLayout().getNumberOfPanes() ; paneIndx++ ) {
+    				NcPaneID paneid = (NcPaneID) rbdBndl.getPaneLayout().createPaneId(paneIndx);
+    				IDisplayPane pane = NcEditorUtil.getDisplayPane( editor, paneid );
+    		    	
+    				if( pane == null ) {
+    					throw new VizException("Could not get pane "+paneid.toString() +
+    							" from the editor.");
+    				}
 
-        		    	// don't clear this pane if we are only loading the selected pane and 
-        		    	// this isn't it
-        		    	if( loadSelectedPaneOnly &&
-        		    		rbdBndl.getSelectedPaneId().compare( paneid ) != 0 ) {
-        		    		continue;
-        		    	}
-        		    	
-        				List<ResourcePair> rlist = ((NCDisplayPane)pane).getRenderableDisplay().getDescriptor().getResourceList();
-        				if( rlist == null ) {
-        					throw new VizException("The ResourceList is empty?");
-        				}
-        				Iterator<ResourcePair> it = rlist.iterator();
-        				
-        				while( it.hasNext() ){
-        					ResourcePair rp = it.next();
-        					if ( !rp.getResource().getClass().getName().endsWith("PgenResource") ) {
-        						rlist.remove(rp);
-        					}
-        				}
-        			}
+    		    	// don't clear this pane if we are only loading the selected pane and 
+    		    	// this isn't it
+    		    	if( loadSelectedPaneOnly &&
+    		    		rbdBndl.getSelectedPaneId().compareTo( paneid ) != 0 ) {
+    		    		continue;
+    		    	}
+    		    	
+    				List<ResourcePair> rlist = pane.getRenderableDisplay().getDescriptor().getResourceList();
+    				if( rlist == null ) {
+    					throw new VizException("The ResourceList is empty?");
+    				}
+    				Iterator<ResourcePair> it = rlist.iterator();
+    				
+    				while( it.hasNext() ){
+    					ResourcePair rp = it.next();
+    					if ( !rp.getResource().getClass().getName().endsWith("PgenResource") ) {
+    						rlist.remove(rp);
+    					}
+    				}
         		}
         		
-        		editor.setAutoUpdate(rbdBndl.isAutoUpdate() );
-        		editor.setGeoSyncPanesEnabled( rbdBndl.isGeoSyncedPanes() );
-        		editor.setHideShow(false); //init to false, means rsc on
+        		NcEditorUtil.setAutoUpdate( editor, rbdBndl.isAutoUpdate() );
+        		NcEditorUtil.setGeoSyncPanesEnabled( editor, rbdBndl.isGeoSyncedPanes() );
+        		NcEditorUtil.setHideShow( editor, false); //init to false, means rsc on
         		
         		IDisplayPane displayPanes[] = editor.getDisplayPanes();
         		IDisplayPane seldPane = null;
+        		INcPaneLayout playout = NcEditorUtil.getPaneLayout( editor );
         		
         		if( loadSelectedPaneOnly ) {
         			
-        			if( editor.getPaneLayout().getRows() <= rbdBndl.getSelectedPaneId().getRow() ||
-        				editor.getPaneLayout().getColumns() <= rbdBndl.getSelectedPaneId().getColumn() ) {
-        				
+        			if( !playout.containsPaneId( rbdBndl.getSelectedPaneId() ) ) {
+//        					playout.getRows() <= rbdBndl.getSelectedPaneId().getRow() ||
+//        				playout.getColumns() <= rbdBndl.getSelectedPaneId().getColumn() ) {
+//        				
         				throw new VizException("Error: The Active Display doesn't have enough Panes"+
-    					" for the selected Pane: ");
-//        				break;
+    						" for the selected Pane: ");
         			}
         		}
-        		else if( !editor.getPaneLayout().equals( rbdBndl.getPaneLayout() ) ) {
+        		else if( !playout.equals( rbdBndl.getPaneLayout() ) ) {
         			throw new VizException("PaneLayouts of the RBD and Editor don't match?");
         		}
         		
         		// loop thru the panes in the RBD
         		//
-        		for( int r=0 ; r<rbdBndl.getPaneLayout().getRows() ; r++ ) {
-        		    for( int c=0 ; c<rbdBndl.getPaneLayout().getColumns() ; c++ ) {
-        		    	PaneID paneid = new PaneID(r,c);
-        		    	
-        		    	// don't load this pane if we are only loading the selected pane and 
-        		    	// this isn't it
-        		    	if( loadSelectedPaneOnly &&
-        		    		rbdBndl.getSelectedPaneId().compare( paneid ) != 0 ) {
-        		    		continue;
-        		    	}
+        		for( int paneIndx=0 ; paneIndx<rbdBndl.getPaneLayout().getNumberOfPanes() ; paneIndx++ ) {
+        			NcPaneID paneid = (NcPaneID)rbdBndl.getPaneLayout().createPaneId( paneIndx );
 
-        		    	IDisplayPane displayPane = editor.getDisplayPane( paneid ); 
-        		    	AbstractRenderableDisplay mapDisp = rbdBndl.getDisplayPane( paneid );
+        			// don't load this pane if we are only loading the selected pane and 
+        			// this isn't it
+        			if( loadSelectedPaneOnly &&
+        				rbdBndl.getSelectedPaneId().compareTo( paneid ) != 0 ) {
+        				continue;
+        			}
 
-        		    	if( seldPane == null ) {
-        		    		seldPane = displayPane;
-        		    	}
-        		    	
-        		    	// if the editor was just created and there was an error, close the editor.
-        		    	// TODO: if there is an error, prompt if the user wishes to continue.
-        		    	if( loadResourceBundleDefn( displayPane, 
-        		    			(NCMapRenderableDisplay) mapDisp, 
-        		    			rbdBndl.getTimeMatcher() ) == false ) {
+        			IDisplayPane displayPane = NcEditorUtil.getDisplayPane( editor, paneid ); 
+        			INatlCntrsRenderableDisplay mapDisp = rbdBndl.getDisplayPane(  paneid );
 
-        		    		throw new VizException("Error Loading Pane "+paneid.toString()+
-        		    				" for RBD "+ rbdBndl.getRbdName() );
-        		    	}
-        		    }
+        			if( seldPane == null ) {
+        				seldPane = displayPane;
+        			}
+
+        			// if the editor was just created and there was an error, close the editor.
+        			// TODO: if there is an error, prompt if the user wishes to continue.
+        			if( loadResourceBundleDefn( displayPane, 
+        					mapDisp, rbdBndl.getTimeMatcher() ) == false ) {
+
+        				throw new VizException("Error Loading Pane "+paneid.toString()+
+        						" for RBD "+ rbdBndl.getRbdName() );
+        			}        		    	
         		}
+        		
+        		// if using the RBD name as the display name, set the tab title
+        		// (this will be the case unless we are loading the default RBD in
+        		// which case the name may be different. ie. NCTEXT, NSHARP or user-defined.
+        		//
+        		if( thisWrapper.useRbdNameForEditor() ) {
 
+        			NcDisplayName dispName = NcEditorUtil.getDisplayName( editor );
+        			dispName = new NcDisplayName( dispName.getId(), rbdBndl.getRbdName() );
+        			NcEditorUtil.setDisplayName( editor, dispName);
+        			
+            		editor.setTabTitle( dispName.toString() );
+        		}
+        		
         		editor.refresh();
-        		editor.refreshGUIElements();
+        		NcEditorUtil.refreshGUIElements( editor );
+        		// flag the editor as 'loaded' so that it is no longer considered 'empty' or available
+            	NcEditorUtil.setDisplayAvailable( editor, rbdBndl.getIsDefaultRbd() );
 
-        		NmapUiUtils.bringToTop( editor );        		
+        		NcDisplayMngr.bringToTop( editor );        		
         	}
 			catch ( VizException vizex ) {
 	    		VizApp.runAsync(
@@ -274,7 +286,7 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
     	}
     	
 		removeAllSeldRBDs();
-    	
+		
      //   this.cancel();  if a Job 
      //   return null;
     }
@@ -282,14 +294,14 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
     //
     //
     public boolean loadResourceBundleDefn( IDisplayPane pane, 
-                            NCMapRenderableDisplay mapDisplay, NCTimeMatcher timeMatcher )  {
+    				INatlCntrsRenderableDisplay mapDisplay, NCTimeMatcher timeMatcher )  {
 
     	if( timeMatcher == null ) {
-    		System.out.println("Error Loading Timeline???");
+    		System.out.println("Error Loading  Timeline???");
     		return false;
     	}
     	
-    	MapDescriptor descr = (MapDescriptor)mapDisplay.getDescriptor();
+    	INatlCntrsDescriptor descr = (INatlCntrsDescriptor) mapDisplay.getDescriptor();
 
     	descr.setTimeMatcher( timeMatcher ); 
     	descr.setNumberOfFrames( timeMatcher.getNumFrames() );
@@ -311,14 +323,14 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
     	}
 
     	ResourceList rscList = descr.getResourceList();
-		   	
-		//Add PGEN resource back
+
+		// Add PGEN resource back
 		if ( !pane.getRenderableDisplay().getDescriptor().getResourceList().isEmpty() ){
 			rscList.addAll( pane.getRenderableDisplay().getDescriptor().getResourceList());
 		}
 
     	rscList.instantiateResources( descr, true );
-
+    	
     	// TODO : change the resource-capable (ie Satellite) resourceData objects to be able
     	// to query for the gridCoverage before the resource object is created. We should
     	// be able to query the mcidas_area_names/mcidas_spatial tables knowing just the info
@@ -331,18 +343,20 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
     	
 //    	NCDisplayPane ncPane = (NCDisplayPane)pane;
     	
-    	PredefinedArea initArea = mapDisplay.getInitialArea();
-    	
-    	if( initArea.getAreaSource() == AreaSource.RESOURCE_DEFINED ) {
-    		
-    		if( initArea.getZoomLevel().equals( ZoomLevelStrings.SizeOfImage.toString() ) ) {
-    			
-    	        mapDisplay.setExtent( new PixelExtent( pane.getBounds() ) );
-    	        ((NCMapDescriptor)descr).setSuspendZoom( true );
-//    	        ZoomUtil.suspendZoom( mapDisplay.getContainer() ) ;    		
-    		}
-    		else if( initArea.getZoomLevel().equals( ZoomLevelStrings.FitToScreen.toString() ) ) {
-    			
+    	if( mapDisplay.getInitialArea() instanceof PredefinedArea ) {
+    		PredefinedArea initArea = (PredefinedArea)mapDisplay.getInitialArea();
+
+    		if( initArea.getAreaSource() == AreaSource.RESOURCE_DEFINED ) {
+
+    			if( initArea.getZoomLevel().equals( ZoomLevelStrings.SizeOfImage.toString() ) ) {
+
+    				mapDisplay.setExtent( new PixelExtent( pane.getBounds() ) );
+    				((NCMapDescriptor)descr).setSuspendZoom( true );
+    				//    	        ZoomUtil.suspendZoom( mapDisplay.getContainer() ) ;    		
+    			}
+    			else if( initArea.getZoomLevel().equals( ZoomLevelStrings.FitToScreen.toString() ) ) {
+
+    			}
     		}
     	}
     	

@@ -99,7 +99,7 @@ public class PgenRotateElement extends AbstractPgenDrawingTool {
 		@Override
 		public boolean handleMouseDown(int x, int y, int button) {
         	if ( !isResourceEditable() ) return false;
-			
+
 			// Check if mouse is in geographic extent
 			Coordinate loc = mapEditor.translateClick(x, y);
 			if (loc == null || shiftDown ) {

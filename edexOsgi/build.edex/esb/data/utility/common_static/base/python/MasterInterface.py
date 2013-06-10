@@ -32,6 +32,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    10/20/08                      njensen        Initial Creation.
+#    01/17/13         1486         dgilling       Make a new-style class.
 #    
 # 
 #
@@ -40,7 +41,7 @@
 import os, string
 import sys, inspect, traceback
 
-class MasterInterface():
+class MasterInterface(object):
     
     def __init__(self):
         self.scripts = []

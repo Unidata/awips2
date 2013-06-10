@@ -631,7 +631,7 @@ public class SnapUtil {
 			else if ( GFA_TEXT.equalsIgnoreCase( pgenType ) ){
 				return distance + azimuth + " " + name;
 			}
-
+			
 			return distance + " " + azimuth + " " + name;
 		}
     }

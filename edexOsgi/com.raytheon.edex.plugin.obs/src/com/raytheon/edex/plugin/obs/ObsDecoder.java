@@ -26,17 +26,19 @@ package com.raytheon.edex.plugin.obs;
  * 
  * <pre>
  *                     
- * OFTWARE HISTORY
- *                     
- * ate          Ticket#     Engineer    Description
+ * SOFTWARE HISTORY
+ * 
+ * Date          Ticket#     Engineer    Description
  * -----------  ----------  ----------- --------------------------
- * 4/27/07      199         bphillip    Initial creation                     
+ * 4/27/07      199         bphillip    Initial creation
  * 07/31/2007          411  jkorman     Added addition logging
  * 08/10/2007          379  jkorman     Added disposal behavior.
  * 20071217            453  jkorman     Added code to check for duplicate obs.
  * 20080314            995  jkorman     Changed setDecoderStrategy to check for
  *                                      empty data.
- * 20080408           1039 jkorman     Added traceId for tracing data.  
+ * 20080408           1039  jkorman     Added traceId for tracing data.  
+ * Mar 19, 2013       1785  bgonzale    Added performance status handler and added
+ *                                      status to decode.
  * </pre>
  * 
  * @author bphillip
@@ -50,6 +52,10 @@ import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.obs.metar.MetarDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 public class ObsDecoder extends AbstractDecoder {
@@ -57,6 +63,9 @@ public class ObsDecoder extends AbstractDecoder {
     private Log logger = LogFactory.getLog(getClass());
 
     private final String PLUGIN_NAME;
+
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("Obs:");
 
     private String traceId = null;
 
@@ -84,6 +93,8 @@ public class ObsDecoder extends AbstractDecoder {
         try {
 
             if (decoder != null) {
+                ITimer timer = TimeUtil.getTimer();
+                timer.start();
                 reports = decoder.decode(data, headers);
 
                 if (reports != null) {
@@ -91,6 +102,8 @@ public class ObsDecoder extends AbstractDecoder {
                         report.setTraceId(traceId);
                     }
                 }
+                timer.stop();
+                perfLog.logDuration("Time to Decode", timer.getElapsedTime());
             }
         } catch (Exception e) {
             logger.error(traceId + "- Error in ObsDecoder", e);

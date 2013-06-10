@@ -44,6 +44,7 @@ import com.raytheon.uf.viz.core.localization.CAVELocalizationNotificationObserve
 import com.raytheon.uf.viz.core.localization.LocalizationConstants;
 import com.raytheon.uf.viz.core.localization.LocalizationInitializer;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 
 /**
  * 
@@ -55,6 +56,7 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * ------------ ---------- ----------- --------------------------
  * Sep 29, 2008 #1433      chammack    Initial creation
  * Jan 12, 2012 #27        rferrel     Added createAlertVisualization
+ * May 08, 2013 1939       rjpeter     Updated to start NotificationManagerJob.
  * </pre>
  * 
  * @author chammack
@@ -128,6 +130,10 @@ public class AlertVizApplication implements IStandaloneComponent {
 
         // Job is not running on port, launch UI.
         AlertVisualization av = createAlertVisualization(true, display);
+
+        // open JMS connection to allow alerts to be received
+        NotificationManagerJob.connect();
+
         Throwable t = null;
         try {
             while (!display.isDisposed()) {
@@ -153,17 +159,18 @@ public class AlertVizApplication implements IStandaloneComponent {
             display.dispose();
             if (t != null) {
                 // Killed because of error, set exit status to non zero value
-            	return IApplication.EXIT_RELAUNCH;
+                return IApplication.EXIT_RELAUNCH;
             }
         }
 
         return av.getExitStatus();
     }
-    
+
     protected AlertVisualization createAlertVisualization(
-    		boolean runningStandalone, final Display display) {
-    	return new AlertVisualization(runningStandalone, display);	
+            boolean runningStandalone, final Display display) {
+        return new AlertVisualization(runningStandalone, display);
     }
+
     protected void initializeObservers() {
         CAVELocalizationNotificationObserver.register();
     }

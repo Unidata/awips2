@@ -24,14 +24,14 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MenuEvent;
-import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -45,6 +45,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
+
+import com.raytheon.uf.viz.ui.menus.widgets.tearoff.TearOffMenuDialog.MenuPathElement;
 
 /**
  * Holds the information for all the menu items in the dialog
@@ -56,6 +59,9 @@ import org.eclipse.swt.widgets.MenuItem;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 15, 2011            mnash     Initial creation
+ * Apr 10, 2013 DR 15185   D. Friedman Preserve tear-offs over perspective switches.
+ * Apr 30, 2013 DR 15727   D. Friedman Try to make items that depend on an active
+ *                                     workbench window work correctly.
  * 
  * </pre>
  * 
@@ -63,7 +69,7 @@ import org.eclipse.swt.widgets.MenuItem;
  * @version 1.0
  */
 
-public class MenuItemComposite extends Composite implements MenuListener {
+public class MenuItemComposite extends Composite {
 
     private boolean separator = false;
 
@@ -74,6 +80,8 @@ public class MenuItemComposite extends Composite implements MenuListener {
     // backing data for executing listeners
     private MenuItem item;
 
+    private MenuPathElement itemPath;
+
     private Image arrow = null;
 
     private Image highlightedArrow = null;
@@ -83,8 +91,6 @@ public class MenuItemComposite extends Composite implements MenuListener {
     private SelectionListener radioListener = null;
 
     private List<String> myPath;
-
-    private Menu topMostParent;
 
     /**
      * @param parent
@@ -108,14 +114,13 @@ public class MenuItemComposite extends Composite implements MenuListener {
         do {
             myPath.add(toAdd.getText());
             toAdd = parent.getParentItem();
-            topMostParent = parent;
             parent = parent.getParentMenu();
         } while (parent.getParentMenu() != null);
 
         Collections.reverse(myPath);
 
-        topMostParent.addMenuListener(this);
         item = it;
+        itemPath = new MenuPathElement(it);
 
         String[] labels = item.getText().split("\t");
         // handle for a separator menu item
@@ -189,6 +194,8 @@ public class MenuItemComposite extends Composite implements MenuListener {
      * 
      */
     private void addItemListeners() {
+        if (item == null)
+            return;
         if (updateListener != null) {
             item.addListener(SWT.Modify, updateListener);
         }
@@ -209,11 +216,11 @@ public class MenuItemComposite extends Composite implements MenuListener {
                     for (Control comp : firstItem.getParent().getParent()
                             .getChildren()) {
                         MenuItemComposite composite = (MenuItemComposite) comp;
-                        if (composite.item.getText().equals(
+                        if (composite.getItem().getText().equals(
                                 ((MenuItem) e.widget).getText())) {
                             if (composite.firstItem instanceof Button) {
                                 ((Button) composite.firstItem)
-                                        .setSelection(composite.item
+                                        .setSelection(composite.getItem()
                                                 .getSelection());
                             }
                         } else {
@@ -233,7 +240,7 @@ public class MenuItemComposite extends Composite implements MenuListener {
             @Override
             public void handleEvent(Event event) {
                 if (secondItem != null && !secondItem.isDisposed()) {
-                    if (item == event.data) {
+                    if (getItem() == event.data) {
                         if (((MenuItem) event.data).getText().split("\t").length > 1) {
                             ((Label) secondItem)
                                     .setText(((MenuItem) event.data).getText()
@@ -376,7 +383,9 @@ public class MenuItemComposite extends Composite implements MenuListener {
     private MouseAdapter getMouseAdapter() {
         MouseAdapter mouseAdapter = new MouseAdapter() {
             @Override
-            public void mouseDown(MouseEvent e) {
+            public void mouseDown(final MouseEvent e) {
+                MenuItem item = getItem();
+
                 if (item.getMenu() != null) {
                     // This is item opens a submenu, get the y offset based on
                     // the location of the click
@@ -390,71 +399,121 @@ public class MenuItemComposite extends Composite implements MenuListener {
                     return;
                 }
 
-                // handle the selection event, so if it is able to load
-                // something, do it (by looping over ALL the selection
-                // listeners assigned to the item)
-                for (Listener list : item.getListeners(SWT.Selection)) {
-                    Event event = new Event();
-                    event.type = SWT.Selection;
-                    event.widget = item;
-                    list.handleEvent(event);
-                }
-
-                if (isDisposed()) {
-                    return;
-                }
-
-                // handles the check boxes, if clicking the check box
-                // need to not do this (because SWT does it already)
-                // otherwise do it
-                if (firstItem instanceof Button
-                        && firstItem.getStyle() == SWT.CHECK) {
-                    if (e.widget != firstItem) {
-                        ((Button) firstItem).setSelection(!((Button) firstItem)
-                                .getSelection());
-                    }
-                }
-
-                // Handle radio selection changing...
-                Control[] siblings = getParent().getChildren();
-                for (int i = 0; i < siblings.length; i++) {
-                    final MenuItemComposite mic = (MenuItemComposite) siblings[i];
-                    if (mic.separator == false
-                            && mic.item.getStyle() == SWT.RADIO) {
-                        try {
-                            MenuItemComposite parent = null;
-                            // check whether a Label is clicked or a
-                            // MenuItemComposite
-                            if (e.widget instanceof MenuItemComposite) {
-                                parent = (MenuItemComposite) e.widget;
-                            } else {
-                                parent = (MenuItemComposite) ((Control) e.widget)
-                                        .getParent();
-                            }
-                            // check that the radio groups match
-                            if (mic.getData("radioGroup").equals(
-                                    parent.getData("radioGroup"))) {
-                                if (!parent.item
-                                        .getText()
-                                        .replaceAll("&", "")
-                                        .equals(mic.item.getText().replaceAll(
-                                                "&", ""))) {
-                                    mic.item.setSelection(false);
-                                    ((Button) mic.firstItem)
-                                            .setSelection(false);
-                                } else {
-                                    mic.item.setSelection(true);
-                                    ((Button) mic.firstItem).setSelection(true);
-                                }
-                            }
-                        } catch (NullPointerException e1) {
-                            e1.printStackTrace();
+                /*
+                 * Many menu items do not work unless there in an active
+                 * workbench window.
+                 * 
+                 * If not already active (and it probably will not be), make the
+                 * shell of the original menu item active and finish selecting
+                 * the item after receiving an activation event. Otherwise,
+                 * finish selecting the item immediately.
+                 * 
+                 * Also select immediately if the shell if not visible or is
+                 * minimized because we cannot exepect to get an activation
+                 * event.
+                 * 
+                 * TODO: This is all still a kludge and could cause unexpected
+                 * behavior.
+                 */
+                final Shell shell = item.getParent().getShell();
+                Display display = shell.getDisplay();
+                if (shell.isVisible() && !shell.getMinimized()
+                        && display.getActiveShell() != shell) {
+                    shell.addShellListener(new ShellAdapter() {
+                        @Override
+                        public void shellActivated(ShellEvent e2) {
+                            shell.removeShellListener(this);
+                            selectItem(e);
                         }
-                    }
+
+                        @Override
+                        public void shellDeiconified(ShellEvent e) {
+                            shell.removeShellListener(this);
+                        }
+
+                        @Override
+                        public void shellIconified(ShellEvent e) {
+                            shell.removeShellListener(this);
+                        }
+
+                        @Override
+                        public void shellClosed(ShellEvent e) {
+                            shell.removeShellListener(this);
+                        }
+                    });
+                    shell.setActive();
+                } else {
+                    selectItem(e);
                 }
             }
         };
         return mouseAdapter;
+    }
+
+    private void selectItem(MouseEvent e) {
+        MenuItem item = getItem();
+        // handle the selection event, so if it is able to load
+        // something, do it (by looping over ALL the selection
+        // listeners assigned to the item)
+        for (Listener list : item.getListeners(SWT.Selection)) {
+            Event event = new Event();
+            event.type = SWT.Selection;
+            event.widget = item;
+            list.handleEvent(event);
+        }
+
+        if (isDisposed()) {
+            return;
+        }
+
+        // handles the check boxes, if clicking the check box
+        // need to not do this (because SWT does it already)
+        // otherwise do it
+        if (firstItem instanceof Button
+                && firstItem.getStyle() == SWT.CHECK) {
+            if (e.widget != firstItem) {
+                ((Button) firstItem).setSelection(!((Button) firstItem)
+                        .getSelection());
+            }
+        }
+
+        // Handle radio selection changing...
+        Control[] siblings = getParent().getChildren();
+        for (int i = 0; i < siblings.length; i++) {
+            final MenuItemComposite mic = (MenuItemComposite) siblings[i];
+            if (mic.separator == false
+                    && mic.getItem().getStyle() == SWT.RADIO) {
+                try {
+                    MenuItemComposite parent = null;
+                    // check whether a Label is clicked or a
+                    // MenuItemComposite
+                    if (e.widget instanceof MenuItemComposite) {
+                        parent = (MenuItemComposite) e.widget;
+                    } else {
+                        parent = (MenuItemComposite) ((Control) e.widget)
+                                .getParent();
+                    }
+                    // check that the radio groups match
+                    if (mic.getData("radioGroup").equals(
+                            parent.getData("radioGroup"))) {
+                        if (!parent.getItem()
+                                .getText()
+                                .replaceAll("&", "")
+                                .equals(mic.getItem().getText().replaceAll(
+                                        "&", ""))) {
+                            mic.getItem().setSelection(false);
+                            ((Button) mic.firstItem)
+                                    .setSelection(false);
+                        } else {
+                            mic.getItem().setSelection(true);
+                            ((Button) mic.firstItem).setSelection(true);
+                        }
+                    }
+                } catch (NullPointerException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override
@@ -476,10 +535,6 @@ public class MenuItemComposite extends Composite implements MenuListener {
             }
         }
 
-        if (topMostParent != null) {
-            topMostParent.removeMenuListener(this);
-        }
-
         super.dispose();
     }
 
@@ -489,67 +544,40 @@ public class MenuItemComposite extends Composite implements MenuListener {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.swt.events.MenuListener#menuHidden(org.eclipse.swt.events
-     * .MenuEvent)
-     */
-    @Override
-    public void menuHidden(MenuEvent e) {
-        if (item.isDisposed() == false) {
-            return;
-        }
+    private MenuItem getItem() {
+        MenuItem item = getItemIfAvailable();
+        if (item == null)
+            throw new IllegalStateException(
+                    String.format("Could not find target of tear-off menu item \"%s\"",
+                            itemPath.getName()));
+        return item;
+    }
 
-        // At some point we may need to check against the index as well but that
-        // is difficult because we don't know if the tear off menu item will/was
-        // in the menu when we were created/now so our index could be off by one
-        // very easily making it unreliable
-        Menu menu = topMostParent;
-        MenuItem myItem = null;
-        String last = myPath.get(myPath.size() - 1);
-        for (String path : myPath) {
-            if (menu != null) {
-                MenuItem[] items = menu.getItems();
-                for (int i = 0; i < items.length; ++i) {
-                    MenuItem item = items[i];
-                    if (path.equals(item.getText())) {
-                        if (path == last) {
-                            myItem = item;
-                        } else {
-                            menu = item.getMenu();
-
-                            if (menu != null && menu.getItemCount() == 0) {
-                                // Have to manually fill menu
-                                for (Listener listener : menu
-                                        .getListeners(SWT.Show)) {
-                                    Event event = new Event();
-                                    event.type = SWT.Show;
-                                    event.widget = menu;
-                                    listener.handleEvent(event);
-                                }
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-        if (myItem != null && myItem.isDisposed() == false) {
-            item = myItem;
+    private MenuItem getItemIfAvailable() {
+        if (item == null || item.isDisposed()) {
+            item = findItem();
             addItemListeners();
         }
+        return item;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.swt.events.MenuListener#menuShown(org.eclipse.swt.events.
-     * MenuEvent)
-     */
-    @Override
-    public void menuShown(MenuEvent e) {
+    private MenuItem findItem() {
+        Menu menu = getTargetMenu();
+        if (menu != null)
+            return TearOffMenuDialog.findItem(menu, itemPath);
+        else
+            return null;
     }
+
+    private Menu getTargetMenu() {
+        return getDialog().getTargetMenu();
+    }
+
+    private TearOffMenuDialog getDialog() {
+        return (TearOffMenuDialog) getShell().getData();
+    }
+
+    public void reconnect() {
+        getItemIfAvailable();
+   }
 }

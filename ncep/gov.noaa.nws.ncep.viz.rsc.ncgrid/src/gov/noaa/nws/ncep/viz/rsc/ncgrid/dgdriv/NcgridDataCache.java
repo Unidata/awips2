@@ -11,6 +11,7 @@ import java.util.Map.Entry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 25, 2012            xguo      Initial creation * 
+ * Apr 26, 2013			   B. Yin	 Fixed the unit bug
  * 
  * </pre>
  * 
@@ -87,11 +88,11 @@ public class NcgridDataCache {
 	/*
 	 * get gempak parameter from dataURI
 	 */
-	public String getGempakParam ( String dataUri ) {
+	public String getGempakParam ( String dataUriStr ) {
 		String parm = null;
 		
 		for ( Entry<String, String> e : dataURI.entrySet() ) {
-			if ( e.getValue().equals(dataURI)){
+			if ( e.getValue().equals(dataUriStr)){
 				String[] parmList = e.getKey().split("\\|");
 				parm = parmList[2];
 				break;

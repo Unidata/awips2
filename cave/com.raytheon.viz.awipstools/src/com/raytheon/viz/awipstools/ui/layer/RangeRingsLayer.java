@@ -42,13 +42,16 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.rsc.tools.AbstractMovableToolLayer;
 import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
@@ -71,6 +74,7 @@ import com.vividsolutions.jts.geom.Point;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  *  10-21-09     #717       bsteffen    Refactor to common MovableTool model
+ *  15Mar2013	15693	mgamazaychikov	Added magnification capability.
  * 
  * </pre>
  * 
@@ -82,6 +86,8 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
         implements IContextMenuContributor, IResourceDataChanged {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RangeRingsLayer.class);
+
+    private IFont labelFont;
 
     protected static final UnitConverter NM_TO_METERS = NonSI.NAUTICAL_MILE
             .getConverterTo(SI.METER);
@@ -109,6 +115,8 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
             LoadProperties loadProperties) throws VizException {
         super(resourceData, loadProperties);
         getCapabilities().addCapability(new OutlineCapability());
+        // add magnification capability
+        getCapabilities().addCapability(new MagnificationCapability());
         moveElementAction = new AbstractRightClickAction() {
             public void run() {
                 makeSelectedLive();
@@ -127,12 +135,16 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
     }
 
     @Override
-    protected void initInternal(IGraphicsTarget target) throws VizException {
-        super.initInternal(target);
-        resourceData.addChangeListener(this);
-        resetRings();
-        displayDialog();
-    }
+	protected void initInternal(IGraphicsTarget target) throws VizException {
+		super.initInternal(target);
+		resourceData.addChangeListener(this);
+		resetRings();
+		displayDialog();
+		// initialize font for magnification capability
+		labelFont = target.initializeFont(
+				target.getDefaultFont().getFontName(), 12.0f,
+				new Style[] { Style.BOLD });
+	}
 
     private void resetRings() {
         setObjects(dataManager.getRangeRings());
@@ -169,6 +181,9 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
 
     protected void paint(IGraphicsTarget target, PaintProperties paintProps,
             RangeRing ring, SelectionStatus status) throws VizException {
+    	// set font for  magnification capability
+    	labelFont.setMagnification(getCapability(MagnificationCapability.class)
+                .getMagnification().floatValue());
         if (ring.isVisible()) {
             RGB color = getCapability(ColorableCapability.class).getColor();
             float lineWidth = this.getCapability(OutlineCapability.class)
@@ -198,7 +213,7 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
                                 .worldToPixel(new double[] {
                                         coords[LABEL_INDEX].x,
                                         coords[LABEL_INDEX].y });
-                        target.drawString(null, radius + " nm", labelLoc[0],
+                        target.drawString(labelFont, radius + " nm", labelLoc[0],
                                 labelLoc[1], 0.0, TextStyle.NORMAL, color,
                                 HorizontalAlignment.CENTER,
                                 VerticalAlignment.TOP, null);
@@ -215,7 +230,7 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
             if (label.contains("C")) {
                 double labelLoc[] = target.getPointOnCircle(centerPixel[0],
                         centerPixel[1], 0.0, radius, 0);
-                target.drawString(null, ring.getId(), labelLoc[0], labelLoc[1],
+                target.drawString(labelFont, ring.getId(), labelLoc[0], labelLoc[1],
                         0.0, TextStyle.NORMAL, color, HorizontalAlignment.LEFT,
                         null);
             }

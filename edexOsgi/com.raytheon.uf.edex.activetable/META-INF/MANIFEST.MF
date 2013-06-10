@@ -21,6 +21,8 @@ Require-Bundle: com.raytheon.uf.common.localization;bundle-version="1.11.1",
  com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.database,
  com.raytheon.uf.common.message;bundle-version="1.12.1174",
- com.raytheon.uf.common.activetable;bundle-version="1.12.1174"
+ com.raytheon.uf.common.activetable;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.site;bundle-version="1.0.0",
+ com.google.guava;bundle-version="1.0.0"
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Export-Package: com.raytheon.uf.edex.activetable

@@ -20,10 +20,13 @@
 package gov.noaa.nws.ncep.ui.nsharp.view;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
+import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
 import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
-import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpResourceHandler;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -67,6 +70,14 @@ public class NsharpLoadDialog extends Dialog {
 	private ModelSoundingDialogContents mdlDialog;
 	private Group  soundingTypeGp, acarsGp;
 	private int activeLoadSoundingType;
+	private NcSoundingProfile.ObsSndType activeObsSndType=NcSoundingProfile.ObsSndType.NCUAIR;
+	private  ArrayList<String> obsSelectedTimeList = new ArrayList<String>(); 
+	private NcSoundingProfile.PfcSndType activePfcSndType=NcSoundingProfile.PfcSndType.NAMSND;
+	private List<String> pfcSelectedFileList = new ArrayList<String>(); 
+	private List<String> pfcSelectedTimeList = new ArrayList<String>(); 
+	private String activeMdlSndMdlType="";
+	private List<String> mdlSelectedFileList = new ArrayList<String>(); 
+	private List<String> mdlSelectedTimeList = new ArrayList<String>(); 
 	private Text text1;
 	private MessageBox mb;
 	private Cursor waitCursor=null;
@@ -252,7 +263,55 @@ public class NsharpLoadDialog extends Dialog {
 		return activeLoadSoundingType;
 	}
 
+	public List<String> getPfcSelectedFileList() {
+		return pfcSelectedFileList;
+	}
+	public void setPfcSelectedFileList(List<String> pfcSelectedFileList) {
+		this.pfcSelectedFileList = pfcSelectedFileList;
+	}
+	public List<String> getPfcSelectedTimeList() {
+		return pfcSelectedTimeList;
+	}
+	public void setPfcSelectedTimeList(List<String> pfcSelectedTimeList) {
+		this.pfcSelectedTimeList = pfcSelectedTimeList;
+	}
+	public ArrayList<String> getObsSelectedTimeList() {
+		return obsSelectedTimeList;
+	}
+	public void setObsSelectedTimeList(ArrayList<String> obsSelectedTimeList) {
+		this.obsSelectedTimeList = obsSelectedTimeList;
+	}
+	public NcSoundingProfile.ObsSndType getActiveObsSndType() {
+		return activeObsSndType;
+	}
+	public void setActiveObsSndType(NcSoundingProfile.ObsSndType activeObsSndType) {
+		this.activeObsSndType = activeObsSndType;
+	}
+	public NcSoundingProfile.PfcSndType getActivePfcSndType() {
+		return activePfcSndType;
+	}
+	public void setActivePfcSndType(NcSoundingProfile.PfcSndType activePfcSndType) {
+		this.activePfcSndType = activePfcSndType;
+	}
+	public String getActiveMdlSndMdlType() {
+		return activeMdlSndMdlType;
+	}
+	public void setActiveMdlSndMdlType(String activeMdlSndMdlType) {
+		this.activeMdlSndMdlType = activeMdlSndMdlType;
+	}
 
+	public List<String> getMdlSelectedFileList() {
+		return mdlSelectedFileList;
+	}
+	public void setMdlSelectedFileList(List<String> mdlSelectedFileList) {
+		this.mdlSelectedFileList = mdlSelectedFileList;
+	}
+	public List<String> getMdlSelectedTimeList() {
+		return mdlSelectedTimeList;
+	}
+	public void setMdlSelectedTimeList(List<String> mdlSelectedTimeList) {
+		this.mdlSelectedTimeList = mdlSelectedTimeList;
+	}
 
 	static int count = 0;
 
@@ -296,6 +355,7 @@ public class NsharpLoadDialog extends Dialog {
     }
 
 	private void createLoadContents(Composite parent) {
+		/* CHIN 1331
 		NsharpMapResource nsharpMapResource = NsharpMapResource.getOrCreateNsharpMapResource();//NsharpLoadDialog.getAccess().getNsharpMapResource();
 		nsharpMapResource.setPoints(null);
 		NsharpEditor editor = NsharpEditor.getActiveNsharpEditor();
@@ -303,7 +363,7 @@ public class NsharpLoadDialog extends Dialog {
         	NsharpResourceHandler rsc = editor.getRscHandler();
         	rsc.cleanUpRsc();
         	editor.refresh();
-        }
+        }*/
 		dialogParent = parent;
 		obsDialog =  new ObservedSoundingDialogContents(dialogParent);
 		pfcDialog = new PfcSoundingDialogContents(dialogParent);

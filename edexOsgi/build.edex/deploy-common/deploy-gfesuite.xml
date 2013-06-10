@@ -24,6 +24,10 @@
 			</fileset>
 		</copy>
 		
+		<!-- Create inbox/outbox directories used for ISC/VTEC sharing -->
+		<mkdir dir="${gfesuite.directory}/products/ISC" />
+		<mkdir dir="${gfesuite.directory}/products/ATBL" />
+		
 		<!-- Adjust GFESuite permissions -->
 		<chmod perm="ugo+rx">
 			<fileset dir="${gfesuite.directory}/bin">

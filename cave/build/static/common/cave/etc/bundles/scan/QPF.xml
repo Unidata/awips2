@@ -22,10 +22,10 @@
 	<displayList>
 		<displays xsi:type="d2DMapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 			<descriptor xsi:type="mapDescriptor">
-				<resource>
-					<resourceType>PLAN_VIEW</resourceType>
+				<resource>					
                     <loadProperties xsi:type="gridLoadProperties"
 						displayType="CONTOUR" >
+						<resourceType>PLAN_VIEW</resourceType>
 					</loadProperties>
 					<properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false"
                         isVisible="true">

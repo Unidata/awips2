@@ -1,15 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Postgres Plug-in
+Bundle-Name: Postgres
 Bundle-SymbolicName: org.postgres
-Bundle-Version: 1.0.0.qualifier
-Bundle-ClassPath: postgresql-8.3-603.jdbc3.jar,
- postgis.jar
+Bundle-Version: 9.2
+Bundle-ClassPath: postgis-jdbc-2.0.2SVN.jar,
+ postgresql-9.2-1002.jdbc4.jar
 Export-Package: examples,
  org.postgis,
  org.postgis.binary,
  org.postgis.java2d,
  org.postgresql,
+ org.postgresql.copy,
  org.postgresql.core,
  org.postgresql.core.types,
  org.postgresql.core.v2,
@@ -17,16 +18,21 @@ Export-Package: examples,
  org.postgresql.ds,
  org.postgresql.ds.common,
  org.postgresql.ds.jdbc23,
+ org.postgresql.ds.jdbc4,
  org.postgresql.fastpath,
  org.postgresql.geometric,
+ org.postgresql.gss,
  org.postgresql.jdbc2,
  org.postgresql.jdbc2.optional,
  org.postgresql.jdbc3,
+ org.postgresql.jdbc3g,
+ org.postgresql.jdbc4,
  org.postgresql.largeobject,
  org.postgresql.ssl,
+ org.postgresql.ssl.jdbc4,
  org.postgresql.translation,
  org.postgresql.util,
- org.postgresql.xa
-Edex-Deploy:  postgis.jar,
- postgresql-8.3-603.jdbc3.jar
+ org.postgresql.xa,
+ org.postgresql.xa.jdbc3,
+ org.postgresql.xa.jdbc4
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

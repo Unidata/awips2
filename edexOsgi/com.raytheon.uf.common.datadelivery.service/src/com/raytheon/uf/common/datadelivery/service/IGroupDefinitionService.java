@@ -19,8 +19,9 @@
  **/
 package com.raytheon.uf.common.datadelivery.service;
 
+import java.rmi.RemoteException;
+
 import com.raytheon.uf.common.datadelivery.registry.GroupDefinition;
-import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 
 /**
  * Defines the service to interact with {@link GroupDefinition} objects.
@@ -32,6 +33,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2013 1441       djohnson     Initial creation
+ * Feb 26, 2013 1643       djohnson     Change exception type thrown.
  * 
  * </pre>
  * 
@@ -45,8 +47,7 @@ public interface IGroupDefinitionService {
      * 
      * @param group
      *            the group
-     * @throws RegistryHandlerException
+     * @throws RemoteException
      */
-    void deleteGroupDefinition(GroupDefinition group)
-            throws RegistryHandlerException;
+    void deleteGroupDefinition(GroupDefinition group) throws RemoteException;
 }

@@ -19,9 +19,7 @@
  **/
 package com.raytheon.edex.plugin.redbook.decoder;
 
-import java.io.File;
 import java.util.HashMap;
-import java.util.Properties;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -29,23 +27,30 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.raytheon.uf.common.localization.FileUpdatedMessage;
+import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
- * Add fcsttime
+ * Mapping of WMO header TTAAII values to forecast hour attributes.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date			Ticket#		Engineer	Description
  * ------------	-----------	-----------	--------------------------
  * 20101022            6424 kshrestha	Add fcsttime
+ * Apr 29, 2013        1958 bgonzale     Map is loaded once, and then
+ *                                       not loaded again unless the mapping
+ *                                       file changes.
  * 
  * </pre>
  * 
@@ -57,6 +62,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 public class RedbookFcstMap implements ISerializableObject {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RedbookFcstMap.class);
+
+    private static final String REDBOOK_FCST_MAP_XML = "redbook/redbookFcstMap.xml";
 
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class MapFcstHr {
@@ -73,26 +80,57 @@ public class RedbookFcstMap implements ISerializableObject {
         public Integer binOffset;
     }
 
-    public HashMap<String, MapFcstHr> mapping;
+    private static RedbookFcstMap instance;
 
-    public static File xmlFile;
+    private HashMap<String, MapFcstHr> mapping;
 
-    public static Properties filesXml = new Properties();
+    private RedbookFcstMap() {
+    }
 
-    public static RedbookFcstMap load() throws Exception {
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext ctx = pathMgr.getContext(
-                LocalizationContext.LocalizationType.EDEX_STATIC,
-                LocalizationContext.LocalizationLevel.BASE);
+    private static RedbookFcstMap load(LocalizationFile xmlFile) {
+        RedbookFcstMap loadedMap = null;
         try {
-            xmlFile = pathMgr.getFile(ctx, "redbook/redbookFcstMap.xml");
-
-            RedbookFcstMap map = (RedbookFcstMap) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(xmlFile.getAbsolutePath());
-            return map;
-        } catch (Exception e) {
+            loadedMap = SerializationUtil.jaxbUnmarshalFromXmlFile(
+                    RedbookFcstMap.class, xmlFile.getFile().getAbsolutePath());
+        } catch (SerializationException e) {
             statusHandler.handle(Priority.PROBLEM, e.getMessage(), e);
-            throw e;
         }
+        return loadedMap;
+    }
+
+    /**
+     * @param key
+     * @return The Map Forecast Hour attributes associated with the key; null if
+     *         none found.
+     */
+    public MapFcstHr get(String key) {
+        return this.mapping.get(key);
+    }
+
+    /**
+     * Get the instance of the Map.
+     * 
+     * @return the instance.
+     */
+    public static synchronized RedbookFcstMap getInstance() {
+        if (instance == null) {
+            IPathManager pathMgr = PathManagerFactory.getPathManager();
+            LocalizationContext ctx = pathMgr.getContext(
+                    LocalizationContext.LocalizationType.EDEX_STATIC,
+                    LocalizationContext.LocalizationLevel.BASE);
+            final LocalizationFile xmlFile = pathMgr.getLocalizationFile(ctx,
+                    REDBOOK_FCST_MAP_XML);
+
+            instance = load(xmlFile);
+            xmlFile.addFileUpdatedObserver(new ILocalizationFileObserver() {
+                @Override
+                public void fileUpdated(FileUpdatedMessage message) {
+                    RedbookFcstMap updatedMap = load(xmlFile);
+                    instance.mapping.clear();
+                    instance.mapping.putAll(updatedMap.mapping);
+                }
+            });
+        }
+        return instance;
     }
 }

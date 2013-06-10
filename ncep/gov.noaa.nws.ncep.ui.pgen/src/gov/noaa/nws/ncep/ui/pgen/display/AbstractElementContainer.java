@@ -173,7 +173,7 @@ public abstract class AbstractElementContainer {
 		}
 		displayEls.clear();
 	}
-
+	
 	public void setElement(DrawableElement el) {
 		this.element = el;
 	}

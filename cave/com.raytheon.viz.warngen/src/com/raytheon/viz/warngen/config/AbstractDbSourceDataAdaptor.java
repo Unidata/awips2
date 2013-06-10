@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.measure.converter.UnitConverter;
+import javax.measure.unit.SI;
 
 import org.apache.commons.lang.StringUtils;
 import org.geotools.geometry.jts.JTS;
@@ -19,6 +20,7 @@ import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.dataplugin.warning.config.PathcastConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.PointSourceConfiguration;
+import com.raytheon.uf.common.dataplugin.warning.config.PointSourceConfiguration.PointType;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.ISpatialQuery.SearchMode;
@@ -50,6 +52,7 @@ import com.vividsolutions.jts.geom.Point;
  * Oct 17, 2012            jsanchez     Added pathcast algorithm.
  * Feb 12, 2013  1600      jsanchez     Used adjustAngle method from AbstractStormTrackResource.
  * Mar  5, 2013  1600      jsanchez     Used AdjustAngle instead of AbstractStormTrackResource to handle angle adjusting.
+ * Mar 26, 2013  1819      jsanchez     Allowed points to be not be based on point source inclusion constraints.
  * 
  * </pre>
  * 
@@ -61,6 +64,9 @@ abstract public class AbstractDbSourceDataAdaptor {
     private static final String transformedKey = "com.raytheon.transformed";
 
     private static final String GEOM_FIELD = "the_geom";
+
+    private static UnitConverter meterSqToKmSq = SI.METRE.times(SI.METRE)
+            .getConverterTo(SI.KILOMETRE.times(SI.KILOMETRE));
 
     protected Set<String> undatabasedSortableFields = new HashSet<String>(
             Arrays.asList(new String[] {
@@ -209,12 +215,49 @@ abstract public class AbstractDbSourceDataAdaptor {
                     ClosestPoint cp = createClosestPoint(pointField, ptFields,
                             ptRslt);
                     cp.setGid(getGid(ptFields, ptRslt.attributes));
-                    points.add(cp);
+                    if (pointConfig.getType() == PointType.POINT
+                            || includeArea(pointConfig, ptRslt.geometry)) {
+                        points.add(cp);
+                    }
                 }
             }
         }
 
         return points;
+    }
+
+    /**
+     * Determines if the geom surpasses the inclusion percent and/or inclusion
+     * area configurations.
+     * 
+     * @param pointConfig
+     * @param geom
+     * @return
+     */
+    private boolean includeArea(PointSourceConfiguration pointConfig,
+            Geometry geom) {
+        String inclusionAndOr = pointConfig.getInclusionAndOr();
+        double inclusionPercent = pointConfig.getInclusionPercent();
+        double inclusionArea = pointConfig.getInclusionArea();
+
+        Geometry intersection = searchArea.intersection(geom);
+        double ratio = intersection.getArea() / geom.getArea();
+        double ratioInPercent = ratio * 100;
+        double areaOfGeom = geom.getArea();
+        double areaInKmSqOfIntersection = meterSqToKmSq.convert(areaOfGeom
+                * ratio);
+
+        boolean includeArea = false;
+        if (inclusionAndOr.equalsIgnoreCase("AND")
+                && ratioInPercent >= inclusionPercent
+                && areaInKmSqOfIntersection > inclusionArea) {
+            includeArea = true;
+        } else if (inclusionAndOr.equalsIgnoreCase("OR")
+                && (ratioInPercent >= inclusionPercent || areaInKmSqOfIntersection > inclusionArea)) {
+            includeArea = true;
+        }
+
+        return includeArea;
     }
 
     /**

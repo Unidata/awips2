@@ -39,6 +39,7 @@ import org.eclipse.ui.PlatformUI;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial Creation.
+ * 02/07/2013   1758        rferrel     Changes for non-blocking FlashFloodGuidanceDlg.
  * 
  * </pre>
  * 
@@ -46,15 +47,25 @@ import org.eclipse.ui.PlatformUI;
  * 
  */
 public class FlashFloodGuidanceAction extends AbstractHandler {
+    private FlashFloodGuidanceDlg flashFloodDlg;
 
-	@Override
-	public Object execute(ExecutionEvent arg0) throws ExecutionException {
-	    Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-        .getShell();
-	    FlashFloodGuidanceDlg flashFloodDlg = new FlashFloodGuidanceDlg(shell);
-	    flashFloodDlg.open();
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
+     * .ExecutionEvent)
+     */
+    @Override
+    public Object execute(ExecutionEvent arg0) throws ExecutionException {
+        if (flashFloodDlg == null) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            flashFloodDlg = new FlashFloodGuidanceDlg(shell);
+        }
+        flashFloodDlg.open();
 
-		return null;
-	}
+        return null;
+    }
 
 }

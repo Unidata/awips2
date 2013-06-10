@@ -1,8 +1,9 @@
 
 package gov.noaa.nws.ncep.viz.tools.syncPanes;
 
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
 
 import java.io.File;
 import java.util.Map;
@@ -15,6 +16,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
 
+import com.raytheon.viz.ui.editor.AbstractEditor;
+
 /**
  * Option to set the behaviour for multi-paned displays
  * 
@@ -24,6 +27,7 @@ import org.eclipse.ui.menus.UIElement;
  * ------------ ----------  ----------- --------------------------
  * 09/25/09      #169        Greg Hull    created
  * 10/27/09      #180        Greg Hull    Moved out of perspectives project
+ * 02/11/13      #972        G. Hull       AbstractEditor instead of NCMapEditor
  * 
  * </pre>
  * 
@@ -44,10 +48,10 @@ public class SyncPanesOptionAction extends AbstractHandler
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        NCMapEditor currEditor = NmapUiUtils.getActiveNatlCntrsEditor();
-        if( currEditor.getNumberofPanes() > 1 )	{
+    	AbstractEditor currEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
+        if( currEditor.getDisplayPanes().length > 1 )	{
         	setSynced( !syncPanes );            
-        	currEditor.setGeoSyncPanesEnabled( syncPanes );
+        	NcEditorUtil.setGeoSyncPanesEnabled( currEditor, syncPanes );
         }
         else {
         	System.out.println("Can not Geo-Syncronize the active display "+
@@ -63,10 +67,10 @@ public class SyncPanesOptionAction extends AbstractHandler
 
     @Override
     public void updateElement(UIElement element, Map parameters) {
-    	NCMapEditor activeDisplay = NmapUiUtils.getActiveNatlCntrsEditor();
+    	AbstractEditor activeDisplay = NcDisplayMngr.getActiveNatlCntrsEditor();
     	
     	if( activeDisplay != null ) {
-    		syncPanes = activeDisplay.arePanesGeoSynced();	
+    		syncPanes = NcEditorUtil.arePanesGeoSynced( activeDisplay );	
     		element.setChecked( syncPanes );	
     	}
     }

@@ -1,0 +1,29 @@
+#!/bin/sh
+
+##############################################################################
+#
+# This is the script to execute the main climate GUI.
+#
+# Modification History:
+# ---------------------
+# 12/05/2002  OB2  Bob Morris         - Changed from csh to sh
+#                                     - Removed CLIMATE_BIN_DIR definition, it
+#                                       is set in readenv.csh.  General cleanup.
+#
+##############################################################################
+#
+# Set the paths
+#
+
+. $(dirname $0)/set_climate_env.sh
+
+CLIMATE_DATA_DIR=${CLIMATE_DIR}/data; export CLIMATE_DATA_DIR
+CLIMATE_TMP_DIR=${CLIMATE_DIR}/tmp; export CLIMATE_TMP_DIR
+
+#
+# Change the directory to the temporary climate directory
+#
+cd ${CLIMATE_TMP_DIR}
+exec ${CLIMATE_BIN_DIR}/do_all_climate & 
+
+exit 0

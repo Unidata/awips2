@@ -72,6 +72,7 @@ import com.raytheon.viz.ui.tools.ModalToolManager;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jul 22, 2008				randerso	Initial creation
+ * Mar 26, 2013	1799      	bsteffen   	Fix pan/zoom when in views.
  * 
  * </pre>
  * 
@@ -141,11 +142,15 @@ public abstract class AbstractVizPerspectiveManager implements
                     && part instanceof IDisplayPaneContainer) {
                 AbstractVizPerspectiveManager mgr = VizPerspectiveListener
                         .getCurrentPerspectiveManager();
-                if (mgr != null) {
-                    for (AbstractModalTool tool : mgr.getToolManager()
-                            .getSelectedModalTools()) {
-                        if (tool.getCurrentEditor() == part) {
-                            tool.deactivate();
+                IWorkbenchPart newPart = part.getSite().getPage()
+                        .getActivePart();
+                if (newPart instanceof IEditorPart) {
+                    if (mgr != null) {
+                        for (AbstractModalTool tool : mgr.getToolManager()
+                                .getSelectedModalTools()) {
+                            if (tool.getCurrentEditor() == part) {
+                                tool.deactivate();
+                            }
                         }
                     }
                 }
@@ -166,6 +171,16 @@ public abstract class AbstractVizPerspectiveManager implements
                     try {
                         mgr.activateDefaultTool(((AbstractEditor) part)
                                 .getDefaultTool());
+                        if (mgr.getToolManager().getSelectedModalTools()
+                                .isEmpty()) {
+                            // Hack due to tool activation not sending whether
+                            // it should be activated or deactivated and is just
+                            // toggling instead. TODO: Make AbstractModalTool
+                            // required command parameter for activate or
+                            // deactivate
+                            mgr.activateDefaultTool(((AbstractEditor) part)
+                                    .getDefaultTool());
+                        }
                     } catch (VizException e) {
                         statusHandler.handle(Priority.SIGNIFICANT,
                                 "Error activating tool set", e);

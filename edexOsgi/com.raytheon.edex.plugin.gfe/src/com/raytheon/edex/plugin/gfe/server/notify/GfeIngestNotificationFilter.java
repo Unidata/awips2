@@ -36,34 +36,33 @@ import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.server.D2DSatParm;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
+import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase;
+import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase.D2DParm;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabaseManager;
 import com.raytheon.edex.plugin.gfe.smartinit.SmartInitQueue;
 import com.raytheon.edex.plugin.gfe.smartinit.SmartInitRecord;
 import com.raytheon.edex.plugin.gfe.smartinit.SmartInitRecordPK;
-import com.raytheon.edex.plugin.gfe.util.GridTranslator;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID.DataType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.DBInvChangeNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GfeNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotification;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.message.WsId;
-import com.raytheon.uf.common.parameter.mapping.ParameterMapper;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.common.util.mapping.MultipleMappingException;
 import com.raytheon.uf.edex.core.EDEXUtil;
 
 /**
- * TODO Add Description
+ * Filters data URI notifications and sends GridUpdate and DbInvChanged
+ * notifications for new D2D data
  * 
  * <pre>
  * 
@@ -75,6 +74,13 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * Sep 19, 2012			   jdynina		DR 15442 fix
  * Jan 18, 2013      #1504 randerso     Moved D2D to GFE parameter name translation from
  *                                      D2DParmIdCache to GfeIngestNotificationFilter
+ * Mar 25, 2013       1823 dgilling     Trigger SAT smart init based only on record's
+ *                                      SectorId and PhysicalElement.
+ * Mar 20, 2013      #1774 randerso     Refactor to use grid durations from D2DGridDatabase
+ * Apr 01, 2013      #1774 randerso     Moved wind component checking to GfeIngestNotificaionFilter
+ * Apr 04, 2013      #1787 randerso     Added null check to prevent log spamming for parameters
+ *                                      not included in the parameter info file
+ * May 2, 2013       #1969 randerso     Updated for change to DBInvChangeNotification
  * 
  * </pre>
  * 
@@ -87,10 +93,17 @@ public class GfeIngestNotificationFilter {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GfeIngestNotificationFilter.class);
 
+    // private final IPerformanceStatusHandler perfLog = PerformanceStatus
+    // .getHandler("GFE:");
+
+    private static Map<ParmID, Set<Integer>> windComps = new HashMap<ParmID, Set<Integer>>();
+
     private SmartInitQueue smartInitQueue = null;
 
     public void filterDataURINotifications(DataURINotificationMessage message)
             throws Exception {
+        // ITimer timer = TimeUtil.getTimer();
+        // timer.start();
         Date arrivalTime = new Date();
         List<GridRecord> gridRecords = new ArrayList<GridRecord>(500);
         List<SatelliteRecord> satRecords = new ArrayList<SatelliteRecord>(100);
@@ -108,6 +121,10 @@ public class GfeIngestNotificationFilter {
         if (!satRecords.isEmpty()) {
             filterSatelliteRecords(satRecords, arrivalTime);
         }
+        // timer.stop();
+        // perfLog.logDuration(
+        // "GfeIngestNotificationFilter: processing DataURINotificationMessage",
+        // timer.getElapsedTime());
     }
 
     public void filterGridRecords(List<GridRecord> gridRecords, Date arrivalTime)
@@ -122,7 +139,6 @@ public class GfeIngestNotificationFilter {
             Map<SmartInitRecordPK, SmartInitRecord> inits = new HashMap<SmartInitRecordPK, SmartInitRecord>();
             // Loop through each record received and construct a ParmID
             Map<ParmID, List<TimeRange>> gridInv = new HashMap<ParmID, List<TimeRange>>();
-            List<GridUpdateNotification> guns = new ArrayList<GridUpdateNotification>();
             Set<DatabaseID> newDbs = new HashSet<DatabaseID>();
 
             IFPServerConfig config = null;
@@ -136,12 +152,11 @@ public class GfeIngestNotificationFilter {
             for (GridRecord grid : gridRecords) {
                 String gfeModel = config.gfeModelNameMapping(grid
                         .getDatasetId());
+                DatabaseID dbId = D2DGridDatabase.getDbId(grid.getDatasetId(),
+                        grid.getDataTime().getRefTime(), config);
 
                 // ignore if no mapping
-                if (gfeModel != null && gfeModel.length() > 0) {
-                    DatabaseID dbId = new DatabaseID(site, DataType.GRID,
-                            "D2D", gfeModel, grid.getDataTime().getRefTime());
-
+                if (dbId != null) {
                     if ((!D2DParmIdCache.getInstance().getDatabaseIDs()
                             .contains(dbId))
                             && (!newDbs.contains(dbId))) {
@@ -150,39 +165,69 @@ public class GfeIngestNotificationFilter {
                         fullInv.add(dbId);
                         newDbs.add(dbId);
                         GfeNotification dbInv = new DBInvChangeNotification(
-                                fullInv, Arrays.asList(dbId),
-                                new ArrayList<DatabaseID>(0), site);
+                                Arrays.asList(dbId), null, site);
                         sendNotification(dbInv);
                     }
 
-                    String abbrev = grid.getParameter().getAbbreviation();
-                    String gfeParmName = null;
-                    try {
-                        gfeParmName = ParameterMapper.getInstance()
-                                .lookupAlias(abbrev, "gfeParamName");
-                    } catch (MultipleMappingException e) {
-                        statusHandler.handle(Priority.WARN,
-                                e.getLocalizedMessage(), e);
-                        gfeParmName = e.getArbitraryMapping();
+                    String d2dParamName = grid.getParameter().getAbbreviation();
+                    Level level = grid.getLevel();
+                    Integer fcstHour = grid.getDataTime().getFcstTime();
+
+                    D2DGridDatabase db = (D2DGridDatabase) GridParmManager
+                            .getDb(dbId);
+                    String gfeParamName = db.getGfeParmName(d2dParamName);
+
+                    D2DParm parm = db.getD2DParm(d2dParamName, level);
+                    if (parm == null) {
+                        continue;
+                    }
+                    ParmID parmID = parm.getParmId();
+
+                    // check for wind
+                    String otherComponent = null;
+                    String[] components = parm.getComponents();
+                    if (components.length > 1) {
+                        if (components[0].equals(d2dParamName)) {
+                            otherComponent = components[1];
+                        } else {
+                            otherComponent = components[0];
+                        }
                     }
 
-                    String level = GridTranslator.getShortLevelName(grid
-                            .getLevel().getMasterLevel().getName(), grid
-                            .getLevel().getLevelonevalue(), grid.getLevel()
-                            .getLeveltwovalue());
-                    ParmID parmID = new ParmID(gfeParmName, dbId, level);
+                    // if wind see if other component is available
+                    if (otherComponent != null) {
+                        ParmID otherPid = new ParmID(otherComponent,
+                                parmID.getDbId(), parmID.getParmLevel());
+                        synchronized (windComps) {
+                            // get the other components times
+                            Set<Integer> otherTimes = windComps.get(otherPid);
 
+                            // if we don't have the other component for this
+                            // fcstHour
+                            if ((otherTimes == null)
+                                    || !otherTimes.remove(fcstHour)) {
+                                // need to wait for other component
+                                ParmID compPid = new ParmID(d2dParamName,
+                                        parmID.getDbId(), parmID.getParmLevel());
+                                Set<Integer> times = windComps.get(compPid);
+                                if (times == null) {
+                                    times = new HashSet<Integer>();
+                                    windComps.put(compPid, times);
+                                }
+                                times.add(fcstHour);
+                                continue;
+                            }
+                        }
+                    }
                     List<TimeRange> trs = gridInv.get(parmID);
                     if (trs == null) {
                         trs = new ArrayList<TimeRange>();
                         gridInv.put(parmID, trs);
                     }
-                    TimeRange validPeriod = grid.getDataTime().getValidPeriod();
-                    if (validPeriod.getDuration() > 0) {
-                        trs.add(validPeriod);
-                    } else {
-                        trs.add(new TimeRange(grid.getDataTime()
-                                .getValidPeriod().getStart(), 3600 * 1000));
+
+                    TimeRange tr = db.getTimeRange(parmID, fcstHour);
+                    if (tr != null) {
+                        trs.add(tr);
                     }
 
                     List<String> siteInitModules = config.initModels(gfeModel);
@@ -213,6 +258,7 @@ public class GfeIngestNotificationFilter {
             }
 
             // DR 15442 - move last for loop out of the for loop at line 110
+            List<GridUpdateNotification> guns = new ArrayList<GridUpdateNotification>();
             for (ParmID parmId : gridInv.keySet()) {
                 try {
                     List<TimeRange> trs = gridInv.get(parmId);
@@ -270,9 +316,8 @@ public class GfeIngestNotificationFilter {
 
             for (SatelliteRecord msg : records) {
                 Date validTime = msg.getDataTime().getValidPeriod().getStart();
-                String product = msg.getSource() + "/"
-                        + msg.getCreatingEntity() + "/" + msg.getSectorID()
-                        + "/" + msg.getPhysicalElement();
+                String product = msg.getSectorID() + "/"
+                        + msg.getPhysicalElement();
                 if (satData.containsKey(product)) {
                     ParmID pid = new ParmID(satData.get(product),
                             satDb.getDbId());
@@ -326,7 +371,8 @@ public class GfeIngestNotificationFilter {
             throws Exception {
         byte[] message = SerializationUtil.transformToThrift(notifications);
         EDEXUtil.getMessageProducer().sendAsyncUri(
-                "jms-generic:topic:gfeGribNotification", message);
+                "jms-generic:topic:gfeGribNotification?timeToLive=60000",
+                message);
         SendNotifications.send(notifications);
     }
 
@@ -337,4 +383,19 @@ public class GfeIngestNotificationFilter {
     public void setSmartInitQueue(SmartInitQueue smartInitQueue) {
         this.smartInitQueue = smartInitQueue;
     }
+
+    public static void purgeDbs(List<DatabaseID> dbsToRemove) {
+        List<ParmID> wcToRemove = new ArrayList<ParmID>();
+        synchronized (windComps) {
+            for (ParmID id : windComps.keySet()) {
+                if (dbsToRemove.contains(id.getDbId())) {
+                    wcToRemove.add(id);
+                }
+            }
+            for (ParmID id : wcToRemove) {
+                windComps.remove(id);
+            }
+        }
+    }
+
 }

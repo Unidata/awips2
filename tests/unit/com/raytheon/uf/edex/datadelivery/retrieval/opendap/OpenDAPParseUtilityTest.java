@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
-import com.raytheon.uf.common.serialization.SerializationUtilTest;
 import com.raytheon.uf.common.util.TestUtil;
 
 /**
@@ -44,6 +43,7 @@ import com.raytheon.uf.common.util.TestUtil;
  * Aug 31, 2012 1125       djohnson     Rename test method to match tested class method rename.
  * Nov 13, 2012 1286       djohnson     Ignore two test methods until it can be determined whether they fail because of test or code error.
  * Jan 08, 2013 1466       dhladky      NCOM dataset name parsing fix.
+ * Feb 06, 2013 1543       djohnson     Remove test setup methods no longer necessary.
  * 
  * </pre>
  * 
@@ -55,7 +55,6 @@ public class OpenDAPParseUtilityTest {
 
     @Before
     public void setUp() {
-        SerializationUtilTest.initSerializationUtil();
         PathManagerFactoryTest.initLocalization();
     }
 

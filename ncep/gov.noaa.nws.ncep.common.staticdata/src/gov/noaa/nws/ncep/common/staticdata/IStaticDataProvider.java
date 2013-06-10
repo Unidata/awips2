@@ -22,6 +22,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Interface that contains all methods to load NCEP static data.
@@ -34,7 +35,8 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  * 02/12		?		B. Yin   	Initial Creation.
  * 05/12        734         J. Zeng     add getAllRfcs() and getAllCwas()
  * 08/12        #770        Q. Zhou     added loadContWatchNum()
- * 09/05		?			B. Yin		Changed county cluster return type.
+ * 09/12		?			B. Yin		Changed county cluster return type.
+ * 01/13		#966		B. Yin		Added methods to load bounds into.
  * </pre>
  * 
  * @author	B. Yin
@@ -97,4 +99,10 @@ public interface IStaticDataProvider {
 
     //for continuing watches
 	public List<String> loadContWatchNum();
+	
+	//for clipping bounds
+	public List<String> getBoundsTableList();
+	public List<String> getBoundsNames( String table );
+	public Polygon loadBounds( String boundsTable, String boundsName );
+
 }

@@ -21,7 +21,9 @@
 package gov.noaa.nws.ncep.ui.nsharp.background;
 
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigManager;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpGraphProperty;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpLineProperty;
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDescriptor;
 
@@ -58,6 +60,7 @@ public class NsharpIcingPaneBackground extends NsharpGenericPaneBackground {
 	private int paneHeight = NsharpConstants.SKEWT_HEIGHT;
 	private float yMagFactor=1;
 	private float xMagFactor=1;
+	private NsharpGraphProperty graphConfigProperty;
 	public NsharpIcingPaneBackground(NsharpSkewTPaneDescriptor desc) {
         super();
 
@@ -66,7 +69,8 @@ public class NsharpIcingPaneBackground extends NsharpGenericPaneBackground {
         pe = new PixelExtent(this.rectangle);
         world = new WGraphics(this.rectangle);
 
-        
+        NsharpConfigManager configMgr = NsharpConfigManager.getInstance();
+        graphConfigProperty = configMgr.retrieveNsharpConfigStoreFromFs().getGraphProperty();
         //System.out.println("NsharpIcingPaneBackground created");
         this.desc = desc;
     }
@@ -372,7 +376,11 @@ public class NsharpIcingPaneBackground extends NsharpGenericPaneBackground {
         double pX= world.mapX( NsharpConstants.ICING_RELATIVE_HUMIDITY_RIGHT);
         if(pX < xmax)
         	xmax = pX;
-        double dispX = xmax - 30 * currentZoomLevel * xMagFactor;
+        
+        double windBarbSizfactor = graphConfigProperty.getWindBarbSize()/2.2f;
+        if(windBarbSizfactor < 1)
+        	windBarbSizfactor=1;
+        double dispX = xmax - 50 * currentZoomLevel * xMagFactor* windBarbSizfactor;
         
         Coordinate cumap = world.unMap(dispX,ymax);
         

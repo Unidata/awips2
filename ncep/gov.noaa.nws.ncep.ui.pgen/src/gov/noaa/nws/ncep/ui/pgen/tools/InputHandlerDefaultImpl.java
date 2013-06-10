@@ -4,7 +4,6 @@ import org.eclipse.swt.SWT;
 
 import com.raytheon.viz.ui.input.InputAdapter;
 
-
 public class InputHandlerDefaultImpl extends InputAdapter {
     
 	protected boolean shiftDown;
@@ -24,6 +23,13 @@ public class InputHandlerDefaultImpl extends InputAdapter {
 			shiftDown = false;
 		}
 		return true;
+	}
+	
+	/**
+	 * Does works needed before the handler is set.
+	 */
+	public void preprocess(){
+		
 	}
 	
 }

@@ -29,13 +29,34 @@
       </layout>
    </appender>    
    
+   <appender name="PerformanceLogAppender" class="com.raytheon.uf.viz.alertviz.EnvConfigurableRollingFileAppender">
+      <param name="envLogVar" value="LOGFILE_PERFORMANCE"  />
+      <param name="maxFileSize" value="2GB"/>
+      <param name="maxBackupIndex" value="5"/>
+      <param name="Append" value="true"/>
+      <layout class="org.apache.log4j.PatternLayout"> 
+         <param name="ConversionPattern" value="%-5p %d{dd MMM yyyy HH:mm:ss,SSS} %m%n"/> 
+      </layout>
+   </appender>    
+   
    <appender name="AsyncCaveLogAppender" class="org.apache.log4j.AsyncAppender">
       <param name="BufferSize" value="500"/>
       <appender-ref ref="CaveLogAppender"/>
    </appender> 
+   
+   <appender name="AsyncPerfLogAppender" class="org.apache.log4j.AsyncAppender">
+      <param name="BufferSize" value="500"/>
+      <appender-ref ref="PerformanceLogAppender"/>
+   </appender> 
+
    <logger name="CaveLogger" additivity="false">
       <level value="ALL"/>
       <appender-ref ref="AsyncCaveLogAppender"/>
+   </logger>
+
+   <logger name="PerformanceLogger" additivity="false">
+   	  <level value="ALL"/>
+   	  <appender-ref ref="AsyncPerfLogAppender"/>
    </logger>
 
    <logger name="com.raytheon">

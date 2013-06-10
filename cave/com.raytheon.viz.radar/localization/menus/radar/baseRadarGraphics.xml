@@ -83,6 +83,14 @@
 			<substitute key="latest" value="true" />
 			<substitute key="elevation" value="0.0--360.0" />
 	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml" 
+                menuText="Gust Front MIGFA (GFM)" id="${icao}GustFrontMIGFA">
+	        <substitute key="icao" value="${icao}"/>
+			<substitute key="product" value="140"/>
+			<substitute key="mode" value="" />
+			<substitute key="latest" value="true" />
+			<substitute key="elevation" value="0.0--360.0" />
+	    </contribute>
 		<contribute xsi:type="command" commandId="com.raytheon.viz.radar.ui.RadarDisplayControls" menuText="Radar Display Controls..." id="${icao}GraphicsRadarDisplayControls"/>
 	    <contribute xsi:type="separator" id="${icao}BelowRadarDisplayControls" />
 	    

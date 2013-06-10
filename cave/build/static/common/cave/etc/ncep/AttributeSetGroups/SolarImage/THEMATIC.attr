@@ -1,0 +1,7 @@
+colorMapName=SDO_Thematic
+colorBar=@ColorBars/SolarImage/dfltSolarImageColorBar.xml
+wavelength=THEMATIC
+displayUnitStr=DN/sec
+alpha=1.0
+brightness=1.0
+contrast=1.0

@@ -44,6 +44,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Hrap_Grid;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 7, 2011            snaples     Initial creation
+ * May 02, 2013 15956      wkwock      Fix incorrect contents in precip_LLL_grid_yyyymmdd.nc file
  * 
  * </pre>
  * 
@@ -274,7 +275,7 @@ public class AutoDailyQC {
                         otime.get(Calendar.DAY_OF_MONTH));
                 File pl2 = new File(precip_level2_file);
 
-                if (pl2.exists()) {
+                if (!pl2.exists()) {//dr16046:file not exist then don't generate
                     precip_level2_flag[i] = 0;
                     System.out
                             .println(String
@@ -389,6 +390,8 @@ public class AutoDailyQC {
                         CreateMap cm = new CreateMap();
                         cm.create_map(num);
                     }
+                    
+                    //Here's the 12 to 12 whole day nc file
                     //for (int l = 0; l < 5; l++) {
                     for (int l = 0; l < num_period_qc; l++) {
                         if (DailyQcUtils.pdata[i].used[l] == 0) {
@@ -414,6 +417,13 @@ public class AutoDailyQC {
                                 DailyQcUtils.precip_stations,
                                 DailyQcUtils.getHrap_grid(),
                                 DailyQcUtils.pdata, DailyQcUtils.pcp_in_use);
+
+                        //copy data from DailyQcUtils.pcp.value to datavals
+                        for (int y = 0; y < hrap_grid.maxj; y++) {
+                            for (int x = 0; x < hrap_grid.maxi; x++) {
+                                datavals[x][y] = (DailyQcUtils.pcp.value[x][y] / 100.f);
+                            }
+                        }
 
                         /* output grid to file in Ascii format */
                         dbuf = String.format("%s%s_%04d%02d%02d",

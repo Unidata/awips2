@@ -1,6 +1,6 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd;
 
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.SpfsManager;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -355,7 +355,7 @@ public class SaveRbdDialog extends Dialog {
 
        	    	if( !newRbd ) {
        	    		MessageDialog confirmDlg = new MessageDialog( 
-       	    				NmapUiUtils.getCaveShell(), 
+       	    				NcDisplayMngr.getCaveShell(), 
        	    				"Create RBD", null, 
        	    				"RBD " +seldRbdName+" already exists in this SPF.\n\n"+
        	    				"Do you want to overwrite it?",

@@ -5,18 +5,16 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.retrieval;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBundle;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
-import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -33,15 +31,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalGenerator;
 import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
 import com.raytheon.uf.edex.datadelivery.retrieval.ServiceTypeFactory;
-import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
-import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter.TranslationException;
-import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalDao;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
-import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalHandler;
-import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalRequestBuilder;
-import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse;
-import com.raytheon.uf.edex.datadelivery.retrieval.util.RetrievalPersistUtil;
-import com.raytheon.uf.edex.event.EventBus;
 
 /**
  * Class used to process SubscriptionRetrieval BandwidthAllocations.
@@ -51,17 +42,18 @@ import com.raytheon.uf.edex.event.EventBus;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 27, 2012 726        jspinks     Initial release.
- * Oct 10, 2012 0726       djohnson    Add generics, constants, defaultPriority.
- * Nov 26, 2012            dhladky     Override default ingest routes based on plugin
+ * Aug 27, 2012 726        jspinks      Initial release.
+ * Oct 10, 2012 0726       djohnson     Add generics, constants, defaultPriority.
+ * Nov 26, 2012            dhladky      Override default ingest routes based on plugin
+ * Jan 30, 2013 1543       djohnson     Should not implement IRetrievalHandler.
+ * Feb 05, 2013 1580       mpduff      EventBus refactor.
  * 
  * </pre>
  * 
  * @version 1.0
  */
 public class SubscriptionRetrievalAgent extends
-        RetrievalAgent<SubscriptionRetrieval> implements
-        IRetrievalHandler {
+        RetrievalAgent<SubscriptionRetrieval> {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubscriptionRetrievalAgent.class);
@@ -72,14 +64,16 @@ public class SubscriptionRetrievalAgent extends
 
     private final IBandwidthDao bandwidthDao;
 
-
+    private final IRetrievalDao retrievalDao;
 
     public SubscriptionRetrievalAgent(Network network, String destinationUri,
             final Object notifier, int defaultPriority,
-            RetrievalManager retrievalManager, IBandwidthDao bandwidthDao) {
+            RetrievalManager retrievalManager, IBandwidthDao bandwidthDao,
+            IRetrievalDao retrievalDao) {
         super(network, destinationUri, notifier, retrievalManager);
         this.defaultPriority = defaultPriority;
         this.bandwidthDao = bandwidthDao;
+        this.retrievalDao = retrievalDao;
     }
 
     @Override
@@ -119,17 +113,22 @@ public class SubscriptionRetrievalAgent extends
                 retrieval.getIdentifier());
         if (retrievalsGenerated) {
             // Wake the RetrievalTasks to fetch the data..
-            EDEXUtil.getMessageProducer().sendAsync(destinationUri, null);
-            EDEXUtil.getMessageProducer().sendAsync(destinationUri, null);
-            EDEXUtil.getMessageProducer().sendAsync(destinationUri, null);
-            EDEXUtil.getMessageProducer().sendAsync(destinationUri, null);
+            wakeRetrievalTasks();
         } else {
             // Normally this is the job of the SubscriptionNotifyTask, but if no
             // retrievals were generated we have to send it manually
             RetrievalManagerNotifyEvent retrievalManagerNotifyEvent = new RetrievalManagerNotifyEvent();
             retrievalManagerNotifyEvent.setId(Long.toString(retrieval.getId()));
-            EventBus.getInstance().publish(retrievalManagerNotifyEvent);
+            EventBus.publish(retrievalManagerNotifyEvent);
         }
+    }
+
+    @VisibleForTesting
+    void wakeRetrievalTasks() throws EdexException {
+        EDEXUtil.getMessageProducer().sendAsync(destinationUri, null);
+        EDEXUtil.getMessageProducer().sendAsync(destinationUri, null);
+        EDEXUtil.getMessageProducer().sendAsync(destinationUri, null);
+        EDEXUtil.getMessageProducer().sendAsync(destinationUri, null);
     }
 
     @Override
@@ -157,7 +156,6 @@ public class SubscriptionRetrievalAgent extends
     private boolean generateRetrieval(SubscriptionBundle bundle,
             Long subRetrievalKey) {
 
-        RetrievalDao dao = new RetrievalDao();
         // process the bundle into a retrieval
         RetrievalGenerator rg = ServiceTypeFactory.retrieveServiceFactory(
                 bundle.getProvider()).getRetrievalGenerator();
@@ -225,14 +223,15 @@ public class SubscriptionRetrievalAgent extends
                 timer.reset();
                 timer.start();
 
-                dao.persistAll(requestRecords);
+                retrievalDao.persistAll(requestRecords);
 
                 timer.stop();
                 statusHandler.info("Time to persist requests to db ["
                         + timer.getElapsedTime() + "] ms");
             } catch (Exception e) {
-                statusHandler.warn("Subscription: " + subscriptionName
-                        + " Failed to store to retrievals.");
+                statusHandler.handle(Priority.WARN, "Subscription: "
+                        + subscriptionName + " Failed to store to retrievals.",
+                        e);
             }
         } else {
             statusHandler.warn("Subscription: " + subscriptionName
@@ -240,103 +239,6 @@ public class SubscriptionRetrievalAgent extends
         }
 
         return retrievalsGenerated;
-    }
-
-    /**
-     * The actual work gets done here.
-     */
-    @Override
-    public boolean process(Retrieval retrieval) {
-        boolean success = true;
-
-        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-            statusHandler.debug("Starting Retrieval: Subscription: "
-                + retrieval.getSubscriptionName());
-        }
-
-        RetrievalAdapter pra = ServiceTypeFactory
-                .retrieveServiceRetrievalAdapter(retrieval.getServiceType());
-        String adapterClassName = pra.getClass().getName();
-
-        try {
-
-            pra.setProviderRetrievalXML(retrieval);
-
-            // could have multiple retrievals
-            for (RetrievalAttribute attXML : retrieval.getAttribute()) {
-                IRetrievalRequestBuilder request = pra
-                        .createRequestMessage(attXML);
-                statusHandler
-                        .info("Translated provider attribute Request XML: "
-                                + request.getRequest());
-                IRetrievalResponse response = null;
-
-                if (request != null) {
-
-                    response = pra.performRequest(request);
-                    HashMap<String, PluginDataObject[]> pdoHash = null;
-
-                    if (response != null) {
-
-                        pdoHash = pra.processResponse(response);
-
-                        if (pdoHash != null && pdoHash.size() > 0) {
-                            // store all types
-                            for (Entry<String, PluginDataObject[]> entry : pdoHash
-                                    .entrySet()) {
-                                PluginDataObject[] value = entry.getValue();
-                                if (store(attXML, value)) {
-                                    statusHandler.info("Successfully stored: "
-                                            + value.length + " : "
-                                            + adapterClassName + " Plugin : "
-                                            + entry.getKey());
-                                } else {
-                                    throw new IllegalStateException(
-                                            "Unable to store " + value.length
-                                                    + " PDOs to the database!");
-                                }
-                            }
-                        } else {
-                            throw new IllegalStateException(
-                                    "No PDO's to store: " + adapterClassName
-                                            + " original: " + attXML.toString());
-                        }
-                    } else {
-                        // null response
-                        throw new IllegalStateException(
-                                "Null response from provider: "
-                                        + adapterClassName + " original: "
-                                        + attXML.toString());
-                    }
-                }
-            }
-        } catch (IllegalStateException e) {
-            statusHandler.handle(Priority.WARN, e.getLocalizedMessage(), e);
-            success = false;
-        } catch (TranslationException e) {
-            statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
-            success = false;
-        }
-
-        return success;
-    }
-
-    /**
-     * Store PDO's from Provider to EDEX
-     */
-    @Override
-    public boolean store(RetrievalAttribute attXML, PluginDataObject[] pdos) {
-
-        boolean success = false;
-        String pluginName = pdos[0].getPluginName();
-
-        if (pluginName != null) {
-
-            success = RetrievalPersistUtil.routePlugin(destinationUri,
-                    pluginName, pdos);
-        }
-
-        return success;
     }
 
     private static Provider getProvider(String providerName) {

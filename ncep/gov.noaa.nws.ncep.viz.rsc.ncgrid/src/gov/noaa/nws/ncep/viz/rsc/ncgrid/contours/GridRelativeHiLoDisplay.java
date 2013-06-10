@@ -50,7 +50,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 public class GridRelativeHiLoDisplay implements IRenderable {
 
     // new fields
-    private final IMapDescriptor descriptor;
+    private IMapDescriptor descriptor;
 
     private final GeneralGridGeometry gridGeometryOfGrid;
 
@@ -74,6 +74,8 @@ public class GridRelativeHiLoDisplay implements IRenderable {
     private int charPix = 4;
 
     private double vertRatio;
+    
+    private double xOffset = 0;
 
     Rectangle2D charSize;
 
@@ -87,6 +89,9 @@ public class GridRelativeHiLoDisplay implements IRenderable {
         this.hiloLocator = hiloLocator;
         this.textMarkerString = markerStr;
         this.textValueString = valueStr;
+    	if (ContourSupport.getCentralMeridian(descriptor) == 0.0){
+    		xOffset = 360.;
+    	}
         initHiLoSymbolSet();
         // display ();
     }
@@ -186,7 +191,8 @@ public class GridRelativeHiLoDisplay implements IRenderable {
                         Type.GRID_CENTER);
                 try {
                     double[] d = this.descriptor.worldToPixel(new double[] {
-                            (double) c.asLatLon().x, (double) c.asLatLon().y });
+                            (double) c.asLatLon().x > 180 ?  c.asLatLon().x  - xOffset:  c.asLatLon().x, 
+                            (double) c.asLatLon().y });
 
                     target.drawString(font, text, d[0], d[1], 0.0,
                             TextStyle.NORMAL, hiloBuild.getColorHi(),
@@ -228,9 +234,11 @@ public class GridRelativeHiLoDisplay implements IRenderable {
                                 (double) tmp2[i] - 1), this.gridGeometryOfGrid,
                         Type.GRID_CENTER);
                 try {
+                	
                     double[] d = this.descriptor.worldToPixel(new double[] {
-                            (double) c.asLatLon().x, (double) c.asLatLon().y });
-
+                            (double) c.asLatLon().x > 180 ?  c.asLatLon().x - xOffset:  c.asLatLon().x, 
+                            		(double) c.asLatLon().y });
+           //         System.out.println("Low longitude: " + c.asLatLon().x );
                     target.drawString(font, text, d[0], d[1], 0.0,
                             TextStyle.NORMAL, hiloBuild.getColorLo(),
                             HorizontalAlignment.CENTER,
@@ -275,7 +283,8 @@ public class GridRelativeHiLoDisplay implements IRenderable {
                         Type.GRID_CENTER);
                 try {
                     double[] d = this.descriptor.worldToPixel(new double[] {
-                            (double) c.asLatLon().x, (double) c.asLatLon().y });
+                            (double) c.asLatLon().x > 180 ?  c.asLatLon().x - xOffset:  c.asLatLon().x, 
+                            (double) c.asLatLon().y });
 
                     target.drawString(font, text, d[0], d[1] + offY, 0.0,
                             TextStyle.NORMAL, hiloBuild.getColorHi(),
@@ -321,7 +330,8 @@ public class GridRelativeHiLoDisplay implements IRenderable {
                         Type.GRID_CENTER);
                 try {
                     double[] d = this.descriptor.worldToPixel(new double[] {
-                            (double) c.asLatLon().x, (double) c.asLatLon().y });
+                            (double) c.asLatLon().x > 180 ?  c.asLatLon().x - xOffset:  c.asLatLon().x, 
+                            (double) c.asLatLon().y });
 
                     target.drawString(font, text, d[0], d[1] + offY, 0.0,
                             TextStyle.NORMAL, hiloBuild.getColorLo(),
@@ -617,4 +627,11 @@ public class GridRelativeHiLoDisplay implements IRenderable {
         System.out
                 .println("==================================================");
     }
+
+	public void setDescriptor(IMapDescriptor descriptor) {
+		this.descriptor = descriptor;
+    	if (ContourSupport.getCentralMeridian(descriptor) == 0.0){
+    		xOffset = 360.;
+    	}
+	}
 }
