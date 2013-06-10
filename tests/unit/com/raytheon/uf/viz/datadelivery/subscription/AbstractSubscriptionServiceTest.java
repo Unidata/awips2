@@ -47,8 +47,8 @@ import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscriptionFixture;
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
@@ -57,7 +57,6 @@ import com.raytheon.uf.common.datadelivery.service.subscription.ISubscriptionOve
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
-import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.ForceApplyPromptResponse;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IDisplayForceApplyPrompt;
@@ -350,26 +349,8 @@ public abstract class AbstractSubscriptionServiceTest {
     @Test
     public void testOverlappingSubscriptionsNotifiesUser()
             throws RegistryHandlerException {
-        final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
-                .getSubscriptionHandler();
-
-        // Store a duplicate subscription
-        Subscription duplicateSub = sub1.copy("duplicateSub");
-        subscriptionHandler.store(duplicateSub);
-
-        final ISubscriptionOverlapResponse response = mock(ISubscriptionOverlapResponse.class);
-        when(subscriptionOverlapService.isOverlapping(duplicateSub, sub1))
-                .thenReturn(response);
-        when(response.isOverlapping()).thenReturn(true);
-
-        performServiceInteraction();
-
-        verify(mockDisplay).displayMessage(
-                mockPromptDisplayText,
-                ISubscriptionOverlapService.OVERLAPPING_SUBSCRIPTIONS
-                        + FileUtil.EOL + duplicateSub.getName());
+        // Not valid for adhocs
     }
-
     /**
      * Verifies that the only interactions with the subscription handler are to
      * check for duplicate/overlapping subscriptions.
