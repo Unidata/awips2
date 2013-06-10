@@ -54,7 +54,6 @@ import com.raytheon.uf.common.datadelivery.registry.PointDataSet;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.datadelivery.retrieval.util.DataSizeUtils;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -420,7 +419,7 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     /** Create the buttons */
     private void createButtons() {
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        final int numColumns = (DataDeliveryConstants.PHASE3_ENABLED) ? 4 : 3;
+        final int numColumns = 4;
         GridLayout gl = new GridLayout(numColumns, false);
 
         Composite bottomComp = new Composite(shell, SWT.NONE);

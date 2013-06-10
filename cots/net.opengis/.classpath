@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="lib" path="filter-v_1_0_0-schema-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="filter-v_1_1_0-schema-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="gml-v_2_1_2-schema-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="gml-v_3_1_1-schema-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="jaxb2-basics-runtime-0.6.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="kml-v_2_2_0-schema-1.0.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="ows-v_1_0_0-schema-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="ows-v_1_1_0-schema-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="se-v_1_1_0-schema-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="sld-v_1_0_0-schema-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="sld-v_1_1_0-schema-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="wcs-v_1_1_2-schema-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="wfs-v_1_1_0-schema-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="wms-v_1_3_0-schema-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="wmts-v_1_0_0-schema-1.0.3.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
