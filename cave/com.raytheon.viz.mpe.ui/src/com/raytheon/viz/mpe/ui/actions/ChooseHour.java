@@ -28,14 +28,12 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.dialogs.ChooseDataPeriodDialog;
-import com.raytheon.viz.mpe.ui.rsc.XmrgResource;
-import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 
 /**
@@ -62,9 +60,9 @@ public class ChooseHour extends AbstractHandler {
      * .ExecutionEvent)
      */
     @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
+    public Object execute(ExecutionEvent event) throws ExecutionException {
         int increment = 0;
-        String s = arg0.getParameter("increment");
+        String s = event.getParameter("increment");
         if (s != null) {
             try {
                 increment = Integer.parseInt(s);
@@ -73,7 +71,7 @@ public class ChooseHour extends AbstractHandler {
             }
         }
 
-        IEditorPart editor = EditorUtil.getActiveEditor();
+        IEditorPart editor = HandlerUtil.getActiveEditor(event);
         IDisplayPane pane = null;
         if (editor instanceof IMultiPaneEditor) {
             IMultiPaneEditor multiPane = (IMultiPaneEditor) editor;
@@ -86,11 +84,9 @@ public class ChooseHour extends AbstractHandler {
         }
 
         MPEDisplayManager dm = MPEDisplayManager.getInstance(pane);
-        Date currentDate = dm.getCurrentDate();
-        dm.clearMPEData();
-        dm.setDisplayedResource(null);
+        Date currentDate = dm.getCurrentEditDate();
         if ((increment == 0) || (currentDate == null)) {
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+            Shell shell = HandlerUtil.getActiveWorkbenchWindow(event)
                     .getShell();
             ChooseDataPeriodDialog dialog = new ChooseDataPeriodDialog(shell);
             dialog.open();
@@ -99,11 +95,7 @@ public class ChooseHour extends AbstractHandler {
             cal.setTime(currentDate);
             cal.add(Calendar.HOUR_OF_DAY, increment);
             Date newDate = cal.getTime();
-            dm.setCurrentDate(newDate);
-            if (dm.getDisplayedResource() != null) {
-                XmrgResource xmrgRsc = (XmrgResource) dm.getDisplayedResource();
-                xmrgRsc.updateXmrg(false);
-            }
+            dm.setCurrentEditDate(newDate);
         }
         return null;
     }

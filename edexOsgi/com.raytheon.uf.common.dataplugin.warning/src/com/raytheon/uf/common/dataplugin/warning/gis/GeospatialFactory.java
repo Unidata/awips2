@@ -28,7 +28,6 @@ import com.raytheon.uf.common.dataplugin.warning.WarningConstants;
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.GeospatialConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
-import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
 import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -43,8 +42,6 @@ import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 
 /**
@@ -126,43 +123,6 @@ public class GeospatialFactory {
             }
         }
 
-        Map<String, List<GeospatialData>> uniqueAreasMap = new HashMap<String, List<GeospatialData>>();
-        for (GeospatialData data : areas) {
-            String key = String.valueOf(data.attributes.get(metaData
-                    .getFipsField()));
-            List<GeospatialData> list = uniqueAreasMap.get(key);
-            if (list == null) {
-                list = new ArrayList<GeospatialData>();
-                uniqueAreasMap.put(key, list);
-            }
-
-            list.add(data);
-        }
-        GeospatialData[] uniqueAreas = new GeospatialData[uniqueAreasMap.size()];
-        int index = 0;
-        for (String key : uniqueAreasMap.keySet()) {
-            List<GeospatialData> list = uniqueAreasMap.get(key);
-            GeospatialData data = list.get(0);
-
-            // if multiple areas share a common fips ID, the smaller areas will
-            // have to merge will the largest area
-            if (list.size() > 1) {
-                // collect all individual geometries
-                List<Geometry> geometries = new ArrayList<Geometry>();
-                for (GeospatialData item : list) {
-                    GeometryUtil.buildGeometryList(geometries, item.geometry);
-                }
-                // Create multi geometry out of combined areas
-                data.geometry = new GeometryFactory()
-                        .createGeometryCollection(geometries
-                                .toArray(new Geometry[0]));
-            }
-            uniqueAreas[index] = data;
-            index++;
-        }
-
-        areas = uniqueAreas;
-
         // process parent regions
         if (parentAreas != null) {
             Map<String, GeospatialData> parentMap = new HashMap<String, GeospatialData>(
@@ -184,7 +144,7 @@ public class GeospatialFactory {
 
         // Prepare the geometries
         for (GeospatialData data : areas) {
-            data.prepGeom = new PreparedGeometryCollection(data.geometry);
+            data.prepGeom = PreparedGeometryFactory.prepare(data.geometry);
         }
 
         return areas;

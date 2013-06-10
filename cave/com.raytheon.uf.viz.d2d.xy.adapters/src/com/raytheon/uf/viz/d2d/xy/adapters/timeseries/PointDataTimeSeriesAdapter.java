@@ -35,6 +35,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -44,8 +46,6 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.level.LevelMapping;
-import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.level.LevelUtilities;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.style.level.SingleLevel;
@@ -238,6 +238,7 @@ public class PointDataTimeSeriesAdapter extends
         return loadDataOAInternal(recordsToLoad);
     }
 
+    @Override
     public SingleLevel getLevel() {
         SingleLevel level = new SingleLevel("SURFACE");
         level.setValue(0.0);
@@ -246,7 +247,8 @@ public class PointDataTimeSeriesAdapter extends
             return level;
         }
         try {
-            LevelMapping mapping = LevelMappingFactory.getInstance()
+            LevelMapping mapping = LevelMappingFactory.getInstance(
+                    LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
                     .getLevelMappingForKey(resourceData.getLevelKey());
             for (Level l : mapping.getLevels()) {
                 if (LevelUtilities.isPressureLevel(l)) {
@@ -260,7 +262,7 @@ public class PointDataTimeSeriesAdapter extends
                     }
                 }
             }
-        } catch (VizException e) {
+        } catch (Exception e) {
             // return the default
         }
         return level;

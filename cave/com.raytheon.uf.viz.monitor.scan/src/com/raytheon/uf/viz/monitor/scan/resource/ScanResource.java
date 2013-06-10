@@ -21,11 +21,11 @@ package com.raytheon.uf.viz.monitor.scan.resource;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.geotools.referencing.GeodeticCalculator;
 import org.opengis.referencing.FactoryException;
@@ -80,6 +80,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 13, 2009            dhladky     Initial creation
  * 
  * Jul 24  2012  12996     Xiaochuan   Compare with MidVal()
+ * Feb 28, 2013 1731       bsteffen    Allow ScanResource to work better with
+ *                                     D2DTimeMatcher.
+ * Apr 02, 2013 1731       mpduff      Fix problem with DMD updates.
+ * Apr 22, 2013   1926       njensen     Faster rendering
  * 
  * </pre>
  * 
@@ -115,7 +119,7 @@ public class ScanResource extends
     private static final int titleXOffset = 50;
 
     /** trends graphs **/
-    public boolean isTrend = false;
+    private boolean isTrend = false;
 
     private GeodeticCalculator gc = null;
 
@@ -143,7 +147,7 @@ public class ScanResource extends
 
     private String cellId = null;
 
-    protected HashMap<String, PixelCoverage> drawables = new HashMap<String, PixelCoverage>();
+    protected Map<String, PixelCoverage> drawables = new HashMap<String, PixelCoverage>();
 
     protected ScanResource(ScanResourceData srd, LoadProperties loadProps)
             throws VizException {
@@ -172,16 +176,12 @@ public class ScanResource extends
 
                 PluginDataObject[] pdos = (PluginDataObject[]) object;
                 ScanRecord scan = null;
-                List<String> uris = Arrays.asList(getScan().getAvailableUris(
-                        getTable(), resourceData.icao));
                 for (PluginDataObject pdo : pdos) {
                     try {
                         scan = (ScanRecord) pdo;
-                        if (uris.contains(scan.getDataURI())) {
-                            if (scan.getType().equals(getTable().name())) {
-                                addRecord(scan);
-                            }
-                        }
+                        if (scan.getIcao().equals(resourceData.icao)
+                                && scan.getType().equals(getTable().name()))
+                            addRecord(scan);
                     } catch (Exception e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 "Error updating SCAN resource", e);
@@ -330,9 +330,6 @@ public class ScanResource extends
                             }
 
                             if (draw && (ctdr != null)) {
-                                // System.out.println("Draw CELL: "+ctdr.getIdent());
-                                getScanDrawer().setCount(1);
-
                                 getScanDrawer().drawHexagon(ctdr, descriptor,
                                         target);
                                 drawables.put(id, getScanDrawer()
@@ -563,12 +560,10 @@ public class ScanResource extends
         if (drawer == null && gc != null) {
             if (getTable().equals(ScanTables.CELL)) {
                 drawer = new ScanDrawer(SCANConfig.getInstance()
-                        .getStormCellConfig(), gc, getScan()
-                        .getStationCoordinate(resourceData.icao));
+                        .getStormCellConfig(), gc);
             } else if (getTable().equals(ScanTables.DMD)) {
                 drawer = new ScanDrawer(SCANConfig.getInstance()
-                        .getDmdDisplayFilterConfig(), gc, getScan()
-                        .getStationCoordinate(resourceData.icao));
+                        .getDmdDisplayFilterConfig(), gc);
             }
         }
         return drawer;
@@ -1105,7 +1100,9 @@ public class ScanResource extends
     public void addRecord(ScanRecord newrecord) {
         try {
             if (!getScan().getTimeOrderedKeys(getScan(), newrecord.getType(),
-                    resourceData.icao).contains(newrecord.getDataTime())) {
+                    resourceData.icao).contains(
+                    newrecord.getDataTime().getRefTime())
+                    || newrecord.getType().equals("DMD")) {
 
                 newrecord = resourceData.populateRecord(newrecord);
 
@@ -1115,11 +1112,12 @@ public class ScanResource extends
 
                     getScan().setTableData(resourceData.icao,
                             newrecord.getTableData(),
-                            /* TODO: This should be the volume scan time, 
-                             * but {Radar,Scan}Record.getVolScanTime is actually
-                             * the radar product generation time.
+                            /*
+                             * TODO: This should be the volume scan time, but
+                             * {Radar,Scan}Record.getVolScanTime is actually the
+                             * radar product generation time.
                              */
-                            newrecord.getDataTime().getRefTime(),  
+                            newrecord.getDataTime().getRefTime(),
                             newrecord.getTilt(),
                             newrecord.getDataTime().getRefTime(),
                             newrecord.getType());
@@ -1162,6 +1160,18 @@ public class ScanResource extends
         }
 
         return oldDate;
+    }
+
+    @Override
+    public DataTime[] getDataTimes() {
+        ScanMonitor scan = getScan();
+        List<Date> dates = scan.getTimeOrderedKeys(scan,
+                resourceData.tableType, resourceData.icao);
+        DataTime[] dataTimes = new DataTime[dates.size()];
+        for (int i = 0; i < dataTimes.length; i += 1) {
+            dataTimes[i] = new DataTime(dates.get(i));
+        }
+        return dataTimes;
     }
 
 }

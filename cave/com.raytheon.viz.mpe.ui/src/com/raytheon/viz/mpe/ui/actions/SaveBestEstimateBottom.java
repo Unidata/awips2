@@ -19,13 +19,8 @@
  **/
 package com.raytheon.viz.mpe.ui.actions;
 
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
-
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.viz.mpe.ui.MPEDisplayManager;
-import com.raytheon.viz.ui.EditorUtil;
 
 /**
  * Handler for saving best estimate bottom
@@ -43,23 +38,22 @@ import com.raytheon.viz.ui.EditorUtil;
  * @version 1.0
  */
 
-public class SaveBestEstimateBottom extends SaveBestEstimate {
+public class SaveBestEstimateBottom extends SaveBestEstimateHandler {
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * org.eclipse.core.commands.IHandler#execute(org.eclipse.core.commands.
-     * ExecutionEvent)
+     * com.raytheon.viz.mpe.ui.actions.SaveBestEstimate#getPaneToSave(com.raytheon
+     * .uf.viz.core.IDisplayPaneContainer)
      */
     @Override
-    public Object execute(ExecutionEvent event) throws ExecutionException {
-        IDisplayPaneContainer editor = EditorUtil.getActiveVizContainer();
-        if (editor == null) {
-            return null;
+    protected IDisplayPane getPaneToSave(IDisplayPaneContainer container) {
+        IDisplayPane[] panes = container.getDisplayPanes();
+        if (panes.length == 2) {
+            return panes[1];
         }
-        IDisplayPane pane = editor.getDisplayPanes()[1];
-        MPEDisplayManager.getInstance(pane).save_rfcwide();
         return null;
     }
+
 }

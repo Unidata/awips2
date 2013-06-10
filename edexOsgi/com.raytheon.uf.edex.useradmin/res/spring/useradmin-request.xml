@@ -10,7 +10,7 @@
     <bean id="userAuthenticationDataChangedHandler"
         class="com.raytheon.uf.edex.useradmin.services.UserAuthenticationDataChangedHandler">
         <constructor-arg type="java.lang.String"
-            value="jms-generic:topic:user.authentication.changed?destinationResolver=#qpidDurableResolver" />
+            value="jms-generic:topic:user.authentication.changed?timeToLive=60000&amp;destinationResolver=#qpidDurableResolver" />
     </bean>
 
     <bean factory-bean="handlerRegistry" factory-method="register">

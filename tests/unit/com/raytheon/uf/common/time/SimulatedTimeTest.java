@@ -25,6 +25,7 @@ import java.util.Date;
 
 import org.junit.After;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import com.raytheon.uf.common.util.TestUtil;
 
@@ -38,6 +39,7 @@ import com.raytheon.uf.common.util.TestUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 24, 2012            djohnson     Initial creation
+ * Jan 15, 2013 1442       rferrel      Added tests for notify Time changes.
  * 
  * </pre>
  * 
@@ -72,5 +74,30 @@ public class SimulatedTimeTest {
         Date end = simulatedTime.getTime();
 
         TestUtil.assertNotEquals(start, end);
+    }
+
+    @Test
+    public void testListenerNotifiedOnTimeChanges() throws Exception {
+        SimulatedTime simulatedTime = SimulatedTime.getSystemTime();
+        ISimulatedTimeChangeListener listener = Mockito
+                .mock(ISimulatedTimeChangeListener.class);
+        simulatedTime.addSimulatedTimeChangeListener(listener);
+        try {
+            simulatedTime.setFrozen(true);
+            Mockito.verify(listener).timechanged();
+        } finally {
+            simulatedTime.removeSimulatedTimeChangeListener(listener);
+        }
+    }
+
+    @Test
+    public void testRemovedListenerNotNotifiedOnTimeChanges() throws Exception {
+        SimulatedTime simulatedTime = SimulatedTime.getSystemTime();
+        ISimulatedTimeChangeListener listener = Mockito
+                .mock(ISimulatedTimeChangeListener.class);
+        simulatedTime.addSimulatedTimeChangeListener(listener);
+        simulatedTime.removeSimulatedTimeChangeListener(listener);
+        simulatedTime.setFrozen(true);
+        Mockito.verify(listener, Mockito.never()).timechanged();
     }
 }

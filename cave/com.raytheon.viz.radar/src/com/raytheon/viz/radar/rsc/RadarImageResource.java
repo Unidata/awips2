@@ -77,7 +77,8 @@ import com.raytheon.viz.radar.util.DataUtilities;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Base resource for any radar record that can be displayed on a map as a
+ * colormapped image.
  * 
  * <pre>
  * 
@@ -222,7 +223,7 @@ public class RadarImageResource<D extends IDescriptor> extends
 
         // Setup the ColorMap settings
         int prodCode = record.getProductCode();
-        Unit<?> dataUnit = DataUtilities.getDataUnit(record);
+        Unit<?> dataUnit = record.getDataUnit();
 
         params = ColorMapParameterFactory.build((Object) null, "" + prodCode,
                 dataUnit, null, resourceData.mode);
@@ -460,7 +461,7 @@ public class RadarImageResource<D extends IDescriptor> extends
         // Sometimes the data unit may not match what is in the params so always
         // use what we really have
         UnitConverter dataToImage = null;
-        Unit<?> dataUnit = DataUtilities.getDataUnit(record);
+        Unit<?> dataUnit = record.getDataUnit();
         if (dataUnit != null && !dataUnit.equals(params.getDataUnit())) {
             Unit<?> imageUnit = params.getImageUnit();
             if (imageUnit != null && dataUnit.isCompatible(imageUnit)) {

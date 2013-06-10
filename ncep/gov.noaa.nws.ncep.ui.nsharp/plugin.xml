@@ -36,35 +36,9 @@
                  name="Nsharp"
                  restorable="false">
            </view>
-           <view
-                 allowMultiple="false"
-                 category="gov.noaa.nws.ncep.ui.nsharp.view"
-                 class="gov.noaa.nws.ncep.ui.nsharp.palette.NsharpPaletteWindow"
-                 id="gov.noaa.nws.ncep.ui.nsharp.defaultview2"
-                 name="Nsharp"
-                 restorable="false">
-           </view>
    </extension> 
-   <extension
-         point="com.raytheon.uf.viz.core.resource">
-      <resource
-            class="gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpSkewTResource"
-            name="NsharpSkewT Resource"
-            renderingOrderId="PLOT" />
- 	  <resource 
-            class="gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpBackgroundResource" 
-            name="NsharpSkewT Background"
-            renderingOrderId="MAP_OUTLINE" /> 
-   </extension>
 	<extension
        point="org.eclipse.ui.editors">
-      <editor
-         class="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor"
-         default="true"
-         icon="icons/skewt.gif"  
-         id="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor"
-         name="NsharpSkewt">
-      </editor>
       <editor
          class="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"
          default="true"
@@ -75,11 +49,6 @@
    </extension> 
    <extension
          point="com.raytheon.uf.viz.core.descriptor">
-      <descriptor
-            class="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTDescriptor"
-            editor="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor"
-            name="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTDescriptor">
-      </descriptor>
       <descriptor
             class="gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDescriptor"
             editor="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"
@@ -94,16 +63,7 @@
              name="Nsharp"
              recursive="true"
              value="ncep/nsharp"
-	         extensionFilter=".xml">
+	         extensionFilter=".xml,.txt">
        </path>
     </extension>
-   <extension
-         point="org.eclipse.ui.editors">
-      <editor
-            class="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"
-            default="true"
-            id="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpEditor"
-            name="NsharpEditor">
-      </editor>
-   </extension>
 </plugin>

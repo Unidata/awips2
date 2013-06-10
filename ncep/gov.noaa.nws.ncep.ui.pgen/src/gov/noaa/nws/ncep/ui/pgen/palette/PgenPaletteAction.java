@@ -42,7 +42,7 @@ public class PgenPaletteAction extends AbstractHandler {
 			IWorkbenchPage wpage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 
 			IViewPart vpart = wpage.findView( PgenUtil.VIEW_ID );
-
+			
 
 			try {
 

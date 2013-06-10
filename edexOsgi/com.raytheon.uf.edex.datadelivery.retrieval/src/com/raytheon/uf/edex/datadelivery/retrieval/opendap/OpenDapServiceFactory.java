@@ -38,13 +38,14 @@ import com.raytheon.uf.edex.datadelivery.retrieval.ServiceFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 24, 2012 955        djohnson     Initial creation
+ * Feb 07, 2013 1543       djohnson     Allow sub-classes.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public final class OpenDapServiceFactory implements ServiceFactory {
+public class OpenDapServiceFactory implements ServiceFactory {
 
     private static final OpenDAPMetaDataParser PARSER = new OpenDAPMetaDataParser();
 

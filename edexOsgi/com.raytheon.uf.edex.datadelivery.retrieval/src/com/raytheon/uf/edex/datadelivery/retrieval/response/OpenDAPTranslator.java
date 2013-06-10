@@ -25,9 +25,11 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
@@ -50,6 +52,7 @@ import dods.dap.PrimitiveVector;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2011            dhladky     Initial creation
+ * Feb 07, 2013 1543       djohnson    Allow package-level construction with explicit PDO class name.
  * 
  * </pre>
  * 
@@ -65,6 +68,11 @@ public class OpenDAPTranslator extends RetrievalTranslator {
     public OpenDAPTranslator(RetrievalAttribute attXML)
             throws InstantiationException {
         super(attXML);
+    }
+
+    OpenDAPTranslator(RetrievalAttribute attXML, String className)
+            throws InstantiationException {
+        super(attXML, className);
     }
 
     public PluginDataObject[] asPluginDataObjects(DataDDS dds) {
@@ -168,7 +176,8 @@ public class OpenDAPTranslator extends RetrievalTranslator {
                 for (int j = 0; j < numLevels; j++) {
                     PluginDataObject record = getPdo(bin);
                     record.setDataTime(dataTime);
-                    record.constructDataURI();
+
+                    constructDataUri(record);
 
                     int end = start + gridSize;
 
@@ -192,8 +201,19 @@ public class OpenDAPTranslator extends RetrievalTranslator {
     }
 
     /**
+     * @param record
+     * @throws PluginException
+     */
+    @VisibleForTesting
+    void constructDataUri(PluginDataObject record)
+            throws PluginException {
+        record.constructDataURI();
+    }
+
+    /**
      * get # of subset times
      */
+    @Override
     protected int getSubsetNumTimes() {
 
         return ResponseProcessingUtilities.getOpenDAPGridNumTimes(attXML
@@ -203,6 +223,7 @@ public class OpenDAPTranslator extends RetrievalTranslator {
     /**
      * get subset levels
      */
+    @Override
     protected int getSubsetNumLevels() {
 
         return ResponseProcessingUtilities.getOpenDAPGridNumLevels(attXML
@@ -212,6 +233,7 @@ public class OpenDAPTranslator extends RetrievalTranslator {
     /**
      * get list of data times from subset
      */
+    @Override
     protected ArrayList<DataTime> getTimes() {
 
         return ResponseProcessingUtilities.getOpenDAPGridDataTimes(attXML

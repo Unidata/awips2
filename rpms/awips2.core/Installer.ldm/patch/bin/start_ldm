@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# Check for necessary named pipes (FIFOs)
+
+myhost=`hostname | awk -F'-' '{ print substr($1,1,length($1)-1)}'`
+
+# Check for the host type nad perform operations accordingly
+
+if [ "$myhost" = "cpsbn" ]; then
+
+  echo "Checking for availability of named pipes"
+  if [ -p /dev/p_LOG ];then
+    echo "Pipe /dev/p_LOG exists"
+  else
+    mknod /dev/p_LOG p
+  fi
+  chmod 664 /dev/p_LOG && chgrp fxalpha /dev/p_LOG
+
+  if [ -p /dev/p_LOST ];then
+    echo "Pipe /dev/p_LOST exists"
+  else
+    mknod /dev/p_LOST p
+  fi
+  chmod 664 /dev/p_LOST && chgrp fxalpha /dev/p_LOST
+
+  if [ -f /etc/rc.config.d/AWIPS ];then
+   . /etc/rc.config.d/AWIPS
+  else
+   echo "AWIPS file not found.Install AWIPS and proceed."
+   echo "Exiting."
+   exit $?
+  fi
+
+# Start AWIPS-I retransmission process
+# Move to a2cp1apps to prevent duplicate retransmission request from both CPs
+#  $PROJECT/bin/start_sbn_retransmit
+
+# Setup shared memory for LDM to store retransmission params
+
+  su - ldm -c "acq_ldm_getshm -m0"
+
+else
+  echo "It seems like host(`hostname`) is NOT a downlink CP."
+  echo "Do you still want to start LDM (y/n) [default=n]?"
+  read ch
+  if [ $ch != 'y' -o $ch != 'Y' ];then
+    echo "Exiting."
+    exit 1
+  fi
+fi
+
+
+# Start LDM
+
+su - ldm -c "ldmadmin start"
+
+
+echo "Done."
+

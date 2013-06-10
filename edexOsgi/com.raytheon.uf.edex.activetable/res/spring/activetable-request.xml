@@ -46,16 +46,49 @@
 	  <constructor-arg value="com.raytheon.uf.common.activetable.PracticeProductOfftimeRequest"/>
 	  <constructor-arg ref="practiceProductOfftimeHandler"/>
 	</bean>
-	    
-    <bean id="updateActiveTableHandler" class="com.raytheon.uf.edex.activetable.UpdateActiveTableHandler" />
-  	<bean factory-bean="handlerRegistry" factory-method="register">
-  	  <constructor-arg value="com.raytheon.uf.common.activetable.UpdateActiveTableRequest"/>
-  	  <constructor-arg ref="updateActiveTableHandler"/>
-    </bean>
 
     <bean id="getNextEtnHandler" class="com.raytheon.uf.edex.activetable.GetNextEtnHandler" />
   	<bean factory-bean="handlerRegistry" factory-method="register">
   	  <constructor-arg value="com.raytheon.uf.common.activetable.GetNextEtnRequest"/>
   	  <constructor-arg ref="getNextEtnHandler"/>
     </bean>
+    
+    <bean id="requestATHandler" class="com.raytheon.uf.edex.activetable.handler.RetrieveRemoteActiveTableHandler"/>
+  	<bean factory-bean="handlerRegistry" factory-method="register">
+  	  <constructor-arg value="com.raytheon.uf.common.activetable.request.RetrieveRemoteActiveTableRequest"/>
+  	  <constructor-arg ref="requestATHandler"/>
+    </bean>
+    
+    <bean id="sendATHandler" class="com.raytheon.uf.edex.activetable.handler.SendActiveTableHandler"/>
+  	<bean factory-bean="handlerRegistry" factory-method="register">
+  	  <constructor-arg value="com.raytheon.uf.common.activetable.request.SendActiveTableRequest"/>
+  	  <constructor-arg ref="sendATHandler"/>
+    </bean>
+    
+    <bean id="ingestATHandler" class="com.raytheon.uf.edex.activetable.handler.MergeActiveTableHandler"/>
+  	<bean factory-bean="handlerRegistry" factory-method="register">
+  	  <constructor-arg value="com.raytheon.uf.common.activetable.request.MergeActiveTableRequest"/>
+  	  <constructor-arg ref="ingestATHandler"/>
+    </bean>
+    
+    <bean id="fetchATSrv" class="com.raytheon.uf.edex.activetable.vtecsharing.FetchActiveTableSrv"/>
+    <camelContext id="activeTableSharingRoutes"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler" autoStartup="false">
+		
+		<route id="activeSiteForFetchATSrv">
+			<from uri="jms-generic:queue:gfeSiteActivated" />
+			<doTry>
+				<bean ref="fetchATSrv" method="addSite" />
+				<doCatch>
+	            	<exception>java.lang.Throwable</exception>
+	            	<to uri="log:fetchATSrv?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+	            </doCatch>
+            </doTry>
+		</route>
+	</camelContext>
+    <bean factory-bean="clusteredCamelContextMgr"
+		factory-method="register">
+		<constructor-arg ref="activeTableSharingRoutes" />
+  	</bean>
 </beans>

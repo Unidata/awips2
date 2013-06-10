@@ -66,13 +66,17 @@ public class DbQueryResponse implements ISerializableObject {
         return getResults().size();
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T[] getEntityObjects(Class<T> entityType) {
+        return getFieldObjects(ENTITY_RESULT_KEY, entityType);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T[] getFieldObjects(String fieldKey, Class<T> fieldType) {
         List<Map<String, Object>> results = getResults();
-        T[] entities = (T[]) Array.newInstance(entityType, results.size());
+        T[] entities = (T[]) Array.newInstance(fieldType, results.size());
         int i = 0;
         for (Map<String, Object> result : results) {
-            entities[i++] = entityType.cast(result.get(ENTITY_RESULT_KEY));
+            entities[i++] = fieldType.cast(result.get(fieldKey));
         }
         return entities;
     }

@@ -111,6 +111,8 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * 11/30/2012   #1328     mschenke     Made GFE use descriptor for time matching
  *                                     and time storage and manipulation
  * 01/22/2013    #1518    randerso     Removed use of Map with Parms as keys
+ * 03/28/2013    #1838    randerso     Fixed selected time range when Select Grids When 
+ *                                     Stepping is enabled. Cleaned up deprecated warnings.
  * 
  * </pre>
  * 
@@ -563,8 +565,7 @@ public class GridCanvas extends Canvas implements IMessageClient {
                         List<String> popUpActions = new ArrayList<String>(0);
                         if (gmEditActions.length > 0) {
                             // Only show tools this parm supports
-                            String[] parmTools = DataManager
-                                    .getCurrentInstance()
+                            String[] parmTools = dataMgr
                                     .getSmartToolInterface().listTools(parm);
                             List<String> parmToolList = Arrays
                                     .asList(parmTools);
@@ -815,8 +816,7 @@ public class GridCanvas extends Canvas implements IMessageClient {
                     grid = null;
                 }
                 grid.changeValidTime(lastDestinationTR, false);
-                grid.updateHistoryToModified(DataManager.getCurrentInstance()
-                        .getWsId());
+                grid.updateHistoryToModified(dataMgr.getWsId());
 
                 newGrids.add(grid);
 
@@ -924,8 +924,6 @@ public class GridCanvas extends Canvas implements IMessageClient {
         Date clickTime = gridManager.getUtil().pixelToDate(e.x);
         GridID clickGridID = new GridID(parm, clickTime);
 
-        gridManager.setSelectedTime(clickTime);
-
         // make it active, make it inactive depending upon okToEdit
         try {
             if (clickGridID.grid() != null && clickGridID.grid().isOkToEdit()) {
@@ -967,6 +965,8 @@ public class GridCanvas extends Canvas implements IMessageClient {
             statusHandler.handle(Priority.PROBLEM, "Error activating parm "
                     + parm.getParmID().compositeNameUI(), e1);
         }
+
+        gridManager.setSelectedTime(clickTime);
     }
 
     private void resize() {

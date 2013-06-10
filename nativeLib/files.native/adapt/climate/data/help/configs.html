@@ -1,0 +1,157 @@
+<html>
+<head>
+<title>Climate Product Configuration</title>
+</head>
+<BODY BGCOLOR="#FFFFFF">
+<IMG align=center SRC="awip_ban.gif"></A ><P>
+<center>
+<h3><b>PRODUCT CONFIGURATION HELP PAGE</b></h3>
+</center>
+<hr>
+<br>
+
+<a name="valid"><br>
+<h3><b>Valid Time</b></h3>
+The <b>Valid Time for Daily Evening Reports</b> and <b>Valid Time for Daily
+Intermediate Reports</b> are used to define a cut-off time for finding the 
+maximums, minimums, and sums for their respective daily climatological report. 
+There are two ways to define the valid times: use the product creation time or
+set a fixed local time. For example, if an evening report is desired and the 
+valid time is set to "As Of 5 P.M.", data for the station(s) will be parsed 
+beginning with midnight local time through 5 P.M. for the current day. On the 
+other hand, if the "Time of Climate Run" is selected, the report will contain
+data from midnight through the time that climate is executed.<br><br>
+
+<h3><b>NOTES/CAUTIONS</h3></b>
+<ul>
+<IMG align=left SRC="dotblue.gif"></a>Climate defaults to the "Time of Climate
+Run" for the valid time if climate is executed before the user-defined "As Of" 
+time. For example, if the cron automatically runs at 3:30 PM and a valid time of 
+5:00 PM is chosen, the product will state that the report is valid as of 3:00 PM 
+(the latest hourly observations).</ul><br><br>
+
+<br><br><br><br>
+
+<a name="stations"><br>
+<h3><b>Station List</b></h3>
+<a href = select_stations.gif> (Click here to see GUI) </a><br><br>
+
+<b>Station List</b>- This list contains the stations available for the 
+climatological products.<br><br>
+
+To edit the list, simply type a four-letter identifier in an empty station ID
+box. The name of the station will appear as stored in the database. If an 
+identifier is not found, <i><b>Invalid ID</b></i> will appear in the associated
+name box.<br><br>
+
+The <b>Std Time All Year</b> box should be checked if a station remains on
+standard time year-round.<br><br>
+
+Oftentimes, long station names have been abbreviated in the database and ASOS
+stations appear with the word ASOS attached. These cause complications when 
+used in a NOAA Weather Radio product to be read by the CRS. Therefore, the name
+fields are editable.<br><br>
+
+<b>Save Stations</b> saves the stations and any changes made for use by the climate
+application only.<br><br>
+
+One note, when a station with an edited name is deleted, if retrieval is desired
+again, the name will have to be edited again.<br><br>
+
+<br><br><br><br>
+
+<a name="report"><br>
+<h3><b>Reporting Periods</b></h3>
+<a href = report_periods.gif> (Click here to see GUI) </a><br><br>
+
+<b>Reporting Periods</b> - These three fields determine the portion of the year
+that snow, heating degree days, and cooling degree days appear in the climate
+product.<br><br>
+
+If the current date falls outside of the periods for any of these elements, it
+will override any selection made via the report format GUI. For example, if the
+heating degree days were chosen to be displayed for a product, the current date
+is July 1, and the reporting period is from Sep. 1 to May 1, the heating degree
+days will not appear in the final output since the current date falls outside the
+reporting period.<br><br>
+
+The reporting periods are product specific, meaning they can be set to different 
+dates for each climate product.<br><br>
+
+<br><br><br><br>
+
+<a name="annual"><br>
+<h3><b>Alternate Annual (Seasonal) Periods</b></h3>
+<a href = annual_periods.gif> (Click here to see GUI) </a><br><br>
+
+<b>Alternate Annual Period (Season)</b> - This interface sets the begin date for
+the season-to-date totals of snow and liquid precipitation.<br><br> 
+
+Year-to-date totals for all elements are fixed and cannot be changed. They are
+as follows:<br><br>
+<center><table width="80%">
+<tr><td><b>Heating Degree Days:</b></td> <td>July 1 - June 30</td></tr>
+<tr><td><b>Cooling Degree Days:</b></td> <td>January 1 - December 31</td></tr>
+<tr><td><b>Snow:</b></td> <td>July 1 - June 30</tr></td>
+<tr><td><b>Precipitation:</b></td> <td>January 1 - December 31</tr></td>
+</table></center><br>
+
+Some stations might be better suited by an alternate annual period. For example,
+a station's wet season might occur from the middle of December to the end of January.
+An alternate period of March to March might be better suited to keep breaking the wet
+season apart into two separate yearly sums.<br><br>
+
+If this is not necessary, the other option is to use the <i><b>Current 3 Month Season</i></b>
+ for a station. This results in season-to-date sums beginning with the first day
+of a defined season.<br><br>
+
+<center><table width="80%">
+<tr><td><u>Current Month</u></td><td><u>Season Start Date</u></td></tr>
+<tr><td><b>Dec., Jan., or Feb.</b></td><td>December 1</td></tr>
+<tr><td><b>Mar., Apr., or May</b></td><td>March 1</td></tr>
+<tr><td><b>Jun., Jul., or Aug.</b></td><td>June 1</td></tr>
+<tr><td><b>Sep., Oct., or Nov.</b></td><td>September 1</td></tr>
+</table></center><br>
+
+The seasonal sums for the degree days cannot be changed and are always summed in
+the three month intervals described above. Any changes made to the snow and 
+precipitation dates made via this interface will only appear in the final output 
+if the season-to-date total has been chosen.<br><br>
+
+Note that any changes made will affect <i>all</i> products including those already
+created.<br><br>
+
+<br><br><br><br>
+
+<a name="thresholds"><br>
+<h3><b>Edit User-Defined Values / Change Threshold Values</b></h3>
+<a href = usr_defined_values.gif> (Click here to see GUI) </a><br><br>
+<B>Edit User-Defined Values</B> - This interface allows the user to set specific threshold values
+to Maximum and Minimum Temperature, Precipitation amount, and Snowfall amount.<br><br>
+
+The number of days reaching or crossing the threshold value will be reported in the final
+output.<BR><BR>
+<b><i>Existing monthly, seasonal, and annual climate data will not be automatically
+regenerated with the new thresholds.</i></b><br><br>
+What in the world does this warning mean?! If new thresholds are entered and the
+<b><i>Save</i></b> button is pushed, this cryptic warning appears. It means that any
+existing monthly, seasonal, and annual data run with the previous threshold
+value will remain the same and not be automatically updated for the new value.
+This means that all monthly data will have to be regenerated if an end of the
+year report is desired and the threshold values have changed during the year.
+Likewise, if the values change during the middle of a season and a seasonal report
+is needed, the three months of data will have to be regenerated by the user.
+
+
+<br><br><br><br>
+
+
+<center>
+<a href= climo_prefs.html>Return to Climate Preferences Help Page</a><br>
+<a href= report_format.html>Return to Report Format Help Page</a><br>
+<a href= climo_help.html>Return to Main Climate GUI Help Page</a><br>
+</center>
+<hr><p>
+</body>
+</HTML>
+

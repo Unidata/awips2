@@ -5,10 +5,11 @@ Bundle-SymbolicName: com.raytheon.uf.viz.cwat;singleton:=true
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Activator: com.raytheon.uf.viz.cwat.Activator
 Bundle-Vendor: RAYTHEON
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.uf.viz.core,
+ com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.time;bundle-version="1.11.1",
  com.raytheon.edex.common;bundle-version="1.11.1",
  org.geotools;bundle-version="2.5.2",

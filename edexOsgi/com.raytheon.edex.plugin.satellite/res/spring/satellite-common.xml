@@ -4,11 +4,8 @@
   http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-	<bean id="satellitePluginName" class="java.lang.String">
-		<constructor-arg type="java.lang.String" value="satellite" />
-	</bean>
-
-	<bean id="satelliteProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+	<bean id="satelliteProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties" 
+	depends-on="satellitePluginName">
 		<property name="pluginName" ref="satellitePluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.satellite" />
 		<property name="dao" value="com.raytheon.edex.plugin.satellite.dao.SatelliteDao" />

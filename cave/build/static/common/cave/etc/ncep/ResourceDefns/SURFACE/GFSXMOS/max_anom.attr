@@ -1,5 +1,5 @@
-! Attributes for the GFSXMOS resource with "maxanom" plot model
+! Attributes for the GFSXMOS resource with "max_anom" plot model
 !
-plotModel=maxanom
+plotModel=@PlotModels/bufrmosMRF/max_anom.xml
 plotDensity=10
 conditionalFilter=

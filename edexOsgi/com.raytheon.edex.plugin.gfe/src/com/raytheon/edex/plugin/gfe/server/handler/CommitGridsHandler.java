@@ -44,6 +44,10 @@ import com.raytheon.uf.common.dataplugin.gfe.server.request.CommitGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.LockTableRequest;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * GFE task for commit grids to the official database
@@ -55,6 +59,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 04/08/08     #875       bphillip    Initial Creation
  * 06/16/09                 njensen    Send notifications
  * 09/22/09     3058       rjpeter     Converted to IRequestHandler
+ * 03/17/13     1773       njensen   Log performance
  * </pre>
  * 
  * @author bphillip
@@ -62,6 +67,9 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  */
 public class CommitGridsHandler implements IRequestHandler<CommitGridsRequest> {
     protected final transient Log logger = LogFactory.getLog(getClass());
+
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("GFE:");
 
     @SuppressWarnings("unchecked")
     @Override
@@ -82,16 +90,26 @@ public class CommitGridsHandler implements IRequestHandler<CommitGridsRequest> {
                     + commits.toString());
         }
 
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
         // check that there are not locks for each commit request
         for (CommitGridRequest commitRequest : commits) {
             sr.addMessages(lockCheckForCommit(commitRequest, workstationID,
                     siteID));
         }
+        timer.stop();
+        perfLog.logDuration("Publish Grids: Lock Check For Commit",
+                timer.getElapsedTime());
 
         if (sr.isOkay()) {
+            timer.reset();
+            timer.start();
             List<GridUpdateNotification> changes = new ArrayList<GridUpdateNotification>();
             ServerResponse<?> ssr = GridParmManager.commitGrid(commits,
                     workstationID, changes, siteID);
+            timer.stop();
+            perfLog.logDuration("Publish Grids: GridParmManager.commitGrid",
+                    timer.getElapsedTime());
             sr.addMessages(ssr);
             sr.setPayload((List<GridUpdateNotification>) ssr.getPayload());
             for (GridUpdateNotification notification : changes) {
@@ -100,6 +118,8 @@ public class CommitGridsHandler implements IRequestHandler<CommitGridsRequest> {
 
             try {
                 // check for sending to ISC
+                timer.reset();
+                timer.start();
                 IFPServerConfig serverConfig = IFPServerConfigManager
                         .getServerConfig(siteID);
                 String iscrta = serverConfig.iscRoutingTableAddress().get(
@@ -122,6 +142,10 @@ public class CommitGridsHandler implements IRequestHandler<CommitGridsRequest> {
                         }
                     }
                 }
+                timer.stop();
+                perfLog.logDuration(
+                        "Publish Grids: Queueing ISC send requests",
+                        timer.getElapsedTime());
             } catch (GfeConfigurationException e1) {
                 logger.error("Unable to get server configuration for site ["
                         + siteID + "]", e1);
@@ -129,6 +153,8 @@ public class CommitGridsHandler implements IRequestHandler<CommitGridsRequest> {
         }
         if (sr.isOkay()) {
             try {
+                timer.reset();
+                timer.start();
                 ServerResponse<?> notifyResponse = SendNotifications.send(sr
                         .getNotifications());
                 if (!notifyResponse.isOkay()) {
@@ -136,6 +162,9 @@ public class CommitGridsHandler implements IRequestHandler<CommitGridsRequest> {
                         sr.addMessage(msg.getMessage());
                     }
                 }
+                timer.stop();
+                perfLog.logDuration("Publish Grids: Sending notifications",
+                        timer.getElapsedTime());
             } catch (Exception e) {
                 logger.error("Error sending commit notification", e);
                 sr.addMessage("Error sending commit notification - "

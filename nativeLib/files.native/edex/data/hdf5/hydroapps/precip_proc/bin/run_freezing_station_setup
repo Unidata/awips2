@@ -1,0 +1,134 @@
+#!/usr/bin/ksh
+
+###############################################################################
+# FILENAME:           run_freezing_station_setup
+# GENERAL INFORMATION:
+# DESCRIPTION: Using the template ruc.pl.template, this script will
+#              produce a version of ruc.pl which contains the
+#              RUC80 points within the office's MPE forecast area.
+#              The ruc.pl script is used by ruc.tcl to extract
+#              RUC80 data from the AWIPS netCDF files.
+#
+#              This routine reads the freezing station list in the
+#              /awips/hydroapps/precip_proc/local/data/app/MPE/station_lists 
+#              directory. It formats the latitude/longitude coordinates into
+#              the format required by the ruc.pl script.  It then inserts
+#              these latitude/longitude coordinates into the ruc.pl script
+#              as well as updating references to the count of freezing 
+#              stations.
+#
+#              The ruc.pl.template file should never be edited.
+#
+#              This script is meant to be called from the Build_Station_List
+#              script.  It should not be run alone.  It assumes that
+#              /awips/hydroapps/set_hydro_env has already been sourced.
+#                    
+#
+# ORIGINAL AUTHOR:    Bryon Lawrence
+# CREATION DATE:      April 3, 2006
+# ORGANIZATION:       OHD/HSEB
+# MACHINE:            Linux
+# MODIFICATION HISTORY:
+#    DATE          PROGRAMMER        DESCRIPTION/REASON
+#    April 3, 2006 Bryon Lawrence    Initial Coding
+################################################################################
+#
+
+# This allows this script to be run from outside of precip_proc/bin.
+RUN_FROM_DIR=`dirname $0`
+. $RUN_FROM_DIR/../../set_hydro_env
+
+export MPE_SITE_ID=$(get_apps_defaults mpe_site_id)
+export MPE_STATION_LIST_DIR=$(get_apps_defaults mpe_station_list_dir)
+
+#
+# Retrieve the directory to read the freezing level station list data from.
+#
+FREEZING_LIST_PATH=$MPE_STATION_LIST_DIR
+
+#
+# Retrieve the identifier of the office.
+#
+SITE_ID=$MPE_SITE_ID
+
+#
+# Create the freezing station file name.
+#
+FREEZING_STATION_FILE=$FREEZING_LIST_PATH/${SITE_ID}_freezing_station_list
+
+#
+# Create the file to temporarily contain the lat/lon coords. These
+# will be inserted into the ruc.pl script.
+# 
+FREEZING_STATION_COORD_FILE=$FREEZING_LIST_PATH/${SITE_ID}_freezing_coords
+
+#
+# Check for the existence of the ruc.pl file.  If it exists, warn the user
+# that this file will be overwritten.  Give the user the chance to quit.
+#
+if [[ -a $RUN_FROM_DIR/ruc.pl ]]
+then
+
+   printf "The $RUN_FROM_DIR/ruc.pl file exists.\n"
+   printf "It will be overwritten.  Procede?\n"
+   read overwrite?"   (Y/N):"
+
+   while [[ $overwrite != "N" && $overwrite != "Y" ]]
+   do
+      read overwrite?"  Please enter Y or N:"
+   done
+
+   if [ $overwrite == "N" ]
+   then
+      printf "The freezing station setup has been aborted.\n"
+      exit 1;
+   fi
+
+fi
+
+#
+# Create the list of RUC80 point latitude/longitude coordinates in the format
+# required by the ruc.pl script. Skip the first record in the freezing
+# station list file.  This is the number of records in the file.
+#
+awk  'BEGIN{count=0}
+      {if(FNR > 1){print "$lat["count"] = "$3";\n$lon["count"] = -"$4";"; 
+       count=count+1}}' $FREEZING_STATION_FILE  > $FREEZING_STATION_COORD_FILE
+
+#
+# Retrieve the number of records in the coodinate file.
+#
+num_coord_records=`wc -l $FREEZING_STATION_COORD_FILE | cut -f1 -d' '`
+
+num_coord_records=`echo $num_coord_records | xargs -i expr {} / 2`
+num_coord_records=`echo $num_coord_records | xargs -i expr {} - 1`
+
+#
+# Insert the lat/lon coords into the ruc.pl script.
+#
+echo $FREEZING_STATION_COORD_FILE | \
+     xargs -i sed '3r{}' $RUN_FROM_DIR/ruc.pl.template > ruc.pl.temp
+
+#
+# Modify the ruc.pl script to contain the correct number of lat/lon
+# coordinate pairs to process.
+#
+echo $num_coord_records | xargs -i sed 's/#####/{}/g' ruc.pl.temp > ruc.pl
+
+#
+# Remove the temporary file.
+#
+rm -f ruc.pl.temp
+rm -f $FREEZING_STATION_COORD_FILE
+
+#
+# Change the permissions on the ruc.pl script so that they are executable
+# by all.
+#
+chmod 755 ruc.pl
+
+#
+# Done
+#
+
+exit 0

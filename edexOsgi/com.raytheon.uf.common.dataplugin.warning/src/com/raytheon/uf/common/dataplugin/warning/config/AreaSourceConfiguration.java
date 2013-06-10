@@ -22,6 +22,7 @@ import com.raytheon.uf.common.dataquery.requests.RequestableMetadataMarshaller;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Mar 29, 2012 #14691      Qinglu Lin  Added feAreaField and its getter and setter, etc.
+ *    Apr 24, 2014  1943       jsanchez    Removed unused areaType.
  * 
  * </pre>
  * 
@@ -38,13 +39,6 @@ public class AreaSourceConfiguration {
 
     @XmlElement
     private AreaType type = AreaType.HATCHING;
-
-    /*
-     * TODO This is for 12.9 to be backwards compatible. This will be removed in
-     * 12.10
-     */
-    @XmlElement
-    private AreaType areaType;
 
     @XmlAttribute
     private String variable;
@@ -275,14 +269,6 @@ public class AreaSourceConfiguration {
 
     public void setType(AreaType type) {
         this.type = type;
-    }
-
-    public AreaType getAreaType() {
-        return areaType;
-    }
-
-    public void setAreaType(AreaType areaType) {
-        this.areaType = areaType;
     }
 
 }

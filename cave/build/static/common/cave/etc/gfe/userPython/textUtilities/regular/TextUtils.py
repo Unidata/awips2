@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -175,7 +175,7 @@ class  TextUtils:
         # Return 1 if any of the searchKeys are found in subkeys
         wxSize = len(subkeys)
         wxStr = ""
-        for x in range(wxSize):             
+        for x in range(wxSize):
             wxStr += str(subkeys[x])
             if x < wxSize - 1:
                 wxStr += '^'
@@ -253,7 +253,7 @@ class  TextUtils:
             return 0.0
         countAbove = 0
 
-        for histSample in parmHisto.histoSamples():        
+        for histSample in parmHisto.histoSamples():
             for histPair in histSample.histogram():
                 if histPair.value().scalar() > value:
                     countAbove = countAbove + histPair.count()
@@ -418,7 +418,7 @@ class  TextUtils:
         if index == -1:
             name = parmNameAndLevel
             level = "SFC"
-            parm = ParmID(name,databaseID,level) 
+            parm = ParmID(name,databaseID,level)
         else:
             name = parmNameAndLevel[0:index]
             level = parmNameAndLevel[index+1:]
@@ -674,11 +674,11 @@ class  TextUtils:
 
     def getPreviousProduct(self, productID, searchString="", version=0):
         # gets a previous product from the AWIPS database
-        
-        from com.raytheon.viz.gfe.core import DataManager
+
         from com.raytheon.viz.gfe.product import TextDBUtil
-        
-        opMode = DataManager.getCurrentInstance().getOpMode().name() == "OPERATIONAL"       
+
+        # DR 15703 - always retrieve operational products
+        opMode = True
         previousProduct = TextDBUtil.retrieveProduct(productID, version, opMode)
         previousProduct = string.strip(previousProduct)
 

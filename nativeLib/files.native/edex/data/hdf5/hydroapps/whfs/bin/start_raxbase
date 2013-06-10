@@ -1,0 +1,18 @@
+#!/bin/ksh
+# file name: start_raxbase
+# Last Updated: 01/02/2008
+
+# This allows you to run this script from outside of ./bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for RAX applications
+. /rfc_arc/lib/rax.profile
+
+# need to add a path to the jar file for this application
+export CLASSPATH=$DB_DRIVER_PATH:$RUN_FROM_DIR/rax_apps.jar
+
+# Java bin directory
+JBINDIR=$SYS_JAVA_DIR/bin
+
+# run application using java
+xterm -T RaxBase -iconic -n RaxBase -e $JBINDIR/java  -Xmx512m -Xms32m ohd.hseb.raxbase.RaxBase $RAX_JDBCURL $IHFS_JDBCURL $ADB_NAME .

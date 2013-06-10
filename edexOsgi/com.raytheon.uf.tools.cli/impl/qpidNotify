@@ -31,6 +31,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    09/19/11		 8804		   mhuang		  Initial creation
 #    10/09/12        DR 13901      D. Friedman    Add logging
+#    02/20/13        DR 15836      D. Friedman    Append to log
 ##############################################################################
 
 # this allows you to run this script from outside of ./bin
@@ -52,7 +53,7 @@ _MODULE="${RUN_FROM_DIR}/src/qpidNotify/qpidNotify.py"
 
 log_file=${LOG_DIR:-/data/logs/fxa}/$(date -u +%Y%m%d)/qpidNotify
 if touch "$log_file"; then
-    exec >& "$log_file"
+    exec >>"$log_file" 2>&1
 fi
 
 # quoting of '$@' is used to prevent command line interpretation 

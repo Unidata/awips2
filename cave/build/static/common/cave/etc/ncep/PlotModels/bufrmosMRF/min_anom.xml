@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<plotModel svgTemplate="standardPlotModelTemplate.svg" plugin="bufrmosMRF" name="min_anom">
+
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="STID">
+        <Position>LC</Position>
+        <Color red="255" green="215" blue="0"/> 
+    </PlotModelElement>
+
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="12" paramName="TNAF">
+        <Position>TC</Position>
+        <Color red="238" green="44" blue="44"/>
+    </PlotModelElement>  
+   
+</plotModel>

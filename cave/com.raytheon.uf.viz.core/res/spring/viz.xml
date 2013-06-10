@@ -8,12 +8,18 @@
   http://www.springframework.org/schema/util
   http://www.springframework.org/schema/util/spring-util-2.5.xsd">
   
+    <bean id="caveCredentialHandler" class="com.raytheon.uf.viz.core.comm.CaveHttpsCredentialsHandler" />
+    
+    <bean id="httpsConfiguration" class="com.raytheon.uf.viz.core.comm.HttpsConfiguration" />
+    
 	<bean id="httpClient" class="com.raytheon.uf.common.comm.HttpClient" factory-method="getInstance">
 	   <property name="socketTimeout" value="330000"/>
 	   <property name="connectionTimeout" value="10000"/>
 	   <property name="maxConnectionsPerHost" value="10"/>
 	   <property name="compressRequests" value="false"/>
 	   <property name="gzipResponseHandling" value="false"/>	   
+	   <property name="handler" ref="caveCredentialHandler" />
+	   <property name="httpsConfiguration" ref="httpsConfiguration" />
 	</bean>	
 
 	<bean id="baosPool" class="com.raytheon.uf.common.util.ByteArrayOutputStreamPool" factory-method="getInstance">

@@ -4,8 +4,8 @@ import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.datadelivery.event.INotifiableEvent;
 import com.raytheon.uf.common.datadelivery.event.notification.NotificationRecord;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
-import com.raytheon.uf.edex.event.EventBus;
 
 /**
  * 
@@ -25,6 +25,7 @@ import com.raytheon.uf.edex.event.EventBus;
  * Jul 06, 2012 740       djohnson     Fix bug that assumes {@link RemoveRegistryEvent}s will only be received by
  *                                     the method with it as a parameter (i.e. superclass parameter methods receive it too).
  * Dec 07, 2012 1104      djohnson     Changed to use INotifiableEvent for events with notifications.
+ * Feb 05, 2013 1580      mpduff       EventBus refactor.
  * 
  * </pre>
  * 
@@ -33,8 +34,6 @@ import com.raytheon.uf.edex.event.EventBus;
  */
 public class NotificationHandler extends AbstractHandler {
 
-    private static EventBus eventBus = EventBus.getInstance();
-
     private String endpoint;
 
     /**
@@ -42,7 +41,7 @@ public class NotificationHandler extends AbstractHandler {
      * DataDeliveryEventBus
      */
     public NotificationHandler() {
-        eventBus.register(this);
+        EventBus.register(this);
     }
 
     /**
@@ -51,7 +50,7 @@ public class NotificationHandler extends AbstractHandler {
      */
     public NotificationHandler(String endpoint) {
         this.endpoint = endpoint;
-        eventBus.register(this);
+        EventBus.register(this);
     }
 
     /**

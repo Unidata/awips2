@@ -23,8 +23,15 @@ package com.raytheon.viz.texteditor.dialogs;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.SortedSet;
+import java.util.concurrent.LinkedBlockingQueue;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.MenuManager;
@@ -55,9 +62,13 @@ import com.raytheon.edex.textdb.dbapi.impl.AFOS_CLASS;
 import com.raytheon.edex.textdb.dbapi.impl.AFOS_ORIGIN;
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
 import com.raytheon.uf.edex.services.textdbsrv.TextDBQuery;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.texteditor.AfosBrowserModel;
@@ -88,12 +99,18 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                       functionality.
  * 06/28/2010   3283        cjeanbap    Implement window resize.
  * 25Sep2012    1196        lvenable    Dialog refactor to prevent blocking.
+ * 29Jan2013    1496        rferrel     Changes to designator hours query
+ *                                       off the UI thread.
+ *                                      Changes to have multiple query jobs.
  * </pre>
  * 
  * @author lvenable
  */
 public class AfosBrowserDlg extends CaveSWTDialog implements
         ITextWorkstationCallback {
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(AwipsBrowserDlg.class);
 
     private static final String TIME_FORMAT = "%1$tH:%1$tM %1$tb %1$td";
 
@@ -102,6 +119,36 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
     private enum ListType {
         NODE, CATEGORY, DESIGNATOR, DESIGNATOR_TIME, DISPLAY
     };
+
+    /**
+     * Designator time display error for getting data for designator.
+     */
+    private final String DATA_ERROR = "ERROR";
+
+    /**
+     * Designator time display when no data retrieved for designator.
+     */
+    private final String DATA_NONE = "NO DATA";
+
+    /**
+     * Designator time display while data retrieval is pending.
+     */
+    private final String DATA_LOADING = "??:?? ??? ??";
+
+    /**
+     * Flag to indicate loading of designator times is active.
+     */
+    private boolean loadingProduct = false;
+
+    /**
+     * Flag to indicate loading of product(s) is active in the parent's dialog.
+     */
+    private boolean loadingTimes = false;
+
+    /**
+     * Newest time used to populate "000" designator's time.
+     */
+    private long newestTime = -1L;
 
     /**
      * custom mouse handling so we can do the required vertical bar
@@ -154,34 +201,14 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
     private String selectedNode;
 
     /**
-     * The node index that is selected.
-     */
-    private int selectedNodeIndex = -1;
-
-    /**
      * The category that is selected.
      */
     private String selectedCategory;
 
     /**
-     * The category index that is selected.
-     */
-    private int selectedCategoryIndex = -1;
-
-    /**
      * The designator that is selected.
      */
     private String selectedDesignator;
-
-    /**
-     * The designator index that is selected.
-     */
-    private int selectedDesignatorIndex = -1;
-
-    /**
-     * The designator time that is selected.
-     */
-    private String selectedDesignatorTime;
 
     /**
      * Load the text product and keep the browser dialog open.
@@ -217,6 +244,8 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
 
     private MenuManager menuMgr = null;
 
+    private QueryRequests queryRequests = new QueryRequests();
+
     /**
      * Constructor.
      * 
@@ -241,11 +270,23 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         queryTransport = TextEditorUtil.getTextDbsrvTransport();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         return new GridLayout(1, false);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         initializeComponents();
@@ -575,6 +616,10 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         });
     }
 
+    /**
+     * Allow parent dialog to display the hidden dialog or just force it to the
+     * top of the display.
+     */
     public void showDialog() {
         bringToTop();
         isAfosActive = true;
@@ -614,7 +659,12 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         vBar2.addSelectionListener(listener2);
     }
 
+    /**
+     * Create a query command and a list of product ids to obtain the hours for
+     * and pass the request off to the query request job.
+     */
     private void queryTableUsingNodeAndCategory() {
+        getShell().setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         TextDBQuery dbQuery = new TextDBQuery(queryTransport);
         dbQuery.setQueryViewName("text");
         dbQuery.setQueryOpName("GET");
@@ -627,18 +677,70 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         dbQuery.setQueryOperationalMode(result.toString().toUpperCase());
 
         // Build up the query list.
+        java.util.List<String> productIds = new ArrayList<String>();
         for (int i = 1; i < designatorList.getItemCount(); i++) {
             String prodId = selectedNode + selectedCategory
                     + designatorList.getItem(i);
-            dbQuery.addProductId(prodId);
+            productIds.add(prodId);
         }
 
-        Message queryResponse = dbQuery.executeQuery();
-        Property[] properties = queryResponse.getHeader().getProperties();
+        queryRequests.addRequest(dbQuery, productIds);
+    }
 
+    /**
+     * Set up designator Time list to be the same size as designator list
+     * populated with loading template; and set up variables needed for queries.
+     */
+    private void startDesignatorTimeList() {
+        loadingTimes = true;
+        getShell().setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+        newestTime = -1L;
+        designatorTimeList.removeAll();
+        int cnt = designatorList.getItemCount();
+        for (int i = 1; i < cnt; ++i) {
+            designatorTimeList.add(DATA_LOADING);
+        }
+        // Keep this list the same size as disignatorList.
+        designatorTimeList.add("");
+        updateSelectionList(designatorTimeList);
+    }
+
+    /**
+     * Finish setup of designator time list after all times have been retrieved.
+     */
+    private void finishDesignatorTimeList() {
+        String value = null;
+        if (newestTime > 0L) {
+            Calendar c = TimeTools.newCalendar(newestTime);
+            value = String.format(TIME_FORMAT, c);
+        } else if (newestTime == -1) {
+            value = DATA_ERROR;
+        } else {
+            value = DATA_NONE;
+        }
+        designatorTimeList.setItem(0, value);
+
+        checkLoadBtn();
+
+        loadingTimes = false;
+        if (!loadingProduct) {
+            getShell().setCursor(null);
+        }
+    }
+
+    /**
+     * Update the the chuck of times retrieved. The values should be inserted
+     * starting at startIndex.
+     * 
+     * @param queryResponse
+     * @param startIndex
+     */
+    private void updateAfterQuery(Message queryResponse, int startIndex) {
+
+        Property[] properties = queryResponse.getHeader().getProperties();
         ArrayList<Long> times = new ArrayList<Long>();
+
         // We use this time to populate the "000" designator entry.
-        long newestTime = -1L;
         if (properties != null) {
             for (Property p : properties) {
                 if ("STDOUT".equals(p.getName())) {
@@ -651,38 +753,81 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
             }
         }
 
-        designatorTimeList.removeAll();
-        if (newestTime > 0) {
-            Calendar c = TimeTools.newCalendar(newestTime);
-            designatorTimeList.add(String.format(TIME_FORMAT, c));
-        } else if (newestTime == -1) {
-            designatorTimeList.add("ERROR");
-        } else {
-            designatorTimeList.add("NO DATA");
-        }
-
-        for (Long time : times) {
-            if (time > 0) {
-                Calendar c = TimeTools.newCalendar(time);
-                designatorTimeList.add(String.format(TIME_FORMAT, c));
-            } else if (time == -1) {
-                designatorTimeList.add("ERROR");
-            } else {
-                designatorTimeList.add("NO DATA");
+        String value = null;
+        try {
+            int index = startIndex;
+            int selectIndex = designatorList.getSelectionIndex();
+            for (Long time : times) {
+                if (time > 0) {
+                    Calendar c = TimeTools.newCalendar(time);
+                    value = String.format(TIME_FORMAT, c);
+                } else if (time == -1) {
+                    value = DATA_ERROR;
+                } else {
+                    value = DATA_NONE;
+                }
+                designatorTimeList.setItem(index, value);
+                ++index;
             }
+
+            // Selected designator time updated check status of load buttons.
+            if (selectIndex > startIndex && selectIndex <= index) {
+                checkLoadBtn();
+            }
+        } catch (IllegalArgumentException ex) {
+            // ignore caused by cancel being performed.
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.texteditor.msgs.ITextWorkstationCallback#isAfosBrowserActive
+     * ()
+     */
     @Override
     public boolean isAfosBrowserActive() {
         return isAfosActive;
     }
 
+    /**
+     * Handles setting up status of this dialog when parent is loading
+     * product(s).
+     * 
+     * @param status
+     *            - true when active loading product(s) otherwise false.
+     */
+    public void setLoading(boolean status) {
+        if (loadingProduct != status) {
+            loadingProduct = status;
+            if (!loadingTimes) {
+                if (loadingProduct) {
+                    setLoadBtnEnabled(false);
+                    shell.setCursor(getDisplay().getSystemCursor(
+                            SWT.CURSOR_WAIT));
+                } else {
+                    setLoadBtnEnabled(designatorTimeList.getSelectionIndex() != -1);
+                    shell.setCursor(null);
+                }
+            }
+        }
+    }
+
+    /**
+     * Convince method for keeping the handling of load buttons the same.
+     * 
+     * @param flag
+     */
     private void setLoadBtnEnabled(boolean flag) {
         loadContinueBtn.setEnabled(flag);
         loadCloseBtn.setEnabled(flag);
     }
 
+    /**
+     * Loads the node list. Assumes the query for the list will not hang up the
+     * UI thread.
+     */
     private void loadNodeList() {
         setLoadBtnEnabled(false);
         nodeList.removeAll();
@@ -703,6 +848,10 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         updateSelectionList(nodeList);
     }
 
+    /**
+     * Populate the category list. Assumes query for the list will not hang up
+     * the UI thread.
+     */
     private void loadCategoryList() {
         setLoadBtnEnabled(false);
         categoryList.removeAll();
@@ -735,6 +884,10 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         updateSelectionList(categoryList);
     }
 
+    /**
+     * Load the designator list Assumes query for the list will not hang up the
+     * UI thread.
+     */
     private void loadDesignatorList() {
         setLoadBtnEnabled(false);
         designatorList.removeAll();
@@ -775,17 +928,25 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
             designatorTimeList.add("");
         }
         updateSelectionList(designatorList);
-        updateSelectionList(designatorTimeList);
 
         loadDisplayList();
     }
 
+    /**
+     * Create a boolean array initialized to false that is the same size as the
+     * list and place it in the list's data object.
+     * 
+     * @param list
+     */
     private void updateSelectionList(List list) {
         boolean[] selectedIndexes = new boolean[list.getItemCount()];
         Arrays.fill(selectedIndexes, false);
         list.setData(selectedIndexes);
     }
 
+    /**
+     * Update the Display list based on the selected category and designator.
+     */
     private void loadDisplayList() {
         displayList.removeAll();
 
@@ -811,8 +972,12 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * Set selected node and update AFOS command and the category list.
+     * 
+     * @param index
+     */
     private void selectNode(int index) {
-        selectedNodeIndex = index;
         selectedNode = nodeList.getItem(index);
         nodeList.setSelection(index);
         nodeList.showSelection();
@@ -820,8 +985,13 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         loadCategoryList();
     }
 
+    /**
+     * Update the category list selection, the AFOS command and start load the
+     * designator lists.
+     * 
+     * @param index
+     */
     private void selectCategory(int index) {
-        selectedCategoryIndex = index;
         selectedCategory = categoryList.getItem(index);
         categoryList.setSelection(index);
         categoryList.showSelection();
@@ -829,18 +999,28 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         loadDesignatorList();
     }
 
+    /**
+     * Update the selected designator, the AFOS command and it the designator's
+     * hour is valid enable the load buttons.
+     * 
+     * @param index
+     */
     private void selectDesignator(int index) {
         String tmp = designatorList.getItem(index);
-
         if (tmp.length() > 0) {
-            selectedDesignatorIndex = index;
-            selectedDesignator = designatorList.getItem(index);
-            selectedDesignatorTime = designatorTimeList.getItem(index);
-            designatorList.setSelection(index);
-            designatorTimeList.setSelection(index);
-            designatorList.showSelection();
-            designatorTimeList.showSelection();
-            setAFOSCommand(selectedNode + selectedCategory + selectedDesignator);
+            try {
+                selectedDesignator = designatorList.getItem(index);
+                designatorList.setSelection(index);
+                designatorTimeList.setSelection(index);
+                designatorList.showSelection();
+                designatorTimeList.showSelection();
+                setAFOSCommand(selectedNode + selectedCategory
+                        + selectedDesignator);
+            } catch (IllegalArgumentException ex) {
+                designatorList.deselectAll();
+                designatorTimeList.deselectAll();
+                setAFOSCommand(selectedNode + selectedCategory);
+            }
         } else {
             designatorList.deselectAll();
             designatorTimeList.deselectAll();
@@ -851,6 +1031,11 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         checkLoadBtn();
     }
 
+    /**
+     * Change the designators selected entry and perform updates to the GUI.
+     * 
+     * @param index
+     */
     private void selectDisplay(int index) {
         String designator = null;
         String display = null;
@@ -874,6 +1059,10 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         checkLoadBtn();
     }
 
+    /**
+     * Check the selected designator and determine if the load buttons should be
+     * enabled.
+     */
     private void checkLoadBtn() {
         boolean enabled = false;
         int designatorIndex = designatorTimeList.getSelectionIndex();
@@ -881,7 +1070,8 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         if (designatorIndex >= 0) {
             String time = designatorTimeList.getItem(designatorIndex);
             if (time.length() > 0) {
-                enabled = !time.equals("ERROR") && !time.equals("NO DATA");
+                enabled = !(time.equals(DATA_ERROR) || time.equals(DATA_NONE) || time
+                        .equals(DATA_LOADING));
             } else if (displayIndex >= 0) {
                 enabled = displayList.getItem(displayIndex).length() > 0;
             }
@@ -892,6 +1082,11 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         setLoadBtnEnabled(enabled);
     }
 
+    /**
+     * Reset the a list's selected entries based on its data boolean array.
+     * 
+     * @param type
+     */
     private void resetSelection(ListType type) {
         List list = null;
 
@@ -929,6 +1124,12 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * Display a help dialog for the visible entries of the desired list.
+     * 
+     * @param type
+     * @param list
+     */
     private void displayHelpList(ListType type, List list) {
         int height = list.getClientArea().height;
         String[] items = list.getItems();
@@ -1006,6 +1207,14 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * Popup a help menu for the desire item in the list based on the type of
+     * the list.
+     * 
+     * @param type
+     * @param list
+     * @param index
+     */
     private void displayHelpText(ListType type, List list, final int index) {
         IAction action = null;
 
@@ -1070,6 +1279,13 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * Based on the moust click either select the desired item in the list
+     * populating lists impacted by the selection or display help for the item.
+     * 
+     * @param type
+     * @param index
+     */
     private void selectListItem(ListType type, int index) {
         List list = null;
         switch (type) {
@@ -1131,6 +1347,11 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * Set the AFOS Cmd in the parent dialog.
+     * 
+     * @param command
+     */
     private void setAFOSCommand(String command) {
         // save off command so whenever load and continue is used, the current
         // selected command is executed
@@ -1138,6 +1359,9 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         callbackClient.setAfosCmdField(currentAfosCommand);
     }
 
+    /*
+     * Selection handler for all lists.
+     */
     private class ListSelectionHandler extends SelectionAdapter {
         private final ListType type;
 
@@ -1157,12 +1381,11 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         }
     }
 
+    /*
+     * Mouse adaptor for all lists.
+     */
     private class ListMouseHandler extends MouseAdapter {
         final private ListType type;
-
-        int previousOffset = -Integer.MAX_VALUE;
-
-        int previousIndex = -1;
 
         public ListMouseHandler(ListType type) {
             this.type = type;
@@ -1179,29 +1402,6 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
             if (e.button == 2) {
                 resetSelection(type);
             } else {
-                // List list = (List) e.getSource();
-                // int index = list.getSelectionIndex();
-                // int offset = list.getVerticalBar().getSelection() + e.y;
-                //
-                // boolean clickedOffList = isOffListClick(e);
-                //
-                // // only care about button 1 in case of same indexes where we
-                // // need to select last item in list instead
-                // if (e.button == 1) {
-                // if (clickedOffList) {
-                // // select last item
-                // selectListItem(type, list.getItemCount() - 1);
-                // }
-                // } else {
-                // // button 3
-                // if (!clickedOffList) {
-                // displayHelpText(type, list, index);
-                // resetSelection(type);
-                // }
-                // }
-                //
-                // previousIndex = list.getSelectionIndex();
-                // previousOffset = offset;
                 leftMouse = false;
                 rightMouse = false;
                 if (e.button == 1) {
@@ -1211,23 +1411,12 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
                 }
             }
         }
-
-        private boolean isOffListClick(MouseEvent e) {
-            List list = (List) e.getSource();
-            int index = list.getSelectionIndex();
-            int offset = list.getVerticalBar().getSelection() + e.y;
-
-            if (index == previousIndex
-                    && index >= 0
-                    && Math.abs(offset - previousOffset) >= list
-                            .getItemHeight()) {
-                return true;
-            }
-
-            return false;
-        }
     }
 
+    /*
+     * This handles keeping the two designator lists and the their one scroll
+     * bar in sync.
+     */
     private class DesignatorMouseWheelHandler implements MouseWheelListener {
 
         @Override
@@ -1254,5 +1443,298 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
             designatorTimeList.getVerticalBar().setSelection(selection);
         }
 
+    }
+
+    /**
+     * Job to query for designator times.
+     */
+    private class QueryRequests extends Job {
+        /*
+         * This contains the query command for getting a some of the Designator
+         * times for the query and where in the designator time list the times
+         * belong.
+         */
+        private class TimesRequest {
+            /**
+             * Clone copy of the query passed to the constructor.
+             */
+            protected TextDBQuery query;
+
+            /**
+             * The index in the Designator Time list where to start placing the
+             * results.
+             */
+            protected int startIndex;
+
+            /**
+             * Query results.
+             */
+            protected Message queryResults;
+
+            public TimesRequest(TextDBQuery query, int startIndex) {
+                this.query = query.clone();
+                this.startIndex = startIndex;
+            }
+        }
+
+        /**
+         * List of pending Times Requests needed to populate the designator
+         * times.
+         */
+        final LinkedBlockingQueue<TimesRequest> timesRequestQueue = new LinkedBlockingQueue<AfosBrowserDlg.QueryRequests.TimesRequest>();
+
+        /**
+         * List of completed Times Requests that need to be processed to update
+         * the designator's hours.
+         */
+        final LinkedBlockingQueue<TimesRequest> timesResultQueue = new LinkedBlockingQueue<AfosBrowserDlg.QueryRequests.TimesRequest>();
+
+        /**
+         * A job for taking a pending TimesRequest, perform the query and then
+         * place it on the result list.
+         */
+        private class QueryJob extends Job {
+            /**
+             * Flag to indicate active request has been canceled.
+             */
+            private boolean canceled = false;
+
+            /**
+             * Constructor.
+             * 
+             * @param name
+             */
+            public QueryJob(String name) {
+                super("QueryJob");
+                setSystem(true);
+            }
+
+            /*
+             * (non-Javadoc)
+             * 
+             * @see
+             * org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime
+             * .IProgressMonitor)
+             */
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                try {
+                    while (true) {
+                        TimesRequest timesRequest = timesRequestQueue.poll();
+                        if (timesRequest == null || canceled) {
+                            break;
+                        }
+                        timesRequest.queryResults = timesRequest.query
+                                .executeQuery();
+                        timesRequest.query = null;
+
+                        if (!canceled) {
+                            timesResultQueue.add(timesRequest);
+                        }
+                    }
+                } finally {
+                    queryJobList.remove(this);
+                }
+                return Status.OK_STATUS;
+            }
+        }
+
+        /**
+         * Maximum number of product ids to place in a Times Request.
+         */
+        private final int MAX_PRODUCTS_PER_QUERY = 25;
+
+        /**
+         * Maximum number of jobs to service the Times Request.
+         */
+        private final int MAX_QUERIES = 5;
+
+        /**
+         * Active Query Jobs. The list must be synchronized since it is modified
+         * in multiple threads outside of any synchronized block.
+         */
+        private final java.util.List<QueryJob> queryJobList = Collections
+                .synchronizedList(new ArrayList<AfosBrowserDlg.QueryRequests.QueryJob>(
+                        MAX_QUERIES));
+
+        /**
+         * The pending request for getting designator hours.
+         */
+        private TextDBQuery pendingRequest = null;
+
+        /**
+         * Flag to indicate the current request is canceled.
+         */
+        private boolean canceled = false;
+
+        /**
+         * The complete list of productIds to run in the request query.
+         */
+        private java.util.List<String> productIds;
+
+        /**
+         * Constructor.
+         */
+        public QueryRequests() {
+            super("QueryRequests");
+            setSystem(true);
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.
+         * IProgressMonitor)
+         */
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            java.util.List<String> prodIds = null;
+            TextDBQuery request = null;
+
+            synchronized (this) {
+                if (monitor.isCanceled()) {
+                    return Status.OK_STATUS;
+                } else {
+                    prodIds = productIds;
+                    productIds = null;
+                    request = pendingRequest;
+                    pendingRequest = null;
+                }
+            }
+
+            VizApp.runAsync(new Runnable() {
+
+                @Override
+                public void run() {
+                    startDesignatorTimeList();
+                }
+            });
+
+            int cnt = 0;
+            int startIndex = 1;
+
+            // Queue up requests for getting Designator hours and start jobs
+            // to process them.
+            Iterator<String> iterator = prodIds.iterator();
+            while (iterator.hasNext()) {
+                String productId = iterator.next();
+
+                if (canceled) {
+                    break;
+                }
+
+                request.addProductId(productId);
+                ++cnt;
+
+                if (cnt >= MAX_PRODUCTS_PER_QUERY || !iterator.hasNext()) {
+                    TimesRequest timesRequest = new TimesRequest(request,
+                            startIndex);
+                    timesRequestQueue.add(timesRequest);
+                    if (queryJobList.size() < MAX_QUERIES) {
+                        QueryJob queryJob = new QueryJob("");
+                        queryJobList.add(queryJob);
+                        queryJob.schedule();
+                    }
+                    request.clearProductIds();
+                    startIndex += cnt;
+                    cnt = 0;
+                }
+            }
+
+            // Shorter wait for better response when few product IDs.
+            long waitTime = 40L;
+            long waitDelta = 10L;
+            long waitMax = 200L;
+
+            // Wait for all query jobs to finish and update results.
+            boolean finished = false;
+            while (!(finished || canceled)) {
+                if (!timesResultQueue.isEmpty()) {
+                    final java.util.List<TimesRequest> resultList = new ArrayList<AfosBrowserDlg.QueryRequests.TimesRequest>();
+                    timesResultQueue.drainTo(resultList);
+
+                    VizApp.runAsync(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            for (TimesRequest result : resultList) {
+                                if (canceled) {
+                                    break;
+                                }
+                                updateAfterQuery(result.queryResults,
+                                        result.startIndex);
+                            }
+                        }
+                    });
+                }
+
+                if (queryJobList.size() > 0) {
+                    synchronized (this) {
+                        try {
+                            wait(waitTime);
+                        } catch (InterruptedException e) {
+                            statusHandler.handle(Priority.PROBLEM,
+                                    e.getLocalizedMessage(), e);
+                        }
+                        if (waitTime < waitMax) {
+                            waitTime += waitDelta;
+                        }
+                    }
+                } else {
+                    finished = timesResultQueue.isEmpty();
+                }
+            }
+
+            if (!canceled) {
+                VizApp.runAsync(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        finishDesignatorTimeList();
+                    }
+                });
+            }
+
+            // Make sure everything is in proper state for the next time job is
+            // schedule.
+            timesRequestQueue.clear();
+            timesResultQueue.clear();
+            queryJobList.clear();
+            canceled = false;
+            return Status.OK_STATUS;
+        }
+
+        /**
+         * Prepare to process the request for the list of product IDs. If needed
+         * cancel any active query before scheduling this request.
+         * 
+         * @param request
+         *            - Query to run.
+         * @param productIds
+         *            - List of products for the query.
+         */
+        public synchronized void addRequest(TextDBQuery request,
+                java.util.List<String> productIds) {
+            if (getState() != Job.NONE) {
+                cancel();
+            }
+
+            this.pendingRequest = request;
+            this.productIds = productIds;
+            schedule();
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see org.eclipse.core.runtime.jobs.Job#canceling()
+         */
+        @Override
+        protected void canceling() {
+            canceled = true;
+            for (QueryJob query : queryJobList) {
+                query.canceled = true;
+            }
+        }
     }
 }

@@ -65,6 +65,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 28May2010    2187       cjeanbap    Added StdTextProductFactory
  *                                      functionality.
  * 09 NOV 2012  1298       rferrel     Changes for non-blocking dialog.
+ * 02apr2013    15564   mgamazaychikov Ensured awipsWanPil to be 10 characters space-padded long
  * </pre>
  * 
  * @author lvenable
@@ -387,7 +388,8 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
         } else {
             req = new OUPRequest();
             OfficialUserProduct oup = new OfficialUserProduct();
-            String awipsWanPil = productIdTF.getText();
+            // make sure the awipsWanPil is exactly 10 characters space-padded long
+			String awipsWanPil = String.format("%-10s", productIdTF.getText().trim());
             oup.setAwipsWanPil(awipsWanPil);
             oup.setProductText(productText);
 

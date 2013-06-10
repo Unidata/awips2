@@ -21,6 +21,7 @@ then
 	log_msg Lock file not present for importing configuration!  Cannot continue!
 	touch ${LOCK_DIR}/svcbuerr
     rm -f ${LOCK_DIR}/importConfiguration
+    rm -f ${LOCK_DIR}/trMode
     log_msg 100
 	exit 1
 fi
@@ -36,6 +37,7 @@ else
 	log_msg "Script must be run as user root or awips"
 	touch ${LOCK_DIR}/svcbuerr
     rm -f ${LOCK_DIR}/importConfiguration
+    rm -f ${LOCK_DIR}/trMode
     log_msg 100
 	exit 1
 fi
@@ -46,6 +48,7 @@ if [ $exitValue -ne 0 ]; then
     log_msg "Receive configuration returned with errors..."
     touch ${LOCK_DIR}/svcbuerr
     rm -f ${LOCK_DIR}/importConfiguration
+    rm -f ${LOCK_DIR}/trMode
     log_msg 100
     exit 1
 fi

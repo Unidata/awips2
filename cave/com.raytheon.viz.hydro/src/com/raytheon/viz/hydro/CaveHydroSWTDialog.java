@@ -20,13 +20,14 @@
 package com.raytheon.viz.hydro;
 
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
- * TODO Add Description
+ * An abstract dialog with common elements, LID, TS and PE for Hydro dialogs.
  * 
  * <pre>
  * 
@@ -34,6 +35,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 24, 2008            mpduff     Initial creation
+ * Feb 05, 2013 1578       rferrel     Made dialog non-blocking.
  * 
  * 
  * </pre>
@@ -46,42 +48,41 @@ public abstract class CaveHydroSWTDialog extends CaveSWTDialog {
     /**
      * Currently selected lid.
      */
-    protected String currentLid = null;
-    ;
-    
+    protected String currentLid = null;;
+
     /**
-     * Currently selected TS.
+     * Currently selected type source.
      */
-    protected String currentTs = null;    
-    protected String currentPe = null;    
+    protected String currentTs = null;
+
     /**
-     * Constructor.
+     * Currently selected physical element.
+     */
+    protected String currentPe = null;
+
+    /**
+     * Non-blocking Constructor.
      * 
      * @param parentShell
      */
     protected CaveHydroSWTDialog(Shell parentShell) {
-        super(parentShell);
+        this(parentShell, CAVE.NONE);
     }
 
     /**
-     * Constructor.
+     * Construct to specify cave style and make it non-blocking.
      * 
      * @param parentShell
-     * @param style
-     */   
-    protected CaveHydroSWTDialog(Shell parentShell, int style) {
-        super(parentShell, style);    
+     * @param caveStyle
+     */
+    protected CaveHydroSWTDialog(Shell parentShell, int caveStyle) {
+        super(parentShell, SWT.DIALOG_TRIM, caveStyle | CAVE.DO_NOT_BLOCK);
     }
-   
-    protected CaveHydroSWTDialog(Shell parentShell, int style, int caveStyle) {
-        super(parentShell, style, caveStyle);
-    }
-    
+
     /**
-     * Get the currently selected lid. If no lid selected display error message
-     * pop up.
+     * Determine if there is a currently selected LID.
      * 
-     * @return the current lid or null if nothing selected
+     * @return true if LID selected otherwise false
      */
     protected boolean isCurrentLidSelected() {
         HydroDisplayManager displayManager = HydroDisplayManager.getInstance();
@@ -104,13 +105,23 @@ public abstract class CaveHydroSWTDialog extends CaveSWTDialog {
      */
     protected String getCurrentLid() {
         return currentLid;
-    }      
-   
-    
+    }
+
+    /**
+     * The currently selected type source.
+     * 
+     * @return TS
+     */
     protected String getTs() {
         return currentTs;
-    }     
+    }
+
+    /**
+     * The currently selected physical element.
+     * 
+     * @return PE
+     */
     protected String getPe() {
         return currentPe;
-    }      
+    }
 }

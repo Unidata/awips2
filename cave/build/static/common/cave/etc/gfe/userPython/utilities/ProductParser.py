@@ -2,19 +2,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -119,7 +119,7 @@ nnn = r'(?:[A-Z]{2}[ZC])?\d{3}'
 purge = r'(?P<purgeT>\d{6})-'
 ugc = r'\n(?P<uhdr>' + r'[A-Z]{2}[Z|C](?:(?:\d{3})|(?:ALL))' + r'(?:[->]\n?' + nnn + \
       r')*-\n?' + purge + el + r')'
-cityh = r'-\n(?P<incc>(?:\s*\n)*(?:INCLUDING THE (?:CITIES|CITY) OF...)?)'
+cityh = r'(?<=-\n(?!.*-\n))(?P<incc>(?:.*\n))'
 
 body = r'(?P<body>(?:^.*\n)*?)'
 #body = r'.*'
@@ -192,20 +192,20 @@ class ProductParser:
         #l = headline_re.finditer(str)
         l = single_head_re.finditer(str)
         for m in l:
-            if m is not None:                
+            if m is not None:
                 #print 'phl m = ', m
                 newstart = start + m.start()
                 m = headline_re.match(m.group(0))
                 if m is not None:
                     hdlns.append(self.dumpMatch(m, newstart))
-                    
+
         #print 'hdlns = ', hdlns
         rval['headInfo'] = hdlns
 
     def dumpMatch(self, m, offset=0, rval=None):
         if rval is None:
             rval = {}
-        
+
         #print 'dumpmatch m = ', m.groupdict()
         for k in m.groupdict().keys():
             if m.start(k) != -1 and m.start(k) != m.end(k):
@@ -234,7 +234,7 @@ class ProductParser:
 
         segs = []
         l = ugch_re.finditer(self._str)
-        
+
         for m in l:
             if m is not None:
                 m1 = cityh_re.search(self._str, m.end())
@@ -250,7 +250,7 @@ class ProductParser:
                 else:
                     continue
                 m4 = head_re.search(self._str, m.end(), m3.end())
-                
+
                 d = self.dumpMatch(m)
                 d = self.dumpMatch(m2, rval=d)
                 d = self.dumpMatch(m3, rval=d)
@@ -266,7 +266,7 @@ class ProductParser:
                 else:
                     d['city'] = (self.tkc(m2.start()),
                                  self.tkc(m2.start()))
-                    
+
                 if m4 is not None:
                     #print 'm4 = ', m4.group()
                     d = self.dumpMatch(m4, rval=d)
@@ -284,7 +284,7 @@ class ProductParser:
         rval['frames'] = frames
 
         return rval
-    
+
     def parseFromJava(self, text):
         self._str = text
         self._ci = None
@@ -295,13 +295,13 @@ class ProductParser:
             lc.append(count)
             count += l
         self._totals = lc
-        
+
         #print 'text START ----------------------'
         #print text
         #print 'text END ------------------------'
-        
+
         result = self.parse()
-        
+
         #print 'result = ', result
-        
+
         return JUtil.pyDictToJavaMap(result)

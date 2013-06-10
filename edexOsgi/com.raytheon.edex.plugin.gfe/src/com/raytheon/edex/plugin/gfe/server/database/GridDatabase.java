@@ -22,12 +22,12 @@ package com.raytheon.edex.plugin.gfe.server.database;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
-import com.raytheon.edex.plugin.gfe.db.dao.GFEDao;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
@@ -47,11 +47,7 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.edex.core.props.EnvProperties;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
-import com.raytheon.uf.edex.database.plugin.PluginFactory;
 
 /**
  * Base class for GFE grid databases. This class maintains the location of the
@@ -73,7 +69,14 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * 06/17/08     #940       bphillip    Implemented GFE Locking
  * 06/19/08                njensen     Added retrieval of discrete
  * 05/04/12     #574       dgilling    Update class to better match AWIPS1.
- * 
+ * 01/14/13     #1469      bkowal      The hdf5 data directory is no longer included
+ *                                     in the gfeBaseDataDir.
+ * 02/10/13     #1603      randerso    Moved removeFromDb, removeFromHDF5 and deleteModelHDF5
+ *                                     methods down to IFPGridDatabase
+ * 03/15/13     #1795      njensen     Added updatePublishTime()
+ * 04/23/13     #1949      rjpeter     Added default implementations of history by time range
+ *                                     and cachedParmId
+ * 05/02/13      #1969     randerso    Removed unnecessary updateDbs method
  * </pre>
  * 
  * @author bphillip
@@ -95,9 +98,7 @@ public abstract class GridDatabase {
     protected boolean valid;
 
     static {
-        EnvProperties env = PropertiesFactory.getInstance().getEnvProperties();
-        gfeBaseDataDir = env.getEnvValue("HDF5DIR") + File.separator + "gfe"
-                + File.separator;
+        gfeBaseDataDir = "gfe" + File.separator;
     }
 
     /**
@@ -117,54 +118,6 @@ public abstract class GridDatabase {
      */
     protected GridDatabase(DatabaseID dbId) {
         this.dbId = dbId;
-    }
-
-    /**
-     * Removes a record from the PostGres database
-     * 
-     * @param record
-     *            The record to remove
-     */
-    public void removeFromDb(GFERecord record) {
-        GFEDao dao = null;
-        try {
-            dao = (GFEDao) PluginFactory.getInstance().getPluginDao("gfe");
-        } catch (PluginException e) {
-            statusHandler.handle(Priority.PROBLEM, "Unable to get gfe dao", e);
-        }
-        dao.delete(record);
-        statusHandler.handle(Priority.DEBUG, "Deleted: " + record
-                + " from database");
-    }
-
-    /**
-     * Removes a record from the HDF5 repository. If the record does not exist
-     * in the HDF5, the operation is ignored
-     * 
-     * @param record
-     *            The record to remove
-     */
-    public void removeFromHDF5(GFERecord record) {
-        File hdf5File = GfeUtil.getHdf5File(gfeBaseDataDir, record.getParmId(),
-                record.getDataTime().getValidPeriod());
-
-        /*
-         * Remove the grid from HDF5
-         */
-        String groupName = GfeUtil.getHDF5Group(record.getParmId(),
-                record.getTimeRange());
-
-        IDataStore dataStore = DataStoreFactory.getDataStore(hdf5File);
-
-        try {
-            dataStore.delete(groupName);
-            statusHandler.handle(Priority.DEBUG, "Deleted: " + groupName
-                    + " from " + hdf5File.getName());
-
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error deleting hdf5 record " + record.toString(), e);
-        }
     }
 
     public FloatDataRecord retrieveFromHDF5(ParmID parmId, TimeRange time)
@@ -399,6 +352,29 @@ public abstract class GridDatabase {
     public abstract ServerResponse<List<TimeRange>> getGridInventory(ParmID id);
 
     /**
+     * Gets the inventory of time ranges currently for the specified ParmID that
+     * overlap the given time range.
+     * 
+     * @param id
+     *            The parmID to get the inventory for
+     * @return The server response
+     */
+    public ServerResponse<List<TimeRange>> getGridInventory(ParmID id,
+            TimeRange tr) {
+        // default to prior behavior with removing the extra inventories
+        ServerResponse<List<TimeRange>> sr = getGridInventory(id);
+        List<TimeRange> trs = sr.getPayload();
+        ListIterator<TimeRange> iter = trs.listIterator(trs.size());
+        while (iter.hasPrevious()) {
+            TimeRange curTr = iter.previous();
+            if (!curTr.overlaps(tr)) {
+                iter.remove();
+            }
+        }
+        return sr;
+    }
+
+    /**
      * Retrieves a sequence gridSlices from the database based on the specified
      * parameters and stores them in the data parameter. TimeRanges of the grids
      * stored in the database must exactly match those in timeRanges or no
@@ -457,20 +433,6 @@ public abstract class GridDatabase {
         return dbId;
     }
 
-    public void deleteModelHDF5() {
-        File hdf5File = GfeUtil.getHdf5Dir(GridDatabase.gfeBaseDataDir, dbId);
-        IDataStore ds = DataStoreFactory.getDataStore(hdf5File);
-        try {
-            ds.deleteFiles(null);
-        } catch (Exception e) {
-            statusHandler.handle(
-                    Priority.PROBLEM,
-                    "Error deleting GFE model data from hdf5 for "
-                            + dbId.toString(), e);
-
-        }
-    }
-
     /**
      * Save the specified gridSlices over the time period specified by
      * originalTimeRange in the grid database.
@@ -502,8 +464,36 @@ public abstract class GridDatabase {
                 + this.getClass().getName());
     }
 
-    public ServerResponse<?> updateGridHistory(ParmID parmId,
-            Map<TimeRange, List<GridDataHistory>> history) {
+    /**
+     * Updates the publish times in the database of all provided
+     * GridDataHistories. Does not alter the publish times in memory.
+     * 
+     * @param history
+     *            the histories to alter in the database
+     * @param publishTime
+     *            the publish time to update to
+     * @return
+     */
+    public ServerResponse<?> updatePublishTime(List<GridDataHistory> history,
+            Date publishTime) {
+        throw new UnsupportedOperationException("Not implemented for class "
+                + this.getClass().getName());
+    }
+
+    /**
+     * Updates the sent time for all histories of passed parmId during the
+     * timeRange. The histories are then returned in a map by timeRange.
+     * 
+     * @param parmId
+     *            the parmId to use
+     * @param tr
+     *            the time range to update sent time for
+     * @param sentTime
+     *            the sent time to update to
+     * @return
+     */
+    public ServerResponse<Map<TimeRange, List<GridDataHistory>>> updateSentTime(
+            final ParmID parmId, TimeRange tr, Date sentTime) {
         throw new UnsupportedOperationException("Not implemented for class "
                 + this.getClass().getName());
     }
@@ -516,5 +506,15 @@ public abstract class GridDatabase {
 
     }
 
-    public abstract void updateDbs();
+    /**
+     * Return the internally cache'd parmID for this database implementation.
+     * 
+     * @param parmID
+     * @return
+     * @throws GfeException
+     *             If the parm does not exist for this database.
+     */
+    public ParmID getCachedParmID(ParmID parmID) throws GfeException {
+        return parmID;
+    }
 }

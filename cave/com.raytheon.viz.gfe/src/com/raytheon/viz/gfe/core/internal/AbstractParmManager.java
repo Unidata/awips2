@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -32,9 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TimeZone;
-import java.util.TreeSet;
 
 import org.eclipse.core.runtime.ListenerList;
 
@@ -65,7 +63,6 @@ import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.PythonPreferenceStore;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IParmManager;
-import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.internal.NotificationRouter.AbstractGFENotificationObserver;
 import com.raytheon.viz.gfe.core.msgs.IAvailableSourcesChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IDisplayedParmListChangedListener;
@@ -89,7 +86,7 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 03/26/2008              chammack    Split non-mock code from MockParmManager
- * 02/23/2012    #346      dgilling    Dispose of VCParms from this class's 
+ * 02/23/2012    #346      dgilling    Dispose of VCParms from this class's
  *                                     dispose method.
  * 02/23/2012    #346      dgilling    Ensure all Parms are disposed when calling
  *                                     dispose method.
@@ -101,6 +98,13 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
  *                                     execution.
  * 08/20/2012    #1082     randerso    Moved calcStepTimes to AbstractParmManager for
  *                                     use in PngWriter
+ * 01/22/2013    #1515     dgilling    Increase default size of VCModule thread pool
+ *                                     to decrease UI hang-ups waiting for results.
+ * 03/20/2013    #1774     randerso    Code cleanup
+ * 04/11/2013    16028     ryu         Fixed setParmsRemoveISCDeps() to not remove
+ *                                     modified parms.
+ * 05/02/2013    #1969     randerso    Cleaned up and optimized processing of DBInvChangedNotification
+ * 05/14/2013    #2004     randerso    Improved error handling
  * 
  * </pre>
  * 
@@ -244,7 +248,7 @@ public abstract class AbstractParmManager implements IParmManager {
 
     protected DatabaseID productDB;
 
-    protected List<DatabaseID> availableDatabases;
+    protected Set<DatabaseID> availableDatabases;
 
     protected final DatabaseID mutableDb;
 
@@ -281,7 +285,7 @@ public abstract class AbstractParmManager implements IParmManager {
         // Get virtual parm definitions
         vcModules = initVirtualCalcParmDefinitions();
         vcModulePool = new VCModuleJobPool("GFE Virtual ISC Python executor",
-                this.dataManager, vcModules.size(), Boolean.TRUE);
+                this.dataManager, vcModules.size() + 2, Boolean.TRUE);
 
         PythonPreferenceStore prefs = Activator.getDefault()
                 .getPreferenceStore();
@@ -321,26 +325,16 @@ public abstract class AbstractParmManager implements IParmManager {
 
         dbCategories = Arrays.asList(prefs.getStringArray("dbTypes"));
 
-        this.availableDatabases = getDatabaseInventory();
+        this.availableDatabases = new HashSet<DatabaseID>(
+                getDatabaseInventory());
 
         this.dbInvChangeListener = new AbstractGFENotificationObserver<DBInvChangeNotification>(
                 DBInvChangeNotification.class) {
 
             @Override
             public void notify(DBInvChangeNotification notificationMessage) {
-
-                List<DatabaseID> newInventory;
-                List<DatabaseID> additions = new ArrayList<DatabaseID>();
-                List<DatabaseID> deletions = new ArrayList<DatabaseID>();
-
-                newInventory = filterDbIds(notificationMessage.getInventory());
-                additions.addAll(newInventory);
-                additions.removeAll(availableDatabases);
-                deletions.addAll(availableDatabases);
-                deletions.removeAll(newInventory);
-                availableDatabases = newInventory;
-
-                updatedDatabaseList(availableDatabases, deletions, additions);
+                updatedDatabaseList(notificationMessage.getDeletions(),
+                        notificationMessage.getAdditions());
             }
 
         };
@@ -832,7 +826,10 @@ public abstract class AbstractParmManager implements IParmManager {
             List<ParmID> depParms = dependentParms(removeList.get(i), true);
             for (ParmID pid : depParms) {
                 int index = pivdIndex(toBeLoaded, pid);
-                if ((index != -1) && (!toBeLoaded.get(index).isVisible())) {
+                if ((index != -1)
+                        && (!toBeLoaded.get(index).isVisible())
+                        && (!getParm(toBeLoaded.get(index).getParmID())
+                                .isModified())) {
                     removeList.add(toBeLoaded.get(index).getParmID());
                     toBeLoaded.remove(index);
                 }
@@ -1077,9 +1074,9 @@ public abstract class AbstractParmManager implements IParmManager {
                     parmsToAdd.add(p);
                 }
             } catch (GFEServerException e) {
-                statusHandler.handle(Priority.EVENTA,
+                statusHandler.handle(Priority.PROBLEM,
                         "Failure to instantiate parm in createParmInternal: "
-                                + addParm.getParmID().toString());
+                                + addParm.getParmID().toString(), e);
             }
         }
 
@@ -1863,33 +1860,36 @@ public abstract class AbstractParmManager implements IParmManager {
      * The list of available parms is updated based on the list of additions and
      * deletions.
      * 
-     * @param newList
-     *            The full inventory, including new additions and deletions
      * @param deletions
      *            The items being removed from the inventory
      * @param additions
      *            The items being added from the inventory
      */
-    public void updatedDatabaseList(List<DatabaseID> newList,
-            List<DatabaseID> deletions, List<DatabaseID> additions) {
+    public void updatedDatabaseList(List<DatabaseID> deletions,
+            List<DatabaseID> additions) {
+
+        // create list of additions we didn't already have
+        List<DatabaseID> newAdditions = new ArrayList<DatabaseID>(additions);
+        newAdditions.removeAll(availableDatabases);
+
+        availableDatabases.addAll(additions);
+        availableDatabases.removeAll(deletions);
+
         List<ParmID> toDelete = new ArrayList<ParmID>();
 
-        for (DatabaseID dbId : deletions) {
-            for (Parm parm : getAllParms()) {
-                if (parm.getParmID().getDbId().equals(dbId)) {
-                    toDelete.add(parm.getParmID());
-                }
+        for (Parm parm : getAllParms()) {
+            ParmID pid = parm.getParmID();
+            if (deletions.contains(pid.getDbId())) {
+                toDelete.add(pid);
             }
         }
 
         // now unload the parms, which handles the deletions and updates
-        setParms(new ArrayList<ParmIDVis>(), toDelete);
+        setParms(new ArrayList<ParmIDVis>(0), toDelete);
 
-        if (additions.size() > 0) {
-            for (DatabaseID model : additions) {
-                updateModel(model);
-                fireNewModelAvailable(model);
-            }
+        for (DatabaseID model : newAdditions) {
+            updateModel(model);
+            fireNewModelAvailable(model);
         }
     }
 

@@ -19,11 +19,6 @@
  **/
 package com.raytheon.edex.plugin.radar;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.DataFormatException;
@@ -45,6 +40,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * Nov 11, 2010            mnash     Initial creation
  * Jul 16, 2012 DR 14723   D.Friedman  Decompress files atomically
+ * Mar 20, 2013 1804       bsteffen    Switch all radar decompressing to be in
+ *                                     memory.
  * 
  * </pre>
  * 
@@ -66,6 +63,24 @@ public class RadarDecompressor {
             .compile("([A-Z]{4}[0-9]{2} [A-Z]{4} [0-9]{6})\\x0D\\x0D\\x0A(\\w{6})\\x0D\\x0D\\x0A");
 
     public byte[] decompress(byte[] messageData, Headers headers) {
+        return decompressImpl(messageData, headers, false);
+    }
+
+    public byte[] decompressWithHeader(byte[] messageData, Headers headers) {
+        return decompressImpl(messageData, headers, true);
+    }
+
+    /**
+     * decompress the radar data in messageData.
+     * 
+     * @param messageData
+     * @param headers
+     * @param keepHeader
+     *            If true, keep any WMO/AWIPS heading found in file
+     * @return
+     */
+    public byte[] decompressImpl(byte[] messageData, Headers headers,
+            boolean keepHeader) {
         byte[] radarData = null;
         try {
             int wmoHeaderSize;
@@ -79,10 +94,23 @@ public class RadarDecompressor {
 
             if (isCompressed(messageData, wmoHeaderSize)) {
                 radarData = decompressRadar(messageData, wmoHeaderSize, headers);
-            } else {
+                if (keepHeader) {
+                    // put the header back on.
+                    byte[] radarDataWithHeader = new byte[radarData.length
+                            + wmoHeaderSize];
+                    System.arraycopy(messageData, 0, radarDataWithHeader, 0,
+                            wmoHeaderSize);
+                    System.arraycopy(radarData, 0, radarDataWithHeader,
+                            wmoHeaderSize, radarData.length);
+                    radarData = radarDataWithHeader;
+                }
+            } else if (!keepHeader && wmoHeaderSize > 0) {
+                // strip the header.
                 radarData = new byte[messageData.length - wmoHeaderSize];
                 System.arraycopy(messageData, wmoHeaderSize, radarData, 0,
                         radarData.length);
+            } else {
+                radarData = messageData;
             }
         } catch (Exception e) {
             theHandler.handle(Priority.ERROR, "Failed decompression on "
@@ -122,106 +150,6 @@ public class RadarDecompressor {
             }
         }
         return false;
-    }
-
-    /**
-     * Decompress file atomically.
-     * 
-     * @param file
-     * @param headers
-     * @param keepHeader If true, keep any WMO/AWIPS heading found in file
-     * @return
-     */
-    private File decompressToFileImpl(File file, Headers headers, boolean keepHeader) {
-        byte[] messageData = null; 
-        FileInputStream input = null;
-
-        try {
-            input = new FileInputStream(file);
-            int fileSize = (int) input.getChannel().size();
-            messageData = new byte[fileSize];
-            input.read(messageData);
-        } catch (FileNotFoundException e) {
-            theHandler.handle(Priority.ERROR, e.getMessage());
-        } catch (IOException e) {
-            theHandler.handle(Priority.ERROR, e.getMessage());
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    theHandler.handle(Priority.ERROR, e.getMessage());
-                }
-            }
-        }
-
-        /*
-         * TODO: If reading fails, the code below will NPE.  Is this 
-         * done intentionally to stop processing?
-         */
-
-        String headerSearch = "";
-        int start = 0;
-        if (messageData.length < 80) {
-        } else {
-            // skip the WMO header if any
-            headerSearch = new String(messageData, 0, 80);
-            start = findStartRadarData(headerSearch);
-            headerSearch = headerSearch.substring(0, start);
-        }
-
-        messageData = decompress(messageData, headers);
-
-        FileOutputStream output = null;
-        File tmpFile = null;
-        try {
-            tmpFile = File.createTempFile(file.getName() + ".", ".decompress", file.getParentFile());
-            output = new FileOutputStream(tmpFile);
-            if (keepHeader)
-                output.write(headerSearch.getBytes());
-            output.write(messageData);
-            output.close();
-            output = null;
-            if (tmpFile.renameTo(file))
-                tmpFile = null;
-            else
-                theHandler.handle(Priority.ERROR,
-                        String.format("Cannot rename %s to %s", tmpFile, file));
-        } catch (IOException e) {
-            theHandler.handle(Priority.ERROR, e.getMessage());
-        } finally {
-            if (output != null)
-                try {
-                    output.close();
-                } catch (IOException e) {
-                    theHandler.handle(Priority.ERROR, "error closing file", e);
-                }
-            if (tmpFile != null)
-                tmpFile.delete();
-        }
-        return file;
-    }
-
-    /**
-     * Used for things that need to write the data back out to a file
-     * 
-     * @param messageData
-     * @return
-     */
-    public File decompressToFile(File file, Headers headers) {
-        return decompressToFileImpl(file, headers, true);
-    }
-    
-    /**
-     * Used for things that need to write the data back out to a file, without a
-     * header. Same as decompressToFile, but will strip the header off before
-     * writing it back out.
-     * 
-     * @param messageData
-     * @return
-     */
-    public File decompressToFileWithoutHeader(File file, Headers headers) {
-        return decompressToFileImpl(file, headers, false);
     }
 
     private int findStartRadarData(String headerInfo) {

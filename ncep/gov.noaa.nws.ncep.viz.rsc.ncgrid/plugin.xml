@@ -180,7 +180,7 @@
             paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ModelFcstGridContours">
       </nc-resourceParameter>
-                  
+      
       <nc-resourceParameter
             paramClass="String"
             paramName="CLRBAR"
@@ -351,8 +351,8 @@
             paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
       </nc-resourceParameter>
-      
-       <nc-resourceParameter
+
+      <nc-resourceParameter
             paramClass="String"
             paramName="CLRBAR"
             attributeName="clrbar"
@@ -394,7 +394,7 @@
              paramType="REQUEST_CONSTRAINT"
              constraintName="info.ensembleId">
        </nc-resourceParameter>
-      
+       
        <nc-resourceParameter
              ncResourceName="EnsembleFcstGridContours"
              paramClass="String"
@@ -425,7 +425,7 @@
             name="EnsembleFcstGridContours">
       </nc-resource>
    </extension>
-         <extension
+   <extension
          point="org.eclipse.ui.preferencePages">    
       <page
             class="gov.noaa.nws.ncep.viz.rsc.ncgrid.NcgribLoggerPreferences"

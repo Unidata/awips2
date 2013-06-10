@@ -13,6 +13,8 @@
  * 05/21/09		   100		F. J. Yen		Initial creation
  * 12/08/09		   100		F. J. Yen		Modified for to11d6 from to11d3
  * 05/27/10		   100		F. J. Yen		Refactored from to11dr3 for tolldr11
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013    1857     bgonzale        Added SequenceGenerator annotation.
  * 
  * *
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -25,14 +27,13 @@
 package gov.noaa.nws.ncep.common.dataplugin.idft;
 
 
-import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
+
+import java.util.Calendar;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -40,11 +41,27 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import java.util.Calendar;
-import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
+import org.hibernate.annotations.Index;
+
+import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "idftseq")
 @Table(name = "idft", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "idft",
+		indexes = {
+				@Index(name = "idft_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize

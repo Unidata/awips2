@@ -11,6 +11,7 @@
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 04/30/2012	229			Chin Chen	Initial coding for multiple display panes implementation
+ * 03/11/2013   972         Greg Hull   rm paneNum and editorNum
  *
  * </pre>
  * 
@@ -21,7 +22,6 @@ package gov.noaa.nws.ncep.ui.nsharp.display;
 
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpAbstractPaneResourceData;
-import gov.noaa.nws.ncep.viz.common.EditorManager;
 
 import java.util.ArrayList;
 
@@ -46,18 +46,19 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 @XmlAccessorType(XmlAccessType.NONE)
 public class NsharpAbstractPaneDisplay extends AbstractRenderableDisplay {
     public static GeometryFactory gf = new GeometryFactory();
-    protected  int paneNum =0;
-    protected  int editorNum =0;
-    protected String paneName;
-    public int getEditorNum() {
-		return editorNum;
-	}
-
-	public void setEditorNum(int editorNum) {
-		this.editorNum = editorNum;
-		//System.out.println("NsharpAbstractPaneDisplay setEditorNnum " + editorNum );
-	   	 
-	}
+ // TODO : I'm reasonably sure these are not needed anymore. Remove with EditorManager code
+//  protected  int paneNum =0;
+//  protected  int editorNum =0;
+//  protected String paneName;
+  
+//  public int getEditorNum() {
+//		return editorNum;
+//	}
+//	public void setEditorNum(int editorNum) {
+//		this.editorNum = editorNum;
+//		//System.out.println("NsharpAbstractPaneDisplay setEditorNnum " + editorNum );
+//	   	 
+//	}
 
     public NsharpAbstractPaneDisplay() {
 		super();
@@ -68,18 +69,24 @@ public class NsharpAbstractPaneDisplay extends AbstractRenderableDisplay {
     }
 	public NsharpAbstractPaneDisplay(PixelExtent pixelExtent,int paneNumber, String name, NsharpAbstractPaneDescriptor desc) {
         super(pixelExtent, desc);
-        paneNum = paneNumber;
-        paneName = name;
+//        paneNum = paneNumber;
+//        paneName = name;
     }
     
     @Override
     public void dispose() {
-    	
-    	 int editorInstanceNum = EditorManager.getNumOfEditorInstance(editorNum);
-    	 //System.out.println("NsharpAbstractPaneDisplay disposed  "+ this.toString());
-    	 if (this.descriptor != null && editorInstanceNum <= 1) {
-            super.dispose();
-        }
+    	// if it turns out that we still need reference counts for the editor, move the
+    	// EditorManager methods to NsharpEditor or replace with a simple reference count 
+    	// 
+//    	if( getContainer() instanceof NsharpEditor ) {
+//    		int editorInstanceNum = ((NsharpEditor)getContainer()).getNumOfEditorInstance(editorNum);
+//
+////    		int editorInstanceNum = EditorManager.getNumOfEditorInstance(editorNum);
+//    		//System.out.println("NsharpAbstractPaneDisplay disposed  "+ this.toString());
+//    		if (this.descriptor != null && editorInstanceNum <= 1) {
+    			super.dispose();
+//    		}
+//        }
     }
     @Override
     public NsharpAbstractPaneDescriptor getDescriptor() {
@@ -128,14 +135,6 @@ public class NsharpAbstractPaneDisplay extends AbstractRenderableDisplay {
     public GeometryFactory getGeometry() {
         return gf;
     }
-
-	public int getPaneNum() {
-		return paneNum;
-	}
-
-	public String getPaneName() {
-		return paneName;
-	}
 
 	@Override
     protected void customizeResourceList(ResourceList resourceList) {

@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.List;
 
 import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribModel;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribPathProvider;
 import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribRecord;
 import gov.noaa.nws.ncep.edex.common.dao.NcepDefaultPluginDao;
 
@@ -38,7 +37,6 @@ import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
@@ -53,8 +51,6 @@ import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.hdf5.HDF5PluginFilenameFilter;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 
@@ -69,6 +65,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
  * 12/16/10				    mli			extend NcepDefaultPluginDao to enable purge
+ * 01/14/13     1469        bkowal      Removed the hdf5 data directory.
+ * 04/08/13     1293        bkowal      Removed references to hdffileid.
  * 
  * </pre>
  * 
@@ -112,70 +110,70 @@ public class NcgribDao extends NcepDefaultPluginDao {
         this("ncgrib");
     }
 
-//    public void purgeExpiredData() {
-//        QueryResult models = null;
-//        try {
-//            models = (QueryResult) executeNativeSql(MODEL_QUERY);
-//        } catch (DataAccessLayerException e) {
-//            logger.error("Error purging ncgrib data.  Unable to get models", e);
-//        }
-//
-//        String currentModel = null;
-//        for (int i = 0; i < models.getResultCount(); i++) {
-//            currentModel = (String) models.getRowColumnValue(i, 0);
-//            QueryResult refTimes = null;
-//            try {
-//                refTimes = (QueryResult) executeNativeSql(REFTIME_QUERY
-//                        .replace("?", currentModel));
-//            } catch (DataAccessLayerException e) {
-//                logger
-//                        .error("Error purging ncgrib data. Unable to get reference times for model ["
-//                                + currentModel + "]");
-//                continue;
-//            }
-//
-//            // FIXME: Add rules for purging here instead of just keeping 2
-//            // runs
-//            List<String> filesKept = new ArrayList<String>();
-//            File modelDirectory = new File(PLUGIN_HDF5_DIR + File.separator
-//                    + currentModel);
-//
-//            for (int j = 0; j < refTimes.getResultCount(); j++) {
-//                Date time = (Date) refTimes.getRowColumnValue(j, 0);
-//                File hdf5File = new File(modelDirectory.getAbsolutePath()
-//                        + File.separator
-//                        + ((NcgribPathProvider) pathProvider).formatTime(time)
-//                        + ".h5");
-//
-//                if (j < MODELCOUNT) {
-//                    filesKept.add(hdf5File.getAbsolutePath());
-//                    continue;
-//                }
-//
-//                try {
-//                    purgeDb(time, currentModel);
-//                } catch (DataAccessLayerException e) {
-//                    logger.error("Error purging database for ncgrib model ["
-//                            + currentModel + "]");
-//                }
-//            }
-//
-//            List<File> files = FileUtil.listFiles(modelDirectory, fileFilter,
-//                    false);
-//
-//            for (File file : files) {
-//                if (!filesKept.contains(file.getAbsolutePath())) {
-//                    if (!file.delete()) {
-//                        logger
-//                                .error("Error purging HDF5 files for ncgrib model ["
-//                                        + currentModel + "]");
-//                    }
-//                }
-//            }
-//
-//        }
-//
-//    }
+    // public void purgeExpiredData() {
+    // QueryResult models = null;
+    // try {
+    // models = (QueryResult) executeNativeSql(MODEL_QUERY);
+    // } catch (DataAccessLayerException e) {
+    // logger.error("Error purging ncgrib data.  Unable to get models", e);
+    // }
+    //
+    // String currentModel = null;
+    // for (int i = 0; i < models.getResultCount(); i++) {
+    // currentModel = (String) models.getRowColumnValue(i, 0);
+    // QueryResult refTimes = null;
+    // try {
+    // refTimes = (QueryResult) executeNativeSql(REFTIME_QUERY
+    // .replace("?", currentModel));
+    // } catch (DataAccessLayerException e) {
+    // logger
+    // .error("Error purging ncgrib data. Unable to get reference times for model ["
+    // + currentModel + "]");
+    // continue;
+    // }
+    //
+    // // FIXME: Add rules for purging here instead of just keeping 2
+    // // runs
+    // List<String> filesKept = new ArrayList<String>();
+    // File modelDirectory = new File(PLUGIN_HDF5_DIR + File.separator
+    // + currentModel);
+    //
+    // for (int j = 0; j < refTimes.getResultCount(); j++) {
+    // Date time = (Date) refTimes.getRowColumnValue(j, 0);
+    // File hdf5File = new File(modelDirectory.getAbsolutePath()
+    // + File.separator
+    // + ((NcgribPathProvider) pathProvider).formatTime(time)
+    // + ".h5");
+    //
+    // if (j < MODELCOUNT) {
+    // filesKept.add(hdf5File.getAbsolutePath());
+    // continue;
+    // }
+    //
+    // try {
+    // purgeDb(time, currentModel);
+    // } catch (DataAccessLayerException e) {
+    // logger.error("Error purging database for ncgrib model ["
+    // + currentModel + "]");
+    // }
+    // }
+    //
+    // List<File> files = FileUtil.listFiles(modelDirectory, fileFilter,
+    // false);
+    //
+    // for (File file : files) {
+    // if (!filesKept.contains(file.getAbsolutePath())) {
+    // if (!file.delete()) {
+    // logger
+    // .error("Error purging HDF5 files for ncgrib model ["
+    // + currentModel + "]");
+    // }
+    // }
+    // }
+    //
+    // }
+    //
+    // }
 
     private int purgeDb(final Date date, String modelName)
             throws DataAccessLayerException {
@@ -198,8 +196,11 @@ public class NcgribDao extends NcepDefaultPluginDao {
             AbstractStorageRecord hybridLevels = null;
             AbstractStorageRecord thinnedPts = null;
 
-            //System.out.println (" good data to be populated, rec datauri=" + gribRec.getDataURI());
-        	//System.out.println (" good data to be populated, rec messagedata=" + gribRec.getMessageData());
+            // System.out.println (" good data to be populated, rec datauri=" +
+            // gribRec.getDataURI());
+            // System.out.println
+            // (" good data to be populated, rec messagedata=" +
+            // gribRec.getMessageData());
 
             /*
              * Stores the binary data to the HDF5 data store
@@ -210,9 +211,9 @@ public class NcgribDao extends NcepDefaultPluginDao {
                     long[] sizes = new long[] {
                             (gribRec.getSpatialObject()).getNx(),
                             (gribRec.getSpatialObject()).getNy() };
-                    storageRecord = new FloatDataRecord("Data", gribRec
-                            .getDataURI(), (float[]) gribRec.getMessageData(),
-                            2, sizes);
+                    storageRecord = new FloatDataRecord("Data",
+                            gribRec.getDataURI(),
+                            (float[]) gribRec.getMessageData(), 2, sizes);
                 } else
                     throw new Exception(
                             "Cannot create data record, spatialData = "
@@ -231,8 +232,8 @@ public class NcgribDao extends NcepDefaultPluginDao {
              * Stores any data from the local section if present
              */
             if (gribRec.isLocalSectionUsed()) {
-                localSection = new IntegerDataRecord(LOCAL_SECTION, gribRec
-                        .getDataURI(), gribRec.getLocalSection());
+                localSection = new IntegerDataRecord(LOCAL_SECTION,
+                        gribRec.getDataURI(), gribRec.getLocalSection());
                 localSection.setCorrelationObject(gribRec);
                 dataStore.addDataRecord(localSection);
             }
@@ -241,8 +242,8 @@ public class NcgribDao extends NcepDefaultPluginDao {
              * Stores any hybrid coordinate data if present
              */
             if (gribRec.isHybridGrid()) {
-                hybridLevels = new FloatDataRecord(HYBRID_LEVELS, gribRec
-                        .getDataURI(), gribRec.getHybridCoordList());
+                hybridLevels = new FloatDataRecord(HYBRID_LEVELS,
+                        gribRec.getDataURI(), gribRec.getHybridCoordList());
                 hybridLevels.setCorrelationObject(gribRec);
                 dataStore.addDataRecord(hybridLevels);
             }
@@ -251,8 +252,8 @@ public class NcgribDao extends NcepDefaultPluginDao {
              * Stores any thinned point data for quasi-regular grids if present
              */
             if (gribRec.isThinnedGrid()) {
-                thinnedPts = new IntegerDataRecord(THINNED_PTS, gribRec
-                        .getDataURI(), gribRec.getThinnedPts());
+                thinnedPts = new IntegerDataRecord(THINNED_PTS,
+                        gribRec.getDataURI(), gribRec.getThinnedPts());
                 thinnedPts.setCorrelationObject(gribRec);
                 dataStore.addDataRecord(thinnedPts);
             }
@@ -318,11 +319,11 @@ public class NcgribDao extends NcepDefaultPluginDao {
             NcgribModel model = rec.getModelInfo();
             if (model.getParameterName() == null
                     || model.getParameterName().equals("Missing")) {
-            	//System.out.println (" persist missing or null, rec datauri=" + rec.getDataURI());
-            	
-                logger
-                        .info("Discarding record due to missing or unknown parameter mapping: "
-                                + record);
+                // System.out.println (" persist missing or null, rec datauri="
+                // + rec.getDataURI());
+
+                logger.info("Discarding record due to missing or unknown parameter mapping: "
+                        + record);
             } else {
                 boolean validLevel = false;
                 Level level = model.getLevel();
@@ -339,9 +340,8 @@ public class NcgribDao extends NcepDefaultPluginDao {
                 if (validLevel) {
                     toPersist.add(rec);
                 } else {
-                    logger
-                            .info("Discarding record due to missing or unknown level mapping: "
-                                    + record);
+                    logger.info("Discarding record due to missing or unknown level mapping: "
+                            + record);
                 }
             }
         }
@@ -367,11 +367,11 @@ public class NcgribDao extends NcepDefaultPluginDao {
             NcgribModel model = rec.getModelInfo();
             if (model.getParameterName() == null
                     || model.getParameterName().equals("Missing")) {
-            	//System.out.println (" verify missing or null, rec datauri=" + rec.getDataURI());
+                // System.out.println (" verify missing or null, rec datauri=" +
+                // rec.getDataURI());
 
-                logger
-                        .info("Discarding record due to missing or unknown parameter mapping: "
-                                + record);
+                logger.info("Discarding record due to missing or unknown parameter mapping: "
+                        + record);
             } else {
                 boolean validLevel = false;
                 Level level = model.getLevel();
@@ -388,24 +388,21 @@ public class NcgribDao extends NcepDefaultPluginDao {
                 if (validLevel) {
                     toPersist.add(rec);
                 } else {
-                    logger
-                            .info("Discarding record due to missing or unknown level mapping: "
-                                    + record);
+                    logger.info("Discarding record due to missing or unknown level mapping: "
+                            + record);
                 }
             }
         }
         return toPersist.toArray(new NcgribRecord[0]);
     }
-    
+
     public List<StorageException> replaceRecord(NcgribRecord pdo)
             throws PluginException {
         List<StorageException> exceptions = new ArrayList<StorageException>();
         IPersistable persistable = (IPersistable) pdo;
-        persistable.setHdfFileId(EDEXUtil.getServerId());
 
         // get the directory
-        String directory = HDF5_DIR + File.separator + pdo.getPluginName()
-                + File.separator
+        String directory = pdo.getPluginName() + File.separator
                 + pathProvider.getHDFPath(this.pluginName, persistable);
         File dataStoreFile = new File(directory + File.separator
                 + pathProvider.getHDFFileName(pdo.getPluginName(), persistable));
@@ -429,5 +426,5 @@ public class NcgribDao extends NcepDefaultPluginDao {
         }
         return exceptions;
     }
-    
+
 }

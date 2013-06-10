@@ -27,11 +27,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
-import com.raytheon.uf.viz.core.level.LevelMapping;
-import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 
 /**
  * Metadata about a derived parameter field.
@@ -131,7 +131,8 @@ public class DerivParamField implements ISerializableObject, IDerivParamField {
     public boolean setLevel(String level) throws VizCommunicationException {
         levelType = LevelType.parseLevel(level);
         if (levelType == LevelType.LevelMapping) {
-            levelMapping = LevelMappingFactory.getInstance()
+            levelMapping = LevelMappingFactory.getInstance(
+                    LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
                     .getLevelMappingForKey(level);
             if (levelMapping == null) {
                 levelType = null;

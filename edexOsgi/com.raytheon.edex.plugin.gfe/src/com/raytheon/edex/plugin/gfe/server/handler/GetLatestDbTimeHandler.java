@@ -17,7 +17,6 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-
 package com.raytheon.edex.plugin.gfe.server.handler;
 
 import java.util.Date;
@@ -27,28 +26,36 @@ import com.raytheon.uf.common.dataplugin.gfe.request.GetLatestDbTimeRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 
 /**
- * Handler for getting the latest insert time for a given database ID
+ * Handler for getting the latest insert time for a given database ID.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 8/16/2010    6349       bphillip     Initial creation
+ * Aug 16, 2010  6349      bphillip     Initial creation
+ * May 22, 2013  2025      dgilling     Re-implement for new GFE db schema.
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
+
 public class GetLatestDbTimeHandler implements
         IRequestHandler<GetLatestDbTimeRequest> {
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.serialization.comm.IRequestHandler#handleRequest
+     * (com.raytheon.uf.common.serialization.comm.IServerRequest)
+     */
     @Override
-    public Date handleRequest(GetLatestDbTimeRequest request)
-            throws Exception {
-        Date latestDate = new GFEDao().getLatestDbIdInsertTime(request.getDbId());
-        return latestDate;
+    public Date handleRequest(GetLatestDbTimeRequest request) throws Exception {
+        GFEDao dao = new GFEDao();
+        return dao.getMaxInsertTimeByDbId(request.getDbId());
     }
-
 }

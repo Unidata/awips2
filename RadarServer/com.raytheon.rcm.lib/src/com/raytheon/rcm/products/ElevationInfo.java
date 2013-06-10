@@ -27,6 +27,21 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
 
+/**
+ * TODO Add Description
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 03/07/2013   DR15495    zwang       Load elevation info for SSSS radars                                 
+ * 
+ * </pre>
+ * 
+ * @author dfriedman
+ * @version 1.0
+ */
 
 public class ElevationInfo {
 	// TODO: check all handling of -1/null vcp
@@ -90,6 +105,15 @@ public class ElevationInfo {
 			fs.close();
 		}
 
+		// Load SSSS radar elevation lists
+		s = ElevationInfo.class.getResourceAsStream("ssssElevationLists.txt");
+		fs = new Scanner(s);
+		try {
+			Loader.loadSsssElevationInfo(fs, staticInfo);
+		} finally {
+			fs.close();
+		}
+		
 		s = ElevationInfo.class.getResourceAsStream("tdwrElevations.txt");
 		fs = new Scanner(s);
 		try {

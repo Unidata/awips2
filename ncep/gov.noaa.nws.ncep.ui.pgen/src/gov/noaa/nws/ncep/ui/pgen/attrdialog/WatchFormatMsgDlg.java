@@ -8,6 +8,7 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrdialog;
 
+import gov.noaa.nws.ncep.common.dataplugin.pgen.DerivedProduct;
 import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
@@ -18,10 +19,12 @@ import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductConfigureDialog;
 import gov.noaa.nws.ncep.ui.pgen.producttypes.ProductType;
+import gov.noaa.nws.ncep.ui.pgen.store.PgenStorageException;
+import gov.noaa.nws.ncep.ui.pgen.store.StorageUtils;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.Marshaller;
 import javax.xml.parsers.DocumentBuilder;
@@ -60,48 +63,51 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 02/10		#159		B. Yin   	Initial Creation.
  * 03/12		#703		B. Yin		Create SEL, SAW, WOU, etc.
  * 05/12		#772		B. Yin		Close dialog after done format.
- *
+ * 04/13        #977        S. Gilbert  PGEN Database support
  * </pre>
  * 
- * @author	B. Yin
+ * @author B. Yin
  */
 
 public class WatchFormatMsgDlg extends CaveJFACEDialog {
 
-	//top level container for all widgets
-	private Composite top;
-	
-	//text message to display
-	private String watchMsg;
-	
-	//instance of watch format dialog
-	private WatchFormatDlg wfd;
-	
-	//dialog size
-	private final int NUM_LINES = 25;
-	private final int NUM_COLUMNS = 68;
-	
-	/*
-	 * constructor
-	 */
-	protected WatchFormatMsgDlg(Shell parentShell, WatchFormatDlg wfd) {
-		super(parentShell);
-		this.wfd = wfd;
-	}
+    public static final String PROD_TYPE = "TEXT";
 
-	/**
-	 * Creates the dialog area
-	 */
-	@Override
-	public Control createDialogArea(Composite parent) {
-		
-		// Set title
-		getShell().setText("Severe Weather Watch");
-		
-		top = (Composite) super.createDialogArea(parent);
-		
+    // top level container for all widgets
+    private Composite top;
+
+    // text message to display
+    private String watchMsg;
+
+    // instance of watch format dialog
+    private WatchFormatDlg wfd;
+
+    // dialog size
+    private final int NUM_LINES = 25;
+
+    private final int NUM_COLUMNS = 68;
+
+    /*
+     * constructor
+     */
+    protected WatchFormatMsgDlg(Shell parentShell, WatchFormatDlg wfd) {
+        super(parentShell);
+        this.wfd = wfd;
+    }
+
+    /**
+     * Creates the dialog area
+     */
+    @Override
+    public Control createDialogArea(Composite parent) {
+
+        // Set title
+        getShell().setText("Severe Weather Watch");
+
+        top = (Composite) super.createDialogArea(parent);
+
         /*
-         *  Create the main layout for the dialog area.
+         * Create the main layout for the dialog area.
          */
         GridLayout mainLayout = new GridLayout(1, true);
         mainLayout.marginHeight = 3;
@@ -109,215 +115,259 @@ public class WatchFormatMsgDlg extends CaveJFACEDialog {
         top.setLayout(mainLayout);
 
         /*
-         *  Create a text box for the message
+         * Create a text box for the message
          */
-        Text messageBox = new Text(top, SWT.MULTI | SWT.BORDER | SWT.READ_ONLY | SWT.V_SCROLL);
-        messageBox.setFont(new Font(messageBox.getDisplay(),"Courier",12, SWT.NORMAL) );
-		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-		
-		//  Calculate approximate size of text box to display 25 lines at 80 characters each
-		gd.heightHint = NUM_LINES * messageBox.getLineHeight();       
-		GC gc = new GC (messageBox);
-		FontMetrics fm = gc.getFontMetrics ();
-		gd.widthHint = NUM_COLUMNS * fm.getAverageCharWidth ();
+        Text messageBox = new Text(top, SWT.MULTI | SWT.BORDER | SWT.READ_ONLY
+                | SWT.V_SCROLL);
+        messageBox.setFont(new Font(messageBox.getDisplay(), "Courier", 12,
+                SWT.NORMAL));
+        GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+
+        // Calculate approximate size of text box to display 25 lines at 80
+        // characters each
+        gd.heightHint = NUM_LINES * messageBox.getLineHeight();
+        GC gc = new GC(messageBox);
+        FontMetrics fm = gc.getFontMetrics();
+        gd.widthHint = NUM_COLUMNS * fm.getAverageCharWidth();
 
         messageBox.setLayoutData(gd);
-  	    setMessage( generateProducts(putWatcInProduct(wfd.getWatchBox()),"WatchText.xlt"));
+        setMessage(generateProducts(putWatcInProduct(wfd.getWatchBox()),
+                "WatchText.xlt"));
         messageBox.setText(watchMsg);
 
-        //  Make sure to dispose of font
+        // Make sure to dispose of font
         messageBox.addDisposeListener(new DisposeListener() {
 
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				Text w = (Text)e.widget;
-				w.getFont().dispose();
-			}
-        	
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                Text w = (Text) e.widget;
+                w.getFont().dispose();
+            }
+
         });
-		
-		return top;
-	}
-	
-	/*
-	 * 
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.dialogs.Dialog#buttonPressed(int)
-	 */
-	@Override
-	protected void okPressed() {
 
-		/*
-		 * Save button pressed.  Save watch Message to a file
-		 */
-		String watchNumber = String.format("%1$04d", wfd.getWatchNumber());
-		
-		String pdName = wfd.getWbDlg().drawingLayer.getActiveProduct().getType();
-		ProductType pt = ProductConfigureDialog.getProductTypes().get( pdName);
-		if ( pt != null ) pdName = pt.getType();
-		
-		String pd1 = pdName.replaceAll(" ", "_");
-			
-		String dirPath = PgenUtil.getPgenOprDirectory() + 
-							File.separator + pd1 +  File.separator + "prod" +
-						File.separator + "text" + File.separator;
-			
-		String fname = dirPath + "WW"+watchNumber+".xml";
-		
-		if ( PgenUtil.checkFileStatus(fname) ){
-			
-			wfd.getWatchBox().setIssueFlag(1);
-			
-			//re-draw watch
-			wfd.getWbDlg().drawingLayer.resetElement(wfd.getWatchBox());
-			wfd.getWbDlg().mapEditor.refresh();
+        return top;
+    }
 
-			wfd.getWatchBox().saveToFile(fname);
-			
-			//saveWatchText("ww"+watchNumber+".txt");
-			
-			Products pd = this.putWatcInProduct(wfd.getWatchBox());
-			saveProducts(watchMsg, dirPath + "ww"+watchNumber+".txt");
-			saveProducts(generateProducts(pd,"SAW.xlt"), dirPath + "WW"+watchNumber+".SAW");
-			saveProducts(generateProducts(pd,"SEL.xlt"), dirPath + "WW"+watchNumber+".SEL");
-			saveProducts(generateProducts(pd,"SEV.xlt"), dirPath + "WW"+watchNumber+".SEV");
-			saveProducts(generateProducts(pd,"WOU.xlt"), dirPath + "WW"+watchNumber+".WOU");
+    /*
+     * 
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.dialogs.Dialog#buttonPressed(int)
+     */
+    @Override
+    protected void okPressed() {
 
-			wfd.close();
-			WatchBoxAttrDlg.getInstance(null).close();
-			super.okPressed();
-		}
-	}
-	
-	/*
-	 * 
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.dialogs.Dialog#buttonPressed(int)
-	 */
-	@Override
-	protected void cancelPressed() {
-		
-		//close the format dialog
-		wfd.close();
-		WatchBoxAttrDlg.getInstance(null).close();
-		super.cancelPressed();
-		
-	}
+        /*
+         * Save button pressed. Save watch Message to a file
+         */
+        String watchNumber = String.format("%1$04d", wfd.getWatchNumber());
 
-	
-	private void saveProducts( String outStr, String outFile){
-    	
-		if ( outStr != null && !outStr.isEmpty()){
+        String pdName = wfd.getWbDlg().drawingLayer.getActiveProduct()
+                .getType();
+        ProductType pt = ProductConfigureDialog.getProductTypes().get(pdName);
+        if (pt != null)
+            pdName = pt.getType();
 
-			FileTools.writeFile(outFile, outStr);
+        String pd1 = pdName.replaceAll(" ", "_");
 
-			}
-		}
-    
-	private String generateProducts(Products pd, String xslt ){
-        
-    	Document sw = null;
-    	
-    	try{
-    		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-    		dbf.setNamespaceAware(true);
-    		DocumentBuilder db = dbf.newDocumentBuilder();
-    		sw = db.newDocument();
-    		Marshaller mar =  SerializationUtil.getJaxbContext().createMarshaller();
-    		mar.marshal( pd, sw );
-    	}catch(Exception e){
-    		e.printStackTrace();
-    	}
+        String dirPath = PgenUtil.getPgenOprDirectory() + File.separator + pd1
+                + File.separator + "prod" + File.separator + "text"
+                + File.separator;
 
-    	DOMSource ds = new DOMSource(sw);
-    	
-    	//get style sheet file path
-    	String xsltPath = PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + "xslt" + File.separator + "watchbox" + File.separator + xslt;
+        String fname = "WW" + watchNumber + ".xml";
 
-		LocalizationFile lFile = PgenStaticDataProvider.getProvider().getStaticLocalizationFile(xsltPath);
-		
-		String outStr ="";
-		if ( lFile != null ){
-			outStr = PgenUtil.applyStyleSheet( ds, lFile.getFile().getAbsolutePath());
-		}
-		
-		return outStr;
-    
-	}
-		
-	/**
-	 * Set watch text
-	 * @param str The issued watch text
-	 */
-	public void setMessage(String str) {
-		this.watchMsg = str;
-	}
-	
-	@Override
-	/**
-	 * Set the location of the dialog
-	 * Set the OK button to Save
-	 */
-	public int open(){
+        // if ( PgenUtil.checkFileStatus(fname) ){
 
-		if ( this.getShell() == null ){
-			this.create();
-		}
-		
-   	   // this.getShell().setLocation(this.getShell().getParent().getLocation());
-  	    this.getButton(IDialogConstants.OK_ID).setText("Save");
-  	    this.getButtonBar().pack();
-  	    
-   	    return super.open();
-		
-	}
-	
-	/**
-	 * Create buttons on the button bar
-	 */
-	@Override
-	public void createButtonsForButtonBar(Composite parent){
-		
-		GridLayout barGl = new GridLayout(3, false);
-		parent.setLayout(barGl);
-		
-		Button editBtn = new Button( parent, SWT.PUSH);
-		
-		super.createButtonsForButtonBar(parent);
-		
-		//add re-edit button
-		editBtn.setText("Re-edit");
-		editBtn.setLayoutData(getButton(IDialogConstants.CANCEL_ID).getLayoutData());
-		editBtn.addSelectionListener(new SelectionListener(){
+        wfd.getWatchBox().setIssueFlag(1);
 
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-			}
+        // re-draw watch
+        wfd.getWbDlg().drawingLayer.resetElement(wfd.getWatchBox());
+        wfd.getWbDlg().mapEditor.refresh();
 
-			@Override
-			public void widgetSelected(SelectionEvent e) {
+        // wfd.getWatchBox().saveToFile(fname);
+        wfd.getWatchBox().storeProduct(fname);
+        String dataURI = wfd.getWatchBox().getDataURI();
 
-				WatchFormatMsgDlg.this.close();
-			}
-			
-		});
-		
-		getButton(IDialogConstants.OK_ID).setText("Save");
-	}
-	
-	private Products putWatcInProduct(WatchBox wb ){
-		Layer defaultLayer = new Layer();
-		//add watch collection(box and status line)
-		defaultLayer.addElement(wb.getParent());
+        // saveWatchText("ww"+watchNumber+".txt");
 
-		Product defaultProduct = new Product();
-		defaultProduct.addLayer(defaultLayer);
+        Products pd = this.putWatcInProduct(wfd.getWatchBox());
+        // saveProducts(watchMsg, dirPath + "ww" + watchNumber + ".txt");
+        // saveProducts(generateProducts(pd, "SAW.xlt"), dirPath + "WW"
+        // + watchNumber + ".SAW");
+        // saveProducts(generateProducts(pd, "SEL.xlt"), dirPath + "WW"
+        // + watchNumber + ".SEL");
+        // saveProducts(generateProducts(pd, "SEV.xlt"), dirPath + "WW"
+        // + watchNumber + ".SEV");
+        // saveProducts(generateProducts(pd, "WOU.xlt"), dirPath + "WW"
+        // + watchNumber + ".WOU");
 
-		ArrayList<Product> prds = new ArrayList<Product>();
-		prds.add( defaultProduct );
-		Products fileProduct = ProductConverter.convert( prds );
-		
-		return fileProduct;
-	}
+        /*
+         * Save Derived products to EDEX
+         */
+        List<DerivedProduct> prodList = new ArrayList<DerivedProduct>();
+        prodList.add(new DerivedProduct("ww" + watchNumber + ".txt", PROD_TYPE,
+                watchMsg));
+        prodList.add(new DerivedProduct("WW" + watchNumber + ".SAW", PROD_TYPE,
+                generateProducts(pd, "SAW.xlt")));
+        prodList.add(new DerivedProduct("WW" + watchNumber + ".SEL", PROD_TYPE,
+                generateProducts(pd, "SEL.xlt")));
+        prodList.add(new DerivedProduct("WW" + watchNumber + ".SEV", PROD_TYPE,
+                generateProducts(pd, "SEV.xlt")));
+        prodList.add(new DerivedProduct("WW" + watchNumber + ".WOU", PROD_TYPE,
+                generateProducts(pd, "WOU.xlt")));
+
+        try {
+            StorageUtils.storeDerivedProducts(dataURI, prodList);
+        } catch (PgenStorageException e) {
+            StorageUtils.showError(e);
+        }
+
+        wfd.close();
+        WatchBoxAttrDlg.getInstance(null).close();
+        super.okPressed();
+        // }
+    }
+
+    /*
+     * 
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.dialogs.Dialog#buttonPressed(int)
+     */
+    @Override
+    protected void cancelPressed() {
+
+        // close the format dialog
+        wfd.close();
+        WatchBoxAttrDlg.getInstance(null).close();
+        super.cancelPressed();
+
+    }
+
+    private void saveProducts(String outStr, String outFile) {
+
+        if (outStr != null && !outStr.isEmpty()) {
+
+            FileTools.writeFile(outFile, outStr);
+
+        }
+    }
+
+    private String generateProducts(Products pd, String xslt) {
+
+        Document sw = null;
+
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setNamespaceAware(true);
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            sw = db.newDocument();
+            Marshaller mar = SerializationUtil.getJaxbContext()
+                    .createMarshaller();
+            mar.marshal(pd, sw);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        DOMSource ds = new DOMSource(sw);
+
+        // get style sheet file path
+        String xsltPath = PgenStaticDataProvider.getProvider()
+                .getPgenLocalizationRoot()
+                + "xslt"
+                + File.separator
+                + "watchbox" + File.separator + xslt;
+
+        LocalizationFile lFile = PgenStaticDataProvider.getProvider()
+                .getStaticLocalizationFile(xsltPath);
+
+        String outStr = "";
+        if (lFile != null) {
+            outStr = PgenUtil.applyStyleSheet(ds, lFile.getFile()
+                    .getAbsolutePath());
+        }
+
+        return outStr;
+
+    }
+
+    /**
+     * Set watch text
+     * 
+     * @param str
+     *            The issued watch text
+     */
+    public void setMessage(String str) {
+        this.watchMsg = str;
+    }
+
+    @Override
+    /**
+     * Set the location of the dialog
+     * Set the OK button to Save
+     */
+    public int open() {
+
+        if (this.getShell() == null) {
+            this.create();
+        }
+
+        // this.getShell().setLocation(this.getShell().getParent().getLocation());
+        this.getButton(IDialogConstants.OK_ID).setText("Save");
+        this.getButtonBar().pack();
+
+        return super.open();
+
+    }
+
+    /**
+     * Create buttons on the button bar
+     */
+    @Override
+    public void createButtonsForButtonBar(Composite parent) {
+
+        GridLayout barGl = new GridLayout(3, false);
+        parent.setLayout(barGl);
+
+        Button editBtn = new Button(parent, SWT.PUSH);
+
+        super.createButtonsForButtonBar(parent);
+
+        // add re-edit button
+        editBtn.setText("Re-edit");
+        editBtn.setLayoutData(getButton(IDialogConstants.CANCEL_ID)
+                .getLayoutData());
+        editBtn.addSelectionListener(new SelectionListener() {
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+                // TODO Auto-generated method stub
+            }
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+
+                WatchFormatMsgDlg.this.close();
+            }
+
+        });
+
+        getButton(IDialogConstants.OK_ID).setText("Save");
+    }
+
+    private Products putWatcInProduct(WatchBox wb) {
+        Layer defaultLayer = new Layer();
+        // add watch collection(box and status line)
+        defaultLayer.addElement(wb.getParent());
+
+        Product defaultProduct = new Product();
+        defaultProduct.addLayer(defaultLayer);
+
+        ArrayList<Product> prds = new ArrayList<Product>();
+        prds.add(defaultProduct);
+        Products fileProduct = ProductConverter.convert(prds);
+
+        return fileProduct;
+    }
 }

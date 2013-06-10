@@ -60,11 +60,11 @@ public class SubscriptionRetrievalFixture extends
         entity.setDataSetAvailablityDelay(0);
         entity.setAgentType(SubscriptionRetrievalAgent.SUBSCRIPTION_AGENT);
         entity.setEstimatedSize(seedValue);
-        entity.setSubscriptionDao(SubscriptionDaoFixture.INSTANCE
+        entity.setBandwidthSubscription(SubscriptionDaoFixture.INSTANCE
                 .get(seedValue));
         entity.setSubscriptionLatency(0);
         try {
-            entity.setSubscription(entity.getSubscriptionDao()
+            entity.setSubscription(entity.getBandwidthSubscription()
                     .getSubscription());
         } catch (SerializationException e) {
             throw new RuntimeException(e);
