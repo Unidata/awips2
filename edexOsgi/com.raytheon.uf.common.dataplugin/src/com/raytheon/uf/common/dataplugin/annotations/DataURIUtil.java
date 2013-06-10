@@ -64,6 +64,8 @@ public class DataURIUtil {
 
     private static final String PLUGIN_NAME_KEY = "pluginName";
 
+    private static final String FIELD_SEPARATOR = ".";
+
     private static final Pattern SEPARATOR_PATTERN = Pattern
             .compile(DataURI.SEPARATOR);
 
@@ -293,8 +295,19 @@ public class DataURIUtil {
      */
     public static void populateObject(Object object, Map<String, Object> dataMap)
             throws PluginException {
+        Map<String, DataURIFieldAccess> accessMap = new HashMap<String, DataURIFieldAccess>();
         for (DataURIFieldAccess access : getAccess(object.getClass())) {
-            access.setFieldValue(object, dataMap.get(access.getFieldName()));
+            accessMap.put(access.getFieldName(), access);
+        }
+        for (String dataKey : dataMap.keySet()) {
+            Object data = dataMap.get(dataKey);
+            DataURIFieldAccess access = accessMap.get(dataKey);
+            if (access == null) {
+                access = new DataURIFieldAccess(Arrays.asList(dataKey.split("["
+                        + FIELD_SEPARATOR + "]")),
+                        object != null ? object.getClass() : null);
+            }
+            access.setFieldValue(object, data);
         }
     }
 
@@ -404,7 +417,7 @@ public class DataURIUtil {
             this.fieldNames = fieldNames.toArray(new String[0]);
             StringBuilder fieldName = new StringBuilder(this.fieldNames[0]);
             for (int i = 1; i < this.fieldNames.length; i += 1) {
-                fieldName.append(".").append(this.fieldNames[i]);
+                fieldName.append(FIELD_SEPARATOR).append(this.fieldNames[i]);
             }
             this.fieldName = fieldName.toString();
             this.fieldClass = fieldClass;
