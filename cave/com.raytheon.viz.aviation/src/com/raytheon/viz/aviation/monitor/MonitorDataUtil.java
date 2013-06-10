@@ -21,6 +21,7 @@ package com.raytheon.viz.aviation.monitor;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -31,18 +32,21 @@ import com.raytheon.edex.plugin.ccfp.CcfpRecord;
 import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.CatalogQuery;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.comm.Loader;
+import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 /**
- * Utility functions for data requesting
+ * Utility functions for data requesting.
  * 
  * <pre>
  * 
@@ -50,6 +54,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 10, 2009            njensen     Initial creation
+ * Apr 10, 2013 1735       rferrel     Convert to ThinClient and DbQueryRequests.
  * 
  * </pre>
  * 
@@ -72,22 +77,24 @@ public class MonitorDataUtil {
      * Get the lightning data newer than a particular time
      * 
      * @param time
-     * @return
+     * @return records
      */
     public static BinLightningRecord[] getLightningData(long time) {
+        DbQueryRequest request = new DbQueryRequest();
+        request.setEntityClass(BinLightningRecord.class);
+
         Map<String, RequestConstraint> map = new HashMap<String, RequestConstraint>();
         map.put("pluginName", new RequestConstraint("binlightning"));
         map.put("startTime", new RequestConstraint(SDF.format(new Date(time)),
                 RequestConstraint.ConstraintType.GREATER_THAN_EQUALS));
-        LayerProperty lp = new LayerProperty();
-        lp.setNumberOfImages(999);
+        request.setConstraints(map);
+        request.setLimit(999);
+
         try {
-            lp.setEntryQueryParameters(map);
-            List<Object> objs = Loader.loadData(lp, "select", 10000);
-            BinLightningRecord[] records = new BinLightningRecord[objs.size()];
-            for (int i = 0; i < records.length; i++) {
-                records[i] = (BinLightningRecord) objs.get(i);
-            }
+            DbQueryResponse response = (DbQueryResponse) ThriftClient
+                    .sendRequest(request);
+            BinLightningRecord[] records = response
+                    .getEntityObjects(BinLightningRecord.class);
             return records;
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
@@ -96,39 +103,49 @@ public class MonitorDataUtil {
         return new BinLightningRecord[0];
     }
 
+    /**
+     * Obtain ccfp records greater then or equal to time.
+     * 
+     * @param time
+     * @return records
+     */
+    @SuppressWarnings("unchecked")
     public static CcfpRecord[] getCcfpData(long time) {
         Map<String, RequestConstraint> map = new HashMap<String, RequestConstraint>();
-        map.put("pluginName", new RequestConstraint("ccfp"));
         map.put("dataTime.refTime",
                 new RequestConstraint(SDF.format(new Date(time)),
                         RequestConstraint.ConstraintType.GREATER_THAN_EQUALS));
         try {
-            String[] catalog = CatalogQuery.performQuery("dataTime", map);
-            String[] times = catalog;
-            DataTime[] dts = null;
-            Arrays.sort(catalog);
-            if (catalog.length > 3) {
-                dts = new DataTime[3];
-                dts[0] = new DataTime(catalog[catalog.length - 1]);
-                dts[1] = new DataTime(catalog[catalog.length - 2]);
-                dts[2] = new DataTime(catalog[catalog.length - 3]);
-            } else {
-                dts = new DataTime[times.length];
-                for (int i = 0; i < catalog.length; i++) {
-                    dts[i] = new DataTime(catalog[catalog.length - i - 1]);
-                }
-            }
-            map.remove("dataTime.refTime");
-            LayerProperty lp = new LayerProperty();
-            lp.setNumberOfImages(999);
-            lp.setSelectedEntryTimes(dts);
+            TimeQueryRequest tqRequest = new TimeQueryRequest();
+            tqRequest.setPluginName("ccfp");
+            tqRequest.setQueryTerms(map);
 
-            lp.setEntryQueryParameters(map);
-            List<Object> objs = Loader.loadData(lp, "select", 10000);
-            CcfpRecord[] records = new CcfpRecord[objs.size()];
-            for (int i = 0; i < records.length; i++) {
-                records[i] = (CcfpRecord) objs.get(i);
+            List<DataTime> dtList = (List<DataTime>) ThriftClient
+                    .sendRequest(tqRequest);
+            String[] dts = new String[dtList.size()];
+            for (int index = 0; index < dts.length; ++index) {
+                dts[index] = dtList.get(index).toString();
             }
+            map.put("pluginName", new RequestConstraint("ccfp"));
+            Arrays.sort(dts, Collections.reverseOrder());
+
+            if (dts.length > 3) {
+                dts = Arrays.copyOf(dts, 3);
+            }
+
+            map.remove("dataTime.refTime");
+
+            DbQueryRequest request = new DbQueryRequest();
+            request.setEntityClass(CcfpRecord.class);
+            request.setLimit(999);
+            request.setConstraints(map);
+            RequestConstraint dataTimeRC = new RequestConstraint();
+            dataTimeRC.setConstraintType(ConstraintType.IN);
+            dataTimeRC.setConstraintValueList(dts);
+            request.addConstraint("dataTime", dataTimeRC);
+            DbQueryResponse response = (DbQueryResponse) ThriftClient
+                    .sendRequest(request);
+            CcfpRecord[] records = response.getEntityObjects(CcfpRecord.class);
             return records;
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
@@ -138,6 +155,13 @@ public class MonitorDataUtil {
         return new CcfpRecord[0];
     }
 
+    /**
+     * Get the most recent radar vertical wind profile.
+     * 
+     * @param radar
+     * @param time
+     * @return records
+     */
     public static RadarRecord[] getVerticalWindProfile(String radar, long time) {
         Map<String, RequestConstraint> map = new HashMap<String, RequestConstraint>();
         map.put("pluginName", new RequestConstraint("radar"));
@@ -147,28 +171,37 @@ public class MonitorDataUtil {
         map.put("icao", new RequestConstraint(radar.toLowerCase()));
         map.put("mnemonic", new RequestConstraint("VWP"));
 
-        LayerProperty lp = new LayerProperty();
+        DbQueryRequest request = new DbQueryRequest();
+        request.setEntityClass(RadarRecord.class);
+
         try {
-            lp.setEntryQueryParameters(map);
-            DataTime[] dt = lp.getEntryTimes();
+            DataTime[] dt = DataCubeContainer.performTimeQuery(map, true);
+            map.remove("dataTime.refTime");
+            request.setConstraints(map);
             if (dt.length > 0) {
-                lp.setSelectedEntryTimes(new DataTime[] { dt[dt.length - 1] });
+                request.addConstraint("dataTime",
+                        new RequestConstraint(SDF.format(dt[0].getRefTime())));
             }
-
-            List<Object> objs = Loader.loadData(lp, "select", 10000);
-
-            RadarRecord[] records = new RadarRecord[objs.size()];
-            for (int i = 0; i < records.length; i++) {
-                records[i] = (RadarRecord) objs.get(i);
-            }
+            DbQueryResponse response = (DbQueryResponse) ThriftClient
+                    .sendRequest(request);
+            RadarRecord[] records = response
+                    .getEntityObjects(RadarRecord.class);
             return records;
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR,
+                    "Error retrieving radar vertical wind profile data", e);
         }
         return null;
     }
 
+    /**
+     * Get ACARS most recent sounding record for a station that is greater then
+     * or equal to time.
+     * 
+     * @param stationId
+     * @param time
+     * @return records
+     */
     public static ACARSSoundingRecord[] getAcarsSoundingRecords(
             String stationId, long time) {
         Map<String, RequestConstraint> map = new HashMap<String, RequestConstraint>();
@@ -179,24 +212,26 @@ public class MonitorDataUtil {
         map.put("location.stationId",
                 new RequestConstraint(stationId.substring(1)));
 
-        LayerProperty lp = new LayerProperty();
+        DbQueryRequest request = new DbQueryRequest();
+        request.setEntityClass(ACARSSoundingRecord.class);
+
         try {
-            lp.setEntryQueryParameters(map);
-            DataTime[] dt = lp.getEntryTimes();
+            DataTime[] dt = DataCubeContainer.performTimeQuery(map, true);
+            map.remove("dataTime.refTime");
+            request.setConstraints(map);
+
             if (dt.length > 0) {
-                lp.setSelectedEntryTimes(new DataTime[] { dt[dt.length - 1] });
+                request.addConstraint("dataTime",
+                        new RequestConstraint(SDF.format(dt[0].getRefTime())));
             }
-
-            List<Object> objs = Loader.loadData(lp, "select", 10000);
-
-            ACARSSoundingRecord[] records = new ACARSSoundingRecord[objs.size()];
-            for (int i = 0; i < records.length; i++) {
-                records[i] = (ACARSSoundingRecord) objs.get(i);
-            }
+            DbQueryResponse response = (DbQueryResponse) ThriftClient
+                    .sendRequest(request);
+            ACARSSoundingRecord[] records = response
+                    .getEntityObjects(ACARSSoundingRecord.class);
             return records;
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR,
+                    "Error retrieving Acars Sounding Records data", e);
         }
         return null;
     }

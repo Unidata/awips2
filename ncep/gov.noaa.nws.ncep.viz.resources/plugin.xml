@@ -14,17 +14,17 @@
       </contextualMenu>
       <contextualMenu
             actionClass="gov.noaa.nws.ncep.viz.tools.predefinedArea.AreaFromResourceRightClickAction"
-            capabilityInterface="gov.noaa.nws.ncep.viz.ui.display.IGridGeometryProvider"
+            capabilityInterface="gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider"
             name="Change Area to Fit Image"
             sortID="13">
       </contextualMenu>
       <contextualMenu
             actionClass="gov.noaa.nws.ncep.viz.tools.panZoom.ZoomToResourceRightClickAction"
-            capabilityInterface="gov.noaa.nws.ncep.viz.ui.display.IGridGeometryProvider"
+            capabilityInterface="gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider"
             name="Zoom To Size of Image"
             sortID="15">
       </contextualMenu>
-   </extension>
+   </extension>   
    <extension
           point="com.raytheon.uf.viz.localization.localizationpath">
        	<path
@@ -36,13 +36,12 @@
 	         extensionFilter=".xml">
        </path>
     </extension>
-    <extension
-          point="com.raytheon.uf.viz.localization.localizationpath">
+    <extension point="com.raytheon.uf.viz.localization.localizationpath">
        <path
              application="NCEP"
              localizationType="CAVE_STATIC"
              name="Predefined Areas"
-             recursive="true"
+             recursive="false"
              value="ncep/PredefinedAreas"
 	          extensionFilter=".xml">
        </path>

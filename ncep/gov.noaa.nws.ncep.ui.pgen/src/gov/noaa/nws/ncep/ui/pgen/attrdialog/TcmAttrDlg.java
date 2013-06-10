@@ -516,7 +516,7 @@ public class TcmAttrDlg extends AttrDlg implements ITcm, SelectionListener {
 		fd.left = new FormAttachment(se12ftLabel,0, SWT.LEFT);
 		se12ftField.setLayoutData(fd);
 		
-		
+
 		/*
 		 * SW 12ft label
 		 */
@@ -535,7 +535,7 @@ public class TcmAttrDlg extends AttrDlg implements ITcm, SelectionListener {
 		fd.top = new FormAttachment(sw12ftLabel,5, SWT.BOTTOM);
 		fd.left = new FormAttachment(sw12ftLabel,0, SWT.LEFT);
 		sw12ftField.setLayoutData(fd);
-		
+
 		/*
 		 * NW 12ft label
 		 */
@@ -689,7 +689,7 @@ public class TcmAttrDlg extends AttrDlg implements ITcm, SelectionListener {
 		Label spdLabel = new Label(comp2,SWT.NONE);
 		spdLabel.setText("StormSpd:");
 		spdField = new Text(comp2, SWT.SINGLE | SWT.BORDER);
-		
+	
 		
 		Composite comp3 = new Composite(fcstInfo, SWT.NONE);
     	GridLayout gdl1 = new GridLayout(5, true);
@@ -707,7 +707,7 @@ public class TcmAttrDlg extends AttrDlg implements ITcm, SelectionListener {
 		Label nwLabel = new Label(comp3,SWT.NONE);
 		nwLabel.setText("NorthWest");
 
-		
+
 		Label spd34Label = new Label(comp3,SWT.NONE);
 		spd34Label.setText("34 Knots");
 		

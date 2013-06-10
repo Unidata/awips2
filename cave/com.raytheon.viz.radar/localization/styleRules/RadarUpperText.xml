@@ -393,5 +393,9 @@
 		<nullPrecip line='1'/>
 		<nullPrecip line='2'/>
 	</upperText>
+	<!-- GFM -->
+	<upperText productCodes='140'>
+		<gfmCount />
+	</upperText>
 
 </upperTextSet>

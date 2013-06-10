@@ -59,7 +59,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 21, 2011            dgilling     Initial creation
- * 
+ * Apr 23, 2013 1949       rjpeter      Removed extra lock table look up
  * </pre>
  * 
  * @author dgilling
@@ -149,18 +149,6 @@ public class SaveASCIIGridsHandler implements
             // make a LockTableRequest
             LockTableRequest ltr = new LockTableRequest(pid);
 
-            // get the lock tables
-            ServerResponse<List<LockTable>> srLockTables = LockManager
-                    .getInstance().getLockTables(ltr,
-                            request.getWorkstationID(), siteId);
-            if (!srLockTables.isOkay()) {
-                msg = "Skipping grid storage [" + (i + 1) + " of " + ngrids
-                        + "]. Unable to obtain lock table for "
-                        + pid.toString() + ": " + srLockTables.message();
-                sr.addMessage(msg);
-                continue;
-            }
-
             // make the Lock Request object to lock
             LockRequest lrl = new LockRequest(pid, agrid.getGridSlices().get(i)
                     .getValidTime(), LockMode.LOCK);
@@ -185,8 +173,7 @@ public class SaveASCIIGridsHandler implements
             grid.setMessageData(agrid.getGridSlices().get(i));
             grid.setGridHistory(agrid.getGridSlices().get(i).getHistory());
             records.add(grid);
-            final List<SaveGridRequest> sgrs = new ArrayList<SaveGridRequest>();
-            sgrs.clear();
+            final List<SaveGridRequest> sgrs = new ArrayList<SaveGridRequest>(1);
             SaveGridRequest sgr = new SaveGridRequest(pid, agrid
                     .getGridSlices().get(i).getValidTime(), records);
             sgrs.add(sgr);

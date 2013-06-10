@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.radar.util.RadarsInUseUtil;
+import com.raytheon.uf.common.dataplugin.radar.util.SsssRadarUtil;
 import com.raytheon.uf.common.dataplugin.radar.util.TerminalRadarUtils;
 import com.raytheon.uf.common.menus.xml.CommonAbstractMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonIncludeMenuContribution;
@@ -49,6 +50,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.menus.AbstractMenuUtil;
 
+
 /**
  * Builds menus using JAXB
  * 
@@ -57,7 +59,9 @@ import com.raytheon.uf.edex.menus.AbstractMenuUtil;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 30, 2010            mnash     Initial creation
+ * Jun 30, 2010            mnash       Initial creation
+ * Feb 25, 2013 DR14418    zwang       Change radar menu to dual pol style
+ * 03/07/2013   DR15495    zwang       Handle additional elevation for ssss radars 
  * 
  * </pre>
  * 
@@ -71,7 +75,7 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
             .getHandler(RadarMenuUtil.class);
 
     private final int NUM_POSSIBLE_RADARS = 25;
-
+    
     /**
      * 
      */
@@ -110,6 +114,7 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
                         .get(i).toLowerCase());
                 if (terminal) {
                     includeMenuItem.fileName = new File(path
+                            + "dualPol" + File.separator
                             + "baseTerminalLocalRadarMenu.xml");
                     List<Double> elevations = map.get(radars.get(i));
                     vars = new VariableSubstitution[(elevations.size() + 1)
@@ -136,8 +141,17 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
                     }
                     includeMenuItem.substitutions = vars;
                 } else {
-                    includeMenuItem.fileName = new File(path
-                            + "baseLocalRadarMenu.xml");
+                	if (SsssRadarUtil.isSsssRadar(radars.get(i).toLowerCase())) {
+                		String ssssRadar = radars.get(i).toLowerCase();
+                		includeMenuItem.fileName = new File(path
+                                + ssssRadar + File.separator
+                                + "baseLocalRadarMenu.xml");	
+                	}
+                	else {
+                		includeMenuItem.fileName = new File(path
+                                + "dualPol" + File.separator
+                                + "baseLocalRadarMenu.xml");
+                	}
                     vars = new VariableSubstitution[1];
                     vars[0] = new VariableSubstitution();
                     vars[0].key = "icao";
@@ -176,6 +190,7 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
             if (terminal) {
                 List<Double> elevations = map.get(radars.get(i));
                 includeMenuContribution.fileName = new File(path
+                        + "dualPol" + File.separator
                         + File.separator + "baseTerminalLocalRadarMenu.xml");
                 vars = new VariableSubstitution[(elevations.size() + 1)
                         + NUM_POSSIBLE_RADARS + 1];
@@ -202,8 +217,17 @@ public class RadarMenuUtil extends AbstractMenuUtil implements
                 includeMenuContribution.substitutions = vars;
                 terminal = true;
             } else {
-                includeMenuContribution.fileName = new File(path
-                        + "baseLocalRadarMenu.xml");
+            	if (SsssRadarUtil.isSsssRadar(radars.get(i).toLowerCase())) {
+            		String ssssRadar = radars.get(i).toLowerCase();
+            		includeMenuContribution.fileName = new File(path
+                            + ssssRadar + File.separator
+                            + "baseLocalRadarMenu.xml");
+            	}
+            	else {
+            		includeMenuContribution.fileName = new File(path
+                            + "dualPol" + File.separator
+                            + "baseLocalRadarMenu.xml");
+            	}
                 vars = new VariableSubstitution[1];
                 vars[0] = new VariableSubstitution();
                 vars[0].key = "icao";

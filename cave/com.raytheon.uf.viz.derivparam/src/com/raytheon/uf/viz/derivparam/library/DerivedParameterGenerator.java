@@ -26,7 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.measure.unit.Unit;
 import javax.xml.bind.JAXBException;
@@ -155,7 +156,7 @@ public class DerivedParameterGenerator implements ILocalizationFileObserver {
 
     private Map<String, DerivParamDesc> derParLibrary;
 
-    private ArrayBlockingQueue<DerivedParameterRequest> toDoList;
+    private BlockingQueue<DerivedParameterRequest> toDoList;
 
     private static int numJobs = 2;
 
@@ -233,7 +234,7 @@ public class DerivedParameterGenerator implements ILocalizationFileObserver {
             }
         }
 
-        toDoList = new ArrayBlockingQueue<DerivedParameterRequest>(50);
+        toDoList = new LinkedBlockingQueue<DerivedParameterRequest>();
         LocalizationFile dir = PathManagerFactory.getPathManager()
                 .getStaticLocalizationFile(DERIV_PARAM_DIR);
         if (dir != null) {

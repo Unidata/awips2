@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -26,8 +27,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 	 */
 	private static final long serialVersionUID = -2056635460264217098L;
 
-	public MaxOrMinTemp(){
-		 super( UNIT );
+	public MaxOrMinTemp() throws Exception{
+		super( new UnitAdapter().marshal(UNIT) );
 	}
 	
  }

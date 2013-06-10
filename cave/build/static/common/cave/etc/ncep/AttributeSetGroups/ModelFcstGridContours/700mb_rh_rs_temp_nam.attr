@@ -7,7 +7,7 @@
 ! D.W.Plummer/NCEP	 8/97	Added FILTER parameter and changed TEXT value
 ! Archana/Chugach    9/2012     #866   Added CLRBAR
 !
-GLEVEL=700!700!700!850!850!30:0!30:0
+GLEVEL=700!700!700!850!850!0:30!0:30
 GVCORD=PRES!PRES!PRES!PRES!PRES!pdly!pdly
 SKIP=
 FILTER=y

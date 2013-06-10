@@ -10,10 +10,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
- * Maps to the GEMPAK parameter ??
+ * Maps to the Bufrmos parameter POP12hr - new GEMPAK alias used PO12
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
@@ -27,8 +28,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 	 */
 	private static final long serialVersionUID = 4375299583286360694L;
 
-	public POP12Hrs() {
-		 super( UNIT );
+	public POP12Hrs() throws Exception {
+		 super( new UnitAdapter().marshal(UNIT) );
 	}
 	 
   

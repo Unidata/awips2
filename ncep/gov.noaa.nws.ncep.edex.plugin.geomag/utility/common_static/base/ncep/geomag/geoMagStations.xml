@@ -1,0 +1,347 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GeoMagStationList>
+    <geoMagStation>
+            <stationCode>BOU</stationCode>
+            <provider>USGS</provider>
+            <processKQDC>true</processKQDC>
+            <kpStation>true</kpStation>             
+            <source>direct</source>
+            <source>magworm</source>
+            <source>domsat</source>
+            <dataOrder>HDZF</dataOrder>
+            <location latitude="40.137" longitude="-105.23"/>
+            <rawDataFormat>
+                 <headerFormat>
+                     <regex>^(\w{3})\s*(\d{4})\s*(\d{3})\s*(\d{2}-\w{3}-\d{2})\s*(\w{4})\s*(-?\d+\.\d+\w*)\s*(\w*?\d+\.\d+)\s*(\w*)\s*(\w*)$</regex>
+               		 <group id="1" name="stationCode"/>
+                     <group id="2" name="obsYear"/>
+                     <group id="3" name="obsDayOfYear"/>
+                     <group id="4" name="obsDate" format="dd-MMM-yy"/>
+                     <group id="5" name="dataOrder"/>
+                     <group id="6" name="unit"/>
+                     <group id="7" name="version"/>
+                     <group id="8" name="src"/>
+                     <group id="9" name="source"/>
+                 </headerFormat>                    
+                 <dataFormat conversionRequired="false">
+                 	<regex>^(\d{4})\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)$</regex>
+                    <group id="1" name="obsMinuteNum"/>
+                    <group id="2" name="component1" refersTo="H"/>
+                    <group id="3" name="component2" refersTo="D"/>
+                    <group id="4" name="component3" refersTo="Z"/>
+                    <group id="5" name="component4" refersTo="F"/>
+                 </dataFormat>
+            </rawDataFormat>
+    </geoMagStation>    
+    <geoMagStation>
+            <stationCode>SIT</stationCode>
+            <provider>USGS</provider>
+            <processKQDC>true</processKQDC>
+            <kpStation>true</kpStation>             
+            <source>direct</source>
+            <source>magworm</source>
+            <source>domsat</source>
+            <dataOrder>HDZF</dataOrder>
+            <location latitude="57.06" longitude="135.33"/>
+            <rawDataFormat>
+                 <headerFormat>
+                     <regex>^(\w{3})\s*(\d{4})\s*(\d{3})\s*(\d{2}-\w{3}-\d{2})\s*(\w{4})\s*(-?\d+\.\d+\w*)\s*(\w*?\d+\.\d+)\s*(\w*)\s*(\w*)$</regex>
+               		 <group id="1" name="stationCode"/>
+                     <group id="2" name="obsYear"/>
+                     <group id="3" name="obsDayOfYear"/>
+                     <group id="4" name="obsDate"/>
+                     <group id="5" name="dataOrder"/>
+                     <group id="6" name="unit"/>
+                     <group id="7" name="version"/>
+                     <group id="8" name="src"/>
+                     <group id="9" name="source"/>
+                 </headerFormat>                    
+                 <dataFormat conversionRequired="false">
+                 	<regex>^(\d{4})\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)$</regex>
+                    <group id="1" name="obsMinuteNum"/>
+                    <group id="2" name="component1" refersTo="H"/>
+                    <group id="3" name="component2" refersTo="D"/>
+                    <group id="4" name="component3" refersTo="Z"/>
+                    <group id="5" name="component4" refersTo="F"/>
+                 </dataFormat>
+            </rawDataFormat>
+    </geoMagStation>    
+    <geoMagStation>
+            <stationCode>NEW</stationCode>
+            <provider>USGS</provider>
+            <processKQDC>true</processKQDC>
+            <kpStation>true</kpStation>             
+            <source>direct</source>
+            <source>magworm</source>
+            <source>domsat</source>
+            <dataOrder>HDZF</dataOrder>
+            <location latitude="48.26" longitude="117.12"/>
+            <rawDataFormat>
+                 <headerFormat>
+                     <regex>^(\w{3})\s*(\d{4})\s*(\d{3})\s*(\d{2}-\w{3}-\d{2})\s*(\w{4})\s*(-?\d+\.\d+\w*)\s*(\w*?\d+\.\d+)\s*(\w*)\s*(\w*)$</regex>
+               		 <group id="1" name="stationCode"/>
+                     <group id="2" name="obsYear"/>
+                     <group id="3" name="obsDayOfYear"/>
+                     <group id="4" name="obsDate"/>
+                     <group id="5" name="dataOrder"/>
+                     <group id="6" name="unit"/>
+                     <group id="7" name="version"/>
+                     <group id="8" name="src"/>
+                     <group id="9" name="source"/>
+                 </headerFormat>                    
+                 <dataFormat conversionRequired="false">
+                 	<regex>^(\d{4})\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)$</regex>
+                    <group id="1" name="obsMinuteNum"/>
+                    <group id="2" name="component1" refersTo="H"/>
+                    <group id="3" name="component2" refersTo="D"/>
+                    <group id="4" name="component3" refersTo="Z"/>
+                    <group id="5" name="component4" refersTo="F"/>
+                 </dataFormat>
+            </rawDataFormat>
+    </geoMagStation>
+    <geoMagStation>
+            <stationCode>FRN</stationCode>
+            <provider>USGS</provider>
+            <processKQDC>true</processKQDC>
+            <kpStation>true</kpStation>             
+            <source>direct</source>
+            <source>magworm</source>
+            <source>domsat</source>
+            <dataOrder>HDZF</dataOrder>
+            <location latitude="37.09" longitude="119.71"/>
+            <rawDataFormat>
+                 <headerFormat>
+                     <regex>^(\w{3})\s*(\d{4})\s*(\d{3})\s*(\d{2}-\w{3}-\d{2})\s*(\w{4})\s*(-?\d+\.\d+\w*)\s*(\w*?\d+\.\d+)\s*(\w*)\s*(\w*)$</regex>
+               		 <group id="1" name="stationCode"/>
+                     <group id="2" name="obsYear"/>
+                     <group id="3" name="obsDayOfYear"/>
+                     <group id="4" name="obsDate"/>
+                     <group id="5" name="dataOrder"/>
+                     <group id="6" name="unit"/>
+                     <group id="7" name="version"/>
+                     <group id="8" name="src"/>
+                     <group id="9" name="source"/>
+                 </headerFormat>                    
+                 <dataFormat conversionRequired="false">
+                 	<regex>^(\d{4})\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)$</regex>
+                    <group id="1" name="obsMinuteNum"/>
+                    <group id="2" name="component1" refersTo="H"/>
+                    <group id="3" name="component2" refersTo="D"/>
+                    <group id="4" name="component3" refersTo="Z"/>
+                    <group id="5" name="component4" refersTo="F"/>
+                 </dataFormat>
+            </rawDataFormat>
+    </geoMagStation>    
+    <geoMagStation>
+            <stationCode>FRD</stationCode>
+            <provider>USGS</provider>
+            <processKQDC>true</processKQDC>
+            <kpStation>true</kpStation>             
+            <source>direct</source>
+            <source>magworm</source>
+            <source>domsat</source>
+            <dataOrder>HDZF</dataOrder>
+            <location latitude="38.20" longitude="77.37"/>
+            <rawDataFormat>
+                 <headerFormat>
+                     <regex>^(\w{3})\s*(\d{4})\s*(\d{3})\s*(\d{2}-\w{3}-\d{2})\s*(\w{4})\s*(-?\d+\.\d+\w*)\s*(\w*?\d+\.\d+)\s*(\w*)\s*(\w*)$</regex>
+               		 <group id="1" name="stationCode"/>
+                     <group id="2" name="obsYear"/>
+                     <group id="3" name="obsDayOfYear"/>
+                     <group id="4" name="obsDate"/>
+                     <group id="5" name="dataOrder"/>
+                     <group id="6" name="unit"/>
+                     <group id="7" name="version"/>
+                     <group id="8" name="src"/>
+                     <group id="9" name="source"/>
+                 </headerFormat>                    
+                 <dataFormat conversionRequired="false">
+                 	<regex>^(\d{4})\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)$</regex>
+                    <group id="1" name="obsMinuteNum"/>
+                    <group id="2" name="component1" refersTo="H"/>
+                    <group id="3" name="component2" refersTo="D"/>
+                    <group id="4" name="component3" refersTo="Z"/>
+                    <group id="5" name="component4" refersTo="F"/>
+                 </dataFormat>
+            </rawDataFormat>
+    </geoMagStation>
+    <geoMagStation>
+            <stationCode>HAD</stationCode>
+            <provider>BGS</provider>
+            <processKQDC>true</processKQDC>
+            <kpStation>true</kpStation>             
+            <source>direct</source>
+            <dataOrder>HDZF</dataOrder>    
+            <location latitude="51.0" longitude="4.5"/>
+            <rawDataFormat>
+                 <dataFormat conversionRequired="true">
+                 	<regex>^(\d{4})\s*(\d{3})\s(\d{2})\s*(\d{2})\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)</regex>
+                  	<group id="1" name="obsYear"/>
+                    <group id="2" name="obsDayOfYear"/>
+                    <group id="3" name="obsHour"/>
+                    <group id="4" name="obsMinute"/>
+                    <group id="6" name="component1" refersTo="H"/>
+                    <group id="5" name="component2" refersTo="D" />
+                    <group id="7" name="component3" refersTo="Z" />
+                 </dataFormat>                     
+            </rawDataFormat>
+    </geoMagStation>    
+    <geoMagStation>
+            <stationCode>CNB</stationCode>
+            <provider>GA</provider>
+            <processKQDC>true</processKQDC>
+            <kpStation>true</kpStation>             
+            <source>direct</source>
+            <dataOrder>XYZF</dataOrder>    
+            <location latitude="-35.31" longitude="149.36"/>
+            <rawDataFormat>
+                 <dataFormat conversionRequired="false">
+                 	<regex>^(\d{4}-\d{2}-\d{2})\s*(\d{2}:\d{2}:\d{2}\.\d{3})\s*(\d{3})\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)</regex>
+                  	<group id="1" name="obsDate" format="yy-MM-dd"/>
+                    <group id="2" name="obsTime" format="HH:mm:ss.SS"/>
+                    <group id="3" name="obsDayOfYear"/>
+                    <group id="4" name="component1" refersTo="X"/>
+                    <group id="5" name="component2" refersTo="Y" />
+                    <group id="6" name="component3" refersTo="Z" />                    
+                    <group id="7" name="component4" refersTo="F" />
+                 </dataFormat>                     
+            </rawDataFormat>
+    </geoMagStation>       
+    <geoMagStation>
+            <stationCode>NGK</stationCode>
+            <provider>GFZ</provider>
+            <processKQDC>true</processKQDC>
+            <kpStation>true</kpStation>             
+            <source>direct</source>
+            <dataOrder>XYZF</dataOrder>    
+            <location latitude="52.07" longitude="12.68"/>
+            <rawDataFormat>
+                 <dataFormat conversionRequired="false">
+                 	<regex>^(\d{4}-\d{2}-\d{2})\s*(\d{2}:\d{2}:\d{2}\.\d{3})\s*(\d{3})\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)</regex>
+                  	<group id="1" name="obsDate" format="yy-MM-dd"/>
+                    <group id="2" name="obsTime" format="HH:mm:ss.SS"/>
+                    <group id="3" name="obsDayOfYear"/>
+                    <group id="4" name="component1" refersTo="X"/>
+                    <group id="5" name="component2" refersTo="Y" />
+                    <group id="6" name="component3" refersTo="Z" />                    
+                    <group id="7" name="component4" refersTo="F" />
+                 </dataFormat>                     
+            </rawDataFormat>
+    </geoMagStation>          
+    <geoMagStation>
+            <stationCode>WNG</stationCode>
+            <provider>GFZ</provider>
+            <processKQDC>true</processKQDC>
+            <kpStation>true</kpStation>             
+            <source>direct</source>
+            <dataOrder>XYZF</dataOrder>    
+            <location latitude="53.74" longitude="9.07"/>
+            <rawDataFormat>
+                 <dataFormat conversionRequired="false">
+                 	<regex>^(\d{4}-\d{2}-\d{2})\s*(\d{2}:\d{2}:\d{2}\.\d{3})\s*(\d{3})\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)</regex>
+                  	<group id="1" name="obsDate" format="yy-MM-dd"/>
+                    <group id="2" name="obsTime" format="HH:mm:ss.SS"/>
+                    <group id="3" name="obsDayOfYear"/>
+                    <group id="4" name="component1" refersTo="X"/>
+                    <group id="5" name="component2" refersTo="Y" />
+                    <group id="6" name="component3" refersTo="Z" />                    
+                    <group id="7" name="component4" refersTo="F" />
+                 </dataFormat>                     
+            </rawDataFormat>
+    </geoMagStation>           
+    <geoMagStation>
+            <stationCode>CL2</stationCode>
+            <provider>IPGP</provider>
+            <processKQDC>true</processKQDC>
+            <kpStation>true</kpStation>             
+            <source>magworm</source>
+            <dataOrder>XYZF</dataOrder>    
+            <location latitude="48.02" longitude="2.26"/>
+            <rawDataFormat>
+                 <headerFormat>
+                     <regex>^(\w{3})\s*(\d{4})\s*(\d{3})\s*(\d{2}-\w{3}-\d{2})\s*(\w{4})\s*(-?\d+\.\d+\w*)\s*(\w*?\d+\.\d+)\s*(\w*)\s*(\w*)$</regex>
+               		 <group id="1" name="stationCode"/>
+                     <group id="2" name="obsYear"/>
+                     <group id="3" name="obsDayOfYear"/>
+                     <group id="4" name="obsDate" format="dd-MMM-yy"/>
+                     <group id="5" name="dataOrder"/>
+                     <group id="6" name="unit"/>
+                     <group id="7" name="version"/>
+                     <group id="8" name="src"/>
+                     <group id="9" name="source"/>
+                 </headerFormat>                    
+                 <dataFormat conversionRequired="false">
+                 	<regex>^(\d{4})\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)\s*(-?\d+\.?\d*)$</regex>
+                    <group id="1" name="obsMinuteNum"/>
+                    <group id="2" name="component1" refersTo="H"/>
+                    <group id="3" name="component2" refersTo="D"/>
+                    <group id="4" name="component3" refersTo="Z"/>
+                    <group id="5" name="component4" refersTo="F"/>
+                 </dataFormat>
+            </rawDataFormat>
+    </geoMagStation>          
+    <geoMagStation>
+            <stationCode>OTT</stationCode>
+            <provider>NRCAN</provider>
+            <processKQDC>true</processKQDC>
+            <kpStation>true</kpStation>             
+            <source>direct</source>           
+            <source>domsat</source>
+            <dataOrder>XYZF</dataOrder>    
+            <location latitude="45.40" longitude="75.55"/>
+            <rawDataFormat>
+                 <dataFormat conversionRequired="false">
+                 	<regex>^(\w{3}),\s*(\d{4}-\d{2}-\d{2})\s*(\d{2}:\d{2}:\d{2}),\s*(-?\d+\.?\d*),\s*(-?\d+\.?\d*),\s*(-?\d+\.?\d*),\s*(-?\d+\.?\d*)</regex>
+                    <group id="1" name="stationCode"/>
+                    <group id="2" name="obsDate" format="yy-MM-dd"/>
+                    <group id="3" name="obsTime" format="HH:mm:ss"/>
+                    <group id="4" name="component1" refersTo="X"/>
+                    <group id="5" name="component2" refersTo="Y" />
+                    <group id="6" name="component3" refersTo="Z" />                    
+                    <group id="7" name="component4" refersTo="F" />
+                 </dataFormat>                     
+            </rawDataFormat>
+    </geoMagStation> 
+    <geoMagStation>
+            <stationCode>MEA</stationCode>
+            <provider>NRCAN</provider>
+            <processKQDC>true</processKQDC>
+            <kpStation>true</kpStation>             
+            <source>direct</source>           
+            <source>domsat</source>
+            <dataOrder>XYZF</dataOrder>    
+            <location latitude="54.62" longitude="113.34"/>
+            <rawDataFormat>
+                 <dataFormat conversionRequired="false">
+                 	<regex>^(\w{3}),\s*(\d{4}-\d{2}-\d{2})\s*(\d{2}:\d{2}:\d{2}),\s*(-?\d+\.?\d*),\s*(-?\d+\.?\d*),\s*(-?\d+\.?\d*),\s*(-?\d+\.?\d*)</regex>
+                    <group id="1" name="stationCode"/>
+                    <group id="2" name="obsDate" format="yy-MM-dd"/>
+                    <group id="3" name="obsTime" format="HH:mm:ss"/>
+                    <group id="4" name="component1" refersTo="X"/>
+                    <group id="5" name="component2" refersTo="Y" />
+                    <group id="6" name="component3" refersTo="Z" />                    
+                    <group id="7" name="component4" refersTo="F" />
+                 </dataFormat>                     
+            </rawDataFormat>
+    </geoMagStation>  
+    <geoMagStation>
+            <stationCode>JEJ</stationCode>
+            <provider>KOREA</provider>
+            <processKQDC>false</processKQDC>
+            <kpStation>false</kpStation>             
+            <source>direct</source>
+            <dataOrder>XYZF</dataOrder>    
+            <location latitude="33.36" longitude="126.53"/>
+            <rawDataFormat>
+                 <dataFormat conversionRequired="false">
+                 	<regex>^(\d{2}/\d{2}/\d{2})\s*(\d{2}:\d{2}:\d{2}),\s*(-?\d+\.?\d*),\s*(-?\d+\.?\d*),\s*(-?\d+\.?\d*),\s*(-?\d+\.?\d*),\s*(-?\d+\.?\d*),\s*(-?\d+\.?\d*),\s*(-?\d+\.?\d*),\s*(-?\d+\.?\d*),\s*(-?\d+\.?\d*),\s*(-?\d+\.?\d*),\s*(-?\d+\.?\d*),\s*(-?\d+\.?\d*),\s*(\w*),\s*(\+?\-?\d*),\s*(\d*)</regex>
+                  	<group id="1" name="obsDate" format="yy/MM/dd"/>
+                    <group id="2" name="obsTime" format="HH:mm:ss"/>
+                    <group id="3" name="component1" refersTo="X"/>
+                    <group id="4" name="component2" refersTo="Y"/>
+                    <group id="5" name="component3" refersTo="Z"/>                    
+                    <group id="8" name="component4" refersTo="F"/>
+                 </dataFormat>                     
+            </rawDataFormat>
+    </geoMagStation>     
+</GeoMagStationList>

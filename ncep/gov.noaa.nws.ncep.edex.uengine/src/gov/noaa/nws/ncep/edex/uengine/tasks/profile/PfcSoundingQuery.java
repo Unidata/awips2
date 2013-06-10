@@ -566,9 +566,9 @@ public class PfcSoundingQuery {
 			d=d.substring(0, d.length()-1);//get rid of last ","
 			values.add(d);  //rangestart data type defined in SoundingSite is "Date"
 			operands.add("in");
-			for (int i=0; i < fields.size(); i++) {
-				System.out.println("getPfcSndDataGeneric: field ="+ fields.get(i) + " value= "+ values.get(i) + " operand= "+operands.get(i));
-			}
+			//for (int i=0; i < fields.size(); i++) {
+			//	System.out.println("getPfcSndDataGeneric: field ="+ fields.get(i) + " value= "+ values.get(i) + " operand= "+operands.get(i));
+			//}
 			List<String> parameters = new ArrayList<String>(12);
             parameters.addAll(ModelSoundingPointDataTransform.LVL_PARAMETERS);
             parameters.add(ModelSoundingPointDataTransform.P_LATITUDE);
@@ -583,8 +583,8 @@ public class PfcSoundingQuery {
 				long t01 = System.currentTimeMillis();
 				lSndSiteRecords = ModelSoundingPointDataTransform.getSoundingSites(fields, values, operands, parameters);
 				long t02 = System.currentTimeMillis();
-				System.out.println("getPfcSndDataGeneric sounding site record size = "+ lSndSiteRecords.size()+
-						" took "+(t02-t01)+ " ms");
+				//System.out.println("getPfcSndDataGeneric sounding site record size = "+ lSndSiteRecords.size()+
+				//		" took "+(t02-t01)+ " ms");
 				for(SoundingSite sndSite:lSndSiteRecords){
 					//set pf data
 					NcSoundingProfile pf = new NcSoundingProfile();

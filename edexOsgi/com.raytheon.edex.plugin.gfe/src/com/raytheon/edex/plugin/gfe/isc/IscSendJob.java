@@ -34,13 +34,11 @@ import jep.JepException;
 import com.raytheon.edex.plugin.gfe.config.GFESiteActivation;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
-import com.raytheon.edex.plugin.gfe.db.dao.GFEDao;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
+import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridHistoryUpdateNotification;
@@ -49,7 +47,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.database.plugin.PluginFactory;
 
 /**
  * Class to for running the isc scripts
@@ -63,7 +60,8 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * 07/06/09      1995       bphillip    Initial release
  * 04/06/12      #457       dgilling    Move call to delete records
  *                                      from queue into run().
- * 
+ * 04/23/13      #1949      rjpeter     Move setting of lastSentTime to dao
+ *                                      and removed initial delay.
  * </pre>
  * 
  * @author bphillip
@@ -78,13 +76,11 @@ public class IscSendJob implements Runnable {
     private static final SimpleDateFormat ISC_EXTRACT_DATE = new SimpleDateFormat(
             "yyyyMMdd_HHmm");
 
-    private Map<String, IscSendScript> scripts;
+    private final Map<String, IscSendScript> scripts;
 
     private int runningTimeOutMillis;
 
     private int threadSleepInterval;
-
-    private int initialDelay;
 
     /**
      * Constructs a new IscSendJob
@@ -98,14 +94,11 @@ public class IscSendJob implements Runnable {
         scripts = new HashMap<String, IscSendScript>();
         runningTimeOutMillis = 300000;
         threadSleepInterval = 30000;
-        initialDelay = 120000;
     }
 
     @Override
     public void run() {
-        long curTime = System.currentTimeMillis();
-        while ((!EDEXUtil.isRunning())
-                || ((System.currentTimeMillis() - curTime) < initialDelay)) {
+        while (!EDEXUtil.isRunning()) {
             try {
                 Thread.sleep(threadSleepInterval);
             } catch (Throwable t) {
@@ -205,44 +198,25 @@ public class IscSendJob implements Runnable {
             }
 
             try {
-                GFEDao dao = (GFEDao) PluginFactory.getInstance().getPluginDao(
-                        "gfe");
-
-                ServerResponse<List<TimeRange>> sr = GridParmManager
-                        .getGridInventory(id);
-                if (!sr.isOkay()) {
-                    statusHandler.error("Error getting inventory for " + id);
-                    return;
-                }
-
-                WsId wsId = new WsId(InetAddress.getLocalHost(), "ISC", "ISC");
-                List<TimeRange> inventory = sr.getPayload();
-                List<TimeRange> overlapTimes = new ArrayList<TimeRange>();
-                for (TimeRange range : inventory) {
-                    if (tr.contains(range)) {
-                        overlapTimes.add(range);
-                    }
-                }
-
-                List<GridHistoryUpdateNotification> notifications = new ArrayList<GridHistoryUpdateNotification>();
-                List<GFERecord> records = dao.getRecords(id, overlapTimes);
-                for (GFERecord record : records) {
-                    List<GridDataHistory> history = record.getGridHistory();
-                    Map<TimeRange, List<GridDataHistory>> historyMap = new HashMap<TimeRange, List<GridDataHistory>>();
-                    Date now = new Date();
-                    for (GridDataHistory hist : history) {
-                        hist.setLastSentTime(now);
-                    }
-                    historyMap.put(record.getTimeRange(), history);
-                    dao.saveOrUpdate(record);
+                GridDatabase gridDb = GridParmManager.getDb(id.getDbId());
+                ServerResponse<Map<TimeRange, List<GridDataHistory>>> sr = gridDb
+                        .updateSentTime(id, tr, new Date());
+                if (sr.isOkay()) {
+                    WsId wsId = new WsId(InetAddress.getLocalHost(), "ISC",
+                            "ISC");
+                    List<GridHistoryUpdateNotification> notifications = new ArrayList<GridHistoryUpdateNotification>(
+                            1);
+                    Map<TimeRange, List<GridDataHistory>> histories = sr
+                            .getPayload();
                     notifications.add(new GridHistoryUpdateNotification(id,
-                            historyMap, wsId, siteId));
+                            histories, wsId, siteId));
+                    SendNotifications.send(notifications);
+
+                } else {
+                    statusHandler
+                            .error("Error updating last sent times in GFERecords: "
+                                    + sr.getMessages());
                 }
-
-                SendNotifications.send(notifications);
-
-            } catch (PluginException e) {
-                statusHandler.error("Error creating GFE dao!", e);
             } catch (Exception e) {
                 statusHandler.error(
                         "Error updating last sent times in GFERecords.", e);
@@ -267,13 +241,5 @@ public class IscSendJob implements Runnable {
 
     public void setThreadSleepInterval(int threadSleepInterval) {
         this.threadSleepInterval = threadSleepInterval;
-    }
-
-    public int getInitialDelay() {
-        return initialDelay;
-    }
-
-    public void setInitialDelay(int initialDelay) {
-        this.initialDelay = initialDelay;
     }
 }

@@ -25,6 +25,8 @@ import sys
 import locale
 import socket
 import re
+import httplib
+import json
 from qmf.console import Session, Console
 from qpid.disp import Display, Header, Sorter
 
@@ -53,213 +55,36 @@ def Usage ():
     print
     sys.exit (1)
 
-class IpAddr:
-    def __init__(self, text):
-        if text.find("@") != -1:
-            tokens = text.split("@")
-            text = tokens[1]
-        if text.find(":") != -1:
-            tokens = text.split(":")
-            text = tokens[0]
-            self.port = int(tokens[1])
-        else:
-            self.port = 5672
-        self.dottedQuad = socket.gethostbyname(text)
-        nums = self.dottedQuad.split(".")
-        self.addr = (int(nums[0]) << 24) + (int(nums[1]) << 16) + (int(nums[2]) << 8) + int(nums[3])
-
-    def bestAddr(self, addrPortList):
-        bestDiff = 0xFFFFFFFFL
-        bestAddr = None
-        for addrPort in addrPortList:
-            diff = IpAddr(addrPort[0]).addr ^ self.addr
-            if diff < bestDiff:
-                bestDiff = diff
-                bestAddr = addrPort
-        return bestAddr
-
-class Broker(object):
-    def __init__(self, qmf, broker):
-        self.broker = broker
-
-        agents = qmf.getAgents()
-        for a in agents:
-            if a.getAgentBank() == 0:
-                self.brokerAgent = a
-
-        bobj = qmf.getObjects(_class="broker", _package="org.apache.qpid.broker", _agent=self.brokerAgent)[0]
-        self.currentTime = bobj.getTimestamps()[0]
-        try:
-            self.uptime = bobj.uptime
-        except:
-            self.uptime = 0
-        self.connections = {}
-        self.sessions = {}
-        self.exchanges = {}
-        self.queues = {}
-        package = "org.apache.qpid.broker"
-
-        list = qmf.getObjects(_class="connection", _package=package, _agent=self.brokerAgent)
-        for conn in list:
-            if pattern.match(conn.address):
-                self.connections[conn.getObjectId()] = conn
-
-        list = qmf.getObjects(_class="session", _package=package, _agent=self.brokerAgent)
-        for sess in list:
-            if sess.connectionRef in self.connections:
-                self.sessions[sess.getObjectId()] = sess
-
-        list = qmf.getObjects(_class="exchange", _package=package, _agent=self.brokerAgent)
-        for exchange in list:
-            self.exchanges[exchange.getObjectId()] = exchange
-
-        list = qmf.getObjects(_class="queue", _package=package, _agent=self.brokerAgent)
-        for queue in list:
-            self.queues[queue.getObjectId()] = queue
-
-    def getName(self):
-        return self.broker.getUrl()
-
-    def getCurrentTime(self):
-        return self.currentTime
-
-    def getUptime(self):
-        return self.uptime
-
-class BrokerManager(Console):
+class RestManager(Console):
     def __init__(self):
-        self.brokerName = None
-        self.qmf        = None
-        self.broker     = None
-        self.brokers    = []
-        self.cluster    = None
+        self._host = None
+        self._port = 0
 
-    def SetBroker(self, brokerUrl):
-        self.url = brokerUrl
-        self.qmf = Session()
-        self.broker = self.qmf.addBroker(brokerUrl, _connTimeout)
-        agents = self.qmf.getAgents()
-        for a in agents:
-            if a.getAgentBank() == 0:
-                self.brokerAgent = a
+    def setPort(self, port):
+        self._port = port
 
-    def Disconnect(self):
-        if self.broker:
-            self.qmf.delBroker(self.broker)
-
-    def _getCluster(self):
-        packages = self.qmf.getPackages()
-        if "org.apache.qpid.cluster" not in packages:
-            return None
-
-        clusters = self.qmf.getObjects(_class="cluster", _agent=self.brokerAgent)
-        if len(clusters) == 0:
-            print "Clustering is installed but not enabled on the broker."
-            return None
-
-        self.cluster = clusters[0]
-
-    def _getHostList(self, urlList):
-        hosts = []
-        hostAddr = IpAddr(_host)
-        for url in urlList:
-            if url.find("amqp:") != 0:
-                raise Exception("Invalid URL 1")
-            url = url[5:]
-            addrs = str(url).split(",")
-            addrList = []
-            for addr in addrs:
-                tokens = addr.split(":")
-                if len(tokens) != 3:
-                    raise Exception("Invalid URL 2")
-                addrList.append((tokens[1], tokens[2]))
-
-            # Find the address in the list that is most likely to be in the same subnet as the address
-            # with which we made the original QMF connection.  This increases the probability that we will
-            # be able to reach the cluster member.
-
-            best = hostAddr.bestAddr(addrList)
-            bestUrl = best[0] + ":" + best[1]
-            hosts.append(bestUrl)
-        return hosts
-
-    def displaySubs(self, subs, indent, broker=None, conn=None, sess=None, exchange=None, queue=None):
-        if len(subs) == 0:
-            return
-        this = subs[0]
-        remaining = subs[1:]
-        newindent = indent + "  "
-        if this == 'b':
-            pass
-        elif this == 'c':
-            if broker:
-                for oid in broker.connections:
-                    iconn = broker.connections[oid]
-                    self.printConnSub(indent, broker.getName(), iconn)
-                    self.displaySubs(remaining, newindent, broker=broker, conn=iconn,
-                                     sess=sess, exchange=exchange, queue=queue)
-        elif this == 's':
-            pass
-        elif this == 'e':
-            pass
-        elif this == 'q':
-            pass
-        print
-
-    def displayQueue(self, subs):
-        disp = Display(prefix="  ")
-        heads = []
-        if self.cluster:
-            heads.append(Header('broker'))
-        heads.append(Header("queue"))
-        heads.append(Header("msg", Header.KMG))
-        heads.append(Header("bytes", Header.KMG))
-        heads.append(Header("cons", Header.KMG))
-        rows = []
-        for broker in self.brokers:
-            for oid in broker.queues:
-                q = broker.queues[oid]
-                row = []
-                if self.cluster:
-                    row.append(broker.getName())
-                row.append(q.name)
-                row.append(q.msgDepth)
-                row.append(q.byteDepth)
-                row.append(q.consumerCount)
-                rows.append(row)
-        title = "Queues"
-        if self.cluster:
-            title += " for cluster '%s'" % self.cluster.clusterName
-        if _sortcol:
-            sorter = Sorter(heads, rows, _sortcol, _limit, _increasing)
-            dispRows = sorter.getSorted()
+    def setHost(self, host):
+        self._host = host
+    
+    def execute(self, service):
+        if (self._port is None):
+            httpConn = httplib.HTTPConnection(self._host)
         else:
-            dispRows = rows
-        disp.formattedTable(title, heads, dispRows)
+            httpConn = httplib.HTTPConnection(self._host, self._port)
 
-    def displayMain(self, main, subs):
-        self.displayQueue(subs)
+        if (_connTimeout is not None):
+            httpConn.timeout = _connTimeout
 
-    def display(self):
-        self._getCluster()
-        if self.cluster:
-            memberList = self.cluster.members.split(";")
-            hostList = self._getHostList(memberList)
-            self.qmf.delBroker(self.broker)
-            self.broker = None
-            if _host.find("@") > 0:
-                authString = _host.split("@")[0] + "@"
-            else:
-                authString = ""
-            for host in hostList:
-                b = self.qmf.addBroker(authString + host, _connTimeout)
-                self.brokers.append(Broker(self.qmf, b))
-        else:
-            self.brokers.append(Broker(self.qmf, self.broker))
-
-        self.displayMain(_types[0], _types[1:])
-
-
+        httpConn.connect()
+        httpConn.request("GET", "/rest/" + service)
+        response = httpConn.getresponse()
+        
+        if (response.status != 200):
+            print "Unable to post request to server!"
+            print response.reason
+            sys.exit(1)
+    
+        return response
 ##
 ## Main Program
 ##
@@ -301,18 +126,70 @@ if len(_types) == 0:
     _types='q'
 
 nargs = len(cargs)
-bm    = BrokerManager()
+rm    = RestManager()
+_user = None
+_password = None
+_port = 8180
 
 if nargs == 1:
-    _host = cargs[0]
+    _broker_addr = cargs[0]
+    _host = _broker_addr
+    
+    # check for username
+    if _host.find("@") != -1:
+        tokens = _host.split("@")
+        _user = tokens[0]
+        _host = tokens[1]
+        # check for password
+        if _user.find("/") != -1:
+            tokens = _user.split("/")
+            _user = tokens[0]
+            _password = tokens[1]
+    # check for port
+    if _host.find(":") != -1:
+        tokens = _host.split(":")
+        _host = tokens[0]
+        _port = int(tokens[1])
 
 try:
-    bm.SetBroker(_host)
-    bm.display()
+    rm.setHost(_host)
+    rm.setPort(_port)
+    response = rm.execute('queue')
+    
+    # evaluate the JSON
+    jsonStr = response.read()
+    jsonObjArray = json.loads(jsonStr)
+   
+    # table header
+    heads = []
+    heads.append(Header("queue"))
+    heads.append(Header("msg", Header.KMG))
+    heads.append(Header("bytes", Header.KMG))
+    heads.append(Header("cons", Header.KMG))
+ 
+    # create rows of queues to display
+    rows = []
+    for staticDict in jsonObjArray:
+        row = []
+        row.append(staticDict.get("name"))
+        statistics = staticDict.get("statistics")
+        row.append(statistics.get("queueDepthMessages"))
+        row.append(statistics.get("queueDepthBytes"))
+        row.append(statistics.get("consumerCount"))
+        rows.append(row)
+
+    # sort the queues if required        
+    if _sortcol:
+        sorter = Sorter(heads, rows, _sortcol, _limit, _increasing)
+        dispRows = sorter.getSorted()
+    else:
+        dispRows = rows
+    
+    # prepare to build & display the table
+    disp = Display(prefix="  ")
+    disp.formattedTable("Queues", heads, dispRows)
 except KeyboardInterrupt:
     print
 except Exception,e:
     print "Failed: %s - %s" % (e.__class__.__name__, e)
     sys.exit(1)
-
-bm.Disconnect()

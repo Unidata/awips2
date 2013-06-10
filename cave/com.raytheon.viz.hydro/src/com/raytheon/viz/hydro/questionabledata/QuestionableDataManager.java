@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import com.raytheon.uf.common.time.SimulatedTime;
@@ -44,6 +45,7 @@ import com.raytheon.viz.hydrocommon.util.HydroQC;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 22, 2008 1636       askripsky   Initial Creation
+ * Feb 07, 2013 1578       rferrel     Code cleanup for non-blocing dialogs.
  * 
  * </pre>
  * 
@@ -53,16 +55,11 @@ import com.raytheon.viz.hydrocommon.util.HydroQC;
 
 public class QuestionableDataManager extends PhysicalElementDataManager {
 
-    private static QuestionableDataManager manager = null;
+    /** Singleton instance of this class. */
+    private static final QuestionableDataManager manager = new QuestionableDataManager();
 
+    /** Format to use for time strings. */
     private SimpleDateFormat timeFormat;
-
-    private static final String SELECT_COLUMNS = "lid, pe, dur, ts, extremum, value, "
-            + "shef_qual_code, quality_code, revision, product_id, producttime, postingtime, cast(probability as float), "
-            + "validtime, basistime, reject_type, userid";
-
-    private static final String SELECT_STATEMENT = "SELECT " + SELECT_COLUMNS
-            + " FROM rejecteddata";
 
     /**
      * Private constructor.
@@ -78,11 +75,7 @@ public class QuestionableDataManager extends PhysicalElementDataManager {
      * 
      * @return manager
      */
-    public static synchronized QuestionableDataManager getInstance() {
-        if (manager == null) {
-            manager = new QuestionableDataManager();
-        }
-
+    public static QuestionableDataManager getInstance() {
         return manager;
     }
 
@@ -92,11 +85,11 @@ public class QuestionableDataManager extends PhysicalElementDataManager {
      * @param sortCriteria
      * @param daysBack
      * 
-     * @return String[]
+     * @return list
      */
-    public ArrayList<QuestionableData> getQuestionableData(
-            String selectedTable, int daysBack, String sortCriteria) {
-        ArrayList<QuestionableData> rval = new ArrayList<QuestionableData>();
+    public List<QuestionableData> getQuestionableData(String selectedTable,
+            int daysBack, String sortCriteria) {
+        List<QuestionableData> rval = new ArrayList<QuestionableData>();
 
         PhysicalElementTable tableName = null;
         String orderByCriteria = "";
@@ -122,7 +115,7 @@ public class QuestionableDataManager extends PhysicalElementDataManager {
             orderByCriteria = "quality_code DESC, lid, obstime DESC";
         }
 
-        ArrayList<Object[]> data = getPhysicalElementData(tableName,
+        List<Object[]> data = getPhysicalElementData(tableName,
                 obsTimeConstraint, orderByCriteria);
 
         for (Object[] currData : data) {
@@ -132,6 +125,12 @@ public class QuestionableDataManager extends PhysicalElementDataManager {
         return rval;
     }
 
+    /**
+     * Get the table for the selected PE.
+     * 
+     * @param selectedPE
+     * @return
+     */
     private PhysicalElementTable getSelectedPE(String selectedPE) {
         PhysicalElementTable tableName = PhysicalElementTable.agricultural;
 
@@ -184,6 +183,12 @@ public class QuestionableDataManager extends PhysicalElementDataManager {
         return tableName;
     }
 
+    /**
+     * Create description for the selected data.
+     * 
+     * @param selectedData
+     * @return description
+     */
     public String getDescription(QuestionableData selectedData) {
         int qualityCode = selectedData.getQualityCode();
 
@@ -191,13 +196,13 @@ public class QuestionableDataManager extends PhysicalElementDataManager {
 
         if (HydroQC.checkQcBit(HydroQC.REASONRANGE_QC, qualityCode) == false) {
             // Get data for the specific pe at the given obs time
-            ArrayList<DataLimitData> dlData = DataLimitDataManager
-                    .getInstance().getLimits(
+            List<DataLimitData> dlData = DataLimitDataManager.getInstance()
+                    .getLimits(
                             selectedData.getLid(),
                             selectedData.getPe(),
                             Integer.toString(selectedData.getDur()),
-                            selectedData.getObstime().toString().substring(5,
-                                    10));
+                            selectedData.getObstime().toString()
+                                    .substring(5, 10));
 
             if (dlData.size() > 0) {
                 double reasonRangeMax = dlData.get(0).getReasonRangeMax();
@@ -237,7 +242,7 @@ public class QuestionableDataManager extends PhysicalElementDataManager {
      * @param selectedTable
      * @throws VizException
      */
-    public void deleteRecords(ArrayList<QuestionableData> recordsToDelete,
+    public void deleteRecords(List<QuestionableData> recordsToDelete,
             String selectedTable) throws VizException {
         for (QuestionableData currData : recordsToDelete) {
             removePhysicalElementData(currData);
@@ -265,7 +270,13 @@ public class QuestionableDataManager extends PhysicalElementDataManager {
         }
     }
 
-    public void setMissing(ArrayList<QuestionableData> missingData)
+    /**
+     * Change the record's quality code to missing and update the data base.
+     * 
+     * @param missingData
+     * @throws VizException
+     */
+    public void setMissing(List<QuestionableData> missingData)
             throws VizException {
         for (QuestionableData currData : missingData) {
             /* set postingtime to current time */

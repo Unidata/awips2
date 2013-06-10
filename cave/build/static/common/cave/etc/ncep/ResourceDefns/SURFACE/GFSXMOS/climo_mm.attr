@@ -1,5 +1,5 @@
-! Attributes for the GFSXMOS resource with "climomm" plot model
+! Attributes for the GFSXMOS resource with "climo_mm" plot model
 !
-plotModel=climomm
+plotModel=@PlotModels/bufrmosMRF/climo_mm.xml
 plotDensity=10
 conditionalFilter=

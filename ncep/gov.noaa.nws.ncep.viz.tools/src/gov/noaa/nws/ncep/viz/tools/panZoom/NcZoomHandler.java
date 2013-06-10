@@ -1,31 +1,28 @@
 package gov.noaa.nws.ncep.viz.tools.panZoom;
 
+import gov.noaa.nws.ncep.viz.tools.panZoom.ZoomToAction.ZoomType;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
-import gov.noaa.nws.ncep.viz.tools.panZoom.ZoomToAction.ZoomType;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.ui.commands.ICommandService;
 
-import com.raytheon.uf.viz.core.GraphicsFactory;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.input.InputAdapter;
 
 
 /*
  *   ????????   ????   ????     Created
  *   11/30/12   #630   ghull    move zoomToZoombox and implement with zoomTo command
+ *   02/22/13   #972   ghull        AbstractNcEditor instead of NCMapEditor
  *
  */
 
@@ -74,12 +71,12 @@ public class NcZoomHandler extends InputAdapter {
         if (button != 1) {
             return false;
         }
-        else if( !(container instanceof NCMapEditor) ) {
+        else if( !(container instanceof AbstractNcEditor) ) {
         	return false;
         }
         
         // use the last selectd pane.
-        IDisplayPane[] seldPanes = ((NCMapEditor)container).getSelectedPanes();        
+        IDisplayPane[] seldPanes = NcEditorUtil.getSelectedPanes( (AbstractNcEditor)container );        
         activePane = seldPanes[ seldPanes.length-1 ];
         
         if (activePane == null) {
@@ -122,11 +119,11 @@ public class NcZoomHandler extends InputAdapter {
         if (button != 1 || activePane == null) {
             return false;
         }
-        else if( !(container instanceof NCMapEditor) ) {
+        else if( !(container instanceof AbstractNcEditor) ) {
         	return false;
         }
         
-        NCMapEditor ncEditor = (NCMapEditor)container; 
+        AbstractNcEditor ncEditor = (AbstractNcEditor)container; 
 
 		ICommandService service = (ICommandService)ncEditor
 						.getSite().getService(ICommandService.class);
@@ -146,7 +143,7 @@ public class NcZoomHandler extends InputAdapter {
 				ex.printStackTrace();
 				System.out.println("Error executing cmd to zoomTo Resource: "+ zoomToCmdId );
 			}
-        }
+		}
 
         // Remove zoom tool resource from active pane
         activePane.getDescriptor().getResourceList().remove(resource);

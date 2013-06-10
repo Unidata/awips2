@@ -5,6 +5,14 @@ import java.util.regex.Matcher;
 import com.raytheon.viz.texteditor.util.VtecObject;
 import com.raytheon.viz.texteditor.util.VtecUtil;
 
+/**
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 04/02/2013   DR 15609   Qinglu Lin  Added code to prevent error message from creating
+ *                                     while nnn is SVS for Extreme Wind Warning Followup.
+ */
+
 public class WmoHeaderCheck implements IQCCheck {
 
     @Override
@@ -53,8 +61,14 @@ public class WmoHeaderCheck implements IQCCheck {
         } else if (vtec != null
                 && !QualityControl.match(nnn,
                         vtec.getPhenomena() + "." + vtec.getSignificance())) {
-            errorMsg += "VTEC event type (" + vtec.getPhenomena() + "."
-                    + vtec.getSignificance() + ") doesn't match NNN.\n";
+            if (nnn.equals("SVS") && 
+                    vtec.getPhenomena().equals("EW") && vtec.getSignificance().equals("W")) {
+                // DR 15609. Extreme Wind Warning Followup uses SVS for nnn, as AWIPS I does. 
+                // Do not create error message.
+            } else {
+                errorMsg += "VTEC event type (" + vtec.getPhenomena() + "."
+                + vtec.getSignificance() + ") doesn't match NNN.\n";
+            }
         }
         return errorMsg;
     }

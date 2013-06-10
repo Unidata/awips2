@@ -37,7 +37,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
- * TODO Add Description
+ * Viz Status Handler Factory
  * 
  * <pre>
  * 

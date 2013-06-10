@@ -30,6 +30,8 @@ import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/08/08     #875       bphillip    Initial Creation
+ * 03/28/13     #1837      dgilling    Implement missing constructors from
+ *                                     super-class.
  * 
  * </pre>
  * 
@@ -39,6 +41,10 @@ import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 public class GfeConfigurationException extends GfeException {
 
     private static final long serialVersionUID = 1L;
+
+    public GfeConfigurationException() {
+        super();
+    }
 
     /**
      * @param aCause
@@ -58,4 +64,7 @@ public class GfeConfigurationException extends GfeException {
         super(aCause, anException);
     }
 
+    public GfeConfigurationException(Throwable anException) {
+        super(anException);
+    }
 }

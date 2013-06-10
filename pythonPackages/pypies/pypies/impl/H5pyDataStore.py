@@ -31,7 +31,7 @@
 #    05/03/11        9134          njensen       Optimized for pointdata
 #    10/09/12                      rjpeter       Optimized __getGroup for retrievals
 #    01/17/13        DR 15294      D. Friedman   Clear out data in response
-#
+#    02/12/13           #1608      randerso      Added support for explicitly deleting groups and datasets
 #
 #
 
@@ -214,7 +214,12 @@ class H5pyDataStore(IDataStore.IDataStore):
 
     def __calculateChunk(self, nDims, dataType, storeOp, maxDims):
         if nDims == 1:
-            chunk = [DEFAULT_CHUNK_SIZE]
+            if dataType != vlen_str_type:
+                sizeOfEntry = numpy.dtype(dataType).itemsize
+                chunkSize = int(FILESYSTEM_BLOCK_SIZE / sizeOfEntry)
+                chunk = [chunkSize]
+            else:
+                chunk = [DEFAULT_CHUNK_SIZE]
         elif nDims == 2:
             if storeOp != 'APPEND':
                 chunk = [DEFAULT_CHUNK_SIZE] * 2
@@ -325,23 +330,31 @@ class H5pyDataStore(IDataStore.IDataStore):
 
         try:
             rootNode=f['/']
-            locs = request.getLocations()
-            for loc in locs:
-                ds = None
+            datasets = request.getDatasets()
+            if datasets is not None:
+                for dataset in datasets:
+                    ds = None
+                    try :
+                        ds = self.__getNode(f, None, dataset)
+                    except Exception, e:
+                        logger.warn('Unable to find uri [' + str(dataset) + '] in file [' + str(fn) + '] to delete: ' + IDataStore._exc())
+    
+                    if ds:
+                        parent = ds.parent
+                        parent.id.unlink(ds.name)
 
-                try :
-                    # try deleting as dataset
-                    ds = self.__getNode(rootNode, None, loc)
-                except Exception, e:
-                    try:
-                        # try deleting as group
-                        ds = self.__getNode(rootNode, loc, None)
-                    except:
-                        logger.warn('Unable to find uri [' + str(loc) + '] in file [' + str(fn) + '] to delete: ' + IDataStore._exc())
-
-                if ds:
-                    grp = ds.parent
-                    grp.id.unlink(ds.name)
+            groups = request.getGroups()
+            if groups is not None:
+                for group in groups:
+                    gp = None
+                    try :
+                        gp = self.__getNode(f, group)
+                    except Exception, e:
+                        logger.warn('Unable to find uri [' + str(group) + '] in file [' + str(fn) + '] to delete: ' + IDataStore._exc())
+    
+                    if gp:
+                        parent = gp.parent
+                        parent.id.unlink(gp.name)
 
         finally:
             # check if file has any remaining data sets

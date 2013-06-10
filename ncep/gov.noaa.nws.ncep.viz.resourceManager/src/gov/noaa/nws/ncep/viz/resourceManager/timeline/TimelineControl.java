@@ -12,7 +12,7 @@ import gov.noaa.nws.ncep.viz.common.ui.CalendarSelectDialog;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData.TimelineGenMethod;
 import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -618,7 +618,7 @@ public class TimelineControl extends Composite {
 			for( Calendar seldTime : seldTimes ) {
 				timeData.select( seldTime );
 			}
-			
+							
 			// if this is a forecast dominant resource, the reference time
 			// is not needed since the cycle time is the reference time.
 			refTimeCombo.setVisible( !timeMatcher.isForecast() );

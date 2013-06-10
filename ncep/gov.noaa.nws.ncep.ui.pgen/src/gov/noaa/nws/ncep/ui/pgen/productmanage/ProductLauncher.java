@@ -105,7 +105,7 @@ public class ProductLauncher extends ContributionItem {
            		    continue;
             	}
             	else {
-            		typeUsed.add( prdType.getType() );
+            		typeUsed.add( prdType.getType() );                	 
            	    }
  
             	MenuItem typeItem = new MenuItem( menu, SWT.CASCADE, ii );
@@ -184,7 +184,7 @@ public class ProductLauncher extends ContributionItem {
 	    }
 	      	 
 	    productList.add( prd );
-  	 
+  	    
 	    
 		/*
 		 * Add this product list to the PgenResource to launch the product template
@@ -192,7 +192,7 @@ public class ProductLauncher extends ContributionItem {
 	    List<Product>  curPrdList = PgenSession.getInstance().getPgenResource().getProducts();
 	    prd.setName( findUniqueActivityName( curPrdList, prd.getName() ) );
 	    PgenSession.getInstance().getPgenResource().addProduct( productList );		    	
-
+	    
 	}
 	
 	/**
@@ -266,7 +266,7 @@ public class ProductLauncher extends ContributionItem {
 
     }
     
-
+    
 	/*
 	 * Build an activity name that is unique in the activity list. 
 	 */

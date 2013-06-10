@@ -2,6 +2,7 @@ package gov.noaa.nws.ncep.viz.resourceManager.ui.manageResources;
 
 import gov.noaa.nws.ncep.viz.resourceManager.ui.manageResources.ManageResourceControl.IEditResourceComposite;
 import gov.noaa.nws.ncep.viz.resources.manager.AttrSetGroup;
+import gov.noaa.nws.ncep.viz.resources.manager.AttrSetGroup.RscAndGroupName;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
@@ -660,12 +661,13 @@ class EditAttrSetGroupComp extends Composite implements IEditResourceComposite {
 //								seldAttrSetGroup.getResource(), MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0);
 //						confirmDlg.open();//			
 //					}
-
+			AttrSetGroup asg = null;
+			
 			for( String rscName : applyToRscsList ) {
 
 				// create the new AttrSetGroup from the GUI selections.
 				AttrSetGroup newAttrSetGroup = 
-					rscDefnMngr.getAttrSetGroupForResource(	rscName, attrSetGroupName );
+					rscDefnMngr.getAttrSetGroupForResource( new RscAndGroupName( rscName, attrSetGroupName ) );
 
 				if( newAttrSetGroup == null ) {
 					newAttrSetGroup = new AttrSetGroup();

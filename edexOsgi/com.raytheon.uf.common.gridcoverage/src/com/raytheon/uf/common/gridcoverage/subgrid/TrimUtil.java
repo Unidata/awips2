@@ -127,6 +127,14 @@ public class TrimUtil {
                 - (int) (Math.ceil((lonLatsInMeters[5] - lonLatsInMeters[1])
                         / dyMeter));
 
+        if (leftX < 0) {
+            /**
+             * All the other checks should have caught this. This is a dirty
+             * hack that is only here until this method can be rewritten.
+             */
+            leftX = 0;
+        }
+
         // determine exact LL in meter
         lonLatsInMeters[4] = lonLatsInMeters[0] + leftX * dxMeter;
         lonLatsInMeters[5] = lonLatsInMeters[1] + (ny - lowerY) * dyMeter;

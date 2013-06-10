@@ -62,7 +62,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -213,10 +212,7 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
         });
         Menu menu = menuManager.createContextMenu(usersTable.getControl());
         usersTable.getControl().setMenu(menu);
-        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-                .getActivePart().getSite()
-                .registerContextMenu(menuManager, usersTable);
-        usersTable.getTable().setMenu(menu);
+        getSite().registerContextMenu(menuManager, usersTable);
     }
 
     protected void fillContextMenu(IMenuManager manager) {

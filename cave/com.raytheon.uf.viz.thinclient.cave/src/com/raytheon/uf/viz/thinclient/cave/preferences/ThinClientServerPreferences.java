@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 8, 2011            mschenke     Initial creation
+ * Jan 14, 2013 1469      bkowal       The hdf5 data directory is no longer a preference.
  * 
  * </pre>
  * 
@@ -61,8 +62,6 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
     private StringFieldEditor pypiesServer;
 
     private StringFieldEditor servicesServer;
-
-    private StringFieldEditor serverDataDir;
 
     private Button connectivityButton;
 
@@ -104,12 +103,6 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
         pypiesServer.setErrorMessage("Cannot connect to Pypies server");
         addField(pypiesServer);
 
-        serverDataDir = new StringFieldEditor(
-                ThinClientPreferenceConstants.P_SERVER_DATA_DIR,
-                "&Server Data Dir: ", getFieldEditorParent());
-
-        addField(serverDataDir);
-
         addConnectivityButton();
     }
 
@@ -142,7 +135,7 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
 
         // check HTTP Server
         Text text = servicesServer.getTextControl(getFieldEditorParent());
-        ConnectivityManager.checkServer(text.getText().trim(),
+        ConnectivityManager.checkHttpServer(text.getText().trim(),
                 new IConnectivityCallback() {
                     @Override
                     public void connectionChecked(ConnectivityResult results) {
@@ -161,7 +154,7 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
         // check Pypies Server
         Text textPypies = pypiesServer.getTextControl(getFieldEditorParent());
 
-        ConnectivityManager.checkServer(textPypies.getText().trim(),
+        ConnectivityManager.checkHttpServer(textPypies.getText().trim(),
                 new IConnectivityCallback() {
                     @Override
                     public void connectionChecked(ConnectivityResult results) {
@@ -198,7 +191,6 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
         boolean useProxies = this.useProxies.getBooleanValue();
         servicesServer.setEnabled(useProxies, connectivityButton.getParent());
         pypiesServer.setEnabled(useProxies, connectivityButton.getParent());
-        serverDataDir.setEnabled(useProxies, connectivityButton.getParent());
         connectivityButton.setEnabled(useProxies);
     }
 

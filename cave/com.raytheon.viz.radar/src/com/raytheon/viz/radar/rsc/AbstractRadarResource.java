@@ -76,7 +76,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 3, 2010            mnash     Initial creation
+ * Aug 03, 2010            mnash     Initial creation
+ * MAR 05, 2013 15313      kshresth  Added sampling for DMD 
+ * Apr 11, 2013 DR 16030   D. Friedman Fix NPE.
  * 
  * </pre>
  * 
@@ -413,11 +415,14 @@ public class AbstractRadarResource<D extends IDescriptor> extends
             displayedData.append("@" + dataMap.get("Azimuth"));
         }
 
-        if (labels.contains(InspectLabels.ICAO)) {
-            displayedData.append(' ').append(dataMap.get("ICAO"));
+        if (!"DMD".equalsIgnoreCase(dataMap.get("Mnemonic")))
+        {
+            if (labels.contains(InspectLabels.ICAO)) {
+                displayedData.append(' ').append(dataMap.get("ICAO"));
+            }
         }
 
-        if (displayedData.toString().contains("null")) {
+        if (displayedData.toString().contains("null") || displayedData.toString().isEmpty()) {
             displayedData.replace(0, displayedData.length(), "NO DATA");
         }
 

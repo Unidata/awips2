@@ -81,7 +81,7 @@ public abstract class FFMPTable extends Composite {
 
     /** DR14406: For columns with more words */
     protected static final int EXTRA_COLUMN_WIDTH = 28;
-    
+
     private static final String NAME = "Name";
 
     protected String currentPfaf = null;
@@ -401,23 +401,24 @@ public abstract class FFMPTable extends Composite {
                     break;
                 }
             }
-        
-            // Check if the sorted column is a column that will contain a filter.
-            // Check the gui config to see if colorCell is true. If false then do
-            // not apply filter
+
+            // Check if the sorted column is a column that will contain a
+            // filter. Check the gui config to see if colorCell is true. If
+            // false then do not apply filter
             for (FFMPTableColumnXML xml : ffmpTableCols) {
                 if (xml.getColumnName().contains(sortedThreshCol.name())) {
                     if (ffmpConfig.isColorCell(sortedThreshCol)) {
                         // Only filter if colorCell is true
                         isAFilterCol = true;
                         filterNum = ffmpConfig.getFilterValue(sortedThreshCol);
-                        reverseFilter = ffmpConfig.isReverseFilter(sortedThreshCol);
+                        reverseFilter = ffmpConfig
+                                .isReverseFilter(sortedThreshCol);
                     }
                     break;
                 }
             }
         }
-        
+
         table.removeAll();
 
         if (tableData == null) {
@@ -445,12 +446,12 @@ public abstract class FFMPTable extends Composite {
              */
             if (!sortedColumnName.equalsIgnoreCase(NAME)) {
                 float dataVal = cellData[sortColIndex].getValueAsFloat();
-    
+
                 // DR 14250 fix: any value not a number will be omitted
                 if (Float.isNaN(dataVal)) {
                     continue;
                 }
-    
+
                 if (isAFilterCol) {
                     if (reverseFilter) {
                         if (dataVal > filterNum) {
@@ -470,7 +471,7 @@ public abstract class FFMPTable extends Composite {
                 tableIndex = indexArray.indexOf(t);
             }
         }
-        
+
         /*
          * VIRTUAL TABLE
          * 
@@ -617,15 +618,13 @@ public abstract class FFMPTable extends Composite {
         if (tableData == null) {
             return;
         }
-        
+
         String sortCol = (String) tc.getData();
 
         int sortDir = getColumnAttributeData(sortCol).getSortDir();
         int columnIndex = getColumnIndex(sortCol);
 
-        tableData.setSortColumnAndDirection(columnIndex, sortDir);
-
-        tableData.sortData();
+        tableData.sortData(columnIndex, sortDir);
 
         FfmpTableConfigData ffmpTableCfgData = FfmpTableConfig.getInstance()
                 .getTableConfigData(this.siteKey);

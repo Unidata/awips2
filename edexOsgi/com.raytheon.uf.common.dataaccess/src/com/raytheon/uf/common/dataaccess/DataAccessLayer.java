@@ -19,14 +19,11 @@
  **/
 package com.raytheon.uf.common.dataaccess;
 
-import org.geotools.coverage.grid.GridGeometry2D;
-
 import com.raytheon.uf.common.dataaccess.exception.DataFactoryNotFoundException;
 import com.raytheon.uf.common.dataaccess.exception.TimeAgnosticDataException;
-import com.raytheon.uf.common.dataaccess.geom.IGeometryDataFactory;
-import com.raytheon.uf.common.dataaccess.geom.IGeometryRequest;
-import com.raytheon.uf.common.dataaccess.grid.IGridDataFactory;
-import com.raytheon.uf.common.dataaccess.grid.IGridRequest;
+import com.raytheon.uf.common.dataaccess.exception.UnsupportedOutputTypeException;
+import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
+import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
@@ -50,6 +47,8 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 24, 2012            njensen     Initial creation
+ * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ *                                     single request.
  * 
  * </pre>
  * 
@@ -67,9 +66,8 @@ public class DataAccessLayer {
      * @return the available times that match the request
      * @throws TimeAgnosticDataException
      */
-    public static <R extends IDataRequest<D>, D extends IData> DataTime[] getAvailableTimes(
-            R request) {
-        IDataFactory<R, D> factory = getFactory(request);
+    public static DataTime[] getAvailableTimes(IDataRequest request) {
+        IDataFactory factory = getFactory(request);
         return factory.getAvailableTimes(request);
     }
 
@@ -84,27 +82,29 @@ public class DataAccessLayer {
      *         request
      * @throws TimeAgnosticDataException
      */
-    public static <R extends IDataRequest<D>, D extends IData> DataTime[] getAvailableTimes(
-            R request, BinOffset binOffset) {
-        IDataFactory<R, D> factory = getFactory(request);
+    public static DataTime[] getAvailableTimes(IDataRequest request,
+            BinOffset binOffset) {
+        IDataFactory factory = getFactory(request);
         return factory.getAvailableTimes(request, binOffset);
     }
 
     /**
      * Gets the data that matches the request at the specified times. If data is
      * time agnostic then simply don't pass in any DataTimes, for example
-     * DataAccessLayer.getData(R)
+     * DataAccessLayer.getGridData(R)
      * 
      * @param request
      *            the request to get data for
      * @param times
      *            the times to get data for
      * @return the data that matches the request and times
+     * @throws UnsupportedOutputTypeException
+     *             if the factory for this datatype cannot produce IGridData
      */
-    public static <R extends IDataRequest<D>, D extends IData> D[] getData(
-            R request, DataTime... times) {
-        IDataFactory<R, D> factory = getFactory(request);
-        return factory.getData(request, times);
+    public static IGridData[] getGridData(IDataRequest request,
+            DataTime... times) throws UnsupportedOutputTypeException {
+        IDataFactory factory = getFactory(request);
+        return factory.getGridData(request, times);
     }
 
     /**
@@ -115,25 +115,49 @@ public class DataAccessLayer {
      * @param timeRange
      *            the time range to get data for
      * @return the data that matches the request and time range
+     * @throws UnsupportedOutputTypeException
+     *             if the factory for this datatype cannot produce IGeometryData
      */
-    public static <R extends IDataRequest<D>, D extends IData> D[] getData(
-            R request, TimeRange timeRange) {
-        IDataFactory<R, D> factory = getFactory(request);
-        return factory.getData(request, timeRange);
+    public static IGeometryData[] getGeometryData(IDataRequest request,
+            TimeRange timeRange) throws UnsupportedOutputTypeException {
+        IDataFactory factory = getFactory(request);
+        return factory.getGeometryData(request, timeRange);
     }
 
     /**
-     * Gets the grid geometry of the data matching the request without actually
-     * requesting the data. Useful for then making slab/subgrid/line requests by
-     * setting the storage request parameter on an IGridRequest.
+     * Gets the data that matches the request at the specified times. If data is
+     * time agnostic then simply don't pass in any DataTimes, for example
+     * DataAccessLayer.getGeometryData(R)
      * 
      * @param request
-     *            the request to get the grid geometry of the data for
-     * @return the geometry of the data if the data was requested
+     *            the request to get data for
+     * @param times
+     *            the times to get data for
+     * @return the data that matches the request and times
+     * @throws UnsupportedOutputTypeException
+     *             if the factory for this datatype cannot produce IGeometryData
      */
-    public static GridGeometry2D getGridGeometry(IGridRequest request) {
-        IGridDataFactory factory = (IGridDataFactory) getFactory(request);
-        return factory.getGeometry(request);
+    public static IGeometryData[] getGeometryData(IDataRequest request,
+            DataTime... times) throws UnsupportedOutputTypeException {
+        IDataFactory factory = getFactory(request);
+        return factory.getGeometryData(request, times);
+    }
+
+    /**
+     * Gets the data that matches the request within the time range
+     * 
+     * @param request
+     *            the request to get data for
+     * @param timeRange
+     *            the time range to get data for
+     * @return the data that matches the request and time range
+     * @throws UnsupportedOutputTypeException
+     *             if the factory for this datatype cannot produce IGridData
+     */
+    public static IGridData[] getGridData(IDataRequest request,
+            TimeRange timeRange) throws UnsupportedOutputTypeException {
+        IDataFactory factory = getFactory(request);
+        return factory.getGridData(request, timeRange);
     }
 
     /**
@@ -143,8 +167,8 @@ public class DataAccessLayer {
      * @param request
      * @return the available location names if the data was requested
      */
-    public static String[] getAvailableLocationNames(IGeometryRequest request) {
-        IGeometryDataFactory factory = (IGeometryDataFactory) getFactory(request);
+    public static String[] getAvailableLocationNames(IDataRequest request) {
+        IDataFactory factory = getFactory(request);
         return factory.getAvailableLocationNames(request);
     }
 
@@ -157,8 +181,7 @@ public class DataAccessLayer {
      * @return the factory that matches the request
      * @throws DataFactoryNotFoundException
      */
-    private static <R extends IDataRequest<D>, D extends IData> IDataFactory<R, D> getFactory(
-            R request) {
+    private static IDataFactory getFactory(IDataRequest request) {
         return DataFactoryRegistry.getInstance().getFactory(request);
     }
 

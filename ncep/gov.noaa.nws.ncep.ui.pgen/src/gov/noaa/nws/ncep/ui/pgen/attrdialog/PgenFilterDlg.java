@@ -377,7 +377,7 @@ public class PgenFilterDlg extends CaveJFACEDialog {
 
 						if ( gfaAttrDlg.isGfaOpen()  ){
 							updateGfaDialog(true, filterText);
-					}
+						}
 					}
 					else {
 						
@@ -386,7 +386,7 @@ public class PgenFilterDlg extends CaveJFACEDialog {
 						PgenUtil.setSelectingMode();
 						if ( gfaAttrDlg.isGfaOpen()  ){
 							updateGfaDialog(false,"");
-					}
+						}
 					}
 					
 					

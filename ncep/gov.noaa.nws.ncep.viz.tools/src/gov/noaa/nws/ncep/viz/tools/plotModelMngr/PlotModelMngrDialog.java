@@ -8,7 +8,7 @@ import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModel;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -301,7 +301,7 @@ public class PlotModelMngrDialog extends Dialog {
 			}
 			catch ( VizException ve ) {
 	    		MessageDialog errDlg = new MessageDialog( 
-	    				NmapUiUtils.getCaveShell(), 
+	    				NcDisplayMngr.getCaveShell(), 
 	    				"Error", null, 
 	    				"Error Saving Plot Model "+plotModelName+ ".\n\n"+
 	    				ve.getMessage(),
@@ -348,7 +348,7 @@ public class PlotModelMngrDialog extends Dialog {
     	}
     	catch( VizException e ) {
     		MessageDialog errDlg = new MessageDialog( 
-    				NmapUiUtils.getCaveShell(), 
+    				NcDisplayMngr.getCaveShell(), 
     				"Error", null, 
     				"Error Deleting Plot Model "+plotModelName+ ".\n\n"+
     				e.getMessage(),

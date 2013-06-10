@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -25,7 +26,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 	 */
 	private static final long serialVersionUID = 7565653710046867602L;
 
-	public CondProbOf12HrSevereWeather() {
-	      super( UNIT );
-	}	 
+	public CondProbOf12HrSevereWeather()throws Exception {
+		 super( new UnitAdapter().marshal(UNIT) );
+	}
  }

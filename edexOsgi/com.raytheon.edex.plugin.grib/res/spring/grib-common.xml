@@ -1,32 +1,4 @@
-<beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
-	<bean id="gribPathProvider" class="com.raytheon.uf.common.dataplugin.grib.GribPathProvider" />
-
-	<bean id="gribProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
-		<property name="pluginName" value="grib" />
-		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.grib" />
-		<property name="dao" value="com.raytheon.edex.plugin.grib.dao.GribDao" />
-		<property name="record" value="com.raytheon.uf.common.dataplugin.grib.GribRecord" />
-		<property name="dependencyFQNs">
-		    <list>
-		       <value>com.raytheon.uf.common.dataplugin.level</value>
-		       <value>com.raytheon.uf.common.parameter</value>
-		       <value>com.raytheon.uf.common.gridcoverage</value>
-		    </list>
-		</property>
-		<property name="pathProvider">
-		   <ref bean="gribPathProvider"/>
-		</property>
-		<property name="compression" value="LZF"/>
-	</bean>	
-
-	<bean id="gribRegistered" factory-bean="pluginRegistry" factory-method="register"
-				depends-on="levelRegistered,parameterRegistered,gridcoverageRegistered">
-		<constructor-arg value="grib"/>
-		<constructor-arg ref="gribProperties"/>
-	</bean>	
-
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+	<import resource="../spring.${gribMode}/grib-common.xml" />
 </beans>

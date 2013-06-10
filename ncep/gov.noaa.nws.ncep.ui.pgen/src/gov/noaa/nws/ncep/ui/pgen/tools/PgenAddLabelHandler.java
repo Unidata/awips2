@@ -128,43 +128,43 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
     			AbstractDrawableComponent nearestComp = drawingLayer.getNearestComponent(loc);
 
     			if ( ( nearestComp != null ) && nearestComp.getPgenType().equalsIgnoreCase(ll.getPgenType())){
-    			//find nearest line
+    				//find nearest line
     				Iterator<AbstractDrawableComponent> it = ((LabeledLine)nearestComp).getComponentIterator();
-				double minDist = Double.MAX_VALUE;
+    				double minDist = Double.MAX_VALUE;
 
-    			while( it.hasNext() ){
-    				AbstractDrawableComponent adc = it.next();
-    				if ( adc instanceof Line ){
-    					Line ln = (Line) adc;
-    					double dist = Double.MAX_VALUE;
+    				while( it.hasNext() ){
+    					AbstractDrawableComponent adc = it.next();
+    					if ( adc instanceof Line ){
+    						Line ln = (Line) adc;
+    						double dist = Double.MAX_VALUE;
 
-    					Object pts[] =  adc.getPoints().toArray();
+    						Object pts[] =  adc.getPoints().toArray();
 
-    					for ( int ii = 0; ii <  pts.length; ii++ ) {
+    						for ( int ii = 0; ii <  pts.length; ii++ ) {
 
-    						if ( ii == pts.length - 1){
-    							if ( ln.isClosedLine() ){
-    								dist = drawingLayer.distanceFromLineSegment(loc, (Coordinate)pts[ii], (Coordinate)pts[0]);
+    							if ( ii == pts.length - 1){
+    								if ( ln.isClosedLine() ){
+    									dist = drawingLayer.distanceFromLineSegment(loc, (Coordinate)pts[ii], (Coordinate)pts[0]);
+    								}
+    								else {
+    									break;
+    								}
     							}
-    							else {
-    								break;
+    							else {	
+    								dist = drawingLayer.distanceFromLineSegment(loc, (Coordinate)pts[ii], (Coordinate)pts[ii+1]);
     							}
-    						}
-    						else {	
-    							dist = drawingLayer.distanceFromLineSegment(loc, (Coordinate)pts[ii], (Coordinate)pts[ii+1]);
-    						}
 
-    						if ( dist < minDist ) {
+    							if ( dist < minDist ) {
 
-    							minDist = dist;
-    							lineSelected = ln;
+    								minDist = dist;
+    								lineSelected = ln;
 
+    							}
     						}
     					}
     				}
     			}
-    			}
-    			
+
     		}
     		
     		return true;
@@ -243,7 +243,7 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
 			drawingLayer.replaceElements(old, newLines);
 		}
 		else {
-    	drawingLayer.replaceElement(ll, newll);
+			drawingLayer.replaceElement(ll, newll);
 		}
 
     	prevTool.setLabeledLine( newll );

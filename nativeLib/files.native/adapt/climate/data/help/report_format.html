@@ -1,0 +1,121 @@
+<html>
+<head>
+<title>Report Format</title>
+</head>
+<BODY BGCOLOR="#FFFFFF">
+<IMG align=center SRC="awip_ban.gif"></A ><P>
+<center>
+<h3><b>REPORT FORMAT HELP PAGE</b></h3>
+</center>
+<hr>
+<br>
+<b>Report Format</b> serves as the central hub for the set_up_climate application. 
+All formatting of climate can be set via this interface. Most importantly, 
+new products are created, and existing products are edited.<br><br>
+<IMG align=left SRC="arrow.gif"></A > Please read <a href = report_format.html#report_notes><b>NOTES/CAUTIONS</B></a> 
+at the bottom of this page.<br>
+<br>
+<b>REPORT FORMAT GUI</b><BR>
+ <a href = report_format.gif>(Click here to see sample GUI for <B>Daily</B> Climate)</a> -
+This applies to Morning, Intermediate, and Evening Climate.<BR>
+ <a href = report_format_MON.gif>(Click here to see sample GUI for <B>Period</B> Climate)</a> -
+This applies to Monthly, Seasonal, and Annual Climate. 
+ <br><br>The GUI is broken into four main sections:<ul>
+<li><a href = report_format.html#report_type>Report Type</a></li>
+<li><a href = report_format.html#report_config>Report Configuration</a></li>
+<li><a href = report_format.html#report_stns>Select Stations</a></li>
+<li><a href = report_format.html#report_elems> Weather Elements</a></li></ul>
+
+<a name = "report_type"><b><u>Report Type:</u></b><br><br>
+This section provides the forecaster with the option to select 
+a NOAA Weather Radio (NWR) or a NOAA Weather Wire Service (NWWS) report. A daily 
+morning, daily intermediate, daily evening, monthly, seasonal, or annual report is also selected
+in this section.<br><br>
+
+<a name = "report_config"><b><u>Report Configuration:</u></b><br><br>
+A three-letter product identifier must be entered into the <b>Product ID</b> field 
+before the product can be saved. The same identifier can be used for a morning and
+an evening product, but cannot be used for both an NWR and an NWWS product of one
+time type. For example, PIT can be used for a morning daily NWR report and an evening
+NWR report, but different identifiers have to be used for a morning daily NWR report
+and a morning daily NWWS report. <i>(For more information on how to open existing
+products, see the <a href = report_format.html#report_menu>menu bar description</a>)</i><br><br>
+<i>NWR PRODUCTS</i><br><br>
+The number of minutes in between broadcasts of the Climatological Report can be entered into the <b>Periodicity</b> field by two methods. The forecaster can either directly type in the time or can increment/decrement using the up and down arrows to reach the value.<br><br>
+The <b>Effective Time</b> is the earliest allowable broadcast time of the Climatological Report.  The forecaster can either directly type in the time or can increment/decrement using the up and down arrows to reach the value. <br><br> 
+The <b>Expiration Time</b> field is the latest allowable broadcast time of the Climatological Report.  The forecaster can either directly type in the time or can increment/decrement using the up and down arrows to reach the value. <br><br>
+The <b>LAC</b> is the Listening Area Code (LAC) field.  The forecaster can enter the zones over which the product must be transmitted in this field.  The CRS then maps these zones to the correct transmitter. <br><br> 
+<i>NWWS PRODUCTS</i><br><br>
+The <b>Address</b> field is for the entry of the local CRS or another addressee,
+perhaps a backup office to be used during a CRS failure. <br><br>
+
+<a name = "report_stns"><b><u>Select Stations:</u></b><br><br>
+This section is used to select the stations for inclusion in the Climatological
+Report.<br><br>
+
+<a name = "report_elems"><b><u>Weather Elements:</u></b><br><br>
+This section which occupies the bottom half of the GUI is used to select which 
+elements are to be included in the climatological report. When an element is
+selected from the list under <b><i> Categories</i></b>, all of the options available
+for that element are displayed in the field to the right. The desired options
+for the final product are then checked off.<br><br>
+
+Description of the options available:<br><ul>
+The first choice in each column represents the <b>Observed</b> values.<br>
+<b>Time/Date of Occurrence</b> is the time of day when an extreme value occurred.<br>
+<b>Record</b> is the historical extreme recorded for the period.<br>
+<b>Date/Year</b> is the year which the historical record occurred.<br>
+<b>Normal</b> is the historically averaged normal value.<br>
+<b>Departure</b> is the departure of the current period's value from the historical normal.<br>
+<b>Last Year's</b> is the value one year prior.<br>
+<b>Month to Date</b>, <b>Season to Date</b>, and <b>Year to Date</b> options also exist for some elements.<br>
+</ul>
+
+The <b>Include All/None</b> check boxes are provided as a shortcut for selecting or
+deselecting all options of an element.<br><br>
+<hr><br>
+
+<b>Buttons</b><br><br>
+<ul><li><a href = configs.html#report><b>Edit Reporting Periods</b></a></li>
+<li><a href = configs.html#annual><b>Edit Annual Periods</b></a></li>
+<li><a href = configs.html#thresholds><b>Change Threshold Values</b></a></li>
+<li><a href = configs.html#stations><b>Edit Station List</b></a></li>
+<li><b>Save Product</b>- saves a new product or the changes made to an existing product.</li>
+<li><b>Delete Product</b>- deletes an existing product.</li>
+<li><b>Close</b>- closes the GUI and returns to the main climate menu.</li>
+</ul>
+
+<a name = "report_menu"> <b>Menu Bar Description</b><br><br>
+The menu bar provides the same functionality as the buttons with the addition of
+four functions which cannot be accessed by a push button.<br><br>
+<b>New Product</b> can be selected from the <b><i>File</i></b> menu to create a 
+product using the default values as a foundation.<br><br> 
+Under the <i><b>File</b></i> menu, when selecting <b>Open Existing Product</b>, 
+another menu appears prompting for the type of report desired. Once the type has
+been selected, a list of previously created products appears. Choosing one results
+in the properties of the product to be displayed.<br><br>
+Under the <i><B>Edit</B></I> menu, <B>Edit Reporting Periods</B>, <B>Edit Annual Periods</B>,
+<B>Change Threshold Values</B>, and <B>Edit Station List</B> can be selected and their respective
+GUI's will be invoked. <B>Select All Elements</B> and <B>Deselect All Elements</B> can be chosen
+to quickly select or deselect every reportable option within each category.<BR><BR>
+Under the <i><b>Options</b></i> menu, <b>Current Products Window</b> opens up a new window that
+displays the current products for the selected Report Type. It can also be 
+used to open a product by double-clicking on a product ID.<BR><BR>
+
+<h3><b>NOTES/CAUTIONS</h3></b>
+<a name = "report_notes">
+<IMG align=left SRC="dotblue.gif"></a><b>The 'Daily Snow' and 'Daily Precip' 
+normal and departure check boxes control the output for the MTD, STD and YTD. 
+For example, if you toggle off 'Daily Precip' normal, you will not get the daily 
+normal, Month to Date normal, Season to Date normal, or Year to Date
+ normal.</b><br><br>
+<IMG align=left SRC="dotblue.gif"><b>For an NWR report, the normal of a weather element
+must be selected before the departure from normal can be selected. If the departure
+is selected, the normal is automatically selected.</b><br><br>
+
+<center>
+<a href= climo_help.html>Return to Main Climate GUI Help Page</a><br>
+</center>
+<hr><p>
+</body>
+</HTML>

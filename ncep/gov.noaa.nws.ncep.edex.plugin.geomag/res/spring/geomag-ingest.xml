@@ -1,0 +1,82 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<!-- bean id="jms-geomag" class="org.apache.camel.component.jms.JmsComponent">
+        <constructor-arg ref="jmsIngestGeoMagConfig" />
+		<property name="taskExecutor" ref="geomagThreadPool" />		
+	</bean>
+	<bean id="jmsIngestGeoMagConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+			factory-bean="jmsConfig" factory-method="copy" />
+	<bean id="geomagThreadPool"
+		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="1" />
+		<property name="maxPoolSize" value="1" />
+	</bean-->
+
+	<bean id="geomagDao" class="gov.noaa.nws.ncep.common.dataplugin.geomag.dao.GeoMagDao">
+		<constructor-arg ref="geomagPluginName" />
+	</bean>
+	
+	<bean id="geomagDecoder" class="gov.noaa.nws.ncep.edex.plugin.geomag.GeoMagDecoder" depends-on="geomagPluginName" >
+		<constructor-arg ref="geomagPluginName" />
+		<property name="dao" ref="geomagDao" />
+	</bean>
+	
+	<bean id="geomagDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="geomagPluginName" />
+		<constructor-arg value="jms-dist:queue:Ingest.GeoMag?destinationResolver=#qpidDurableResolver" />
+	</bean>
+
+    <bean id="geomagCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="geomag-camel"/>
+  	</bean>
+  	
+    <camelContext id="geomag-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		
+		<endpoint id="geomagFileEndpoint" uri="file:${edex.home}/data/sbn/geomag?noop=true&amp;idempotent=false" />
+
+		<route id="geomagFileConsumerRoute">
+			<from ref="geomagFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>geomag</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.GeoMag" />
+		</route>
+		
+
+		<!-- Begin GeoMag routes -->
+		<route id="geomagIngestRoute">
+			<from uri="jms-generic:queue:Ingest.GeoMag?destinationResolver=#qpidDurableResolver" />
+			<setHeader headerName="pluginName">
+				<constant>geomag</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<bean ref="geomagDecoder" method="decode" />
+					<to uri="directvm:persistIndexAlert" />
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:geomag?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+
+		<!--route id="satNotification">
+			<from uri="vm:satNotify" />
+			<bean ref="satNotifyTransform" method="transformToMessages" />
+			<bean ref="serializationUtil" method="transformToThrift" />
+			<to uri="jms-generic:queue:satNotification" />
+		</route-->
+	</camelContext>
+</beans>

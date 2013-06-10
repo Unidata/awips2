@@ -3,10 +3,10 @@ package gov.noaa.nws.ncep.viz.cloudHeight.ui;
 
 import gov.noaa.nws.ncep.viz.cloudHeight.CloudHeightProcesser;
 import gov.noaa.nws.ncep.viz.rsc.satellite.rsc.ICloudHeightCapable;
-import gov.noaa.nws.ncep.viz.ui.display.AbstractNCModalMapTool;
-import gov.noaa.nws.ncep.viz.ui.display.NCDisplayPane;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcModalTool;
 import gov.noaa.nws.ncep.viz.ui.display.NCPaneManager;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -17,8 +17,10 @@ import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
+import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
 import com.raytheon.viz.ui.input.InputAdapter;
+import com.raytheon.viz.ui.panes.VizDisplayPane;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -33,7 +35,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 04/30/09					Greg Hull		Created
- * 09/27/09      #169	    Greg Hull     AbstractNCModalMapTool
+ * 09/27/09      #169	    Greg Hull     AbstractNcModalTool
  * 03/07/11     migration   Greg Hull     use Raytheons ISelectedPanesChangedListener
  * 03/01/12     524/TTR11   B. Hebbard    Various changes to allow mutual operation of
  *                                        'Take Control' button with other Modal Tools
@@ -41,13 +43,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 06/21/12     826         Archana       Updated the activateTool() method to remove the cloudheight tool from the 
  *                                        tool manager when there is no IR image loaded. 
  *                                        Instead, the default Pan tool is loaded. 
+ * 02/12/13     972         G. Hull       AbstractEditor, IDisplayPane
  *                                        
- * 
+ *                                         
  * </pre>
  * 
  * @version 1
  */
-public class CloudHeightAction extends AbstractNCModalMapTool {
+public class CloudHeightAction extends AbstractNcModalTool {
 
 	protected IInputHandler mouseHndlr = null;
 	
@@ -66,8 +69,8 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
 			// NOTE: can only use cloud height on one pane at a time.
 			//
 			if( cldHghtProcessor != null && seldPanes != null && seldPanes.length > 0 ) {
-				if( seldPanes[0] instanceof NCDisplayPane ) {
-					cldHghtProcessor.setPane( (NCDisplayPane) seldPanes[0] );
+				if( seldPanes[0] instanceof VizDisplayPane ) {
+					cldHghtProcessor.setPane( seldPanes[0] );
 				}
 			}			
 		}
@@ -86,9 +89,11 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
 			cldHghtDlg = CloudHeightDialog.getInstance(shell, this);
 		}
     	
-    	mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();
-    	mapEditor.addSelectedPaneChangedListener( paneChangeListener );
-    	
+    	mapEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
+
+    	NcEditorUtil.addSelectedPaneChangedListener( 
+    			mapEditor, paneChangeListener );
+
     	/*
          * Register mouse handler. 
          */
@@ -99,10 +104,11 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
 			mapEditor.registerMouseHandler( this.mouseHndlr, InputPriority.LOWEST );
 		}
 
-        NCDisplayPane[] seldPanes = (NCDisplayPane[]) mapEditor.getSelectedPanes();
-        if( seldPanes.length > 1 ) {
+		IDisplayPane[] seldPanes = NcEditorUtil.getSelectedPanes( mapEditor );
+		
+        if( seldPanes.length != 1 ) {
         	System.out.println("Cloud Height will only work on one selected pane.");
-        	//? return;
+        	return;
         }
         
     	try {
@@ -110,7 +116,7 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
 		} catch (VizException e) {
         	System.out.println("Exception from CloudHeightProcessor: "+e.getMessage() );
     		MessageDialog errDlg = new MessageDialog(
-    				NmapUiUtils.getCaveShell(), 
+    				NcDisplayMngr.getCaveShell(), 
     				"Error Starting Cloud Height (Processor):\n"+e.getMessage(), null, 
     				"\n",
 			MessageDialog.ERROR, new String[]{"OK"}, 0);
@@ -125,7 +131,7 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
 			.getCurrentPerspectiveManager();
 			if (mgr != null) {
 				mgr.getToolManager().deselectModalTool(this);
-                NmapUiUtils.setPanningMode();
+                NcDisplayMngr.setPanningMode();
 
 			}
 			return;
@@ -141,7 +147,7 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
 		} catch( Exception ex ) {
 			System.out.println("Exception from CloudHeightDialog: "+ex.getMessage() );
 			MessageDialog errDlg = new MessageDialog( 
-					NmapUiUtils.getCaveShell(), 
+					NcDisplayMngr.getCaveShell(), 
 					"Error Starting Cloud Height (Dialog):\n"+ex.getMessage(), null, 
 					"\n",
 					MessageDialog.ERROR, new String[]{"OK"}, 0);
@@ -184,7 +190,7 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
     public void deactivateTool() {
     	if( mapEditor != null ) {
     		
-    		mapEditor.removeSelectedPaneChangedListener( paneChangeListener );
+    		NcEditorUtil.removeSelectedPaneChangedListener( mapEditor, paneChangeListener );
     		
     		if( mouseHndlr != null ) {
     			mapEditor.unregisterMouseHandler( mouseHndlr );

@@ -49,6 +49,7 @@ import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
  * 28 FEB 2008  938        lvenable    Initial creation
  * 29 APR 2011  8065       rferrel     Add flag to indicate display is current
  *                                     and implement data caching
+ * 13 FEB 2013  1549       rferrel     Changes to properly display grid data.
  * 
  * </pre>
  * 
@@ -233,6 +234,13 @@ public class GridViewer extends ViewerTab implements
         });
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.jobs.IRequestCompleteListener#requestComplete
+     * (java.lang.Object)
+     */
     @Override
     public void requestComplete(String[] newGuidance) {
 
@@ -253,20 +261,19 @@ public class GridViewer extends ViewerTab implements
                     }
                     generateCache(siteIDs);
                     reGenerateGuidance();
+                } else if (newGuidance.length == 1) {
+                    // Assume error message since header takes 2 lines.
+                    textComp.getHeaderStTxt().setText("");
+                    textComp.getDataStTxt().setText(newGuidance[0]);
                 } else {
-                    if (newGuidance.length > 1) {
-                        StringBuilder sb = new StringBuilder();
-                        String header = newGuidance[0] + "\n" + newGuidance[1];
-                        textComp.getHeaderStTxt().setText(header);
-                        for (int i = 2; i < newGuidance.length; i++) {
-                            sb.append(newGuidance[i]);
-                            sb.append("\n");
-                        }
-                        textComp.getDataStTxt().setText(sb.toString());
-                    } else if (newGuidance.length == 1) {
-                        textComp.getHeaderStTxt().setText("");
-                        textComp.getDataStTxt().setText(newGuidance[0]);
+                    StringBuilder sb = new StringBuilder();
+                    String header = newGuidance[0] + "\n" + newGuidance[1];
+                    textComp.getHeaderStTxt().setText(header);
+                    for (int i = 2; i < newGuidance.length; i++) {
+                        sb.append(newGuidance[i]);
+                        sb.append("\n");
                     }
+                    textComp.getDataStTxt().setText(sb.toString());
 
                     if (!flightCatChk.isDisposed()) {
                         updateTextMarkers(flightCatChk.getSelection(),

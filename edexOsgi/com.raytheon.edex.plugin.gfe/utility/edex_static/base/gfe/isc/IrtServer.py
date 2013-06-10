@@ -18,7 +18,9 @@
 # further licensing information.
 ##
 
-import LogStream, siteConfig, tempfile, os, sys, JUtil, subprocess
+import cPickle
+
+import LogStream, tempfile, os, sys, JUtil, subprocess, traceback
 import time, copy, string, iscUtil
 
 from com.raytheon.edex.plugin.gfe.isc import IRTManager
@@ -34,6 +36,14 @@ from com.raytheon.edex.plugin.gfe.isc import IRTManager
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    07/14/09        1995          bphillip       Initial Creation.
+#    01/25/13        1447          dgilling       Implement routines needed by
+#                                                 iscDataRec for VTEC table 
+#                                                 sharing.
+#    03/13/13        1759          dgilling       Move siteConfig imports into
+#                                                 functions where module is used
+#                                                 to interact better with IscScript.
+#    05/22/13        1759          dgilling       Add missing import to 
+#                                                 makeISCrequest().
 #    
 # 
 #
@@ -55,7 +65,130 @@ def logVerbose(*msg):
     
 def logDebug(*msg):
     logVerbose(iscUtil.tupleToString(*msg))
+    
+# called by iscDataRec when another site has requested the active table
+# returns the active table, filtered, pickled.
+def getVTECActiveTable(siteAndFilterInfo, xmlPacket):
+    import siteConfig
+    import VTECPartners
+    
+    if not VTECPartners.VTEC_RESPOND_TO_TABLE_REQUESTS:
+        return   #respond is disabled
 
+    #decode the data (pickled)
+    info = cPickle.loads(siteAndFilterInfo)
+    (mhsSite, reqsite, filterSites, countDict, issueTime) = info
+
+    #get the active table, and write it to a temporary file
+    from com.raytheon.uf.common.site import SiteMap
+    from com.raytheon.uf.edex.activetable import ActiveTable
+    from com.raytheon.uf.common.activetable import ActiveTableMode
+    from com.raytheon.uf.common.activetable import ActiveTableUtil
+    site4Id = SiteMap.getInstance().getSite4LetterId(siteConfig.GFESUITE_SITEID)
+    javaTable = ActiveTable.getActiveTable(site4Id, ActiveTableMode.OPERATIONAL)
+    dictTable = ActiveTableUtil.convertToDict(javaTable, siteConfig.GFESUITE_SITEID)
+    
+    # we must convert this to a python hash using the A1 field naming conventions
+    # for cross-version compatibility
+    table = []
+    for i in xrange(dictTable.size()):
+        convRecord = JUtil.javaObjToPyVal(dictTable.get(i))
+        convRecord['oid'] = convRecord['officeid']
+        convRecord['vstr'] = convRecord['vtecstr']
+        convRecord['end'] = convRecord['endTime']
+        convRecord['start'] = convRecord['startTime']
+        convRecord['key'] = convRecord['phensig']
+        # remove new fields so we don't pickle two copies
+        del convRecord['officeid']
+        del convRecord['vtecstr']
+        del convRecord['endTime']
+        del convRecord['phensig']
+        del convRecord['startTime']
+        if convRecord.has_key('segText'):
+            convRecord['text'] = convRecord['segText']
+            del convRecord['segText']
+        table.append(convRecord)
+        
+    # additionally, we'll need to pickle our output to match the A1 file
+    # format
+    pickledTable = cPickle.dumps(table)
+    outDir = os.path.join(siteConfig.GFESUITE_PRDDIR, "ATBL")
+    with tempfile.NamedTemporaryFile(suffix='.ato', dir=outDir, delete=False) as fp:
+        fname = fp.name
+        fp.write(pickledTable)
+
+    #write the xmlpacket to a temporary file, if one was passed
+    if xmlPacket is not None:
+        with tempfile.NamedTemporaryFile(suffix='.xml', dir=outDir, delete=False) as fp:
+            fnameXML = fp.name
+            fp.write(xmlPacket)
+
+    from com.raytheon.edex.plugin.gfe.config import IFPServerConfigManager
+    config = IFPServerConfigManager.getServerConfig(siteConfig.GFESUITE_SITEID)
+    ServerHost = siteConfig.GFESUITE_SERVER
+    ServerPort = str(siteConfig.GFESUITE_PORT)
+    ServerProtocol = str(config.getProtocolVersion())
+    ServerMHS = siteConfig.GFESUITE_MHSID
+    ServerSite = siteConfig.GFESUITE_SITEID
+    XmtScript = config.transmitScript()
+
+    #call sendAT to send the table to the requestor
+    cmd = os.path.join(siteConfig.GFESUITE_HOME, "bin", "sendAT")
+    args = [cmd, '-s', reqsite, '-a', mhsSite, '-H', ServerHost,
+      '-P', ServerPort, '-L', ServerProtocol, '-M', ServerMHS,
+      '-S', ServerSite, '-x', XmtScript]
+    if filterSites is not None:
+        for fs in filterSites:
+            args.append('-f')
+            args.append(fs)
+    if countDict is not None:
+            args.append('-c')
+            args.append(`countDict`)
+    if issueTime is not None:
+        args.append('-t')
+        args.append(`issueTime`)
+    args.append('-v')
+    args.append(fname)
+    if xmlPacket is not None:
+        args.append('-X')
+        args.append(fnameXML)
+    try:
+        output = subprocess.check_output(args, stderr=subprocess.STDOUT)
+    except:
+        logProblem("Error executing sendAT: ", traceback.format_exc())
+    logEvent("sendAT command output: ", output)
+
+#when we receive a requested active table from another site, this function
+#is called from iscDataRec
+def putVTECActiveTable(strTable, xmlPacket):
+    import siteConfig
+    
+    #write the xmlpacket to a temporary file, if one was passed
+    inDir = os.path.join(siteConfig.GFESUITE_PRDDIR, "ATBL")
+    if xmlPacket is not None:
+        with tempfile.NamedTemporaryFile(suffix='.xml', dir=inDir, delete=False) as fp:
+            fnameXML = fp.name
+            fp.write(xmlPacket)
+    with tempfile.NamedTemporaryFile(suffix='.ati', dir=inDir, delete=False) as fp:
+         fname = fp.name
+         fp.write(strTable)
+    
+    cmd = os.path.join(siteConfig.GFESUITE_HOME, "bin", "ingestAT")
+    args = []
+    args.append(cmd)
+    args.append("-s")
+    args.append(siteConfig.GFESUITE_SITEID)
+    args.append("-f")
+    args.append(fname)
+    if xmlPacket is not None:
+        args.append('-X')
+        args.append(fnameXML)
+    try:
+        output = subprocess.check_output(args, stderr=subprocess.STDOUT)
+    except:
+        logProblem("Error executing ingestAT: ", traceback.format_exc())
+    logEvent("ingesAT command output: ", output)
+    
 def initIRT(ancfURL, bncfURL, mhsid, serverHost, serverPort, serverProtocol,
   site, parmsWanted, gridDims, gridProj, gridBoundBox, iscWfosWanted):
     global IRTthread
@@ -113,6 +246,7 @@ def irtGetServers(ancfURL, bncfURL, iscWfosWanted):
 # xmlRequest is the original request from the GFE's ISCRequestDialog.
 def makeISCrequest(xmlRequest, gridDims, gridProj, gridBoundBox, mhs, host, port, protocol, site, xmtScript):
     import IrtAccess
+    import siteConfig
     import xml
     from xml.etree import ElementTree
     from xml.etree.ElementTree import Element, SubElement
@@ -227,6 +361,7 @@ def serviceISCRequest(xmlRequest):
     # We take this information, convert it into a different format,
     # and queue the request via the IFPServer to the SendISCMgr
     import IrtAccess
+    import siteConfig
     import xml
     from xml.etree import ElementTree
     from xml.etree.ElementTree import Element, SubElement

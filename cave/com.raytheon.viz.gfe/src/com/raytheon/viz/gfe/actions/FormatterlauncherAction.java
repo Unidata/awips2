@@ -25,17 +25,23 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.dialogs.FormatterLauncherDialog;
 
 /**
- * TODO Add Description FormatterlauncherAction.java Apr 11, 2008
+ * Displays Formatter Launcher dialog.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	Apr 11, 2008					Eric Babin Initial Creation
- * Oct 23, 2012 1287       rferrel     Changes for non-blocking FormatterLauncherDialog.
+ * Apr 11, 2008            ebabin       Initial creation
+ * Oct 23, 2012 1287       rferrel      Changes for non-blocking FormatterLauncherDialog.
+ * Apr 24, 2013 1936       dgilling     Pass DataManager to 
+ *                                      FormatterLauncherDialog via constructor.
  * 
  * </pre>
  * 
@@ -60,7 +66,8 @@ public class FormatterlauncherAction extends AbstractHandler {
         if (dialog == null || dialog.getShell() == null || dialog.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
-            dialog = new FormatterLauncherDialog(shell);
+            DataManager dm = DataManagerUIFactory.getCurrentInstance();
+            dialog = new FormatterLauncherDialog(shell, dm);
             dialog.setBlockOnOpen(false);
             dialog.open();
         } else {
