@@ -50,6 +50,7 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.monitor.IMonitor;
 import com.raytheon.uf.viz.monitor.Monitor;
@@ -74,6 +75,7 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.LoadSaveConfigDlg.DialogTy
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 21, 2009 #3039      lvenable     Initial creation
+ * Apr 26, 2013 #1945      lvenable    Some code cleanup.
  * 
  * </pre>
  * 
@@ -179,14 +181,10 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
 
         initData();
 
-        // fileButtonTipText = "Current Config:\n" +
-        // scanCfg.getCurrentConfigFileName(scanTable);
-
         setShellText();
 
         setTableType();
         initComponents();
-        shellCloseAction();
         shellDisposeAction();
 
         shell.pack();
@@ -260,7 +258,6 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
         }
 
         // Loop and close all of the open dialogs;
-
         Set<ICommonDialogAction> keys = dialogsMap.keySet();
 
         for (ICommonDialogAction icda : keys) {
@@ -476,6 +473,29 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
         fileBtn.setToolTipText(fileButtonTipText);
     }
 
+    /**
+     * Get the scan time. If link to frame is turned on then get that time with
+     * the displayed frame otherwise get the latest time.
+     * 
+     * @param scanMonitor
+     *            The scan monitor.
+     * @return The scan time.
+     */
+    protected Date getScanTime(ScanMonitor scanMonitor) {
+        Date time = null;
+        if (getLinkToFrame(scanTable.name())) {
+            time = scanMonitor.getScanTime(scanTable, site);
+        } else {
+            DataTime dt = scanMonitor.getMostRecent(scanMonitor,
+                    scanTable.name(), site);
+
+            if (dt != null) {
+                time = dt.getRefTime();
+            }
+        }
+        return time;
+    }
+
     @Override
     public void addMonitorControlListener(IMonitor monitor) {
         getMonitorControlListeners().add(monitor);
@@ -491,6 +511,7 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
     public void fireConfigUpdate(IMonitorConfigurationEvent imce) {
         final IMonitorConfigurationEvent fimce = imce;
         Display.getDefault().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 Iterator<IMonitor> iter = getMonitorControlListeners()
                         .iterator();
@@ -504,6 +525,7 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
     @Override
     public void fireKillMonitor() {
         Display.getDefault().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 Iterator<IMonitor> iter = getMonitorControlListeners()
                         .iterator();
@@ -518,6 +540,7 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
     public void fireThresholdUpdate(IMonitorThresholdEvent imte) {
         final IMonitorThresholdEvent fimte = imte;
         Display.getDefault().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 Iterator<IMonitor> iter = getMonitorControlListeners()
                         .iterator();
@@ -534,8 +557,8 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
      * @param ident
      * @param type
      */
-    public TrendGraphData getTrendGraphData(ScanTables type,
-            String field, String ident) {
+    public TrendGraphData getTrendGraphData(ScanTables type, String field,
+            String ident) {
         TrendGraphData tgd = null;
         Iterator<IMonitor> iter = getMonitorControlListeners().iterator();
         while (iter.hasNext()) {
@@ -572,6 +595,7 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
         final ScanTables ftype = type;
         final String ficao = icao;
         Display.getDefault().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 Iterator<IMonitor> iter = getMonitorControlListeners()
                         .iterator();
@@ -590,6 +614,7 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
      */
     public void fireScanPaint() {
         Display.getDefault().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 Iterator<IMonitor> iter = getMonitorControlListeners()
                         .iterator();
@@ -612,10 +637,8 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
         }
 
         // TODO: What needs to be done here is to grab the current selected
-        // trend set
-        // and fire a trend set for the passed in ID and table
+        // trend set and fire a trend set for the passed in ID and table
         // this will mean firing a get graphData Event back to the monitor
-        System.out.println("Trend Set requested: " + type + " : " + ident);
     }
 
     @Override
@@ -635,6 +658,7 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
     @Override
     public void fireDialogShutdown(IMonitorListener iml) {
         Display.getDefault().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 Iterator<IMonitor> iter = getMonitorControlListeners()
                         .iterator();
@@ -646,8 +670,8 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
     }
 
     @Override
-    public TrendGraphData requestTrendGraphData(ScanTables type,
-            String field, String ident) {
+    public TrendGraphData requestTrendGraphData(ScanTables type, String field,
+            String ident) {
         return getTrendGraphData(type, field, ident);
     }
 
@@ -683,6 +707,7 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
      * used to notify updates of data to display elements from classes that
      * implement the IMonitor interface.
      */
+    @Override
     public void fireMonitorEvent() {
         return;
     }
@@ -694,6 +719,7 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
      * listener class as an argument that can be used for targeted
      * notifications.
      */
+    @Override
     public void fireMonitorEvent(String type) {
         return;
     }
@@ -703,6 +729,7 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
      * used to notify updates of data to display elements from classes that
      * implement the IMonitor interface.
      */
+    @Override
     public void fireMonitorEvent(Monitor monitor) {
         return;
     }
@@ -712,6 +739,7 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
      * 
      * @param pluginName
      */
+    @Override
     public void initObserver(String pluginName, Monitor monitor) {
         return;
     }
@@ -722,6 +750,7 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
      * @param type
      * @return
      */
+    @Override
     public ArrayList<Date> getTimeOrderedKeys(IMonitor monitor, String type) {
         return monitor.getTimeOrderedKeys(monitor, type);
     }
@@ -742,6 +771,7 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
     /*
      * Abstract methods to be implemented by classes extending this class.
      */
+    @Override
     public abstract void notify(IMonitorEvent me);
 
     public abstract void displayTrendSetGraphs(String ident);
@@ -750,11 +780,7 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
 
     protected abstract void initComponents();
 
-    // protected abstract void update();
-
     protected abstract void setShellText();
-
-    protected abstract void shellCloseAction();
 
     protected abstract void shellDisposeAction();
 
@@ -766,7 +792,7 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
 
     public abstract void updateThresh(String attr);
 
-	public abstract void turnOffAlarm();
+    public abstract void turnOffAlarm();
 
-	public abstract void turnOnAlarm();
+    public abstract void turnOnAlarm();
 }

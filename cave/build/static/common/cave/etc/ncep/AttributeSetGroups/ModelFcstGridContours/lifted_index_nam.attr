@@ -5,12 +5,12 @@
 ! D.W.Plummer/NCEP	 2/97	Initial creation
 ! J. Carr/HPC            6/97   Changed lifted index level to comply with EMC changes
 !
-GLEVEL =  180:0
+GLEVEL =  0:180
 GVCORD =  pdly
 SKIP   =    0/1
 FILTER=y
 SCALE  =   0
-GDPFUN =  sm5s(lft4)//li!li!li     ! kntv(wnd@30:0)
+GDPFUN =  sm5s(lft4)//li!li!li     ! kntv(wnd@0:30)
 TYPE   =    c/f!c!c                  ! b
 CINT   =    2/2!-10000;0.05!2/-100/-2
 LINE   =    20/-32/2!0;5//0;4/0;0!32//2

@@ -131,7 +131,6 @@ public class ResourceConfigMgr implements IResourceAction {
         display.addListener(SWT.Dispose, new Listener() {
             @Override
             public void handleEvent(Event event) {
-                System.out.println("Display disposed");
                 resrcDataMgr.dispose();
             }
         });

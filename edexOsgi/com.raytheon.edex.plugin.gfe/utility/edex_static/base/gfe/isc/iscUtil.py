@@ -23,7 +23,6 @@ import xml, pickle, tempfile, os
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element, SubElement
 import LogStream
-import siteConfig
 from datetime import datetime
 from time import gmtime,strftime
 from java.io import File
@@ -48,6 +47,8 @@ from com.raytheon.uf.common.localization import LocalizationContext_Localization
 #    ------------    ----------    -----------    --------------------------
 #    07/06/09        1995          bphillip       Initial Creation.
 #    02/19/13        1637          randerso       Removed unused import
+#    03/11/13        1759          dgilling       Move siteConfig import into
+#                                                 methods where it's needed.
 #    
 # 
 #
@@ -279,6 +280,12 @@ def getRequestXML(xml,selectedServers, selectedWEList):
 
 def getLogger(scriptName, logName=None):
     import logging
+    # be relocating this import here we allow 
+    # com.raytheon.edex.plugin.gfe.isc.IscScript to dynamically
+    # modify its include path with the proper siteConfig just before
+    # execution time
+    import siteConfig
+    
     if logName is None:
         logPath=siteConfig.GFESUITE_LOGDIR+"/"+strftime("%Y%m%d", gmtime())
         logName=scriptName+".log"

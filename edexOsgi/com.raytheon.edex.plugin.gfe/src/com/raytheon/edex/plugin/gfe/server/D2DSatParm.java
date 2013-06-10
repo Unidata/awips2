@@ -47,6 +47,7 @@ import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 
 /**
@@ -59,6 +60,9 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 16, 2011            bphillip     Initial creation
+ * Mar 25, 2013  1823      dgilling     Disassociate data from Source and
+ *                                      CreatingEntity metadata, rely only
+ *                                      on SectorId and PhysicalElement as in A1.
  * 
  * </pre>
  * 
@@ -72,8 +76,7 @@ public class D2DSatParm extends GridParm {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(D2DSatParm.class);
 
-    private static final long TIME_MATCH_FACTOR = 3 * 60 * 1000; // 3 minutes in
-                                                                 // ms
+    private static final long TIME_MATCH_FACTOR = 3 * TimeUtil.MILLIS_PER_MINUTE;
 
     /** The ParmID associated with this D2DSatParm */
     private ParmID pid;
@@ -83,12 +86,6 @@ public class D2DSatParm extends GridParm {
 
     /** Time constraints used by satellite data */
     private static final TimeConstraints tc = new TimeConstraints(60, 60, 0);
-
-    /** The satellite source for this satellite data */
-    private String source;
-
-    /** The creating entity for this satellite data */
-    private String creatingEntity;
 
     /** The sector ID for this satellite data */
     private String sectorID;
@@ -117,10 +114,8 @@ public class D2DSatParm extends GridParm {
                 productURI = productURI.substring(1);
             }
             String[] tokens = productURI.split("/");
-            source = tokens[0];
-            creatingEntity = tokens[1];
-            sectorID = tokens[2];
-            physicalElement = tokens[3];
+            sectorID = tokens[0];
+            physicalElement = tokens[1];
         }
     }
 
@@ -152,8 +147,8 @@ public class D2DSatParm extends GridParm {
             satDao = (SatelliteDao) PluginFactory.getInstance().getPluginDao(
                     "satellite");
 
-            satInventory = satDao.getSatelliteInventory(source, creatingEntity,
-                    sectorID, physicalElement);
+            satInventory = satDao.getSatelliteInventory(null, null, sectorID,
+                    physicalElement);
         } catch (Exception e) {
             statusHandler.error("Error getting inventory for sectorID ["
                     + sectorID + "] and physicalElement [" + physicalElement
@@ -221,9 +216,8 @@ public class D2DSatParm extends GridParm {
         try {
             dao = (SatelliteDao) PluginFactory.getInstance().getPluginDao(
                     "satellite");
-            List<SatelliteRecord> satRecords = dao.getSatelliteData(source,
-                    creatingEntity, sectorID, physicalElement,
-                    rangesToDates(matchedTimes));
+            List<SatelliteRecord> satRecords = dao.getSatelliteData(null, null,
+                    sectorID, physicalElement, rangesToDates(matchedTimes));
             for (int i = 0; i < satRecords.size(); i++) {
                 GridLocation satGridLoc = satMapCoverageToGridLocation(satRecords
                         .get(i).getCoverage());

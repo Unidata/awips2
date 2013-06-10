@@ -1,0 +1,76 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+	<bean id="ntransDao" class="gov.noaa.nws.ncep.common.dataplugin.ntrans.dao.NtransDao">
+	<constructor-arg ref="ntransPluginName"/> 
+	</bean>
+
+	<bean id="ntransDecoder" class="gov.noaa.nws.ncep.edex.plugin.ntrans.decoder.NtransDecoder">
+	<constructor-arg ref="ntransPluginName"/> 
+	</bean>
+
+	
+	<bean id="ntransDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="ntrans" />
+		<constructor-arg value="jms-dist:queue:Ingest.ntrans" />
+	</bean>
+
+	<bean id="ntransCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="ntrans-camel"/>
+  	</bean> 
+
+	<camelContext id="ntrans-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<endpoint id="ntransFileEndpoint" uri="file:${edex.home}/data/sbn/ntrans??noop=true&amp;idempotent=false" />
+
+		<!-- Begin Ntrans routes -->
+		<route id="ntransFileConsumerRoute">
+			<from ref="ntransFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>ntrans</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.Ntrans" />
+		</route>
+
+
+		<route id="ntransIngestRoute">
+			<from uri="jms-generic:queue:Ingest.Ntrans" />
+		<!-- 	<setHeader headerName="pluginName">
+				<constant>ntrans</constant>
+			</setHeader>-->
+			<doTry>
+				<pipeline>
+				<bean ref="stringToFile" />
+			<doTry>
+				<pipeline>
+					
+					<!--
+			need to replace the method decode with 	decodeNtransMetafile
+					<bean ref="ntransDecoder" method="decode" />	-->
+					<bean ref="ntransDecoder" method="decodeNtransMetafile" />	
+					<to uri="directvm:persistIndexAlert" />
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:ntrans?level=ERROR&amp;showBody=false" />
+				</doCatch>
+			</doTry>
+		    </pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:ntrans?level=ERROR&amp;showBody=false" />
+				</doCatch>
+			</doTry>
+	<!-- bean ref="processUtil" method="delete" /-->
+		</route>
+	</camelContext>
+</beans>

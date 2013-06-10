@@ -26,6 +26,7 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlock;
+import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlockHeader;
 import com.raytheon.viz.redbook.rsc.RedbookLegend;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -40,6 +41,7 @@ import com.vividsolutions.jts.geom.LineString;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * May 22, 2008 #1162       chammack    Initial creation
+ * Apr 29, 2013 1958        bgonzale    New class RedbookBlockHeader.
  * 
  * </pre>
  * 
@@ -51,9 +53,10 @@ public class ShortLongVectorsBlock extends RedbookBlock {
 
     protected Geometry geometry;
 
-    public ShortLongVectorsBlock(java.nio.ByteBuffer data, MathTransform mt,
+    public ShortLongVectorsBlock(RedbookBlockHeader header,
+            java.nio.ByteBuffer data, MathTransform mt,
             int maxX, int maxY, RedbookLegend legend) {
-        super(data);
+        super(header, data);
 
         List<Geometry> geometries = new ArrayList<Geometry>();
         List<Coordinate> coords = new ArrayList<Coordinate>();

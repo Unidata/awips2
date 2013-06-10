@@ -280,7 +280,7 @@ public class RadarBiasTableDialog extends Dialog {
         dtLblComp.setLayoutData(bd);
         Label tmslotLbl = new Label(dtLblComp, SWT.CENTER);
         tmslotLbl.setLayoutData(bd);
-        Date dt = MPEDisplayManager.getCurrent().getCurrentDate();
+        Date dt = MPEDisplayManager.getCurrent().getCurrentEditDate();
         String dt3 = st3sdf.format(dt);
         tmslotLbl.setText(dt3 + "z");
 
@@ -320,7 +320,7 @@ public class RadarBiasTableDialog extends Dialog {
         biasListComp
                 .setSize(biasListComp.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
-        Date dt3 = MPEDisplayManager.getCurrent().getCurrentDate();
+        Date dt3 = MPEDisplayManager.getCurrent().getCurrentEditDate();
         dt = pgsdf.format(dt3);
         rsList = new HashMap<String, MPERadarData>(radIds.length);
         rsList = MPEDataManager.getInstance().readRadarData(dt3);

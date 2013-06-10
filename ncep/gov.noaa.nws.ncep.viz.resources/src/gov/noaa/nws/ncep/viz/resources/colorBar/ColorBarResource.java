@@ -84,15 +84,15 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
         String labelStr;
 		target.clearClippingPlane();
 
-		IExtent pixExtents = paintProps.getView().getExtent();
+		IExtent pixExtents     = paintProps.getView().getExtent();
         double pixExtentsMinX = pixExtents.getMinX();
         double pixExtentsMaxX = pixExtents.getMaxX();
         double pixExtentsMinY = pixExtents.getMinY();
         double pixExtentsMaxY = pixExtents.getMaxY();
         double pixExtentsWidth = pixExtents.getWidth();
         double pixExtentsHeight = pixExtents.getHeight();
-
-		int numIntrvls = colorBar.getNumIntervals();
+        
+		int numIntrvls         = colorBar.getNumIntervals();
 
 		double minX=0, maxX=0;
 		double minY=0, maxY=0;
@@ -110,7 +110,7 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
 		
 		if(colorBarOrientation == null || anchorLocation == null )
 			return;
-
+		
        	if(colorBarOrientation == ColorBarOrientation.Horizontal){
         	     if(lengthRatio == 1)
         		    lengthRatio   = 0.999;
@@ -131,7 +131,7 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
 				      (double)colorBar.getWidthInPixels()/1000 * pixExtentsWidth );		
 		
 		double yMargin = 2 * yScaleFactor;
-		
+
 		double textX  = 0;
 		double textY = 0;
 
@@ -150,8 +150,8 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
 			minY = pixExtentsMinY + pixExtentsHeight*yViewCoord ;
 
 			if( colorBarOrientation == ColorBarOrientation.Horizontal ) {				
-				maxX = minX + cbarPixLength;		
-				maxY = minY + cbarPixWidth;
+				maxX = minX + cbarPixLength ;		
+				maxY = minY + cbarPixWidth ;
 				
 				if(maxX > pixExtentsMinX + pixExtentsWidth ){
                     cbarPixLength = pixExtentsMaxX - minX;
@@ -159,13 +159,13 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
 				} 
 			}
 			else {
-				maxX = minX + cbarPixWidth;		
-				maxY = minY + cbarPixLength;
+				maxX = minX + cbarPixWidth ;		
+				maxY = minY + cbarPixLength ;
 				if(maxY > pixExtentsMinY + pixExtentsHeight ){
 					cbarPixLength = pixExtentsMaxY - pixExtentsHeight*yViewCoord;
 					maxY = minY + cbarPixLength;
+				}				
 			}
-		}
 
 
 		}
@@ -189,14 +189,14 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
 					maxY = minY + cbarPixLength;
 				}				
 			}
-
+			
 
 		}	
 		else if( anchorLocation == ColorBarAnchorLocation.LowerLeft ) {
 
 			minX = pixExtentsMinX + pixExtentsWidth*xViewCoord;
 			maxY = pixExtentsMaxY - pixExtentsHeight*yViewCoord;
-          
+			
           
 			if( colorBarOrientation == ColorBarOrientation.Horizontal ) {
 				maxX = minX + cbarPixLength;		
@@ -215,9 +215,9 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
                 if( (minY -yMargin*3) < pixExtentsMinY ){
                 	minY = pixExtentsMinY + yMargin*11;
                 	cbarPixLength = maxY - minY;
-			}
+                }
 
-		}
+			}
 			
 			
 		}
@@ -357,12 +357,12 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
                 maxY  = pixExtentsMaxY- pixExtentsHeight*yViewCoord;
                 minY = maxY - cbarPixWidth;
 			}
-
-		}
+			
+		}	
 		else {
 			return;
 		}
-
+		
 		if( colorBarOrientation == ColorBarOrientation.Horizontal ) {			
 			intrvlXsize = cbarPixLength/numIntrvls;
 			intrvlYsize = cbarPixWidth;
@@ -371,7 +371,7 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
 		else {
 			intrvlYsize = cbarPixLength/numIntrvls;
 			intrvlXsize = cbarPixWidth;
-		}
+    	}
 
 		double intMinX=minX;
 		double intMaxX=0;
@@ -393,7 +393,7 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
 			   DrawableString unitStrToDraw = new DrawableString(unitStr, colorOfAllLabels);
 			   textX = minX;
 			   textY = minY - yMargin*3;
-			   unitStrToDraw.setCoordinates(textX, textY);			
+			   unitStrToDraw.setCoordinates(textX, textY);	
 			   if(colorBarOrientation == ColorBarOrientation.Vertical 
 					   &&( anchorLocation == ColorBarAnchorLocation.LowerRight 
 							   || anchorLocation == ColorBarAnchorLocation.CenterRight 
@@ -413,7 +413,7 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
 				  if (colorBar.getReverseOrder()){
 			               startIndex = numIntrvls - 1;
 			               endIndex   = -1;
-				  }
+			           }
 				 
 				  int r = startIndex;
 			  
@@ -463,10 +463,10 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
 						
 					if( labelStr != null && labelStr.compareTo("NaN") != 0) {
 						
-						double lblX = intMinX ;
+						double lblX = intMinX;
 						
 						double lblY = intMinY;
-
+						
 						HorizontalAlignment labelHorizAlign = getLabelHorizAlignment(
 								colorBarOrientation, anchorLocation, (r == 0), false );
 
@@ -485,16 +485,16 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
 	                            eachShadedRectangleExtent.getMaxY());
                                 lblX = pixEx.getMinX();
                                 if(colorBar.getClass().getSimpleName().compareTo("ColorBar") == 0 ){
-						
+                                    
                                 	//lblX = intMaxX;
-						
+                                
                                     lblY = pixEx.getMaxY();
-							}
+                                }
                                 else{
 						            lblY = pixEx.getMinY();
-						}
-						
+                                }
 
+                               
                         if( (anchorLocation == ColorBarAnchorLocation.LowerLeft 
 							 || anchorLocation == ColorBarAnchorLocation.UpperLeft
 							 || anchorLocation == ColorBarAnchorLocation.CenterLeft
@@ -505,7 +505,7 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
 							   colorBarOrientation == ColorBarOrientation.Vertical ) {
                         	   lblX += cbarPixWidth  ;
                         	
-								}
+						}
 						else if( colorBarOrientation == ColorBarOrientation.Horizontal ) {
 								if(colorBar.getClass().getSimpleName().compareTo("ColorBar") == 0 ){
 								    lblX = pixEx.getMaxX();
@@ -513,9 +513,9 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
 								}
 								else
 							      lblY+= cbarPixWidth;
-
+								
 							}
-						
+                      
 				        if(colorBar.isAlignLabelInTheMiddleOfInterval() ){
 				        	//typically for radar legends
 				        	if(colorBarOrientation == ColorBarOrientation.Vertical){
@@ -523,18 +523,18 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
 				        	}else{
 				        	    lblX+= xScaleFactor*30;	
 				        	}
-						
-						}
-						
+				        	
+				        }
+							
 
 						DrawableString strToDraw      = new DrawableString(labelStr,colorOfThisLabel);
 						strToDraw.horizontalAlignment = labelHorizAlign;
 						strToDraw.verticallAlignment  = labelVertAlign;
 	              	    if(colorBar.getShowLabels()){
-	          		      strToDraw.setCoordinates(lblX, lblY);
+	          		      strToDraw.setCoordinates(lblX, lblY );
 	          		      target.drawStrings(strToDraw);          		  
-	                	}
-						
+	              	    }
+
 					}		
 				
 
@@ -600,9 +600,9 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
 	  				strToDraw.verticallAlignment  = labelVertAlign;
 
 	            	if(colorBar.getShowLabels()){
-	      		         strToDraw.setCoordinates(lblX, lblY);
-	      		         target.drawStrings(strToDraw);          		  
-	            	}
+	      		         strToDraw.setCoordinates(lblX, lblY  );
+	      		         target.drawStrings(strToDraw);
+	      		     }
 
 	  			}		
 
@@ -620,7 +620,7 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
 	}
 	
 	private HorizontalAlignment getLabelHorizAlignment( ColorBarOrientation orient, ColorBarAnchorLocation anchor,
-			                                    boolean isFirst, boolean isLast ) {	
+			                                    boolean isFirst, boolean isLast ) {
 		ColorBarAnchorLocation cBarAnchorLoc = cBarData.getColorbar().getAnchorLoc();
 		if( cBarData.getColorbar().getOrientation() == ColorBarOrientation.Vertical ) {
 			if( cBarAnchorLoc == ColorBarAnchorLocation.UpperLeft ||
@@ -637,7 +637,7 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
 		}
 		else {  // Horizontal
 			if( isFirst || isLast) {
-				return HorizontalAlignment.RIGHT;
+				  return HorizontalAlignment.RIGHT;
 			}
 //			else if( isLast ) {
 //				return HorizontalAlignment.RIGHT;
@@ -651,8 +651,8 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
 	private VerticalAlignment getLabelVertAlignment( ColorBarOrientation orient, ColorBarAnchorLocation anchor,
             							boolean isFirst, boolean isLast ) {	
 		if( cBarData.getColorbar().getOrientation() == ColorBarOrientation.Horizontal ) {
-				return VerticalAlignment.TOP;
-			}
+			return VerticalAlignment.TOP;
+		}
 		else {  
 			if( isFirst ) {
 				return VerticalAlignment.BOTTOM;

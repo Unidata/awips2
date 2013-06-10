@@ -4,6 +4,7 @@ import gov.noaa.nws.ncep.viz.rsc.ncgrid.dgdriv.GridDBConstants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -26,6 +27,8 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * 12/13/2011               G Hull     Created.
  * 04/02/2012   #606        G Hull     added primaryModel for Ensem
  *  09/11/2012   #743    Archana   Added CLRBAR            
+ * 03/15/2012               G Hull     added getComponentModels to support 
+ *                                     Ensemble component cycle time query
  * </pre>
  * 
  * @author ghull
@@ -126,7 +129,31 @@ public class NcEnsembleResourceData extends NcgridResourceData {
 //			return availableTimes;
 //		}
 //}
+	
+	// return a list of the component model names w/o any members.
+	public  List<String> getComponentModels() {
+		List<String> compModelsList = new ArrayList<String>();
 
+		if( availableModels != null ) {			
+			String[] ensCompStrs = availableModels.split(";");
+			if( ensCompStrs.length > 0 ) {
+				for( int ec=0 ; ec<ensCompStrs.length ; ec++ ) {
+					String compMod = ensCompStrs[ec];
+					int indx = ensCompStrs[ec].indexOf(":");
+					if( indx > -1 ) {
+						compMod = ensCompStrs[ec].substring(0,indx);
+					}
+					
+					if( !compModelsList.contains( compMod ) ) {
+						compModelsList.add( compMod );
+					}
+				}
+			}
+		}
+	
+		return compModelsList;
+	}
+	
 	public ArrayList<String> getAvailEnsembleComponents() {
 		ArrayList<String> availEnsCompsList = new ArrayList<String>();
 		
@@ -388,7 +415,7 @@ public class NcEnsembleResourceData extends NcgridResourceData {
 	public void setHlsym(String hlsym) {
 		super.setHlsym(hlsym);
 	}    
-	
+
 	
 	public String getClrbar() {
 		return super.getClrbar();

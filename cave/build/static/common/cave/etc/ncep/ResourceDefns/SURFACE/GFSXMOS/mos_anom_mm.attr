@@ -1,5 +1,5 @@
-! Attributes for the GFSXMOS resource with "mosanonmm" plot model
+! Attributes for the GFSXMOS resource with "mos_anom_mm" plot model
 !
-plotModelName=mosanonmm
+plotModel=@PlotModels/bufrmosMRF/mos_anom_mm.xml
 plotDensity=10
-conditionalFilterName=conditionalFilter=
+conditionalFilter=

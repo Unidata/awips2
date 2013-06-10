@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType">
     <resource>AVIATION</resource>
     <attrSetGroupName>standard</attrSetGroupName>
-    <attrSetNames>icprb_6400,turb_6400,icsev_6400,sipd_6400</attrSetNames>
+    <attrSetNames>ICIP</attrSetNames>
 </AttributeSetGroup>

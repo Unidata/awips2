@@ -40,6 +40,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdapter;
 import com.raytheon.uf.common.time.adapter.TimeRangeTypeAdapter;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * 
@@ -51,7 +52,11 @@ import com.raytheon.uf.common.time.adapter.TimeRangeTypeAdapter;
  * ------------ ---------- ----------- --------------------------
  * Jun 19, 2007            chammack    Port from AWIPS Common
  * 02/27/2008   879        rbell       Added compareTo(TimeRange)
- * 
+ * 03/20/2013     #1774    randerso    Changed toString to display times even when
+ *                                     duration is 0, use TimeUtil constants.
+ * 04/04/2013     #1787    randerso    Removed a bunch of isValid checks to the logic
+ *                                     works as intended by the original A1 implementation.
+ * 04/24/2013   1949       rjpeter     Updated clone to deep copy by millis.
  * </pre>
  * 
  * <B>Original Documentation:</B>
@@ -61,7 +66,7 @@ import com.raytheon.uf.common.time.adapter.TimeRangeTypeAdapter;
  * starting/ending time, or a time and a duration. If the duration is positive
  * (or zero), then the specified time is the start time. If the duration is
  * negative, then the specified time is the end time as shown in the design
- * document*.
+ * document.
  * 
  * TimeRanges are generally used to define a valid time range for data files.
  * TimeRange components (start time, end time, and duration) may be retrieved.
@@ -100,15 +105,10 @@ import com.raytheon.uf.common.time.adapter.TimeRangeTypeAdapter;
 public class TimeRange implements Serializable, Comparable<TimeRange>,
         ISerializableObject, Cloneable {
 
-    private static final int SEC_PER_MIN = 60;
-
-    private static final int SEC_PER_HOUR = 3600;
-
-    private static final long SEC_PER_DAY = SEC_PER_HOUR * 24;
-
     // This constant gives a value similar to GFEs AbsTime.MaxFutureValue()
     // and doesn't break Calendar like Long.MAX_VALUE does
-    private static final long MAX_TIME = (long) Integer.MAX_VALUE * 1000;
+    private static final long MAX_TIME = Integer.MAX_VALUE
+            * TimeUtil.MILLIS_PER_SECOND;
 
     /**
      * 
@@ -245,25 +245,25 @@ public class TimeRange implements Serializable, Comparable<TimeRange>,
      */
     public String durationAsPrettyString() {
         long dur = getDuration();
-        long days = dur / SEC_PER_DAY;
+        long days = dur / TimeUtil.SECONDS_PER_DAY;
 
-        dur -= days * SEC_PER_DAY;
-        long hours = dur / SEC_PER_HOUR;
+        dur -= days * TimeUtil.SECONDS_PER_DAY;
+        long hours = dur / TimeUtil.SECONDS_PER_HOUR;
 
-        dur -= hours * SEC_PER_HOUR;
-        long min = dur / SEC_PER_MIN;
+        dur -= hours * TimeUtil.SECONDS_PER_HOUR;
+        long min = dur / TimeUtil.SECONDS_PER_MINUTE;
 
-        long sec = dur - min * SEC_PER_MIN;
+        long sec = dur - min * TimeUtil.SECONDS_PER_MINUTE;
 
         StringBuilder sb = new StringBuilder();
 
         if (days > 0) {
             sb.append(days + "d ");
         }
-        if (hours > 0 || min > 0 || sec > 0) {
+        if ((hours > 0) || (min > 0) || (sec > 0)) {
             sb.append(hours + "h ");
         }
-        if (min > 0 || sec > 0) {
+        if ((min > 0) || (sec > 0)) {
             sb.append(min + "m ");
         }
         if (sec > 0) {
@@ -316,11 +316,7 @@ public class TimeRange implements Serializable, Comparable<TimeRange>,
      * @return the duration
      */
     public long getDuration() {
-        if (isValid()) {
-            return end.getTime() - start.getTime();
-        } else {
-            return 0L;
-        }
+        return end.getTime() - start.getTime();
     }
 
     /*
@@ -344,7 +340,7 @@ public class TimeRange implements Serializable, Comparable<TimeRange>,
      */
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof TimeRange)) {
+        if ((obj == null) || !(obj instanceof TimeRange)) {
             return false;
         }
 
@@ -370,16 +366,13 @@ public class TimeRange implements Serializable, Comparable<TimeRange>,
      * @return
      */
     public boolean contains(Date time) {
-        if (!this.isValid()) {
-            return false;
-        }
-
         if (getDuration() != 0) {
-            return time.getTime() >= start.getTime()
-                    && time.getTime() < end.getTime();
+            // the end time is not part of the time range (hence the < operator)
+            return (time.getTime() >= start.getTime())
+                    && (time.getTime() < end.getTime());
         } else {
-            return time.equals(start); // Special case for zero duration time
-            // range
+            // Special case for zero duration time range
+            return time.equals(start);
 
         }
     }
@@ -390,7 +383,14 @@ public class TimeRange implements Serializable, Comparable<TimeRange>,
      * @param time
      *            the time to be included
      */
+    @Deprecated
     public void extend(Date time) {
+        // TODO: remove this method as it is the only method other than the
+        // setters required for dynamic serialization that modify a TimeRange
+        // The original intent was for this class to be immutable.
+        // I found no Java code calling this method but it's difficult to
+        // determine if it's called from Python since extend is a build in
+        // method on lists
         if (!this.isValid()) {
             return;
         }
@@ -411,17 +411,13 @@ public class TimeRange implements Serializable, Comparable<TimeRange>,
      * @return true if a time range is contained within the range
      */
     public boolean contains(TimeRange timeRange) {
-        if (!this.isValid()) {
-            return false;
-        }
-
         if (getDuration() == 0) {
             return this.equals(timeRange);
         } else if (timeRange.getDuration() == 0) {
             return contains(timeRange.getStart());
         } else {
-            return timeRange.start.compareTo(start) >= 0
-                    && timeRange.end.compareTo(end) <= 0;
+            return (timeRange.start.compareTo(start) >= 0)
+                    && (timeRange.end.compareTo(end) <= 0);
         }
     }
 
@@ -435,10 +431,6 @@ public class TimeRange implements Serializable, Comparable<TimeRange>,
      * @return true if the time ranges are adjacent
      */
     public boolean isAdjacentTo(TimeRange timeRange) {
-        if (!this.isValid()) {
-            return false;
-        }
-
         return start.equals(timeRange.end) || end.equals(timeRange.start);
     }
 
@@ -454,10 +446,6 @@ public class TimeRange implements Serializable, Comparable<TimeRange>,
      * @return true if the time range overlaps
      */
     public boolean overlaps(TimeRange timeRange) {
-        if (!this.isValid()) {
-            return false;
-        }
-
         if (timeRange.contains(start) || contains(timeRange.getStart())) {
             return true;
         } else {
@@ -534,17 +522,20 @@ public class TimeRange implements Serializable, Comparable<TimeRange>,
      */
     @Override
     public String toString() {
-        if (isValid()) {
-            final DateFormat GMTFormat = new SimpleDateFormat(
-                    "MMM dd yy HH:mm:ss zzz");
-            GMTFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        final DateFormat GMTFormat = new SimpleDateFormat(
+                "MMM dd yy HH:mm:ss zzz");
+        GMTFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-            return "(" + GMTFormat.format(getStart()) + ", "
-                    + GMTFormat.format(getEnd()) + ")";
-        } else {
-            return "(Invalid)";
+        StringBuilder sb = new StringBuilder();
+        sb.append("(");
+        sb.append(GMTFormat.format(getStart()));
+        sb.append(", ");
+        sb.append(GMTFormat.format(getEnd()));
+        if (!isValid()) {
+            sb.append(", Invalid");
         }
-
+        sb.append(")");
+        return sb.toString();
     }
 
     /*
@@ -554,10 +545,7 @@ public class TimeRange implements Serializable, Comparable<TimeRange>,
      */
     @Override
     public TimeRange clone() {
-        if (!this.isValid()) {
-            return new TimeRange();
-        }
-        return new TimeRange(this.start, this.end);
+        return new TimeRange(this.start.getTime(), this.end.getTime());
     }
 
     @Override

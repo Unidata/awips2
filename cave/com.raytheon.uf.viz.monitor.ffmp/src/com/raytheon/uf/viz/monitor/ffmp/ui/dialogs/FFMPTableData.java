@@ -38,6 +38,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ISortColumn;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 7, 2009            lvenable     Initial creation
+ * May 7, 2013   1986   njensen   Optimized sortData()
  * 
  * </pre>
  * 
@@ -152,19 +153,6 @@ public class FFMPTableData implements ISortColumn {
     }
 
     /**
-     * Set the sort column and direction.
-     * 
-     * @param columnIndex
-     *            Column index.
-     * @param direction
-     *            Sort direction.
-     */
-    public void setSortColumnAndDirection(int columnIndex, int direction) {
-        currentSortColumnIndex = columnIndex;
-        currentSortDirection = direction;
-    }
-
-    /**
      * Get the sort column index.
      * 
      * @return The index of the column to be sorted.
@@ -186,8 +174,21 @@ public class FFMPTableData implements ISortColumn {
 
     /**
      * Sort the table data.
+     * 
+     * @param columnIndex
+     *            the column to sort on
+     * @param direction
+     *            the direction to sort by
      */
-    public void sortData() {
-        Collections.sort(tableRows);
+    public void sortData(int columnIndex, int direction) {
+        if (columnIndex != currentSortColumnIndex
+                || direction != currentSortDirection) {
+            currentSortColumnIndex = columnIndex;
+            currentSortDirection = direction;
+            Collections.sort(tableRows);
+            if (getSortDirection() == SWT.DOWN) {
+                Collections.reverse(tableRows);
+            }
+        }
     }
 }

@@ -66,6 +66,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * Sep 14, 2012 #1169       djohnson    Add ability to write another object into the stream directly.
  * Sep 28, 2012 #1195       djohnson    Add ability to specify adapter at field level.
  * Nov 02, 2012 1302        djohnson    No more field level adapters.
+ * Apr 25, 2013 1954        bsteffen    Size Collections better.
  * 
  * </pre>
  * 
@@ -946,7 +947,7 @@ public class ThriftSerializationContext extends BaseSerializationContext {
 
                 if (map == null) {
                     // assume hashmap if nothing else available
-                    map = new HashMap(tmap.size);
+                    map = new HashMap((int) (tmap.size / 0.75) + 1, 0.75f);
                 }
 
                 for (int i = 0; i < tmap.size; i++) {
@@ -995,7 +996,7 @@ public class ThriftSerializationContext extends BaseSerializationContext {
 
                 if (set == null) {
                     // assume hashset if nothing else available
-                    set = new HashSet(tset.size);
+                    set = new HashSet((int) (tset.size / 0.75) + 1, 0.75f);
                 }
 
                 for (int i = 0; i < tset.size; i++) {
@@ -1175,7 +1176,7 @@ public class ThriftSerializationContext extends BaseSerializationContext {
                         }
                     }
                     if (list == null) {
-                        list = new ArrayList<String>();
+                        list = new ArrayList<String>(innerList.size);
                     }
                     for (int i = 0; i < innerList.size; i++) {
                         list.add(readString());
@@ -1213,7 +1214,7 @@ public class ThriftSerializationContext extends BaseSerializationContext {
                     }
 
                     if (list == null) {
-                        list = new ArrayList();
+                        list = new ArrayList(innerList.size);
                     }
                     for (int i = 0; i < innerList.size; i++) {
                         list.add(this.serializationManager.deserialize(this));

@@ -32,9 +32,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.raytheon.uf.common.dataplugin.warning.UGCZone;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.viz.warngen.gis.AffectedAreas;
 import com.raytheon.viz.warngen.gis.AffectedAreasComparator;
 import com.raytheon.viz.warnings.DateUtil;
@@ -50,7 +47,8 @@ import com.raytheon.viz.warnings.DateUtil;
  * May 6, 2008				bwoodle	    Initial creation
  * Dec 28 2012  DR15599     mgamazaychikov  Updated method getListCounties to fix the problem
  * 											with generated list of counties.
- * 
+ * Apr 25, 2013 1877        jsanchez    Sorted the UGC line for cancellations.
+ * May 10, 2013 1951        rjpeter     Updated ugcZones references
  * </pre>
  * 
  * @author bwoodle
@@ -58,10 +56,7 @@ import com.raytheon.viz.warnings.DateUtil;
  */
 
 public class FipsUtil {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(FipsUtil.class);
-
-    private static HashMap<String, String> fipsToState;
+    private static final Map<String, String> fipsToState;
 
     private static String[][] abbrlist = new String[][] { { "02", "AK" },
             { "01", "AL" }, { "05", "AR" }, { "60", "AS" }, { "04", "AZ" },
@@ -78,6 +73,13 @@ public class FipsUtil {
             { "46", "SD" }, { "47", "TN" }, { "48", "TX" }, { "49", "UT" },
             { "51", "VA" }, { "78", "VI" }, { "50", "VT" }, { "53", "WA" },
             { "55", "WI" }, { "54", "WV" }, { "56", "WY" } };
+
+    static {
+        fipsToState = new HashMap<String, String>();
+        for (String[] abbr : abbrlist) {
+            fipsToState.put(abbr[0], abbr[1]);
+        }
+    }
 
     /** Catch the Date portion of the UGC Header */
     private static final String DATEPATTERN = "\\-([0-9]{6}\\-)";
@@ -103,11 +105,6 @@ public class FipsUtil {
         ArrayList<String> countiesOrZones = new ArrayList<String>();
         DateUtil du = new DateUtil();
 
-        fipsToState = new HashMap<String, String>();
-        for (String[] abbr : abbrlist) {
-            fipsToState.put(abbr[0], abbr[1]);
-        }
-
         ArrayList<AffectedAreas> sortedAreas = new ArrayList<AffectedAreas>();
         Collections.addAll(sortedAreas, areas);
         ArrayList<String> fields = new ArrayList<String>();
@@ -122,25 +119,29 @@ public class FipsUtil {
         Collections.sort(sortedAreas, comparator);
 
         for (AffectedAreas area : sortedAreas) {
-            String ugc = null;
-            if (Character.isDigit(area.getFips().charAt(0))) {
-                ugc = fipsToState.get(area.getFips().substring(0, 2)) + "C"
-                        + area.getFips().substring(2, 5);
-            } else {
-                ugc = area.getFips().substring(0, 2) + "Z"
-                        + area.getFips().substring(area.getFips().length() - 3);
-            }
-
-            if (ugc != null && countiesOrZones.contains(ugc) == false) {
+            String ugc = getUgc(area);
+            if ((ugc != null) && (countiesOrZones.contains(ugc) == false)) {
                 countiesOrZones.add(ugc);
             }
         }
 
-        rval.append(simplifyHeader(getUgc(countiesOrZones)));
+        rval.append(simplifyHeader(getUgcLine(countiesOrZones)));
         rval.append(du
                 .format(endtime, new SimpleDateFormat("ddHHmm"), interval)
                 + "-");
         return rval.toString();
+    }
+
+    public static String getUgc(AffectedAreas area) {
+        String ugc = null;
+        if (Character.isDigit(area.getFips().charAt(0))) {
+            ugc = fipsToState.get(area.getFips().substring(0, 2)) + "C"
+                    + area.getFips().substring(2, 5);
+        } else {
+            ugc = area.getFips().substring(0, 2) + "Z"
+                    + area.getFips().substring(area.getFips().length() - 3);
+        }
+        return ugc;
     }
 
     /**
@@ -152,19 +153,19 @@ public class FipsUtil {
      * @param endtime
      * @return
      */
-    public static String getUgcLine(Set<UGCZone> ugcs, Date endtime,
-            int interval) {
+    public static String getUgcLine(Set<String> ugcs, Date endtime, int interval) {
         StringBuffer rval = new StringBuffer();
         ArrayList<String> countiesOrZones = new ArrayList<String>();
         DateUtil du = new DateUtil();
 
-        for (UGCZone ugc : ugcs) {
-            if (countiesOrZones.contains(ugc.toString()) == false) {
-                countiesOrZones.add(ugc.toString());
+        for (String ugc : ugcs) {
+            if (countiesOrZones.contains(ugc) == false) {
+                countiesOrZones.add(ugc);
             }
         }
 
-        rval.append(simplifyHeader(getUgc(countiesOrZones)));
+        Collections.sort(countiesOrZones);
+        rval.append(simplifyHeader(getUgcLine(countiesOrZones)));
         rval.append(du
                 .format(endtime, new SimpleDateFormat("ddHHmm"), interval)
                 + "-");
@@ -270,23 +271,23 @@ public class FipsUtil {
      * @param counties
      * @return
      */
-    private static String getUgc(ArrayList<String> countiesorZones) {
+    private static String getUgcLine(ArrayList<String> ugcs) {
         ArrayList<String> states = new ArrayList<String>();
         StringBuffer rval = new StringBuffer();
 
         int nlCounter = 0;
-        for (String countyOrZone : countiesorZones) {
-            if (!states.contains(countyOrZone.substring(0, 3))) {
-                states.add(countyOrZone.substring(0, 3));
+        for (String ugc : ugcs) {
+            if (!states.contains(ugc.substring(0, 3))) {
+                states.add(ugc.substring(0, 3));
             }
         }
 
         for (String state : states) {
             rval.append(state);
             nlCounter += state.length();
-            for (String countyOrZone : countiesorZones) {
-                if (countyOrZone.substring(0, 3).equals(state)) {
-                    rval.append(countyOrZone.substring(3) + "-");
+            for (String ugc : ugcs) {
+                if (ugc.substring(0, 3).equals(state)) {
+                    rval.append(ugc.substring(3) + "-");
                     nlCounter += 4;
                     if (nlCounter >= 60) {
                         nlCounter = 0;
@@ -327,7 +328,7 @@ public class FipsUtil {
          * DR15599 - use simplifyHeader to get the correct rval
          */
         if (difference.size() > 0) {
-            rval = simplifyHeader(getUgc(difference));
+            rval = simplifyHeader(getUgcLine(difference));
         }
         rval = rval + dateStr;
         return rval;
@@ -356,12 +357,12 @@ public class FipsUtil {
         }
 
         /*
-         * DR15599 - completely re-did how rval is calculated. 
+         * DR15599 - completely re-did how rval is calculated.
          */
         String[] lines = matchStr.split("[\n]");
         matchStr = "";
         for (String line : lines) {
-        	matchStr += line;
+            matchStr += line;
         }
 
         String[] ranges = matchStr.split("[-]");
@@ -370,12 +371,12 @@ public class FipsUtil {
         for (String range : ranges) {
             if (Character.isLetter(range.charAt(0))) {
                 /*
-                 * range starts with a character - get the new 
-                 * state or marine zone name
+                 * range starts with a character - get the new state or marine
+                 * zone name
                  */
                 if (curState != null) {
-                    for (String zone: curList) {
-                    	rval.add(curState+zone);
+                    for (String zone : curList) {
+                        rval.add(curState + zone);
                     }
                 }
                 curState = range.substring(0, 3);
@@ -400,8 +401,8 @@ public class FipsUtil {
             }
         }
         if (curState != null) {
-            for (String zone: curList) {
-            	rval.add(curState+zone);
+            for (String zone : curList) {
+                rval.add(curState + zone);
             }
         }
         return rval;
@@ -413,41 +414,19 @@ public class FipsUtil {
      * @return two letter state abbreviation
      */
     public static String getStateNameFromFips(String fips) {
-        fipsToState = new HashMap<String, String>();
-        for (String[] abbr : abbrlist) {
-            fipsToState.put(abbr[0], abbr[1]);
-        }
         String statefips = fips.substring(0, 2);
         return fipsToState.get(statefips);
     }
 
-    public static boolean containsSameCountiesOrZones(Set<UGCZone> a,
-            Set<UGCZone> b) {
-        boolean rval = true;
-
-        // Check one way...
-        for (UGCZone z1 : a) {
-            boolean containsThisItem = false;
-            for (UGCZone z2 : b) {
-                if (z1.toString().equals(z2.toString())) {
-                    containsThisItem = true;
-                }
-            }
-            if (!containsThisItem) {
-                rval = false;
-            }
-        }
-
-        // Check the other way...
-        for (UGCZone z2 : a) {
-            boolean containsThisItem = false;
-            for (UGCZone z1 : b) {
-                if (z1.toString().equals(z2.toString())) {
-                    containsThisItem = true;
-                }
-            }
-            if (!containsThisItem) {
-                rval = false;
+    public static boolean containsSameCountiesOrZones(Set<String> a,
+            Set<String> b) {
+        boolean rval = a.size() == b.size();
+        if (rval) {
+            // Check one way...
+            rval = a.containsAll(b);
+            if (rval) {
+                // Check the other way...
+                rval = b.containsAll(a);
             }
         }
 

@@ -133,15 +133,16 @@ public class LPIResource extends
                     "Label");
             getCapability(LabelableCapability.class).setLabelField("Label");
 
-            File file = new File(resourceData.getFilename());
+            String filename = resourceData.getFilename();
+            File file = new File(filename);
             if (!file.isAbsolute()) {
+                filename = FileUtil.join(VizApp.getMapsDir(), filename);
                 file = PathManagerFactory.getPathManager().getStaticFile(
-                        FileUtil.join(VizApp.getMapsDir(),
-                                resourceData.getFilename()));
+                        filename);
             }
             if (file == null || file.exists() == false) {
                 throw new VizException("Could not find lpi file",
-                        new FileNotFoundException(String.valueOf(file)));
+                        new FileNotFoundException(filename));
             }
 
             points = new ArrayList<LPIPoint>();

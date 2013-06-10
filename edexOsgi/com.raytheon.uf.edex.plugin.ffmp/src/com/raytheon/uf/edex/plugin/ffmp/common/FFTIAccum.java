@@ -19,11 +19,6 @@
  **/
 package com.raytheon.uf.edex.plugin.ffmp.common;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -36,21 +31,19 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2011            dhladky     Initial creation
+ * 02/01/13     1569        D. Hladky  Added constants, changed serialization, time limit
  * 
  * </pre>
  * 
  * @author dhladky
  * @version 1.0
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class FFTIAccum extends FFTIData {
 
     @DynamicSerializeElement
-    @XmlElement
     private Double accumulation = 0.0;
-
+   
     public Double getAccumulation() {
         return accumulation;
     }

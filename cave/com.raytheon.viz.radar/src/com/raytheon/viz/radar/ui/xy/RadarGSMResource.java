@@ -54,6 +54,7 @@ import com.raytheon.viz.radar.rsc.RadarResourceData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 13, 2010            mnash     Initial creation
+ * 03/01/2013   DR 15496   zwang     Handled expanded GSM, display more status 
  * 
  * </pre>
  * 
@@ -147,7 +148,13 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
                     "Op Mode/VCP = " + temp + "/VCP"
                             + message.getVolumeCoveragePattern(), xOffset,
                     yOffset, target, color);
-
+            yOffset += lineSpace;
+            drawNexradString(
+                    "VCP Supplemental Info = "
+                            + RadarHelper.formatBits(
+                              (short) message.getVcpInfo(),
+                              RadarHelper.vcpInfoStr), xOffset, yOffset,
+                              target, color);
             yOffset += lineSpace;
             rdaAvailString = RadarHelper.formatBits(
                     (short) message.getProductAvail(),
@@ -161,6 +168,7 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
                                     (short) message.getDataTransmissionEnable(),
                                     RadarHelper.dteStr), xOffset, yOffset,
                     target, color);
+            
             yOffset += lineSpace;
             if (message.getCmdStatus() > 0)
                 drawNexradString("CMD = Enabled", xOffset, yOffset, target,
@@ -188,7 +196,7 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
             rpgNarrow = RadarHelper.formatBits(
                     (short) message.getRpgNarrowbandStatus(),
                     RadarHelper.rpgNarrowbandStatus);
-            if ("".equals(temp)) {
+            if ("".equals(rpgNarrow)) {
                 rpgNarrow = "Normal";
             }
             drawNexradString("RPG Narrowband = " + rpgNarrow, xOffset, yOffset,
@@ -242,7 +250,7 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
             temp = RadarHelper.formatBits((short) message.getRdaAlarms(),
                     RadarHelper.rdaAlarmStr);
             if ("".equals(temp)) {
-                temp = "No Data";
+                temp = "No Alarms";
             }
 
             drawNexradString("RDA Alarm = " + temp, xOffset, yOffset, target,
@@ -277,7 +285,7 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
             double[] elevations = message.getElevation().clone();
             char[] charArray = Integer.toBinaryString(
                     message.getSuperResolutionCuts()).toCharArray();
-
+            
             elevations = Arrays.copyOf(elevations, message.getNumCuts());
             Arrays.sort(elevations);
             for (int left = 0, right = elevations.length - 1; left < right; left++, right--) {

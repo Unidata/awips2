@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.Status;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
@@ -50,14 +51,19 @@ import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.VectorGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.WeatherGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherKey;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
 import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.GfeClientConfig;
 import com.raytheon.viz.gfe.core.griddata.AbstractGridData;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 
@@ -74,7 +80,9 @@ import com.raytheon.viz.gfe.core.griddata.IGridData;
  * 02/23/12     #346       dgilling    Implement a dispose method.
  * 03/01/12     #346       dgilling    Re-order dispose method.
  * 01/21/12     #1504      randerso    Cleaned up old debug logging to improve performance
- * 
+ * 02/12/13     #1597      randerso    Made save threshold a configurable value. Added detailed
+ *                                     logging for save performance
+ * 04/23/13     #1949      rjpeter     Added logging of number of records.
  * </pre>
  * 
  * @author chammack
@@ -85,8 +93,8 @@ public class DbParm extends Parm {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DbParm.class);
 
-    // save if we accumulate more than 16 MB
-    private static final long MAX_SAVE_SIZE = 16 * 1024 * 1024;
+    private final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("GFE:");
 
     public DbParm(ParmID parmID, GridParmInfo gridInfo, boolean mutable,
             boolean displayable, DataManager dataMgr) throws GFEServerException {
@@ -112,7 +120,8 @@ public class DbParm extends Parm {
             }
         }
 
-        if (this.dataManager != null && this.dataManager.getClient() != null) {
+        if ((this.dataManager != null)
+                && (this.dataManager.getClient() != null)) {
             this.lockTable = this.dataManager.getClient().getLockTable(
                     this.getParmID());
         }
@@ -214,7 +223,7 @@ public class DbParm extends Parm {
                             .getGridHistory(getParmID(), gridTimes);
                     histories = (Map<TimeRange, List<GridDataHistory>>) sr
                             .getPayload();
-                    if (!sr.isOkay() || histories.size() != gridTimes.size()) {
+                    if (!sr.isOkay() || (histories.size() != gridTimes.size())) {
                         statusHandler.handle(Priority.PROBLEM,
                                 "Unable to retrieve gridded data [history] for "
                                         + getParmID() + sr);
@@ -448,13 +457,13 @@ public class DbParm extends Parm {
             IGridData[] grids = this.getGridInventory(tr);
 
             // if only a single unmodified grid exactly matches the time range
-            if (grids.length == 1 && !this.isLocked(tr)
+            if ((grids.length == 1) && !this.isLocked(tr)
                     && grids[0].getGridTime().equals(tr)) {
                 List<GridDataHistory> newHist = histories.get(tr);
                 GridDataHistory[] currentHist = grids[0].getHistory();
 
                 // if current history exists and has a matching update time
-                if (currentHist != null
+                if ((currentHist != null)
                         && currentHist[0].getUpdateTime().equals(
                                 newHist.get(0).getUpdateTime())) {
                     // update last sent time
@@ -475,6 +484,8 @@ public class DbParm extends Parm {
             return true;
         }
 
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
         ServerResponse<List<LockTable>> sr;
         try {
             sr = this.dataManager.getClient().requestLockChange(lreq);
@@ -483,7 +494,12 @@ public class DbParm extends Parm {
                     "Error requesting lock change", e);
             return false;
         }
+        timer.stop();
+        perfLog.logDuration("Server lock change for " + this.getParmID() + " "
+                + lreq.size() + " time ranges", timer.getElapsedTime());
 
+        timer.reset();
+        timer.start();
         List<LockTable> lockTableList = sr.getPayload();
         for (LockTable lt : lockTableList) {
             // it is for our parm
@@ -499,6 +515,8 @@ public class DbParm extends Parm {
                 }
             }
         }
+        timer.stop();
+        perfLog.logDuration("Processing lock tables", timer.getElapsedTime());
         for (ServerMsg msg : sr.getMessages()) {
             statusHandler.error(msg.getMessage());
         }
@@ -509,23 +527,24 @@ public class DbParm extends Parm {
     @Override
     protected boolean saveParameterSubClass(List<TimeRange> trs) {
 
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
         List<TimeRange> myLocks = lockTable.lockedByMe();
         if (myLocks.isEmpty()) {
+            timer.stop();
+            perfLog.logDuration("Saving " + getParmID().getParmName() + ": "
+                    + " no grids to save ", timer.getElapsedTime());
             return true;
         }
 
         // FIXME: Purge functionality
         purgeUndoGrids();
 
-        // assemble the save grid request and lock requests
-        // List<IGridData> gridsSaved = new ArrayList<IGridData>();
-        List<SaveGridRequest> sgr = new ArrayList<SaveGridRequest>();
-        List<LockRequest> lreq = new ArrayList<LockRequest>();
-        List<TimeRange> pendingUnlocks = new ArrayList<TimeRange>();
-
+        // compute grid size in bytes
         GridLocation gloc = this.getGridInfo().getGridLoc();
+        GridType gridType = this.getGridInfo().getGridType();
         int gridSize = gloc.getNx() * gloc.getNy();
-        switch (this.getGridInfo().getGridType()) {
+        switch (gridType) {
         case SCALAR:
             gridSize *= 4; // 4 bytes per grid cell
             break;
@@ -538,8 +557,18 @@ public class DbParm extends Parm {
             // ignoring size of keys for now
         }
 
+        // assemble the save grid request and lock requests
+        List<SaveGridRequest> sgr = new ArrayList<SaveGridRequest>();
+        List<LockRequest> lreq = new ArrayList<LockRequest>();
+        List<TimeRange> pendingUnlocks = new ArrayList<TimeRange>();
+
         boolean success = true;
+        int gridCount = 0;
+        int totalGrids = 0;
+        long totalSize = 0;
+        int totalRecords = 0;
         long size = 0;
+        int recordCount = 0;
         for (int i = 0; i < trs.size(); i++) {
             // ensure we have a lock for the time period
             TimeRange lockTime = new TimeRange();
@@ -582,10 +611,10 @@ public class DbParm extends Parm {
                 record.setGridHistory(data.getHistory());
                 record.setMessageData(data.getGridSlice());
                 records.add(record);
+                gridCount += (gridType.equals(GridType.VECTOR) ? 2 : 1);
                 size += gridSize;
 
-                if (size > MAX_SAVE_SIZE) {
-                    // time range being saved in this chunk
+                if (size > GfeClientConfig.getInstance().getGridSaveThreshold()) {
                     TimeRange tr = new TimeRange(saveTime.getStart(), data
                             .getGridTime().getEnd());
                     sgr.add(new SaveGridRequest(getParmID(), tr, records,
@@ -602,8 +631,13 @@ public class DbParm extends Parm {
                         allSaved = false;
                     }
 
+                    totalGrids += gridCount;
+                    totalRecords += records.size();
+                    totalSize += size;
+
                     pendingUnlocks.clear();
                     sgr.clear();
+                    gridCount = 0;
                     records.clear();
                     size = 0;
                     saveTime.setStart(tr.getEnd());
@@ -611,9 +645,10 @@ public class DbParm extends Parm {
             }
 
             // if any grids or any time not saved
-            if (size > 0 || saveTime.getDuration() > 0) {
+            if ((size > 0) || (saveTime.getDuration() > 0)) {
                 sgr.add(new SaveGridRequest(getParmID(), saveTime, records,
                         dataManager.clientISCSendStatus()));
+                recordCount = records.size();
             }
 
             // if we haven't had a failure yet add to pending locks
@@ -633,6 +668,10 @@ public class DbParm extends Parm {
             } else {
                 success = false;
             }
+
+            totalSize += size;
+            totalGrids += gridCount;
+            totalRecords += recordCount;
             pendingUnlocks.clear();
         }
 
@@ -649,6 +688,11 @@ public class DbParm extends Parm {
         if (success) {
             purgeUndoGrids();
         }
+
+        timer.stop();
+        perfLog.logDuration("Save Grids " + getParmID().getParmName() + ": "
+                + totalRecords + " records, " + totalGrids + " grids ("
+                + totalSize + " bytes) ", timer.getElapsedTime());
 
         return success;
     }

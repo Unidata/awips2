@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 
 /**
  * 
@@ -40,6 +41,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    Sep 25, 2012 #15425      Qinglu Lin  Updated two ClosestPoint() and added getGid().
  *    Oct 17, 2012             jsanchez    Added setter methods.
  *    Feb 12, 2013  1600       jsanchez    Removed adjustAngle method.
+ *    Mar 25, 2013  1605       jsanchez    Added prepGeom if an urban bound area.
  * 
  * </pre>
  * 
@@ -76,6 +78,8 @@ public class ClosestPoint implements Comparable<ClosestPoint> {
     protected List<String> partOfArea;
 
     protected int gid;
+
+    protected PreparedGeometry prepGeom;
 
     public ClosestPoint() {
 
@@ -246,6 +250,10 @@ public class ClosestPoint implements Comparable<ClosestPoint> {
 
     public void setGid(int gid) {
         this.gid = gid;
+    }
+
+    public void setPrepGeom(PreparedGeometry prepGeom) {
+        this.prepGeom = prepGeom;
     }
 
     /*

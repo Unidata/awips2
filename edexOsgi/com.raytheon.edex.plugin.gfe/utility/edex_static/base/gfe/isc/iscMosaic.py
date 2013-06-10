@@ -32,6 +32,7 @@ import numpy
 import JUtil
 
 from java.util import ArrayList
+from java.util import LinkedHashMap
 from com.raytheon.uf.common.dataplugin.gfe.grid import Grid2DFloat
 from com.raytheon.uf.common.dataplugin.gfe.grid import Grid2DByte
 from com.raytheon.uf.common.time import TimeRange
@@ -72,7 +73,13 @@ from com.raytheon.uf.edex.database.cluster import ClusterTask
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    07/06/09        1995          bphillip       Initial Creation.
-#    
+#    01/17/13        15588         jdynina        Fixed Publish history removal
+#    03/12/13        1759          dgilling       Remove unnecessary command line
+#                                                 processing.
+#    04/24/13        1941          dgilling       Re-port WECache to match A1.
+#    05/08/13        1988          dgilling       Fix history handling bug in
+#                                                 __getDbGrid().
+#    05/23/13        1759          dgilling       Remove unnecessary imports.
 # 
 # 
 
@@ -82,56 +89,51 @@ BATCH_DELAY = 0.0
 
 ISC_USER="isc"
 
-
 class WECache(object): 
-    def __init__(self, we, tr=None): 
-        self._grids = []
-        self._hist = []
+    def __init__(self, we, tr=None):
         self._we = we
-        self._inv = []
-        theKeys = self._we.getKeys() 
+        self._inv = {}
+        self._invCache = None
         
-        for i in range(0, theKeys.size()):
-            self._inv.append(iscUtil.transformTime(theKeys.get(i)))
-        
+        javaInv = self._we.getKeys()
+        pyInv = []
+        for i in xrange(javaInv.size()):
+            pyInv.append(iscUtil.transformTime(javaInv.get(i)))
 
         # Dont get grids outside of the passed in timerange.
         if tr:
             tokill = []
-            for i, t in enumerate(self._inv):
+            for i, t in enumerate(pyInv):
                 if not self.overlaps(tr, t):
                     tokill.append(i)
             tokill.reverse()
             for i in tokill:
-                del self._inv[i]
+                del pyInv[i]
+
+        javaTRs = ArrayList()
+        for tr in pyInv:
+            javaTRs.add(iscUtil.toJavaTimeRange(tr))
+        gridsAndHist = self._we.get(javaTRs, True)
+        for idx, tr in enumerate(pyInv):
+            pair = gridsAndHist.get(idx)
+            g = self.__encodeGridSlice(pair.getFirst())
+            h = self.__encodeGridHistory(pair.getSecond())
+            self._inv[tr] = (g, h)
 
     def keys(self):
-        return tuple(self._inv)
+        if not self._invCache:
+            self._invCache = tuple(sorted(self._inv.keys(), key=lambda t: t[0]))
+        return self._invCache
 
     def __getitem__(self, key):
-        grid = self._we.getItem(iscUtil.toJavaTimeRange(key))
-        history = grid.getGridDataHistory()
-        hist = []
-        for i in range(0, history.size()):
-            hist.append(history.get(i))
-        gridType = grid.getGridInfo().getGridType().toString()
-        if gridType == "SCALAR":
-            return (grid.__numpy__[0], hist)
-        elif gridType == "VECTOR":
-            vecGrids = grid.__numpy__
-            return ((vecGrids[0], vecGrids[1]), hist)
-        elif gridType == "WEATHER":
-            keys = grid.getKeys()
-            keyList = []
-            for theKey in keys:
-                keyList.append(theKey.toString())
-            return ((grid.__numpy__[0], keyList), hist)
-        elif gridType == "DISCRETE":
-            keys = grid.getKey()
-            keyList = []
-            for theKey in keys:
-                keyList.append(theKey.toString())
-            return ((grid.__numpy__[0], keyList), hist)
+        try:
+            return self._inv[key]
+        except KeyError:
+            grid = self._we.getItem(iscUtil.toJavaTimeRange(key))
+            pyGrid = self.__encodeGridSlice(grid)
+            history = grid.getGridDataHistory()
+            pyHist = self.__encodeGridHistory(history)
+            return (pyGrid, pyHist)
 
     def __setitem__(self, tr, value):
         if value is None:
@@ -141,79 +143,146 @@ class WECache(object):
         
         # Remove any overlapping grids
         tokill = []
-        for i, itr in enumerate(self._inv):
+        for itr in self._inv:
             if self.overlaps(tr, itr):
-                tokill.append(i)
-        tokill.reverse()
+                tokill.append(itr)
         for i in tokill:
-            del self._inv[i] 
+            del self._inv[i]
+            self._invCache = None
         
         # Now add the new grid if it exists
         if grid is not None:
-            timeRange=iscUtil.toJavaTimeRange(tr)
-            LogStream.logDebug("iscMosaic: Saving Parm:",self._we.getParmid(),"TR:",timeRange)
-            gridType = self._we.getGridType()
-            index = bisect.bisect_left(map(lambda x : x[0], self._inv), tr[0])
-            self._inv.insert(index, tr)   
-            history = ArrayList()
-            for h in hist:
-                #strip out grid history to allow for publishing correctly
-                #when merging Fcst/Official out of A1 
-                hh = GridDataHistory(h)
-                hh.setPublishTime(None)
-                history.add(hh)
-            if gridType == 'SCALAR':
-                self._we.setItemScalar(timeRange, grid.astype(numpy.float32), history)
-            elif gridType == 'VECTOR':
-                self._we.setItemVector(timeRange, grid[0].astype(numpy.float32), grid[1].astype(numpy.float32), history)
-            elif gridType == 'WEATHER':
-                self._we.setItemWeather(timeRange, grid[0].astype(numpy.byte), str(grid[1]), history) 
-            elif gridType == 'DISCRETE':
-                self._we.setItemDiscrete(timeRange, grid[0].astype(numpy.byte), str(grid[1]), history)
-            LogStream.logDebug("iscMosaic: Successfully saved Parm:",self._we.getParmid(),"Time:",timeRange)
-                
+            self._inv[tr] = (grid, hist)
+            self._invCache = None            
+
+    def flush(self):
+        """Actually writes the contents of the WECache to HDF5/DB"""
+        # get cache inventory in time range order
+        # we want to write to disk in contiguous time range blocks so we only
+        # overwrite what we have full sets of grids for.        
+        inv = list(self.keys())
+        # Don't believe the grid slices need to be in time order when saving
+        # but leaving them that way just in case.
+        gridsToSave = LinkedHashMap()
+        while inv:
+            # retrieve the next BATCH of grids to persist
+            i = inv[:BATCH_WRITE_COUNT]
+            # pre-compute the replacement TR for the save requests generated by
+            # IFPWE.put().
+            # since the inventory is in order it's the start time of the 
+            # first TR and the end time of the last TR.
+            gridSaveTR = iscUtil.toJavaTimeRange((i[0][0], i[-1][1]))
+            for tr in i:
+                javaTR = iscUtil.toJavaTimeRange(tr)
+                pyGrid, pyHist = self._inv[tr]
+                javaHist = self.__buildJavaGridHistory(pyHist) 
+                javaGrid = self.__buildJavaGridSlice(javaTR, pyGrid, javaHist)
+                gridsToSave.put(javaTR, javaGrid)
+            self._we.put(gridsToSave, gridSaveTR)
+            # delete the persisted items from the cache and our copy of the
+            # inventory
+            gridsToSave.clear()
+            for tr in i:
+                del self._inv[tr]
+            self._invCache = None
+            inv = inv[BATCH_WRITE_COUNT:]
+            time.sleep(BATCH_DELAY)
+            
 
     def overlaps(self, tr1, tr2):
         if (tr1[0] >= tr2[0] and tr1[0] < tr2[1]) or \
            (tr2[0] >= tr1[0] and tr2[0] < tr1[1]): 
             return True
         return False
+    
+    def __encodeGridSlice(self, grid):
+        gridType = self._we.getGridType()
+        if gridType == "SCALAR":
+            return grid.__numpy__[0]
+        elif gridType == "VECTOR":
+            vecGrids = grid.__numpy__
+            return (vecGrids[0], vecGrids[1])
+        elif gridType == "WEATHER":
+            keys = grid.getKeys()
+            keyList = []
+            for theKey in keys:
+                keyList.append(theKey.toString())
+            return (grid.__numpy__[0], keyList)
+        elif gridType =="DISCRETE":
+            keys = grid.getKey()
+            keyList = []
+            for theKey in keys:
+                keyList.append(theKey.toString())
+            return (grid.__numpy__[0], keyList)
+    
+    def __encodeGridHistory(self, histories):
+        retVal = []
+        for i in xrange(histories.size()):
+            retVal.append(histories.get(i).getCodedString())
+        return tuple(retVal)
+    
+    def __buildJavaGridSlice(self, tr, grid, history):
+        gridType = self._we.getGridType()
+        if gridType == "SCALAR":
+            return self._we.buildScalarSlice(tr, grid.astype(numpy.float32), history)
+        elif gridType == "VECTOR":
+            return self._we.buildVectorSlice(tr, grid[0].astype(numpy.float32), grid[1].astype(numpy.float32), history)
+        elif gridType == "WEATHER":
+            return self._we.buildWeatherSlice(tr, grid[0].astype(numpy.byte), str(grid[1]), history)
+        elif gridType == "DISCRETE":
+            return self._we.buildDiscreteSlice(tr, grid[0].astype(numpy.byte), str(grid[1]), history)
+    
+    def __buildJavaGridHistory(self, histories):
+        retVal = ArrayList()
+        blankPubTime = "Fcst" in self._we.getParmid().getDbId().toString()
+        for histEntry in histories:
+            javaHist = GridDataHistory(histEntry)
+            # strip out publish time to allow for publishing correctly
+            # when merging Fcst out of A1 
+            if blankPubTime:
+                javaHist.setPublishTime(None)
+            retVal.add(javaHist)
+        return retVal
 
 
 class IscMosaic:
         
         ## Logging methods ##
     def __initLogger(self):
-        import logging, siteConfig
         self.__logger=iscUtil.getLogger("iscMosaic",self.__logFile)
         
     def __init__(self, args):
-        import siteConfig
-        self.__host = 0
-        self.__port = 0
-        self.__userID = 'SITE'
-
+        self.__mysite = args['siteID']
+        self.__userID = args['userID']
         self.__db = None    # ifpServer database object
         self.__dbGrid = None
-        self.__parmsToProcess = []
-        self.__blankOtherPeriods = 0
-        self.__processTimePeriod = None
-        self.__altMask = None
-        self.__replaceOnly = 0
-        self.__eraseFirst = 0
-        self.__announce = ""
-        self.__renameWE = 0
-        self.__iscSends = 0
-        self.__databaseID = ''
-        self.__inFiles = []
-        self.__ignoreMask = 0
-        self.__adjustTranslate = 0
-        self.__deleteInput = 0
-        self.__parmsToIgnore = []
-        self.__gridDelay = 0.0
-        self.__logFile = None
+        self.__parmsToProcess = args['parmsToProcess']
+        self.__blankOtherPeriods = args['blankOtherPeriods']
+        self.__altMask = args['altMask']
+        self.__replaceOnly = args['replaceOnly']
+        self.__eraseFirst = args['eraseFirst']
+        self.__announce = args['announce']
+        self.__renameWE = args['renameWE']
+        self.__iscSends = args['iscSends']
+        if args['databaseID'] is not None:
+            self.__databaseID = args['databaseID']
+        else: 
+            self.__databaseID = self.__mysite + "_GRID__ISC_00000000_0000"
+        self.__inFiles = args['inFiles']
+        self.__ignoreMask = args['ignoreMask']
+        self.__adjustTranslate = args['adjustTranslate']
+        self.__deleteInput = args['deleteInput']
+        self.__parmsToIgnore = args['parmsToIgnore']
+        self.__gridDelay = args['gridDelay']
+        self.__logFile = args['logFileName']
         
-        self.__getArgs(args)        
+        startTime = 0 
+        if args['startTime'] is not None:
+            startTime = self.__decodeTimeString(args['startTime'])
+        endTime = int(2 ** 30 - 1 + 2 ** 30)
+        if args['endTime'] is not None:
+            endTime = self.__decodeTimeString(args['endTime'])
+        self.__processTimePeriod = (startTime, endTime)
 
         self.__initLogger()
 
@@ -232,98 +301,6 @@ class IscMosaic:
         
     def logDebug(self,*msg):
         self.logVerbose(iscUtil.tupleToString(*msg))
-        
-    
-    #------------------------------------------------------------------------
-    # Read command line arguments
-    #------------------------------------------------------------------------
-    def __getArgs(self, args):
-
-        try:
-            optlist, args = getopt.getopt(args[1:],
-              'v:h:r:d:p:u:f:bs:e:xzkna:w:i:D:oST')
-        except getopt.error, val:
-            print val
-            return
-        startTime = 0
-        endTime = int(2 ** 30 - 1 + 2 ** 30)
-
-        import siteConfig
-        try:
-            self.__host = siteConfig.GFESUITE_SERVER
-            self.__port = int(siteConfig.GFESUITE_PORT)
-            self.__mysite = siteConfig.GFESUITE_SITEID
-            self.__databaseID = self.__mysite + "_GRID__ISC_00000000_0000"
-        except:
-            pass
-
-        for opt in optlist:
-            if opt[0] == '-h':
-                self.__host = opt[1]
-            if opt[0] == '-a':
-                self.__altMask = opt[1]
-            elif opt[0] == '-r':
-                self.__port = int(opt[1])
-            elif opt[0] == '-b':
-                self.__blankOtherPeriods = 1
-            elif opt[0] == '-u':
-                self.__userID = opt[1]
-            elif opt[0] == '-T':
-                self.__adjustTranslate = 1
-            elif opt[0] == '-k':
-                self.__deleteInput = 1
-            elif opt[0] == '-d':
-                self.__databaseID = opt[1]
-            elif opt[0] == '-D':
-                self.__gridDelay = float(opt[1])
-            elif opt[0] == '-p':
-                p = opt[1]
-                # add SFC if necessary
-                if string.find(p, "_SFC") == -1:
-                    p = p + "_SFC"
-                if p not in self.__parmsToProcess:
-                    self.__parmsToProcess.append(p)
-            elif opt[0] == '-i':
-                i = opt[1]
-                # add SFC if necessary
-                if string.find(i, "_SFC") == -1:
-                    i = i + "_SFC"
-                if i not in self.__parmsToIgnore:
-                    self.__parmsToIgnore.append(i)
-            elif opt[0] == '-f':
-                self.__inFiles.append(opt[1])
-            elif opt[0] == '-s':
-                startTime = self.__decodeTimeString(opt[1])
-            elif opt[0] == '-e':
-                endTime = self.__decodeTimeString(opt[1])
-            elif opt[0] == '-z':
-                self.__eraseFirst = 1
-            elif opt[0] == '-x':
-                self.__replaceOnly = 1
-            elif opt[0] == '-w':
-                self.__announce = opt[1]
-            elif opt[0] == '-o':
-                self.__renameWE = 1
-            elif opt[0] == '-n':
-                self.__ignoreMask = 1
-            elif opt[0] == '-S':
-                self.__iscSends = 1
-            elif opt[0] == '-v':
-                self.__logFile = opt[1]
-
-        if len(self.__inFiles) > 1 and self.__eraseFirst == 1:
-            self.logProblem(\
-              "Multiple input files [-f switches] and -z switch not compatible")
-            raise Exception, "Bad command line"
-
-        if self.__ignoreMask == 1 and self.__altMask is not None:
-            self.logProblem(\
-              "-n and -a altMask switches not compatible")
-            raise Exception, "Bad command line"
-
-
-        self.__inFiles = JUtil.pyValToJavaObj(self.__inFiles)
-        self.__processTimePeriod = (startTime, endTime)
     
     def execute(self):
         self.logEvent("iscMosaic Starting")
@@ -345,12 +322,12 @@ class IscMosaic:
         self.__myOfficeType = IFPServerConfigManager.getServerConfig(DatabaseID(self.__databaseID).getSiteId()).officeType()
         
         #process each input file
-        for i in range(0, self.__inFiles.size()):
+        for file in self.__inFiles:
             self.__areaMask = None
-            self.__processInputFile(str(self.__inFiles.get(i)))
+            self.__processInputFile(file)
             
             if self.__deleteInput:
-                os.remove(str(self.__inFiles.get(i)))
+                os.remove(file)
 
         self.logEvent("iscMosaic Finished")
         
@@ -630,7 +607,8 @@ class IscMosaic:
                     # Returns tuple of (parmName, TR, #grids, #fails)
                     if len(inTimesProc):
                         totalTimeRange = (inTimesProc[0][0], inTimesProc[ -1][ -1] - 3600)
-                        
+                    self._wec.flush()
+                    
                     retryAttempt = retries
                 except:
                     retryAttempt = retryAttempt + 1
@@ -754,12 +732,6 @@ class IscMosaic:
             grid = self._wec[tr]
             if grid is not None:
                 destGrid, history = grid
-                
-                tempHistory = []
-                for hist in history:
-                    tempHistory.append(hist.getCodedString())
-                history = tempHistory
-                
                 self.__dbGrid = (destGrid, history, tr)
             else:
                 self.logProblem("Unable to access grid for ",
@@ -767,6 +739,7 @@ class IscMosaic:
                 return None
 
         return (self.__dbGrid[0], self.__dbGrid[1])
+
     #---------------------------------------------------------------------
     # calculate file start/end processing times
     # Returns (startTime, endTime) or None for processing
@@ -1537,9 +1510,43 @@ class IscMosaic:
 
         self.__dbGrid = None
 
-def main(argv):    
-    if type(argv) != 'list':
-        argv = JUtil.javaStringListToPylist(argv)
+
+def convertList(unknownList):
+    retVal = unknownList
+    try:
+        len(unknownList)
+    except TypeError:
+        retVal = JUtil.javaObjToPyVal(unknownList)
+    return retVal
+
+def main(siteID, userID, databaseID, parmsToProcess, blankOtherPeriods, 
+        startTime, endTime, altMask, replaceOnly, eraseFirst, 
+        announce, renameWE, iscSends, inFiles, ignoreMask, 
+        adjustTranslate, deleteInput, parmsToIgnore, gridDelay, logFileName):    
+    # convert Java types to python and send to IscMosaic for execution
+    parmsToProcess = convertList(parmsToProcess)
+    inFiles = convertList(inFiles)
+    parmsToIgnore = convertList(parmsToIgnore)
+    argv = {"siteID": siteID, 
+            "userID": userID, 
+            "databaseID": databaseID,
+            "parmsToProcess": parmsToProcess, 
+            "blankOtherPeriods": bool(blankOtherPeriods), 
+            "startTime": startTime,
+            "endTime": endTime, 
+            "altMask": altMask,
+            "replaceOnly": bool(replaceOnly), 
+            "eraseFirst": bool(eraseFirst),
+            "announce": announce, 
+            "renameWE": bool(renameWE),
+            "iscSends": bool(iscSends), 
+            "inFiles": inFiles,
+            "ignoreMask": bool(ignoreMask), 
+            "adjustTranslate": bool(adjustTranslate),
+            "deleteInput": bool(deleteInput), 
+            "parmsToIgnore": parmsToIgnore,
+            "gridDelay": float(gridDelay), 
+            "logFileName": logFileName}
     mosaic = IscMosaic(argv)
     mosaic.execute()
     mosaic = None

@@ -44,6 +44,7 @@ import com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator;
  * 29 July, 2011 6772          dhladky     Initial creation
  * 29 July, 2012 578           dhladky     memory work
  * 27 Jan,  2013 1478          dhladky     Changed arraylist to list for times, more constants
+ * 02/01/13     1569        D. Hladky      Added constants
  * </pre>
  * 
  * @author dhladky
@@ -89,74 +90,80 @@ public class FFMPInterpolatedGuidanceDelay {
      * 
      * @return
      */
-    public FFMPRecord calculateDelayedGuidance() {
+    public boolean calculateDelayedGuidance() {
 
-        FFMPDataContainer qpeContainer = null;
-
+        boolean delayGuidance = false;
         ArrayList<String> hucs = new ArrayList<String>();
-		hucs.add("ALL");
+        hucs.add(FFMPRecord.ALL);
 
-		qpeContainer = generator.getFFMPDataContainer(qpeSource.getSourceName()
-				+ "-" + siteKey + "-" + siteKey, hucs, backDate);
-	
-        long expirationTime = qpeSource.getExpirationMinutes(siteKey)
-                * TimeUtil.MILLIS_PER_MINUTE;
-        // determine lag_time
-        long lagTime = (currentRecord.getDataTime().getRefTime().getTime())
-                + (long) (ffgSource.getDurationHour() * TimeUtil.MILLIS_PER_MINUTE);
-        // Determine hour fraction.
-        int fraction_Hr = (int) (((float) (currentRecord.getDataTime()
-                .getRefTime().getTime() - (lagTime - guidFrequency))) / (float) guidFrequency);
-        // Gets the ordered times for QPE
-        List<Date> orderedTimes = qpeContainer
-                .getOrderedTimes(currentRecord.getDataTime().getRefTime());
+        FFMPDataContainer qpeContainer = generator.getFFMPDataContainer(qpeSource.getSourceName()
+                + "-" + siteKey + "-" + siteKey, hucs, backDate);
 
-        // EQUATION: Guid = GuidOld + R i/d (GuidNew - GuidOld)
-        for (Entry<Long, FFMPBasin> entry : currentRecord.getBasinsMap()
-                .get("ALL").getBasins().entrySet()) {
-            FFMPBasin currBasin = entry.getValue();
-            FFMPGuidanceBasin oldBasin = (FFMPGuidanceBasin) previousGuidanceData
-                    .get(entry.getKey());
-            // comparison for increase / decrease
-            if (oldBasin != null && currBasin != null) {
+        // Don't do anything, we have no QPE
+        if (qpeContainer != null) {
+            
+            long expirationTime = qpeSource.getExpirationMinutes(siteKey)
+                    * TimeUtil.MILLIS_PER_MINUTE;
+            // determine lag_time
+            long lagTime = (currentRecord.getDataTime().getRefTime().getTime())
+                    + (long) (ffgSource.getDurationHour() * TimeUtil.MILLIS_PER_MINUTE);
+            // Determine hour fraction.
+            int fraction_Hr = (int) (((float) (currentRecord.getDataTime()
+                    .getRefTime().getTime() - (lagTime - guidFrequency))) / (float) guidFrequency);
+            // Gets the ordered times for QPE
+            List<Date> orderedTimes = qpeContainer
+                    .getOrderedTimes(currentRecord.getDataTime().getRefTime());
 
-                float fraction = 0.0f;
-                float delta = currBasin.getValue()
-                        - oldBasin
-                                .getValue(backDate, ffgSource.getSourceName());
+            // EQUATION: Guid = GuidOld + R i/d (GuidNew - GuidOld)
+            for (Entry<Long, FFMPBasin> entry : currentRecord.getBasinsMap()
+                    .get(FFMPRecord.ALL).getBasins().entrySet()) {
+                FFMPBasin currBasin = entry.getValue();
+                FFMPGuidanceBasin oldBasin = (FFMPGuidanceBasin) previousGuidanceData
+                        .get(entry.getKey());
+                // comparison for increase / decrease
+                if (oldBasin != null && currBasin != null) {
 
-                if (delta > 0.0) {
-                    // increasing vals
-                    fraction = fraction_Hr;
-                } else if (delta < 0.0) {
-                    // decreasing vals, use num/denom from qpe
-                    // this is essentially a ratio of the first accumulation
-                    // step increment
-                    // to the total amount over this time window.
-                    FFMPBasin qpeBasin = qpeContainer.getBasinData("ALL").get(
-                            entry.getKey());
+                    float fraction = 0.0f;
+                    float delta = currBasin.getValue()
+                            - oldBasin.getValue(backDate,
+                                    ffgSource.getSourceName());
 
-                    if (qpeBasin != null) {
-                        float intervalAccum = qpeBasin.getAccumValue(backDate,
-                                currentRecord.getDataTime().getRefTime(),
-                                expirationTime, qpeSource.isRate());
-                        // grab first time after initial for step
-                        float stepAccum = qpeBasin.getAccumValue(
-                                orderedTimes.get(1), orderedTimes.get(0),
-                                expirationTime, qpeSource.isRate());
-                        fraction = stepAccum / intervalAccum;
+                    if (delta > 0.0) {
+                        // increasing vals
+                        fraction = fraction_Hr;
+                    } else if (delta < 0.0) {
+                        // decreasing vals, use num/denom from qpe
+                        // this is essentially a ratio of the first accumulation
+                        // step increment
+                        // to the total amount over this time window.
+                        FFMPBasin qpeBasin = qpeContainer.getBasinData(
+                                FFMPRecord.ALL).get(entry.getKey());
+
+                        if (qpeBasin != null) {
+                            float intervalAccum = qpeBasin.getAccumValue(
+                                    backDate, currentRecord.getDataTime()
+                                            .getRefTime(), expirationTime,
+                                    qpeSource.isRate());
+                            // grab first time after initial for step
+                            float stepAccum = qpeBasin.getAccumValue(
+                                    orderedTimes.get(1), orderedTimes.get(0),
+                                    expirationTime, qpeSource.isRate());
+                            fraction = stepAccum / intervalAccum;
+                        }
+
+                    } else {
+                        // the same
+                        fraction = 0.0f;
                     }
 
-                } else {
-                    // the same
-                    fraction = 0.0f;
+                    float val = currBasin.getValue() + (fraction * delta);
+                    currBasin.setValue(newDate, val);
                 }
-
-                float val = currBasin.getValue() + (fraction * delta);
-                currBasin.setValue(newDate, val);
             }
+            
+            delayGuidance = true;
         }
 
-        return currentRecord;
+        return delayGuidance;
     }
 }

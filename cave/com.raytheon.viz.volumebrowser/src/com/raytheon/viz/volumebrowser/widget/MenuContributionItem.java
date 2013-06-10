@@ -28,8 +28,8 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
-import com.raytheon.uf.viz.core.level.LevelMapping;
-import com.raytheon.uf.viz.core.level.LevelMappingFactory;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
+import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.viz.volumebrowser.vbui.MenuItemManager;
 import com.raytheon.viz.volumebrowser.xml.MenuContribution;
 
@@ -93,7 +93,8 @@ public class MenuContributionItem extends ContributionItem {
         item.setData(this);
 
         if (menuContribution.xml.textLookup.equals("LevelMapping")) {
-            LevelMapping mapping = LevelMappingFactory.getInstance()
+            LevelMapping mapping = LevelMappingFactory.getInstance(
+                    LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
                     .getLevelMappingForKey(menuContribution.xml.key);
             if (mapping != null) {
                 menuContribution.xml.menuText = mapping.getDisplayName();

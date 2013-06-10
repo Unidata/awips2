@@ -3,15 +3,8 @@
  */
 package gov.noaa.nws.ncep.edex.common.metparameters;
 
-
-//import gov.noaa.nws.ncep.metParameters.parameterConversion.PRLibrary.InvalidRangeException;
-//import gov.noaa.nws.ncep.metParameters.parameterConversion.PRLibrary.InvalidValueException;
-//import gov.noaa.nws.ncep.metparameters.Amount;
-//import gov.noaa.nws.ncep.metparameters.ClimateDataDbAccess;
-//import gov.noaa.nws.ncep.metparameters.DayTempAnomaly;
-//import gov.noaa.nws.ncep.metparameters.Max24HrTemp;
-//import gov.noaa.nws.ncep.metparameters.StationID;
-//import gov.noaa.nws.ncep.metparameters.MetParameterFactory.DeriveMethod;
+import gov.noaa.nws.ncep.edex.common.metparameters.MetParameterFactory.DeriveMethod;
+import gov.noaa.nws.ncep.edex.common.metparameters.parameterconversion.PRLibrary.InvalidValueException;
 
 import javax.measure.quantity.Temperature;
 import javax.measure.unit.NonSI;
@@ -36,36 +29,47 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 	 */
 	private static final long serialVersionUID = 6489210440084721750L;
 
-	public DayTempAnomaly() {
-			super( UNIT );
+	public DayTempAnomaly()throws Exception{
+	    super(UNIT);     
 	}
-	 
-//	@DeriveMethod
-//	public DayTempAnomaly derive( Max24HrTemp max24HrTemp, StationID stationId ) throws InvalidValueException, NullPointerException  {
-//		if ( max24HrTemp.hasValidValue() && stationId.hasValidValue() ){
-//			String month = SelectedFrameTimeUtil.getFrameTimeMonthStringValue(); 
-//			String dayOfMonth = SelectedFrameTimeUtil.getFrameTimeDayOfMonthStringValue(); 
-//			double climateTDYFInF = getClimateTDYF(stationId.valueString, month, dayOfMonth); 
-////			double max24HrTempInF = TemperatureConverter.convertToFahrenheitFromKelvin(max24HrTemp.doubleValue()); 
-//			double max24HrTempInF = max24HrTemp.getValueAs(NonSI.FAHRENHEIT).doubleValue();  
-//			double finalTDYFInF = max24HrTempInF - climateTDYFInF; 
-////			System.out.println("=======, max24HrTempInF= "+max24HrTempInF); 
-////			System.out.println("=======, climateTDYFInF= "+climateTDYFInF); 
-////			System.out.println("=======, finalTDYFInF= "+finalTDYFInF); 
-//			/*
-//			 * tdaf: Day Temp anomaly in F
-//			 */
-//		      Amount tdafAmount = new Amount(finalTDYFInF, NonSI.FAHRENHEIT); 
-//		      setValue(tdafAmount);
-//		}else
-//			setValueToMissing();
-//		return this;
-//	}
-//	
-//	private double getClimateTDYF(String stationId, String month, String day) {
-//		ClimateDataDbAccess climateDataDbAccess = ClimateDataDbAccessManager.getInstance().getClimateDataDbAccess(); 
-//		double tdyfClimateValue = climateDataDbAccess.getTDYF(stationId, month, day); 
-//		return tdyfClimateValue;  
-//	}
+	
+	@DeriveMethod
+	public DayTempAnomaly derive( MaxDayTemp maxTemp, ClimDayTemp climDayTemp ) throws InvalidValueException, NullPointerException{
+		
+		if ( maxTemp == null 
+				|| climDayTemp == null 
+				|| !maxTemp.hasValidValue()
+				||!climDayTemp.hasValidValue()){
+			
+			setUnit(NonSI.FAHRENHEIT);
+			return this;
+		}
+			
+			double tmax = maxTemp.getValueAs("°F").doubleValue();
+			double tclim = climDayTemp.getValueAs("°F").doubleValue();
+			Double anomalyTemp = new Double (tmax - tclim);
+			setValueAs(anomalyTemp, "°F");
+	        return this;
+	}
+
+	@DeriveMethod
+	public DayTempAnomaly derive( Max24HrTemp maxTemp, ClimDayTemp climDayTemp ) throws InvalidValueException, NullPointerException{
+		
+		if ( maxTemp == null 
+				|| climDayTemp == null 
+				|| !maxTemp.hasValidValue()
+				||!climDayTemp.hasValidValue()){
+			
+			setUnit(NonSI.FAHRENHEIT);
+			return this;
+		}
+			
+			double tmax = maxTemp.getValueAs("°F").doubleValue();
+			double tclim = climDayTemp.getValueAs("°F").doubleValue();
+			Double anomalyTemp = new Double (tmax - tclim);
+			setValueAs(anomalyTemp, "°F");
+	        return this;
+	}
+	
 	
  }

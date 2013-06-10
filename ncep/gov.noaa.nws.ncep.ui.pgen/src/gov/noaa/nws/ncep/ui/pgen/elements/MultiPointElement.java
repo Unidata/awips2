@@ -302,7 +302,7 @@ public abstract class MultiPointElement extends DrawableElement implements IMult
 		linePoints.remove( index );
 		
 	}
-
+	
 	/**
      * Generate a JTS polygon from a set of points.
      * 

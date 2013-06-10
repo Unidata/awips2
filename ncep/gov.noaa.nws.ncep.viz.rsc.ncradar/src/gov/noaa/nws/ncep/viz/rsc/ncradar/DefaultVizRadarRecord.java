@@ -71,9 +71,6 @@ public class DefaultVizRadarRecord extends VizRadarRecord {
                 if (object.getRawShortData() != null) {
                     size += object.getRawData().length * 2;
                 }
-                if (object.getAlphanumericValues() != null) {
-                    size += object.getAlphanumericValues().length() * 2;
-                }
                 if (object.getAngleData() != null) {
                     size += object.getAngleData().length * 4;
                 }

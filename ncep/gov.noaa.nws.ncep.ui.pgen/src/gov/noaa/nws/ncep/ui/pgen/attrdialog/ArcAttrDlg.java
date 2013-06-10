@@ -18,7 +18,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -49,6 +48,7 @@ import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
  *                                      selected color instead of displaying 
  *                                      the complete color matrix .
  * 04/11		?			B. Yin		Re-factor IAttribute
+ * 04/13		TTR399		J. Wu		make the dialog smaller.
  * </pre>
  * 
  * @author	J. Wu
@@ -125,12 +125,7 @@ public class ArcAttrDlg  extends AttrDlg implements IArc{
 	public Control createDialogArea(Composite parent) {
 		
 	        top = (Composite) super.createDialogArea(parent);
-
-	        // Create the main layout for the shell.
-	        GridLayout mainLayout = new GridLayout(3, false);
-	        mainLayout.marginHeight = 3;
-	        mainLayout.marginWidth = 3;
-	        top.setLayout(mainLayout);
+	        top.setLayout( getGridLayout( 1, false, 0, 0 , 0, 0 ) );
 
 	        // Initialize all of the menus, controls, and layouts
 	        initializeComponents();
@@ -146,20 +141,12 @@ public class ArcAttrDlg  extends AttrDlg implements IArc{
         this.getShell().setText("Arc Attributes");
         chkBox = new Button[5];
 
- /*       colorLbl = new Label(top, SWT.LEFT);
-        colorLbl.setText("Color:");
-        
-        Composite colorGroup = new Composite(top, SWT.NONE);
-        //TODO:  Think about changing booleans to enums
-        cs = new ColorMatrixSelector(colorGroup, true, true, 30, 30, 14, 16, 24, 24, 0, 2, 2);
-        cs.setColorValue(new RGB(0,255,0));
-   */
         createColorAttr();
         createWidthAttr();
         createRatioAttr();
         createStartAngleAttr();
         createEndAngleAttr();
- 
+        addSeparator(top.getParent());
         
 	}
 
@@ -350,8 +337,11 @@ public class ArcAttrDlg  extends AttrDlg implements IArc{
 	 * Create widgets for the color attribute
 	 */
 	private void createColorAttr(){
+
+		Composite inCmp = new Composite( top, SWT.NONE);
+        inCmp.setLayout( getGridLayout( 3, false, 0, 0, 0, 0 ) );
 		
-        chkBox[ChkBox.COLOR.ordinal()] = new Button(top, SWT.CHECK);
+        chkBox[ChkBox.COLOR.ordinal()] = new Button(inCmp, SWT.CHECK);
         chkBox[ChkBox.COLOR.ordinal()] .setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT));
 		chkBox[ChkBox.COLOR.ordinal()].addSelectionListener(new SelectionAdapter(){
 
@@ -367,13 +357,10 @@ public class ArcAttrDlg  extends AttrDlg implements IArc{
 			}
         });  
      
-        colorLbl = new Label( top, SWT.LEFT );
+        colorLbl = new Label( inCmp, SWT.LEFT );
         colorLbl.setText("Color:");
 
-//        Composite colorGroup = new Composite(top, SWT.NONE);
-        //TODO:  Think about changing booleans to enums
-//        cs = new ColorMatrixSelector( colorGroup, true, true, 30, 30, 14, 16, 24, 24, 0, 2, 2) ;
-		cs = new ColorButtonSelector( top );
+		cs = new ColorButtonSelector( inCmp, 20, 15 );
         cs.setColorValue( new RGB( 0,255,0 ) );
 	}
 	
@@ -382,7 +369,10 @@ public class ArcAttrDlg  extends AttrDlg implements IArc{
 	 */
 	private void createWidthAttr(){
 	    
-        chkBox[ChkBox.WIDTH.ordinal()] = new Button(top, SWT.CHECK);
+		Composite inCmp = new Composite( top, SWT.NONE);
+        inCmp.setLayout( getGridLayout( 3, false, 0, 0, 0, 0 ) );
+        
+        chkBox[ChkBox.WIDTH.ordinal()] = new Button(inCmp, SWT.CHECK);
         chkBox[ChkBox.WIDTH.ordinal()] .setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT));
 		chkBox[ChkBox.WIDTH.ordinal()].addSelectionListener(new SelectionAdapter(){
 
@@ -403,16 +393,15 @@ public class ArcAttrDlg  extends AttrDlg implements IArc{
 			}
         	
         });  
-        widthLbl = new Label(top, SWT.LEFT);
-        widthLbl.setText("Line Width:");
+        widthLbl = new Label(inCmp, SWT.LEFT);
+        widthLbl.setText("Line Width ");
         
-        GridLayout gl = new GridLayout( 2, false );
-
-        Group lineWidthGrp = new Group( top, SWT.NONE ) ;
-        lineWidthGrp.setLayout( gl );
+        Group lineWidthGrp = new Group( inCmp, SWT.NONE ) ;
+        lineWidthGrp.setLayout( getGridLayout( 2, false, 0, 0, 0, 0 ) );
 
         lineWidthSlider = new Slider( lineWidthGrp, SWT.HORIZONTAL);
         lineWidthSlider.setValues( 2, 1, 11, 1, 1, 1 );
+        lineWidthSlider.setLayoutData( new GridData( 90, 15 ) );
         lineWidthSlider.addSelectionListener( new SelectionAdapter() {
             public void widgetSelected( SelectionEvent e ) {
             	lineWidthText.setText( "" + lineWidthSlider.getSelection() );
@@ -420,7 +409,7 @@ public class ArcAttrDlg  extends AttrDlg implements IArc{
         });
             
         lineWidthText = new Text(lineWidthGrp,  SWT.SINGLE | SWT.BORDER );                        
-        lineWidthText.setLayoutData( new GridData( 30, 10 ) );
+        lineWidthText.setLayoutData( new GridData( 30, 8 ) );
         lineWidthText.setEditable( true );   
         lineWidthText.setText( "2" );
         lineWidthText.addKeyListener( new KeyAdapter() {
@@ -446,7 +435,10 @@ public class ArcAttrDlg  extends AttrDlg implements IArc{
 	 * Create widgets for the ration attribute
 	 */
 	private void createRatioAttr(){
-        chkBox[ChkBox.AXIS_RATIO.ordinal()] = new Button(top, SWT.CHECK);
+		Composite inCmp = new Composite( top, SWT.NONE);
+        inCmp.setLayout( getGridLayout( 3, false, 0, 0, 0, 0 ) );
+
+        chkBox[ChkBox.AXIS_RATIO.ordinal()] = new Button(inCmp, SWT.CHECK);
         chkBox[ChkBox.AXIS_RATIO.ordinal()] .setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT));
 		chkBox[ChkBox.AXIS_RATIO.ordinal()].addSelectionListener(new SelectionAdapter(){
 
@@ -468,15 +460,15 @@ public class ArcAttrDlg  extends AttrDlg implements IArc{
         	
 		});  
 
-		axisRatioLbl = new Label( top, SWT.LEFT );
-		axisRatioLbl.setText("Axis Ratio:");
-		GridLayout gl = new GridLayout( 2, false );
+		axisRatioLbl = new Label( inCmp, SWT.LEFT );
+		axisRatioLbl.setText("Axis Ratio ");
 
-		Group axisRatioGrp = new Group( top, SWT.NONE ) ;
-		axisRatioGrp.setLayout( gl );
+		Group axisRatioGrp = new Group( inCmp, SWT.NONE ) ;
+		axisRatioGrp.setLayout( getGridLayout( 2, false, 0, 0, 0, 0 ) );
 
 		axisRatioSlider = new Slider( axisRatioGrp, SWT.HORIZONTAL );
 		axisRatioSlider.setValues( 100, 0, 101, 1, 1, 1 );
+		axisRatioSlider.setLayoutData( new GridData( 92, 15 ) );
 		axisRatioSlider.addSelectionListener( new SelectionAdapter() {
 			public void widgetSelected( SelectionEvent e ) {
 				axisRatioText.setText( "" + axisRatioSlider.getSelection()/100.0 );
@@ -511,7 +503,10 @@ public class ArcAttrDlg  extends AttrDlg implements IArc{
 	 * Create widgets for the start-angle atribute
 	 */
 	private void createStartAngleAttr(){
-        chkBox[ChkBox.START_ANGLE.ordinal()] = new Button(top, SWT.CHECK);
+		Composite inCmp = new Composite( top, SWT.NONE);
+        inCmp.setLayout( getGridLayout( 3, false, 0, 0, 0, 0 ) );
+
+		chkBox[ChkBox.START_ANGLE.ordinal()] = new Button(inCmp, SWT.CHECK);
         chkBox[ChkBox.START_ANGLE.ordinal()] .setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT));
 		chkBox[ChkBox.START_ANGLE.ordinal()].addSelectionListener(new SelectionAdapter(){
 
@@ -531,18 +526,17 @@ public class ArcAttrDlg  extends AttrDlg implements IArc{
 				}
 			}
         	
-		});  
+		});
 		 
-        startAngleLbl = new Label( top, SWT.LEFT );
-        startAngleLbl.setText("Start Angle:");
+        startAngleLbl = new Label( inCmp, SWT.LEFT );
+        startAngleLbl.setText("Start Angle ");
         
-        GridLayout gl = new GridLayout( 2, false );
-
-        Group startAngleGrp = new Group( top, SWT.NONE ) ;
-        startAngleGrp.setLayout( gl );
+        Group startAngleGrp = new Group( inCmp, SWT.NONE ) ;
+        startAngleGrp.setLayout( getGridLayout( 2, false, 0, 0, 0, 0 ) );
         
         startAngleSlider = new Slider( startAngleGrp, SWT.HORIZONTAL );
         startAngleSlider.setValues( 0, 0, 361, 1, 1, 5 );
+        startAngleSlider.setLayoutData( new GridData( 87, 15 ) );
         startAngleSlider.addSelectionListener( new SelectionAdapter() {
             public void widgetSelected( SelectionEvent e ) {
             	startAngleText.setText( "" + startAngleSlider.getSelection() );
@@ -569,6 +563,7 @@ public class ArcAttrDlg  extends AttrDlg implements IArc{
                 	startAngleText.setToolTipText( "Only integer  values between 0 and 360 are accepted." );
                 }
             }
+
         });
 	}
 	
@@ -576,7 +571,11 @@ public class ArcAttrDlg  extends AttrDlg implements IArc{
 	 * Create widgets for the end angle attribute
 	 */
 	private void createEndAngleAttr(){
-		chkBox[ChkBox.END_ANGLE.ordinal()] = new Button(top, SWT.CHECK);
+		
+		Composite inCmp = new Composite( top, SWT.NONE);
+        inCmp.setLayout( getGridLayout( 3, false, 0, 0, 0, 0 ) );
+
+		chkBox[ChkBox.END_ANGLE.ordinal()] = new Button(inCmp, SWT.CHECK);
 		chkBox[ChkBox.END_ANGLE.ordinal()] .setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT));
 		chkBox[ChkBox.END_ANGLE.ordinal()].addSelectionListener(new SelectionAdapter(){
 
@@ -598,16 +597,15 @@ public class ArcAttrDlg  extends AttrDlg implements IArc{
 
 		});
 
-		GridLayout gl = new GridLayout( 2, false );
+		endAngleLbl = new Label( inCmp, SWT.LEFT );
+		endAngleLbl.setText("End Angle ");
 
-		endAngleLbl = new Label( top, SWT.LEFT );
-		endAngleLbl.setText("End Angle:");
-
-		Group endAngleGrp = new Group( top, SWT.NONE ) ;
-		endAngleGrp.setLayout( gl );
+		Group endAngleGrp = new Group( inCmp, SWT.NONE ) ;
+		endAngleGrp.setLayout( getGridLayout( 2, false, 0, 0, 0, 0) );
 
 		endAngleSlider = new Slider( endAngleGrp, SWT.HORIZONTAL );
 		endAngleSlider.setValues( 360, 0, 361, 1, 1, 5 );
+	    endAngleSlider.setLayoutData( new GridData( 88, 15 ) );		
 		endAngleSlider.addSelectionListener( new SelectionAdapter() {
 			public void widgetSelected( SelectionEvent e ) {
 				endAngleText.setText( "" + endAngleSlider.getSelection() );
@@ -615,7 +613,7 @@ public class ArcAttrDlg  extends AttrDlg implements IArc{
 		});
 
 		endAngleText = new Text( endAngleGrp,  SWT.SINGLE | SWT.BORDER );                        
-		endAngleText.setLayoutData( new GridData( 30, 10 ) );
+		endAngleText.setLayoutData( new GridData( 33, 10 ) );
 		endAngleText.setEditable( true );   
 		endAngleText.setText( "360" );
 		endAngleText.addKeyListener( new KeyAdapter() {

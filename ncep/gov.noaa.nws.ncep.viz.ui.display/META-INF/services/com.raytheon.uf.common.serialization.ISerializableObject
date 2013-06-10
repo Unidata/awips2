@@ -1,5 +1,7 @@
 gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay
 gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor
+gov.noaa.nws.ncep.viz.ui.display.NCNonMapRenderableDisplay
+gov.noaa.nws.ncep.viz.ui.display.NCNonMapDescriptor
 gov.noaa.nws.ncep.viz.ui.display.PredefinedArea
 gov.noaa.nws.ncep.viz.ui.display.ColorBar
 gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap

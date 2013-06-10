@@ -38,6 +38,7 @@ import javax.xml.bind.annotation.XmlElements;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 7, 2010            bsteffen     Initial creation
+ * 03/05/2013   DCS51     zwang        Handle GFM product
  * 
  * </pre>
  * 
@@ -59,6 +60,7 @@ public class UpperText {
             @XmlElement(name = "productDependentDate", type = ProdDepDateTextContributor.class),
             @XmlElement(name = "productDependentUSPMax", type = USPMaxTextContributor.class),
             @XmlElement(name = "productDependentDVLMax", type = DigitalVilMaxTextContributor.class),
+            @XmlElement(name = "gfmCount", type = GfmTextContributor.class),
             @XmlElement(name = "srmMovement", type = SrmMovementTextContributor.class),
             @XmlElement(name = "srmSource", type = SrmSourceTextContributor.class) })
     protected List<IRadarTextContributor> lines = new ArrayList<IRadarTextContributor>();

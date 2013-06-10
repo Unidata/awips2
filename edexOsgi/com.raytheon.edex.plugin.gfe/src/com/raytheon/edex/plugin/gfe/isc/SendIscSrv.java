@@ -52,7 +52,6 @@ public class SendIscSrv {
             IscSendJob thread = new IscSendJob();
             thread.setRunningTimeOutMillis(cfg.getRunningTimeOutMillis());
             thread.setThreadSleepInterval(cfg.getThreadSleepInterval());
-            thread.setInitialDelay(cfg.getInitialDelay());
             executor.execute(thread);
         }
     }

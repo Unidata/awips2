@@ -2,6 +2,7 @@ package gov.noaa.nws.ncep.common.dataplugin.solarimage;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -10,7 +11,10 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.annotations.Index;
+
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -18,14 +22,19 @@ import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+
 /**
- * Record implementation for solarimage plugin. 
+ * Record implementation for solarimage plugin.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer           Description
  * ------------ ---------- ----------------   --------------------------
  * 12/05/2012   865        sgurung, qzhou     Initial creation.
+ * 01/07/2013   865        qzhou              Added "Site" for Halpha.
+ * 01/28/2013   865        qzhou              Changed float to double for intTime.
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013 1857       bgonzale           Added SequenceGenerator annotation.
  * </pre>
  * 
  * @author sgurung, qzhou
@@ -33,7 +42,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @Entity
+@SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "solarimageseq")
 @Table(name = "solarimage", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+/*
+ * Both refTime and forecastTime are included in the refTimeIndex since
+ * forecastTime is unlikely to be used.
+ */
+@org.hibernate.annotations.Table(
+		appliesTo = "solarimage",
+		indexes = {
+				@Index(name = "solarimage_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
+		}
+)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -77,7 +97,16 @@ public class SolarImageRecord extends PersistablePluginDataObject {
     @Column
     @DynamicSerializeElement
     @XmlAttribute
-    private float intTime;
+    private Double intTime;
+    
+    /**
+     * Site
+     */
+    @DataURI(position = 5)
+    @Column
+    @DynamicSerializeElement
+    @XmlAttribute
+    private String site;
     
     /**
      * hdu containing image data
@@ -90,6 +119,7 @@ public class SolarImageRecord extends PersistablePluginDataObject {
     /**
      * report type
      */
+    @DataURI(position = 6)
     @Column 
     @DynamicSerializeElement
     @XmlAttribute
@@ -167,7 +197,7 @@ public class SolarImageRecord extends PersistablePluginDataObject {
     /**
      * @return the intTime
      */
-    public float getIntTime() {
+    public Double getIntTime() {
         return intTime;
     }
 
@@ -175,8 +205,23 @@ public class SolarImageRecord extends PersistablePluginDataObject {
      * @param intTime
      *            the intTime to set
      */
-    public void setIntTime(float intTime) {
+    public void setIntTime(Double intTime) {
         this.intTime = intTime;
+    }
+    
+    /**
+     * @return the site
+     */
+    public String getSite() {
+        return site;
+    }
+
+    /**
+     * @param site
+     *            the site to set
+     */
+    public void setSite(String site) {
+        this.site = site;
     }
     
     /**
