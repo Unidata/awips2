@@ -37,7 +37,7 @@ import com.raytheon.uf.common.datadelivery.registry.DataLevelType.LevelType;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
-import com.raytheon.uf.common.datadelivery.registry.Provider.ProviderType;
+import com.raytheon.uf.common.datadelivery.registry.ProviderType;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -171,7 +171,7 @@ public class MetaDataManager {
                     .getAll()) {
 
                 for (ProviderType type : provider.getProviderType()) {
-                    typeSet.add(type.toString());
+                    typeSet.add(type.getDataType().toString());
                 }
             }
         } catch (RegistryHandlerException e) {
