@@ -9,15 +9,8 @@
 # include optional user defined variables
 -include makefile.conf~
 
-tar_archive=$$(basename $(BUILD_DIR)).tar
+files_native=$(wildcard ../files.native)
 tmp_location=tmp~/$$(basename $(BUILD_DIR))
-setup_dir=setup
-uninstall_script=$$(basename $(realpath .))_uninstall.sh
-permissions_script=$$(basename $(realpath .))_permissions.sh
-
-ifndef INSTALL_DIR
-INSTALL_DIR = $(HOME)/opt/$$(basename $(realpath .))
-endif
 
 init:
 ifndef BUILD_DIR
@@ -37,87 +30,20 @@ _all: init
 	# arrange the files
 	$$(export tmp_location=$(tmp_location);bash arrange_files.sh)
 	
-	# create setup directory for install/uninstall files
-	mkdir -p $(tmp_location)/$(setup_dir)
-	
 	# finished
-
-all: clean _all _permissions_script _uninstall_script
-
-_permissions_script:
-	# create permissions_script
-	$(MAKE) PERMISSIONS_ROOT=$(tmp_location) \
-		-f ../build.native/makefile.perm _create_permissions_script
-	sed "s|$(tmp_location)|..|" file_permissions.sh > \
-		$(tmp_location)/$(setup_dir)/$(permissions_script)
-	chmod a+x $(tmp_location)/$(setup_dir)/$(permissions_script) 
-	rm file_permissions.sh
-
-_uninstall_script:
-	# create uninstall_script
-	$$(cd $(tmp_location)/$(setup_dir);\
-	echo "cd \$$(dirname \$$0)" > $(uninstall_script);\
-	find ../ -type f -exec echo rm -f {} \; >> $(uninstall_script);\
-	find ../ -type l -exec echo unlink {} \; >> $(uninstall_script);\
-	find ../ -depth -type d -exec echo rmdir {} \; >> $(uninstall_script);\
-	echo "exit 0" >> $(uninstall_script);\
-	chmod a+x $(uninstall_script)\
-	)
+	
+_deploy:
+	# copy files from the tmp_location into files.native
+	
+	echo $(files_native)
+	rsync -avz $(tmp_location)/* $(files_native)
 
 clean: init
 	# rm tmp_location
 	rm -fr $(tmp_location)
 	# finished
-
-install: init all
-	# copy files from tmp_location to install_dir
-	mkdir -p $(INSTALL_DIR)
-	rsync -au $(tmp_location)/ $(INSTALL_DIR)
-	# finished
-
-uninstall: init
-	# call uninstall_script
-	$(INSTALL_DIR)/$(setup_dir)/$(uninstall_script)
-	# finished
-
-dist: init all _tar_archive
-
-_clean_tar_archive:
-	# rm tar_archive
-	rm -fr $(tar_archive)
-	# finished
 	
-_tar_archive:
-	# create tar_archive
-	tar -cvf $(tar_archive) -C $(tmp_location) .
-	# finished
-
-distupdate: init update _clean_tar_archive _tar_archive
-
-distclean: init clean _clean_tar_archive
-
-distinstall: init
-	# untar tar_archive into install_dir
-	mkdir -p $(INSTALL_DIR)
-	tar -xpf $(tar_archive) -C $(INSTALL_DIR)
-	# finished
-
-_update: init clean
-	# untar tar_archive
-	mkdir -p $(tmp_location)_tar
-	tar -xpf $(tar_archive) -C $(tmp_location)_tar
-
-_updated_tmp_location:
-	# copy files from _all step into extracted tar files
-	cp -fa $(tmp_location)/* $(tmp_location)_tar
-	
-	# move $(tmp_location)_tar to $(tmp_location)
-	rm -fr $(tmp_location)
-	mv $(tmp_location)_tar $(tmp_location)
-	
-update: _update _all _updated_tmp_location _permissions_script _uninstall_script
-
-.PHONY: init all _all clean install update _update dist distclean distinstall
+update: init _all _deploy clean
 
 # include optional user defined targets (and possible target overrides)
 -include makefile.targets~

@@ -93,6 +93,8 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * Jan 02, 2013  1441      djohnson     Access GroupDefinitionManager in a static fashion.
  * Apr 08, 2013  1826      djohnson     Remove unused code, delivery options.
  * May 15, 2013  1040      mpduff       OfficeID is now a list so need to add it rather than set it.
+ * May 23, 2013  1650      djohnson     Fix creation of new GroupDefinitions.
+ * May 28, 2013  1650      djohnson     More information when failing to schedule subscriptions.
  * </pre>
  * 
  * @author jpiatt
@@ -359,6 +361,10 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay,
         // Get Group Definition
         GroupDefinition groupDefinition = GroupDefinitionManager
                 .getGroup(groupName);
+        if (groupDefinition == null) {
+            groupDefinition = new GroupDefinition();
+            groupDefinition.setGroupName(groupName);
+        }
 
         for (Subscription subscription : groupSubscriptions) {
 
@@ -499,15 +505,20 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay,
     public String getOptionDisplayText(ForceApplyPromptResponse option,
             int requiredLatency, Subscription subscription,
             Set<String> wouldBeUnscheduledSubscriptions) {
+        final boolean singleSubscription = wouldBeUnscheduledSubscriptions
+                .size() == 1;
         switch (option) {
         case CANCEL:
             return "Do not update the group definition.";
         case FORCE_APPLY:
-            if (wouldBeUnscheduledSubscriptions.size() == 1) {
+            if (singleSubscription) {
                 return "Update the group definition and unschedule "
                         + wouldBeUnscheduledSubscriptions.iterator().next();
             }
             return "Update the group definition and unschedule the subscriptions";
+        case EDIT_SUBSCRIPTIONS:
+            return "Edit the "
+                    + ((singleSubscription) ? "subscription" : "subscriptions");
         case INCREASE_LATENCY:
             // Signifies it should not be an option
             return null;

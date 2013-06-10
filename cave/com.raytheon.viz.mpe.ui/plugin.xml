@@ -1916,4 +1916,11 @@
           key="autodqc">
     </component>
  </extension>
+ <extension
+       point="com.raytheon.uf.viz.ui.menus.tearoffperspective">
+    	<tearoffperspective
+          enabled="true"
+          perspectiveId="com.raytheon.viz.mpe.ui.MPEPerspective">
+    </tearoffperspective>
+ </extension>
 </plugin>

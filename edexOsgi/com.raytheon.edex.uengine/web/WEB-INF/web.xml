@@ -21,6 +21,11 @@
 <web-app id="web-app_1" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" version="2.4">
    <display-name>uEngineWeb</display-name>
 
+   <context-param>
+      <param-name>webAppRootKey</param-name>
+      <param-value>uEngineWeb</param-value>
+   </context-param>
+
    <servlet>
       <description><![CDATA[takes an Action script, runs it, and displays the result]]></description>
       <display-name>RunAction</display-name>
