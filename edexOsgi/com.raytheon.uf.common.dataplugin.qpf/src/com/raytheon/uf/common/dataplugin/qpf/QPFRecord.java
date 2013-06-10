@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.dataplugin.qpf;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -68,6 +70,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
  * 04/08/13     #1293       bkowal      Removed references to hdffileid.
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869        bsteffen    Remove dataURI column from
+ *                                      PluginDataObject.
  * 
  * </pre>
  * 
@@ -582,4 +586,10 @@ public class QPFRecord extends PersistablePluginDataObject
         return getSpatialInfo();
     }
 
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }

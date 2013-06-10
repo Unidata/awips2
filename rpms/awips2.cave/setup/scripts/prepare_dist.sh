@@ -73,7 +73,8 @@ fi
 time /awips2/ant/bin/ant -f p2-build.xml \
    -Declipse.dir=${UFRAME_ECLIPSE} \
    -Dbuild.version=${AWIPSII_VERSION} \
-   -Dbuild.arch=${CAVE_BUILD_ARCH}
+   -Dbuild.arch=${CAVE_BUILD_ARCH} \
+   -Declipse.dir=${UFRAME_ECLIPSE}
 RC=$?
 
 if [ ${RC} -ne 0 ]; then

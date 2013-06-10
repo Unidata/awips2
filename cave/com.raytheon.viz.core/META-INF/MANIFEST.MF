@@ -5,22 +5,25 @@ Bundle-SymbolicName: com.raytheon.viz.core;singleton:=true
 Bundle-Version: 1.12.1174.qualifier
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.geotools,
  org.apache.commons.lang,
  org.apache.commons.beanutils,
  org.apache.http,
  javax.vecmath,
  org.apache.commons.configuration,
- org.apache.activemq,
  javax.measure,
  org.apache.velocity,
  org.jep,
  javax.persistence,
  net.sf.cglib,
  com.facebook.thrift,
- com.raytheon.edex.common;visibility:=reexport,
  com.raytheon.uf.common.localization;visibility:=reexport,
  com.raytheon.uf.common.serialization;visibility:=reexport,
+ com.raytheon.uf.common.geospatial;bundle-version="1.12.1174";visibility:=reexport,
+ com.raytheon.uf.common.time;bundle-version="1.12.1174";visibility:=reexport,
+ com.raytheon.uf.common.datastorage;bundle-version="1.12.1174";visibility:=reexport,
+ com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174";visibility:=reexport,
+ com.raytheon.uf.common.util;bundle-version="1.12.1174";visibility:=reexport,
+ com.raytheon.uf.common.units;bundle-version="1.0.0";visibility:=reexport,
  com.raytheon.uf.viz.core;visibility:=reexport,
  com.raytheon.uf.common.colormap;bundle-version="1.0.0",
  com.raytheon.uf.common.serialization.comm,
@@ -49,7 +52,4 @@ Export-Package:
 Bundle-Vendor: Raytheon
 Bundle-Activator: com.raytheon.viz.core.CorePlugin
 Bundle-ActivationPolicy: lazy
-Import-Package: com.raytheon.uf.common.colormap,
- com.raytheon.uf.common.time,
- com.raytheon.uf.common.topo
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

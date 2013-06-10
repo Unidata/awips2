@@ -20,9 +20,15 @@
 
 package gov.noaa.nws.ncep.edex.plugin.ncgrib.spatial;
 
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.exception.GribException;
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.NcgridCoverage;
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.subgrid.SubNcgrid;
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.util.NcgridModel;
+import gov.noaa.nws.ncep.edex.plugin.ncgrib.dao.INcgridCoverageDao;
+import gov.noaa.nws.ncep.edex.util.ncgrib.NcgribModelLookup;
+
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,22 +37,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
-
-import gov.noaa.nws.ncep.edex.plugin.ncgrib.dao.INcgridCoverageDao;
-import gov.noaa.nws.ncep.edex.util.ncgrib.NcgribModelLookup;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.exception.GribException;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.NcgridCoverage;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.subgrid.SubNcgrid;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.util.NcgridModel;
 
 /**
  * Cache used for holding GridCoverage objects. Since creating geometries and
@@ -60,6 +59,7 @@ import gov.noaa.nws.ncep.common.dataplugin.ncgrib.util.NcgridModel;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
+ * Mar 14, 2013 1794        djohnson    FileUtil.listFiles now returns List.
  * 
  * </pre>
  * 
@@ -79,7 +79,7 @@ public class NcgribSpatialCache {
      * The key for this map is the id field of the GridCoverage object stored as
      * the value of the map
      */
-    private Map<Integer, NcgridCoverage> ncspatialMap;
+    private final Map<Integer, NcgridCoverage> ncspatialMap;
 
     /**
      * Map containing the GridCoverages<br>
@@ -87,17 +87,17 @@ public class NcgribSpatialCache {
      * as the value of the map. This is only used internally for lookup of a
      * coverage by name aka gridId.
      */
-    private Map<String, NcgridCoverage> ncspatialNameMap;
+    private final Map<String, NcgridCoverage> ncspatialNameMap;
 
     /**
      * Map containing the subGrid coverage based on a model name.
      */
-    private Map<String, Integer> subNcgridCoverageMap;
+    private final Map<String, Integer> subNcgridCoverageMap;
 
     /**
      * Map containing the subGrid definition based on a model name.
      */
-    private Map<String, SubNcgrid> definedSubNcgridMap;
+    private final Map<String, SubNcgrid> definedSubNcgridMap;
 
     /**
      * Gets the singleton instance of NcgribSpatialCache
@@ -272,7 +272,7 @@ public class NcgribSpatialCache {
 
         //System.out.println("ncep default sitePah=" + sitePath);
 
-        ArrayList<File> files = FileUtil.listFiles(new File(basePath), filter,
+        List<File> files = FileUtil.listFiles(new File(basePath), filter,
                 true);
 
         // Add any spatial information defined by the site
@@ -285,8 +285,9 @@ public class NcgribSpatialCache {
         for (File file : files) {
             try {
             	//System.out.println ("ncep default filePath=" + file.getPath());
-                NcgridCoverage grid = (NcgridCoverage) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(file.getPath());
+                NcgridCoverage grid = SerializationUtil
+                        .jaxbUnmarshalFromXmlFile(NcgridCoverage.class,
+                                file.getPath());
                 putGrid(grid, true);
             } catch (Exception e) {
                 // Log error but do not throw exception

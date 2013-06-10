@@ -37,18 +37,18 @@ import javax.measure.converter.UnitConverter;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
+import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
+import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.mpe.util.XmrgFile;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
-import com.raytheon.uf.viz.core.style.DataMappingPreferences;
-import com.raytheon.uf.viz.core.style.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.uf.viz.core.style.LabelingPreferences;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay2;

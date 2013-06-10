@@ -20,12 +20,17 @@
 package com.raytheon.viz.hydrobase.dialogs;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -39,6 +44,10 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.data.PurgeDynData;
@@ -58,6 +67,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Sep 4, 2008				lvenable	Initial creation
  * Dec 17, 2008 1787        askripsk    Connected to Database.
  * May 6, 2009  2181        mpduff      Keep selection upon submit.
+ * Apr 18, 2013 1790        rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -65,6 +75,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class DataPurgeParamsDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DataPurgeParamsDlg.class);
 
     /**
      * Location data list control.
@@ -134,12 +146,12 @@ public class DataPurgeParamsDlg extends CaveSWTDialog {
     /**
      * Cache of data for Location Data Purge Parameters
      */
-    private ArrayList<PurgeDynData> locDataPurgeParams;
+    private java.util.List<PurgeDynData> locDataPurgeParams;
 
     /**
      * Cache of data for Text Product Purge Parameters
      */
-    private ArrayList<PurgeProductData> textProdPurgeParams;
+    private java.util.List<PurgeProductData> textProdPurgeParams;
 
     /**
      * Date format for text products.
@@ -152,19 +164,34 @@ public class DataPurgeParamsDlg extends CaveSWTDialog {
     private int selectionIndex = -999;
 
     /**
+     * System wait cursor. No need to dispose.
+     */
+    Cursor waitCursor;
+
+    /**
+     * Use by setBusy to determine cursor display.
+     */
+    AtomicInteger busyCnt = new AtomicInteger(0);
+
+    /**
      * Constructor.
      * 
      * @param parent
      *            Parent shell.
      */
     public DataPurgeParamsDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Data Purge Parameters");
 
         textDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         textDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -175,14 +202,29 @@ public class DataPurgeParamsDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
+
+        waitCursor = shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
+
         // Initialize all of the controls and layouts
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
 
@@ -385,7 +427,7 @@ public class DataPurgeParamsDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -445,31 +487,88 @@ public class DataPurgeParamsDlg extends CaveSWTDialog {
         return labelStr;
     }
 
+    /**
+     * Retrieve purge data and update the display.
+     * 
+     */
     private void getDialogData() {
         getLocDialogData();
         getTextDialogData();
     }
 
+    /**
+     * Retrieve Purge Dyn Data and update the display.
+     */
     private void getLocDialogData() {
-        try {
-            locDataPurgeParams = HydroDBDataManager.getInstance().getData(
-                    PurgeDynData.class);
+        setBusy(true);
 
-            updateLocDialogDisplay();
-        } catch (VizException e) {
-            e.printStackTrace();
-        }
+        // Remove from UI thread.
+        Job job = new Job("") {
+
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                try {
+                    locDataPurgeParams = HydroDBDataManager.getInstance()
+                            .getData(PurgeDynData.class);
+                    VizApp.runAsync(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateLocDialogDisplay();
+                        }
+                    });
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Problems getting location data. ", e);
+                } finally {
+                    VizApp.runAsync(new Runnable() {
+                        @Override
+                        public void run() {
+                            setBusy(false);
+                        }
+                    });
+                }
+                return Status.OK_STATUS;
+            }
+        };
+        job.schedule();
     }
 
+    /**
+     * Retrieve Purge Product data and update the display.
+     */
     private void getTextDialogData() {
-        try {
-            textProdPurgeParams = HydroDBDataManager.getInstance().getData(
-                    PurgeProductData.class);
+        setBusy(true);
 
-            updateTextDialogDisplay();
-        } catch (VizException e) {
-            e.printStackTrace();
-        }
+        // Remove from UI thread.
+        Job job = new Job("") {
+
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                try {
+                    textProdPurgeParams = HydroDBDataManager.getInstance()
+                            .getData(PurgeProductData.class);
+                    VizApp.runAsync(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            updateTextDialogDisplay();
+                        }
+                    });
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Problems getting purge data. ", e);
+                } finally {
+                    VizApp.runAsync(new Runnable() {
+                        @Override
+                        public void run() {
+                            setBusy(false);
+                        }
+                    });
+                }
+                return Status.OK_STATUS;
+            }
+        };
+        job.schedule();
     }
 
     private void updateLocDialogDisplay() {
@@ -508,6 +607,12 @@ public class DataPurgeParamsDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Format the Purge Dyn Data for display.
+     * 
+     * @param currData
+     * @return
+     */
     private String getDisplayString(PurgeDynData currData) {
         String displayFormat = "%-18s %-8s (%5s)       %-8s (%5s)      %-18.18s";
 
@@ -532,12 +637,19 @@ public class DataPurgeParamsDlg extends CaveSWTDialog {
         String dayHoursBackup = String.format("%5d/%2d", numDays, numHours);
 
         return String.format(displayFormat, currData.getTableName(),
-                dayHoursHost, HydroDataUtils.getDisplayString(currData
-                        .getHostHours()), dayHoursBackup, HydroDataUtils
-                        .getDisplayString(currData.getBackupHours()), currData
-                        .getTimeColumnName());
+                dayHoursHost,
+                HydroDataUtils.getDisplayString(currData.getHostHours()),
+                dayHoursBackup,
+                HydroDataUtils.getDisplayString(currData.getBackupHours()),
+                currData.getTimeColumnName());
     }
 
+    /**
+     * Format the purge product data for display.
+     * 
+     * @param currData
+     * @return
+     */
     private String getDisplayString(PurgeProductData currData) {
         String displayFormat = "%-10s      %6s       %-19s      %-19s";
 
@@ -557,6 +669,9 @@ public class DataPurgeParamsDlg extends CaveSWTDialog {
                         prodTime, postTime);
     }
 
+    /**
+     * Update purge information for selected location.
+     */
     private void updateLocationInformationDisplay() {
         PurgeDynData currData = getCurrentlySelectedLocation();
 
@@ -570,6 +685,9 @@ public class DataPurgeParamsDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Update purge information for selected text product.
+     */
     private void updateTextInformationDisplay() {
         PurgeProductData currData = getCurrentlySelectedText();
 
@@ -580,6 +698,10 @@ public class DataPurgeParamsDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * 
+     * @return selected location purge data or null if none
+     */
     private PurgeDynData getCurrentlySelectedLocation() {
         PurgeDynData rval = null;
 
@@ -590,6 +712,10 @@ public class DataPurgeParamsDlg extends CaveSWTDialog {
         return rval;
     }
 
+    /**
+     * 
+     * @return selected text product purge data or null if none
+     */
     private PurgeProductData getCurrentlySelectedText() {
         PurgeProductData rval = null;
 
@@ -601,6 +727,9 @@ public class DataPurgeParamsDlg extends CaveSWTDialog {
         return rval;
     }
 
+    /**
+     * Save current purged data.
+     */
     private void saveLocRecord() {
         PurgeDynData currData = new PurgeDynData();
 
@@ -620,16 +749,15 @@ public class DataPurgeParamsDlg extends CaveSWTDialog {
 
                 getLocDialogData();
             } catch (VizException e) {
-                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-                mb.setText("Unable to Save");
-                mb.setMessage("An error occurred while trying to save.");
-                mb.open();
-
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM,
+                        "Problems saving data. ", e);
             }
         }
     }
 
+    /*
+     * Save a record.
+     */
     private void saveTextRecord() {
         PurgeProductData currData = new PurgeProductData();
 
@@ -647,24 +775,21 @@ public class DataPurgeParamsDlg extends CaveSWTDialog {
 
                     getTextDialogData();
                 } catch (VizException e) {
-                    MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR
-                            | SWT.OK);
-                    mb.setText("Unable to Save");
-                    mb.setMessage("An error occurred while trying to save.");
-                    mb.open();
-
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Problems saving data. ", e);
                 }
             } else {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
                 mb.setText("Unable to Save");
-                mb
-                        .setMessage("Please enter data for Product ID and Versions To Keep.");
+                mb.setMessage("Please enter data for Product ID and Versions To Keep.");
                 mb.open();
             }
         }
     }
 
+    /**
+     * Remove a record.
+     */
     private void deleteTextRecord() {
         PurgeProductData currData = getCurrentlySelectedText();
 
@@ -682,13 +807,8 @@ public class DataPurgeParamsDlg extends CaveSWTDialog {
                     selectionIndex = 0;
                     getTextDialogData();
                 } catch (VizException e) {
-                    mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-                    mb.setText("Unable to Delete");
-                    mb
-                            .setMessage("An error occurred while trying to delete item.");
-                    mb.open();
-
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Problems deleteing data. ", e);
                 }
             }
         } else {
@@ -696,6 +816,20 @@ public class DataPurgeParamsDlg extends CaveSWTDialog {
             mb.setText("Invalid Selection");
             mb.setMessage("Please select an item from the list first.");
             mb.open();
+        }
+    }
+
+    /**
+     * Determine what cursor to display.
+     * 
+     * @param busy
+     */
+    private void setBusy(boolean busy) {
+        if (busy) {
+            busyCnt.incrementAndGet();
+            shell.setCursor(waitCursor);
+        } else if (busyCnt.decrementAndGet() == 0) {
+            shell.setCursor(null);
         }
     }
 }

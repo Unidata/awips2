@@ -31,6 +31,8 @@ import org.junit.Ignore;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 12, 2013 1543       djohnson     Initial creation
+ * Apr 23, 2013 1910       djohnson     Add constants for ebxml spring files.
+ * May 02, 2013 1910       djohnson     Add validator plugins spring file.
  * 
  * </pre>
  * 
@@ -61,4 +63,30 @@ public class SpringFiles {
     public static final String BANDWIDTH_DATADELIVERY_NCF_XML = "/spring/bandwidth-datadelivery-ncf.xml";
 
     public static final String BANDWIDTH_DATADELIVERY_WFO_XML = "/spring/bandwidth-datadelivery-wfo.xml";
+
+    public static final String EBXML_XML = "/spring/ebxml.xml";
+
+    public static final String EBXML_IMPL_XML = "/spring/ebxml-impl.xml";
+
+    public static final String EBXML_QUERYTYPES_XML = "/spring/ebxml-querytypes.xml";
+
+    public static final String EBXML_REGISTRY_DAO_XML = "/spring/ebxml-registry-dao.xml";
+
+    public static final String EBXML_REPLICATION_DATADELIVERY_WFO_XML = "/spring/registry-replication-datadelivery-wfo.xml";
+
+    public static final String EBXML_SUBSCRIPTION_XML = "/spring/ebxml-subscription.xml";
+
+    public static final String EBXML_XACML_XML = "/spring/ebxml-xacml.xml";
+
+    public static final String EBXML_WEBSERVICES_XML = "/spring/ebxml-webservices.xml";
+
+    public static final String EBXML_VALIDATOR_PLUGINS_XML = "/spring/ebxml-validator-plugins.xml";
+
+    public static final String UNIT_TEST_LOCALIZATION_BEANS_XML = "/unit-test-localization-beans.xml";
+
+    public static final String UNIT_TEST_EBXML_BEANS_XML = "/ebxml/unit-test-ebxml-beans.xml";
+
+    public static final String UNIT_TEST_EBXML_REPLICATION_BEANS_XML = "/ebxml/unit-test-ebxml-replication-beans.xml";
+
+    public static final String UNIT_TEST_EBXML_PLUGIN_NOTIFICATION_LISTENER_XML = "/ebxml/ebxml-plugin-notification-listener.xml";
 }

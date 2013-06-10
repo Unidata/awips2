@@ -39,12 +39,12 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 
-import com.raytheon.edex.scriptfactory.ScriptFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.common.velocity.VelocityManager;
 import com.raytheon.uf.viz.core.Activator;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
@@ -70,6 +70,7 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  *    12/17/2007    639         grichard    Added &quot;fxa&quot; parm to scripts.
  *    3/17/2008     933         grichard    Added support for taf plugin.
  *    04/14/2008                chammack    Complete refactor to Velocity
+ *    Feb 15, 2013  1638        mschenke    Created common VelocityManager for executing scripts
  * 
  * </pre>
  * 
@@ -336,11 +337,18 @@ public class ScriptCreator {
             stringTemplate = DEFAULT_TEMPLATE;
         }
 
+        Map<String, Object> templateObjects = new HashMap<String, Object>();
+        templateObjects.put("scriptMetadata", queryTerms);
+        templateObjects.put("maxRecords", maxRecords);
+        templateObjects.put("scriptLibrary", props.scriptLibrary);
+        templateObjects.put("mode", mode);
+
         try {
-            String script = ScriptFactory.getInstance().createScript(
-                    stringTemplate, DEFAULT_TEMPLATE.getParentFile(),
-                    maxRecords, mode, props.scriptLibrary, queryTerms,
-                    FileUtil.join(LocalizationManager.getUserDir(), "logs"));
+            String script = VelocityManager.executeTemplate(
+                    stringTemplate,
+                    DEFAULT_TEMPLATE.getParentFile(),
+                    new File(FileUtil.join(LocalizationManager.getUserDir(),
+                            "logs")), templateObjects);
             // System.out.println("Script gen: "
             // + (System.currentTimeMillis() - t0));
             return script;

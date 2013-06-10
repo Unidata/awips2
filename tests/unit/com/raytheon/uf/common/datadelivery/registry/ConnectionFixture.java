@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry;
 
+import java.util.Random;
+
 import com.raytheon.uf.common.util.AbstractFixture;
 
 /**
@@ -53,7 +55,7 @@ public class ConnectionFixture extends AbstractFixture<Connection> {
      * {@inheritDoc}
      */
     @Override
-    public Connection get(long seedValue) {
+    public Connection getInstance(long seedValue, Random random) {
         Connection connection = new Connection();
         connection.setPassword("somePassword");
         connection.setUrl("http://someUrl");

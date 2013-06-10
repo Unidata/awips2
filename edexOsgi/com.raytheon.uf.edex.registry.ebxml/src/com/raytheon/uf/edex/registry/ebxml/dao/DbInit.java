@@ -32,6 +32,7 @@ import java.sql.Statement;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -40,11 +41,15 @@ import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.impl.SessionFactoryImpl;
 import org.hibernate.jdbc.Work;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -54,10 +59,11 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.ReflectionUtil;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImpl;
-import com.raytheon.uf.edex.registry.ebxml.services.util.RegistrySessionManager;
 
 /**
  * The DbInit class is responsible for ensuring that the appropriate tables are
@@ -70,37 +76,44 @@ import com.raytheon.uf.edex.registry.ebxml.services.util.RegistrySessionManager;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 2/9/2012     184         bphillip    Initial Coding
+ * 3/18/2013    1082        bphillip    Changed to use transactional boundaries and spring injection
+ * 4/9/2013     1802       bphillip     Changed submitObjects method call from submitObjectsInternal
+ * Apr 15, 2013 1693       djohnson     Use a strategy to verify the database is up to date.
  * Apr 30, 2013 1960        djohnson    Extend the generalized DbInit.
+ * 5/21/2013    2022       bphillip     Using TransactionTemplate for database initialization
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-public class DbInit extends com.raytheon.uf.edex.database.init.DbInit {
+@Transactional
+public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
+        ApplicationListener {
+
+    private static volatile boolean INITIALIZED = false;
 
     /** The logger */
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DbInit.class);
 
     /** Query to check which tables exist in the ebxml database */
-    private static final String TABLE_CHECK_QUERY = "SELECT tablename FROM pg_tables where schemaname = 'public';";
+    private static final String TABLE_CHECK_QUERY = "SELECT tablename FROM pg_tables where schemaname = 'ebxml';";
 
+    /** The lifecycle manager instance */
     private LifecycleManagerImpl lcm;
 
-    private final RegistryDao registryDao;
+    /** Hibernate session factory */
+    private SessionFactory sessionFactory;
+
+    /** Transaction template */
+    private TransactionTemplate txTemplate;
 
     /**
      * Creates a new instance of DbInit. This constructor should only be called
      * once when loaded by the Spring container.
-     * 
-     * @throws EbxmlRegistryException
-     *             If errors occur while regenerating the database tables
      */
-    public DbInit(LifecycleManagerImpl lcm, RegistryDao registryDao)
-            throws EbxmlRegistryException {
+    public DbInit() {
         super("ebxml registry");
-        this.lcm = lcm;
-        this.registryDao = registryDao;
     }
 
     /**
@@ -155,14 +168,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit {
                             "Error assigning default owner", e);
                 }
             }
-
-            RegistrySessionManager.openSession();
-            try {
-                lcm.submitObjectsInternal(obj);
-            } finally {
-                RegistrySessionManager.closeSession();
-            }
-
+            lcm.submitObjects(obj);
         }
 
     }
@@ -201,6 +207,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit {
                     while ((line = reader.readLine()) != null) {
                         buffer.append(line);
                     }
+
                     executeWork(new Work() {
                         @Override
                         public void execute(Connection connection)
@@ -283,36 +290,18 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit {
      * {@inheritDoc}
      */
     @Override
-    protected void executeWork(final Work work) {
-        try {
-            registryDao.doInTransaction(new RegistryTransactionCallback() {
-                @Override
-                public Object execute(Session session)
-                        throws EbxmlRegistryException {
-                    session.doWork(work);
-                    return null;
-                }
-            });
-        } catch (EbxmlRegistryException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected AnnotationConfiguration getAnnotationConfiguration() {
         /*
          * Create a new configuration object which holds all the classes that
          * this Hibernate SessionFactory is aware of
          */
         AnnotationConfiguration aConfig = new AnnotationConfiguration();
-        for (Object obj : registryDao.getSessionFactory().getAllClassMetadata()
-                .keySet()) {
+        for (Object obj : sessionFactory.getAllClassMetadata().keySet()) {
             try {
                 Class<?> clazz = Class.forName((String) obj);
-                aConfig.addAnnotatedClass(clazz);
+                if (clazz.getName().startsWith("oasis")) {
+                    aConfig.addAnnotatedClass(clazz);
+                }
             } catch (ClassNotFoundException e) {
                 statusHandler.error(
                         "Error initializing RegRep database. Class not found: "
@@ -322,13 +311,46 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit {
         return aConfig;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    protected Dialect getDialect() {
-        return ((SessionFactoryImpl) registryDao.getSessionFactory())
-                .getDialect();
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (!INITIALIZED) {
+            txTemplate.execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(
+                        TransactionStatus status) {
+                    try {
+                        initDb();
+                    } catch (Exception e) {
+                        statusHandler.fatal(
+                                "Error initializing EBXML database!", e);
+                    }
+
+                }
+            });
+
+            statusHandler.info("Executing post initialization actions");
+
+            txTemplate.execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(
+                        TransactionStatus status) {
+                    try {
+                        Map<String, RegistryInitializedListener> beans = EDEXUtil
+                                .getSpringContext().getBeansOfType(
+                                        RegistryInitializedListener.class);
+                        for (RegistryInitializedListener listener : beans
+                                .values()) {
+                            listener.executeAfterRegistryInit();
+                        }
+                    } catch (Throwable t) {
+                        throw new RuntimeException(
+                                "Error initializing EBXML database!", t);
+                    }
+
+                }
+            });
+            INITIALIZED = true;
+        }
     }
 
     /**
@@ -339,11 +361,23 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit {
         return TABLE_CHECK_QUERY;
     }
 
-    public LifecycleManagerImpl getLcm() {
-        return lcm;
-    }
-
+    /**
+     * @param lcm
+     *            the lcm to set
+     */
     public void setLcm(LifecycleManagerImpl lcm) {
         this.lcm = lcm;
+    }
+
+    /**
+     * @param sessionFactory
+     *            the sessionFactory to set
+     */
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
+    public void setTxTemplate(TransactionTemplate txTemplate) {
+        this.txTemplate = txTemplate;
     }
 }

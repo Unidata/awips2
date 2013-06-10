@@ -35,11 +35,11 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.Test;
 
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaDataFixture;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.registry.ProviderFixture;
-import com.raytheon.uf.edex.datadelivery.harvester.config.HarvesterConfig;
 
 /**
  * Test {@link OpenDapGriddedPurgeImpl}.

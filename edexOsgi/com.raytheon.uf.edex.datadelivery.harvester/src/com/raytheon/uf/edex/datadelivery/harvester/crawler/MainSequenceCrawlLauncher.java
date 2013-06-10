@@ -3,6 +3,9 @@ package com.raytheon.uf.edex.datadelivery.harvester.crawler;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.raytheon.uf.common.datadelivery.harvester.Agent;
+import com.raytheon.uf.common.datadelivery.harvester.CrawlAgent;
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -13,9 +16,6 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.datadelivery.harvester.config.Agent;
-import com.raytheon.uf.edex.datadelivery.harvester.config.CrawlAgent;
-import com.raytheon.uf.edex.datadelivery.harvester.config.HarvesterConfig;
 import com.raytheon.uf.edex.datadelivery.harvester.cron.HarvesterJobController;
 
 /**

@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * 02/02/2011   6500        cjeanbap    Added paramter to method signature and
  *                                      properly assign source value.
  * 06/12/2012   0609        djohnson    Use EDEXUtil for EDEX_HOME.
+ * 3/18/2013    1802        bphillip    Added getList utility function
  * </pre>
  * 
  * @author chammack

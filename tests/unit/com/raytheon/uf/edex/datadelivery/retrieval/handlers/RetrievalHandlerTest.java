@@ -29,6 +29,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
+import com.raytheon.uf.common.time.domain.Durations;
+import com.raytheon.uf.common.time.domain.api.IDuration;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 
 /**
@@ -46,6 +48,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
  * Jan 30, 2013 1543       djohnson     RetrievalTask now requires a Network.
  * Feb 05, 2013 1580       mpduff       EventBus refactor.
  * Feb 07, 2013 1543       djohnson     Move test to its proper test class, as per peer review comments.
+ * Mar 04, 2013 1647       djohnson     RetrievalTasks are now scheduled via constructor parameter.
  * 
  * </pre>
  * 
@@ -55,6 +58,12 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 
 public class RetrievalHandlerTest {
 
+    private static final IDuration RETRIEVAL_TASK_FREQUENCY = Durations.of(5,
+            TimeUnit.MINUTES);
+
+    private static final IDuration SUBNOTIFY_TASK_FREQUENCY = Durations.of(1,
+            TimeUnit.MINUTES);
+
     private final ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
 
     private final IRetrievalDao mockDao = mock(IRetrievalDao.class);
@@ -63,14 +72,13 @@ public class RetrievalHandlerTest {
 
     private final SubscriptionNotifyTask subNotifyTask = mock(SubscriptionNotifyTask.class);
 
-    private final IRetrievalResponseCompleter retrievalCompleter = mock(IRetrievalResponseCompleter.class);
-
     private final RetrievalHandler handler = new RetrievalHandler(
             executorService, mockDao, Arrays.asList(retrievalTask),
-            subNotifyTask);
+            subNotifyTask, RETRIEVAL_TASK_FREQUENCY, SUBNOTIFY_TASK_FREQUENCY);
 
     @Test
     public void testAllRunningRetrievalsAreResetToPendingOnConstruction() {
+        handler.executeAfterRegistryInit();
         verify(mockDao).resetRunningRetrievalsToPending();
     }
 
@@ -82,14 +90,16 @@ public class RetrievalHandlerTest {
     }
 
     @Test
-    public void testRetrievalTaskIsScheduledEveryFiveMinutesWithInitialDelayOfOneMinute() {
-        verify(executorService).scheduleWithFixedDelay(retrievalTask, 1, 5,
-                TimeUnit.MINUTES);
+    public void testRetrievalTaskIsScheduledPerConstructorParameter() {
+        handler.executeAfterRegistryInit();
+        verify(executorService).scheduleWithFixedDelay(retrievalTask, 30000,
+                RETRIEVAL_TASK_FREQUENCY.getMillis(), TimeUnit.MILLISECONDS);
     }
 
     @Test
-    public void testSubscriptionNotifyTaskIsScheduledEveryMinuteWithInitialDelayOfOneMinute() {
-        verify(executorService).scheduleWithFixedDelay(subNotifyTask, 1, 1,
-                TimeUnit.MINUTES);
+    public void testSubscriptionNotifyTaskIsScheduledPerConstructorParameter() {
+        handler.executeAfterRegistryInit();
+        verify(executorService).scheduleWithFixedDelay(subNotifyTask, 30000,
+                SUBNOTIFY_TASK_FREQUENCY.getMillis(), TimeUnit.MILLISECONDS);
     }
 }

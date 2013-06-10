@@ -21,6 +21,8 @@
  * 07/23/2010   191      Archana      Added DataUri annotation to productType
  * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime  
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869        bsteffen	Remove dataURI column from PluginDataObject.
+ *
  * </pre>
  * 
  * @author Chin Chen
@@ -30,6 +32,8 @@ package gov.noaa.nws.ncep.edex.plugin.nctext.common;
 
 import java.util.Calendar;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
@@ -233,4 +237,11 @@ public class NctextRecord extends PluginDataObject {
 	public void printData(){
 		System.out.print("\n" + rawRecord + "\n");
 	}
+
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }

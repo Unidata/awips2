@@ -21,11 +21,11 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.viz.core;bundle-version="1.12.1130",
  com.raytheon.uf.viz.core.rsc;bundle-version="1.0.0",
  com.raytheon.viz.ui;bundle-version="1.12.1174",
- com.raytheon.uf.viz.points;bundle-version="1.0.0"
+ com.raytheon.uf.viz.points;bundle-version="1.0.0",
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Import-Package: com.raytheon.uf.common.colormap,
- com.raytheon.uf.common.geospatial,
+Import-Package: com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.serialization.adapters,
@@ -63,7 +63,6 @@ Import-Package: com.raytheon.uf.common.colormap,
  com.raytheon.viz.ui.editor,
  com.raytheon.viz.ui.input,
  com.raytheon.viz.ui.input.preferences,
- com.raytheon.viz.ui.jobs,
  com.raytheon.viz.ui.keys,
  com.raytheon.viz.ui.panes,
  com.raytheon.viz.ui.perspectives,

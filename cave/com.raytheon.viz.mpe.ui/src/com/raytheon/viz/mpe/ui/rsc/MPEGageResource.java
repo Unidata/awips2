@@ -44,6 +44,7 @@ import org.eclipse.ui.commands.ICommandService;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.colormap.Color;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -55,7 +56,6 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.RGBColors;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;

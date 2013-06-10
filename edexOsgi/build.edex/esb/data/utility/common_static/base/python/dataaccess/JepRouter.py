@@ -87,20 +87,6 @@ def getGeometryData(request, times):
         data.append(JGeometryData.JGeometryData(jd))
     return data
 
-def getLatLonCoords(gridData):
-    '''
-        @return: a tuple where the first element is a numpy array of lons, and the second element is a numpy array of lats
-    '''
-    gridGeometry = gridData.toJavaObj().getGridGeometry()
-    if gridGeometry is None :
-        return None
-    latlons = LatLonReprojection.getLatLons(gridGeometry)
-    nx = gridGeometry.getGridRange().getSpan(0)
-    ny = gridGeometry.getGridRange().getSpan(1)
-    latndarray = PythonNumpyFloatArray(latlons.getLats(), nx, ny).__numpy__[0]
-    lonndarray = PythonNumpyFloatArray(latlons.getLons(), nx, ny).__numpy__[0]
-    return (lonndarray, latndarray)
-
 def getAvailableLocationNames(request):
     return JavaDataAccessLayer.getAvailableLocationNames(request.toJavaObj())
 

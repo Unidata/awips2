@@ -36,8 +36,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
@@ -62,6 +62,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Dec 11, 2012 1403       djohnson     No longer valid to run without bandwidth management.
  * Feb 07, 2013 1543       djohnson     Remove unnecessary test setup methods.
  * Feb 20, 2013 1543       djohnson     Delegate to sub-classes for which route to create subscriptions for.
+ * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * Apr 29, 2013 1910       djohnson     Always shutdown bandwidth managers in tests.
  * 
  * </pre>
  * 
@@ -135,12 +137,24 @@ public abstract class AbstractBandwidthManagerIntTest {
     @After
     public void tearDown() {
         PathManagerFactoryTest.initLocalization();
-        try {
-            bandwidthManager.shutdown();
-        } catch (IllegalArgumentException iae) {
-            // ignore any exceptions occurring about not being a registered
-            // event bus handler
-            iae.printStackTrace();
+        shutdownBandwidthManager(bandwidthManager);
+        shutdownBandwidthManager(EdexBandwidthContextFactory.getInstance());
+        new EdexBandwidthContextFactory(null);
+    }
+
+    /**
+     * Shutdown the bandwidth manager safely.
+     * 
+     * @param instance
+     */
+    protected void shutdownBandwidthManager(BandwidthManager bwManager) {
+        if (bwManager != null) {
+            try {
+                bwManager.shutdown();
+            } catch (IllegalArgumentException iae) {
+                // ignore any exceptions occurring about not being a registered
+                // event bus handler
+            }
         }
     }
 
@@ -149,7 +163,7 @@ public abstract class AbstractBandwidthManagerIntTest {
      * 
      * @return the subscription
      */
-    protected Subscription createSubscriptionThatFillsUpABucket() {
+    protected SiteSubscription createSubscriptionThatFillsUpABucket() {
         return createSubscriptionWithDataSetSizeInBytes(fullBucketSize);
     }
 
@@ -158,7 +172,7 @@ public abstract class AbstractBandwidthManagerIntTest {
      * 
      * @return the subscription
      */
-    protected Subscription createSubscriptionThatFillsUpTenBuckets() {
+    protected SiteSubscription createSubscriptionThatFillsUpTenBuckets() {
         return createSubscriptionWithDataSetSizeInBytes(fullBucketSize * 10);
     }
 
@@ -167,7 +181,7 @@ public abstract class AbstractBandwidthManagerIntTest {
      * 
      * @return the subscription
      */
-    protected Subscription createSubscriptionThatFillsHalfABucket() {
+    protected SiteSubscription createSubscriptionThatFillsHalfABucket() {
         return createSubscriptionWithDataSetSizeInBytes(halfBucketSize);
     }
 
@@ -176,7 +190,7 @@ public abstract class AbstractBandwidthManagerIntTest {
      * 
      * @return the subscription
      */
-    protected Subscription createSubscriptionThatFillsAThirdOfABucket() {
+    protected SiteSubscription createSubscriptionThatFillsAThirdOfABucket() {
         return createSubscriptionWithDataSetSizeInBytes(thirdBucketSizeInBytes);
     }
 
@@ -185,12 +199,13 @@ public abstract class AbstractBandwidthManagerIntTest {
      * 
      * @return the subscription
      */
-    protected Subscription createSubscriptionThatFillsUpTwoBuckets() {
+    protected SiteSubscription createSubscriptionThatFillsUpTwoBuckets() {
         return createSubscriptionWithDataSetSizeInBytes(fullBucketSize * 2);
     }
 
-    protected Subscription createSubscriptionWithDataSetSizeInBytes(long bytes) {
-        Subscription subscription = SubscriptionFixture.INSTANCE
+    protected SiteSubscription createSubscriptionWithDataSetSizeInBytes(
+            long bytes) {
+        SiteSubscription subscription = SubscriptionFixture.INSTANCE
                 .get(subscriptionSeed++);
         subscription.setDataSetSize(BandwidthUtil
                 .convertBytesToKilobytes(bytes));

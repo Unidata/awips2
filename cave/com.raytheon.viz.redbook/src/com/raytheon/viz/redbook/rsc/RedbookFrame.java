@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -44,6 +43,8 @@ import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlockHeader;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
@@ -53,7 +54,6 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
@@ -65,7 +65,6 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
-import com.raytheon.viz.redbook.Activator;
 import com.raytheon.viz.redbook.RedbookWMOMap;
 import com.raytheon.viz.redbook.blocks.AbstractTextBlock;
 import com.raytheon.viz.redbook.blocks.AlphaNumBlock;
@@ -86,12 +85,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * May 29, 2008	#1162	    chammack	Initial creation
- * Jan 28, 2010 #4224       M. Huang    Added Line Style, Line Width
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * May 29, 2008 1162        chammack    Initial creation
+ * Jan 28, 2010 4224        M. Huang    Added Line Style, Line Width
  *                                       menu choice
  * Apr 29, 2013 1958        bgonzale    New class RedbookBlockHeader.
+ * May 21, 2013 2001        njensen     Fixed error handling
  * 
  * </pre>
  * 
@@ -99,6 +99,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 public class RedbookFrame implements IRenderable {
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RedbookFrame.class);
 
     protected JTSCompiler compiler;
 
@@ -184,14 +187,8 @@ public class RedbookFrame implements IRenderable {
                         try {
                             this.compiler.handle(vb.getGeometry());
                         } catch (VizException e) {
-                            Activator
-                                    .getDefault()
-                                    .getLog()
-                                    .log(new Status(
-                                            Status.ERROR,
-                                            Activator.PLUGIN_ID,
-                                            "Error during rendering of redbook",
-                                            e));
+                            statusHandler.error(
+                                    "Error during rendering of redbook", e);
                             status.vectorRenderingWarning = true;
                         }
                     } else if (currBlock.equals("001_004")) {
@@ -218,12 +215,8 @@ public class RedbookFrame implements IRenderable {
                                 }
                             }
                         } catch (Exception e) {
-                            VizApp.logAndAlert(
-                                    org.eclipse.core.runtime.Status.ERROR,
-                                    e,
-                                    "Error rendering redbook product",
-                                    "The redbook product may not be rendered correctly due to an error determining the map projection.",
-                                    Activator.getDefault(), Activator.PLUGIN_ID);
+                            statusHandler.error(
+                                    "Error rendering redbook product", e);
                         }
 
                         if (customProjection == null) {
@@ -292,35 +285,23 @@ public class RedbookFrame implements IRenderable {
                         DefaultBlock block = new DefaultBlock(header, dataBuf);
                         if (!currBlock.equals("")) {
                             status.unhandledPackets = true;
-
-                            Activator
-                                    .getDefault()
-                                    .getLog()
-                                    .log(new Status(Status.WARNING,
-                                            Activator.PLUGIN_ID,
-                                            "Unhandled redbook packet: (mode="
-                                                    + block.getMode()
-                                                    + ", submode="
-                                                    + block.getSubMode() + ")"));
+                            statusHandler
+                                    .warn("Unhandled redbook packet: (mode="
+                                            + block.getMode() + ", submode="
+                                            + block.getSubMode() + ")");
                         }
                     }
 
                 }
 
             } catch (TransformException e) {
-                VizApp.logAndAlert(
-                        org.eclipse.core.runtime.Status.ERROR,
-                        e,
-                        "Error rendering redbook product",
-                        "The redbook product cannot be rendered due to an error setting up the map projection.",
-                        Activator.getDefault(), Activator.PLUGIN_ID);
+                statusHandler
+                        .error("Error rendering redbook product due to an error setting up the map projection.",
+                                e);
             } catch (FactoryException e) {
-                VizApp.logAndAlert(
-                        org.eclipse.core.runtime.Status.ERROR,
-                        e,
-                        "Error rendering redbook product",
-                        "The redbook product cannot be rendered due to an error setting up the map projection.",
-                        Activator.getDefault(), Activator.PLUGIN_ID);
+                statusHandler
+                        .error("Error rendering redbook product due to an error setting up the map projection.",
+                                e);
             }
 
         }
@@ -578,8 +559,8 @@ public class RedbookFrame implements IRenderable {
                 dstring.textStyle = TextStyle.BLANKED;
             }
             if (isLegend) {
-                target.getExtension(ICanvasRenderingExtension.class).drawStrings(
-                        paintProps, dstring);
+                target.getExtension(ICanvasRenderingExtension.class)
+                        .drawStrings(paintProps, dstring);
             } else {
                 target.drawStrings(dstring);
 

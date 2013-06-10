@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.common.dataplugin.npp.nucaps;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -42,6 +45,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * ------------ ---------- ----------- --------------------------
  * Jan 15, 2013            mschenke     Initial creation
  * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869       bsteffen    Remove dataURI column from
+ *                                     PluginDataObject.
  * 
  * </pre>
  * 
@@ -79,5 +84,12 @@ public class NucapsRecord extends NPPSoundingRecord {
     public static final String PDV_SULFER_DIOXIDE_MIXING_RATIO = "SO2_MR";
 
     public static final String PDV_QUALITY_FLAG = "Quality_Flag";
+
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 
 }

@@ -34,6 +34,7 @@ import com.raytheon.uf.common.registry.IRegistryRequest;
 import com.raytheon.uf.common.registry.OperationStatus;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
 import com.raytheon.uf.common.registry.RegistryResponse;
+import com.raytheon.uf.common.registry.constants.RegistryErrorMessage;
 import com.raytheon.uf.common.serialization.SerializationException;
 
 /**
@@ -55,14 +56,13 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * @version 1.0
  */
 public class ThriftRegistryHandlerTest {
-    
 
     private static final HttpHostConnectException HTTP_HOST_CONNECT_EXCEPTION = new HttpHostConnectException(
             new HttpHost("someHost"), new ConnectException(
                     "'cause I done thrown it."));
 
     private static final CommunicationException COMMUNICATION_EXCEPTION = new CommunicationException(
-            RegistryUtil.DATABASE_ERROR_MESSAGE);
+            RegistryErrorMessage.DATABASE_ERROR_MESSAGE);
 
     @Test
     public void testGetObjectsReturnsFailedStatusIfHttpHostConnectExceptionThrown() {
@@ -77,8 +77,8 @@ public class ThriftRegistryHandlerTest {
         RegistryQueryResponse<Object> response = getExceptionThrowingHandler(
                 HTTP_HOST_CONNECT_EXCEPTION).getObjects(null);
 
-        assertEquals(RegistryUtil.UNABLE_TO_CONNECT_TO_REGISTRY, response
-                .getErrors().iterator().next().getMessage());
+        assertEquals(RegistryErrorMessage.UNABLE_TO_CONNECT_TO_REGISTRY,
+                response.getErrors().iterator().next().getMessage());
     }
 
     @Test
@@ -86,8 +86,8 @@ public class ThriftRegistryHandlerTest {
         RegistryResponse<Object> response = getExceptionThrowingHandler(
                 HTTP_HOST_CONNECT_EXCEPTION).removeObjects(null);
 
-        assertEquals(RegistryUtil.UNABLE_TO_CONNECT_TO_REGISTRY, response
-                .getErrors().iterator().next().getMessage());
+        assertEquals(RegistryErrorMessage.UNABLE_TO_CONNECT_TO_REGISTRY,
+                response.getErrors().iterator().next().getMessage());
     }
 
     @Test
@@ -96,8 +96,8 @@ public class ThriftRegistryHandlerTest {
                 HTTP_HOST_CONNECT_EXCEPTION).removeObjects("someUsername",
                 Collections.emptyList());
 
-        assertEquals(RegistryUtil.UNABLE_TO_CONNECT_TO_REGISTRY, response
-                .getErrors().iterator().next().getMessage());
+        assertEquals(RegistryErrorMessage.UNABLE_TO_CONNECT_TO_REGISTRY,
+                response.getErrors().iterator().next().getMessage());
     }
 
     @Test
@@ -105,8 +105,8 @@ public class ThriftRegistryHandlerTest {
         RegistryResponse<Object> response = getExceptionThrowingHandler(
                 HTTP_HOST_CONNECT_EXCEPTION).storeObject(null);
 
-        assertEquals(RegistryUtil.UNABLE_TO_CONNECT_TO_REGISTRY, response
-                .getErrors().iterator().next().getMessage());
+        assertEquals(RegistryErrorMessage.UNABLE_TO_CONNECT_TO_REGISTRY,
+                response.getErrors().iterator().next().getMessage());
     }
 
     @Test
@@ -147,8 +147,8 @@ public class ThriftRegistryHandlerTest {
         RegistryQueryResponse<Object> response = getExceptionThrowingHandler(
                 COMMUNICATION_EXCEPTION).getObjects(null);
 
-        assertEquals(RegistryUtil.FAILED_TO_CONNECT_TO_DATABASE, response
-                .getErrors().iterator().next().getMessage());
+        assertEquals(RegistryErrorMessage.FAILED_TO_CONNECT_TO_DATABASE,
+                response.getErrors().iterator().next().getMessage());
     }
 
     @Test
@@ -156,8 +156,8 @@ public class ThriftRegistryHandlerTest {
         RegistryResponse<Object> response = getExceptionThrowingHandler(
                 COMMUNICATION_EXCEPTION).removeObjects(null);
 
-        assertEquals(RegistryUtil.FAILED_TO_CONNECT_TO_DATABASE, response
-                .getErrors().iterator().next().getMessage());
+        assertEquals(RegistryErrorMessage.FAILED_TO_CONNECT_TO_DATABASE,
+                response.getErrors().iterator().next().getMessage());
     }
 
     @Test
@@ -166,8 +166,8 @@ public class ThriftRegistryHandlerTest {
                 COMMUNICATION_EXCEPTION).removeObjects("someUsername",
                 Collections.emptyList());
 
-        assertEquals(RegistryUtil.FAILED_TO_CONNECT_TO_DATABASE, response
-                .getErrors().iterator().next().getMessage());
+        assertEquals(RegistryErrorMessage.FAILED_TO_CONNECT_TO_DATABASE,
+                response.getErrors().iterator().next().getMessage());
     }
 
     @Test
@@ -175,8 +175,8 @@ public class ThriftRegistryHandlerTest {
         RegistryResponse<Object> response = getExceptionThrowingHandler(
                 COMMUNICATION_EXCEPTION).storeObject(null);
 
-        assertEquals(RegistryUtil.FAILED_TO_CONNECT_TO_DATABASE, response
-                .getErrors().iterator().next().getMessage());
+        assertEquals(RegistryErrorMessage.FAILED_TO_CONNECT_TO_DATABASE,
+                response.getErrors().iterator().next().getMessage());
     }
 
     @Test

@@ -354,27 +354,6 @@ F  | 1.8 |-459.67| 4 |    |   |..|8000F0FF| | 0 | 5
      </contourLabeling>
   </contourStyle>
 </styleRule>
-<!-- Rule for temperature grids 2m AGL -->
-<styleRule>
-  <paramLevelMatches>
-     <parameter>T</parameter>
-     <parameter>DpT</parameter>
-     <rangeLevel units="AGL">
-       <upper>2</upper>
-       <lower>2</lower>
-     </rangeLevel>
-  </paramLevelMatches>
-  <contourStyle>
-     <displayUnits>F</displayUnits>
-     <range scale="LINEAR">
-       <minValue>-100</minValue>
-       <maxValue>115</maxValue>
-     </range>
-     <contourLabeling>
-        <increment>20</increment>
-     </contourLabeling>
-  </contourStyle>
-</styleRule>
 <!--  * T, TxSM, DpT, TW, TV, Tmean, DpTmean
 C  | 1 |-273.15| 4 |    |   |..|8000F0FF| | 0 | 2
 --> 

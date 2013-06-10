@@ -13,6 +13,8 @@ import javax.measure.quantity.Velocity;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -1260,4 +1262,10 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
 		return sb.toString();
 	}
 
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }

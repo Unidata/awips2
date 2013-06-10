@@ -20,10 +20,11 @@
 package com.raytheon.uf.common.serialization;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * Sep 24, 2008            chammack     Initial creation
  * Nov 13, 2008            njensen      Added thrift methods
- * May 22, 2013 1917       rjpeter      Added non-pretty print option to jaxb serialize methods.
+ * 
  * </pre>
  * 
  * @author chammack
@@ -81,7 +82,7 @@ public class JAXBManager {
     private static class MaintainEventsValidationHandler implements
             ValidationEventHandler {
 
-        private final ArrayList<ValidationEvent> events = new ArrayList<ValidationEvent>(
+        private ArrayList<ValidationEvent> events = new ArrayList<ValidationEvent>(
                 0);
 
         @Override
@@ -105,9 +106,9 @@ public class JAXBManager {
 
     private final JAXBContext jaxbContext;
 
-    private final Queue<Unmarshaller> unmarshallers = new ConcurrentLinkedQueue<Unmarshaller>();
+    private Queue<Unmarshaller> unmarshallers = new ConcurrentLinkedQueue<Unmarshaller>();
 
-    private final Queue<Marshaller> marshallers = new ConcurrentLinkedQueue<Marshaller>();
+    private Queue<Marshaller> marshallers = new ConcurrentLinkedQueue<Marshaller>();
 
     public JAXBManager(Class<?>... clazz) throws JAXBException {
         jaxbContext = JAXBContext.newInstance(clazz);
@@ -164,7 +165,7 @@ public class JAXBManager {
             return obj;
         } finally {
             handleEvents(msh, null);
-            if ((msh != null) && (unmarshallers.size() < QUEUE_SIZE)) {
+            if (msh != null && unmarshallers.size() < QUEUE_SIZE) {
                 unmarshallers.add(msh);
             }
         }
@@ -221,8 +222,8 @@ public class JAXBManager {
     }
 
     /**
-     * Convert an instance of a class to an XML pretty print representation in a
-     * string. Uses JAXB.
+     * Convert an instance of a class to an XML representation in a string. Uses
+     * JAXB.
      * 
      * @param obj
      *            Object being marshalled
@@ -230,49 +231,17 @@ public class JAXBManager {
      * @throws JAXBException
      */
     public String marshalToXml(Object obj) throws JAXBException {
-        return marshalToXml(obj, true);
-    }
-
-    /**
-     * Convert an instance of a class to an XML representation in a string. Uses
-     * JAXB.
-     * 
-     * @param obj
-     *            Object being marshalled
-     * @param formattedOutput
-     *            True if the output should be xml pretty print.
-     * @return XML string representation of the object
-     * @throws JAXBException
-     */
-    public String marshalToXml(Object obj, boolean formatedOutput)
-            throws JAXBException {
         Marshaller msh = getMarshaller();
         try {
             StringWriter writer = new StringWriter();
-            msh.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, new Boolean(
-                    formatedOutput));
+            msh.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, new Boolean(true));
             msh.marshal(obj, writer);
             return writer.toString();
         } finally {
-            if ((msh != null) && (marshallers.size() < QUEUE_SIZE)) {
+            if (msh != null && marshallers.size() < QUEUE_SIZE) {
                 marshallers.add(msh);
             }
         }
-    }
-
-    /**
-     * Convert an instance of a class to an XML representation and writes pretty
-     * print formatted XML to file. Uses JAXB.
-     * 
-     * @param obj
-     *            Object to be marshaled
-     * @param filePath
-     *            Path to the output file
-     * @throws SerializationException
-     */
-    public void jaxbMarshalToXmlFile(Object obj, String filePath)
-            throws SerializationException {
-        jaxbMarshalToXmlFile(obj, filePath, true);
     }
 
     /**
@@ -283,35 +252,49 @@ public class JAXBManager {
      *            Object to be marshaled
      * @param filePath
      *            Path to the output file
-     * @param formattedOutput
-     *            True if the output should be xml pretty print.
      * @throws SerializationException
      */
-    public void jaxbMarshalToXmlFile(Object obj, String filePath,
-            boolean formattedOutput) throws SerializationException {
-        FileWriter writer = null;
+    public void jaxbMarshalToXmlFile(Object obj, String filePath)
+            throws SerializationException {
+        try {
+            jaxbMarshalToStream(obj, new FileOutputStream(new File(filePath)));
+        } catch (SerializationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new SerializationException(e);
+        }
+
+    }
+
+    /**
+     * Convert an instance of a class to an XML representation and write XML to
+     * output stream. Uses JAXB.
+     * 
+     * @param obj
+     * @param out
+     * @throws SerializationException
+     */
+    public void jaxbMarshalToStream(Object obj, OutputStream out)
+            throws SerializationException {
         Marshaller msh = null;
         try {
             msh = getMarshaller();
-            msh.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, new Boolean(
-                    formattedOutput));
-            writer = new FileWriter(new File(filePath));
-            msh.marshal(obj, writer);
+            msh.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, new Boolean(true));
+            msh.marshal(obj, out);
         } catch (Exception e) {
             throw new SerializationException(e);
         } finally {
-            if ((msh != null) && (marshallers.size() < QUEUE_SIZE)) {
+            if (msh != null && marshallers.size() < QUEUE_SIZE) {
                 marshallers.add(msh);
             }
-            if (writer != null) {
+            if (out != null) {
                 try {
-                    writer.close();
+                    out.close();
                 } catch (IOException e) {
                     // ignore
                 }
             }
         }
-
     }
 
     /**
@@ -350,7 +333,7 @@ public class JAXBManager {
             if (msh != null) {
                 handleEvents(msh, file.getName());
             }
-            if ((msh != null) && (unmarshallers.size() < QUEUE_SIZE)) {
+            if (msh != null && unmarshallers.size() < QUEUE_SIZE) {
                 unmarshallers.add(msh);
             }
             if (reader != null) {
@@ -385,7 +368,7 @@ public class JAXBManager {
             if (msh != null) {
                 handleEvents(msh, null);
             }
-            if ((msh != null) && (unmarshallers.size() < QUEUE_SIZE)) {
+            if (msh != null && unmarshallers.size() < QUEUE_SIZE) {
                 unmarshallers.add(msh);
             }
             if (is != null) {

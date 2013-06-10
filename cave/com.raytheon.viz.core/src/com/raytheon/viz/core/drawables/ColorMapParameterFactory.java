@@ -28,7 +28,7 @@ import javax.measure.unit.Unit;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import com.raytheon.edex.util.Util;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -37,8 +37,8 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.style.LabelingPreferences;
 import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
@@ -61,6 +61,7 @@ import com.raytheon.viz.core.style.image.ImagePreferences;
  *    ------------ ----------  ----------- --------------------------
  *    Jul 25, 2007             chammack    Initial Creation.
  *    Mar 26, 2009     2086    jsanchez    Added a entityList to the match criteria.
+ *    Feb 15, 2013 1638        mschenke    Moved GRID_FILL_VALUE from edex.common Util into GridUtil
  * 
  * </pre>
  * 
@@ -137,7 +138,7 @@ public class ColorMapParameterFactory {
                 min = Float.POSITIVE_INFINITY;
                 max = Float.NEGATIVE_INFINITY;
                 for (Number num : numArray) {
-                    if (num.floatValue() != Util.GRID_FILL_VALUE
+                    if (num.floatValue() != GridUtil.GRID_FILL_VALUE
                             && !Float.isNaN(num.floatValue())) {
                         colormapMin = min = Math.min(min, num.floatValue());
                         colormapMax = max = Math.max(max, num.floatValue());
@@ -145,7 +146,7 @@ public class ColorMapParameterFactory {
                 }
 
                 if (min == Float.POSITIVE_INFINITY) {
-                    colormapMin = min = colormapMax = max = Util.GRID_FILL_VALUE;
+                    colormapMin = min = colormapMax = max = GridUtil.GRID_FILL_VALUE;
                 }
 
                 // Add 25% buffer (same strategy as D2D)

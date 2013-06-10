@@ -67,12 +67,19 @@
 		</copy>
 		
 		<!-- copy the correct 'libpython.so' based on architecture. -->
-		<mkdir dir="${edex.root.directory}/lib/lib_illusion" />
-		<copy todir="${edex.root.directory}/lib/lib_illusion">
-			<fileset dir="${esb.directory}/lib/lib_illusion/${architecture}">
-				<include name="*.so" />
-			</fileset>
-		</copy>
+                <if>
+                   <available
+                           file="${esb.directory}/lib/lib_illusion/${architecture}"
+                           type="dir" />
+                   <then>
+		      <mkdir dir="${edex.root.directory}/lib/lib_illusion" />
+		      <copy todir="${edex.root.directory}/lib/lib_illusion">
+			      <fileset dir="${esb.directory}/lib/lib_illusion/${architecture}">
+				      <include name="*.so" />
+			      </fileset>
+		      </copy>
+                   </then>
+                </if>
 		
 		<!-- set executable permissions - start.sh. -->
 		<chmod file="${edex.root.directory}/bin/start.sh" perm="ugo+rx" />

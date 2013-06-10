@@ -27,6 +27,7 @@ import javax.measure.unit.NonSI;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable.Amount;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -35,7 +36,6 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IMesh;
-import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;

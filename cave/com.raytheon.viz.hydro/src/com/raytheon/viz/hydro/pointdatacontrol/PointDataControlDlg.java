@@ -43,6 +43,7 @@ import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowData;
@@ -106,8 +107,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 04 Dec 2012 15602     wkwock        Fix Hrs hour capped at 100.
  * 07 Feb 2013 1578        rferrel     Changes for non-blocking FilteringDlg.
  *                                     Changes for non-blocking PDC_SaveDlg.
- *                                     (TODO More code clean up when this dialog is converted.)
- * 
+ * 13 Mar 2013 1790        rferrel     Changes for non-blocking dialog.
+ *                                     Changes for non-blocking TabularDisplayDlg.
+ *                                     Bug fix for non-blocking dialogs.
  * </pre>
  * 
  * @author lvenable
@@ -115,41 +117,59 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 
  */
 public class PointDataControlDlg extends CaveSWTDialog {
+    /** Singleton instance. */
     private static PointDataControlDlg instance = null;
 
-    private static final String RAW_VALUE = "Raw Value";
+    /** Raw value combo value. */
+    private final String RAW_VALUE = "Raw Value";
 
-    private static final String RAW_VALUE_FLOOD_LEVEL = "Raw Value/Flood Level";
+    /** Raw flood level combo value. */
+    private final String RAW_VALUE_FLOOD_LEVEL = "Raw Value/Flood Level";
 
-    private static final String RAW_VALUE_STAGE_FLOW = "Raw Value/Stage Flow";
+    /** Raw stage flow combo value. */
+    private final String RAW_VALUE_STAGE_FLOW = "Raw Value/Stage Flow";
 
-    private static final String FLOOD_DEPART = "Flood Depart";
+    /** Flood Depart combo value. */
+    private final String FLOOD_DEPART = "Flood Depart";
 
-    private static final String FLOOD_DEPART_LEVEL = "Flood Depart/Level";
+    /** Flood Depart levle combo value. */
+    private final String FLOOD_DEPART_LEVEL = "Flood Depart/Level";
 
-    private static final String THIRTY_MINUTES = "1/2";
+    /** String to display for constant enum PRECIP_TIME_30_MINUTES. */
+    private final String THIRTY_MINUTES = "1/2";
 
-    private static final String ONE_HOUR = "1";
+    /** String to display for constant enum PRECIP_TIME_1_HOUR. */
+    private final String ONE_HOUR = "1";
 
-    private static final String TWO_HOUR = "2";
+    /** String to display for constant enum PRECIP_TIME_2_HOURS. */
+    private final String TWO_HOUR = "2";
 
-    private static final String THREE_HOUR = "3";
+    /** String to display for constant enum PRECIP_TIME_3_HOURS. */
+    private final String THREE_HOUR = "3";
 
-    private static final String FOUR_HOUR = "4";
+    /** String to display for constant enum PRECIP_TIME_4_HOURS. */
+    private final String FOUR_HOUR = "4";
 
-    private static final String SIX_HOUR = "6";
+    /** String to display for constant enum PRECIP_TIME_6_HOURS. */
+    private final String SIX_HOUR = "6";
 
-    private static final String TWELVE_HOUR = "12";
+    /** String to display for constant enum PRECIP_TIME_12_HOURS. */
+    private final String TWELVE_HOUR = "12";
 
-    private static final String EIGHTEEN_HOUR = "18";
+    /** String to display for constant enum PRECIP_TIME_18_HOURS. */
+    private final String EIGHTEEN_HOUR = "18";
 
-    private static final String TWENTY_FOUR_HOUR = "24";
+    /** String to display for constant enum PRECIP_TIME_24_HOURS. */
+    private final String TWENTY_FOUR_HOUR = "24";
 
-    private static final int TYPE_VALUE = 0;
+    /** Value type for Raw values. */
+    private final int TYPE_VALUE = 0;
 
-    private static final int TYPE_DEPART = 1;
+    /** Value type for Flood Depart values. */
+    private final int TYPE_DEPART = 1;
 
-    private static final String[] TIMESTEP_DATA_ELEMENT_STRING_ARRAY = {
+    /** Physical element selections. */
+    private final String[] TIMESTEP_DATA_ELEMENT_STRING_ARRAY = {
             // RIVER
             "STAGE/POOL", "FLOW/STORAGE", "DEPTH ABOVE FLOOD STAGE",
             "PERCENT OF FLOOD FLOW",
@@ -169,6 +189,9 @@ public class PointDataControlDlg extends CaveSWTDialog {
 
             // WIND
             "WIND SPEED", "WIND DIRECTION" };
+
+    /** Remember size and location. */
+    Rectangle bounds;
 
     /** Filter dialog for Type/Source. */
     private FilteringDlg typeSourceDlg;
@@ -513,13 +536,18 @@ public class PointDataControlDlg extends CaveSWTDialog {
      */
     private Cursor waitCursor = null;
 
-    /**
-     * The normal arrow mouse pointer.
-     */
-    private Cursor arrowCursor = null;
-
+    /** Use to vaidate show point entries. */
     private DecimalFormat entryFormat = new DecimalFormat();
 
+    /** The tabular display dialog. */
+    TabularDisplayDlg tabDisplay;
+
+    /**
+     * Obtain the singleton instance.
+     * 
+     * @param shell
+     * @return instance
+     */
     public static synchronized PointDataControlDlg getInstance(Shell shell) {
         if (instance == null) {
             instance = new PointDataControlDlg(shell);
@@ -539,7 +567,6 @@ public class PointDataControlDlg extends CaveSWTDialog {
         setText("Point Data Control");
 
         waitCursor = parent.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
-        arrowCursor = parent.getDisplay().getSystemCursor(SWT.CURSOR_ARROW);
         PointDataControlManager pdcManager = PointDataControlManager
                 .getInstance();
         pdcManager.setPointDataControlDialogInstance(this);
@@ -552,6 +579,11 @@ public class PointDataControlDlg extends CaveSWTDialog {
         // colorManager.readColorValuesFromDatabase();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -561,11 +593,23 @@ public class PointDataControlDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         font.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(final Shell shell) {
         font = new Font(shell.getDisplay(), "Courier", 10, SWT.NORMAL);
@@ -585,11 +629,16 @@ public class PointDataControlDlg extends CaveSWTDialog {
         });
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#opened()
+     */
     @Override
     protected void opened() {
         shell.setCursor(waitCursor);
         drawMap();
-        shell.setCursor(arrowCursor);
+        shell.setCursor(null);
     }
 
     /**
@@ -634,7 +683,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
             shell.setCursor(waitCursor);
             updateData = true;
             drawMap();
-            shell.setCursor(arrowCursor);
+            shell.setCursor(null);
 
         }
 
@@ -675,7 +724,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 shell.setCursor(waitCursor);
                 updateData = true;
                 drawMap();
-                shell.setCursor(arrowCursor);
+                shell.setCursor(null);
             }
         });
 
@@ -707,7 +756,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                     shell.setCursor(waitCursor);
                     updateData = true;
                     drawMap();
-                    shell.setCursor(arrowCursor);
+                    shell.setCursor(null);
                 }
             }
         });
@@ -723,7 +772,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                     shell.setCursor(waitCursor);
                     updateData = true;
                     drawMap();
-                    shell.setCursor(arrowCursor);
+                    shell.setCursor(null);
                 }
             }
         });
@@ -794,7 +843,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 shell.setCursor(waitCursor);
                 updateData = true;
                 drawMap();
-                shell.setCursor(arrowCursor);
+                shell.setCursor(null);
             }
         });
 
@@ -826,7 +875,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 shell.setCursor(waitCursor);
                 updateData = true;
                 drawMap();
-                shell.setCursor(arrowCursor);
+                shell.setCursor(null);
             }
         });
 
@@ -908,7 +957,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 shell.setCursor(waitCursor);
                 updateData = true;
                 drawMap();
-                shell.setCursor(arrowCursor);
+                shell.setCursor(null);
             }
         });
 
@@ -935,7 +984,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 shell.setCursor(waitCursor);
                 updateData = true;
                 drawMap();
-                shell.setCursor(arrowCursor);
+                shell.setCursor(null);
             }
         });
 
@@ -964,7 +1013,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 shell.setCursor(waitCursor);
                 updateData = true;
                 drawMap();
-                shell.setCursor(arrowCursor);
+                shell.setCursor(null);
             }
         });
 
@@ -979,7 +1028,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 shell.setCursor(waitCursor);
                 updateData = true;
                 drawMap();
-                shell.setCursor(arrowCursor);
+                shell.setCursor(null);
             }
         });
 
@@ -1009,7 +1058,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 shell.setCursor(waitCursor);
                 updateData = true;
                 drawMap();
-                shell.setCursor(arrowCursor);
+                shell.setCursor(null);
             }
         });
 
@@ -1027,7 +1076,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 shell.setCursor(waitCursor);
                 updateData = true;
                 drawMap();
-                shell.setCursor(arrowCursor);
+                shell.setCursor(null);
             }
         });
 
@@ -1043,17 +1092,6 @@ public class PointDataControlDlg extends CaveSWTDialog {
         hoursSpnr.setSelection(24);
         hoursSpnr.setLayoutData(gd);
         hoursSpnr.setMaximum(1000);
-        // hoursSpnr.addSelectionListener(new SelectionAdapter() {
-        // @Override
-        // public void widgetSelected(SelectionEvent event) {
-        // PDCOptionData pcOptions = PDCOptionData.getInstance();
-        // pcOptions.setDurHours(hoursSpnr.getSelection());
-        // shell.setCursor(waitCursor);
-        // drawMap();
-        // shell.setCursor(arrowCursor);
-        //
-        // }
-        // });
 
         hoursLbl = new Label(timeComp, SWT.NONE);
         hoursLbl.setText("Hrs");
@@ -1083,7 +1121,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 shell.setCursor(waitCursor);
                 updateData = true;
                 drawMap();
-                shell.setCursor(arrowCursor);
+                shell.setCursor(null);
 
             }
         });
@@ -1123,7 +1161,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 }
                 shell.setCursor(waitCursor);
                 drawMap();
-                shell.setCursor(arrowCursor);
+                shell.setCursor(null);
             }
         });
 
@@ -1179,7 +1217,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 pcOptions.setRiverStationFilter(stationsCbo.getSelectionIndex());
                 shell.setCursor(waitCursor);
                 drawMap();
-                shell.setCursor(arrowCursor);
+                shell.setCursor(null);
             }
         });
 
@@ -1198,7 +1236,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 }
                 shell.setCursor(waitCursor);
                 drawMap();
-                shell.setCursor(arrowCursor);
+                shell.setCursor(null);
             }
         });
 
@@ -1217,10 +1255,13 @@ public class PointDataControlDlg extends CaveSWTDialog {
                         @Override
                         public void dialogClosed(Object returnValue) {
                             redrawCheck(returnValue);
+                            serviceDlg = null;
                         }
                     });
+                    serviceDlg.open();
+                } else {
+                    serviceDlg.bringToTop();
                 }
-                serviceDlg.open();
             }
         });
 
@@ -1239,7 +1280,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 }
                 shell.setCursor(waitCursor);
                 drawMap();
-                shell.setCursor(arrowCursor);
+                shell.setCursor(null);
             }
         });
 
@@ -1258,10 +1299,13 @@ public class PointDataControlDlg extends CaveSWTDialog {
                         @Override
                         public void dialogClosed(Object returnValue) {
                             redrawCheck(returnValue);
+                            dataSourceDlg = null;
                         }
                     });
+                    dataSourceDlg.open();
+                } else {
+                    dataSourceDlg.bringToTop();
                 }
-                dataSourceDlg.open();
             }
         });
 
@@ -1293,7 +1337,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 }
                 shell.setCursor(waitCursor);
                 drawMap();
-                shell.setCursor(arrowCursor);
+                shell.setCursor(null);
             }
         });
 
@@ -1314,7 +1358,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 updateData = true;
                 shell.setCursor(waitCursor);
                 drawMap();
-                shell.setCursor(arrowCursor);
+                shell.setCursor(null);
 
             }
         });
@@ -1635,7 +1679,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 shell.setCursor(waitCursor);
                 updateData = true;
                 drawMap();
-                shell.setCursor(arrowCursor);
+                shell.setCursor(null);
             }
         });
 
@@ -1684,8 +1728,12 @@ public class PointDataControlDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 manager.setDrawStation(false);
-                TabularDisplayDlg tabDisplay = new TabularDisplayDlg(shell);
-                tabDisplay.open();
+                if (tabDisplay == null || tabDisplay.isDisposed()) {
+                    tabDisplay = new TabularDisplayDlg(shell);
+                    tabDisplay.open();
+                } else {
+                    tabDisplay.bringToTop();
+                }
             }
         });
 
@@ -1721,7 +1769,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 shell.setCursor(waitCursor);
                 updateData = true;
                 drawMap();
-                shell.setCursor(arrowCursor);
+                shell.setCursor(null);
             }
         });
 
@@ -1733,8 +1781,8 @@ public class PointDataControlDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                // shell.dispose();
-                shell.setVisible(false);
+                bounds = shell.getBounds();
+                hide();
             }
         });
     }
@@ -1857,6 +1905,9 @@ public class PointDataControlDlg extends CaveSWTDialog {
         physicalElementCbo.select(0);
     }
 
+    /**
+     * Perform updates for currently selected element type.
+     */
     private void handleAdhocElementComboSelection() {
         PDCOptionData pcOptions = PDCOptionData.getInstance();
         physicalElementCbo.removeAll();
@@ -1872,20 +1923,21 @@ public class PointDataControlDlg extends CaveSWTDialog {
             physicalElementCbo.add(elementStr);
         }
 
-        // physicalElementCbo.select(pcOptions.getPeSelection());
         physicalElementCbo.select(0);
         handlePeSelection();
     }
 
+    /**
+     * Update perspective to display the current Selected Preset selection.
+     */
     private void handlePresetSelection() {
-        PointDataControlManager pdcManager = PointDataControlManager
-                .getInstance();
         if (selPresetCbo.getSelectionIndex() == -1) {
             /* No selection made */
             return;
         }
 
-        PDCOptionData pcOptions = PDCOptionData.getInstance();
+        PointDataControlManager pdcManager = PointDataControlManager
+                .getInstance();
 
         /*
          * Indicate to the pointcontrol manager routines that new data must be
@@ -1903,8 +1955,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
          * predefined option set. We need to make sure that all options have a
          * valid value.
          */
-
-        pcOptions = getDefaultOptionData();
+        PDCOptionData.getInstance().reset();
         setPcOptionsUsingPresets(presetData);
         setGUIFromOptionsData();
     }
@@ -1943,6 +1994,9 @@ public class PointDataControlDlg extends CaveSWTDialog {
         displayValAsCbo.setVisible(flag);
     }
 
+    /**
+     * Delete the Selected Preset selections' values and update display.
+     */
     private void delete() {
         PointDataPreset presetSelection = presets.get(selPresetCbo
                 .getSelectionIndex());
@@ -1950,7 +2004,6 @@ public class PointDataControlDlg extends CaveSWTDialog {
         try {
             dataManager.deletePreset(presetSelection.getPresetId());
         } catch (VizException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             MessageDialog.openError(
                     shell,
@@ -1962,21 +2015,25 @@ public class PointDataControlDlg extends CaveSWTDialog {
         populatePresetData(null);
     }
 
-    private PDCOptionData getDefaultOptionData() {
-        PDCOptionData pcOptions = PDCOptionData.getInstance();
-        pcOptions.reset();
-
-        return pcOptions;
-    }
-
+    /**
+     * Opens the save dialog.
+     */
     private void openSaveDialog() {
-        if (saveDlg == null) {
+        if (saveDlg == null || saveDlg.isDisposed()) {
             saveDlg = new PDC_SaveDlg(shell, selPresetCbo.getSelectionIndex(),
                     this);
+            saveDlg.open();
+        } else {
+            saveDlg.bringToTop();
         }
-        saveDlg.open();
     }
 
+    /**
+     * Set the time fields in PDCOptionData base on the current Value/Time
+     * selections.
+     * 
+     * @throws ParseException
+     */
     protected void setTimeFields() throws ParseException {
         PDCOptionData pcOptions = PDCOptionData.getInstance();
         String timeValue = timeTF.getText();
@@ -1997,11 +2054,12 @@ public class PointDataControlDlg extends CaveSWTDialog {
             }
             previousDate = date;
             previousHours = hours;
-        } else {
-            // updateData = false;
         }
     }
 
+    /**
+     * Updates display based on current selection for the elevation combo.
+     */
     private void handleFilterByElevationSelection() {
         PDCOptionData pcOptions = PDCOptionData.getInstance();
         String valueElevationSelection = filterByElevationCbo
@@ -2026,9 +2084,12 @@ public class PointDataControlDlg extends CaveSWTDialog {
 
         shell.setCursor(waitCursor);
         drawMap();
-        shell.setCursor(arrowCursor);
+        shell.setCursor(null);
     }
 
+    /**
+     * Update display based on current section of the value filter combo.
+     */
     private void handleFilterByValueSelection() {
         PDCOptionData pcOptions = PDCOptionData.getInstance();
         String valueFilterSelection = filterByValueCbo.getItem(filterByValueCbo
@@ -2053,14 +2114,13 @@ public class PointDataControlDlg extends CaveSWTDialog {
 
         shell.setCursor(waitCursor);
         drawMap();
-        shell.setCursor(arrowCursor);
+        shell.setCursor(null);
     }
 
     /*
      * validate the values typed in Show Pts with value and Show Pts elevation.
      * Only allows digits, '.' and '-'
      */
-
     private void validateShowPtsEntries(Event event, Text val) {
         String valueTyped = event.text;
         char[] valueChars = new char[valueTyped.length()];
@@ -2068,7 +2128,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
         for (int i = 0; i < valueChars.length; i++) {
             char decimalSeparator = entryFormat.getDecimalFormatSymbols()
                     .getDecimalSeparator();
-            ;
+
             if (!((valueTyped.charAt(i) == '-') && (i == 0) && (event.start == 0))
                     && !((('0' <= valueChars[i]) && (valueChars[i] <= '9')) || ((valueChars[i] == decimalSeparator) && (val
                             .getText().indexOf(decimalSeparator) == -1)))) {
@@ -2094,16 +2154,17 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 parseValueTyped(val);
                 shell.setCursor(waitCursor);
                 drawMap();
-                shell.setCursor(arrowCursor);
+                shell.setCursor(null);
 
             }
         });
     }
 
-    /*
-     * parse the value entered in Show Pts with value and Show Pts elevation.
+    /**
+     * Parse the value entered in Show Pts with value and Show Pts elevation.
+     * 
+     * @param val
      */
-
     private void parseValueTyped(Text val) {
         PDCOptionData pcOptions = PDCOptionData.getInstance();
 
@@ -2125,7 +2186,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                     }
                     shell.setCursor(waitCursor);
                     drawMap();
-                    shell.setCursor(arrowCursor);
+                    shell.setCursor(null);
                 } catch (NumberFormatException e1) {
                     // its not a number add text box message
                     e1.printStackTrace();
@@ -2160,6 +2221,10 @@ public class PointDataControlDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Update display based on the the current selection of the Display Value
+     * combo.
+     */
     private void handleDisplayValueChange() {
         PDCOptionData pcOptions = PDCOptionData.getInstance();
         String selection = displayValAsCbo.getItem(displayValAsCbo
@@ -2188,9 +2253,14 @@ public class PointDataControlDlg extends CaveSWTDialog {
 
         shell.setCursor(waitCursor);
         drawMap();
-        shell.setCursor(arrowCursor);
+        shell.setCursor(null);
     }
 
+    /**
+     * Update display based on the query mode.
+     * 
+     * @param queryMode
+     */
     private void handleQueryModeSelection(PDCConstants.QueryMode queryMode) {
         PDCOptionData pcOptions = PDCOptionData.getInstance();
         if (queryMode == PDCConstants.QueryMode.AD_HOC_MODE) {
@@ -2249,6 +2319,9 @@ public class PointDataControlDlg extends CaveSWTDialog {
         pdcManager.setRedraw(true);
     }
 
+    /**
+     * Update the PDCOptionData based on current Physical Element selection.
+     */
     private void handlePeSelection() {
         PDCOptionData pcOptions = PDCOptionData.getInstance();
         if (adHocRdo.getSelection()) {
@@ -2281,18 +2354,13 @@ public class PointDataControlDlg extends CaveSWTDialog {
                         .getAdHocDataElementType())) {
             pcOptions.setPcAndpp(1);
         }
-
-        // Don't need this code according to DR #4672
-        // if (pcOptions.getPrimary() == 1) {
-        // typeSourceChk.setSelection(false);
-        // typeSourceChk.setEnabled(false);
-        // typeSourceBtn.setEnabled(false);
-        // } else {
-        // typeSourceChk.setEnabled(true);
-        // typeSourceBtn.setEnabled(true);
-        // }
     }
 
+    /**
+     * Set the PDCOptionsData's TsDataEelement based on selection.
+     * 
+     * @param selection
+     */
     private void handleTsPhysicalElementSelection(String selection) {
         PDCOptionData pcOptions = PDCOptionData.getInstance();
 
@@ -2311,6 +2379,9 @@ public class PointDataControlDlg extends CaveSWTDialog {
 
     }
 
+    /**
+     * Set the element type using the opposite mode that is selected.
+     */
     private void setElementTypeByOppositeModeElementType() {
         PDCOptionData pcOptions = PDCOptionData.getInstance();
         int oldElementType = pcOptions.getElementType();
@@ -2934,7 +3005,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
             if (redraw) {
                 shell.setCursor(waitCursor);
                 drawMap();
-                shell.setCursor(arrowCursor);
+                shell.setCursor(null);
             }
         }
     }
@@ -2983,6 +3054,9 @@ public class PointDataControlDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Set the precipitation text field based on the value of the precipIndex.
+     */
     private void setInstPrecipAccumText() {
         if (precipIndex == HydroConstants.InstPrecipSelection.PRECIP_TIME_30_MINUTES
                 .getInstPrecipSelection()) {
@@ -3083,6 +3157,9 @@ public class PointDataControlDlg extends CaveSWTDialog {
         return adjustmentHours;
     }
 
+    /**
+     * Schedule a request to retrive map data.
+     */
     private void retrieveAndMapData() {
         PointDataControlManager pdcManager = PointDataControlManager
                 .getInstance();
@@ -3106,6 +3183,10 @@ public class PointDataControlDlg extends CaveSWTDialog {
         this.updateData = false;
     }
 
+    /**
+     * Use the Point data control manager to perform a station display update
+     * event.
+     */
     private void fireUpdateEvent() {
         PointDataControlManager pdcManager = PointDataControlManager
                 .getInstance();
@@ -3116,11 +3197,6 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 elevRdo.getSelection());
 
         pdcManager.fireUpdateEvent(event);
-    }
-
-    public void showDialog() {
-        shell.setVisible(true);
-        shell.setFocus();
     }
 
     /**
@@ -3145,7 +3221,39 @@ public class PointDataControlDlg extends CaveSWTDialog {
         timeTF.setText(dateTimeFmt.format(cal.getTime()));
         shell.setCursor(waitCursor);
         drawMap();
-        shell.setCursor(arrowCursor);
+        shell.setCursor(null);
 
+    }
+
+    /**
+     * Opens the dialog setting the bounds. Use this in place of the open
+     * method.
+     */
+    public void openDialog() {
+        if (bounds != null) {
+            shell.setBounds(bounds);
+        }
+        open();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
+     */
+    @Override
+    protected void preOpened() {
+        super.preOpened();
+        shell.addShellListener(new ShellAdapter() {
+
+            @Override
+            public void shellClosed(ShellEvent e) {
+                bounds = shell.getBounds();
+            }
+        });
+
+        if (bounds != null) {
+            shell.setBounds(bounds);
+        }
     }
 }

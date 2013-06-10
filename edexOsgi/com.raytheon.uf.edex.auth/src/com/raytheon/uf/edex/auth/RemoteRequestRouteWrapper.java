@@ -48,7 +48,6 @@ import com.raytheon.uf.common.util.SizeUtil;
  * @author mschenke
  * @version 1.0
  */
-
 public class RemoteRequestRouteWrapper {
 
     private static final IUFStatusHandler thriftSrvLogger = UFStatus
