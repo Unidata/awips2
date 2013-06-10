@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.core.comm;
 
 import com.raytheon.uf.common.comm.IHttpsCredentialsHandler;
+import com.raytheon.uf.viz.core.auth.UserController;
 
 /**
  * Cave implementation of the IHttpsCredentialsHandler. Displays the Cave login
@@ -31,7 +32,8 @@ import com.raytheon.uf.common.comm.IHttpsCredentialsHandler;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 4, 2013    1786     mpduff      Initial creation
+ * Mar 04, 2013    1786    mpduff      Initial creation.
+ * Jun 07, 2013    1981    mpduff      Save user's username in UserController.
  * 
  * </pre>
  * 
@@ -52,6 +54,9 @@ public class CaveHttpsCredentialsHandler implements IHttpsCredentialsHandler {
         }
         HttpsLoginDlg login = new HttpsLoginDlg(message);
         login.open();
-        return login.getCredentials();
+        String[] credentials = login.getCredentials();
+        // Save off the user's username in the UserController
+        UserController.updateUserData(credentials[0]);
+        return credentials;
     }
 }
