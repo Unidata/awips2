@@ -41,6 +41,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Jul 18, 2012 740        djohnson     Initial creation
  * Oct 23, 2012 1286       djohnson     Change to find more localization files.
  * Jan 16, 2013 1487       djohnson     Avoid adding new localization files to baseline utility directories.
+ * May 31, 2013 1650       djohnson     Fix incorrect merge from vlab branch.
  * 
  * </pre>
  * 

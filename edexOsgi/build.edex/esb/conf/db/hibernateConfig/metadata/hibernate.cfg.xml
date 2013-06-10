@@ -31,7 +31,7 @@
 			org.postgresql.Driver
 		</property>
 		<property name="dialect">
-			org.hibernate.dialect.PostgreSQLDialect
+			${db.dialect}
 		</property>
 		<property name="connection.url">
 			jdbc:postgresql://${db.addr}:${db.port}/metadata
