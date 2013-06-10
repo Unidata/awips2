@@ -37,6 +37,7 @@ import com.raytheon.uf.viz.core.requests.INotAuthHandler;
  * ------------ ---------- ----------- --------------------------
  * May 21, 2010            mschenke     Initial creation
  * Nov 06, 2012 1302       djohnson     Add ability to get roles/permissions for an application.
+ * Jun 07, 2013 1981       mpduff       Add ability to update with the user id as a string.
  * 
  * </pre>
  * 
@@ -85,4 +86,14 @@ public interface IUserManager {
      * @return the list of roles
      */
     List<IRole> getRoles(String application);
+
+    /**
+     * Update the user object with the authentication data update
+     * 
+     * @param userId
+     *            User's id
+     * @param authData
+     *            User's authentication data
+     */
+    void updateUserObject(String userId, IAuthenticationData authData);
 }
