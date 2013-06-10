@@ -1375,13 +1375,6 @@
           			id="com.raytheon.uf.viz.d2d.ui.densityPopulator">
 				</dynamic>
          </menuContribution>
-         <menuContribution
-               locationURI="menu:com.raytheon.viz.ui.scale">
-           <dynamic
-                 class="com.raytheon.uf.viz.d2d.ui.MapScalePopulator"
-                 id="com.raytheon.uf.viz.d2d.ui.mapScalePopulator">
-           </dynamic>
-         </menuContribution>
        </extension>
          
          
@@ -1399,12 +1392,13 @@
                commandId="com.raytheon.viz.ui.clear">
          </handler>
          <handler
-               class="com.raytheon.uf.viz.d2d.ui.map.actions.ScaleButtonHandler"
-               commandId="com.raytheon.viz.ui.scalebutton">
-         </handler>
-         <handler
                class="com.raytheon.uf.viz.d2d.ui.map.actions.ScaleHandler"
                commandId="com.raytheon.viz.ui.setScale">
+               <activeWhen>
+	               <reference
+	                     definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+	               </reference>
+               </activeWhen>
          </handler>
          <handler
                class="com.raytheon.uf.viz.d2d.ui.actions.TimeOptionsAction"
@@ -1454,10 +1448,6 @@
          <handler
                class="com.raytheon.uf.viz.d2d.ui.actions.DensityButtonHandler"
                commandId="com.raytheon.viz.ui.actions.densitybutton">
-         </handler>
-         <handler
-               class="com.raytheon.uf.viz.d2d.ui.map.CreateProjectionHandler"
-               commandId="com.raytheon.viz.ui.createProjection">
          </handler>
          <handler
                class="com.raytheon.uf.viz.d2d.ui.map.actions.ToggleResourceHandler"

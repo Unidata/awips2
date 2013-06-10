@@ -26,8 +26,10 @@ import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationNodeType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
+import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.edex.registry.ebxml.dao.ClassificationNodeDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.HqlQueryUtil;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
@@ -41,33 +43,33 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * match the specified criteria.
  * <p>
  * <b>Parameter Summary:</b> <br>
- * · <b><i>associationType</i></b> -- Matches associated RegistryObjects of
+ * <b><i>associationType</i></b> -- Matches associated RegistryObjects of
  * Association's whose type attribute references a ClassificationNode where
  * rim:ClassificationNode/@path matches specified value
  * <p>
- * · <b><i>matchOnAnyParameter</i></b> -- If true then use logical OR between
+ * <b><i>matchOnAnyParameter</i></b> -- If true then use logical OR between
  * predicates for each parameter
  * <p>
- * · <b><i>sourceObjectId</i></b> --Matches target RegistryObjects of
- * Associations where the source RegistryObject's id matches
+ * <b><i>sourceObjectId</i></b> --Matches target RegistryObjects of Associations
+ * where the source RegistryObject's id matches
  * rim:/RegistryObject[@xsi:type="rim:AssociationType"]/@sourceObject.<br>
- * Allows use of “%” wildcard character to match multiple characters.<br>
- * Allows use of “?” wildcard character to match a single character.<br>
+ * Allows use of % wildcard character to match multiple characters.<br>
+ * Allows use of ? wildcard character to match a single character.<br>
  * <p>
- * · <b><i>sourceObjectType</i></b> -- Matches target RegistryObjects of
+ * <b><i>sourceObjectType</i></b> -- Matches target RegistryObjects of
  * Associations whose sourceObject attribute references a RegistryObject whose
  * objectType attribute matches the id of the ClassificationNode where
  * rim:ClassificationNode/@path matches specified value
  * <p>
- * · <b><i>targetObjectId</i></b> --
+ * <b><i>targetObjectId</i></b> --
  * 
  * Matches source RegistryObjects of Associations where the target
  * RegistryObject's id matches
  * rim:/RegistryObject[@xsi:type="rim:AssociationType"]/@targetObject.<br>
- * Allows use of “%” wildcard character to match multiple characters.<br>
- * Allows use of “?” wildcard character to match a single character.<br>
+ * Allows use of % wildcard character to match multiple characters.<br>
+ * Allows use of ? wildcard character to match a single character.<br>
  * <p>
- * · <b><i>targetObjectType</i></b> --
+ * <b><i>targetObjectType</i></b> --
  * 
  * Matches source RegistryObjects of Associations whose targetObject attribute
  * references a RegistryObject whose objectType attribute matches the id of the
@@ -80,6 +82,10 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 2/13/2012    #184       bphillip     Initial creation
+ * 3/18/2013    1802       bphillip     Modified to use transaction boundaries and spring dao injection
+ * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
+ * Apr 23, 2013 1910       djohnson     Don't allow NPE on registry object list, remove non ANSI Javadoc.
+ * 5/21/2013    2022       bphillip     Set return type on call to findAssociations
  * 
  * </pre>
  * 
@@ -87,9 +93,6 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * @version 1.0
  */
 public class FindAssociatedObjects extends CanonicalEbxmlQuery {
-
-    public static final String QUERY_DEFINITION = QUERY_CANONICAL_PREFIX
-            + "FindAssociatedObjects";
 
     /** The valid query parameter for this query **/
     private static final List<String> QUERY_PARAMETERS = new ArrayList<String>();
@@ -102,9 +105,13 @@ public class FindAssociatedObjects extends CanonicalEbxmlQuery {
         QUERY_PARAMETERS.add(QueryConstants.TARGET_OBJECT_TYPE);
     }
 
+    private ClassificationNodeDao classificationNodeDao;
+
+    private FindAssociations findAssociations;
+
     @Override
-    protected List<RegistryObjectType> query(QueryType queryType,
-            QueryResponse queryResponse) throws EbxmlRegistryException {
+    protected void query(QueryType queryType, QueryResponse queryResponse,
+            String client) throws EbxmlRegistryException {
         QueryParameters parameters = this.getParameterMap(queryType.getSlot(),
                 queryResponse);
         String associationType = parameters
@@ -140,23 +147,34 @@ public class FindAssociatedObjects extends CanonicalEbxmlQuery {
             throw new EbxmlRegistryException(
                     "Both sourceObjectType and targetObjectType MUST NOT be specified.");
         }
-        List<AssociationType> associations = new FindAssociations().query(
-                queryType, queryResponse);
+        QueryResponse findAssociationsResponse = new QueryResponse();
+        findAssociations.setReturnType(returnType);
+        findAssociations.query(queryType, findAssociationsResponse, client);
+        List<RegistryObjectType> associations = findAssociationsResponse
+                .getRegistryObjectList().getRegistryObject();
         List<String> ids = new ArrayList<String>();
-        for (AssociationType association : associations) {
+        for (RegistryObjectType association : associations) {
             if (sourceObjectId == null) {
-                ids.add(association.getSourceObject());
+                ids.add(((AssociationType) association).getSourceObject());
             } else {
-                ids.add(association.getTargetObject());
+                ids.add(((AssociationType) association).getTargetObject());
             }
         }
-        return registryObjectDao.getById(ids);
+
+        RegistryObjectListType registryObjectList = queryResponse
+                .getRegistryObjectList();
+        if (registryObjectList == null) {
+            registryObjectList = new RegistryObjectListType();
+            queryResponse.setRegistryObjectList(registryObjectList);
+        }
+        registryObjectList.getRegistryObject().addAll(
+                registryObjectDao.getById(ids));
 
     }
 
     private String getTypeClause(String associationType)
             throws EbxmlRegistryException {
-        ClassificationNodeType node = new ClassificationNodeDao()
+        ClassificationNodeType node = classificationNodeDao
                 .getByPath(associationType);
         if (node == null) {
             throw new EbxmlRegistryException(
@@ -178,7 +196,16 @@ public class FindAssociatedObjects extends CanonicalEbxmlQuery {
 
     @Override
     public String getQueryDefinition() {
-        return QUERY_DEFINITION;
+        return CanonicalQueryTypes.FIND_ASSOCIATED_OBJECTS;
+    }
+
+    public void setClassificationNodeDao(
+            ClassificationNodeDao classificationNodeDao) {
+        this.classificationNodeDao = classificationNodeDao;
+    }
+
+    public void setFindAssociations(FindAssociations findAssociations) {
+        this.findAssociations = findAssociations;
     }
 
 }

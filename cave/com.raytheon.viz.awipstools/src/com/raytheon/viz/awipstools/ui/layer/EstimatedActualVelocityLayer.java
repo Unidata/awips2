@@ -42,7 +42,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.viz.awipstools.capabilities.EAVCapability;
 import com.raytheon.viz.awipstools.common.EstimatedActualVelocity;
 import com.raytheon.viz.core.rsc.BestResResource;
@@ -81,7 +81,7 @@ public class EstimatedActualVelocityLayer extends VRShearLayer {
      * @param descriptor
      */
 	public EstimatedActualVelocityLayer(
-			AwipsToolsResourceData<VRShearLayer> data, LoadProperties props,
+			GenericToolsResourceData<VRShearLayer> data, LoadProperties props,
 			MapDescriptor descriptor) {
 		super(data, props, descriptor);
 		// add magnification capability

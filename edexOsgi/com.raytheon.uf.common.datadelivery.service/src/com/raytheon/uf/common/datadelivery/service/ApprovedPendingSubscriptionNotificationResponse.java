@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.common.datadelivery.service;
 
+import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
+import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IBaseSubscriptionHandler;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -31,6 +34,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 20, 2012 1413       bgonzale    Initial creation.
+ * Apr 01, 2013 1841       djohnson    Changed to use correct response subscription handler.
  * </pre>
  * 
  * @author bgonzale
@@ -38,5 +42,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  */
 @DynamicSerialize
 public class ApprovedPendingSubscriptionNotificationResponse extends
-        SubscriptionNotificationResponse {
+        BaseSubscriptionNotificationResponse<InitialPendingSubscription> {
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IBaseSubscriptionHandler<InitialPendingSubscription> getSubscriptionHandler() {
+        return DataDeliveryHandlers.getPendingSubscriptionHandler();
+    }
+
 }

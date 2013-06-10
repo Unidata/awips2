@@ -1,8 +1,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:tx="http://www.springframework.org/schema/tx"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+      http://www.springframework.org/schema/tx
+  http://www.springframework.org/schema/tx/spring-tx.xsd
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <tx:annotation-driven transaction-manager="metadataTxManager"
+        proxy-target-class="true" />
 
     <!-- Stores beans that are used in bandwidth-datadelivery.xml, but that 
         have different implementations between production code and test code -->
@@ -10,6 +16,11 @@
         class="com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory">
         <!-- This bean version is used to set the EDEX instance of BandwidthManager -->
         <constructor-arg ref="bandwidthManager" />
+    </bean>
+
+    <bean id="hibernateBandwidthDbInit"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDbInit">
+        <property name="dao" ref="bandwidthAllocationDao" />
     </bean>
 
     <!-- Used as the context for creating the BandwidthManager -->
@@ -31,16 +42,10 @@
         </constructor-arg>
         <!-- The strategy for how to create the bandwidth manager -->
         <constructor-arg ref="bandwidthManagerCreator" />
+        <!-- The db initializer -->
+        <constructor-arg ref="hibernateBandwidthDbInit" />
     </bean>
 
-    <util:map id="retrievalAgents">
-        <entry key="Retrievals-1" value-ref="subscriptionRetrievalAgentPrototype" />
-        <entry key="Retrievals-2" value-ref="subscriptionRetrievalAgentPrototype" />
-        <entry key="Retrievals-3" value-ref="subscriptionRetrievalAgentPrototype" />
-        <entry key="Retrievals-4" value-ref="subscriptionRetrievalAgentPrototype" />
-        <entry key="Retrievals-5" value-ref="subscriptionRetrievalAgentPrototype" />
-    </util:map>
-    
     <camelContext id="BandwidthManager-context"
         xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
@@ -55,7 +60,7 @@
 
                     <!-- notify retrieval threads, if data delivery made 
                         into cluster this should move to topic post -->
-                    <to uri="directvm:notifyRetrieval" />
+                    <to uri="direct-vm:notifyRetrieval" />
                 </pipeline>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>

@@ -58,6 +58,7 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.time.DataTime;
@@ -848,7 +849,7 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
 							                          //TODO? GLColorMapDataFormatFactory bdff = new GLColorMapDataFormatFactory();
 						                        	  //TODO? GLByteDataFormat bdf = bdff.getGLColorMapDataFormat(byteBuffer, retriever, rectangle, new int[] {maxX,maxY});
 						                        	  GLByteDataFormat bdf = new GLByteDataFormat();
-						                        	  IColorMapDataRetrievalCallback.ColorMapData cmd = new IColorMapDataRetrievalCallback.ColorMapData(byteBuffer, new int[] {maxX,maxY});
+						                        	  ColorMapData cmd = new ColorMapData(byteBuffer, new int[] {maxX,maxY});
 						                        	  GLColorMapData glColorMapData = new GLColorMapData(cmd, bdf);
 						                        	  
 						                        	  /*Get the actual pixel value information from the byte array */ 

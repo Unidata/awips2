@@ -28,7 +28,8 @@ package com.raytheon.uf.viz.datadelivery.subscription;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 15, 2012   687      lvenable     Initial creation
+ * Jun 15, 2012   687      lvenable    Initial creation
+ * May 23, 2013  2020      mpduff      Added updateControls method.
  * 
  * </pre>
  * 
@@ -37,5 +38,16 @@ package com.raytheon.uf.viz.datadelivery.subscription;
  */
 
 public interface ISubscriptionAction {
+    /**
+     * Update the Activate button's text.
+     * 
+     * @param text
+     *            The text to display on the button
+     */
     public void activateButtonUpdate(String text);
+
+    /**
+     * Update the controls.
+     */
+    public void updateControls();
 }

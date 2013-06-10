@@ -156,7 +156,8 @@ public class TestPathManager extends PathManager {
          * @return
          */
         private File createTestIsolatedVersionOfLocalizationFile(
-                LocalizationContext context, String fileName, File baselinedVersion) {
+                LocalizationContext context, String fileName,
+                File baselinedVersion) {
             File savedFileBaseDir = new File(savedLocalizationFileDir,
                     context.toPath());
             File savedFile = new File(savedFileBaseDir, fileName);
@@ -204,12 +205,29 @@ public class TestPathManager extends PathManager {
                     }
                 }
 
+                File esbDataUtility = new File(buildEdexDir, "esb/data/utility");
+                if (buildEdexDir != null && buildEdexDir.isDirectory()) {
+                    utilityDirs.add(esbDataUtility);
+                }
+
+                // Add common baseline path if the test is in a work assignment
+                // folder
+                File commonBaselinePath = getCommonBaselineEnvironmentPath();
+                if (commonBaselinePath != null) {
+                    buildEdexDir = new File(commonBaselinePath, FileUtil.join(
+                            "edexOsgi", "build.edex"));
+                    esbDataUtility = new File(buildEdexDir, "esb/data/utility");
+
+                    if (buildEdexDir.isDirectory()
+                            && !utilityDirs.contains(esbDataUtility)) {
+                        utilityDirs.add(esbDataUtility);
+                    }
+                }
+
                 if (buildEdexDir == null) {
                     throw new RuntimeException(
                             "Unable to find the build.edex directory!");
                 }
-
-                utilityDirs.add(new File(buildEdexDir, "esb/data/utility"));
 
                 // Plugin utility directories
                 for (File pluginDir : pluginDirectories) {
@@ -239,5 +257,25 @@ public class TestPathManager extends PathManager {
          * @return
          */
         abstract List<File> getDirectoriesWithPlugins();
+    }
+
+    /**
+     * Get the common baseline repo path from the environment variable.
+     * 
+     * @return the file reference, or null if none was provided
+     */
+    public static File getCommonBaselineEnvironmentPath() {
+        // work assignment workaround to for tests since we don't
+        // find files if we don't know the baseline repo's location
+        // THIS MEANS THAT FOR WORK ASSIGNMENTS WE MUST HAVE
+        // BASELINE_DIR SET
+        final String commonBaselineVersion = System.getenv("baseline_dir");
+        if (commonBaselineVersion != null) {
+            File dir = new File(commonBaselineVersion.replace("\n", ""));
+            if (dir.isDirectory()) {
+                return dir;
+            }
+        }
+        return null;
     }
 }

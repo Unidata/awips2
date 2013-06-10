@@ -1,20 +1,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 
-	<bean id="purge" class="com.raytheon.uf.edex.purgesrv.PurgeSrv" />
-	<bean id="purgeManager" class="com.raytheon.uf.edex.purgesrv.PurgeManager" factory-method="getInstance">
-		<property name="clusterLimit" value="${purge.clusterlimit}"/>
-		<property name="serverLimit" value="${purge.serverlimit}"/>
-		<property name="deadPurgeJobAge" value="${purge.deadjobage}"/>
-		<property name="purgeFrequency" value="${purge.frequency}"/>
-		<property name="fatalFailureCount" value="${purge.fatalfailurecount}"/>
-		<property name="purgeEnabled" value="${purge.enabled}"/>
+	<bean id="purge" class="com.raytheon.uf.edex.purgesrv.PurgeSrv">
+	 	<constructor-arg ref = "purgeManager"/>
 	</bean>
-
+	
    <!-- Register database plugin -->
     <bean id="purgeDatabaseProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
         <property name="pluginFQN" value="com.raytheon.uf.edex.purgesrv" />
@@ -25,11 +18,11 @@
         <constructor-arg ref="purgeDatabaseProperties"/>
     </bean>
 
-	<bean id="purgeOutgoing" class="com.raytheon.uf.edex.dissemination.PurgeOutgoing" >
+	<bean id="purgeOutgoing" class="com.raytheon.uf.edex.purgesrv.PurgeOutgoing" >
 		<property name="outgoingDirectory" value="${edex.home}/data/outgoing"/>
 	</bean>
 	
-	<bean id="purgeLogs" class="com.raytheon.uf.edex.log.PurgeLogs" >
+	<bean id="purgeLogs" class="com.raytheon.uf.edex.purgesrv.PurgeLogs" >
 		<property name="logDirectory" value="${edex.home}/logs"/>
 	</bean>
 

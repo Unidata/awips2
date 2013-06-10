@@ -37,10 +37,10 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
+import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -49,9 +49,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
-import com.raytheon.uf.viz.core.rsc.tools.AwipsToolsResourceData;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.viz.awipstools.Activator;
+import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 
 /**
  * Tool to display the distance scale on the bottom left of the screen<br>
@@ -73,7 +71,8 @@ import com.raytheon.viz.awipstools.Activator;
  */
 public class DistanceTool extends
         AbstractVizResource<AbstractResourceData, MapDescriptor> {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(DistanceTool.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DistanceTool.class);
 
     private static final double[] scales = new double[] { 0.1, 0.2, 0.4, 1, 2,
             4, 10, 20, 40, 100, 200, 400, 1000, 2000, 4000, 10000 };
@@ -85,7 +84,7 @@ public class DistanceTool extends
 
     private GeodeticCalculator gc;
 
-    public DistanceTool(AwipsToolsResourceData<DistanceTool> data,
+    public DistanceTool(GenericToolsResourceData<DistanceTool> data,
             LoadProperties props) {
         super(data, props);
     }
@@ -188,10 +187,10 @@ public class DistanceTool extends
 
         target.drawLine(x0 + length, y0 - yOff, 0.0, x0 + length, y0 + yOff,
                 0.0, color, 1);
-        target.drawString(font, df.format(scales[selectedIndex])
-                + displayUnit.toString(), x0 + length, y0 - yOff, 0.0,
-                TextStyle.NORMAL, color, HorizontalAlignment.CENTER,
-                VerticalAlignment.BOTTOM, null);
+        target.drawString(font,
+                df.format(scales[selectedIndex]) + displayUnit.toString(), x0
+                        + length, y0 - yOff, 0.0, TextStyle.NORMAL, color,
+                HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM, null);
 
         target.drawLine(x0, y0, 0.0, x0 + length, y0, 0.0, color, 1);
 

@@ -161,7 +161,7 @@ public class JmsPooledProducer {
 
         if (close) {
             try {
-                statusHandler.info("Closing producer " + producer); // njensen
+                statusHandler.info("Closing producer " + destKey); // njensen
                 producer.close();
             } catch (Throwable e) {
                 statusHandler.handle(Priority.WARN, "Failed to close producer",

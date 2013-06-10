@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.hydrobase.dialogs;
 
-import java.util.ArrayList;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -313,8 +311,8 @@ public class RiverProGenParamsDlg extends CaveSWTDialog {
 
     private void getDialogData() {
         try {
-            ArrayList<RPFParamData> data = HydroDBDataManager.getInstance()
-                    .getData(RPFParamData.class);
+            java.util.List<RPFParamData> data = HydroDBDataManager
+                    .getInstance().getData(RPFParamData.class);
 
             if (data != null && data.size() > 0) {
                 // There should only be one record

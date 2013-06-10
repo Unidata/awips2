@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: CAVE UI Personalities
+Bundle-SymbolicName: com.raytheon.uf.viz.personalities.cave;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: com.raytheon.uf.viz.personalities.cave.Activator
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.uf.viz.application;bundle-version="1.0.0",
+ com.raytheon.uf.viz.core;bundle-version="1.12.1174",
+ com.raytheon.viz.core;bundle-version="1.12.1174",
+ com.raytheon.viz.ui;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.ui.menus;bundle-version="1.12.1174",
+ javax.measure;bundle-version="1.0.0",
+ com.raytheon.viz.alerts;bundle-version="1.12.1174",
+ com.raytheon.uf.common.pypies;bundle-version="1.12.1174"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.viz.personalities.cave,
+ com.raytheon.uf.viz.personalities.cave.component,
+ com.raytheon.uf.viz.personalities.cave.menu,
+ com.raytheon.uf.viz.personalities.cave.presentation,
+ com.raytheon.uf.viz.personalities.cave.workbench

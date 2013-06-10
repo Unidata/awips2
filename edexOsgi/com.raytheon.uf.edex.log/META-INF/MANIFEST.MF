@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Log Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.log
 Bundle-Version: 1.12.1174.qualifier
-Bundle-Activator: com.raytheon.uf.edex.log.Activator
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy

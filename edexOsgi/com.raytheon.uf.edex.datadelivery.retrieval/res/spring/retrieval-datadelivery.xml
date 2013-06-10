@@ -10,6 +10,7 @@
             value="com.raytheon.uf.edex.datadelivery.retrieval" />
         <property name="database" value="metadata" />
     </bean>
+
     <bean factory-bean="dbPluginRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.edex.datadelivery.retrieval" />
         <constructor-arg ref="ddRetrievalDatabaseProperties" />
@@ -17,93 +18,6 @@
 
     <bean id="subNotifyTask"
         class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.SubscriptionNotifyTask">
-        <constructor-arg ref="retrievalDao" />
-    </bean>
-
-    <!-- A RetrievalTask takes three constructor arguments:
-        1) How to find retrievals, in this case perform the actual retrieval and return it
-        2) What to do with found retrievals, in this case process it and send a notification event 
-        3) How to complete retrievals, in this case update the database and send a notification event 
-     -->
-    <bean id="opsnetRetrievalTask"
-        class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalTask">
-        <constructor-arg value="OPSNET" />
-        <constructor-arg>
-            <bean
-                class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.PerformRetrievalsThenReturnFinder">
-                <constructor-arg value="OPSNET" />
-                <constructor-arg ref="retrievalDao" />
-            </bean>
-        </constructor-arg>
-        <constructor-arg>
-            <bean
-                class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.StoreRetrievedData">
-                <constructor-arg value="directvm:dataDeliveryNotify" />
-                <constructor-arg ref="retrievalDao" />
-            </bean>
-        </constructor-arg>
-        <constructor-arg>
-            <bean
-                class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalResponseCompleter">
-                <constructor-arg ref="subNotifyTask" />
-                <constructor-arg ref="retrievalDao" />
-            </bean>
-        </constructor-arg>
-        <constructor-arg ref="retrievalDao" />
-    </bean>
-    
-    <!-- 
-         Comment out version above and uncomment this version to test out basic SBN directory drop-off and 
-         pickup from a directory
-    -->
-    <!--
-    <bean id="opsnetRetrievalTask"
-        class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalTask">
-        <constructor-arg value="OPSNET" />
-        <constructor-arg>
-            <bean
-                class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.PerformRetrievalsThenReturnFinder">
-                <constructor-arg value="OPSNET" />
-                <constructor-arg ref="retrievalDao" />
-            </bean>
-        </constructor-arg>
-        <constructor-arg>
-            <bean
-                class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.SerializeRetrievedDataToDirectory">
-                <constructor-arg value="/awips2/crawl" />
-            </bean>
-        </constructor-arg>
-        <constructor-arg>
-            <util:constant
-                static-field="com.raytheon.uf.edex.datadelivery.retrieval.handlers.IRetrievalResponseCompleter.NULL" />
-        </constructor-arg>
-        <constructor-arg ref="retrievalDao" />
-    </bean>
-    -->
-
-    <bean id="sbnRetrievalTask"
-        class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalTask">
-        <constructor-arg value="SBN" />
-        <constructor-arg>
-            <bean
-                class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.DeserializeRetrievedDataFromDirectory">
-                <constructor-arg value="/awips2/crawl" />
-            </bean>
-        </constructor-arg>
-        <constructor-arg>
-            <bean
-                class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.StoreRetrievedData">
-                <constructor-arg value="directvm:dataDeliveryNotify" />
-                <constructor-arg ref="retrievalDao" />
-            </bean>
-        </constructor-arg>
-        <constructor-arg>
-            <bean
-                class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalResponseCompleter">
-                <constructor-arg ref="subNotifyTask" />
-                <constructor-arg ref="retrievalDao" />
-            </bean>
-        </constructor-arg>
         <constructor-arg ref="retrievalDao" />
     </bean>
 
@@ -116,14 +30,22 @@
         class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalHandler">
         <constructor-arg ref="scheduledExecutorService" />
         <constructor-arg ref="retrievalDao" />
-        <constructor-arg>
-            <util:list
-                value-type="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalTask.RetrievalTask">
-                <ref bean="opsnetRetrievalTask" />
-                <ref bean="sbnRetrievalTask" />
-            </util:list>
-        </constructor-arg>
+        <constructor-arg ref="retrievalTaskList" />
         <constructor-arg ref="subNotifyTask" />
+        <!-- How often to execute the retrieval tasks -->
+        <constructor-arg>
+            <bean class="com.raytheon.uf.common.time.domain.Durations"
+                factory-method="fromString">
+                <constructor-arg value="${retrieval.task.frequency}" />
+            </bean>
+        </constructor-arg>
+        <!-- How often to execute the subscription notify tasks -->
+        <constructor-arg>
+            <bean class="com.raytheon.uf.common.time.domain.Durations"
+                factory-method="fromString">
+                <constructor-arg value="${subnotify.task.frequency}" />
+            </bean>
+        </constructor-arg>
     </bean>
 
     <camelContext id="dataDeliveryNotify-camel"
@@ -131,12 +53,12 @@
         <!-- Wake retrieval threads if were not running -->
         <route id="notifyRetrieval">
             <!-- If data delivery clustered, move this to topic -->
-            <from uri="directvm:notifyRetrieval" />
+            <from uri="direct-vm:notifyRetrieval" />
             <bean ref="retrievalHandler" method="notify" />
         </route>
 
         <route id="dataDeliveryNotify">
-            <from uri="directvm:dataDeliveryNotify" />
+            <from uri="direct-vm:dataDeliveryNotify" />
             <bean ref="toDataURI" method="toDataURI" />
             <to uri="vm:stageNotification" />
         </route>

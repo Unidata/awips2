@@ -20,9 +20,7 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.edex.database.dao.SessionManagedDao;
@@ -39,6 +37,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
  * ------------ ---------- ----------- --------------------------
  * Feb 07, 2013 1543       djohnson     Initial creation
  * Feb 22, 2013 1543       djohnson     Made public as YAJSW doesn't like Spring exceptions.
+ * 4/9/2013     1802       bphillip    Changed to use new query method signatures in SessionManagedDao
  * 
  * </pre>
  * 
@@ -87,12 +86,10 @@ public class BandwidthSubscriptionDao extends
     @Override
     public BandwidthSubscription getByRegistryIdReferenceTime(
             String registryId, Calendar baseReferenceTime) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("registryId", registryId);
-        params.put("baseReferenceTime", baseReferenceTime);
         return uniqueResult(
                 GET_SUBSCRIPTIONDAO_BY_REGISTRY_ID_AND_BASEREFERENCETIME,
-                params);
+                "registryId", registryId, "baseReferenceTime",
+                baseReferenceTime);
     }
 
     /**
@@ -101,12 +98,10 @@ public class BandwidthSubscriptionDao extends
     @Override
     public List<BandwidthSubscription> getBySubscription(
             Subscription subscription) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("owner", subscription.getOwner());
-        params.put("provider", subscription.getProvider());
-        params.put("name", subscription.getName());
-        params.put("dataSetName", subscription.getDataSetName());
-        return query(GET_SUBSCRIPTIONDAO_BY_SUBSCRIPTION, params);
+        return query(GET_SUBSCRIPTIONDAO_BY_SUBSCRIPTION, "owner",
+                subscription.getOwner(), "provider",
+                subscription.getProvider(), "name", subscription.getName(),
+                "dataSetName", subscription.getDataSetName());
     }
 
     /**
@@ -114,9 +109,8 @@ public class BandwidthSubscriptionDao extends
      */
     @Override
     public List<BandwidthSubscription> getByRegistryId(String registryId) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("registryId", registryId);
-        return query(GET_SUBSCRIPTIONDAO_BY_REGISTRYID, params);
+        return query(GET_SUBSCRIPTIONDAO_BY_REGISTRYID, "registryId",
+                registryId);
     }
 
     /**
@@ -125,12 +119,9 @@ public class BandwidthSubscriptionDao extends
     @Override
     public List<BandwidthSubscription> getByProviderDataSetReferenceTime(
             String provider, String dataSetName, Calendar baseReferenceTime) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("provider", provider);
-        params.put("dataSetName", dataSetName);
-        params.put("baseReferenceTime", baseReferenceTime);
         return query(
                 GET_SUBSCRIPTIONDAO_BY_PROVIDER_AND_DATASET_AND_BASEREFERENCETIME,
-                params);
+                "provider", provider, "dataSetName", dataSetName,
+                "baseReferenceTime", baseReferenceTime);
     }
 }

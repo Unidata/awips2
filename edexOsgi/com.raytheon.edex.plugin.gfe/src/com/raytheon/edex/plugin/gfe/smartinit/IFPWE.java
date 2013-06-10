@@ -59,13 +59,13 @@ import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.VectorGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.WeatherGridSlice;
-import com.raytheon.uf.common.dataplugin.gfe.type.Pair;
 import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherKey;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.util.Pair;
 
 /**
  * IFP Weather Element, originally a C++ <--> python bridge, ported to Java
@@ -95,15 +95,15 @@ public class IFPWE {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(IFPWE.class);
 
-    private ParmID parmId;
+    private final ParmID parmId;
 
-    private String siteId;
+    private final String siteId;
 
-    private GridParmInfo gpi;
+    private final GridParmInfo gpi;
 
     private List<TimeRange> availableTimes;
 
-    private WsId wsId;
+    private final WsId wsId;
 
     /**
      * Constructor
@@ -185,7 +185,7 @@ public class IFPWE {
         data = ssr.getPayload();
 
         IGridSlice slice = null;
-        if (data == null || data.size() == 0) {
+        if ((data == null) || (data.size() == 0)) {
             String msg = "Error getting grid data for " + parmId.toString()
                     + " at time " + timeRange.toString();
             for (ServerMsg smsg : ssr.getMessages()) {

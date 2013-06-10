@@ -20,33 +20,33 @@
 
 package gov.noaa.nws.ncep.edex.util.ncgrib;
 
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcGenProcess;
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.Ncgrib1Parameter;
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribLevel;
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribParameter;
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.exception.GribException;
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.util.Ncgrib1ParameterLookup;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcGenProcess;
-
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribLevel;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribParameter;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.exception.GribException;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.Ncgrib1Parameter;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.util.Ncgrib1ParameterLookup;
-
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.common.util.file.FilenameFilters;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 
@@ -77,7 +77,7 @@ public class NcgribTableLookup {
     private static final int NO_SUBCENTER = -1;
 
     /** The map of defined tables */
-    private Map<Integer, Map<String, NcgribTable>> tableMap;
+    private final Map<Integer, Map<String, NcgribTable>> tableMap;
 
     /** The singleton instance */
     private static NcgribTableLookup instance;
@@ -236,14 +236,9 @@ public class NcgribTableLookup {
             }
         };
 
-        FilenameFilter tableFilter = new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".table");
-            }
-        };
+        FilenameFilter tableFilter = FilenameFilters.byFileExtension(".table");
 
-        ArrayList<File> files = FileUtil.listFiles(new File(commonPath),
+        List<File> files = FileUtil.listFiles(new File(commonPath),
                 filter, false);
         for (File f : files) {
             int center = 0;
@@ -251,7 +246,7 @@ public class NcgribTableLookup {
                 center = Integer.parseInt(f.getPath().substring(
                         f.getPath().lastIndexOf("/") + 1));
 
-                ArrayList<File> files2 = FileUtil.listFiles(new File(commonPath
+                List<File> files2 = FileUtil.listFiles(new File(commonPath
                         + File.separator + String.valueOf(center)), filter,
                         true);
 
@@ -260,7 +255,7 @@ public class NcgribTableLookup {
                     if (!f2.getPath().contains(".svn")) {
                         subcenter = Integer.parseInt(f2.getPath().substring(
                                 f2.getPath().lastIndexOf("/") + 1));
-                        ArrayList<File> tableFiles = FileUtil.listFiles(f2,
+                        List<File> tableFiles = FileUtil.listFiles(f2,
                                 tableFilter, false);
                         String tableName = null;
                         for (File table : tableFiles) {
