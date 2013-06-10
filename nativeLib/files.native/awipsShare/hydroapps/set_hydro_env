@@ -33,17 +33,6 @@ export PATH=$PATH:${EDEX_HOME}/bin:${apps_dir}/bin
 
 # contains the path to the ohd libraries and JNI-related library/libraries
 export LD_LIBRARY_PATH=${EDEX_HOME}/lib/native/linux32:${apps_dir}/lib/native/linux32:$LD_LIBRARY_PATH
-# add python/lib to the path for jasper
-export LD_LIBRARY_PATH=/awips2/python/lib:$LD_LIBRARY_PATH
-# if it does actually need a libjvm.so
-arch=`uname -i`
-if [ "${arch}" = "i386" ]; then
-   export LD_LIBRARY_PATH=/awips2/java/jre/lib/i386/server:$LD_LIBRARY_PATH
-fi
-if [ "${arch}" = "x86_64" ]; then
-   export LD_LIBRARY_PATH=/awips2/java/jre/lib/amd64/server:$LD_LIBRARY_PATH
-fi
-
 export RFCLX=${apps_dir}
  
 #AWIPS_MODIFICATION_BLOCK_END

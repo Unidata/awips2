@@ -78,10 +78,12 @@ import com.vividsolutions.jts.geom.LineString;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 27, 2009 #2161      lvenable     Initial creation
- * 10-21-09     #1711      bsteffen    Updated Baseline and Points to use new ToolsDataManager
- * 11/17/2009   #3120      rjpeter     Updated to use LevelMappingFactory.
- * 07/31/2012   #875       rferrel     Now uses points.
+ * May 27, 2009 2161       lvenable    Initial creation
+ * Oct 21, 2009 1711       bsteffen    Updated Baseline and Points to use new
+ *                                     ToolsDataManager
+ * Nov 17, 2009 3120       rjpeter     Updated to use LevelMappingFactory.
+ * Jul 31, 2012 875        rferrel     Now uses points.
+ * May 30, 2013 2055       bsteffen    Remove modelName from sounding pointName.
  * 
  * </pre>
  * 
@@ -277,8 +279,7 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
             D2DNSharpResourceData tmpData = new GribNSharpResourceData(
                     catalogEntry.getSelectedData().getSourcesKey());
             tmpData.setCoordinate(getPointCoordinate(catalogEntry));
-            String pointName = catalogEntry.getSelectedData().getSourcesText()
-                    + "-" + catalogEntry.getSelectedData().getPlanesKey();
+            String pointName = catalogEntry.getSelectedData().getPlanesKey();
             tmpData.setPointName(pointName);
             rscData = tmpData;
             break;

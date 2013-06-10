@@ -19,24 +19,32 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.SortedSet;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.google.common.collect.Lists;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaDataFixture;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.time.util.ImmutableDate;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -44,8 +52,8 @@ import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocationFixture;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalFixture;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
@@ -61,6 +69,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 12, 2012 1286       djohnson     Initial creation
+ * Jun 03, 2013 2038       djohnson     Add test getting retrievals by dataset, provider, and status.
  * 
  * </pre>
  * 
@@ -172,11 +181,13 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
                 .get(1);
         OpenDapGriddedDataSetMetaData metaData2 = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
                 .get(2);
-        BandwidthDataSetUpdate metaDataDao = dao.newBandwidthDataSetUpdate(metaData);
+        BandwidthDataSetUpdate metaDataDao = dao
+                .newBandwidthDataSetUpdate(metaData);
         dao.newBandwidthDataSetUpdate(metaData2);
 
-        final List<BandwidthDataSetUpdate> results = dao.getBandwidthDataSetUpdate(
-                metaData.getProviderName(), metaData.getDataSetName());
+        final List<BandwidthDataSetUpdate> results = dao
+                .getBandwidthDataSetUpdate(metaData.getProviderName(),
+                        metaData.getDataSetName());
         assertEquals(1, results.size());
         final BandwidthDataSetUpdate result = results.iterator().next();
         assertEquals(metaData.getDataSetName(), result.getDataSetName());
@@ -191,15 +202,17 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
                 .get(1);
         metaData2.setDate(new ImmutableDate(metaData.getDate().getTime()
                 + TimeUtil.MILLIS_PER_YEAR));
-        BandwidthDataSetUpdate metaDataDao = dao.newBandwidthDataSetUpdate(metaData);
+        BandwidthDataSetUpdate metaDataDao = dao
+                .newBandwidthDataSetUpdate(metaData);
         dao.newBandwidthDataSetUpdate(metaData2);
 
         final ImmutableDate date1 = metaData.getDate();
         Calendar cal = Calendar.getInstance();
         cal.setTime(date1);
 
-        final List<BandwidthDataSetUpdate> results = dao.getBandwidthDataSetUpdate(
-                metaData.getProviderName(), metaData.getDataSetName(), cal);
+        final List<BandwidthDataSetUpdate> results = dao
+                .getBandwidthDataSetUpdate(metaData.getProviderName(),
+                        metaData.getDataSetName(), cal);
         assertEquals(1, results.size());
         final BandwidthDataSetUpdate result = results.iterator().next();
         assertEquals(metaData.getDataSetName(), result.getDataSetName());
@@ -305,14 +318,15 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         final Calendar now = BandwidthUtil.now();
         // Identical except for their identifier fields
         BandwidthSubscription entity1 = dao.newBandwidthSubscription(
-                SubscriptionFixture.INSTANCE.get(), now);
+                SiteSubscriptionFixture.INSTANCE.get(), now);
         BandwidthSubscription entity2 = dao.newBandwidthSubscription(
-                SubscriptionFixture.INSTANCE.get(), now);
+                SiteSubscriptionFixture.INSTANCE.get(), now);
 
         assertFalse("The two objects should not have the same id!",
                 entity1.getId() == entity2.getId());
 
-        final BandwidthSubscription result = dao.getBandwidthSubscription(entity2.getId());
+        final BandwidthSubscription result = dao
+                .getBandwidthSubscription(entity2.getId());
         assertEquals("Should have returned the entity with the correct id!",
                 entity2.getId(), result.getId());
         assertNotSame(entity2, result);
@@ -323,12 +337,13 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
             throws SerializationException {
         final Calendar now = BandwidthUtil.now();
         // Identical except for their base reference times and ids
-        dao.newBandwidthSubscription(SubscriptionFixture.INSTANCE.get(), now);
+        dao.newBandwidthSubscription(SiteSubscriptionFixture.INSTANCE.get(),
+                now);
 
         final Calendar later = BandwidthUtil.now();
         later.add(Calendar.HOUR, 1);
         BandwidthSubscription entity2 = dao.newBandwidthSubscription(
-                SubscriptionFixture.INSTANCE.get(), later);
+                SiteSubscriptionFixture.INSTANCE.get(), later);
 
         final BandwidthSubscription result = dao.getBandwidthSubscription(
                 entity2.getRegistryId(), later);
@@ -407,9 +422,12 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
                 .get(2);
 
         // Still have to persist the actual subscription daos
-        final BandwidthSubscription subDao1 = entity1.getBandwidthSubscription();
-        final BandwidthSubscription subDao2 = entity2.getBandwidthSubscription();
-        final BandwidthSubscription subDao3 = entity3.getBandwidthSubscription();
+        final BandwidthSubscription subDao1 = entity1
+                .getBandwidthSubscription();
+        final BandwidthSubscription subDao2 = entity2
+                .getBandwidthSubscription();
+        final BandwidthSubscription subDao3 = entity3
+                .getBandwidthSubscription();
 
         // Give each a unique time
         final Calendar one = BandwidthUtil.now();
@@ -457,7 +475,7 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
     public void testGetSubscriptionsReturnsClones()
             throws SerializationException {
         BandwidthSubscription entity = dao.newBandwidthSubscription(
-                SubscriptionFixture.INSTANCE.get(), BandwidthUtil.now());
+                SiteSubscriptionFixture.INSTANCE.get(), BandwidthUtil.now());
 
         List<BandwidthSubscription> results = dao.getBandwidthSubscriptions();
         assertEquals(1, results.size());
@@ -475,12 +493,15 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         three.add(Calendar.HOUR, 1);
 
         // Three entities all the same except for base reference time
-        dao.newBandwidthSubscription(SubscriptionFixture.INSTANCE.get(), one);
-        dao.newBandwidthSubscription(SubscriptionFixture.INSTANCE.get(), two);
+        dao.newBandwidthSubscription(SiteSubscriptionFixture.INSTANCE.get(),
+                one);
+        dao.newBandwidthSubscription(SiteSubscriptionFixture.INSTANCE.get(),
+                two);
         BandwidthSubscription entity3 = dao.newBandwidthSubscription(
-                SubscriptionFixture.INSTANCE.get(), three);
+                SiteSubscriptionFixture.INSTANCE.get(), three);
         // One with same base reference time but different provider/dataset
-        dao.newBandwidthSubscription(SubscriptionFixture.INSTANCE.get(2), three);
+        dao.newBandwidthSubscription(SiteSubscriptionFixture.INSTANCE.get(2),
+                three);
 
         List<BandwidthSubscription> results = dao.getBandwidthSubscriptions(
                 entity3.getProvider(), entity3.getDataSetName(), three);
@@ -508,9 +529,12 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
                 .get(2);
 
         // Still have to persist the actual subscription daos
-        final BandwidthSubscription subDao1 = entity1.getBandwidthSubscription();
-        final BandwidthSubscription subDao2 = entity2.getBandwidthSubscription();
-        final BandwidthSubscription subDao3 = entity3.getBandwidthSubscription();
+        final BandwidthSubscription subDao1 = entity1
+                .getBandwidthSubscription();
+        final BandwidthSubscription subDao2 = entity2
+                .getBandwidthSubscription();
+        final BandwidthSubscription subDao3 = entity3
+                .getBandwidthSubscription();
 
         // This persists the subscription dao objects and sets them on the
         // retrievals
@@ -547,9 +571,12 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
                 .get(2);
 
         // Still have to persist the actual subscription daos
-        final BandwidthSubscription subDao1 = entity1.getBandwidthSubscription();
-        final BandwidthSubscription subDao2 = entity2.getBandwidthSubscription();
-        final BandwidthSubscription subDao3 = entity3.getBandwidthSubscription();
+        final BandwidthSubscription subDao1 = entity1
+                .getBandwidthSubscription();
+        final BandwidthSubscription subDao2 = entity2
+                .getBandwidthSubscription();
+        final BandwidthSubscription subDao3 = entity3
+                .getBandwidthSubscription();
 
         // This persists the subscription dao objects and sets them on the
         // retrievals
@@ -575,17 +602,20 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
     @Test
     public void testRemoveSubscriptionDao() throws SerializationException {
         final Calendar now = BandwidthUtil.now();
-        dao.newBandwidthSubscription(SubscriptionFixture.INSTANCE.get(1), now);
+        dao.newBandwidthSubscription(SiteSubscriptionFixture.INSTANCE.get(1),
+                now);
         final BandwidthSubscription entity2 = dao.newBandwidthSubscription(
-                SubscriptionFixture.INSTANCE.get(2), now);
-        dao.newBandwidthSubscription(SubscriptionFixture.INSTANCE.get(3), now);
+                SiteSubscriptionFixture.INSTANCE.get(2), now);
+        dao.newBandwidthSubscription(SiteSubscriptionFixture.INSTANCE.get(3),
+                now);
 
         assertEquals("Incorrect number of entities found!", 3, dao
                 .getBandwidthSubscriptions().size());
 
         dao.remove(entity2);
 
-        final List<BandwidthSubscription> subscriptions = dao.getBandwidthSubscriptions();
+        final List<BandwidthSubscription> subscriptions = dao
+                .getBandwidthSubscriptions();
         assertEquals("Incorrect number of entities found!", 2,
                 subscriptions.size());
         for (BandwidthSubscription subscription : subscriptions) {
@@ -624,8 +654,7 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
     public void testUpdateBandwidthAllocation() {
         final long estimatedSize = 25L;
 
-        BandwidthAllocation entity = BandwidthAllocationFixture.INSTANCE
-                .get();
+        BandwidthAllocation entity = BandwidthAllocationFixture.INSTANCE.get();
         entity.setAgentType("someAgentType");
         dao.store(entity);
         entity.setEstimatedSize(estimatedSize);
@@ -641,13 +670,14 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         final long estimatedSize = 25L;
 
         BandwidthSubscription entity = dao.newBandwidthSubscription(
-                SubscriptionFixture.INSTANCE.get(), BandwidthUtil.now());
+                SiteSubscriptionFixture.INSTANCE.get(), BandwidthUtil.now());
 
         entity.setEstimatedSize(estimatedSize);
         dao.update(entity);
 
         assertEquals("Expected the entity to have been updated!", 25L, dao
-                .getBandwidthSubscriptions().iterator().next().getEstimatedSize());
+                .getBandwidthSubscriptions().iterator().next()
+                .getEstimatedSize());
     }
 
     @Test
@@ -663,5 +693,125 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
 
         assertEquals("Expected the entity to have been updated!", 25L, dao
                 .getSubscriptionRetrieval(entity.getId()).getEstimatedSize());
+    }
+
+    @Test
+    public void testGetSubscriptionRetrievalsByProviderDataSetAndStatus() {
+
+        final int numberOfScheduledEntities = 2;
+        final int numberOfReadyEntities = 3;
+        List<SubscriptionRetrieval> entities = Lists
+                .newArrayListWithCapacity(numberOfScheduledEntities
+                        + numberOfReadyEntities);
+
+        // Create some scheduled entities
+        entities.addAll(getEntitiesInState(numberOfScheduledEntities,
+                RetrievalStatus.SCHEDULED));
+
+        // Create some ready entities
+        entities.addAll(getEntitiesInState(numberOfReadyEntities,
+                RetrievalStatus.READY));
+
+        for (int i = 0; i < entities.size(); i++) {
+            final SubscriptionRetrieval entity = entities.get(i);
+            // Give each one a unique start time
+            entity.getStartTime().add(Calendar.MINUTE, i);
+            dao.store(entity.getBandwidthSubscription());
+        }
+        dao.store(entities);
+
+        BandwidthSubscription bandwidthSubscription = entities.iterator()
+                .next().getBandwidthSubscription();
+        final int actualNumberOfScheduledStatus = dao
+                .getSubscriptionRetrievals(bandwidthSubscription.getProvider(),
+                        bandwidthSubscription.getDataSetName(),
+                        RetrievalStatus.SCHEDULED).size();
+        assertThat(actualNumberOfScheduledStatus,
+                is(equalTo(numberOfScheduledEntities)));
+
+        final int actualNumberOfReadyStatus = dao.getSubscriptionRetrievals(
+                bandwidthSubscription.getProvider(),
+                bandwidthSubscription.getDataSetName(), RetrievalStatus.READY)
+                .size();
+        assertThat(actualNumberOfReadyStatus,
+                is(equalTo(numberOfReadyEntities)));
+    }
+
+    @Test
+    public void testGetSubscriptionRetrievalsByProviderDataSetStatusAndDates() {
+
+        final int numberOfScheduledEntities = 2;
+        final int numberOfReadyEntities = 10;
+        List<SubscriptionRetrieval> entities = Lists
+                .newArrayListWithCapacity(numberOfScheduledEntities
+                        + numberOfReadyEntities);
+
+        // Create some scheduled entities
+        entities.addAll(getEntitiesInState(numberOfScheduledEntities,
+                RetrievalStatus.SCHEDULED));
+
+        // Create some ready entities
+        List<SubscriptionRetrieval> readyEntities = getEntitiesInState(
+                numberOfReadyEntities, RetrievalStatus.READY);
+        entities.addAll(readyEntities);
+
+        // Persist the bandwidth subscriptions and create some unique times
+        for (int i = 0; i < entities.size(); i++) {
+            final SubscriptionRetrieval entity = entities.get(i);
+
+            // Give each one a unique start time
+            final Calendar startTime = entity.getStartTime();
+            startTime.add(Calendar.HOUR, i);
+
+            // ... and end time
+            Calendar endTime = BandwidthUtil.copy(startTime);
+            endTime.add(Calendar.MINUTE, 5);
+            entity.setEndTime(endTime);
+
+            dao.store(entity.getBandwidthSubscription());
+        }
+        dao.store(entities);
+
+        BandwidthSubscription bandwidthSubscription = entities.iterator()
+                .next().getBandwidthSubscription();
+        // These are the entities we expect to get (two items)
+        List<SubscriptionRetrieval> expectToGet = readyEntities.subList(3, 5);
+        final Iterator<SubscriptionRetrieval> iter = expectToGet.iterator();
+
+        // Use the start time of the first retrieval and the end time of the
+        // second retrieval
+        final Date startTime = iter.next().getStartTime().getTime();
+        final Date endTime = iter.next().getEndTime().getTime();
+
+        final SortedSet<SubscriptionRetrieval> actualReceived = dao.getSubscriptionRetrievals(bandwidthSubscription.getProvider(),
+                bandwidthSubscription.getDataSetName(), RetrievalStatus.READY,
+                startTime, endTime);
+
+        // Verify the correct number of retrievals were returned
+        assertThat(actualReceived, hasSize(expectToGet.size()));
+
+        // Verify the two SubscriptionRetrievals are correct
+        Iterator<SubscriptionRetrieval> actualIter = actualReceived.iterator();
+        assertThat(actualIter.next(), is(equalTo(expectToGet.get(0))));
+        assertThat(actualIter.next(), is(equalTo(expectToGet.get(1))));
+    }
+
+    /**
+     * Get the specified number of entities in the specified state.
+     * 
+     * @param numberOfEntities
+     * @param state
+     * @return the entities
+     */
+    protected static List<SubscriptionRetrieval> getEntitiesInState(
+            int numberOfEntities, RetrievalStatus state) {
+        List<SubscriptionRetrieval> entities = Lists.newArrayList();
+        for (int i = 0; i < numberOfEntities; i++) {
+            SubscriptionRetrieval entity = SubscriptionRetrievalFixture.INSTANCE
+                    .get();
+            entity.setStatus(state);
+            entities.add(entity);
+        }
+        return entities;
     }
 }

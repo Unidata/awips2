@@ -19,11 +19,9 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services.query.types.canonical;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
@@ -113,22 +111,13 @@ public class GetNotification extends CanonicalEbxmlQuery {
                     "Subscription does not define any push delivery addresses. Start time must be defined.");
         }
 
-        try {
+        if (startTime == null) {
+            startTime = subscription
+                    .getSlotValue(EbxmlObjectUtil.SUBSCRIPTION_LAST_RUN_TIME_SLOT_NAME);
             if (startTime == null) {
-                BigInteger lastRunTime = subscription
-                        .getSlotValue(EbxmlObjectUtil.SUBSCRIPTION_LAST_RUN_TIME_SLOT_NAME);
-                if (lastRunTime == null) {
-                    startTime = EbxmlObjectUtil
-                            .getTimeAsXMLGregorianCalendar(0);
+                startTime = EbxmlObjectUtil.getTimeAsXMLGregorianCalendar(0);
 
-                } else {
-                    startTime = EbxmlObjectUtil
-                            .getTimeAsXMLGregorianCalendar(lastRunTime
-                                    .longValue());
-                }
             }
-        } catch (DatatypeConfigurationException e) {
-            throw new EbxmlRegistryException("Error determining start time!", e);
         }
 
         try {

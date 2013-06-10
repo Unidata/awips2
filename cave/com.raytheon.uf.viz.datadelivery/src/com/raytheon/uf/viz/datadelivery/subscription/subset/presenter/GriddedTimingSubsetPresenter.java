@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
@@ -54,6 +55,12 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SpecificDateTime
 public class GriddedTimingSubsetPresenter
         extends
         DataTimingSubsetPresenter<GriddedDataSet, GriddedDataSetMetaData, IGriddedDataTimingSubsetView, SpecificDateTimeXML, GriddedDataSetMetaDataQuery> {
+
+    @VisibleForTesting
+    final String NO_DATA_FOR_DATE_AND_CYCLE = "No data is available for the specified date and cycle combination.";
+
+    @VisibleForTesting
+    final String MORE_THAN_ONE_CYCLE_SELECTED = "Adhoc queries can only be requested for a single cycle.";
 
     /**
      * Constructor.

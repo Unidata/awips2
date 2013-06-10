@@ -20,6 +20,11 @@
     -->
 <web-app id="web-app_purge" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" version="2.4">
    <display-name>purgeWeb</display-name>
+   
+    <context-param>
+    	<param-name>webAppRootKey</param-name>
+    	<param-value>purgeWeb</param-value>
+    </context-param>
 
    <servlet>
       <description><![CDATA[a servlet used to take request parameters and then set NCEP lgger log level]]></description>

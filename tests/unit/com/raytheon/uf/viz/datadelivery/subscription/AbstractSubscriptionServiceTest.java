@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -46,16 +47,16 @@ import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.common.datadelivery.service.subscription.ISubscriptionOverlapService;
 import com.raytheon.uf.common.datadelivery.service.subscription.ISubscriptionOverlapService.ISubscriptionOverlapResponse;
+import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
-import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.ForceApplyPromptResponse;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IDisplayForceApplyPrompt;
@@ -87,9 +88,11 @@ public abstract class AbstractSubscriptionServiceTest {
 
     protected static final int REQUIRED_LATENCY = 2;
 
-    final Subscription sub1 = SubscriptionFixture.INSTANCE.get(1);
+    protected static final long REQUIRED_DATASET_SIZE = 1024l;
 
-    final Subscription sub2 = SubscriptionFixture.INSTANCE.get(2);
+    final Subscription sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
+
+    final Subscription sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
 
     final List<Subscription> subs = Arrays.asList(sub1, sub2);
 
@@ -125,6 +128,7 @@ public abstract class AbstractSubscriptionServiceTest {
 
     @Before
     public void setUp() throws RegistryHandlerException {
+        PathManagerFactoryTest.initLocalization();
         RegistryObjectHandlersUtil.initMemory();
 
         when(
@@ -200,18 +204,16 @@ public abstract class AbstractSubscriptionServiceTest {
     public void testFailedProposeSchedulePromptsUserForForceApply()
             throws RegistryHandlerException {
         returnTwoSubscriptionNamesWhenProposeScheduleCalled();
-        returnRequiredLatencyWhenProposeScheduleCalled();
+        returnRequiredSubscriptionValuesWhenProposeScheduleCalled();
 
         whenForceApplyPromptedUserSelectsCancel();
 
         performServiceInteraction();
 
-        final String expected = getExpectedForceApplyMessage();
+        final ForceApplyPromptConfiguration expectedForceApplyConfiguration = getExpectedForceApplyPromptConfiguration();
 
-        verify(mockDisplay).displayForceApplyPrompt(service.TITLE, expected,
-                REQUIRED_LATENCY, mockPromptDisplayText,
-                getExpectedDisplayForceApplyPromptSubscription(),
-                subNameResults);
+        verify(mockDisplay).displayForceApplyPrompt(
+                eq(expectedForceApplyConfiguration));
     }
 
     @Test
@@ -347,27 +349,8 @@ public abstract class AbstractSubscriptionServiceTest {
     @Test
     public void testOverlappingSubscriptionsNotifiesUser()
             throws RegistryHandlerException {
-        final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
-                .getSubscriptionHandler();
-
-        // Store a duplicate subscription
-        Subscription duplicateSub = sub1.copy("duplicateSub");
-        subscriptionHandler.store(duplicateSub);
-
-        final ISubscriptionOverlapResponse response = mock(ISubscriptionOverlapResponse.class);
-        when(subscriptionOverlapService.isOverlapping(duplicateSub, sub1))
-                .thenReturn(response);
-        when(response.isOverlapping()).thenReturn(true);
-
-        performServiceInteraction();
-
-        verify(mockDisplay).displayMessage(
-                mockPromptDisplayText,
-                ISubscriptionOverlapService.OVERLAPPING_SUBSCRIPTIONS
-                        + FileUtil.EOL
-                        + duplicateSub.getName());
+        // Not valid for adhocs
     }
-
     /**
      * Verifies that the only interactions with the subscription handler are to
      * check for duplicate/overlapping subscriptions.
@@ -420,9 +403,11 @@ public abstract class AbstractSubscriptionServiceTest {
      * Returns the value of {@link #REQUIRED_LATENCY} as the required latency
      * when propose schedule is called.
      */
-    void returnRequiredLatencyWhenProposeScheduleCalled() {
+    void returnRequiredSubscriptionValuesWhenProposeScheduleCalled() {
         when(mockProposeScheduleResponse.getRequiredLatency()).thenReturn(
                 REQUIRED_LATENCY);
+        when(mockProposeScheduleResponse.getRequiredDataSetSize()).thenReturn(
+                REQUIRED_DATASET_SIZE);
     }
 
     /**
@@ -513,4 +498,12 @@ public abstract class AbstractSubscriptionServiceTest {
      * @return the subscription argument
      */
     abstract Subscription getExpectedDisplayForceApplyPromptSubscription();
+
+    /**
+     * Return the expected force apply prompt configuration.
+     * 
+     * @return the configuration
+     */
+    abstract ForceApplyPromptConfiguration getExpectedForceApplyPromptConfiguration();
 }
+
