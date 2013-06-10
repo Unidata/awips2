@@ -28,7 +28,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    12/10/12                      njensen       Initial Creation.
-#    
+#    06/03/13          #2023       dgilling      Implement getAttributes().
 # 
 #
 
@@ -42,6 +42,14 @@ class JData(IData, JUtil.JavaWrapperClass):
     
     def getAttribute(self, key):
         return self.jobj.getAttribute(key)
+    
+    def getAttributes(self):
+        attributes = []
+        jattribs = self.jobj.getAttributes()
+        itr = jattribs.iterator()
+        while itr.hasNext():
+            attributes.append(str(itr.next()))
+        return attributes
     
     def getDataTime(self):
         return DataTime.DataTime(self.jobj.getDataTime())

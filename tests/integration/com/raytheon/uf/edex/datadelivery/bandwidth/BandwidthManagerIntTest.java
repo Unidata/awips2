@@ -19,9 +19,11 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.sameInstance;
@@ -46,23 +48,22 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTypes;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaDataFixture;
 import com.raytheon.uf.common.datadelivery.registry.ParameterFixture;
+import com.raytheon.uf.common.datadelivery.registry.PointDataSetMetaData;
+import com.raytheon.uf.common.datadelivery.registry.PointDataSetMetaDataFixture;
+import com.raytheon.uf.common.datadelivery.registry.PointTime;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
-import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Time;
-import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -71,9 +72,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.time.util.ImmutableDate;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
-import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.common.util.TestUtil;
-import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
@@ -105,22 +104,14 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Mar 11, 2013 1645       djohnson     Test configuration file modifications.
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * Apr 29, 2013 1910       djohnson     Always shutdown bandwidth managers in tests.
+ * Jun 03, 2013 2038       djohnson     Add support for point data based subscriptions.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
-        SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML,
-        SpringFiles.BANDWIDTH_DATADELIVERY_DAOS_XML,
-        SpringFiles.BANDWIDTH_DATADELIVERY_XML,
-        SpringFiles.BANDWIDTH_DATADELIVERY_WFO_XML,
-        SpringFiles.BANDWIDTH_DATADELIVERY_INTEGRATION_TEST_XML,
-        SpringFiles.BANDWIDTH_DATADELIVERY_INTEGRATION_TEST_WFO_XML })
-@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
-public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
+public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest {
 
     @Test
     public void testAddingSubscriptionAllocatesOncePerPlanDayForOneCycle()
@@ -137,14 +128,37 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
     }
 
     @Test
+    public void testAddingPointSubscriptionAllocatesAccordingToInterval()
+            throws SerializationException {
+        final int retrievalInterval = 10;
+        Subscription subscription = getPointDataSubscription(retrievalInterval);
+
+        bandwidthManager.subscriptionUpdated(subscription);
+
+        // 6 per hour, one every 10 minutes
+        final int expectedRetrievalsPerDay = TimeUtil.HOURS_PER_DAY
+                * (TimeUtil.MINUTES_PER_HOUR / retrievalInterval);
+        final int planDays = retrievalManager.getPlan(subscription.getRoute())
+                .getPlanDays();
+        // The number of retrievals per hour, per day, plus 1 because the last
+        // retrieval starts at the very last time in the retrieval plan
+        final int expectedNumberOfRetrievals = (planDays * expectedRetrievalsPerDay) + 1;
+
+        assertEquals("Incorrect number of bandwidth allocations made!",
+                expectedNumberOfRetrievals, bandwidthDao
+                        .getBandwidthAllocations(subscription.getRoute())
+                        .size());
+    }
+
+    @Test
     public void testDataSetMetaDataUpdateSetsSubscriptionRetrievalsToReady()
             throws SerializationException, ParseException {
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
         bandwidthManager.subscriptionUpdated(subscription);
 
         OpenDapGriddedDataSetMetaData metadata = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
                 .get();
-        bandwidthManager.updateDataSetMetaData(metadata);
+        bandwidthManager.updateGriddedDataSetMetaData(metadata);
 
         Calendar cal = TimeUtil.newCalendar();
         cal.setTime(metadata.getDate());
@@ -159,9 +173,68 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
     }
 
     @Test
+    public void testPointDataSetMetaDataUpdateSetsSubscriptionRetrievalsToReady()
+            throws SerializationException, ParseException {
+
+        final int retrievalInterval = 10;
+        final Subscription subscription = getPointDataSubscription(retrievalInterval);
+        final String providerName = subscription.getProvider();
+        final String dataSetName = subscription.getDataSetName();
+
+        bandwidthManager.subscriptionUpdated(subscription);
+
+        final List<SubscriptionRetrieval> subscriptionRetrievals = bandwidthDao
+                .getSubscriptionRetrievals(providerName,
+                        dataSetName);
+
+        // We're going to send in a point data update with a time span that
+        // bridges these two retrievals
+        final SubscriptionRetrieval thirdRetrieval = subscriptionRetrievals
+                .get(2);
+        final SubscriptionRetrieval fourthRetrieval = subscriptionRetrievals
+                .get(3);
+
+        // The start time for this point time is in between the third
+        // retrieval's start and end times, minus the retrievalInterval which
+        // becomes the latency
+        final long startTimeForPointTimeInMillis = ((thirdRetrieval
+                .getStartTime().getTimeInMillis() + thirdRetrieval.getEndTime()
+                .getTimeInMillis()) / 2)
+                - (retrievalInterval * TimeUtil.MILLIS_PER_MINUTE);
+
+        // The end time for this point time is in between the fourth retrieval's
+        // start and end times, minus the retrievalInterval which becomes the
+        // latency
+        final long endTimeForPointTimeInMillis = ((fourthRetrieval
+                .getStartTime().getTimeInMillis() + fourthRetrieval
+                .getEndTime().getTimeInMillis()) / 2)
+                - (retrievalInterval * TimeUtil.MILLIS_PER_MINUTE);
+
+        PointTime time = new PointTime();
+        time.setTimes(Arrays.<Date> asList(new Date(
+                startTimeForPointTimeInMillis), new Date(
+                endTimeForPointTimeInMillis)));
+
+        PointDataSetMetaData metadata = PointDataSetMetaDataFixture.INSTANCE
+                .get();
+        metadata.setDataSetName(dataSetName);
+        metadata.setProviderName(providerName);
+        metadata.setTime(time);
+
+        // Send in the new times to the bandwidth manager
+        bandwidthManager.updatePointDataSetMetaData(metadata);
+
+        final SortedSet<SubscriptionRetrieval> readyRetrievals = bandwidthDao
+                .getSubscriptionRetrievals(providerName,
+                        dataSetName, RetrievalStatus.READY);
+        assertThat(readyRetrievals, hasSize(2));
+        assertThat(readyRetrievals, contains(thirdRetrieval, fourthRetrieval));
+    }
+
+    @Test
     public void testDataSetMetaDataUpdateSetsCorrectTimeOnSubscription()
             throws SerializationException, ParseException {
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
         bandwidthManager.subscriptionUpdated(subscription);
 
         OpenDapGriddedDataSetMetaData metadata = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
@@ -174,7 +247,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         metadata.setDate(oneDayLater);
 
         // Send in the update
-        bandwidthManager.updateDataSetMetaData(metadata);
+        bandwidthManager.updateGriddedDataSetMetaData(metadata);
 
         Calendar cal = TimeUtil.newCalendar();
         cal.setTime(metadata.getDate());
@@ -197,7 +270,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         RegistryObjectHandlersUtil.initMemory();
 
         // Store the original subscription
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
         DataDeliveryHandlers.getSubscriptionHandler().store(subscription);
 
         // The dataset metadata update
@@ -209,7 +282,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         dsmdTime.setStartDate(new Date(dsmdTime.getStartDate().getTime()
                 + TimeUtil.MILLIS_PER_DAY));
 
-        bandwidthManager.updateDataSetMetaData(update);
+        bandwidthManager.updateGriddedDataSetMetaData(update);
 
         List<SubscriptionRetrieval> retrievals = bandwidthDao
                 .getSubscriptionRetrievals(subscription.getProvider(),
@@ -233,7 +306,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         RegistryObjectHandlersUtil.initMemory();
 
         // Store the original subscription
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
         subscription.getTime().setCycleTimes(Collections.<Integer> emptyList());
         DataDeliveryHandlers.getSubscriptionHandler().store(subscription);
 
@@ -249,7 +322,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         RetrievalPlanTest.resizePlan(plan, TimeUtil.currentTimeMillis(), plan
                 .getPlanEnd().getTimeInMillis());
 
-        bandwidthManager.updateDataSetMetaData(update);
+        bandwidthManager.updateGriddedDataSetMetaData(update);
 
         List<SubscriptionRetrieval> retrievals = bandwidthDao
                 .getSubscriptionRetrievals(subscription.getProvider(),
@@ -267,7 +340,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         RegistryObjectHandlersUtil.initMemory();
 
         // Store the original subscription
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
         subscription.setLatencyInMinutes(5);
         DataDeliveryHandlers.getSubscriptionHandler().store(subscription);
 
@@ -283,7 +356,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
         RetrievalPlanTest.resizePlan(plan, TimeUtil.currentTimeMillis(), plan
                 .getPlanEnd().getTimeInMillis());
 
-        bandwidthManager.updateDataSetMetaData(update);
+        bandwidthManager.updateGriddedDataSetMetaData(update);
 
         List<SubscriptionRetrieval> retrievals = bandwidthDao
                 .getSubscriptionRetrievals(subscription.getProvider(),
@@ -684,7 +757,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
                             // working at once
                             waitForAllThreadsReadyLatch.countDown();
                             waitForAllThreadsReadyLatch.await();
-                            proposed.updateDataSetMetaData(OpenDapGriddedDataSetMetaDataFixture.INSTANCE
+                            proposed.updateGriddedDataSetMetaData(OpenDapGriddedDataSetMetaDataFixture.INSTANCE
                                     .get(current));
                         } catch (Exception e) {
                             queue.offer(e);
@@ -701,7 +774,7 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
                     @Override
                     public void run() {
                         try {
-                            final Subscription subscription2 = SubscriptionFixture.INSTANCE
+                            final Subscription subscription2 = SiteSubscriptionFixture.INSTANCE
                                     .get(current);
                             subscription2
                                     .addParameter(ParameterFixture.INSTANCE
@@ -997,13 +1070,9 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
 
     private void testSubscriptionCyclesAreAllocatedOncePerCyclePerPlanDay(
             List<Integer> cycles) throws SerializationException {
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
         subscription.getTime().setCycleTimes(cycles);
-        try {
-            bandwidthManager.subscriptionUpdated(subscription);
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
+        bandwidthManager.subscriptionUpdated(subscription);
 
         assertEquals("Incorrect number of bandwidth allocations made!",
                 retrievalManager.getPlan(subscription.getRoute()).getPlanDays()
@@ -1040,6 +1109,24 @@ public class BandwidthManagerIntTest extends AbstractBandwidthManagerIntTest {
     @Override
     protected Network getRouteToUseForSubscription() {
         return Network.OPSNET;
+    }
+
+    /**
+     * Get a point data subscription with the given retrieval interval.
+     * 
+     * @param retrievalInterval
+     *            the retrieval interval
+     * @return
+     */
+    protected Subscription getPointDataSubscription(int retrievalInterval) {
+        final PointTime pointTime = new PointTime();
+        pointTime.setInterval(retrievalInterval);
+
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
+        subscription.setTime(pointTime);
+        subscription.setDataSetType(DataType.POINT);
+        subscription.setLatencyInMinutes(retrievalInterval);
+        return subscription;
     }
 
 }

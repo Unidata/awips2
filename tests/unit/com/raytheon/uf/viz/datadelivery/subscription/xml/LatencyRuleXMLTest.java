@@ -23,7 +23,7 @@ import javax.xml.bind.JAXBException;
 
 import org.junit.Test;
 
-import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.units.DataSizeUnit;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.viz.datadelivery.system.CreateEditRuleDlg.FreqUnitOptions;
@@ -66,7 +66,7 @@ public class LatencyRuleXMLTest {
         ruleXml.setRuleUnit(DataSizeUnit.BYTE.getUnit());
         ruleXml.setRuleValue("10");
 
-        ruleXml.matches(SubscriptionFixture.INSTANCE.get(),
+        ruleXml.matches(SiteSubscriptionFixture.INSTANCE.get(),
                 CollectionUtil.asSet(1, 2));
     }
 
@@ -80,7 +80,7 @@ public class LatencyRuleXMLTest {
         ruleXml.setRuleUnit(FreqUnitOptions.MIN.getOperation());
         ruleXml.setRuleValue("10");
 
-        ruleXml.matches(SubscriptionFixture.INSTANCE.get(),
+        ruleXml.matches(SiteSubscriptionFixture.INSTANCE.get(),
                 CollectionUtil.asSet(1, 2));
     }
 }

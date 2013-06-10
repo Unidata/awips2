@@ -74,7 +74,7 @@ public abstract class AbstractSubscriptionServiceSingleSubscriptionTest extends
         subscriptionHandler.store(sub2);
 
         returnTwoSubscriptionNamesWhenProposeScheduleCalled();
-        returnRequiredLatencyWhenProposeScheduleCalled();
+        returnRequiredSubscriptionValuesWhenProposeScheduleCalled();
         whenForceApplyPromptedUserSelectsIncreaseLatency();
 
         performServiceInteraction();

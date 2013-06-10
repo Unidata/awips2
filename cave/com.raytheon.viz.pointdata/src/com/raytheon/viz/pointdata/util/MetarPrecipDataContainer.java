@@ -29,8 +29,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.geotools.geometry.jts.ReferencedEnvelope;
+
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.util.EnvelopeIntersection;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -40,10 +44,18 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 
 /**
  * 
- * TODO Add Description
+ * Container for requesting and caching metar precip data. This container can be
+ * reused to request data for multiple times. Typically it is used in 2 stages,
+ * first getBasePrecipData is used to quickly retrieve data for all metar
+ * stations which have the data directly available, second getDerivedPrecipData
+ * is used to get all the data taht is not directly available but has to be
+ * derived by accumulating other reports over time.
  * 
  * <pre>
  * 
@@ -51,8 +63,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 19, 2011            bsteffen     Initial creation
- * Jan 10, 2013            snaples      updated getBasePrecipData to use correct data for 1 hour precip.
+ * Aug 19, 2011            bsteffen    Initial creation
+ * Jan 10, 2013            snaples     updated getBasePrecipData to use correct
+ *                                     data for 1 hour precip.
+ * Jun 07, 2013 2070       bsteffen    Add geospatial constraints to metar
+ *                                     precip requests.
  * 
  * </pre>
  * 
@@ -64,6 +79,13 @@ public class MetarPrecipDataContainer {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MetarPrecipDataContainer.class);
+
+    /*
+     * Envelope which contains the whole world in LatLon projection. Used for
+     * intersections/conversion since this is the valid area for metar records.
+     */
+    private static final ReferencedEnvelope WORLD_LAT_LON_ENVELOPE = new ReferencedEnvelope(
+            -180, 180, -90, 90, MapUtil.LATLON_PROJECTION);
 
     public static class PrecipData {
 
@@ -128,7 +150,11 @@ public class MetarPrecipDataContainer {
 
     private final int duration;
 
-    private Map<String, RequestConstraint> rcMap = null;
+    private final Map<String, RequestConstraint> rcMap;
+
+    private final org.opengis.geometry.Envelope descriptorEnvelope;
+
+    private List<Envelope> latLonEnvelopes;
 
     private final Map<Long, Map<String, PrecipData>> cache3 = new HashMap<Long, Map<String, PrecipData>>();
 
@@ -136,12 +162,45 @@ public class MetarPrecipDataContainer {
 
     private final Map<DataTime, Set<String>> baseStations = new HashMap<DataTime, Set<String>>();
 
+    /**
+     * Consturct a container with geospatially filtering to only request data in
+     * the area of descriptorEnvelope
+     * 
+     * @param duration
+     * @param rcMap
+     * @param descriptorEnvelope
+     */
+    public MetarPrecipDataContainer(int duration,
+            HashMap<String, RequestConstraint> rcMap,
+            org.opengis.geometry.Envelope descriptorEnvelope) {
+        this.duration = duration;
+        this.rcMap = rcMap;
+        this.descriptorEnvelope = descriptorEnvelope;
+    }
+
+    /**
+     * This will construct a container with no geospatial constraints, use it
+     * only for updates where the rcMap already has stationIds that are
+     * geospatially filtered.
+     * 
+     * @param duration
+     * @param rcMap
+     */
     public MetarPrecipDataContainer(int duration,
             Map<String, RequestConstraint> rcMap) {
         this.duration = duration;
         this.rcMap = rcMap;
+        this.descriptorEnvelope = null;
+        this.latLonEnvelopes = Arrays.<Envelope> asList(WORLD_LAT_LON_ENVELOPE);
     }
 
+    /**
+     * Get the base precip data from all metar stations that have precip for the
+     * specified duration directly encoded.
+     * 
+     * @param time
+     * @return
+     */
     public List<PrecipData> getBasePrecipData(DataTime time) {
         Map<String, PrecipData> precipMap = new HashMap<String, PrecipData>();
         long validTime = time.getMatchValid();
@@ -150,12 +209,11 @@ public class MetarPrecipDataContainer {
                     P1_KEY);
             Map<String, PrecipData> precipMap1 = null;
             if (pdc != null) {
-                precipMap1 = createPrecipData(pdc,
-                        validTime - ONE_HOUR, validTime, P1_KEY);
+                precipMap1 = createPrecipData(pdc, validTime - ONE_HOUR,
+                        validTime, P1_KEY);
                 if (precipMap1 == null) {
-                precipMap1 = createPrecipData(pdc,
-                        validTime - ONE_HOUR + FIFTEEN_MIN, validTime
-                                - FIFTEEN_MIN, P1_KEY);
+                    precipMap1 = createPrecipData(pdc, validTime - ONE_HOUR
+                            + FIFTEEN_MIN, validTime - FIFTEEN_MIN, P1_KEY);
                 }
                 // Data frame 15 minutes ago is better then data now for some
                 // reason
@@ -183,6 +241,13 @@ public class MetarPrecipDataContainer {
         return result;
     }
 
+    /**
+     * Get the derived precip data for all stations which don't have the base
+     * data. This will attempt to accumulate precipitation from old reports.
+     * 
+     * @param time
+     * @return
+     */
     public List<PrecipData> getDerivedPrecipData(DataTime time) {
         Map<String, PrecipData> precipMap = new HashMap<String, PrecipData>();
         long validTime = time.getMatchValid();
@@ -217,6 +282,15 @@ public class MetarPrecipDataContainer {
         return result;
     }
 
+    /**
+     * Get raw metar data by summiong up multiple 1 hour observations
+     * 
+     * @param validTime
+     *            the valid time to get data for
+     * @param sumTime
+     *            how many 1hour precip obs to sum up.
+     * @return
+     */
     private Map<String, PrecipData> getRawPrecipData1sum(long validTime,
             int sumTime) {
         List<Map<String, PrecipData>> maps = new ArrayList<Map<String, PrecipData>>();
@@ -237,6 +311,12 @@ public class MetarPrecipDataContainer {
         return add(maps.toArray(new Map[0]));
     }
 
+    /**
+     * Get all base 3 hour precip records for the provided times
+     * 
+     * @param validTime
+     * @return
+     */
     private Map<String, PrecipData> getRawPrecipData3(long validTime) {
         if (cache3.containsKey(validTime)) {
             return cache3.get(validTime);
@@ -257,6 +337,12 @@ public class MetarPrecipDataContainer {
         return precipMap3;
     }
 
+    /**
+     * Get all base 6 hour precip records for the provided times
+     * 
+     * @param validTime
+     * @return
+     */
     private Map<String, PrecipData> getRawPrecipData6(long validTime) {
         if (cache6.containsKey(validTime)) {
             return cache6.get(validTime);
@@ -272,6 +358,16 @@ public class MetarPrecipDataContainer {
         return precipMap6;
     }
 
+    /**
+     * build PricipData objects for every station in a PointDataContainer
+     * 
+     * @param pdc
+     * @param startTime
+     * @param latestTime
+     * @param precipKey
+     *            the name of the parameter with precip.
+     * @return
+     */
     private Map<String, PrecipData> createPrecipData(PointDataContainer pdc,
             long startTime, long latestTime, String precipKey) {
         Map<String, PrecipData> precipMap = new HashMap<String, PrecipData>();
@@ -307,6 +403,15 @@ public class MetarPrecipDataContainer {
         return precipMap;
     }
 
+    /**
+     * This function perfroms the request to edex for point data.
+     * 
+     * @param rcMap
+     * @param time
+     * @param duration
+     * @param precipKeys
+     * @return
+     */
     private PointDataContainer requestPointData(
             Map<String, RequestConstraint> rcMap, long time, int duration,
             String... precipKeys) {
@@ -331,21 +436,84 @@ public class MetarPrecipDataContainer {
                 end.toString() });
         rcMap.put("dataTime", timeRC);
         PointDataContainer pdc = null;
-        try {
-            pdc = DataCubeContainer.getPointData("obs",
-                    parameters.toArray(new String[0]), rcMap);
-        } catch (VizException e) {
-            statusHandler.handle(Priority.ERROR,
-                    "Error getting precip data, some precip will not display.",
-                    e);
+        // Over the dateline there might be an envelope on either side.
+        for (Envelope latLonEnvelope : getLatLonEnvelopes()) {
+            PointDataContainer tmppdc = null;
+            RequestConstraint lonRC = new RequestConstraint(null,
+                    ConstraintType.BETWEEN);
+            Double minLon = latLonEnvelope.getMinX();
+            Double maxLon = latLonEnvelope.getMaxX();
+            lonRC.setBetweenValueList(new String[] { minLon.toString(),
+                    maxLon.toString() });
+            rcMap.put("location.longitude", lonRC);
+            RequestConstraint latRC = new RequestConstraint(null,
+                    ConstraintType.BETWEEN);
+            Double minLat = latLonEnvelope.getMinY();
+            Double maxLat = latLonEnvelope.getMaxY();
+            latRC.setBetweenValueList(new String[] { minLat.toString(),
+                    maxLat.toString() });
+            rcMap.put("location.latitude", latRC);
+            try {
+                tmppdc = DataCubeContainer.getPointData("obs",
+                        parameters.toArray(new String[0]), rcMap);
+            } catch (VizException e) {
+                statusHandler
+                        .handle(Priority.ERROR,
+                                "Error getting precip data, some precip will not display.",
+                                e);
+            }
+            if (tmppdc != null) {
+                tmppdc.setCurrentSz(tmppdc.getAllocatedSz());
+                if (pdc != null) {
+                    pdc.combine(tmppdc);
+                    pdc.setCurrentSz(pdc.getAllocatedSz());
+                } else {
+                    pdc = tmppdc;
+                }
+            }
         }
-        if (pdc != null) {
-            pdc.setCurrentSz(pdc.getAllocatedSz());
-            return pdc;
-        }
-        return null;
+        return pdc;
     }
 
+    /**
+     * Get envelopes describing the latlon area that should be used to constrain
+     * all queries
+     * 
+     * @return
+     */
+    private List<Envelope> getLatLonEnvelopes() {
+        if (latLonEnvelopes == null) {
+            this.latLonEnvelopes = new ArrayList<Envelope>(2);
+            try {
+                Geometry intersection = EnvelopeIntersection
+                        .createEnvelopeIntersection(descriptorEnvelope,
+                                WORLD_LAT_LON_ENVELOPE, 0.1, 180, 180);
+                if (intersection instanceof GeometryCollection) {
+                    GeometryCollection gc = (GeometryCollection) intersection;
+                    for (int n = 0; n < gc.getNumGeometries(); n += 1) {
+                        latLonEnvelopes.add(gc.getGeometryN(n)
+                                .getEnvelopeInternal());
+                    }
+                } else {
+                    latLonEnvelopes.add(intersection.getEnvelopeInternal());
+                }
+            } catch (Exception e) {
+                statusHandler.handle(Priority.VERBOSE, e.getLocalizedMessage(),
+                        e);
+                this.latLonEnvelopes.add(WORLD_LAT_LON_ENVELOPE);
+            }
+        }
+        return latLonEnvelopes;
+    }
+
+    /**
+     * Subtract the precip amounts in map2 from those in map1 for all stations
+     * that are in both maps.
+     * 
+     * @param map1
+     * @param map2
+     * @return
+     */
     private Map<String, PrecipData> subtract(Map<String, PrecipData> map1,
             Map<String, PrecipData> map2) {
         Map<String, PrecipData> result = new HashMap<String, PrecipData>();
@@ -364,6 +532,14 @@ public class MetarPrecipDataContainer {
         return result;
     }
 
+    /**
+     * Subtract the precip amounts in several maps for all stations that are in
+     * all maps.
+     * 
+     * @param map1
+     * @param map2
+     * @return
+     */
     private Map<String, PrecipData> add(Map<String, PrecipData>... maps) {
         Map<String, PrecipData> result = new HashMap<String, PrecipData>();
         for (Map<String, PrecipData> map : maps) {
@@ -387,6 +563,13 @@ public class MetarPrecipDataContainer {
         return result;
     }
 
+    /**
+     * combine all maps so there is only one entry for each station. For
+     * stations in multiple maps the entry from the first map is used.
+     * 
+     * @param maps
+     * @return
+     */
     private Map<String, PrecipData> combine(Map<String, PrecipData>... maps) {
         Map<String, PrecipData> result = new HashMap<String, PrecipData>();
         List<Map<String, PrecipData>> mapsList = new ArrayList<Map<String, PrecipData>>(

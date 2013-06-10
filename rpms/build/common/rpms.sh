@@ -1,5 +1,18 @@
 #!/bin/bash
 
+function buildJava()
+{
+   pushd . > /dev/null 2>&1
+
+   cd ${WORKSPACE}/rpms/awips2.core/Installer.java
+   /bin/bash build.sh
+   if [ $? -ne 0 ]; then
+      return 1
+   fi
+
+   popd > /dev/null 2>&1
+}
+
 function buildQPID()
 {
    # Arguments:
