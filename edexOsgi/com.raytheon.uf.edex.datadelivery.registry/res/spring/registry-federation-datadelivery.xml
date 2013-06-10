@@ -1,0 +1,19 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="staticMethod"
+			value="com.raytheon.uf.edex.datadelivery.registry.replication.RegistryReplicationManager.addObjectTypesToSubscribeTo" />
+		<property name="arguments">
+			<list>
+				<value>urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Federation</value>
+				<value>urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Registry</value>
+				<value>urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association</value>
+				<value>urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Person</value>
+				<value>urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Organization</value>
+			</list>
+		</property>
+	</bean>
+</beans>
