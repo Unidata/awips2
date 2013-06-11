@@ -113,6 +113,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                                     PluginDataObject.
  * May 16, 2013 1869       bsteffen    Rewrite dataURI property mappings.
  * Jun 11, 2013 2090       djohnson    Separate the hdf5 purge by ref time for reuse.
+ * Jun 11, 2013 2092       bclement    Added purge results
  * 
  * </pre>
  * 
@@ -700,20 +701,50 @@ public abstract class PluginDao extends CoreDao {
     }
 
     /**
+     * Result of purge for rule
+     */
+    protected static class RuleResult {
+        public Set<Date> timesKept;
+
+        public Set<Date> timesPurged;
+
+        public int itemsDeletedForKey;
+
+        public RuleResult(Set<Date> timesKept, Set<Date> timesPurged,
+                int itemsDeletedForKey) {
+            this.timesKept = timesKept;
+            this.timesPurged = timesPurged;
+            this.itemsDeletedForKey = itemsDeletedForKey;
+        }
+
+    }
+
+    /**
      * Purges data according to purge criteria specified by the owning plugin
      * 
      * @throws PluginException
      *             If problems occur while interacting with data stores
      */
     public void purgeExpiredData() throws PluginException {
+        purgeExpiredDataWithResults();
+    }
+
+    /**
+     * Purges data according to purge criteria specified by the owning plugin
+     * 
+     * @throws PluginException
+     *             If problems occur while interacting with data stores
+     */
+    public PurgeResults purgeExpiredDataWithResults() throws PluginException {
         try {
             PurgeRuleSet ruleSet = getPurgeRulesForPlugin(pluginName);
-
+            Map<String, Set<Date>> timesKept = new HashMap<String, Set<Date>>();
+            Map<String, Set<Date>> timesPurged = new HashMap<String, Set<Date>>();
             if (ruleSet == null) {
                 PurgeLogger.logInfo(
                         "No valid purge rules found. Skipping purge.",
                         pluginName);
-                return;
+                return new PurgeResults(timesKept, timesPurged);
             }
 
             // Query the database to get all possible product keys for this data
@@ -725,11 +756,17 @@ public abstract class PluginDao extends CoreDao {
                 String[][] distinctKeys = getDistinctProductKeyValues(ruleSet
                         .getKeys());
                 for (String[] key : distinctKeys) {
-                    totalItems += purgeExpiredKey(ruleSet, key);
+                    RuleResult res = purgeExpiredKey(ruleSet, key);
+                    timesKept.put(Arrays.toString(key), res.timesKept);
+                    timesPurged.put(Arrays.toString(key), res.timesPurged);
+                    totalItems += res.itemsDeletedForKey;
                 }
             } else {
                 // no rule keys defined, can only apply default rule
-                totalItems += purgeExpiredKey(ruleSet, null);
+                RuleResult res = purgeExpiredKey(ruleSet, null);
+                timesKept.put("default", res.timesKept);
+                timesPurged.put("default", res.timesPurged);
+                totalItems += res.itemsDeletedForKey;
             }
 
             StringBuilder messageBuffer = new StringBuilder();
@@ -740,6 +777,7 @@ public abstract class PluginDao extends CoreDao {
             messageBuffer.append(" total.");
 
             PurgeLogger.logInfo(messageBuffer.toString(), pluginName);
+            return new PurgeResults(timesKept, timesPurged);
         } catch (EdexException e) {
             throw new PluginException("Error applying purge rule!!", e);
         }
@@ -751,10 +789,11 @@ public abstract class PluginDao extends CoreDao {
      * 
      * @param ruleSet
      * @param purgeKeys
-     * @return Number of records purged
+     * @return Summary of purge for keys
      * @throws DataAccessLayerException
      */
-    protected int purgeExpiredKey(PurgeRuleSet ruleSet, String[] purgeKeys)
+    protected RuleResult purgeExpiredKey(PurgeRuleSet ruleSet,
+            String[] purgeKeys)
             throws DataAccessLayerException {
         List<PurgeRule> rules = ruleSet.getRuleForKeys(purgeKeys);
 
@@ -762,7 +801,8 @@ public abstract class PluginDao extends CoreDao {
             PurgeLogger.logWarn(
                     "No rules found for purgeKeys: "
                             + Arrays.toString(purgeKeys), pluginName);
-            return 0;
+            return new RuleResult(Collections.<Date> emptySet(),
+                    Collections.<Date> emptySet(), 0);
         }
 
         /*
@@ -828,7 +868,8 @@ public abstract class PluginDao extends CoreDao {
                     if (maxRefTime == null) {
                         PurgeLogger.logInfo("No data available to purge",
                                 pluginName);
-                        return 0;
+                        return new RuleResult(Collections.<Date> emptySet(),
+                                Collections.<Date> emptySet(), 0);
                     } else {
                         periodCutoffTime = new Date(maxRefTime.getTime()
                                 - rule.getPeriodInMillis());
@@ -1143,7 +1184,7 @@ public abstract class PluginDao extends CoreDao {
             }
         }
 
-        return itemsDeletedForKey;
+        return new RuleResult(timesKept, timesPurged, itemsDeletedForKey);
     }
 
     /**
