@@ -76,6 +76,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 15, 2013 1040       mpduff       Using Set for office Ids.
  * May 20, 2013 2000       djohnson     Add message to inform the user changes were applied.
  * Jun 04, 2013  223       mpduff       Add point data stuff.
+ * Jun 11, 2013 2064       mpduff       Don't output Parameter header if none exist.
  * </pre>
  * 
  * @author mpduff
@@ -696,7 +697,7 @@ public class DataDeliveryUtils {
         }
 
         List<Parameter> parmArray = sub.getParameter();
-        if (parmArray != null) {
+        if (!CollectionUtil.isNullOrEmpty(parmArray)) {
             fmtStr.append("Parameters:").append(newline);
             for (Parameter p : parmArray) {
                 fmtStr.append("------ Name: ").append(p.getName())
