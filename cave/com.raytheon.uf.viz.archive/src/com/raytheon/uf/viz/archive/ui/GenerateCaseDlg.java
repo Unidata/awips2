@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
-import com.raytheon.uf.common.archive.config.ArchiveConfigManager.DisplayData;
+import com.raytheon.uf.common.archive.config.DisplayData;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
