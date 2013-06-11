@@ -112,6 +112,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * May 16, 2013 1869       bsteffen    Rewrite dataURI property mappings.
+ * Jun 11, 2013 2090       djohnson    Separate the hdf5 purge by ref time for reuse.
  * 
  * </pre>
  * 
@@ -1353,47 +1354,13 @@ public abstract class PluginDao extends CoreDao {
 
         dataQuery.setMaxResults(500);
 
-        // fields for hdf5 purge
-        String previousFile = null;
-        StringBuilder pathBuilder = new StringBuilder();
-
         do {
             pdos = (List<PluginDataObject>) this.queryByCriteria(dataQuery);
             if ((pdos != null) && !pdos.isEmpty()) {
                 this.delete(pdos);
 
                 if (trackHdf5 && (hdf5FileToUriPurged != null)) {
-                    for (PluginDataObject pdo : pdos) {
-                        pathBuilder.setLength(0);
-                        IPersistable persist = (IPersistable) pdo;
-                        pathBuilder
-                                .append(PLUGIN_HDF5_DIR)
-                                .append(pathProvider.getHDFPath(
-                                        this.pluginName, persist))
-                                .append(File.separatorChar)
-                                .append(pathProvider.getHDFFileName(
-                                        this.pluginName, persist));
-                        String file = pathBuilder.toString();
-
-                        if (trackToUri) {
-                            List<String> uriList = hdf5FileToUriPurged
-                                    .get(file);
-                            if (uriList == null) {
-                                // sizing to 50 as most data types have numerous
-                                // entries in a file
-                                uriList = new ArrayList<String>(50);
-                                hdf5FileToUriPurged.put(file, uriList);
-                            }
-                            uriList.add(file);
-                        } else {
-                            // only need to track file, tracking last file
-                            // instead of constantly indexing hashMap
-                            if (!file.equals(previousFile)) {
-                                hdf5FileToUriPurged.put(file, null);
-                                previousFile = file;
-                            }
-                        }
-                    }
+                    purgeHdf5ForPdos(trackToUri, hdf5FileToUriPurged, pdos);
                 }
 
                 results += pdos.size();
@@ -1402,6 +1369,59 @@ public abstract class PluginDao extends CoreDao {
         } while ((pdos != null) && !pdos.isEmpty());
 
         return results;
+    }
+
+    /**
+     * Purge HDF5 data for a list of PDOs. Extracted as is from
+     * {@link #purgeDataByRefTime} so it can be reused.
+     * 
+     * @param trackToUri
+     *            If true will track each URI that needs to be deleted from
+     *            HDF5, if false will only track the hdf5 files that need to be
+     *            deleted.
+     * @param hdf5FileToUriPurged
+     *            Map to be populated by purgeDataByRefTime of all the hdf5
+     *            files that need to be updated. If trackToUri is true, each
+     *            file will have the exact data URI's to be removed from each
+     *            file. If trackToUri is false, the map will have a null entry
+     *            for the list and only track the files.
+     * @param pdos
+     *            the pdos
+     */
+    protected void purgeHdf5ForPdos(boolean trackToUri,
+            Map<String, List<String>> hdf5FileToUriPurged,
+            List<PluginDataObject> pdos) {
+        // fields for hdf5 purge
+        String previousFile = null;
+        for (PluginDataObject pdo : pdos) {
+            StringBuilder pathBuilder = new StringBuilder();
+            IPersistable persist = (IPersistable) pdo;
+            pathBuilder
+                    .append(PLUGIN_HDF5_DIR)
+                    .append(pathProvider.getHDFPath(this.pluginName, persist))
+                    .append(File.separatorChar)
+                    .append(pathProvider.getHDFFileName(this.pluginName,
+                            persist));
+            String file = pathBuilder.toString();
+
+            if (trackToUri) {
+                List<String> uriList = hdf5FileToUriPurged.get(file);
+                if (uriList == null) {
+                    // sizing to 50 as most data types have numerous
+                    // entries in a file
+                    uriList = new ArrayList<String>(50);
+                    hdf5FileToUriPurged.put(file, uriList);
+                }
+                uriList.add(file);
+            } else {
+                // only need to track file, tracking last file
+                // instead of constantly indexing hashMap
+                if (!file.equals(previousFile)) {
+                    hdf5FileToUriPurged.put(file, null);
+                    previousFile = file;
+                }
+            }
+        }
     }
 
     /**
