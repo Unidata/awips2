@@ -98,6 +98,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
  * Jun 04, 2013  223       mpduff       Added grid specific items to this class.
+ * Jun 11, 2013 2064       mpduff       Fix editing of subscriptions.
  * 
  * 
  * </pre>
@@ -602,23 +603,33 @@ public class GriddedSubsetManagerDlg
 
         Time dataSetTime = dataSet.getTime();
 
-        Time newTime = new Time();
-        newTime.setEnd(dataSetTime.getEnd());
-        newTime.setFormat(dataSetTime.getFormat());
-        newTime.setNumTimes(dataSetTime.getNumTimes());
-        newTime.setRequestEnd(dataSetTime.getRequestEnd());
-        newTime.setRequestStart(dataSetTime.getRequestStart());
-        newTime.setStart(dataSetTime.getStart());
-        newTime.setStep(dataSetTime.getStep());
-        newTime.setStepUnit(dataSetTime.getStepUnit());
-
         if (sub instanceof AdhocSubscription) {
-            newTime = setupDataSpecificTime(newTime, sub);
-        } else if (!create) {
-            newTime.setCycleTimes(this.subscription.getTime().getCycleTimes());
-        }
+            Time newTime = new Time();
+            newTime.setEnd(dataSetTime.getEnd());
+            newTime.setFormat(dataSetTime.getFormat());
+            newTime.setNumTimes(dataSetTime.getNumTimes());
+            newTime.setRequestEnd(dataSetTime.getRequestEnd());
+            newTime.setRequestStart(dataSetTime.getRequestStart());
+            newTime.setStart(dataSetTime.getStart());
+            newTime.setStep(dataSetTime.getStep());
+            newTime.setStepUnit(dataSetTime.getStepUnit());
+            newTime.setCycleTimes(dataSetTime.getCycleTimes());
 
-        sub.setTime(newTime);
+            newTime = setupDataSpecificTime(newTime, sub);
+            sub.setTime(newTime);
+        } else if (!create) {
+            Time time = sub.getTime();
+            List<String> fcstHours = time.getFcstHours();
+            String[] selectedItems = this.timingTabControls
+                    .getSelectedFcstHours();
+            List<Integer> fcstIndices = new ArrayList<Integer>();
+            for (String hr : selectedItems) {
+                fcstIndices.add(fcstHours.indexOf(hr));
+            }
+
+            time.setSelectedTimeIndices(fcstIndices);
+            subscription.setTime(time);
+        }
 
         GriddedCoverage cov = (GriddedCoverage) dataSet.getCoverage();
         cov.setModelName(dataSet.getDataSetName());
