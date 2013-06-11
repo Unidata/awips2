@@ -133,6 +133,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
  * May 28, 2013 1650       djohnson     More information when failing to schedule subscriptions.
  * Jun 04, 2013  223       mpduff       Moved data type specific code to sub classes.
+ * Jun 11, 2013 2064       mpduff       Fix editing of subscriptions.
  * </pre>
  * 
  * @author mpduff
@@ -447,6 +448,8 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
                     launchCreateSubscriptionGui(createSubscription(
                             new SiteSubscription(), Network.OPSNET));
                 } else {
+                    setupCommonSubscriptionAttributes(subscription,
+                            subscription.getRoute());
                     launchCreateSubscriptionGui(subscription);
                 }
             }
@@ -549,8 +552,8 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
      *            The subscription object reference type
      * @param sub
      *            The subscription to populate
-     * @param the
-     *            route for the subscription
+     * @param defaultRoute
+     *            the route for the subscription
      * 
      * @return the populated subscription
      */
