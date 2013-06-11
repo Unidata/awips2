@@ -19,12 +19,16 @@
  **/
 package com.raytheon.uf.viz.archive.data;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import com.raytheon.uf.common.archive.config.DisplayData;
 
 /**
- * Interface for methods for getting totals needed by the ArchiveTableComp.
+ * This class obtains information on a File in a Job in order to remove it from
+ * the UI thread.
  * 
  * <pre>
  * 
@@ -32,7 +36,7 @@ import com.raytheon.uf.common.archive.config.DisplayData;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 29, 2013 1996       rferrel     Initial creation
+ * May 15, 2013 1966       rferrel     Initial creation
  * 
  * </pre>
  * 
@@ -40,9 +44,39 @@ import com.raytheon.uf.common.archive.config.DisplayData;
  * @version 1.0
  */
 
-public interface IArchiveTotals {
+public class SizeJobRequest {
+
+    /** Information from archive configuration manager. */
+    final DisplayData displayData;
+
+    /** Files or directories to obtain information on. */
+    final List<File> files = new ArrayList<File>();
+
+    /** Start time inclusive. */
+    final Calendar startCal;
+
+    /** End time exclusive. */
+    final Calendar endCal;
+
     /**
-     * Update total selected items and sizes.
+     * Create and entry and place it on the queue.
+     * 
+     * @param displayData
+     * @param startCal
+     * @param endCal
      */
-    public void updateTotals(List<DisplayData> displayDatas);
+    public SizeJobRequest(DisplayData displayData, Calendar startCal,
+            Calendar endCal) {
+        this.displayData = displayData;
+        this.startCal = startCal;
+        this.endCal = endCal;
+    }
+
+    /**
+     * 
+     * @return displayData
+     */
+    public DisplayData getDisplayData() {
+        return displayData;
+    }
 }
