@@ -752,7 +752,7 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
      * @param layer
      * @return
      */
-    private String getIntensity(PirepLayerData layer) {
+    public String getIntensity(PirepLayerData layer) {
         String intensity = null;
         if (layer.getFirstValue() != null) {
             intensity = layer.getFirstValue();
@@ -826,4 +826,21 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
     public String getDataURI() {
         return super.getDataURI();
     }
+
+    /**
+     * @return the maxTurbcLayerData
+     */
+    public PirepLayerData getMaxTurbcLayerData() {
+        findMaxTurbcLayer();
+        return maxTurbcLayerData;
+    }
+
+    /**
+     * @return the maxIcingLayerData
+     */
+    public PirepLayerData getMaxIcingLayerData() {
+        findMaxIcingLayer();
+        return maxIcingLayerData;
+    }
+
 }
