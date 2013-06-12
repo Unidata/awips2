@@ -603,18 +603,9 @@ public class GriddedSubsetManagerDlg
 
         Time dataSetTime = dataSet.getTime();
 
-        if (sub instanceof AdhocSubscription) {
-            Time newTime = new Time();
-            newTime.setEnd(dataSetTime.getEnd());
-            newTime.setFormat(dataSetTime.getFormat());
-            newTime.setNumTimes(dataSetTime.getNumTimes());
-            newTime.setRequestEnd(dataSetTime.getRequestEnd());
-            newTime.setRequestStart(dataSetTime.getRequestStart());
-            newTime.setStart(dataSetTime.getStart());
-            newTime.setStep(dataSetTime.getStep());
-            newTime.setStepUnit(dataSetTime.getStepUnit());
-            newTime.setCycleTimes(dataSetTime.getCycleTimes());
+        Time newTime = new Time();
 
+        if (sub instanceof AdhocSubscription) {
             newTime = setupDataSpecificTime(newTime, sub);
             sub.setTime(newTime);
         } else if (!create) {
@@ -629,6 +620,16 @@ public class GriddedSubsetManagerDlg
 
             time.setSelectedTimeIndices(fcstIndices);
             subscription.setTime(time);
+        } else {
+            newTime.setEnd(dataSetTime.getEnd());
+            newTime.setFormat(dataSetTime.getFormat());
+            newTime.setNumTimes(dataSetTime.getNumTimes());
+            newTime.setRequestEnd(dataSetTime.getRequestEnd());
+            newTime.setRequestStart(dataSetTime.getRequestStart());
+            newTime.setStart(dataSetTime.getStart());
+            newTime.setStep(dataSetTime.getStep());
+            newTime.setStepUnit(dataSetTime.getStepUnit());
+            sub.setTime(newTime);
         }
 
         GriddedCoverage cov = (GriddedCoverage) dataSet.getCoverage();
