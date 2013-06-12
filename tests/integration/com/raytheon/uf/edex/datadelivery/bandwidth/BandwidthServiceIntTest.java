@@ -73,6 +73,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Feb 26, 2013 1643       djohnson     BandwidthService extends reusable class.
  * Feb 27, 2013 1644       djohnson     Bandwidth service is the WFO version.
  * May 20, 2013 1650       djohnson     Add test for returning required dataset size.
+ * Jun 12, 2013 2038       djohnson     Add test for returning required dataset size on subscription update.
  * 
  * </pre>
  * 
@@ -387,6 +388,31 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
         // subscription the same size as the first
         final long expectedRequiredDataSetSize = subscription.getDataSetSize();
         final long requiredDataSetSize = service.proposeSchedule(subscription2)
+                .getRequiredDataSetSize();
+        assertEquals(
+                "The required dataset size should have been returned from propose schedule!",
+                expectedRequiredDataSetSize, requiredDataSetSize);
+    }
+
+    @Test
+    public void testProposeScheduleSubscriptionsSecondDoesntFitReturnsRequiredSizeForSubscriptionUpdate() {
+
+        Subscription subscription = createSubscriptionThatFillsHalfABucket();
+        subscription.getTime().setCycleTimes(
+                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
+
+        Set<String> unscheduledSubscriptions = service.schedule(subscription);
+        verifyNoSubscriptionsWereUnscheduled(unscheduledSubscriptions);
+
+        // We can only fit up to a bucket
+        final long expectedRequiredDataSetSize = createSubscriptionThatFillsUpABucket()
+                .getDataSetSize();
+
+        // Try to update the subscription to fill two buckets
+        subscription.setDataSetSize(createSubscriptionThatFillsUpTwoBuckets()
+                .getDataSetSize());
+
+        final long requiredDataSetSize = service.proposeSchedule(subscription)
                 .getRequiredDataSetSize();
         assertEquals(
                 "The required dataset size should have been returned from propose schedule!",
