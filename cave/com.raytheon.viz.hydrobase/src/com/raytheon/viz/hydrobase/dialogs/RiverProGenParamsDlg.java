@@ -32,6 +32,9 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.RPFParamData;
 import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
@@ -47,6 +50,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Sep 8, 2008				lvenable	Initial creation
+ * Jun 11, 2013 2088        rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -54,6 +58,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class RiverProGenParamsDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RiverProGenParamsDlg.class);
 
     /**
      * Look back hours for observed data text control.
@@ -112,10 +118,15 @@ public class RiverProGenParamsDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public RiverProGenParamsDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("RiverPro General Parameters");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -126,6 +137,13 @@ public class RiverProGenParamsDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -304,11 +322,14 @@ public class RiverProGenParamsDlg extends CaveSWTDialog {
         closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
 
+    /**
+     * Get data for the dialog from the manager.
+     */
     private void getDialogData() {
         try {
             java.util.List<RPFParamData> data = HydroDBDataManager
@@ -321,12 +342,15 @@ public class RiverProGenParamsDlg extends CaveSWTDialog {
                 paramData = null;
             }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Unable to load data ", e);
         }
 
         updateDialogDisplay();
     }
 
+    /**
+     * Update the display froj paramData.
+     */
     private void updateDialogDisplay() {
         if (paramData != null) {
             lookbackTF.setText(HydroDataUtils.getDisplayString(paramData
@@ -347,6 +371,9 @@ public class RiverProGenParamsDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Save changes to the data.
+     */
     private void saveRecord() {
         RPFParamData newData = new RPFParamData();
 
@@ -403,7 +430,7 @@ public class RiverProGenParamsDlg extends CaveSWTDialog {
 
             getDialogData();
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Unable to save data ", e);
         }
     }
 }
