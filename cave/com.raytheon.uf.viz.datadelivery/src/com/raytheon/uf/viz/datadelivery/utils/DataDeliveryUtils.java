@@ -43,6 +43,7 @@ import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
+import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -77,6 +78,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 20, 2013 2000       djohnson     Add message to inform the user changes were applied.
  * Jun 04, 2013  223       mpduff       Add point data stuff.
  * Jun 11, 2013 2064       mpduff       Don't output Parameter header if none exist.
+ * Jun 12, 2013 2064       mpduff       Use SizeUtil to format data size output.
  * </pre>
  * 
  * @author mpduff
@@ -276,7 +278,7 @@ public class DataDeliveryUtils {
         DATA_SIZE("Data Size", null) {
             @Override
             public String getDisplayData(SubscriptionManagerRowData rd) {
-                return String.valueOf(rd.getDataSetSize());
+                return SizeUtil.prettyKiloByteSize(rd.getDataSetSize());
             }
         },
         /** Column Group Name */
@@ -629,7 +631,8 @@ public class DataDeliveryUtils {
                 .append(newline);
         fmtStr.append("Dataset Name: ").append(sub.getDataSetName())
                 .append(newline);
-        fmtStr.append("Dataset Size: ").append(sub.getDataSetSize())
+        fmtStr.append("Dataset Size: ")
+                .append(SizeUtil.prettyKiloByteSize(sub.getDataSetSize()))
                 .append(newline);
         fmtStr.append("Provider: ").append(sub.getProvider()).append(newline);
         fmtStr.append("Office IDs: ")
