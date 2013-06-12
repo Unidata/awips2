@@ -153,6 +153,10 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                      Changes for non-blocking ReferenceFieldsDlg.
  *                                      Changes for non-blocking ReferencesDlg.
  *                                      Changes for non-blocking ReservoirDlg.
+ * 06/11/2013   2088       rferrel      Changes for non-blocking RiverGageDlg.
+ *                                      Changes for non-blocking RiverProFcstGrpPointsDlg.
+ *                                      Changes for non-blocking RiverProGenParamsDlg.
+ *                                      Changes for non-blocking StatesCountiesZonesDlg.
  * 
  * </pre>
  * 
@@ -221,6 +225,11 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
     private final Map<String, DescriptionDlg> descDlgMap = new HashMap<String, DescriptionDlg>();
 
     /**
+     * Allow one river gage dialog per station.
+     */
+    private final Map<String, RiverGageDlg> riverGageDlgMap = new HashMap<String, RiverGageDlg>();
+
+    /**
      * Allow one flood category dialog per station.
      */
     private final Map<String, FloodCategoryDlg> floodCatDlgMap = new HashMap<String, FloodCategoryDlg>();;
@@ -271,9 +280,14 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
     private RadarLocationsDlg radarLocDlg;
 
     /**
-     * Allow one Reference Field dialog.
+     * Allow single instance of Reference Field dialog.
      */
     private ReferenceFieldsDlg referenceDlg;
+
+    /**
+     * Allow single instance of State/Counties/Zones dialog.
+     */
+    private StatesCountiesZonesDlg sczDlg;
 
     /**
      * Allow one References dialog per station.
@@ -284,6 +298,16 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
      * Allow one Reservoir dialog per station.
      */
     private final Map<String, ReservoirDlg> reservoirDlgMap = new HashMap<String, ReservoirDlg>();
+
+    /**
+     * Allow one instance of the RiverPro General Parameters dialog.
+     */
+    private RiverProGenParamsDlg riverProGen;
+
+    /**
+     * Allow one instance of the RiverPro Forecast Groups/Points dialog.
+     */
+    private RiverProFcstGrpPointsDlg riverProFcst;
 
     /**
      * Flood category menu item.
@@ -712,9 +736,26 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         riverGageMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                RiverGageDlg riverGageDlg = new RiverGageDlg(shell,
-                        getStationAndName(), getSelectedLocation().getStation());
-                riverGageDlg.open();
+                String lid = getSelectedLocation().getStation();
+                RiverGageDlg riverGageDlg = riverGageDlgMap.get(lid);
+                if (riverGageDlg == null) {
+                    riverGageDlg = new RiverGageDlg(shell, getStationAndName(),
+                            lid);
+                    riverGageDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof String) {
+                                String lid = returnValue.toString();
+                                riverGageDlgMap.remove(lid);
+                            }
+                        }
+                    });
+                    riverGageDlgMap.put(lid, riverGageDlg);
+                    riverGageDlg.open();
+                } else {
+                    riverGageDlg.bringToTop();
+                }
             }
         });
 
@@ -1300,9 +1341,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         statesCountiesZonesMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                StatesCountiesZonesDlg sczDlg = new StatesCountiesZonesDlg(
-                        shell);
-                sczDlg.open();
+                if (sczDlg == null || sczDlg.isDisposed()) {
+                    sczDlg = new StatesCountiesZonesDlg(shell);
+                    sczDlg.open();
+                } else {
+                    sczDlg.bringToTop();
+                }
             }
         });
 
@@ -1314,9 +1358,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         riverProGenParamMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                RiverProGenParamsDlg riverProGen = new RiverProGenParamsDlg(
-                        shell);
-                riverProGen.open();
+                if (riverProGen == null || riverProGen.isDisposed()) {
+                    riverProGen = new RiverProGenParamsDlg(shell);
+                    riverProGen.open();
+                } else {
+                    riverProGen.bringToTop();
+                }
             }
         });
 
@@ -1326,9 +1373,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         riverProForecastMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                RiverProFcstGrpPointsDlg riverProFcst = new RiverProFcstGrpPointsDlg(
-                        shell);
-                riverProFcst.open();
+                if (riverProFcst == null || riverProFcst.isDisposed()) {
+                    riverProFcst = new RiverProFcstGrpPointsDlg(shell);
+                    riverProFcst.open();
+                } else {
+                    riverProFcst.bringToTop();
+                }
             }
         });
 
