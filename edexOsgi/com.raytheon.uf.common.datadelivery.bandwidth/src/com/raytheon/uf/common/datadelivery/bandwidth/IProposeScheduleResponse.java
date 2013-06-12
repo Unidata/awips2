@@ -33,6 +33,7 @@ import java.util.Set;
  * ------------ ---------- ----------- --------------------------
  * Nov 29, 2012 1286       djohnson     Initial creation
  * May 28, 2013 1650       djohnson     More information when failing to schedule.
+ * Jun 12, 2013 2038       djohnson     Maximum allowed size is returned in kilobytes.
  * 
  * </pre>
  * 
@@ -84,7 +85,7 @@ public interface IProposeScheduleResponse {
      * Get the required dataset size for the subscription to not unschedule any
      * subscriptions.
      * 
-     * @return the required dataset size
+     * @return the required dataset size, in kilobytes
      */
     long getRequiredDataSetSize();
 }

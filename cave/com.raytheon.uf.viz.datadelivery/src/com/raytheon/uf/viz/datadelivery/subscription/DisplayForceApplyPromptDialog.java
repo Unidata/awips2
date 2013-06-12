@@ -51,6 +51,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * Nov 29, 2012            djohnson     Initial creation
  * May 22, 2013 1650       djohnson     Add more bandwidth information.
+ * Jun 12, 2013 2038       djohnson     Maximum allowed size is returned in kilobytes.
  * 
  * </pre>
  * 
@@ -133,7 +134,7 @@ public class DisplayForceApplyPromptDialog extends CaveSWTDialog {
             sizeLabel
                     .setText("Maximum allowed size with current latency: "
                             + SizeUtil
-                                    .prettyByteSize(configuration.maximumAllowedSize));
+                                    .prettyKiloByteSize(configuration.maximumAllowedSize));
             sizeLabel
                     .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         }
