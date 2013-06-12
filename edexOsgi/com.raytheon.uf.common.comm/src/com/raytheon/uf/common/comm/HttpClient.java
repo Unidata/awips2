@@ -93,15 +93,17 @@ import com.raytheon.uf.common.util.ByteArrayOutputStreamPool.ByteArrayOutputStre
  *    Date          Ticket#     Engineer    Description
  *    ------------  ----------  ----------- --------------------------
  *    7/1/06        #1088       chammack    Initial Creation.
- *    5/17/10      #5901       njensen        Moved to common
+ *    5/17/10       #5901       njensen     Moved to common
  *    03/02/11      #8045       rferrel     Add connect reestablished message.
- *    07/17/12    #911         njensen    Refactored significantly
- *    08/09/12     15307        snaples   Added putEntitiy in postStreamingEntity.
- *    01/07/13     DR 15294     D. Friedman  Added streaming requests.
- *    Jan 24, 2013     1526     njensen     Added postDynamicSerialize()
+ *    07/17/12      #911        njensen     Refactored significantly
+ *    08/09/12      15307       snaples     Added putEntitiy in postStreamingEntity.
+ *    01/07/13      DR 15294    D. Friedman Added streaming requests.
+ *    Jan 24, 2013  1526        njensen     Added postDynamicSerialize()
  *    Feb 20, 2013  1628        bsteffen    clean up Inflaters used by
- *                                          HttpClient.
+ *                                           HttpClient.
  *    Mar 11, 2013  1786        mpduff      Add https capability.
+ *    Jun 12, 2013  2102        njensen     Better error handling when using
+ *                                           DynamicSerializeStreamHandler
  * 
  * </pre>
  * 
@@ -639,6 +641,30 @@ public class HttpClient {
                         retry = true;
                     }
                 }
+            }
+
+            if (resp.getStatusLine().getStatusCode() != SUCCESS_CODE
+                    && handlerCallback instanceof DynamicSerializeStreamHandler) {
+                // the status code can be returned and/or processed
+                // depending on which post method and handlerCallback is used,
+                // so we only want to error off here if we're using a
+                // DynamicSerializeStreamHandler because deserializing will fail
+                // badly
+                String exceptionMsg = "HTTP server returned error code: "
+                        + resp.getStatusLine().getStatusCode();
+                DefaultInternalStreamHandler errorHandler = new DefaultInternalStreamHandler();
+                String serverErrorMsg = null;
+                try {
+                    errorHandler.handleStream(resp.getEntity().getContent());
+                    serverErrorMsg = new String(errorHandler.byteResult);
+                } catch (IOException e) {
+                    statusHandler
+                            .warn("Error reading the server's error message");
+                }
+                if (serverErrorMsg != null) {
+                    exceptionMsg += "\n" + serverErrorMsg;
+                }
+                throw new CommunicationException(exceptionMsg);
             }
 
             // should only be able to get here if we didn't encounter the
