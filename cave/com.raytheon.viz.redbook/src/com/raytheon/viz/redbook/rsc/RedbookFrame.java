@@ -286,7 +286,7 @@ public class RedbookFrame implements IRenderable {
                         if (!currBlock.equals("")) {
                             status.unhandledPackets = true;
                             statusHandler
-                                    .warn("Unhandled redbook packet: (mode="
+                                    .debug("Unhandled redbook packet: (mode="
                                             + block.getMode() + ", submode="
                                             + block.getSubMode() + ")");
                         }
