@@ -174,6 +174,9 @@ public class PointSubsetManagerDlg extends
         newTime.setStartDate(new Date());
         newTime.setEndDate(new Date());
         sub.setTime(newTime);
+        // Setting arbitrary size until mpduff and dhladky figure out their data
+        // size estimates
+        sub.setDataSetSize(50);
 
         Coverage cov = new Coverage();
 
