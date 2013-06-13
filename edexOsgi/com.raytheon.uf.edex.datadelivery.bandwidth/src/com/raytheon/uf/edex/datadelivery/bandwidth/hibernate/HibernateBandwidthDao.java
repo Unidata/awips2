@@ -20,6 +20,7 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
@@ -55,6 +56,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Feb 11, 2013 1543       djohnson     Use Spring transactions.
  * Feb 13, 2013 1543       djohnson     Converted into a service, created new DAOs as required.
  * Jun 03, 2013 2038       djohnson     Add method to get subscription retrievals by provider, dataset, and status.
+ * Jun 13, 2013 2095       djohnson     Implement ability to store a collection of subscriptions.
  * 
  * </pre>
  * 
@@ -320,9 +322,17 @@ public class HibernateBandwidthDao implements IBandwidthDao {
      * {@inheritDoc}
      */
     @Override
-    @Transactional
     public void store(BandwidthSubscription subscriptionDao) {
         bandwidthSubscriptionDao.create(subscriptionDao);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void storeBandwidthSubscriptions(
+            Collection<BandwidthSubscription> newSubscriptions) {
+        bandwidthSubscriptionDao.persistAll(newSubscriptions);
     }
 
     /**

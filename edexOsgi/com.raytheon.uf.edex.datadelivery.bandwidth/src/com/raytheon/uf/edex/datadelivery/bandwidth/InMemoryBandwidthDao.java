@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
@@ -61,6 +62,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Oct 24, 2012 1286       djohnson     Initial creation
  * Dec 12, 2012 1286       djohnson     Use concurrent lists to avoid concurrent modification exceptions.
  * Jun 03, 2013 2038       djohnson     Add method to get subscription retrievals by provider, dataset, and status.
+ * Jun 13, 2013 2095       djohnson     Implement ability to store a collection of subscriptions.
  * 
  * </pre>
  * 
@@ -479,6 +481,17 @@ class InMemoryBandwidthDao implements IBandwidthDao {
     @Override
     public void store(BandwidthSubscription subscriptionDao) {
         replaceOldOrAddToCollection(bandwidthSubscriptions, subscriptionDao);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void storeBandwidthSubscriptions(
+            Collection<BandwidthSubscription> newSubscriptions) {
+        for (BandwidthSubscription newSubscription : newSubscriptions) {
+            store(newSubscription);
+        }
     }
 
     /**
