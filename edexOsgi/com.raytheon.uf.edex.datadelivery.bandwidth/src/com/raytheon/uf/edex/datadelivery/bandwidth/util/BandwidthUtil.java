@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -26,6 +27,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
  * Nov 09, 2012 1286       djohnson    Separate DAO utility methods from general utility.
  * Dec 11, 2012 1403       djohnson    No longer valid to run without bandwidth management.
  * Feb 14, 2013 1595       djohnson    Use subscription rescheduling strategy.
+ * Jun 13, 2013 2095       djohnson    Point subscriptions don't check for dataset updates on aggregation.
  * 
  * </pre>
  * 
@@ -215,12 +217,10 @@ public class BandwidthUtil {
         dao.setSubscription(subscription);
         dao.setRoute(subscription.getRoute());
         dao.setBaseReferenceTime(baseReferenceTime);
-        // TODO: This is grid specific and only works for gridded times.
-        // will have to revisit when other data type are introduced.
-        // perhaps minute of the day?
         dao.setCycle(baseReferenceTime.get(Calendar.HOUR_OF_DAY));
         dao.setPriority(subscription.getPriority().getPriorityValue());
         dao.setRegistryId(subscription.getId());
+        dao.setCheckForDataSetUpdate(subscription.getDataSetType() != DataType.POINT);
         return dao;
     }
 

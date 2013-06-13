@@ -50,9 +50,12 @@ import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
 import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.IPerformanceTimer;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
@@ -115,6 +118,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * May 02, 2013 1910       djohnson     Shutdown proposed bandwidth managers in a finally.
  * May 20, 2013 1650       djohnson     Add in capability to find required dataset size.
  * Jun 03, 2013 2038       djohnson     Add base functionality to handle point data type subscriptions.
+ * Jun 13, 2013 2095       djohnson     Improve bandwidth manager speed, and add performance logging.
  * </pre>
  * 
  * @author dhladky
@@ -141,6 +145,11 @@ public abstract class BandwidthManager extends
     private final BandwidthDaoUtil bandwidthDaoUtil;
 
     private final IBandwidthDbInit dbInit;
+
+    // Instance variable and not static, because there are multiple child
+    // implementation classes which should each have a unique prefix
+    private final IPerformanceStatusHandler performanceHandler = PerformanceStatus
+            .getHandler(this.getClass().getSimpleName());
 
     @VisibleForTesting
     final RetrievalManager retrievalManager;
@@ -265,8 +274,7 @@ public abstract class BandwidthManager extends
      */
     @Subscribe
     public void updateGriddedDataSetMetaData(
-            GriddedDataSetMetaData dataSetMetaData)
-            throws ParseException {
+            GriddedDataSetMetaData dataSetMetaData) throws ParseException {
         // Daily/Hourly/Monthly datasets
         if (dataSetMetaData.getCycle() == GriddedDataSetMetaData.NO_CYCLE) {
             updateDataSetMetaDataWithoutCycle(dataSetMetaData);
@@ -542,6 +550,8 @@ public abstract class BandwidthManager extends
      */
     private List<BandwidthAllocation> scheduleSubscriptionForRetrievalTimes(
             Subscription subscription, SortedSet<Calendar> retrievalTimes) {
+        IPerformanceTimer timer = TimeUtil.getPerformanceTimer();
+        timer.start();
 
         if (retrievalTimes.isEmpty()) {
             return Collections.emptyList();
@@ -549,14 +559,11 @@ public abstract class BandwidthManager extends
 
         List<BandwidthAllocation> unscheduled = Lists.newArrayList();
 
+        final int numberOfRetrievalTimes = retrievalTimes.size();
+        List<BandwidthSubscription> newSubscriptions = Lists
+                .newArrayListWithCapacity(numberOfRetrievalTimes);
+
         for (Calendar retrievalTime : retrievalTimes) {
-
-            // Retrieve all the current subscriptions by provider, dataset name
-            // and base time.
-            List<BandwidthSubscription> subscriptions = bandwidthDao
-                    .getBandwidthSubscriptions(subscription.getProvider(),
-                            subscription.getDataSetName(), retrievalTime);
-
             statusHandler.info("schedule() - Scheduling subscription ["
                     + subscription.getName()
                     + String.format(
@@ -566,17 +573,28 @@ public abstract class BandwidthManager extends
             // Add the current subscription to the ones BandwidthManager already
             // knows about.
             try {
-                subscriptions.add(bandwidthDao.newBandwidthSubscription(
-                        subscription, retrievalTime));
+                newSubscriptions.add(BandwidthUtil
+                        .getSubscriptionDaoForSubscription(subscription,
+                                retrievalTime));
             } catch (SerializationException e) {
                 statusHandler.error(
                         "Trapped Exception trying to schedule Subscription["
                                 + subscription.getName() + "]", e);
                 return null;
             }
-
-            unscheduled.addAll(aggregate(subscriptions));
         }
+        timer.lap("createBandwidthSubscriptions");
+
+        bandwidthDao.storeBandwidthSubscriptions(newSubscriptions);
+        timer.lap("storeBandwidthSubscriptions");
+
+        unscheduled.addAll(aggregate(newSubscriptions));
+        timer.lap("aggregate");
+
+        timer.stop();
+        timer.logLaps("scheduleSubscriptionForRetrievalTimes() subscription ["
+                + subscription.getName() + "] retrievalTimes ["
+                + retrievalTimes.size() + "]", performanceHandler);
 
         return unscheduled;
     }
@@ -608,15 +626,18 @@ public abstract class BandwidthManager extends
      */
     private List<BandwidthAllocation> aggregate(
             List<BandwidthSubscription> bandwidthSubscriptions) {
+        IPerformanceTimer timer = TimeUtil.getPerformanceTimer();
+        timer.start();
 
         List<SubscriptionRetrieval> retrievals = getAggregator().aggregate(
                 bandwidthSubscriptions);
+        timer.lap("aggregator");
 
         // Create a separate list of BandwidthReservations to schedule
         // as the aggregation process may return all subsumed
         // SubscriptionRetrievals
         // for the specified Subscription.
-        List<BandwidthAllocation> reservations = new ArrayList<BandwidthAllocation>();
+        List<SubscriptionRetrieval> reservations = new ArrayList<SubscriptionRetrieval>();
 
         for (SubscriptionRetrieval retrieval : retrievals) {
 
@@ -667,6 +688,16 @@ public abstract class BandwidthManager extends
                 endTime.add(Calendar.MINUTE, maxLatency);
                 retrieval.setEndTime(endTime);
 
+                // Add SubscriptionRetrieval to the list to schedule..
+                reservations.add(retrieval);
+            }
+        }
+        timer.lap("creating retrievals");
+
+        for (SubscriptionRetrieval retrieval : reservations) {
+            BandwidthSubscription bandwidthSubscription = retrieval
+                    .getBandwidthSubscription();
+            if (bandwidthSubscription.isCheckForDataSetUpdate()) {
                 // Check to see if the data subscribed to is available..
                 // if so, mark the status of the BandwidthReservation as
                 // READY.
@@ -678,19 +709,25 @@ public abstract class BandwidthManager extends
                 if (!z.isEmpty()) {
                     retrieval.setStatus(RetrievalStatus.READY);
                 }
-                bandwidthDao.store(retrieval);
-
-                // Add SubscriptionRetrieval to the list to schedule..
-                reservations.add(retrieval);
             }
         }
+        timer.lap("checking if ready");
 
-        if (reservations.isEmpty()) {
-            return Collections.emptyList();
-        } else {
-            // Schedule the Retrievals
-            return retrievalManager.schedule(reservations);
-        }
+        bandwidthDao.store(reservations);
+        timer.lap("storing retrievals");
+
+        List<BandwidthAllocation> unscheduled = (reservations.isEmpty()) ? Collections
+                .<BandwidthAllocation> emptyList() : retrievalManager
+                .schedule(reservations);
+        timer.lap("scheduling retrievals");
+
+        timer.stop();
+        final int numberOfBandwidthSubscriptions = bandwidthSubscriptions
+                .size();
+        timer.logLaps("aggregate() bandwidthSubscriptions ["
+                + numberOfBandwidthSubscriptions + "]", performanceHandler);
+
+        return unscheduled;
     }
 
     /**
@@ -1348,6 +1385,7 @@ public abstract class BandwidthManager extends
                         .getName());
             }
         }
+
         return unscheduledSubscriptions;
     }
 
