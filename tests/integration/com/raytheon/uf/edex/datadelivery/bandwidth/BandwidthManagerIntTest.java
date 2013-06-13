@@ -50,7 +50,6 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.Test;
 
 import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTypes;
-import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaData;
@@ -105,6 +104,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * Apr 29, 2013 1910       djohnson     Always shutdown bandwidth managers in tests.
  * Jun 03, 2013 2038       djohnson     Add support for point data based subscriptions.
+ * Jun 03, 2013 2095       djohnson     Move getPointDataSet to superclass.
  * 
  * </pre>
  * 
@@ -1109,24 +1109,6 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
     @Override
     protected Network getRouteToUseForSubscription() {
         return Network.OPSNET;
-    }
-
-    /**
-     * Get a point data subscription with the given retrieval interval.
-     * 
-     * @param retrievalInterval
-     *            the retrieval interval
-     * @return
-     */
-    protected Subscription getPointDataSubscription(int retrievalInterval) {
-        final PointTime pointTime = new PointTime();
-        pointTime.setInterval(retrievalInterval);
-
-        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
-        subscription.setTime(pointTime);
-        subscription.setDataSetType(DataType.POINT);
-        subscription.setLatencyInMinutes(retrievalInterval);
-        return subscription;
     }
 
 }
