@@ -279,6 +279,17 @@ public final class TimeUtil {
     }
 
     /**
+     * Retrieve a {@link ITimer} that allows the demarcation of arbitrary start
+     * and stop times. This version will always use the actual system time. It
+     * also provides lapping functionality to keep track of multiple durations.
+     * 
+     * @return a {@link ITimer}
+     */
+    public static IPerformanceTimer getPerformanceTimer() {
+        return new PerformanceTimerImpl();
+    }
+
+    /**
      * Check whether the time represented by a {@link Date} is a new day
      * compared to another {@link Date} object.
      * 
