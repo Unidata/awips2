@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * ------------ ---------- ----------- --------------------------
  * Oct 16, 2012 0726       djohnson     Added SW history, added length to subscription.
  * Nov 09, 2012 1286       djohnson     Add convenience methods for retrieving the subscription.
+ * Jun 13, 2013 2095       djohnson     Add flag for whether or not data set update should be looked for on aggregating.
  * 
  * </pre>
  * 
@@ -103,6 +104,10 @@ public class BandwidthSubscription extends PersistableDataObject<Long> implement
     @DynamicSerializeElement
     @Column(nullable = false)
     private String registryId;
+
+    @DynamicSerializeElement
+    @Column(nullable = false)
+    private boolean checkForDataSetUpdate;
 
     @DynamicSerializeElement
     @Column(nullable = false, length = 100000)
@@ -299,6 +304,21 @@ public class BandwidthSubscription extends PersistableDataObject<Long> implement
 
     public String getRegistryId() {
         return registryId;
+    }
+
+    /**
+     * @return the checkForDataSetUpdate
+     */
+    public boolean isCheckForDataSetUpdate() {
+        return checkForDataSetUpdate;
+    }
+
+    /**
+     * @param checkForDataSetUpdate
+     *            the checkForDataSetUpdate to set
+     */
+    public void setCheckForDataSetUpdate(boolean checkForDataSetUpdate) {
+        this.checkForDataSetUpdate = checkForDataSetUpdate;
     }
 
     /**
