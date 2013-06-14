@@ -36,7 +36,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  *   &lt;name>Raw&lt;/name>
  *   &lt;rootDir>/data_store/&lt;/rootDir>
  *   &lt;!-- default retention hours for a category. -->
- *   &lt;retentionHours>168&lt;/retentionHours>
+ *   &lt;minRetentionHours>168&lt;/minRetentionHours>
  *   &lt;category>
  *     &lt;name>Model grib&lt;/name>
  *     ...
@@ -83,7 +83,7 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
      * Minimum number of hours the purger should retain data. May be overridden
      * for a given category.
      */
-    @XmlElement(name = "retentionHours")
+    @XmlElement(name = "minRetentionHours")
     private int retentionHours;
 
     /**
@@ -168,7 +168,7 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
     public List<CategoryConfig> getCategoryList() {
         return new ArrayList<CategoryConfig>(categoryList);
     }
-    
+
     /**
      * @param categoryName
      * @return The named CategoryConfig; null if not found
