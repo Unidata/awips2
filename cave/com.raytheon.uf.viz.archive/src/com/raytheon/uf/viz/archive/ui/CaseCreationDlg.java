@@ -24,9 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -35,7 +33,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -52,18 +49,17 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
 import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
-import com.raytheon.uf.common.archive.config.ArchiveConfigManager.DisplayData;
+import com.raytheon.uf.common.archive.config.DisplayData;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.viz.archive.data.ArchiveInfo;
 import com.raytheon.uf.viz.archive.data.CategoryInfo;
-import com.raytheon.uf.viz.archive.data.DirInfo;
 import com.raytheon.uf.viz.archive.data.IArchiveTotals;
 import com.raytheon.uf.viz.archive.data.IUpdateListener;
+import com.raytheon.uf.viz.archive.data.SizeJobRequest;
 import com.raytheon.uf.viz.archive.ui.ArchiveTableComp.TableType;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.ui.dialogs.AwipsCalendar;
-import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
@@ -76,18 +72,17 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 23, 2013  #1964     lvenable     Initial creation
+ * May 23, 2013 #1964     lvenable     Initial creation
+ * Jun 10, 2013 #1966      rferrel     Implemented back in hooks for display
+ *                                      and generation of cases.
  * 
  * </pre>
  * 
  * @author lvenable
  * @version 1.0
  */
-public class CaseCreationDlg extends CaveSWTDialog implements IArchiveTotals,
-        IUpdateListener {
-
-    /** Table control */
-    private ArchiveTableComp tableComp;
+public class CaseCreationDlg extends AbstractArchiveDlg implements
+        IArchiveTotals, IUpdateListener {
 
     /** Start time label. */
     private Label startTimeLbl;
@@ -100,12 +95,6 @@ public class CaseCreationDlg extends CaveSWTDialog implements IArchiveTotals,
 
     /** End date. */
     private Date endDate;
-
-    /** Archive configuration combo box. */
-    private Combo archCfgCbo;
-
-    /** Category combo box. */
-    private Combo categoryCbo;
 
     /** Action to bring up the case name dialog. */
     private Button caseNameCreate;
@@ -150,9 +139,6 @@ public class CaseCreationDlg extends CaveSWTDialog implements IArchiveTotals,
     /** Archive configuration manager */
     private ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
 
-    /** Information for populating the various table displays. */
-    private final Map<String, ArchiveInfo> archiveInfoMap = new HashMap<String, ArchiveInfo>();
-
     /** Number of selected items. */
     private int selectedItemsSize = 0;
 
@@ -165,8 +151,15 @@ public class CaseCreationDlg extends CaveSWTDialog implements IArchiveTotals,
     public CaseCreationDlg(Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.MIN, CAVE.DO_NOT_BLOCK
                 | CAVE.MODE_INDEPENDENT | CAVE.INDEPENDENT_SHELL);
+        this.setSelect = false;
+        this.tableType = TableType.Case;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -177,6 +170,13 @@ public class CaseCreationDlg extends CaveSWTDialog implements IArchiveTotals,
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setText("Archive Case Creation");
@@ -192,16 +192,10 @@ public class CaseCreationDlg extends CaveSWTDialog implements IArchiveTotals,
         init();
     }
 
-    @Override
-    protected void disposed() {
-        DirInfo.removeUpdateListener(this);
-    }
-
     /**
      * Initialize method to create all of the composite & controls.
      */
     private void init() {
-        DirInfo.addUpdateListener(this);
         createTimeControls();
         GuiUtil.addSeparator(shell, SWT.HORIZONTAL);
         createCaseCompressionControls();
@@ -210,8 +204,6 @@ public class CaseCreationDlg extends CaveSWTDialog implements IArchiveTotals,
         createTable();
         GuiUtil.addSeparator(shell, SWT.HORIZONTAL);
         createBottomActionButtons();
-
-        populateComboBoxes();
     }
 
     /**
@@ -276,46 +268,15 @@ public class CaseCreationDlg extends CaveSWTDialog implements IArchiveTotals,
         createCompressionControls(caseCompressionComp);
     }
 
-    /**
-     * Create the Archive and Category combo controls.
+    /*
+     * (non-Javadoc)
      * 
-     * @param comp
-     *            Composite to put the controls in.
+     * @see
+     * com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#createComboControls
+     * (org.eclipse.swt.widgets.Composite)
      */
-    private void createComboControls(Composite comp) {
-        Composite comboComp = new Composite(comp, SWT.NONE);
-        GridLayout gl = new GridLayout(2, false);
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        comboComp.setLayout(gl);
-        comboComp.setLayoutData(gd);
-
-        Label archCfgLbl = new Label(comboComp, SWT.NONE);
-        archCfgLbl.setText("Archive Config: ");
-
-        gd = new GridData(200, SWT.DEFAULT);
-        archCfgCbo = new Combo(comboComp, SWT.VERTICAL | SWT.DROP_DOWN
-                | SWT.BORDER | SWT.READ_ONLY);
-        archCfgCbo.setLayoutData(gd);
-        archCfgCbo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                populateCategoryCbo(getSelectedArchiveName());
-            }
-        });
-
-        Label catLbl = new Label(comboComp, SWT.NONE);
-        catLbl.setText("Category: ");
-
-        gd = new GridData(200, SWT.DEFAULT);
-        categoryCbo = new Combo(comboComp, SWT.VERTICAL | SWT.DROP_DOWN
-                | SWT.BORDER | SWT.READ_ONLY);
-        categoryCbo.setLayoutData(gd);
-        categoryCbo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                populateTableComp();
-            }
-        });
+    protected Composite createComboControls(Composite comp) {
+        Composite comboComp = super.createComboControls(comp);
 
         caseNameCreate = new Button(comboComp, SWT.PUSH);
         caseNameCreate.setText(" Case Name... ");
@@ -328,9 +289,10 @@ public class CaseCreationDlg extends CaveSWTDialog implements IArchiveTotals,
         });
         caseNameCreate.setToolTipText("Must first select \"Case Location\".");
 
-        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
         caseNameLbl = new Label(comboComp, SWT.BORDER);
         caseNameLbl.setLayoutData(gd);
+        return comboComp;
     }
 
     /**
@@ -423,6 +385,9 @@ public class CaseCreationDlg extends CaveSWTDialog implements IArchiveTotals,
                 handleFileSizeChangeSelection();
             }
         });
+        fileSizeCbo.add("MB");
+        fileSizeCbo.add("GB");
+        fileSizeCbo.select(0);
     }
 
     /**
@@ -461,13 +426,6 @@ public class CaseCreationDlg extends CaveSWTDialog implements IArchiveTotals,
     }
 
     /**
-     * Create the table control.
-     */
-    private void createTable() {
-        tableComp = new ArchiveTableComp(shell, TableType.Case, this);
-    }
-
-    /**
      * Create the bottom action buttons.
      */
     private void createBottomActionButtons() {
@@ -478,15 +436,16 @@ public class CaseCreationDlg extends CaveSWTDialog implements IArchiveTotals,
         actionControlComp.setLayout(gl);
         actionControlComp.setLayoutData(gd);
 
-        Button exportBtn = new Button(actionControlComp, SWT.PUSH);
-        exportBtn.setText(" Export Case Config... ");
-        exportBtn.addSelectionListener(new SelectionAdapter() {
-
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-
-            }
-        });
+        // TODO - Future implementation.
+        // Button exportBtn = new Button(actionControlComp, SWT.PUSH);
+        // exportBtn.setText(" Export Case Config... ");
+        // exportBtn.addSelectionListener(new SelectionAdapter() {
+        //
+        // @Override
+        // public void widgetSelected(SelectionEvent e) {
+        //
+        // }
+        // });
 
         generateBtn = new Button(actionControlComp, SWT.PUSH);
         generateBtn.setText(" Generate ");
@@ -514,14 +473,11 @@ public class CaseCreationDlg extends CaveSWTDialog implements IArchiveTotals,
      * Display modal dialog that performs the Generation of the case.
      */
     private void generateCase() {
-        setBusy(true);
+        setCursorBusy(true);
         File targetDir = (File) locationLbl.getData();
         File caseDir = (File) caseNameLbl.getData();
-        // TODO investigate using just Date or long values for start/end
-        Calendar startCal = TimeUtil.newCalendar();
-        startCal.setTimeInMillis(startDate.getTime());
-        Calendar endCal = TimeUtil.newCalendar();
-        endCal.setTimeInMillis(endDate.getTime());
+        Calendar startCal = getStart();
+        Calendar endCal = getEnd();
 
         List<DisplayData> displayDatas = getSelectedData();
         boolean doCompress = compressChk.getSelection();
@@ -549,7 +505,7 @@ public class CaseCreationDlg extends CaveSWTDialog implements IArchiveTotals,
 
             @Override
             public void dialogClosed(Object returnValue) {
-                setBusy(false);
+                setCursorBusy(false);
             }
         });
         dialog.open();
@@ -791,170 +747,12 @@ public class CaseCreationDlg extends CaveSWTDialog implements IArchiveTotals,
         return str;
     }
 
-    /**
-     * Initial set up of the combo boxes.
-     */
-    private void populateComboBoxes() {
-        boolean doSelect = false;
-        for (String archiveName : manager.getArchiveDataNamesList()) {
-            archCfgCbo.add(archiveName);
-            doSelect = true;
-        }
-
-        if (doSelect) {
-            archCfgCbo.select(0);
-            String archiveName = archCfgCbo.getItem(0);
-            populateCategoryCbo(archiveName);
-        }
-
-        fileSizeCbo.add("MB");
-        fileSizeCbo.add("GB");
-        fileSizeCbo.select(0);
-        fileSizeCbo
-                .setData(fileSizeCbo.getItem(fileSizeCbo.getSelectionIndex()));
+    protected void setTotalSizeText(String text) {
+        uncompressSizeLbl.setText(text);
     }
 
-    /**
-     * Populate the category combo based on the archive name and populate the
-     * table.
-     * 
-     * @param archiveName
-     */
-    private void populateCategoryCbo(String archiveName) {
-        categoryCbo.removeAll();
-        for (String categoryName : manager.getCategoryNames(archiveName)) {
-            categoryCbo.add(categoryName);
-        }
-        categoryCbo.select(0);
-        populateTableComp();
-    }
-
-    private void populateTableComp() {
-        String archiveName = getSelectedArchiveName();
-        String categoryName = getSelectedCategoryName();
-        setBusy(true);
-        DirInfo.clearQueue();
-        ArchiveInfo archiveInfo = archiveInfoMap.get(archiveName);
-        if (archiveInfo == null) {
-            archiveInfo = new ArchiveInfo();
-            archiveInfoMap.put(archiveName, archiveInfo);
-        }
-
-        CategoryInfo categoryInfo = archiveInfo.get(categoryName);
-        if (categoryInfo == null) {
-            List<DisplayData> displayInfos = manager.getDisplayInfo(
-                    archiveName, categoryName);
-            categoryInfo = new CategoryInfo(archiveName, categoryName,
-                    displayInfos);
-            archiveInfo.add(categoryInfo);
-        }
-
-        // TODO investigate using just Date or long values for start/end
-        Calendar startCal = TimeUtil.newCalendar();
-        startCal.setTimeInMillis(startDate.getTime());
-        Calendar endCal = TimeUtil.newCalendar();
-        endCal.setTimeInMillis(endDate.getTime());
-        List<DisplayData> recomputList = new ArrayList<ArchiveConfigManager.DisplayData>();
-        for (DisplayData displayInfo : categoryInfo.getDisplayInfoList()) {
-            // Queue unknown sizes first
-            if (displayInfo.getSize() < 0L) {
-                new DirInfo(displayInfo, startCal, endCal);
-            } else {
-                recomputList.add(displayInfo);
-            }
-        }
-
-        // Recompute sizes
-        for (DisplayData displayData : recomputList) {
-            new DirInfo(displayData, startCal, endCal);
-        }
-
-        tableComp.populateTable(categoryInfo.getDisplayInfoList());
-        updateTotals();
-        setBusy(false);
-    }
-
-    private void setBusy(boolean state) {
-        Cursor cursor = null;
-        if (state) {
-            cursor = getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
-        }
-        shell.setCursor(cursor);
-    }
-
-    @Override
-    public void update(List<DirInfo> dirInfos) {
-        final List<DisplayData> displayInfos = new ArrayList<ArchiveConfigManager.DisplayData>();
-        for (DirInfo dirInfo : dirInfos) {
-            displayInfos.add(dirInfo.getDisplayInfo());
-        }
-
-        VizApp.runAsync(new Runnable() {
-
-            @Override
-            public void run() {
-                tableComp.updateSize(displayInfos);
-                updateTotals();
-            }
-        });
-    }
-
-    /**
-     * Obtain the selected archive name.
-     * 
-     * @return archiveName
-     */
-    private String getSelectedArchiveName() {
-        return archCfgCbo.getItem(archCfgCbo.getSelectionIndex());
-    }
-
-    /**
-     * Obtain the selected category name.
-     * 
-     * @return categoryName
-     */
-    private String getSelectedCategoryName() {
-        return categoryCbo.getItem(categoryCbo.getSelectionIndex());
-    }
-
-    /**
-     * Updates the estimated uncompressed size of selected entries.
-     */
-    public void updateTotals() {
-        long totalSize = 0;
-        int totalSelected = 0;
-        boolean unknownSize = false;
-
-        for (String archiveName : archiveInfoMap.keySet()) {
-            ArchiveInfo archiveInfo = archiveInfoMap.get(archiveName);
-            for (String categoryName : archiveInfo.getCategoryNames()) {
-                CategoryInfo categoryInfo = archiveInfo.get(categoryName);
-                for (DisplayData displayData : categoryInfo
-                        .getDisplayInfoList()) {
-                    if (displayData.isSelected()) {
-                        ++totalSelected;
-                        if (!unknownSize) {
-                            long size = displayData.getSize();
-                            if (size >= 0) {
-                                totalSize += size;
-                            } else {
-                                unknownSize = true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
+    protected void setTotalSelectedItems(int totalSelected) {
         selectedItemsSize = totalSelected;
-        String sizeMsg = null;
-        if (unknownSize) {
-            sizeMsg = DisplayData.UNKNOWN_SIZE_LABEL;
-        } else {
-            sizeMsg = SizeUtil.prettyByteSize(totalSize);
-        }
-
-        uncompressSizeLbl.setText(sizeMsg);
         totalSelectedItemsLbl.setText("" + totalSelected);
         checkGenerateButton();
     }
@@ -964,13 +762,13 @@ public class CaseCreationDlg extends CaveSWTDialog implements IArchiveTotals,
      * display table and and other selected entries.
      */
     private void resetSizes() {
-        List<DisplayData> selectedDatas = new ArrayList<ArchiveConfigManager.DisplayData>();
+        List<DisplayData> selectedDatas = new ArrayList<DisplayData>();
         for (String archiveName : archiveInfoMap.keySet()) {
             ArchiveInfo archiveInfo = archiveInfoMap.get(archiveName);
             for (String categoryName : archiveInfo.getCategoryNames()) {
                 CategoryInfo categoryInfo = archiveInfo.get(categoryName);
                 for (DisplayData displayData : categoryInfo
-                        .getDisplayInfoList()) {
+                        .getDisplayDataList()) {
                     displayData.setSize(DisplayData.UNKNOWN_SIZE);
                     if (displayData.isSelected()) {
                         selectedDatas.add(displayData);
@@ -984,15 +782,14 @@ public class CaseCreationDlg extends CaveSWTDialog implements IArchiveTotals,
         if (selectedDatas.size() > 0) {
             String archiveName = getSelectedArchiveName();
             String categoryName = getSelectedCategoryName();
-            Calendar startCal = TimeUtil.newCalendar();
-            startCal.setTimeInMillis(startDate.getTime());
-            Calendar endCal = TimeUtil.newCalendar();
-            startCal.setTimeInMillis(endDate.getTime());
+            Calendar startCal = getStart();
+            Calendar endCal = getEnd();
 
             for (DisplayData displayData : selectedDatas) {
                 if (!displayData.isArchive(archiveName)
                         || !displayData.isCategory(categoryName)) {
-                    new DirInfo(displayData, startCal, endCal);
+                    sizeJob.queue(new SizeJobRequest(displayData, startCal,
+                            endCal));
                 }
             }
         }
@@ -1005,13 +802,13 @@ public class CaseCreationDlg extends CaveSWTDialog implements IArchiveTotals,
      * @return selectedDatas
      */
     private List<DisplayData> getSelectedData() {
-        List<DisplayData> selectedDatas = new ArrayList<ArchiveConfigManager.DisplayData>();
+        List<DisplayData> selectedDatas = new ArrayList<DisplayData>();
         for (String archiveName : archiveInfoMap.keySet()) {
             ArchiveInfo archiveInfo = archiveInfoMap.get(archiveName);
             for (String categoryName : archiveInfo.getCategoryNames()) {
                 CategoryInfo categoryInfo = archiveInfo.get(categoryName);
                 for (DisplayData displayData : categoryInfo
-                        .getDisplayInfoList()) {
+                        .getDisplayDataList()) {
                     if (displayData.isSelected()) {
                         selectedDatas.add(displayData);
                     }
@@ -1019,5 +816,29 @@ public class CaseCreationDlg extends CaveSWTDialog implements IArchiveTotals,
             }
         }
         return selectedDatas;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#getStart()
+     */
+    // @Override
+    protected Calendar getStart() {
+        Calendar startCal = TimeUtil.newCalendar();
+        startCal.setTimeInMillis(startDate.getTime());
+        return startCal;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#getEnd()
+     */
+    // @Override
+    protected Calendar getEnd() {
+        Calendar endCal = TimeUtil.newCalendar();
+        endCal.setTimeInMillis(endDate.getTime());
+        return endCal;
     }
 }
