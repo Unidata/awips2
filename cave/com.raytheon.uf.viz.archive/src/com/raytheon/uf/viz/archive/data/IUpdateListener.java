@@ -43,5 +43,5 @@ public interface IUpdateListener {
      * 
      * @param dirInfos
      */
-    public void update(List<DirInfo> dirInfos);
+    public void update(List<SizeJobRequest> request);
 }
