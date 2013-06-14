@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
@@ -45,7 +47,8 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.IPointData
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 29, 2013    223     mpduff      Initial creation.
- * Jun 06, 2013 2038       djohnson    Place refresh intervals into PointTime so BandwidthManager has access.
+ * Jun 06, 2013   2038     djohnson    Place refresh intervals into PointTime so BandwidthManager has access.
+ * Jun 13, 2013   2108     mpduff      Update data set size on change.
  * 
  * </pre>
  * 
@@ -112,6 +115,12 @@ public class PointTimeSubsetTab extends DataTimingSubsetTab implements
         intervalCombo.setLayoutData(comboData);
         intervalCombo.setItems(INTERVALS);
         intervalCombo.select(0);
+        intervalCombo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                handleSelection();
+            }
+        });
     }
 
     /**
@@ -136,5 +145,12 @@ public class PointTimeSubsetTab extends DataTimingSubsetTab implements
     public int getDataRetrievalInterval() {
         return Integer.parseInt(intervalCombo.getItem(intervalCombo
                 .getSelectionIndex()));
+    }
+
+    /**
+     * Handle a selection change.
+     */
+    protected void handleSelection() {
+        selectionChanged();
     }
 }

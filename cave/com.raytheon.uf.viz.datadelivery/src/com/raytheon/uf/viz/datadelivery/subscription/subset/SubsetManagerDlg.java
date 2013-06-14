@@ -55,7 +55,6 @@ import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
-import com.raytheon.uf.common.datadelivery.retrieval.util.DataSizeUtils;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -132,6 +131,8 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
  * May 28, 2013 1650       djohnson     More information when failing to schedule subscriptions.
  * Jun 04, 2013  223       mpduff       Moved data type specific code to sub classes.
+ * Jun 11, 2013 2064       mpduff       Fix editing of subscriptions.
+ * Jun 14, 2013 2108       mpduff       Refactored DataSizeUtils.
  * </pre>
  * 
  * @author mpduff
@@ -190,9 +191,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     /** Subscription object */
     protected Subscription subscription;
 
-    /** Utility for calculating bandwidth */
-    protected DataSizeUtils dataSize = null;
-
     /** Dialog initialized flag */
     protected boolean initialized = false;
 
@@ -231,8 +229,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         this.dataSet = dataSet;
         this.subsetXml = subsetXml;
         this.loadDataSet = loadDataSet;
-
-        this.dataSize = new DataSizeUtils(dataSet);
     }
 
     /**
@@ -270,8 +266,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
                 subscription.getDataSetName(), subscription.getProvider());
         this.subscription = subscription;
         setText(DD_SUBSET_MANAGER + "Edit: " + subscription.getName());
-
-        this.dataSize = new DataSizeUtils(dataSet);
     }
 
     abstract void createTabs(TabFolder tabFolder);
@@ -419,8 +413,7 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     /** Create the buttons */
     private void createButtons() {
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        final int numColumns = 4;
-        GridLayout gl = new GridLayout(numColumns, false);
+        GridLayout gl = new GridLayout(3, false);
 
         Composite bottomComp = new Composite(shell, SWT.NONE);
         bottomComp.setLayout(gl);
@@ -446,6 +439,8 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
                     launchCreateSubscriptionGui(createSubscription(
                             new SiteSubscription(), Network.OPSNET));
                 } else {
+                    setupCommonSubscriptionAttributes(subscription,
+                            subscription.getRoute());
                     launchCreateSubscriptionGui(subscription);
                 }
             }
@@ -548,8 +543,8 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
      *            The subscription object reference type
      * @param sub
      *            The subscription to populate
-     * @param the
-     *            route for the subscription
+     * @param defaultRoute
+     *            the route for the subscription
      * 
      * @return the populated subscription
      */
@@ -604,7 +599,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         }
         sub.setProvider(dataSet.getProviderName());
         sub.setDataSetName(dataSet.getDataSetName());
-        sub.setDataSetSize(dataSize.getDataSetSize());
         sub.setDataSetType(dataSet.getDataSetType());
 
         // Catch the case where the user closes this dialog.
