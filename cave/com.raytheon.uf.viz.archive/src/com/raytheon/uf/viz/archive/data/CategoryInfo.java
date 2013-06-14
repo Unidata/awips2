@@ -21,7 +21,7 @@ package com.raytheon.uf.viz.archive.data;
 
 import java.util.List;
 
-import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
+import com.raytheon.uf.common.archive.config.DisplayData;
 
 /**
  * This class used to maintain the state of a category so it can be restored
@@ -42,17 +42,27 @@ import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
  */
 
 public class CategoryInfo {
+    /** Archive name for the category. */
     private final String archiveName;
 
+    /** Category's name. */
     private final String categoryName;
 
-    private final List<ArchiveConfigManager.DisplayData> displayInfoList;
+    /** List of display items for the category. */
+    private final List<DisplayData> displayDataList;
 
+    /**
+     * Contructor.
+     * 
+     * @param archiveName
+     * @param categoryName
+     * @param displayInfoList
+     */
     public CategoryInfo(String archiveName, String categoryName,
-            List<ArchiveConfigManager.DisplayData> displayInfoList) {
+            List<DisplayData> displayInfoList) {
         this.archiveName = archiveName;
         this.categoryName = categoryName;
-        this.displayInfoList = displayInfoList;
+        this.displayDataList = displayInfoList;
     }
 
     public String getArchiveName() {
@@ -63,7 +73,7 @@ public class CategoryInfo {
         return categoryName;
     }
 
-    public List<ArchiveConfigManager.DisplayData> getDisplayInfoList() {
-        return displayInfoList;
+    public List<DisplayData> getDisplayDataList() {
+        return displayDataList;
     }
 }
