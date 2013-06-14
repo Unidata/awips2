@@ -1,4 +1,4 @@
-package com.raytheon.uf.edex.plugin.madis.ogc.metadata;
+package com.raytheon.uf.edex.datadelivery.retrieval.wfs.metadata;
 
 import javax.xml.bind.JAXBException;
 
