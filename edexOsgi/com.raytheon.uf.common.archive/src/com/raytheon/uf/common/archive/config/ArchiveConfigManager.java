@@ -46,6 +46,9 @@ import org.apache.commons.io.filefilter.RegexFileFilter;
 
 import com.raytheon.uf.common.archive.exception.ArchiveException;
 import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationFileInputStream;
 import com.raytheon.uf.common.localization.LocalizationFileOutputStream;
@@ -270,8 +273,8 @@ public class ArchiveConfigManager {
         for (CategoryConfig category : archive.getCategoryList()) {
             Calendar purgeTime = calculateExpiration(archive, category);
 
-            for (DisplayData display : getDisplayInfo(archive.getName(),
-                    category.getName())) {
+            for (DisplayData display : getDisplayData(archive.getName(),
+                    category.getName(), true)) {
                 List<File> displayFiles = getDisplayFiles(display, null,
                         purgeTime);
                 for (File file : displayFiles) {
@@ -355,10 +358,18 @@ public class ArchiveConfigManager {
      * Save the cached configuration.
      */
     public void save() {
+        LocalizationContext siteContext = pathMgr.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         for (String archiveName : archiveMap.keySet()) {
             ArchiveConfig archiveConfig = archiveMap.get(archiveName);
             LocalizationFile lFile = archiveNameToLocalizationFileMap
                     .get(archiveName);
+            if (lFile.getContext().getLocalizationLevel() != LocalizationLevel.SITE) {
+                // Modify the site not the base file.
+                LocalizationFile tlFile = pathMgr.getLocalizationFile(
+                        siteContext, lFile.getName());
+                lFile = tlFile;
+            }
             saveArchiveConfig(lFile, archiveConfig);
         }
     }
@@ -555,8 +566,13 @@ public class ArchiveConfigManager {
      * @param categoryName
      * @return displayInfoList order by display label
      */
-    public List<DisplayData> getDisplayInfo(String archiveName,
+    public List<DisplayData> getDisplayData(String archiveName,
             String categoryName) {
+        return getDisplayData(archiveName, categoryName, false);
+    }
+
+    public List<DisplayData> getDisplayData(String archiveName,
+            String categoryName, boolean setSelect) {
         Map<String, List<File>> displayMap = new HashMap<String, List<File>>();
 
         ArchiveConfig archiveConfig = archiveMap.get(archiveName);
@@ -598,12 +614,16 @@ public class ArchiveConfigManager {
             }
         }
 
-        List<DisplayData> displayInfoList = new ArrayList<ArchiveConfigManager.DisplayData>();
+        List<DisplayData> displayInfoList = new ArrayList<DisplayData>();
 
         for (String displayLabel : displays) {
-            DisplayData displayInfo = new DisplayData(archiveConfig,
+            DisplayData displayData = new DisplayData(archiveConfig,
                     categoryConfig, displayLabel, displayMap.get(displayLabel));
-            displayInfoList.add(displayInfo);
+            if (setSelect) {
+                displayData.setSelected(categoryConfig
+                        .getSelectedDisplayNames().contains(displayLabel));
+            }
+            displayInfoList.add(displayData);
         }
 
         return displayInfoList;
@@ -669,151 +689,6 @@ public class ArchiveConfigManager {
             }
         }
         return archiveConfig;
-    }
-
-    /**
-     * This class contains the information on directories that are associated
-     * with a display label. Allows a GUI to maintain the state of the display
-     * instead of the manager.
-     */
-    public static class DisplayData {
-
-        /** Label to use when size not yet known. */
-        public static final String UNKNOWN_SIZE_LABEL = "????";
-
-        /** A negative value to indicate unknown size. */
-        public static final long UNKNOWN_SIZE = -1L;
-
-        /** The data's archive configuration. */
-        protected final ArchiveConfig archiveConfig;
-
-        /** The data's category configration. */
-        protected final CategoryConfig categoryConfig;
-
-        /** The display label for this data. */
-        protected final String displayLabel;
-
-        /**
-         * List of directories for the display label matching the category's
-         * directory pattern and found under the archive's root directory.
-         */
-        protected final List<File> dirs;
-
-        /**
-         * For use by GUI to indicate. Use to indicate selected for retention or
-         * for placing in a case.
-         */
-        private boolean selected = false;
-
-        /** For use by GUI for indicating the size of the directories' contents. */
-        private long size = UNKNOWN_SIZE;
-
-        /**
-         * Constructor.
-         * 
-         * @param archiveConfig
-         * @param categoryConfig
-         * @param displayLabel
-         * @param dirs
-         */
-        public DisplayData(ArchiveConfig archiveConfig,
-                CategoryConfig categoryConfig, String displayLabel,
-                List<File> dirs) {
-            this.archiveConfig = archiveConfig;
-            this.categoryConfig = categoryConfig;
-            this.displayLabel = displayLabel;
-            this.dirs = dirs;
-        }
-
-        /**
-         * Is instance selected.
-         * 
-         * @return selected
-         */
-        public boolean isSelected() {
-            return selected;
-        }
-
-        /**
-         * Set selected state.
-         * 
-         * @param selected
-         */
-        public void setSelected(boolean selected) {
-            this.selected = selected;
-        }
-
-        /**
-         * 
-         * @return displayLabel.
-         */
-        public String getDisplayLabel() {
-            return displayLabel;
-        }
-
-        /**
-         * The size of the directories' contents.
-         * 
-         * @return size
-         */
-        public long getSize() {
-            return size;
-        }
-
-        /**
-         * Set the size of the directories' contents.
-         * 
-         * @param size
-         */
-        public void setSize(long size) {
-            this.size = size;
-        }
-
-        /**
-         * The archive's root directory name.
-         * 
-         * @return rootDir
-         */
-        public String getRootDir() {
-            return archiveConfig.getRootDir();
-        }
-
-        /**
-         * Determine if this is the name of the archive.
-         * 
-         * @param archiveName
-         * @return
-         */
-        public boolean isArchive(String archiveName) {
-            return archiveConfig.getName().equals(archiveName);
-        }
-
-        /**
-         * Determine if this is the name of the category.
-         * 
-         * @param categoryName
-         * @return
-         */
-        public boolean isCategory(String categoryName) {
-            return categoryConfig.getName().equals(categoryName);
-        }
-
-        /**
-         * Determine if the object contains the same data as the instance.
-         */
-        public boolean equals(Object object) {
-            if (this == object) {
-                return true;
-            }
-
-            if (object instanceof DisplayData) {
-                DisplayData displayData = (DisplayData) object;
-                return (archiveConfig == displayData.archiveConfig
-                        && categoryConfig == displayData.categoryConfig && displayLabel
-                            .equals(displayData.displayLabel));
-            }
-            return false;
-        }
     }
 
 }
