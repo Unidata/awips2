@@ -40,9 +40,12 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
@@ -70,6 +73,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Feb 20, 2013 1543       djohnson     Delegate to sub-classes for which route to create subscriptions for.
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * Apr 29, 2013 1910       djohnson     Always shutdown bandwidth managers in tests.
+ * Jun 03, 2013 2095       djohnson     Move getPointDataSet in from subclass.
  * 
  * </pre>
  * 
@@ -225,6 +229,24 @@ public abstract class AbstractBandwidthManagerIntTest {
                 .convertBytesToKilobytes(bytes));
         subscription.setRoute(getRouteToUseForSubscription());
 
+        return subscription;
+    }
+
+    /**
+     * Get a point data subscription with the given retrieval interval.
+     * 
+     * @param retrievalInterval
+     *            the retrieval interval
+     * @return
+     */
+    protected Subscription getPointDataSubscription(int retrievalInterval) {
+        final PointTime pointTime = new PointTime();
+        pointTime.setInterval(retrievalInterval);
+
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
+        subscription.setTime(pointTime);
+        subscription.setDataSetType(DataType.POINT);
+        subscription.setLatencyInMinutes(retrievalInterval);
         return subscription;
     }
 
