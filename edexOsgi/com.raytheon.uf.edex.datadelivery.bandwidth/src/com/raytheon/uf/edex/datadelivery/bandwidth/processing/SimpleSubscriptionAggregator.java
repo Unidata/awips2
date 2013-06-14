@@ -8,8 +8,8 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.ISubscriptionAggregator;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
@@ -31,6 +31,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jul 18, 2012 726        jspinks     Initial creation
  * Nov 09, 2012 1286       djohnson    Rename interface to comply with standards.
  * Nov 20, 2012 1286       djohnson    Change some logging to debug.
+ * Jun 13, 2013 2095       djohnson    No need to query the database, we are only receiving new bandwidth subscriptions.
  * 
  * </pre>
  * 
@@ -50,7 +51,7 @@ public class SimpleSubscriptionAggregator implements ISubscriptionAggregator {
 
     @Override
     public List<SubscriptionRetrieval> aggregate(
-            List<BandwidthSubscription> subscriptions) {
+            List<BandwidthSubscription> newSubscriptions) {
 
         List<SubscriptionRetrieval> subscriptionRetrievals = new ArrayList<SubscriptionRetrieval>();
 
@@ -58,14 +59,11 @@ public class SimpleSubscriptionAggregator implements ISubscriptionAggregator {
         // necessary retrievals without regards to 'sharing' retrievals across
         // subscriptions.
 
-        for (BandwidthSubscription subDao : subscriptions) {
+        for (BandwidthSubscription subDao : newSubscriptions) {
 
-            List<SubscriptionRetrieval> t = bandwidthDao
-                    .querySubscriptionRetrievals(subDao.getIdentifier());
             // First check to see if the Object already was scheduled
             // (i.e. has SubscriptionRetrievals associated with it) if
             // not, create a SubscriptionRetrieval for the subscription
-            if (t.size() == 0) {
 
                 try {
                     SubscriptionRetrieval subscriptionRetrieval = new SubscriptionRetrieval();
@@ -97,7 +95,6 @@ public class SimpleSubscriptionAggregator implements ISubscriptionAggregator {
                                     + subDao.getIdentifier()
                                     + "]:  Subscription will not be scheduled.");
                 }
-            }
 
             if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
                 statusHandler
