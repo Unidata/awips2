@@ -95,6 +95,7 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * May 15, 2013  1040      mpduff       OfficeID is now a list so need to add it rather than set it.
  * May 23, 2013  1650      djohnson     Fix creation of new GroupDefinitions.
  * May 28, 2013  1650      djohnson     More information when failing to schedule subscriptions.
+ * Jun 13, 2013  2108      mpduff       Refactored DataSizeUtils.
  * </pre>
  * 
  * @author jpiatt
@@ -367,7 +368,7 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay,
         }
 
         for (Subscription subscription : groupSubscriptions) {
-
+            DataSizeUtils<?> sizeUtils = null;
             // Apply group properties to subscription definition
             subscription.setGroupName(groupName);
 
@@ -399,22 +400,21 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay,
                 DataSet dataset = MetaDataManager.getInstance().getDataSet(
                         subscription.getDataSetName(),
                         subscription.getProvider());
-                DataSizeUtils u = new DataSizeUtils(dataset);
-                u.setEnvelope(groupDefinition.getEnvelope());
-                u.setNumFcstHours(subscription.getTime()
-                        .getSelectedTimeIndices().size());
-                u.setNumEnsembleMembers(subscription.getEnsemble());
-                u.determineNumberRequestedGrids(subscription.getParameter());
+
+                sizeUtils = DataSizeUtils.getInstance(dataset, subscription);
 
                 Coverage cov = new GriddedCoverage();
                 cov.setEnvelope(groupDefinition.getEnvelope());
 
-                subscription.setDataSetSize(u.getDataSetSize());
                 subscription.setCoverage(cov);
             }
 
             subscription.addOfficeID(LocalizationManager.getInstance()
                     .getCurrentSite());
+            if (sizeUtils != null) {
+                subscription.setDataSetSize(sizeUtils
+                        .getDataSetSizeInKb(subscription));
+            }
         }
 
         try {
