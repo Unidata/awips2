@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
@@ -38,6 +39,8 @@ import com.raytheon.uf.common.datadelivery.registry.PointDataSet;
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
+import com.raytheon.uf.common.datadelivery.retrieval.util.PointDataSizeUtils;
+import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.PointTimeSubsetPresenter;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.PointTimeXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
@@ -52,6 +55,8 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 04, 2013    223     mpduff      Initial creation.
+ * Jun 14, 2013   2108     mpduff      Refactored DataSizeUtils and 
+ *                                     implement subset size.
  * 
  * </pre>
  * 
@@ -63,6 +68,9 @@ public class PointSubsetManagerDlg extends
         SubsetManagerDlg<PointDataSet, PointTimeSubsetPresenter, PointTimeXML> {
 
     private static final String TIMING_TAB_TEXT = "Retrieval Interval";
+
+    /** Point data size utility */
+    private PointDataSizeUtils dataSize;
 
     /**
      * Constructor.
@@ -125,9 +133,25 @@ public class PointSubsetManagerDlg extends
         timingTabControls.init();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void updateDataSize() {
-        // Not used for point
+        if (!initialized) {
+            return;
+        }
+
+        if (dataSize == null) {
+            this.dataSize = new PointDataSizeUtils(dataSet);
+        }
+
+        ReferencedEnvelope env = spatialTabControls.getEnvelope();
+        int interval = timingTabControls.getDataRetrievalInterval();
+
+        // Update the data set size label text.
+        this.sizeLbl.setText(SizeUtil.prettyByteSize(dataSize
+                .getDataSetSizeInBytes(env, interval)));
     }
 
     /**
@@ -189,6 +213,13 @@ public class PointSubsetManagerDlg extends
         }
 
         sub.setParameter(paramList);
+
+        if (dataSize == null) {
+            this.dataSize = new PointDataSizeUtils(dataSet);
+        }
+
+        sub.setDataSetSize(dataSize.getDataSetSizeInKb(sub));
+
         return sub;
     }
 
