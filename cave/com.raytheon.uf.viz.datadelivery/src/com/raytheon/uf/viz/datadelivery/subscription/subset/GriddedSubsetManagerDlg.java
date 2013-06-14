@@ -59,6 +59,7 @@ import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.datadelivery.retrieval.util.GriddedDataSizeUtils;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.serialization.JAXBManager;
@@ -98,6 +99,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
  * Jun 04, 2013  223       mpduff       Added grid specific items to this class.
+ * Jun 14, 2013 2108       mpduff       Refactored DataSizeUtils.
  * 
  * 
  * </pre>
@@ -142,6 +144,9 @@ public class GriddedSubsetManagerDlg
     private GriddedEnsembleSubsetTab ensembleTab;
 
     private TabItem timingTab;
+
+    /** Gridded data size utility */
+    private GriddedDataSizeUtils dataSize;
 
     /**
      * Constructor.
@@ -460,28 +465,24 @@ public class GriddedSubsetManagerDlg
             return;
         }
 
-        // Update the data set size label text.
-
-        // Get the number of requested grids
-        dataSize.determineNumberRequestedGrids(vTab.getParameters());
-
-        // Get the temporal data
-        int numFcstHours = this.timingTabControls.getSelectedFcstHours().length;
-        dataSize.setNumFcstHours(numFcstHours);
-        if (ensembleTab != null) {
-            dataSize.setNumEnsembleMembers(ensembleTab
-                    .getEnsembleWithSelection());
-        } else {
-            dataSize.setNumEnsembleMembers(dataSet.getEnsemble());
+        if (dataSize == null) {
+            this.dataSize = new GriddedDataSizeUtils(dataSet);
         }
-        // Get the Areal data
+
+        // Update the data set size label text.
+        List<Parameter> params = vTab.getParameters();
+        int numFcstHrs = this.timingTabControls.getSelectedFcstHours().length;
         ReferencedEnvelope envelope = this.spatialTabControls.getEnvelope();
+        int ensembleCount = 1;
+        if (ensembleTab != null) {
+            ensembleCount = ensembleTab.getEnsembleWithSelection()
+                    .getMemberCount();
+        }
 
-        dataSize.setEnvelope(envelope);
+        long numBytes = dataSize.getDataSetSizeInBytes(params, numFcstHrs,
+                ensembleCount, envelope);
 
-        this.sizeLbl.setText(SizeUtil.prettyByteSize(dataSize
-                .getDataSetSizeInBytes())
-                + " of "
+        this.sizeLbl.setText(SizeUtil.prettyByteSize(numBytes) + " of "
                 + SizeUtil.prettyByteSize(dataSize.getFullSizeInBytes()));
     }
 
@@ -627,6 +628,11 @@ public class GriddedSubsetManagerDlg
         coverage.setName(getNameText());
 
         setCoverage(sub, cov);
+
+        // Pass a fully populated subscription in to get the size
+        if (dataSize == null) {
+            sub.setDataSetSize(dataSize.getDataSetSizeInKb(sub));
+        }
 
         return sub;
     }
