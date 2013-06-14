@@ -6,5 +6,10 @@
         <constructor-arg value="WFS" />
         <constructor-arg value="com.raytheon.uf.edex.datadelivery.retrieval.wfs.WfsServiceFactory" type="java.lang.Class" />
     </bean>
+    
+    <bean factory-bean="metadataAdapterRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.madis.MadisRecord" />
+        <constructor-arg value="com.raytheon.uf.edex.datadelivery.retrieval.wfs.metadata.MadisMetadataAdapter" type="java.lang.Class" />
+    </bean>
 
 </beans>
