@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.common.archive.config;
 
+import java.util.Collection;
+import java.util.TreeSet;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -80,7 +83,7 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
      * Minimum number of hours the purger should retain data. When 0 use the
      * parent archive's value.
      */
-    @XmlElement(name = "retentionHours")
+    @XmlElement(name = "extRetentionHours")
     private int retentionHours;
 
     /**
@@ -140,6 +143,9 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
      */
     @XmlElement(name = "filePattern")
     private String filePattern;
+
+    @XmlElement(name = "selectedDisplayName")
+    private final Collection<String> selectedDisplayNames = new TreeSet<String>();
 
     /*
      * Constructor.
@@ -252,6 +258,24 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
         this.filePattern = filePattern;
     }
 
+    public Collection<String> getSelectedDisplayNames() {
+        return selectedDisplayNames;
+    }
+
+    public void setSelectedDisplayNames(
+            Collection<String> selectedDisplayNameList) {
+        selectedDisplayNames.clear();
+        selectedDisplayNameList.addAll(selectedDisplayNameList);
+    }
+
+    public void addSelectedDisplayName(String displayName) {
+        selectedDisplayNames.add(displayName);
+    }
+
+    public void removeSelectedDisplayName(String displayName) {
+        selectedDisplayNames.remove(displayName);
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -276,6 +300,18 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
         sb.append(", filePattern: ").append(getFilePattern());
         sb.append(", displayLabel: ").append(getDisplay());
         sb.append(", dateGroupIndices: ").append(getDateGroupIndices());
+        sb.append(", selectedDisplayNames: ");
+        if (selectedDisplayNames == null) {
+            sb.append("null");
+        } else {
+            sb.append("[");
+            String prefix = "\"";
+            for (String displayName : selectedDisplayNames) {
+                sb.append(prefix).append(displayName).append("\"");
+                prefix = " ,\"";
+            }
+            sb.append("]");
+        }
         sb.append("]");
         return sb.toString();
     }
