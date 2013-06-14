@@ -20,6 +20,7 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.dao;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
@@ -45,6 +46,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * ------------ ---------- ----------- --------------------------
  * Oct 23, 2012 1286       djohnson     Initial creation
  * Jun 03, 2013 2038       djohnson     Add method to get subscription retrievals by provider, dataset, and status.
+ * Jun 13, 2013 2095       djohnson     Implement ability to store a collection of subscriptions.
  * 
  * </pre>
  * 
@@ -370,6 +372,16 @@ public interface IBandwidthDao {
      *            The {@link BandwidthSubscription} to store.
      */
     void store(BandwidthSubscription subscriptionDao);
+
+    /**
+     * Persist a {@link Collection} of {@link BandwidthSubscription}s to the
+     * database.
+     * 
+     * @param newSubscriptions
+     *            the subscriptions to persist
+     */
+    void storeBandwidthSubscriptions(
+            Collection<BandwidthSubscription> newSubscriptions);
 
     /**
      * Update a BandwidthAllocation in the database.
