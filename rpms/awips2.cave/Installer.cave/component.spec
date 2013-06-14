@@ -238,6 +238,21 @@ if [ "${1}" = "2" ]; then
    rm -rf /awips2/cave.bak
 fi
 
+# determine if an installation of awips2-common-base is already present
+# (edex has been installed before CAVE on an ADAM machine)
+if [ -f /awips2/.cave/installCAVECommon.sh ]; then
+   # copy common-base files to cave
+   cp -r /awips2/.cave/.repository /awips2/cave/
+   cp /awips2/.cave/installCAVECommon.sh /awips2/cave
+   
+   # install the common-base feature
+   /bin/bash /awips2/cave/installCAVECommon.sh
+   rm -f /awips2/cave/installCAVECommon.sh  
+   
+   # cleanup
+   rm -rf /awips2/.cave
+fi
+
 %preun
 # Backup the core CAVE jar files so that they are
 # not removed during the uninstallation of a previous
