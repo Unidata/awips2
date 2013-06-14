@@ -137,7 +137,7 @@ public class HttpProxiedClientValidCredentialsTest {
             provider.setProviderType(types);
 
             String url = HttpProxyTestConstants.HTTPS_URI
-                    + "?request=getfeature&typename=http://madis.edex.uf.raytheon.com:madis&srsName=crs:84&bbox=-96.0,41.0,-94.0,43.0&maxFeatures=1000";
+                    + "?request=getfeature&typename=http://madis.edex.uf.raytheon.com:madis&srsName=crs:84&bbox=-96.0,41.0,-94.0,43.0&maxFeatures=2000";
             Connection conn1 = provider.getConnection();
             HttpGet get = new HttpGet();
             URI uri = new URI(url);
