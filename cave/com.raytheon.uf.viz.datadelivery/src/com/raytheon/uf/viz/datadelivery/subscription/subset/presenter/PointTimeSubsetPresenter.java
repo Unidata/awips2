@@ -35,6 +35,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.PointTimeXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 29, 2013   223      mpduff      Initial creation.
+ * Jun 13, 2013  2108      mpduff      Get the retrieval interval from the view.
  * 
  * </pre>
  * 
@@ -92,5 +93,14 @@ public class PointTimeSubsetPresenter
     @Override
     public void updateSettings(PointTimeXML time) {
         view.setDataRetrievalInterval(time.getDataRetrievalInterval());
+    }
+
+    /**
+     * Get the data retrieval interval.
+     * 
+     * @return the data retrieval interval
+     */
+    public int getDataRetrievalInterval() {
+        return view.getDataRetrievalInterval();
     }
 }
