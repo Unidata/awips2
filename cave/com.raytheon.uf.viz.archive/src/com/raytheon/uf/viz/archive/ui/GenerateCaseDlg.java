@@ -417,7 +417,7 @@ public class GenerateCaseDlg extends CaveSWTDialog {
                             destination.mkdirs();
                             FileUtil.copyDirectory(source, destination);
                         } else {
-                            File destParent = caseDir.getParentFile();
+                            File destParent = destination.getParentFile();
                             destParent.mkdirs();
                             FileUtil.copyFile(source, destination);
                         }
