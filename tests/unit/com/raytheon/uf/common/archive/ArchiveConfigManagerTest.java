@@ -43,8 +43,8 @@ import org.junit.Test;
 
 import com.raytheon.uf.common.archive.config.ArchiveConfig;
 import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
-import com.raytheon.uf.common.archive.config.ArchiveConfigManager.DisplayData;
 import com.raytheon.uf.common.archive.config.CategoryConfig;
+import com.raytheon.uf.common.archive.config.DisplayData;
 import com.raytheon.uf.common.archive.exception.ArchiveException;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -294,8 +294,8 @@ public class ArchiveConfigManagerTest {
             ArchiveException {
         CategoryConfig satCategory = getCategory(archive, SAT_CAT_NAME);
         List<DisplayData> displays = 
-                manager.getDisplayInfo(archive.getName(), satCategory.getName());
-        List<DisplayData> selectedDisplays = new ArrayList<ArchiveConfigManager.DisplayData>();
+                manager.getDisplayData(archive.getName(), satCategory.getName());
+        List<DisplayData> selectedDisplays = new ArrayList<DisplayData>();
         for (DisplayData displayData : displays) {
             if (displayData.getDisplayLabel().equals(satNameForArchive)) {
                 selectedDisplays.add(displayData);

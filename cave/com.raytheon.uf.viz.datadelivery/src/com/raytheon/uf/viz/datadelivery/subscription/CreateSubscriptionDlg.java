@@ -99,7 +99,8 @@ import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
  * Jan 25, 2013 1528       djohnson    Use priority enum instead of raw integers.
  * Apr 08, 2013 1826       djohnson    Remove delivery options.
  * May 15, 2013 1040       mpduff      Add Shared sites.
- * Jun 04, 2013  223       mpduff       Modify for point data.
+ * Jun 04, 2013  223       mpduff      Modify for point data.
+ * Jun 12, 2013 2038       djohnson    No longer modal.
  * 
  * </pre>
  * 
@@ -184,7 +185,7 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
      *            true for new subscription, false for edit
      */
     public CreateSubscriptionDlg(Shell parent, boolean create) {
-        super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL,
+        super(parent, SWT.DIALOG_TRIM,
                 CAVE.INDEPENDENT_SHELL | CAVE.PERSPECTIVE_INDEPENDENT);
         this.create = create;
 

@@ -54,7 +54,9 @@ import com.facebook.thrift.transport.TTransport;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Aug 7, 2008				chammack	Initial creation
- * Jun 17, 2010   #5091    njensen     Added primitive list methods
+ * Jun 17, 2010   #5091     njensen     Added primitive list methods
+ * Jun 12, 2013    2102     njensen     Added max read length to prevent out
+ *                                       of memory errors due to bad stream
  * 
  * </pre>
  * 
@@ -66,13 +68,34 @@ public class SelfDescribingBinaryProtocol extends TBinaryProtocol {
 
     public static final byte FLOAT = 64;
 
+    /**
+     * This is to ensure a safety check because if the stream has bad bytes at
+     * the start, thrift may try to allocate something huge, such as GBs of
+     * data, and then the JVM will blow up about OutOfMemory errors.
+     **/
+    private static int MAX_READ_LENGTH;
+
+    static {
+        try {
+            int sizeInMB = Integer.parseInt(System
+                    .getProperty("thrift.stream.maxsize"));
+            MAX_READ_LENGTH = sizeInMB * 1024 * 1024;
+        } catch (Throwable t) {
+            System.err
+                    .println("Error reading property thrift.stream.maxsize - falling back to default of 200 MB");
+            t.printStackTrace();
+            MAX_READ_LENGTH = 200 * 1024 * 1024;
+        }
+    }
+
     public SelfDescribingBinaryProtocol(TTransport trans) {
-        super(trans);
+        this(trans, false, true);
     }
 
     public SelfDescribingBinaryProtocol(TTransport trans, boolean strictRead,
             boolean strictWrite) {
         super(trans, strictRead, strictWrite);
+        this.setReadLength(MAX_READ_LENGTH);
     }
 
     /*
