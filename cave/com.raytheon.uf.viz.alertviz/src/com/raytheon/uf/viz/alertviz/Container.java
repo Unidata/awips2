@@ -36,8 +36,8 @@ import com.raytheon.uf.viz.alertviz.config.Category;
 import com.raytheon.uf.viz.alertviz.config.Configuration;
 import com.raytheon.uf.viz.alertviz.config.ForcedConfiguration;
 import com.raytheon.uf.viz.alertviz.config.Source;
-import com.raytheon.uf.viz.alertviz.internal.PurgeLogJob;
 import com.raytheon.uf.viz.alertviz.internal.LogMessageDAO;
+import com.raytheon.uf.viz.alertviz.internal.PurgeLogJob;
 import com.raytheon.uf.viz.core.VizApp;
 
 /**
@@ -51,6 +51,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * ------------ ---------- ----------- --------------------------
  * Sep 8, 2008  1433       chammack    Initial creation
  * Oct 18, 2010 5849       cjeanbap    NullPointerExceptin thrown if category is null
+ * Jun 03, 2013 2026       randerso    Fixed typo
  * </pre>
  * 
  * @author chammack
@@ -120,7 +121,7 @@ public class Container implements IConfigurationChangedListener {
             return;
         }
 
-        if (source == null || source.getConfigurationItem() == null) {
+        if ((source == null) || (source.getConfigurationItem() == null)) {
             message.setSourceKey("GDN_ADMIN");
             message.setCategory("GDN_ADMIN");
             message.setMessage(message.getMessage() + " (" + SOURCE_MISSING
@@ -148,8 +149,9 @@ public class Container implements IConfigurationChangedListener {
         AlertMetadata amd = source.getConfigurationItem().lookup(
                 message.getPriority());
 
-        if (forcedConfiguration != null)
+        if (forcedConfiguration != null) {
             amd = forcedConfiguration.applyForcedSettings(amd, message);
+        }
 
         final AlertMetadata metadata = amd;
 
@@ -173,7 +175,7 @@ public class Container implements IConfigurationChangedListener {
         sm.setPriority(priority);
         sm.setMachineToCurrent();
         sm.setSourceKey("GDN_ADMIN");
-        sm.setCategory("GDN)ADMIN");
+        sm.setCategory("GDN_ADMIN");
         sm.setMessage(msg);
         sm.setEventTime(SimulatedTime.getSystemTime().getTime());
         addToLog(sm);
@@ -192,7 +194,7 @@ public class Container implements IConfigurationChangedListener {
                     .getEventTime().getTime() : this.shotgunMessageStartTime;
 
             if (this.lastMessage.getCategory().equals(message.getCategory())
-                    && this.lastMessage.getPriority() == message.getPriority()
+                    && (this.lastMessage.getPriority() == message.getPriority())
                     && this.lastMessage.getMessage().equals(
                             message.getMessage())
                     && (Math.abs(message.getEventTime().getTime()
@@ -250,12 +252,12 @@ public class Container implements IConfigurationChangedListener {
             boolean printError = true;
             if (errorMsg != null) {
                 if (errorMsg.equals(lastErrorDialogMessage)) {
-                    if (System.currentTimeMillis() - lastErrorDialogTime < 60000) {
+                    if ((System.currentTimeMillis() - lastErrorDialogTime) < 60000) {
                         printError = false;
                     }
                 }
             } else if (lastErrorDialogMessage == null) {
-                if (System.currentTimeMillis() - lastErrorDialogTime < 60000) {
+                if ((System.currentTimeMillis() - lastErrorDialogTime) < 60000) {
                     printError = false;
                 }
             }
@@ -301,7 +303,7 @@ public class Container implements IConfigurationChangedListener {
     }
 
     public static boolean hasMissing(StatusMessage statMsg) {
-        return statMsg.getMessage() != null
+        return (statMsg.getMessage() != null)
                 && (statMsg.getMessage().contains(CATEGORY_MISSING) || statMsg
                         .getMessage().contains(SOURCE_MISSING));
     }
@@ -319,8 +321,9 @@ public class Container implements IConfigurationChangedListener {
         String cat = message.getCategory();
         String source = message.getSourceKey();
 
-        boolean isInternal = (cat != null && cat.equalsIgnoreCase("GDN_ADMIN"))
-                || (source != null && source.equalsIgnoreCase("GDN_ADMIN"));
+        boolean isInternal = ((cat != null) && cat
+                .equalsIgnoreCase("GDN_ADMIN"))
+                || ((source != null) && source.equalsIgnoreCase("GDN_ADMIN"));
         if (isInternal) {
             switch (message.getPriority()) {
             case CRITICAL:
