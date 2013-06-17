@@ -53,6 +53,7 @@ import com.raytheon.uf.common.util.ProxiedJettyServer;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 11, 2013   1763     dhladky      Initial creation
+ * Jun 17, 2013   2106     djohnson     Use unencrypted password getter.
  * 
  * </pre>
  * 
@@ -101,7 +102,6 @@ public class HttpProxiedClientValidCredentialsTest {
     @Test
     public void testHttpsConnectionWithValidCredentials() {
         int expectedCode = 200;
-        int actualCode = 200;
         String xmlResponse;
         HttpClient http = null;
 
@@ -146,12 +146,13 @@ public class HttpProxiedClientValidCredentialsTest {
             if (conn1 != null && conn1.getUserName() != null
                     && conn1.getPassword() != null) {
 
+                final String unencryptedPassword = conn1.getUnencryptedPassword();
                 http.setCredentials(uri.getHost(), uri.getPort(),
                         provider.getName(), conn1.getUserName(),
-                        conn1.getPassword());
+                        unencryptedPassword);
 
                 System.out.println("Credentials set! " + conn1.getUserName()
-                        + " " + conn1.getPassword());
+                        + " " + unencryptedPassword);
             }
 
             get.setURI(uri);
@@ -160,10 +161,9 @@ public class HttpProxiedClientValidCredentialsTest {
             xmlResponse = new String(response.data);
             System.out.println(xmlResponse);
 
+            assertEquals(expectedCode, response.code);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-
-        assertEquals(expectedCode, actualCode);
     }
 }
