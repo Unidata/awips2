@@ -58,6 +58,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Mar 29, 2013 1841        djohnson    Renamed to UserSubscription.
  * May 15, 2013 1040        mpduff      Added addOfficeId.
  * May 21, 2013 2020        mpduff      Rename UserSubscription to SiteSubscription.
+ * Jun 12, 2013 2038        djohnson    Set registryId from each constructor with arguments.
  * Jun 13, 2013 2095        djohnson    Duplicate 13.5.1 change so bandwidth manager deletes subscriptions correctly.
  * 
  * </pre>
