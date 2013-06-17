@@ -44,6 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jun 28, 2012    819      djohnson    Remove proxy information.
  * Jul 24, 2012    955      djohnson    Add copy constructor.
  * Jun 11, 2013    1763     dhladky     Added Encryption type
+ * Jun 17, 2013    2106     djohnson    Check for encryption to not be null, getPassword() must be left alone for dynamic serialize.
  * 
  * </pre>
  * 
@@ -107,7 +108,11 @@ public class Connection implements ISerializableObject, Serializable {
     }
 
     public String getPassword() {
-        if (password != null) {
+        return password;
+    }
+
+    public String getUnencryptedPassword() {
+        if (password != null && encryption != null) {
             return encryption.decrypt(password);
         }
         
@@ -121,21 +126,13 @@ public class Connection implements ISerializableObject, Serializable {
     @XmlEnum
     public enum Encryption {
         // will have a map of these eventually
-        CLEAR(Encryption.CLEAR_VALUE);
+        CLEAR;
 
-        private static final String CLEAR_VALUE = "CLEAR";
-        
-        private final String displayString;
-
-        private Encryption(String displayString) {
-            this.displayString = displayString;
-        }
-        
         // clear text for now so nothing happens here
         public String decrypt(String password) {
             return password;
         }
-       
+
     }
 
     public Encryption getEncryption() {
