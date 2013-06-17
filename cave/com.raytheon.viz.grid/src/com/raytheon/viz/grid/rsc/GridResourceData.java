@@ -45,9 +45,11 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.d2d.core.map.IDataScaleResource;
 import com.raytheon.viz.core.rsc.ICombinedResourceData;
 import com.raytheon.viz.grid.inv.GribDataCubeAlertMessageParser;
@@ -66,6 +68,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 12, 2009            njensen     Initial creation
+ * Jun 17, 2013 2107       bsteffen    Enable sampling by default for several
+ *                                     display types.
  * 
  * </pre>
  * 
@@ -131,7 +135,22 @@ public class GridResourceData extends AbstractRequestableResourceData implements
                                 + " plugin is not supported.");
             }
         }
-        sampling = sampling == null ? false : sampling;
+        if (sampling == null) {
+            if (loadProperties.getCapabilities().hasCapability(
+                    DisplayTypeCapability.class)) {
+                DisplayType dType = loadProperties.getCapabilities()
+                        .getCapability(this, DisplayTypeCapability.class)
+                        .getDisplayType();
+                if (dType == DisplayType.BARB || dType == DisplayType.CONTOUR
+                        || dType == DisplayType.ICON) {
+                    sampling = false;
+                } else {
+                    sampling = true;
+                }
+            } else {
+                sampling = true;
+            }
+        }
         return new D2DGridResource(this, loadProperties);
     }
 
