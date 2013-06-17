@@ -70,6 +70,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Apr 22, 2013            jsanchez     Set the issue time for follow up warnings.
  * May 07, 2013 1973       rferrel      Corrections when getting Issue time.
  * May 10, 2013 1951       rjpeter      Updated ugcZones references
+ * May 31, 2013 DR 16264   D. Friedman  Fix query in prepare method.
+ * Jun 05, 2013 DR 16279   D. Friedman  Fix updating of issuance time for followups.
  * </pre>
  * 
  * @author mschenke
@@ -486,7 +488,7 @@ public class CurrentWarnings {
             long t0 = System.currentTimeMillis();
             RequestConstraint constraint = new RequestConstraint(null,
                     ConstraintType.IN);
-            constraint.setBetweenValueList(dataURIs.toArray(new String[0]));
+            constraint.setConstraintValueList(dataURIs.toArray(new String[0]));
             request.addConstraint("dataURI", constraint);
             request.setEntityClass(getWarningClass());
             try {
