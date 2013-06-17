@@ -261,10 +261,10 @@ public class RedbookResource extends
         if (status != null) {
             if (status.unhandledPackets) {
                 statusHandler
-                        .info("Warning: Unrecognized redbook packets found. Rendering may not be complete.");
+                        .debug("Warning: Unrecognized redbook packets found. Rendering may not be complete.");
             } else if (status.vectorRenderingWarning) {
                 statusHandler
-                        .info("Warning: Some redbook vectors could not be rendered. Rendering may not be complete.");
+                        .debug("Warning: Some redbook vectors could not be rendered. Rendering may not be complete.");
             }
         }
     }
