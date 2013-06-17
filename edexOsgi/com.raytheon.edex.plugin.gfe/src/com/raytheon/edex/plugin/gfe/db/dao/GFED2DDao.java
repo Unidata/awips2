@@ -22,6 +22,7 @@ package com.raytheon.edex.plugin.gfe.db.dao;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -53,6 +54,8 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  *                                     logic into D2DGridDatabase.
  * 05/03/13     #1974      randerso    Changed queryByParmId to look for parm with duration
  *                                     suffix first.
+ * 05/22/13     #1974      randerso    Fix bug introduced by the previous fix where query for
+ *                                     T (T%hr) returned TP6hr
  * 
  * </pre>
  * 
@@ -181,6 +184,21 @@ public class GFED2DDao extends GridDao {
         @SuppressWarnings("unchecked")
         List<Object[]> firstTry = (List<Object[]>) this.queryByCriteria(query);
 
+        // TODO use a regular expression match in the query to eliminate the
+        // need to remove the false matches below
+
+        // remove false matches
+        Pattern pattern = Pattern.compile("^" + d2dParmName + "(\\d+)hr$");
+
+        Iterator<Object[]> iter = firstTry.iterator();
+        while (iter.hasNext()) {
+            Object[] row = iter.next();
+            Matcher matcher = pattern.matcher((String) row[2]);
+            if (!matcher.matches()) {
+                iter.remove();
+            }
+        }
+
         SortedMap<Integer, Integer> dataTimes = new TreeMap<Integer, Integer>();
         if (firstTry.isEmpty()) {
             query = new DatabaseQuery(GridRecord.class.getName());
@@ -201,13 +219,12 @@ public class GFED2DDao extends GridDao {
                 dataTimes.put((Integer) row[0], (Integer) row[1]);
             }
         } else {
-            Pattern p = Pattern.compile("^" + d2dParmName + "(\\d+)hr$");
             int i = 0;
             while (i < firstTry.size()) {
                 Object[] row = firstTry.get(i++);
                 Integer fcstHr = (Integer) row[0];
                 Integer id = (Integer) row[1];
-                Matcher matcher = p.matcher((String) row[2]);
+                Matcher matcher = pattern.matcher((String) row[2]);
                 int dur = Integer.MAX_VALUE;
                 if (matcher.matches()) {
                     dur = Integer.parseInt(matcher.group(1));
@@ -218,7 +235,7 @@ public class GFED2DDao extends GridDao {
                     if (fcstHr.equals(nextRow[0])) {
                         i = j;
                         String nextParam = (String) nextRow[2];
-                        Matcher nextMatcher = p.matcher(nextParam);
+                        Matcher nextMatcher = pattern.matcher(nextParam);
                         int nextDur = Integer.MAX_VALUE;
                         if (nextMatcher.matches()) {
                             nextDur = Integer.parseInt(nextMatcher.group(1));
