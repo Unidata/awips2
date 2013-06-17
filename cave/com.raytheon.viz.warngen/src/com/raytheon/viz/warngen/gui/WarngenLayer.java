@@ -32,7 +32,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,7 +54,6 @@ import org.geotools.referencing.GeodeticCalculator;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
-import com.raytheon.uf.common.activetable.ActiveTableRecord;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
@@ -77,6 +75,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
@@ -118,6 +117,7 @@ import com.raytheon.viz.warngen.util.FipsUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineSegment;
 import com.vividsolutions.jts.geom.LinearRing;
@@ -175,7 +175,9 @@ import com.vividsolutions.jts.io.WKTReader;
  * 04/23/1013   DR 16064   Qinglu Lin  Added removeDuplicateGid() and applies it in populateStrings().
  * 04/24/2013   1943       jsanchez    Replaced used of areaConfig with areaSource.
  * 05/16/2013   2008       jsanchez    Allowed warned areas for follow ups to be resized to less than 10%
- * 05/17/2013  DR 16064    Qinglu Lin  Merged the fix done in 13.4.1.
+ * 05/23/2013  DR 16169    D. Friedman Improve redraw-from-hatched-area polygons.
+ * 05/31/2013  DR 16237    D. Friedman Refactor goespatial data routines and watch handling.
+ * 06/05/2013  DR 16279    D. Friedman Fix determination of frame time from parsed storm track.
  * </pre>
  * 
  * @author mschenke
@@ -201,6 +203,106 @@ public class WarngenLayer extends AbstractStormTrackResource {
         IExtent localExtent;
 
         int nx, ny;
+    }
+
+    private static class GeospatialDataAccessor {
+        GeospatialDataList geoData;
+        AreaSourceConfiguration areaConfig;
+
+        public GeospatialDataAccessor(GeospatialDataList geoData,
+                AreaSourceConfiguration areaConfig) {
+            if (geoData == null || areaConfig == null) {
+                throw new IllegalArgumentException("GeospatialDataAccessor must not be null");
+            }
+            this.geoData = geoData;
+            this.areaConfig = areaConfig;
+        }
+
+        /**
+         * Build the geometry area that intersects the cwa filter for the polygon in
+         * local projection space
+         * 
+         * @param polygon
+         *            polygon to intersect with in lat/lon space
+         * @return the warning area in screen projection
+         */
+        private Geometry buildArea(Polygon polygon) {
+            polygon = latLonToLocal(polygon);
+            Geometry area = null;
+            if (polygon != null) {
+                for (GeospatialData r : geoData.features) {
+                    PreparedGeometry prepGeom = (PreparedGeometry) r.attributes
+                            .get(GeospatialDataList.LOCAL_PREP_GEOM);
+                    try {
+                        Geometry intersection = GeometryUtil.intersection(polygon,
+                                prepGeom);
+                        if (intersection.isEmpty()) {
+                            continue;
+                        }
+                        if (area == null) {
+                            area = intersection;
+                        } else {
+                            area = GeometryUtil.union(area, intersection);
+                        }
+                    } catch (Exception e) {
+                        // TODO handle exception correctly!!!
+                        e.printStackTrace();
+                    }
+                }
+            }
+            return localToLatLon(area);
+        }
+
+        /**
+         * Converts the lat lon geometry to screen space
+         * 
+         * @param geom
+         * @return
+         */
+        public <T> T latLonToLocal(T geom) {
+            return convertGeom(geom, geoData.latLonToLocal);
+        }
+
+        /**
+         * Converts the screen geometry to a lat lon projection
+         * 
+         * @param geom
+         * @return
+         */
+        public <T> T localToLatLon(T geom) {
+            return convertGeom(geom, geoData.localToLatLon);
+        }
+
+        private String getFips(GeospatialData data) {
+            return (String) data.attributes.get(areaConfig.getFipsField());
+        }
+
+        private String getFips(Geometry g) {
+            Object o = g.getUserData();
+            if (o != null) {
+                return getFips(((CountyUserData) o).entry);
+            } else {
+                for (int n = 0; n < g.getNumGeometries(); ++n) {
+                    Geometry g2 = g.getGeometryN(n);
+                    if (g != g2) {
+                        String fips = getFips(g2);
+                        if (fips != null)
+                            return fips;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private Set<String> getAllFipsInArea(Geometry warningArea) {
+            Set<String> fipsIds = new HashSet<String>();
+            for (int n = 0; n < warningArea.getNumGeometries(); ++n) {
+                Geometry area = warningArea.getGeometryN(n);
+                fipsIds.add(getFips(area));
+            }
+            return fipsIds;
+        }
+
     }
 
     private class CustomMaps extends Job {
@@ -270,6 +372,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         private Polygon warningPolygon;
 
+        private Polygon oldWarningPolygon;
+
         public AreaHatcher(PolygonUtil polygonUtil) {
             super("Hatching Warning Area");
             setSystem(true);
@@ -298,7 +402,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     Polygon hatched = polygonUtil.hatchWarningArea(
                             warningPolygon,
                             removeCounties(warningArea,
-                                    state.getFipsOutsidePolygon()));
+                                    state.getFipsOutsidePolygon()),
+                            oldWarningPolygon);
                     if (hatched != null) {
                         // DR 15559
                         Coordinate[] coords = hatched.getCoordinates();
@@ -326,10 +431,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
 
         public synchronized void hatchArea(Polygon warningPolygon,
-                Geometry warningArea) {
+                Geometry warningArea, Polygon oldWarningPolygon) {
             synchronized (polygonUtil) {
                 this.warningPolygon = warningPolygon;
                 this.warningArea = warningArea;
+                this.oldWarningPolygon = oldWarningPolygon;
             }
             schedule();
         }
@@ -408,6 +514,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             .getConverterTo(SI.KILOMETRE.times(SI.KILOMETRE));
 
     private GeospatialDataList geoData = null;
+
+    private GeospatialDataAccessor geoAccessor = null;
 
     private WarningAction warningAction = WarningAction.NEW;
 
@@ -862,8 +970,40 @@ public class WarngenLayer extends AbstractStormTrackResource {
         long t0 = System.currentTimeMillis();
 
         String site = getLocalizedSite();
+
+        synchronized (siteMap) {
+            loadGeodataForConfiguration(config);
+
+            String areaSource = config.getGeospatialConfig().getAreaSource();
+            geoData = siteMap.get(areaSource + "." + site);
+            geoAccessor = new GeospatialDataAccessor(geoData,
+                    config.getHatchedAreaSource());
+
+            try {
+                areaHatcher = new AreaHatcher(new PolygonUtil(this, geoData.nx,
+                        geoData.ny, 20, geoData.localExtent,
+                        geoData.localToLatLon));
+            } catch (Exception e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+        }// end synchronize
+        customMaps.loadCustomMaps(Arrays.asList(config.getMaps()));
+
+        this.configuration = config;
+        System.out.println("Total time to init warngen config = "
+                + (System.currentTimeMillis() - t0) + "ms");
+    }
+
+    /** Adds geospatial data to siteMap and timezoneMap for the given
+     * template configuration.  This must not have any site effects on the
+     * currently loaded template or the current product being edited.
+     * @param config
+     */
+    private void loadGeodataForConfiguration(WarngenConfiguration config) {
         Map<String, GeospatialMetadata> metadataMap = GeospatialFactory
                 .getMetaDataMap(config);
+        String site = getLocalizedSite();
 
         synchronized (siteMap) {
             for (String areaSource : metadataMap.keySet()) {
@@ -985,24 +1125,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     }
                 }
             }
-
-            String areaSource = config.getGeospatialConfig().getAreaSource();
-            geoData = siteMap.get(areaSource + "." + site);
-
-            try {
-                areaHatcher = new AreaHatcher(new PolygonUtil(this, geoData.nx,
-                        geoData.ny, 20, geoData.localExtent,
-                        geoData.localToLatLon));
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            }
         }// end synchronize
-        customMaps.loadCustomMaps(Arrays.asList(config.getMaps()));
-
-        this.configuration = config;
-        System.out.println("Total time to init warngen config = "
-                + (System.currentTimeMillis() - t0) + "ms");
     }
 
     public GeospatialData[] getGeodataFeatures(String areaSource,
@@ -1128,55 +1251,57 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     /**
-     * Creates and sets a geometry based on county header of the watch
-     * 
-     * @param activeTableRecord
+     * Returns a set of UGCs for each area in the CWA that intersects the given
+     * polygon.
      */
-    public void createGeometryForWatches(Polygon polygon,
-            List<ActiveTableRecord> records) {
-        // Build area once
-        Geometry area = buildArea(polygon);
-        for (ActiveTableRecord activeTableRecord : records) {
-            Map<String, String[]> countyMap = FipsUtil
-                    .parseCountyHeader(activeTableRecord.getUgcZone());
-            // get area with precalculated area
-            activeTableRecord.setGeometry(getArea(area, countyMap, false));
+    public Set<String> getUgcsForCountyWatches(Polygon polygon) throws Exception {
+        GeospatialDataAccessor gda = getCountyGeospatialDataAcessor();
+        Set<String> ugcs = new HashSet<String>();
+        for (String fips : gda.getAllFipsInArea(gda.buildArea(polygon))) {
+            ugcs.add(FipsUtil.getUgcFromFips(fips));
         }
+        return ugcs;
     }
 
-    /**
-     * Build the geometry area that intersects the cwa filter for the polygon in
-     * local projection space
-     * 
-     * @param polygon
-     *            polygon to intersect with in lat/lon space
-     * @return the warning area in screen projection
-     */
-    private Geometry buildArea(Polygon polygon) {
-        polygon = latLonToLocal(polygon);
-        Geometry area = null;
-        if (polygon != null) {
-            for (GeospatialData r : geoData.features) {
-                PreparedGeometry prepGeom = (PreparedGeometry) r.attributes
-                        .get(GeospatialDataList.LOCAL_PREP_GEOM);
-                try {
-                    Geometry intersection = GeometryUtil.intersection(polygon,
-                            prepGeom);
-                    if (intersection.isEmpty()) {
-                        continue;
-                    }
-                    if (area == null) {
-                        area = intersection;
-                    } else {
-                        area = GeometryUtil.union(area, intersection);
-                    }
-                } catch (Exception e) {
-                    // TODO handle exception correctly!!!
-                    e.printStackTrace();
+    public Set<String> getAllCountyUgcs() throws Exception {
+        GeospatialDataAccessor gda = getCountyGeospatialDataAcessor();
+        Set<String> ugcs = new HashSet<String>();
+        for (GeospatialData r : gda.geoData.features) {
+            ugcs.add(FipsUtil.getUgcFromFips(gda.getFips(r)));
+        }
+        return ugcs;
+    }
+
+    private GeospatialDataAccessor getCountyGeospatialDataAcessor() throws Exception {
+        GeospatialDataList gdl = searchCountyGeospatialDataAccessor();
+        if (gdl == null) {
+            // Cause county geospatial data to be loaded
+            // TODO: Should not be referencing tornadoWarning.
+            WarngenConfiguration torConfig = WarngenConfiguration.loadConfig("tornadoWarning", getLocalizedSite());
+            loadGeodataForConfiguration(torConfig);
+            gdl = searchCountyGeospatialDataAccessor();
+        }
+
+        // TODO: There should be some way to get the "county" configuration by name
+        // independent of a template
+        AreaSourceConfiguration areaConfig = new AreaSourceConfiguration();
+        areaConfig.setFipsField("FIPS");
+
+        return new GeospatialDataAccessor(gdl, areaConfig);
+    }
+
+    private GeospatialDataList searchCountyGeospatialDataAccessor() {
+        synchronized (siteMap) {
+            for (Map.Entry<String, GeospatialDataList> entry : siteMap.entrySet()) {
+                String[] keyParts = entry.getKey().split("\\.");
+                if (keyParts.length == 2
+                        && "county".equalsIgnoreCase(keyParts[0])
+                        && getLocalizedSite().equals(keyParts[1])) {
+                    return entry.getValue();
                 }
             }
         }
-        return localToLatLon(area);
+        return null;
     }
 
     /**
@@ -1304,7 +1429,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
      * @return
      */
     private Geometry getArea(Polygon polygon, Map<String, String[]> countyMap) {
-        return getArea(buildArea(polygon), countyMap, true);
+        return getArea(geoAccessor.buildArea(polygon), countyMap, true);
     }
 
     /**
@@ -2134,17 +2259,12 @@ public class WarngenLayer extends AbstractStormTrackResource {
         Matcher m = tmlPtrn.matcher(rawMessage);
 
         if (m.find()) {
-            int day = warnRecord.getIssueTime().get(Calendar.DAY_OF_MONTH);
             int hour = Integer.parseInt(m.group(1));
             int minute = Integer.parseInt(m.group(2));
-            // Handles when a warning is created before 0Z but issued after 0Z
-            if (hour > warnRecord.getIssueTime().get(Calendar.HOUR_OF_DAY)) {
-                day -= 1;
-            }
-            frameTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-            frameTime.set(Calendar.DAY_OF_MONTH, day);
-            frameTime.set(Calendar.HOUR_OF_DAY, hour);
-            frameTime.set(Calendar.MINUTE, minute);
+            frameTime = TimeUtil.timeOfDayToAbsoluteTime(
+                    hour * TimeUtil.SECONDS_PER_HOUR +
+                    minute * TimeUtil.SECONDS_PER_MINUTE,
+                    warnRecord.getIssueTime());
         } else {
             frameTime = warnRecord.getIssueTime();
         }
@@ -2569,38 +2689,51 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     private String getFips(GeospatialData data) {
-        for (AreaSourceConfiguration areaSource : configuration
-                .getAreaSources()) {
-            if (areaSource.getType() == AreaType.HATCHING) {
-                return (String) data.attributes.get(areaSource.getFipsField());
-            }
-        }
-        return null;
+        return geoAccessor.getFips(data);
     }
 
     private String getFips(Geometry g) {
-        Object o = g.getUserData();
-        if (o != null) {
-            return getFips(((CountyUserData) o).entry);
-        } else {
-            for (int n = 0; n < g.getNumGeometries(); ++n) {
-                Geometry g2 = g.getGeometryN(n);
-                if (g != g2) {
-                    String fips = getFips(g2);
-                    if (fips != null)
-                        return fips;
-                }
-            }
-        }
-        return null;
+        return geoAccessor.getFips(g);
     }
 
     private void warningAreaChanged() {
         state.snappedToArea = false;
         if (areaHatcher != null) {
-            areaHatcher.hatchArea(state.getWarningPolygon(),
-                    state.getWarningArea());
+            Polygon polygon = state.getWarningPolygon();
+            polygon = tryToIntersectWithOriginalPolygon(polygon);
+            areaHatcher.hatchArea(polygon,
+                    state.getWarningArea(),
+                    state.getOldWarningPolygon());
         }
+    }
+
+    /**
+     * Try to determine the intersection of the given polygon with the original
+     * warning polygon. If there is no original polygon, if the result of the
+     * intersection is not a single polygon, or if a problem occurs, just return
+     * the original polygon. The purpose of this is to pass the polygon that
+     * best represents the user's intent to the polygon redrawing algorithm.
+     */
+    private Polygon tryToIntersectWithOriginalPolygon(Polygon polygon) {
+        if (state.getOldWarningPolygon() != null) {
+            try {
+                Geometry g = polygon.intersection(state.getOldWarningPolygon());
+                Polygon newPolygon = null;
+                if (g instanceof Polygon) {
+                    newPolygon = (Polygon) g;
+                } else if (g instanceof GeometryCollection
+                        && g.getNumGeometries() == 1
+                        && g.getGeometryN(0) instanceof Polygon) {
+                    newPolygon = (Polygon) g.getGeometryN(0);
+                }
+                if (newPolygon != null && newPolygon.isValid()) {
+                    polygon = newPolygon;
+                }
+            } catch (TopologyException e) {
+                // ignore
+            }
+        }
+        return polygon;
     }
 
     private Collection<GeospatialData> getDataWithFips(String fips) {
@@ -2614,12 +2747,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     private Set<String> getAllFipsInArea(Geometry warningArea) {
-        Set<String> fipsIds = new HashSet<String>();
-        for (int n = 0; n < warningArea.getNumGeometries(); ++n) {
-            Geometry area = warningArea.getGeometryN(n);
-            fipsIds.add(getFips(area));
-        }
-        return fipsIds;
+        return geoAccessor.getAllFipsInArea(warningArea);
     }
 
     private Geometry removeCounty(Geometry warningArea, String fipsToRemove) {
@@ -2816,7 +2944,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public <T> T convertGeom(T geom, MathTransform transform) {
+    static public <T> T convertGeom(T geom, MathTransform transform) {
         if (geom == null) {
             return null;
         }
