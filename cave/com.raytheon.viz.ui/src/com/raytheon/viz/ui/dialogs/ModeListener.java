@@ -20,6 +20,8 @@
 
 package com.raytheon.viz.ui.dialogs;
 
+import java.lang.ref.WeakReference;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.PaintEvent;
@@ -49,6 +51,7 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * Date       	Ticket#		Engineer	Description
  * ----------	----------	-----------	--------------------------
  * 12/20/07     561         Dan Fitch    Initial Creation.
+ * 6/7/2013                 mnash        Implementation for Chris Golden to allow instances to be garbage collected.
  * </pre>
  * 
  * @author Dan Fitch
@@ -65,8 +68,25 @@ public class ModeListener implements PaintListener {
         DEFAULT_SWT_FORE = disp.getSystemColor(SWT.COLOR_WIDGET_FOREGROUND);
     }
 
+    private WeakReference<Composite> comp;
+
     public ModeListener(Composite comp) {
+        this.comp = new WeakReference<Composite>(comp);
         comp.addPaintListener(this);
+    }
+
+    /**
+     * Dispose of this mode listener.
+     */
+    public void dispose() {
+        // If the composite is still reachable and it has not
+        // been disposed, remove this listener; then delete
+        // the reference.
+        Composite comp = this.comp.get();
+        if ((comp != null) && (comp.isDisposed() == false)) {
+            comp.removePaintListener(this);
+        }
+        this.comp = null;
     }
 
     @Override
