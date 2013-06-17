@@ -21,6 +21,7 @@ Packager: Bryan Kowal
 
 AutoReq: no
 provides: %{_component_name} = %{_component_version}
+requires: awips2-cave
 requires: %{_downstream_requires}
 requires: awips2
 
