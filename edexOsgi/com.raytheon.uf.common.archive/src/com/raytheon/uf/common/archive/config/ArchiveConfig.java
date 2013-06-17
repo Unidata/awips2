@@ -193,7 +193,7 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
 
     @Override
     public int compareTo(ArchiveConfig o) {
-        return getName().compareTo(o.getName());
+        return getName().compareToIgnoreCase(o.getName());
     }
 
     /*
