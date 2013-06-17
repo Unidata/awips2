@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.comm;
 
+import org.junit.Ignore;
+
 /**
  * Test implementation.
  * 
@@ -35,7 +37,7 @@ package com.raytheon.uf.common.comm;
  * @author mpduff
  * @version 1.0
  */
-
+@Ignore
 public class TestProxyHttpsConfiguration implements IHttpsConfiguration {
 
     /*
