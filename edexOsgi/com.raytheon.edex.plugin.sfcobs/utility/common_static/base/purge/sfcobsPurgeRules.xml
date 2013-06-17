@@ -10,7 +10,7 @@
 	</rule>
 	<rule>
 		<keyValue>1001</keyValue>
-		<versionsToKeep>50</versionsToKeep>
+		<versionsToKeep>14</versionsToKeep>
 		<delta>=01-00:00:00</delta>
 		<round>+00-12:00:00</round>
 	</rule>
@@ -25,7 +25,7 @@
 	</rule>
 	<rule>
 		<keyValue>1002</keyValue>
-		<versionsToKeep>50</versionsToKeep>
+		<versionsToKeep>14</versionsToKeep>
 		<delta>=01-00:00:00</delta>
 		<round>+00-12:00:00</round>
 	</rule>
@@ -39,19 +39,19 @@
 	</rule>
 	<rule>
 		<keyValue>1003</keyValue>
-		<versionsToKeep>38</versionsToKeep>
+		<versionsToKeep>15</versionsToKeep>
 		<delta>=00-03:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1003</keyValue>
-		<versionsToKeep>42</versionsToKeep>
+		<versionsToKeep>11</versionsToKeep>
 		<delta>=00-06:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1003</keyValue>
-		<versionsToKeep>50</versionsToKeep>
+		<versionsToKeep>10</versionsToKeep>
 		<delta>=01-00:00:00</delta>
 		<round>+00-12:00:00</round>
 	</rule>
@@ -65,19 +65,19 @@
 	</rule>
 	<rule>
 		<keyValue>1004</keyValue>
-		<versionsToKeep>38</versionsToKeep>
+		<versionsToKeep>15</versionsToKeep>
 		<delta>=00-03:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1004</keyValue>
-		<versionsToKeep>42</versionsToKeep>
+		<versionsToKeep>11</versionsToKeep>
 		<delta>=00-06:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1004</keyValue>
-		<versionsToKeep>50</versionsToKeep>
+		<versionsToKeep>10</versionsToKeep>
 		<delta>=01-00:00:00</delta>
 		<round>+00-12:00:00</round>
 	</rule>
@@ -91,19 +91,19 @@
 	</rule>
 	<rule>
 		<keyValue>1005</keyValue>
-		<versionsToKeep>38</versionsToKeep>
+		<versionsToKeep>15</versionsToKeep>
 		<delta>=00-03:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1005</keyValue>
-		<versionsToKeep>42</versionsToKeep>
+		<versionsToKeep>11</versionsToKeep>
 		<delta>=00-06:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1005</keyValue>
-		<versionsToKeep>50</versionsToKeep>
+		<versionsToKeep>10</versionsToKeep>
 		<delta>=01-00:00:00</delta>
 		<round>+00-12:00:00</round>
 	</rule>
@@ -117,19 +117,19 @@
 	</rule>
 	<rule>
 		<keyValue>1006</keyValue>
-		<versionsToKeep>38</versionsToKeep>
+		<versionsToKeep>15</versionsToKeep>
 		<delta>=00-03:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1006</keyValue>
-		<versionsToKeep>42</versionsToKeep>
+		<versionsToKeep>11</versionsToKeep>
 		<delta>=00-06:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1006</keyValue>
-		<versionsToKeep>50</versionsToKeep>
+		<versionsToKeep>10</versionsToKeep>
 		<delta>=01-00:00:00</delta>
 		<round>+00-12:00:00</round>
 	</rule>
@@ -143,19 +143,19 @@
 	</rule>
 	<rule>
 		<keyValue>1007</keyValue>
-		<versionsToKeep>38</versionsToKeep>
+		<versionsToKeep>15</versionsToKeep>
 		<delta>=00-03:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1007</keyValue>
-		<versionsToKeep>42</versionsToKeep>
+		<versionsToKeep>11</versionsToKeep>
 		<delta>=00-06:00:00</delta>
 		<round>00-01:00:00</round>
 	</rule>
 	<rule>
 		<keyValue>1007</keyValue>
-		<versionsToKeep>50</versionsToKeep>
+		<versionsToKeep>10</versionsToKeep>
 		<delta>=01-00:00:00</delta>
 		<round>+00-12:00:00</round>
 	</rule>
