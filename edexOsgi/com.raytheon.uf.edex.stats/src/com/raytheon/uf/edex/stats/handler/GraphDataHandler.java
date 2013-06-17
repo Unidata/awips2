@@ -33,7 +33,7 @@ import com.raytheon.uf.common.stats.GraphDataResponse;
 import com.raytheon.uf.common.stats.data.GraphData;
 import com.raytheon.uf.common.stats.xml.StatisticsAggregate;
 import com.raytheon.uf.common.stats.xml.StatisticsConfig;
-import com.raytheon.uf.common.stats.xml.StatisticsEvent;
+import com.raytheon.uf.common.stats.xml.StatisticsEventConfig;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.stats.dao.AggregateRecordDao;
 import com.raytheon.uf.edex.stats.data.StatsDataAccumulator;
@@ -48,9 +48,9 @@ import com.raytheon.uf.edex.stats.util.ConfigLoader;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 11, 2012   728      mpduff      Initial creation
+ * Sep 11, 2012 728        mpduff      Initial creation
  * Jan 07, 2013 1451       djohnson    Use newGmtCalendar().
- * 
+ * May 22, 2013 1917       rjpeter     Renamed StatisticsEvent to StatisticsEventConfig.
  * </pre>
  * 
  * @author mpduff
@@ -205,7 +205,7 @@ public class GraphDataHandler implements IRequestHandler<GraphDataRequest> {
         for (StatisticsConfig config : configList) {
             for (String cat : config.getCategories()) {
                 if (cat.equals(category)) {
-                    for (StatisticsEvent event : config.getEvents()) {
+                    for (StatisticsEventConfig event : config.getEvents()) {
                         if (event.getType().equals(type)) {
                             for (StatisticsAggregate agg : event
                                     .getAggregateList()) {
