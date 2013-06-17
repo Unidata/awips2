@@ -59,6 +59,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Dec 18, 2012 1439       mpduff     Redo subset name validation.
  * Dec 10, 2012   1259     bsteffen   Switch Data Delivery from LatLon to referenced envelopes.
  * Feb 20, 2013   1589     mpduff     Fix to allow saving custom areas.
+ * Jun 14, 2013   2064     mpudff     Force an update of region controls.
  * 
  * </pre>
  * 
@@ -333,10 +334,9 @@ public class SpatialSubsetTab extends SubsetTab implements IDataSize {
                 i++;
             }
 
-        } else {
-            areaComp.updateRegionControls();
         }
-
+        
+        areaComp.updateRegionControls();
     }
 
     /**
