@@ -23,14 +23,14 @@
         <name>           - Required tag. The id for the archive such as Raw or Processed.
                            Used in the GUIs to filter which archive to display.
         <rootDir>        - Required tag. The root directory on the edex server for the archive.
-        <retentionHours> - Required tag. The default number of hours to retain data in the <rootDir>
+        <minRetentionHours> - Required tag. The default number of hours to retain data in the <rootDir>
         <category>       - Logical grouping of archive's sub-directories.
     
     The <category> has six types of tags:
         <name>              - Required tag. The id for the category such as grib2 or redbook.
                               Used in the GUIs to filter what is the display in the table.
-        <retentionHours>    - Optional tag. The retentionHours for this category.
-                              Default is the archive's <retentionHours>.
+        <extRetentionHours>    - Optional tag. The  extended retentionHours for selected directories of this category.
+                              Default is the archive's <minRetentionHours>.
         <dirPattern>        - Required tag. A regex pattern for finding directories for this category.
                               The pattern is relative to the archive's <rootDir>. Wildcard patterns do not cross directory
                               delimiter /. Thus to match 3 levels of directories you would need .*/.*/.* .
@@ -47,6 +47,9 @@
                               This is used to determine what files/directories to retain or a range of directories/files to copy
                               for case creation. Note to get the group's index the <dirPattern> and <filePattern> are combined.
                               Thus if there are 5 groups in the <dirPattern> then the first group in the <filePattern> is index 6.
+        <selectedDisplayNames>  - A directory matching <dirPattern>. These are selected directories from the Retention GUI. The purger
+                                  will used the category's <extRetentionHours> instead of the Arhivie's <minRetentionHours>.
+                                  An optional tag; may have more then one.
      Patterns and groups.
      The <dirPattern> and <filePattern> use Java regex expressions; similar to the ldm's pqact.conf file.
      For more details see http://docs.oracle.com/javase/tutorial/essential/regex/
@@ -81,21 +84,69 @@
 <archive>
     <name>Processed</name>
     <rootDir>/awips2/edex/data/archive/</rootDir>
-    <retentionHours>168</retentionHours>
+    <minRetentionHours>24</minRetentionHours>
+    <category>
+        <name>binlightning</name>
+        <extRetentionHours>168</extRetentionHours>
+        <dirPattern>(binlightning)</dirPattern>
+        <displayLabel>{1}</displayLabel>
+        <dateGroupIndices>2,3,4,5</dateGroupIndices>
+        <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
+    </category>
+    <category>
+        <name>bufr</name>
+        <extRetentionHours>168</extRetentionHours>
+        <dirPattern>(bufrascat|bufrhdw|bufrmosLAMP|bufrncwf|bufrsigwx|bufrssmi|bufrua)</dirPattern>
+        <displayLabel>{1}</displayLabel>
+        <dateGroupIndices>2,3,4,5</dateGroupIndices>
+        <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
+    </category>
+    <category>
+        <name>bufrsigwx</name>
+        <extRetentionHours>168</extRetentionHours>
+        <dirPattern>(bufrsigwx)/(.*)</dirPattern>
+        <displayLabel>{1} : {2}</displayLabel>
+        <dateGroupIndices>3,4,5,6</dateGroupIndices>
+        <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
+    </category>
+    <category>
+        <name>group</name>
+        <extRetentionHours>168</extRetentionHours>
+        <dirPattern>(acars|airmet|airep|cwa|cwat)</dirPattern>
+        <displayLabel>{1}</displayLabel>
+        <dateGroupIndices>2,3,4,5</dateGroupIndices>
+        <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
+    </category>
+    <category>
+        <name>grib</name>
+        <extRetentionHours>168</extRetentionHours>
+        <dirPattern>grib/(.*)/(.*)</dirPattern>
+        <displayLabel>{1} : {2}</displayLabel>
+        <dateGroupIndices>3,4,5,6</dateGroupIndices>
+        <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})-.*</filePattern>
+    </category>
+    <category>
+        <name>grid</name>
+        <extRetentionHours>168</extRetentionHours>
+        <dirPattern>grid/(.*)/(.*)</dirPattern>
+        <displayLabel>{1} : {2}</displayLabel>
+        <dateGroupIndices>3,4,5,6</dateGroupIndices>
+        <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})-.*</filePattern>
+    </category>
     <category>
         <name>redbook</name>
-        <retentionHours>0</retentionHours>
-        <dirPattern>hdf5/(redbook)</dirPattern>
+        <extRetentionHours>168</extRetentionHours>
+        <dirPattern>redbook/(.*)</dirPattern>
         <displayLabel>{1}</displayLabel>
-        <filePattern>redbook-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
         <dateGroupIndices>2,3,4,5</dateGroupIndices>
+        <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
     </category>
     <category>
         <name>obs</name>
-        <retentionHours>0</retentionHours>
-        <dirPattern>hdf5/(obs)</dirPattern>
+        <extRetentionHours>168</extRetentionHours>
+        <dirPattern>(fssobs|obs)</dirPattern>
         <displayLabel>{1}</displayLabel>
-        <filePattern>metar-(\d{4})-(\d{2})-(\d{2})-(\d{2})\.*</filePattern>
         <dateGroupIndices>2,3,4,5</dateGroupIndices>
+        <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
     </category>
 </archive>

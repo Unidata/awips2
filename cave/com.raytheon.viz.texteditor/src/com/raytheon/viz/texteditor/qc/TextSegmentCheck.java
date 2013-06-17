@@ -20,8 +20,11 @@
 package com.raytheon.viz.texteditor.qc;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,6 +56,8 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  * 20 JUL 2012  15006	   mgamazaychikov	Do not perform search for a list of 
  * 											county/zones names in the MWS segment heading.
  * 07 NOV 2012  15003	   mgamazaychikov	Do not perform QC check on standalone MWS headline.
+ * 21 MAY 2013  16200      Qinglu Lin  Prevent countyOrZoneCounter from being increased for a line
+ *                                     that has no word County/Parish/Municipality in it. 
  * 
  * </pre>
  * 
@@ -118,6 +123,27 @@ public class TextSegmentCheck implements IQCCheck {
         } else if (nnn.equalsIgnoreCase("SMW") || nnn.equalsIgnoreCase("MWS")) {
             czmType = 3;
         }
+
+        Set<String> countyParishMunicipality = new HashSet<String>();
+        for (String countyType : QualityControl
+                .getCountyTypeMap().values()) {
+            if (countyType.length() > 1) {
+                countyParishMunicipality.add(countyType.trim());
+            } else {
+
+            }
+        }
+        for (String key : QualityControl.getCountyTypeMap().keySet()) {
+            if (QualityControl.getCountyTypeMap()
+                    .get(key).length() <= 1) {
+                if (key.length() > 1) {
+                    countyParishMunicipality.add(key);
+                }
+            }
+        }
+        countyParishMunicipality.remove("AK");
+        countyParishMunicipality.remove("DC");
+        countyParishMunicipality.add("CITY");
 
         String[] separatedLines = body.split("\n");
 
@@ -401,12 +427,24 @@ public class TextSegmentCheck implements IQCCheck {
 
                 }
 
-                if (line.trim().length() > 0) {
-                    countyOrZoneCounter++;
-                    continue;
-                } else {
-                    // ran into a blank line, done
-                    insideFirstBullet = false;
+                int cpmCounter = 0;
+                Iterator<String> iter = countyParishMunicipality.iterator();
+                while(iter.hasNext()) {
+                    if (line.contains(iter.next())) {
+                        break;
+                    } else {
+                        cpmCounter += 1;
+                        continue;
+                    }
+                }
+                if (cpmCounter != countyParishMunicipality.size()) {
+                    if (line.trim().length() > 0) {
+                        countyOrZoneCounter++;
+                        continue;
+                    } else {
+                        // ran into a blank line, done
+                        insideFirstBullet = false;
+                    }
                 }
             }
 

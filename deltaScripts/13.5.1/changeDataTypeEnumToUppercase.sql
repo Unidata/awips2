@@ -17,31 +17,16 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.archive.data;
+\set ON_ERROR_STOP 1
+\connect metadata;
 
-import java.util.List;
+-- Start a transaction
+BEGIN;
 
-/**
- * A listener to update file/directory information.
- * 
- * <pre>
- * 
- * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 16, 2013 1966       rferrel     Initial creation
- * 
- * </pre>
- * 
- * @author rferrel
- * @version 1.0
- */
-public interface IUpdateListener {
-    /**
-     * Table display state entries with updated information.
-     * 
-     * @param dirInfos
-     */
-    public void update(List<SizeJobRequest> request);
-}
+-- Update dataSetType="Grid" references to dataSetType="GRID"
+update ebxml.value set stringvalue = regexp_replace(stringvalue, 'dataSetType="Grid"', 'dataSetType="GRID"', 'g');
+-- Update dataType="Grid" references to dataType="GRID"
+update ebxml.value set stringvalue = regexp_replace(stringvalue, 'dataType="Grid"', 'dataType="GRID"', 'g');
+
+-- Commit the transaction
+END;
