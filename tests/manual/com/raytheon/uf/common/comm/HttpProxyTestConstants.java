@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.comm;
 
+import org.junit.Ignore;
+
 /**
  * Http constants
  * 
@@ -28,21 +30,18 @@ package com.raytheon.uf.common.comm;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * June 11, 2013  1763     dhladky      Initial creation
+ * Jun 11, 2013 1763       dhladky      Initial creation
+ * Jun 17, 2013 2106       djohnson     Use username/password from HttpTestConstants.
  * 
  * </pre>
  * 
  * @author dhladky
  * @version 1.0
  */
-
-public class HttpProxyTestConstants {
+@Ignore
+public class HttpProxyTestConstants extends HttpTestConstants {
 
     public static final int HTTPS_PORT = 8888;
-
-    public static final String USERNAME = "user";
-
-    public static final String PASSWD = "password";
 
     public static final String REALM = "MADISOGC";
     
