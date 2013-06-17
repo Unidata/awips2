@@ -36,6 +36,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 2, 2013      1963    jsanchez     Initial creation
+ * Jun 3, 2013      2029    jsanchez     Fixed incorrect A1 port. Added additional attributes to calculate portions of areas.
  * 
  * </pre>
  * 
@@ -76,6 +77,18 @@ public class ImpactedQuadrants {
     protected int se;
 
     protected int sw;
+
+    /** Indicates if the north portion is impacted */
+    protected boolean north;
+
+    /** Indicates if the south portion is impacted */
+    protected boolean south;
+
+    /** Indicates if the east portion is impacted */
+    protected boolean east;
+
+    /** Indicates if the west portion is impacted */
+    protected boolean west;
 
     /**
      * q is the accumulation of the quadrants,
@@ -124,6 +137,7 @@ public class ImpactedQuadrants {
         nne = ene = ese = sse = ssw = wsw = wnw = nnw = false;
         nn = ss = ee = ww = ne = nw = se = sw = 0;
         nnx = ssx = eex = wwx = 0;
+        north = south = east = west = false;
         xxx = 0;
     }
 
@@ -204,7 +218,7 @@ public class ImpactedQuadrants {
         if (impactedQuadrants.wnw || impactedQuadrants.wsw) {
             impactedQuadrants.ww = 1;
         }
-        if (impactedQuadrants.nne || impactedQuadrants.ese) {
+        if (impactedQuadrants.ene || impactedQuadrants.ese) {
             impactedQuadrants.ee = 1;
         }
 
@@ -221,6 +235,9 @@ public class ImpactedQuadrants {
 
         // Identify extremes in use.
         identifyExtremes(impactedQuadrants, envelopeInternal, warnedArea);
+
+        identifyAreaIntersection(impactedQuadrants, envelopeInternal,
+                warnedArea);
 
         return impactedQuadrants;
     }
@@ -318,5 +335,70 @@ public class ImpactedQuadrants {
 
         impactedQuadrants.xxx = impactedQuadrants.nnx + impactedQuadrants.ssx
                 + impactedQuadrants.eex + impactedQuadrants.wwx;
+    }
+
+    /**
+     * Identifies portions of the parent envelope which is 20% from each edge.
+     * 
+     * @param impactedQuadrants
+     * @param parentEnvelopeInternal
+     * @param warnedArea
+     */
+    private static void identifyAreaIntersection(
+            ImpactedQuadrants impactedQuadrants,
+            Envelope parentEnvelopeInternal, Geometry warnedArea) {
+
+        double deltaY = parentEnvelopeInternal.getHeight() * 0.20;
+        double deltaX = parentEnvelopeInternal.getWidth() * 0.20;
+
+        double minLat = parentEnvelopeInternal.getMinY();
+        double maxLat = parentEnvelopeInternal.getMaxY();
+        double minLon = parentEnvelopeInternal.getMinX();
+        double maxLon = parentEnvelopeInternal.getMaxX();
+
+        Coordinate c1 = new Coordinate(minLon, maxLat); // upper left
+        Coordinate c2 = new Coordinate(maxLon, maxLat); // upper right
+        Coordinate c3 = new Coordinate(maxLon, minLat); // lower right
+        Coordinate c4 = new Coordinate(minLon, minLat); // lower left
+
+        Coordinate c5 = new Coordinate(c2.x, c2.y - deltaY);
+        Coordinate c6 = new Coordinate(c1.x, c1.y - deltaY);
+        Coordinate c7 = new Coordinate(c4.x, c4.y + deltaY);
+        Coordinate c8 = new Coordinate(c3.x, c3.y + deltaY);
+        Coordinate c9 = new Coordinate(c2.x - deltaX, c2.y);
+        Coordinate c10 = new Coordinate(c3.x - deltaX, c3.y);
+        Coordinate c11 = new Coordinate(c1.x + deltaX, c1.y);
+        Coordinate c12 = new Coordinate(c4.x + deltaX, c4.y);
+
+        PreparedGeometry north = createPortionMasks(c1, c2, c5, c6);
+        PreparedGeometry south = createPortionMasks(c7, c8, c3, c4);
+        PreparedGeometry east = createPortionMasks(c9, c2, c3, c10);
+        PreparedGeometry west = createPortionMasks(c1, c11, c12, c4);
+
+        impactedQuadrants.north = north.intersects(warnedArea);
+        impactedQuadrants.south = south.intersects(warnedArea);
+        impactedQuadrants.east = east.intersects(warnedArea);
+        impactedQuadrants.west = west.intersects(warnedArea);
+    }
+
+    /**
+     * Creates a PreparedGeometry object from 4 coordinates
+     * 
+     * @param c1
+     *            - upper left
+     * @param c2
+     *            - upper right
+     * @param c3
+     *            - lower right
+     * @param c4
+     *            - lower left
+     * @return
+     */
+    private static PreparedGeometry createPortionMasks(Coordinate c1,
+            Coordinate c2, Coordinate c3, Coordinate c4) {
+        Coordinate[] coords = new Coordinate[] { c1, c2, c3, c4, c1 };
+        GeometryFactory gf = new GeometryFactory();
+        Geometry geom = gf.createPolygon(gf.createLinearRing(coords), null);
+        return PreparedGeometryFactory.prepare(geom);
     }
 }
