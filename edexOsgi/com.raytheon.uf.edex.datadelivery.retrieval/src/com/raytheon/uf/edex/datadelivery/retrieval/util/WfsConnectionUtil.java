@@ -24,6 +24,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * May 12, 2013 753        dhladky     created.
  * May 31, 2013 1763       dhladky     refined.
+ * Jun 17, 2013 2106       djohnson    Use getUnencryptedPassword().
  * 
  * </pre>
  * 
@@ -54,7 +55,7 @@ public class WfsConnectionUtil {
 
                 http.setCredentials(uri.getHost(), uri.getPort(),
                         provider.getName(), conn.getUserName(),
-                        conn.getPassword());
+                        conn.getUnencryptedPassword());
             }
 
             get.setURI(uri);
