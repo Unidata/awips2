@@ -1,7 +1,8 @@
 <statisticsConfig>
     <!-- Event Type should be fully qualified name of stat event -->
     <statisticsEvent type="com.raytheon.uf.common.registry.event.RegistryStatisticsEvent"
-        displayName="Registry Statistics" category="Registry">
+        displayName="Registry Statistics" category="Registry"
+        rawOfflineRetentionDays="-1" aggregateOfflineRetentionDays="90">
         <statisticsGroup name="owner" displayName="Transaction Owner" />
         <statisticsGroup name="status" displayName="Transaction Status" />
         <statisticsGroup name="type" displayName="Transaction Type" />

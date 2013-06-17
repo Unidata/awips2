@@ -48,6 +48,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * Mar 11, 2013            dgilling     Initial creation
  * May 22, 2013  #1759     dgilling     Ensure addSitePath() also adds base
  *                                      path.
+ * May 31, 2013  #1759     dgilling     Ensure any site-specific paths are 
+ *                                      always removed post-execution.
  * 
  * </pre>
  * 
@@ -85,11 +87,20 @@ public class IscScript extends PythonScript {
 
     public Object execute(String methodName, Map<String, Object> args,
             String siteId) throws JepException {
-        addSiteSpecificInclude(siteId);
-        Object retVal = super.execute(methodName, args);
-        jep.eval("rollbackImporter.rollback()");
-        removeSiteSpecificInclude(siteId);
-        return retVal;
+        try {
+            addSiteSpecificInclude(siteId);
+            Object retVal = super.execute(methodName, args);
+            return retVal;
+        } finally {
+            // if we don't run these two commands after execution, site-specific
+            // paths and modules can get stuck in the interpreter's copy of
+            // sys.path or sys.modules if a JepException is thrown by the
+            // execute() method.
+            // the RollbackImporter handles sys.modules
+            jep.eval("rollbackImporter.rollback()");
+            // while this cleans up sys.path
+            removeSiteSpecificInclude(siteId);
+        }
     }
 
     public String getScriptName() {
