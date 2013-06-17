@@ -34,6 +34,8 @@ import org.eclipse.swt.widgets.TabItem;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.PointDataSet;
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
@@ -55,6 +57,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 04, 2013    223     mpduff      Initial creation.
+ * Jun 11, 2013   2064     mpduff      Fix editing of subscriptions.
  * Jun 14, 2013   2108     mpduff      Refactored DataSizeUtils and 
  *                                     implement subset size.
  * 
@@ -203,13 +206,18 @@ public class PointSubsetManagerDlg extends
         sub.setDataSetSize(50);
 
         Coverage cov = new Coverage();
-
+        cov.setEnvelope(dataSet.getCoverage().getEnvelope());
         setCoverage(sub, cov);
 
         List<Parameter> paramList = new ArrayList<Parameter>();
         Map<String, Parameter> paramMap = dataSet.getParameters();
+        List<DataLevelType> levelTypeList = new ArrayList<DataLevelType>();
+        levelTypeList.add(new DataLevelType(DataLevelType.LevelType.SFC));
         for (String key : paramMap.keySet()) {
-            paramList.add(paramMap.get(key));
+            Parameter p = paramMap.get(key);
+            p.setDataType(DataType.POINT);
+            p.setLevelType(levelTypeList);
+            paramList.add(p);
         }
 
         sub.setParameter(paramList);
