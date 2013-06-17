@@ -41,7 +41,7 @@ public class TestProxyHttpsCredentialsHandler implements IHttpsCredentialsHandle
 
     @Override
     public String[] getCredentials(String message) {
-        return new String[] { HttpProxyTestConstants.USERNAME,
-                HttpProxyTestConstants.PASSWD };
+        return new String[] { HttpTestConstants.USERNAME,
+                HttpTestConstants.PASSWD };
     }
 }

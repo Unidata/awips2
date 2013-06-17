@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.comm;
 
+import org.junit.Ignore;
+
 /**
  * Test Https credentials handler. Returns valid credentials for HttpClient Test
  * Cases.
@@ -36,7 +38,7 @@ package com.raytheon.uf.common.comm;
  * @author mpduff
  * @version 1.0
  */
-
+@Ignore
 public class TestHttpsCredentialsHandler implements IHttpsCredentialsHandler {
 
     @Override
