@@ -6,17 +6,17 @@
 		<round>00-01:00:00</round>
 	</defaultRule>
 	<defaultRule>
-		<versionsToKeep>38</versionsToKeep>
+		<versionsToKeep>15</versionsToKeep>
 		<delta>=00-03:00:00</delta>
 		<round>00-01:00:00</round>
 	</defaultRule>
 	<defaultRule>
-		<versionsToKeep>42</versionsToKeep>
+		<versionsToKeep>11</versionsToKeep>
 		<delta>=00-06:00:00</delta>
 		<round>00-01:00:00</round>
 	</defaultRule>
 	<defaultRule>
-		<versionsToKeep>50</versionsToKeep>
+		<versionsToKeep>10</versionsToKeep>
 		<delta>=01-00:00:00</delta>
 		<round>+00-12:00:00</round>
 	</defaultRule>

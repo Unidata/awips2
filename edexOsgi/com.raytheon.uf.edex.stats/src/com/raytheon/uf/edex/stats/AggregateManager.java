@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -38,15 +39,15 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import com.raytheon.uf.common.event.Event;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.stats.AggregateRecord;
+import com.raytheon.uf.common.stats.StatisticsEvent;
 import com.raytheon.uf.common.stats.StatsGrouping;
 import com.raytheon.uf.common.stats.StatsGroupingColumn;
 import com.raytheon.uf.common.stats.StatsRecord;
 import com.raytheon.uf.common.stats.xml.StatisticsAggregate;
-import com.raytheon.uf.common.stats.xml.StatisticsEvent;
+import com.raytheon.uf.common.stats.xml.StatisticsEventConfig;
 import com.raytheon.uf.common.stats.xml.StatisticsGroup;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -69,12 +70,14 @@ import com.raytheon.uf.edex.stats.util.ConfigLoader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 21, 2012            jsanchez    Stored the aggregate buckets in the db.
- * Nov 07, 2012   1317     mpduff      Updated Configuration Files.
- * Nov 28, 2012   1350     rjpeter     Simplied aggregation and added aggregation with current db aggregate records.
+ * Nov 07, 2012 1317       mpduff      Updated Configuration Files.
+ * Nov 28, 2012 1350       rjpeter     Simplied aggregation and added aggregation with current db aggregate records.
  * Jan 07, 2013 1451       djohnson    Use newGmtCalendar().
  * Jan 15, 2013 1487       djohnson    Use xml for the grouping information on an {@link AggregateRecord}.
- * 3/13/2013               bphillip    Updated to use spring injection of dao
- * 3/27/2013     1802      bphillip    Made jaxb manager static and changed visibility of a method
+ * Mar 13, 2013 1802       bphillip    Updated to use spring injection of dao
+ * Mar 27, 2013 1802       bphillip    Made jaxb manager static and changed visibility of a method
+ * May 22, 2013 1917       rjpeter     Added ability to save raw and aggregate stats, to reclaimSpace every scan call,
+ *                                     and to not pretty print xml grouping information.
  * </pre>
  * 
  * @author jsanchez
@@ -100,10 +103,6 @@ public class AggregateManager {
     /** default value */
     private static final int defaultBucketInterval = 5;
 
-    /** default value */
-    @SuppressWarnings("unused")
-    private static final int defaultScanInterval = 15;
-
     public AggregateManager() {
 
     }
@@ -121,8 +120,10 @@ public class AggregateManager {
      * @param timeRange
      * @param groupedEvents
      */
-    private void aggregate(StatisticsEvent statsEvent, TimeRange timeRange,
-            Multimap<String, Event> groupedEvents) {
+    private void aggregate(StatisticsEventConfig statsEvent,
+            TimeRange timeRange,
+            Multimap<StatsGroupingColumn, StatisticsEvent> groupedEvents)
+            throws JAXBException {
         Calendar start = TimeUtil.newGmtCalendar();
         start.setTime(timeRange.getStart());
 
@@ -130,8 +131,10 @@ public class AggregateManager {
         end.setTime(timeRange.getEnd());
 
         // perform aggregate functions on the grouped data
-        for (String groupKey : groupedEvents.keySet()) {
-            Collection<Event> groupData = groupedEvents.get(groupKey);
+        for (StatsGroupingColumn group : groupedEvents.keySet()) {
+            Collection<StatisticsEvent> groupData = groupedEvents.get(group);
+            String groupKey = jaxbManager.marshalToXml(group, false);
+
             Iterator<Method> aggrMethodIter = statsEvent.getAggregateMethods()
                     .iterator();
             Iterator<StatisticsAggregate> statAggrIter = statsEvent
@@ -147,7 +150,7 @@ public class AggregateManager {
                     double min = Double.MAX_VALUE;
                     double sum = 0;
 
-                    for (Event event : groupData) {
+                    for (StatisticsEvent event : groupData) {
                         Number number = (Number) m.invoke(event, new Object[0]);
                         double value = number.doubleValue();
                         sum += value;
@@ -225,8 +228,9 @@ public class AggregateManager {
     public void scan() throws Exception {
         long t0 = System.currentTimeMillis();
         ConfigLoader configLoader = ConfigLoader.getInstance();
-
-        Map<String, StatisticsEvent> statsMap = configLoader.getTypeView();
+        OfflineStatsManager offline = new OfflineStatsManager();
+        Map<String, StatisticsEventConfig> statsMap = configLoader
+                .getTypeView();
 
         // latest time to pull
         Calendar timeToProcess = Calendar.getInstance(TimeZone
@@ -234,9 +238,10 @@ public class AggregateManager {
         int count = 0;
 
         // process the events by type
-        for (Map.Entry<String, StatisticsEvent> entry : statsMap.entrySet()) {
+        for (Map.Entry<String, StatisticsEventConfig> entry : statsMap
+                .entrySet()) {
             String type = entry.getKey();
-            StatisticsEvent event = entry.getValue();
+            StatisticsEventConfig event = entry.getValue();
             List<StatsRecord> records = null;
 
             do {
@@ -246,10 +251,10 @@ public class AggregateManager {
 
                 if (!CollectionUtil.isNullOrEmpty(records)) {
                     // sort events into time buckets
-                    Map<TimeRange, Multimap<String, Event>> timeMap = sort(
+                    Map<TimeRange, Multimap<StatsGroupingColumn, StatisticsEvent>> timeMap = sort(
                             event, records);
 
-                    for (Map.Entry<TimeRange, Multimap<String, Event>> timeMapEntry : timeMap
+                    for (Map.Entry<TimeRange, Multimap<StatsGroupingColumn, StatisticsEvent>> timeMapEntry : timeMap
                             .entrySet()) {
                         aggregate(event, timeMapEntry.getKey(),
                                 timeMapEntry.getValue());
@@ -262,10 +267,14 @@ public class AggregateManager {
                     }
 
                     count += records.size();
+                    if (event.getRawOfflineRetentionDays() >= 0) {
+                        offline.writeStatsToDisk(event, timeMap);
+                    }
                 }
             } while (!CollectionUtil.isNullOrEmpty(records));
         }
 
+        statsRecordDao.reclaimSpace();
         long t1 = System.currentTimeMillis();
         statusHandler.info("Aggregated " + count + " stat events in "
                 + (t1 - t0) + " ms");
@@ -277,11 +286,11 @@ public class AggregateManager {
      * @param records
      * @return
      */
-    private Map<TimeRange, Multimap<String, Event>> sort(
-            StatisticsEvent statEvent, List<StatsRecord> records) {
-        Map<TimeRange, Multimap<String, Event>> rval = new HashMap<TimeRange, Multimap<String, Event>>();
+    private Map<TimeRange, Multimap<StatsGroupingColumn, StatisticsEvent>> sort(
+            StatisticsEventConfig statEvent, List<StatsRecord> records) {
+        Map<TimeRange, Multimap<StatsGroupingColumn, StatisticsEvent>> rval = new HashMap<TimeRange, Multimap<StatsGroupingColumn, StatisticsEvent>>();
         TimeRange timeRange = null;
-        Multimap<String, Event> eventsByGroup = null;
+        Multimap<StatsGroupingColumn, StatisticsEvent> eventsByGroup = null;
 
         for (StatsRecord record : records) {
             if ((timeRange == null)
@@ -297,13 +306,13 @@ public class AggregateManager {
 
             try {
                 // get underlying event
-                Event event = SerializationUtil.transformFromThrift(
-                        Event.class, record.getEvent());
+                StatisticsEvent event = SerializationUtil.transformFromThrift(
+                        StatisticsEvent.class, record.getEvent());
 
-                String groupAsString = determineGroupRepresentationForEvent(
+                StatsGroupingColumn group = determineGroupRepresentationForEvent(
                         statEvent, event);
-                if (groupAsString != null) {
-                    eventsByGroup.put(groupAsString, event);
+                if (group != null) {
+                    eventsByGroup.put(group, event);
                 }
             } catch (Exception e) {
                 statusHandler
@@ -316,10 +325,9 @@ public class AggregateManager {
     }
 
     @VisibleForTesting
-    static String determineGroupRepresentationForEvent(
-            StatisticsEvent statEvent, Event event)
-            throws IllegalAccessException, InvocationTargetException,
-            JAXBException {
+    static StatsGroupingColumn determineGroupRepresentationForEvent(
+            StatisticsEventConfig statEvent, StatisticsEvent event)
+            throws IllegalAccessException, InvocationTargetException {
         Iterator<Method> gMethodIter = statEvent.getGroupByMethods().iterator();
         Iterator<StatisticsGroup> gFieldNameIter = statEvent.getGroupList()
                 .iterator();
@@ -329,14 +337,13 @@ public class AggregateManager {
             Method m = gMethodIter.next();
             String field = gFieldNameIter.next().getName();
             String gVal = String.valueOf(m.invoke(event, EMPTY_OBJ_ARR));
-
             groupings.add(new StatsGrouping(field, gVal));
         }
 
         StatsGroupingColumn column = new StatsGroupingColumn();
         column.setGroup(groupings);
 
-        return jaxbManager.marshalToXml(column);
+        return column;
     }
 
     /**
@@ -361,12 +368,78 @@ public class AggregateManager {
         if (bucketInterval > 60) {
             incrementsWithinHour = bucketInterval % 60;
         }
-        if (60 % incrementsWithinHour != 0) {
+        if ((60 % incrementsWithinHour) != 0) {
             bucketInterval = defaultBucketInterval;
             statusHandler
                     .info("The bucket interval must go into an hour evenly. Setting bucket interval to '"
                             + bucketInterval + "'");
         }
+    }
+
+    /**
+     * Scans the aggregate table for aggregate statistics to offline. It doesn't
+     * process any aggregate from within the 12 hours.
+     */
+    public void offlineAggregates() {
+        ConfigLoader configLoader = ConfigLoader.getInstance();
+        OfflineStatsManager offline = new OfflineStatsManager();
+        Map<String, StatisticsEventConfig> statsMap = configLoader
+                .getTypeView();
+
+        // offline aggregate data older than 6 hours
+        long maxTime = ((System.currentTimeMillis() / TimeUtil.MILLIS_PER_HOUR) - 6)
+                * TimeUtil.MILLIS_PER_HOUR;
+
+        for (StatisticsEventConfig conf : statsMap.values()) {
+            if (conf.getAggregateOfflineRetentionDays() >= 0) {
+                String eventType = conf.getType();
+
+                try {
+                    Date oldestAggregateDate = aggregateDao
+                            .getOldestAggregateDate(eventType);
+                    if (oldestAggregateDate != null) {
+                        Date mostRecentOfflineDate = offline
+                                .getMostRecentOfflinedAggregate(conf);
+
+                        long startHour = oldestAggregateDate.getTime()
+                                / TimeUtil.MILLIS_PER_HOUR;
+
+                        if (mostRecentOfflineDate != null) {
+                            // move ahead one hour from most recent time on disk
+                            long offlineHour = (mostRecentOfflineDate.getTime() / TimeUtil.MILLIS_PER_HOUR) + 1;
+                            if (offlineHour > startHour) {
+                                startHour = offlineHour;
+                            }
+                        }
+
+                        Date startDate = new Date(startHour
+                                * TimeUtil.MILLIS_PER_HOUR);
+                        // process an hour at a time
+                        Date endDate = new Date(startDate.getTime()
+                                + TimeUtil.MILLIS_PER_HOUR);
+                        while (endDate.getTime() <= maxTime) {
+                            List<AggregateRecord> records = aggregateDao
+                                    .getAggregates(eventType, startDate,
+                                            endDate);
+                            offline.writeAggregatesToDisk(conf, records);
+                            startDate = endDate;
+                            endDate = new Date(startDate.getTime()
+                                    + TimeUtil.MILLIS_PER_HOUR);
+                        }
+                    }
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occured generating offline aggregates for event "
+                                    + conf.getType(), e);
+                }
+            }
+        }
+
+        // zip up old data?
+    }
+
+    public void setJaxbManager(JAXBManager jaxbManager) {
+        AggregateManager.jaxbManager = jaxbManager;
     }
 
     public void setAggregateDao(AggregateRecordDao aggregateDao) {
@@ -375,9 +448,5 @@ public class AggregateManager {
 
     public void setStatsRecordDao(StatsDao statsRecordDao) {
         this.statsRecordDao = statsRecordDao;
-    }
-
-    public void setJaxbManager(JAXBManager jaxbManager) {
-        AggregateManager.jaxbManager = jaxbManager;
     }
 }

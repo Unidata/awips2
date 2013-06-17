@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -33,24 +33,24 @@
 # Version 3/7/11
 # Version 8/22/11
 # ----------------------------------------------------------------------------
- 
+
 import GenericHazards
 import string, time, re, os, glob, types, copy, LogStream
 import ModuleAccessor, SampleAnalysis
 from math import *
 import AbsTime, DatabaseID, StartupDialog
 DEG_TO_RAD = 0.017453292
- 
+
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData, ReferenceID
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType
- 
+
 
 import sys, types
 sys.argv = [__name__]
- 
+
 class TextProduct(GenericHazards.TextProduct):
     Definition = copy.deepcopy(GenericHazards.TextProduct.Definition)
- 
+
     Definition["displayName"]   = "None"
     Definition["outputFile"]    = "{prddir}/TEXT/HLS.txt"
     Definition["database"]      =  "Official"  # Source database
@@ -59,9 +59,9 @@ class TextProduct(GenericHazards.TextProduct):
     #Definition["mapNameForCombinations"] = ["Zones_<site>","Marine_Zones_<site>"]
     Definition["defaultEditAreas"] = "EditAreas_PublicMarine_<site>"
     Definition["showZoneCombiner"] = 1 # 1 to cause zone combiner to display
- 
+
     Definition["productName"]       = "TROPICAL CYCLONE LOCAL STATEMENT"
- 
+
     Definition["fullStationID" ]    = "<fullStationID>"
     Definition["wmoID" ]            = "<wmoID>"
     Definition["wfoCityState" ]     = "<wfoCityState>"
@@ -70,13 +70,13 @@ class TextProduct(GenericHazards.TextProduct):
     Definition["awipsWANPil" ]      = "<awipsWANPil>"
     Definition["site"]              = "<site>"
     Definition["wfoCity"]           = "<wfoCity>"
- 
+
     Definition["areaName"]          = ""  #optional area name for product
-    Definition["areaDictionary"]    = "AreaDictionary" 
+    Definition["areaDictionary"]    = "AreaDictionary"
     Definition["language"]          = "english"
     Definition["lineLength"]        = 66   #Maximum line length
- 
-    Definition["purgeTime"]         = 8 # Default Expiration in hours if 
+
+    Definition["purgeTime"]         = 8 # Default Expiration in hours if
     Definition["includeCities"]     = 0 # Cities not included in area header
     Definition["cityDescriptor"]    = "INCLUDING THE CITIES OF"
     Definition["includeZoneNames"]  = 1 # Zone names will be included in the area header
@@ -87,17 +87,17 @@ class TextProduct(GenericHazards.TextProduct):
 
     def __init__(self):
         GenericHazards.TextProduct.__init__(self)
- 
+
     #####################################################################
     #####################################################################
     ### Organization of Formatter Code
- 
+
     ###############################################################
     ###  MUST OVERRIDE ZONE DEFINITIONS !!!
-    ###    _inlandAreas, _coastalAreas, _marineAreas, _cwa    
+    ###    _inlandAreas, _coastalAreas, _marineAreas, _cwa
     ###############################################################
- 
- 
+
+
     ###############################################################
     ### Optional Overrides, HLS GUI options and Configuration for
     ###    Situations and Scenarios
@@ -113,14 +113,14 @@ class TextProduct(GenericHazards.TextProduct):
     #   _situation_list -- list of situations (each is a dictionary)
     #   _segmentSections -- list of segment sections (each is a dictionary)
     ###############################################################
- 
+
     ###############################################################
     ###  Hazards and Additional Hazards
     ###   allowedHazards is used for segmentation e.g. HU.W, TR.W...
     ###   allowedHeadlines are additional hazards reported in overview
     ###           e.g. CF.W, FA.A, TO.A...
     ###############################################################
- 
+
     ###############################################################
     #  CODE
     ###############################################################
@@ -128,7 +128,7 @@ class TextProduct(GenericHazards.TextProduct):
     ###   generateForecast, determineTimeRanges, sampleData,
     ###   preProcessProduct, makeProduct, postProcessProduct...
     ###############################################################
- 
+
     ###############################################################
     ###  Helper methods -- Getting statistics from grids,
     ###       summarizing hazards found, determining inland/coastal/marine
@@ -138,11 +138,11 @@ class TextProduct(GenericHazards.TextProduct):
     ######################################################################
     ###  Previous Product Helper methods
     ######################################################################
- 
+
     ######################################################################
-    ###  OVERVIEW Sections        
+    ###  OVERVIEW Sections
     ######################################################################
-    ###  SEGMENT Sections        
+    ###  SEGMENT Sections
     ####################################################
     ###      Precautionary Preparedness Statement Dictionaries
     ######################################################################
@@ -150,11 +150,11 @@ class TextProduct(GenericHazards.TextProduct):
     ######################################################################
     ###      Segment statements and thresholds e.g. Wind Statements
     #####################################################
- 
+
     ###############################################################
     ### Example TCP product for automated testing
     ###############################################################
- 
+
     #####################################################
     ### HLS GUI Processing
     #
@@ -162,7 +162,7 @@ class TextProduct(GenericHazards.TextProduct):
     ##  TK GUI Classes
     #####################################################################
     #####################################################################
- 
+
     ###############################################################
     ###  MUST OVERRIDE these methods!
 
@@ -170,7 +170,7 @@ class TextProduct(GenericHazards.TextProduct):
         return [
             #"FLZ052", "FLZ056", "FLZ057", "FLZ061", "FLZ043",
             ]
-    
+
     def _coastalAreas(self):
         return [
             #"FLZ039", "FLZ042", "FLZ048", "FLZ049", "FLZ050", "FLZ051", "FLZ055", "FLZ060",
@@ -180,7 +180,7 @@ class TextProduct(GenericHazards.TextProduct):
         return [
             #"GMZ830", "GMZ850", "GMZ853", "GMZ856", "GMZ856", "GMZ870","GMZ873","GMZ876"
             ]
-    
+
     def _cwa(self):
         return ""  #"TBW"
 
@@ -201,11 +201,11 @@ class TextProduct(GenericHazards.TextProduct):
                 #("Lakeland, FL", (28.04, -81.95)),
                 #("Sarasota, FL", (27.37, -82.55)),
                 ]
-    
+
     def _localReferencePoints_defaults(self):
         # Give a list of the local reference point names to be
         #  turned on by default
-        return [] # ["Tampa Bay, FL", "Sarasota, FL"]    
+        return [] # ["Tampa Bay, FL", "Sarasota, FL"]
 
     #####################################################################################
     #####################################################################################
@@ -221,7 +221,7 @@ class TextProduct(GenericHazards.TextProduct):
             "land": "listAreas",
             "marine": "generic",
             }
-    
+
     def _areaDisplayType_land(self):
         # You can set this to any key within the AreaDictionary.
         #   e.g. 'ugcName', 'altName', '
@@ -232,8 +232,8 @@ class TextProduct(GenericHazards.TextProduct):
     def _referencePointLimit(self):
         # Give the number of reference points allowed to be chosen
         # Also give a label (e.g. "two") for the GUI
-        return (2, "two")        
-        
+        return (2, "two")
+
     def _areaDisplayType_marine(self):
         # You can set this to any key within the AreaDictionary.
         #   e.g. 'ugcName', 'altName', '
@@ -242,9 +242,9 @@ class TextProduct(GenericHazards.TextProduct):
         #return ('ugcName', 15)
 
     #################
-   
+
     #  02/28/2011 (SW/MHB) - Modified the GUI behavior so that the ECs are limited to the
-    #  appropriate options. 
+    #  appropriate options.
     #
     def _overview_list(self, argDict):
         allCON = argDict.get("allCON", False)
@@ -296,7 +296,7 @@ class TextProduct(GenericHazards.TextProduct):
             step7Options = [
                 ("As Conditions Warrant", "Conditions"),
                 ("Enter Approximate Time (below)", "Enter"),
-                ]   
+                ]
         else:
             step6Options = [
                 ("Warnings (With or Without Watches)", "Warning"),
@@ -307,7 +307,7 @@ class TextProduct(GenericHazards.TextProduct):
                 ("As Conditions Warrant", "Conditions"),
                 ("Enter Approximate Time (below)", "Enter"),
                 ]
-            
+
         return [
             {
             "name": "OverviewEditMode",
@@ -417,16 +417,16 @@ class TextProduct(GenericHazards.TextProduct):
               "label": "Next Update",
               "title": ".Next Update...\n",
           },
-          ]    
-            
+          ]
+
     def _situation_list(self):
         # List of dictionaries where each dictionary represents a situation
         # Entries in the dictionary can be:
         #   name -- name of situation -- THIS should not be changed by the user since
         #           the code logic keys off this name
-        #   label -- label for the situation to appear in the GUI    
+        #   label -- label for the situation to appear in the GUI
         #   hazPairings -- list of action/phen/sig combo that need to exist to trigger an option
-        #   ec -- list of a event contexts which will need to overlap with hazPairings 
+        #   ec -- list of a event contexts which will need to overlap with hazPairings
         #   scenarios -- list of possible scenarios for this
         #                situation and conditions in (label, name) form.
         #       MODIFIED 3/7 to add wrap-up scenarios for non-events to Non-Event and Post-Event
@@ -435,12 +435,12 @@ class TextProduct(GenericHazards.TextProduct):
         #       The scenario names should not be changed as
         #       they are tied directly to the code!
         #
-        
+
         return  [
                 {
                 "name": "NonEvent",
                 "label":"Non-Event",
-##                "action": ["NEW", "CON", "EXA"], 
+##                "action": ["NEW", "CON", "EXA"],
 ##                "hazards": ["HU.S"],
                 "hazPairings": ["NEWHU.S", "CONHU.S", "EXAHU.S", "CANHU.S"],
                 "ec":        ["NonEvent", "PreEvent", "Watch", "Warning",
@@ -453,7 +453,7 @@ class TextProduct(GenericHazards.TextProduct):
                 {
                 "name": "PreEvent",
                 "label":"Pre-Event",
-##                "action": ["NEW", "CON", "EXA"], 
+##                "action": ["NEW", "CON", "EXA"],
 ##                "hazards": ["HU.S"],
                 "hazPairings": ["NEWHU.S", "CONHU.S", "EXAHU.S"],
                 "ec":        ["PreEvent", "Watch", "Warning", "Conditions"],
@@ -466,7 +466,7 @@ class TextProduct(GenericHazards.TextProduct):
                 {
                 "name": "Abbreviated",
                 "label": "Abbreviated",
-##                "action": ["NEW", "EXA", "UPG", "CAN"], 
+##                "action": ["NEW", "EXA", "UPG", "CAN"],
 ##                "hazards": ["TR.A", "HU.A", "TR.W", "HU.W", "TY.A", "TY.W", "HU.S"],
                 "hazPairings": ["NEWHU.S","EXAHU.S","NEWHU.A","EXAHU.A","NEWTY.A","EXATY.A",
                                 "NEWTR.A","EXATR.A","NEWHU.W","EXAHU.W","NEWTY.W","EXATY.W",
@@ -481,7 +481,7 @@ class TextProduct(GenericHazards.TextProduct):
                 {
                 "name": "Watch",
                 "label": "Watch",
-##                "action": ["NEW","CON", "UPG"], 
+##                "action": ["NEW","CON", "UPG"],
 ##                "hazards": ["TR.A", "HU.A", "TY.A"],
                 "hazPairings": ["CONHU.A","CONTY.A","CONTR.A"],
                 "ec":        ["Watch", "Warning", "Conditions"],
@@ -494,7 +494,7 @@ class TextProduct(GenericHazards.TextProduct):
                 {
                 "name": "Warning",
                 "label": "Warning",
-##                "action": ["NEW","CON", "UPG", "CAN"], 
+##                "action": ["NEW","CON", "UPG", "CAN"],
 ##                "hazards": ["TR.W", "HU.W", "TY.W"],
                 "hazPairings": ["CONHU.W", "CONTY.W", "CONTR.W", "CANHU.A", "CANTY.A"],
                 "ec":        ["Warning", "Conditions"],
@@ -507,7 +507,7 @@ class TextProduct(GenericHazards.TextProduct):
                 {
                 "name": "Conditions",
                 "label": "Conditions",
-##                "action": ["NEW","CON", "UPG", "CAN"], 
+##                "action": ["NEW","CON", "UPG", "CAN"],
 ##                "hazards": ["TR.W", "HU.W", "TY.W"],
                 "hazPairings": ["CONHU.W", "CONTY.W", "CONTR.W"],
                 "ec":        ["Conditions"],
@@ -520,7 +520,7 @@ class TextProduct(GenericHazards.TextProduct):
                 {
                 "name": "PostEvent",
                 "label": "Post-Event",
-##                "action": ["NEW", "EXA", "CON", "CAN"], 
+##                "action": ["NEW", "EXA", "CON", "CAN"],
 ##                "hazards": ["TR.A", "HU.A", "TR.W", "HU.W", "TY.A", "TY.W", "HU.S"],
                 "hazPairings": ["CANHU.W", "CANTY.W", "CANTR.W", "NEWHU.S", "CONHU.S",
                                 "EXAHU.S","CANHU.S", "CANHU.A", "CANTY.A", "CANTR.A"],
@@ -534,7 +534,7 @@ class TextProduct(GenericHazards.TextProduct):
                 {
                 "name": "PostTropical",
                 "label": "Post-Tropical",
-##                "action": ["CAN"], 
+##                "action": ["CAN"],
 ##                "hazards": ["TR.W", "HU.W"],
                 "hazPairings": ["CANHU.W", "CANTR.W"],
                 "ec":        ["PostTropical"],
@@ -544,14 +544,14 @@ class TextProduct(GenericHazards.TextProduct):
                       ],
                 },
                 ]
-    
+
     def importMethod(self, argDict, segment):
         #  This is a dummy method for importing text
         #  Enter code here to get text from a flat file or previous product if desired
         #  Then specify this in the "importMethod" entry for the desired segment
         #   in the _segmentSections set up
         return ""
-    
+
     def _segmentSections(self):
         # A list of dictionaries -- each dictionary represents a section.
         # The order of the list is the order the sections will appear in the GUI.
@@ -572,7 +572,7 @@ class TextProduct(GenericHazards.TextProduct):
         #           The method will be called with 2 arguments:  (name, segmentAreas)
         #  usePrev -- if True, include a "Use Previous" check box on GUI
         #  importPIL -- specify a product PIL from which to get section information
-        #              If present, a check box will appear on the GUI for importing        
+        #              If present, a check box will appear on the GUI for importing
         #  importMethod -- optional method for importing information from an external source.
         #              Specify a method (see example above) for getting text from
         #              an external source.
@@ -592,7 +592,7 @@ class TextProduct(GenericHazards.TextProduct):
         #    section. (Look at the "Tornadoes" method for an example.)
         #    For example, if you add a section to this list:
         #
-        #    {        
+        #    {
         #      "name": "CoastalHazards",
         #      "label": "Coastal Hazards",
         #      "defaultOn": True,
@@ -607,7 +607,7 @@ class TextProduct(GenericHazards.TextProduct):
         #  Then you must have a method which returns a text string:
         #
         #    def CoastalHazards(self, title, argDict, segment, section, info):
-        #    
+        #
         return [
           {
               "name": "NewInformation",
@@ -635,7 +635,7 @@ class TextProduct(GenericHazards.TextProduct):
           {
               "name": "Probability",
               "label": "Probability of Tropical Storm/Hurricane Conditions",
-              "defaultOn": True,
+              "defaultOn": False,
               "includeFor": self._allAreas(),
               "inSegments": "optional",
               "excludeFromSituations": ["Conditions", "PostEvent", "PostTropical"],
@@ -678,11 +678,11 @@ class TextProduct(GenericHazards.TextProduct):
               "importMethod": None,
               "importPIL": None,
               "title": "...INLAND FLOODING...\n",
-          },          
+          },
           {
               "name": "Tornadoes",
               "label": "Tornadoes and Waterspouts",
-              "defaultOn": True,
+              "defaultOn": False,
               "includeFor": self._allAreas(),
               "orderBox": True,
               "usePrev": True,
@@ -708,7 +708,7 @@ class TextProduct(GenericHazards.TextProduct):
     def _defaultOn_StormSurgeTide(self, name, segmentAreas):
         # Default logic will set StormSurgeTide to ON if there are any coastal zones.
         # Local offices can add to the list of accepted areas (e.g. if some inland
-        #    zones should have the Storm Surge Tide section defaulted on) 
+        #    zones should have the Storm Surge Tide section defaulted on)
         #    OR change the logic as in any way desired.
         defaultOn = False
         for area in segmentAreas:
@@ -720,7 +720,7 @@ class TextProduct(GenericHazards.TextProduct):
         return self._inlandAreas() + self._coastalAreas() + self._marineAreas()
 
     ########## GUI Configuration
-    
+
     def _GUI_sizing_dict(self):
         # This contains values that adjust the GUI sizing.
         return {
@@ -732,7 +732,7 @@ class TextProduct(GenericHazards.TextProduct):
             "zoneLines":     10, # number of zones to display without scrolling
             "charSize":       9,
             }
-    
+
     def _GUI1_configDict(self):
         return {
             # Order and inclusion of GUI1 buttons
@@ -754,7 +754,7 @@ class TextProduct(GenericHazards.TextProduct):
                 ("Cancel", "Cancel"),
                 ],
             }
-    
+
     def _GUI3_configDict(self):
         return {
             # Order and inclusion of GUI1 buttons
@@ -764,13 +764,13 @@ class TextProduct(GenericHazards.TextProduct):
                 ("Cancel","Cancel"),
                  ],
             }
-    
+
     def _GUI_labels(self):
         return {
             'GUI_2': "Step 8. Choose Situation Per Zone Group",
             'GUI_3a': "Step 9a. Choose Scenario Per Zone Group",
             'GUI_3b':"Step 9b. Identify & Order Sections",
-            }          
+            }
 
     def _font_GUI_dict(self):
         return {
@@ -779,7 +779,7 @@ class TextProduct(GenericHazards.TextProduct):
             }
 
 
-    #####################################################################################    
+    #####################################################################################
 
 
     ###############################################################
@@ -813,12 +813,12 @@ class TextProduct(GenericHazards.TextProduct):
            ('SU.Y', allActions, 'HighSurf'),     # HIGH SURF ADVISORY
            ('RP.S', allActions, 'Rip'),          # HIGH RIP CURRENT RISK
            ('TO.A', allActions, 'Convective'),   # TORNADO WATCH
-           ('SR.W', allActions, 'Marine'), 
-           ('SR.A', allActions, 'Marine'), 
-           ('GL.W', allActions, 'Marine'), 
-           ('GL.A', allActions, 'Marine'), 
-           ('SC.Y', allActions, 'Marine'), 
-           ('SI.Y', allActions, 'Marine'), 
+           ('SR.W', allActions, 'Marine'),
+           ('SR.A', allActions, 'Marine'),
+           ('GL.W', allActions, 'Marine'),
+           ('GL.A', allActions, 'Marine'),
+           ('SC.Y', allActions, 'Marine'),
+           ('SI.Y', allActions, 'Marine'),
            ('SW.Y', allActions, 'Marine'),
            ('RB.Y', allActions, 'Marine'),
            ('HF.W', allActions, 'Marine'),
@@ -835,7 +835,7 @@ class TextProduct(GenericHazards.TextProduct):
 
     ##     HANDLING HLS SEGMENTATION
     ##
-    ##     Problem: 
+    ##     Problem:
     ##     The system is set up to sample hazards using the combinations file
     ##     edit areas i.e. do not sample zones not in the combinations
     ##     segmenting strictly according to the hazards i.e. all zones
@@ -926,11 +926,11 @@ class TextProduct(GenericHazards.TextProduct):
 
     def _resolution(self):
         return 3
-    
+
     def _determineTimeRanges(self, argDict):
         # Set up the time range for 0-120 hours
         self._issueTime = AbsTime.AbsTime(argDict['creationTime'])
-        
+
         # Create a time range from the issuanceHour out 120 hours
         #  First get the current local time
         localTime = time.localtime(argDict['creationTime'])
@@ -939,22 +939,22 @@ class TextProduct(GenericHazards.TextProduct):
         day = localTime[2]
         hour = localTime[3]
         #  Now "truncate" to a 6-hourly boundary and compute startTime in local Time.
-        hour =  int (int(hour/6) * 6) 
+        hour =  int (int(hour/6) * 6)
         startTime = AbsTime.absTimeYMD(year, month, day, hour)
         # Finally, convert back to GMT
         localTime, shift = self.determineTimeShift()
         startTime = startTime - shift
         self._timeRange = self.makeTimeRange(startTime, startTime+120*3600)
-        
+
         # Determine the time range list, making sure they are on hour boundaries
-        #   w.r.t. midnight today according to the resolution 
+        #   w.r.t. midnight today according to the resolution
         subRanges = self.divideRange(self._timeRange, self._resolution())
         trList = []
         for tr in subRanges:
             # print tr
             trList.append((tr, "Label"))
         self._timeRangeList = trList
-        
+
         self._ddhhmmTime = self.getCurrentTime(
             argDict, "%d%H%M", shiftToLocal=0, stripLeading=0)
         self._currentTime = argDict['creationTime']
@@ -966,7 +966,7 @@ class TextProduct(GenericHazards.TextProduct):
     ######### Sample Data
     ##  Since the segments are determined by user input,
     ##  we need to determine combinations now (usually done automatically
-    ##  by TextFormatter infrastructure.) 
+    ##  by TextFormatter infrastructure.)
 
     def _sampleData(self, argDict):
         # Sample the data
@@ -976,9 +976,9 @@ class TextProduct(GenericHazards.TextProduct):
         cwa_maor = self._makeCombination(argDict, areas)
         editAreas.append(cwa_maor)
         self._cwaMaorArea, self._cwaMaorLabel = cwa_maor
-        self._sampler = self.getSampler(argDict, 
+        self._sampler = self.getSampler(argDict,
           (self._analysisList_HLS(), self._timeRangeList, editAreas))
-        
+
     def _makeSegmentEditAreas(self, argDict):
         areasList = [segmentAreas
                     for segmentNum, segmentAreas, situation, scenario,
@@ -1005,10 +1005,10 @@ class TextProduct(GenericHazards.TextProduct):
         except:
             self.__comboNumber = 1
         return self.__comboNumber
-        
+
     def _makeCombination(self, argDict, areaNames):
         # Given a list of area names, return a combination edit area
-        gridLoc = argDict["ifpClient"].getDBGridLocation()     
+        gridLoc = argDict["ifpClient"].getDBGridLocation()
         comboList = []
         for areaName in areaNames:
             newArea = self.getEditArea(areaName, argDict)
@@ -1020,29 +1020,29 @@ class TextProduct(GenericHazards.TextProduct):
                 #    gridLoc, refId, newArea.polygons(),
                 #    AFPS.ReferenceData.LATLON)
                 #area.convertToAWIPS()
-                area = ReferenceData(gridLoc, refId, newArea.getPolygons(CoordinateType.LATLON), CoordinateType.LATLON)                
+                area = ReferenceData(gridLoc, refId, newArea.getPolygons(CoordinateType.LATLON), CoordinateType.LATLON)
             comboList.append(newArea.getId().getName())
             area = self.unionAreas(label, area, newArea)
         return area, label
 
     ###### Generate headers and Overview sections
-    
+
     def _preProcessProduct(self, fcst, argDict):
 
         self._prevHLS = self.getPreviousProduct(self._textdbPil)
-        
+
         info = self._getProductInfo(argDict)
         self._getStormInfo(argDict, info)
         if self._stormTypeName.find("|*")>=0: sn = "Tropical Cyclone"
         else:                              sn = self._stormTypeName
         actualProductName = sn + " LOCAL STATEMENT"
         actualProductName = self.checkTestMode(argDict, actualProductName)
-        
+
         # Product header
         if self._areaName != "":
             self._areaName = " FOR " + self._areaName
         issuedByString = self.getIssuedByString()
-        productName = self.checkTestMode(argDict, actualProductName + self._areaName) 
+        productName = self.checkTestMode(argDict, actualProductName + self._areaName)
 
         if len(self._easPhrase) != 0:
             eas = self._easPhrase + '\n'
@@ -1073,10 +1073,10 @@ class TextProduct(GenericHazards.TextProduct):
         fcst = fcst + hl + "\n\n" + self._overview(argDict, info)
         return fcst
 
-    #  Modified 4/21/09 (MHB) - Fixed a problem with the construction of the 
-    #  overview when using previous text.  This will fix the problem with 
-    #  getting multiple copies of the first zone segment header.  The 
-    #  _grabSection method is not capable of recognizing the end of the 
+    #  Modified 4/21/09 (MHB) - Fixed a problem with the construction of the
+    #  overview when using previous text.  This will fix the problem with
+    #  getting multiple copies of the first zone segment header.  The
+    #  _grabSection method is not capable of recognizing the end of the
     #  "Next Update" overview section on its own.  Implemented the
     #  _grabOverview method (already defined in the baseline) to parse out the
     #  entire overview, with which _grabSection will work correctly.
@@ -1084,17 +1084,17 @@ class TextProduct(GenericHazards.TextProduct):
     #  Modified 12/24/10 (MHB) - Added capability to specify which sections
     #  of the overview can use previous text.  All other sections will be
     #  forced to update.  This involves a new call to the _grabSection method.
-    
+
     def _overview(self, argDict, info):
 
-        #  Establish previous HLS text for testing - if needed        
+        #  Establish previous HLS text for testing - if needed
         #if len(self._prevHLS.strip()) == 0:
         #    self._prevHLS = self._testPrevHLS()
 
         overview = ""
         if self._OverviewEditMode == "FormatFree":
             return self._frame("Enter Overview Information") + "\n\n"
-        
+
         if self._OverviewEditMode == "UsePrev":
             usePrev = True
 
@@ -1105,12 +1105,12 @@ class TextProduct(GenericHazards.TextProduct):
             usePrev = False
 
 ##        print "prev = '%s'" % (prevOverview)
-        
+
         #  Get the list of sections which must be present, in order
         sections = self._overviewSections()
         for sectionDict in sections:
             title = sectionDict.get("title", '')
-            
+
              #  Start out with a blank text for this section
             sectionText = ""
 
@@ -1119,32 +1119,32 @@ class TextProduct(GenericHazards.TextProduct):
             if usePrev and \
                title.strip() not in self._noPrevTextOverviewSections():
 #                print "Looking for previous '%s'" % (title)
-                
+
                 #  Get the previous text for this section
                 sectionText = self._grabSection(prevOverview, title, True)
-                
+
 #                print usePrev, len(sectionText.strip())
 #                print "'%s'" % (sectionText.strip())
-            
+
             #  If we are not using the previous text, or we could not find
             #  the previous section text
             if not usePrev or len(sectionText.strip()) == 0:
                 exec "sectionText = self." + sectionDict["name"] + "(title, sectionDict, info)"
-                
+
             #  Ensure the grabbed text is wrapped to the correct product length
             sectionText = self.endline(sectionText, self._lineLength)
-            
+
             #  Add this section text to the current overview
             overview = overview + sectionText + "\n\n"
-            
+
         #  Return completed overview
         return overview
 
-    ########## Produce Segment Sections    
+    ########## Produce Segment Sections
 
 ##    #  Modified 12/24/10 (MHB) - Added capability to specify which sections
 ##    #  of the segment can use previous text.  All other sections will be
-##    #  forced to update.  This involves a new call to the _grabSection method.    
+##    #  forced to update.  This involves a new call to the _grabSection method.
 ##
     def _makeProduct(self, fcst, segment, argDict):
         argDict["language"] = self._language
@@ -1161,7 +1161,7 @@ class TextProduct(GenericHazards.TextProduct):
         listOfHazards = hazardsC.getHazardList(segmentAreas)
         if listOfHazards == []:
             return fcst
-        
+
 #        LogStream.logProblem("=== VARS ===",
 #          "\nhazardsC=",hazardsC,
 #          "\nlistOfHazards=",listOfHazards,
@@ -1186,23 +1186,23 @@ class TextProduct(GenericHazards.TextProduct):
         self._setUp_HU_S_Headline(extraInfo, prevHLS)
         argDict["extraInfo"] = extraInfo
         areaLabel = editArea
-        
+
         fcst = fcst + self.generateProduct("Hazards", argDict, area=editArea,
                                            areaLabel=areaLabel, timeRange=self._timeRange)
 
         # self._segments =
         #   (segNum, areas, chosen situationName, chosen scenarioName,
         #         sections, extraInfo)
-        #  For example:        
-##        (1, ['FLZ052'],'Warning',  'Advancing',        
-##        #  list of sections: name, order, usePrev, useImport        
+        #  For example:
+##        (1, ['FLZ052'],'Warning',  'Advancing',
+##        #  list of sections: name, order, usePrev, useImport
 ##        [
-##        ('PrecautionaryPreparednessActions', None, 0, None), 
-##        ('Probability', '', 0, None), 
-##        ('Winds', '', 0, None), 
-##        ('StormSurgeTide', '', 0, None), 
-##        ('InlandFlooding', '', 0, None), 
-##        ('Tornadoes', '', 0, None), 
+##        ('PrecautionaryPreparednessActions', None, 0, None),
+##        ('Probability', '', 0, None),
+##        ('Winds', '', 0, None),
+##        ('StormSurgeTide', '', 0, None),
+##        ('InlandFlooding', '', 0, None),
+##        ('Tornadoes', '', 0, None),
 ##        ('Marine', '', 0, None)
 ##        ]
 ##        # Extra information for HU.S headlines
@@ -1210,13 +1210,13 @@ class TextProduct(GenericHazards.TextProduct):
 ##         'usePrev_HU_S_Headline':0},
 ##        ),
 
-        sections = self._orderSections(sections)   
+        sections = self._orderSections(sections)
         # iterate over the sections for this segment
         for section in sections:
 
             #  Initialize text for this section
             sectionText = ''
-            
+
             #  Get info about this section
             sectionName, order, usePrev, useImport = section
             #print "section", sectionName, order, usePrev, useImport
@@ -1231,10 +1231,10 @@ class TextProduct(GenericHazards.TextProduct):
 
                 #  If we will also be importing text for this section
                 if useImport:
-                    #  Frame the previous text to force forecaster to review it 
+                    #  Frame the previous text to force forecaster to review it
                     sectionText = self._grabSection(prevHLS, title, True)
                 else:
-                    
+
                     #  Just get the previous section text without framing codes
                     sectionText = self._grabSection(prevHLS, title)
 
@@ -1243,12 +1243,12 @@ class TextProduct(GenericHazards.TextProduct):
                 #  Make a blank shell section as a place-holder
                 exec "sectionText = self." + sectionName + "(title, argDict, segment, section, info)"
 
-            #  If we should also import text 
+            #  If we should also import text
             if useImport:
                 importText = self._getImportText(argDict, segment, sectionName,
                                                  title)
                 if importText.strip() != "":
-                    
+
                     print "\n\n" + "*"*80
                     print "sectionText = '%s'" % (sectionText)
 
@@ -1257,9 +1257,9 @@ class TextProduct(GenericHazards.TextProduct):
                     sectionMatch = re.search("(?is)^(\.{3}.+\.{3}.+?)\|\*" +
                                              " *(ADDITIONAL FREE|ENTER|ADD)",
                                              sectionText)
-                
 
-                    #  If we are not using the previous text, and the text 
+
+                    #  If we are not using the previous text, and the text
                     #  contains both a section header and dummy text in framing
                     #  codes
                     if sectionMatch is not None:
@@ -1286,7 +1286,7 @@ class TextProduct(GenericHazards.TextProduct):
             #  Add this section to the segment
             sectionText = sectionText + "\n\n"
             fcst = fcst + sectionText
-                
+
         #  Word wrap this segment
         fcst = self.endline(fcst, linelength=self._lineLength,
                             breakStr=[" ", "-", "..."])
@@ -1336,7 +1336,7 @@ class TextProduct(GenericHazards.TextProduct):
             #  Add the imported text to this section
             importText = self._frame(importText) + "\n\n"
         return importText
-    
+
     #  Modified 4/22/09 (MHB) - fixed logging options of search as it could
     #  lead to debugging confusion.  Only want log info after the loop has
     #  completed.
@@ -1369,12 +1369,12 @@ class TextProduct(GenericHazards.TextProduct):
 #            LogStream.logProblem("\nprevText=", prevHLS)
             LogStream.logEvent("\nprevText=", prevHLS)
 
-        return prevHLS    
+        return prevHLS
 
     ############ Clean up
-    
+
     def _postProcessProduct(self, fcst, argDict):
-        fcst = self.endline(fcst, linelength=self._lineLength, 
+        fcst = self.endline(fcst, linelength=self._lineLength,
           breakStr=[" ", "-", "..."])
         fcst = fcst.replace("\n ","\n")
         fcst = fcst.replace("&&", "\n&&\n")
@@ -1391,7 +1391,7 @@ class TextProduct(GenericHazards.TextProduct):
         self.setProgressPercentage(100)
         self.progressMessage(0, 100, self._displayName + " Complete")
         return fcst
-    
+
     ###############################################################
     ###  Helper  methods for getting information about the segments
 
@@ -1427,7 +1427,7 @@ class TextProduct(GenericHazards.TextProduct):
         dict["Swell"] = (0, 15)
         dict["SurgeHtPlusTide"] = (0,2)
         dict["SurgeHtPlusTideWTopo"] = (0,2)
-        return dict    
+        return dict
 
     # This is a very simple way to round values -- if we need
     # something more sophisticated, we'll add it later.
@@ -1443,12 +1443,12 @@ class TextProduct(GenericHazards.TextProduct):
     def _ktToMph(self, value, element):
         newVal = self.ktToMph(value)
         newVal = self.round(newVal, "Nearest", self._increment(element))
-        return newVal                          
+        return newVal
 
     class SegInfo:
         def __init__(self):
             pass
-        
+
     def _getSegmentInfo(self, segments):
         # Used to handle all the information required for
         # both overview and segment sections
@@ -1459,10 +1459,10 @@ class TextProduct(GenericHazards.TextProduct):
         #
         # All of this can then be passed in the "info" object
         # to the section methods for reporting
-        #            
+        #
         if type(segments) is not types.ListType:
             segments = [segments]
-        allAreas = []            
+        allAreas = []
         for segment in segments:
             segmentNum, segmentAreas, situation, scenario, sections, extraInfo = segment
             allAreas = allAreas + segmentAreas
@@ -1501,7 +1501,7 @@ class TextProduct(GenericHazards.TextProduct):
             hazards = hazardTable.getHazardList(segmentAreas)
             for hazard in hazards:
                 action = hazard['act']
-                hazAreaList.append((hazard, segmentAreas))                
+                hazAreaList.append((hazard, segmentAreas))
         # Consolidate hazards (there could be multiple segments with the same phen/sig/act)
         hazardDict = {}
         hazardList = []
@@ -1535,13 +1535,13 @@ class TextProduct(GenericHazards.TextProduct):
         print "\nGetting CWA MAOR wind stats"
         for i in range(len(statList)):
             tr, label = timeRangeList[i]
-            statDict = statList[i] 
+            statDict = statList[i]
             wind = self._getStatValue(statDict, "Wind", "Max", self.VECTOR())
             print "  wind value", wind, tr
             if wind > maxWind:
                 maxWind = wind
         print "  returning maxWind", maxWind
-        return maxWind                 
+        return maxWind
 
     def _setStats(self, info, argDict, segmentAreas, editAreaDict,
                   sampler, analysisList, timeRangeList):
@@ -1572,7 +1572,7 @@ class TextProduct(GenericHazards.TextProduct):
         pws34Max = None
         pws64Max = None
         info.pwstrend = None
-        
+
         # These need to be initialized to None so we'll know if NO grids are present
         info.surgeHtPlusTide = None
         info.surgeHtPlusTideWTopo = None
@@ -1592,9 +1592,9 @@ class TextProduct(GenericHazards.TextProduct):
                     info.minProb34 = min34
                 if max34 > info.maxProb34:
                     info.maxProb34 = max34
-                
+
             stats = self.getStats(statDict, "prob64")
-            if stats is not None:            
+            if stats is not None:
                 min64, max64 = stats
                 if info.minProb64 is None: info.minProb64 = min64
                 if info.maxProb64 is None: info.maxProb64 = max64
@@ -1614,7 +1614,7 @@ class TextProduct(GenericHazards.TextProduct):
                     info.maxINTprob64 = tr
                     pws64Max = pws64int
 
-            # Get wind and gust values --         
+            # Get wind and gust values --
             wind = self._getStatValue(statDict, "Wind", "MinMax", self.VECTOR())
             if wind is not None:
                 minWind, maxWind = wind
@@ -1635,12 +1635,12 @@ class TextProduct(GenericHazards.TextProduct):
                     info.maxGust = windGust
                 if windGust > info.maxGust:
                     info.maxGust = windGust
-                    
+
             info.surgeHtPlusTide = self._pickupMaxStats(
                      statDict, info.surgeHtPlusTide, "SurgeHtPlusTide")
             info.surgeHtPlusTideWTopo = self._pickupMaxStats(
                      statDict, info.surgeHtPlusTideWTopo, "SurgeHtPlusTideWTopo")
-                    
+
         # Round to increment
         if info.maxWind is not None and info.minWind is not None:
             info.avgWind = (info.maxWind + info.minWind)/2.0
@@ -1674,7 +1674,7 @@ class TextProduct(GenericHazards.TextProduct):
         print "   maxINTprob64", info.maxINTprob64
         print "  SurgeHtPlusTide", info.surgeHtPlusTide
         print "  SurgeHtPlusTideWTopo", info.surgeHtPlusTideWTopo
-        
+
         # Make additional passes to determine durations
         #  These are values for which we need to calculate durations
         #  In addition, we'll calculate for the maxWind value
@@ -1708,7 +1708,7 @@ class TextProduct(GenericHazards.TextProduct):
         for i in range(len(statList)):
             tr, label = timeRangeList[i]
             statDict = statList[i]
-            # Get wind stats      
+            # Get wind stats
             wind = self._getStatValue(statDict, "Wind", "MinMax", self.VECTOR())
             if wind is not None:
                 minWind, maxWind = wind
@@ -1727,8 +1727,8 @@ class TextProduct(GenericHazards.TextProduct):
                 end = tr
             newTR = self.makeTimeRange(beg.startTime(), end.startTime())
             return newTR
-        return None    
-        
+        return None
+
     def _getStatValue(self, statDict, element,method=None, dataType=None):
         stats = statDict.get(element, None)
         if stats is None: return None
@@ -1785,8 +1785,8 @@ class TextProduct(GenericHazards.TextProduct):
             if area in self._marineAreas():
                 marine=True
                 break
-        return inland, coastal, marine 
-        
+        return inland, coastal, marine
+
     def _checkHazard(self, hazardHdlns, phenSigList, checkAreaTypes=None,
                     checkAreas=None, returnList=False, mode="any", includeCAN=False):
         # Given a list of hazards in the form
@@ -1802,7 +1802,7 @@ class TextProduct(GenericHazards.TextProduct):
         #   "land", "marine", etc.
         # IF checkAreas is given, only return areas that are in that list
         # IF returnList=True, returns a list of (key, areas) that meet the criteria
-        # IF includeCAN is True then CAN hazards will be included as well. 
+        # IF includeCAN is True then CAN hazards will be included as well.
         #     Otherwise, they are ignored.
         #
         # E.g. hdlnList = self._checkHazard(hazardHdlns, [("FA","W")], returnList=True)
@@ -1859,7 +1859,7 @@ class TextProduct(GenericHazards.TextProduct):
     # infrastructure which uses the combinations file differently than
     # we want for the HLS.  See "HANDLING HLS SEGMENTATION" note
     # above.
-    
+
     # Returns a formatted string announcing the hazards that are valid with
     # timing phrases
     def getHazardString(self, tree, node, fcstArea):
@@ -1876,11 +1876,11 @@ class TextProduct(GenericHazards.TextProduct):
         returnStr = self.headlinePhraseTESTcheck(tree.get("argDict"),
           returnStr)
         return returnStr
-    
+
     # OVERRIDE from DiscretePhrases
     # USES the HU_S headline stuffed into argDict["extraInfo"]
     #   Makes multiple headlines based on the hazards list and returns
-    #   the lot.    
+    #   the lot.
     def makeHeadlinePhrases(self, tree, node, hazardList, issuanceTime,
       testMode=0):
         returnStr = ""
@@ -1913,14 +1913,14 @@ class TextProduct(GenericHazards.TextProduct):
                     # Strip ellipses since they will be added later
                     hazStr = hazStr.rstrip("...").lstrip("...")
 
-            # Can't make phrases with hazards with no 'hdln' entry 
+            # Can't make phrases with hazards with no 'hdln' entry
             if hazard['hdln'] == "":
                 hList.remove(hazard)
                 continue
 
             phenSig = hazard['phen'] + "." + hazard['sig']
             actionCodeList = self.getAllowedActionCodes(phenSig)
-            
+
             # if the action is not in the actionCodeList, skip it
             if hazard['sig'] != "":   # it's not locally defined
                 if not hazard['act'] in actionCodeList:
@@ -1943,7 +1943,7 @@ class TextProduct(GenericHazards.TextProduct):
             hList.remove(hazard)
 
         return returnStr
-    #### END Handling of HU.S headlines per segment    
+    #### END Handling of HU.S headlines per segment
 
     def _frame(self, text):
         return "|* " + text + " *| "
@@ -2010,7 +2010,7 @@ class TextProduct(GenericHazards.TextProduct):
         finalSections = requiredSections + newSections
         #print "\nfinalSections", finalSections, "\n"
         return finalSections
- 
+
 #    def headlineRegExpr(self):
 #        # modify this to change how "previous HLS" catches the 2nd headline
 #        # the first headline will be defined by the required headline
@@ -2036,7 +2036,7 @@ class TextProduct(GenericHazards.TextProduct):
             string = string.lstrip("...")
             string = "..." + string + "..."
         return string
-    
+
     def _analysisList_HLS(self):
         # 120 hours = time period of prob34, 64 grids
         # prob34 and prob64 are 120 hour grids, so just sample one value (maximum) for the
@@ -2061,7 +2061,7 @@ class TextProduct(GenericHazards.TextProduct):
     #####################################################################################
     #####################################################################################
     ###  Previous Product Helper methods
- 
+
     def _grabStormInfo(self, tcp):
         #  Get the storm information from the selected TCP
         #  return a dictionary
@@ -2076,10 +2076,10 @@ class TextProduct(GenericHazards.TextProduct):
                 "StormMotion": "",
                 "StormInfo": "",
                 "StormCenter": "",
-               }      
+               }
         #=======================================================================
         #  If we got the latest public advisory
-        
+
         if tcp is not None and len(tcp) > 0:
 
             #===================================================================
@@ -2092,7 +2092,7 @@ class TextProduct(GenericHazards.TextProduct):
                                   "(STORM|DEPRESSION)|(SUPER )?TYPHOON|" +
                                   "REMNANTS OF) ([A-Z0-9\-\(\) ]+?)" +
                                   "(SPECIAL |INTERMEDIATE )?ADVISORY", tcp)
-            
+
             #  Display some debug info - if flag is set
             self.debug_print("mndSearch = '%s'" % (mndSearch))
 
@@ -2113,14 +2113,14 @@ class TextProduct(GenericHazards.TextProduct):
 
                 mndSearch = re.search("(?im)^PUBLIC ADVISORY.+?FOR REMNANTS " +
                                       "OF ([A-Z0-9\-\(\) ]+)", tcp)
-                
+
                 #  If we found the storm type and name in the MND header
                 if mndSearch is not None:
 
                     #  Pick off the storm type and name
                     dict["StormType"] = "REMNANTS OF"
                     dict["StormName"] = mndSearch.group(1).strip()
-                    
+
             #  end possible removal - 12/15/2010 (MHB)
             ####################################################################
             ####################################################################
@@ -2129,7 +2129,7 @@ class TextProduct(GenericHazards.TextProduct):
             #  Clean up the product for easier parsing
 
             tcp = self._cleanText(tcp)
-                 
+
             #===================================================================
             #  Now try to grab the latest storm information
 
@@ -2174,7 +2174,7 @@ class TextProduct(GenericHazards.TextProduct):
                 dict["StormCenter"] = \
                     "%s WAS LOCATED AT LATITUDE %s...LONGITUDE %s." % \
                     (dict["StormCenter"], dict["StormLat"], dict["StormLon"])
-                
+
                 #----------------------------------------------------------------
                 #  Now add the primary NHC geographic reference
 
@@ -2193,7 +2193,7 @@ class TextProduct(GenericHazards.TextProduct):
                     #  Adjust this index to account for the first 'ABOUT'
                     referenceIndex += 4
 
-                    #  Only keep the first NHC reference location                   
+                    #  Only keep the first NHC reference location
                     nhcReference = dict["StormReference"][:referenceIndex]
 
                 #  Convert any abbreviated bearings to full words
@@ -2225,18 +2225,18 @@ class TextProduct(GenericHazards.TextProduct):
                 dict["StormCenter"] = "%s MAXIMUM SUSTAINED WINDS WERE %s." % \
                                        (dict["StormCenter"],
                                         self._removeKM(dict["StormIntensity"]))
-                
+
                 #----------------------------------------------------------------
                 #  Now add the storm motion
 
                 dict["StormCenter"] = "%s THE STORM MOTION WAS %s." % \
                                        (dict["StormCenter"],
                                         self._removeKM(dict["StormMotion"]))
-                
+
             ####################################################################
             ####################################################################
             #  12/15/2010 (MHB) - we should not need this anymore, but will
-            #  leave it for the 2011 season as a fail-safe.                           
+            #  leave it for the 2011 season as a fail-safe.
             #--------------------------------------------------------------------
             #  Search the product for the legacy storm info section - in case
             #  the new NHC style was not found
@@ -2264,7 +2264,7 @@ class TextProduct(GenericHazards.TextProduct):
                 #  Set aside the first paragraph of the storm info since it
                 #  contains the TPC-provided reference point - if we haven't
                 #  already found this information
-                if len(dict["StormCenter"].strip()) == 0:                                   
+                if len(dict["StormCenter"].strip()) == 0:
                     dict["StormCenter"] = dict["StormInfo"].split('\n')[0]
 
                 #  If we have not already found the advisory time - get it from
@@ -2275,7 +2275,7 @@ class TextProduct(GenericHazards.TextProduct):
                 #  Set aside the first paragraph of the storm info since it
                 #  contains the TPC-provided reference point - if we haven't
                 #  already found this information
-                if len(dict["StormCenter"].strip()) == 0:                                   
+                if len(dict["StormCenter"].strip()) == 0:
                     dict["StormCenter"] = dict["StormInfo"].split('\n')[0]
 
             #===================================================================
@@ -2345,7 +2345,7 @@ class TextProduct(GenericHazards.TextProduct):
                     if motionSearch is None:
                         motionSearch = re.search('(?i).+MOVEMENT(.+?\d+.+?)\.',
                                                  summary)
-                        
+
                     #  Display some debug info - if flag is set
                     self.debug_print("motionSearch = '%s'" % (motionSearch))
 
@@ -2354,7 +2354,7 @@ class TextProduct(GenericHazards.TextProduct):
 
                         #  Pick off the storm motion
                         motion = motionSearch.group(1).strip()
-                        
+
                         #  Fix the motion (i.e no '...')
                         dict["StormMotion"] = re.sub('(?i)\.{3}', ' the ',
                                                      motion)
@@ -2374,14 +2374,14 @@ class TextProduct(GenericHazards.TextProduct):
 ##        print 'dict["StormLat"] = ', dict["StormLat"]
 ##        print 'dict["StormLon"] = ', dict["StormLon"]
 ##        print 'dict["StormReference"] = ', dict["StormReference"]
-##        print 'dict["StormIntensity"] = ', dict["StormIntensity"]        
+##        print 'dict["StormIntensity"] = ', dict["StormIntensity"]
 ##        print 'dict["StormMotion"] = ', dict["StormMotion"]
 ##        print 'dict["StormInfo"] = ', dict["StormInfo"]
 ##        print 'dict["StormCenter"] = ', dict["StormCenter"]
 
         #  Return the dictionary will all the information we found in the TCP
         return dict
-    
+
     def _cleanText(self, text=''):
         #  Cleans up text for easier string searches, but retains paragraphs
 
@@ -2424,7 +2424,7 @@ class TextProduct(GenericHazards.TextProduct):
                             #  (MHB  04/08/2009)
 
     #  Modified 4/22/09 (MHB) - fixed pattern to grab entire synopsis.
-    #  Previous version only seemed to grab the last section of the overview. 
+    #  Previous version only seemed to grab the last section of the overview.
     def _grabOverview(self, text=''):
         #  Grab the overview section of a previous HLS from the overall
         #  overall headline to the start of the first zone segment
@@ -2445,7 +2445,7 @@ class TextProduct(GenericHazards.TextProduct):
         #  Otherwise, return an indicator there is no overview in this text
         else:
             return ''
-    
+
     #  Modified 12/15/2010 (MHB) - added a new flag which will cause the
     #  grabbed section text to be wrapped in framing codes if set to True.
     def _grabSection(self, text='', section='', useFrameCodes=False):
@@ -2462,7 +2462,7 @@ class TextProduct(GenericHazards.TextProduct):
 
             #  See if we can find it
             sectionSearch = re.search("(?ism).*^%s(.+?)^\." % (section), text)
-            
+
             #  If we found the specified subsection
             if sectionSearch is not None:
 
@@ -2497,18 +2497,18 @@ class TextProduct(GenericHazards.TextProduct):
         self._areaDict = accessor.variable(self._areaDictionary, "AreaDictionary")
         # Get the statistics and general information for the segments
         # to be used for the Overview sections
-        info = self._getSegmentInfo(self._segments)        
+        info = self._getSegmentInfo(self._segments)
         info.maxWind_CWA_MAOR = self._getWindStats(
             argDict, self._sampler, self._analysisList_HLS(),
             self._timeRangeList, self._cwaMaorLabel)
         return info
-    
+
     #  Modified 12/15/2010 (MHB) - fixed a potential problem with the
     #  _stormTypeName variable.  If used as a failsafe it would have come out
     #  as "CYCLONE TROPICAL" instead of "TROPICAL CYCLONE".  Also disabled
     #  the "Unnamed" option.
     def _getStormInfo(self, argDict, info):
-        #  Get the Storm information 
+        #  Get the Storm information
         st = self._StormInfo
         self._stormType = "TROPICAL"
         self._stormName = "CYCLONE"
@@ -2520,7 +2520,7 @@ class TextProduct(GenericHazards.TextProduct):
 #            if len(self._stormTypeName.strip()) == 0:
 #                self._stormTypeName = self._frame("Enter Storm Name")
 #            return
-        
+
         # Get the product
         if st == "Enter PIL below (e.g. TCPEP1):":
             productID = self._StormInfo_entry
@@ -2528,7 +2528,7 @@ class TextProduct(GenericHazards.TextProduct):
         if self._useTestTCP():
             self._TCP = self._TCP_Product()
         else:
-            self._TCP = self.getPreviousProduct(productID)        
+            self._TCP = self.getPreviousProduct(productID)
         stormDict = self._grabStormInfo(self._TCP)
         self._stormName = stormDict.get("StormName", "")
         self._stormType = stormDict.get("StormType", "")
@@ -2536,7 +2536,7 @@ class TextProduct(GenericHazards.TextProduct):
         self._decodeStormInfo(stormDict, info)
         # Storm movement in mph and the stated movement trend
         self._stormMovementTrend = "Storm Motion was " + stormDict.get("StormMotion","")
-        # Storm intensity in mph and the stated intensity trend.  
+        # Storm intensity in mph and the stated intensity trend.
         self._stormIntensityTrend = "Storm Intensity was " + stormDict.get("StormIntensity","")
 
     ## New version from MHB 1/13/10
@@ -2551,7 +2551,7 @@ class TextProduct(GenericHazards.TextProduct):
         # print "\npara", len(para), para
         if len(para)<= 0:
             return
-        
+
         # Create the time string
         self._stormTime = self._formatLocalTime(para, info.allAreas)
 
@@ -2561,28 +2561,28 @@ class TextProduct(GenericHazards.TextProduct):
         stormLat = None
         stormLon = None
 
-        #  Make a pattern to find the latest storm location 
+        #  Make a pattern to find the latest storm location
         coordPtn = re.compile("(?i)(LATITUDE ([\d\.]+) ?((N|S)(O[RU]TH)?))..." +
                               "(AND )?(LONGITUDE ([\d\.]+) ?((W|E)([AE]ST)?)).+?")
 ##                              + "OR ((ABOUT )?.+)")
-        
+
         #  Make a pattern to find the NHC reference location
         refPtn = re.compile("(?i)(WAS|OR) ((ABOUT )?\d+ MILES.+?" +
                             "(NORTH|SOUTH|EAST|WEST).+?)\.")
-        
+
         #  Try to find these patterns in the text
         coordPtnMatch = coordPtn.search(para)
 ##        print "+" * 90
 ##        print "\ncoordinate search..."
 ##        print coordPtnMatch.groups()
-        
+
         refPtnMatch = refPtn.search(para)
 ##        print "\nreference search..."
 ##        print refPtnMatch.groups()
 
         #  If we found the coordinates we were after
         if coordPtnMatch is not None:
-        
+
             #  If we have the correct paragraph, set aside the latitude and
             #  longitude info as numbers
             self._stormLat = float(coordPtnMatch.group(2))
@@ -2616,27 +2616,27 @@ class TextProduct(GenericHazards.TextProduct):
                 #  first one
                 stormReference = re.sub("(?i) AND .+", "", stormReference)
 
-            #  Also remove any metric distances 
+            #  Also remove any metric distances
             self._stormReference = self._removeKM(stormReference)
 
         # Miles/km from chosen local reference
         self._stormLocalReferences = self._calcLocalReferences(
                 self._stormLat, self._stormLon)
-        
+
 ##        print "stormLocalRefs = ", self._stormLocalReferences
 
         #  Compare the NHC reference to the local references
         for localRef in self._stormLocalReferences:
-            
+
 ##            print self._stormReference, localRef
-            
+
             #  Get the locations from these statements
             nhcRef = re.search('(?i)(north|south|east|west) of (.+)',
                                self._stormReference)
             testRef = re.search('(?i)(north|south|east|west) of (.+)',
                                localRef)
 
-##            print "nhcRef = '%s'\ttestRef = '%s'" % (nhcRef.group(2), testRef.group(2)) 
+##            print "nhcRef = '%s'\ttestRef = '%s'" % (nhcRef.group(2), testRef.group(2))
 
             #  If we have a local reference that matches the national
             #  center reference
@@ -2653,9 +2653,9 @@ class TextProduct(GenericHazards.TextProduct):
     def _removeKM(self, words):
         # Remove references to KM e.g.
         #    420 KM... 100 KM/HR...
-        
+
 #        print "words = '%s'" % (words)
-        
+
         kmSearch = re.compile("\.\.\. *[0-9]+ +(KM|KM/HR?) *\.?\.?\.?")
 
         #  Replace metric reference with a space to keep words from mashing
@@ -2666,10 +2666,10 @@ class TextProduct(GenericHazards.TextProduct):
         doubleSpaces = re.findall('  +', words)
         for doubleSpace in doubleSpaces:
             words = re.sub(doubleSpace, ' ', words)
-            
+
 #        print "\tfinal words = '%s'" % (words)
         return words
-    
+
 
     def _formatLocalTime(self, para, areas):
         # Create a time string in local time
@@ -2677,7 +2677,7 @@ class TextProduct(GenericHazards.TextProduct):
         # Get the Z time hour
         timeSearch = re.compile("...([0-9]+) *(Z|UTC)...")
         timeStr = timeSearch.search(para)
-        
+
 ##        gmtStr = para[timeStr.start():timeStr.end()]
 ##        gmt = gmtStr.strip("...").replace("Z","")
 ##        gmtHour = int(gmt)/100
@@ -2708,8 +2708,8 @@ class TextProduct(GenericHazards.TextProduct):
                     timeDesc += "...OR "
                 timeStrs.append(timeStr)
                 timeDesc += timeStr
-        return timeDesc    
-    
+        return timeDesc
+
     def _getTimeZoneList(self, areaList):
         # NOTE -- this code was taken from the middle of getAreaHeader
         #  in Header.py -- it really should be put back in and used
@@ -2744,7 +2744,7 @@ class TextProduct(GenericHazards.TextProduct):
         except:
             pass
         return zoneList
-    
+
     def _calcLocalReferences(self, lat0, lon0):
         localRefs = []
         refList = self._LocalReferencePoints
@@ -2777,9 +2777,9 @@ class TextProduct(GenericHazards.TextProduct):
         distMph = self.round(distMph, "Nearest", 10)
         distMph_str = `int((distMph/10)*10)`
         distKm_str = `int((distKm/10)*10)`
-        direct = atan2(lon0-lon1, lat0-lat1) * RAD_TO_DEG  
-        direction = self._dirInEnglish(direct)        
-        localRef ="ABOUT "+distMph_str+" MILES "+direction        
+        direct = atan2(lon0-lon1, lat0-lat1) * RAD_TO_DEG
+        direction = self._dirInEnglish(direct)
+        localRef ="ABOUT "+distMph_str+" MILES "+direction
         print "localRef", localRef
         return localRef
 
@@ -2792,8 +2792,8 @@ class TextProduct(GenericHazards.TextProduct):
         distMph_str = `int((distMph/10)*10)`
         #distKm_str = `int((distKm/10)*10)`
         direction = self._bearing(lat1, lon1, lat0, lon0)
-        direction = self._dirInEnglish(direction)        
-        localRef ="ABOUT "+distMph_str+" MILES "+direction        
+        direction = self._dirInEnglish(direction)
+        localRef ="ABOUT "+distMph_str+" MILES "+direction
         #print "localRef", localRef
         return localRef
 
@@ -2841,11 +2841,11 @@ class TextProduct(GenericHazards.TextProduct):
         if dirIndex > 15:
             dirIndex = dirIndex - 16
         return dirList[dirIndex]
- 
+
     #####################################################################################
     #####################################################################################
     #######  OVERVIEW Sections
-    
+
 ##    def Overview_NewInformation(self, title, sectionDict, info):
 ##        t=""
 ##        ec = self._EventContext
@@ -2859,7 +2859,7 @@ class TextProduct(GenericHazards.TextProduct):
         t=""
         ec = self._EventContext
         print "info.hazardHdlns = ", info.hazardHdlns
-  
+
         if ec =="Abbreviated":
             hdlns = info.hazardHdlns
             #print "\n Headlines"
@@ -2886,16 +2886,16 @@ class TextProduct(GenericHazards.TextProduct):
         else:
             t+= self._frame("Please enter new information here. Keep it concise.") + "\n"
         return title + t
- 
+
 ############################################################################################
-    
-    def AreasAffected(self, title, sectionDict, info):        
+
+    def AreasAffected(self, title, sectionDict, info):
         t =  title
-        
+
         if info.anyLand and info.anyMarine:
             t+= "THIS LOCAL STATEMENT PROVIDES IMPORTANT INFORMATION AND RECOMMENDED ACTIONS FOR PEOPLE AND MARINE INTERESTS IN "
             t+=self._all_select(info.allLand and info.allMarine)
-            t+= " LOCATIONS AND COASTAL WATER LEGS OF "+self._cwa_maor_descriptor()+ ". "
+            t+= " LOCATIONS AND COASTAL WATER OF "+self._cwa_maor_descriptor()+ ". "
 
         else:
             if info.anyLand:
@@ -2906,13 +2906,13 @@ class TextProduct(GenericHazards.TextProduct):
             elif info.anyMarine:
                 t+= "THIS LOCAL STATEMENT OFFERS GUIDANCE AND RECOMMENDATIONS FOR MARINERS...AS WELL AS OTHER MARINE INTERESTS...ALONG "
                 t+= self._all_select(info.allMarine)
-                t+= " COASTAL WATER LEGS OF " + self._maor_descriptor()  + ". " 
-        return t  + "\n" 
+                t+= " COASTAL WATER OF " + self._maor_descriptor()  + ". "
+        return t  + "\n"
 
     def _all_select(self, value):
         if value: return "ALL"
         else: return "SELECT"
-    
+
     def _generalAreas(self, segmentAreas):
         """This method formats the general area description given the list of segmentAreas.
         """
@@ -2923,11 +2923,11 @@ class TextProduct(GenericHazards.TextProduct):
         #   text = self._ingestExternalFile("<path-to-external-file>")
 
         text = ''
-        
-        #  Make the general area Phrase - similar to HWO          
+
+        #  Make the general area Phrase - similar to HWO
         generalAreas = self.getGeneralAreaList(segmentAreas, areaDictName=self._areaDictionary)
 
-        #  Make a list of all general areas we found 
+        #  Make a list of all general areas we found
         areaLen = len(generalAreas)
         areaCount = 0
         areaPhrase = ""
@@ -2959,7 +2959,7 @@ class TextProduct(GenericHazards.TextProduct):
         t= title
         ec = self._EventContext
         fmtDict = self._overviewFormat()
-        
+
         # Any WW will be False if there are no Watches or Warnings in the CWA or MAOR
         anyWW = self._checkHazard(
             info.hazardHdlns, [("HU","W"),("TY", "W"),("TR","W"), ("HU","A"),("TY", "A"),("TR","A")])
@@ -2969,7 +2969,7 @@ class TextProduct(GenericHazards.TextProduct):
         #  consolidated across segments
         HU_S_Hdlns = []
         HU_S_landList = []
-        HU_S_marineList = [] 
+        HU_S_marineList = []
         for key, landList, marineList, coastalList, inlandList in info.hazardHdlns:
             hdln, act, phen, sig = key
             if act in self._ignoreActions():
@@ -2985,7 +2985,7 @@ class TextProduct(GenericHazards.TextProduct):
         if ec == "NonEvent" and not anyWW and len(HU_S_Hdlns)>0:
             t+="TROPICAL CYCLONE WATCHES AND WARNINGS ARE NOT IN EFFECT ANYWHERE ACROSS "
             t+=self._cwa_maor_descriptor() + ".\n"
-            
+
         elif ec == "PreEvent" and not anyWW:
             if len(HU_S_landList) > 0:
                 t+="ALTHOUGH TROPICAL CYCLONE WATCHES OR WARNINGS ARE NOT IN EFFECT ANYWHERE ACROSS "
@@ -2995,36 +2995,36 @@ class TextProduct(GenericHazards.TextProduct):
                     t+= self._describeLocations(info, HU_S_landList, end="...")+ ".\n"
                 else:
                     t+="PORTIONS OF THE AREA.\n"
-            
+
             if len(HU_S_landList) > 0 and len(HU_S_marineList)>0: t+="\n"
-   
+
             if len(HU_S_marineList)>0:
                 t+="FOR MARINE INTERESTS...ALTHOUGH TROPICAL CYCLONE WATCHES OR WARNINGS ARE NOT IN EFFECT ANYWHERE ACROSS "
                 t+=self._maor_descriptor()
                 t+="...POSSIBLE IMPACTS FROM RELATED HAZARDS ARE BECOMING A CONCERN FOR "
-                if fmtDict["marine"] == "listAreas":                
+                if fmtDict["marine"] == "listAreas":
                     t+= self._describeLocations(info, HU_S_marineList, end="...")+ ".\n"
                 else:
                     t+="PORTIONS OF THE "+ self._maor_descriptor() + ".\n"
-                
+
         elif ec == "PostEvent" and not anyWW: # and (len(HU_S_landList)>0 or len(HU_S_marineList)>0):
             t+="TROPICAL CYCLONE WATCHES AND WARNINGS ARE NO LONGER IN EFFECT ANYWHERE ACROSS "
             t+=self._cwa_maor_descriptor() + ".\n"
-            
+
         elif ec == "PostTropical" and not anyWW: # and (len(HU_S_landList)>0 or len(HU_S_marineList)>0):
             t+="TROPICAL CYCLONE WATCHES AND WARNINGS ARE NO LONGER IN EFFECT ANYWHERE ACROSS "
             t+=self._cwa_maor_descriptor()
-            t+=". THE ISSUANCE OF TROPICAL CYCLONE WATCHES AND WARNINGS IS BEING TRANSITIONED OVER TO WATCHES AND WARNINGS TRADITIONALLY ISSUED FOR NON-TROPICAL CYCLONE EVENTS.\n"            
+            t+=". THE ISSUANCE OF TROPICAL CYCLONE WATCHES AND WARNINGS IS BEING TRANSITIONED OVER TO WATCHES AND WARNINGS TRADITIONALLY ISSUED FOR NON-TROPICAL CYCLONE EVENTS.\n"
         else:
             t+=self._overview_headlines(info)
             if ec == "Abbreviated":
-                t+=self._definition_stmt(info) 
-        if anyWW: t+=self._overview_HU_S_headlines(info, HU_S_Hdlns) 
+                t+=self._definition_stmt(info)
+        if anyWW: t+=self._overview_HU_S_headlines(info, HU_S_Hdlns)
         t+=self._additional_headlines(info)
         return t
-    
+
     def _definition_stmt(self, info):
-        t = "" 
+        t = ""
         foundwatch = False
         foundwarning = False
         desc = " MEANS THAT "
@@ -3043,18 +3043,18 @@ class TextProduct(GenericHazards.TextProduct):
         #  Iterate over all of the hazards
         for hazardTuple in info.hazardHdlns:
             print "\n\n" + "*"*80
-            print "hazardTuple is:", hazardTuple 
+            print "hazardTuple is:", hazardTuple
 
-            #  Grab the phenomena code 
+            #  Grab the phenomena code
             hazard = hazardTuple[0]
-            print "hazard is:", hazard 
+            print "hazard is:", hazard
 
             #  Split up the phenomena code
             (title, action, phen, sig) = hazard
 
             #  Store the action for this phenomena
             hazardDict["%s.%s" % (phen, sig)] = action
-            
+
         #-----------------------------------------------------------------------
         #  Look at each of the hazards
         if self._checkHazard(info.hazardHdlns, [("HU","W")]) and \
@@ -3063,16 +3063,16 @@ class TextProduct(GenericHazards.TextProduct):
             hazardSig = "WARNING"
             hazardPhenSig = hazardPhen+" "+hazardSig
             foundwarning = True
-            t+= "A "+hazardPhenSig + desc + hazardPhen + descwarning           
- 
+            t+= "A "+hazardPhenSig + desc + hazardPhen + descwarning
+
         if self._checkHazard(info.hazardHdlns, [("TY", "W")]) and \
            hazardDict["TY.W"] not in ["CAN", "UPG"]:
             hazardPhen = "TYPHOON"
             hazardSig = "WARNING"
             hazardPhenSig = hazardPhen+" "+hazardSig
             foundwarning = True
-            t+= "A "+hazardPhenSig + desc + hazardPhen + descwarning           
- 
+            t+= "A "+hazardPhenSig + desc + hazardPhen + descwarning
+
         if self._checkHazard(info.hazardHdlns, [("TR","W")]) and \
            hazardDict["TR.W"] not in ["CAN", "UPG"]:
             hazardPhen = "TROPICAL STORM"
@@ -3080,8 +3080,8 @@ class TextProduct(GenericHazards.TextProduct):
             hazardPhenSig = hazardPhen+" "+hazardSig
             foundwarning = True
             t+= "A "+hazardPhenSig + desc + hazardPhen + descwarning
- 
-        if foundwarning: 
+
+        if foundwarning:
             t+= ppwarning
 
         if self._checkHazard(info.hazardHdlns, [("HU","A")]) and \
@@ -3091,15 +3091,15 @@ class TextProduct(GenericHazards.TextProduct):
             hazardPhenSig = hazardPhen+" "+hazardSig
             foundwatch = True
             t+= "A "+hazardPhenSig + desc + hazardPhen + descwatch
- 
+
         if self._checkHazard(info.hazardHdlns, [("TY", "A")]) and \
            hazardDict["TY.A"] not in ["CAN", "UPG"]:
             hazardPhen = "TYPHOON"
             hazardSig = "WATCH"
             hazardPhenSig = hazardPhen+" "+hazardSig
             foundwatch = True
-            t+= "A "+hazardPhenSig + desc + hazardPhen + descwatch           
- 
+            t+= "A "+hazardPhenSig + desc + hazardPhen + descwatch
+
         if self._checkHazard(info.hazardHdlns, [("TR","A")]) and \
            hazardDict["TR.A"] not in ["CAN", "UPG"]:
             hazardPhen = "TROPICAL STORM"
@@ -3107,14 +3107,14 @@ class TextProduct(GenericHazards.TextProduct):
             hazardPhenSig = hazardPhen+" "+hazardSig
             foundwatch = True
             t+= "A "+hazardPhenSig + desc + hazardPhen + descwatch
- 
+
         if foundwatch:
             t+= ppwatch
- 
+
         t+= "IN ORDER TO MAKE THE BEST DECISIONS...BE SURE THAT YOU UNDERSTAND THE TERMINOLOGY AND " + \
             "DEFINITIONS ASSOCIATED WITH TROPICAL CYCLONE EVENTS.\n\n"
 
- 
+
         return t
 
     # In order to have the HazardsTable use the allowedHeadlines list,
@@ -3200,8 +3200,8 @@ class TextProduct(GenericHazards.TextProduct):
         return t
 
     def _getHazardHdlns(self, info, hazards, hdln, areas):
-        # For the overview -- 
-        # Return a list of (key, areaList) tuples for the given hazards 
+        # For the overview --
+        # Return a list of (key, areaList) tuples for the given hazards
         #   where key is (hdln, act, phen, sig)
         # Use ignoreActions and then separate w.r.t. NEW, etc versus CON
         hazardTable = self._argDict["hazards"]
@@ -3258,7 +3258,7 @@ class TextProduct(GenericHazards.TextProduct):
             key = (hdln, "CON", phen, sig)
             con = [(key, conAreas)]
         #print "new, con", new, con
-        return new + con    
+        return new + con
 
     def _overview_HU_S_headlines(self, info, HU_S_Hdlns):
         # Gather and report the HU_S headlines
@@ -3266,10 +3266,10 @@ class TextProduct(GenericHazards.TextProduct):
         fmtDict = self._overviewFormat()
         if fmtDict["land"]=="generic" and fmtDict["marine"]=="generic":
             return t
-                
+
         if len(HU_S_Hdlns) == 0:
             return t
-        
+
         for key, areaList, areaType in HU_S_Hdlns:
             # Report only if there is a non-empty areaList and
             # overview format is "listAreas" i.e. specific
@@ -3278,10 +3278,10 @@ class TextProduct(GenericHazards.TextProduct):
             if areaType == "marine": t+="\nFOR MARINE INTERESTS..."
             else:                    t+="\n"
             t+="ALTHOUGH TROPICAL CYCLONE WATCHES OR WARNINGS ARE NOT IN EFFECT FOR "
-            t+= self._describeLocations(info, areaList, end="...") 
+            t+= self._describeLocations(info, areaList, end="...")
             t+= "POSSIBLE IMPACTS FROM RELATED HAZARDS ARE STILL A CONCERN.\n"
         return t
-    
+
     def _additional_headlines(self, info):
         # Report additional headlines
         t=""
@@ -3294,7 +3294,7 @@ class TextProduct(GenericHazards.TextProduct):
         argDict['definition'] = self._definition
         altHazards = self._getHazardsTable(argDict, self._altFilterMethod)
         conTable = altHazards.consolidatedTableByID()
-        
+
         # Consolidate across action codes
         hazDict = {}
         for hazard in conTable:
@@ -3306,7 +3306,7 @@ class TextProduct(GenericHazards.TextProduct):
                 continue
             for area in hazard['id']:
                 hazDict.setdefault((hdln, phen, sig), []).append(area)
-        
+
         #print "hazDict", hazDict
         hazardHdlns=[]
         huAreas = []
@@ -3319,17 +3319,17 @@ class TextProduct(GenericHazards.TextProduct):
             hazardHdlns.append(hazardHdln)
         return hazardHdlns, huAreas
 
-    def _getAdditionalHeadlines(self, hazardHdlns, huAreas, info):        
+    def _getAdditionalHeadlines(self, hazardHdlns, huAreas, info):
         # We have a list of hazardHdlns and can use checkHazards
         # Additional Hazards
-        t="" 
+        t=""
         hdlnList = self._checkHazard(hazardHdlns, [("FA","A"),("FF","A")], returnList=True)
         print "hdlnList", hdlnList
         if len(hdlnList) > 0:
             t+="\n"
             t+=self._headlines(info, hdlnList, self._allPortions, ending=". ")
             t+="PLEASE LISTEN CLOSELY FOR ANY FLOOD WARNINGS THAT MIGHT BE IN EFFECT FOR YOUR AREA.\n"
-            
+
         hdlnList = self._checkHazard(hazardHdlns, [("TO","A")], returnList=True)
         print "hdlnList", hdlnList
         if len(hdlnList) > 0:
@@ -3338,7 +3338,7 @@ class TextProduct(GenericHazards.TextProduct):
             t+="PLEASE LISTEN CLOSELY FOR ANY TORNADO WARNINGS THAT MIGHT BE IN EFFECT FOR YOUR AREA.\n"
 
         # Check additional hazards
-        checkHazards = [("CF","W"), ("CF","A"),("CF","Y"),("SU","W"),("SU","A"),("SU","Y"),
+        checkHazards = [("CF","W"), ("CF","A"),("CF","Y"),("RP","S"),("SU","W"),("SU","A"),("SU","Y"),
                         ("SR","W"),("SR","A"),("GL","W"),("GL","A"),
                         ("SC","Y"),("SI","Y"),("SW","Y"), ("RB","Y")]
         hazList = self._checkHazard(hazardHdlns, checkHazards, returnList=True)
@@ -3348,22 +3348,22 @@ class TextProduct(GenericHazards.TextProduct):
 
     def _allPortions(self, info, hazAreas, prefix="", suffix=""):
         # Used for overview headlines
-        descriptor, checkAreas = self._determineDescriptor(info, hazAreas)        
+        descriptor, checkAreas = self._determineDescriptor(info, hazAreas)
         portions = prefix + "PORTIONS OF " + suffix
         allPortions = self._checkAreaInclusion(checkAreas, hazAreas, "ALL OF ", portions)
         return allPortions + descriptor
-    
+
     def _allParts(self, info, hazAreas):
         # Used for overview additional headlines
-        descriptor, checkAreas = self._determineDescriptor(info, hazAreas)        
+        descriptor, checkAreas = self._determineDescriptor(info, hazAreas)
         allParts = self._checkAreaInclusion(checkAreas, hazAreas, "ALL ", "PART ")
         return allParts + "OF " + descriptor + ". "
-    
+
     def _entirePortions(self, info, hazAreas):
         # Used by the optional template for optional sections
         return self._checkAreaInclusion(
             info.allAreas, hazAreas, "THE ENTIRE AREA. ", "PORTIONS OF THE AREA. ")
-     
+
     def _checkAreaInclusion(self, compareAreas, hazAreas, allWords, partWords):
         words = allWords
         for area in compareAreas:
@@ -3371,14 +3371,14 @@ class TextProduct(GenericHazards.TextProduct):
                 words = partWords
                 break
         return words
-    
+
     def _headlines(self, info, headlineList, areaWordMethod=None,
                    ending="\n\n", qualifier=False):
         # Create the headlines from list of (key, hazAreas)
         #      where key is (hdln, act, phen, sig)
         t = ""
         for key, hazAreas in headlineList:
-            hdln, act, phen, sig = key            
+            hdln, act, phen, sig = key
             if act == "CON": actWords = " CONTINUES FOR "
             else:            actWords = " IS IN EFFECT FOR "
             # Skip HU.S headines
@@ -3395,7 +3395,7 @@ class TextProduct(GenericHazards.TextProduct):
                 areaWords=self._describeLocations(info, hazAreas, qualifier=qualifier)
             t+= a+hdln + actWords + areaWords + ending
         return t
-    
+
     def _areaWords(self, areas):
         if areas == []:
             return ""
@@ -3407,7 +3407,7 @@ class TextProduct(GenericHazards.TextProduct):
             names.append(name)
         areaTypeWords = ""
         areaWords = self.formatCountyString("", names)[1:]
-        return areaWords     
+        return areaWords
 
     def _describeLocations(self, info, areaList, end=". ", prefix="",
                            suffix="", qualifier=False):
@@ -3417,7 +3417,7 @@ class TextProduct(GenericHazards.TextProduct):
         #print "inland, coastal, marine", inland, coastal, marine, areaList
         if inland or coastal: fmt = fmtDict["land"]
         else:                 fmt = fmtDict["marine"]
-            
+
         if fmt == "generic":
             suffix = ""
             if qualifier:
@@ -3428,11 +3428,11 @@ class TextProduct(GenericHazards.TextProduct):
             t+= "THE FOLLOWING LOCATIONS..." + self._areaWords(areaList)
         t+= end
         return t
-    
+
     #####################################################################################
     def StormInformation(self, title, sectionDict, info):
         t = title
-        
+
         st = self._StormInfo
 #        if st.find("N/A (unnamed)") >= 0:
 #            t+="ALTHOUGH THE SYSTEM OF CONCERN HAS NOT BEEN NAMED..."
@@ -3444,7 +3444,7 @@ class TextProduct(GenericHazards.TextProduct):
 #
 #        else:
         t+="AT "+ self._stormTime + "...THE CENTER OF "
-        
+
         #  Fix the grammar if dealing with "remnants"
         if re.search("(?i)remnants", self._stormTypeName) is not None:
             t+="THE "
@@ -3485,7 +3485,7 @@ class TextProduct(GenericHazards.TextProduct):
 ##        t+= self._frame(smi)
         t += smi
         return t
-    
+
     #####################################################################################
     def SituationOverview(self, title, sectionDict, info):
         t = title
@@ -3517,14 +3517,14 @@ class TextProduct(GenericHazards.TextProduct):
             if un=="High":
                 t+="IT IS VITAL THAT YOU DO NOT FOCUS ON THE EXACT FORECAST TRACK. "
                 t+="TO DO SO COULD RESULT IN BAD DECISIONS AND PLACE YOU OR THOSE YOU ARE "
-                t+="RESPONSIBLE FOR AT GREATER RISK. "            
+                t+="RESPONSIBLE FOR AT GREATER RISK. "
             elif un == "Average":
                 t+="WHEN MAKING DECISIONS...DO NOT FOCUS ON THE EXACT FORECAST TRACK. "
 
         if ec != "Abbreviated": t+=self._frame("Succinctly describe the expected evolution of the event for the CWA & MAOR; which hazards are of greater (or lesser) concern, forecast focus, etc.")+ "\n"
 
         if ec in ["PreEvent", "Watch"]:
-            if info.anyLand:  
+            if info.anyLand:
                 t+="IT IS TOO EARLY TO PROVIDE EXACT WIND AND SURGE FORECAST VALUES FOR SPECIFIC LOCATIONS. "
                 damage = self._getCategoryDamage(info.maxWind_CWA_MAOR)
                 if damage.strip() != "":
@@ -3534,8 +3534,8 @@ class TextProduct(GenericHazards.TextProduct):
         return t
    #####################################################################################
     def Overview_PrecautionaryPreparednessActions(self, title, sectionDict, info):
-        t = title        
-        ec = self._EventContext        
+        t = title
+        ec = self._EventContext
         if ec == "NonEvent": t+=self.overview_pp_nonEvent(info)
         elif ec == "PreEvent": t+= self.overview_pp_preEvent(info)
         elif ec == "Abbreviated": t+=self._overview_pp_abbrev(info)
@@ -3558,16 +3558,16 @@ YOUR LOCAL NATIONAL WEATHER SERVICE OFFICE AND EMERGENCY
 MANAGEMENT.
 
 """
-        
+
         if info.anyCoastal or info.anyMarine:
             t+= """
 MARINERS SHOULD KEEP INFORMED OF THE LATEST COASTAL WATERS
 FORECAST.
-"""            
+"""
         return self._frame(t.strip())
 
     def overview_pp_preEvent(self, info):
-        t = ""        
+        t = ""
         if info.anyInland or info.anyCoastal:
             t+= """
 EVEN BEFORE THE ISSUANCE OF WATCHES OR WARNINGS...IT MAY BECOME
@@ -3604,7 +3604,7 @@ INCLUDE IN AN EMERGENCY PREPAREDNESS KIT.
 IN ALL CASES...HEED THE ADVICE OF LOCAL OFFICIALS AND COMPLY WITH
 ANY ORDERS THAT ARE ISSUED.
 
-"""            
+"""
         if info.anyCoastal or info.anyMarine:
             t+= """
 MARINERS SHOULD MONITOR THE COASTAL WATERS FORECAST FOR UNSAFE
@@ -3639,7 +3639,7 @@ PORT QUICKLY IF A WATCH OR WARNING IS ISSUED.
             #  Combine all the areas affected by this hazard into one list
             for areaList in info.hazardHdlns[0][1:]:
                 baseAreas = baseAreas + areaList
-            
+
             #  Look through all the hazards we have - after the first one
             for hazard in xrange(1, len(info.hazardHdlns)):
 
@@ -3739,7 +3739,7 @@ FROM YOUR LOCAL NATIONAL WEATHER SERVICE OFFICE AND EMERGENCY
 MANAGEMENT AGENCY.
 
 """
-            
+
             #  If this is a downgraded warning
             if downgradeWarning and not upgradeWarning:
 
@@ -3771,7 +3771,7 @@ MANAGEMENT AGENCY.
 
 """
 
-        #  Marine zones            
+        #  Marine zones
         if info.anyMarine:
 
             #  If there are no upgrades or downgrades
@@ -3795,13 +3795,13 @@ OFFICIALS.
                 #  upgraded warning
                 t+="""
 MARINERS ARE URGED TO RETURN TO PORT...SEEK SAFE HARBOR...AND
-SECURE THEIR CRAFT. NOW IS THE TIME TO COMPLETE PREPARATIONS 
+SECURE THEIR CRAFT. NOW IS THE TIME TO COMPLETE PREPARATIONS
 ACCORDING TO YOUR EMERGENCY PLAN FOR TROPICAL SYSTEMS. MONITOR
 WEATHER BROADCASTS FOR CHANGES TO THE LATEST FORECAST AND
 LISTEN FOR FURTHER STATEMENTS FROM LOCAL OFFICIALS.
 
 """
-            
+
             #  If this is a downgraded warning
             if downgradeWarning and not upgradeWarning:
 
@@ -3847,7 +3847,7 @@ LISTEN FOR POSSIBLE WARNINGS AND BE READY TO EVACUATE IF
 NECESSARY. HEED THE ADVICE OF LOCAL OFFICIALS AND COMPLY WITH ANY
 ORDERS THAT ARE ISSUED.
 
-""" 
+"""
         if coastal_A:
             t+= """
 FOR INTERESTS AT PORTS...DOCKS...AND MARINAS...IT IS RECOMMENDED
@@ -3856,7 +3856,7 @@ EMERGENCY OPERATIONS PLAN FOR TROPICAL CYCLONES. IF YOU LIVE ON A
 BOAT...BEGIN TO SAFELY SECURE YOUR CRAFT AND MAKE PLANS TO LEAVE
 IT FOR ADEQUATE LAND BASED SHELTER. LISTEN FOR POSSIBLE WARNINGS.
 
-"""            
+"""
         if coastal_A or marine_A:
             t+= """
 REGARDING THE COASTAL WATERS UNDER A WATCH...SMALL CRAFT SHOULD
@@ -3874,9 +3874,9 @@ PLEASE REFER TO THE DETAILED RECOMMENDATIONS RELATIVE TO YOUR
 LOCATION AS FURTHER DESCRIBED BY YOUR LOCAL NATIONAL WEATHER
 SERVICE OFFICE AND YOUR LOCAL EMERGENCY MANAGEMENT.
 
-""" 
+"""
         return self._frame(t.strip())
-    
+
     def _overview_pp_warning(self, info):
         t=""
         public_W= self._checkHazard(info.hazardHdlns,
@@ -3907,7 +3907,7 @@ PLAN FOR TROPICAL CYCLONES. IF YOU LIVE ON A BOAT...MAKE FINAL
 PREPARATIONS FOR SECURING YOUR CRAFT BEFORE LEAVING IT. BE SURE
 TO ACCOUNT FOR THE POSSIBLE CLOSURE OF BRIDGES AND CAUSEWAYS.
 
-"""             
+"""
         if coastal_W or marine_W:
             t+= """
 REGARDING ANY COASTAL WATERS UNDER A WARNING...SMALL CRAFT SHOULD
@@ -3939,7 +3939,7 @@ LOCATION AS FURTHER DESCRIBED BY YOUR LOCAL NATIONAL WEATHER
 SERVICE OFFICE AND LOCAL EMERGENCY MANAGEMENT.
 
 """
-        return self._frame(t.strip())        
+        return self._frame(t.strip())
 
     def _overview_pp_conditions(self, info):
         t=""
@@ -3988,7 +3988,7 @@ DOWNED POWER LINES. LISTEN FOR ANY BOIL WATER ALERTS.
 MARINERS SHOULD CHECK THE LATEST COASTAL WATERS FORECAST BEFORE
 MAKING ANY DEFINITE PLANS.
 
-"""  
+"""
         return self._frame(t.strip())
 
     def _overview_pp_postTropical(self, info):
@@ -3998,16 +3998,16 @@ MAKING ANY DEFINITE PLANS.
 EVERYONE IS URGED TO STAY INFORMED OF THE SITUATION. REMAIN
 DILIGENT IN YOUR EFFORTS TO PROTECT LIFE AND PROPERTY.
 
-""" 
+"""
         if info.anyCoastal or info.anyMarine:
             t+= """
 MARINERS ARE ADVISED TO KEEP THEIR GUARD UP WHILE CLOSELY
 MONITORING THE LATEST COASTAL WATERS FORECAST. SMALL CRAFT SHOULD
 REMAIN IN PORT UNTIL THIS STORM PASSES.
 
-"""  
+"""
         return self._frame(t.strip())
-      
+
 #####################################################################################
     def NextUpdate(self, title, sectionDict, info):
         t = title
@@ -4064,7 +4064,7 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
             t+= self._frame("Please enter new information here.") + "\n"
         return title + t
 
-    #####################################################################################    
+    #####################################################################################
     def PrecautionaryPreparednessActions(self, title, argDict, segment, section, info):
         t=""
         segmentNum, segmentAreas, situation, scenario, sections, extraInfo = segment
@@ -4214,7 +4214,7 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
                         t+=self._pp_dict("Warning", ["TR_W", "InSitu", "land"])
                     if info.anyMarine:
                         t+=self._pp_dict("Warning", ["TR_W", "InSitu", "marine"])
-                        
+
         # Conditions
         elif situation=="Conditions":
             if scenario=="Imminent":
@@ -4233,7 +4233,7 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
                         t+=self._pp_dict("Conditions", ["Imminent", "34", "land"])
                     if info.anyMarine:
                         t+=self._pp_dict("Conditions", ["Imminent", "34", "marine"])
-                    
+
             elif scenario == "Ongoing":
                 if self._checkCategory(info.maxWind, "Cat3"):
                     if info.anyLand:
@@ -4250,7 +4250,7 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
                         t+=self._pp_dict("Conditions", ["Ongoing", "34", "land"])
                     if info.anyMarine:
                         t+=self._pp_dict("Conditions", ["Ongoing", "34", "marine"])
-                        
+
             elif scenario == "Diminishing":
                 if info.anyLand:
                     if info.maxWind >= 64:
@@ -4278,7 +4278,7 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
                     t+=self._pp_dict("PostEvent", ["Immediate", "marine"])
             elif scenario== "NoImpact":
                 if info.anyLand or info.anyMarine:
-                    t+=self._pp_dict("PostEvent", ["NoImpact", "general"])                     
+                    t+=self._pp_dict("PostEvent", ["NoImpact", "general"])
             elif scenario=="LongTerm":
                 if info.anyLand:
                     t+=self._pp_dict("PostEvent", ["LongTerm", "land"])
@@ -4291,33 +4291,33 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
                 t+=self._pp_dict("PostTropical", ["InProgress"])
             else:
                 t+=self._pp_dict("PostTropical", ["Completed"])
-                
+
         return title + t
-        
+
     #####################################################################################
     def Probability(self, title, argDict, segment, section, info):
         t=""
         segmentNum, segmentAreas, situation, scenario, sections, extraInfo = segment
         if situation=="NonEvent":
-            t+=self._frame("AS CURRENTLY ASSESSED...THE ONSET OF EITHER TROPICAL STORM OR HURRICANE CONDITIONS IS UNLIKELY TO OCCUR.")+ "\n"   
-     
+            t+=self._frame("AS CURRENTLY ASSESSED...THE ONSET OF EITHER TROPICAL STORM OR HURRICANE CONDITIONS IS UNLIKELY TO OCCUR.")+ "\n"
+
         elif situation=="PreEvent":
-            if scenario=="Advancing":  t+=self._prob_stmts(info) + "\n"      
-            elif scenario=="Peripheral":  t+=self._prob_stmts(info, ifWording=True) + "\n"      
+            if scenario=="Advancing":  t+=self._prob_stmts(info) + "\n"
+            elif scenario=="Peripheral":  t+=self._prob_stmts(info, ifWording=True) + "\n"
             else:
-                t+="AT THIS TIME...THE PROBABILITY OF EITHER TROPICAL STORM OR HURRICANE CONDITIONS CANNOT BE DETERMINED UNTIL THE SYSTEM BECOMES AN ACTIVE TROPICAL CYCLONE.  HOWEVER...BASED ON THE LATEST OUTLOOK...THE CHANCE OF TROPICAL CYCLONE FORMATION IS " 
+                t+="AT THIS TIME...THE PROBABILITY OF EITHER TROPICAL STORM OR HURRICANE CONDITIONS CANNOT BE DETERMINED UNTIL THE SYSTEM BECOMES AN ACTIVE TROPICAL CYCLONE.  HOWEVER...BASED ON THE LATEST OUTLOOK...THE CHANCE OF TROPICAL CYCLONE FORMATION IS "
                 t+= self._frame("LOW/MEDIUM/HIGH FROM TWOXXX. ")
         elif situation=="Abbreviated":
                 pass
         elif situation in ["Watch", "Warning"]:
-            if scenario=="Advancing":  t+=self._prob_stmts(info) + "\n"      
+            if scenario=="Advancing":  t+=self._prob_stmts(info) + "\n"
             elif scenario in ["Peripheral", "InSitu"]:
-                t+=self._prob_stmts(info, ifWording=True) + "\n"      
+                t+=self._prob_stmts(info, ifWording=True) + "\n"
         elif situation in ["Conditions", "PostEvent", "PostTropical"]:
                 pass
-                
+
         return title + t
-    
+
     #####################################################################################
     def Wind(self, title, argDict, segment, section, info):
         t=""
@@ -4328,12 +4328,12 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
         # PreEvent
         elif situation=="PreEvent":
             if scenario=="Advancing":
-                t+=self._wind_PreEvent_Advancing(info)  
+                t+=self._wind_PreEvent_Advancing(info)
             elif scenario=="Peripheral":
                 t+=self._wind_PreEvent_Peripheral(info)
             else: # In Situ
-                t+=self._wind_PreEvent_InSitu(info) 
-            t+=self._genericImpact_stmt(info) + "\n" 
+                t+=self._wind_PreEvent_InSitu(info)
+            t+=self._genericImpact_stmt(info) + "\n"
 
         # Abbreviated
         elif situation=="Abbreviated":
@@ -4347,7 +4347,7 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
                 t+=self._wind_Watch_Peripheral(info)
             else: # In Situ
                 t+=self._wind_Watch_InSitu(info)
-            t+=self._genericImpact_stmt(info) + "\n" 
+            t+=self._genericImpact_stmt(info) + "\n"
 
         # Warning
         elif situation=="Warning":
@@ -4357,8 +4357,8 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
                 t+=self._wind_Warning_Peripheral(info)
             else: # In Situ
                 t+=self._wind_Warning_InSitu(info)
-            t+=self._potentialImpact_stmt(info) + "\n" 
-   
+            t+=self._potentialImpact_stmt(info) + "\n"
+
         # Conditions
         elif situation=="Conditions":
             if scenario=="Imminent":
@@ -4367,11 +4367,11 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
                 t+=self._wind_Conditions_Ongoing(info)
             elif scenario == "Diminishing":
                 t+=self._wind_Conditions_Diminishing(info)
-            t+=self._potentialImpact_stmt(info) + "\n" 
-   
+            t+=self._potentialImpact_stmt(info) + "\n"
+
         # PostEvent
         elif situation=="PostEvent":
-            t+= self._wind_PostEvent(info, scenario) + "\n" 
+            t+= self._wind_PostEvent(info, scenario) + "\n"
 
         # PostTropical
         elif situation=="PostTropical":
@@ -4379,13 +4379,13 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
                 t+=self._wind_PostTropical_InProgress(info)
             elif scenario == "Completed":
                 t+=self._wind_PostTropical_Completed(info)
-            t+=self._potentialImpact_stmt(info) + "\n" 
+            t+=self._potentialImpact_stmt(info) + "\n"
 
-        if info.anyMarine: 
+        if info.anyMarine:
             t+=self._frame("Add Wording for Seas Here") + "\n"
-          
+
         return title + t
-    
+
     #####################################################################################
     def _optionalSection_template(self, argDict, segment, info, hazardList, listenList=[],
                                   checkAreaTypes=[]):
@@ -4411,13 +4411,13 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
     #####################################################################################
     def StormSurgeTide(self, title, argDict, segment, section, info):
 #        hazards = [("CF","W"), ("CF","A"), ("CF","Y"), ("SU","W"),("SU","Y")]
-#        listenList = []            
+#        listenList = []
 #        t=self._optionalSection_template(argDict, segment, info, hazards, listenList,
 #                                         checkAreaTypes=["coastal"])
 
         if info.surgeHtPlusTide is None:
             return title + self._frame("ENTER SURGE TEXT HERE")
-        
+
         t= ""
         segmentNum, segmentAreas, situation, scenario, sections, extraInfo = segment
         # NonEvent
@@ -4426,12 +4426,12 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
         # PreEvent
         elif situation=="PreEvent":
             if scenario=="Advancing":
-                t+=self._surge_PreEvent_Advancing(info)  
+                t+=self._surge_PreEvent_Advancing(info)
             elif scenario=="Peripheral":
                 t+=self._surge_PreEvent_Peripheral(info)
             else: # In Situ
-                t+=self._surge_PreEvent_InSitu(info) 
-            t+="\n" 
+                t+=self._surge_PreEvent_InSitu(info)
+            t+="\n"
 
         # Abbreviated
         elif situation=="Abbreviated":
@@ -4447,7 +4447,7 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
                 t+=self._surge_Watch_InSitu(info)
             if info.surgeHtPlusTide > 0 and scenario != "InSitu":
                 t+= self._surge_Watch_Impact_stmt(info, segment)
-            t+= "\n" 
+            t+= "\n"
 
         # Warning
         elif situation=="Warning":
@@ -4459,8 +4459,8 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
                 t+=self._surge_Warning_InSitu(info)
             if info.surgeHtPlusTide > 0 and scenario != "InSitu":
                 t+=self._surge_Impact_stmt(info, segment)
-            t+= "\n" 
-   
+            t+= "\n"
+
         # Conditions
         elif situation=="Conditions":
             if scenario=="Imminent":
@@ -4471,12 +4471,12 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
                 t+=self._surge_Conditions_Diminishing(info)
             if info.surgeHtPlusTide > 0 and scenario != "Diminishing":
                 t+=self._surge_Impact_stmt(info, segment)
-            t+="\n" 
-   
+            t+="\n"
+
         # PostEvent
         elif situation=="PostEvent":
             t+= self._surge_PostEvent(info, scenario)
-            t+= "\n" 
+            t+= "\n"
 
         # PostTropical
         elif situation=="PostTropical":
@@ -4489,35 +4489,35 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
             t+= "\n"
 
         return title + t
-    
+
     #####################################################################################
     def InlandFlooding(self, title, argDict, segment, section, info):
         hazards = [("FF", "A"), ("FA","A")]
         listenList = [
             "LISTEN FOR POSSIBLE FLOOD WARNINGS FOR YOUR LOCATION...AND BE READY TO ACT IF FLOODING RAINS OCCUR. "
-            ]            
+            ]
         t=self._optionalSection_template(argDict, segment, info, hazards, listenList,
                                          checkAreaTypes=["land"])
         return title + t
-    
+
     #####################################################################################
     def Tornadoes(self, title, argDict, segment, section, info):
         hazards = [("TO", "A")]
         listenList = [
             "LISTEN FOR POSSIBLE TORNADO WARNINGS FOR YOUR LOCATION...AND BE READY TO ACT QUICKLY IF A TORNADO APPROACHES. "
-            ]            
-        t=self._optionalSection_template(argDict, segment, info, hazards, listenList)        
+            ]
+        t=self._optionalSection_template(argDict, segment, info, hazards, listenList)
         return title + t
-    
+
     #####################################################################################
     def Marine(self, title, argDict, segment, section, info):
         hazards = [('SR','W'), ('SR','A'), ('GL','W'), ('GL','A'), ('RB','Y'),
                    ('SC','Y'), ('SI','Y'), ('SW','Y'), ('HF','W'), ('HF','A')]
-        listenList = []            
+        listenList = []
         t=self._optionalSection_template(argDict, segment, info, hazards, listenList,
                                          checkAreaTypes=["marine"])
         return title + t
-    
+
     #####################################################################################
     def _extractTitle(self, info, title):
         #  Extract correct title for Public vs. Marine segments
@@ -4532,7 +4532,7 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
     ##
     ## To keep from cluttering the code, the text is in these dictionaries
     ## That way, the code logic can be more easily seen
-     
+
     def _pp_dict(self, situation, keys):
          exec "textDict = self._" + situation + "_textDict()"
          return self._accessDict(textDict, keys)
@@ -4629,39 +4629,39 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
                     },
                 "Peripheral": {
                     "land":self._frame("MAKE PREPARATIONS TO PROTECT LIFE AND PROPERTY. COMPLETE THE HARDENING OF YOUR HOME OR BUSINESS BY CLOSING SHUTTERS AND BRACING GARAGE DOORS.\n\nIF EVACUATING...LEAVE AS SOON AS POSSIBLE. GUARD AGAINST BEING STUCK OUT ON ROADWAYS WHEN DANGEROUS WINDS AND HEAVY RAINS ARRIVE. AGAIN...DO NOT STAY IN A MOBILE OR MANUFACTURED HOME. REMEMBER...PETS ARE NOT ALLOWED IN MOST OFFICIAL SHELTERS...SO CHECK AHEAD WITH YOUR INTENDED SHELTER.") +"\n",
-                    "marine":self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",   
+                    "marine":self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",
                     },
                 "InSitu": {
-                    "land":self._frame("THIS IS A DANGEROUS AND RAPIDLY DEVELOPING SITUATION. ERR ON THE SIDE OF CAUTION AND URGENTLY TAKE ACTIONS TO PROTECT LIFE AND PROPERTY. COMPLY WITH ANY EVACUATION ORDERS ISSUED BY LOCAL AUTHORITIES FOR YOUR AREA. IF YOU LIVE IN A MOBILE HOME...LEAVE IT FOR MORE SUBSTANTIAL SHELTER.") +"\n",  
-                    "marine":self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",   
+                    "land":self._frame("THIS IS A DANGEROUS AND RAPIDLY DEVELOPING SITUATION. ERR ON THE SIDE OF CAUTION AND URGENTLY TAKE ACTIONS TO PROTECT LIFE AND PROPERTY. COMPLY WITH ANY EVACUATION ORDERS ISSUED BY LOCAL AUTHORITIES FOR YOUR AREA. IF YOU LIVE IN A MOBILE HOME...LEAVE IT FOR MORE SUBSTANTIAL SHELTER.") +"\n",
+                    "marine":self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",
                     },
                 },
             "TR_W": {
                 "Advancing": {
-                    "land": self._frame("FINAL PREPARATIONS TO PROTECT LIFE AND PROPERTY SHOULD BE COMPLETED BEFORE CONDITIONS DETERIORATE. THE ONSET OF GUSTY WINDS AND HEAVY RAINS CAN CAUSE OUTSIDE ACTIVITIES TO BECOME DANGEROUS. SECURE LOOSE OUTDOOR OBJECTS WHICH CAN BE BLOWN AROUND. IF YOU LIVE IN A MOBILE HOME...LEAVE IT FOR MORE SUBSTANTIAL SHELTER.") +"\n",     
-                    "marine":self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",     
+                    "land": self._frame("FINAL PREPARATIONS TO PROTECT LIFE AND PROPERTY SHOULD BE COMPLETED BEFORE CONDITIONS DETERIORATE. THE ONSET OF GUSTY WINDS AND HEAVY RAINS CAN CAUSE OUTSIDE ACTIVITIES TO BECOME DANGEROUS. SECURE LOOSE OUTDOOR OBJECTS WHICH CAN BE BLOWN AROUND. IF YOU LIVE IN A MOBILE HOME...LEAVE IT FOR MORE SUBSTANTIAL SHELTER.") +"\n",
+                    "marine":self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",
                     },
                 "Peripheral":{
-                    "land": self._frame("OUTSIDE PREPARATIONS SHOULD BE COMPLETED AS SOON AS POSSIBLE BEFORE THE ONSET OF GUSTY WINDS AND HEAVY RAINS WHICH CAN CAUSE OUTSIDE ACTIVITIES TO BECOME DANGEROUS.") +"\n", 
+                    "land": self._frame("OUTSIDE PREPARATIONS SHOULD BE COMPLETED AS SOON AS POSSIBLE BEFORE THE ONSET OF GUSTY WINDS AND HEAVY RAINS WHICH CAN CAUSE OUTSIDE ACTIVITIES TO BECOME DANGEROUS.") +"\n",
                     "marine": self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",
                     },
                 "InSitu":{
                     "land": self._frame("THIS IS A POTENTIALLY DANGEROUS AND RAPIDLY DEVELOPING SITUATION. ERR ON THE SIDE OF CAUTION AND COMPLETE PREPARATIONS FOR TROPICAL STORM CONDITIONS.") +"\n",
-                    "marine": self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",  
+                    "marine": self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",
                     },
                 },
             "TR_W_HU_A": {
                 "Advancing": {
-                    "land":self._frame("FINAL ACTIONS TO PROTECT LIFE AND PROPERTY SHOULD BE COMPLETED BEFORE CONDITIONS DETERIORATE. COVER WINDOWS AND DOORS WITH SHUTTERS OR PLYWOOD. MOVE PATIO FURNITURE AND OTHER LOOSE OUTDOOR OBJECTS INSIDE. BRACE ALL EXTERIOR DOORS...INCLUDING GARAGE DOORS.\n\nCOMPLY WITH ANY EVACUATION ORDERS ISSUED FOR YOUR AREA. IF YOU LIVE IN A MOBILE HOME...LEAVE IT FOR MORE SUBSTANTIAL SHELTER. IF YOUR HOME IS VULNERABLE TO HIGH WINDS...OR YOU LIVE IN A SURGE ZONE OR ANY LOCATION PRONE TO FLOODING...EVACUATE TO A DESIGNATED SHELTER OR RIDE OUT THE STORM IN THE STURDY HOME OF FAMILY OR FRIENDS OUTSIDE OF EVACUATION ZONES.") +"\n",     
-                    "marine":self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",    
+                    "land":self._frame("FINAL ACTIONS TO PROTECT LIFE AND PROPERTY SHOULD BE COMPLETED BEFORE CONDITIONS DETERIORATE. COVER WINDOWS AND DOORS WITH SHUTTERS OR PLYWOOD. MOVE PATIO FURNITURE AND OTHER LOOSE OUTDOOR OBJECTS INSIDE. BRACE ALL EXTERIOR DOORS...INCLUDING GARAGE DOORS.\n\nCOMPLY WITH ANY EVACUATION ORDERS ISSUED FOR YOUR AREA. IF YOU LIVE IN A MOBILE HOME...LEAVE IT FOR MORE SUBSTANTIAL SHELTER. IF YOUR HOME IS VULNERABLE TO HIGH WINDS...OR YOU LIVE IN A SURGE ZONE OR ANY LOCATION PRONE TO FLOODING...EVACUATE TO A DESIGNATED SHELTER OR RIDE OUT THE STORM IN THE STURDY HOME OF FAMILY OR FRIENDS OUTSIDE OF EVACUATION ZONES.") +"\n",
+                    "marine":self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",
                     },
                 "Peripheral":{
                     "land": self._frame("PREPARATIONS TO PROTECT LIFE AND PROPERTY SHOULD BE COMPLETED AS SOON AS POSSIBLE SINCE THE ONSET OF GUSTY WINDS AND HEAVY RAINS CAN CAUSE OUTSIDE ACTIVITIES TO BECOME DANGEROUS. COVER WINDOWS AND DOORS WITH SHUTTERS OR PLYWOOD. MOVE PATIO FURNITURE AND OTHER LOOSE OUTDOOR OBJECTS INSIDE. BRACE ALL EXTERIOR DOORS...INCLUDING GARAGE DOORS.\n\nCOMPLY WITH ANY EVACUATION ORDERS ISSUED FOR YOUR AREA. IF YOU LIVE IN A MOBILE HOME...LEAVE IT FOR MORE SUBSTANTIAL SHELTER.") +"\n",
-                    "marine": self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",  
+                    "marine": self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",
                     },
                 "InSitu":{
-                    "land": self._frame("THIS IS A POTENTIALLY DANGEROUS AND RAPIDLY DEVELOPING SITUATION. DO NOT GET CAUGHT UNPREPARED. ERR ON THE SIDE OF CAUTION AND COMPLETE PREPARATIONS FOR TROPICAL STORM CONDITIONS AND POSSIBLE HURRICANE CONDITIONS.") +"\n",  
-                    "marine": self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n", 
+                    "land": self._frame("THIS IS A POTENTIALLY DANGEROUS AND RAPIDLY DEVELOPING SITUATION. DO NOT GET CAUGHT UNPREPARED. ERR ON THE SIDE OF CAUTION AND COMPLETE PREPARATIONS FOR TROPICAL STORM CONDITIONS AND POSSIBLE HURRICANE CONDITIONS.") +"\n",
+                    "marine": self._frame("BOAT OWNERS AND CAPTAINS OF SMALL CRAFT SHOULD RUSH TO COMPLETION THE SECURING OF THEIR CRAFT.") +"\n",
                     },
                 },
             }
@@ -4682,7 +4682,7 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
                     "marine":self._frame("SMALL CRAFT SHOULD ALREADY BE IN PORT AND WELL SECURED. CAPTAINS OF SMALL CRAFT AND THEIR CREWS SHOULD ALREADY BE SAFELY WITHIN LAND BASED SHELTERS.")+"\n",
                     },
                 },
-            
+
             "Ongoing": {
                 "Cat3": {
                     "land":self._frame("VERY DANGEROUS CONDITIONS ARE OCCURRING NOW. GO TO THE SAFEST PLACE WITHIN YOUR HOME OR SHELTER AND STAY THERE. BE READY TO PROTECT YOUR HEAD AND BODY IN CASE YOUR SHELTER FAILS.") + "\n",
@@ -4696,7 +4696,7 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
                     "land":self._frame("TROPICAL STORM CONDITIONS ARE OCCURRING. REMAIN ALERT AND STAY INSIDE.\n\nLISTEN FOR POSSIBLE FLOOD OR TORNADO WARNINGS.") + "\n",
                     "marine":self._frame("SMALL CRAFT SHOULD BE IN PORT AND WELL SECURED.")+"\n",
                     },
-                },            
+                },
             "Diminishing": {
                 "land":self._frame("AS {DESC} CONDITIONS DIMINISH...DO NOT GO OUTSIDE TO CHECK FOR DAMAGE OR TO IMPLEMENT TEMPORARY REPAIRS AS THE WIND SITUATION WILL REMAIN {SOMEWHAT} DANGEROUS UNTIL HIGH WINDS FULLY SUBSIDE. DO NOT OPEN THE DOORS OF YOUR HOME OR SHELTER. WAIT FOR THE ALL-CLEAR SIGNAL.\n\nSTAY INSIDE AND LISTEN FOR POSSIBLE FLOOD AND TORNADO WARNINGS.")+"\n",
                 "marine":self._frame("SMALL CRAFT SHOULD STAY IN PORT AND REMAIN WELL SECURED.")+"\n",
@@ -4718,7 +4718,7 @@ REMAIN IN PORT UNTIL THIS STORM PASSES.
                 "general": self._frame("FOR THE LATEST INFORMATION REGARDING THE THREAT OF HAZARDOUS WEATHER OF ANY TYPE...LISTEN TO NOAA WEATHER RADIO OR VISIT YOUR LOCAL NATIONAL WEATHER SERVICE WEB SITE.")+"\n",
                 },
             }
-          
+
     def _PostTropical_textDict(self):
         return {
             "InProgress": self._frame(
@@ -4773,30 +4773,30 @@ READINESS ACTIONS AS RECOMMENDED."""),
                                             windDur=info.windDur[64], end=". ")
             else:
                 t+= ". "
-   
+
         t+=self._specific_wind_stmt(info, intro="MAXIMUM WINDS ARE FORECAST TO BE IN THE ",
                                     addRange=True)
         t+=". "
         return t
 
-    ############            
+    ############
     def _wind_PreEvent_Peripheral(self,info):
         t= ""
-        t+="AT THIS TIME...THE ISSUANCE OF TROPICAL CYCLONE WATCHES OR WARNINGS IS UNCERTAIN. AS " + self._stormTypeName + " PASSES NEARBY...THE THREAT FOR SUSTAINED HIGH WINDS SHOULD NOT INCREASE. HOWEVER...SOME TROPICAL STORM FORCE GUSTS MAY STILL OCCUR. SINCE THERE IS STILL UNCERTAINTY...CLOSELY MONITOR THE FORECAST FOR ANY SIGNIFICANT CHANGES. "       
+        t+="AT THIS TIME...THE ISSUANCE OF TROPICAL CYCLONE WATCHES OR WARNINGS IS UNCERTAIN. AS " + self._stormTypeName + " PASSES NEARBY...THE THREAT FOR SUSTAINED HIGH WINDS SHOULD NOT INCREASE. HOWEVER...SOME TROPICAL STORM FORCE GUSTS MAY STILL OCCUR. SINCE THERE IS STILL UNCERTAINTY...CLOSELY MONITOR THE FORECAST FOR ANY SIGNIFICANT CHANGES. "
         return t
 
     def _wind_Watch_Peripheral(self, info):
         t= ""
-        t+="AS "+self._stormTypeName+" PASSES NEARBY...THE THREAT FOR SUSTAINED HIGH WINDS SHOULD NOT INCREASE. HOWEVER...THERE IS STILL SOME POSSIBILITY FOR TROPICAL STORM FORCE WINDS. SINCE THERE IS STILL UNCERTAINTY...CLOSELY MONITOR THE FORECAST FOR ANY SIGNIFICANT CHANGES. "      
+        t+="AS "+self._stormTypeName+" PASSES NEARBY...THE THREAT FOR SUSTAINED HIGH WINDS SHOULD NOT INCREASE. HOWEVER...THERE IS STILL SOME POSSIBILITY FOR TROPICAL STORM FORCE WINDS. SINCE THERE IS STILL UNCERTAINTY...CLOSELY MONITOR THE FORECAST FOR ANY SIGNIFICANT CHANGES. "
         return t
 
     def _wind_Warning_Peripheral(self, info):
         t=""
         t+=self._specific_wind_stmt(info) + ". "
-        t+="HOWEVER...AS "+self._stormTypeName+" APPROACHES...STRONGER WINDS ARE STILL POSSIBLE. CONTINUE TO CLOSELY MONITOR THE FORECAST FOR ANY SIGNIFICANT CHANGES AND BE READY TO ACT. " 
+        t+="HOWEVER...AS "+self._stormTypeName+" APPROACHES...STRONGER WINDS ARE STILL POSSIBLE. CONTINUE TO CLOSELY MONITOR THE FORECAST FOR ANY SIGNIFICANT CHANGES AND BE READY TO ACT. "
         return t
-    
-    ############    
+
+    ############
     def _wind_PreEvent_InSitu(self, info):
         t=""
         t+="TROPICAL CYCLONE WATCHES OR WARNINGS ARE CURRENTLY NOT IN EFFECT FOR THE AREA. HOWEVER...IF TROPICAL CYCLONE DEVELOPMENT BECOMES LIKELY THEN THEY COULD BE QUICKLY NEEDED.\n\n"
@@ -4808,7 +4808,7 @@ READINESS ACTIONS AS RECOMMENDED."""),
         t=""
         t+="AS "+self._stormTypeName+" DEVELOPS...THE THREAT FOR SUSTAINED HIGH WINDS MAY INCREASE. SINCE THERE IS STILL UNCERTAINTY...CLOSELY MONITOR THE FORECAST FOR ANY SIGNIFICANT CHANGES. "
         return t
-    
+
     def _wind_Warning_InSitu(self, info):
         t=""
         t+="AS "+self._stormTypeName+" CONTINUES TO DEVELOP...THE THREAT FOR SUSTAINED HIGH WINDS MAY INCREASE SOON. "
@@ -4826,7 +4826,7 @@ READINESS ACTIONS AS RECOMMENDED."""),
             t+=self._specific_wind_stmt(
                 info, intro="MAXIMUM WINDS OF ", end=" ARE EXPECTED. ")
             t+=self._fallBelow_stmt(info, end=". ")
-             
+
         elif info.maxWind >= 34:
             catInfo = self._getCategoryInfo(info.maxWind)
             t+="AS "+self._stormTypeName+" APPROACHES...SUSTAINED "+catInfo
@@ -4843,7 +4843,7 @@ READINESS ACTIONS AS RECOMMENDED."""),
             catInfo = self._getCategoryInfo(info.maxWind)
             t+=self._windContinue_stmt(info, period, catInfo + "WILL CONTINUE ", end=". ")
             if info.maxWind >= 50:  t+=self._fallBelow_stmt(info, end=". ")
-                    
+
         elif info.maxWind >= 34:
             t+=self._specific_wind_stmt(info, intro="SUSTAINED WINDS OF ")
             t+=self._windContinue_stmt(info, period, intro=" WILL CONTINUE ", end=". ")
@@ -4859,7 +4859,7 @@ READINESS ACTIONS AS RECOMMENDED."""),
     def _wind_PostEvent(self, info, scenario):
         t=""
         if scenario=="Immediate":
-            t+="TROPICAL CYCLONE WARNINGS HAVE BEEN DISCONTINUED. SUSTAINED HIGH WINDS ARE NO LONGER EXPECTED BUT STRONG WIND GUSTS MAY STILL OCCUR. "  
+            t+="TROPICAL CYCLONE WARNINGS HAVE BEEN DISCONTINUED. SUSTAINED HIGH WINDS ARE NO LONGER EXPECTED BUT STRONG WIND GUSTS MAY STILL OCCUR. "
         else:
             t+="SUSTAINED HIGH WINDS OR WIND GUSTS ARE NO LONGER EXPECTED. PLEASE REFER TO THE LATEST NATIONAL WEATHER SERVICE FORECAST FOR WIND INFORMATION. "
         return t
@@ -4873,21 +4873,21 @@ READINESS ACTIONS AS RECOMMENDED."""),
                 t+=" WILL STILL IMPACT THE REGION WITH SUSTAINED WINDS EQUIVALENT TO "
                 t+=self._windDesc(info) + "WINDS. "
             else:
-                t+=" COULD STILL IMPACT THE REGION WITH TROPICAL STORM FORCE WINDS. " 
+                t+=" COULD STILL IMPACT THE REGION WITH TROPICAL STORM FORCE WINDS. "
             t+=self._specific_wind_stmt(info, intro="MAXIMUM WINDS OF ", end=" ARE EXPECTED. ")
-            t+=self._fallBelow_stmt(info, end=". ")     
-            
+            t+=self._fallBelow_stmt(info, end=". ")
+
         if not info.anyLand and info.anyMarine:
             t+="THE REMNANTS OF "+self._stormTypeName
             if info.maxWind >= 34:
                 t+=" WILL STILL IMPACT THE REGION WITH SUSTAINED WINDS EQUIVALENT TO "
                 t+=self._marineWindDesc(info) + "WINDS. "
             else:
-                t+=" COULD STILL IMPACT THE REGION WITH GALE FORCE WINDS. " 
+                t+=" COULD STILL IMPACT THE REGION WITH GALE FORCE WINDS. "
             t+=self._specific_wind_stmt(info, intro="MAXIMUM WINDS OF ", end=" ARE EXPECTED. ")
             t+=self._fallBelow_stmt(info, end=". ")
         return t
-    
+
     def _wind_PostTropical_Completed(self, info):
         t=""
         if info.anyLand:
@@ -4900,12 +4900,12 @@ READINESS ACTIONS AS RECOMMENDED."""),
                 "TROPICAL STORM FORCE WINDS COULD STILL IMPACT THE REGION. "
             t+=self._specific_wind_stmt(info, intro="MAXIMUM WINDS OF ", end=" ARE EXPECTED. ")
             t+=self._fallBelow_stmt(info, end=". ")
-            
+
         if not info.anyLand and info.anyMarine:
             t+="AS THE REMNANTS OF "+self._stormTypeName+" AFFECT THE AREA..."
             if info.maxWind >= 34:
                 t+=" SUSTAINED WINDS EQUIVALENT TO "
-                windDesc = self._marineWindDesc(info) +" WINDS ARE STILL EXPECTED. " 
+                windDesc = self._marineWindDesc(info) +" WINDS ARE STILL EXPECTED. "
             else:
                 t+=" GALE FORCE WINDS COULD STILL IMPACT THE REGION. "
             t+=self._specific_wind_stmt(info, intro="WINDS OF ", end="ARE EXPECTED")+ ". "
@@ -4938,14 +4938,14 @@ READINESS ACTIONS AS RECOMMENDED."""),
         t+= ". MUCH DEPENDS ON THE PRECISE SIZE...INTENSITY...AND TRACK OF THE SYSTEM IF IT MORE FULLY DEVELOPS. SINCE THERE IS CONSIDERABLE UNCERTAINTY...CLOSELY MONITOR THE LATEST FORECAST."
 
         return t
-    
+
     ##############
 
     #  Changed 02/10/2011 (MHB) - Modified to not use "inundation up to 3 to 5 ft"
     #  terminology.  Will only use "up to" wording with inundation values < 2 ft.
     #  Otherwise will use "inundation of 3 to 5 ft" wording instead.  This
     #  change will impact all of the surge wording templates.
-    
+
     def _surge_Watch_Advancing(self, info):
         t=""
         t+="IT IS STILL TOO EARLY TO DETERMINE THE EXACT HEIGHTS OF COMBINED STORM SURGE AND TIDE WATERS FOR SPECIFIC LOCATIONS WITHIN THE FORECAST AREA TO BE CAUSED BY " + self._stormTypeName
@@ -4955,9 +4955,9 @@ READINESS ACTIONS AS RECOMMENDED."""),
             t+=`info.surgeHtPlusTideWTopo` +" FEET ABOVE MEAN SEA LEVEL WITHIN AREAS CLOSER TO THE COAST..."
             t+="RESULTING IN WORST CASE FLOOD INUNDATION "
             if info.surgeHtPlusTide > 2:
-                t+=" OF " + `info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND LEVEL SOMEWHERE WITHIN THE SURGE ZONE."
+                t+=" OF " + `info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN THE SURGE ZONE."
             else:
-                t+="UP TO " + `info.surgeHtPlusTide`+" FEET ABOVE GROUND LEVEL SOMEWHERE WITHIN THE SURGE ZONE."
+                t+="UP TO " + `info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN THE SURGE ZONE."
         else:
             t+=self._frame("ACCORDING TO THE LATEST SURGE GRIDS, COASTAL FLOODING IS LIKELY TO BE NEGLIGIBLE. PLEASE FURTHER DESCRIBE YOUR COASTAL FLOODING CONCERNS HERE OR DELETE THIS PARAGRAPH OR CONSIDER DELETING THE WHOLE STORM SURGE AND TIDE SECTION.")
         return t
@@ -4971,9 +4971,9 @@ READINESS ACTIONS AS RECOMMENDED."""),
             t+=`info.surgeHtPlusTideWTopo` +" FEET ABOVE MEAN SEA LEVEL WITHIN AREAS CLOSER TO THE COAST..."
             t+="RESULTING IN WORST CASE FLOOD INUNDATION "
             if info.surgeHtPlusTide > 2:
-                t+="OF " +`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND LEVEL SOMEWHERE WITHIN THE SURGE ZONE."
+                t+="OF " +`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN THE SURGE ZONE."
             else:
-                t+="UP TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND LEVEL SOMEWHERE WITHIN THE SURGE ZONE."
+                t+="UP TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN THE SURGE ZONE."
         else:
             t+=self._frame("ACCORDING TO THE LATEST SURGE GRIDS...COASTAL FLOODING IS LIKELY TO BE NEGLIGIBLE. PLEASE FURTHER DESCRIBE YOUR COASTAL FLOODING CONCERNS HERE OR DELETE THIS PARAGRAPH OR CONSIDER DELETING THE WHOLE STORM SURGE AND TIDE SECTION.")
         return t
@@ -4997,21 +4997,21 @@ READINESS ACTIONS AS RECOMMENDED."""),
             t+="IN WORST CASE FLOOD INUNDATION "
 
             if info.surgeHtPlusTide > 2:
-                t+="OF " +`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND LEVEL SOMEWHERE WITHIN THE SURGE ZONE."
+                t+="OF " +`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN THE SURGE ZONE."
             else:
-                t+="UP TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND LEVEL SOMEWHERE WITHIN THE SURGE ZONE."
+                t+="UP TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN THE SURGE ZONE."
 
             t+= "\n\nTHE LOCATIONS MOST LIKELY TO REALIZE THE GREATEST FLOODING INCLUDE "
             t+=self._frame("RELATIVE TO THE SEGMENT...EXPLICITLY LIST LOCATIONS OF GREATEST CONCERN RELATIVE TO INUNDATION AS THAT IS WHAT THE IMPACT STATEMENT BELOW IS BASED ON FOR THE WORST AFFECTED AREA, INCLUDE INLAND REACH OF THE INUNDATION WATERS. FURTHER DESCRIBE INUNDATION ELSEWHERE WITHIN THE SURGE ZONE AS APPLICABLE. BE AWARE THAT LOCATIONS EXPERIENCING THE HIGHEST STORM SURGE AND TIDE MAY NOT REALIZE THE GREATEST INUNDATION. ")
             t+="THE MOST LIKELY PERIOD OF IMPACT WILL BE "
-            t+=self._frame("BE SURE TO CITE THE EXPECTED PERIOD OF ONSET. REMEMBER SURGE WATERS OFTEN ARRIVE WELL BEFORE THE CORE WINDS. ")
+            t+=self._frame("BE SURE TO CITE THE EXPECTED PERIOD OF ONSET. REMEMBER SURGE WATERS OFTEN ARRIVE WELL BEFORE THE CORE WINDS AND CAN RISE VERY QUICKLY. ")
 
         else:
             t+="THE IMPACT FROM COMBINED STORM SURGE AND TIDE WATERS IS EXPECTED TO BE MINIMAL. "
             t+=self._frame("ACCORDING TO THE LATEST SURGE GRIDS...COASTAL FLOODING IS LIKELY TO BE NEGLIGIBLE. PLEASE FURTHER DESCRIBE YOUR COASTAL FLOODING CONCERNS HERE...LEAVE THIS STATEMENT AS IS OR DELETE THE STORM SURGE SECTION ALL TOGETHER. ")
 
         return t
-    
+
 
     def _surge_Warning_Peripheral(self, info):
         t = ""
@@ -5023,14 +5023,14 @@ READINESS ACTIONS AS RECOMMENDED."""),
             t+="IN WORST CASE FLOOD INUNDATION "
 
             if info.surgeHtPlusTide > 2:
-                t+="OF "+`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND LEVEL SOMEWHERE WITHIN THE SURGE ZONE."
+                t+="OF "+`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN THE SURGE ZONE."
             else:
-                t+="UP TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND LEVEL SOMEWHERE WITHIN THE SURGE ZONE."
+                t+="UP TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN THE SURGE ZONE."
 
             t+= "\n\nTHE LOCATIONS MOST LIKELY TO REALIZE THE GREATEST FLOODING INCLUDE "
             t+=self._frame("RELATIVE TO THE SEGMENT...EXPLICITLY LIST LOCATIONS OF GREATEST CONCERN RELATIVE TO INUNDATION AS THAT IS WHAT THE IMPACT STATEMENT BELOW IS BASED ON FOR THE WORST AFFECTED AREA, INCLUDE INLAND REACH OF THE INUNDATION WATERS. FURTHER DESCRIBE INUNDATION ELSEWHERE WITHIN THE SURGE ZONE AS APPLICABLE. BE AWARE THAT LOCATIONS EXPERIENCING THE HIGHEST STORM SURGE AND TIDE MAY NOT REALIZE THE GREATEST INUNDATION. ")
             t+="THE MOST LIKELY PERIOD OF IMPACT WILL BE "
-            t+=self._frame("BE SURE TO CITE THE EXPECTED PERIOD OF ONSET. REMEMBER SURGE WATERS OFTEN ARRIVE WELL BEFORE THE CORE WINDS. ")
+            t+=self._frame("BE SURE TO CITE THE EXPECTED PERIOD OF ONSET. REMEMBER SURGE WATERS OFTEN ARRIVE WELL BEFORE THE CORE WINDS AND CAN RISE VERY QUICKLY. ")
 
         else:
             t+="THE IMPACT FROM COMBINED STORM SURGE AND TIDE WATERS IS EXPECTED TO BE MINIMAL. "
@@ -5055,17 +5055,17 @@ READINESS ACTIONS AS RECOMMENDED."""),
             t+="LEVEL WITHIN AREAS CLOSER TO THE COAST WILL RESULT IN WORST CASE FLOOD INUNDATION "
 
             if info.surgeHtPlusTide > 2:
-                t+="OF "+`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND LEVEL SOMEWHERE WITHIN PARTS OF THE SURGE ZONE."
+                t+="OF "+`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN PARTS OF THE SURGE ZONE."
             else:
-                t+="UP TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND LEVEL SOMEWHERE WITHIN PARTS OF THE SURGE ZONE."
+                t+="UP TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN PARTS OF THE SURGE ZONE."
 
             t+="\n\nTHE LOCATIONS MOST LIKELY TO REALIZE THE GREATEST FLOODING INCLUDE "
-            t+=self._frame("RELATIVE TO THE SEGMENT...EXPLICITLY LIST LOCATIONS OF GREATEST CONCERN RELATIVE TO INUNDATION AS THAT IS WHAT THE IMPACT STATEMENT BELOW IS BASED ON FOR THE WORST AFFECTED AREA, INCLUDE INLAND REACH OF THE INUNDATION WATERS; FURTHER DESCRIBE INUNDATION ELSEWHERE WITHIN THE SURGE ZONE AS APPLICABLE; BE AWARE THAT LOCATIONS EXPERIENCING THE HIGHEST STORM SURGE AND TIDE MAY NOT REALIZE THE GREATEST INUNDATION.")
+            t+=self._frame("RELATIVE TO THE SEGMENT...EXPLICITLY LIST LOCATIONS OF GREATEST CONCERN RELATIVE TO INUNDATION AS THAT IS WHAT THE IMPACT STATEMENT BELOW IS BASED ON FOR THE WORST AFFECTED AREA, INCLUDE INLAND REACH OF THE INUNDATION WATERS; FURTHER DESCRIBE INUNDATION ELSEWHERE WITHIN THE SURGE ZONE AS APPLICABLE; BE AWARE THAT LOCATIONS EXPERIENCING THE HIGHEST STORM SURGE AND TIDE MAY NOT REALIZE THE GREATEST INUNDATION. ALSO STRESS THE RAPID WATER RISES THAT ARE LIKELY. ")
         else:
             t+="THE IMPACT FROM COMBINED STORM SURGE AND TIDE WATERS IS EXPECTED TO BE MINIMAL. "
             t+=self._frame("ACCORDING TO THE LATEST SURGE GRIDS, COASTAL FLOODING IS NEGLIGIBLE. PLEASE FURTHER DESCRIBE YOUR COASTAL FLOODING CONCERNS HERE, LEAVE THIS STATEMENT AS IS OR DELETE THE STORM SURGE SECTION ALL TOGETHER.")
         return t
-    
+
     def _surge_Conditions_Ongoing(self, info):
         t = ""
         if info.surgeHtPlusTide > 0:
@@ -5074,17 +5074,17 @@ READINESS ACTIONS AS RECOMMENDED."""),
             t+="AND RESULTING IN WORST CASE FLOOD INUNDATION "
 
             if info.surgeHtPlusTide > 2:
-                t+="OF "+`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND LEVEL SOMEWHERE WITHIN PARTS OF THE SURGE ZONE."
+                t+="OF "+`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN PARTS OF THE SURGE ZONE."
             else:
-                t+="UP TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND LEVEL SOMEWHERE WITHIN PARTS OF THE SURGE ZONE."
-            
+                t+="UP TO "+`info.surgeHtPlusTide`+" FEET ABOVE GROUND SOMEWHERE WITHIN PARTS OF THE SURGE ZONE."
+
             t+="\n\nTHE LOCATIONS MOST LIKELY REALIZING THE GREATEST FLOODING INCLUDE "
             t+=self._frame("RELATIVE TO THE SEGMENT...EXPLICITLY LIST LOCATIONS OF GREATEST CONCERN RELATIVE TO INUNDATION AS THAT IS WHAT THE IMPACT STATEMENT BELOW IS BASED ON FOR THE WORST AFFECTED AREA, INCLUDE INLAND REACH OF THE INUNDATION WATERS; FURTHER DESCRIBE INUNDATION ELSEWHERE WITHIN THE SURGE ZONE AS APPLICABLE; BE AWARE THAT LOCATIONS EXPERIENCING THE HIGHEST STORM SURGE AND TIDE MAY NOT REALIZE THE GREATEST INUNDATION.")
         else:
             t+= "MINIMAL STORM TIDE IMPACTS ARE BEING OBSERVED. "
             t+=self._frame("ACCORDING TO THE LATEST SURGE GRIDS...COASTAL FLOODING IS NEGLIGIBLE. PLEASE FURTHER DESCRIBE YOUR COASTAL FLOODING CONCERNS HERE, LEAVE THIS STATEMENT AS IS OR DELETE THE STORM SURGE SECTION ALL TOGETHER.")
         return t
-    
+
 
     def _surge_Conditions_Diminishing(self, info):
         t = ""
@@ -5093,7 +5093,7 @@ READINESS ACTIONS AS RECOMMENDED."""),
             t+="DO NOT ATTEMPT TO RETURN TO EVACUATED AREAS UNTIL OFFICIAL CONFIRMATION IS "
             t+="RECEIVED THAT IT IS SAFE TO DO SO. "
             t+="\n\nCOMBINED STORM SURGE AND ASTRONOMICAL TIDE WATERS UP TO "+`info.surgeHtPlusTideWTopo` + " "
-            t+=self._frame("KEEP IN MIND THIS IS THE ONE SCENARIO WHERE YOU SHOULD CONSIDER USING VALUES BASED ON THE REAL TIME SLOSH RUN AVAILABLE AT THE TIME OF LANDFALL WHICH IS AN OPTION IN THE TC COASTAL FLOOD THREAT IMPACT GRAPHIC TOOL. THIS IS IN CASE YOU USED THE 10% EXCEEDANCE HEIGHT WHEN CREATING THE GRID FROM WHERE THE SURGE AND TIDE INFO HERE COMES FROM.")
+            t+=self._frame("THIS IS ONE CASE WHERE MORE DETERMINISTIC VALUES CAN BE DRAWN FROM SLOSH OR OTHER SOURCES.")
             t+=" FEET ABOVE MEAN SEA LEVEL WERE LIKELY REALIZED WITHIN AREAS CLOSER TO THE COAST RESULTING "
             t+="IN WORST CASE FLOOD INUNDATION "
 
@@ -5101,14 +5101,14 @@ READINESS ACTIONS AS RECOMMENDED."""),
                 t+="OF "+`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`
             else:
                 t+="UP TO "+`info.surgeHtPlusTide`
- 
+
             t+=self._frame("SAME COMMENT HERE AS ABOVE BUT RELATIVE TO INUNDATION.")
-            t+=" FEET ABOVE GROUND LEVEL. " 
+            t+=" FEET ABOVE GROUND. "
         else:
             t+="MINIMAL STORM TIDE IMPACTS ARE BEING OBSERVED. "
             t+=self._frame("ACCORDING TO THE LATEST SURGE GRIDS...COASTAL FLOODING IS NEGLIGIBLE. PLEASE FURTHER DESCRIBE YOUR COASTAL FLOODING CONCERNS HERE, LEAVE THIS STATEMENT AS IS OR DELETE THE STORM SURGE SECTION ALL TOGETHER.")
         return t
-    
+
 
     #############
     def _surge_PostEvent(self, info, scenario):
@@ -5128,20 +5128,20 @@ READINESS ACTIONS AS RECOMMENDED."""),
         t = ""
         if info.surgeHtPlusTide > 0:
             t+="AS "+self._stormTypeName+" IMPACTS THE FORECAST AREA...COMBINED STORM SURGE AND ASTRONOMICAL TIDE WATERS UP TO "
-            t+=`info.surgeHtPlusTideWTopo` 
+            t+=`info.surgeHtPlusTideWTopo`
             t+=" FEET ABOVE MEAN SEA LEVEL WITHIN AREAS CLOSER TO THE COAST WILL LIKELY RESULT IN WORST CASE FLOOD INUNDATION "
             if info.surgeHtPlusTide > 2:
                 t+="OF "+`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`
             else:
-                t+="UP TO "+`info.surgeHtPlusTide`            
-            t+=" FEET ABOVE GROUND LEVEL SOMEWHERE WITHIN THE SURGE ZONE. "  
+                t+="UP TO "+`info.surgeHtPlusTide`
+            t+=" FEET ABOVE GROUND SOMEWHERE WITHIN THE SURGE ZONE. "
             t+="\n\nTHE LOCATIONS WHICH WILL LIKELY REALIZE THE GREATEST FLOODING INCLUDE "
             t+=self._frame("RELATIVE TO THE SEGMENT...EXPLICITLY LIST LOCATIONS OF GREATEST INUNDATION CONCERNS, INCLUDING INLAND REACH; FURTHER DESCRIBE INUNDATION ELSEWHERE WITHIN THE SURGE ZONE AS APPLICABLE.")
         else:
             t+="THE IMPACT FROM COMBINED STORM SURGE AND TIDE WATERS IS EXPECTED TO BE MINIMAL. "
             t+=self._frame("ACCORDING TO THE LATEST SURGE GRIDS...COASTAL FLOODING IS LIKELY TO BE NEGLIGIBLE. PLEASE FURTHER DESCRIBE YOUR COASTAL FLOODING CONCERNS HERE, LEAVE THIS STATEMENT AS IS OR DELETE THE STORM SURGE SECTION ALL TOGETHER.")
         return t
-        
+
     def _surge_PostTropical_Completed(self, info):
         t = ""
         if info.surgeHtPlusTide > 0:
@@ -5150,8 +5150,8 @@ READINESS ACTIONS AS RECOMMENDED."""),
             if info.surgeHtPlusTide > 2:
                 t+="OF "+`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`
             else:
-                t+="UP TO "+`info.surgeHtPlusTide` 
-            t+=" FEET ABOVE GROUND LEVEL SOMEWHERE WITHIN THE SURGE ZONE."
+                t+="UP TO "+`info.surgeHtPlusTide`
+            t+=" FEET ABOVE GROUND SOMEWHERE WITHIN THE SURGE ZONE."
             t+="\n\nTHE LOCATIONS WHICH WILL LIKELY REALIZE THE GREATEST FLOODING INCLUDE "
             t+=self._frame("RELATIVE TO THE SEGMENT...EXPLICITLY LIST LOCATIONS OF GREATEST INUNDATION CONCERNS, INCLUDING INLAND REACH; FURTHER DESCRIBE INUNDATION ELSEWHERE WITHIN THE SURGE ZONE AS APPLICABLE.")
         else:
@@ -5169,13 +5169,13 @@ READINESS ACTIONS AS RECOMMENDED."""),
         water_dict = self._totalWaterLevel_dict(info, segment)
         if info.surgeHtPlusTide  >= water_dict.get("Extreme", 7):
             damage="WIDESPREAD MAJOR"
-            
+
         elif info.surgeHtPlusTide >= water_dict.get("High", 5):
             damage="AREAS OF MAJOR"
-            
+
         elif info.surgeHtPlusTide  >= water_dict.get("Moderate", 3):
             damage="AREAS OF MODERATE"
-            
+
         elif info.surgeHtPlusTide  >= water_dict.get("Low", 1):
             damage="AREAS OF MINOR"
         else:
@@ -5184,20 +5184,20 @@ READINESS ACTIONS AS RECOMMENDED."""),
             t+="\n\n"+self._frame("AT THIS TIME...THERE IS A GENERAL CONCERN " +
                                   "FOR THE CHANCE OF "+ damage +
                                   " COASTAL FLOODING.")
-        return t    
+        return t
 
     def _surge_Impact_stmt(self, info, segment):
         t=""
         water_dict = self._totalWaterLevel_dict(info, segment)
         if info.surgeHtPlusTide  >= water_dict.get("Extreme", 7):
             damage= self._totalWaterLevel_Extreme_stmt(info, segment)
-            
+
         elif info.surgeHtPlusTide >= water_dict.get("High", 5):
             damage= self._totalWaterLevel_High_stmt(info, segment)
-            
+
         elif info.surgeHtPlusTide  >= water_dict.get("Moderate", 3):
             damage= self._totalWaterLevel_Moderate_stmt(info, segment)
-            
+
         elif info.surgeHtPlusTide  >= water_dict.get("Low", 1):
             damage= self._totalWaterLevel_Low_stmt(info, segment)
         else:
@@ -5213,7 +5213,7 @@ READINESS ACTIONS AS RECOMMENDED."""),
                 "High": 5,
                 "Moderate": 3,
                 "Low": 1,
-                },            
+                },
             "default": {
                 "Extreme": 7,
                 "High": 5,
@@ -5221,7 +5221,7 @@ READINESS ACTIONS AS RECOMMENDED."""),
                 "Low": 1,
                 },
             }
-        
+
     def _totalWaterLevel_dict(self, info, segment):
         # SurgeHtPlusTide thresholds for Total Water Level statements.
         #  The threshold values for the segment will be determined by
@@ -5236,7 +5236,7 @@ READINESS ACTIONS AS RECOMMENDED."""),
             elif zone_dict["Extreme"] < return_dict["Extreme"]:
                 return_dict = zone_dict
         return return_dict
-    
+
     def _totalWaterLevel_Extreme_stmt(self, info, segment):
         t = ""
         t+= """
@@ -5246,7 +5246,7 @@ IS FOR THE CHANCE OF WIDESPREAD MAJOR COASTAL FLOODING TO OCCUR
 WITHIN THE SURGE ZONE...RESULTING IN DEVASTATING AND LIFE-
 THREATENING INUNDATION. IF REALIZED...PEOPLE WITHIN THE
 THREATENED AREAS WHO FAILED TO HEED OFFICIAL EVACUATION ORDERS
-WILL LIKELY DIE. 
+WILL LIKELY DIE.
 
 COASTAL COMMUNITIES WILL LIKELY BE DEVASTATED...WITH NUMEROUS
 HOMES AND BUSINESSES NEAR THE SHORE COMPLETELY DESTROYED.
@@ -5254,7 +5254,7 @@ SHORESIDE CONDOMINIUMS AND HOTELS MAY ALSO BE DESTROYED...
 ESPECIALLY THOSE WITH INADEQUATE STRUCTURAL SUPPORT. FLOOD WATERS
 ARE LIKELY TO EXTEND WELL INLAND...FURTHER EXPANDING THE OVERALL
 THREAT TO LIFE AND PROPERTY. VEHICLES OF ANY TYPE WILL LIKELY BE
-SUBMERGED OR SWEPT AWAY. 
+SUBMERGED OR SWEPT AWAY.
 
 ROADS AND BRIDGES WILL LIKELY BE DAMAGED OR WASHED OUT BY THE
 COMBINED EFFECTS OF STORM SURGE AND TIDE WATERS...BATTERING
@@ -5281,7 +5281,7 @@ WAVES AND FLOATING DEBRIS. SOME SHORESIDE CONDOMINIUMS AND HOTELS
 MAY ALSO BE DAMAGED...ESPECIALLY THOSE WITH INADEQUATE STRUCTURAL
 SUPPORT. FLOOD WATERS ARE LIKELY TO EXTEND WELL INLAND...FURTHER
 EXPANDING THE OVERALL THREAT TO LIFE AND PROPERTY. MOST VEHICLES
-OF ANY TYPE WILL LIKELY BE SUBMERGED OR SWEPT AWAY. 
+OF ANY TYPE WILL LIKELY BE SUBMERGED OR SWEPT AWAY.
 
 SEVERE BEACH EROSION WILL OCCUR. MOST ROADS AND SOME BRIDGES WILL
 LIKELY BE DAMAGED OR WASHED OUT...LEAVING ENTIRE FLOOD-PRONE
@@ -5289,7 +5289,7 @@ COASTAL COMMUNITIES CUT OFF...PERHAPS FOR A WEEK OR MORE...AND
 WITH NO POWER OR WATER.
 """
         return t
-    
+
     def _totalWaterLevel_Moderate_stmt(self, info, segment):
         t = ""
         t+= """
@@ -5302,7 +5302,7 @@ THREATENED AREAS WHO FAILED TO HEED OFFICIAL EVACUATION ORDERS
 WILL HAVE NEEDLESSLY PLACED THEIR LIVES IN DANGER. THIS IS
 ESPECIALLY TRUE FOR THOSE STAYING BEHIND IN VULNERABLE LOCATIONS
 SUCH AS HOMES AND BUSINESSES NEAR THE SHORE...AND ONE STORY
-DWELLINGS IN FLOOD-PRONE AREAS. 
+DWELLINGS IN FLOOD-PRONE AREAS.
 
 SEVERAL COASTAL COMMUNITIES WILL LIKELY BE DAMAGED...WITH THOSE
 STRUCTURES NOT RAISED OR PROTECTED BY A SEAWALL BEING SUBJECT TO
@@ -5327,7 +5327,7 @@ CONCERN IS FOR THE CHANCE OF MINOR COASTAL FLOODING TO OCCUR IN
 AREAS WITHIN THE SURGE ZONE...RESULTING IN SHALLOW INUNDATION. IF
 REALIZED...PEOPLE WITHIN THE THREATENED AREAS WHO FAILED TO ACT
 ACCORDING TO THEIR PERSONAL DISASTER PLAN WILL HAVE NEEDLESSLY
-PLACED THEMSELVES AT SOME MEASURE OF RISK. 
+PLACED THEMSELVES AT SOME MEASURE OF RISK.
 
 MANY HOMES AND BUSINESSES ALONG THE SHORELINE...OR IN FLOOD-PRONE
 AREAS...WILL LIKELY EXPERIENCE SOME WATER ENTERING INSIDE...
@@ -5335,7 +5335,7 @@ ESPECIALLY FOR THOSE STRUCTURES NOT RAISED OR PROTECTED BY A
 SEAWALL. HIGHER WAVES AND POUNDING SURF WILL INCREASE THE
 LIKELIHOOD OF PROPERTY DAMAGE NEAR THE COAST...ESPECIALLY IN
 EXPOSED LOCATIONS. SOME CARS MAY TAKE ON WATER OR EVEN BECOME
-DISPLACED. 
+DISPLACED.
 
 MODERATE BEACH EROSION WILL OCCUR...WHICH MAY BECOME SUBSTANTIAL
 IF CONDITIONS EXTEND THROUGH MULTIPLE HIGH TIDES. SEVERAL ROADS
@@ -5351,7 +5351,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
 
     ## In general, "stmt" methods do not add periods or carriage returns
     ## It is up to the calling method to do so
-    
+
     def _prob_stmts(self, info, ifWording=False):
         t=""
         probHurricane = self._probHurricane_stmt(info, end=". ")
@@ -5366,7 +5366,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
             t+=self._onsetTropStorm_stmt(info, ifWording, end=". ")
             t+=self._onsetHurricane_stmt(info, ifWording, end=". ")
         return t
-    
+
     def _probHurricane_thresholds(self):
         return {
             "littleChance": 3,
@@ -5398,7 +5398,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
         maxProb = int(maxProb)
         if maxProb < little:
             t+="THERE IS LITTLE CHANCE FOR "+conditions+" CONDITIONS AT THIS TIME"
-        else: 
+        else:
             t+="THE CHANCE FOR "+conditions+" CONDITIONS AT THIS TIME IS "
             if maxProb > chance:
                 if minProb < little:
@@ -5412,13 +5412,13 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
                 t+= " PERCENT"
             else: t+="VERY SMALL"
         return t + end
-    
+
     def _probHurricane_stmt(self, info, end=""):
         thresholds = self._probHurricane_thresholds()
         return self._probStorm_stmt(
             info, self._probHurricane_thresholds(), info.minProb64, info.maxProb64,
             conditions="HURRICANE", end=end)
-                        
+
     def _probTropStorm_stmt(self, info, end=""):
         thresholds = self._probTropStorm_thresholds()
         return self._probStorm_stmt(
@@ -5446,7 +5446,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
         if info.wind34Time.startTime() <= curTime + 24*3600:
             return False
         return True
-           
+
     def _onsetHurricane_stmt(self, info, ifWording=False, end=""):
         thresholds = self._probHurricane_thresholds()
         t=""
@@ -5463,16 +5463,16 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
             t+=self._formatPeriod(info.maxINTprob64, resolution=6)
             t+=end
         return t
-    
+
     def _onsetTropStorm_stmt(self, info, ifWording=False, end=""):
         thresholds = self._probTropStorm_thresholds()
-        t=""        
+        t=""
         if ifWording:
             condition = info.maxProb34 > thresholds.get('onset', 20)
         else:
-            condition = info.maxWind >= 34            
-            
-        if condition:          
+            condition = info.maxWind >= 34
+
+        if condition:
             if ifWording:
                 t+="IF TROPICAL STORM CONDITIONS WERE TO OCCUR...THE MOST LIKELY PERIOD OF ONSET IS "
             else:
@@ -5489,7 +5489,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
                 intro="TROPICAL STORM FORCE WINDS ARE CURRENTLY FORECAST TO BEGIN AFFECTING THE AREA "
             t+=intro + self._formatPeriod(timeRange)
             t+=end
-        return t        
+        return t
 
     def _windContinue_stmt(self, info, period, intro=None, end=""):
         t=""
@@ -5498,7 +5498,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
         if period is None: return t + end
         t+="THROUGH " + self._formatPeriod(period, useEndTime=True) + end
         return t
-                
+
     def _fallBelow_stmt(self, info, intro=None, marine=False, end=""):
         t= ""
         if info.windDur[64] is None and info.windDur[34] is None: return t
@@ -5534,7 +5534,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
             endResult = self._getTimeDesc(period.endTime(), resolution, shiftToLocal)
             #print "endResult", endResult
             if result != endResult:
-                result=result + " TO "+ endResult 
+                result=result + " TO "+ endResult
         return result
 
     def _getTimeDesc(self, startTime, resolution=3, shiftToLocal=True):
@@ -5544,7 +5544,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
         print "\n\n**************Formatting Period for GMT starttime ", startTime
         labels = self.Labels()["SimpleWorded"]
         currentTime = self._issueTime
-        print "   currentTime", currentTime  
+        print "   currentTime", currentTime
         if shiftToLocal:
             currentLocalTime, shift = self.determineTimeShift()
             startTime = startTime + shift
@@ -5588,7 +5588,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
             elif hour < 21:
                 partOfDay = "EARLY <weekday> EVENING"
             else:
-                partOfDay = "LATE <weekday> EVENING"    
+                partOfDay = "LATE <weekday> EVENING"
         else:
             if hour < 6:
                 prevDay = True
@@ -5612,7 +5612,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
         if withTiming and duration is not None:
             t+= " FROM " + self._formatPeriod(duration, wholePeriod=True)
         return t
-    
+
     def _categorical_wind_info(self, info):
         t=""
         if info.maxWind >= 64:
@@ -5628,7 +5628,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
             t+="WINDS TO REMAIN BELOW TROPICAL STORM FORCE"
             duration = None
         return t, duration
-    
+
     def _specific_wind_stmt(self, info, units=None, intro=None, duration=False, windDur=None,
                             addRange=False, end=None, reportWindValues=True):
         t=""
@@ -5684,7 +5684,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
             unitStr = " knots"
         lowVal = self._windRange_value(windKts, hiVal)
         return `int(lowVal)` + " TO " + `int(hiVal)` + unitStr
-        
+
     def _windRange_value(self, windKts, windValue):
         # Given windValue in kts, return the lower range value
         if windKts > 52:  return windValue - 20
@@ -5707,7 +5707,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
         if wind >=minVal:
             return True
         return False
-    
+
     def _getCategoryInfo(self, wind):
         catDict = self._hurricaneWind_categories()
 
@@ -5729,7 +5729,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
 
     def _getCategoryDamage(self, wind):
         # Convert from knots to mph
-        wind_mph = self._ktToMph(wind, "Wind")        
+        wind_mph = self._ktToMph(wind, "Wind")
         if wind_mph > 130:
             return "CATASTROPHIC DAMAGE"
         elif wind_mph > 110:
@@ -5748,7 +5748,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
             return "AT LEAST MINOR DAMAGE"
         else:
             return ""
-        
+
 ##         catDict = self._hurricaneWind_categories()
 ##         for key, label in [
 ##             ("Cat5","CATASTROPHIC DAMAGE"),
@@ -5765,7 +5765,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
 ##         elif wind >= 34:
 ##             return "AT LEAST MINOR DAMAGE"
 ##         return "DAMAGE"
-    
+
     def _windDesc(self, info):
         if info.maxWind >= 64:
             return "HURRICANE FORCE "
@@ -5775,7 +5775,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
             return "TROPICAL STORM FORCE "
         else:
             return "STRONG "
-        
+
     def _marineWindDesc(self, info):
         if info.maxWind >= 64:
             return "HURRICANE FORCE "
@@ -5785,7 +5785,7 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
             return "GALE FORCE "
         else:
             return "STRONG "
-        
+
     def _potentialImpact_thresholds(self):
         # Units are mph
         return {
@@ -5798,11 +5798,11 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
             'extremeDanger': 110,
             'devastating': 130,
             }
-    
+
     def _potentialImpact_stmt(self, info):
         if info.allMarine:  # No impact statements for marine yet.
             return ""
-        
+
         thresholds = self._potentialImpact_thresholds()
         t=""
         if info.maxWind is None: return t
@@ -5828,9 +5828,9 @@ IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
         else:
              t+="CATASTROPHIC DAMAGE IS EXPECTED.  COLLAPSE OF RESIDENTIAL STRUCTURES WILL PUT LIVES AT RISK. SEVERE INJURY OR DEATH IS LIKELY FOR PERSONS...PETS...AND LIVESTOCK STRUCK BY WIND BLOWN DEBRIS.  MOST OF THE AREA WILL BE UNINHABITABLE FOR WEEKS...PERHAPS LONGER.  MOST HOMES WILL BE DESTROYED...WITH TOTAL ROOF FAILURE AND WALL COLLAPSE.  NEARLY ALL INDUSTRIAL BUILDINGS AND LOW RISE APARTMENT BUILDINGS WILL BE SEVERELY DAMAGED OR DESTROYED.  NEARLY ALL WINDOWS WILL BE BLOWN OUT OF HIGH RISE BUILDINGS RESULTING IN FALLING GLASS...WHICH WILL POSE A THREAT FOR DAYS TO WEEKS AFTER THE STORM.  CONSIDERABLE STRUCTURAL DAMAGE TO LARGE BUILDINGS IS LIKELY.  NEARLY ALL TREES WILL BE SNAPPED OR UPROOTED AND POWER POLES DOWNED.  FALLEN TREES AND POWER POLES WILL ISOLATE RESIDENTIAL AREAS.  POWER OUTAGES WILL LAST FOR WEEKS TO POSSIBLY MONTHS.  LONG TERM WATER SHORTAGES WILL INCREASE HUMAN SUFFERING.\n"
         return self._frame(t)
-    
+
     def _genericImpact_stmt(self, info):
-        if info.allMarine:  
+        if info.allMarine:
             return ""
         t=""
         damage = self._getCategoryDamage(info.maxWind)
@@ -5873,28 +5873,28 @@ WATCHES AND WARNINGS
 --------------------
 CHANGES WITH THIS ADVISORY...
 
-*THE TROPICAL STORM WARNING AND TROPICAL STORM WATCH ALONG THE EAST 
+*THE TROPICAL STORM WARNING AND TROPICAL STORM WATCH ALONG THE EAST
 COAST OF FLORIDA NORTH OF JUPITER HAVE BEEN DISCONTINUED.
 
 
 SUMMARY OF WARNINGS AND WATCHES IN EFFECT...
 
 A HURRICANE WARNING IS IN EFFECT FOR...
-*THE SOUTHEAST FLORIDA COAST FROM JUPITER INLET SOUTHWARD TO  
+*THE SOUTHEAST FLORIDA COAST FROM JUPITER INLET SOUTHWARD TO
 FLORIDA CITY...INCLUDING LAKE OKEECHOBEE. PREPARATIONS TO PROTECT
-LIFE AND PROPERTY SHOULD HAVE BEEN COMPLETED.  
+LIFE AND PROPERTY SHOULD HAVE BEEN COMPLETED.
 
 A TROPICAL STORM WARNING IS IN EFFECT FOR...
 *ALL THE FLORIDA KEYS AND FLORIDA BAY FROM KEY WEST NORTHWARD
 *THE GULF COAST OF FLORIDA FROM LONGBOAT KEY SOUTH AND EASTWARD
 TO SOUTH OF FLORIDA CITY.
- 
-A TROPICAL STORM WATCH IS IN EFFECT FOR...
-*THE FLORIDA WEST COAST FROM NORTH OF LONGBOAT KEY TO ANCLOTE KEY.  
 
-INTERESTS ELSEWHERE ALONG THE GULF COAST OF THE UNITED STATES SHOULD 
+A TROPICAL STORM WATCH IS IN EFFECT FOR...
+*THE FLORIDA WEST COAST FROM NORTH OF LONGBOAT KEY TO ANCLOTE KEY.
+
+INTERESTS ELSEWHERE ALONG THE GULF COAST OF THE UNITED STATES SHOULD
 MONITOR THE PROGRESS OF KATRINA.
- 
+
 FOR STORM INFORMATION SPECIFIC TO YOUR AREA...INCLUDING POSSIBLE
 INLAND WATCHES AND WARNINGS...PLEASE MONITOR PRODUCTS ISSUED
 BY YOUR LOCAL WEATHER OFFICE.
@@ -5902,42 +5902,42 @@ BY YOUR LOCAL WEATHER OFFICE.
 
 DISCUSSION AND 48-HOUR OUTLOOK
 ------------------------------
-AT 11 PM EDT...0300 UTC...THE EYE OF HURRICANE KATRINA WAS LOCATED 
-NEAR LATITUDE 25.5 NORTH...LONGITUDE  80.7 WEST.  KATRINA IS MOVING 
-TOWARD THE SOUTHWEST NEAR 8 MPH...13 KM/HR AND THIS MOTION IS 
-EXPECTED TO CONTINUE DURING THE NEXT SEVERAL HOURS. KATRINA IS 
+AT 11 PM EDT...0300 UTC...THE EYE OF HURRICANE KATRINA WAS LOCATED
+NEAR LATITUDE 25.5 NORTH...LONGITUDE  80.7 WEST.  KATRINA IS MOVING
+TOWARD THE SOUTHWEST NEAR 8 MPH...13 KM/HR AND THIS MOTION IS
+EXPECTED TO CONTINUE DURING THE NEXT SEVERAL HOURS. KATRINA IS
 EXPECTED TO MOVE OVER THE GULF OF MEXICO FRIDAY AND SATURDAY.
 
-MAXIMUM SUSTAINED WINDS ARE NEAR 75 MPH...130 KM/HR WITH HIGHER 
-GUSTS. KATRINA IS A CATEGORY ONE HURRICANE ON THE SAFFIR-SIMPSON 
-SCALE.  SOME ADDITIONAL WEAKENING IS ANTICIPATED WHILE KATRINA IS 
+MAXIMUM SUSTAINED WINDS ARE NEAR 75 MPH...130 KM/HR WITH HIGHER
+GUSTS. KATRINA IS A CATEGORY ONE HURRICANE ON THE SAFFIR-SIMPSON
+SCALE.  SOME ADDITIONAL WEAKENING IS ANTICIPATED WHILE KATRINA IS
 OVER LAND...AND IT COULD WEAKEN TO A TROPICAL STORM EARLY ON FRIDAY.
-RESTRENGTHENING IS EXPECTED ON FRIDAY OR SATURDAY...AND KATRINA 
-COULD BECOME A DANGEROUS HURRICANE IN THE GULF OF MEXICO IN 2 TO 
+RESTRENGTHENING IS EXPECTED ON FRIDAY OR SATURDAY...AND KATRINA
+COULD BECOME A DANGEROUS HURRICANE IN THE GULF OF MEXICO IN 2 TO
 3 DAYS.
 
-HURRICANE FORCE WINDS EXTEND OUTWARD UP TO 10 MILES FROM THE 
-CENTER...AND TROPICAL STORM FORCE WINDS EXTEND OUTWARD UP TO 
-70 MILES.  A WIND GUST TO 87 MPH...140 KM/HR WAS RECORDED AT MIAMI 
-NATIONAL WEATHER SERVICE FORECAST OFFICE/NATIONAL HURRICANE CENTER 
-AND 81 MPH...131 KM/HR AT THE TAMIAMI AIRPORT THIS EVENING. 
+HURRICANE FORCE WINDS EXTEND OUTWARD UP TO 10 MILES FROM THE
+CENTER...AND TROPICAL STORM FORCE WINDS EXTEND OUTWARD UP TO
+70 MILES.  A WIND GUST TO 87 MPH...140 KM/HR WAS RECORDED AT MIAMI
+NATIONAL WEATHER SERVICE FORECAST OFFICE/NATIONAL HURRICANE CENTER
+AND 81 MPH...131 KM/HR AT THE TAMIAMI AIRPORT THIS EVENING.
 
 ESTIMATED MINIMUM CENTRAL PRESSURE IS 984 MB...29.06 INCHES.
 
 
 STORM HAZARDS
 -------------
-STORM SURGE FLOODING...2 TO 4 FEET ABOVE NORMAL TIDE LEVELS...CAN BE 
-EXPECTED ALONG THE WEST COAST OF FLORIDA IN AREAS OF ONSHORE FLOW 
-SOUTH OF VENICE AND IN FLORIDA BAY. STORM SURGE SHOULD BEGIN TO 
-DECREASE ALONG THE EAST COAST OF FLORIDA.   
+STORM SURGE FLOODING...2 TO 4 FEET ABOVE NORMAL TIDE LEVELS...CAN BE
+EXPECTED ALONG THE WEST COAST OF FLORIDA IN AREAS OF ONSHORE FLOW
+SOUTH OF VENICE AND IN FLORIDA BAY. STORM SURGE SHOULD BEGIN TO
+DECREASE ALONG THE EAST COAST OF FLORIDA.
 
-RAINFALL...KATRINA IS EXPECTED TO PRODUCE A SIGNIFICANT HEAVY 
-RAINFALL EVENT OVER SOUTH FLORIDA...AND THE FLORIDA KEYS. TOTAL 
-RAINFALL ACCUMULATIONS OF 6 TO 10 INCHES WITH ISOLATED MAXIMUM 
+RAINFALL...KATRINA IS EXPECTED TO PRODUCE A SIGNIFICANT HEAVY
+RAINFALL EVENT OVER SOUTH FLORIDA...AND THE FLORIDA KEYS. TOTAL
+RAINFALL ACCUMULATIONS OF 6 TO 10 INCHES WITH ISOLATED MAXIMUM
 AMOUNTS OF 15 TO 20 INCHES ARE POSSIBLE.
- 
-TORNADOES...ISOLATED TORNADOES WILL ALSO BE POSSIBLE OVER EASTERN 
+
+TORNADOES...ISOLATED TORNADOES WILL ALSO BE POSSIBLE OVER EASTERN
 FLORIDA AND THE FLORIDA KEYS.
 
 
@@ -5946,9 +5946,9 @@ NEXT ADVISORY
 NEXT INTERMEDIATE ADVISORIES...100 AM AND 300 AM EDT.
 NEXT COMPLETE ADVISORY...500 AM EDT.
 
-$$ 
+$$
 FORECASTER AVILA
- 
+
 NNNN
 """
 ##        return """
@@ -5962,7 +5962,7 @@ NNNN
 ##...LINDA BECOMES A HURRICANE...THE SIXTH HURRICANE OF THE EASTERN
 ##PACIFIC SEASON...
 ##
-## 
+##
 ##SUMMARY OF 800 PM PDT...0300 UTC...INFORMATION
 ##----------------------------------------------
 ##LOCATION...17.1N 129.4W
@@ -5980,10 +5980,10 @@ NNNN
 ##DISCUSSION AND 48-HOUR OUTLOOK
 ##------------------------------
 ##AT 800 PM PDT...0300 UTC...THE CENTER OF HURRICANE LINDA WAS LOCATED
-##NEAR LATITUDE 17.1 NORTH...LONGITUDE 129.4 WEST.  LINDA IS MOVING 
+##NEAR LATITUDE 17.1 NORTH...LONGITUDE 129.4 WEST.  LINDA IS MOVING
 ##TOWARD THE NORTHWEST NEAR 6 MPH...9 KM/HR...AND THIS GENERAL MOTION
 ##IS EXPECTED TO CONTINUE FOR THE NEXT COUPLE OF DAYS.
-## 
+##
 ##MAXIMUM SUSTAINED WINDS ARE NEAR 80 MPH...130 KM/HR...WITH HIGHER
 ##GUSTS.  LITTLE CHANGE IN STRENGTH IS EXPECTED TONIGHT AND THURSDAY...
 ##WITH LINDA FORECAST TO WEAKEN THURSDAY NIGHT AND FRIDAY.
@@ -5991,7 +5991,7 @@ NNNN
 ##HURRICANE FORCE WINDS EXTEND OUTWARD UP TO 25 MILES...35 KM...FROM
 ##THE CENTER...AND TROPICAL STORM FORCE WINDS EXTEND OUTWARD UP TO
 ##125 MILES...205 KM.
-## 
+##
 ##ESTIMATED MINIMUM CENTRAL PRESSURE IS 984 MB...29.06 INCHES.
 ##
 ##
@@ -6035,7 +6035,7 @@ NNNN
             if overviewDict is None:
                 return None
             break
-        
+
         # Situation GUI (per segment)
         situationDict = self._displayGUI(argDict, segmentList, "Situation", overviewDict)
         if situationDict is None:
@@ -6044,7 +6044,7 @@ NNNN
         # Scenario GUI (per segment)
         scenarioDict = self._displayGUI(argDict, segmentList, "Scenario", situationDict)
         if scenarioDict is None:
-            return None        
+            return None
 
         # Consolidate information from GUI's
         varDict = overviewDict
@@ -6066,7 +6066,7 @@ NNNN
         if gfeMode == "PRACTICE":
             argDict["vtecActiveTable"] = "PRACTICE"
         else:
-            argDict["vtecActiveTable"] = "active"            
+            argDict["vtecActiveTable"] = "active"
         argDict['creationTime'] = int(time.time()/60)*60.0
         argDict["definition"] = definition
         accessor = ModuleAccessor.ModuleAccessor()
@@ -6094,7 +6094,7 @@ NNNN
         # "Overlay" the forecaster-entered combinations onto the segments
         segmentList = self._refineSegments(hazSegments, combos)
         print "\nNew segments", segmentList
-        
+
         # Check for all CON
         allCON = True
         segmentAreas = []
@@ -6115,11 +6115,11 @@ NNNN
         #   --If there are no Continuations, limit to abbreviated UNLESS
         #   --If all are HU.S, do not limit to abbreviated, but do limit to Pre or Non Event
         #   --IF all are CAN, UPG (ignoreActions), do not limit to abbreviated
-       
+
         noCON = True
         allHUS = True
         allIgnoreActions = True
-       
+
         segmentAreas = []
         for segmentAreas in hazSegments:
             hazardList = hazards.getHazardList(segmentAreas)
@@ -6142,7 +6142,7 @@ NNNN
         #print "allIgnoreActions", allIgnoreActions
         #print "forceAbbrev", forceAbbrev
 
-        # Determine if sigs are watches and/or statements to limit 
+        # Determine if sigs are watches and/or statements to limit
 
         watchEC = True
         segmentAreas = []
@@ -6158,7 +6158,7 @@ NNNN
 
 
         ### Determine if all actions are cancel to limit to Post Event ot Tropical
-        
+
         allCAN = True
         segmentAreas = []
         for segmentAreas in hazSegments:
@@ -6239,11 +6239,11 @@ NNNN
                 iscDB = str(dbs[-1])   #last one is the real one by convention
             else:
                 iscDB = str(DatabaseID.databaseID_default().toJavaObj())
-                
+
             return iscDB
-    
+
     def _findSegment(self, areaName):
-        for segment in self._segmentList:            
+        for segment in self._segmentList:
             if areaName in segment:
                 return segment
         return []
@@ -6261,7 +6261,7 @@ NNNN
             elif type(area) is types.TupleType: #LatLon
                 editAreas.append([self.__getLatLonAreaName(area)])
             else:
-                editAreas.append([area])                
+                editAreas.append([area])
         # Get Product ID and other info for HazardsTable
         pil = self._pil
         stationID4 = self._fullStationID
@@ -6270,7 +6270,7 @@ NNNN
         sampleThreshold = definition.get("hazardSamplingThreshold", (10, None))
         # Process the hazards
         accurateCities = definition.get('accurateCities', 0)
-        cityRefData = []        
+        cityRefData = []
         import HazardsTable
         hazards = HazardsTable.HazardsTable(
           argDict["ifpClient"], editAreas, productCategory, filterMethod,
@@ -6280,8 +6280,8 @@ NNNN
           cityEditAreas=cityRefData, dataMgr=argDict['dataMgr'])
         return hazards
 
-    ###################################################################################   
-    ###################################################################################   
+    ###################################################################################
+    ###################################################################################
     ##  TK GUI Classes
     ##
     ## IF you want to override the GUI, you must include all the code
@@ -6303,7 +6303,7 @@ NNNN
             return status
         else:
             return dialog.getVarDict()
-        
+
 
 import Tkinter, copy, re
 
@@ -6334,7 +6334,7 @@ class ScrolledBox(Tkinter.Frame,):
             csbCol=0
         else:
             ysbCol=0
-            csbCol=1       
+            csbCol=1
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(csbCol, weight=1)
@@ -6374,8 +6374,8 @@ class HLS_Dialog(StartupDialog.IFPDialog):
         self._segmentList = segmentList
         self._infoDict = infoDict
         self._parent = parent
-        StartupDialog.IFPDialog.__init__(self, parent=None, title="HLS")                
-            
+        StartupDialog.IFPDialog.__init__(self, parent=None, title="HLS")
+
     def getVarDict(self):
         return self._varDict
 
@@ -6413,7 +6413,7 @@ class HLS_Dialog(StartupDialog.IFPDialog):
         if entryField is not None:
             entryObject = self._makeEntry(listFrame, entryField)
         # packing
-        listFrame.pack(side=frameSide, expand=Tkinter.NO, fill=Tkinter.Y) #, anchor=Tkinter.N)        
+        listFrame.pack(side=frameSide, expand=Tkinter.NO, fill=Tkinter.Y) #, anchor=Tkinter.N)
         #listFrame.pack(side=frameSide, expand=Tkinter.YES, fill=Tkinter.Y, anchor=Tkinter.N)
 
         if boxType == "radio":
@@ -6520,10 +6520,10 @@ class HLS_Dialog(StartupDialog.IFPDialog):
         hz_width = 15
 
         widgets = []
-        
+
         segNumFrame = Tkinter.Frame(frame, relief=Tkinter.FLAT, width=sn_width)
         label = Tkinter.Label(segNumFrame, text=`segNum`)
-        label.pack(side=Tkinter.LEFT, fill=Tkinter.X, expand=Tkinter.YES)        
+        label.pack(side=Tkinter.LEFT, fill=Tkinter.X, expand=Tkinter.YES)
         #segNumFrame.pack(side=Tkinter.LEFT, expand=Tkinter.NO,
         #  fill=Tkinter.Y, anchor=Tkinter.N)
         widgets.append(segNumFrame)
@@ -6535,9 +6535,9 @@ class HLS_Dialog(StartupDialog.IFPDialog):
 
 #        sb = ScrolledBox(frame)
         sb = ScrolledBox(frame, side="left")
-        interior = sb.interior()        
-        
-        zoneFrame = Tkinter.Frame(interior, relief=Tkinter.FLAT, width=zf_width)        
+        interior = sb.interior()
+
+        zoneFrame = Tkinter.Frame(interior, relief=Tkinter.FLAT, width=zf_width)
         if areaDisplayType_land != 'ugcCode' or areaDisplayType_marine != 'ugcCode':
             accessor = ModuleAccessor.ModuleAccessor()
             areaDict = accessor.variable(self._parent._areaDictionary,"AreaDictionary")
@@ -6569,12 +6569,12 @@ class HLS_Dialog(StartupDialog.IFPDialog):
             h = heightLimit
         w=interior.winfo_reqwidth()
         sb._canvas["height"] = h
-        sb._canvas["width"] = w        
+        sb._canvas["width"] = w
         widgets.append(sb)
         #sb.pack(side=Tkinter.LEFT)
 
         hazardFrame = Tkinter.Frame(frame, relief=Tkinter.FLAT, width=hz_width)
-        hazardTable = self._argDict["hazards"]        
+        hazardTable = self._argDict["hazards"]
         hazards = hazardTable.getHazardList(segmentAreas)
         if hazards == []:
             hazards = [{'phensig':'None'}]
@@ -6620,7 +6620,7 @@ class HLS_Dialog(StartupDialog.IFPDialog):
             if breakFound == 0:
                 further = further + 1
                 continue
-                                                                                    
+
             if breakChars != " ":
                 # We want to preserve the break characters, not drop them
                 includeInd = ind + len(breakChars)
@@ -6632,13 +6632,13 @@ class HLS_Dialog(StartupDialog.IFPDialog):
             further = 0
         return str
 
-    def _makeLine(self, interior, row, columnspan, width=200, char="-"):                   
+    def _makeLine(self, interior, row, columnspan, width=200, char="-"):
         row = row+1
         lineFrame = Tkinter.Frame(interior, relief=Tkinter.FLAT)
         text=""
         for i in range(width): text = text + char
         label = Tkinter.Label(lineFrame, text=text)
-        label.pack(side=Tkinter.LEFT, fill=Tkinter.X,  expand=Tkinter.NO)                
+        label.pack(side=Tkinter.LEFT, fill=Tkinter.X,  expand=Tkinter.NO)
         lineFrame.grid(row=row, columnspan=columnspan)
         return row
 
@@ -6681,12 +6681,12 @@ class HLS_Overview(HLS_Dialog):
         overviewList = self._parent._overview_list(self._argDict)
         endInstructions = self._parent._overviewEndInstructions()
         fontDict = self._parent._font_GUI_dict()
-            
+
         #  OVERVIEW header
         headerFG, headerFont = fontDict["headers"]
         frame = Tkinter.Frame(master, relief=Tkinter.GROOVE, borderwidth=1)
         label = Tkinter.Label(frame, text="OVERVIEW", fg=headerFG, font=headerFont)
-        label.pack(side=Tkinter.LEFT, fill=Tkinter.X,  expand=Tkinter.NO)                
+        label.pack(side=Tkinter.LEFT, fill=Tkinter.X,  expand=Tkinter.NO)
         frame.pack(side=Tkinter.TOP, fill=Tkinter.X, expand=Tkinter.NO)
 
         numBoxes = 3
@@ -6700,9 +6700,9 @@ class HLS_Overview(HLS_Dialog):
 
         for infoDict in overviewList:
             name = infoDict["name"]
-            label = infoDict["label"]            
+            label = infoDict["label"]
             options = infoDict.get("options", [])
-            entryField = infoDict.get("entryField", None)           
+            entryField = infoDict.get("entryField", None)
             default = infoDict.get("default", None)
             optionType = infoDict.get("optionType", "radio")
 
@@ -6733,16 +6733,16 @@ class HLS_Overview(HLS_Dialog):
 
             if name == "MainHeadline":
                 frame = Tkinter.Frame(box, relief=Tkinter.GROOVE, borderwidth=1)
-                tkObject_dict[self._entryName(name)] = self._makeEntry(frame, "", 80)      
+                tkObject_dict[self._entryName(name)] = self._makeEntry(frame, "", 80)
                 frame.pack(fill=Tkinter.X, expand=Tkinter.YES)
 
         # End Instructions and Buttons
         fg, font = fontDict["instructions"]
         frame = Tkinter.Frame(master, relief=Tkinter.GROOVE, borderwidth=1)
         label = Tkinter.Label(frame, text=endInstructions, fg=fg, font=font)
-        label.pack(side=Tkinter.LEFT, fill=Tkinter.X,  expand=Tkinter.NO)                
+        label.pack(side=Tkinter.LEFT, fill=Tkinter.X,  expand=Tkinter.NO)
         self._makeButtons(frame)
-        frame.pack(side=Tkinter.TOP, fill=Tkinter.X, expand=Tkinter.NO)        
+        frame.pack(side=Tkinter.TOP, fill=Tkinter.X, expand=Tkinter.NO)
 
 ##############  Graying PreviousHLS button
     def _makeButtons(self, master):
@@ -6760,17 +6760,17 @@ class HLS_Overview(HLS_Dialog):
                 command = self.okCB
             else: # Cancel
                 command = self.cancelCB
-            Tkinter.Button(frame, text=label, command=command, width=10, 
+            Tkinter.Button(frame, text=label, command=command, width=10,
                            state=state).pack(side=Tkinter.LEFT, pady=5, padx=10)
         frame.pack()
 
     def resetCB(self):
         self._status = "Reset"
-        self.ok()        
+        self.ok()
 
     def previousCB(self):
         self._status = "UsePrev"
-        self.ok()        
+        self.ok()
 
     def okCB(self):
         # pull the data from the tkObject_dict before they get toasted
@@ -6778,9 +6778,9 @@ class HLS_Overview(HLS_Dialog):
         overviewList = self._parent._overview_list(self._argDict)
         for infoDict in overviewList:
             name = infoDict["name"]
-            label = infoDict["label"]            
+            label = infoDict["label"]
             options = infoDict.get("options", [])
-            entryField = infoDict.get("entryField", None)           
+            entryField = infoDict.get("entryField", None)
             default = infoDict.get("default", None)
             optionType = infoDict.get("optionType", "radio")
 
@@ -6795,10 +6795,10 @@ class HLS_Overview(HLS_Dialog):
             else:
                 value = tkObject_dict[name].get()
                 self._setVarDict(name, value, options)
-                        
+
             if entryField is not None:
                 entryName = self._entryName(name)
-                self._setVarDict(entryName, tkObject_dict[entryName].get())                
+                self._setVarDict(entryName, tkObject_dict[entryName].get())
         # close window and set status "Ok"
         self._status = "Ok"
         self.ok()
@@ -6807,7 +6807,7 @@ class HLS_Situation(HLS_Dialog):
     def __init__(self, parent, argDict, segmentList, infoDict=None):
         HLS_Dialog.__init__(self, parent, argDict, segmentList, infoDict)
 
-    def body(self, master):        
+    def body(self, master):
         tkObject_dict = self._tkObject_dict
         situations = self._parent._situation_list()
         self._situationLabels = [entry['label'] for entry in situations]
@@ -6818,8 +6818,8 @@ class HLS_Situation(HLS_Dialog):
         sizeDict = self._parent._GUI_sizing_dict()
         heightLimit = sizeDict["GUI_height_limit"]
         width = sizeDict["GUI_2_width"]
-        zoneLines = sizeDict["zoneLines"] 
-                
+        zoneLines = sizeDict["zoneLines"]
+
         sb = ScrolledBox(master)
         interior =  sb.interior()
 
@@ -6828,20 +6828,20 @@ class HLS_Situation(HLS_Dialog):
         #  SITUATION header
         frame = Tkinter.Frame(master, relief=Tkinter.GROOVE, borderwidth=1)
         label = Tkinter.Label(frame, text="SITUATIONS", fg=headerFG, font=headerFont)
-        label.pack(side=Tkinter.LEFT, fill=Tkinter.X,  expand=Tkinter.NO)                
+        label.pack(side=Tkinter.LEFT, fill=Tkinter.X,  expand=Tkinter.NO)
         frame.pack(side=Tkinter.TOP, fill=Tkinter.X, expand=Tkinter.NO)
 ##        frame.grid(row=0, columnspan=columns, sticky=Tkinter.W)
 ##        row = row + 1
 
         # Labels
         frame = Tkinter.Frame(master, relief=Tkinter.GROOVE, borderwidth=1)
-        text = guiLabels['GUI_2'] 
+        text = guiLabels['GUI_2']
         label = Tkinter.Label(frame, fg=headerFG, font=headerFont, text=text)
-        label.pack(side=Tkinter.LEFT, fill=Tkinter.X, expand=Tkinter.NO)           
+        label.pack(side=Tkinter.LEFT, fill=Tkinter.X, expand=Tkinter.NO)
         frame.pack(side=Tkinter.TOP,fill=Tkinter.X, expand=Tkinter.NO)
 ##        frame.grid(row=row, columnspan=columns, sticky=Tkinter.W)
 ##        row=row+1
-        
+
         uiSegments = []
         self._segNum = 0
         for segmentAreas in self._segmentList:
@@ -6851,7 +6851,7 @@ class HLS_Situation(HLS_Dialog):
             for widget in widgets:
                 widget.grid(sticky=Tkinter.N+Tkinter.W, row=row, column=column)
                 column = column +1
-            row=self._makeLine(interior, row, columnspan=columns, width=160)                
+            row=self._makeLine(interior, row, columnspan=columns, width=160)
             row = row+1
         tkObject_dict["segments"] = uiSegments
         #segBox.pack(fill=Tkinter.X, expand=Tkinter.YES)
@@ -6875,7 +6875,7 @@ class HLS_Situation(HLS_Dialog):
         sb.pack(side=Tkinter.TOP, fill=Tkinter.BOTH, expand=Tkinter.YES)
         bframe.pack(side=Tkinter.BOTTOM,fill=Tkinter.X, expand=Tkinter.NO)
 
-    def _makeSegmentFrame(self, master, segmentAreas):        
+    def _makeSegmentFrame(self, master, segmentAreas):
         #frame = Tkinter.Frame(master, relief=Tkinter.GROOVE, borderwidth=1)
         self._segNum+=1
         segNum = self._segNum
@@ -6896,7 +6896,7 @@ class HLS_Situation(HLS_Dialog):
         for sitDict in situationDicts:
             sitEC = sitDict.get("ec",  [])
             sitPairs = sitDict.get("hazPairings",  [])
-##            sitActions = sitDict.get("action",  [])          
+##            sitActions = sitDict.get("action",  [])
             if sitKey in sitPairs and ec in sitEC:
 ##                for hazardKey in hazardKeys:
 ##                    if hazardKey in sitHazards:
@@ -6905,8 +6905,8 @@ class HLS_Situation(HLS_Dialog):
                     if onlySituation and sitName != onlySituation:
                         continue
                     situations.append(sitDict)
-          
-        print "situations are: ", situations            
+
+        print "situations are: ", situations
         situationLabels = [sitDict['label'] for sitDict in situations]
         situationEntryFrame = Tkinter.Frame(master, relief=Tkinter.FLAT, borderwidth=1)
         situationFrame = Tkinter.Frame(situationEntryFrame, relief=Tkinter.FLAT, borderwidth=1)
@@ -6915,7 +6915,7 @@ class HLS_Situation(HLS_Dialog):
             listFrameRelief=Tkinter.FLAT)
         situationFrame.pack(side=Tkinter.TOP, expand=Tkinter.YES,
           fill=Tkinter.Y, anchor=Tkinter.W)
-        
+
         if addEntry:
             # Add an entry field for headline plus option to Use previous
             entryFrame = Tkinter.Frame(situationEntryFrame, relief=Tkinter.GROOVE, borderwidth=1)
@@ -6942,10 +6942,10 @@ class HLS_Situation(HLS_Dialog):
                 command = self.okCB
             else: # button == "Cancel":
                 command = self.cancelCB
-            Tkinter.Button(frame, text=label, command=command, width=10, 
+            Tkinter.Button(frame, text=label, command=command, width=10,
                            state=Tkinter.NORMAL).pack(side=Tkinter.LEFT, pady=5, padx=10)
         frame.grid(row=row, columnspan=columnspan)
-            
+
     def okCB(self):
         # pull the data from the tkObject_dict before they get toasted
         tkObject_dict  = self._tkObject_dict
@@ -6972,17 +6972,17 @@ class HLS_Scenario(HLS_Dialog):
 
         sizeDict = self._parent._GUI_sizing_dict()
         heightLimit = sizeDict["GUI_height_limit"]
-        width = sizeDict["GUI_3_width"]        
+        width = sizeDict["GUI_3_width"]
         segments = self._infoDict["segments"]
 
         sb = ScrolledBox(master)
         interior =  sb.interior()
-        
+
         # build the main display dialog
         columns=6
         tkObject_dict = self._tkObject_dict
         #box = Tkinter.Frame(interior)
-        row, tkObject_dict["segments"] = self._makeScenarioGUI(interior)            
+        row, tkObject_dict["segments"] = self._makeScenarioGUI(interior)
         bframe = Tkinter.Frame(master, relief=Tkinter.GROOVE, borderwidth=0)
         self._makeButtons(bframe, row=row, columnspan=columns)
         #box.pack(side=Tkinter.TOP, fill=Tkinter.BOTH, expand=Tkinter.YES)
@@ -6996,9 +6996,9 @@ class HLS_Scenario(HLS_Dialog):
             w = width
         sb._canvas["height"] = h
         sb._canvas["width"] = w
-        
+
         sb.pack(side=Tkinter.TOP, fill=Tkinter.BOTH, expand=Tkinter.YES)
-        bframe.pack(side=Tkinter.BOTTOM,fill=Tkinter.X, expand=Tkinter.NO)       
+        bframe.pack(side=Tkinter.BOTTOM,fill=Tkinter.X, expand=Tkinter.NO)
 
     def _makeScenarioGUI(self, master):
        # Entry for each segment
@@ -7014,9 +7014,9 @@ class HLS_Scenario(HLS_Dialog):
        texta = guiLabels['GUI_3a']
        textb = guiLabels['GUI_3b']
        labela = Tkinter.Label(master, fg=headerFG, font=headerFont, text=texta)
-       labela.grid(row=0, columnspan=5)        
+       labela.grid(row=0, columnspan=5)
        labelb = Tkinter.Label(master, fg=headerFG, font=headerFont, text=textb)
-       labelb.grid(row=0, column=5, sticky=Tkinter.W)        
+       labelb.grid(row=0, column=5, sticky=Tkinter.W)
        #frame.pack(fill=Tkinter.X, expand=Tkinter.YES)
        #frame.grid(row=0, columnspan=columns, sticky=Tkinter.W)
        row=row+1
@@ -7031,8 +7031,8 @@ class HLS_Scenario(HLS_Dialog):
            for widget in widgets:
                widget.grid(sticky=Tkinter.N+Tkinter.W, row=row, column=column)
                column = column +1
-           row=self._makeLine(master, row, columnspan=columns, width=190)                
-           row = row+1               
+           row=self._makeLine(master, row, columnspan=columns, width=190)
+           row = row+1
        #segBox.pack(fill=Tkinter.X, expand=Tkinter.YES)
        return row, uiSegments
 
@@ -7049,7 +7049,7 @@ class HLS_Scenario(HLS_Dialog):
        if len(situationLabel) > 14:
            situationLabel = situationLabel[0:14] + "\n" + situationLabel[14:]
        label = Tkinter.Label(situationFrame, text=situationLabel, width=15)
-       label.pack(side=Tkinter.TOP, fill=Tkinter.X, expand=Tkinter.NO)   
+       label.pack(side=Tkinter.TOP, fill=Tkinter.X, expand=Tkinter.NO)
        #situationFrame.pack(side=Tkinter.LEFT, expand=Tkinter.NO,
        #    fill=Tkinter.Y, anchor=Tkinter.N)
        widgets.append(situationFrame)
@@ -7059,7 +7059,7 @@ class HLS_Scenario(HLS_Dialog):
        scenarios = situation["scenarios"]
        uiScenario = self._makeRadioOrCheckList(
            scenarioFrame, "", scenarios, buttonSide=Tkinter.TOP, frameSide=Tkinter.LEFT,
-           listFrameRelief=Tkinter.FLAT)       
+           listFrameRelief=Tkinter.FLAT)
        #scenarioFrame.pack(side=Tkinter.LEFT, expand=Tkinter.YES, fill=Tkinter.Y,
        #                   anchor=Tkinter.W)
        widgets.append(scenarioFrame)
@@ -7128,7 +7128,7 @@ class HLS_Scenario(HLS_Dialog):
                command = self.okCB
            else: # button == "Cancel":
                command = self.cancelCB
-           Tkinter.Button(frame, text=label, command=command, width=10, 
+           Tkinter.Button(frame, text=label, command=command, width=10,
                           state=Tkinter.NORMAL).pack(side=Tkinter.LEFT, pady=5, padx=10)
        #frame.pack()
        frame.grid(row=row, columnspan=columnspan)
@@ -7140,7 +7140,7 @@ class HLS_Scenario(HLS_Dialog):
        segments = []
        for segNum, areas, situation, uiScenario, scenarios, uiSections in tkObject_dict["segments"]:
            extraInfo = {
-               "usePrev_HU_S_Headline":situation.get("usePrev_HU_S_Headline",None),           
+               "usePrev_HU_S_Headline":situation.get("usePrev_HU_S_Headline",None),
                "userHeadline_HU_S":situation.get("userHeadline_HU_S",None),
                }
            #  Only need the situation name for varDict
@@ -7173,4 +7173,4 @@ class HLS_Scenario(HLS_Dialog):
        # close window and set status "Ok"
        self._status = "Ok"
        self.ok()
-    
+
