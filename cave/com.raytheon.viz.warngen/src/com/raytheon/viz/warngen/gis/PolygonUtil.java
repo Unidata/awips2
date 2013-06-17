@@ -41,10 +41,12 @@ import com.raytheon.viz.core.contours.util.FortConBuf;
 import com.raytheon.viz.core.contours.util.FortConConfig;
 import com.raytheon.viz.warngen.gui.WarngenLayer;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineSegment;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
@@ -62,6 +64,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * 12/06/2012   DR 15559  Qinglu Lin   Added round() methods.
  * 04/16/2013   DR 16045  Qinglu Lin   Relocated removeDuplicateCoordinate(), computeSlope(), 
  *                                     computeCoordinate(), and adjustPolygon from WarngenUIState.
+ * 05/23/2013  DR 16169   D. Friedman  Improve redraw-from-hatched-area polygons.
  * 
  * </pre>
  * 
@@ -98,7 +101,7 @@ public class PolygonUtil {
     }
 
     public Polygon hatchWarningArea(Polygon origPolygon,
-            Geometry origWarningArea) throws VizException {
+            Geometry origWarningArea, Polygon oldWarningPolygon) throws VizException {
         float[][] contourAreaData = toFloatData(origWarningArea);
 
         // Create contouring configuration
@@ -143,7 +146,9 @@ public class PolygonUtil {
         boolean showContour = false;
         if (contour != null && !showContour) {
             rval = awips1PointReduction(contour, origPolygon, origWarningArea,
-                    config);
+                    config, oldWarningPolygon);
+            if (rval == null)
+                return (Polygon) origPolygon.clone();
         } else if (contour != null) {
             // Create a polygon from the contour
             GeometryFactory gf = new GeometryFactory();
@@ -158,16 +163,34 @@ public class PolygonUtil {
     }
 
     /**
-     * @return
+     * @return null if the original warningPolygon should be used
      */
     private Polygon awips1PointReduction(Coordinate[] longest,
-            Polygon warningPolygon, Geometry warningArea, FortConConfig config)
-            throws VizException {
+            Polygon warningPolygon, Geometry warningArea, FortConConfig config,
+            Polygon oldWarningPolygon) throws VizException {
         Coordinate[] vertices = warningPolygon.getCoordinates();
         vertices = Arrays.copyOf(vertices, vertices.length - 1);
 
         // Extract data
         float[][] contourPolyData = toFloatData(warningPolygon);
+        float[][] currentPolyData = toFloatData(warningArea);
+
+        // If same area is hatched, just use the current polygon.
+        if (areasEqual(contourPolyData, currentPolyData)) {
+            /*
+             * If the polygon is an intersection between what the user drew and
+             * the original polygon from a previous product, we may still want
+             * to reduce the number of points...
+             */
+            if (oldWarningPolygon != null) {
+                Polygon p = removeCollinear(warningPolygon);
+                return layer.convertGeom(p, latLonToContour);
+            } else
+                return null;
+        } else if (oldWarningPolygon != null &&
+                areasEqual(toFloatData(oldWarningPolygon), currentPolyData)) {
+            return layer.convertGeom(oldWarningPolygon, latLonToContour);
+        }
 
         // Contour the polygon
         ContourContainer container = FortConBuf
@@ -422,6 +445,15 @@ public class PolygonUtil {
         }
 
         return rval;
+    }
+
+    private boolean areasEqual(float[][] a, float[][] b) {
+        if (a.length != b.length)
+            return false;
+        for (int r = 0; r < a.length; ++r)
+            if (! Arrays.equals(a[r], b[r]))
+                return false;
+        return true;
     }
 
     private List<Coordinate[]> toCoordinateList(List<float[]> pts) {
@@ -847,6 +879,64 @@ public class PolygonUtil {
 
     }
 
+    /**
+     * Remove vertices that are (very close) to being collinear with both
+     * adjacent vertices.
+     */
+    private static Polygon removeCollinear(Polygon polygon) {
+        ArrayList<Coordinate> coords = new ArrayList<Coordinate>(
+                Arrays.asList(polygon.getExteriorRing().getCoordinates()));
+        boolean changed = false;
+        if (coords.size() <= 4) // i.e., 3 real vertices
+            return polygon;
+        coords.remove(coords.size() - 1);
+
+        for (int i = 0; i < coords.size() && coords.size() > 3; ++i) {
+            int j = (i + 1) % coords.size();
+            Coordinate pi = coords.get(i);
+            Coordinate pj = coords.get(j);
+            Coordinate pk = coords.get((j + 1) % coords.size());
+
+            double ux = pj.x - pi.x;
+            double uy = pj.y - pi.y;
+            double vx = pk.x - pj.x;
+            double vy = pk.y - pj.y;
+            double crs = ux * vy - vx * uy; // cross product
+            double ul = Math.sqrt(ux * ux + uy * uy);
+            double vl = Math.sqrt(vx * vx + vy * vy);
+            if (ul != 0)
+                crs /= ul;
+            if (vl != 0)
+                crs /= vl;
+
+            if (Math.abs(crs) <= 0.01) {
+                coords.remove(j);
+                --i;
+                changed = true;
+            }
+        }
+
+        if (changed) {
+            coords.add(new Coordinate(coords.get(0)));
+            GeometryFactory gf = polygon.getFactory();
+            try {
+                Polygon p = gf.createPolygon(gf.createLinearRing(coords
+                        .toArray(new Coordinate[coords.size()])), null);
+                if (p.isValid())
+                    return p;
+                else
+                    return polygon;
+            } catch (IllegalArgumentException e) {
+                /*
+                 * An invalid ring can be created when the original has an
+                 * "orphan vertex." Just return the original.
+                 */
+                return polygon;
+            }
+        } else
+            return polygon;
+    }
+
     private float[][] toFloatData(Geometry warningArea) throws VizException {
         Geometry contoured = layer.convertGeom(warningArea, latLonToContour);
         List<Geometry> geomList = new ArrayList<Geometry>(
@@ -859,13 +949,10 @@ public class PolygonUtil {
         }
 
         GeometryFactory gf = warningArea.getFactory();
+        Point point = gf.createPoint(new Coordinate(0, 0));
+        CoordinateSequence pointCS = point.getCoordinateSequence();
         float[][] contourAreaData = new float[nx][ny];
-        Geometry[][] points = new Geometry[nx][ny];
-        for (int x = 0; x < nx; ++x) {
-            for (int y = 0; y < ny; ++y) {
-                points[x][y] = gf.createPoint(new Coordinate(x, y));
-            }
-        }
+
         for (PreparedGeometry geom : prepped) {
             Envelope env = geom.getGeometry().getEnvelopeInternal();
             int startX = (int) env.getMinX();
@@ -882,8 +969,11 @@ public class PolygonUtil {
 
             for (int x = startX; x < width; ++x) {
                 for (int y = startY; y < height; ++y) {
+                    pointCS.setOrdinate(0, 0, x);
+                    pointCS.setOrdinate(0, 1, y);
+                    point.geometryChanged();
                     if (contourAreaData[x][y] == 0.0f
-                            && geom.intersects(points[x][y])) {
+                            && geom.intersects(point)) {
                         contourAreaData[x][y] = 1.0f;
                     }
                 }

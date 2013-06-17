@@ -51,6 +51,7 @@ import com.raytheon.uf.common.time.domain.api.ITimePoint;
  * Feb 15, 2013 1638       mschenke    Moved Util.getUnixTime into TimeUtil
  * Mar 20, 2013 1774       randerso    Add SECONDS_PER_DAY, changed SECONDS_PER_HOUR to int.
  * Apr 24, 2013 1628       mschenke    Added GMT TimeZone Object constant
+ * Jun 05, 2013 DR 16279   D. Friedman Add timeOfDayToAbsoluteTime
  * </pre>
  * 
  * @author njensen
@@ -423,6 +424,33 @@ public final class TimeUtil {
         } else {
             return date.getTime() / 1000l;
         }
+    }
+
+    /** Converts a time-of-day (in seconds) to an absolute time given an
+     * absolute reference time.  The resulting time is within a day of the
+     * reference time.
+     * @param timeOfDaySeconds The time of day in seconds past midnight
+     * @param referenceTime The reference time (should have GMT time zone)
+     * @return
+     */
+    public static Calendar timeOfDayToAbsoluteTime(int timeOfDaySeconds, Calendar referenceTime) {
+        Calendar targetDay = (Calendar) referenceTime.clone();
+        int refTimeTodSeconds = referenceTime.get(Calendar.HOUR_OF_DAY) * SECONDS_PER_HOUR
+                + referenceTime.get(Calendar.MINUTE) * SECONDS_PER_MINUTE
+                + referenceTime.get(Calendar.SECOND);
+        int absTodDiff = Math.abs(refTimeTodSeconds - timeOfDaySeconds);
+        if (absTodDiff < SECONDS_PER_DAY - absTodDiff) {
+            // nothing; use current targetDay
+        } else if (refTimeTodSeconds < timeOfDaySeconds) {
+            targetDay.add(Calendar.DAY_OF_MONTH, -1);
+        } else {
+            targetDay.add(Calendar.DAY_OF_MONTH, 1);
+        }
+        targetDay.set(Calendar.HOUR_OF_DAY, 0);
+        targetDay.set(Calendar.MINUTE, 0);
+        targetDay.set(Calendar.SECOND, 0);
+        targetDay.add(Calendar.SECOND, timeOfDaySeconds);
+        return targetDay;
     }
 
     /**
