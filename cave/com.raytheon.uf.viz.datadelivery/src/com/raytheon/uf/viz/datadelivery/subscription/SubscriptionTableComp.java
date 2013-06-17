@@ -102,6 +102,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * May 15, 2013  1040      mpduff       Place markNotBusyInUIThread in a finally block.
  * May 23, 2013  2020      mpduff       Call updateControls();
  * May 28, 2013  1650      djohnson     More information when failing to schedule subscriptions.
+ * Jun 14, 2013  2064      mpduff       Null check for sorted column.
  * 
  * </pre>
  * 
@@ -571,6 +572,11 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
         for (TableColumn tc : table.getColumns()) {
             sortDirectionMap.put(tc.getText(), SortDirection.ASCENDING);
+        }
+
+        // If no sorted column specified then use the first column
+        if (sortedColumn == null || sortedColumn.isDisposed()) {
+            sortedColumn = table.getColumn(0);
         }
 
         populateTable();
