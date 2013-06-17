@@ -378,12 +378,12 @@ public class ArchiveConfigManager {
      * Get a list of directories/files for the desired display label bounded by
      * the start and end time inclusive.
      * 
-     * @param displayInfo
+     * @param displayData
      * @param startCal
      * @param endCal
      * @return files
      */
-    public List<File> getDisplayFiles(DisplayData displayInfo,
+    public List<File> getDisplayFiles(DisplayData displayData,
             Calendar startCal, Calendar endCal) {
         long startTime = 0L;
         if (startCal != null) {
@@ -409,7 +409,7 @@ public class ArchiveConfigManager {
         cal.add(Calendar.HOUR_OF_DAY, 1);
 
         long endTime = cal.getTimeInMillis();
-        return getDisplayFiles(displayInfo, startTime, endTime);
+        return getDisplayFiles(displayData, startTime, endTime);
     }
 
     /**
@@ -420,8 +420,8 @@ public class ArchiveConfigManager {
      * @param displayLabel
      * @return files
      */
-    public List<File> getDisplayFiles(DisplayData displayInfo) {
-        return getDisplayFiles(displayInfo, null, null);
+    public List<File> getDisplayFiles(DisplayData displayData) {
+        return getDisplayFiles(displayData, null, null);
     }
 
     /**
@@ -435,10 +435,10 @@ public class ArchiveConfigManager {
      * @param endTime
      * @return files
      */
-    private List<File> getDisplayFiles(DisplayData displayInfo, long startTime,
+    private List<File> getDisplayFiles(DisplayData displayData, long startTime,
             long endTime) {
-        ArchiveConfig archiveConfig = displayInfo.archiveConfig;
-        CategoryConfig categoryConfig = displayInfo.categoryConfig;
+        ArchiveConfig archiveConfig = displayData.archiveConfig;
+        CategoryConfig categoryConfig = displayData.categoryConfig;
 
         String[] indexValues = categoryConfig.getDateGroupIndices().split(
                 "\\s*,\\s*");
@@ -452,7 +452,7 @@ public class ArchiveConfigManager {
         boolean dirOnly = (filePatternStr == null)
                 || ".*".equals(filePatternStr);
 
-        List<File> dirs = displayInfo.dirs;
+        List<File> dirs = displayData.dirs;
 
         int beginIndex = archiveConfig.getRootDir().length();
 
@@ -506,7 +506,7 @@ public class ArchiveConfigManager {
                         fileCal.set(year, month, day, hour, 0, 0);
                         long fileTime = fileCal.getTimeInMillis();
                         if ((startTime <= fileTime) && (fileTime < endTime)) {
-                            fileList.add(dir);
+                            fileList.add(file);
                         }
                     }
                 }
