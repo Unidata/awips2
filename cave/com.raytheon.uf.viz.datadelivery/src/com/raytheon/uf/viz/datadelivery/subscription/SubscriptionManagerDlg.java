@@ -125,6 +125,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * May 28, 2013 1650       djohnson   Allow specifying filters for what subscriptions to show.
  * Jun 05, 2013 2064       mpduff     Fix for filtering combo boxes.
  * Jun 06, 2013 2030       mpduff     Refactored help.
+ * Jun 14, 2013 2064       mpduff     Check for null/disposed sort column.
  * </pre>
  * 
  * @author mpduff
@@ -1049,6 +1050,11 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                     break;
                 }
             }
+        }
+        
+        // If null get the first one
+        if (sortedTableColumn == null) {
+            sortedTableColumn = tableComp.getTable().getColumn(0);
         }
         tableComp.updateSortDirection(sortedTableColumn,
                 tableComp.getSubscriptionData(), false);

@@ -83,6 +83,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
  * May 14, 2013 2000       djohnson     Check for subscription overlap/duplication.
  * May 23, 2013 1650       djohnson     Move out some presentation logic to DisplayForceApplyPromptDialog.
+ * Jun 12, 2013 2038       djohnson     Launch subscription manager on the UI thread.
  * 
  * </pre>
  * 
@@ -649,9 +650,14 @@ public class SubscriptionService implements ISubscriptionService {
                     return new SubscriptionServiceResult(true);
                 case EDIT_SUBSCRIPTIONS:
                     if (!result.config.isNotAbleToScheduleOnlyTheSubscription()) {
-                        new SubscriptionManagerAction()
-                                .loadSubscriptionManager(SubscriptionManagerFilters
-                                        .getByNames(result.config.wouldBeUnscheduledSubscriptions));
+                        VizApp.runSync(new Runnable() {
+                            @Override
+                            public void run() {
+                                new SubscriptionManagerAction()
+                                        .loadSubscriptionManager(SubscriptionManagerFilters
+                                                .getByNames(result.config.wouldBeUnscheduledSubscriptions));
+                            }
+                        });
                     }
                     return new SubscriptionServiceResult(true);
                 default:
