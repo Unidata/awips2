@@ -82,6 +82,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
@@ -151,6 +152,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * Feb 15, 2013   15820    Qinglu Lin  Added createOfficeTimezoneMap() and added logic so that localtimezone 
  *                                     and secondtimezone can get correct values when warning area covers two time zones.
  * May 10, 2013   1951     rjpeter     Updated ugcZones references
+ * May 30, 2013   DR 16237 D. Friedman Fix watch query.
  * </pre>
  * 
  * @author njensen
@@ -1008,13 +1010,18 @@ public class TemplateRunner {
                 DbQueryRequest request = new DbQueryRequest();
                 request.setEntityClass(recordType);
                 request.addConstraint("startTime", new RequestConstraint(
-                        startConstraintTime.toString(),
+                        TimeUtil.formatDate(startConstraintTime),
                         ConstraintType.LESS_THAN_EQUALS));
                 request.addConstraint("endTime", new RequestConstraint(
-                        endConstraintTime.toString(),
+                        TimeUtil.formatDate(endConstraintTime),
                         ConstraintType.GREATER_THAN_EQUALS));
+                /*
+                 * TODO: Currently limited to filtering out one of
+                 * ("CAN","EXP"). Could use "Act" in addition to "act", but this
+                 * should really be fixed the underlying system.
                 request.addConstraint("act", new RequestConstraint("CAN",
                         ConstraintType.NOT_EQUALS));
+                 */
                 request.addConstraint("act", new RequestConstraint("EXP",
                         ConstraintType.NOT_EQUALS));
                 request.addConstraint("phensig", new RequestConstraint(
@@ -1022,19 +1029,21 @@ public class TemplateRunner {
 
                 // TODO: Talk to Jonathan about this... Do I even need officeid
                 // IN or is ugc zone good enough?
-                Set<String> ugcZones = new HashSet<String>();
-                for (AffectedAreas area : affectedAreas) {
-                    ugcZones.add(FipsUtil.getUgc(area));
-                }
 
+                /* Get all UGCs in the CWA now so that the watches will be
+                 * formatted with all portions of the affected state(s).
+                 * 
+                 * Filtering for valid UGCs is performed in processATEntries
+                 */
                 RequestConstraint ugcConstraint = new RequestConstraint("",
                         ConstraintType.IN);
-                ugcConstraint.setConstraintValueList(ugcZones);
+                ugcConstraint.setConstraintValueList(warngenLayer.getAllCountyUgcs());
                 request.addConstraint("ugcZone", ugcConstraint);
 
                 // These are the only fields we need for processing watches
                 request.addFields(new String[] { "issueTime", "startTime",
-                        "endTime", "ugcZone", "phensig", "vtecstr" });
+                        "endTime", "ugcZone", "phensig", "vtecstr",
+                        "etn", "act" });
 
                 DbQueryResponse response = (DbQueryResponse) ThriftClient
                         .sendRequest(request);
@@ -1042,35 +1051,44 @@ public class TemplateRunner {
                 List<ActiveTableRecord> records = new ArrayList<ActiveTableRecord>(
                         response.getNumResults());
                 for (Map<String, Object> result : response.getResults()) {
+                    /* TODO: Doing this here because only "EXP" is filtered
+                     * out by the query.  Remove "act" from the field list
+                     * once this is fixed.
+                     */
+                    if ("CAN".equals(result.get("act")))
+                        continue;
                     ActiveTableRecord record = recordType.newInstance();
-                    record.setIssueTime((Calendar) result.get("issuetime"));
-                    record.setStartTime((Calendar) result.get("starttime"));
-                    record.setEndTime((Calendar) result.get("endtime"));
-                    record.setUgcZone((String) result.get("ugczone"));
+                    record.setIssueTime((Calendar) result.get("issueTime"));
+                    record.setStartTime((Calendar) result.get("startTime"));
+                    record.setEndTime((Calendar) result.get("endTime"));
+                    record.setUgcZone((String) result.get("ugcZone"));
                     record.setPhensig((String) result.get("phensig"));
                     record.setVtecstr((String) result.get("vtecstr"));
+                    record.setEtn((String) result.get("etn"));
                     records.add(record);
                 }
 
                 if (records.size() > 0) {
-                    long t0, t1;
-                    t0 = System.currentTimeMillis();
-                    Polygon watchArea = (Polygon) polygon
-                            .buffer(milesToKilometer.convert(config
-                                    .getHatchedAreaSource()
-                                    .getIncludedWatchAreaBuffer())
-                                    / KmToDegrees);
-                    t1 = System.currentTimeMillis();
-                    System.out.println("getWatches.polygonBuffer time: "
-                            + (t1 - t0));
+                    Set<String> validUgcZones;
+                    try {
+                        long t0, t1;
+                        t0 = System.currentTimeMillis();
+                        Polygon watchArea = (Polygon) polygon
+                                .buffer(milesToKilometer.convert(config
+                                        .getHatchedAreaSource()
+                                        .getIncludedWatchAreaBuffer())
+                                        / KmToDegrees);
+                        t1 = System.currentTimeMillis();
+                        System.out.println("getWatches.polygonBuffer time: "
+                                + (t1 - t0));
+                        validUgcZones = warngenLayer.getUgcsForCountyWatches(watchArea);
+                    } catch (RuntimeException e) {
+                        statusHandler.handle(Priority.ERROR,
+                                "Error determining areas to search for watches.", e);
+                        return rval;
+                    }
 
-                    t0 = System.currentTimeMillis();
-                    warngenLayer.createGeometryForWatches(watchArea, records);
-                    t1 = System.currentTimeMillis();
-                    System.out.println("getWatches.createWatchGeometry time: "
-                            + (t1 - t0));
-
-                    rval = processATEntries(records, warngenLayer);
+                    rval = processATEntries(records, warngenLayer, validUgcZones);
                 }
             }
         }
@@ -1097,10 +1115,12 @@ public class TemplateRunner {
      * @param activeTable
      *            List of entries for active watches
      * @param warngenLayer
+     * @param validUgcZones
      * @return
      */
     private static WatchUtil processATEntries(
-            List<ActiveTableRecord> activeTable, WarngenLayer warngenLayer) {
+            List<ActiveTableRecord> activeTable, WarngenLayer warngenLayer,
+            Set<String> validUgcZones) {
         WatchUtil rval = new WatchUtil();
         TreeMap<WeatherAdvisoryWatch, WatchWork> map = new TreeMap<WeatherAdvisoryWatch, TemplateRunner.WatchWork>();
 
@@ -1131,8 +1151,8 @@ public class TemplateRunner {
             /*
              * Currently reports all zones in the watch even if a given zone is
              * not in the warning polygon. If the logic is changed to only show
-             * the portions of the watch near our warning polygon, perform the
-             * isEmpty check here.
+             * the portions of the watch near our warning polygon, filter on
+             * validUgcZones here.
              */
             WeatherAdvisoryWatch waw = new WeatherAdvisoryWatch();
             waw.setPhensig(ar.getPhensig());
@@ -1151,16 +1171,18 @@ public class TemplateRunner {
                 work = new WatchWork(waw);
                 map.put(waw, work);
             }
-            // TODO: Building geometry just to perform this test is probably
-            // inefficient with the post-DR-15430 logic...
-            if (!ar.getGeometry().isEmpty()) {
+
+            if (validUgcZones.contains(ar.getUgcZone())) {
                 work.valid = true;
             }
 
             /*
-             * TODO: Currently adding all zones to the list even if they are not
-             * in the CWA. Validation is currently done in
-             * determineAffectedPortions to avoid redundant work.
+             * There are no checks here to determine whether or not the given
+             * zone is in the CWA. That should have already been done the query
+             * performed in getWatches.
+             * 
+             * There is also validation performed later in
+             * determineAffectedPortions.
              */
             work.ugcZone.add(ar.getUgcZone());
         }

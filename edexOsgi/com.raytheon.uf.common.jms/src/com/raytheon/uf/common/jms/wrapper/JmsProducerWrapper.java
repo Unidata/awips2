@@ -39,6 +39,7 @@ import com.raytheon.uf.common.jms.JmsPooledProducer;
  * ------------ ---------- ----------- --------------------------
  * Dec  fi8, 2011            rjpeter     Initial creation
  * Feb 26, 2013 1642       rjpeter     Added volatile references for better concurrency handling.
+ * Jun 07, 2013 DR 16316   rjpeter     Fix memory leak
  * </pre>
  * 
  * @author rjpeter
@@ -70,6 +71,8 @@ public class JmsProducerWrapper implements MessageProducer {
                 if (exceptionOccurred) {
                     mgr.setExceptionOccurred(true);
                 }
+
+                return true;
             }
         }
 

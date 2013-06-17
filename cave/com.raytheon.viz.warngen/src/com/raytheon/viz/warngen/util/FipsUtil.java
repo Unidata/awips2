@@ -49,6 +49,7 @@ import com.raytheon.viz.warnings.DateUtil;
  * 											with generated list of counties.
  * Apr 25, 2013 1877        jsanchez    Sorted the UGC line for cancellations.
  * May 10, 2013 1951        rjpeter     Updated ugcZones references
+ * May 31, 2013 DR 16237    D. Friedman Added getUgcFromFips.
  * </pre>
  * 
  * @author bwoodle
@@ -133,13 +134,17 @@ public class FipsUtil {
     }
 
     public static String getUgc(AffectedAreas area) {
+        return getUgcFromFips(area.getFips());
+    }
+
+    public static String getUgcFromFips(String fips) {
         String ugc = null;
-        if (Character.isDigit(area.getFips().charAt(0))) {
-            ugc = fipsToState.get(area.getFips().substring(0, 2)) + "C"
-                    + area.getFips().substring(2, 5);
+        if (Character.isDigit(fips.charAt(0))) {
+            ugc = fipsToState.get(fips.substring(0, 2)) + "C"
+                    + fips.substring(2, 5);
         } else {
-            ugc = area.getFips().substring(0, 2) + "Z"
-                    + area.getFips().substring(area.getFips().length() - 3);
+            ugc = fips.substring(0, 2) + "Z"
+                    + fips.substring(fips.length() - 3);
         }
         return ugc;
     }
