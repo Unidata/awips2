@@ -301,6 +301,20 @@
             value="com.raytheon.uf.common.dataplugin.gfe.request.CreateNewDbRequest" />
         <constructor-arg ref="createNewDbHandler" />
     </bean>
+    <bean id="getLatestDbInsertTimeHandler"
+        class="com.raytheon.edex.plugin.gfe.server.handler.GetLatestDbTimeHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.gfe.request.GetLatestDbTimeRequest" />
+        <constructor-arg ref="getLatestDbInsertTimeHandler" />
+    </bean>
+    <bean id="getLatestDbIdHandler"
+        class="com.raytheon.edex.plugin.gfe.server.handler.GetLatestModelDbIdHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataplugin.gfe.request.GetLatestModelDbIdRequest" />
+        <constructor-arg ref="getLatestDbIdHandler" />
+    </bean>
 
 
 	<!-- Service Backup Handlers -->
