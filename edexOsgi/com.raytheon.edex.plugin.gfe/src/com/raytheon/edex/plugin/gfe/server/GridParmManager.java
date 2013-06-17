@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -1053,6 +1054,11 @@ public class GridParmManager {
                 PurgeLogger.logInfo("Purging " + dbId, "gfe");
             }
         }
+
+        // kludge to keep dbMap in synch until GridParmManager/D2DParmICache
+        // merge/refactor
+        dbMap.keySet().retainAll(databases);
+
         createDbNotification(siteID, databases);
 
         return sr;
@@ -1080,7 +1086,7 @@ public class GridParmManager {
         sr = getDbInventory(siteID);
 
         if (!sr.isOkay()) {
-            sr.addMessage("VersionPurge failed - couldn't get inventory");
+            sr.addMessage("GridsPurge failed - couldn't get inventory");
             return sr;
         }
 
@@ -1245,9 +1251,11 @@ public class GridParmManager {
     }
 
     public static void purgeDbCache(String siteID) {
-        for (DatabaseID dbId : dbMap.keySet()) {
+        Iterator<DatabaseID> iter = dbMap.keySet().iterator();
+        while (iter.hasNext()) {
+            DatabaseID dbId = iter.next();
             if (dbId.getSiteId().equals(siteID)) {
-                removeDbFromMap(dbId);
+                iter.remove();
             }
         }
     }
@@ -1392,10 +1400,6 @@ public class GridParmManager {
                         "Unable to purge model database: " + id, e);
             }
         }
-        removeDbFromMap(id);
-    }
-
-    public static void removeDbFromMap(DatabaseID id) {
         dbMap.remove(id);
     }
 
@@ -1425,7 +1429,7 @@ public class GridParmManager {
             }
 
             for (DatabaseID dbId : invChanged.getDeletions()) {
-                removeDbFromMap(dbId);
+                dbMap.remove(dbId);
             }
         }
     }
