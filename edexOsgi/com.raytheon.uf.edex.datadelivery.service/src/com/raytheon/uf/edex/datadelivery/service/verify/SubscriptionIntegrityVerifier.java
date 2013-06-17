@@ -220,7 +220,9 @@ public class SubscriptionIntegrityVerifier {
             try {
                 DataSet dataSet = DataDeliveryHandlers.getDataSetHandler()
                         .getById(event.getId());
-                dataSetUpdated(dataSet);
+                if (dataSet != null) {
+                    dataSetUpdated(dataSet);
+                }
             } catch (RegistryHandlerException e) {
                 statusHandler
                         .handle(Priority.ERROR,

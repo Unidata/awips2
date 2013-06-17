@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.archive.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -37,7 +38,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
-import com.raytheon.uf.common.archive.config.ArchiveConfigManager.DisplayData;
+import com.raytheon.uf.common.archive.config.DisplayData;
 import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.viz.archive.data.IArchiveTotals;
 
@@ -59,8 +60,8 @@ import com.raytheon.uf.viz.archive.data.IArchiveTotals;
  */
 public class ArchiveTableComp extends Composite {
 
-    /** Key for getting Display Information state. */
-    private final String DISPLAY_INFO_KEY = "displayInfo";
+    /** Key for getting Display Data. */
+    private final String DISPLAY_DATA_KEY = "displayData";
 
     /** Table control. */
     private Table table;
@@ -80,9 +81,10 @@ public class ArchiveTableComp extends Composite {
     };
 
     /** Current table type. */
-    private TableType tableType = TableType.Retention;
+    private final TableType type;
 
-    private IArchiveTotals iArchiveTotals;
+    /** Allows the parent dialog log to update other total displays. */
+    private final IArchiveTotals iArchiveTotals;
 
     /**
      * Constructor.
@@ -96,7 +98,7 @@ public class ArchiveTableComp extends Composite {
             IArchiveTotals iTotalSelectedSize) {
         super(parent, 0);
 
-        tableType = type;
+        this.type = type;
         this.iArchiveTotals = iTotalSelectedSize;
         init();
     }
@@ -114,9 +116,10 @@ public class ArchiveTableComp extends Composite {
         this.setLayoutData(gd);
 
         createTable();
-        createTableLabels();
 
-        updateSelectionLabels();
+        if (type != TableType.Retention) {
+            createTableLabels();
+        }
     }
 
     /**
@@ -138,9 +141,9 @@ public class ArchiveTableComp extends Composite {
         pathColumn.setText("Label");
 
         TableColumn sizeColumn = new TableColumn(table, SWT.CENTER);
-        if (tableType == TableType.Retention) {
+        if (type == TableType.Retention) {
             sizeColumn.setText("Current Size");
-        } else if (tableType == TableType.Case) {
+        } else if (type == TableType.Case) {
             sizeColumn.setText("Size");
         }
 
@@ -159,7 +162,9 @@ public class ArchiveTableComp extends Composite {
         table.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                updateSelectionLabels();
+                if (e.detail == SWT.CHECK) {
+                    updateSelectionLabels();
+                }
             }
         });
     }
@@ -190,15 +195,17 @@ public class ArchiveTableComp extends Composite {
         TableItem[] itemArray = table.getItems();
         int count = 0;
         long tableTotalSize = 0;
+        List<DisplayData> displayDatas = new ArrayList<DisplayData>(
+                itemArray.length);
 
         for (TableItem ti : itemArray) {
-            DisplayData displayInfo = (DisplayData) ti
-                    .getData(DISPLAY_INFO_KEY);
+            DisplayData displayData = (DisplayData) ti
+                    .getData(DISPLAY_DATA_KEY);
             if (ti.getChecked()) {
                 ++count;
-                displayInfo.setSelected(true);
+                displayData.setSelected(true);
                 if (tableTotalSize >= 0) {
-                    long diSize = displayInfo.getSize();
+                    long diSize = displayData.getSize();
                     if (diSize < 0) {
                         tableTotalSize = diSize;
                     } else {
@@ -206,18 +213,21 @@ public class ArchiveTableComp extends Composite {
                     }
                 }
             } else {
-                displayInfo.setSelected(false);
+                displayData.setSelected(false);
             }
+            displayDatas.add(displayData);
         }
 
-        selectedLbl.setText("Table Selected Items: " + count);
+        if (selectedLbl != null) {
+            selectedLbl.setText("Table Selected Items: " + count);
 
-        String sizeString = DisplayData.UNKNOWN_SIZE_LABEL;
-        if (tableTotalSize >= 0) {
-            sizeString = SizeUtil.prettyByteSize(tableTotalSize);
+            String sizeString = DisplayData.UNKNOWN_SIZE_LABEL;
+            if (tableTotalSize >= 0) {
+                sizeString = SizeUtil.prettyByteSize(tableTotalSize);
+            }
+            sizeLbl.setText("Table Selected Size: " + sizeString);
         }
-        sizeLbl.setText("Table Selected Size: " + sizeString);
-        iArchiveTotals.updateTotals();
+        iArchiveTotals.updateTotals(displayDatas);
     }
 
     /**
@@ -283,7 +293,6 @@ public class ArchiveTableComp extends Composite {
      */
     private void handleCheckSelectedRow(boolean check) {
         TableItem[] itemArray = table.getSelection();
-        System.out.println("handleCheckSelectedRow: " + check);
         for (TableItem ti : itemArray) {
             ti.setChecked(check);
         }
@@ -307,12 +316,12 @@ public class ArchiveTableComp extends Composite {
         updateSelectionLabels();
     }
 
-    public void updateSize(List<DisplayData> displayInfos) {
+    public void updateSize(List<DisplayData> displayDatas) {
         TableItem[] itemArray = table.getItems();
 
-        for (DisplayData displayInfo : displayInfos) {
+        for (DisplayData displayData : displayDatas) {
             for (TableItem ti : itemArray) {
-                if (displayInfo.equals(ti.getData(DISPLAY_INFO_KEY))) {
+                if (displayData.equals(ti.getData(DISPLAY_DATA_KEY))) {
                     setItemSize(ti);
                 }
             }
@@ -325,15 +334,15 @@ public class ArchiveTableComp extends Composite {
      * TODO : this is just for display purposes. This will go away when the
      * functionality is implemented.
      */
-    protected void populateTable(List<DisplayData> displayInfoArray) {
+    protected void populateTable(List<DisplayData> displayDataArray) {
         table.removeAll();
-        for (DisplayData displayInfo : displayInfoArray) {
+        for (DisplayData displayData : displayDataArray) {
             TableItem item = new TableItem(table, SWT.NONE);
-            item.setData(DISPLAY_INFO_KEY, displayInfo);
-            item.setChecked(displayInfo.isSelected());
-            item.setText(0, displayInfo.getDisplayLabel());
+            item.setData(DISPLAY_DATA_KEY, displayData);
+            item.setChecked(displayData.isSelected());
+            item.setText(0, displayData.getDisplayLabel());
 
-            item.setChecked(displayInfo.isSelected());
+            item.setChecked(displayData.isSelected());
             setItemSize(item);
         }
         for (int i = 0; i < 2; i++) {
@@ -345,8 +354,13 @@ public class ArchiveTableComp extends Composite {
         updateSelectionLabels();
     }
 
+    /**
+     * Update table items size column.
+     * 
+     * @param item
+     */
     private void setItemSize(TableItem item) {
-        long size = ((DisplayData) item.getData(DISPLAY_INFO_KEY)).getSize();
+        long size = ((DisplayData) item.getData(DISPLAY_DATA_KEY)).getSize();
         if (size < 0L) {
             item.setText(1, DisplayData.UNKNOWN_SIZE_LABEL);
         } else {
