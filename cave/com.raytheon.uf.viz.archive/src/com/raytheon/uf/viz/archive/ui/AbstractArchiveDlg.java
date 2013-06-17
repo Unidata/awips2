@@ -253,8 +253,6 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
             }
         });
 
-        ArchiveConfigManager.getInstance().reset();
-
         return comboComp;
     }
 
@@ -266,17 +264,17 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
     @Override
     protected void preOpened() {
         super.preOpened();
+        setCursorBusy(true);
 
         // Setup to display blank dialog with busy cursor while getting data.
         Job job = new Job("setup") {
             @Override
             protected IStatus run(IProgressMonitor monitor) {
+                initInfo();
                 VizApp.runAsync(new Runnable() {
 
                     @Override
                     public void run() {
-                        setCursorBusy(true);
-                        initInfo();
                         populateComboBoxes();
                         updateTableComp();
                     }
@@ -362,10 +360,12 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Populates the archive/category combo boxes and obtains the display data.
+     * Get information from manager for populating combo boxes and set up to get
+     * selected entries sizes. Intended for use on a non-UI thread.
      */
     private void initInfo() {
         ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
+        manager.reset();
         Calendar startCal = getStart();
         Calendar endCal = getEnd();
         String[] archiveNames = manager.getArchiveDataNamesList();
