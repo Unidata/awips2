@@ -68,11 +68,11 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * This is a common composite that is used to hold the area controls.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 28, 2012            lvenable     Initial creation.
@@ -90,9 +90,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Dec 10, 2012  1259      bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Dec 11, 2012  1264      mpduff       Fix validaiton of lat/lon text fields.
  * Mar 21, 2013  1638      mschenke     Changed map scales not tied to d2d
- *
+ * Jun 14, 2013  2064      mpduff       Reset controls on load.
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
@@ -187,7 +188,7 @@ public class AreaComp extends Composite implements ISubset {
 
     /**
      * Constructor.
-     *
+     * 
      * @param parent
      *            Parent composite.
      * @param groupTxt
@@ -237,6 +238,7 @@ public class AreaComp extends Composite implements ISubset {
         setupData();
 
         createControls();
+        updateRegionControls();
         if (regionRdo.getSelection()) {
             // Try to find the smallest region that intersects, assum regions
             // are listed largest to smallest.
@@ -293,7 +295,7 @@ public class AreaComp extends Composite implements ISubset {
 
     /**
      * Create the bound controls.
-     *
+     * 
      * @param group
      *            Group container.
      */
@@ -361,7 +363,7 @@ public class AreaComp extends Composite implements ISubset {
 
     /**
      * Create the region and bounding box controls.
-     *
+     * 
      * @param group
      *            Group container.
      */
@@ -486,7 +488,7 @@ public class AreaComp extends Composite implements ISubset {
 
     /**
      * Add a separator line to the display.
-     *
+     * 
      * @param parentComp
      *            Parent component.
      */
@@ -502,7 +504,7 @@ public class AreaComp extends Composite implements ISubset {
     /**
      * Enable/Disable the region and bounding box controls. The bounding box
      * control will always be the disabled if the region controls are enabled.
-     *
+     * 
      */
     public void updateRegionControls() {
         enableCustomControls(manualRdo.getSelection());
@@ -513,7 +515,7 @@ public class AreaComp extends Composite implements ISubset {
 
     /**
      * Set controls enabled based on flag.
-     *
+     * 
      * @param flag
      *            true if controls should be enabled
      */
@@ -524,7 +526,7 @@ public class AreaComp extends Composite implements ISubset {
 
     /**
      * Set text controls enabled based on flag.
-     *
+     * 
      * @param flag
      *            true if text controls should be enabled
      */
@@ -544,7 +546,7 @@ public class AreaComp extends Composite implements ISubset {
 
     /**
      * Get the text background based on if the control is enabled or not
-     *
+     * 
      * @param enabled
      *            enabled flag
      */
@@ -560,7 +562,7 @@ public class AreaComp extends Composite implements ISubset {
 
     /**
      * Enable the regions control based on the flag.
-     *
+     * 
      * @param flag
      *            enabled state of the controls
      */
@@ -575,7 +577,7 @@ public class AreaComp extends Composite implements ISubset {
 
     /**
      * Enable the bounding box controls base on the flag.
-     *
+     * 
      * @param flag
      *            enabled state of the controls
      */
@@ -585,7 +587,7 @@ public class AreaComp extends Composite implements ISubset {
 
     /**
      * Enable all controls using flag.
-     *
+     * 
      * @param flag
      *            on/off toggle for controls.
      */
@@ -753,7 +755,7 @@ public class AreaComp extends Composite implements ISubset {
 
     /**
      * Get the user Regions.
-     *
+     * 
      * @return array of user regions
      */
     private String[] getUserRegions() {
@@ -852,7 +854,7 @@ public class AreaComp extends Composite implements ISubset {
 
     /**
      * Get a double from text.
-     *
+     * 
      * @param text
      *            The double String
      * @return double, Double.NaN if unable to parse
@@ -879,6 +881,10 @@ public class AreaComp extends Composite implements ISubset {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void updateBounds(ReferencedEnvelope envelope) {
         Coordinate ul = EnvelopeUtils.getUpperLeftLatLon(envelope);
         Coordinate lr = EnvelopeUtils.getLowerRightLatLon(envelope);
@@ -895,7 +901,7 @@ public class AreaComp extends Composite implements ISubset {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.uf.viz.datadelivery.subscription.subset.ISubset#
      * updateSelectionState(boolean, java.lang.String)
      */
@@ -906,7 +912,7 @@ public class AreaComp extends Composite implements ISubset {
 
     /**
      * Select the custom radio button
-     *
+     * 
      * @param regionName
      */
     public void setRegion(String regionName) {
@@ -941,12 +947,11 @@ public class AreaComp extends Composite implements ISubset {
             }
             index++;
         }
-
     }
 
     /**
      * Select the custom radio button.
-     *
+     * 
      * @return region name
      */
     public String getRegionName() {
@@ -980,7 +985,7 @@ public class AreaComp extends Composite implements ISubset {
     /**
      * Switch to "My Regions" as the active selection and select the provided
      * region name.
-     *
+     * 
      * @param regionName
      */
     public void showMyRegions(String regionName) {
@@ -1009,7 +1014,7 @@ public class AreaComp extends Composite implements ISubset {
     /**
      * @return the envelopeValid
      */
-   public boolean isEnvelopeValid() {
+    public boolean isEnvelopeValid() {
         return envelopeValid;
     }
 
@@ -1033,6 +1038,6 @@ public class AreaComp extends Composite implements ISubset {
             validateBoundsText();
         }
 
-   }
-   
+    }
+
 }
