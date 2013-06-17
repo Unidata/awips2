@@ -255,6 +255,7 @@
         <exclude>.*dpa.*</exclude>
         <!-- exclude OGC services -->
         <exclude>.*ogc.*</exclude>
+        <exclude>grid-metadata.xml</exclude>
     </mode>
 
 	<!-- modes listed below are not supported in a production setting, they 
@@ -343,7 +344,7 @@
 		<include>madis-common.xml</include>
 		<include>pointdata-common.xml</include>
 		<include>madis-dpa-ingest.xml</include>
-		<include>madis-ogc.xml</include>-->
+		<include>madis-ogc.xml</include>
 		<!-- pointdata/obs specific services 
 		<include>obs-common.xml</include>
 		<include>pointdata-common.xml</include>
