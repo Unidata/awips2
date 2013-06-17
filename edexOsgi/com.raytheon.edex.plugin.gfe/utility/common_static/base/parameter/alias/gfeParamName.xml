@@ -345,7 +345,6 @@
     <alias base="TPCSG">Surge10Pct</alias>
     <alias base="TP-ECMWF">tp_ecmwf</alias>
     <alias base="tpFWR">tp_FWR</alias>
-    <alias base="tpHPC">tp_HPC</alias>
     <alias base="tpKRF">tp_KRF</alias>
     <alias base="tpMSR">tp_MSR</alias>
     <alias base="tpORN">tp_ORN</alias>

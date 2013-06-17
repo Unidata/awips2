@@ -685,4 +685,48 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
 		return;
 	}
 
+    /**
+     * Alter product parameters
+     *
+     * @param selectedKey
+     * @param selectedValue
+     * @param productParameters
+     */
+	@Override
+	public void alterProductParameters(String selectedKey,
+			String selectedValue,
+			HashMap<String, RequestConstraint> productParameters) {
+		if (selectedKey.equalsIgnoreCase("line")) {
+			LineString line = ToolsDataManager.getInstance().getBaseline(
+					selectedValue);
+			RequestConstraint stationRC = new RequestConstraint();
+			stationRC.setConstraintType(RequestConstraint.ConstraintType.IN);
+			String sourceKey = productParameters.get("pluginName")
+					.getConstraintValue();
+			Collection<String> closest = new ArrayList<String>();
+			for (Coordinate c : line.getCoordinates()) {
+				SurfaceObsLocation loc = getClosestStation(c, sourceKey,
+						closest);
+				if (loc == null) {
+					break;
+				}
+				closest.add(loc.getStationId());
+				stationRC.addToConstraintValueList(loc.getStationId());
+			}
+			productParameters.put("location.stationId", stationRC);
+		} else if (selectedKey.equalsIgnoreCase("point")) {
+			Coordinate point = PointsDataManager.getInstance().getCoordinate(
+					selectedValue);
+			String sourceKey = productParameters.get("pluginName")
+					.getConstraintValue();
+
+			SurfaceObsLocation closestStation = getClosestStation(point,
+					sourceKey);
+			productParameters.put("location.stationId", new RequestConstraint(
+					closestStation.getStationId()));
+			return;
+		}
+		return;
+	}
+
 }
