@@ -49,6 +49,7 @@ import com.raytheon.uf.common.serialization.SerializableManager;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 10/8/2008    1532        bphillip    Initial checkin
+ * Jun 18, 2013 2117        djohnson    Remove use of config.buildSettings().
  * 
  * </pre>
  * 
@@ -80,7 +81,8 @@ public class DatabaseSessionFactoryBean extends AnnotationSessionFactoryBean {
             throws org.hibernate.AnnotationException {
         Configuration config = getConfiguration();
         AnnotationConfiguration tmp = loadNewConfigForClasses(classes);
-        return tmp.generateSchemaCreationScript(config.buildSettings().getDialect());
+        return tmp.generateSchemaCreationScript(Dialect.getDialect(config
+                .getProperties()));
     }
 
     /**
@@ -98,7 +100,8 @@ public class DatabaseSessionFactoryBean extends AnnotationSessionFactoryBean {
             throws org.hibernate.AnnotationException {
         Configuration config = getConfiguration();
         AnnotationConfiguration tmp = loadNewConfigForClasses(classes);
-        return tmp.generateDropSchemaScript(config.buildSettings().getDialect());
+        return tmp.generateDropSchemaScript(Dialect.getDialect(config
+                .getProperties()));
     }
 
     private AnnotationConfiguration loadNewConfigForClasses(
