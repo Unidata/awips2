@@ -118,6 +118,15 @@ fi
 
 export CONSOLE_LOGLEVEL
 
+# determine whether we are running a 32-bit or 64-bit version of EDEX -
+# based on the AWIPS II Java that has been installed
+EDEX_BITS="32"
+EXPECTED_ARCH=`file ${JAVA_INSTALL}/bin/java | awk '{ print $3; }'`
+if [ "${EXPECTED_ARCH}" = "64-bit" ]; then
+   EDEX_BITS="64"
+fi
+export EDEX_BITS=${EDEX_BITS}
+
 # source environment files
 . $EDEX_HOME/etc/default.sh
 
@@ -131,15 +140,6 @@ fi
 
 # enable core dumps
 #ulimit -c unlimited
-
-# determine whether we are running a 32-bit or 64-bit version of EDEX -
-# based on the AWIPS II Java that has been installed
-EDEX_BITS="32"
-EXPECTED_ARCH=`file ${JAVA_INSTALL}/bin/java | awk '{ print $3; }'`
-if [ "${EXPECTED_ARCH}" = "64-bit" ]; then
-   EDEX_BITS="64"
-fi
-export EDEX_BITS=${EDEX_BITS}
 
 WRAPPER_ARGS=""
 if [ $DEBUG_FLAG == "on" ]; then
