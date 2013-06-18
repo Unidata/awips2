@@ -1,4 +1,4 @@
-package com.raytheon.uf.edex.datadelivery.harvester.purge;
+package com.raytheon.uf.edex.dataprovideragent.purge;
 
 /**
  * This software was developed and / or modified by Raytheon Company,
