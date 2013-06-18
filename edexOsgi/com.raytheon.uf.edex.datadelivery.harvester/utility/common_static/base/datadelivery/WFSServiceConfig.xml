@@ -35,5 +35,6 @@
 	<constant name="OUTPUTFORMAT" value="text/xml"/>
 	<constant name="FORWARD_SLASH" value="/"/>
 	<constant name="DEFAULT_CRS" value="crs:84"/>
+	<constant name="MAX" value="maxfeatures=3000"/>
 		
 </serviceConfig>

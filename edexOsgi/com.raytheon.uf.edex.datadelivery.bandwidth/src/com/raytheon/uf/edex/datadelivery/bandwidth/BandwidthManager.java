@@ -119,6 +119,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * May 20, 2013 1650       djohnson     Add in capability to find required dataset size.
  * Jun 03, 2013 2038       djohnson     Add base functionality to handle point data type subscriptions.
  * Jun 13, 2013 2095       djohnson     Improve bandwidth manager speed, and add performance logging.
+ * JUN 18, 2013 2120       dhladky      Add times to pointtime array
  * </pre>
  * 
  * @author dhladky
@@ -350,13 +351,22 @@ public abstract class BandwidthManager extends
                     // which goes through the retrieval process
                     final Subscription subscription = retrieval
                             .getSubscription();
-                    final Time subTime = subscription.getTime();
-                    subTime.setRequestStartAsDate(earliestRetrievalDataTime);
-                    subTime.setRequestEndAsDate(latestRetrievalDataTime);
-
-                    // Now update the retrieval to be ready
-                    retrieval.setStatus(RetrievalStatus.READY);
-                    bandwidthDaoUtil.update(retrieval);
+                    subscription.setUrl(dataSetMetaData.getUrl());
+                    subscription.setProvider(dataSetMetaData.getProviderName());
+                    
+                    if (subscription.getTime() instanceof PointTime) {
+                        final PointTime subTime = (PointTime) subscription
+                                .getTime();
+                        subTime.setRequestStartAsDate(earliestRetrievalDataTime);
+                        subTime.setRequestEndAsDate(latestRetrievalDataTime);
+                        subTime.setTimes(time.getTimes());
+                        // Now update the retrieval to be ready
+                        retrieval.setStatus(RetrievalStatus.READY);
+                        bandwidthDaoUtil.update(retrieval);
+                    } else {
+                        throw new IllegalArgumentException("Subscription time not PointType! " + subscription.getName());
+                    }
+                    
                 } catch (SerializationException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
