@@ -23,7 +23,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.wfs;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.raytheon.uf.common.datadelivery.registry.Provider;
+import com.raytheon.uf.common.datadelivery.registry.Connection;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.event.EventBus;
@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.WfsConnectionUtil;
  * May 12, 2013 753        dhladky      implemented.
  * May 31, 2013 2038       djohnson     Move to correct repo.
  * Jun 03, 2013 1763       dhladky      Readied for retrievals.
+ * Jun 18, 2013 2120       dhladky      Removed provider and fixed time processing.
  * 
  * </pre>
  * 
@@ -62,11 +63,9 @@ public class WfsRetrievalAdapter extends RetrievalAdapter {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(WfsRetrievalAdapter.class);
-    
-    private Provider provider;
-    
-    WfsRetrievalAdapter(Provider provider) {
-        this.provider = provider;
+
+    WfsRetrievalAdapter() {
+
     }
 
     @Override
@@ -118,7 +117,10 @@ public class WfsRetrievalAdapter extends RetrievalAdapter {
 
         String xmlMessage = null;
         try {
-            xmlMessage = WfsConnectionUtil.wfsConnect(request.getRequest(), provider);
+            Connection conn = this.getProviderRetrievalXMl().getConnection();
+            // This is used as the "Realm" in HTTPS connections
+            String providerName = request.getAttribute().getProvider();
+            xmlMessage = WfsConnectionUtil.wfsConnect(request.getRequest(), conn, providerName);
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
             EventBus.publish(new RetrievalEvent(e.getMessage()));
