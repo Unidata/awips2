@@ -42,8 +42,10 @@
 	
 	<bean id="madisSeparator" class="com.raytheon.uf.edex.plugin.madis.MadisSeparator" depends-on="jmsIngestMadisConfig, jms-madis, madisThreadPool">
 		<constructor-arg value="jms-madis:queue:Ingest.madisSeparator?destinationResolver=#qpidDurableResolver" />
+		<!-- time in hours for orphan purging -->
+		<constructor-arg value="1" />
 	</bean>
-
+	
 	<camelContext id="madis-camel"
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler"
@@ -86,7 +88,6 @@
 			</setHeader>
 			<doTry>
 				<pipeline>
-				    <bean ref="serializationUtil" method="transformFromThrift" />
 					<bean ref="madisDecoder" method="decode" />
 					<bean ref="madisLayerCollector" method="geoFilter"/>
 					<bean ref="madisPointData" method="toPointData" />
@@ -105,6 +106,12 @@
 		    <!--  send metadata to registry every minute -->
 			<from uri="quartz://madis/layers?cron=0+*+*+*+*+?" />
 			<bean ref="madisLayerCollector" method="buildLayerUpdate" />
+		</route>
+		
+		<route id="madisOrphanPurgeRoute">
+		    <!--  purge madis orphan files based on hour in separator constructor arg -->
+			<from uri="quartz://madis/orphan?cron=0+0+*+*+*+?" />
+			<bean ref="madisSeparator" method="fileCleaner" />
 		</route>
 	
 	</camelContext>
