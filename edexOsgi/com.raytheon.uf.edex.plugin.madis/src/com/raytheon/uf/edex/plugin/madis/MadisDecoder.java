@@ -20,6 +20,7 @@
 
 package com.raytheon.uf.edex.plugin.madis;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,6 +52,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date          Ticket#     Engineer    Description
  * -----------  ----------  ----------- --------------------------
  * 3/27/13      1746         dhladky    Initial creation
+ * 6/17/13       2113        dhladky    QPID memory usage alleviation
  * </pre>
  * 
  * @author dhladky
@@ -108,11 +110,13 @@ public class MadisDecoder extends AbstractDecoder {
      * @return
      * @throws DecoderException
      */
-    public PluginDataObject[] decode(MadisIngestObject mio)
+    public PluginDataObject[] decode(String path)
             throws DecoderException {
 
-        PluginDataObject[] retVal = new PluginDataObject[0];
+        // de-serialize the object from the path
         long time = System.currentTimeMillis();
+        MadisIngestObject mio = MadisSeparator.getObject(path);
+        PluginDataObject[] retVal = new PluginDataObject[0];
 
         if (mio != null) {
 
@@ -143,6 +147,12 @@ public class MadisDecoder extends AbstractDecoder {
             } catch (Exception e) {
                 statusHandler.handle(Priority.ERROR,
                         "Could not open MADIS Ingest Object!", e);
+            } finally {
+                // discard file
+                File file = new File(path);
+                if (file.exists()) {
+                    file.delete();
+                } 
             }
 
             if (!retList.isEmpty()) {
@@ -150,7 +160,7 @@ public class MadisDecoder extends AbstractDecoder {
                 retVal = retList.toArray(new PluginDataObject[size]);
             }
         }
-
+        
         if (retVal.length == 0) {
             statusHandler.handle(Priority.WARN,
                     "No MADIS data decoded!!!!  Bad file format!");
