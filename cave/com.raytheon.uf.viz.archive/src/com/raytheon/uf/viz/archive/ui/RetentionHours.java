@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.viz.archive.ui;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Combo;
@@ -58,6 +61,21 @@ public class RetentionHours {
     private Combo timeUnitCombo;
 
     /**
+     * Keep track of previous time unit so recalculation only done when changed.
+     */
+    private int prevTimeUnitSelected = 0;
+
+    /**
+     * Set when user modified values.
+     */
+    private boolean modifyState = false;
+
+    /**
+     * Listeners to inform when user performs a modification.
+     */
+    private final List<IModifyListener> listeners = new CopyOnWriteArrayList<IModifyListener>();
+
+    /**
      * Constructor with default 7 day retention.
      */
     public RetentionHours(int minUnit, Spinner timeSpnr, Combo timeUnitCombo) {
@@ -76,24 +94,44 @@ public class RetentionHours {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                handleTimeSelection();
+                updateAndCheckTimeSelection();
             }
         });
 
         timeUnitCombo.removeAll();
         timeUnitCombo.add("Hours");
         timeUnitCombo.add("Days");
-        timeUnitCombo.select(0);
+        timeUnitCombo.select(prevTimeUnitSelected);
 
         timeUnitCombo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                handleTimeUnitSelection();
-                handleTimeSelection();
+                if (prevTimeUnitSelected != timeUnitCombo.getSelectionIndex()) {
+                    prevTimeUnitSelected = timeUnitCombo.getSelectionIndex();
+                    handleTimeUnitSelection();
+                    updateAndCheckTimeSelection();
+                }
             }
         });
         timeUnitCombo.setData(timeUnitCombo.getItem(timeUnitCombo
                 .getSelectionIndex()));
+    }
+
+    /**
+     * Update the retention hours and determine if modification listeners should
+     * be notified.
+     */
+    private void updateAndCheckTimeSelection() {
+        // Make sure this is called so retention hours is updated properly.
+        boolean modified = handleTimeSelection();
+
+        // Do notification when state becomes true.
+        if (!modifyState && modified) {
+            modifyState = true;
+            for (IModifyListener iModifyListener : listeners) {
+                iModifyListener.modified();
+            }
+        }
     }
 
     /**
@@ -120,11 +158,14 @@ public class RetentionHours {
         if (timeUnitCombo.getItem(timeUnitCombo.getSelectionIndex()).equals(
                 "Days")) {
             time /= TimeUtil.HOURS_PER_DAY;
+            if (time < minUnit) {
+                time = minUnit;
+            }
         }
 
         timeSpnr.setSelection(time);
 
-        // Based on the time unit retentionHours and GUI may need updating.
+        // Based on the time unit retentionHours may need updating.
         handleTimeSelection();
     }
 
@@ -177,12 +218,41 @@ public class RetentionHours {
     /**
      * Adjust retention hours based on combo boxes current values.
      */
-    protected void handleTimeSelection() {
+    protected boolean handleTimeSelection() {
         int time = timeSpnr.getSelection();
+        boolean modified = false;
         if (timeUnitCombo.getItem(timeUnitCombo.getSelectionIndex()).equals(
                 "Days")) {
             time *= TimeUtil.HOURS_PER_DAY;
         }
-        retentionHours = time;
+
+        if (retentionHours != time) {
+            retentionHours = time;
+            modified = true;
+        }
+        return modified;
+    }
+
+    /**
+     * Reset the modify state.
+     */
+    public void clearModified() {
+        modifyState = false;
+    }
+
+    /**
+     * 
+     * @param iModifyListener
+     */
+    public void addModifyListener(IModifyListener iModifyListener) {
+        listeners.add(iModifyListener);
+    }
+
+    /**
+     * 
+     * @param iModifyListener
+     */
+    public void removeModifyListener(IModifyListener iModifyListener) {
+        listeners.remove(iModifyListener);
     }
 }
