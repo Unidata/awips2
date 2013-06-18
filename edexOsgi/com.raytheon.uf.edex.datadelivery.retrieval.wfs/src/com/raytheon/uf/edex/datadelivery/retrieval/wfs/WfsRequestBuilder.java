@@ -31,6 +31,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 12, 2013 753        dhladky      created.
  * May 31, 2013 2038       djohnson     Move to correct repo.
  * Jun 11, 2013 1763       dhladky      Made operational.
+ * Jun 18, 2013 2120       dhladky      Added times and max feature processing
  * 
  * </pre>
  * 
@@ -61,6 +62,8 @@ public class WfsRequestBuilder extends RequestBuilder {
     
     public static final String blank = getServiceConfig().getConstantValue("BLANK");
     
+    public static final String max = getServiceConfig().getConstantValue("MAX");
+    
     public static final String ampersand = "&";
     
     private final String wfsURL;
@@ -78,6 +81,8 @@ public class WfsRequestBuilder extends RequestBuilder {
         buffer.append(processCoverage());
         // process the time range you are trying to retrieve
         buffer.append(processTime(getRetrievalAttribute().getTime()));
+        // max feature limit
+        buffer.append(processMax());
         
         this.wfsURL = buffer.toString().trim();
     }
@@ -99,8 +104,7 @@ public class WfsRequestBuilder extends RequestBuilder {
 
         try {
             if (inTime.getEndDate() != null && inTime.getStartDate() != null) {
-            
-                
+
                 Date sDate = inTime.getStartDate();
                 Date eDate = inTime.getEndDate();
                 String endDateString = ogcDateFormat.get().format(eDate);
@@ -166,6 +170,18 @@ public class WfsRequestBuilder extends RequestBuilder {
         }
 
         return blank;
+    }
+    
+    /**
+     * constrain to max amount of features
+     * @return
+     */
+    public String processMax() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(ampersand);
+        sb.append(max);
+        
+        return sb.toString();
     }
 
     @Override
