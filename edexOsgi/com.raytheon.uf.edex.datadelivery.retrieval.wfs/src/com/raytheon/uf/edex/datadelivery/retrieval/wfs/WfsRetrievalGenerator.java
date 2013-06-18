@@ -1,25 +1,22 @@
 package com.raytheon.uf.edex.datadelivery.retrieval.wfs;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
-import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
-import com.raytheon.uf.common.datadelivery.registry.PointDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.common.datadelivery.registry.ProviderType;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBundle;
-import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
-import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -41,6 +38,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
  * May 12, 2013 753        dhladky      Implemented
  * May 31, 2013 2038       djohnson     Move to correct repo.
  * Jun 04, 2013 1763       dhladky      Readied for WFS Retrievals.
+ * Jun 18, 2013 2120       dhladky      Fixed times.
  * 
  * </pre>
  * 
@@ -51,11 +49,10 @@ class WfsRetrievalGenerator extends RetrievalGenerator {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(WfsRetrievalGenerator.class);
-    private Provider provider;
+
 
     WfsRetrievalGenerator(Provider provider) {
         super(ServiceType.WFS);
-        this.provider = provider;
     }
 
     @Override
@@ -89,8 +86,6 @@ class WfsRetrievalGenerator extends RetrievalGenerator {
         if (sub != null) {
 
             PointTime subTime = (PointTime) sub.getTime();
-            String retrievalUrl = getRetrievalUrl(sub);
-            sub.setUrl(retrievalUrl);
 
             if (sub.getUrl() == null) {
                 statusHandler
@@ -110,60 +105,6 @@ class WfsRetrievalGenerator extends RetrievalGenerator {
         }
 
         return retrievals;
-    }
-
-    /**
-     * Determines the retrieval URL
-     * 
-     * @param subscription
-     *            the subscription
-     * @return the url for retrieval or null if no retrieval should take place
-     */
-    private static String getRetrievalUrl(Subscription subscription) {
-        String url = subscription.getUrl();
-
-        DataSetMetaData result = null;
-        try {
-            result = DataDeliveryHandlers.getDataSetMetaDataHandler().getById(
-                    url);
-            if (result == null) {
-                throw new RegistryHandlerException(
-                        "Unable to find the dataset by id from its unique url!",
-                        new NullPointerException("DataSetMetaData"));
-            }
-
-            if (satisfiesSubscriptionCriteria(subscription, result)) {
-                return url;
-            }
-        } catch (RegistryHandlerException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to find the dataset by id from its unique url!", e);
-        }
-
-        return null;
-    }
-
-    /**
-     * Determines whether a subscription can be satisified by the dataset
-     * metadata.
-     * 
-     * @param subscription
-     *            the subscription
-     * @param dsmd
-     *            the dataset metadata
-     * @return true if the datasetmetadata will satisfy the subscription
-     */
-    @VisibleForTesting
-    static boolean satisfiesSubscriptionCriteria(Subscription subscription,
-            DataSetMetaData dsmd) {
-
-        if (dsmd instanceof PointDataSetMetaData) {
-            // PointDataSetMetaData data = (PointDataSetMetaData) dsmd;
-            // TODO determine some check for validity of point data sets
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -212,7 +153,7 @@ class WfsRetrievalGenerator extends RetrievalGenerator {
             lparam.setLevels(param.getLevels());
             att.setParameter(lparam);
         }
-        
+    
         att.setTime(time);
         att.setSubName(retrieval.getSubscriptionName());
         att.setPlugin(plugin);
@@ -227,12 +168,13 @@ class WfsRetrievalGenerator extends RetrievalGenerator {
      */
     @Override
     protected RetrievalAdapter getServiceRetrievalAdapter() {
-        return new WfsRetrievalAdapter(provider);
+        return new WfsRetrievalAdapter();
     }
 
     @Override
     protected Subscription removeDuplicates(Subscription sub) {
         throw new UnsupportedOperationException("Not implemented for WFS");
     }
+   
 
 }
