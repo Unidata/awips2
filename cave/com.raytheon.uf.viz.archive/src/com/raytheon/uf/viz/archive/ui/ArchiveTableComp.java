@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.archive.ui;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.swt.SWT;
@@ -94,6 +95,16 @@ public class ArchiveTableComp extends Composite {
 
     /** Data for the currently display table */
     private DisplayData[] tableData;
+
+    /**
+     * Modification state set to true only when user performs a modification.
+     */
+    private boolean modifiedState = false;
+
+    /**
+     * Listeners to inform when user changes the modification state.
+     */
+    private final List<IModifyListener> modifiedListeners = new CopyOnWriteArrayList<IModifyListener>();
 
     /**
      * Constructor.
@@ -185,6 +196,7 @@ public class ArchiveTableComp extends Composite {
             public void widgetSelected(SelectionEvent e) {
                 if (e.detail == SWT.CHECK) {
                     updateSelectionLabels();
+                    setModified();
                 }
             }
         });
@@ -382,6 +394,7 @@ public class ArchiveTableComp extends Composite {
         for (TableItem ti : itemArray) {
             ti.setChecked(check);
         }
+        setModified();
 
         updateSelectionLabels();
     }
@@ -426,5 +439,41 @@ public class ArchiveTableComp extends Composite {
         table.setSortColumn(table.getColumn(LABEL_COL_INDEX));
         table.setSortDirection(SWT.UP);
         table.clearAll();
+    }
+
+    /**
+     * Check the modified state and inform listeners when it changes.
+     */
+    private void setModified() {
+        if (!modifiedState) {
+            modifiedState = true;
+            for (IModifyListener iModifyListener : modifiedListeners) {
+                iModifyListener.modified();
+            }
+        }
+    }
+
+    /**
+     * Reset the modified state.
+     */
+    public void clearModified() {
+        modifiedState = false;
+    }
+
+    /**
+     * Add listener that wants to be informed when the modified state is
+     * changed.
+     * 
+     * @param iModifyListener
+     */
+    public void addModifiedListener(IModifyListener iModifyListener) {
+        modifiedListeners.add(iModifyListener);
+    }
+
+    /*
+     * Remove the listener.
+     */
+    public void removeModifiedListener(IModifyListener iModifyListener) {
+        modifiedListeners.remove(iModifyListener);
     }
 }
