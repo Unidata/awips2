@@ -53,7 +53,7 @@
                 </pipeline>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:ldadprofiler?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:ldadprofiler?level=ERROR"/>
                 </doCatch>
             </doTry>
         </route>
