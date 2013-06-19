@@ -18,7 +18,7 @@
 	        	<bean ref="fogGenerator" method="generate" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:fog?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:fog?level=ERROR"/>
                 </doCatch>
             </doTry>
         </route>
