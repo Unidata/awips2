@@ -98,7 +98,7 @@
 							</pipeline>
 							<doCatch>
 								<exception>java.lang.Throwable</exception>
-								<to uri="log:grib?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+								<to uri="log:grib?level=ERROR"/>
 							</doCatch>
 							<doFinally>
 								<bean ref="gribSplitter" method="clean" />

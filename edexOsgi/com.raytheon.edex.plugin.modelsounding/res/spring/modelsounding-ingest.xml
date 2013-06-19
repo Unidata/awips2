@@ -62,14 +62,14 @@
 		                    </pipeline>
          	                <doCatch>
                   			    <exception>java.lang.Throwable</exception>
-			                    <to uri="log:modelsounding?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+			                    <to uri="log:modelsounding?level=ERROR"/>
 			                </doCatch>
 		                </doTry>
 		           </split>
                 </pipeline>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:modelsounding?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:modelsounding?level=ERROR"/>
                 </doCatch>
             </doTry>
 		</route>
