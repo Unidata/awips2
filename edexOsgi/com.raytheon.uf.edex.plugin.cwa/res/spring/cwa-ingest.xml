@@ -36,7 +36,7 @@
                 </pipeline>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:cwa?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:cwa?level=ERROR"/>
                 </doCatch>
             </doTry>
         </route>
