@@ -17,16 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.archive.purge;
+package com.raytheon.uf.common.archive.config;
 
-import java.util.Collection;
-
-import com.raytheon.uf.common.archive.config.ArchiveConfig;
-import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
-
+import java.util.Calendar;
 
 /**
- * Purge task to purge archived data based on configured expiration.
+ * Helper to get a file last modification date.
  * 
  * <pre>
  * 
@@ -34,7 +30,7 @@ import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May  6, 2013 1965       bgonzale    Initial creation
+ * Jun 21, 2013            bgonzale     Initial creation
  * 
  * </pre>
  * 
@@ -42,16 +38,8 @@ import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
  * @version 1.0
  */
 
-public class ArchivePurger {
+public interface IFileDateHelper {
 
-    /**
-     * Purge expired elements from the archives.
-     */
-    public static void purge() {
-        ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
-        Collection<ArchiveConfig> archives = manager.getArchives();
-        for (ArchiveConfig archive : archives) {
-            manager.purgeExpiredFromArchive(archive);
-        }
-    }
+    public Calendar getFileDate(String filenamePath);
+
 }
