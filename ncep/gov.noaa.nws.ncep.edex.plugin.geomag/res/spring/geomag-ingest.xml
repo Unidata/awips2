@@ -66,7 +66,7 @@
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:geomag?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:geomag?level=ERROR"/>
 				</doCatch>
 			</doTry>
 		</route>

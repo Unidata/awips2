@@ -61,7 +61,7 @@
 				<bean ref="parmIdFilter" method="updateParmIdCache" />
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:paramIdCache?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:paramIdCache?level=ERROR"/>
 				</doCatch>
 			</doTry>
 		</route>
@@ -76,7 +76,7 @@
 			    </filter>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:gfeNotify?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:gfeNotify?level=ERROR"/>
                 </doCatch>
             </doTry>
 		</route>
@@ -92,7 +92,7 @@
 				<bean ref="d2dParmIdCache" method="pluginPurged" />
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:paramIdCache?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:paramIdCache?level=ERROR"/>
 				</doCatch>
 			</doTry>
 		</route>
@@ -104,7 +104,7 @@
                 <bean ref="gridParmManager" method="processNotification" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:gridParmManager?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:gridParmManager?level=ERROR"/>
                 </doCatch>
             </doTry>
         </route>
