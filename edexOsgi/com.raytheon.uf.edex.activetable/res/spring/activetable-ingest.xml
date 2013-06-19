@@ -16,7 +16,7 @@
     			<bean ref="activeTableSrv" method="vtecArrived" />					
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:activeTable?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:activeTable?level=ERROR"/>
                 </doCatch>
             </doTry>
 		</route>
@@ -30,7 +30,7 @@
             	</multicast>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:practiceActiveTable?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:practiceActiveTable?level=ERROR"/>
                 </doCatch>
             </doTry>
 		</route>
