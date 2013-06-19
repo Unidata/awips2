@@ -107,7 +107,7 @@
    <includes
          id="com.raytheon.uf.edex.npp.feature"
          version="0.0.0"/>
-         
+
    <includes
          id="com.raytheon.uf.edex.datadelivery.client.feature"
          version="0.0.0"/>
@@ -122,6 +122,10 @@
 
    <includes
          id="com.raytheon.uf.edex.registry.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.archive.feature"
          version="0.0.0"/>
 
 </feature>
