@@ -27,8 +27,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -52,11 +50,12 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * ------------ ---------- ----------- --------------------------
  * Jun 19, 2007            chammack    Port from AWIPS Common
  * 02/27/2008   879        rbell       Added compareTo(TimeRange)
- * 03/20/2013     #1774    randerso    Changed toString to display times even when
+ * 03/20/2013   1774       randerso    Changed toString to display times even when
  *                                     duration is 0, use TimeUtil constants.
- * 04/04/2013     #1787    randerso    Removed a bunch of isValid checks to the logic
+ * 04/04/2013   1787       randerso    Removed a bunch of isValid checks to the logic
  *                                     works as intended by the original A1 implementation.
  * 04/24/2013   1949       rjpeter     Updated clone to deep copy by millis.
+ * 06/19/2013   2125       njensen     Removed javax.persistence.Access annotations
  * </pre>
  * 
  * <B>Original Documentation:</B>
@@ -116,13 +115,11 @@ public class TimeRange implements Serializable, Comparable<TimeRange>,
     private static final long serialVersionUID = 1L;
 
     @Column(name = "rangeStart")
-    @Access(AccessType.PROPERTY)
     @XmlAttribute
     @DynamicSerializeElement
     private Date start;
 
     @Column(name = "rangeEnd")
-    @Access(AccessType.PROPERTY)
     @XmlAttribute
     @DynamicSerializeElement
     private Date end;
