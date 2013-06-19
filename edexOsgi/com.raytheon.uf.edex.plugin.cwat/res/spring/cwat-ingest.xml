@@ -18,7 +18,7 @@
             	<bean ref="cwatGenerator" method="generate" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:cwat?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:cwat?level=ERROR"/>
                 </doCatch>
             </doTry>
         </route>

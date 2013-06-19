@@ -66,14 +66,14 @@
                             </pipeline>
                             <doCatch>
                                 <exception>java.lang.Throwable</exception>
-                                <to uri="log:ncpirep?level=ERROR&amp;showBody=false"/>
+                                <to uri="log:ncpirep?level=ERROR"/>
                             </doCatch>
                         </doTry>
                     </split>
                 </pipeline>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:ncpirep?level=ERROR&amp;showBody=false"/>
+                    <to uri="log:ncpirep?level=ERROR"/>
                 </doCatch>
             </doTry>
         </route>
