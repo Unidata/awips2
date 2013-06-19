@@ -50,7 +50,7 @@
                 </pipeline>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:bufrua?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:bufrua?level=ERROR"/>
                 </doCatch>
             </doTry>
         </route>
