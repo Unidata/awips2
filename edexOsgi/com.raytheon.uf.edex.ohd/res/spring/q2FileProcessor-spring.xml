@@ -24,7 +24,7 @@
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:q2File?level=INFO&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:q2File?level=INFO"/>
 				</doCatch>
 			</doTry>
 		</route>
