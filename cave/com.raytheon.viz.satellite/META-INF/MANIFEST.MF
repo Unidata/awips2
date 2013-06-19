@@ -9,26 +9,22 @@ Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core, com.rayt
 Eclipse-BuddyPolicy: ext, global
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- com.raytheon.viz.core,
- org.geotools,
- com.raytheon.viz.ui,
- javax.measure,
- com.raytheon.edex.common,
- com.raytheon.uf.common.message,
  com.raytheon.uf.viz.core,
- com.raytheon.uf.viz.d2d.ui;bundle-version="1.11.17",
- com.raytheon.uf.common.util;bundle-version="1.0.0",
- com.raytheon.uf.viz.productbrowser;bundle-version="1.11.31",
+ com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.0.0",
- com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174"
+ com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
+ com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
+ com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
+ com.raytheon.uf.common.message;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.productbrowser;bundle-version="1.11.31",
+ com.raytheon.uf.viz.derivparam;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.ui.menus;bundle-version="1.12.1174",
+ com.raytheon.viz.ui;bundle-version="1.12.1174",
+ com.raytheon.viz.core;bundle-version="1.12.1174",
+ javax.measure
 Bundle-ActivationPolicy: lazy
-Import-Package: com.raytheon.uf.common.colormap,
- com.raytheon.uf.common.menus,
- com.raytheon.uf.common.menus.xml,
- com.raytheon.uf.common.pointdata,
- com.raytheon.uf.viz.derivparam.library,
- com.raytheon.uf.viz.ui.menus.widgets,
- com.raytheon.uf.viz.ui.menus.xml
 Export-Package: com.raytheon.viz.satellite,
  com.raytheon.viz.satellite.rsc
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
