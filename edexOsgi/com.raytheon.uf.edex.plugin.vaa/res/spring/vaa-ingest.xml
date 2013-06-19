@@ -50,7 +50,7 @@
                     </pipeline>
                     <doCatch>
                         <exception>java.lang.Throwable</exception>
-                        <to uri="log:vaa?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                        <to uri="log:vaa?level=ERROR"/>
                     </doCatch>
                 </doTry>
             </pipeline>

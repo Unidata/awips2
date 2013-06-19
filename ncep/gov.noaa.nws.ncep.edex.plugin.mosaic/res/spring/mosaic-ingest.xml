@@ -58,7 +58,7 @@
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:mosaic?level=ERROR&amp;showBody=false" />
+					<to uri="log:mosaic?level=ERROR" />
 				</doCatch>
 			</doTry>
 			<!-- bean ref="processUtil" method="delete" /-->
