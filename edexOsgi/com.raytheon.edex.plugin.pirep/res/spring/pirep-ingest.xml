@@ -55,14 +55,14 @@
                             </pipeline>
                             <doCatch>
                                 <exception>java.lang.Throwable</exception>
-                                <to uri="log:pirep?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                                <to uri="log:pirep?level=ERROR"/>
                             </doCatch>
                         </doTry>
                     </split>
                 </pipeline>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:pirep?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:pirep?level=ERROR"/>
                 </doCatch>
             </doTry>
         </route>

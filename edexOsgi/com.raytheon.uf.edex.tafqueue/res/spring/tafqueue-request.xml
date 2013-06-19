@@ -38,7 +38,7 @@
 			    <bean ref="TafQueueManager" method="startManager" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:tafSendQueue?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:tafSendQueue?level=ERROR"/>
                 </doCatch>
             </doTry>
 		</route>
@@ -48,7 +48,7 @@
 			    <bean ref="TafQueueManager" method="queueChanged" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:tafSendQueue?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:tafSendQueue?level=ERROR"/>
                 </doCatch>
 			</doTry>
 		</route>

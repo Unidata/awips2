@@ -578,7 +578,7 @@
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to
-						uri="log:svcBackup?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+						uri="log:svcBackup?level=ERROR" />
 				</doCatch>
 			</doTry>
 		</route>
@@ -600,7 +600,7 @@
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to
-						uri="log:svcBackup?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+						uri="log:svcBackup?level=ERROR" />
 				</doCatch>
 			</doTry>
 		</route>
@@ -616,7 +616,7 @@
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to
-						uri="log:svcBackup?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+						uri="log:svcBackup?level=ERROR" />
 				</doCatch>
 			</doTry>
 		</route>
@@ -631,7 +631,7 @@
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:iscDataRec?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:iscDataRec?level=ERROR"/>
 				</doCatch>
 			</doTry>
 		</route>
@@ -649,7 +649,7 @@
 			    <bean ref="iscSendQueue" method="addSendJobs" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:iscSendQueue?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:iscSendQueue?level=ERROR"/>
                 </doCatch>
             </doTry>
 		</route>
