@@ -84,17 +84,15 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "satellite",
-		indexes = {
-				@Index(name = "satellite_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "satellite", indexes = { @Index(name = "satellite_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class SatelliteRecord extends PersistablePluginDataObject
-        implements ISpatialEnabled {
+public class SatelliteRecord extends PersistablePluginDataObject implements
+        ISpatialEnabled {
+
+    public static final String PLUGIN_ID = "satellite";
 
     private static final long serialVersionUID = 1L;
 
@@ -260,7 +258,7 @@ public class SatelliteRecord extends PersistablePluginDataObject
      * No-arg constructor.
      */
     public SatelliteRecord() {
-
+        setPluginName(PLUGIN_ID);
     }
 
     /**
@@ -272,7 +270,7 @@ public class SatelliteRecord extends PersistablePluginDataObject
      *            The table definition associated with this class
      */
     public SatelliteRecord(String uri) {
-        super(uri.replace('_', ' '));
+        super(uri);
     }
 
     public Integer getNumRecords() {
