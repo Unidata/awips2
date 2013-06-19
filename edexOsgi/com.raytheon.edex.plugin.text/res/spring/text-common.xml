@@ -50,7 +50,7 @@
 		   	   <bean ref="autoFaxDao" method="updateCache" />
 		   	   <doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:autoFax?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:autoFax?level=ERROR"/>
 		   	   </doCatch>
 		   </doTry>
 		</route>
