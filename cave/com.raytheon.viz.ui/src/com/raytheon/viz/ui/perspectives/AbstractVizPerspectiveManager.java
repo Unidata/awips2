@@ -70,9 +70,11 @@ import com.raytheon.viz.ui.tools.ModalToolManager;
  * <pre>
  * SOFTWARE HISTORY
  * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jul 22, 2008				randerso	Initial creation
- * Mar 26, 2013	1799      	bsteffen   	Fix pan/zoom when in views.
+ * ------------ ----------  ----------- --------------------------
+ * Jul 22, 2008             randerso    Initial creation
+ * Mar 26, 2013 1799        bsteffen    Fix pan/zoom when in views.
+ * Jun 19, 2013 2116        bsteffen    Do not deactivate contexts for parts
+ *                                      when closing an inactive perspective.
  * 
  * </pre>
  * 
@@ -512,8 +514,9 @@ public abstract class AbstractVizPerspectiveManager implements
 
     protected void deactivateContexts(ContextManager manager) {
         manager.deactivateContexts(this);
-        if (page != null && page.getActivePart() != null) {
-            manager.deactivateContexts(page.getActivePart());
+        if (page != null && page.getActivePart() != null
+                && perspectiveId.equals(page.getPerspective().getId())) {
+                manager.deactivateContexts(page.getActivePart());
         }
     }
 
