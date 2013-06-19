@@ -21,7 +21,7 @@
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to
-						uri="log:grid-staticdata?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+						uri="log:grid-staticdata?level=ERROR" />
 				</doCatch>
 			</doTry>
 		</route>
