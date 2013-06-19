@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -71,6 +72,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * ------------ ---------- ----------- --------------------------
  * May  1, 2013 1966       rferrel     Initial creation
  * May 29, 2013 1965       bgonzale    Added archive creation, purge, and save methods.
+ *                                     Updated purgeExpiredFromArchive to check time of files in
+ *                                     directory before purging them.
  * 
  * </pre>
  * 
@@ -203,23 +206,18 @@ public class ArchiveConfigManager {
     public Collection<File> createArchive(File archiveDir,
             Collection<DisplayData> displaysSelectedForArchive, Calendar start,
             Calendar end) throws IOException, ArchiveException {
-        Collection<File> archivedFiles = null;
+        Collection<File> archivedFiles = new ArrayList<File>();
         FileUtils.forceMkdir(archiveDir);
         if (archiveDir.exists()) {
-            Collection<File> filesToArchive = new ArrayList<File>();
-
             for (DisplayData display : displaysSelectedForArchive) {
-                List<File> files = getDisplayFiles(display, start, end);
-                filesToArchive.addAll(files);
-                String rootDirString = display.archiveConfig.getRootDir();
                 String archiveDirString = archiveDir.getAbsolutePath();
+                String rootDirString = display.archiveConfig.getRootDir();
 
-                archivedFiles = new ArrayList<File>(filesToArchive.size());
                 rootDirString = (rootDirString.endsWith(File.separator) ? rootDirString
                         .substring(0,
                                 rootDirString.lastIndexOf(File.separatorChar))
                         : rootDirString);
-                for (File srcFile : filesToArchive) {
+                for (File srcFile : getDisplayFiles(display, start, end)) {
                     String fileAbsPath = srcFile.getAbsolutePath();
                     File newArchiveDir = getDirRelativeToArchiveDirFromRoot(
                             srcFile.isDirectory(), fileAbsPath, rootDirString,
@@ -269,24 +267,75 @@ public class ArchiveConfigManager {
      */
     public Collection<File> purgeExpiredFromArchive(ArchiveConfig archive) {
         Collection<File> filesPurged = new ArrayList<File>();
+        String archiveRootDirPath = archive.getRootDir();
+        File archiveRootDir = new File(archiveRootDirPath);
+        List<String> topLevelDirsNotPurged = new ArrayList<String>(
+                Arrays.asList(archiveRootDir.list()));
 
         for (CategoryConfig category : archive.getCategoryList()) {
             Calendar purgeTime = calculateExpiration(archive, category);
+            CategoryFileDateHelper helper = new CategoryFileDateHelper(
+                    category, archive.getRootDir());
+            IOFileFilter fileDateFilter = FileFilterUtils.and(
+                    FileFilterUtils.fileFileFilter(),
+                    new FileDateFilter(null, purgeTime, helper));
 
+            // Remove the directory associated with this category from the not
+            // purged list since it is being purged.
+            for (Iterator<String> iter = topLevelDirsNotPurged.iterator(); iter
+                    .hasNext();) {
+                String dirName = iter.next();
+                if (helper.isCategoryDirectory(dirName)) {
+                    iter.remove();
+                    break;
+                }
+            }
             for (DisplayData display : getDisplayData(archive.getName(),
                     category.getName(), true)) {
                 List<File> displayFiles = getDisplayFiles(display, null,
                         purgeTime);
                 for (File file : displayFiles) {
-                    if (file.isFile()) {
-                        filesPurged.add(file);
-                    } else if (file.isDirectory()) {
-                        filesPurged.addAll(FileUtils.listFiles(file,
-                                FileFilterUtils.fileFileFilter(),
-                                FileFilterUtils.trueFileFilter()));
-                    }
-                    FileUtils.deleteQuietly(file);
+                    filesPurged.addAll(purgeFile(file, fileDateFilter,
+                            archiveRootDirPath));
                 }
+            }
+        }
+
+        // check for other expired in top level directories not covered
+        // by the categories in the archives
+        Calendar defaultPurgeTime = calculateExpiration(archive, null);
+        for (String topDirName : topLevelDirsNotPurged) {
+            IOFileFilter fileDateFilter = FileFilterUtils.and(FileFilterUtils
+                    .fileFileFilter(), new FileDateFilter(null,
+                    defaultPurgeTime));
+            File topLevelDir = new File(archiveRootDir, topDirName);
+
+            filesPurged.addAll(purgeFile(topLevelDir, fileDateFilter,
+                    archiveRootDirPath));
+        }
+        return filesPurged;
+    }
+
+    private Collection<File> purgeFile(File fileToPurge,
+            IOFileFilter filter, final String archiveRootDir) {
+        Collection<File> filesPurged = new ArrayList<File>();
+
+        if (fileToPurge.isFile() && filter.accept(fileToPurge)) {
+            filesPurged.add(fileToPurge);
+            FileUtils.deleteQuietly(fileToPurge);
+        } else if (fileToPurge.isDirectory()) {
+            Collection<File> expiredFilesInDir = FileUtils.listFiles(
+                    fileToPurge, filter, FileFilterUtils.trueFileFilter());
+
+            for (File dirFile : expiredFilesInDir) {
+                filesPurged.addAll(purgeFile(dirFile, filter, archiveRootDir));
+            }
+
+            // if the directory is empty and not the archive root dir, then
+            // delete it
+            if (fileToPurge.list().length == 0
+                    && !fileToPurge.getAbsolutePath().equals(archiveRootDir)) {
+                FileUtils.deleteQuietly(fileToPurge);
             }
         }
         return filesPurged;
@@ -295,7 +344,7 @@ public class ArchiveConfigManager {
     private Calendar calculateExpiration(ArchiveConfig archive,
             CategoryConfig category) {
         Calendar newCal = TimeUtil.newGmtCalendar();
-        int retHours = category.getRetentionHours() == 0 ? archive
+        int retHours = category == null || category.getRetentionHours() == 0 ? archive
                 .getRetentionHours() : category.getRetentionHours();
         if (retHours != 0) {
             newCal.add(Calendar.HOUR, (-1) * retHours);

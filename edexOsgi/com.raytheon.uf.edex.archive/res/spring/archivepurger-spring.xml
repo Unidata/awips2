@@ -9,7 +9,7 @@
         xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
         <endpoint id="archivePurgeCron"
-            uri="clusteredquartz://archive/archivePurgeScheduled/?cron=${archivePurge.cron}" />
+            uri="clusteredquartz://archive/archivePurgeScheduled/?cron=${archive.purge.cron}" />
 
         <!-- Run archivePurge on Scheduled timer -->
         <route id="archivePurgeScheduled">
