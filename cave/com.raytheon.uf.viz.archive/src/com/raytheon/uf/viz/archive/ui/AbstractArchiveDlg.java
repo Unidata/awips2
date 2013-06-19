@@ -495,4 +495,29 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
             }
         });
     }
+
+    /**
+     * Reset modification flag.
+     */
+    protected void clearModified() {
+        tableComp.clearModified();
+    }
+
+    /**
+     * Add listener to inform when modification flag is set.
+     * 
+     * @param iModifyListener
+     */
+    protected void addModifiedListener(IModifyListener iModifyListener) {
+        tableComp.addModifiedListener(iModifyListener);
+    }
+
+    /**
+     * Remove modification listener.
+     * 
+     * @param iModifyListener
+     */
+    protected void removeModifiedListener(IModifyListener iModifyListener) {
+        tableComp.removeModifiedListener(iModifyListener);
+    }
 }
