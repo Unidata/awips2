@@ -33,6 +33,8 @@
 #20121211            1411 rferrel     More corrections and additions from Dale Morris.
 #20130326            1828 rferrel     Fix patterns for intlsigmets and text pattern not placing files in proper directory.
 #20130530            2054 rferrel     Minor fix to two grib patterns.
+#20130624            1966 rferrel     The acars pattern changed to place files in the proper subdirectories.
+                                      Name changes to reflect plugin names for modelsounding, goessounding, poessounding.
 #***************************************************************
 # AWIPS 1 PATTERN GRAPHIC	^[PQ].*				/redbook/Raw
 # PGNA00 KWNS 010001 !redbook 1_1/NMCGPHMCD/MCDSUM/PXSF001CN/20110201 0001
@@ -609,15 +611,19 @@ HDS	^(JSM([TL]..|F1[0-7])) (....) (..)(..)(..)
 # IUAX02 KARP 022359
 
 ANY	^(IUAX0[12]) (....) (..)(..)(..)
-	PIPE	-close /usr/local/ldm/decoders/decrypt_file
-	/data_store/acars/acars_raw/acars_decrypted_\1_\2_\3\4\5_(seq).%Y%m%d%H
+	FILE	-overwrite -log -close /data_store/acars/acars_encrypted/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).acars.%Y%m%d%H
 
-EXP	^/data_store/acars/acars_raw/(acars_decrypted.*)
-	FILE	-overwrite -log -close -edex	/data_store/acars/acars_decrypted/\1.acars.%Y%m%d%H
+ANY	^(IUAX0[12]) (....) (..)(..)(..)
+	PIPE	-close /usr/local/ldm/decoders/decrypt_file
+	/data_store/acars/acars_decrypted/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).acars.%Y%m%d%H
+
+EXP	^/data_store/acars/acars_decrypted/(.*)
+	FILE	-overwrite -log -close -edex /data_store/acars/acars_decrypted/\1
+
 # Need to make sure that IUAK and IUAX are disallowed.
 # IUAK are Alaskan profilers and IUAX has encrypted ACARS handled above!
 ANY	^(IUA[^XK]0[12]) (....) (..)(..)(..)
-	FILE	-overwrite -close -edex /data_store/acars/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
+	FILE	-overwrite -close -edex /data_store/acars/acars_raw_decrypted/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
 
 # AWIPS1:	POINT   ^JSAT98.*KKCI.*                 /aiv/ncwf/Raw
 # JSAT98 KKCI 022210
@@ -640,7 +646,7 @@ HDS	^(JU[BCFJMNOTVW]E(00|9[679])) KKCI (..)(..)(..)
 #		POINT   ^JUSA41.KWBC*  /ispan/bufr/modelSoundings/GFS
 # JUSA42 KWNO 070200
 HDS	^(JUS[ABX]4[1-9]) (KW(NO|BC)) (..)(..)(..)
-	FILE	-overwrite -log -close -edex	/data_store/mdlsndg/(\4:yyyy)(\4:mm)\4/\5/\1_\2_\4\5\6_(seq).bufr.%Y%m%d%H
+	FILE	-overwrite -log -close -edex	/data_store/modelsounding/(\4:yyyy)(\4:mm)\4/\5/\1_\2_\4\5\6_(seq).bufr.%Y%m%d%H
 
 ## GOES Bufr Patterns ##
 # From goesBufrAcq_patterns.template
@@ -650,7 +656,7 @@ HDS	^(JUS[ABX]4[1-9]) (KW(NO|BC)) (..)(..)(..)
 #
 # JUTX05 KNES 070326 RRN 
 HDS	^(JUTX0[1-9]) (....) (..)(..)(..)
-	FILE	-overwrite -log -close -edex	/data_store/goessndg/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
+	FILE	-overwrite -log -close -edex	/data_store/goessounding/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
 
 ## POES Bufr Patterns ##
 # From poesBufrAcq_patterns.template
@@ -659,7 +665,7 @@ HDS	^(JUTX0[1-9]) (....) (..)(..)(..)
 # AWIPS1:	POINT   ^IUTX01.*  /ispan/bufr/POESSoundings
 # IUTX01 KNES 070307
 HDS	^(IUTX0[1-9]) (....) (..)(..)(..)
-	FILE	-overwrite -log -close -edex	/data_store/poessndg/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
+	FILE	-overwrite -log -close -edex	/data_store/poessounding/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
 
 ## HDW Bufr Patterns ##
 # From [east|west]HDWBufrAcq_patterns.template # 
