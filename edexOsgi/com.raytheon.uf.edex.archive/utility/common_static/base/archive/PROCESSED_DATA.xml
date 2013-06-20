@@ -18,6 +18,16 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+<!-- 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ============ ========== =========== ==========================
+ * Jun 20, 2013 1966       rferrel     Initial creation
+ * 
+ * @author rferrel
+ * @version 1.0
+-->
     <!-- 
     The <archive> contains five types of tags:
         <name>           - Required tag. The id for the archive such as Raw or Processed.
@@ -34,7 +44,8 @@
         <dirPattern>        - Required tag. A regex pattern for finding directories for this category.
                               The pattern is relative to the archive's <rootDir>. Wildcard patterns do not cross directory
                               delimiter /. Thus to match 3 levels of directories you would need .*/.*/.* .
-                              See patterns and groups section.
+                              See patterns and groups section. There may be more then one of these tags. The restriction is they
+                              must all have the same number of groupings and be in the same order.
         <filePattern>       - Optional tag.  A pattern to find files in the directories that match the <dirPattern>.
                               Default is everything in the directories that match <dirPattern>.
                               See patterns and groups section.
@@ -73,6 +84,19 @@
         <displayLabel>{1}</displayLabel>
         <filePattern>redbook-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
         <dateGroupIndices>2,3,4,5</dateGroupIndices>
+        
+     Example with multiple <dirPattern>s 
+     <category>
+        <name>Observation</name>
+        <extRetentionHours>168</extRetentionHours>
+        <dirPattern>(acars|airep|airmet|taf)</dirPattern>
+        <dirPattern>(bufrsigwx|sfcobs)/.*</dirPattern>
+        <displayLabel>{1}</displayLabel>
+        <dateGroupIndices>2,3,4,5</dateGroupIndices>
+        <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
+     </category>
+     The first <dirPattern> looks for files matching the <filePattern> in the directories acars, airep, airmet or taf.
+     The second <dirPattern> expects to find the files in subdirectories of bufrsigwx or sfcobs such as bufrsigwx/SWH.
      
      Here the display will only show, redbook. The directory looked at will be <rootPath>/redbook/. The <dateGroupIndices> all
      come from the <filePattern> since there is one group in the <dirPattern> the groups in the <filePattern> start at two. This
@@ -85,68 +109,80 @@
     <name>Processed</name>
     <rootDir>/awips2/edex/data/archive/</rootDir>
     <minRetentionHours>24</minRetentionHours>
-    <category>
-        <name>binlightning</name>
-        <extRetentionHours>168</extRetentionHours>
-        <dirPattern>(binlightning)</dirPattern>
-        <displayLabel>{1}</displayLabel>
-        <dateGroupIndices>2,3,4,5</dateGroupIndices>
-        <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
+     <category>
+        <name>DAT</name>
+         <extRetentionHours>168</extRetentionHours>
+         <dirPattern>(cwat|fog|ffmp|preciprate|qpf|scan|vil)</dirPattern>
+         <filePattern>.*(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</filePattern>
+         <displayLabel>{1}</displayLabel>
+         <dateGroupIndices>2,3,4,5</dateGroupIndices>
     </category>
     <category>
-        <name>bufr</name>
-        <extRetentionHours>168</extRetentionHours>
-        <dirPattern>(bufrascat|bufrhdw|bufrmosLAMP|bufrncwf|bufrsigwx|bufrssmi|bufrua)</dirPattern>
-        <displayLabel>{1}</displayLabel>
-        <dateGroupIndices>2,3,4,5</dateGroupIndices>
-        <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
+        <name>gfe</name>
+         <extRetentionHours>168</extRetentionHours>
+         <dirPattern>(gfe)/(.*)/.*</dirPattern>
+         <dirPattern>(gfe)/(.*)</dirPattern>
+         <filePattern>.*_(\d{4})(\d{2})(\d{2})_(\d{2}).*</filePattern>
+         <displayLabel>{2}</displayLabel>
+         <dateGroupIndices>3,4,5,6</dateGroupIndices>
     </category>
     <category>
-        <name>bufrsigwx</name>
+        <name>Model</name>
         <extRetentionHours>168</extRetentionHours>
-        <dirPattern>(bufrsigwx)/(.*)</dirPattern>
-        <displayLabel>{1} : {2}</displayLabel>
-        <dateGroupIndices>3,4,5,6</dateGroupIndices>
-        <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
-    </category>
-    <category>
-        <name>group</name>
-        <extRetentionHours>168</extRetentionHours>
-        <dirPattern>(acars|airmet|airep|cwa|cwat)</dirPattern>
-        <displayLabel>{1}</displayLabel>
-        <dateGroupIndices>2,3,4,5</dateGroupIndices>
-        <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
-    </category>
-    <category>
-        <name>grib</name>
-        <extRetentionHours>168</extRetentionHours>
-        <dirPattern>grib/(.*)/(.*)</dirPattern>
-        <displayLabel>{1} : {2}</displayLabel>
-        <dateGroupIndices>3,4,5,6</dateGroupIndices>
+        <dirPattern>(grid)/(.*)/(.*)</dirPattern>
+        <displayLabel>{2}</displayLabel>
+        <dateGroupIndices>4,5,6,7</dateGroupIndices>
         <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})-.*</filePattern>
     </category>
     <category>
-        <name>grid</name>
+        <name>Misc</name>
         <extRetentionHours>168</extRetentionHours>
-        <dirPattern>grid/(.*)/(.*)</dirPattern>
-        <displayLabel>{1} : {2}</displayLabel>
+        <dirPattern>(binlightning|ccfp|cwa|idft|lsr|manual|svrwx|tcg|tcm|tcs|text|warning|wcp)</dirPattern>
+        <dirPattern>(redbook)/.*</dirPattern>
+        <displayLabel>{1}</displayLabel>
+        <dateGroupIndices>2,3,4,5</dateGroupIndices>
+        <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
+    </category>
+    <category>
+        <name>Observation</name>
+        <extRetentionHours>168</extRetentionHours>
+        <dirPattern>(acars|airep|airmet|bufrascat|bufrhdw|bufrmthdw|bufrncwf|bufrssmi|convsigmet|fssobs|intlsigmet|nonconvsigmet|obs|pirep|taf)</dirPattern>
+        <dirPattern>(bufrsigwx|sfcobs)/.*</dirPattern>
+        <displayLabel>{1}</displayLabel>
+        <dateGroupIndices>2,3,4,5</dateGroupIndices>
+        <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
+    </category>
+    <category>
+        <name>Satellite</name>
+        <extRetentionHours>168</extRetentionHours>
+        <dirPattern>satellite/(.*)/(.*)</dirPattern>
+        <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2}).*</filePattern>
         <dateGroupIndices>3,4,5,6</dateGroupIndices>
-        <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})-.*</filePattern>
+        <displayLabel>{1}</displayLabel>
     </category>
     <category>
-        <name>redbook</name>
+        <name>Sounding</name>
         <extRetentionHours>168</extRetentionHours>
-        <dirPattern>redbook/(.*)</dirPattern>
+        <dirPattern>(acarssounding|bufrua|goessounding|poessounding|profiler|raobs)</dirPattern>
         <displayLabel>{1}</displayLabel>
         <dateGroupIndices>2,3,4,5</dateGroupIndices>
         <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
     </category>
-    <category>
-        <name>obs</name>
+     <category>
+        <name>ModelSounding</name>
         <extRetentionHours>168</extRetentionHours>
-        <dirPattern>(fssobs|obs)</dirPattern>
+        <dirPattern>(modelsounding)/(.*)</dirPattern>
+        <dirPattern>(bufrmos)(.*)</dirPattern>
+        <displayLabel>{1} - {2}</displayLabel>
+        <dateGroupIndices>3,4,5,6</dateGroupIndices>
+        <filePattern>.*(\d{4})-(\d{2})-(\d{2})[-_](\d{2}).*</filePattern>
+    </category>
+    <category>
+        <name>radar</name>
+        <extRetentionHours>168</extRetentionHours>
+        <dirPattern>radar/(.*)/(.*)</dirPattern>
         <displayLabel>{1}</displayLabel>
-        <dateGroupIndices>2,3,4,5</dateGroupIndices>
-        <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
+        <dateGroupIndices>3,4,5,6</dateGroupIndices>
+        <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
     </category>
 </archive>
