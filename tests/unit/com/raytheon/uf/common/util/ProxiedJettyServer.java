@@ -36,6 +36,8 @@ import org.eclipse.jetty.servlets.ProxyServlet;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.security.Credential;
 
+import com.raytheon.uf.common.comm.HttpProxyTestConstants;
+
 /**
  * This class sets up a Jetty Server that can serve up Proxied HttpServlets in
  * either http or https mode.
@@ -227,6 +229,6 @@ public class ProxiedJettyServer {
         // Run this server
         ProxiedJettyServer server = new ProxiedJettyServer(redirectHost, port,
                 sport, context, realm, user, password);
-        server.startServer();
+        server.startSSLServer();
     }
 }
