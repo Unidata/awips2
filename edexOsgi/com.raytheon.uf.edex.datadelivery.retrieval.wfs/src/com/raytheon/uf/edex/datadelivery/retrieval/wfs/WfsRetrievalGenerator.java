@@ -1,9 +1,7 @@
 package com.raytheon.uf.edex.datadelivery.retrieval.wfs;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
@@ -19,7 +17,6 @@ import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalGenerator;
 import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
 
