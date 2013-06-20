@@ -371,25 +371,6 @@ public class GriddedSubsetManagerDlg
             return null;
         }
 
-        subscription.setUrl(getSubscriptionUrl());
-
-        Time time = sub.getTime();
-        List<String> fcstHours = time.getFcstHours();
-
-        // Set the gridded specific data on the time object
-        String[] selectedItems = this.timingTabControls.getSelectedFcstHours();
-        List<Integer> fcstIndices = new ArrayList<Integer>();
-        for (String hr : selectedItems) {
-            fcstIndices.add(fcstHours.indexOf(hr));
-        }
-
-        time.setSelectedTimeIndices(fcstIndices);
-        subscription.setTime(time);
-
-        if (ensembleTab != null) {
-            ensembleTab.populateSubscription(subscription);
-        }
-
         return subscription;
     }
 
@@ -641,8 +622,25 @@ public class GriddedSubsetManagerDlg
 
         setCoverage(sub, cov);
 
+        sub.setUrl(getSubscriptionUrl());
+
+        List<String> fcstHours = newTime.getFcstHours();
+
+        // Set the gridded specific data on the time object
+        String[] selectedItems = this.timingTabControls.getSelectedFcstHours();
+        List<Integer> fcstIndices = new ArrayList<Integer>();
+        for (String hr : selectedItems) {
+            fcstIndices.add(fcstHours.indexOf(hr));
+        }
+
+        newTime.setSelectedTimeIndices(fcstIndices);
+
+        if (ensembleTab != null) {
+            ensembleTab.populateSubscription(sub);
+        }
+
         // Pass a fully populated subscription in to get the size
-        if (dataSize == null) {
+        if (dataSize != null) {
             sub.setDataSetSize(dataSize.getDataSetSizeInKb(sub));
         }
 
