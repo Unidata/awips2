@@ -19,13 +19,15 @@
  **/
 package com.raytheon.uf.edex.event;
 
-import java.util.Arrays;
-import java.util.List;
+import org.junit.Ignore;
 
 import com.google.common.eventbus.EventBus;
+import com.raytheon.uf.common.event.IEventBusHandler;
+import com.raytheon.uf.edex.event.NonTransactionalSynchronousEventBusHandler.SynchronousEventBusFactory;
 
 /**
- * Test event bus handler.
+ * {@link IEventBusHandler} which uses a synchronous {@link EventBus} that
+ * participates in transactions.
  * 
  * <pre>
  * 
@@ -33,37 +35,18 @@ import com.google.common.eventbus.EventBus;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 5, 2013    1580     mpduff     Initial creation
- * May 28, 2013   1650     djohnson   Add getEventBuses.
+ * Jun 20, 2013 1802       djohnson    Initial creation.
  * 
  * </pre>
  * 
  * @author mpduff
  * @version 1.0
  */
+@Ignore
+public class TransactionalSynchronousEventBusHandler extends EdexEventBusHandler {
 
-public class TestEventBusHandler extends EdexEventBusHandler {
-    private static class SynchronousEventBusFactory implements
-            GoogleEventBusFactory {
-        @Override
-        public List<EventBus> getEventBuses() {
-            return Arrays
-                    .<EventBus> asList(new com.google.common.eventbus.EventBus(
-                            AsynchronousEventBusFactory.EVENT_BUS_NAME));
-        }
-    }
-
-    public TestEventBusHandler() {
+    public TransactionalSynchronousEventBusHandler() {
         super(new SynchronousEventBusFactory());
-    }
-
-    /**
-     * Overridden to return false, because the transaction semantics are
-     * different with tests.
-     */
-    @Override
-    protected boolean isTransactionActive() {
-        return false;
     }
 
 }
