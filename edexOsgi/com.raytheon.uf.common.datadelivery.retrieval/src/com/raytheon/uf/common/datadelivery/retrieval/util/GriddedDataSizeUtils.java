@@ -25,6 +25,7 @@ import java.util.Map;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.Ensemble;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.Levels;
@@ -172,10 +173,12 @@ public class GriddedDataSizeUtils extends DataSizeUtils<GriddedDataSet> {
      */
     @Override
     public long getDataSetSizeInBytes(Subscription subscription) {
+        final Ensemble ensemble = subscription.getEnsemble();
+        int numEnsemble = (ensemble == null) ? 1 : ensemble.getMemberCount();
+
         return getDataSetSizeInBytes(subscription.getParameter(), subscription
-                .getTime().getSelectedTimeIndices().size(), subscription
-                .getEnsemble().getMemberCount(), subscription.getCoverage()
-                .getRequestEnvelope());
+                .getTime().getSelectedTimeIndices().size(), numEnsemble,
+                subscription.getCoverage().getRequestEnvelope());
     }
 
     /**
