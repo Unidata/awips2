@@ -40,6 +40,7 @@ import com.raytheon.viz.hydrocommon.HydroDisplayManager;
  * 6/27/06                  lvenable    Initial creation.
  * 02/07/2013   1578        rferrel     Changes for non-blocking ProductViewerDlg.
  * 03/27/2013   1790        rferrel     Bug fix for non-blocking dialogs.
+ * 06/19/2013   2119        rferrel     Changed check for no selected lid.
  * 
  * </pre>
  * 
@@ -59,19 +60,18 @@ public class ProductViewerAction extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        String currentLid = HydroDisplayManager.getInstance().getCurrentLid();
+        HydroDisplayManager manager = HydroDisplayManager.getInstance();
+        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                .getShell();
 
-        if (dialog == null || dialog.isDisposed()) {
-
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-            dialog = new ProductViewerDlg(shell);
-            dialog.open();
-        } else {
-            dialog.bringToTop();
-        }
-        if (currentLid != null) {
-            dialog.setLid(currentLid);
+        if (manager.isCurrentLidSelected(shell)) {
+            if (dialog == null || dialog.isDisposed()) {
+                dialog = new ProductViewerDlg(shell);
+                dialog.open();
+            } else {
+                dialog.setLid(manager.getCurrentLid());
+                dialog.bringToTop();
+            }
         }
         return null;
     }
