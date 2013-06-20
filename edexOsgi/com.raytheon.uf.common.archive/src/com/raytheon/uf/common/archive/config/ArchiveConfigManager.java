@@ -462,40 +462,11 @@ public class ArchiveConfigManager {
         List<File> fileList = new ArrayList<File>();
 
         if (dirOnly) {
-            Pattern pattern = Pattern.compile(categoryConfig.getDirPattern());
+            for (String dirPattern : categoryConfig.getDirPatternList()) {
+                Pattern pattern = Pattern.compile(dirPattern);
 
-            for (File dir : dirs) {
-                String path = dir.getAbsolutePath().substring(beginIndex);
-                Matcher matcher = pattern.matcher(path);
-                if (matcher.matches()) {
-                    int year = Integer.parseInt(matcher.group(yearIndex));
-                    // Adjust month value to Calendar's 0 - 11
-                    int month = Integer.parseInt(matcher.group(monthIndex)) - 1;
-                    int day = Integer.parseInt(matcher.group(dayIndex));
-                    int hour = Integer.parseInt(matcher.group(hourIndex));
-                    fileCal.set(year, month, day, hour, 0, 0);
-                    long fileTime = fileCal.getTimeInMillis();
-                    if ((startTime <= fileTime) && (fileTime < endTime)) {
-                        fileList.add(dir);
-                    }
-                }
-            }
-        } else {
-            Pattern pattern = Pattern.compile(categoryConfig.getDirPattern()
-                    + File.separator + categoryConfig.getFilePattern());
-            final Pattern filePattern = Pattern.compile("^" + filePatternStr
-                    + "$");
-            for (File dir : dirs) {
-                List<File> fList = FileUtil.listDirFiles(dir, new FileFilter() {
-
-                    @Override
-                    public boolean accept(File pathname) {
-                        return filePattern.matcher(pathname.getName())
-                                .matches();
-                    }
-                }, false);
-                for (File file : fList) {
-                    String path = file.getAbsolutePath().substring(beginIndex);
+                for (File dir : dirs) {
+                    String path = dir.getAbsolutePath().substring(beginIndex);
                     Matcher matcher = pattern.matcher(path);
                     if (matcher.matches()) {
                         int year = Integer.parseInt(matcher.group(yearIndex));
@@ -506,7 +477,45 @@ public class ArchiveConfigManager {
                         fileCal.set(year, month, day, hour, 0, 0);
                         long fileTime = fileCal.getTimeInMillis();
                         if ((startTime <= fileTime) && (fileTime < endTime)) {
-                            fileList.add(file);
+                            fileList.add(dir);
+                        }
+                    }
+                }
+            }
+        } else {
+            for (String dirPattern : categoryConfig.getDirPatternList()) {
+                Pattern pattern = Pattern.compile(dirPattern + File.separator
+                        + categoryConfig.getFilePattern());
+                final Pattern filePattern = Pattern.compile("^"
+                        + filePatternStr + "$");
+                for (File dir : dirs) {
+                    List<File> fList = FileUtil.listDirFiles(dir,
+                            new FileFilter() {
+
+                                @Override
+                                public boolean accept(File pathname) {
+                                    return filePattern.matcher(
+                                            pathname.getName()).matches();
+                                }
+                            }, false);
+                    for (File file : fList) {
+                        String path = file.getAbsolutePath().substring(
+                                beginIndex);
+                        Matcher matcher = pattern.matcher(path);
+                        if (matcher.matches()) {
+                            int year = Integer.parseInt(matcher
+                                    .group(yearIndex));
+                            // Adjust month value to Calendar's 0 - 11
+                            int month = Integer.parseInt(matcher
+                                    .group(monthIndex)) - 1;
+                            int day = Integer.parseInt(matcher.group(dayIndex));
+                            int hour = Integer.parseInt(matcher
+                                    .group(hourIndex));
+                            fileCal.set(year, month, day, hour, 0, 0);
+                            long fileTime = fileCal.getTimeInMillis();
+                            if ((startTime <= fileTime) && (fileTime < endTime)) {
+                                fileList.add(file);
+                            }
                         }
                     }
                 }
@@ -526,35 +535,37 @@ public class ArchiveConfigManager {
      */
     private List<File> getDirs(ArchiveConfig archiveConfig,
             CategoryConfig categoryConfig) {
-        String dirPattern = categoryConfig.getDirPattern();
-
+        List<File> resultDirs = new ArrayList<File>();
         File rootFile = new File(archiveConfig.getRootDir());
 
-        String[] subExpr = dirPattern.split(File.separator);
-        List<File> dirs = new ArrayList<File>();
-        dirs.add(rootFile);
-        List<File> tmpDirs = new ArrayList<File>();
-        List<File> swpDirs = null;
+        for (String dirPattern : categoryConfig.getDirPatternList()) {
+            String[] subExpr = dirPattern.split(File.separator);
+            List<File> dirs = new ArrayList<File>();
+            dirs.add(rootFile);
+            List<File> tmpDirs = new ArrayList<File>();
+            List<File> swpDirs = null;
 
-        for (String regex : subExpr) {
-            Pattern subPattern = Pattern.compile("^" + regex + "$");
-            IOFileFilter filter = FileFilterUtils
-                    .makeDirectoryOnly(new RegexFileFilter(subPattern));
+            for (String regex : subExpr) {
+                Pattern subPattern = Pattern.compile("^" + regex + "$");
+                IOFileFilter filter = FileFilterUtils
+                        .makeDirectoryOnly(new RegexFileFilter(subPattern));
 
-            for (File dir : dirs) {
-                File[] list = dir.listFiles();
-                if (list != null) {
-                    List<File> dirList = Arrays.asList(list);
-                    tmpDirs.addAll(Arrays.asList(FileFilterUtils.filter(filter,
-                            dirList)));
+                for (File dir : dirs) {
+                    File[] list = dir.listFiles();
+                    if (list != null) {
+                        List<File> dirList = Arrays.asList(list);
+                        tmpDirs.addAll(Arrays.asList(FileFilterUtils.filter(
+                                filter, dirList)));
+                    }
                 }
+                swpDirs = dirs;
+                dirs = tmpDirs;
+                tmpDirs = swpDirs;
+                tmpDirs.clear();
             }
-            swpDirs = dirs;
-            dirs = tmpDirs;
-            tmpDirs = swpDirs;
-            tmpDirs.clear();
+            resultDirs.addAll(dirs);
         }
-        return dirs;
+        return resultDirs;
     }
 
     /**
@@ -578,14 +589,20 @@ public class ArchiveConfigManager {
         ArchiveConfig archiveConfig = archiveMap.get(archiveName);
         CategoryConfig categoryConfig = findCategory(archiveConfig,
                 categoryName);
-        String dirPattern = categoryConfig.getDirPattern();
+        List<String> dirPatternList = categoryConfig.getDirPatternList();
 
         // index for making directory paths' relative to the root path.
         List<File> dirs = getDirs(archiveConfig, categoryConfig);
 
         File rootFile = new File(archiveMap.get(archiveName).getRootDir());
         int beginIndex = rootFile.getAbsolutePath().length() + 1;
-        Pattern pattern = Pattern.compile("^" + dirPattern + "$");
+        List<Pattern> patterns = new ArrayList<Pattern>(dirPatternList.size());
+
+        for (String dirPattern : dirPatternList) {
+            Pattern pattern = Pattern.compile("^" + dirPattern + "$");
+            patterns.add(pattern);
+        }
+
         TreeSet<String> displays = new TreeSet<String>(
                 String.CASE_INSENSITIVE_ORDER);
 
@@ -595,22 +612,26 @@ public class ArchiveConfigManager {
 
         for (File dir : dirs) {
             String path = dir.getAbsolutePath().substring(beginIndex);
-            Matcher matcher = pattern.matcher(path);
-            if (matcher.matches()) {
-                sb.setLength(0);
-                String[] args = new String[matcher.groupCount() + 1];
-                args[0] = matcher.group();
-                for (int i = 1; i < args.length; ++i) {
-                    args[i] = matcher.group(i);
+            for (Pattern pattern : patterns) {
+                Matcher matcher = pattern.matcher(path);
+                if (matcher.matches()) {
+                    sb.setLength(0);
+                    String[] args = new String[matcher.groupCount() + 1];
+                    args[0] = matcher.group();
+                    for (int i = 1; i < args.length; ++i) {
+                        args[i] = matcher.group(i);
+                    }
+                    String displayLabel = msgfmt.format(args, sb, pos0)
+                            .toString();
+                    List<File> displayDirs = displayMap.get(displayLabel);
+                    if (displayDirs == null) {
+                        displayDirs = new ArrayList<File>();
+                        displayMap.put(displayLabel, displayDirs);
+                    }
+                    displayDirs.add(dir);
+                    displays.add(displayLabel);
+                    break;
                 }
-                String displayLabel = msgfmt.format(args, sb, pos0).toString();
-                List<File> displayDirs = displayMap.get(displayLabel);
-                if (displayDirs == null) {
-                    displayDirs = new ArrayList<File>();
-                    displayMap.put(displayLabel, displayDirs);
-                }
-                displayDirs.add(dir);
-                displays.add(displayLabel);
             }
         }
 
