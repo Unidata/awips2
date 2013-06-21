@@ -32,6 +32,7 @@ import com.raytheon.uf.edex.core.EdexException;
  * -----------  ----------  ----------- --------------------------
  * 5/18/13       753         dhladky    Initial creation
  * 6/17/13       2113        dhladky    QPID memory usage alleviation
+ * 6/21/13       2129        dhladky    add mkdirs to create directory
  * </pre>
  * 
  * @author dhladky
@@ -54,12 +55,20 @@ public class MadisSeparator {
         
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(MadisSeparator.class);
-    
+
     public MadisSeparator(String madisRoute, int timeback) {
         this.madisRoute = madisRoute;
         this.timeback = timeback;
+
+        File file = new File(pathPrefix);
+        if (!file.isDirectory()) {
+            if (!file.mkdirs()) {
+                throw new IllegalArgumentException(
+                        "Couldn't create madis drop directory, : " + pathPrefix);
+            }
+        }
     }
-    
+
     public void separate(byte[] inputData)
             throws DecoderException {
         
