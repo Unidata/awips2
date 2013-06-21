@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.datadelivery.subscription;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -61,6 +60,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.SubColumnNames;
  * Mar 9, 2012    418      jpiatt     Updates for load, save & set default xml.
  * Jun 07, 2012   687      lvenable   Table data refactor.
  * Jan 03, 2013  1437      bgonzale   Put default configuration file code here.
+ * Jun 21, 2013  2130      mpduff     Fix ordering of columns.
  * 
  * </pre>
  * 
@@ -135,7 +135,8 @@ public class SubscriptionConfigurationManager {
     private void readXML() {
         try {
             IPathManager pm = PathManagerFactory.getPathManager();
-            LocalizationContext context = pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+            LocalizationContext context = pm.getContext(
+                    LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
 
             LocalizationFile locFile = pm
                     .getLocalizationFile(context, fileName);
@@ -144,14 +145,15 @@ public class SubscriptionConfigurationManager {
                 File file = locFile.getFile();
 
                 if (file != null && file.exists()) {
-                    xml = (SubscriptionManagerConfigXML)unmarshaller.unmarshal(file);
-                }
-                else {
+                    xml = (SubscriptionManagerConfigXML) unmarshaller
+                            .unmarshal(file);
+                } else {
                     xml = new SubscriptionManagerConfigXML();
                 }
             }
         } catch (JAXBException e1) {
-            statusHandler.handle(Priority.PROBLEM, e1.getLocalizedMessage(), e1);
+            statusHandler
+                    .handle(Priority.PROBLEM, e1.getLocalizedMessage(), e1);
 
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
@@ -169,7 +171,8 @@ public class SubscriptionConfigurationManager {
 
         IPathManager pm = PathManagerFactory.getPathManager();
 
-        LocalizationContext context = pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+        LocalizationContext context = pm.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
         LocalizationFile locFile = pm.getLocalizationFile(context, fileName);
 
         File file = null;
@@ -211,10 +214,11 @@ public class SubscriptionConfigurationManager {
     private void populateAlignmentMap() {
         for (int i = 0; i < SubColumnNames.values().length; i++) {
             if ((i == 2) || (i == 3)) {
-                alignmentMap.put(SubColumnNames.values()[i].toString(), SWT.CENTER);
-            }
-            else {
-                alignmentMap.put(SubColumnNames.values()[i].toString(), SWT.LEFT);
+                alignmentMap.put(SubColumnNames.values()[i].toString(),
+                        SWT.CENTER);
+            } else {
+                alignmentMap.put(SubColumnNames.values()[i].toString(),
+                        SWT.LEFT);
             }
         }
     }
@@ -321,29 +325,51 @@ public class SubscriptionConfigurationManager {
      * Set the hidden and visible columns in the configuration.
      * 
      * @param visibleColumns
+     *            List of visible columns
      * @param hiddenColumns
+     *            List of hidden columns
      */
     public void setVisibleAndHidden(String[] visibleColumns,
             String[] hiddenColumns) {
         ArrayList<ColumnXML> columnList = new ArrayList<ColumnXML>();
-        Arrays.sort(visibleColumns);
-        Arrays.sort(hiddenColumns);
-        for (ColumnXML column :xml.getColumnList()) {
-            int visibleIndex = Arrays.binarySearch(visibleColumns, column.getName());
-            if (visibleIndex < 0) {
-                // not in visible, check hidden
-                int hiddenIndex = Arrays.binarySearch(hiddenColumns, column.getName());
-                if (hiddenIndex >= 0) {
-                    column.setVisible(false);
-                    columnList.add(column);
-                }
-            } else {
-                column.setVisible(true);
-                columnList.add(column);
+
+        for (String columnName : visibleColumns) {
+            ColumnXML columnXml = getColumnXml(columnName);
+            if (columnXml == null) {
+                continue;
             }
+            columnXml.setVisible(true);
+            columnList.add(columnXml);
         }
+
+        for (String columnName : hiddenColumns) {
+            ColumnXML columnXml = getColumnXml(columnName);
+            if (columnXml == null) {
+                continue;
+            }
+            columnXml.setVisible(false);
+            columnList.add(columnXml);
+        }
+
         xml.setColumnList(columnList);
         saveXml();
+    }
+
+    /**
+     * Get the columnXML object for the provided column name.
+     * 
+     * @param columnName
+     *            The column name
+     * @return the ColumnXML object or null if no column by that name exists
+     */
+    private ColumnXML getColumnXml(String columnName) {
+        for (ColumnXML col : xml.getColumnList()) {
+            if (col.getName().equals(columnName)) {
+                return col;
+            }
+        }
+
+        return null;
     }
 
     /**
