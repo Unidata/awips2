@@ -91,6 +91,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Dec 11, 2012  1264      mpduff       Fix validaiton of lat/lon text fields.
  * Mar 21, 2013  1638      mschenke     Changed map scales not tied to d2d
  * Jun 14, 2013  2064      mpduff       Reset controls on load.
+ * Jun 21, 2013  2132      mpduff       Swap target and source envelopes.
  * 
  * </pre>
  * 
@@ -733,8 +734,8 @@ public class AreaComp extends Composite implements ISubset {
             // the dialog should always use an envelope in the same crs as the
             // data.
             try {
-                dlgEnvelope = MapUtil.reprojectAndIntersect(dlgEnvelope,
-                        fullEnvelope);
+                dlgEnvelope = MapUtil.reprojectAndIntersect(fullEnvelope,
+                        dlgEnvelope);
             } catch (TransformException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
@@ -889,9 +890,9 @@ public class AreaComp extends Composite implements ISubset {
         Coordinate ul = EnvelopeUtils.getUpperLeftLatLon(envelope);
         Coordinate lr = EnvelopeUtils.getLowerRightLatLon(envelope);
 
-        upperLeftLonTxt.setText(formatter.format(lr.x));
+        upperLeftLonTxt.setText(formatter.format(ul.x));
         upperLeftLatTxt.setText(formatter.format(ul.y));
-        lowerRightLonTxt.setText(formatter.format(ul.x));
+        lowerRightLonTxt.setText(formatter.format(lr.x));
         lowerRightLatTxt.setText(formatter.format(lr.y));
         this.subEnvelope = envelope;
 
