@@ -45,7 +45,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 5, 2012            bsteffen     Initial creation
+ * Dec  5, 2012            bsteffen    Initial creation.
+ * Jun 21, 2013   2132     mpduf       createSubEnvelopeFromLatLon now uses East/West direction.
  * 
  * </pre>
  * 
@@ -319,10 +320,14 @@ public class EnvelopeUtils {
      * @return
      */
     public static ReferencedEnvelope createSubenvelopeFromLatLon(
-            Envelope envelope, Coordinate latLon1,
-            Coordinate latLon2) {
-        ReferencedEnvelope result = createEnvelopeFromLatLon(envelope.getCoordinateReferenceSystem(), latLon1, latLon2);
-        return new ReferencedEnvelope(result.intersection(reference(envelope)), envelope.getCoordinateReferenceSystem());
+            Envelope envelope, Coordinate latLon1, Coordinate latLon2) {
+        latLon1 = EnvelopeUtils.convertToEastWest(latLon1);
+        latLon2 = EnvelopeUtils.convertToEastWest(latLon2);
+
+        ReferencedEnvelope result = createEnvelopeFromLatLon(
+                envelope.getCoordinateReferenceSystem(), latLon1, latLon2);
+        return new ReferencedEnvelope(result.intersection(reference(envelope)),
+                envelope.getCoordinateReferenceSystem());
     }
 
     /**
@@ -352,5 +357,20 @@ public class EnvelopeUtils {
         } else {
             return new ReferencedEnvelope(envelope);
         }
+    }
+
+    /**
+     * Convert coordinate value to East/West.
+     * 
+     * @param coord
+     *            Coordinate to convert
+     * @return converted coordinate
+     */
+    public static Coordinate convertToEastWest(Coordinate coord) {
+        if (coord.x > 180) {
+            coord.x = coord.x - 360;
+        }
+
+        return coord;
     }
 }
