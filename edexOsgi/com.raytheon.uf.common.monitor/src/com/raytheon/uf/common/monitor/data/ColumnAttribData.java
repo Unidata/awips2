@@ -166,10 +166,6 @@ public class ColumnAttribData {
         splitColumnName = this.name.replaceAll(splitStr, "\n");
 
         columnNameWithSpace = tmpName;
-
-        System.out.println("originalName    = " + originalName);
-        System.out.println("columnName      = " + columnName);
-        System.out.println("splitColumnName = " + splitColumnName);
     }
 
     /**
