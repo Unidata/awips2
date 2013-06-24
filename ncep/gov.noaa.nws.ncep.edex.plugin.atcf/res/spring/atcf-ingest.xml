@@ -60,7 +60,7 @@
 					</pipeline>
 					<doCatch>
 						<exception>java.lang.Throwable</exception>
-						<to uri="log:atcf?level=ERROR&amp;showBody=false" />
+						<to uri="log:atcf?level=ERROR" />
 					</doCatch>
 				</doTry>
 			</split>

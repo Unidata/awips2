@@ -59,13 +59,13 @@
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:ncscat?level=ERROR&amp;showBody=false" />
+					<to uri="log:ncscat?level=ERROR" />
 				</doCatch>
 			</doTry>
 		    </pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:ncscat?level=ERROR&amp;showBody=false" />
+					<to uri="log:ncscat?level=ERROR" />
 				</doCatch>
 			</doTry>
 	<!-- bean ref="processUtil" method="delete" /-->
