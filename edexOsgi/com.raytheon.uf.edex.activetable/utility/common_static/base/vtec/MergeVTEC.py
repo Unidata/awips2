@@ -31,6 +31,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    01/25/13        1447          dgilling       Initial Creation.
 #    03/19/13        1447          dgilling       Merge A1 DR 21434.
+#    06/11/13        #2083         randerso       Move backups to edex_static
 # 
 #
 
@@ -75,10 +76,10 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
 
         # create a dummy name to simplify the file access code in VTECTableUtil
         pathMgr = PathManagerFactory.getPathManager()
-        commonSiteCx = pathMgr.getContextForSite(
-                        LocalizationType.COMMON_STATIC, siteConfig.GFESUITE_SITEID)
-        filePath = pathMgr.getFile(commonSiteCx,"vtec").getPath()
-        self._activeTableFilename = os.path.join(filePath, activeTableMode + ".tbl")
+        edexSiteCx = pathMgr.getContextForSite(
+                        LocalizationType.EDEX_STATIC, siteConfig.GFESUITE_SITEID)
+        filePath = pathMgr.getFile(edexSiteCx,"vtec").getPath()
+        fileName = os.path.join(filePath, activeTableMode + ".tbl")
         
         # to ensure time calls are based on Zulu
         os.environ['TZ'] = "GMT0"
@@ -86,7 +87,7 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
         
         self._makeBackups = makeBackups
         
-        VTECTableUtil.VTECTableUtil.__init__(self, self._activeTableFilename)
+        VTECTableUtil.VTECTableUtil.__init__(self, fileName)
 
         # get the SPC site id from the configuration file
         self._spcSite = getattr(VTECPartners, "VTEC_SPC_SITE", "KWNS")

@@ -49,7 +49,7 @@
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:bufrhdw?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:bufrhdw?level=ERROR"/>
 				</doCatch>
 			</doTry>
 		</route>

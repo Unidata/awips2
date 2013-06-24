@@ -34,7 +34,7 @@
 		    	<bean ref="distributionSrv" method="route" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:distribution?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:distribution?level=ERROR"/>
                 </doCatch>
             </doTry>
         </route>
@@ -45,7 +45,7 @@
 		    	<bean ref="handleoupDistributionSrv" method="route" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:distribution?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:distribution?level=ERROR"/>
                 </doCatch>
             </doTry>
         </route>
@@ -56,7 +56,7 @@
 		    	<bean ref="radarserverDistributionSrv" method="route" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:distribution?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:distribution?level=ERROR"/>
                 </doCatch>
             </doTry>
         </route>
@@ -69,7 +69,7 @@
 				<bean ref="radarserverDistributionSrv" method="refresh" />
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:refreshDistribution?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:refreshDistribution?level=ERROR"/>
 				</doCatch>
 			</doTry>
 		</route>

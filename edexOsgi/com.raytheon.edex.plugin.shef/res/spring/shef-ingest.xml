@@ -148,7 +148,7 @@
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to
-						uri="log:shef?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+						uri="log:shef?level=ERROR" />
 				</doCatch>
 			</doTry>
 		</route>
@@ -167,7 +167,7 @@
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to
-						uri="log:shef?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+						uri="log:shef?level=ERROR" />
 				</doCatch>
 			</doTry>
 		</route>

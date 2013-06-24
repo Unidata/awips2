@@ -40,6 +40,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * ------------ ---------- ----------- --------------------------
  * 04/18/08     #875       bphillip    Initial Creation
  * 09/22/09     3058       rjpeter     Converted to IRequestHandler
+ * 06/06/13     #2073      dgilling    Ensure payload is always populated.
  * </pre>
  * 
  * @author bphillip
@@ -56,16 +57,11 @@ public class GetGridInventoryHandler implements
             ServerResponse<List<TimeRange>> timeSr = GridParmManager
                     .getGridInventory(parmId);
             List<TimeRange> times = timeSr.getPayload();
+            inventory.put(parmId, times);
             sr.addMessages(timeSr);
-
-            if (sr.isOkay()) {
-                inventory.put(parmId, times);
-            }
         }
 
-        if (sr.isOkay()) {
-            sr.setPayload(inventory);
-        }
+        sr.setPayload(inventory);
         return sr;
     }
 }

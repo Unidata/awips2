@@ -32,6 +32,7 @@ import com.raytheon.uf.common.stats.ProcessEvent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 28, 2013 1650       djohnson     Initial creation
+ * Jun 20, 2013 1802       djohnson     Allow test code to set an explicit event bus handler.
  * 
  * </pre>
  * 
@@ -40,6 +41,18 @@ import com.raytheon.uf.common.stats.ProcessEvent;
  */
 
 public class EventBusTest extends BaseEventBusTest<Event, IEventBusHandler> {
+
+    /**
+     * Allows test code to use explicit event bus handlers if the default does
+     * not suffice.
+     * 
+     * @param eventBusHandler
+     *            the event bus handler
+     */
+    public static void useExplicitEventBusHandler(
+            IEventBusHandler eventBusHandler) {
+        EventBus.handler = eventBusHandler;
+    }
 
     /**
      * {@inheritDoc}
