@@ -30,6 +30,8 @@ import java.util.TreeSet;
 
 import jep.JepException;
 
+import org.apache.log4j.Logger;
+
 import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
@@ -78,6 +80,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                                     for merge logic.
  * May 14, 2013    1842    dgilling    Also delete cluster locks when purging
  *                                     PRACTICE active table.
+ * Jun 11, 2013    2083    randerso   Log active table changes
  * 
  * </pre>
  * 
@@ -89,15 +92,14 @@ public class ActiveTable {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ActiveTable.class);
 
-    public static final String NATIONAL_CENTERS = ",KWNS,KNHC";
+    private static final Logger changeLog = Logger
+            .getLogger("ActiveTableChange");
 
     private static final String NEXT_ETN_LOCK = "ActiveTableNextEtn";
 
     private static String filePath;
 
-    private static String pythonPath;
-
-    private static String vtecPath;
+    private static String includePath;
 
     private static CoreDao practiceDao = new CoreDao(
             DaoConfig.forClass(PracticeActiveTableRecord.class));
@@ -113,8 +115,15 @@ public class ActiveTable {
                 LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
         filePath = pathMgr.getFile(commonCx,
                 "vtec" + File.separator + "ActiveTable.py").getPath();
-        pythonPath = pathMgr.getFile(commonCx, "python").getPath();
-        vtecPath = pathMgr.getFile(commonCx, "vtec").getPath();
+        String siteId = pathMgr.getContext(LocalizationType.COMMON_STATIC,
+                LocalizationLevel.SITE).getContextName();
+        String pythonPath = ActiveTablePyIncludeUtil
+                .getCommonPythonIncludePath();
+        String vtecPath = ActiveTablePyIncludeUtil.getVtecIncludePath(siteId);
+        String configPath = ActiveTablePyIncludeUtil
+                .getGfeConfigIncludePath(siteId);
+        includePath = PyUtil.buildJepIncludePath(pythonPath, vtecPath,
+                configPath);
     }
 
     public ActiveTable() {
@@ -303,7 +312,7 @@ public class ActiveTable {
             }
 
             MergeResult result = filterTable(getActiveTable(siteId, mode),
-                    newRecords, offsetSecs);
+                    newRecords, mode, offsetSecs);
 
             updateTable(siteId, result, mode);
 
@@ -325,16 +334,18 @@ public class ActiveTable {
      *         active table and the second being the purged records
      */
     private MergeResult filterTable(List<ActiveTableRecord> activeTable,
-            List<ActiveTableRecord> newRecords, float offsetSecs) {
-        HashMap<String, Object> args = new HashMap<String, Object>(2);
+            List<ActiveTableRecord> newRecords, ActiveTableMode mode,
+            float offsetSecs) {
+        HashMap<String, Object> args = new HashMap<String, Object>(5, 1.0f);
         args.put("activeTable", activeTable);
         args.put("newRecords", newRecords);
+        args.put("logger", changeLog);
+        args.put("mode", mode.toString());
         args.put("offsetSecs", offsetSecs);
         MergeResult result = null;
         try {
             try {
-                python = new PythonScript(filePath, PyUtil.buildJepIncludePath(
-                        pythonPath, vtecPath),
+                python = new PythonScript(filePath, includePath,
                         ActiveTable.class.getClassLoader());
                 try {
                     result = (MergeResult) python

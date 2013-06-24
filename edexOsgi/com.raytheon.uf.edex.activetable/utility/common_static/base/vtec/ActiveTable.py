@@ -17,18 +17,38 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+#
 # Code mostly separated from legacy VTECDecoder.py
+#  
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    06/11/13        #2083         randerso       Log active table changes, save backups
+#
 
 import time
 import copy
+import os
+import siteConfig
 import VTECTableUtil, VTECTableSqueeze, VTECPartners
 import LogStream, ActiveTableVtec, ActiveTableRecord
 from java.util import ArrayList
+from com.raytheon.uf.common.localization import PathManagerFactory
+from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
+from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as LocalizationLevel
 
 class ActiveTable(VTECTableUtil.VTECTableUtil):
     
-    def __init__(self):
+    def __init__(self, activeTableMode):
         self._time = time.time()
+
+        # create a dummy name to simplify the file access code in VTECTableUtil
+        pathMgr = PathManagerFactory.getPathManager()
+        edexSiteCx = pathMgr.getContext(LocalizationType.EDEX_STATIC, LocalizationLevel.SITE)
+        filePath = pathMgr.getFile(edexSiteCx,"vtec").getPath()
+        VTECTableUtil.VTECTableUtil.__init__(self, os.path.join(filePath, activeTableMode + ".tbl"))
 
     def updateActiveTable(self, activeTable, newRecords, offsetSecs=0):
         #merges the previous active table and new records into a new table.
@@ -228,27 +248,63 @@ class ActiveTable(VTECTableUtil.VTECTableUtil):
                 
         return outTable, purgedRecords, changes, changedFlag
 
-def mergeFromJava(activeTable, newRecords, offsetSecs=0):
+def mergeFromJava(activeTable, newRecords, logger, mode, offsetSecs=0):
     pyActive = []
     szActive = activeTable.size()
     for i in range(szActive):
         pyActive.append(ActiveTableRecord.ActiveTableRecord(activeTable.get(i)))
     
+    siteId = siteConfig.GFESUITE_SITEID
+
+    decoderSites = VTECPartners.VTEC_DECODER_SITES
+    decoderSites.append(VTECPartners.get4ID(siteId))
+    decoderSites.append(VTECPartners.VTEC_SPC_SITE)
+    decoderSites.append(VTECPartners.VTEC_TPC_SITE)
+    
+    backup = False
     pyNew = []
     szNew = newRecords.size()
     for i in range(szNew):
-        pyNew.append(ActiveTableRecord.ActiveTableRecord(newRecords.get(i)))
+        rec = ActiveTableRecord.ActiveTableRecord(newRecords.get(i))
+        if rec['officeid'] in decoderSites:
+            backup = True
+        pyNew.append(rec)
     
-    active = ActiveTable()
+    active = ActiveTable(mode)
     
-    updatedTable, purgedTable, changes, changedFlag = active.activeTableMerge(pyActive, pyNew, offsetSecs)
+    if backup:
+        oldActiveTable = active._convertTableToPurePython(pyActive, siteId)
+        active.saveOldActiveTable(oldActiveTable)
+        pTime = getattr(VTECPartners, "VTEC_BACKUP_TABLE_PURGE_TIME",168)
+        active.purgeOldSavedTables(pTime)
     
+    updatedTable, purgeRecords, changes, changedFlag = active.activeTableMerge(pyActive, pyNew, offsetSecs)
+    
+    logger.info("Updated " + mode + " Active Table: purged\n" +
+       active.printActiveTable(purgeRecords, combine=1))
+
+    replaced  = []
+    decoded = []
+    other = []
+    for r in updatedTable:
+        if r['state'] == "Replaced":
+            replaced.append(r)
+        elif r['state'] == "Decoded":
+            decoded.append(r)
+        else:
+            other.append(r)
+        
+    logger.info("Updated " + mode + " Active Table: replaced\n" +
+       active.printActiveTable(replaced,  combine=1))
+    logger.info("Updated " + mode + " Active Table: decoded\n" +
+       active.printActiveTable(decoded, combine=1))
+
     updatedList = ArrayList()
     for x in updatedTable:
         updatedList.add(x.javaRecord())
     
     purgedList = ArrayList()
-    for x in purgedTable:
+    for x in purgeRecords:
         purgedList.add(x.javaRecord())
     
     changeList = ArrayList()
