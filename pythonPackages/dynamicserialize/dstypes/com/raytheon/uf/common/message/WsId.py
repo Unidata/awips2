@@ -24,6 +24,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    04/25/12              545     randerso       Repurposed the lockKey field as threadId
+#    06/12/13             2099     dgilling       Implemented toPrettyString().
 #    
 
 import struct
@@ -83,6 +84,10 @@ class WsId(object):
         
     def toString(self):
         return self.networkId + ":" + self.userName + ":" + self.progName + ":" + str(self.pid) + ":" + str(self.threadId)
+    
+    def toPrettyString(self):        
+        hostname = socket.gethostbyaddr(socket.inet_ntoa(struct.pack('<L', int(self.networkId))))[0]
+        return self.userName + "@" + hostname + ":" + self.progName + ":" + str(self.pid) + ":" + str(self.threadId)
     
     def __str__(self):
         return self.toString()
