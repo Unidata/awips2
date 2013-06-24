@@ -56,6 +56,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnsupportedCapabilityExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsResponse;
 
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.event.EventBus;
@@ -102,6 +103,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 4/9/2013     1802       bphillip    Changed how auditable events are handled
  * Apr 18, 2013 1693       djohnson    Changes to conform to Ebxml 4.0 SubmitObjects protocol.
  * Apr 24, 2013 1910       djohnson    Use validation framework to check references.
+ * Jun 24, 2013 2106       djohnson    Requires a transaction to already be open.
  * 
  * 
  * </pre>
@@ -109,7 +111,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * @author bphillip
  * @version 1.0
  */
-@Transactional
+@Transactional(propagation = Propagation.MANDATORY)
 public class LifecycleManagerImpl implements LifecycleManager {
 
     /** The logger */

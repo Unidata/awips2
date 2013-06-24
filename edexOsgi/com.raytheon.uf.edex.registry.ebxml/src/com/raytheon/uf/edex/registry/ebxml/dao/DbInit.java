@@ -45,12 +45,13 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.jdbc.Work;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.localization.LocalizationFile;
@@ -83,14 +84,15 @@ import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
  * Apr 30, 2013 1960        djohnson    Extend the generalized DbInit.
  * 5/21/2013    2022       bphillip     Using TransactionTemplate for database initialization
  * May 29, 2013 1650       djohnson     Reference LifecycleManager as interface type.
+ * Jun 24, 2013 2106       djohnson     Invoke registry initialized listeners in their own transaction so 
+ *                                      they can't fail the ebxml schema creation/population.
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-@Transactional
 public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
-        ApplicationListener<ContextRefreshedEvent> {
+        ApplicationListener<ContextRefreshedEvent>, ApplicationContextAware {
 
     @VisibleForTesting
     static volatile boolean INITIALIZED = false;
@@ -108,8 +110,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
     /** Hibernate session factory */
     private SessionFactory sessionFactory;
 
-    /** Transaction template */
-    private TransactionTemplate txTemplate;
+    private ApplicationContext applicationContext;
 
     /**
      * Creates a new instance of DbInit. This constructor should only be called
@@ -319,44 +320,39 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
     }
 
     @Override
+    @Transactional
     public void onApplicationEvent(ContextRefreshedEvent event) {
         if (!INITIALIZED) {
-            txTemplate.execute(new TransactionCallbackWithoutResult() {
-                @Override
-                protected void doInTransactionWithoutResult(
-                        TransactionStatus status) {
-                    try {
-                        initDb();
-                    } catch (Exception e) {
-                        statusHandler.fatal(
-                                "Error initializing EBXML database!", e);
-                    }
+            // Must reference this bean through the proxy to get proper
+            // transactional semantics, which requires going through the
+            // application context
+            final DbInit myself = applicationContext.getBean(DbInit.class);
+            try {
+                myself.initDb();
+            } catch (Exception e) {
+                statusHandler.fatal("Error initializing EBXML database!", e);
+            }
 
-                }
-            });
+            myself.postInitDb();
 
-            statusHandler.info("Executing post initialization actions");
-
-            txTemplate.execute(new TransactionCallbackWithoutResult() {
-                @Override
-                protected void doInTransactionWithoutResult(
-                        TransactionStatus status) {
-                    try {
-                        Map<String, RegistryInitializedListener> beans = EDEXUtil
-                                .getSpringContext().getBeansOfType(
-                                        RegistryInitializedListener.class);
-                        for (RegistryInitializedListener listener : beans
-                                .values()) {
-                            listener.executeAfterRegistryInit();
-                        }
-                    } catch (Throwable t) {
-                        throw new RuntimeException(
-                                "Error initializing EBXML database!", t);
-                    }
-
-                }
-            });
             INITIALIZED = true;
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void postInitDb() {
+        statusHandler.info("Executing post initialization actions");
+
+        try {
+            Map<String, RegistryInitializedListener> beans = EDEXUtil
+                    .getSpringContext().getBeansOfType(
+                            RegistryInitializedListener.class);
+            for (RegistryInitializedListener listener : beans.values()) {
+                listener.executeAfterRegistryInit();
+            }
+        } catch (Throwable t) {
+            throw new RuntimeException(
+                    "Error initializing EBXML database!", t);
         }
     }
 
@@ -384,7 +380,12 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
         this.sessionFactory = sessionFactory;
     }
 
-    public void setTxTemplate(TransactionTemplate txTemplate) {
-        this.txTemplate = txTemplate;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext)
+            throws BeansException {
+        this.applicationContext = applicationContext;
     }
 }
