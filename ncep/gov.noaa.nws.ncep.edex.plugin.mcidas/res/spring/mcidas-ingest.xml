@@ -55,7 +55,7 @@
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:mcidas?level=ERROR&amp;showBody=false" />
+					<to uri="log:mcidas?level=ERROR" />
 				</doCatch>
 			</doTry>
 		</route>

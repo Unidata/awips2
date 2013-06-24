@@ -24,7 +24,7 @@
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
                     <to
-                        uri="log:archivePurge?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+                        uri="log:archivePurge?level=ERROR" />
                 </doCatch>
             </doTry>
         </route>

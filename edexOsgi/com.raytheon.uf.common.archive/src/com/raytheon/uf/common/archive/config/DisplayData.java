@@ -1,7 +1,10 @@
 package com.raytheon.uf.common.archive.config;
 
 import java.io.File;
+import java.util.Comparator;
 import java.util.List;
+
+import com.raytheon.uf.common.util.SizeUtil;
 
 /**
  * This class contains the information on directories that are associated with a
@@ -22,6 +25,29 @@ import java.util.List;
  * @version 1.0
  */
 public class DisplayData implements Comparable<DisplayData> {
+
+    /** Comparator ordering by size. */
+    public static final Comparator<DisplayData> SIZE_ORDER = new Comparator<DisplayData>() {
+        @Override
+        public int compare(DisplayData o1, DisplayData o2) {
+            int result = 0;
+            long diff = o1.size - o2.size;
+            if (diff < 0L) {
+                result = -1;
+            } else if (diff > 0L) {
+                result = 1;
+            }
+            return result;
+        }
+    };
+
+    /** Comparator ordering by label. */
+    public static final Comparator<DisplayData> LABEL_ORDER = new Comparator<DisplayData>() {
+        @Override
+        public int compare(DisplayData o1, DisplayData o2) {
+            return o1.displayLabel.compareToIgnoreCase(o2.displayLabel);
+        }
+    };
 
     /** Label to use when size not yet known. */
     public static final String UNKNOWN_SIZE_LABEL = "????";
@@ -102,6 +128,19 @@ public class DisplayData implements Comparable<DisplayData> {
      */
     public long getSize() {
         return size;
+    }
+
+    /**
+     * The string label for the size.
+     * 
+     * @return sizeLabel
+     */
+    public String getSizeLabel() {
+        String label = UNKNOWN_SIZE_LABEL;
+        if (size >= 0L) {
+            label = SizeUtil.prettyByteSize(size);
+        }
+        return label;
     }
 
     /**
