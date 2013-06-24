@@ -67,14 +67,14 @@
 		                    </pipeline>
         	            <doCatch>
 	                        <exception>java.lang.Throwable</exception>
-    	                    <to uri="log:aww?level=ERROR&amp;showBody=false"/>
+    	                    <to uri="log:aww?level=ERROR"/>
         	             </doCatch>
             	      </doTry>
 		            </split>
                 </pipeline>
         	    <doCatch>
             	    <exception>java.lang.Throwable</exception>
-                    <to uri="log:aww?level=ERROR&amp;showBody=false"/>
+                    <to uri="log:aww?level=ERROR"/>
                 </doCatch>
             </doTry>
         </route>

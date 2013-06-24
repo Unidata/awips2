@@ -24,10 +24,8 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import com.raytheon.uf.common.event.IBaseEventBusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -44,6 +42,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 28, 2013 1650       djohnson     Simplified and extracted from {@link EdexEventBusHandler}.
+ * Jun 20, 2013 1802       djohnson     Thread local is not safe across multiple transaction levels.
  * 
  * </pre>
  * 
@@ -52,19 +51,10 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 
 public abstract class BaseEdexEventBusHandler<T> implements
-        IBaseEventBusHandler<T>, TransactionSynchronization {
+        IBaseEventBusHandler<T> {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(BaseEdexEventBusHandler.class);
-
-    private final ThreadLocal<List<T>> eventStorageList = new ThreadLocal<List<T>>() {
-
-        @Override
-        protected List<T> initialValue() {
-            return Lists.newArrayList();
-        }
-
-    };
 
     private static final String NULL_SUBSCRIBER = "Ignoring a null subscriber.";
 
@@ -109,13 +99,10 @@ public abstract class BaseEdexEventBusHandler<T> implements
         if (isTransactionActive()) {
 
             if (TransactionSynchronizationManager.isSynchronizationActive()) {
-                if (!TransactionSynchronizationManager.getSynchronizations()
-                        .contains(this)) {
                     TransactionSynchronizationManager
-                            .registerSynchronization(this);
-                }
+                        .registerSynchronization(new EventTransactionSynchronization(
+                                event, googleEventBuses));
             }
-            eventStorageList.get().add(event);
         } else {
             if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
                 statusHandler
@@ -202,48 +189,4 @@ public abstract class BaseEdexEventBusHandler<T> implements
         }
     }
 
-    @Override
-    public void suspend() {
-    }
-
-    @Override
-    public void resume() {
-    }
-
-    @Override
-    public void beforeCommit(boolean readOnly) {
-    }
-
-    @Override
-    public void beforeCompletion() {
-    }
-
-    @Override
-    public void afterCommit() {
-
-    }
-
-    @Override
-    public void afterCompletion(int status) {
-        List<T> list = eventStorageList.get();
-        if (status == TransactionSynchronization.STATUS_COMMITTED) {
-            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                statusHandler.debug("Posting " + list.size()
-                        + " objects on the event bus");
-            }
-            for (T event : list) {
-                for (EventBus eventBus : googleEventBuses) {
-                    eventBus.post(event);
-                }
-            }
-        } else if (status == TransactionSynchronization.STATUS_ROLLED_BACK) {
-            statusHandler.info("Transaction rolled back. Discarding "
-                    + list.size() + " events.");
-        }
-        list.clear();
-    }
-
-    @Override
-    public void flush() {
-    }
 }

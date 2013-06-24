@@ -54,7 +54,7 @@
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:acars?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:acars?level=ERROR"/>
 				</doCatch>
 			</doTry>
 			<!-- bean ref="processUtil" method="delete" / -->
