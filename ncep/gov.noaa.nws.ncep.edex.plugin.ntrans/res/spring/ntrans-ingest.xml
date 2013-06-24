@@ -49,12 +49,8 @@
 				<pipeline>
 				<bean ref="stringToFile" />
 			<doTry>
-				<pipeline>
-					
-					<!--
-			need to replace the method decode with 	decodeNtransMetafile
-					<bean ref="ntransDecoder" method="decode" />	-->
-					<bean ref="ntransDecoder" method="decodeNtransMetafile" />	
+				<pipeline>					
+					<bean ref="ntransDecoder" method="decode" />
 					<to uri="direct-vm:persistIndexAlert" />
 				</pipeline>
 				<doCatch>

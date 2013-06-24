@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -52,7 +52,7 @@ import com.raytheon.viz.gfe.types.MutableInteger;
 
 /**
  * Contains a complete histogram for a single grid and parameter
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date			Ticket#		Engineer	Description
@@ -62,9 +62,10 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * Sep 9, 2008  1283        njensen     Implemented sample methods
  * May 29, 2009 2159        rjpeter     Optimized sample methods.
  * May 24, 2012  673        randerso    Added defaulted method calls
- * 
+ * Jun 17, 2013 15951       ryu         Fix index to wx/discrete key array
+ *
  * </pre>
- * 
+ *
  * @author mnash
  * @version 1.0
  */
@@ -175,7 +176,7 @@ public class HistSample {
      * Description : Constructor far HistSample taking a histogram in the form
      * of a time range and a sequence of HistPairs, stores the information in
      * private data. Counts up the samples and stores that in _numSamplePoints.
-     * 
+     *
      * @param timeRange
      * @param histPairs
      */
@@ -210,7 +211,7 @@ public class HistSample {
      * cached. Sets number of sample points to zero. Calls sampleGrid() to
      * sample the grid. If successful, stores the time range and counts up the
      * number of sample points.
-     * 
+     *
      * @param gridSlice
      * @param sampleArea
      * @param cachePoints
@@ -250,7 +251,7 @@ public class HistSample {
      * for WEATHER. The most common value for DISCRETE. For vector, if
      * separateMagDir is true, the magnitude is averaged separately from the
      * direction.
-     * 
+     *
      * @param separateMagDir
      * @return
      */
@@ -360,7 +361,7 @@ public class HistSample {
 
     /**
      * Description : the square root function
-     * 
+     *
      * @param val
      * @return
      */
@@ -377,7 +378,7 @@ public class HistSample {
      * Returns the standard deviation of each component separately for VECTOR.
      * Should not be called for WEATHER. For vector, if separate MagDir is true,
      * the magnitude is averaged separately from the direction.
-     * 
+     *
      * @return
      */
     public final HistValue stdDev() {
@@ -469,7 +470,7 @@ public class HistSample {
      * the HistPair's for the maximum count value and returns it. In the case
      * where more than one entry shares the maximum count value, then only the
      * highest value (sort order) value will be returned.
-     * 
+     *
      * @return
      */
     public final HistValue mostCommonValue() {
@@ -503,7 +504,7 @@ public class HistSample {
      * case where more than one entyr shares the maximum count value, then only
      * the highest value (sort order) value will be returned. Works only on
      * SCALAR and VECTOR.
-     * 
+     *
      * @param resolution
      * @return
      */
@@ -542,7 +543,7 @@ public class HistSample {
      * Finds and returns the middle value associated with the sample. The middle
      * value is that value that is halfway between the lowest and highest in
      * terms of count, and not value. This is a no-op for WEATHER/DISCRETE.
-     * 
+     *
      * @return
      */
     public final HistValue middleValue() {
@@ -576,7 +577,7 @@ public class HistSample {
      * Description : Returns the absolute minimum value for the sample points.
      * This is a no-op for WEATHER/DISCRETE. Only the magnitude component for
      * VECTOR is used for comparison.
-     * 
+     *
      * @return
      */
     public final HistValue absoluteMin() {
@@ -602,7 +603,7 @@ public class HistSample {
      * Description : REturns the absolute maximum value for the sample points.
      * This is a no-op for WEATHER/DISCRETE. Only the magnitude component for
      * VECTOR is used for comparison.
-     * 
+     *
      * @return
      */
     public final HistValue absoluteMax() {
@@ -642,7 +643,7 @@ public class HistSample {
      * most common value is provide for WEATERH. Outliers are eliminated.
      * Percent ranges from 0 to 50. For vector, if separateMagDir is true, the
      * magnitude is averaged separately from the direction.
-     * 
+     *
      * @param minpercent
      * @param maxpercent
      * @param separateMagDir
@@ -820,7 +821,7 @@ public class HistSample {
      * points. this is a no-op for WEATHER/DISCRETE. Percent should be between 0
      * and 50. This routine eliminates the bottom xx% of sample values and
      * returns that value.
-     * 
+     *
      * @param percent
      * @return
      */
@@ -864,7 +865,7 @@ public class HistSample {
      * points. This is a no-op for WEATHER/DISCRETE. Percent should be between 0
      * and 50. This routine eliminates the top 15% of sample values and returns
      * that value.
-     * 
+     *
      * @param percent
      * @return
      */
@@ -921,7 +922,7 @@ public class HistSample {
      * most common value is provided for WEATHER/DISCRETE. Outliers are
      * eliminated based on standard deviation. For vector, if separateMagDir is
      * true, the magnitude is averaged separately from the direction.
-     * 
+     *
      * @param minStdD
      * @param maxStdD
      * @param separateMagDir
@@ -1074,7 +1075,7 @@ public class HistSample {
      * Description : Returns the representative minimum value for the sample
      * points. This is a no-op for WEATHER/DISCRETE. Based on standard
      * deviations.
-     * 
+     *
      * @param stdD
      * @return
      */
@@ -1117,7 +1118,7 @@ public class HistSample {
      * Description : Returns the representative maximum value for the sample
      * points. This is a no-op for WEATHER/DISCRETE. Based on standard
      * deviations.
-     * 
+     *
      * @param stdD
      * @return
      */
@@ -1155,7 +1156,7 @@ public class HistSample {
     /**
      * OUtputs the histogram for this grid, but binned by the specified float
      * value. This only applies to SCALAR and VECTOR data.
-     * 
+     *
      * @param resolution
      * @return
      */
@@ -1229,7 +1230,7 @@ public class HistSample {
 
     /**
      * Description : Bins the data sample based on the resolution
-     * 
+     *
      * @param v
      * @param resolution
      * @return
@@ -1254,7 +1255,7 @@ public class HistSample {
      * that the grid is valid and grid and Grid2DBit sizes match. Ensures there
      * are points in the sample area. Switch cases on data type and then
      * extracts out the data for each sample point.
-     * 
+     *
      * @param grid
      * @param area
      * @param cachePoints
@@ -1309,7 +1310,7 @@ public class HistSample {
 
     /**
      * If the sample was of scalars this function is called
-     * 
+     *
      * @param grid
      * @param area
      * @param cachePoints
@@ -1411,7 +1412,7 @@ public class HistSample {
         for (int x = ll.x; x <= ur.x; x++) {
             for (int y = ll.y; y <= ur.y; y++) {
                 if (area.get(x, y) != 0) {
-                    WeatherKey k = key[gs.get(x, y)];
+                    WeatherKey k = key[0xFF & gs.get(x, y)];
                     if (_subkeymode) {
                         List<WeatherSubKey> subkeys = k.getSubKeys();
                         for (int z = 0; z < subkeys.size(); z++) {
@@ -1472,7 +1473,7 @@ public class HistSample {
         for (int x = ll.x; x <= ur.x; x++) {
             for (int y = ll.y; y <= ur.y; y++) {
                 if (area.get(x, y) != 0) {
-                    DiscreteKey k = key[gs.get(x, y)];
+                    DiscreteKey k = key[0xFF & gs.get(x, y)];
                     if (_subkeymode) {
                         List<String> subkeys = k.getSubKeys();
                         for (int z = 0; z < subkeys.size(); z++) {
@@ -1524,7 +1525,7 @@ public class HistSample {
 
     /**
      * Description : counts the number of sample points and returns the number
-     * 
+     *
      * @return
      */
     private int countSamplePoints() {
@@ -1552,7 +1553,7 @@ public class HistSample {
 
     /**
      * Description : Returns the sample's valid time
-     * 
+     *
      * @return
      */
     public final TimeRange validTime() {
@@ -1561,7 +1562,7 @@ public class HistSample {
 
     /**
      * Description : Returns the histogram associated with this sample
-     * 
+     *
      * @return
      */
     public final HistPair[] histogram() {
@@ -1570,7 +1571,7 @@ public class HistSample {
 
     /**
      * Description : Returns the number of points associated with this sample
-     * 
+     *
      * @return
      */
     public int numOfPoints() {

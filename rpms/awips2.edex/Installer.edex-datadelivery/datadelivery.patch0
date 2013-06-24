@@ -68,7 +68,7 @@ diff -crB a/component.spec b/component.spec
   %preun
   %postun
   
---- 40,88 ----
+--- 40,95 ----
      rm -rf %{_build_root}
   fi
   mkdir -p %{_build_root}
@@ -105,7 +105,7 @@ diff -crB a/component.spec b/component.spec
   %post
 + # replace the service list script with the datadelivery service list script
 + if [ -f /etc/init.d/edexServiceList ]; then
-+    rm -f /etc/init.d/edexServiceList
++    mv /etc/init.d/edexServiceList /etc/init.d/edexServiceList.orig
 +    if [ $? -ne 0 ]; then
 +       exit 1
 +    fi
@@ -116,6 +116,13 @@ diff -crB a/component.spec b/component.spec
 + fi
 + 
   %preun
++ # restore the original service list script with the datadelivery service list script
++ if [ -f /etc/init.d/edexServiceList.orig ]; then
++    mv /etc/init.d/edexServiceList.orig /etc/init.d/edexServiceList
++    if [ $? -ne 0 ]; then
++       exit 1
++    fi
++ fi
   %postun
   
 ***************
