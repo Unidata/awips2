@@ -45,6 +45,7 @@ import com.sun.xml.internal.bind.v2.runtime.JAXBContextImpl.JAXBContextBuilder;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 12, 2011            mschenke     Initial creation
+ * June 24, 2013 #2126     bkowal       Update for Java 7 compatibility
  * 
  * </pre>
  * 
@@ -54,7 +55,8 @@ import com.sun.xml.internal.bind.v2.runtime.JAXBContextImpl.JAXBContextBuilder;
 
 public class SerializationContextFactory {
 
-    public static JAXBContext createContext(Class[] classes, Map props) {
+    @SuppressWarnings("rawtypes")
+	public static JAXBContext createContext(Class[] classes, Map props) {
         // Construct delegate implementation
         System.setProperty(JAXBContextImpl.class.getName() + ".fastBoot",
                 "true");
@@ -68,7 +70,7 @@ public class SerializationContextFactory {
             // TODO: Can we override/extend some part of the context
             // implementation to allow for ignoring of xsi:type fields that we
             // don't have classes for?
-            return new CustomJAXBContext(new JAXBContextImpl(builder));
+            return new CustomJAXBContext(builder.build());
         } catch (JAXBException e) {
             throw new RuntimeException(e);
         }
