@@ -17,6 +17,15 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+#
+# VTEC Partner configuration
+#
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    06/11/13        #2083         randerso       Fixed getISCSites to look in configured
 
 #VTEC_Partners.py - configuration file to control filtering and merging
 #of VTEC active table.
@@ -228,9 +237,9 @@ def getISCSites():
     from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
     from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as LocalizationLevel
     pathMgr = PathManagerFactory.getPathManager()
-    commonStaticSite = pathMgr.getContext(LocalizationType.COMMON_STATIC, LocalizationLevel.SITE)
-    commonStaticSite.setContextName(siteConfig.GFESUITE_SITEID)
-    eaDir = pathMgr.getFile(commonStaticSite, "gfe/editAreas").getCanonicalPath()
+    commonStaticCfg = pathMgr.getContext(LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED)
+    commonStaticCfg.setContextName(siteConfig.GFESUITE_SITEID)
+    eaDir = pathMgr.getFile(commonStaticCfg, "gfe/editAreas").getCanonicalPath()
     files = glob.glob(eaDir + "/ISC_???.xml")
     sites = []
     WFOSites = BackupDict.keys()
