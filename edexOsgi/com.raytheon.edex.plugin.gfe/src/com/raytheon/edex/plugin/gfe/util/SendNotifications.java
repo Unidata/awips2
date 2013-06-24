@@ -41,6 +41,8 @@ import com.raytheon.uf.edex.core.EdexException;
  * ------------ ---------- ----------- --------------------------
  * 06/30/08     #875       bphillip    Initial Creation
  * 09/22/09     3058       rjpeter     changed to utility.
+ * 06/12/13     2099       dgilling    Remove error when passed empty list of
+ *                                     notifications.
  * </pre>
  * 
  * @author bphillip
@@ -60,7 +62,6 @@ public class SendNotifications {
             List<? extends GfeNotification> notifications) {
         ServerResponse<?> sr = new ServerResponse<String>();
         if (notifications.isEmpty()) {
-            sr.addMessage("Attempting to send empty notification list");
             return sr;
         }
 
