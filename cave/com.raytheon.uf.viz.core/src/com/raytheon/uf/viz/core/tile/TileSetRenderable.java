@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.core.tile;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -63,7 +64,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Aug 8, 2012             mschenke     Initial creation
  * May 28, 2013 2037       njensen      Made imageMap concurrent to fix leak
- * 
+ * Jun 20, 2013 2122       mschenke     Fixed null pointer in interrogate and made 
+ *                                      canceling jobs safer
+ *                                       
  * </pre>
  * 
  * @author mschenke
@@ -297,7 +300,21 @@ public class TileSetRenderable implements IRenderable {
         lastPaintedLevel = usedTileLevel;
 
         return getImagesWithinExtent(target, paintProps.getView().getExtent(),
-                usedTileLevel, 0);
+                usedTileLevel);
+    }
+
+    /**
+     * Gets the images to render within the extent in target grid space
+     * 
+     * @param target
+     * @param extent
+     * @param level
+     * @return
+     * @throws VizException
+     */
+    protected List<DrawableImage> getImagesWithinExtent(IGraphicsTarget target,
+            IExtent extent, int level) {
+        return getImagesWithinExtent(target, extent, level, 0);
     }
 
     /**
@@ -309,8 +326,8 @@ public class TileSetRenderable implements IRenderable {
      * @return
      * @throws VizException
      */
-    protected List<DrawableImage> getImagesWithinExtent(IGraphicsTarget target,
-            IExtent extent, int level, int depth) throws VizException {
+    private List<DrawableImage> getImagesWithinExtent(IGraphicsTarget target,
+            IExtent extent, int level, int depth) {
         if (tileSet == null) {
             // Early exit condition, disposed or haven't projected yet
             return Collections.emptyList();
@@ -366,10 +383,13 @@ public class TileSetRenderable implements IRenderable {
                 // All intersecting tiles are loaded for this level, cancel any
                 // jobs running for tiles we don't need anymore (may be case if
                 // zooming or panning)
-                for (Runnable job : jobMap.values()) {
-                    tileCreationPool.cancel(job);
+                Iterator<Runnable> iterator = jobMap.values().iterator();
+                while (iterator.hasNext()) {
+                    Runnable job = iterator.next();
+                    if (tileCreationPool.cancel(job)) {
+                        iterator.remove();
+                    }
                 }
-                jobMap.clear();
             } else {
                 target.setNeedsRefresh(true);
                 // Create tiles needing images
@@ -446,12 +466,15 @@ public class TileSetRenderable implements IRenderable {
             TileLevel level = tileSet.getTileLevel(lastPaintedLevel);
             double[] grid = level.crsToGrid(localX, localY);
             Tile tile = level.getTile(grid[0], grid[1]);
-            DrawableImage di = imageMap.get(tile);
-            if (di != null) {
-                IImage image = di.getImage();
-                if (image instanceof IColormappedImage) {
-                    return ((IColormappedImage) image).getValue((int) grid[0]
-                            % tileSize, (int) grid[1] % tileSize);
+            if (tile != null) {
+                DrawableImage di = imageMap.get(tile);
+                if (di != null) {
+                    IImage image = di.getImage();
+                    if (image instanceof IColormappedImage) {
+                        return ((IColormappedImage) image).getValue(
+                                (int) grid[0] % tileSize, (int) grid[1]
+                                        % tileSize);
+                    }
                 }
             }
         } catch (TransformException e) {
