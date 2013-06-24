@@ -542,6 +542,9 @@ fi
 # grab screen shot, spawns background process for each screen
 grabScreenShot
 
+# ls users home directory to check nas performance
+/usr/bin/time -p ls -la ~ > ${dataPath}/nas_check_ls_home.txt 2>&1 &
+
 # get reason for running capture
 if [ "$reason" != "n" ]; then
    reasonForCapture &
