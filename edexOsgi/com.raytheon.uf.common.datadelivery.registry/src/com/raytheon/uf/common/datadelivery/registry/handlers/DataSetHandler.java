@@ -33,7 +33,6 @@ import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.DataSetQuery;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.DataSetWithFiltersQuery;
-import com.raytheon.uf.common.registry.RegistryManager;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.ebxml.UnresolvedReferenceException;
@@ -56,6 +55,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * Nov 19, 2012 1166      djohnson     Clean up JAXB representation of registry objects.
  * Dec 10, 2012 1259      bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Jun 04, 2013  223      mpduff       Added datatype to the filter.
+ * Jun 24, 2013 2106      djohnson     Now composes a registryHandler.
  * 
  * </pre>
  * 
@@ -211,8 +211,8 @@ public class DataSetHandler extends
         query.setDataSetName(name);
         query.setProviderName(providerName);
 
-        RegistryQueryResponse<DataSet> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<DataSet> response = registryHandler
+                .getObjects(query);
 
         checkResponse(response, "getByNameAndProvider");
 
@@ -252,8 +252,8 @@ public class DataSetHandler extends
             query.setEnvelope(envelope);
         }
 
-        RegistryQueryResponse<DataSet> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<DataSet> response = registryHandler
+                .getObjects(query);
 
         checkResponse(response, "getByFilters");
 
