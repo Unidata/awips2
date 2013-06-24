@@ -170,6 +170,10 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
         paintListeners = new CopyOnWriteArraySet<IPaintListener>();
         paintStatusListeners = new CopyOnWriteArraySet<IPaintStatusChangedListener>();
         disposeListeners = new CopyOnWriteArraySet<IDisposeListener>();
+
+        if (resourceData != null) {
+            resourceData.addChangeListener(changeListener);
+        }
     }
 
     /**
@@ -343,10 +347,6 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
         status = ResourceStatus.LOADING;
         initInternal(target);
         status = ResourceStatus.INITIALIZED;
-
-        if (resourceData != null) {
-            resourceData.addChangeListener(changeListener);
-        }
 
         for (IInitListener listener : initListeners) {
             listener.inited(this);
