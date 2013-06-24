@@ -20,8 +20,9 @@
     
     <bean id="crawlerCommunicationStrategy" class="com.raytheon.uf.edex.datadelivery.harvester.crawler.FileCommunicationStrategy" />
 
-    <bean id="MetaDataProcessor" class="com.raytheon.uf.edex.datadelivery.harvester.CrawlMetaDataHandler" depends-on="registryInit,registerDataDeliveryHandlers,registryManagerInstanceInitializer">
+    <bean id="MetaDataProcessor" class="com.raytheon.uf.edex.datadelivery.harvester.CrawlMetaDataHandler" depends-on="registryInit">
         <constructor-arg ref="crawlerCommunicationStrategy" />
+        <constructor-arg ref="ProviderHandler" />
     </bean>
   	
   	<camelContext id="MetaData-context"

@@ -18,7 +18,6 @@ import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
 import com.raytheon.uf.common.datadelivery.registry.Collection;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.registry.Utils;
-import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IProviderHandler;
 import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -54,15 +53,16 @@ import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 20, 2011    218      dhladky     Initial creation
- * Jul 17, 2012    749      djohnson    Break out the use of files to communicate as a strategy.
- * Jul 24, 2012    955      djohnson    Use the Abstract Factory Pattern to simplify service specific access.
- * Aug 30, 2012   1123      djohnson    Rename CrawlerEvent to HarvesterEvent.
- * Sept 12,2012   1038      dhladky     Reconfigured config.
- * Oct 03, 2012   1241      djohnson    Use registry handler.
- * Nov 09, 2012   1263      dhladky     Changed to Site Level
- * Feb 05, 2013   1580      mpduff      EventBus refactor.
- * 3/18/2013    1802        bphillip    Modified to insert provider object after database is initialized
+ * Feb 20, 2011 0218       dhladky     Initial creation
+ * Jul 17, 2012 0749       djohnson    Break out the use of files to communicate as a strategy.
+ * Jul 24, 2012 0955       djohnson    Use the Abstract Factory Pattern to simplify service specific access.
+ * Aug 30, 2012 1123       djohnson    Rename CrawlerEvent to HarvesterEvent.
+ * Sept 12,2012 1038       dhladky     Reconfigured config.
+ * Oct 03, 2012 1241       djohnson    Use registry handler.
+ * Nov 09, 2012 1263       dhladky     Changed to Site Level
+ * Feb 05, 2013 1580       mpduff      EventBus refactor.
+ * 3/18/2013    1802       bphillip    Modified to insert provider object after database is initialized
+ * Jun 24, 2013 2106       djohnson    Accepts ProviderHandler as a constructor argument.
  * 
  * </pre>
  * 
@@ -140,8 +140,13 @@ public class CrawlMetaDataHandler implements RegistryInitializedListener {
 
     private Map<String, HarvesterConfig> hconfigs = null;
 
-    public CrawlMetaDataHandler(CommunicationStrategy communicationStrategy) {
+    private final IProviderHandler providerHandler;
+
+    public CrawlMetaDataHandler(CommunicationStrategy communicationStrategy,
+            IProviderHandler providerHandler) {
         this.communicationStrategy = communicationStrategy;
+        this.providerHandler = providerHandler;
+
         IPathManager pm = PathManagerFactory.getPathManager();
 
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
@@ -151,14 +156,12 @@ public class CrawlMetaDataHandler implements RegistryInitializedListener {
 
     }
 
+    @Override
     public void executeAfterRegistryInit() {
 
         statusHandler
                 .info("<<<<<<<<<<<<<<<<<<<<< INITIALIZING CRAWL META DATA HANDLER >>>>>>>>>>>>>>>>>>>>>>");
         hconfigs = readCrawlConfigs();
-
-        final IProviderHandler handler = DataDeliveryHandlers
-                .getProviderHandler();
 
         if (hconfigs != null) {
             for (Entry<String, HarvesterConfig> entry : hconfigs.entrySet()) {
@@ -168,7 +171,7 @@ public class CrawlMetaDataHandler implements RegistryInitializedListener {
                     statusHandler.info("Inserting/Updating Provider: "
                             + provider.getName() + ": "
                             + provider.getServiceType());
-                    handler.update(provider);
+                    providerHandler.update(provider);
 
                 } catch (Exception e) {
                     statusHandler.error("Error inserting/updating Provider! ",

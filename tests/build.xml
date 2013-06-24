@@ -30,9 +30,10 @@
 	<target name="classpath-setup-developer" depends="env-setup" unless="jenkins.build">
 		<path id="test.compile.classpath">
 			<dirset dir="${AWIPS2_BASELINE}" includes="**/bin" />
-			<fileset dir="${AWIPS2_BASELINE}/cots" includes="**/*.jar" excludes="**/ant-*.jar" />
 			<fileset dir="${AWIPS2_BASELINE}/cots/org.junit" includes="**/*.jar" />
 			<fileset dir="${AWIPS2_BASELINE}/cots/org.springframework" includes="**/*.jar" />
+			<fileset dir="${AWIPS2_BASELINE}/cots/org.slf4j" includes="**/*.jar" />
+            <fileset dir="${AWIPS2_BASELINE}/cots" includes="**/*.jar" excludes="**/ant-*.jar" />
 			<fileset dir="${PROJECTS.DIR}/cots" includes="**/*.jar" />
 			<dirset dir="${PROJECTS.DIR}" includes="**/bin" />
 			<fileset dir="${basedir}/lib" includes="**/*.jar" />
@@ -59,6 +60,7 @@
 			<fileset dir="${UNZIP.DIR}" includes="**/*.jar" excludes="**/ant-*.jar" />
 			<fileset dir="${PROJECTS.DIR}/org.junit" includes="**/*.jar" />
 			<fileset dir="${PROJECTS.DIR}/org.springframework" includes="**/*.jar" />
+			<fileset dir="${PROJECTS.DIR}/org.slf4j" includes="**/*.jar" />
 			<fileset dir="${basedir}/lib" includes="**/*.jar" />
 		</path>
 

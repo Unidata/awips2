@@ -23,7 +23,7 @@
 		<constructor-arg ref="obs-camel"/>
   	</bean>
   	
-  	<bean id="metarLayerCollector" class="com.raytheon.uf.edex.plugin.obs.ogc.metar.MetarLayerCollector" depends-on="registryManagerInstanceInitializer, registerDataDeliveryHandlers, registerRequestRegistryRouter, registerObsPlugin" >
+  	<bean id="metarLayerCollector" class="com.raytheon.uf.edex.plugin.obs.ogc.metar.MetarLayerCollector" depends-on="registerDataDeliveryHandlers, registerRequestRegistryRouter, registerObsPlugin" >
 		<constructor-arg ref="metarLayerTransformer" />
 	</bean>
 
@@ -61,7 +61,7 @@
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:metar?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:metar"/>
 				</doCatch>
 			</doTry>
 		</route>

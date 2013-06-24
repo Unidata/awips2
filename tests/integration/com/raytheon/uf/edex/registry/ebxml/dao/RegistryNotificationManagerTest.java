@@ -45,6 +45,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -53,6 +54,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.raytheon.uf.common.event.EventBusTest;
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.common.registry.constants.DeliveryMethodTypes;
 import com.raytheon.uf.common.registry.constants.Namespaces;
@@ -60,6 +62,7 @@ import com.raytheon.uf.common.registry.constants.NotificationOptionTypes;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.util.SpringFiles;
+import com.raytheon.uf.edex.event.NonTransactionalSynchronousEventBusHandler;
 import com.raytheon.uf.edex.registry.ebxml.services.notification.MockNotificationListenerFactory;
 import com.raytheon.uf.edex.registry.ebxml.services.notification.RegistryNotificationManager;
 
@@ -72,7 +75,8 @@ import com.raytheon.uf.edex.registry.ebxml.services.notification.RegistryNotific
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 16, 2013 1672       djohnson     Initial creation
+ * Apr 16, 2013 1672       djohnson    Initial creation
+ * Jun 24, 2013 2106       djohnson    Set explicitly non-transactional event bus handler.
  * 
  * </pre>
  * 
@@ -94,6 +98,12 @@ public class RegistryNotificationManagerTest extends AbstractRegistryTest {
     @Autowired
     private PluginSubscribedListener pluginSubscribedListener;
     
+    @BeforeClass
+    public static void classSetUp() {
+        EventBusTest
+                .useExplicitEventBusHandler(new NonTransactionalSynchronousEventBusHandler());
+    }
+
     @Test
     public void webServiceDestinationIsNotifiedOnSubscribedObjectInsert()
             throws MsgRegistryException {
