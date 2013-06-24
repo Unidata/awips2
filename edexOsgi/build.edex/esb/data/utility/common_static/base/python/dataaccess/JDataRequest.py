@@ -50,6 +50,9 @@ class JDataRequest(IDataRequest, JUtil.JavaWrapperClass):
     def addIdentifier(self, key, value):
         self.jobj.addIdentifier(key, JUtil.pyValToJavaObj(value))
     
+    def removeIdentifier(self, key):
+        self.jobj.removeIdentifier(key)
+    
     def setParameters(self, *args):
         from java.lang import String as JavaString
         params = jep.jarray(len(args), JavaString)
