@@ -17,17 +17,22 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.satellite.data.prep;
+package com.raytheon.viz.satellite.tileset;
 
 import java.awt.Rectangle;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.ShortBuffer;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
+import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -36,24 +41,22 @@ import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
 
 /**
- * Data retrieval callback for satellite data, uses the DataCubeContainer
- * instead of the IDataStore and wraps the ByteBuffer in an UnsignedByteBuffer
- * object so the preparer knows the bytes are all unsigned
+ * {@link IColorMapDataRetrievalCallback} for satellite imagery data. Supports
+ * signed and unsigned byte and short data
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 28, 2009            mschenke     Initial creation
- * - AWIPS2 Baseline Repository --------
- * Jul 18, 2012        798 jkorman      Modified constructor to remove hard-coded dataset name.
+ * Jun 20, 2013       2122 mschenke     Initial creation
+ * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
-@Deprecated
 public class SatDataRetriever implements IColorMapDataRetrievalCallback {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SatDataRetriever.class);
@@ -66,17 +69,13 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
 
     protected boolean signed = false;
 
-    protected ByteBuffer retreivedBuffer;
-
     public SatDataRetriever(PluginDataObject pdo, int level,
-            Rectangle dataSetBounds, boolean signed, ByteBuffer retreivedBuffer) {
+            Rectangle dataSetBounds, boolean signed) {
         this.pdo = pdo;
         this.datasetBounds = dataSetBounds;
-        
-        dataset = DataStoreFactory.createDataSetName(null, DataStoreFactory.DEF_DATASET_NAME, level);
-
+        dataset = DataStoreFactory.createDataSetName(null,
+                SatelliteRecord.SAT_DATASET_NAME, level);
         this.signed = signed;
-        this.retreivedBuffer = retreivedBuffer;
     }
 
     /*
@@ -86,30 +85,8 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
      */
     @Override
     public ColorMapData getColorMapData() {
-        ByteBuffer satBuffer = null;
-        if (retreivedBuffer != null) {
-            // Buffer was passed in on construction, use it and discard
-            satBuffer = retreivedBuffer;
-            retreivedBuffer = null;
-        } else {
-            try {
-                satBuffer = ByteBuffer.wrap(getRawData());
-            } catch (Exception e) {
-                statusHandler.handle(Priority.SIGNIFICANT,
-                        "Error retrieving satellite data", e);
-            }
-        }
-        ColorMapData.ColorMapDataType dataType = ColorMapData.ColorMapDataType.BYTE;
-        if (signed) {
-            dataType = ColorMapData.ColorMapDataType.SIGNED_BYTE;
-        }
-        return new ColorMapData(satBuffer, new int[] { datasetBounds.width,
-                datasetBounds.height }, dataType);
-    }
-
-    public byte[] getRawData() {
-        byte [] retData = null;
-        
+        // TODO: Read scale/offset out of attributes?
+        Buffer data = null;
         Request req = Request.buildSlab(new int[] { this.datasetBounds.x,
                 this.datasetBounds.y }, new int[] {
                 this.datasetBounds.x + this.datasetBounds.width,
@@ -119,13 +96,35 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
             dataRecord = DataCubeContainer
                     .getDataRecord(pdo, req, this.dataset);
             if (dataRecord != null && dataRecord.length == 1) {
-                retData = ((ByteDataRecord) dataRecord[0]).getByteData();
+                IDataRecord record = dataRecord[0];
+                if (record instanceof ByteDataRecord) {
+                    data = ByteBuffer.wrap((byte[]) record.getDataObject());
+                } else if (record instanceof ShortDataRecord) {
+                    data = ShortBuffer.wrap((short[]) record.getDataObject());
+                }
             }
         } catch (VizDataCubeException e) {
             statusHandler.handle(Priority.SIGNIFICANT,
                     "Error retrieving satellite data", e);
         }
-        return retData;
+
+        if (data == null) {
+            return null;
+        }
+
+        ColorMapDataType dataType = null;
+        if (data instanceof ByteBuffer) {
+            dataType = signed ? ColorMapDataType.SIGNED_BYTE
+                    : ColorMapDataType.BYTE;
+        } else if (data instanceof ShortBuffer) {
+            dataType = signed ? ColorMapDataType.SHORT
+                    : ColorMapDataType.UNSIGNED_SHORT;
+        } else {
+            dataType = ColorMapData.getDataType(data);
+        }
+
+        return new ColorMapData(data, new int[] { datasetBounds.width,
+                datasetBounds.height }, dataType);
     }
 
     /*
