@@ -7,6 +7,7 @@ Bundle-Activator: com.raytheon.uf.viz.archive.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.ui;bundle-version="3.8.2",
  org.eclipse.core.runtime,
+ org.apache.commons.lang;bundle-version="2.3.0",
  com.raytheon.viz.ui;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
  com.raytheon.uf.common.localization;bundle-version="1.12.1174",

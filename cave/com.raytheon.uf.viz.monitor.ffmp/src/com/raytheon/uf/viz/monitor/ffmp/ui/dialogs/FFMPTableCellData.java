@@ -36,9 +36,10 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FFMPConfig.ThreshColNames;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 6, 2009            lvenable     Initial creation
- * Apr 12, 2013   1902    mpduff       Optimized the color assignments.
- * May 7, 2013    1986    njensen      Optimized sortBy
+ * Apr 06, 2009            lvenable     Initial creation
+ * Apr 12, 2013    1902    mpduff       Optimized the color assignments.
+ * May 07, 2013    1986    njensen      Optimized sortBy
+ * Jun 10, 2013    2085    njensen      Generate color on demand
  * 
  * </pre>
  * 
@@ -120,8 +121,6 @@ public class FFMPTableCellData {
                 colorValue = Float.NaN;
             }
         }
-
-        this.generateCellColor();
     }
 
     /**
@@ -179,21 +178,21 @@ public class FFMPTableCellData {
     /**
      * Set the RGB which is the cell background color.
      */
-    public void generateCellColor() {
+    private Color generateCellColor() {
+        Color retVal = null;
         if ((columnName == FIELDS.GUIDANCE) && this.guidForcedFlag) {
             if (this.value.isNaN()) {
-                backgroundColor = ffmpCfg.getCellColor(TableCellColor.Default);
+                retVal = ffmpCfg.getCellColor(TableCellColor.Default);
             } else {
-                backgroundColor = ffmpCfg
-                        .getCellColor(TableCellColor.ForcedFFG);
+                retVal = ffmpCfg.getCellColor(TableCellColor.ForcedFFG);
             }
         } else if (columnName == FIELDS.GUIDANCE) {
-            backgroundColor = ffmpCfg.getThresholdColor(
-                    ThreshColNames.GUID.name(), colorValue);
-        } else {
-            backgroundColor = ffmpCfg.getThresholdColor(columnName.name(),
+            retVal = ffmpCfg.getThresholdColor(ThreshColNames.GUID.name(),
                     colorValue);
+        } else {
+            retVal = ffmpCfg.getThresholdColor(columnName.name(), colorValue);
         }
+        return retVal;
     }
 
     /**
@@ -249,6 +248,19 @@ public class FFMPTableCellData {
      * @return The cell background RGB.
      */
     public Color getBackgroungColor() {
+        if (backgroundColor == null) {
+            synchronized (this) {
+                if (backgroundColor == null) {
+                    backgroundColor = generateCellColor();
+                }
+            }
+        }
         return backgroundColor;
+    }
+
+    public void clearColor() {
+        synchronized (this) {
+            backgroundColor = null;
+        }
     }
 }

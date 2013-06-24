@@ -19,9 +19,11 @@
  **/
 package com.raytheon.uf.viz.archive.ui;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -31,7 +33,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
@@ -60,8 +64,11 @@ import com.raytheon.uf.viz.archive.data.IArchiveTotals;
  */
 public class ArchiveTableComp extends Composite {
 
-    /** Key for getting Display Data. */
-    private final String DISPLAY_DATA_KEY = "displayData";
+    /** Column to display label information. */
+    private final int LABEL_COL_INDEX = 0;
+
+    /** Column to display size information,. */
+    private final int SIZE_COL_INDEX = 1;
 
     /** Table control. */
     private Table table;
@@ -85,6 +92,19 @@ public class ArchiveTableComp extends Composite {
 
     /** Allows the parent dialog log to update other total displays. */
     private final IArchiveTotals iArchiveTotals;
+
+    /** Data for the currently display table */
+    private DisplayData[] tableData;
+
+    /**
+     * Modification state set to true only when user performs a modification.
+     */
+    private boolean modifiedState = false;
+
+    /**
+     * Listeners to inform when user changes the modification state.
+     */
+    private final List<IModifyListener> modifiedListeners = new CopyOnWriteArrayList<IModifyListener>();
 
     /**
      * Constructor.
@@ -129,13 +149,25 @@ public class ArchiveTableComp extends Composite {
         GridData gd = null;
 
         table = new Table(this, SWT.CHECK | SWT.BORDER | SWT.V_SCROLL
-                | SWT.H_SCROLL | SWT.MULTI);
+                | SWT.H_SCROLL | SWT.MULTI | SWT.VIRTUAL);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
         gd.widthHint = 730;
         gd.heightHint = 270;
         table.setLayoutData(gd);
         table.setHeaderVisible(true);
         table.setLinesVisible(true);
+        table.addListener(SWT.SetData, new Listener() {
+
+            @Override
+            public void handleEvent(Event event) {
+                TableItem item = (TableItem) event.item;
+                int index = table.indexOf(item);
+                DisplayData displayData = tableData[index];
+                item.setText(new String[] { displayData.getDisplayLabel(),
+                        displayData.getSizeLabel() });
+                item.setChecked(displayData.isSelected());
+            }
+        });
 
         TableColumn pathColumn = new TableColumn(table, SWT.LEFT);
         pathColumn.setText("Label");
@@ -164,9 +196,21 @@ public class ArchiveTableComp extends Composite {
             public void widgetSelected(SelectionEvent e) {
                 if (e.detail == SWT.CHECK) {
                     updateSelectionLabels();
+                    setModified();
                 }
             }
         });
+
+        Listener sortListener = new Listener() {
+
+            @Override
+            public void handleEvent(Event event) {
+                sortColumn(event);
+            }
+        };
+
+        pathColumn.addListener(SWT.Selection, sortListener);
+        sizeColumn.addListener(SWT.Selection, sortListener);
     }
 
     /**
@@ -189,19 +233,57 @@ public class ArchiveTableComp extends Composite {
     }
 
     /**
+     * Sort table roles by desired column and direction.
+     * 
+     * @param e
+     */
+    private void sortColumn(Event e) {
+        TableColumn sortColumn = table.getSortColumn();
+        TableColumn eventColumn = (TableColumn) e.widget;
+
+        int sortDir = table.getSortDirection();
+        int index = eventColumn == table.getColumn(LABEL_COL_INDEX) ? LABEL_COL_INDEX
+                : SIZE_COL_INDEX;
+
+        if (sortColumn == eventColumn) {
+            sortDir = ((sortDir == SWT.UP) ? SWT.DOWN : SWT.UP);
+        } else {
+            table.setSortColumn(eventColumn);
+            sortDir = SWT.UP;
+        }
+
+        switch (index) {
+        case LABEL_COL_INDEX:
+            Arrays.sort(tableData, DisplayData.LABEL_ORDER);
+            if (sortDir == SWT.DOWN) {
+                ArrayUtils.reverse(tableData);
+            }
+            break;
+        case SIZE_COL_INDEX:
+            Arrays.sort(tableData, DisplayData.SIZE_ORDER);
+            if (sortDir == SWT.DOWN) {
+                ArrayUtils.reverse(tableData);
+            }
+            break;
+        default:
+            // Programmer error should never get here.
+            throw new IndexOutOfBoundsException("Unknown column index.");
+        }
+        table.setSortDirection(sortDir);
+        table.clearAll();
+    }
+
+    /**
      * Update the selection items labels.
      */
     private void updateSelectionLabels() {
-        TableItem[] itemArray = table.getItems();
         int count = 0;
         long tableTotalSize = 0;
-        List<DisplayData> displayDatas = new ArrayList<DisplayData>(
-                itemArray.length);
 
-        for (TableItem ti : itemArray) {
-            DisplayData displayData = (DisplayData) ti
-                    .getData(DISPLAY_DATA_KEY);
-            if (ti.getChecked()) {
+        for (int index = 0; index < tableData.length; ++index) {
+            DisplayData displayData = tableData[index];
+            TableItem item = table.getItem(index);
+            if (item.getChecked()) {
                 ++count;
                 displayData.setSelected(true);
                 if (tableTotalSize >= 0) {
@@ -215,8 +297,8 @@ public class ArchiveTableComp extends Composite {
             } else {
                 displayData.setSelected(false);
             }
-            displayDatas.add(displayData);
         }
+        List<DisplayData> displayDatas = Arrays.asList(tableData);
 
         if (selectedLbl != null) {
             selectedLbl.setText("Table Selected Items: " + count);
@@ -312,59 +394,86 @@ public class ArchiveTableComp extends Composite {
         for (TableItem ti : itemArray) {
             ti.setChecked(check);
         }
+        setModified();
 
         updateSelectionLabels();
     }
 
+    /**
+     * Check the current table to see if the size of any entries needs to be
+     * updated.
+     * 
+     * @param displayDatas
+     */
     public void updateSize(List<DisplayData> displayDatas) {
-        TableItem[] itemArray = table.getItems();
-
-        for (DisplayData displayData : displayDatas) {
-            for (TableItem ti : itemArray) {
-                if (displayData.equals(ti.getData(DISPLAY_DATA_KEY))) {
-                    setItemSize(ti);
+        if (tableData != null && tableData.length > 0) {
+            for (DisplayData displayData : displayDatas) {
+                for (int index = 0; index < tableData.length; ++index) {
+                    if (displayData.equals(tableData[index])) {
+                        table.getItem(index)
+                                .setText(displayData.getSizeLabel());
+                        table.clear(index);
+                    }
                 }
             }
+            updateSelectionLabels();
         }
-
-        updateSelectionLabels();
     }
 
-    /*
-     * TODO : this is just for display purposes. This will go away when the
-     * functionality is implemented.
+    /**
+     * Set up table with values in the list.
+     * 
+     * @param displayDatas
      */
-    protected void populateTable(List<DisplayData> displayDataArray) {
+    protected void populateTable(List<DisplayData> displayDatas) {
+        tableData = displayDatas.toArray(new DisplayData[0]);
         table.removeAll();
-        for (DisplayData displayData : displayDataArray) {
-            TableItem item = new TableItem(table, SWT.NONE);
-            item.setData(DISPLAY_DATA_KEY, displayData);
-            item.setChecked(displayData.isSelected());
-            item.setText(0, displayData.getDisplayLabel());
+        table.setItemCount(tableData.length);
 
-            item.setChecked(displayData.isSelected());
-            setItemSize(item);
-        }
         for (int i = 0; i < 2; i++) {
             table.getColumn(i).setResizable(false);
             table.getColumn(i).setMoveable(false);
             table.getColumn(i).pack();
         }
         table.getColumn(0).setWidth(600);
-        updateSelectionLabels();
+        table.setSortColumn(table.getColumn(LABEL_COL_INDEX));
+        table.setSortDirection(SWT.UP);
+        table.clearAll();
     }
 
     /**
-     * Update table items size column.
-     * 
-     * @param item
+     * Check the modified state and inform listeners when it changes.
      */
-    private void setItemSize(TableItem item) {
-        long size = ((DisplayData) item.getData(DISPLAY_DATA_KEY)).getSize();
-        if (size < 0L) {
-            item.setText(1, DisplayData.UNKNOWN_SIZE_LABEL);
-        } else {
-            item.setText(1, SizeUtil.prettyByteSize(size));
+    private void setModified() {
+        if (!modifiedState) {
+            modifiedState = true;
+            for (IModifyListener iModifyListener : modifiedListeners) {
+                iModifyListener.modified();
+            }
         }
+    }
+
+    /**
+     * Reset the modified state.
+     */
+    public void clearModified() {
+        modifiedState = false;
+    }
+
+    /**
+     * Add listener that wants to be informed when the modified state is
+     * changed.
+     * 
+     * @param iModifyListener
+     */
+    public void addModifiedListener(IModifyListener iModifyListener) {
+        modifiedListeners.add(iModifyListener);
+    }
+
+    /*
+     * Remove the listener.
+     */
+    public void removeModifiedListener(IModifyListener iModifyListener) {
+        modifiedListeners.remove(iModifyListener);
     }
 }
