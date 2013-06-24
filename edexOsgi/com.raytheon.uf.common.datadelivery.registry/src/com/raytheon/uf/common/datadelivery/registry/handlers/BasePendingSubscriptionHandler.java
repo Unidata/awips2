@@ -26,7 +26,6 @@ import java.util.List;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.SubscriptionFilterableQuery;
-import com.raytheon.uf.common.registry.RegistryManager;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
 import com.raytheon.uf.common.registry.RegistryResponse;
 import com.raytheon.uf.common.registry.constants.AssociationTypes;
@@ -46,6 +45,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 04, 2013 1841       djohnson     Extracted from PendingSubscriptionHandler and genericized.
+ * Jun 24, 2013 2106       djohnson     Now composes a registryHandler.
  * 
  * </pre>
  * 
@@ -94,8 +94,8 @@ public abstract class BasePendingSubscriptionHandler<T extends InitialPendingSub
         query.setReturnObjects(false);
 
         // Delete associations
-        RegistryResponse<Object> removalResponse = RegistryManager
-                .removeRegistyObjects(query);
+        RegistryResponse<Object> removalResponse = registryHandler
+                .removeObjects(query);
 
         checkResponse(removalResponse, "deleteAssociationToSubscription");
     }
@@ -122,8 +122,8 @@ public abstract class BasePendingSubscriptionHandler<T extends InitialPendingSub
         query.setTargetObjectId(id);
         query.setReturnObjects(true);
 
-        RegistryQueryResponse<Object> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<Object> response = registryHandler
+                .getObjects(query);
 
         checkResponse(response, "getBySubscriptionId");
 

@@ -12,7 +12,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.registry.IMultipleResultFormatter;
-import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import com.raytheon.uf.common.registry.ebxml.encoder.IRegistryEncoder;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
@@ -28,6 +28,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Jun 21, 2012 736        djohnson    Initial creation
  * Aug 02, 2012 955        djohnson    Add generics and results retrieval to registry queries.
  * Aug 15, 2012 0743       djohnson    Type-safe result formatters.
+ * Jun 24, 2013 2106       djohnson    Pass encoder to result formatters.
  * 
  * </pre>
  * 
@@ -41,11 +42,11 @@ public class DataLevelTypeDescriptionQuery extends
     private transient Set<String> alreadyFound;
 
     @Override
-    public Collection<String> decodeObject(RegistryObjectType registryObjectType)
+    public Collection<String> decodeObject(
+            RegistryObjectType registryObjectType, IRegistryEncoder encoder)
             throws SerializationException {
 
-        Parameter object = (Parameter) RegistryUtil
-                .decodeObject(registryObjectType);
+        Parameter object = (Parameter) encoder.decodeObject(registryObjectType);
 
         if (alreadyFound == null) {
             alreadyFound = new HashSet<String>();
