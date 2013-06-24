@@ -47,7 +47,8 @@ public class FFMPTableComp extends FFMPTable {
 
     private String siteKey;
 
-    public FFMPTableComp(Composite parent, FFMPTableData data, ITableSelection tableSelectionCB, String siteKey) {
+    public FFMPTableComp(Composite parent, FFMPTableData data,
+            ITableSelection tableSelectionCB, String siteKey) {
         super(parent, data, siteKey);
 
         this.siteKey = siteKey;
@@ -67,12 +68,14 @@ public class FFMPTableComp extends FFMPTable {
 
     @Override
     protected ColumnAttribData getColumnAttributeData(String colName) {
-        return tableConfig.getTableConfigData(siteKey).getTableColumnAttr(colName);
+        return tableConfig.getTableConfigData(siteKey).getTableColumnAttr(
+                colName);
     }
 
     @Override
     protected int getColumnIndex(String sortCol) {
-        return tableConfig.getTableConfigData(siteKey).getTableColumnIndex(sortCol);
+        return tableConfig.getTableConfigData(siteKey).getTableColumnIndex(
+                sortCol);
     }
 
     @Override
@@ -148,7 +151,7 @@ public class FFMPTableComp extends FFMPTable {
         ArrayList<FFMPTableRowData> rowData = tableData.getTableRows();
         for (int i = 0; i < rowData.size(); i++) {
             rowData.get(i).getTableCellData(threshColumn.getColIndex())
-                    .generateCellColor();
+                    .clearColor();
         }
 
         sortTableUsingConfig();

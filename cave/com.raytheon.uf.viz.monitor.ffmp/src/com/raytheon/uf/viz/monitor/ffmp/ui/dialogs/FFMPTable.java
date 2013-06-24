@@ -69,6 +69,7 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML;
  * Mar 15,2012	DR 14406  gzhang       Fixing QPF Column Title Missing 
  * Mar 20,2012	DR 14250  gzhang       Eliminating column Missing values 
  * Aug 01, 2012 14168     mpduff       Only allow filtering if ColorCell is true
+ * Jun 11, 2013 2075      njensen      Optimized createTableItems()
  * </pre>
  * 
  * @author lvenable
@@ -148,8 +149,6 @@ public abstract class FFMPTable extends Composite {
     protected int textWidth = 0;
 
     protected int textHeight = 0;
-
-    private String centeredAggregateKey;
 
     private ArrayList<Integer> indexArray = new ArrayList<Integer>();
 
@@ -281,7 +280,6 @@ public abstract class FFMPTable extends Composite {
                         item.setBackground(j, cellData[j].getBackgroungColor());
                     }
                 }
-
                 table.getColumn(0).setWidth(extent.x + 10);
                 table.redraw();
             }
@@ -394,7 +392,9 @@ public abstract class FFMPTable extends Composite {
         ArrayList<FFMPTableColumnXML> ffmpTableCols = ffmpCfgBasin
                 .getTableColumnData();
 
-        if (!sortedColumnName.equalsIgnoreCase(NAME)) {
+        boolean sortedColumnIsName = sortedColumnName.equalsIgnoreCase(NAME);
+
+        if (!sortedColumnIsName) {
             for (ThreshColNames threshColName : ThreshColNames.values()) {
                 if (sortedColumnName.contains(threshColName.name())) {
                     sortedThreshCol = threshColName;
@@ -429,6 +429,7 @@ public abstract class FFMPTable extends Composite {
         indexArray.clear();
         FFMPTableRowData rowData;
         ArrayList<FFMPTableRowData> rowArray = tableData.getTableRows();
+        indexArray.ensureCapacity(rowArray.size());
 
         GC gc = new GC(table);
         gc.setFont(tiFont);
@@ -444,7 +445,7 @@ public abstract class FFMPTable extends Composite {
             /*
              * Check if the data value is Not A Number.
              */
-            if (!sortedColumnName.equalsIgnoreCase(NAME)) {
+            if (!sortedColumnIsName) {
                 float dataVal = cellData[sortColIndex].getValueAsFloat();
 
                 // DR 14250 fix: any value not a number will be omitted
@@ -731,7 +732,7 @@ public abstract class FFMPTable extends Composite {
             int xCoord = 0;
             int yCoord = 0;
             if (colName.indexOf("\n") > 0) {
-                int maxTextLen = 0;
+                // int maxTextLen = 0;
                 String[] tmpArray = colName.split("\n");
 
                 for (int j = 0; j < tmpArray.length; j++) {
@@ -833,14 +834,6 @@ public abstract class FFMPTable extends Composite {
     public void showHideTableColumns() {
         AttributesDlgData attrData = ffmpConfig.getVisibleColumns(siteKey);
         showHideTableColumns(attrData);
-    }
-
-    public void setCenteredAggregationKey(Object key) {
-        if (key instanceof Long) {
-            this.centeredAggregateKey = String.valueOf(key);
-        } else {
-            this.centeredAggregateKey = (String) key;
-        }
     }
 
     /**
