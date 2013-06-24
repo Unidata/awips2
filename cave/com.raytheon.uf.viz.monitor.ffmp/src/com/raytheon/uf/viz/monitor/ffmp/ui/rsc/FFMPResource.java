@@ -38,7 +38,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
@@ -123,8 +125,6 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPCWAChangeEvent;
 import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPFieldChangeEvent;
 import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPHUCChangeEvent;
 import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPListener;
-import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPLoadListener;
-import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPLoaderEvent;
 import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPMaintainLayerEvent;
 import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPParentBasinEvent;
 import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPScreenCenterEvent;
@@ -132,7 +132,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPStreamTraceEvent;
 import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPTimeChangeEvent;
 import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPWorstCaseEvent;
 import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.IFFMPResourceListener;
-import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPDataLoader.LOADER_TYPE;
+import com.raytheon.uf.viz.monitor.ffmp.ui.thread.UpdateLoadJob;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
 import com.raytheon.viz.ui.input.EditableManager;
@@ -148,25 +148,27 @@ import com.vividsolutions.jts.geom.Point;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 29 June, 2009 2521          dhladky     Initial creation
- * 11 Apr.  2012 DR 14522      gzhang      Fixing invalid thread error.
- * 31 July  2012 14517         mpduff      Fix for blanking map on update.
- * 14 Sep 2012   1048         njensen      Code cleanup
- * 07 Dec 2012   1353         rferrel      Changes for non-blocking FFMPSplash dialog.
- * 10 Jan 2013   1475         dhladky      Some cleanup
- * 27 Jan 2013   1478         dhladky      Changed gap collection to a generic list instead of Arraylist
- * 02/01/13     1569        D. Hladky   Added constants
- * 10 Feb 2013   1584         mpduff       Add performance logging.
- * Feb 19, 2013    1639   njensen      Replaced FFMPCacheRecord with FFMPRecord
- * Feb 20, 2013    1635   dhladky      Fixed multiple guidance display
- * Feb 28, 2013  1729      dhladky     Changed the way the loaders are managed via the status updates.
- * Mar 6, 2013   1769     dhladky    Changed threading to use count down latch.
- * Apr 9, 2013   1890     dhladky    General cleanup.
- * Apr 10, 2013 1896       bsteffen    Make FFMPResource work better with D2D
- *                                     time matcher.
- * Apr 25, 2013 1954       bsteffen    Skip extent checking for FFMP shape
- *                                     generation.
- * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
+ * 29 June, 2009 2521       dhladky     Initial creation
+ * 11 Apr.  2012 DR 14522   gzhang      Fixing invalid thread error.
+ * 31 July  2012 14517      mpduff      Fix for blanking map on update.
+ * 14 Sep 2012   1048       njensen     Code cleanup
+ * 07 Dec 2012   1353       rferrel     Changes for non-blocking FFMPSplash dialog.
+ * 10 Jan 2013   1475       dhladky     Some cleanup
+ * 27 Jan 2013   1478       dhladky     Changed gap collection to a generic list instead of Arraylist
+ * 02/01/13      1569       D. Hladky   Added constants
+ * 10 Feb 2013   1584       mpduff      Add performance logging.
+ * Feb 19, 2013  1639       njensen     Replaced FFMPCacheRecord with FFMPRecord
+ * Feb 20, 2013  1635       dhladky     Fixed multiple guidance display
+ * Feb 28, 2013  1729       dhladky     Changed the way the loaders are managed via the status updates.
+ * Mar 6, 2013   1769       dhladky     Changed threading to use count down latch.
+ * Apr 9, 2013   1890       dhladky     General cleanup.
+ * Apr 10, 2013  1896       bsteffen    Make FFMPResource work better with D2D
+ *                                       time matcher.
+ * Apr 25, 2013  1954       bsteffen    Skip extent checking for FFMP shape
+ *                                       generation.
+ * Apr 26, 2013  1954       bsteffen    Minor code cleanup throughout FFMP.
+ * Jun 06, 2013  2075       njensen     No longer schedules load threads,
+ *                                       refactored updates
  * 
  * </pre>
  * 
@@ -176,8 +178,7 @@ import com.vividsolutions.jts.geom.Point;
 
 public class FFMPResource extends
         AbstractVizResource<FFMPResourceData, MapDescriptor> implements
-        IResourceDataChanged, IFFMPResourceListener, FFMPListener,
-        FFMPLoadListener {
+        IResourceDataChanged, IFFMPResourceListener, FFMPListener {
 
     /** Status handler */
     private static final IUFStatusHandler statusHandler = UFStatus
@@ -356,9 +357,6 @@ public class FFMPResource extends
      */
     public FfmpBasinTableDlg basinTableDlg;
 
-    /** data loader **/
-    private FFMPDataLoader loader = null;
-
     /** Guidance Interpolation Map **/
     public HashMap<String, FFMPGuidanceInterpolation> interpolationMap;
 
@@ -437,19 +435,16 @@ public class FFMPResource extends
      */
     @Override
     public void resourceChanged(ChangeType type, Object object) {
-        ITimer timer = TimeUtil.getTimer();
-        timer.start();
         if (type.equals(ChangeType.DATA_UPDATE)) {
             FFFGDataMgr.getUpdatedInstance();
             PluginDataObject[] pdos = (PluginDataObject[]) object;
             FFMPRecord ffmpRec = (FFMPRecord) pdos[pdos.length - 1];
-            // an update clears everything
-            clear();
-            // only care about the most recent one
             try {
-
                 if (ffmpRec.getSourceName()
                         .equals(getResourceData().sourceName)) {
+                    // an update clears everything
+                    clear();
+
                     // go back an extra time step
                     Date previousMostRecentTime = null;
                     List<Date> tok = getTimeOrderedKeys();
@@ -458,66 +453,58 @@ public class FFMPResource extends
                     } else {
                         previousMostRecentTime = tok.get(0);
                     }
-                    Date refTime = ffmpRec.getDataTime().getRefTime();
-                    
+                    final Date refTime = ffmpRec.getDataTime().getRefTime();
                     updateTimeOrderedkeys(refTime);
-
                     if (getResourceData().tableLoad) {
                         setTableTime();
                     }
 
                     resourceData.populateRecord(ffmpRec);
-
                     statusHandler.handle(Priority.INFO, "Updating : Previous: "
                             + previousMostRecentTime + " New: "
                             + ffmpRec.getDataTime().getRefTime());
 
                     if (getResourceData().tableLoad) {
-
-                        if (loader == null) {
-                            startLoader(previousMostRecentTime, refTime,
-                                    LOADER_TYPE.GENERAL);
-                        } else {
-                            try {
-                                loader.waitFor();
-                            } catch (InterruptedException e) {
-                                statusHandler.handle(Priority.PROBLEM,
-                                        e.getLocalizedMessage(), e);
-                            }
-
-                            startLoader(previousMostRecentTime, refTime,
-                                    LOADER_TYPE.GENERAL);
-                            try {
-                                loader.waitFor();
-                            } catch (InterruptedException e) {
-                                statusHandler.handle(Priority.PROBLEM,
-                                        e.getLocalizedMessage(), e);
-                            }
+                        List<String> hucsToLoad = new ArrayList<String>();
+                        hucsToLoad.add(FFMPRecord.ALL);
+                        String currentHuc = getHuc();
+                        if (!currentHuc.equals(FFMPRecord.ALL)) {
+                            hucsToLoad.add(currentHuc);
                         }
-
-                        purge(refTime);
+                        UpdateLoadJob updateJob = new UpdateLoadJob(
+                                resourceData, previousMostRecentTime, refTime,
+                                hucsToLoad);
+                        updateJob.addJobChangeListener(new JobChangeAdapter() {
+                            @Override
+                            public void done(IJobChangeEvent event) {
+                                purge(refTime);
+                                finishUpdate();
+                            }
+                        });
+                        updateJob.schedule();
+                    } else {
+                        finishUpdate();
                     }
-
-                    resetRecords();
                 }
-
             } catch (VizException ve) {
                 statusHandler.handle(Priority.PROBLEM, "Error updating record",
                         ve);
             }
         }
+    }
 
+    /**
+     * Finishes the last actions triggered by an update. Should run after the
+     * data is loaded if the update triggered a data load.
+     */
+    private void finishUpdate() {
+        resetRecords();
         if (getResourceData().tableLoad) {
             allowNewTableUpdate();
             isFirst = true;
         }
 
         refresh();
-
-        if (type.equals(ChangeType.DATA_UPDATE)) {
-            timer.stop();
-            perfLog.logDuration("Load Time", timer.getElapsedTime());
-        }
     }
 
     /**
@@ -707,7 +694,8 @@ public class FFMPResource extends
                     long fips = monitor.getTemplates(getSiteKey())
                             .getCountyFipsByPfaf(pfafs.get(0));
 
-                    value = getGuidanceRecord().getBasinData(FFMPRecord.ALL)
+                    value = getGuidanceRecord()
+                            .getBasinData(FFMPRecord.ALL)
                             .getMaxGuidanceValue(pfafs,
                                     getGuidanceInterpolation(getFFGName()),
                                     getGuidSourceExpiration(getFFGName()), fips);
@@ -814,12 +802,12 @@ public class FFMPResource extends
         forceUtil.setSliderTime(this.getTime());
 
         if (pfafs != null) {
-            forceUtil.calculateForcings(pfafs,
+            ForceUtilResult forceResult = forceUtil.calculateForcings(pfafs,
                     monitor.getTemplates(getSiteKey()), basin);
 
-            List<Long> forcedPfafs = forceUtil.getForcedPfafList();
-            List<Long> pfafList = forceUtil.getPfafList();
-            boolean forced = forceUtil.isForced();
+            List<Long> forcedPfafs = forceResult.getForcedPfafList();
+            List<Long> pfafList = forceResult.getPfafList();
+            boolean forced = forceResult.isForced();
             if ((forcedPfafs.size() > 0) && forced) {
                 // Recalculate the guidance using the forced value(s)
                 value = guidRecord.getBasinData(FFMPRecord.ALL)
@@ -1077,13 +1065,6 @@ public class FFMPResource extends
         }
 
         if (this.getName().indexOf("Table Display") > -1) {
-
-            if (resourceData.floader != null) {
-                resourceData.floader.removeListener(this);
-                resourceData.floader.kill();
-                resourceData.floader = null;
-            }
-
             if (basinTableDlg != null) {
                 closeDialog();
                 if (smallBasinOverlayShape != null) {
@@ -1210,10 +1191,6 @@ public class FFMPResource extends
         FFMPDrawable drawable = null;
 
         if (paintTime != null) {
-            if (loader != null && !loader.isDone()
-                    && loader.loadType == LOADER_TYPE.GENERAL) {
-                return;
-            }
             if (!drawables.containsKey(paintTime)) {
 
                 drawable = new FFMPDrawable(getDomains());
@@ -2316,8 +2293,7 @@ public class FFMPResource extends
                     requestQueue.poll();
                 }
 
-                Request req = new Request(target, drawable,
-                        time);
+                Request req = new Request(target, drawable, time);
                 requestQueue.add(req);
                 this.schedule();
             }
@@ -2332,7 +2308,6 @@ public class FFMPResource extends
         @SuppressWarnings({ "unchecked" })
         @Override
         protected IStatus run(IProgressMonitor progMonitor) {
-
             VizApp.runSync(new Runnable() {
 
                 @Override
@@ -2414,8 +2389,7 @@ public class FFMPResource extends
                                                 centeredAggr = templates
                                                         .findAggregatedVGB(
                                                                 (String) centeredAggregationKey,
-                                                                siteKey,
-                                                                phuc);
+                                                                siteKey, phuc);
                                             }
                                         }
 
@@ -2429,8 +2403,7 @@ public class FFMPResource extends
                                                 centeredAggr = templates
                                                         .getAggregatedPfaf(
                                                                 (Long) centeredAggregationKey,
-                                                                siteKey,
-                                                                phuc);
+                                                                siteKey, phuc);
                                             }
                                         }
                                     }
@@ -2463,7 +2436,6 @@ public class FFMPResource extends
                                 String shadedHuc = null;
 
                                 if (!isAllPhuc) {
-
                                     Map<Long, Geometry> geomMap = hucGeomFactory
                                             .getGeometries(templates, siteKey,
                                                     cwa, phuc);
@@ -2482,8 +2454,8 @@ public class FFMPResource extends
                                                         .keySet();
                                             } else {
                                                 allPfafs = (List<Long>) (templates
-                                                        .getMap(siteKey,
-                                                                cwa, phuc)
+                                                        .getMap(siteKey, cwa,
+                                                                phuc)
                                                         .get(centeredAggr));
                                             }
 
@@ -2491,8 +2463,7 @@ public class FFMPResource extends
                                                 Map<Long, Geometry> allGeomMap = hucGeomFactory
                                                         .getGeometries(
                                                                 templates,
-                                                                siteKey,
-                                                                cwa,
+                                                                siteKey, cwa,
                                                                 FFMPRecord.ALL);
                                                 IColormapShadedShape shape = shadedShapes
                                                         .getShape(cwa,
@@ -2521,12 +2492,10 @@ public class FFMPResource extends
                                                     .keySet();
 
                                             if (allPfafs != null) {
-
                                                 Map<Long, Geometry> allGeomMap = hucGeomFactory
                                                         .getGeometries(
                                                                 templates,
-                                                                siteKey,
-                                                                cwa,
+                                                                siteKey, cwa,
                                                                 FFMPRecord.ALL);
 
                                                 IColormapShadedShape shape = shadedShapes
@@ -2655,7 +2624,7 @@ public class FFMPResource extends
                     fshell.setCursor(null);
 
                     // check whether or not the dialog needs to be dumped
-                    monitor.splashDisposeAndDataLoad(getResource());
+                    monitor.splashDispose(getResource());
 
                     if (getResourceData().tableLoad && isFirst) {
                         isFirst = false;
@@ -2756,7 +2725,6 @@ public class FFMPResource extends
                 try {
                     for (DomainXML domains : templates.getDomains()) {
                         String cwa = domains.getCwa();
-
                         Map<Long, Geometry> geomMap = hucGeomFactory
                                 .getGeometries(templates, getSiteKey(), cwa,
                                         FFMPRecord.ALL);
@@ -3212,7 +3180,8 @@ public class FFMPResource extends
             for (SourceXML ffgSource : getProduct().getGuidanceSourcesByType(
                     ffgGraphType)) {
                 if (guidBasin.getValue(ffgSource.getSourceName(),
-                        guidanceInterpolator, getGuidSourceExpiration(ffgGraphType)) != null) {
+                        guidanceInterpolator,
+                        getGuidSourceExpiration(ffgGraphType)) != null) {
 
                     double time = FFMPGuiUtils.getTimeDiff(mostRecentRefTime,
                             FFMPGuiUtils.getHourDisplacement(mostRecentRefTime,
@@ -3948,32 +3917,6 @@ public class FFMPResource extends
         return false;
     }
 
-    @Override
-    public void loadStatus(FFMPLoaderEvent event) {
-
-        if (basinTableDlg != null) {
-            // call to update the basin table dialog
-            if (event.getSource() instanceof FFMPLoaderStatus) {
-                final FFMPLoaderStatus status = (FFMPLoaderStatus) event
-                        .getSource();
-                VizApp.runAsync(new Runnable() {
-                    public void run() {
-                        if (basinTableDlg != null
-                                && !basinTableDlg.isDisposed()) {
-                            basinTableDlg.updateLoadingLabel(status);
-                        }
-                    }
-                });
-            }
-        }
-        if (event.getSource() instanceof FFMPLoaderStatus) {
-            FFMPLoaderStatus status = (FFMPLoaderStatus) event.getSource();
-            if (status.isDone()) {
-                issueRefresh();
-            }
-        }
-    }
-
     /**
      * Get the FFG used
      * 
@@ -4061,52 +4004,6 @@ public class FFMPResource extends
     }
 
     /**
-     * Start up a loader
-     * 
-     * @param startDate
-     * @param endDate
-     * @param type
-     */
-    private void startLoader(Date startDate, Date endDate, LOADER_TYPE type) {
-
-        ArrayList<String> hucsToLoad = new ArrayList<String>();
-
-        if (isWorstCase) {
-            hucsToLoad.add(FFMPRecord.ALL);
-        }
-
-        // tertiary loader only loads ALL
-        if (type != LOADER_TYPE.TERTIARY) {
-            if (!hucsToLoad.contains(getHuc())) {
-                hucsToLoad.add(getHuc());
-            }
-        } else {
-            if (!hucsToLoad.contains(FFMPRecord.ALL)) {
-                hucsToLoad.add(FFMPRecord.ALL);
-            }
-        }
-        // destroy any old loader
-        if (loader != null) {
-            loader = null;
-        }
-
-        loader = new FFMPDataLoader(getResourceData(), endDate, startDate,
-                type, hucsToLoad);
-
-        loader.addListener(this);
-
-        try {
-            if (!loader.isAlive()) {
-                loader.start();
-            }
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, "FFMP " + type
-                    + " Data update failed", e);
-            loader.removeListener(this);
-        }
-    }
-
-    /**
      * Get the purge file time
      */
     public long getPurgePeriod() {
@@ -4135,30 +4032,6 @@ public class FFMPResource extends
         }
 
         return 24 * TimeUtil.MILLIS_PER_HOUR;
-    }
-
-    /**
-     * Kicks off additional loaders that need to be fired off
-     * 
-     * @param loader
-     * @param isDone
-     */
-    public void manageLoaders(FFMPLoaderStatus status) {
-
-        if (status.getLoaderType() == LOADER_TYPE.SECONDARY) {
-            if (status.isDone() && !this.getResourceData().isTertiaryLoad) {
-                try {
-                    Date startDate = new Date(getMostRecentTime().getTime()
-                            - (6 * TimeUtil.MILLIS_PER_HOUR));
-                    FFMPMonitor.getInstance().startLoad(this, startDate,
-                            LOADER_TYPE.TERTIARY);
-                    
-                } catch (VizException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Secondary Data Load failure", e);
-                }
-            }
-        }
     }
 
     @Override

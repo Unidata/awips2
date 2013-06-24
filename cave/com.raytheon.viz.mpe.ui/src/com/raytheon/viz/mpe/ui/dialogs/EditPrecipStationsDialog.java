@@ -83,6 +83,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 13, 2009            snaples     Initial creation
+ * Jun 27, 2013 15859      wkwock      Update this dialog after click Apply button
  * 
  * </pre>
  * 
@@ -1460,6 +1461,8 @@ public class EditPrecipStationsDialog extends AbstractMPEDialog implements
             changeCustomFile();
             // shell.dispose();
         }
+
+        this.open();//redraw this updated dialog
     }
 
     protected void read_text() {
