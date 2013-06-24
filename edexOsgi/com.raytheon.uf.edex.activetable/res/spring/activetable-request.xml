@@ -80,7 +80,7 @@
 				<bean ref="fetchATSrv" method="addSite" />
 				<doCatch>
 	            	<exception>java.lang.Throwable</exception>
-	            	<to uri="log:fetchATSrv?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+	            	<to uri="log:fetchATSrv?level=ERROR"/>
 	            </doCatch>
             </doTry>
 		</route>
