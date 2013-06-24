@@ -14,12 +14,12 @@ Require-Bundle: org.apache.batik,
  com.raytheon.viz.ui,
  org.apache.commons.lang,
  javax.measure,
- com.raytheon.edex.common,
  com.raytheon.uf.viz.localization;bundle-version="1.12.1174",
  org.jep;bundle-version="1.0.0",
  com.raytheon.uf.common.python;bundle-version="1.12.1161",
  com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
- com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174"
+ com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.pointdata,
  com.raytheon.viz.pointdata.drawables,
