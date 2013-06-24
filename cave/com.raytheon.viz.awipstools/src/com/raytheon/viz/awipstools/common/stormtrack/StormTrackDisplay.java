@@ -96,6 +96,7 @@ import com.vividsolutions.jts.geom.LineString;
  *  10-27-2010  #6964      bkowal      The LineStyle is now passed as a parameter to
  *                                     the IGraphicsTarget drawWireframeShape method.
  *  15Mar2013	15693	mgamazaychikov Made sure that magnification capability works.
+ *  06-11-2013  DR 16234   D. Friedman Fix pivot index when frames count is reduced.
  * 
  * </pre>
  * 
@@ -213,6 +214,12 @@ public class StormTrackDisplay implements IRenderable {
                 } else {
                     currentState.displayedPivotIndex = currentState.pivotIndex;
                 }
+            }
+
+            if (currentState.displayedPivotIndex >= times.length) {
+                currentState.displayedPivotIndex = Math.max(0,
+                        currentFrame != times.length - 1 ?
+                        times.length - 1 : times.length - 2);
             }
 
             currentState.geomChanged = true;

@@ -29,6 +29,7 @@ package com.raytheon.uf.common.dataplugin.binlightning.impl;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20070810            379 jkorman     Initial Coding from prototype.
+ * 20130425        DCS 112 Wufeng Zhou Added STRIKE_TF (for Total Flash) in definition for Total Flash 
  * 
  * </pre>
  *
@@ -38,7 +39,8 @@ package com.raytheon.uf.common.dataplugin.binlightning.impl;
 public enum LtgStrikeType
 {
     STRIKE_CC("CC"),
-    STRIKE_CG("CG");
+    STRIKE_CG("CG"),
+    STRIKE_TF("TF");
     
     private final String strikeType;
     

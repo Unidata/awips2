@@ -19,9 +19,11 @@
  **/
 package com.raytheon.edex.plugin.binlightning;
 
+import gov.noaa.nws.ost.edex.plugin.binlightning.BinLigntningDecoderUtil;
+
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
@@ -30,9 +32,6 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
-import com.raytheon.edex.plugin.binlightning.impl.BinLightningFactory;
-import com.raytheon.edex.plugin.binlightning.impl.IBinLightningDecoder;
-import com.raytheon.edex.plugin.binlightning.impl.LightningDataSource;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
@@ -41,7 +40,6 @@ import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgStrikeType;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.decodertools.core.IBinDataSource;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
@@ -77,6 +75,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 20080318           1026 jkorman     Added debug strike info.
  * 20080408           1039 jkorman     Added traceId for tracing data. 
  * 11/11/08           1684 chammack    Refactored for camel integration
+ * 20130503        DCS 112 Wufeng Zhou Modified to be able to handle both the new encrypted data and legacy bit-shifted data
  * 
  * </pre>
  * 
@@ -93,7 +92,7 @@ public class BinLightningDecoder extends AbstractDecoder {
 
     private SimpleDateFormat SDF;
 
-    private Log logger = LogFactory.getLog(getClass());
+    private Log logger = LogFactory.getLog(getClass()); 
 
     /**
      * Default lightning strike type for FLASH messages. RT_FLASH documents
@@ -102,7 +101,7 @@ public class BinLightningDecoder extends AbstractDecoder {
     public LtgStrikeType DEFAULT_FLASH_TYPE = LtgStrikeType.STRIKE_CG;
 
     private String traceId = null;
-
+   
     /**
      * Construct a BinLightning decoder. Calling hasNext() after construction
      * will return false, decode() will return a null.
@@ -119,13 +118,12 @@ public class BinLightningDecoder extends AbstractDecoder {
      * @throws DecoderException
      *             Thrown if no data is available.
      */
-    public PluginDataObject[] decode(byte[] data, Headers headers)
-            throws DecoderException {
+    public PluginDataObject[] decode(byte[] data, Headers headers) throws DecoderException {
 
-        String traceId = null;
+        //String traceId = null;
         PluginDataObject[] reports = new PluginDataObject[0];
-        if (data != null) {
 
+        if (data != null) {
             traceId = (String) headers.get(DecoderTools.INGEST_FILE_NAME);
 
             WMOHeader wmoHdr = new WMOHeader(data);
@@ -133,92 +131,93 @@ public class BinLightningDecoder extends AbstractDecoder {
 
                 Calendar baseTime = TimeTools.findDataTime(wmoHdr.getYYGGgg(),
                         headers);
-
-                byte[] pdata = DecoderTools.stripWMOHeader(data, SFUS_PATTERN);
-                if (pdata == null) {
-                    pdata = DecoderTools.stripWMOHeader(data, SFPA_PATTERN);
+                
+                // Because binary nature of the encrypted data, the string created with its byte[] array may not have the same length of the byte[] array length 
+                // So when DecoderTools.stripWMOHeader() assumes byte[] length == String length in it logic, it is observed that it may return a shorter byte[] than
+                //    the real data array.  (Looks like a bug???)
+//                byte[] pdata = DecoderTools.stripWMOHeader(data, SFUS_PATTERN);
+//                if (pdata == null) {
+//                    pdata = DecoderTools.stripWMOHeader(data, SFPA_PATTERN);
+//                }
+    			// instead the following is used to strip WMO header a little more safely.
+                byte[] pdata = null;
+    			if (wmoHdr.isValid() && wmoHdr.getMessageDataStart() > 0) {
+    				pdata = new byte[data.length - wmoHdr.getMessageDataStart()];
+    				System.arraycopy(data, wmoHdr.getMessageDataStart(), pdata, 0, data.length - wmoHdr.getMessageDataStart());
+    			} 
+    			
+                if ((pdata == null) || (pdata.length == 0)) {
+                    return new PluginDataObject[0];
                 }
-                if (pdata != null) {
+                
+                //
+                // Modified by Wufeng Zhou to handle both legacy bit-shifted and new encryted data
+                //
+                //  Preserved the legacy decoding in BinLigntningDecoderUtil.decodeBitShiftedBinLightningData(), and added logic to process 
+                //     both encrypted data and legacy data
+                //  
+                
+                List<LightningStrikePoint> strikes = BinLigntningDecoderUtil.decodeBinLightningData(data, pdata, traceId, baseTime.getTime());
 
-                    // Init all values before this decode cycle. This resets all
-                    // internal
-                    // decoder state.
-                    ArrayList<LightningStrikePoint> strikes = new ArrayList<LightningStrikePoint>();
+                if (strikes == null) { // keep-alive record, log and return
+                	logger.info(traceId + " - found keep-alive record. ignore for now.");
+                	return reports;
+                }
 
-                    if ((pdata == null) || (pdata.length == 0)) {
-                        return new PluginDataObject[0];
+                //
+                // Done MOD by Wufeng Zhou
+                //
+                
+                // post processing data - if not keep-alive record
+                BinLightningRecord report = null;
+                if (strikes.size() > 0) {
+                    report = new BinLightningRecord(strikes.size());
+                    for (LightningStrikePoint strike : strikes) {
+                        report.addStrike(strike);
+                        logger.debug(traceId + "-" + strike);
                     }
+                } else {
+                    return new PluginDataObject[0];
+                }
 
-                    IBinDataSource msgData = new LightningDataSource(pdata);
+                Calendar c = TimeTools.copy(baseTime);
+                if (c == null) {
+                    throw new DecoderException(traceId +  " - Error decoding times");
+                }
+                //report.setInsertTime(c); // OB13.4 source code does not have this line anymore, WZ 05/03/2013
 
-                    boolean continueDecode = true;
-                    while (continueDecode) {
-                        IBinLightningDecoder decoder = BinLightningFactory
-                                .getDecoder(msgData);
+                Calendar cStart = report.getStartTime();
+                if (cStart.getTimeInMillis() > c.getTimeInMillis()
+                        + TEN_MINUTES) {
+                	synchronized (SDF) {
+                		logger.info("Discarding future data for " + traceId
+                            + " at " + SDF.format(cStart.getTime()));
+                	}
+                } else {
+                    Calendar cStop = report.getStopTime();
 
-                        switch (decoder.getError()) {
-                        case IBinLightningDecoder.NO_ERROR: {
-                            for (LightningStrikePoint strike : decoder) {
-                                strikes.add(strike);
-                            }
-                            break;
-                        }
-                        default: {
-                            continueDecode = false;
-                        }
-                        }
-                    }
+                    TimeRange range = new TimeRange(
+                            cStart.getTimeInMillis(),
+                            cStop.getTimeInMillis());
 
-                    BinLightningRecord report = null;
+                    DataTime dataTime = new DataTime(cStart, range);
+                    report.setDataTime(dataTime);
 
-                    if (strikes.size() > 0) {
-                        report = new BinLightningRecord(strikes.size());
-                        for (LightningStrikePoint strike : strikes) {
-                            report.addStrike(strike);
-                            logger.debug(traceId + "-" + strike);
-                        }
-                    } else {
-                        return new PluginDataObject[0];
-                    }
-
-                    Calendar c = TimeTools.copy(baseTime);
-                    if (c == null) {
-                        throw new DecoderException(traceId
-                                + "-Error decoding times");
-                    }
-
-                    Calendar cStart = report.getStartTime();
-                    if (cStart.getTimeInMillis() > c.getTimeInMillis()
-                            + TEN_MINUTES) {
-                        synchronized (SDF) {
-                            logger.info("Discarding future data for " + traceId
-                                    + " at " + SDF.format(cStart.getTime()));
-                        }
-                    } else {
-                        Calendar cStop = report.getStopTime();
-
-                        TimeRange range = new TimeRange(
-                                cStart.getTimeInMillis(),
-                                cStop.getTimeInMillis());
-
-                        DataTime dataTime = new DataTime(cStart, range);
-                        report.setDataTime(dataTime);
-
-                        if (report != null) {
-                            report.setTraceId(traceId);
-                            report.setPluginName("binlightning");
-                            try {
-                                report.constructDataURI();
-                                reports = new PluginDataObject[] { report };
-                            } catch (PluginException e) {
-                                logger.error("Error constructing datauri", e);
-                            }
+                    if (report != null) {
+                        report.setTraceId(traceId);
+                        report.setPluginName("binlightning");
+                        try {
+                            report.constructDataURI();
+                            reports = new PluginDataObject[] { report };
+                        } catch (PluginException e) {
+                        	logger.error("Error constructing datauri", e);
+                            throw new DecoderException("Error constructing datauri", e);
                         }
                     }
                 }
-            } else {
-                logger.error("No WMOHeader found in data");
             }
+        } else {
+        	logger.error("No WMOHeader found in data");
         }
         return reports;
     }
