@@ -118,9 +118,6 @@ public class TimeDurScaleComp extends Composite {
      */
     private double[] displayNumbers;
 
-    // = new double[] { 0.00, 3.00, 6.00, 9.00, 12.00, 15.00, 18.00,
-    // 21.00, 24.00 };
-
     /**
      * Thumb pixel index array.
      */
@@ -635,8 +632,6 @@ public class TimeDurScaleComp extends Composite {
     private void setTimeDurationScale(double hourVal) {
         for (int key : indexSelHrsMap.keySet()) {
 
-            // TODO : remove print statements
-
             if (hourVal == indexSelHrsMap.get(key)) {
                 // Find an 'X' coordinate for the thumb slider.
 
@@ -687,18 +682,8 @@ public class TimeDurScaleComp extends Composite {
     }
 
     private void calcDisplayNumbers() {
-        // displayNumbers = new double[] { 0.00, 3.00, 6.00, 9.00, 12.00, 15.00,
-        // 18.00,
-        // 21.00, 24.00 };
-
-        // displayNumbers = new double[] { 0.00, 3.00, 6.00, 9.00, 12.00, 15.00,
-        // 18.00,
-        // 23.00 };
-
         double hours = validateHours(upperHourRangeVal);
-
         int divisor = getDivisor(hours);
-
         int hourLbls = (int) (hours / divisor);
 
         // Account for the 0.00 hour label
@@ -716,10 +701,6 @@ public class TimeDurScaleComp extends Composite {
             for (int i = 0; i < displayNumbers.length; i++) {
                 displayNumbers[i] = (i * divisor);
             }
-        }
-
-        for (double d : displayNumbers) {
-            System.out.println("d = " + d);
         }
     }
 
