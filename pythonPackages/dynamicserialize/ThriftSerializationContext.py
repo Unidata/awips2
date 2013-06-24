@@ -34,8 +34,9 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    06/09/10                      njensen       Initial Creation.
-#    
-# 
+#    06/12/13         #2099        dgilling      Implement readObject() and
+#                                                writeObject().
+#
 #
 
 from thrift.Thrift import TType
@@ -87,7 +88,7 @@ pythonToThriftMap = {
 
 primitiveSupport = (TType.BYTE, TType.I16, TType.I32, TType.I64, SelfDescribingBinaryProtocol.FLOAT)
 
-class ThriftSerializationContext:
+class ThriftSerializationContext(object):
     
     def __init__(self, serializationManager, selfDescribingBinaryProtocol):
         self.serializationManager = serializationManager
@@ -409,5 +410,9 @@ class ThriftSerializationContext:
         self.protocol.writeI32(len(floats))
         self.protocol.writeF32List(floats)
         
+    def readObject(self):
+        return self.deserializeMessage()
     
+    def writeObject(self, obj):
+        self.serializeMessage(obj)
     
