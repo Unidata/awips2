@@ -52,6 +52,12 @@
 # conn.close()
 #-------------------------------------------------------------------------------
 #
+#    SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    ....
+#    06/13/2013      DR 16242      D. Friedman    Add Qpid authentication info
 #
 #===============================================================================   
 
@@ -59,7 +65,10 @@ import qpid
 from qpid.util import connect
 from qpid.connection import Connection
 from qpid.datatypes import Message, uuid4
-    
+
+QPID_USERNAME = 'guest'
+QPID_PASSWORD = 'guest'
+
 class IngestViaQPID:
     def __init__(self, host='localhost', port=5672):
         '''
@@ -71,7 +80,7 @@ class IngestViaQPID:
         try:
             #
             self.socket = connect(host, port)
-            self.connection = Connection (sock=self.socket)
+            self.connection = Connection (sock=self.socket, username=QPID_USERNAME, password=QPID_PASSWORD)
             self.connection.start()
             self.session = self.connection.session(str(uuid4()))
             self.session.exchange_bind(exchange='amq.direct', queue='external.dropbox', binding_key='external.dropbox')

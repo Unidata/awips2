@@ -30,6 +30,11 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
+import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord.FIELDS;
@@ -37,15 +42,13 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
+import com.raytheon.uf.common.monitor.config.FFMPTemplateConfigurationManager;
 import com.raytheon.uf.common.monitor.xml.DomainXML;
 import com.raytheon.uf.common.monitor.xml.ProductRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
-import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -57,24 +60,27 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.monitor.ffmp.FFMPMonitor;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FFMPConfig;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfig;
-import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPDataLoader.LOADER_TYPE;
+import com.raytheon.uf.viz.monitor.ffmp.ui.thread.BackgroundLoadJob;
+import com.raytheon.uf.viz.monitor.ffmp.ui.thread.InitHucLevelGeomsJob;
+import com.raytheon.uf.viz.monitor.ffmp.ui.thread.InitialLoadJob;
 import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPConfigBasinXML;
 
 /**
- * Place holder more or less for a ResourceData Object This dosen't do anything
- * currently.
+ * Resource data for an FFMPResource. Schedules all of the loading jobs except
+ * for jobs triggered by updates.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 29 June, 2009   2521    dhladky     Initial creation
- * 02/01/13     1569        D. Hladky   Added constants
- * Feb 10, 2013  1584      mpduff      Add performance logging.
- * Feb 28, 2013  1729      dhladky     Got rid of thread sleeps
- * Mar 6, 2013   1769     dhladky    Changed threading to use count down latch.
+ * Jun 29, 2009 2521       dhladky     Initial creation
+ * Feb 01, 2013 1569       D. Hladky   Added constants
+ * Feb 10, 2013 1584       mpduff      Add performance logging.
+ * Feb 28, 2013 1729       dhladky     Got rid of thread sleeps
+ * Mar 06, 2013 1769       dhladky     Changed threading to use count down latch.
  * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
+ * Jun 06, 2013 2075       njensen     Use new load jobs
  * 
  * </pre>
  * 
@@ -84,11 +90,9 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPConfigBasinXML;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(name = "ffmpResourceData")
 public class FFMPResourceData extends AbstractRequestableResourceData {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(FFMPResourceData.class);
 
     /** Performance log entry prefix */
-    private final String prefix = "FFMP ResourceData:";
+    private static final String prefix = "FFMP ResourceData:";
 
     /** Performance logger */
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
@@ -139,20 +143,6 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
     /** Field default **/
     protected FIELDS field = FIELDS.QPE;
 
-    public Date timeBack = null;
-
-    /** active loader **/
-    public FFMPDataLoader floader = null;
-
-    /** mark whether or not the tertiary load has run or not **/
-    public boolean isTertiaryLoad = false;
-
-    /** mark whether or not the secondary load has run or not **/
-    public boolean isSecondaryLoad = false;
-
-    /** mark whether or not the initial load has run or not **/
-    public boolean isInitialLoad = false;
-
     public FFMPResourceData() {
 
         super();
@@ -185,33 +175,12 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
 
         DataTime[] availableTimes = this.getAvailableTimes();
         // no data available;
+        FFMPTemplates templates = null;
         if (availableTimes.length != 0) {
             product = monitor.getProductXML(sourceName);
             if (product != null) {
                 monitor.launchSplash(siteKey);
-                FFMPTemplates templates = monitor.getTemplates(siteKey);
-
-                // wait for templates to finish load
-                int i = 0;
-                while (!templates.done) {
-                    try {
-                        if (i > 5) {
-                            statusHandler.handle(Priority.ERROR,
-                                    "Failed to read template in allotted time");
-                            break;
-                        }
-                        if (floader != null) {
-                            synchronized (floader) {
-                                floader.wait(1000);
-                            }
-                        }
-                        i++;
-                    } catch (InterruptedException e) {
-                        statusHandler.handle(Priority.INFO,
-                                "Data Loader thread interrupted, dying!", e);
-                    }
-                }
-
+                templates = monitor.getTemplates(siteKey);
                 tableLoad = true;
             }
 
@@ -242,18 +211,80 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
 
                 this.domains = defaults;
 
-                Date mostRecentTime = availableTimes[availableTimes.length - 1]
+                final Date mostRecentTime = availableTimes[availableTimes.length - 1]
                         .getRefTime();
-                this.timeBack = new Date(
-                        (long) (mostRecentTime.getTime() - (cfgBasinXML
-                                .getTimeFrame() * TimeUtil.MILLIS_PER_HOUR)));
-                List<String> hucsToLoad = monitor.getTemplates(siteKey)
-                        .getTemplateMgr().getHucLevels();
-                // goes back X hours and pre populates the Data Hashes
-                FFMPDataLoader loader = new FFMPDataLoader(this, timeBack,
-                        mostRecentTime, LOADER_TYPE.INITIAL,
-                        hucsToLoad);
-                loader.run();
+                final double configTimeFrame = cfgBasinXML.getTimeFrame();
+                final Date timeBack = new Date(
+                        (long) (mostRecentTime.getTime() - (configTimeFrame * TimeUtil.MILLIS_PER_HOUR)));
+                final List<String> initialHucs = new ArrayList<String>();
+                initialHucs.add(FFMPRecord.ALL);
+                final String defaultLayer = monitor.getConfig()
+                        .getFFMPConfigData().getLayer();
+                if (!defaultLayer.equals(FFMPRecord.ALL)) {
+                    initialHucs.add(defaultLayer);
+                }
+                InitialLoadJob initialJob = new InitialLoadJob(this, timeBack,
+                        mostRecentTime, initialHucs);
+
+                // schedule the secondary load to start as soon as the initial
+                // completes
+                // secondary load will be the same time period as initial with
+                // the hucs that the initial job did not do
+                initialJob.addJobChangeListener(new JobChangeAdapter() {
+                    @Override
+                    public void done(IJobChangeEvent event) {
+                        Date secondStartTime = timeBack;
+                        List<String> secondaryHucs = FFMPTemplateConfigurationManager
+                                .getInstance().getHucLevels();
+                        secondaryHucs.removeAll(initialHucs);
+
+                        BackgroundLoadJob secondaryJob = new BackgroundLoadJob(
+                                "Secondary FFMP Load", FFMPResourceData.this,
+                                secondStartTime, mostRecentTime, secondaryHucs);
+                        secondaryJob.setPriority(Job.SHORT);
+                        // schedule the tertiary load as soon as the
+                        // secondary completes
+                        // tertiary load will do 24 hours back of the
+                        // same hucs as the initial load
+                        secondaryJob
+                                .addJobChangeListener(new JobChangeAdapter() {
+                                    @Override
+                                    public void done(IJobChangeEvent event) {
+                                        List<String> tertiaryHucs = new ArrayList<String>();
+                                        tertiaryHucs.add(FFMPRecord.ALL);
+                                        Date tertiaryStartTime = new Date(
+                                                mostRecentTime.getTime()
+                                                        - (24 * TimeUtil.MILLIS_PER_HOUR));
+                                        BackgroundLoadJob tertiaryJob = new BackgroundLoadJob(
+                                                "Tertiary FFMP Load",
+                                                FFMPResourceData.this,
+                                                tertiaryStartTime, timeBack,
+                                                tertiaryHucs);
+                                        tertiaryJob
+                                                .setPreloadAvailableUris(true);
+                                        tertiaryJob.schedule();
+                                    }
+                                });
+                        secondaryJob.schedule();
+                    }
+                });
+                initialJob.schedule();
+
+                // schedule this huc geometries job to run in the
+                // background so the first paints of the resource
+                // will be faster
+                List<String> earlyLoadHucs = new ArrayList<String>();
+                earlyLoadHucs.addAll(initialHucs);
+                for (String otherHuc : FFMPTemplateConfigurationManager
+                        .getInstance().getHucLevels()) {
+                    if (!earlyLoadHucs.contains(otherHuc)) {
+                        earlyLoadHucs.add(otherHuc);
+                    }
+                }
+                earlyLoadHucs.remove(FFMPRecord.VIRTUAL);
+                InitHucLevelGeomsJob hucGeomsJob = new InitHucLevelGeomsJob(
+                        this.siteKey, templates, earlyLoadHucs);
+                hucGeomsJob.schedule();
             } else {
                 /*
                  * This appears completely un-orthodox for anything in D2D. But
@@ -292,8 +323,9 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                     NavigableMap<Date, List<String>> sourceURIs = getMonitor()
                             .getAvailableUris(siteKey, dataKey, sourceName,
                                     standAloneTime);
-                    monitor.processUris(sourceURIs, siteKey,
-							sourceName, standAloneTime, FFMPRecord.ALL);
+                    monitor.processUris(sourceURIs, siteKey, sourceName,
+                            standAloneTime, FFMPRecord.ALL,
+                            SubMonitor.convert(null));
                 }
             }
         }
@@ -392,8 +424,7 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
      * 
      * @param record
      */
-    public void populateRecord(FFMPRecord precord)
-            throws VizException {
+    public void populateRecord(FFMPRecord precord) throws VizException {
         try {
             getMonitor().populateFFMPRecord(siteKey, precord,
                     precord.getSourceName(), huc);
@@ -536,21 +567,6 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
         }
 
         return sourceNames;
-    }
-
-    /**
-     * Set them as done
-     * 
-     * @param type
-     */
-    public void setLoader(LOADER_TYPE type) {
-        if (type == LOADER_TYPE.INITIAL) {
-            isInitialLoad = true;
-        } else if (type == LOADER_TYPE.SECONDARY) {
-            isSecondaryLoad = true;
-        } else if (type == LOADER_TYPE.TERTIARY) {
-            isTertiaryLoad = true;
-        }
     }
 
 }
