@@ -199,20 +199,7 @@ public abstract class BandwidthManager extends
 
         if (DataDeliveryRegistryObjectTypes.DATASETMETADATA.equals(objectType)) {
 
-            DataSetMetaData dsmd = null;
-            int attempts = 0;
-            do {
-                attempts++;
-                dsmd = getDataSetMetaData(id);
-                if (dsmd == null) {
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                e.getLocalizedMessage(), e);
-                    }
-                }
-            } while (dsmd == null && attempts < 20);
+            DataSetMetaData dsmd = getDataSetMetaData(id);
 
             if (dsmd != null) {
                 // Repost the Object to the BandwidthEventBus to free
@@ -233,7 +220,7 @@ public abstract class BandwidthManager extends
                 BandwidthEventBus.publish(dsmd);
             } else {
                 statusHandler.error("No DataSetMetaData found for id [" + id
-                        + "] after " + attempts + " attempts");
+                        + "]");
             }
 
         } else if (DataDeliveryRegistryObjectTypes.SITE_SUBSCRIPTION

@@ -18,7 +18,7 @@ import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.registry.IResultFormatter;
-import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import com.raytheon.uf.common.registry.ebxml.encoder.IRegistryEncoder;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -41,6 +41,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Oct 17, 2012 0726       djohnson    Made filter check method public.
  * Nov 19, 2012 1166       djohnson    Clean up JAXB representation of registry objects.
  * Dec 10, 2012 1259       bsteffen    Switch Data Delivery from LatLon to referenced envelopes.
+ * Jun 24, 2013 2106       djohnson    Pass encoder to result formatters.
  * 
  * </pre>
  * 
@@ -61,10 +62,11 @@ public class DataSetWithFiltersQuery extends DataSetQuery implements
     private ReferencedEnvelope envelope;
 
     @Override
-    public DataSet decodeObject(RegistryObjectType registryObjectType)
+    public DataSet decodeObject(RegistryObjectType registryObjectType,
+            IRegistryEncoder encoder)
             throws SerializationException {
         DataSet retVal = null;
-        DataSet object = (DataSet) RegistryUtil
+        DataSet object = (DataSet) encoder
                 .decodeObject(registryObjectType);
 
         if (satisfiesFilterCriteria(object, levels, envelope)) {

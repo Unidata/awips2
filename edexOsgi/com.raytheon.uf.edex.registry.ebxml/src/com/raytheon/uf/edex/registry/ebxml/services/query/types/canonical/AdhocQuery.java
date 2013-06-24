@@ -29,9 +29,6 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
@@ -50,11 +47,11 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * Filter etc.
  * <p>
  * <b>Parameter Summary:</b> <br>
- * · <b><i>queryExpression</i></b> -- Value is a query expression string in the
+ * <b><i>queryExpression</i></b> -- Value is a query expression string in the
  * language specified by the
  * <p>
- * · <b><i>queryLanguage</i></b> -- Value is the id of a ClassificationNode
- * within the canonical QueryLanguageScheme ClassificationScheme.
+ * <b><i>queryLanguage</i></b> -- Value is the id of a ClassificationNode within
+ * the canonical QueryLanguageScheme ClassificationScheme.
  * 
  * queryLanguage parameter
  * <p>
@@ -67,15 +64,14 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
- * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
+ * 4/9/2013     1802       bphillip    Changed abstract method signature, modified return processing, and changed static variables
+ * Jun 24, 2013 2106       djohnson    Requires a transaction to be open, will not create one.
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-@Service
-@Transactional
 public class AdhocQuery extends CanonicalEbxmlQuery {
 
     /** The list of valid parameters for this query */
