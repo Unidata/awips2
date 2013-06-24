@@ -55,6 +55,20 @@
       <appender-ref ref="PerformanceLog" />
    </appender> 
 
+   <!-- activeTableChange log --> 
+   <appender name="activeTableChangeLog" class="org.apache.log4j.rolling.RollingFileAppender">
+      <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+         <param name="FileNamePattern" value="${edex.home}/logs/edex-${edex.run.mode}-activeTableChange-%d{yyyyMMdd}.log"/>
+      </rollingPolicy> 
+      <layout class="org.apache.log4j.PatternLayout"> 
+         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
+      </layout> 
+   </appender>
+
+   <appender name="activeTableChangeLogAsync" class="org.apache.log4j.AsyncAppender">            
+      <appender-ref ref="activeTableChangeLog" />
+   </appender> 
+
    <logger name="ProductSrvRequestLogger" additivity="false">
    		<level value="DEBUG"/>
    		<appender-ref ref="ProductSrvRequestLogAsync"/>
@@ -65,9 +79,9 @@
       <appender-ref ref="ThriftSrvRequestLogAsync" />
    </logger>
    
-   <logger name="GFEPerformanceLogger" additivity="false">
-      <level value="DEBUG"/>
-      <appender-ref ref="PerformanceLogAsync" />
+   <logger name="ActiveTableChange" additivity="false">
+      <level value="Debug"/>
+      <appender-ref ref="activeTableChangeLogAsync" />
    </logger>
 
    <logger name="PerformanceLogger" additivity="false">
