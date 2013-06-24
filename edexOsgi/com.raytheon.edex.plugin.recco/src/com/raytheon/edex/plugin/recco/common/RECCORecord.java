@@ -64,12 +64,15 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080103            384 jkorman     Initial Coding.
- * 20080107            720 jkorman     remove default assignments from attributes.
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * Jan 03, 2008 384        jkorman     Initial Coding.
+ * Jan 07, 2008 720        jkorman     remove default assignments from
+ *                                     attributes.
+ * Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                     forecastTime
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * Jun 20, 2013 2128       bsteffen    Ensure setDataURI sets the dataURI.
  * 
  * </pre>
  * 
@@ -621,6 +624,7 @@ public class RECCORecord extends PluginDataObject implements ISpatialEnabled,
 
     @Override
     public void setDataURI(String dataURI) {
+        super.setDataURI(dataURI);
         identifier = dataURI;
     }
 

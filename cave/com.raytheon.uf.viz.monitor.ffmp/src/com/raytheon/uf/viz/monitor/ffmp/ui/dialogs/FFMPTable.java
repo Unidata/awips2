@@ -73,6 +73,7 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML;
  *                                     the table column images.  This is to fix the Windows
  *                                     issue on the images being blank and throwing errors.
  *                                     Also cleaned up some code.
+ * Jun 11, 2013 2075      njensen      Optimized createTableItems()
  * </pre>
  * 
  * @author lvenable
@@ -289,7 +290,6 @@ public abstract class FFMPTable extends Composite {
                         item.setBackground(j, cellData[j].getBackgroungColor());
                     }
                 }
-
                 table.getColumn(0).setWidth(extent.x + 10);
                 table.redraw();
             }
@@ -402,7 +402,9 @@ public abstract class FFMPTable extends Composite {
         ArrayList<FFMPTableColumnXML> ffmpTableCols = ffmpCfgBasin
                 .getTableColumnData();
 
-        if (!sortedColumnName.equalsIgnoreCase(NAME)) {
+        boolean sortedColumnIsName = sortedColumnName.equalsIgnoreCase(NAME);
+
+        if (!sortedColumnIsName) {
             for (ThreshColNames threshColName : ThreshColNames.values()) {
                 if (sortedColumnName.contains(threshColName.name())) {
                     sortedThreshCol = threshColName;
@@ -437,6 +439,7 @@ public abstract class FFMPTable extends Composite {
         indexArray.clear();
         FFMPTableRowData rowData;
         ArrayList<FFMPTableRowData> rowArray = tableData.getTableRows();
+        indexArray.ensureCapacity(rowArray.size());
 
         GC gc = new GC(table);
         gc.setFont(tiFont);
@@ -452,7 +455,7 @@ public abstract class FFMPTable extends Composite {
             /*
              * Check if the data value is Not A Number.
              */
-            if (!sortedColumnName.equalsIgnoreCase(NAME)) {
+            if (!sortedColumnIsName) {
                 float dataVal = cellData[sortColIndex].getValueAsFloat();
 
                 // DR 14250 fix: any value not a number will be omitted

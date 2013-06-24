@@ -51,7 +51,7 @@
                </pipeline>
                <doCatch>
                   <exception>java.lang.Throwable</exception>
-                  <to uri="log:qc?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                  <to uri="log:qc?level=ERROR"/>
                </doCatch>
           </doTry>
         </route>
