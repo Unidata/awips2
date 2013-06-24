@@ -34,6 +34,7 @@ import org.junit.Ignore;
  * Apr 23, 2013 1910       djohnson     Add constants for ebxml spring files.
  * May 02, 2013 1910       djohnson     Add validator plugins spring file.
  * May 28, 2013 1650       djohnson     Add event bus spring files.
+ * Jun 24, 2013 2106       djohnson     Remove spring file.
  * 
  * </pre>
  * 
@@ -78,8 +79,6 @@ public class SpringFiles {
     public static final String EBXML_QUERYTYPES_XML = "/spring/ebxml-querytypes.xml";
 
     public static final String EBXML_REGISTRY_DAO_XML = "/spring/ebxml-registry-dao.xml";
-
-    public static final String EBXML_REGISTRY_ENCODER_XML = "/spring/ebxml-registry-encoder.xml";
 
     public static final String EBXML_REPLICATION_DATADELIVERY_WFO_XML = "/spring/registry-replication-datadelivery-wfo.xml";
 

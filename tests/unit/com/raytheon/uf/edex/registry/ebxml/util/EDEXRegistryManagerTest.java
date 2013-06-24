@@ -30,7 +30,7 @@ import org.junit.Test;
 
 import com.raytheon.uf.common.registry.IRegistryRequest;
 import com.raytheon.uf.common.registry.IRegistryRequest.Action;
-import com.raytheon.uf.common.registry.RegistryManagerTest;
+import com.raytheon.uf.common.registry.RegistryHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 
 /**
@@ -44,6 +44,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
  * ------------ ---------- ----------- --------------------------
  * Sep 17, 2012 1169       djohnson     Tests for more than one item provided to store/storeOrReplace.
  * Oct 17, 2012 0726       djohnson     Use {@link RegistryManagerTest#setMockInstance()}.
+ * Jun 24, 2013 2106       djohnson     No more RegistryManager.
  * 
  * </pre>
  * 
@@ -55,9 +56,11 @@ public class EDEXRegistryManagerTest {
 
     private final IUFStatusHandler statusHandler = mock(IUFStatusHandler.class);
 
+    private final static EDEXRegistryManager edexRegistryManager = new EDEXRegistryManager();
+
     @BeforeClass
     public static void classSetUp() {
-        RegistryManagerTest.setMockInstance();
+        edexRegistryManager.setRegistryHandler(mock(RegistryHandler.class));
     }
 
     @Test
@@ -68,8 +71,7 @@ public class EDEXRegistryManagerTest {
         request.setAction(Action.STORE);
         request.setObjects(Arrays.asList("one", "two"));
 
-        new EDEXRegistryManager()
-                .handleRequest(request);
+        edexRegistryManager.handleRequest(request);
 
         verify(statusHandler).error(
                 EDEXRegistryManager.CAN_ONLY_STORE_SINGLE_OBJECT);
@@ -84,8 +86,7 @@ public class EDEXRegistryManagerTest {
         request.setAction(Action.STORE_OR_REPLACE);
         request.setObjects(Arrays.asList("one", "two"));
 
-        new EDEXRegistryManager()
-                .handleRequest(request);
+        edexRegistryManager.handleRequest(request);
 
         verify(statusHandler).error(
                 EDEXRegistryManager.CAN_ONLY_STORE_SINGLE_OBJECT);
@@ -99,8 +100,7 @@ public class EDEXRegistryManagerTest {
         request.setAction(Action.STORE);
         request.setObjects(Arrays.asList("one"));
 
-        new EDEXRegistryManager()
-                .handleRequest(request);
+        edexRegistryManager.handleRequest(request);
 
         verify(statusHandler, never()).error(
                 EDEXRegistryManager.CAN_ONLY_STORE_SINGLE_OBJECT);
@@ -114,8 +114,7 @@ public class EDEXRegistryManagerTest {
         request.setAction(Action.STORE_OR_REPLACE);
         request.setObjects(Arrays.asList("one"));
 
-        new EDEXRegistryManager()
-                .handleRequest(request);
+        edexRegistryManager.handleRequest(request);
 
         verify(statusHandler, never()).error(
                 EDEXRegistryManager.CAN_ONLY_STORE_SINGLE_OBJECT);
@@ -129,8 +128,7 @@ public class EDEXRegistryManagerTest {
         request.setAction(Action.REMOVE);
         request.setObjects(Arrays.asList("one", "two"));
 
-        new EDEXRegistryManager()
-                .handleRequest(request);
+        edexRegistryManager.handleRequest(request);
 
         verify(statusHandler, never()).error(
                 EDEXRegistryManager.CAN_ONLY_STORE_SINGLE_OBJECT);
