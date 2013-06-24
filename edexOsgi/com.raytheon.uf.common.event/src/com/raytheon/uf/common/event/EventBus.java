@@ -2,6 +2,8 @@ package com.raytheon.uf.common.event;
 
 import java.util.ServiceLoader;
 
+import com.google.common.annotations.VisibleForTesting;
+
 /**
  * The EventBus.
  * 
@@ -17,6 +19,7 @@ import java.util.ServiceLoader;
  * Feb 05, 2013 1580       mpduff       Moved to common, use IEventBusHandler.
  * Apr 29, 2013 1910       djohnson     Watch for NPEs and errors unregistering.
  * May 28, 2013 1650       djohnson     Simplify and extract out the general event bus handling for reuse.
+ * Jun 20, 2013 1802       djohnson     Allow test code to set an explicit event bus handler.
  * 
  * </pre>
  * 
@@ -25,7 +28,8 @@ import java.util.ServiceLoader;
  */
 public final class EventBus {
 
-    private static final IEventBusHandler handler;
+    @VisibleForTesting
+    static IEventBusHandler handler;
     static {
         handler = ServiceLoader.<IEventBusHandler> load(IEventBusHandler.class)
                 .iterator().next();
