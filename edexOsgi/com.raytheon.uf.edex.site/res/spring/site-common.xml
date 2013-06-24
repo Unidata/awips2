@@ -17,7 +17,7 @@
 				<bean ref="siteAwareRegistry" method="handleMessage" />
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:siteActivation?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:siteActivation?level=ERROR"/>
 				</doCatch>
 			</doTry>
         </route>
