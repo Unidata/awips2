@@ -53,6 +53,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Aug 20, 2007             njensen     Added listColorMaps().
  * Aug 20, 2008				dglazesk    JiBX to JaXB
  * Aug 20, 2008				dglazesk    Updated for new ColorMap interface
+ * Jun 10, 2013 2075        njensen     Added listColorMapFiles(subdirectory)
  * 
  * </pre>
  * 
@@ -61,6 +62,10 @@ import com.raytheon.uf.viz.core.exception.VizException;
  */
 
 public class ColorMapLoader {
+
+    private static final String EXTENSION = ".cmap";
+
+    private static final String DIR_NAME = "colormaps";
 
     private static final String sharedMutex = "";
 
@@ -132,8 +137,8 @@ public class ColorMapLoader {
             try {
                 LocalizationFile f = PathManagerFactory.getPathManager()
                         .getStaticLocalizationFile(
-                                "colormaps" + IPathManager.SEPARATOR + name
-                                        + ".cmap");
+                                DIR_NAME + IPathManager.SEPARATOR + name
+                                        + EXTENSION);
                 if (f == null || !f.exists()) {
                     // If the file was not found check to see if the
                     // localization context is encoded as part of the path.
@@ -146,9 +151,8 @@ public class ColorMapLoader {
                             f = PathManagerFactory.getPathManager()
                                     .getLocalizationFile(
                                             context,
-                                            "colormaps"
-                                                    + IPathManager.SEPARATOR
-                                                    + split[2] + ".cmap");
+                                            DIR_NAME + IPathManager.SEPARATOR
+                                                    + split[2] + EXTENSION);
                             if (f == null) {
                                 return loadColorMap(split[2]);
                             }
@@ -170,7 +174,15 @@ public class ColorMapLoader {
         return cm;
     }
 
-    public static LocalizationFile[] listColorMapFiles() {
+    /**
+     * Recursively searches for the colormaps that are in the specified
+     * directory
+     * 
+     * @param dir
+     *            the directory to search recursively
+     * @return the localization files of the colormaps that are found
+     */
+    private static LocalizationFile[] internalListColorMapFiles(String dir) {
 
         IPathManager pm = PathManagerFactory.getPathManager();
         Set<LocalizationContext> searchContexts = new HashSet<LocalizationContext>();
@@ -195,15 +207,38 @@ public class ColorMapLoader {
         }
 
         LocalizationFile[] files = pm.listFiles(searchContexts
-                .toArray(new LocalizationContext[searchContexts.size()]),
-                "colormaps", new String[] { ".cmap" }, true, true);
+                .toArray(new LocalizationContext[searchContexts.size()]), dir,
+                new String[] { EXTENSION }, true, true);
         return files;
+    }
+
+    /**
+     * Lists all the colormaps in the specified subdirectory. For example, if
+     * subdirectory is "ffmp", it will recursively walk down the colormaps/ffmp
+     * directory
+     * 
+     * @param subDirectory
+     *            the subdirectory of the colormaps dir to search
+     * @return
+     */
+    public static LocalizationFile[] listColorMapFiles(String subDirectory) {
+        return internalListColorMapFiles(DIR_NAME + IPathManager.SEPARATOR
+                + subDirectory);
+    }
+
+    /**
+     * Lists all the colormaps found in the system
+     * 
+     * @return
+     */
+    public static LocalizationFile[] listColorMapFiles() {
+        return internalListColorMapFiles(DIR_NAME);
     }
 
     public static String shortenName(LocalizationFile file) {
         String name = file.getName()
-                .replace("colormaps" + IPathManager.SEPARATOR, "")
-                .replace(".cmap", "");
+                .replace(DIR_NAME + IPathManager.SEPARATOR, "")
+                .replace(EXTENSION, "");
         if (!file.getContext().getLocalizationLevel()
                 .equals(LocalizationLevel.BASE)) {
             String level = file.getContext().getLocalizationLevel().name();
@@ -234,9 +269,8 @@ public class ColorMapLoader {
     private static IColorMap loadColorMap(String name,
             LocalizationFile colorMapFile) throws SerializationException {
         if (colorMapFile != null) {
-            ColorMap cm = (ColorMap) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(colorMapFile.getFile()
-                            .getAbsolutePath());
+            ColorMap cm = SerializationUtil.jaxbUnmarshalFromXmlFile(
+                    ColorMap.class, colorMapFile.getFile().getAbsolutePath());
             cm.setName(name);
             cm.setChanged(false);
             return cm;

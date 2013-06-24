@@ -44,6 +44,7 @@ import com.raytheon.uf.common.monitor.xml.SourceXML;
  * 04/15/13     1890       dhladky    Changed COUNTY to use constant
  * 05/10/13     1919       mpduff     If there are forced pfafs then the aggregate is forced.
  * 05/22/13     1902       mpduff     Added methods to get forced values.
+ * 06/17/13     2085       njensen    Made forceIt() more thread safe
  * 
  * </pre>
  * 
@@ -52,15 +53,8 @@ import com.raytheon.uf.common.monitor.xml.SourceXML;
  */
 
 public class FFFGForceUtil {
-    private boolean forced = false;
-
-    private List<Long> forcedPfafList = new ArrayList<Long>();
-
-    private List<Long> pfafList = new ArrayList<Long>();
 
     private final FFMPResource resource;
-
-    private String domain = "NA";
 
     private SourceXML sourceXML1 = null;
 
@@ -114,21 +108,24 @@ public class FFFGForceUtil {
         }
     }
 
-    public void calculateForcings(String domain, FFMPTemplates ft,
+    public ForceUtilResult calculateForcings(String domain, FFMPTemplates ft,
             FFMPBasin cBasin) {
-        this.domain = domain;
-        forceIt(ft, cBasin);
+        return forceIt(ft, cBasin, null, domain);
     }
 
-    public void calculateForcings(List<Long> pfafList, FFMPTemplates ft,
-            FFMPBasin cBasin) {
-        this.pfafList = pfafList;
-        forceIt(ft, cBasin);
+    public ForceUtilResult calculateForcings(List<Long> pfafList,
+            FFMPTemplates ft, FFMPBasin cBasin) {
+        return forceIt(ft, cBasin, pfafList, "NA");
     }
 
-    private void forceIt(FFMPTemplates ft, FFMPBasin cBasin) {
+    private ForceUtilResult forceIt(FFMPTemplates ft, FFMPBasin cBasin,
+            List<Long> pfafList, String domain) {
+        boolean forced = false;
+        List<Long> forcedPfafList = new ArrayList<Long>();
+        ForceUtilResult retVal = new ForceUtilResult(forced, pfafList,
+                forcedPfafList);
         if (interp == null) {
-            return;
+            return retVal;
         }
 
         if (domain == null) {
@@ -215,6 +212,11 @@ public class FFFGForceUtil {
                 forced = true;
             }
         }
+
+        retVal.forced = forced;
+        retVal.pfafList = pfafList;
+        retVal.forcedPfafList = forcedPfafList;
+        return retVal;
     }
 
     private ArrayList<Long> getForcedBasins(String source,
@@ -310,43 +312,6 @@ public class FFFGForceUtil {
         }
 
         return Float.NaN;
-    }
-
-    /**
-     * @return the forced
-     */
-    public boolean isForced() {
-        return forced;
-    }
-
-    /**
-     * @param forced
-     *            the forced to set
-     */
-    public void setForced(boolean forced) {
-        this.forced = forced;
-    }
-
-    /**
-     * @return the forcedPfafList
-     */
-    public List<Long> getForcedPfafList() {
-        return forcedPfafList;
-    }
-
-    /**
-     * @param forcedPfafList
-     *            the forcedPfafList to set
-     */
-    public void setForcedPfafList(ArrayList<Long> forcedPfafList) {
-        this.forcedPfafList = forcedPfafList;
-    }
-
-    /**
-     * @return the pfafList
-     */
-    public List<Long> getPfafList() {
-        return pfafList;
     }
 
     /**
