@@ -22,6 +22,7 @@ package com.raytheon.viz.gfe.core.internal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -112,6 +113,8 @@ import com.raytheon.viz.gfe.core.parm.Parm;
  * 07/09/09     #2590      njensen     Site ID from preferences and sent on all requests.
  * 09/22/09     #3058      rjpeter     Removed GFE Edex dependency.
  * 05/02/13     #1969      randerso    Added createNewDb method
+ * 06/06/13     #2073      dgilling    Make getGridInventory() better match A1,
+ *                                     fix warnings.
  * 
  * </pre>
  * 
@@ -255,7 +258,7 @@ public class IFPClient {
                 .asList(new ParmID[] { parmId }));
         List<TimeRange> times = inventory.get(parmId);
         if (times == null) {
-            times = new ArrayList<TimeRange>();
+            times = Collections.emptyList();
         }
         return times;
     }
@@ -275,7 +278,8 @@ public class IFPClient {
             throws GFEServerException {
         GetGridInventoryRequest request = new GetGridInventoryRequest();
         request.setParmIds(parmIds);
-        ServerResponse<Map<ParmID, List<TimeRange>>> response = (ServerResponse<Map<ParmID, List<TimeRange>>>) makeRequest(request);
+        ServerResponse<Map<ParmID, List<TimeRange>>> response = (ServerResponse<Map<ParmID, List<TimeRange>>>) makeRequest(
+                request, false);
         return response.getPayload();
     }
 
@@ -634,7 +638,6 @@ public class IFPClient {
         return (ServerResponse<List<DatabaseID>>) makeRequest(request);
     }
 
-    @SuppressWarnings("unchecked")
     public List<ActiveTableRecord> getVTECActiveTable(String siteId)
             throws VizException {
         CAVEMode mode = dataManager.getOpMode();
@@ -695,6 +698,11 @@ public class IFPClient {
 
     public ServerResponse<?> makeRequest(AbstractGfeRequest request)
             throws GFEServerException {
+        return makeRequest(request, true);
+    }
+
+    private ServerResponse<?> makeRequest(AbstractGfeRequest request,
+            boolean throwExceptionsBasedOnResponse) throws GFEServerException {
         ServerResponse<?> rval = null;
 
         try {
@@ -716,7 +724,8 @@ public class IFPClient {
             throw new GFEServerException(e);
         }
 
-        if ((rval != null) && !rval.isOkay()) {
+        if ((throwExceptionsBasedOnResponse) && (rval != null)
+                && (!rval.isOkay())) {
             StringBuilder msg = new StringBuilder();
             if (rval.getMessages().size() > 1) {
                 msg.append("Errors ");
