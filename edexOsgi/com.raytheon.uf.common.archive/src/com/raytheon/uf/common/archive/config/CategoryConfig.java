@@ -283,7 +283,7 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
      */
     @Override
     public int compareTo(CategoryConfig o) {
-        return getDisplay().compareTo(o.getDisplay());
+        return getDisplay().compareToIgnoreCase(o.getDisplay());
     }
 
     /*

@@ -44,7 +44,7 @@
     			</pipeline>
     			<doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:metaDataProcess?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:metaDataProcess?level=ERROR"/>
                 </doCatch>
             </doTry>
 		</route>
@@ -75,7 +75,7 @@
                 </pipeline>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:metaDataPurge?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:metaDataPurge?level=ERROR"/>
                 </doCatch>
             </doTry>
         </route>
