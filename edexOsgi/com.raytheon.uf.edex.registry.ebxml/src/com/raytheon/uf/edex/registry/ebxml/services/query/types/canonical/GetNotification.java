@@ -30,8 +30,6 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.edex.registry.ebxml.dao.SubscriptionDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
@@ -53,14 +51,14 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012            bphillip     Initial creation
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
- * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
+ * 4/9/2013     1802       bphillip    Changed abstract method signature, modified return processing, and changed static variables
+ * Jun 24, 2013 2106       djohnson    Requires a transaction to be open, will not create one.
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-@Transactional
 public class GetNotification extends CanonicalEbxmlQuery {
 
     /** The list of valid parameters for this query */

@@ -21,7 +21,7 @@
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
                     <to
-                        uri="log:SbnSimulator?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+                        uri="log:SbnSimulator" />
                 </doCatch>
             </doTry>
         </route>

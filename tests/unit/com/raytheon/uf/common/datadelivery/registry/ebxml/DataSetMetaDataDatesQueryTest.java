@@ -30,6 +30,8 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import org.junit.Test;
 
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
+import com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders;
+import com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders.Type;
 import com.raytheon.uf.common.registry.ebxml.slots.DateSlotConverter;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -45,6 +47,7 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 15, 2012 0743       djohnson     Initial creation
+ * Jun 24, 2013 2106       djohnson     IResultFormatter implementations now require an encoder passed to them.
  * 
  * </pre>
  * 
@@ -65,7 +68,8 @@ public class DataSetMetaDataDatesQueryTest {
         registryObject.setSlot(new HashSet<SlotType>(slots));
         
         DataSetMetaDataDatesQuery query = new DataSetMetaDataDatesQuery();
-        ImmutableDate result = query.decodeObject(registryObject);
+        ImmutableDate result = query.decodeObject(registryObject,
+                RegistryEncoders.ofType(Type.JAXB));
 
         assertEquals(
                 "The result from the query should have matched the initial date!",

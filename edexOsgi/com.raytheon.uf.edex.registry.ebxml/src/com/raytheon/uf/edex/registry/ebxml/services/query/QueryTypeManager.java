@@ -34,6 +34,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.IRegistryQuery;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2012 184        bphillip     Initial creation
+ * Jun 24, 2013 2106       djohnson     Remove static use.
  * 
  * </pre>
  * 
@@ -43,7 +44,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.IRegistryQuery;
 public class QueryTypeManager {
 
     /** The query map */
-    private static Map<String, IRegistryQuery> queryTypeMap = new HashMap<String, IRegistryQuery>();
+    private final Map<String, IRegistryQuery> queryTypeMap = new HashMap<String, IRegistryQuery>();
 
     /**
      * Private constructor
@@ -63,9 +64,10 @@ public class QueryTypeManager {
         return queryTypeMap.get(queryDefinition);
     }
 
-    public static void addQueryTypes(IRegistryQuery... queries) {
+    public Object addQueryTypes(IRegistryQuery... queries) {
         for (IRegistryQuery query : queries) {
             queryTypeMap.put(query.getQueryDefinition(), query);
         }
+        return null;
     }
 }
