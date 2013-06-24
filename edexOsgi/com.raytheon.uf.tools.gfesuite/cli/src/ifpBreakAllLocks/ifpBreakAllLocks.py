@@ -33,7 +33,7 @@ import os
 import logging
 
 from ufpy import ThriftClient
-from ufpy.UsageOptionParser import UsageOptionParser
+from ufpy import UsageArgumentParser
 
 #
 # Provides a command-line utility to break all locks.
@@ -44,9 +44,16 @@ from ufpy.UsageOptionParser import UsageOptionParser
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    04/05/2011      8826          rferrel        Initial Creation.
+#    06/12/2013      2099          dgilling       Code cleanup, improve logging.
 #    
 # 
 #
+
+logging.basicConfig(format="%(asctime)s %(name)s %(levelname)s:  %(message)s", 
+                    datefmt="%H:%M:%S", 
+                    level=logging.INFO)
+log = logging.getLogger('ifpBreakAllLocks')
+
 
 def __WsId() :
     return WsId(progName="ifpBreakAllLocks")
@@ -71,13 +78,10 @@ def breakAllLocksGRIDRequest(officialDBs, lockTables, databaseIDs, allLocks):
         if lt.getParmId().getDbId().getFormat() == "GRID":
             locks = lt.getLocks()
             for lock in locks:
-                tr = TimeRange()
-                tr.setStart(lock.getStartTime()/1000.0)
-                tr.setEnd(lock.getEndTime()/1000.0)
-                logInfo('Lock: %s %s' % (lt.getParmId(), tr))
+                log.info('Lock: {} {} {}'.format(lt.getParmId(), lock.getTimeRange(), lock.getWsId().toPrettyString()))
                 lr = LockRequest()
                 lr.setParmId(lt.getParmId())
-                lr.setTimeRange(tr)
+                lr.setTimeRange(lock.getTimeRange())
                 lr.setMode("BREAK_LOCK")
                 if len(req) == 0:
                     siteID = lt.getParmId().getDbId().getSiteId()
@@ -90,147 +94,53 @@ def breakAllLocksGRIDRequest(officialDBs, lockTables, databaseIDs, allLocks):
         lockChangeRequest.setSiteID(siteID)
         lockChangeRequest.setWorkstationID(__WsId())
     return lockChangeRequest
-        
-def __initLogger():
-    logger = logging.getLogger("ifpBreakAllLocks.py")
-    logger.setLevel(logging.INFO)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(asctime)s %(name)s %(levelname)s:  %(message)s", "%H:%M:%S")
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+    
+def getActiveSites(thriftClient):
+    sites = thriftClient.sendRequest(GetActiveSitesRequest())
+    return sites
 
-def logInfo(msg):
-    logging.getLogger("ifpBreakAllLocks.py").info(msg)
-def logError(msg):
-    logging.getLogger("ifpBreakAllLocks.py").error(msg)
-    
-def validateSiteId(siteId, thriftClient):
-    try:
-    	sites = thriftClient.sendRequest(GetActiveSitesRequest())
-    except Exception, e:
-        logError("Unable to validate siteId: \n %s" % str(e))
-        sys.exit(1)
-
-    if not siteId in sites:
-        logError('Invalid or not installed siteID: "%s"' % siteId)
-        sys.exit(1)
-
-def findSiteID(thriftClient):
-    try:
-    	sites = thriftClient.sendRequest(GetActiveSitesRequest())
-    except Exception, e:
-        logError("Unable to obtain siteId: \n %s" % str(e))
-        sys.exit(1)
-
-    if len(sites) > 1 :
-        s = []
-        while len(sites) > 0 : s.append(sites.pop())
-        logError("Must use the -s option to specify one of the following sites: %s " % ", ".join(s))
-        sys.exit(1)
-    elif len(sites) == 0:
-        logError("No sites configured")
-        sys.exit(1)
-    return sites.pop()
-    
-def main():
-    (options, args) = validateArgs()
-    __initLogger()
-    logInfo('Break All Locks starting')
-    try:
-        thriftClient = ThriftClient.ThriftClient(options.host, options.port, "/services")
-        siteID = options.siteID
-        if siteID:
-            validateSiteId(options.siteID, thriftClient)
-        else:
-            siteID = findSiteID(thriftClient)
-        officialDbNamesRequest = getOfficialDbNamesRequest(siteID)
-        officialDbNameResponse = thriftClient.sendRequest(officialDbNamesRequest)
-        lockTablesRequest = getLockTablesRequest(siteID)
-        lockTableResponse = thriftClient.sendRequest(lockTablesRequest)
-    except Exception, e:
-        logError("Unhandled exception thrown during break all locks: \n %s" % str(e))
-        sys.exit(1)
-    
-    if (not officialDbNameResponse.isOkay()):
-        logError("Errors occurred during break all locks: ", officialDbNameResponse.message())
-        sys.exit(1)
-    officialDBs = officialDbNameResponse.getPayload()
-    
-    if (not lockTableResponse.isOkay()):
-        logError("Errors occurred during break all locks: ", lockTableResponse.message())
-        sys.exit(1)
-    
-    lockTables = lockTableResponse.getPayload()
-    breakRequest = breakAllLocksGRIDRequest(officialDBs, lockTables, options.databaseIDs, options.allLocks)
-    if not breakRequest:
-        logInfo('No locks found')
-    else :                
-        try :
-            breakResponse = thriftClient.sendRequest(breakRequest)
-        except Exception, e:
-            import traceback
-            logError("Unhandled exception thrown during break all locks: \n%s" % str(e))
-            print traceback.print_exc(file=sys.stdout)
-            sys.exit(1)
-            
-        if  not breakResponse.isOkay():
-            logError('Unable to break all locks.')
-            sys.exit(1)
-    logInfo('Break All Locks Finished')
-        
 def validateArgs():
-    usage = """%prog -h hostname -p port -s siteID -a -d databaseID ...
-    
-    \tEither -a or at least one -d is required"""
-    parser = UsageOptionParser(usage=usage, conflict_handler="resolve")
-    parser.add_option("-h", action="store", type="string", dest="host",
-                      help="ifpServer host name", 
-                      metavar="hostname")
-    parser.add_option("-p", action="store", type="int", dest="port", 
-                      help="port number of the ifpServer",
+    parser = UsageArgumentParser.UsageArgumentParser(prog='ifpBreakAllLocks', conflict_handler="resolve")
+    parser.add_argument("-h", action="store", dest="host",
+                      help="The host the ifpServer is running on", 
+                      metavar="host")
+    parser.add_argument("-p", action="store", type=int, dest="port", 
+                      help="The port number the server is using",
                       metavar="port")
-    parser.add_option("-s", action="store", type="string", dest="siteID", 
+    parser.add_argument("-s", action="store", dest="siteID", 
                       help="Site ID",
                       metavar="siteID")
-    parser.set_defaults(allLocks=False)
-    parser.add_option("-a", action="store_true", dest="allLocks",
-                      help="Break all database identifier's locks.",
-                      metavar="allLocks")
-    parser.add_option("-d", action="append", type="string", dest="databaseIDs", 
-                      help="database identifier",
-                      metavar="databaseIDs")
-    
-    (options, args) = parser.parse_args()
+    parser.add_argument("-a", action="store_true", dest="allLocks",
+                      help="Break locks on all databases")
+    parser.add_argument("-d", action="append", dest="databaseIDs", default=[],
+                        help="Break locks on specified database identifier",
+                        metavar="databaseID")
+    options = parser.parse_args()
         
     if options.host == None:
         if "CDSHOST" in os.environ:
             options.host = os.environ["CDSHOST"]
         else:
-            parser.error("No server hostname defined.")
-        
+            parser.error("Error: host is not specified.")
     if options.port == None:
         if "CDSPORT" in os.environ:
             options.port = int(os.environ["CDSPORT"])
         else:
-            parser.error("No server port defined.")
-        
-    if (options.allLocks == False and (options.databaseIDs is None or len(options.databaseIDs) == 0)):
-        parser.error("Must have -a or at least one DatabaseID (-d) must be provided.")
-
-    msg = []
+            parser.error("Error: port is not specified.")
+    if options.allLocks == False and not options.databaseIDs:
+        parser.error("Error: either -a or -d are required.")
+    invalidDbIds = []
     if not options.allLocks:
         for db in options.databaseIDs:
             if not DatabaseID(dbIdentifier=db).isValid():
-                msg.append('Invalid database identifier "%s"' % db)
-            if len(msg) > 0:
-                parser.error("\n".join(msg))
-    return (options, args)
-    
+                invalidDbIds.append(db)
+        if invalidDbIds:
+            parser.error("Invalid DatabaseIDs specified: {}".format(invalidDbIds))
+
+    return options
 
 def getLockTablesRequest(siteID):
     req = GetLockTablesRequest()
-    
     req.setWorkstationID(__WsId())
     req.setSiteID(siteID)
     req.setRequests([LockTableRequest()])
@@ -238,11 +148,70 @@ def getLockTablesRequest(siteID):
     
 def getOfficialDbNamesRequest(siteID):    
     req = GetOfficialDbNameRequest()
-    
     req.setWorkstationID(__WsId())
     req.setSiteID(siteID)
     return req
 
+def main():
+    log.info('Break All Locks starting')
+    
+    options = validateArgs()
+    log.info('allLocks= {}, Ids= {}'.format(options.allLocks, options.databaseIDs))
+    
+    thriftClient = ThriftClient.ThriftClient(options.host, options.port, "/services")
+    
+    activeSites = []
+    try:
+        activeSites = getActiveSites(thriftClient)
+    except:
+        log.exception("Could not retrieve current active sites:")
+        sys.exit(1)
+    
+    if options.siteID and options.siteID in activeSites:
+        siteID = options.siteID
+    elif not options.siteID and len(activeSites) == 1:
+        siteID = activeSites[0]
+    else:
+        if options.siteID and options.siteID not in activeSites:
+            log.error("Invalid site ID {} specified, only sites {} are valid".format(options.siteID, activeSites))
+        else:
+            log.error("Must use the -s option to specify one of the following sites {}".format(activeSites))
+        sys.exit(1)
+        
+    try:
+        officialDbNamesRequest = getOfficialDbNamesRequest(siteID)
+        officialDbNameResponse = thriftClient.sendRequest(officialDbNamesRequest)
+    except:
+        log.exception("Unable to retrieve official databases:")
+        sys.exit(1)
+    if not officialDbNameResponse.isOkay():
+        log.error("Unable to retrieve official databases: ", officialDbNameResponse.message())
+        sys.exit(1)
+    officialDBs = officialDbNameResponse.getPayload()
+        
+    try:
+        lockTablesRequest = getLockTablesRequest(siteID)
+        lockTableResponse = thriftClient.sendRequest(lockTablesRequest)
+    except:
+        log.exception("Unable to retrieve lock table:")
+        sys.exit(1)
+    if (not lockTableResponse.isOkay()):
+        log.error("Unable to retrieve lock table: ", lockTableResponse.message())
+        sys.exit(1)
+    lockTables = lockTableResponse.getPayload()
+    
+    breakRequest = breakAllLocksGRIDRequest(officialDBs, lockTables, options.databaseIDs, options.allLocks)
+    if breakRequest:             
+        try:
+            breakResponse = thriftClient.sendRequest(breakRequest)
+        except:
+            log.exception("Unhandled exception thrown during break all locks:")
+            sys.exit(1)
+        if not breakResponse.isOkay():
+            log.error('Unable to break all locks.')
+            sys.exit(1)
+    log.info('Break All Locks Finished')
+
+
 if __name__ == '__main__':
     main()
-    

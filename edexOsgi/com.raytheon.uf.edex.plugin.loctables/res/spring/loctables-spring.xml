@@ -41,7 +41,7 @@
                 <bean ref="loctablesIngest" method="processFile" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:loctables?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:loctables?level=ERROR"/>
                 </doCatch>
             </doTry>
         </route>

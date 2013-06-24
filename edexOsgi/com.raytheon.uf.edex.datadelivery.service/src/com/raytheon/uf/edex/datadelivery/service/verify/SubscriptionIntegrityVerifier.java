@@ -28,6 +28,7 @@ import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTy
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.registry.event.InsertRegistryEvent;
@@ -51,6 +52,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * 3/18/2013    1802      bphillip     Modified to use proper transaction boundaries
  * May 08, 2013 2000      djohnson     Shortcut out if no subscriptions are returned for the dataset.
  * May 20, 2013 2000      djohnson     Shortcut out if no subscription handler is available.
+ * Jun 20, 2013 1802      djohnson     Check several times for the dataset for now.
  * 
  * </pre>
  * 
@@ -218,8 +220,24 @@ public class SubscriptionIntegrityVerifier {
 
         if (DataDeliveryRegistryObjectTypes.DATASET.equals(objectType)) {
             try {
-                DataSet dataSet = DataDeliveryHandlers.getDataSetHandler()
-                        .getById(event.getId());
+                final IDataSetHandler dataSetHandler = DataDeliveryHandlers
+                        .getDataSetHandler();
+
+                DataSet dataSet = null;
+                int attempts = 0;
+                do {
+                    attempts++;
+                    dataSet = dataSetHandler.getById(event.getId());
+                    if (dataSet == null) {
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException e) {
+                            statusHandler.handle(Priority.PROBLEM,
+                                    e.getLocalizedMessage(), e);
+                        }
+                    }
+                } while (dataSet == null && attempts < 20);
+
                 if (dataSet != null) {
                     dataSetUpdated(dataSet);
                 }

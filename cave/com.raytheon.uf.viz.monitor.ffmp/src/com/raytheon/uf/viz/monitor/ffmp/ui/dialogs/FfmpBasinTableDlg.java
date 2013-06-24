@@ -84,9 +84,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPScreenCenterEvent;
 import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPStreamTraceEvent;
 import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPTimeChangeEvent;
 import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPWorstCaseEvent;
-import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPDataLoader.LOADER_TYPE;
 import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPGraphData;
-import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPLoaderStatus;
 import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPResource;
 import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPTableDataLoader;
 import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPTableDataUpdate;
@@ -121,6 +119,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Apr 15, 2013  1904      mpduff       Remove calls to reset FFMPConfig.
  * Apr 25, 2013  1902      mpduff       Fixed Thresholds dialog on multiple opens, needed an isDisposed check.
  * Jun 04, 2013 #1984      lvenable     removed unnecessary code.
+ * Jun 06, 2013  2075      njensen      Removed loading labels
  * </pre>
  * 
  * @author lvenable
@@ -273,8 +272,6 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
      * Previously selected HUC level
      */
     private String previousHuc;
-
-    private FFMPLoaderStatus loadStatus;
 
     public FfmpBasinTableDlg(Shell parent, FFMPTableData tData,
             FFMPResource resource) {
@@ -2096,47 +2093,6 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         allowNewTableUpdate = true;
     }
 
-    public void updateLoadingLabel(FFMPLoaderStatus status) {
-        this.loadStatus = status;
-        if (dataLoadComp == null) {
-            return;
-        }
-
-        GridData gd = (GridData) dataLoadComp.getLayoutData();
-
-        if (gd.exclude == true) {
-            ((GridData) dataLoadComp.getLayoutData()).exclude = false;
-            dataLoadComp.setVisible(true);
-            shell.pack();
-        }
-
-        String prefix = null;
-
-        if (status.getLoaderType() == LOADER_TYPE.SECONDARY) {
-            prefix = " Secondary Data Load: ";
-        } else if (status.getLoaderType() == LOADER_TYPE.TERTIARY) {
-            prefix = " Tertiary Data Load: ";
-        } else if (status.getLoaderType() == LOADER_TYPE.GENERAL) {
-            prefix = " General Data Load: ";
-        } else {
-            prefix = " Tertiary Data Load: ";
-        }
-
-        if (status.isDone() == false) {
-            dataLoadingLbl.setText(prefix + status.getMessage());
-            dataLoadingLbl.setBackground(getDisplay().getSystemColor(
-                    SWT.COLOR_CYAN));
-        } else {
-            dataLoadingLbl.setText("");
-            dataLoadingLbl.setBackground(getDisplay().getSystemColor(
-                    SWT.COLOR_WIDGET_BACKGROUND));
-
-            ((GridData) dataLoadComp.getLayoutData()).exclude = true;
-            dataLoadComp.setVisible(false);
-            shell.pack();
-        }
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -2240,11 +2196,6 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         updateGapValueLabel(fupdateData.getGapValueLabel());
 
         resetCursor();
-
-        // start tertiary loader if not run yet
-        if (loadStatus != null) {
-            resource.manageLoaders(loadStatus);
-        }
     }
 
     /**

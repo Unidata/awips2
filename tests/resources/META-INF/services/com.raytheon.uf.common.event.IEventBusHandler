@@ -1,1 +1,1 @@
-com.raytheon.uf.edex.event.TestEventBusHandler
+com.raytheon.uf.edex.event.TransactionalSynchronousEventBusHandler

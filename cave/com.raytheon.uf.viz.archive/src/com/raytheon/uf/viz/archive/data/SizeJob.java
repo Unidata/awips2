@@ -183,7 +183,7 @@ public class SizeJob extends Job {
 
             displayData.setSize(size);
 
-            List<SizeJobRequest> list = new ArrayList<SizeJobRequest>();
+            List<SizeJobRequest> list = new ArrayList<SizeJobRequest>(1);
             list.add(dirInfo);
             for (IUpdateListener listener : listeners) {
                 listener.update(list);
