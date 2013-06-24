@@ -27,11 +27,12 @@ import com.raytheon.edex.plugin.gfe.server.lock.LockManager;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.gfe.request.LockChangeRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
-import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerMsg;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GfeNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.LockNotification;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * GFE task for requesting a lock change
@@ -44,12 +45,17 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 06/17/08     #940       bphillip    Implemented GFE Locking
  * 09/22/09     3058       rjpeter     Converted to IRequestHandler
  * 04/24/13     1949       rjpeter     Added list sizing
+ * 06/12/13     2099       randerso    Send GridUpdateNotifications,
+ *                                     clean up error handling
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
 public class LockChangeHandler implements IRequestHandler<LockChangeRequest> {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(LockChangeHandler.class);
+
     @Override
     public ServerResponse<List<LockTable>> handleRequest(
             LockChangeRequest request) throws Exception {
@@ -70,13 +76,16 @@ public class LockChangeHandler implements IRequestHandler<LockChangeRequest> {
                 ServerResponse<?> notifyResponse = SendNotifications
                         .send(notes);
                 if (!notifyResponse.isOkay()) {
-                    for (ServerMsg msg : notifyResponse.getMessages()) {
-                        sr.addMessage(msg.getMessage());
-                    }
+                    statusHandler.error(notifyResponse.message());
+                }
+
+                // send out grid update notifications
+                notifyResponse = SendNotifications.send(sr.getNotifications());
+                if (!notifyResponse.isOkay()) {
+                    statusHandler.error(notifyResponse.message());
                 }
             } catch (Exception e) {
-                sr.addMessage("Error sending lock notification - "
-                        + e.getMessage());
+                statusHandler.error("Error sending lock notification", e);
             }
         }
         return sr;

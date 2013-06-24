@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.monitor.ffmp.ui.dialogs;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 
 import org.eclipse.swt.SWT;
 
@@ -61,31 +60,28 @@ public class FFMPTableData implements ISortColumn {
      */
     private int currentSortDirection = SWT.DOWN;
 
-    private HashMap<String, Object> pfafMap;
-
     /**
      * Constructor.
      */
     public FFMPTableData() {
         tableRows = new ArrayList<FFMPTableRowData>();
-        pfafMap = new HashMap<String, Object>();
     }
 
     /**
-     * Add or replace a row of cell data to the table rows collection. A row is
-     * replaced if the area Id already exists.
+     * Constructor.
+     */
+    public FFMPTableData(int initialCapacity) {
+        tableRows = new ArrayList<FFMPTableRowData>(initialCapacity);
+    }
+
+    /**
+     * Add a row of cell data to the table rows collection.
      * 
      * @param data
      *            Table row data.
      */
-    public void addDataRow(FFMPTableRowData data) {
-        pfafMap.put(data.getPfaf().toString(), null);
-        data.setSortCallback(this);
+    public synchronized void addDataRow(FFMPTableRowData data) {
         tableRows.add(data);
-    }
-
-    public boolean containsPfaf(String pfaf) {
-        return pfafMap.containsKey(pfaf);
     }
 
     /**
