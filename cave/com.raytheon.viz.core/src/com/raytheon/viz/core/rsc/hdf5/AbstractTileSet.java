@@ -24,10 +24,8 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
@@ -53,7 +51,6 @@ import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.RasterMode;
-import com.raytheon.uf.viz.core.IMeshCallback;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
@@ -83,13 +80,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Feb 15, 2007             chammack    Initial Creation.
+ *    Jun 24, 2013       2122  mschenke    Removed unused IMeshCallback listeners
  * 
  * </pre>
  * 
  * @author chammack
  * @version 1
  */
-public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
+public abstract class AbstractTileSet implements IRenderable {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractTileSet.class);
 
@@ -146,8 +144,6 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
     protected Map<MultiKey, CreateTileJob> jobMap = new ConcurrentHashMap<MultiKey, CreateTileJob>();
 
     private boolean disposed = true;
-
-    private Set<IMeshCallback> meshCallbacks = new HashSet<IMeshCallback>();
 
     public AbstractTileSet(int levels, int tileSize,
             GridGeometry2D gridGeometry, AbstractVizResource<?, ?> rsc,
@@ -903,20 +899,6 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
 
     public boolean doneLoading() {
         return jobMap.isEmpty();
-    }
-
-    public void addMeshCallback(IMeshCallback meshCallback) {
-        this.meshCallbacks.add(meshCallback);
-    }
-
-    public void removeMeshCallback(IMeshCallback meshCallback) {
-        this.meshCallbacks.remove(meshCallback);
-    }
-
-    public void meshCalculated(ImageTile tile) {
-        for (IMeshCallback meshCallback : meshCallbacks) {
-            meshCallback.meshCalculated(tile);
-        }
     }
 
 }

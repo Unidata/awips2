@@ -23,8 +23,8 @@ import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,9 +33,7 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
-import org.opengis.coverage.grid.GridGeometry;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.datum.PixelInCell;
 
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
@@ -47,26 +45,23 @@ import com.raytheon.uf.common.dataplugin.satellite.units.counts.DerivedWVPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.goes.PolarPrecipWaterPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.water.BlendedTPWPixel;
-import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
-import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.IMeshCallback;
+import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
+import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.map.MapDescriptor;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
+import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.rsc.AbstractPluginDataObjectResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
-import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
 import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.viz.core.style.StyleManager;
 import com.raytheon.uf.viz.core.style.StyleRule;
@@ -74,11 +69,11 @@ import com.raytheon.uf.viz.core.style.level.Level;
 import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterRequest;
 import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
-import com.raytheon.viz.core.rsc.hdf5.AbstractTileSet;
-import com.raytheon.viz.core.rsc.hdf5.FileBasedTileSet;
 import com.raytheon.viz.core.style.image.ImagePreferences;
 import com.raytheon.viz.core.style.image.SamplePreferences;
 import com.raytheon.viz.satellite.SatelliteConstants;
+import com.raytheon.viz.satellite.tileset.SatTileSetRenderable;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Provides satellite raster rendering support
@@ -93,48 +88,150 @@ import com.raytheon.viz.satellite.SatelliteConstants;
  *  02/17/2009               njensen     Refactored to new rsc architecture.
  *  03/02/2009		2032	 jsanchez	 Added check for displayedDate if no data.
  *  03/25/2009      2086     jsanchez    Mapped correct converter to parameter type.
- *                                        Updated the call to ColormapParametersFactory.build
+ *                                       Updated the call to ColormapParametersFactory.build
  *  03/30/2009      2169     jsanchez    Updated numLevels handling.
  * - AWIPS2 Baseline Repository --------
- * 07/17/2012        798     jkorman     Use decimationLevels from SatelliteRecord. Removed hard-coded
- * data set names.
+ *  07/17/2012      798      jkorman     Use decimationLevels from SatelliteRecord. Removed hard-coded
+ *                                       data set names.
+ *  06/20/2013      2122     mschenke    Modified to use SatTileSetRenderable
  * </pre>
  * 
  * @author chammack
  * @version 1
  */
 public class SatResource extends
-        AbstractVizResource<SatResourceData, MapDescriptor> implements
-        IResourceDataChanged, IMeshCallback {
-
-    public static String RAW_VALUE = "rawValue";
+        AbstractPluginDataObjectResource<SatResourceData, IMapDescriptor> {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SatResource.class);
 
-    protected Map<DataTime, SatFileBasedTileSet> tileSet;
+    public static String RAW_VALUE = "rawValue";
 
-    private Map<DataTime, SatelliteRecord> recordMap = new HashMap<DataTime, SatelliteRecord>();
+    private static class InterrogationResult {
 
-    protected DataTime displayedDate;
+        private final SatelliteRecord record;
 
-    protected SatFileBasedTileSet baseTile;
+        private final double value;
+
+        public InterrogationResult(SatelliteRecord record, double value) {
+            this.record = record;
+            this.value = value;
+        }
+
+        public SatelliteRecord getRecord() {
+            return record;
+        }
+
+        public double getValue() {
+            return value;
+        }
+
+    }
+
+    private class SatRenderable implements IRenderable {
+
+        private Map<ISpatialObject, SatTileSetRenderable> tileMap = new HashMap<ISpatialObject, SatTileSetRenderable>();
+
+        private DataTime renderableTime;
+
+        public SatRenderable(DataTime renderableTime) {
+            this.renderableTime = renderableTime;
+        }
+
+        @Override
+        public void paint(IGraphicsTarget target, PaintProperties paintProps)
+                throws VizException {
+            Collection<DrawableImage> images = getImagesToRender(target,
+                    paintProps);
+            if (images.isEmpty() == false) {
+                target.drawRasters(paintProps,
+                        images.toArray(new DrawableImage[0]));
+            }
+        }
+
+        public Collection<DrawableImage> getImagesToRender(
+                IGraphicsTarget target, PaintProperties paintProps)
+                throws VizException {
+            List<DrawableImage> images = new ArrayList<DrawableImage>();
+            synchronized (tileMap) {
+                for (SatTileSetRenderable renderable : tileMap.values()) {
+                    images.addAll(renderable.getImagesToRender(target,
+                            paintProps));
+                }
+            }
+            return images;
+        }
+
+        public void addRecord(SatelliteRecord record) {
+            synchronized (tileMap) {
+                SatTileSetRenderable tileSet = tileMap.get(record
+                        .getSpatialObject());
+                if (tileSet != null) {
+                    SatelliteRecord existingRecord = tileSet
+                            .getSatelliteRecord();
+                    if (existingRecord.equals(record) == false) {
+                        // Different record, same spatial area for same frame
+                        // Determine if new one is better than existing
+                        long existingTimeMillis = existingRecord.getDataTime()
+                                .getMatchRef();
+                        long newRecordTimeMillis = record.getDataTime()
+                                .getMatchRef();
+                        long normalTimeMillis = renderableTime.getMatchRef();
+                        if (Math.abs(normalTimeMillis - newRecordTimeMillis) < Math
+                                .abs(normalTimeMillis - existingTimeMillis)) {
+                            // New is better since it's data time is closer to
+                            // the normal time than the existing record's time!
+                            tileSet.dispose();
+                            tileSet = null;
+                        }
+                    }
+                }
+                if (tileSet == null) {
+                    tileSet = new SatTileSetRenderable(SatResource.this, record);
+                    tileSet.project(descriptor.getGridGeometry());
+                    tileMap.put(record.getSpatialObject(), tileSet);
+                }
+            }
+        }
+
+        public void project() {
+            synchronized (tileMap) {
+                for (SatTileSetRenderable renderable : tileMap.values()) {
+                    renderable.project(descriptor.getGridGeometry());
+                }
+            }
+        }
+
+        public void dispose() {
+            synchronized (tileMap) {
+                for (SatTileSetRenderable renderable : tileMap.values()) {
+                    renderable.dispose();
+                }
+                tileMap.clear();
+            }
+        }
+
+        public InterrogationResult interrogate(Coordinate latLon)
+                throws VizException {
+            InterrogationResult result = null;
+            synchronized (tileMap) {
+                for (SatTileSetRenderable renderable : tileMap.values()) {
+                    double rValue = renderable.interrogate(latLon);
+                    if (Double.isNaN(rValue) == false && rValue != fillValue) {
+                        result = new InterrogationResult(
+                                renderable.getSatelliteRecord(), rValue);
+                    }
+                }
+            }
+            return result;
+        }
+    }
 
     protected String legend;
 
-    protected IGraphicsTarget target;
-
-    protected boolean hasBeenInited;
-
-    protected int numLevels;
-
-    protected String viewType;
-
-    protected SatFileBasedTileSet currentTile;
-
-    protected GridGeometry recordGeometry;
-
     protected SamplePreferences sampleRange;
+
+    protected double fillValue = 0;
 
     /**
      * Constructor
@@ -143,28 +240,27 @@ public class SatResource extends
      */
     public SatResource(SatResourceData data, LoadProperties props) {
         super(data, props);
-        data.addChangeListener(this);
-        this.tileSet = new HashMap<DataTime, SatFileBasedTileSet>();
-        this.dataTimes = new ArrayList<DataTime>();
-        this.legend = null;
-        SatelliteRecord[] records = data.getRecords();
-        Arrays.sort(records, new SatelliteRecordComparator());
+        addDataObject(data.getRecords());
+    }
 
-        for (SatelliteRecord record : records) {
+    @Override
+    protected DataTime getDataObjectTime(PluginDataObject pdo) {
+        SatelliteRecord record = (SatelliteRecord) pdo;
+        if (dataTimes.isEmpty()) {
             try {
-                addRecord(record);
+                initializeFirstFrame(record);
             } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error adding satellite record", e);
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
         }
 
-        /*
-         * This handles if there is no data for East & West CONUS simultaneously
-         */
-        if (dataTimes.size() > 1) {
-            displayedDate = dataTimes.get(dataTimes.size() - 1);
+        DataTime pdoTime = pdo.getDataTime();
+        if (resourceData.getBinOffset() != null) {
+            pdoTime = resourceData.getBinOffset().getNormalizedTime(pdoTime);
         }
+
+        return pdoTime;
     }
 
     private void initializeFirstFrame(SatelliteRecord record)
@@ -219,6 +315,7 @@ public class SatResource extends
                 cmName = colorMapParameters.getColorMapName();
             }
         }
+
         // Grab the sampleRange from the preferences
         ParamLevelMatchCriteria match = new ParamLevelMatchCriteria();
         match.setParameterName(Arrays.asList(physicalElement));
@@ -229,17 +326,16 @@ public class SatResource extends
         if (sr != null && sr.getPreferences() instanceof ImagePreferences) {
             sampleRange = ((ImagePreferences) sr.getPreferences())
                     .getSamplePrefs();
-            String lg = ((ImagePreferences) sr.getPreferences())
-        	.getLegend();
+            String lg = ((ImagePreferences) sr.getPreferences()).getLegend();
             // test, so legend is not over written with empty string
             if (lg != null && !lg.trim().isEmpty()) {
                 legend = lg;
             }
         }
 
-        colorMapParameters = ColorMapParameterFactory.build(null,
-                record.getDataURI() + "/Data", physicalElement, unit, level,
-                creatingEntity);
+        colorMapParameters = ColorMapParameterFactory.build((Object) null,
+                physicalElement, unit, level, creatingEntity);
+        // TODO: Figure out data/color map min/max values better
         if (unit == null) {
             colorMapParameters.setColorMapMin(0.0f);
             colorMapParameters.setColorMapMax(255.0f);
@@ -259,18 +355,21 @@ public class SatResource extends
             colorMapParameters.setDataMax(255.0f);
         }
 
+        if (colorMap == null) {
+            if (cmName == null) {
+                cmName = "Sat/VIS/ZA (Vis Default)";
+            }
+            colorMap = ColorMapLoader.loadColorMap(cmName);
+        }
+
         if (colorMap != null) {
             colorMapParameters.setColorMap(colorMap);
-        }
-        if (cmName != null) {
-            colorMapParameters.setColorMapName(cmName);
         }
 
         getCapability(ColorMapCapability.class).setColorMapParameters(
                 colorMapParameters);
 
-        // number of interpolation levels plus the base level!
-        numLevels = record.getInterpolationLevels() + 1;
+        this.legend = getLegend(record);
     }
 
     @Override
@@ -282,109 +381,31 @@ public class SatResource extends
     }
 
     @Override
-    protected void disposeInternal() {
-        if (baseTile != null)
-            baseTile.dispose();
-        for (AbstractTileSet tile : this.tileSet.values())
-            if (tile != baseTile)
-                tile.dispose();
-    }
-
-    @Override
-    protected void initInternal(IGraphicsTarget target) throws VizException {
-        synchronized (this) {
-            this.viewType = target.getViewType();
-            this.hasBeenInited = true;
-            this.target = target;
-
-            if (this.baseTile != null) {
-                this.baseTile.init(target);
-            }
-            for (AbstractTileSet tile : this.tileSet.values()) {
-                if (tile != baseTile) {
-                    tile.init(target);
-                }
-            }
-        }
-
-        ColorMapParameters params = getCapability(ColorMapCapability.class)
-                .getColorMapParameters();
-        if (params.getColorMap() == null) {
-            String colorMapName = params.getColorMapName();
-            if (colorMapName == null)
-                colorMapName = "Sat/VIS/ZA (Vis Default)";
-
-            params.setColorMap(target.buildColorMap(colorMapName));
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.core.rsc.IVizResource#paint(com.raytheon.viz.core.
-     * IGraphicsTarget, com.raytheon.viz.core.PixelExtent, double, float)
-     */
-    @Override
-    protected void paintInternal(IGraphicsTarget target,
-            PaintProperties paintProps) throws VizException {
-        this.target = target;
-        this.displayedDate = paintProps.getDataTime();
-        if (this.displayedDate == null)
-            return;
-
-        currentTile = this.tileSet.get(this.displayedDate);
-        if (currentTile != null) {
-            currentTile.paint(target, paintProps);
-        }
-        // System.out.println("Time to paint: "
-        // + (System.currentTimeMillis() - t0));
-    }
-
-    @Override
-    public void setDescriptor(MapDescriptor descriptor) {
-        if (this.baseTile != null) {
-            this.baseTile.setMapDescriptor(descriptor);
-        }
-        for (AbstractTileSet tile : this.tileSet.values())
-            tile.setMapDescriptor(descriptor);
-
-        this.descriptor = descriptor;
-    }
-
-    @Override
-    public void project(CoordinateReferenceSystem mapData) throws VizException {
-        if (this.baseTile != null)
-            this.baseTile.reproject();
-
-        for (AbstractTileSet tile : tileSet.values())
-            tile.reproject();
-    }
-
-    @Override
     public Map<String, Object> interrogate(ReferencedCoordinate coord)
             throws VizException {
+        DataTime displayedDate = descriptor.getFramesInfo().getTimeForResource(
+                this);
         Map<String, Object> dataMap = new HashMap<String, Object>();
-        SatelliteRecord record = recordMap.get(displayedDate);
-        if (record != null) {
-            dataMap.put(ISpatialObject.class.toString(),
-                    record.getSpatialObject());
-            AbstractTileSet tile = tileSet.get(displayedDate);
-            if (tile != null) {
-                try {
-                    Double raw = tile.interrogate(coord.asLatLon(), true);
-                    if (raw != 0 && raw.isNaN() == false) {
-                        UnitConverter dataToDisplay = getCapability(
-                                ColorMapCapability.class)
-                                .getColorMapParameters()
-                                .getDataToDisplayConverter();
-                        if (dataToDisplay != null) {
-                            raw = dataToDisplay.convert(raw);
-                        }
-                        dataMap.put(RAW_VALUE, raw);
+
+        SatRenderable renderable = (SatRenderable) getRenderable(displayedDate);
+        if (renderable != null) {
+            try {
+                InterrogationResult result = renderable.interrogate(coord
+                        .asLatLon());
+                if (result != null) {
+                    double dataValue = result.getValue();
+                    UnitConverter dataToDisplay = getCapability(
+                            ColorMapCapability.class).getColorMapParameters()
+                            .getDataToDisplayConverter();
+                    if (dataToDisplay != null) {
+                        dataValue = dataToDisplay.convert(dataValue);
                     }
-                } catch (Exception e) {
-                    throw new VizException("Error interrogating raw data", e);
+                    dataMap.put(RAW_VALUE, dataValue);
+                    dataMap.put(ISpatialObject.class.toString(), result
+                            .getRecord().getSpatialObject());
                 }
+            } catch (Exception e) {
+                throw new VizException("Error interrogating raw data", e);
             }
         }
         return dataMap;
@@ -434,116 +455,7 @@ public class SatResource extends
         return String.format("%.1f%s", value, unitString);
     }
 
-    public class SatelliteRecordComparator implements
-            Comparator<SatelliteRecord> {
-
-        public int compare(SatelliteRecord o1, SatelliteRecord o2) {
-            return o1.getDataTime().getRefTime()
-                    .compareTo(o2.getDataTime().getRefTime());
-        }
-    }
-
-    public void addRecord(PluginDataObject record) throws VizException {
-        synchronized (this) {
-            SatFileBasedTileSet tile;
-            DataTime recordTime = null;
-            if (resourceData.getBinOffset() != null || resourceData.equals(0)) {
-                BinOffset binOffset = resourceData.getBinOffset();
-                DataTime recTime = record.getDataTime();
-                DataTime normTime = binOffset.getNormalizedTime(recTime);
-                if (recordMap.containsKey(normTime)) {
-                    // a normalized time was found...
-                    // if this record's time is closer than the existing
-                    // record's
-                    // then replace the existing record with the new record
-                    SatelliteRecord satRec = recordMap.get(normTime);
-                    DataTime existingTime = satRec.getDataTime();
-                    long existingTimeMillis = existingTime
-                            .getRefTimeAsCalendar().getTimeInMillis();
-                    long recTimeMillies = recTime.getRefTimeAsCalendar()
-                            .getTimeInMillis();
-                    long normTimeMillies = normTime.getRefTimeAsCalendar()
-                            .getTimeInMillis();
-                    if (Math.abs(normTimeMillies - existingTimeMillis) > Math
-                            .abs(normTimeMillies - recTimeMillies)) {
-                        // System.out.println("For " + normTime +
-                        // "\n\treplaced "
-                        // + existingTime + "\n\twith     " + recTime);
-                        recordMap.remove(normTime);
-                        FileBasedTileSet oldTile = tileSet.remove(normTime);
-                        if (oldTile != null) {
-                            oldTile.dispose();
-                        }
-                    }
-                }
-                recordTime = normTime;
-            } else {
-                recordTime = record.getDataTime();
-            }
-            recordMap.put(recordTime, (SatelliteRecord) record);
-            if (baseTile == null) {
-                initializeFirstFrame((SatelliteRecord) record);
-            }
-
-            if (baseTile == null) {
-                tile = baseTile = new SatFileBasedTileSet(record, DataStoreFactory.DEF_DATASET_NAME,
-                        numLevels, 256,
-                        MapUtil.getGridGeometry(((SatelliteRecord) record)
-                                .getSpatialObject()), this,
-                        PixelInCell.CELL_CORNER, viewType);
-            } else {
-                tile = new SatFileBasedTileSet(record, DataStoreFactory.DEF_DATASET_NAME, baseTile);
-            }
-            tile.addMeshCallback(this);
-            tile.setMapDescriptor(this.descriptor);
-            if (hasBeenInited)
-                tile.init(target);
-
-            if (this.legend == null) {
-                this.legend = getLegend(record);
-            }
-            FileBasedTileSet oldTile = tileSet.put(recordTime, tile);
-            if (oldTile != null) {
-                oldTile.dispose();
-            }
-            dataTimes.add(recordTime);
-
-            Collections.sort(this.dataTimes);
-        }
-    }
-
-    @Override
-    public void remove(DataTime dataTime) {
-        synchronized (this) {
-            if (!this.dataTimes.contains(dataTime))
-                return;
-
-            this.dataTimes.remove(dataTime);
-
-            FileBasedTileSet tile = tileSet.remove(dataTime);
-            if (tile != baseTile && tile != null)
-                tile.dispose();
-        }
-    }
-
-    @Override
-    public void resourceChanged(ChangeType type, Object object) {
-        if (type.equals(ChangeType.DATA_UPDATE)) {
-            PluginDataObject[] pdos = (PluginDataObject[]) object;
-            for (PluginDataObject pdo : pdos) {
-                try {
-                    this.addRecord(pdo);
-                } catch (VizException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error updating satellite resource", e);
-                }
-            }
-        }
-        issueRefresh();
-    }
-
     private String getLegend(PluginDataObject record) {
-
         String productName = null;
         DerivedParameterRequest request = (DerivedParameterRequest) record
                 .getMessageData();
@@ -556,23 +468,87 @@ public class SatResource extends
                 ((SatelliteRecord) record).getCreatingEntity());
     }
 
+    public List<DrawableImage> getImages(IGraphicsTarget target,
+            PaintProperties paintProps) throws VizException {
+        SatRenderable renderable = (SatRenderable) getOrCreateRenderable(paintProps
+                .getDataTime());
+        if (renderable != null) {
+            return new ArrayList<DrawableImage>(renderable.getImagesToRender(
+                    target, paintProps));
+        }
+        return Collections.emptyList();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.rsc.AbstractPluginDataObjectResource#
+     * capabilityChanged(com.raytheon.uf.viz.core.drawables.IRenderable,
+     * com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability)
+     */
     @Override
-    public void meshCalculated(ImageTile tile) {
+    protected void capabilityChanged(IRenderable renderable,
+            AbstractCapability capability) {
         issueRefresh();
     }
 
-    public List<DrawableImage> getImages(IGraphicsTarget target,
-            PaintProperties paintProps) throws VizException {
-        this.target = target;
-        this.displayedDate = paintProps.getDataTime();
-        if (this.displayedDate == null)
-            return Collections.emptyList();
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.rsc.AbstractPluginDataObjectResource#
+     * disposeRenderable(com.raytheon.uf.viz.core.drawables.IRenderable)
+     */
+    @Override
+    protected void disposeRenderable(IRenderable renderable) {
+        ((SatRenderable) renderable).dispose();
+    }
 
-        currentTile = this.tileSet.get(this.displayedDate);
-        if (currentTile != null) {
-            return currentTile.getImages(target, paintProps);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.rsc.AbstractPluginDataObjectResource#
+     * projectRenderable(com.raytheon.uf.viz.core.drawables.IRenderable,
+     * org.opengis.referencing.crs.CoordinateReferenceSystem)
+     */
+    @Override
+    protected boolean projectRenderable(IRenderable renderable,
+            CoordinateReferenceSystem crs) throws VizException {
+        ((SatRenderable) renderable).project();
+        return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.rsc.AbstractPluginDataObjectResource#
+     * constructRenderable(com.raytheon.uf.common.time.DataTime, java.util.List)
+     */
+    @Override
+    protected IRenderable constructRenderable(DataTime time,
+            List<PluginDataObject> records) throws VizException {
+        SatRenderable renderable = new SatRenderable(time);
+        updateRenderable(renderable, records.toArray(new PluginDataObject[0]));
+        renderable.project();
+        return renderable;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.rsc.AbstractPluginDataObjectResource#
+     * updateRenderable(com.raytheon.uf.viz.core.drawables.IRenderable,
+     * com.raytheon.uf.common.dataplugin.PluginDataObject[])
+     */
+    @Override
+    protected boolean updateRenderable(IRenderable renderable,
+            PluginDataObject... pdos) {
+        SatRenderable sr = (SatRenderable) renderable;
+        for (PluginDataObject object : pdos) {
+            if (object instanceof SatelliteRecord) {
+                sr.addRecord((SatelliteRecord) object);
+            }
         }
-        return Collections.emptyList();
+        return true;
     }
 
 }
