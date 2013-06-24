@@ -36,7 +36,7 @@
 		          </pipeline>
 		          <doCatch>
 		             <exception>java.lang.Throwable</exception>
-		             <to uri="log:scanCpgSrv?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+		             <to uri="log:scanCpgSrv?level=ERROR"/>
 		          </doCatch>
 	        </doTry>
         </route>
