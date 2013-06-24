@@ -24,7 +24,6 @@ import java.util.List;
 import com.raytheon.uf.common.datadelivery.registry.GroupDefinition;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.GroupNameQuery;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.GroupQuery;
-import com.raytheon.uf.common.registry.RegistryManager;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
 import com.raytheon.uf.common.registry.RegistryResponse;
 import com.raytheon.uf.common.registry.handler.BaseRegistryObjectHandler;
@@ -41,6 +40,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * ------------ ---------- ----------- --------------------------
  * Oct 3, 2012  1241       djohnson     Initial creation
  * Jan 02, 2013 1441       djohnson     Add deleteByName() and getGroupNames().
+ * Jun 24, 2013 2106       djohnson     Now composes a registryHandler.
  * 
  * </pre>
  * 
@@ -61,8 +61,8 @@ public class GroupDefinitionHandler extends
         GroupQuery gQuery = getQuery();
         gQuery.setGroupName(groupName);
 
-        RegistryQueryResponse<GroupDefinition> response = RegistryManager
-                .getRegistyObjects(gQuery);
+        RegistryQueryResponse<GroupDefinition> response = registryHandler
+                .getObjects(gQuery);
 
         checkResponse(response, "getByName");
 
@@ -77,8 +77,8 @@ public class GroupDefinitionHandler extends
         GroupQuery gQuery = getQuery();
         gQuery.setGroupName(groupName);
 
-        RegistryResponse<GroupDefinition> response = RegistryManager
-                .removeRegistyObjects(gQuery);
+        RegistryResponse<GroupDefinition> response = registryHandler
+                .removeObjects(gQuery);
 
         checkResponse(response, "getByName");
     }
@@ -90,8 +90,8 @@ public class GroupDefinitionHandler extends
     public List<String> getGroupNames() throws RegistryHandlerException {
         GroupNameQuery groupNameQuery = new GroupNameQuery();
 
-        RegistryQueryResponse<String> response = RegistryManager
-                .getRegistyObjects(groupNameQuery);
+        RegistryQueryResponse<String> response = registryHandler
+                .getObjects(groupNameQuery);
 
         checkResponse(response, "getGroupNames");
 
