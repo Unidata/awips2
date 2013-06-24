@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,6 +19,7 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentNavigableMap;
 
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
@@ -44,7 +44,6 @@ import com.raytheon.uf.common.monitor.config.FFFGDataMgr;
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
-import com.raytheon.uf.common.monitor.config.FFMPTemplateConfigurationManager;
 import com.raytheon.uf.common.monitor.xml.DomainXML;
 import com.raytheon.uf.common.monitor.xml.FFMPRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductRunXML;
@@ -71,10 +70,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpBasinTableDlg;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfig;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
 import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.IFFMPResourceListener;
-import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPDataLoader;
-import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPDataLoader.LOADER_TYPE;
 import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPResource;
-import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPResourceData;
 import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPTimeWindow;
 import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
 
@@ -95,10 +91,12 @@ import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
  * 02/01/13     1627        D. Hladky   removed unused(useless) db load method
  * 02/19/13     1639        njensen     Replaced ConcurrentHashMaps with data structures
  * 02/20/13     1635        D. Hladky   Fixed multi guidance sources
- * Mar 6, 2013   1769     dhladky    Changed threading to use count down latch.
- * Apr 9, 2013   1890     dhladky     Fixed the broken cache file load
+ * Mar 06, 2013 1769        dhladky     Changed threading to use count down latch.
+ * Apr 09, 2013 1890        dhladky     Fixed the broken cache file load
  * Apr 16, 2013 1912        bsteffen    Initial bulk hdf5 access for ffmp
  * Apr 26, 2013 1954        bsteffen    Minor code cleanup throughout FFMP.
+ * Jun 06, 2013 2075        njensen     No longer starts loading threads, resourceData does that
+ * Jun 07, 2013 2075        njensen     Extracted FFMPProcessUris to separate class
  * 
  * </pre>
  * 
@@ -107,7 +105,6 @@ import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
  */
 
 public class FFMPMonitor extends ResourceMonitor {
-    private static long SECONDS_PER_HOUR = 60 * 60;
 
     /** Singleton instance of this class */
     private static FFMPMonitor monitor = null;
@@ -143,8 +140,8 @@ public class FFMPMonitor extends ResourceMonitor {
 
     private FFMPTimeWindow qpeWindow = null;
 
-    /** The infamous templates **/
-    private FFMPTemplates templates = null;
+    /** The infamous templates, now volatile! **/
+    private volatile FFMPTemplates templates = null;
 
     private FFMPRunConfigurationManager frcm = null;
 
@@ -167,12 +164,6 @@ public class FFMPMonitor extends ResourceMonitor {
                     FFMPResource res = (FFMPResource) listener;
                     if (res.basinTableDlg != null) {
                         closeDialog(res);
-                    }
-
-                    // will kill any loaders running
-                    if (res.getResourceData().floader != null) {
-                        res.getResourceData().floader.kill();
-                        res.getResourceData().floader = null;
                     }
                 }
             }
@@ -247,7 +238,6 @@ public class FFMPMonitor extends ResourceMonitor {
      * @return
      */
     public static boolean isRunning() {
-
         if (monitor == null) {
             return false;
         }
@@ -301,7 +291,7 @@ public class FFMPMonitor extends ResourceMonitor {
      * @param phuc
      * @return
      */
-    private List<String> getLoadedUris(String siteKey, String source,
+    protected List<String> getLoadedUris(String siteKey, String source,
             String phuc) {
         FFMPSiteData siteData = siteDataMap.get(siteKey);
         FFMPSourceData sourceData = siteData.getSourceData(source);
@@ -338,8 +328,8 @@ public class FFMPMonitor extends ResourceMonitor {
                                     || !getLoadedUris(siteKey, source, phuc)
                                             .contains(uri)) {
                                 try {
-                                    populateFFMPRecord(siteKey,
-                                            new FFMPRecord(uri), source, phuc);
+                                    populateFFMPRecord(siteKey, new FFMPRecord(
+                                            uri), source, phuc);
                                 } catch (Exception e) {
                                     statusHandler.handle(Priority.PROBLEM,
                                             "FFMP Can't retrieve FFMP URI, "
@@ -435,11 +425,10 @@ public class FFMPMonitor extends ResourceMonitor {
      * @param phuc
      * @throws Exception
      */
-    public void populateFFMPRecord(String siteKey,
-            FFMPRecord ffmpRec, String source, String phuc) throws Exception {
+    public void populateFFMPRecord(String siteKey, FFMPRecord ffmpRec,
+            String source, String phuc) throws Exception {
 
-        FFMPLoadRecord flr = new FFMPLoadRecord(siteKey,
-                ffmpRec, source, phuc);
+        FFMPLoadRecord flr = new FFMPLoadRecord(siteKey, ffmpRec, source, phuc);
         flr.run();
     }
 
@@ -469,9 +458,9 @@ public class FFMPMonitor extends ResourceMonitor {
                     if (sourceXML.getSourceType().equals(
                             SOURCE_TYPE.GAGE.getSourceType())
                             && phuc.equals(FFMPRecord.ALL)) {
-                        ffmpRec.retrieveVirtualBasinFromDataStore(loc,
-                                dataUri, getTemplates(siteKey), ffmpRec
-                                        .getDataTime().getRefTime(), basin);
+                        ffmpRec.retrieveVirtualBasinFromDataStore(loc, dataUri,
+                                getTemplates(siteKey), ffmpRec.getDataTime()
+                                        .getRefTime(), basin);
                     } else {
                         ffmpRec.retrieveBasinFromDataStore(dataStore, dataUri,
                                 getTemplates(siteKey), phuc, ffmpRec
@@ -509,7 +498,7 @@ public class FFMPMonitor extends ResourceMonitor {
 
         return uris;
     }
-    
+
     /**
      * Perform a single database request to populate the availableUris for
      * multiple sources. After preloading the uris the uris for each source can
@@ -790,13 +779,13 @@ public class FFMPMonitor extends ResourceMonitor {
                                         retrieveNew);
                             }
                         } else {
-                            populateFFMPRecord(siteKey, dataKey,
-                                    sourceName, ptime, phuc, retrieveNew);
+                            populateFFMPRecord(siteKey, dataKey, sourceName,
+                                    ptime, phuc, retrieveNew);
                         }
                     }
                 } else {
-                    populateFFMPRecord(siteKey, dataKey, sourceName,
-                            ptime, phuc, retrieveNew);
+                    populateFFMPRecord(siteKey, dataKey, sourceName, ptime,
+                            phuc, retrieveNew);
                 }
             } else {
                 // special case where FFG is the primary source
@@ -856,39 +845,6 @@ public class FFMPMonitor extends ResourceMonitor {
         } else {
             return FFMPRecord.FIELDS.valueOf(sourceType);
         }
-    }
-
-    /**
-     * Start secondary and tertiary data loads
-     * 
-     * @param startTime
-     * @param loadType
-     * @throws VizException
-     */
-    public void startLoad(FFMPResource resource, Date startTime,
-            LOADER_TYPE loadType) throws VizException {
-        Date timeBack = null;
-        FFMPTemplateConfigurationManager ftcm = FFMPTemplateConfigurationManager
-                .getInstance();
-        ArrayList<String> hucsToLoad = ftcm.getHucLevels();
-        FFMPResourceData frd = resource.getResourceData();
-
-        if (loadType == LOADER_TYPE.SECONDARY) {
-            timeBack = new Date(resource.getMostRecentTime().getTime()
-                    - (6 * TimeUtil.MILLIS_PER_HOUR));
-            frd.timeBack = timeBack;
-        } else if (loadType == LOADER_TYPE.TERTIARY) {
-            hucsToLoad.clear();
-            hucsToLoad.add(FFMPRecord.ALL);
-            timeBack = new Date(resource.getMostRecentTime().getTime()
-                    - (TimeUtil.MILLIS_PER_HOUR * 24));
-        }
-
-        frd.floader = new FFMPDataLoader(frd, timeBack, startTime, loadType,
-                hucsToLoad);
-        frd.floader.addListener(resource);
-        frd.floader.start();
-
     }
 
     public void launchSplash(final String siteKey) {
@@ -985,22 +941,13 @@ public class FFMPMonitor extends ResourceMonitor {
         }
     }
 
-    public synchronized void splashDisposeAndDataLoad(FFMPResource resource) {
+    public synchronized void splashDispose(FFMPResource resource) {
         if (ffmpSplash != null) {
             ffmpSplash.close();
             ffmpSplash = null;
 
             if (resource.isFirst) {
                 updateDialog(resource);
-            }
-
-            // start secondary data load
-            try {
-                startLoad(resource, resource.getResourceData().timeBack,
-                        LOADER_TYPE.SECONDARY);
-            } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Secondary Data Load failure", e);
             }
         }
     }
@@ -1044,10 +991,6 @@ public class FFMPMonitor extends ResourceMonitor {
 
         if (listener instanceof FFMPResource) {
             FFMPResource res = (FFMPResource) listener;
-            if (res.getResourceData().floader != null) {
-                res.getResourceData().floader.kill();
-            }
-            res.getResourceData().floader = null;
             int val = siteCount.get(res.getSiteKey());
 
             if ((val == 1) && (siteCount.size() > 1)) {
@@ -1684,12 +1627,12 @@ public class FFMPMonitor extends ResourceMonitor {
      * @param barrierTime
      * @param phuc
      */
-    public void processUri(String uri, String siteKey,
-            String sourceName, Date barrierTime, String phuc) {
+    public void processUri(String uri, String siteKey, String sourceName,
+            Date barrierTime, String phuc) {
         if (uri != null) {
             try {
-                FFMPRecord record = populateFFMPRecord(uri,
-                        siteKey, sourceName, phuc);
+                FFMPRecord record = populateFFMPRecord(uri, siteKey,
+                        sourceName, phuc);
                 if (record != null) {
                     record.getBasinData(phuc).loadNow();
                     SourceXML source = getSourceConfig().getSource(sourceName);
@@ -1713,10 +1656,11 @@ public class FFMPMonitor extends ResourceMonitor {
      * @param sourceName
      */
     public void processUris(NavigableMap<Date, List<String>> uriMap,
-            String siteKey, String sourceName, Date barrierTime, String phuc) {
-        FFMPProcessUris processor = new FFMPProcessUris(uriMap,
-                siteKey, sourceName, barrierTime, phuc);
-        processor.run();
+            String siteKey, String sourceName, Date barrierTime, String phuc,
+            SubMonitor smonitor) {
+        FFMPProcessUris processor = new FFMPProcessUris(this, uriMap, siteKey,
+                sourceName, barrierTime, phuc);
+        processor.run(smonitor);
     }
 
     @Override
@@ -1732,17 +1676,25 @@ public class FFMPMonitor extends ResourceMonitor {
      */
     public FFMPTemplates getTemplates(String siteKey) {
         if (templates == null) {
-            FFMPRunXML runner = getRunConfig().getRunner(wfo);
-            this.templates = FFMPTemplates.getInstance(
-                    runner.getPrimaryDomain(), siteKey, MODE.CAVE);
-            // backup domains
-            if (runner.getBackupDomains() != null) {
-                for (DomainXML backup : runner.getBackupDomains()) {
-                    templates.addDomain(siteKey, backup);
+            long t0 = System.currentTimeMillis();
+            synchronized (this) {
+                if (templates == null) {
+                    FFMPRunXML runner = getRunConfig().getRunner(wfo);
+                    this.templates = FFMPTemplates.getInstance(
+                            runner.getPrimaryDomain(), siteKey, MODE.CAVE);
+
+                    // backup domains
+                    if (runner.getBackupDomains() != null) {
+                        for (DomainXML backup : runner.getBackupDomains()) {
+                            templates.addDomain(siteKey, backup);
+                        }
+                    } else {
+                        templates.done = true;
+                    }
                 }
-            } else {
-                templates.done = true;
             }
+            System.out.println("Time spent initializing templates: "
+                    + (System.currentTimeMillis() - t0));
         }
 
         if (!templates.isSiteLoaded(siteKey)) {
@@ -1962,7 +1914,7 @@ public class FFMPMonitor extends ResourceMonitor {
                             .getTime()) / 1000;
                     if (((Integer) data1Dur.get(i)[2]) > 1000) {
                         dur = ((Integer) data1Dur.get(i)[2] - 1000)
-                                * SECONDS_PER_HOUR;
+                                * TimeUtil.SECONDS_PER_HOUR;
                     } else {
                         dur = ((Integer) data1Dur.get(i)[2]) * 1000;
                     }
@@ -2241,11 +2193,6 @@ public class FFMPMonitor extends ResourceMonitor {
                                     dataUri, getTemplates(fsiteKey), refTime,
                                     fffmpRec.getSourceName());
                         } else {
-                            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                                statusHandler.handle(Priority.DEBUG,
-                                        "Retrieving and Populating URI: , "
-                                                + dataUri);
-                            }
                             curRecord.retrieveMapFromDataStore(loc, dataUri,
                                     getTemplates(fffmpRec.getSiteKey()), fhuc,
                                     refTime, fffmpRec.getSourceName());
@@ -2255,82 +2202,6 @@ public class FFMPMonitor extends ResourceMonitor {
                                 "FFMP Can't retrieve FFMP URI, " + dataUri, e);
                     }
                     sourceData.addLoadedUri(fhuc, dataUri);
-                }
-            }
-        }
-    }
-
-    /**
-     * The uri processing
-     * 
-     * @author dhladky
-     * 
-     */
-    private class FFMPProcessUris implements Runnable {
-
-        final NavigableMap<Date, List<String>> furiMap;
-
-
-        final String fsiteKey;
-
-        final String fsourceName;
-
-        final Date fbarrierTime;
-
-        final String fhuc;
-
-        public FFMPProcessUris(NavigableMap<Date, List<String>> uriMap,
-                String siteKey, String sourceName, Date barrierTime, String phuc) {
-            this.furiMap = uriMap;
-            this.fsiteKey = siteKey;
-            this.fbarrierTime = barrierTime;
-            this.fsourceName = sourceName;
-            this.fhuc = phuc;
-
-        }
-
-        public void run() {
-            if (furiMap != null) {
-                SourceXML source = getSourceConfig().getSource(fsourceName);
-                boolean isGuidance = false;
-                if (source != null
-                        && source.getSourceType().equals(
-                                SOURCE_TYPE.GUIDANCE.getSourceType())) {
-                    isGuidance = true;
-                }
-                List<String> loadedUris = getLoadedUris(fsiteKey, fsourceName,
-                        fhuc);
-                Set<FFMPRecord> populatedRecords = new HashSet<FFMPRecord>();
-                for (List<String> uris : furiMap.descendingMap().values()) {
-                    for (String uri : uris) {
-                        if (uri == null || loadedUris.contains(uri)) {
-                            continue;
-                        }
-                        FFMPRecord record = new FFMPRecord(uri);
-                        if (record.getDataTime().getRefTime()
-                                .after(fbarrierTime)
-                                || isGuidance) {
-                            try {
-                                record = populateFFMPRecord(uri, fsiteKey,
-                                        fsourceName, fhuc);
-                                if (record != null) {
-                                    populatedRecords.add(record);
-                                    if (source != null) {
-                                        record.setExpiration(source
-                                                .getExpirationMinutes(fsiteKey));
-                                        record.setRate(source.isRate());
-                                    }
-                                }
-                            } catch (Exception e) {
-                                statusHandler.handle(Priority.PROBLEM,
-                                        "FFMP Can't retrieve FFMP URI, " + uri,
-                                        e);
-                            }
-                        }
-                    }
-                }
-                for (FFMPRecord record : populatedRecords) {
-                    record.getBasinData(fhuc).loadNow();
                 }
             }
         }

@@ -62,15 +62,15 @@
 							</pipeline>
 							<doCatch>
 								<exception>java.lang.Throwable</exception>
-								<to uri="log:ncpafm?level=ERROR&amp;showBody=false" />
+								<to uri="log:ncpafm?level=ERROR" />
 							</doCatch>
 						</doTry>
 					</split>
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<!--to uri="log:airmet?level=ERROR&amp;showBody=false" /-->
-					<to uri="log:ncpafm?level=ERROR&amp;showBody=false" />
+					<!--to uri="log:airmet?level=ERROR" /-->
+					<to uri="log:ncpafm?level=ERROR" />
 				</doCatch>
 			</doTry>
 		</route>

@@ -18,7 +18,6 @@
 # further licensing information.
 ##
 
-
 #
 # Adapter for com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable
 #  
@@ -28,7 +27,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    04/22/13                      rjpeter       Initial Creation.
-#    
+#    06/12/13         #2099        dgilling      Use new Lock constructor.
 # 
 #
 
@@ -75,11 +74,10 @@ def deserialize(context):
     numLocks = context.readI32()
     locks = []
     for x in xrange(numLocks):
-        lock = Lock()
-        lock.setParmId(parmId)
-        lock.setStartTime(context.readI64())
-        lock.setEndTime(context.readI64())
-        lock.setWsId(wsIds[context.readI32()])
+        startTime = context.readI64()
+        endTime = context.readI64()
+        wsId = wsIds[context.readI32()]
+        lock = Lock(parmId, wsId, startTime, endTime)
         locks.append(lock)
         
     lockTable = LockTable()
