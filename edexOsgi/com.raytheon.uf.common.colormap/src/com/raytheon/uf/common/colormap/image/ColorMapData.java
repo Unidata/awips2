@@ -97,7 +97,7 @@ public class ColorMapData {
         return dataType;
     }
 
-    private static ColorMapData.ColorMapDataType getDataType(Buffer buffer) {
+    public static ColorMapData.ColorMapDataType getDataType(Buffer buffer) {
         if (buffer instanceof FloatBuffer) {
             return ColorMapData.ColorMapDataType.FLOAT;
         } else if (buffer instanceof IntBuffer) {
