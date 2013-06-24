@@ -53,6 +53,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * May 08, 2013 2000      djohnson     Shortcut out if no subscriptions are returned for the dataset.
  * May 20, 2013 2000      djohnson     Shortcut out if no subscription handler is available.
  * Jun 20, 2013 1802      djohnson     Check several times for the dataset for now.
+ * Jun 25, 2013 2106      djohnson     Remove checking several times for the dataset now that transactions propagate correctly.
  * 
  * </pre>
  * 
@@ -223,24 +224,8 @@ public class SubscriptionIntegrityVerifier {
                 final IDataSetHandler dataSetHandler = DataDeliveryHandlers
                         .getDataSetHandler();
 
-                DataSet dataSet = null;
-                int attempts = 0;
-                do {
-                    attempts++;
-                    dataSet = dataSetHandler.getById(event.getId());
-                    if (dataSet == null) {
-                        try {
-                            Thread.sleep(10);
-                        } catch (InterruptedException e) {
-                            statusHandler.handle(Priority.PROBLEM,
-                                    e.getLocalizedMessage(), e);
-                        }
-                    }
-                } while (dataSet == null && attempts < 20);
-
-                if (dataSet != null) {
-                    dataSetUpdated(dataSet);
-                }
+                DataSet dataSet = dataSetHandler.getById(event.getId());
+                dataSetUpdated(dataSet);
             } catch (RegistryHandlerException e) {
                 statusHandler
                         .handle(Priority.ERROR,

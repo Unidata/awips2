@@ -51,6 +51,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnsupportedCapabilityExceptionType;
 
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
@@ -100,13 +101,14 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Jan 18, 2012 184        bphillip     Initial creation
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring injection
  * Apr 24, 2013 1910       djohnson    RegistryResponseStatus is now an enum.
+ * Jun 24, 2013 2106       djohnson    Transaction must already be open.
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-@Transactional
+@Transactional(propagation = Propagation.MANDATORY)
 public class QueryManagerImpl implements QueryManager {
 
     /** The logger */
@@ -138,7 +140,7 @@ public class QueryManagerImpl implements QueryManager {
      * Executor service used to submit queries to federation members in parallel
      * during the processing of a federated query
      */
-    private ExecutorService queryExecutor;
+    private final ExecutorService queryExecutor;
 
     /**
      * ObjectRef - This option specifies that the QueryResponse MUST contain a
@@ -502,10 +504,10 @@ public class QueryManagerImpl implements QueryManager {
     private class RemoteRegistryQuery implements Callable<QueryResponse> {
 
         /** The registry to query */
-        private RegistryType registryToQuery;
+        private final RegistryType registryToQuery;
 
         /** The request to submit to the remote registry */
-        private QueryRequest queryRequest;
+        private final QueryRequest queryRequest;
 
         /**
          * Creates a new RemoteRegistryQuery.

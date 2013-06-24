@@ -23,6 +23,7 @@ import java.util.Collection;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
+import com.raytheon.uf.common.registry.ebxml.encoder.IRegistryEncoder;
 import com.raytheon.uf.common.serialization.SerializationException;
 
 /**
@@ -36,6 +37,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 15, 2012 0743       djohnson     Initial creation
+ * Jun 24, 2013 2106       djohnson     Accepts the registry encoder as a method parameter.
  * 
  * </pre>
  * 
@@ -45,6 +47,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
 
 public interface IMultipleResultFormatter<T> extends RegistryQuery<T> {
 
-    Collection<T> decodeObject(RegistryObjectType registryObjectType)
+    Collection<T> decodeObject(RegistryObjectType registryObjectType,
+            IRegistryEncoder encoderStrategy)
             throws SerializationException;
 }

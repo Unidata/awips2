@@ -67,7 +67,8 @@ import dods.dap.parser.ParseException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 09, 2013  1466      dhladky     Unit test for NCOM
- * Feb 06, 2013 1543       djohnson     Remove test setup methods no longer necessary.
+ * Feb 06, 2013 1543       djohnson    Remove test setup methods no longer necessary.
+ * Jun 24, 2013 2106       djohnson    Use in-memory registry object handlers.
  * 
  * </pre>
  * 
@@ -112,7 +113,7 @@ public class OpenDAPMetaDataParserNCOMTest {
                 TestUtil.readResource(OpenDAPMetaDataParserNCOMTest.class, DAS_FILE));
         DAS.parse(bis);
 
-        RegistryObjectHandlersUtil.init();
+        RegistryObjectHandlersUtil.initMemory();
     }
 
     private final OpenDAPMetaDataParser parser = new OpenDAPMetaDataParser() {
