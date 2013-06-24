@@ -11,7 +11,7 @@ import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.registry.IMultipleResultFormatter;
-import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import com.raytheon.uf.common.registry.ebxml.encoder.IRegistryEncoder;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
@@ -26,6 +26,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * ------------ ---------- ----------- --------------------------
  * Jun 21, 2012 736        djohnson    Initial creation
  * Aug 02, 2012 955        djohnson    Add generics and results retrieval to registry queries.
+ * Jun 24, 2013 2106       djohnson    Pass encoder to result formatters.
  * 
  * </pre>
  * 
@@ -55,10 +56,10 @@ public class DataLevelTypeQuery extends
 
     @Override
     public Collection<DataLevelType> decodeObject(
-            RegistryObjectType registryObjectType)
+            RegistryObjectType registryObjectType, IRegistryEncoder encoder)
             throws SerializationException {
 
-        Object object = RegistryUtil.decodeObject(registryObjectType);
+        Object object = encoder.decodeObject(registryObjectType);
 
         if (object instanceof DataSet) {
 
