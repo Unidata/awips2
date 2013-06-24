@@ -13,10 +13,6 @@
         <!-- No retrievals for in-memory -->
     </bean>
 
-    <bean id="registryManagerInstanceInitializer" class="java.lang.String">
-        <!-- required for depends-on -->
-    </bean>
-
     <bean id="registerDataDeliveryHandlers" class="java.lang.String">
         <!-- required for depends-on -->
     </bean>

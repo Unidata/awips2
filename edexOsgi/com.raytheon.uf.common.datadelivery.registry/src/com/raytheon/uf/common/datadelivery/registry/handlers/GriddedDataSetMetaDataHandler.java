@@ -25,7 +25,6 @@ import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.DataSetMetaDataQuery;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.GriddedDataSetMetaDataQuery;
-import com.raytheon.uf.common.registry.RegistryManager;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.time.util.ImmutableDate;
@@ -40,6 +39,7 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 03, 2012 1241      djohnson     Initial creation
+ * Jun 24, 2013 2106      djohnson     Now composes a registryHandler.
  * 
  * </pre>
  * 
@@ -80,8 +80,8 @@ public class GriddedDataSetMetaDataHandler
         query.setCycle(cycle);
         query.setDate(new ImmutableDate(date));
 
-        RegistryQueryResponse<GriddedDataSetMetaData> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<GriddedDataSetMetaData> response = registryHandler
+                .getObjects(query);
 
         checkResponse(response, "getByDataSetDateAndCycle");
 
