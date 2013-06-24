@@ -119,7 +119,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * May 20, 2013 1650       djohnson     Add in capability to find required dataset size.
  * Jun 03, 2013 2038       djohnson     Add base functionality to handle point data type subscriptions.
  * Jun 13, 2013 2095       djohnson     Improve bandwidth manager speed, and add performance logging.
- * JUN 18, 2013 2120       dhladky      Add times to pointtime array
+ * Jun 18, 2013 2120       dhladky      Add times to pointtime array
+ * Jun 20, 2013 1802       djohnson     Check several times for the metadata for now.
  * </pre>
  * 
  * @author dhladky
@@ -198,7 +199,20 @@ public abstract class BandwidthManager extends
 
         if (DataDeliveryRegistryObjectTypes.DATASETMETADATA.equals(objectType)) {
 
-            DataSetMetaData dsmd = getDataSetMetaData(id);
+            DataSetMetaData dsmd = null;
+            int attempts = 0;
+            do {
+                attempts++;
+                dsmd = getDataSetMetaData(id);
+                if (dsmd == null) {
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                e.getLocalizedMessage(), e);
+                    }
+                }
+            } while (dsmd == null && attempts < 20);
 
             if (dsmd != null) {
                 // Repost the Object to the BandwidthEventBus to free
@@ -219,7 +233,7 @@ public abstract class BandwidthManager extends
                 BandwidthEventBus.publish(dsmd);
             } else {
                 statusHandler.error("No DataSetMetaData found for id [" + id
-                        + "]");
+                        + "] after " + attempts + " attempts");
             }
 
         } else if (DataDeliveryRegistryObjectTypes.SITE_SUBSCRIPTION

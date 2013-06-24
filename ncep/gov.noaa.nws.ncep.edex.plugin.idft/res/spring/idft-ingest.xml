@@ -49,14 +49,14 @@
 							</pipeline>
 							<doCatch>
 								<exception>java.lang.Throwable</exception>
-								<to uri="log:idft?level=ERROR&amp;showBody=false" />
+								<to uri="log:idft?level=ERROR" />
 							</doCatch>
 						</doTry>
 					</split>
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:airmet?level=ERROR&amp;showBody=false" />
+					<to uri="log:airmet?level=ERROR" />
 				</doCatch>
 			</doTry>
 		</route>

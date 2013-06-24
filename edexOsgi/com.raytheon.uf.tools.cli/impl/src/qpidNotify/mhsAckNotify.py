@@ -7,6 +7,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    04/06/2012      10388         D. Friedman    Initial version
 #    10/09/12        DR 13901      D. Friedman    Limit execution time
+#    06/13/2013      DR 16242      D. Friedman    Add Qpid authentication info
 ##############################################################################
 
 import getopt
@@ -23,6 +24,8 @@ from qpid.datatypes import Message, uuid4
 
 DESTINATION = 'amq.topic'
 TOPIC_NAME = 'mhs.ackmgr'
+QPID_USERNAME = 'guest'
+QPID_PASSWORD = 'guest'
 
 class MhsAckNotification:
     def __init__(self):
@@ -38,7 +41,7 @@ def remove_file(*parts):
 def get_qpid_connection(broker_addr):
     try:
         socket = connect(broker_addr, 5672)
-        connection = Connection (sock=socket)
+        connection = Connection (sock=socket, username=QPID_USERNAME, password=QPID_PASSWORD)
         connection.start()
         return connection
     except:
