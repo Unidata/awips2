@@ -89,7 +89,6 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
         SpringFiles.DATADELIVERY_HANDLERS_IMPL_XML, SpringFiles.EBXML_XML,
         SpringFiles.EBXML_IMPL_XML, SpringFiles.EBXML_QUERYTYPES_XML,
         SpringFiles.EBXML_REGISTRY_DAO_XML,
-        SpringFiles.EBXML_REGISTRY_ENCODER_XML,
         SpringFiles.EBXML_WEBSERVICES_XML, SpringFiles.EBXML_XACML_XML,
         SpringFiles.EBXML_VALIDATOR_PLUGINS_XML,
         SpringFiles.EBXML_SUBSCRIPTION_XML, SpringFiles.EVENTBUS_COMMON_XML,

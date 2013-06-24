@@ -31,6 +31,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.registry.IResultFormatter;
+import com.raytheon.uf.common.registry.ebxml.encoder.IRegistryEncoder;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.time.util.ImmutableDate;
@@ -46,6 +47,7 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 15, 2012 0743       djohnson     Initial creation
+ * Jun 24, 2013 2106       djohnson     Pass encoder to result formatters.
  * 
  * </pre>
  * 
@@ -64,7 +66,8 @@ public class DataSetMetaDataDatesQuery extends
      * {@inheritDoc}
      */
     @Override
-    public ImmutableDate decodeObject(RegistryObjectType registryObjectType)
+    public ImmutableDate decodeObject(RegistryObjectType registryObjectType,
+            IRegistryEncoder encoder)
             throws SerializationException {
         Set<SlotType> returnedSlots = registryObjectType.getSlot();
 

@@ -30,6 +30,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.registry.IResultFormatter;
+import com.raytheon.uf.common.registry.ebxml.encoder.IRegistryEncoder;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
@@ -43,6 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 24, 2012 0743       djohnson     Initial creation
+ * Jun 24, 2013 2106       djohnson     Pass encoder to result formatters.
  * 
  * </pre>
  * 
@@ -74,7 +76,8 @@ public class SubscriptionDataSetNameQuery extends
      * {@inheritDoc}
      */
     @Override
-    public String decodeObject(RegistryObjectType registryObjectType)
+    public String decodeObject(RegistryObjectType registryObjectType,
+            IRegistryEncoder encoderStrategy)
             throws SerializationException {
         Set<SlotType> returnedSlots = registryObjectType.getSlot();
 
