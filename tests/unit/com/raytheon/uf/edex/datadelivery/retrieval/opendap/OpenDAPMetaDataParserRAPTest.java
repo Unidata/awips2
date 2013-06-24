@@ -76,6 +76,7 @@ import dods.dap.parser.ParseException;
  * Oct 23, 2012 1286       djohnson     Install test localization before each test.
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
  * Feb 06, 2013 1543       djohnson     Remove test setup methods no longer necessary.
+ * Jun 24, 2013 2106       djohnson     Use in-memory registry object handlers.
  * 
  * </pre>
  * 
@@ -120,7 +121,7 @@ public class OpenDAPMetaDataParserRAPTest {
                 TestUtil.readResource(OpenDAPMetaDataParserRAPTest.class, DAS_FILE));
         DAS.parse(bis);
 
-        RegistryObjectHandlersUtil.init();
+        RegistryObjectHandlersUtil.initMemory();
     }
 
     private final OpenDAPMetaDataParser parser = new OpenDAPMetaDataParser() {

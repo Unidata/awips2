@@ -31,6 +31,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnsupportedCapabilityExceptionType;
 
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.constants.ErrorSeverity;
@@ -56,13 +57,13 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 2/21/2012    #184       bphillip     Initial creation
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 4/9/2013     1802       bphillip    Refactor of registry query handling
+ * Jun 24, 2013 2106       djohnson    Requires a transaction to be open, will not create one.
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-@Transactional
 public abstract class AbstractEbxmlQuery implements IRegistryQuery {
 
     protected static final transient IUFStatusHandler statusHandler = UFStatus
@@ -82,6 +83,8 @@ public abstract class AbstractEbxmlQuery implements IRegistryQuery {
 
     protected RegistryObjectDao registryObjectDao;
 
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public void executeQuery(QueryRequest queryRequest,
             QueryResponse queryResponse, String client)
             throws EbxmlRegistryException {
