@@ -52,6 +52,7 @@ import com.raytheon.viz.core.style.image.ImagePreferences;
  * 08/29/09      2152       D. Hladky   Initial release
  * 05/21/12		DR 14833    G. Zhang    Error handling for invalid cmap 
  * Apr 26, 2013 1954        bsteffen    Minor code cleanup throughout FFMP.
+ * Jun 10, 2013 2075        njensen     Improved init time
  * 
  * </pre>
  * 
@@ -69,16 +70,14 @@ public class FFMPColorUtils {
 
     private double time = 0.0;
 
-    private ArrayList<String> fileArray = new ArrayList<String>();
+    private TreeMap<Double, String> hourColorMapMap = new TreeMap<Double, String>();
 
-    private TreeMap<Double, String> hourColorMapMap = new TreeMap<Double, String>();    
-    
     // DR 14833: replacing the one in the constructor
     private StyleRule sr = null;
-    
+
     // DR 14833: used when no colormap found
-    private static final String DEFAULT_COLORMAP  = "ffmp/qpe";
-    
+    private static final String DEFAULT_COLORMAP = "ffmp/qpe";
+
     // DR 14833: used when paramname not matching colormap name found
     private static final String DEFAULT_PARAMNAME = "qpe";
 
@@ -96,18 +95,7 @@ public class FFMPColorUtils {
         this.tableLoad = tableLoad;
         this.colormapparams = null;
 
-        // LocalizationFile[] files = ColorMapLoader.listColorMapFiles();
-        // for (LocalizationFile file : files) {
-        // String fn = file.getName();
-        // if (fn.startsWith("colormaps/ffmp/qpe"))
-        // {
-        // System.out.println(file.getName());
-        // String hour = fn.s
-        // }
-        //
-        // }
-
-//        StyleRule sr = null;// DR 14833 replaced by a instance field
+        // StyleRule sr = null;// DR 14833 replaced by a instance field
         try {
             sr = StyleManager.getInstance().getStyleRule(
                     StyleManager.StyleType.IMAGERY, getMatchCriteria());
@@ -125,7 +113,8 @@ public class FFMPColorUtils {
             e.printStackTrace();
         }
 
-        if(cxml == null) cxml = getDefaultColorMap(); // DR 14833: load the default map 
+        if (cxml == null)
+            cxml = getDefaultColorMap(); // DR 14833: load the default map
         ColorMap colorMap = new ColorMap(colormapfile, (ColorMap) cxml);
         colormapparams = new ColorMapParameters();
         colormapparams.setColorMap(colorMap);
@@ -188,16 +177,15 @@ public class FFMPColorUtils {
 
         double value = (Math.round(valueArg * 100.0)) / 100.0;
 
-        
         if (field == FIELDS.DIFF) {
             Color color = colormapparams.getColorByValue((float) value);
             rgb = convert(color);
             return rgb;
 
         } else if (value >= 0.005) {
-                Color color = colormapparams.getColorByValue((float) value);
-                rgb = convert(color);
-                return rgb;
+            Color color = colormapparams.getColorByValue((float) value);
+            rgb = convert(color);
+            return rgb;
         }
 
         List<Color> colors = getColorMap().getColors();
@@ -255,14 +243,13 @@ public class FFMPColorUtils {
     }
 
     private String determineQpeToUse(double time) {
-        getQpeColorMapFiles();
-        parseFileNames();
+        parseFileNames(getQpeColorMapFiles());
         String qpeHourToUse = determineColorMap(time);
 
         return qpeHourToUse;
     }
 
-    private void parseFileNames() {
+    private void parseFileNames(List<String> fileArray) {
         double hour = 0.0;
         for (String fn : fileArray) {
             hour = 0.0;
@@ -327,80 +314,89 @@ public class FFMPColorUtils {
         return qpeHourToUse;
     }
 
-    private void getQpeColorMapFiles() {
-        LocalizationFile[] files = ColorMapLoader.listColorMapFiles();
+    private List<String> getQpeColorMapFiles() {
+        List<String> colormaps = new ArrayList<String>();
+        LocalizationFile[] files = ColorMapLoader.listColorMapFiles("ffmp");
         for (LocalizationFile file : files) {
             String fn = file.getName();
-            if (fn.indexOf("ffmp/qpe") > 0) {
-                fileArray.add(fn);
+            if (fn.indexOf("qpe") > 0) {
+                colormaps.add(fn);
             }
         }
-    }   
-    
-    
+        return colormaps;
+    }
+
     /**
-     * DR 14833: Error handling for the following:
-     * when a user modified the ffmpImageryStyleRules.xml file 
-     * without adding the related qpeX.cmap and for a user made
-     * error like: qpe6/qpe4.cmap then default qpe/qpe.cmap used.      
+     * DR 14833: Error handling for the following: when a user modified the
+     * ffmpImageryStyleRules.xml file without adding the related qpeX.cmap and
+     * for a user made error like: qpe6/qpe4.cmap then default qpe/qpe.cmap
+     * used.
      * 
-     */    
-    public IColorMap getDefaultColorMap(){
-    	IColorMap cxml = null;  
-    	
-    	/*see parseFileNames(): colormap_name is "0.0" or qpe+key+".cmap"
-    	double hour = hourColorMapMap.firstKey();
-    	String cmapHour = ( hour==0.0 ? "" : String.valueOf(hour) );    		
-    	System.out.println("FFMPColorUtils.getDefaultColorMap() cmapHour: "+cmapHour );*/
+     */
+    public IColorMap getDefaultColorMap() {
+        IColorMap cxml = null;
 
-		/* Loop through all StyleRules to get the default.     
-		 * In StyleManager.loadRules(StyleType), all levels(not only USER) 
-		 * StyleRule loaded. So it is guaranteed the default can be loaded.
-		 */
-    	
-		com.raytheon.uf.viz.core.style.StyleRuleset srs = 
-			StyleManager.getInstance().getStyleRuleSet(StyleManager.StyleType.IMAGERY);
-		
-		for(StyleRule srl : srs.getStyleRules()){
-			String pn="", cm="";
-			try{
-				pn = ((ParamLevelMatchCriteria)srl.getMatchCriteria()).getParameterNames().get(0);
-				cm = ((ImagePreferences)srl.getPreferences()).getDefaultColormap();
-			}catch(Exception e){ continue;	}	
-			
-			if(DEFAULT_PARAMNAME.equalsIgnoreCase(pn) && DEFAULT_COLORMAP.equalsIgnoreCase(cm)){
-				sr = srl;
-				System.out.println("FFMPColorUtils.getDefaultColorMap(): StyleRule pn-cm value:  "+pn+"-"+cm);
-				break;
-			}	 
-			
-		}
-		/*
-		if(sr == null){
-		    	//get the MatchCriteria
-		        ParamLevelMatchCriteria match = new ParamLevelMatchCriteria();
-		        ArrayList<String> paramList = new ArrayList<String>();        
-		        paramList.add( FIELDS.QPE.getFieldName()+cmapHour );
-		        match.setParameterName(paramList); 
-		        
-		        //get the StyleRule
-		        try {
-		            sr=StyleManager.getInstance().getStyleRule(StyleManager.StyleType.IMAGERY, match);
-		        } catch (VizStyleException e) {
-		            e.printStackTrace();
-		        }
-		} 
-		*/
-        //get the colormapfile name
-        String colormapfile = ((ImagePreferences) sr.getPreferences()).getDefaultColormap();
+        /*
+         * see parseFileNames(): colormap_name is "0.0" or qpe+key+".cmap"
+         * double hour = hourColorMapMap.firstKey(); String cmapHour = (
+         * hour==0.0 ? "" : String.valueOf(hour) );
+         * System.out.println("FFMPColorUtils.getDefaultColorMap() cmapHour: "
+         * +cmapHour );
+         */
 
-        //load the colormap
+        /*
+         * Loop through all StyleRules to get the default. In
+         * StyleManager.loadRules(StyleType), all levels(not only USER)
+         * StyleRule loaded. So it is guaranteed the default can be loaded.
+         */
+
+        com.raytheon.uf.viz.core.style.StyleRuleset srs = StyleManager
+                .getInstance().getStyleRuleSet(StyleManager.StyleType.IMAGERY);
+
+        for (StyleRule srl : srs.getStyleRules()) {
+            String pn = "", cm = "";
+            try {
+                pn = ((ParamLevelMatchCriteria) srl.getMatchCriteria())
+                        .getParameterNames().get(0);
+                cm = ((ImagePreferences) srl.getPreferences())
+                        .getDefaultColormap();
+            } catch (Exception e) {
+                continue;
+            }
+
+            if (DEFAULT_PARAMNAME.equalsIgnoreCase(pn)
+                    && DEFAULT_COLORMAP.equalsIgnoreCase(cm)) {
+                sr = srl;
+                System.out
+                        .println("FFMPColorUtils.getDefaultColorMap(): StyleRule pn-cm value:  "
+                                + pn + "-" + cm);
+                break;
+            }
+
+        }
+        /*
+         * if(sr == null){ //get the MatchCriteria ParamLevelMatchCriteria match
+         * = new ParamLevelMatchCriteria(); ArrayList<String> paramList = new
+         * ArrayList<String>(); paramList.add(
+         * FIELDS.QPE.getFieldName()+cmapHour );
+         * match.setParameterName(paramList);
+         * 
+         * //get the StyleRule try {
+         * sr=StyleManager.getInstance().getStyleRule(StyleManager
+         * .StyleType.IMAGERY, match); } catch (VizStyleException e) {
+         * e.printStackTrace(); } }
+         */
+        // get the colormapfile name
+        String colormapfile = ((ImagePreferences) sr.getPreferences())
+                .getDefaultColormap();
+
+        // load the colormap
         try {
             cxml = ColorMapLoader.loadColorMap(colormapfile);
         } catch (VizException e) {
             e.printStackTrace();
         }
-    	
-    	return cxml;
+
+        return cxml;
     }
 }
