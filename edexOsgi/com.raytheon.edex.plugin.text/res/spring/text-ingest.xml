@@ -86,7 +86,7 @@
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:text?level=INFO&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:text?level=INFO"/>
 				</doCatch>
 			</doTry>
 		</route>
@@ -109,7 +109,7 @@
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:text?level=INFO&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:text?level=INFO"/>
 				</doCatch>
 			</doTry>
 		</route>
@@ -134,7 +134,7 @@
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:text?level=INFO&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:text?level=INFO"/>
 				</doCatch>
 			</doTry>
 		</route>
@@ -167,7 +167,7 @@
 				<to uri="jms-generic:queue:textPurgeRequest" />
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:purge?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:purge?level=ERROR"/>
 				</doCatch>
 			</doTry>
 		</route>
@@ -179,7 +179,7 @@
 				<bean ref="autoFaxManager" method="processEvent" />
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:autoFax?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:autoFax?level=ERROR"/>
 				</doCatch>
 			</doTry>
 		</route>
@@ -196,7 +196,7 @@
 				<bean ref="textVersionPurge" method="addAfosIdsToPurge"/>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:purge?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:purge?level=ERROR"/>
 				</doCatch>
 			</doTry>
 		</route>
@@ -206,7 +206,7 @@
 				<bean ref="textVersionPurge" method="purgeAfosIds"/>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:purge?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:purge?level=ERROR"/>
 				</doCatch>
 			</doTry>
 		</route>

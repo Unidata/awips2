@@ -43,7 +43,7 @@
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to
-						uri="log:repack?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+						uri="log:repack?level=ERROR" />
 				</doCatch>
 			</doTry>
 		</route>
@@ -56,7 +56,7 @@
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to
-						uri="log:archive?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+						uri="log:archive?level=ERROR" />
 				</doCatch>
 			</doTry>
 		</route>						

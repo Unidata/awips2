@@ -87,6 +87,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * 02/20/13      1635       D. Hladky   Constants
  * 03/18/13      1817       D. Hladky   Fixed issue with BOX where only 1 HUC was showing up.
  * 04/15/13      1902       M. Duff     Generic List
+ * 06/10/13      2085       njensen     Use countyMap for efficiency
  * </pre>
  * 
  * @author dhladky
@@ -1282,7 +1283,8 @@ public class FFMPTemplates {
      * @param huc
      * @return
      */
-    public synchronized LinkedHashMap<Long, ?> getMap(String dataKey, String cwa, String huc) {
+    public synchronized LinkedHashMap<Long, ?> getMap(String dataKey,
+            String cwa, String huc) {
 
         LinkedHashMap<Long, ?> map = null;
         HashMap<String, LinkedHashMap<Long, ?>> hucMap = null;
@@ -1927,8 +1929,8 @@ public class FFMPTemplates {
                 getAbsoluteFileName(dataKey, huc, cwa, "list"));
 
         try {
-            list = (long[]) SerializationUtil.transformFromThrift(FileUtil
-                    .file2bytes(f.getFile(), true));
+            list = SerializationUtil.transformFromThrift(long[].class,
+                    FileUtil.file2bytes(f.getFile(), true));
         } catch (SerializationException se) {
             se.printStackTrace();
         } catch (IOException e) {
@@ -1959,12 +1961,12 @@ public class FFMPTemplates {
             if (huc.equals(FFMPRecord.ALL)) {
 
                 map = (HashMap<Long, FFMPBasinMetaData>) SerializationUtil
-                        .transformFromThrift(FileUtil.file2bytes(f.getFile(),
-                                true));
+                        .transformFromThrift(HashMap.class,
+                                FileUtil.file2bytes(f.getFile(), true));
             } else {
                 map = (HashMap<Long, long[]>) SerializationUtil
-                        .transformFromThrift(FileUtil.file2bytes(f.getFile(),
-                                true));
+                        .transformFromThrift(HashMap.class,
+                                FileUtil.file2bytes(f.getFile(), true));
             }
         } catch (SerializationException se) {
             se.printStackTrace();
@@ -1995,7 +1997,8 @@ public class FFMPTemplates {
 
         try {
             map = (HashMap<String, FFMPVirtualGageBasinMetaData>) SerializationUtil
-                    .transformFromThrift(FileUtil.file2bytes(f.getFile(), true));
+                    .transformFromThrift(HashMap.class,
+                            FileUtil.file2bytes(f.getFile(), true));
         } catch (SerializationException se) {
             se.printStackTrace();
         } catch (IOException e) {
@@ -2022,8 +2025,8 @@ public class FFMPTemplates {
                 getAbsoluteFileName(dataKey, FFMPRecord.VIRTUAL, cwa, "list"));
 
         try {
-            list = (String[]) SerializationUtil.transformFromThrift(FileUtil
-                    .file2bytes(f.getFile(), true));
+            list = SerializationUtil.transformFromThrift(String[].class,
+                    FileUtil.file2bytes(f.getFile(), true));
         } catch (SerializationException se) {
             se.printStackTrace();
         } catch (IOException e) {
@@ -2342,11 +2345,14 @@ public class FFMPTemplates {
             getCounties(siteKey);
         }
 
-        FFMPCounty county = FFMPUtils
-                .getCounty(countyPfaf, MODE.CAVE.getMode());
+        FFMPCounty county = countyMap.get(countyPfaf);
+        if (county == null) {
+            county = FFMPUtils.getCounty(countyPfaf, MODE.CAVE.getMode());
+            countyMap.put(countyPfaf, county);
+        }
 
         if (county != null) {
-            StringBuffer name = new StringBuffer();
+            StringBuilder name = new StringBuilder();
             name.append(county.getState() + ", ");
             name.append(county.getCountyName());
             rname = name.toString();

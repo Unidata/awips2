@@ -18,49 +18,53 @@
 # further licensing information.
 ##
 
+#
 # File auto-generated against equivalent DynamicSerialize Java class
-# Modified by njensen to add __repr__
+#  
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    xx/xx/xxxx                    xxxxxxx        Initial Creation.
+#    xx/xx/xxxx      xxxx          njensen        Implemented __repr__.
+#    06/12/2013      2099          dgilling       Make class immutable, 
+#                                                 add getTimeRange().
+# 
+#
 
 import time
 
+from dynamicserialize.dstypes.com.raytheon.uf.common.time import TimeRange
+
+
 class Lock(object):
 
-    def __init__(self):
-        self.parmId = None
-        self.wsId = None
-        self.startTime = None
-        self.endTime = None
-        self.identifier = None
+    def __init__(self, parmId, wsId, startTime, endTime):
+        self.parmId = parmId
+        self.wsId = wsId
+        self.startTime = startTime
+        self.endTime = endTime
+        self.timeRange = None
 
     def getParmId(self):
         return self.parmId
 
-    def setParmId(self, parmId):
-        self.parmId = parmId
-
     def getWsId(self):
         return self.wsId
-
-    def setWsId(self, wsId):
-        self.wsId = wsId
 
     def getStartTime(self):
         return self.startTime
 
-    def setStartTime(self, startTime):
-        self.startTime = startTime
-
     def getEndTime(self):
         return self.endTime
-
-    def setEndTime(self, endTime):
-        self.endTime = endTime
-
-    def getIdentifier(self):
-        return self.identifier
-
-    def setIdentifier(self, identifier):
-        self.identifier = identifier
+    
+    def getTimeRange(self):
+        if not self.timeRange:
+            start = self.startTime / 1000.0
+            end = self.endTime / 1000.0
+            self.timeRange = TimeRange(start, end)
+        return self.timeRange
     
     def __repr__(self):
         t0 = time.gmtime(self.getStartTime() / 1000.0)
