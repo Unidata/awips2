@@ -73,12 +73,12 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
 import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.notification.BandwidthEventBus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlanTest;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
@@ -105,6 +105,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Apr 29, 2013 1910       djohnson     Always shutdown bandwidth managers in tests.
  * Jun 03, 2013 2038       djohnson     Add support for point data based subscriptions.
  * Jun 03, 2013 2095       djohnson     Move getPointDataSet to superclass.
+ * Jun 25, 2013 2106       djohnson     Set subscription latency, access bucket allocations through RetrievalPlan.
  * 
  * </pre>
  * 
@@ -184,8 +185,7 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         bandwidthManager.subscriptionUpdated(subscription);
 
         final List<SubscriptionRetrieval> subscriptionRetrievals = bandwidthDao
-                .getSubscriptionRetrievals(providerName,
-                        dataSetName);
+                .getSubscriptionRetrievals(providerName, dataSetName);
 
         // We're going to send in a point data update with a time span that
         // bridges these two retrievals
@@ -225,8 +225,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         bandwidthManager.updatePointDataSetMetaData(metadata);
 
         final SortedSet<SubscriptionRetrieval> readyRetrievals = bandwidthDao
-                .getSubscriptionRetrievals(providerName,
-                        dataSetName, RetrievalStatus.READY);
+                .getSubscriptionRetrievals(providerName, dataSetName,
+                        RetrievalStatus.READY);
         assertThat(readyRetrievals, hasSize(2));
         assertThat(readyRetrievals, contains(thirdRetrieval, fourthRetrieval));
     }
@@ -308,6 +308,7 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         // Store the original subscription
         Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
         subscription.getTime().setCycleTimes(Collections.<Integer> emptyList());
+        subscription.setLatencyInMinutes(3);
         DataDeliveryHandlers.getSubscriptionHandler().store(subscription);
 
         // The dataset metadata update
@@ -1094,11 +1095,13 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
      */
     private List<BandwidthAllocation> getRetrievalManagerAllocationsForNetwork(
             Network network) {
-        final SortedSet<BandwidthBucket> buckets = retrievalManager.getPlan(
-                network).getBucketsInWindow(Long.MIN_VALUE, Long.MAX_VALUE);
+        final RetrievalPlan retrievalPlan = retrievalManager.getPlan(network);
+        final SortedSet<BandwidthBucket> buckets = retrievalPlan
+                .getBucketsInWindow(Long.MIN_VALUE, Long.MAX_VALUE);
         List<BandwidthAllocation> allocations = new ArrayList<BandwidthAllocation>();
         for (BandwidthBucket bucket : buckets) {
-            allocations.addAll(bucket.getRequests());
+            allocations.addAll(retrievalPlan
+                    .getBandwidthAllocationsForBucket(bucket));
         }
         return allocations;
     }

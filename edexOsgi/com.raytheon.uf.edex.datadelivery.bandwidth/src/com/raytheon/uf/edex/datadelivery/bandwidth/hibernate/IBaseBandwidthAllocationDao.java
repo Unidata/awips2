@@ -37,6 +37,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 13, 2013 1543       djohnson     Initial creation
+ * Jun 24, 2013 2106       djohnson     Add ability to retrieve by network and start time.
  * 
  * </pre>
  * 
@@ -63,6 +64,17 @@ interface IBaseBandwidthAllocationDao<ENTITY extends BandwidthAllocation>
      * @return
      */
     List<ENTITY> getByNetwork(Network network);
+
+    /**
+     * Get by the network and the bucket start time.
+     * 
+     * @param network
+     * @param bucketStartTime
+     * 
+     * @return
+     */
+    List<ENTITY> getByNetworkAndBucketStartTime(Network network,
+            long bucketStartTime);
 
     /**
      * Get by retrieval status.
