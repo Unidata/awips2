@@ -239,6 +239,7 @@ public class WfsHttpHandler implements OgcHttpHandler {
     @Override
     public void handle(OgcHttpRequest req) {
         try {
+            statusHandler.info("Request from: "+req.getRequest().getRemoteAddr());
             long time = System.currentTimeMillis();
             handleInternal(req);
             long time2 = System.currentTimeMillis();
