@@ -60,6 +60,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 21, 2013 2020        mpduff      Rename UserSubscription to SiteSubscription.
  * Jun 12, 2013 2038        djohnson    Set registryId from each constructor with arguments.
  * Jun 13, 2013 2095        djohnson    Duplicate 13.5.1 change so bandwidth manager deletes subscriptions correctly.
+ * Jun 24, 2013 2106        djohnson    Add copy constructor.
  * 
  * </pre>
  * 
@@ -137,7 +138,7 @@ public class SiteSubscription extends RecurringSubscription {
      * {@inheritDoc}
      */
     @Override
-    public Subscription copy() {
+    public SiteSubscription copy() {
         return new SiteSubscription(this);
     }
 
