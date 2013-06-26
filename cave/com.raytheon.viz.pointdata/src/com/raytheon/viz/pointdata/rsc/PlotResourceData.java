@@ -190,6 +190,7 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("bufrhdw", new PluginPlotProperties());
         pluginProps.put("bufrmthdw", new PluginPlotProperties());
         pluginProps.put("bufrssmi", new PluginPlotProperties());
+        pluginProps.put("madis", new PluginPlotProperties());
 
         ParsedURL.registerHandler(new LocalizationParsedURLHandler());
     }
