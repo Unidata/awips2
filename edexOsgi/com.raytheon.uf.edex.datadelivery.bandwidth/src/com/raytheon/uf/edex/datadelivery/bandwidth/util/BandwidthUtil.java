@@ -1,6 +1,5 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.util;
 
-import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -8,7 +7,6 @@ import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
@@ -28,6 +26,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
  * Dec 11, 2012 1403       djohnson    No longer valid to run without bandwidth management.
  * Feb 14, 2013 1595       djohnson    Use subscription rescheduling strategy.
  * Jun 13, 2013 2095       djohnson    Point subscriptions don't check for dataset updates on aggregation.
+ * Jun 25, 2013 2106       djohnson    CheapClone was cheap in ease, not performance.
  * 
  * </pre>
  * 
@@ -243,24 +242,6 @@ public class BandwidthUtil {
         dao.setUrl(dataSetMetaData.getUrl());
 
         return dao;
-    }
-
-    /**
-     * Creates a cheap clone by dynamically serializing (via thrift) the object
-     * and then deserializing it.
-     * 
-     * @param clazz
-     *            the class type
-     * @param t
-     *            the object
-     * @return the cloned object
-     * @throws SerializationException
-     *             on error serializing
-     */
-    public static <T extends Serializable> T cheapClone(Class<T> clazz, T t)
-            throws SerializationException {
-        return SerializationUtil.transformFromThrift(clazz,
-                SerializationUtil.transformToThrift(t));
     }
 
     /**
