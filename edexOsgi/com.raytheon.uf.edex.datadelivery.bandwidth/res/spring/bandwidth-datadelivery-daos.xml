@@ -30,4 +30,9 @@
         <property name="bandwidthDataSetUpdateDao" ref="bandwidthDataSetUpdateDao" />
     </bean>
 
+    <!-- TODO: Switch to use database bandwidth buckets 
+    <bean id="hibernateBandwidthBucketDao"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.BandwidthBucketDao">
+        <property name="sessionFactory" ref="metadataSessionFactory" />
+    </bean>  -->
 </beans>
