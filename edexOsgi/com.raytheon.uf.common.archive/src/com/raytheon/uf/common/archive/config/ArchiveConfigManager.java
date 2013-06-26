@@ -526,7 +526,7 @@ public class ArchiveConfigManager {
     }
 
     /**
-     * Get a list of directories matching the categories directory pattern that
+     * Get a list of directories matching the categories directory patterns that
      * are sub-directories of the archive's root directory.
      * 
      * @param archiveConfig
@@ -537,13 +537,15 @@ public class ArchiveConfigManager {
             CategoryConfig categoryConfig) {
         List<File> resultDirs = new ArrayList<File>();
         File rootFile = new File(archiveConfig.getRootDir());
+        List<File> dirs = new ArrayList<File>();
+        List<File> tmpDirs = new ArrayList<File>();
+        List<File> swpDirs = null;
 
         for (String dirPattern : categoryConfig.getDirPatternList()) {
             String[] subExpr = dirPattern.split(File.separator);
-            List<File> dirs = new ArrayList<File>();
+            dirs.clear();
             dirs.add(rootFile);
-            List<File> tmpDirs = new ArrayList<File>();
-            List<File> swpDirs = null;
+            tmpDirs.clear();
 
             for (String regex : subExpr) {
                 Pattern subPattern = Pattern.compile("^" + regex + "$");
@@ -582,6 +584,18 @@ public class ArchiveConfigManager {
         return getDisplayData(archiveName, categoryName, false);
     }
 
+    /**
+     * Get the Display labels matching the pattern for the archive data's
+     * category. Assumes the archive data's root directory is the mount point to
+     * start the search.
+     * 
+     * @param archiveName
+     * @param categoryName
+     * @param setSelect
+     *            - when true set the displayData selection base on category's
+     *            selection list
+     * @return displayDataList
+     */
     public List<DisplayData> getDisplayData(String archiveName,
             String categoryName, boolean setSelect) {
         Map<String, List<File>> displayMap = new HashMap<String, List<File>>();
@@ -635,7 +649,8 @@ public class ArchiveConfigManager {
             }
         }
 
-        List<DisplayData> displayInfoList = new ArrayList<DisplayData>();
+        List<DisplayData> displayDataList = new ArrayList<DisplayData>(
+                displays.size());
 
         for (String displayLabel : displays) {
             DisplayData displayData = new DisplayData(archiveConfig,
@@ -644,10 +659,10 @@ public class ArchiveConfigManager {
                 displayData.setSelected(categoryConfig
                         .getSelectedDisplayNames().contains(displayLabel));
             }
-            displayInfoList.add(displayData);
+            displayDataList.add(displayData);
         }
 
-        return displayInfoList;
+        return displayDataList;
     }
 
     /**
