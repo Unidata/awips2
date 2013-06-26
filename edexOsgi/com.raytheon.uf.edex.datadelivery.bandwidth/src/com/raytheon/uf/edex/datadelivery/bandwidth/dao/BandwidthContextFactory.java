@@ -21,7 +21,9 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.dao;
 
 import java.io.File;
 
+import com.raytheon.uf.edex.datadelivery.bandwidth.BandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.IBandwidthManager;
+import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
@@ -40,7 +42,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 24, 2012 1286           djohnson     Initial creation
+ * Oct 24, 2012 1286       djohnson     Initial creation
+ * Jun 24, 2013 2106       djohnson     Add {@link #getBandwidthBucketDao()}.
  * 
  * </pre>
  * 
@@ -62,6 +65,13 @@ public interface BandwidthContextFactory {
      * @return the dao
      */
     IBandwidthDao getBandwidthDao();
+
+    /**
+     * Retrieve the {@link IBandwidthBucketDao} implementation.
+     * 
+     * @return the dao
+     */
+    IBandwidthBucketDao getBandwidthBucketDao();
 
     /**
      * Retrieve the {@link BandwidthInitializer} implementation.
