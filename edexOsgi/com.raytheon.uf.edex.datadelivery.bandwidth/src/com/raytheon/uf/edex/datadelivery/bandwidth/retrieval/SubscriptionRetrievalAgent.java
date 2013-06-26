@@ -47,7 +47,8 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
  * Oct 10, 2012 0726       djohnson     Add generics, constants, defaultPriority.
  * Nov 26, 2012            dhladky      Override default ingest routes based on plugin
  * Jan 30, 2013 1543       djohnson     Should not implement IRetrievalHandler.
- * Feb 05, 2013 1580       mpduff      EventBus refactor.
+ * Feb 05, 2013 1580       mpduff       EventBus refactor.
+ * Jun 24, 2013 2106       djohnson     Set actual start time when sending to retrieval rather than overwrite scheduled start.
  * 
  * </pre>
  * 
@@ -102,7 +103,7 @@ public class SubscriptionRetrievalAgent extends
         bundle.setConnection(provider.getConnection());
         bundle.setSubscription(sub);
 
-        retrieval.setStartTime(TimeUtil.newCalendar());
+        retrieval.setActualStart(TimeUtil.newCalendar());
         retrieval.setStatus(RetrievalStatus.RETRIEVAL);
 
         // update database
