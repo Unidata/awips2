@@ -43,6 +43,7 @@ import com.raytheon.viz.pointdata.PlotModelFactory2;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 13, 2011            njensen     Initial creation
+ * Jun 25, 2013 1869       bsteffen    Fix plot sampling.
  * 
  * </pre>
  * 
@@ -82,7 +83,7 @@ public class PlotSampleGeneratorJob extends Job {
                 String message = plotFactory.getStationMessage(infos[0].pdv,
                         infos[0].dataURI);
 
-                caller.messageGenerated(infos[0].dataURI, message);
+                caller.messageGenerated(infos, message);
             } catch (Exception e) {
                 statusHandler.error("Error creating plot", e);
             }

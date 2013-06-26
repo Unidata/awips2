@@ -29,7 +29,8 @@ import com.raytheon.uf.viz.core.drawables.IImage;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 16, 2009            mschenke     Initial creation
+ * Sep 16, 2009            mschenke    Initial creation
+ * Jun 25, 2013 1869       bsteffen    Fix plot sampling.
  * 
  * </pre>
  * 
@@ -42,5 +43,5 @@ public interface IPlotModelGeneratorCaller {
 
     public void clearImages();
 
-    public void messageGenerated(String dataURI, String message);
+    public void messageGenerated(PlotInfo[] key, String message);
 }
