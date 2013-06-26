@@ -19,6 +19,13 @@
  **/
 package com.raytheon.viz.ui.personalities.awips;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+
+import com.raytheon.uf.viz.core.maps.MapStore;
+
 /**
  * TODO Add Description
  * 
@@ -28,6 +35,7 @@ package com.raytheon.viz.ui.personalities.awips;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 9, 2010            mschenke     Initial creation
+ * Jun 25, 2013 2139      jsanchez     Loaded the map tree on CAVE start up.
  * 
  * </pre>
  * 
@@ -50,7 +58,14 @@ public class CAVE extends AbstractCAVEComponent {
      */
     @Override
     protected void startInternal(String componentName) throws Exception {
-
+        Job job = new Job("Loading Map Tree") {
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                MapStore.getMapTree();
+                return Status.OK_STATUS;
+            }
+        };
+        job.schedule();
     }
 
 }
