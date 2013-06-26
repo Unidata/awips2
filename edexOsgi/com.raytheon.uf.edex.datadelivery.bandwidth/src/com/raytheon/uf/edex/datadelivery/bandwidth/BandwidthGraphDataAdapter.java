@@ -38,12 +38,12 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthReservation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan.BandwidthBucket;
 
 /**
  * Adapts the {@link BandwidthManager} formatted data into a GUI usable graphing
@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan.Bandw
  * ------------ ---------- ----------- --------------------------
  * Dec 06, 2012 1397       djohnson     Initial creation
  * Jan 25, 2013 1528       djohnson     Subscription priority is now an enum.
+ * Jun 24, 2013 2106       djohnson     Access bucket allocations through RetrievalPlan.
  * 
  * </pre>
  * 
@@ -117,7 +118,8 @@ class BandwidthGraphDataAdapter {
             // name, and associate all of the bandwidth reservations with their
             // associated retrievals
             for (BandwidthBucket bucket : bandwidthBuckets) {
-                final List<BandwidthAllocation> requests = bucket.getRequests();
+                final List<BandwidthAllocation> requests = retrievalPlan
+                        .getBandwidthAllocationsForBucket(bucket);
                 for (BandwidthAllocation allocation : requests) {
                     if (allocation instanceof SubscriptionRetrieval) {
                         final SubscriptionRetrieval subRetrieval = (SubscriptionRetrieval) allocation;
@@ -127,8 +129,9 @@ class BandwidthGraphDataAdapter {
                     }
                 }
 
-                final List<BandwidthReservation> bandwidthReservations = bucket
-                        .getReservations();
+                final List<BandwidthReservation> bandwidthReservations = retrievalPlan
+                        .getBandwidthReservationsForBucket(bucket);
+
                 for (BandwidthReservation reservation : bandwidthReservations) {
                     reservations.put(reservation.getId(), reservation);
                 }
