@@ -84,7 +84,7 @@ public class PointDataCubeAdapter implements IDataCubeAdapter {
 
     public static String PLUGIN_NAME = PointDataInventory.PLUGIN_NAME;
 
-    private static String[] supportedPlugins = { "obs", "modelsounding",
+    private static String[] supportedPlugins = { "obs", "madis", "modelsounding",
             "bufrssmi", "bufrquikscat", "lsr", "sfcobs", "goessounding",
             "bufrascat", "poessounding", "profiler", "bufrua", "ldadmesonet",
             "ldadhydro", "qc", "fssobs", "bufrmosAVN", "bufrmosETA",
