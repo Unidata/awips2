@@ -17,27 +17,25 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.log;
+package com.raytheon.uf.common.status.logback;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.spi.AppenderAttachable;
-import org.apache.log4j.spi.LoggingEvent;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.AppenderBase;
+import ch.qos.logback.core.spi.AppenderAttachable;
 
 /**
- * TODO Add Description
+ * Appender for logging based on the thread name of the logging event.
  * 
  * <pre>
  * 
@@ -45,6 +43,7 @@ import org.apache.log4j.spi.LoggingEvent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 25, 2010            rjpeter     Initial creation
+ * Jun 24, 2013 2142       njensen     Changes for logback compatibility
  * 
  * </pre>
  * 
@@ -52,19 +51,19 @@ import org.apache.log4j.spi.LoggingEvent;
  * @version 1.0
  */
 
-public class ThreadBasedAppender extends AppenderSkeleton implements Appender,
-        AppenderAttachable {
-    private Map<String, Appender> appenderMap = new HashMap<String, Appender>();
+public class ThreadBasedAppender<E extends ILoggingEvent> extends
+        AppenderBase<E> implements AppenderAttachable<E> {
+    private Map<String, Appender<E>> appenderMap = new HashMap<String, Appender<E>>();
 
     private Map<String, List<Pattern>> threadPatterns = new HashMap<String, List<Pattern>>();
 
-    private Map<String, Appender> threadAppenderCache = new HashMap<String, Appender>();
+    private Map<String, Appender<E>> threadAppenderCache = new HashMap<String, Appender<E>>();
 
     private Map<String, Long> threadAppenderTimeCache = new HashMap<String, Long>();
 
     private String defaultAppenderName;
 
-    private Appender defaultAppender;
+    private Appender<E> defaultAppender;
 
     // keep thread names and their associated appender mapped for 10 minutes
     private static final long RETENTION_TIME = 1000 * 60 * 1;
@@ -72,7 +71,7 @@ public class ThreadBasedAppender extends AppenderSkeleton implements Appender,
     private Timer cacheTimer;
 
     @Override
-    public void activateOptions() {
+    public void start() {
         if (defaultAppenderName != null) {
             defaultAppender = appenderMap.get(defaultAppenderName);
         }
@@ -100,22 +99,18 @@ public class ThreadBasedAppender extends AppenderSkeleton implements Appender,
         };
 
         cacheTimer.schedule(purgeCache, 1000, 60000);
+        super.start();
     }
 
     @Override
-    public void addAppender(Appender newAppender) {
+    public void addAppender(Appender<E> newAppender) {
         if (newAppender != null && newAppender.getName() != null) {
             appenderMap.put(newAppender.getName(), newAppender);
         }
     }
 
     @Override
-    public Enumeration<Appender> getAllAppenders() {
-        return Collections.enumeration(appenderMap.values());
-    }
-
-    @Override
-    public Appender getAppender(String name) {
+    public Appender<E> getAppender(String name) {
         if (name != null) {
             return appenderMap.get(name);
         }
@@ -124,7 +119,7 @@ public class ThreadBasedAppender extends AppenderSkeleton implements Appender,
     }
 
     @Override
-    public boolean isAttached(Appender appender) {
+    public boolean isAttached(Appender<E> appender) {
         if (appender != null) {
             return appenderMap.containsKey(appender.getName());
         }
@@ -133,28 +128,36 @@ public class ThreadBasedAppender extends AppenderSkeleton implements Appender,
     }
 
     @Override
-    public void removeAllAppenders() {
+    public void detachAndStopAllAppenders() {
         appenderMap.clear();
     }
 
     @Override
-    public void removeAppender(Appender appender) {
+    public boolean detachAppender(Appender<E> appender) {
+        boolean retVal = false;
         if (appender != null) {
-            appenderMap.remove(appender.getName());
+            retVal = detachAppender(appender.getName());
         }
+        return retVal;
     }
 
     @Override
-    public void removeAppender(String name) {
+    public boolean detachAppender(String name) {
+        boolean retVal = false;
         if (name != null) {
-            appenderMap.remove(name);
+            Appender<E> app = appenderMap.remove(name);
+            if (app != null) {
+                retVal = true;
+            }
         }
+
+        return retVal;
     }
 
     @Override
-    protected void append(LoggingEvent event) {
+    protected void append(E event) {
         String threadName = event.getThreadName();
-        Appender app = null;
+        Appender<E> app = null;
 
         app = threadAppenderCache.get(threadName);
 
@@ -180,7 +183,7 @@ public class ThreadBasedAppender extends AppenderSkeleton implements Appender,
                 synchronized (this) {
                     // not modifiying the map directly to avoid concurrent
                     // exceptions without forcing synchronization
-                    Map<String, Appender> tmp = new HashMap<String, Appender>(
+                    Map<String, Appender<E>> tmp = new HashMap<String, Appender<E>>(
                             threadAppenderCache);
                     tmp.put(threadName, app);
                     threadAppenderCache = tmp;
@@ -197,15 +200,6 @@ public class ThreadBasedAppender extends AppenderSkeleton implements Appender,
             threadAppenderTimeCache.put(threadName, System.currentTimeMillis());
             app.doAppend(event);
         }
-    }
-
-    @Override
-    public void close() {
-    }
-
-    @Override
-    public boolean requiresLayout() {
-        return true;
     }
 
     public void setThreadPatterns(String value) {
@@ -230,8 +224,8 @@ public class ThreadBasedAppender extends AppenderSkeleton implements Appender,
 
     private void removeOldEntries() {
         long curTime = System.currentTimeMillis();
-        List<String> keysToRemove = new ArrayList<String>(threadAppenderCache
-                .size());
+        List<String> keysToRemove = new ArrayList<String>(
+                threadAppenderCache.size());
 
         for (Entry<String, Long> entry : threadAppenderTimeCache.entrySet()) {
             if (curTime - entry.getValue() > RETENTION_TIME) {
@@ -245,7 +239,7 @@ public class ThreadBasedAppender extends AppenderSkeleton implements Appender,
             synchronized (this) {
                 // not modifiying the map directly to avoid concurrent
                 // exceptions without forcing synchronization
-                Map<String, Appender> tmp = new HashMap<String, Appender>(
+                Map<String, Appender<E>> tmp = new HashMap<String, Appender<E>>(
                         threadAppenderCache);
                 tmp.remove(key);
                 threadAppenderCache = tmp;
@@ -255,5 +249,10 @@ public class ThreadBasedAppender extends AppenderSkeleton implements Appender,
                 threadAppenderTimeCache = tmpTime;
             }
         }
+    }
+
+    @Override
+    public Iterator<Appender<E>> iteratorForAppenders() {
+        return appenderMap.values().iterator();
     }
 }
