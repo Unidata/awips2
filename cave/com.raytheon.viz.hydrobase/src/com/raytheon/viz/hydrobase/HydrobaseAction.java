@@ -21,6 +21,7 @@
  * 
  */
 package com.raytheon.viz.hydrobase;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -45,6 +46,7 @@ import com.raytheon.viz.hydrocommon.HydroDisplayManager;
  * 07/03/2010   6586        mduff       Fixed problem introduced from the 
  *                                      CaveSWTDialog refactor and added
  *                                      a pre-selected lid.
+ * 06/27/2013   2088        rferrel     Changes for non-blocking HydroBaseDlg.
  * 
  * </pre>
  * 
@@ -52,22 +54,31 @@ import com.raytheon.viz.hydrocommon.HydroDisplayManager;
  * 
  */
 public class HydrobaseAction extends AbstractHandler {
-    
-	@Override
-	public Object execute(ExecutionEvent arg0) throws ExecutionException {
-	    Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-	    
-	    String lid = HydroDisplayManager.getInstance().getCurrentLid();
-	    String dbName = AppsDefaults.getInstance().getToken("db_name");
-	    HydroBaseDlg hydrobaseDlg = new HydroBaseDlg(shell, dbName, lid);
-	    boolean verified = hydrobaseDlg.promptForPassword(new Shell());
-	    
-	    if (verified) {
-	        hydrobaseDlg.open();
-	    }
-	    
-		return null;
-	}
+    private HydroBaseDlg hydrobaseDlg;
+
+    @Override
+    public Object execute(ExecutionEvent arg0) throws ExecutionException {
+        if (hydrobaseDlg == null || hydrobaseDlg.isDisposed()) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+
+            String lid = HydroDisplayManager.getInstance().getCurrentLid();
+            String dbName = AppsDefaults.getInstance().getToken("db_name");
+            hydrobaseDlg = new HydroBaseDlg(shell, dbName, lid);
+            Shell passwdShell = new Shell();
+            boolean verified = hydrobaseDlg.promptForPassword(passwdShell);
+            passwdShell.dispose();
+
+            if (verified) {
+                hydrobaseDlg.open();
+            } else {
+                hydrobaseDlg = null;
+            }
+        } else {
+            hydrobaseDlg.bringToTop();
+        }
+
+        return null;
+    }
 
 }
