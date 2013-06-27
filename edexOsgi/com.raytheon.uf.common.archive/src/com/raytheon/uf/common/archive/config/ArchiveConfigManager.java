@@ -74,6 +74,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * May 29, 2013 1965       bgonzale    Added archive creation, purge, and save methods.
  *                                     Updated purgeExpiredFromArchive to check time of files in
  *                                     directory before purging them.
+ *                                     Added null check for topLevelDirs in purgeExpiredFromArchive.
  * 
  * </pre>
  * 
@@ -269,9 +270,12 @@ public class ArchiveConfigManager {
         Collection<File> filesPurged = new ArrayList<File>();
         String archiveRootDirPath = archive.getRootDir();
         File archiveRootDir = new File(archiveRootDirPath);
-        List<String> topLevelDirsNotPurged = new ArrayList<String>(
-                Arrays.asList(archiveRootDir.list()));
+        String[] topLevelDirs = archiveRootDir.list();
+        List<String> topLevelDirsNotPurged = new ArrayList<String>();
 
+        if (topLevelDirs != null) {
+            topLevelDirsNotPurged.addAll(Arrays.asList(topLevelDirs));
+        }
         for (CategoryConfig category : archive.getCategoryList()) {
             Calendar purgeTime = calculateExpiration(archive, category);
             CategoryFileDateHelper helper = new CategoryFileDateHelper(
