@@ -61,6 +61,7 @@ import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
 import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
 import com.raytheon.viz.hydrocommon.whfslib.GeoUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * This class displays the River Gage dialog.
@@ -75,6 +76,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      Also see https://bugs.eclipse.org/bugs/show_bug.cgi?id=43004
  * Apr 16,2012  14797       wkwock      Change lat/lon from hour minute sec to decimal.
  * Jun 11,2013  2088        rferrel     Make dialog non-blocking.
+ *                                      Changes for non-blocking FcstPointGroupDlg.
  * 
  * </pre>
  * 
@@ -85,6 +87,11 @@ public class RiverGageDlg extends CaveSWTDialog implements
         IForecastGroupAssignmentListener {
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RiverGageDlg.class);
+
+    /**
+     * Allow only a single instance of the Forcast Point Group dialog.
+     */
+    private FcstPointGroupDlg fcstPointDlg;
 
     /**
      * Control font.
@@ -1500,14 +1507,23 @@ public class RiverGageDlg extends CaveSWTDialog implements
      * Opens the Forecast Point Group Assignment Dialog
      */
     private void openFcstGroupAssignmentDlg() {
-        FcstPointGroupDlg fcstPointDlg = new FcstPointGroupDlg(shell,
-                forecastPointTF.getText());
-        fcstPointDlg.addListener(this);
+        if (fcstPointDlg == null || fcstPointDlg.isDisposed()) {
+            fcstPointDlg = new FcstPointGroupDlg(shell,
+                    forecastPointTF.getText());
+            fcstPointDlg.addListener(this);
+            fcstPointDlg.setCloseCallback(new ICloseCallback() {
 
-        // Open the Fcst Assignment dlg
-        fcstPointDlg.open();
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    fcstPointDlg.removeListener(RiverGageDlg.this);
+                }
+            });
 
-        fcstPointDlg.removeListener(this);
+            // Open the Fcst Assignment dlg
+            fcstPointDlg.open();
+        } else {
+            fcstPointDlg.bringToTop();
+        }
     }
 
     /**
