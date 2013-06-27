@@ -37,6 +37,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrobase.HydroStationDataManager;
 import com.raytheon.viz.hydrobase.listeners.IStationFilterListener;
@@ -55,7 +58,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Sep 9, 2008				lvenable	Initial creation
- * Jun 17,2010	 #5414 	    lbousaidi   Apply button closing         
+ * Jun 17,2010	 #5414 	    lbousaidi   Apply button closing
+ * Jun 27, 2013 #2088       rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -63,6 +67,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class StationFilterOptionsDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(StationFilterOptionsDlg.class);
 
     /**
      * Control font.
@@ -121,10 +127,15 @@ public class StationFilterOptionsDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public StationFilterOptionsDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Station List Filter Options");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -135,11 +146,23 @@ public class StationFilterOptionsDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -288,7 +311,7 @@ public class StationFilterOptionsDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 if (saveSettings()) {
-                    fireUpdateEvent();                    
+                    fireUpdateEvent();
                 }
             }
         });
@@ -300,11 +323,14 @@ public class StationFilterOptionsDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
 
+    /**
+     * Get the static HSA data.
+     */
     private void loadStaticData() {
         // Load HSAs
         hsaList.removeAll();
@@ -314,7 +340,8 @@ public class StationFilterOptionsDlg extends CaveSWTDialog {
                 hsaList.add(currHSA);
             }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to load HSA static data: ", e);
         }
     }
 
@@ -347,13 +374,11 @@ public class StationFilterOptionsDlg extends CaveSWTDialog {
         latCenterTF
                 .setText((man.getLatCenter() != HydroConstants.MISSING_VALUE) ? GeoUtil
                         .getInstance().cvt_latlon_from_double(
-                                man.getLatCenter())
-                        : "");
+                                man.getLatCenter()) : "");
         lonCenterTF
                 .setText((man.getLonCenter() != HydroConstants.MISSING_VALUE) ? GeoUtil
                         .getInstance().cvt_latlon_from_double(
-                                man.getLonCenter())
-                        : "");
+                                man.getLonCenter()) : "");
 
         enableChk.setSelection(man.isFilterByLatLon());
     }
@@ -407,8 +432,7 @@ public class StationFilterOptionsDlg extends CaveSWTDialog {
             if ((lat < -90) || (lat > 90) || invalidLat) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Invalid Value");
-                mb
-                        .setMessage("Please enter a VALID (-90 to 90) Latitude\nin the form: DD MM SS");
+                mb.setMessage("Please enter a VALID (-90 to 90) Latitude\nin the form: DD MM SS");
                 mb.open();
 
                 return false;
@@ -426,14 +450,12 @@ public class StationFilterOptionsDlg extends CaveSWTDialog {
                 lon = GeoUtil.getInstance().cvt_spaced_format(lonTxt, 0);
             } catch (Exception e) {
                 invalidLon = true;
-                e.printStackTrace();
             }
 
             if ((lon > 180) || (lon < -180) || invalidLon) {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Invalid Value");
-                mb
-                        .setMessage("Please enter a VALID (-180 to 180) Longitude\nin the form: DD MM SS");
+                mb.setMessage("Please enter a VALID (-180 to 180) Longitude\nin the form: DD MM SS");
                 mb.open();
 
                 return false;
