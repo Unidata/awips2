@@ -17,6 +17,6 @@ Export-Package: org.apache.commons.configuration,
 Require-Bundle: org.apache.commons.beanutils,
  org.apache.commons.collections,
  org.apache.commons.digester,
- org.apache.commons.logging,
- org.apache.commons.lang
+ org.apache.commons.lang,
+ org.slf4j;bundle-version="1.7.5"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

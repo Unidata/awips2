@@ -1,6 +1,7 @@
 package com.raytheon.uf.common.status;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Log4j Performance status handler.
@@ -21,7 +22,7 @@ import org.apache.log4j.Logger;
 
 public class Log4JPerformanceStatusHandler implements IPerformanceStatusHandler {
     /** Logger */
-    private final Logger perfLog = Logger.getLogger("PerformanceLogger");
+    private final Logger perfLog = LoggerFactory.getLogger("PerformanceLogger");
 
     /** Prefix to append to all log messages */
     private final String prefix;
