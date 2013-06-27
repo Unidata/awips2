@@ -34,9 +34,6 @@ import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 import javax.xml.bind.JAXB;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.request.GetLevelByIdRequest;
 import com.raytheon.uf.common.dataplugin.level.request.GetLevelRequest;
@@ -60,6 +57,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 03, 2009            rjpeter     Initial creation.
+ * Jul 01, 2013 2142       njensen     Remove apache.commons.logging
  * </pre>
  * 
  * @author rjpeter
@@ -71,13 +69,9 @@ public class LevelFactory {
 
     public static final String UNKNOWN_LEVEL = "UNKNOWN";
 
-    private static final String LEVEL_FILENAME = "level/LevelAliases.xml";
-
     private static final String MASTER_LEVEL_FILENAME = "/level/masterLevels.xml";
 
     private static LevelFactory instance = new LevelFactory();
-
-    private Log logger = LogFactory.getLog(LevelFactory.class);
 
     // contains the master levels
     private Map<String, MasterLevel> masterLevelCache = new HashMap<String, MasterLevel>();
@@ -209,7 +203,7 @@ public class LevelFactory {
                 e.printStackTrace();
             }
         } else {
-            logger.warn("Requested level name [" + name
+            statusHandler.warn("Requested level name [" + name
                     + "] does not map to a defined level");
             // TODO throw level exception
         }
@@ -249,7 +243,7 @@ public class LevelFactory {
                 cacheMasterLevel(rval);
             }
         } else {
-            logger.error("No level retrieval adapter defined");
+            statusHandler.error("No level retrieval adapter defined");
         }
 
         return rval;
