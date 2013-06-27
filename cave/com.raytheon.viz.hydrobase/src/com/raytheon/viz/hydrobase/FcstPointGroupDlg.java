@@ -35,6 +35,9 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrobase.listeners.IForecastGroupAssignmentListener;
 import com.raytheon.viz.hydrocommon.data.RPFFcstGroupData;
@@ -51,6 +54,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------	----------	-----------	--------------------------
  * Sep 4, 2008				lvenable	Initial creation
  * Jan 7, 2008  1802        askripsk    Connect to DB
+ * Jun 27,2013  2088        rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -58,6 +62,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class FcstPointGroupDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(FcstPointGroupDlg.class);
 
     /**
      * Control font.
@@ -91,12 +97,17 @@ public class FcstPointGroupDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public FcstPointGroupDlg(Shell parent, String previousGroup) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Fcst Point Group Assignment");
 
         this.previousGroup = previousGroup;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -107,11 +118,23 @@ public class FcstPointGroupDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -171,7 +194,7 @@ public class FcstPointGroupDlg extends CaveSWTDialog {
         okBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 fireUpdateEvent();
-                shell.dispose();
+                close();
             }
         });
 
@@ -184,7 +207,7 @@ public class FcstPointGroupDlg extends CaveSWTDialog {
             public void widgetSelected(SelectionEvent event) {
                 groupList.deselectAll();
                 fireUpdateEvent();
-                shell.dispose();
+                close();
             }
         });
 
@@ -195,7 +218,7 @@ public class FcstPointGroupDlg extends CaveSWTDialog {
         cancelBtn.setLayoutData(gd);
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -210,7 +233,8 @@ public class FcstPointGroupDlg extends CaveSWTDialog {
 
             fcstGroups = HydroDBDataManager.getInstance().getData(seedData);
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to load RPF Forecast Group Data: ", e);
         }
 
         updateDisplay();
