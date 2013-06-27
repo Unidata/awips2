@@ -41,10 +41,11 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.alertmonitor;bundle-version="1.12.1174",
  com.raytheon.uf.common.python;bundle-version="1.12.1174",
  com.raytheon.uf.common.velocity;bundle-version="1.0.0",
- org.apache.log4j;bundle-version="1.0.0"
+ org.apache.log4j;bundle-version="1.0.0",
+ ch.qos.logback;bundle-version="1.0.13"
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: ext, registered, global
-Eclipse-RegisterBuddy: org.apache.velocity, org.apache.log4j, com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.common.serialization.comm, com.raytheon.uf.common.status, com.raytheon.uf.common.dataplugin.level, com.raytheon.uf.common.comm
+Eclipse-RegisterBuddy: org.apache.velocity, org.apache.log4j, com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.common.serialization.comm, com.raytheon.uf.common.status, com.raytheon.uf.common.dataplugin.level, com.raytheon.uf.common.comm, ch.qos.logback
 Export-Package: com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.core.alerts,
  com.raytheon.uf.viz.core.auth,
@@ -68,7 +69,6 @@ Export-Package: com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.core.legend,
  com.raytheon.uf.viz.core.level,
  com.raytheon.uf.viz.core.localization,
- com.raytheon.uf.viz.core.log,
  com.raytheon.uf.viz.core.map,
  com.raytheon.uf.viz.core.notification,
  com.raytheon.uf.viz.core.notification.jobs,

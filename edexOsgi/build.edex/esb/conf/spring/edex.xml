@@ -297,7 +297,9 @@
   	</bean>
 
    <!-- Redirect geotools log -->
-   <bean class="com.raytheon.uf.common.geospatial.LogRedirector" factory-method="getInstance"/>
+   <bean class="com.raytheon.uf.common.geospatial.LogRedirector" factory-method="setGeotoolsLogFactory">
+        <constructor-arg value="org.geotools.util.logging.Log4JLoggerFactory" />
+   </bean>
 
    <!-- Reference properties files -->
    <bean id="projectPropertyConfigurer"
