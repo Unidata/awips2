@@ -24,7 +24,7 @@ export MAX_PERM_SIZE=192m
 export METADATA_POOL_MIN=10
 export EDEX_DEBUG_PORT=5009
 export EDEX_JMX_PORT=1620
-export LOG4J_CONF=log4j-registry.xml
+export LOG_CONF=logback-registry.xml
 export MGMT_PORT=9605
 
 # Registry specific ports
