@@ -23,7 +23,8 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
- * TODO Add Description
+ * Redirects geotools logs to another logging framework. Pray that someday they
+ * will just hook into SLF4J and save us the trouble.
  * 
  * <pre>
  * 
@@ -32,6 +33,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 29, 2011            rjpeter     Initial creation
+ * Jun 27, 2013 2142       njensen     Inject factory from spring
  * 
  * </pre>
  * 
@@ -40,16 +42,15 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 
 public class LogRedirector {
-    private static LogRedirector instance = new LogRedirector();
 
-    public static LogRedirector getInstance() {
-        return instance;
+    public static LogRedirector setGeotoolsLogFactory(String factoryName) {
+        return new LogRedirector(factoryName);
     }
 
-    public LogRedirector() {
+    private LogRedirector(String factoryName) {
         try {
             org.geotools.util.logging.Logging.GEOTOOLS
-                    .setLoggerFactory("org.geotools.util.logging.CommonsLoggerFactory");
+                    .setLoggerFactory(factoryName);
         } catch (ClassNotFoundException e) {
             UFStatus.getHandler(LogRedirector.class).handle(Priority.WARN,
                     "Failed to redirect geotools logging", e);
