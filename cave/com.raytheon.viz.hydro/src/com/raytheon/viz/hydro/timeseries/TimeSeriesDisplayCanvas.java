@@ -137,7 +137,8 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * 09 Jan   2012 15493   lbousaidi    added code to delete data while zooming when you draw a box
  * 16 Jan   2013 15695   wkwock       Fix popup menu      
  * 24 Apr   2013  1921   mpduff       Fix zoom reset to only reset the "active" graph
- * 06 May   2013  1976   mpduff       Refactored Hydro time series data access.                   
+ * 06 May   2013  1976   mpduff       Refactored Hydro time series data access.        
+ * 29 May   2013  2016   mpduff       Fix TS Toggle Traces.           
  * @author lvenable
  * @version 1.0
  * 
@@ -2545,41 +2546,36 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                         }
 
                         if (basisTime.getTime() != prevBasisTime.getTime()) {
-                            if (!this.latestFcstFlag) {
-                                if (ntraces < MAX_FCST_TRACES) {
-                                    traceData.setXmin(beginDate);
-                                    traceData.setXmax(endDate);
-                                    n = 0; /* Reset npts in new forecast trace */
-                                    traceData.setBasistime(prevBasisTime);
-                                    ntraces++;
-                                    traceData.setTsData(points
-                                            .toArray(new TimeSeriesPoint[points
-                                                    .size()]));
-                                    points = new ArrayList<TimeSeriesPoint>();
+                            if (ntraces < MAX_FCST_TRACES) {
+                                traceData.setXmin(beginDate);
+                                traceData.setXmax(endDate);
+                                n = 0; /* Reset npts in new forecast trace */
+                                traceData.setBasistime(prevBasisTime);
+                                ntraces++;
+                                traceData.setTsData(points
+                                        .toArray(new TimeSeriesPoint[points
+                                                .size()]));
+                                points = new ArrayList<TimeSeriesPoint>();
 
-                                    if (ntraces >= 1) {
-                                        traceDataList.add(traceData);
-                                    }
-
-                                    traceData = new TraceData();
-                                    traceData.setForecast(true);
-                                    traceData.setDur(dur);
-                                    traceData.setExtremum(extremum);
-                                    traceData.setLid(lid);
-                                    traceData.setPe(pe);
-                                    traceData.setTs(ts);
-                                    traceData.setName(name);
-                                    traceData.setBasistime(basisTime);
-                                    traceData.setProductTime(productTime);
-                                    traceData.setTraceOn(!this.latestFcstFlag);
-                                } else {
-                                    /*
-                                     * reached max fcst traces, break out of
-                                     * loop
-                                     */
-                                    break;
+                                if (ntraces >= 1) {
+                                    traceDataList.add(traceData);
                                 }
+
+                                traceData = new TraceData();
+                                traceData.setForecast(true);
+                                traceData.setDur(dur);
+                                traceData.setExtremum(extremum);
+                                traceData.setLid(lid);
+                                traceData.setPe(pe);
+                                traceData.setTs(ts);
+                                traceData.setName(name);
+                                traceData.setBasistime(basisTime);
+                                traceData.setProductTime(productTime);
+                                traceData.setTraceOn(!this.latestFcstFlag);
                             } else {
+                                /*
+                                 * reached max fcst traces, break out of loop
+                                 */
                                 break;
                             }
                         }

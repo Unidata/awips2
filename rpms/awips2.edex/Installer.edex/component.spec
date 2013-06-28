@@ -125,6 +125,16 @@ if [ -f /etc/init.d/edex_camel ]; then
    /sbin/chkconfig --add edex_camel
 fi
 
+# determine if an installation of awips2-common-base is already present
+# (CAVE has been installed before edex on an ADAM machine)
+if [ -d /awips2/.edex ]; then
+   # copy the common-base contributions to the EDEX installation
+   cp -r /awips2/.edex/* /awips2/edex
+   
+   # cleanup
+   rm -rf /awips2/.edex
+fi
+
 %preun
 if [ "${1}" = "1" ]; then
    exit 0

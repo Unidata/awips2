@@ -23,14 +23,20 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.raytheon.uf.common.auth.exception.AuthorizationException;
+import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.tafqueue.ServerResponse;
 import com.raytheon.uf.common.tafqueue.TafQueueRecord;
 import com.raytheon.uf.common.tafqueue.TafQueueRecord.TafQueueState;
 import com.raytheon.uf.common.tafqueue.TafQueueRequest;
 import com.raytheon.uf.common.tafqueue.TafQueueRequest.Type;
+import com.raytheon.uf.edex.auth.AuthManager;
+import com.raytheon.uf.edex.auth.AuthManagerFactory;
+import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
+import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
+import com.raytheon.uf.edex.auth.roles.IRoleStorage;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -46,12 +52,16 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * ------------ ---------- ----------- --------------------------
  * May 1, 2012  14715      rferrel     Initial creation
  * May 08, 2013 1814       rjpeter     Added time to live to topic
+ * Jun 07, 2013 1981       mpduff      TafQueueRequest is now protected.
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
-public class TafQueueRequestHandler implements IRequestHandler<TafQueueRequest> {
+public class TafQueueRequestHandler extends
+        AbstractPrivilegedRequestHandler<TafQueueRequest> {
+    /** The application for authentication */
+    private static final String APPLICATION = "Official User Product";
 
     /*
      * (non-Javadoc)
@@ -193,5 +203,25 @@ public class TafQueueRequestHandler implements IRequestHandler<TafQueueRequest> 
         byte[] message = SerializationUtil.transformToThrift(type.toString());
         EDEXUtil.getMessageProducer().sendAsyncUri(
                 "jms-generic:topic:tafQueueChanged?timeToLive=60000", message);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AuthorizationResponse authorized(IUser user, TafQueueRequest request)
+            throws AuthorizationException {
+        AuthManager manager = AuthManagerFactory.getInstance().getManager();
+        IRoleStorage roleStorage = manager.getRoleStorage();
+
+        boolean authorized = roleStorage.isAuthorized((request).getRoleId(),
+                user.uniqueId().toString(), APPLICATION);
+
+        if (authorized) {
+            return new AuthorizationResponse(authorized);
+        } else {
+            return new AuthorizationResponse(
+                    (request).getNotAuthorizedMessage());
+        }
     }
 }

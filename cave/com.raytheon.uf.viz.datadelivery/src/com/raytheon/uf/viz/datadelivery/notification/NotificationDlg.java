@@ -65,6 +65,7 @@ import com.raytheon.uf.viz.datadelivery.common.ui.ITableChange;
 import com.raytheon.uf.viz.datadelivery.common.ui.LoadSaveConfigDlg;
 import com.raytheon.uf.viz.datadelivery.common.ui.LoadSaveConfigDlg.DialogType;
 import com.raytheon.uf.viz.datadelivery.common.ui.TableCompConfig;
+import com.raytheon.uf.viz.datadelivery.help.HelpManager;
 import com.raytheon.uf.viz.datadelivery.notification.PriorityImages.Priority;
 import com.raytheon.uf.viz.datadelivery.notification.xml.MessageLoadXML;
 import com.raytheon.uf.viz.datadelivery.notification.xml.NotificationConfigXML;
@@ -97,6 +98,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                    Update title bar text when paused.
  * Jan 22, 2013  1520      mpduff     Change delete menus to hide.
  * Apr 25, 2013  1820      mpduff     Implemente delete config.
+ * Jun 06, 2013  2030      mpduff     Refactored help.
  * 
  * </pre>
  * 
@@ -108,7 +110,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
         IMessageLoad, INotificationArrivedListener {
 
     /** Status Handler */
-    private final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(NotificationDlg.class);
 
     private final String TITLE_TEXT = "Notification Center";
@@ -116,11 +118,11 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
     /** Find Dialog */
     private FindDlg fnd = null;
 
-    /** Help Dialog */
-    private final NotificationHelpDlg help = null;
-
     /** Message load properties */
     private MessageLoadXML messageLoad;
+
+    /** Help text file */
+    private final String NOTIFICATION_HELP_FILE = "help/notificationHelp.xml";
 
     /** Path of the Notification Config xml file */
     private final String CONFIG_PATH = "dataDelivery" + File.separator
@@ -490,15 +492,13 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
      * Handle the help display dialog.
      */
     private void handleHelp() {
-
-        if (help == null || help.isDisposed()) {
-            NotificationHelpDlg help = new NotificationHelpDlg(shell);
-            help.open();
-            help = null;
-        } else {
-            help.bringToTop();
+        try {
+            HelpManager.getInstance().displayHelpDialog(shell,
+                    NOTIFICATION_HELP_FILE);
+        } catch (Exception e) {
+            statusHandler.error("Error loading Help Text file: "
+                    + NOTIFICATION_HELP_FILE, e);
         }
-
     }
 
     /**

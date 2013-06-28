@@ -21,9 +21,14 @@ package com.raytheon.uf.common.registry.services;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
 import javax.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
 
@@ -38,9 +43,13 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
+import org.apache.cxf.headers.Header;
+import org.apache.cxf.jaxb.JAXBDataBinding;
+
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
@@ -371,12 +380,30 @@ public class RegistrySOAPServices {
 
     @SuppressWarnings("unchecked")
     private static <T extends Object> T getPort(String serviceUrl,
-            Class<?> serviceInterface) {
+            Class<?> serviceInterface) throws RegistryServiceException {
         W3CEndpointReferenceBuilder endpointBuilder = new W3CEndpointReferenceBuilder();
         endpointBuilder.wsdlDocumentLocation(serviceUrl.toString() + WSDL);
         endpointBuilder.address(serviceUrl.toString());
         W3CEndpointReference ref = endpointBuilder.build();
-        return (T) ref.getPort(serviceInterface);
+        T port = (T) ref.getPort(serviceInterface);
 
+        if (RegistryUtil.LOCAL_REGISTRY_ADDRESS != null) {
+            List<Header> headerList = new ArrayList<Header>(1);
+            Header header = null;
+            try {
+                header = new Header(new QName(
+                        RegistryUtil.CALLING_REGISTRY_SOAP_HEADER_NAME),
+                        RegistryUtil.LOCAL_REGISTRY_ADDRESS,
+                        new JAXBDataBinding(String.class));
+            } catch (JAXBException e) {
+                throw new RegistryServiceException(
+                        "Error creating header objects on service port", e);
+            }
+            headerList.add(header);
+            BindingProvider bindingProvider = (BindingProvider) port;
+            bindingProvider.getRequestContext().put(Header.HEADER_LIST,
+                    headerList);
+        }
+        return port;
     }
 }

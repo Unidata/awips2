@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.derivparam;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.viz.derivparam.DerivParamFunctionType.FunctionArgument;
@@ -33,7 +34,9 @@ import com.raytheon.uf.viz.derivparam.DerivParamFunctionType.FunctionArgument;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 16, 2010            mschenke     Initial creation
+ * Dec 16, 2010            mschenke    Initial creation
+ * Jun 04, 2013 2041       bsteffen    Switch derived parameters to use
+ *                                     concurrent python for threading.
  * 
  * </pre>
  * 
@@ -76,24 +79,11 @@ public interface IDerivParamFunctionAdapter {
      * @param arguments
      *            arguments to pass into function
      */
-    public void executeFunction(String name, List<Object> arguments);
+    public List<IDataRecord> executeFunction(String name, List<Object> arguments)
+            throws ExecutionException;
 
     /**
-     * Implementing Adapters need to be able to return the last executed
-     * function as data records copied into java from whatever mechanism was
-     * used to execute the function
-     * 
-     * @return The last executed function results as data records
+     * Stop the adapter and any child threads.
      */
-    public List<IDataRecord> getRequestResults();
-
-    /**
-     * Implementing Adapters need to be able to return the last executed
-     * function as an object that the adapter can reuse in another function
-     * execution. This is to avoid copying data in and out of java constantly
-     * 
-     * @return The last executed function results as an object the adapter can
-     *         reuse
-     */
-    public Object getRequestIdentifierResults();
+    public void shutdown();
 }

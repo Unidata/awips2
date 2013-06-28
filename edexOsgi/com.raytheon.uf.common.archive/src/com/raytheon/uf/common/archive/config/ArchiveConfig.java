@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.archive.config;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +36,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  *   &lt;name>Raw&lt;/name>
  *   &lt;rootDir>/data_store/&lt;/rootDir>
  *   &lt;!-- default retention hours for a category. -->
- *   &lt;retentionHours>168&lt;/retentionHours>
+ *   &lt;minRetentionHours>168&lt;/minRetentionHours>
  *   &lt;category>
  *     &lt;name>Model grib&lt;/name>
  *     ...
@@ -54,7 +55,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 1, 2013  1966       rferrel     Initial creation
+ * May  1, 2013 1966       rferrel     Initial creation
+ * May 31, 2013 1965       bgonzale    Added getCategory(categoryName)
  * 
  * </pre>
  * 
@@ -81,7 +83,7 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
      * Minimum number of hours the purger should retain data. May be overridden
      * for a given category.
      */
-    @XmlElement(name = "retentionHours")
+    @XmlElement(name = "minRetentionHours")
     private int retentionHours;
 
     /**
@@ -128,11 +130,16 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
 
     /**
      * Set the fully qualified name of the directory all components are relative
+     * to.
      * 
      * @param rootDir
      */
     public void setRootDir(String rootDir) {
-        this.rootDir = rootDir;
+        if (rootDir != null && !rootDir.endsWith(File.separator)) {
+            this.rootDir = rootDir + File.separator;
+        } else {
+            this.rootDir = rootDir;
+        }
     }
 
     /**
@@ -163,6 +170,19 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
     }
 
     /**
+     * @param categoryName
+     * @return The named CategoryConfig; null if not found
+     */
+    public CategoryConfig getCategory(String categoryName) {
+        for (CategoryConfig category : categoryList) {
+            if (category.getName().equals(categoryName)) {
+                return category;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Set the category list.
      * 
      * @param categoryList
@@ -173,7 +193,7 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
 
     @Override
     public int compareTo(ArchiveConfig o) {
-        return getName().compareTo(o.getName());
+        return getName().compareToIgnoreCase(o.getName());
     }
 
     /*
@@ -193,4 +213,5 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
         sb.append("]");
         return sb.toString();
     }
+
 }
