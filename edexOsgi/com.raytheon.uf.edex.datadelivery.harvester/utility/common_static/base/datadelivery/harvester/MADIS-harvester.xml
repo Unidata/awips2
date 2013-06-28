@@ -10,7 +10,7 @@
 			 !!!!!PLACE YOUR URL HERE!!!!!!-->
 			<url>http://your.url.here:8085</url>
 		</connection>
-		<providerType>Point</providerType>
+		<providerType dataType="POINT" plugin="madis" availabilityDelay="0" />
 		<projection type="LatLon">
 			<name>MadisLatLon</name>
 			<description>MADIS Test LatLon Coverage</description>
@@ -18,7 +18,7 @@
 	</provider>
 	<agent xsi:type="ogcAgent" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 		<dateFormat>HHddMMMyyyy</dateFormat>
-		<layer name="madis">
+		<layer name="madis" namespace="http://madis.edex.uf.raytheon.com">
 			<!-- Geographic constraint of madis layer data -->
 			<minx>-120.0</minx>
 			<maxx>-70.0</maxx>

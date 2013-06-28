@@ -1,6 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
   
   <bean id="retrieveWhfsServiceData" class="com.raytheon.uf.edex.ohd.whfs.WhfsServiceHandler"/>
@@ -21,7 +21,7 @@
 		errorHandlerRef="errorHandler">
 		
 		<endpoint id="mpeHttp_from"
-			uri="jetty:http://0.0.0.0:${http.port}/services/mpeFieldGenHttpService?disableStreamCache=true" />
+			uri="jetty:http://0.0.0.0:${HTTP_PORT}/services/mpeFieldGenHttpService?disableStreamCache=true" />
 			
 		<route id="mpeHttp">
 			<from uri="ref:mpeHttp_from" />
@@ -29,7 +29,7 @@
 				<bean ref="mpeFieldGenService" method="process" />
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:mpeFieldGen?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:mpeFieldGen?level=ERROR"/>
 				</doCatch>
 			</doTry>
 			<bean ref="serializationUtil" method="transformToThrift" />

@@ -63,7 +63,7 @@ public class DynamicSerializeStreamHandler implements IStreamHandler {
                     SerializationType.Thrift).deserialize(is);
         } catch (SerializationException e) {
             throw new CommunicationException(
-                    "Error deserializing streamed response");
+                    "Error deserializing streamed response", e);
         }
     }
 

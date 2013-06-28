@@ -26,7 +26,7 @@ import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.registry.ProviderFixture;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBundle;
-import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval.SubscriptionType;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
@@ -72,7 +72,7 @@ public class RetrievalRequestRecordFixture extends
      */
     @Override
     public RetrievalRequestRecord getInstance(long seedValue, Random random) {
-        Subscription subscription = SubscriptionFixture.INSTANCE.get(seedValue);
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get(seedValue);
         final Provider provider = ProviderFixture.INSTANCE.get(seedValue);
 
         SubscriptionBundle bundle = new SubscriptionBundle();

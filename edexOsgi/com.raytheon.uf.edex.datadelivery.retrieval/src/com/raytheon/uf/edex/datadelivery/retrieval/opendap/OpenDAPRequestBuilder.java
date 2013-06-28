@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.request.RequestBuilder;
  * Aug 14, 2012 1022        djohnson    Throw exception if invalid OpenDAP grid coordinates specified, 
  *                                      make immutable, use StringBuilder instead of StringBuffer.
  * Dec 10, 2012 1259        bsteffen    Switch Data Delivery from LatLon to referenced envelopes.
+ * May 12, 2013 753         dhladky     address field
  * 
  * </pre>
  * 
@@ -239,4 +240,5 @@ class OpenDAPRequestBuilder extends RequestBuilder {
     public RetrievalAttribute getAttribute() {
         return getRetrievalAttribute();
     }
+
 }
