@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import javax.media.jai.Interpolation;
 
@@ -84,11 +85,12 @@ import com.raytheon.uf.viz.derivparam.library.IDerivParamField;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 27, 2009            jsanchez    Initial creation
- * Nov 21, 2009 #3576      rjpeter     Refactored use of DerivParamDesc.
- * - AWIPS2 Baseline Repository --------
- * 08/03/2012          798 jkorman     Explicitly set interpolationLevels
- *                                     from "source" record.
- * 04/08/2013   #1293      bkowal      Removed references to hdffileid.    
+ * Nov 21, 2009 3576       rjpeter     Refactored use of DerivParamDesc.
+ * Aug 03, 2012 798        jkorman     Explicitly set interpolationLevels  from
+ *                                     "source" record.
+ * Apr 08, 2013 1293       bkowal      Removed references to hdffileid.
+ * Jun 04, 2013 2041       bsteffen    Switch derived parameters to use
+ *                                     concurrent python for threading.
  * </pre>
  * 
  * @author jsanchez
@@ -313,11 +315,10 @@ public class SatelliteDataCubeAdapter implements IDataCubeAdapter {
         }
 
         derivedRequest.setArgumentRecords(bytes.toArray(new Object[] {}));
-        DerivedParameterGenerator.addTask(derivedRequest);
         List<?> finalResult;
         try {
-            finalResult = derivedRequest.getQueue();
-        } catch (VizException e) {
+            finalResult = DerivedParameterGenerator.calculate(derivedRequest);
+        } catch (ExecutionException e) {
             throw new VizDataCubeException(e);
         }
 

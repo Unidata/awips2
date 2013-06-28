@@ -1,16 +1,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd   
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
-  http://www.springframework.org/schema/tx
-  http://www.springframework.org/schema/tx/spring-tx.xsd">
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
 	<bean id="ebxmlFederationEnabled" class="java.lang.Boolean">
-		<constructor-arg value="${ebxmlFederationEnabled}" />
+		<constructor-arg value="${EBXML_REGISTRY_FEDERATION_ENABLED}" />
 	</bean>
 
 	<bean id="ebxmlSubscriptionsEnabled" class="java.lang.Boolean">
-		<constructor-arg value="${ebxmlSubscriptionsEnabled}" />
+		<constructor-arg value="${EBXML_REGISTRY_SUBSCRIPTIONS_ENABLED}" />
 	</bean>
 
 	<bean id="ebxmlEmailEnabled" class="java.lang.Boolean">

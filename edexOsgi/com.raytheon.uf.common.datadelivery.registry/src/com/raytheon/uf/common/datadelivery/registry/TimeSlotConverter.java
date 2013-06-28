@@ -31,6 +31,7 @@ import com.raytheon.uf.common.registry.ebxml.slots.SlotConverter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 15, 2012 455        jspinks     Initial creation
+ * May 29, 2013 753        dhladky     Updated the way point datasets are sent.
  *
  * </pre>
  *
@@ -68,16 +69,19 @@ public class TimeSlotConverter implements SlotConverter {
         
         // Handle times for Point types
         if (slotValue instanceof PointTime) {
-            
-            PointTime pt = (PointTime)slotValue;
-            
-            for (Date date: pt.getTimes()) {
-                List<SlotType> ptSlots = DateSlotConverter.INSTANCE.getSlots(slotName, date);
-                slots.add(ptSlots.get(0));
-            }   
-            
-        //TODO:  This will convert to GriddedTime when I execute DR to switch
-        }  else if (slotValue instanceof Time) {
+
+            PointTime pt = (PointTime) slotValue;
+            // initial datasets can have no times in them
+            if (pt.getTimes() != null) {
+                for (Date date : pt.getTimes()) {
+                    List<SlotType> ptSlots = DateSlotConverter.INSTANCE
+                            .getSlots(slotName, date);
+                    slots.add(ptSlots.get(0));
+                }
+            }
+
+        // This will convert to GriddedTime when I execute DR to
+        } else if (slotValue instanceof Time) {
             
             Time t = (Time)slotValue;
             SimpleDateFormat df = new SimpleDateFormat(CalendarAttribute.DATE_TIME_FORMAT);

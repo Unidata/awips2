@@ -23,8 +23,14 @@
 -- Start a transaction
 BEGIN;
 
--- Update UserSubscription value entries to not have the notify attribute
+-- Update SiteSubscription value entries to not have the notify attribute
 update ebxml.value set stringvalue = regexp_replace(stringvalue, 'notify=".*?" ', '', 'g');
+
+-- Update GroupDefinition value entries to not have the option attribute
+-- Explanation of how this works: \\1 is the first set of parentheses, \\2 is the second set,
+-- So we are removing the option="<anything>" section out of any rows that have it and stitching the
+-- data back together. 
+update ebxml.value set stringvalue = regexp_replace(stringvalue, '(<groupDefinition.*?)option=".*?"(.*)', E'\\1\\2', 'g');
 
 -- Commit the transaction
 END;

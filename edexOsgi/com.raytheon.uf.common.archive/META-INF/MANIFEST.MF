@@ -5,10 +5,8 @@ Bundle-SymbolicName: com.raytheon.uf.common.archive
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: com.raytheon.uf.common.archive,
- com.raytheon.uf.common.archive.config,
- com.raytheon.uf.common.archive.exception,
- com.raytheon.uf.common.archive.file
+Export-Package: com.raytheon.uf.common.archive.config,
+ com.raytheon.uf.common.archive.exception
 Require-Bundle: com.raytheon.uf.common.util;bundle-version="1.12.1174",
  com.raytheon.uf.common.localization;bundle-version="1.12.1174",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",

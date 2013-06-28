@@ -80,16 +80,19 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20071127            382 jkorman     Initial Coding.
- * 20080104            712 jkorman     Lat/Lon were set incorrectly.   
- * 20080107            720 jkorman     remove default assignments from attributes.
- * 20080108            382 jkorman     Added IVerticalSoundingCreator impl.
- * 20080114            763 jkorman     Added &quot;below&quot; ground level exclusion to
- *                                     getValue.
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * Nov 27, 2007 382        jkorman     Initial Coding.
+ * Jan 04, 2008 712        jkorman     Lat/Lon were set incorrectly.
+ * Jan 07, 2008 720        jkorman     remove default assignments from
+ *                                     attributes.
+ * Jan 08, 2008 382        jkorman     Added IVerticalSoundingCreator impl.
+ * Jan 14, 2008 763        jkorman     Added &quot;below&quot; ground level
+ *                                     exclusion to  getValue.
+ * Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                     forecastTime
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * Jun 20, 2013 2128       bsteffen    Ensure setDataURI sets the dataURI.
  * 
  * </pre>
  * 
@@ -582,6 +585,7 @@ public class UAObs extends PersistablePluginDataObject implements
 	 */
 	@Override
 	public void setDataURI(String dataURI) {
+        super.setDataURI(dataURI);
 		identifier = dataURI;
 	}
 

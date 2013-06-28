@@ -43,6 +43,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.TimeXML;
  * Aug 29, 2012 0223       mpduff       Changed as result of renamed objects.
  * Sep 24, 2012 1209       djohnson     Sub-classes provide isValid() implementations.
  * Jan 10, 2013 1444       mpduff       Add updateSettings method.
+ * Jun 04, 2013  223       mpduff       Move Grid specific items to sub class.
  * 
  * </pre>
  * 
@@ -52,12 +53,6 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.TimeXML;
 public abstract class DataTimingSubsetPresenter<DATASET extends DataSet, DATASETMETADATA extends DataSetMetaData, VIEW extends IDataTimingSubsetView, TIMEXML extends TimeXML, QUERY extends DataSetMetaDataFilterableQuery<DATASETMETADATA>> {
     @VisibleForTesting
     final String POPUP_TITLE = "Notice";
-
-    @VisibleForTesting
-    final String NO_DATA_FOR_DATE_AND_CYCLE = "No data is available for the specified date and cycle combination.";
-
-    @VisibleForTesting
-    final String MORE_THAN_ONE_CYCLE_SELECTED = "Adhoc queries can only be requested for a single cycle.";
 
     @VisibleForTesting
     final String SUBSCRIPTIONS_ONLY_USE_LATEST_DATE = "Subscriptions always use the latest date, only adhoc queries support specific date requests."
