@@ -102,6 +102,10 @@
             <param name="feature"
                 value="com.raytheon.uf.edex.datadelivery.feature" />
         </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.archive.feature" />
+        </antcall>
 
 		<!-- SPECIAL CASE -->
 		<if>
