@@ -391,15 +391,15 @@ def netcdfParse(netcdfDirs):
 
     return dict
 
-def parseSat(satdirs):
+def parseSat(satdata):
     rval = LinkedHashMap()
-    for e in satdirs:
+    for e in satdata:
         if type(e) is types.TupleType:
             direct, name = check(e, (str, str),
-              "Format error in SATDIRS entry", satdirs)
+              "Format error in SATDATA entry", satdata)
             rval.put(direct, name)
         else:
-            raise SyntaxError, "Invalid syntax for SATDIRS" + `satdirs`
+            raise SyntaxError, "Invalid syntax for SATDATA" + `satdata`
     return rval
 
 def otherParse(serverhost, mhsid, port,  

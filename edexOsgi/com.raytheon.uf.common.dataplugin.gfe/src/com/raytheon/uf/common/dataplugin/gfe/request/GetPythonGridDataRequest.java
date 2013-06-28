@@ -36,6 +36,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * 
  * </pre>
  * 
+ * @deprecated use the Data Access Framework
+ * 
  * @author dgilling
  * @version 1.0
  */
@@ -43,6 +45,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 // TODO: REMOVE THIS CLASS AND ITS HANDLER if DiscreteDefinition/DiscreteKey and
 // WxDefinition/WeatherKey class hierarchy is ever fully-implemented in Python.
 
+@Deprecated
 @DynamicSerialize
 public class GetPythonGridDataRequest extends GetGridDataRequest {
 

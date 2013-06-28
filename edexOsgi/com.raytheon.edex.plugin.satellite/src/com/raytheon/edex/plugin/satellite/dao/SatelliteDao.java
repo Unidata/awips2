@@ -53,6 +53,7 @@ import com.raytheon.uf.common.geospatial.interpolation.data.ByteArrayWrapper;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataDestination;
 import com.raytheon.uf.common.geospatial.interpolation.data.ShortArrayWrapper;
 import com.raytheon.uf.common.geospatial.interpolation.data.UnsignedByteArrayWrapper;
+import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
@@ -73,6 +74,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 03/25/2013    1823       dgilling    Modified getSatelliteData() and 
  *                                      getSatelliteInventory() to allow optional
  *                                      input arguments.
+ * 06/24/2013    2044       randerso    Added methods to get data by TimeRange and 
+ *                                      getInventory with maxRecord limit
  * </pre>
  * 
  * @author bphillip
@@ -227,7 +230,6 @@ public class SatelliteDao extends PluginDao {
 
         for (Date theDate : dates) {
             if (!inventory.contains(theDate)) {
-                System.out.println("Not Found: " + theDate);
                 continue;
             }
             DatabaseQuery query = new DatabaseQuery(SatelliteRecord.class);
@@ -247,12 +249,66 @@ public class SatelliteDao extends PluginDao {
             query.addOrder("dataTime.refTime", true);
             try {
                 PluginDataObject[] pdos = this.getFullRecord(query, 0);
-                for (int i = 0; i < pdos.length; i++) {
-                    satRecords.add((SatelliteRecord) pdos[i]);
-                    satRecords.get(i)
-                            .setMessageData(
-                                    ((IDataRecord[]) satRecords.get(i)
-                                            .getMessageData())[0]);
+                for (PluginDataObject pdo : pdos) {
+                    pdo.setMessageData(((IDataRecord[]) pdo.getMessageData())[0]);
+                    satRecords.add((SatelliteRecord) pdo);
+                }
+            } catch (Exception e) {
+                throw new DataAccessLayerException(
+                        "Error retrieving satellite data!", e);
+            }
+        }
+        return satRecords;
+    }
+
+    /**
+     * Retrieves fully populated SatelliteRecords using the provided criteria
+     * for GFE
+     * 
+     * @param sectorID
+     *            The sector ID of the satellite data
+     * @param physicalElement
+     *            The physical element of the satellite data
+     * @param timeRanges
+     *            The timeRanges to retrieve data for
+     * @return A list of SatelliteRecords corresponding to the provided criteria
+     * @throws DataAccessLayerException
+     *             If errors occur while retrieving the data
+     */
+    public List<SatelliteRecord> getSatelliteData(String sectorID,
+            String physicalElement, List<TimeRange> timeRanges)
+            throws DataAccessLayerException {
+
+        List<SatelliteRecord> satRecords = new ArrayList<SatelliteRecord>();
+
+        List<Date> inventory = getSatelliteInventory(null, null, sectorID,
+                physicalElement);
+
+        List<Date> dates = new ArrayList<Date>(timeRanges.size());
+        for (TimeRange tr : timeRanges) {
+            for (Date inv : inventory) {
+                if (tr.contains(inv)) {
+                    dates.add(inv);
+                    break;
+                }
+            }
+        }
+
+        for (Date theDate : dates) {
+            DatabaseQuery query = new DatabaseQuery(SatelliteRecord.class);
+            if (sectorID != null) {
+                query.addQueryParam("sectorID", sectorID);
+            }
+            if (physicalElement != null) {
+                query.addQueryParam("physicalElement", physicalElement);
+            }
+            query.addQueryParam("dataTime.refTime", theDate);
+            query.addOrder("dataTime.refTime", true);
+            try {
+                PluginDataObject[] pdos = this.getFullRecord(query, 0);
+                for (PluginDataObject pdo : pdos) {
+                    pdo.setMessageData(((IDataRecord[]) pdo.getMessageData())[0]);
+                    satRecords.add((SatelliteRecord) pdo);
                 }
             } catch (Exception e) {
                 throw new DataAccessLayerException(
@@ -274,7 +330,7 @@ public class SatelliteDao extends PluginDao {
      *            The sector ID of the satellite data
      * @param physicalElement
      *            The physical element of the satellite data
-     * @return A List of Dates desribing the inventory
+     * @return A List of Dates describing the inventory
      * @throws DataAccessLayerException
      *             If errors occur while querying the data repository
      */
@@ -299,7 +355,52 @@ public class SatelliteDao extends PluginDao {
 
         @SuppressWarnings("unchecked")
         List<Date> times = (List<Date>) this.queryByCriteria(query);
-        return new ArrayList<Date>(times);
+        return times;
+    }
+
+    /**
+     * Gets the inventory of satellite data contained in the data repository for
+     * the given criteria
+     * 
+     * @param source
+     *            The source of the satellite data
+     * @param creatingEntity
+     *            The creating entity of the satellite data
+     * @param sectorID
+     *            The sector ID of the satellite data
+     * @param physicalElement
+     *            The physical element of the satellite data
+     * @param maxRecords
+     *            max number of records to retrieve, -1 for all
+     * @return A List of Dates describing the inventory
+     * @throws DataAccessLayerException
+     *             If errors occur while querying the data repository
+     */
+    public List<Date> getSatelliteInventory(String source,
+            String creatingEntity, String sectorID, String physicalElement,
+            int maxRecords) throws DataAccessLayerException {
+        DatabaseQuery query = new DatabaseQuery(this.daoClass);
+        if (source != null) {
+            query.addQueryParam("source", source);
+        }
+        if (creatingEntity != null) {
+            query.addQueryParam("creatingEntity", creatingEntity);
+        }
+        if (sectorID != null) {
+            query.addQueryParam("sectorID", sectorID);
+        }
+        if (physicalElement != null) {
+            query.addQueryParam("physicalElement", physicalElement);
+        }
+        if (maxRecords > 0) {
+            query.setMaxResults(maxRecords);
+        }
+        query.addReturnedField("dataTime.refTime");
+        query.addOrder("dataTime.refTime", false);
+
+        @SuppressWarnings("unchecked")
+        List<Date> times = (List<Date>) this.queryByCriteria(query);
+        return times;
     }
 
     /**
