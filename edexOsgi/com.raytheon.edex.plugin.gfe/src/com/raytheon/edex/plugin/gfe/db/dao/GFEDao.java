@@ -30,7 +30,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
@@ -42,8 +41,8 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
 import com.raytheon.edex.db.dao.DefaultPluginDao;
-import com.raytheon.edex.plugin.gfe.config.GFESiteActivation;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.PluginException;
@@ -93,6 +92,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 05/22/13     #2025      dgilling    Re-implement functions needed by 
  *                                     GetLatestDbTimeRequest and GetLatestModelDbIdRequest.
  * 05/20/13     #2127      rjpeter     Set session's to read only and switched to stateless where possible.
+ * 06/13/13     #2044      randerso    Refactored to use IFPServer, code cleanup
  * </pre>
  * 
  * @author bphillip
@@ -102,12 +102,17 @@ public class GFEDao extends DefaultPluginDao {
     // Number of retries on insert of a new DatabaseID
     private static final int QUERY_RETRY = 2;
 
+    /**
+     * @throws PluginException
+     */
     public GFEDao() throws PluginException {
         super("gfe");
     }
 
     /**
      * Creates a new GFE Dao
+     * 
+     * @param pluginName
      * 
      * @throws PluginException
      */
@@ -120,7 +125,8 @@ public class GFEDao extends DefaultPluginDao {
      * the row will be created.
      * 
      * @param dbId
-     * @return
+     * @return a DatabaseID with id field initialized
+     * @throws DataAccessLayerException
      */
     public DatabaseID getDatabaseId(DatabaseID dbId)
             throws DataAccessLayerException {
@@ -208,10 +214,9 @@ public class GFEDao extends DefaultPluginDao {
      * Retrieves all known parm ids for the given database id.
      * 
      * @param dbId
-     * @return
+     * @return the list of ParmIDs for the database
      * @throws DataAccessLayerException
      */
-    @SuppressWarnings("unchecked")
     public List<ParmID> getParmIds(final DatabaseID dbId)
             throws DataAccessLayerException {
         Session sess = null;
@@ -229,6 +234,7 @@ public class GFEDao extends DefaultPluginDao {
 
             Query query = sess.createQuery("FROM ParmID WHERE dbId = ?");
             query.setParameter(0, dbId);
+            @SuppressWarnings("unchecked")
             List<ParmID> list = query.list();
             tx.commit();
             return list;
@@ -260,8 +266,9 @@ public class GFEDao extends DefaultPluginDao {
      * Returns the database row for the passed parmId. If the row does not
      * exist, the row will be created.
      * 
-     * @param dbId
-     * @return
+     * @param parmId
+     * @return the ParmID from the database with id field initialized
+     * @throws DataAccessLayerException
      */
     public ParmID getParmId(final ParmID parmId)
             throws DataAccessLayerException {
@@ -352,15 +359,15 @@ public class GFEDao extends DefaultPluginDao {
 
     @Override
     public void purgeExpiredData() throws PluginException {
-        Set<String> sites = GFESiteActivation.getInstance().getActiveSites();
-        for (String siteID : sites) {
+        List<IFPServer> ifpServers = IFPServer.getActiveServers();
+        for (IFPServer ifpServer : ifpServers) {
             List<GridUpdateNotification> gridNotifcations = new ArrayList<GridUpdateNotification>();
             List<LockNotification> lockNotifications = new ArrayList<LockNotification>();
 
             try {
-                GridParmManager.versionPurge(siteID);
-                GridParmManager.gridsPurge(gridNotifcations, lockNotifications,
-                        siteID);
+                GridParmManager gridParmMgr = ifpServer.getGridParmMgr();
+                gridParmMgr.versionPurge();
+                gridParmMgr.gridsPurge(gridNotifcations, lockNotifications);
                 PurgeLogger.logInfo(
                         "Purging Expired pending isc send requests...", "gfe");
                 int requestsPurged = new IscSendRecordDao()
@@ -377,9 +384,16 @@ public class GFEDao extends DefaultPluginDao {
         }
     }
 
+    /**
+     * Purge all DatabaseIDs for a site
+     * 
+     * @param siteID
+     * @return number of rows purged
+     * @throws DataAccessLayerException
+     */
     public int purgeDatabaseForSite(final String siteID)
             throws DataAccessLayerException {
-        return (Integer) txTemplate.execute(new TransactionCallback() {
+        return txTemplate.execute(new TransactionCallback<Integer>() {
             @Override
             public Integer doInTransaction(TransactionStatus status) {
                 return getHibernateTemplate().bulkUpdate(
@@ -391,20 +405,12 @@ public class GFEDao extends DefaultPluginDao {
     /**
      * 
      * @param records
-     * @return
+     * @throws DataAccessLayerException
      */
     public void save(final Collection<GFERecord> records)
             throws DataAccessLayerException {
         // validate fields
         for (GFERecord rec : records) {
-            if (rec.getIdentifier() == null) {
-                try {
-                    rec.constructDataURI();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
             if (rec.getInsertTime() == null) {
                 rec.setInsertTime(Calendar.getInstance());
             }
@@ -455,6 +461,7 @@ public class GFEDao extends DefaultPluginDao {
      * the record, update all existing histories, and insert all new histories.
      * 
      * @param existingRecords
+     * @throws DataAccessLayerException
      */
     public void update(final Collection<GFERecord> existingRecords)
             throws DataAccessLayerException {
@@ -540,19 +547,21 @@ public class GFEDao extends DefaultPluginDao {
      * 
      * @return The list of all database IDs currently being stored in the
      *         database
+     * @throws DataAccessLayerException
      */
-    @SuppressWarnings("unchecked")
     public List<DatabaseID> getDatabaseInventory(final String siteId)
             throws DataAccessLayerException {
-        // TODO: Should this be done from GridParmManager?
         try {
-            return (List<DatabaseID>) txTemplate
-                    .execute(new TransactionCallback() {
+            return txTemplate
+                    .execute(new TransactionCallback<List<DatabaseID>>() {
                         @Override
                         public List<DatabaseID> doInTransaction(
                                 TransactionStatus status) {
-                            return getHibernateTemplate().find(
-                                    "FROM DatabaseID WHERE siteId = ?", siteId);
+                            @SuppressWarnings("unchecked")
+                            List<DatabaseID> result = getHibernateTemplate()
+                                    .find("FROM DatabaseID WHERE siteId = ?",
+                                            siteId);
+                            return result;
                         }
                     });
         } catch (Exception e) {
@@ -571,7 +580,6 @@ public class GFEDao extends DefaultPluginDao {
      * @throws DataAccessLayerException
      *             If errors occur during the query
      */
-    @SuppressWarnings("unchecked")
     public List<GFERecord> queryByParmID(final ParmID parmId)
             throws DataAccessLayerException {
         Session sess = null;
@@ -588,6 +596,7 @@ public class GFEDao extends DefaultPluginDao {
 
             Query query = sess.createQuery("FROM GFERecord WHERE parmId = ?");
             query.setParameter(0, parmId);
+            @SuppressWarnings("unchecked")
             List<GFERecord> list = query.list();
             tx.commit();
             return list;
@@ -615,10 +624,11 @@ public class GFEDao extends DefaultPluginDao {
     }
 
     /**
+     * Get all GFERecords whose time ranges overlap the specificed time range
      * 
      * @param parmId
      * @param tr
-     * @return
+     * @return map of TimeRanges to GFERecords
      * @throws DataAccessLayerException
      */
     @SuppressWarnings("unchecked")
@@ -765,18 +775,19 @@ public class GFEDao extends DefaultPluginDao {
      * @return The list of times for a given parm name and level
      * @throws DataAccessLayerException
      */
-    @SuppressWarnings("unchecked")
     public List<TimeRange> getTimes(final ParmID parmId)
             throws DataAccessLayerException {
         try {
-            return (List<TimeRange>) txTemplate
-                    .execute(new TransactionCallback() {
+            return txTemplate
+                    .execute(new TransactionCallback<List<TimeRange>>() {
                         @Override
                         public List<TimeRange> doInTransaction(
                                 TransactionStatus status) {
-                            return getHibernateTemplate()
+                            @SuppressWarnings("unchecked")
+                            List<TimeRange> result = getHibernateTemplate()
                                     .find("SELECT dataTime.validPeriod FROM GFERecord WHERE parmId = ? ORDER BY dataTime.validPeriod.start",
                                             parmId);
+                            return result;
                         }
                     });
         } catch (Exception e) {
@@ -796,15 +807,15 @@ public class GFEDao extends DefaultPluginDao {
      * @return The list of times for a given parm name and level
      * @throws DataAccessLayerException
      */
-    @SuppressWarnings("unchecked")
     public List<TimeRange> getOverlappingTimes(final ParmID parmId,
             final TimeRange tr) throws DataAccessLayerException {
         try {
-            return (List<TimeRange>) txTemplate
-                    .execute(new TransactionCallback() {
+            return txTemplate
+                    .execute(new TransactionCallback<List<TimeRange>>() {
                         @Override
                         public List<TimeRange> doInTransaction(
                                 TransactionStatus status) {
+                            @SuppressWarnings("unchecked")
                             List<TimeRange> rval = getHibernateTemplate()
                                     .find("SELECT dataTime.validPeriod"
                                             + " FROM GFERecord WHERE parmId = ?"
@@ -896,6 +907,11 @@ public class GFEDao extends DefaultPluginDao {
         return history;
     }
 
+    /**
+     * Remove all GFE records for a particular DatabaseID
+     * 
+     * @param dbId
+     */
     public void purgeGFEGrids(final DatabaseID dbId) {
         delete(dbId);
     }
@@ -1003,7 +1019,8 @@ public class GFEDao extends DefaultPluginDao {
      * @param parmId
      * @param tr
      * @param sentTime
-     * @return
+     * @return the histories that were updated
+     * @throws DataAccessLayerException
      */
     @SuppressWarnings("unchecked")
     public Map<TimeRange, List<GridDataHistory>> updateSentTime(
@@ -1081,6 +1098,13 @@ public class GFEDao extends DefaultPluginDao {
         return history;
     }
 
+    /**
+     * Delete a list of records from the database
+     * 
+     * @param records
+     * @return number of records deleted
+     * @throws DataAccessLayerException
+     */
     public int deleteRecords(Collection<GFERecord> records)
             throws DataAccessLayerException {
         List<Integer> ids = new ArrayList<Integer>(records.size());
@@ -1122,7 +1146,13 @@ public class GFEDao extends DefaultPluginDao {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Return the latest insert time for a database
+     * 
+     * @param dbId
+     * @return latest insert time or null if no database has no records
+     * @throws DataAccessLayerException
+     */
     public Date getMaxInsertTimeByDbId(final DatabaseID dbId)
             throws DataAccessLayerException {
         DatabaseQuery query = new DatabaseQuery(this.daoClass);
@@ -1132,6 +1162,7 @@ public class GFEDao extends DefaultPluginDao {
         query.addOrder("insertTime", false);
         query.setMaxResults(1);
 
+        @SuppressWarnings("unchecked")
         List<Calendar> result = (List<Calendar>) this.queryByCriteria(query);
         if (!result.isEmpty()) {
             return result.get(0).getTime();
@@ -1140,21 +1171,31 @@ public class GFEDao extends DefaultPluginDao {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Find DatabaseID of latest model run
+     * 
+     * @param siteId
+     * @param modelName
+     *            the name of the desired model
+     * @return the DatabaseID or null if none found
+     * @throws DataAccessLayerException
+     */
     public DatabaseID getLatestDbIdByModelName(final String siteId,
             final String modelName) throws DataAccessLayerException {
         // TODO: Should this be done from GridParmManager?
         List<DatabaseID> results = Collections.emptyList();
         try {
             final String[] queryParams = { siteId, modelName };
-            results = (List<DatabaseID>) txTemplate
-                    .execute(new TransactionCallback() {
+            results = txTemplate
+                    .execute(new TransactionCallback<List<DatabaseID>>() {
                         @Override
                         public List<DatabaseID> doInTransaction(
                                 TransactionStatus status) {
-                            return getHibernateTemplate()
+                            @SuppressWarnings("unchecked")
+                            List<DatabaseID> result = getHibernateTemplate()
                                     .find("FROM DatabaseID WHERE siteId = ? AND modelName = ? ORDER BY modelTime DESC LIMIT 1",
-                                            queryParams);
+                                            (Object[]) queryParams);
+                            return result;
                         }
                     });
         } catch (Exception e) {
