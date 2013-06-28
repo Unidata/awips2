@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.datadelivery.service.subscription;
 
+import java.util.Map;
 import java.util.MissingResourceException;
 
 import javax.xml.bind.JAXBException;
@@ -46,6 +47,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 07, 2013 2000       djohnson     Initial creation
+ * Jun 04, 2013  223       mpduff       Get base file if site doesn't exist.
  * 
  * </pre>
  * 
@@ -198,12 +200,19 @@ public class SubscriptionOverlapService implements ISubscriptionOverlapService {
     @Override
     public SubscriptionOverlapConfig readConfig() throws LocalizationException {
         final IPathManager pathManager = PathManagerFactory.getPathManager();
-        final LocalizationContext context = pathManager.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        final LocalizationFile configFile = pathManager
-                .getLocalizationFile(
-                        context,
+        Map<LocalizationLevel, LocalizationFile> configFileMap = pathManager
+                .getTieredLocalizationFile(
+                        LocalizationType.COMMON_STATIC,
                         SubscriptionOverlapService.SUBSCRIPTION_OVERLAP_CONFIG_FILE_PATH);
+
+        LocalizationFile configFile = null;
+
+        if (configFileMap.containsKey(LocalizationLevel.SITE)) {
+            configFile = configFileMap.get(LocalizationLevel.SITE);
+        } else {
+            configFile = configFileMap.get(LocalizationLevel.BASE);
+        }
+
         return configFile.jaxbUnmarshal(SubscriptionOverlapConfig.class,
                 jaxbManager);
     }

@@ -30,7 +30,8 @@
 #    ------------    ----------    -----------    --------------------------
 #    08/17/10                      njensen       Initial Creation.
 #    01/11/13                      bkowal        Pypies will now read the hdf5 root from configuration
-#    01/17/13        1490          bkowal        Relocated the configuration of pypies
+#    01/17/13        1490      bkowal        Relocated the configuration of pypies
+#    06/12/13        2102      njensen       Raise uncaught exceptions to force http code 500
 # 
 #
 
@@ -111,7 +112,8 @@ def pypies_response(request):
     except:
         # Absolutely should not reach this, if we do, need to fix code
         logger.error("Uncaught exception! " + IDataStore._exc())
-        return Response("Very bad uncaught exception, check pypies log")
+        # want to re-raise the error as that will cause PyPIES to return http error code 500
+        raise
         
     
 def __prepareResponse(resp):

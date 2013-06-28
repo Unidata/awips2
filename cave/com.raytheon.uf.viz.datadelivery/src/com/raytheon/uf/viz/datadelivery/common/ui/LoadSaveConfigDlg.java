@@ -62,6 +62,7 @@ import com.raytheon.uf.viz.datadelivery.filter.config.xml.FilterTypeXML;
 import com.raytheon.uf.viz.datadelivery.notification.xml.NotificationConfigXML;
 import com.raytheon.uf.viz.datadelivery.notification.xml.NotificationFilterXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.DateRangeTimeXML;
+import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.PointTimeXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SpecificDateTimeXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.TimeXML;
@@ -84,6 +85,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jun 19, 2012    717     jpiatt     Save action update.
  * Aug 22, 2012   0743     djohnson   Add new TimeXML sub-classes.
  * Apr 25, 2013   1820     mpduff     Implement deletion of config file.
+ * Jun 04, 2013    223     mpduff     Refactor method rename and add new class to JaxB context.
  * 
  * </pre>
  * 
@@ -635,7 +637,7 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
                 NotificationFilterXML.class, FilterSettingsXML.class,
                 FilterTypeXML.class, SubscriptionManagerConfigXML.class,
                 SubsetXML.class, TimeXML.class, SpecificDateTimeXML.class,
-                DateRangeTimeXML.class, VerticalXML.class };
+                DateRangeTimeXML.class, VerticalXML.class, PointTimeXML.class };
 
         try {
             jax = JAXBContext.newInstance(classes);
@@ -822,7 +824,7 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
 
             if (obj instanceof IDisplayXml) {
                 IDisplayXml dispXml = (IDisplayXml) obj;
-                previewTxt.setText(dispXml.getDisplayXmlString());
+                previewTxt.setText(dispXml.getPreviewString());
             } else {
                 this.marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT,
                         true);

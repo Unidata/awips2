@@ -46,7 +46,6 @@ import org.eclipse.swt.widgets.TableItem;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.datadelivery.service.BaseSubscriptionNotificationResponse;
@@ -102,6 +101,8 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * May 09, 2013  2000      djohnson     Consolidate and remove duplicate code.
  * May 15, 2013  1040      mpduff       Place markNotBusyInUIThread in a finally block.
  * May 23, 2013  2020      mpduff       Call updateControls();
+ * May 28, 2013  1650      djohnson     More information when failing to schedule subscriptions.
+ * Jun 14, 2013  2064      mpduff       Null check for sorted column.
  * 
  * </pre>
  * 
@@ -131,6 +132,9 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
     private final NotificationMessageContainsType notificationMessageChecker = new NotificationMessageContainsType(
             BaseSubscriptionNotificationResponse.class);
 
+    /** Filters out which subscriptions to show **/
+    private ISubscriptionManagerFilter subscriptionFilter;
+
     /**
      * Enumeration to determine the type of subscription dialog this class is
      * used with.
@@ -149,10 +153,6 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
     /** The subscription type. */
     private SubscriptionType subType = SubscriptionType.VIEWER;
 
-    // volatile so Eclipse job threads will see the reference that is set on the
-    // UI thread
-    private volatile List<String> subscriptionNameList;
-
     /**
      * Constructor.
      * 
@@ -164,13 +164,17 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
      *            Subscription action callback.
      * @param subType
      *            Subscription type.
+     * @param filter
+     * @param filter
      */
     public SubscriptionTableComp(Composite parent, TableCompConfig tableConfig,
-            ISubscriptionAction callback, SubscriptionType subType) {
+            ISubscriptionAction callback, SubscriptionType subType,
+            ISubscriptionManagerFilter subscriptionFilter) {
         super(parent, tableConfig, true);
 
         this.subType = subType;
         this.subActionCallback = callback;
+        this.subscriptionFilter = subscriptionFilter;
 
         init();
     }
@@ -360,65 +364,9 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
     }
 
     /**
-     * Populate the table data according to the filter selections, .
-     * 
-     * @param groupName
-     *            name of subscription group
-     * 
-     * @param officeId
-     *            Office identifier, such as OAX
-     */
-    public void populateFilteredData(String groupName, String officeId) {
-        subManagerData.clearAll();
-
-        if ("All Subscriptions".equals(groupName)) {
-            groupName = null;
-        }
-
-        if ("ALL".equals(officeId)) {
-            officeId = null;
-        }
-
-        try {
-            List<Subscription> lo = DataDeliveryHandlers
-                    .getSubscriptionHandler().getByFilters(groupName, officeId);
-            for (Subscription subscription : lo) {
-                addSubscription(subscription);
-            }
-        } catch (RegistryHandlerException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to retrieve the list of subscriptions.", e);
-        }
-    }
-
-    /**
-     * Populate the table data according to the filter selections, .
-     * 
-     * @param datasetName
-     *            name of dataset. e.g. gfs
-     * 
-     * @param provider
-     *            name of provider. e.g. NOMADS
-     */
-    public void populateActiveFilteredDataByDataSetAndProvider(
-            String datasetName, String providerName) {
-        subManagerData.clearAll();
-
-        try {
-            List<Subscription> lo = DataDeliveryHandlers
-                    .getSubscriptionHandler().getActiveByDataSetAndProvider(
-                            datasetName, providerName);
-            for (Subscription subscription : lo) {
-                addSubscription(subscription);
-            }
-        } catch (RegistryHandlerException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to retrieve the list of subscriptions.", e);
-        }
-    }
-
-    /**
      * Populate the data.
+     * 
+     * @param filter
      */
     public void populateData() {
         subManagerData.clearAll();
@@ -433,18 +381,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
             protected IStatus run(IProgressMonitor monitor) {
                 try {
                     DataDeliveryGUIUtils.markBusyInUIThread(jobShell);
-                    if (subscriptionNameList == null
-                            || subscriptionNameList.isEmpty()) {
-                        List<Subscription> lo = handler.getAll();
-                        subList.addAll(lo);
-                    } else {
-                        for (String subName : subscriptionNameList) {
-                            Subscription sub = handler.getByName(subName);
-                            if (sub != null) {
-                                subList.add(sub);
-                            }
-                        }
-                    }
+                    subList.addAll(subscriptionFilter.getSubscriptions(handler));
                     return Status.OK_STATUS;
                 } catch (RegistryHandlerException e) {
                     statusHandler.handle(Priority.PROBLEM,
@@ -637,6 +574,11 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
             sortDirectionMap.put(tc.getText(), SortDirection.ASCENDING);
         }
 
+        // If no sorted column specified then use the first column
+        if (sortedColumn == null || sortedColumn.isDisposed()) {
+            sortedColumn = table.getColumn(0);
+        }
+
         populateTable();
     }
 
@@ -823,15 +765,6 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
     }
 
     /**
-     * Set the subscription list.
-     * 
-     * @param subscriptionNameList
-     */
-    public void setSubscriptionNameList(List<String> subscriptionNameList) {
-        this.subscriptionNameList = subscriptionNameList;
-    }
-
-    /**
      * Return the selected subscription.
      * 
      * @return the subscription
@@ -841,5 +774,13 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
         SubscriptionManagerRowData row = this.getSubscriptionData().getDataRow(
                 idx);
         return row.getSubscription();
+    }
+
+    /**
+     * @param subscriptionFilter
+     */
+    public void setSubscriptionFilter(
+            ISubscriptionManagerFilter subscriptionFilter) {
+        this.subscriptionFilter = subscriptionFilter;
     }
 }
