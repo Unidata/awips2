@@ -65,6 +65,8 @@ import com.vividsolutions.jts.operation.polygonize.Polygonizer;
  * 04/08/08     #875       bphillip    Initial Creation
  * 10/10/12     #1260      randerso    Removed transformGridCoverage in
  *                                     favor of new GridLocation constructor
+ * 06/24/13     #2044      randerso    Changed format of hdf5 group to include 
+ *                                     minutes for satellite data
  * 
  * </pre>
  * 
@@ -83,7 +85,7 @@ public class GfeUtil {
     private static final ThreadLocal<SimpleDateFormat> groupDateFormatter = new ThreadLocal<SimpleDateFormat>() {
         @Override
         protected SimpleDateFormat initialValue() {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmm");
             sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
             return sdf;
         }

@@ -111,14 +111,15 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 07/11/12     15162      ryu         No raising exception in c'tor
  * 02/10/12     #1603      randerso    Implemented deleteDb, moved methods down from 
  *                                     GridDatabase that belonged here.
- *                                     Removed unncecssary conversion from Lists to/from arrays
+ *                                     Removed unnecessary conversion from Lists to/from arrays
  *                                     Added performance logging
  * 02/12/13     #1608      randerso    Changed to explicitly call deleteGroups
- * 03/07/13     #1737      njensen      Logged getGridData times
- * 03/15/13     #1795      njensen      Added updatePublishTime()
+ * 03/07/13     #1737      njensen     Logged getGridData times
+ * 03/15/13     #1795      njensen     Added updatePublishTime()
  * 03/20/13     #1774      randerso    Cleanup code to use proper constructors
  * 04/08/13     #1949      rjpeter     Updated to work with normalized database.
  * 05/02/13     #1969      randerso    Removed updateDbs from parent class
+ * 06/13/13     #2044      randerso    Pass in GridDbConfig as construction parameter
  * </pre>
  * 
  * @author bphillip
@@ -163,36 +164,27 @@ public class IFPGridDatabase extends GridDatabase {
      * 
      * @param dbId
      *            The database ID for this database
+     * @param gridConfig
+     *            the database configuration
      */
-    public IFPGridDatabase(DatabaseID dbId) {
+    public IFPGridDatabase(DatabaseID dbId, GridDbConfig gridConfig) {
         super(dbId);
+        this.gridConfig = gridConfig;
+        this.valid = true;
+
         try {
-            this.gridConfig = IFPServerConfigManager.getServerConfig(
-                    dbId.getSiteId()).gridDbConfig(dbId);
-            if (this.gridConfig == null) {
-                throw new GfeException(
-                        "Server config contains no gridDbConfig for database "
-                                + dbId.toString());
-            }
-            valid = true;
-        } catch (GfeException e) {
+            // lookup actual database id row from database
+            // if it doesn't exist, it will be created at this point
+            GFEDao dao = new GFEDao();
+            this.dbId = dao.getDatabaseId(dbId);
+        } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "Unable to get gridConfig for: " + dbId, e);
+                    "Unable to look up database id for ifp database: " + dbId,
+                    e);
+            this.valid = false;
         }
 
-        if (valid) {
-            try {
-                // lookup actual database id row from database
-                // if it doesn't exist, it will be created at this point
-                GFEDao dao = new GFEDao();
-                this.dbId = dao.getDatabaseId(dbId);
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to look up database id for ifp database: "
-                                + dbId, e);
-                valid = false;
-            }
-        }
+        this.updateDbs();
     }
 
     /**
@@ -513,6 +505,9 @@ public class IFPGridDatabase extends GridDatabase {
                 rec.setMessageData(vSlice);
                 updatedRecords.add(rec);
                 break;
+
+            default:
+                // do nothing
             }
         }
 
@@ -606,6 +601,9 @@ public class IFPGridDatabase extends GridDatabase {
                         vectorRecord[0].setFloatData(convertedVectorData);
                         rec.setMessageData(vectorRecord);
                         break;
+
+                    default:
+                        // do nothing
                     }
                 }
                 this.saveGridsToHdf5(records);
@@ -1579,6 +1577,10 @@ public class IFPGridDatabase extends GridDatabase {
         return true;
     }
 
+    /**
+     * @param parmAndLevel
+     * @return string array containing parm name and level
+     */
     public String[] splitNameAndLevel(String parmAndLevel) {
 
         String[] retValue = parmAndLevel.split("_");
@@ -1598,12 +1600,6 @@ public class IFPGridDatabase extends GridDatabase {
         return sr;
     }
 
-    /**
-     * Gets the HDF5 file containing the grid parm info. Initializes the info if
-     * necessary
-     * 
-     * @return The HDF5 file
-     */
     protected void initGridParmInfo() {
         try {
             if ((gridConfig != null)
@@ -1820,6 +1816,11 @@ public class IFPGridDatabase extends GridDatabase {
         return dataAttributes;
     }
 
+    /**
+     * @param dataObjects
+     * @return Returns records that failed to store
+     * @throws GfeException
+     */
     public List<GFERecord> saveGridsToHdf5(List<GFERecord> dataObjects)
             throws GfeException {
         return saveGridsToHdf5(dataObjects, null);
@@ -1828,8 +1829,10 @@ public class IFPGridDatabase extends GridDatabase {
     /**
      * Saves GFERecords to the HDF5 repository
      * 
-     * @param rec
+     * @param dataObjects
      *            The GFERecords to be saved
+     * @param parmStorageInfo
+     *            the parameter storage info
      * @return Returns records that failed to store
      * @throws GfeException
      *             If errors occur during the interaction with the HDF5
@@ -2268,7 +2271,7 @@ public class IFPGridDatabase extends GridDatabase {
                 IDataRecord[] rawData = entry.getKey().retrieveGroups(groups,
                         Request.ALL);
 
-                if (rawData.length != groups.length * 2) {
+                if (rawData.length != (groups.length * 2)) {
                     throw new IllegalArgumentException(
                             "Invalid number of dataSets returned expected  per group, received: "
                                     + ((double) rawData.length / groups.length));
@@ -2283,7 +2286,7 @@ public class IFPGridDatabase extends GridDatabase {
                     // Should be vector data and each group should have had a
                     // Dir and Mag dataset
                     for (int i = 0; i < 2; i++) {
-                        IDataRecord rec = rawData[count * 2 + i];
+                        IDataRecord rec = rawData[(count * 2) + i];
                         if ("Mag".equals(rec.getName())) {
                             magRec = rec;
                         } else if ("Dir".equals(rec.getName())) {
@@ -2371,14 +2374,14 @@ public class IFPGridDatabase extends GridDatabase {
             floats = new float[rawBytes.length];
             for (int idx = 0; idx < rawBytes.length; idx++) {
                 // hex mask to treat bytes as unsigned
-                floats[idx] = (rawBytes[idx] & 0xff) / multiplier + offset;
+                floats[idx] = ((rawBytes[idx] & 0xff) / multiplier) + offset;
             }
         } else if ("short".equals(storageType)) {
             short[] rawShorts = ((ShortDataRecord) rawData).getShortData();
             floats = new float[rawShorts.length];
             for (int idx = 0; idx < rawShorts.length; idx++) {
                 // shorts are stored as signed, no masking!
-                floats[idx] = rawShorts[idx] / multiplier + offset;
+                floats[idx] = (rawShorts[idx] / multiplier) + offset;
             }
         } else if ("float".equals(storageType)) {
             throw new IllegalArgumentException(
@@ -2571,6 +2574,13 @@ public class IFPGridDatabase extends GridDatabase {
         return sr;
     }
 
+    /**
+     * Retrieve the cached ParmID database object
+     * 
+     * @param parmNameAndLevel
+     * @return the cached ParmID
+     * @throws UnknownParmIdException
+     */
     public ParmID getCachedParmID(String parmNameAndLevel)
             throws UnknownParmIdException {
         ParmID rval = parmIdMap.get(parmNameAndLevel);
@@ -2605,7 +2615,7 @@ public class IFPGridDatabase extends GridDatabase {
      *            the time range to update sent time for
      * @param sentTime
      *            the sent time to update to
-     * @return
+     * @return map containing updated grid histories
      */
     @Override
     public ServerResponse<Map<TimeRange, List<GridDataHistory>>> updateSentTime(
