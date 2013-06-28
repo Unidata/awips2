@@ -242,8 +242,8 @@ public class LifecycleManagerImpl implements LifecycleManager {
         try {
             Map<String, List<ObjectRefType>> actionMap = new HashMap<String, List<ObjectRefType>>();
             actionMap.put(ActionTypes.delete, objRefs);
-            auditableEventService.createAuditableEventsFromRefs(request, actionMap,
-                    System.currentTimeMillis());
+            auditableEventService.createAuditableEventsFromRefs(request,
+                    actionMap, System.currentTimeMillis());
             registryObjectDao.deleteByRefs(objRefs);
 
         } catch (EbxmlRegistryException e) {
@@ -258,7 +258,11 @@ public class LifecycleManagerImpl implements LifecycleManager {
         }
 
         long totalTime = System.currentTimeMillis() - startTime;
-        long avTimePerRecord = totalTime / objRefTypes.size();
+
+        long avTimePerRecord = 0;
+        if (!objRefTypes.isEmpty()) {
+            avTimePerRecord = totalTime / objRefTypes.size();
+        }
 
         statusHandler
                 .info("LifeCycleManager removeObjects operation completed in "

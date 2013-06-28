@@ -138,12 +138,9 @@ public class Executor {
 
         EdexModesContainer emc = getModeFilter(confDir);
         String modeName = System.getProperty("edex.run.mode");
-        String highMem = System.getProperty("HighMem");
-        boolean highMemEnabled = "on".equals(highMem);
 
         if (modeName != null && modeName.length() > 0) {
-            System.out.println("EDEX run configuration: " + modeName
-                    + ", High Memory Mode: " + highMemEnabled);
+            System.out.println("EDEX run configuration: " + modeName);
         } else {
             System.out
                     .println("No EDEX run configuration specified, defaulting to use all discovered spring XML files");
@@ -151,7 +148,7 @@ public class Executor {
         System.out.println("EDEX site configuration: "
                 + System.getProperty("aw.site.identifier"));
 
-        EdexMode edexMode = emc.getMode(modeName, highMemEnabled);
+        EdexMode edexMode = emc.getMode(modeName);
 
         if (edexMode != null && edexMode.isTemplate()) {
             throw new UnsupportedOperationException(modeName

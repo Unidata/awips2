@@ -91,6 +91,8 @@
 
    <permission id="com.raytheon.localization.site/common_static/datadelivery"/>
 
+   <permission id="com.raytheon.localization.site/common_static/archive"/>
+
    <user userId="ALL">
       <userPermission>com.raytheon.localization.site/common_static/purge</userPermission>
       <userPermission>com.raytheon.localization.site/cave_static/colormaps</userPermission>
@@ -122,6 +124,7 @@
       <userPermission>com.raytheon.localization.site/common_static/shef</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/roles</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/datadelivery</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/archive</userPermission>
    </user>
 </nwsRoleData>
 

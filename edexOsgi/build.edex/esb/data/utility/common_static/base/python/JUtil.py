@@ -101,11 +101,13 @@ def pyDictToJavaMap(pyDict):
 def pyValToJavaObj(val):
     retObj = val
     valtype = type(val)
-    if valtype is int:
+    # since Python on 64 bit has larger ints, we need to do a check
+    # for compatibility with Java Integers
+    if valtype is int and val <= Integer.MAX_VALUE and val >= Integer.MIN_VALUE :
         retObj = Integer(val)
     elif valtype is float:
         retObj = Float(val)
-    elif valtype is long:
+    elif valtype is long or valtype is int:
         retObj = Long(val)
     elif valtype is bool:
         retObj = Boolean(val)

@@ -33,6 +33,8 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionAction;
+import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionManagerFilter;
+import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionManagerFilters;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionTableComp;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionTableComp.SubscriptionType;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
@@ -53,6 +55,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Dec 03, 2012  1269      mpduff     Change to take a list of subscriptions for the view mode.
  * Dec 10, 2012  1300      bgonzale   Table filtering by dataset and provider.
  * May 23, 2012  2020      mpduff     Implement method.
+ * May 28, 2013  1650      djohnson   Filters now control what subscriptions are shown.
  * </pre>
  * 
  * @author mpduff
@@ -179,16 +182,16 @@ public class SubscriptionViewer extends AbstractViewDlg implements
         tableConfig.setTableStyle(SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL
                 | SWT.MULTI | SWT.FULL_SELECTION);
         tableConfig.setTableHeight(200);
-        tableComp = new SubscriptionTableComp(shell, tableConfig, this,
-                SubscriptionType.VIEWER);
 
-        if (isTableFilteredByDatasetAndProvider()) {
-            tableComp.populateActiveFilteredDataByDataSetAndProvider(
-                    datasetName, providerName);
-        } else {
-            tableComp.setSubscriptionNameList(this.subscriptionNameList);
-            tableComp.populateData();
-        }
+        ISubscriptionManagerFilter filter = (isTableFilteredByDatasetAndProvider()) ? SubscriptionManagerFilters
+                    .getByProviderAndDataSet(providerName, datasetName) : 
+SubscriptionManagerFilters
+                    .getByNames(this.subscriptionNameList);
+
+        tableComp = new SubscriptionTableComp(shell, tableConfig, this,
+                SubscriptionType.VIEWER, filter);
+
+        tableComp.populateData();
         tableComp.populateTable();
     }
 

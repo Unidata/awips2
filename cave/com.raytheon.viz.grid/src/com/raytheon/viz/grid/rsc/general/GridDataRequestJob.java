@@ -45,7 +45,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 16, 2011            bsteffen     Initial creation
+ * Mar 16, 2011            bsteffen    Initial creation
+ * Jun 04, 2013 2041       bsteffen    Improve exception handing in grid
+ *                                     resources.
  * 
  * </pre>
  * 
@@ -65,6 +67,12 @@ class GridDataRequestJob extends Job {
 
         public List<GeneralGridData> gridData;
 
+        public VizException exception;
+
+        // True only if exception has already been handled(i.e. the user has
+        // been notified.)
+        public boolean exceptionHandled = false;
+
         public GridDataRequest(DataTime time, List<PluginDataObject> pdos) {
             this.time = time;
             if (pdos == null) {
@@ -73,6 +81,10 @@ class GridDataRequestJob extends Job {
                 this.pdos = new ArrayList<PluginDataObject>(pdos);
             }
 
+        }
+
+        public boolean shouldRequest() {
+            return gridData == null && exception == null;
         }
 
     }
@@ -97,14 +109,12 @@ class GridDataRequestJob extends Job {
                     synchronized (requests) {
                         requests.remove(request);
                     }
+                } else {
+                    resource.issueRefresh();
                 }
-                resource.issueRefresh();
             } catch (VizException e) {
-                synchronized (requests) {
-                    requests.remove(request);
-                }
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
+                request.exception = e;
+                resource.issueRefresh();
             }
             if (monitor.isCanceled()) {
                 break;
@@ -116,7 +126,7 @@ class GridDataRequestJob extends Job {
     protected GridDataRequest getNext() {
         synchronized (requests) {
             for (GridDataRequest request : requests) {
-                if (request.gridData == null) {
+                if (request.shouldRequest()) {
                     return request;
                 }
             }
@@ -126,8 +136,8 @@ class GridDataRequestJob extends Job {
 
     public List<GeneralGridData> requestData(DataTime time,
             List<PluginDataObject> pdos) {
+        GridDataRequest request = new GridDataRequest(time, pdos);
         synchronized (requests) {
-            GridDataRequest request = new GridDataRequest(time, pdos);
             Iterator<GridDataRequest> itr = requests.iterator();
             while (itr.hasNext()) {
                 GridDataRequest r = itr.next();
@@ -143,9 +153,85 @@ class GridDataRequestJob extends Job {
                 }
             }
             requests.add(0, request);
+            if (request.exception != null && !request.exceptionHandled) {
+                handleExceptions();
+            }
         }
-        this.schedule();
+        if (request.shouldRequest()) {
+            this.schedule();
+        }
         return null;
+    }
+
+    private void handleExceptions() {
+
+        List<GridDataRequest> failedRequests = new ArrayList<GridDataRequest>(
+                requests.size());
+        synchronized (requests) {
+            for (GridDataRequest request : requests) {
+                if (request.exception != null && !request.exceptionHandled) {
+                    failedRequests.add(request);
+                }
+            }
+        }
+        if (failedRequests.isEmpty()) {
+            return;
+        }
+        String safeResourceName = "Grid Resource";
+        try {
+            safeResourceName = resource.getName();
+        } catch (Throwable e) {
+            // This means they just won't get
+             // as useful of a message.
+            statusHandler.handle(Priority.DEBUG, e.getLocalizedMessage(), e);
+        }
+        boolean multiple = failedRequests.size() > 1;
+        GridDataRequest request = failedRequests.get(0);
+        // Only log one message as a PROBLEM
+        statusHandler.handle(Priority.PROBLEM,
+                getFailureMessage(safeResourceName, request, multiple),
+                request.exception);
+        if (multiple) {
+            // Log all other messages as INFO so that if there are differences
+            // they will be in the log.
+            for (GridDataRequest r : failedRequests) {
+                statusHandler.handle(Priority.INFO,
+                        getFailureMessage(safeResourceName, r, false),
+                        r.exception);
+                r.exceptionHandled = true;
+            }
+        } else {
+            request.exceptionHandled = true;
+        }
+
+    }
+
+    /**
+     * Attempt to generate a pretty message to display to the user.
+     * 
+     * @param resourceName
+     *            the name of the resource
+     * @param request
+     *            a failed request
+     * @param multiple
+     *            whether this message should be for the current request or
+     *            multiple frames.
+     * @return
+     */
+    private String getFailureMessage(String resourceName,
+            GridDataRequest request, boolean multiple) {
+        StringBuilder message = new StringBuilder("Error requesting data for ");
+        message.append(resourceName);
+        if (multiple) {
+            message.append(" Multiple frames");
+        } else if (request.time != null) {
+            message.append(" ").append(request.time.getLegendString());
+        }
+        if (request.exception != null) {
+            message.append(": ");
+            message.append(request.exception.getLocalizedMessage());
+        }
+        return message.toString();
     }
 
     public void remove(DataTime time) {
