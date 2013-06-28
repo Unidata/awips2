@@ -1,6 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
   	
   	<bean id="smartInitQueue" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitQueue"/>
@@ -45,7 +45,7 @@
     			<bean ref="spcWatch" method="handleSpcWatch" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:gfeWatch?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:gfeWatch?level=ERROR"/>
                 </doCatch>
             </doTry>
 		</route>
@@ -56,7 +56,7 @@
     			<bean ref="tpcWatch" method="handleTpcWatch" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:gfeWatch?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:gfeWatch?level=ERROR"/>
                 </doCatch>
             </doTry>
 		</route>
@@ -85,7 +85,7 @@
 
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:gfeIngestFilter?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:gfeIngestFilter?level=ERROR"/>
                 </doCatch>
             </doTry>
         </route>
@@ -98,7 +98,7 @@
     			<bean ref="smartInitQueue" method="addManualInit" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:smartinit?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:smartinit?level=ERROR"/>
                 </doCatch>
             </doTry>
 		</route>
@@ -110,7 +110,7 @@
 				<bean ref="vtecChangeListener" method="handleNotification" />
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:vtecChangeListener?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:vtecChangeListener?level=ERROR"/>
 				</doCatch>
 			</doTry>
 		</route>
@@ -123,7 +123,7 @@
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to
-						uri="log:gfeIngestFilter?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+						uri="log:gfeIngestFilter?level=ERROR" />
 				</doCatch>
 			</doTry>
 		</route>
@@ -131,7 +131,7 @@
 	
 	<!-- Beans to define a custom jms connection which will allow a durable subscription -->
 	<bean id="gfeNotifyConnectionFactory" class="org.apache.qpid.client.AMQConnectionFactory">
-       <constructor-arg type="java.lang.String" value="amqp://guest:guest@gfeNotify/edex?brokerlist='tcp://${broker.addr}?retries='9999'&amp;connecttimeout='5000'&amp;connectdelay='5000''&amp;maxprefetch='0'&amp;sync_publish='all'&amp;sync_ack='true'"/>
+       <constructor-arg type="java.lang.String" value="amqp://guest:guest@gfeNotify/edex?brokerlist='tcp://${BROKER_ADDR}?retries='9999'&amp;connecttimeout='5000'&amp;connectdelay='5000''&amp;maxprefetch='0'&amp;sync_publish='all'&amp;sync_ack='true'"/>
     </bean>
 
     <bean id="gfeNotifyPooledConnectionFactory" class="com.raytheon.uf.common.jms.JmsPooledConnectionFactory">

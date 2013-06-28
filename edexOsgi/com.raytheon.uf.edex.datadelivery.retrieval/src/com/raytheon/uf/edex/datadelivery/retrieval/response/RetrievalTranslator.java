@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.response;
  **/
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -37,9 +38,10 @@ import com.raytheon.uf.edex.datadelivery.retrieval.metadata.adapters.AbstractMet
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 18, 2011    191        dhladky     Initial creation
+ * Jan 18, 2011    191     dhladky      Initial creation
  * Feb 07, 2013 1543       djohnson     Allow overriding of methods for mocking in tests.
  * Feb 12, 2013 1543       djohnson     Pass the exception as the cause for instantiation exceptions.
+ * May 31, 2013 2038       djohnson     Protected access for constructor.
  * 
  * </pre>
  * 
@@ -74,7 +76,7 @@ public abstract class RetrievalTranslator implements IRetrievalTranslator {
         }
     }
 
-    RetrievalTranslator(RetrievalAttribute attXML, String className)
+    protected RetrievalTranslator(RetrievalAttribute attXML, String className)
             throws InstantiationException {
         this.attXML = attXML;
         try {
@@ -85,7 +87,7 @@ public abstract class RetrievalTranslator implements IRetrievalTranslator {
             throw ie;
         }
     }
-
+   
     protected void configureFromPdoClassName(String className)
             throws InstantiationException, ClassNotFoundException {
         setPdoClass(className);
@@ -93,7 +95,7 @@ public abstract class RetrievalTranslator implements IRetrievalTranslator {
                 getPdoClass(), attXML);
 
     }
-
+  
     @Override
     public void setAttribute(RetrievalAttribute attXML) {
         this.attXML = attXML;
@@ -146,6 +148,6 @@ public abstract class RetrievalTranslator implements IRetrievalTranslator {
      * 
      * @return
      */
-    protected abstract ArrayList<DataTime> getTimes();
+    protected abstract List<DataTime> getTimes();
 
 }

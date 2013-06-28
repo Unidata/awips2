@@ -46,6 +46,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.core.mode.CAVEMode;
@@ -68,6 +69,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 02apr2013    15564   mgamazaychikov Ensured awipsWanPil to be 10 characters space-padded long
  * 08 MAY 2013  1842       dgilling    Use VtecUtil to set product ETNs, fix
  *                                     warnings.
+ * 07 Jun 2013  1981       mpduff      Set user's id in OUPRequest as it is now a protected operation.
  * </pre>
  * 
  * @author lvenable
@@ -120,15 +122,15 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
 
     private String productText;
 
-    private ProductEditorComp parentEditor;
+    private final ProductEditorComp parentEditor;
 
     /**
      * Product transmission callback to report the state of transmitting a
      * product.
      */
-    private ITransmissionState transmissionCB;
+    private final ITransmissionState transmissionCB;
 
-    private String pid;
+    private final String pid;
 
     /**
      * Constructor.
@@ -427,7 +429,9 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
             oup.setNeedsWmoHeader(false);
             oup.setSource("GFE");
             ((OUPRequest) req).setProduct(oup);
+            ((OUPRequest) req).setUser(UserController.getUserObject());
         }
+
         try {
             Object response = ThriftClient.sendRequest(req);
             // TODO need a response on the other one? it's going

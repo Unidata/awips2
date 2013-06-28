@@ -37,6 +37,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * ------------ ---------- ----------- --------------------------
  * Mar 27, 2013 1841       djohnson    Initial creation
  * May 15, 2013 1040       mpduff      Added addOfficeId.
+ * May 29, 2013 1650       djohnson    Add setOwner() so reflection works.
  * 
  * </pre>
  * 
@@ -82,6 +83,18 @@ public class SharedSubscription extends RecurringSubscription {
     @Override
     public String getOwner() {
         return SHARED_SUBSCRIPTION_OWNER;
+    }
+
+    /**
+     * This method does nothing. It is only required due to reflective
+     * associations when creating associations between
+     * {@link SharedSubscription} and {@link PendingSharedSubscription}
+     * instances.
+     * 
+     * @param owner
+     *            owner
+     */
+    public void setOwner(String owner) {
     }
 
     /**

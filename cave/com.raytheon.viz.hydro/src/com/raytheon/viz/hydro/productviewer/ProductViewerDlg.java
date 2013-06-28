@@ -65,6 +65,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 12/11/2009   2488       mpduff      Refactored dialog to work as 
  *                                     in AWIPS 1
  * 02/07/2013   1578       rferrel     Make dialog non-blocking.
+ * 06/19/2013   2119       rferrel     Remove no longer needed shouldOpen.
  * 
  * </pre>
  * 
@@ -209,16 +210,6 @@ public class ProductViewerDlg extends CaveSWTDialog {
         }
 
         loadProductList();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#shouldOpen()
-     */
-    @Override
-    protected boolean shouldOpen() {
-        return HydroDisplayManager.getInstance().isCurrentLidSelected(shell);
     }
 
     /**

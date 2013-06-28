@@ -21,6 +21,8 @@
 package oasis.names.tc.ebxml.regrep.xsd.rs.v4;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -35,7 +37,9 @@ import javax.xml.bind.annotation.XmlType;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtensibleObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefListType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.CatalogObjectsResponse;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.FilterObjectsResponse;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsResponse;
@@ -100,6 +104,40 @@ public class RegistryResponseType extends ExtensibleObjectType {
     @XmlSchemaType(name = "anyURI")
     @DynamicSerializeElement
     protected String requestId;
+
+    public List<RegistryObjectType> getRegistryObjects() {
+        if (registryObjectList == null) {
+            return Collections.emptyList();
+        }
+        return registryObjectList.getRegistryObject();
+    }
+
+    public void addRegistryObjects(Collection<RegistryObjectType> regObjs) {
+        if (regObjs == null || regObjs.isEmpty()) {
+            return;
+        }
+        if (registryObjectList == null) {
+            registryObjectList = new RegistryObjectListType();
+        }
+        registryObjectList.getRegistryObject().addAll(regObjs);
+    }
+
+    public List<ObjectRefType> getObjectRefs() {
+        if (objectRefList == null) {
+            return Collections.emptyList();
+        }
+        return objectRefList.getObjectRef();
+    }
+
+    public void addObjectRefs(Collection<ObjectRefType> objRefs) {
+        if (objRefs == null || objRefs.isEmpty()) {
+            return;
+        }
+        if (objectRefList == null) {
+            objectRefList = new ObjectRefListType();
+        }
+        objectRefList.getObjectRef().addAll(objRefs);
+    }
 
     /**
      * Gets the value of the exception property.

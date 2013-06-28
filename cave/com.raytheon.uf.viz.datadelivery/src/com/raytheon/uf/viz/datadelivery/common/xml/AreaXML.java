@@ -46,6 +46,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Mar 27, 2012            mpduff     Initial creation.
  * Jun  7, 2012    684     jpiatt     Added region name.
  * Dec 10, 2012   1259     bsteffen   Switch Data Delivery from LatLon to referenced envelopes.
+ * Jun 04, 2013    223     mpduff     Changed method name.
  * 
  * </pre>
  * 
@@ -101,7 +102,7 @@ public class AreaXML implements IDisplayXml {
      * ()
      */
     @Override
-    public String getDisplayXmlString() {
+    public String getPreviewString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Type: Area\n");
 
