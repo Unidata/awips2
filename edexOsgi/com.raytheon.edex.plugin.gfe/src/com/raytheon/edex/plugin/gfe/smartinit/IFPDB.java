@@ -20,13 +20,17 @@
 package com.raytheon.edex.plugin.gfe.smartinit;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
+import com.raytheon.edex.plugin.gfe.server.lock.LockManager;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 
 /**
  * IFP Database, originally C++ <--> Python bridge, ported to Java
@@ -35,7 +39,8 @@ import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
  * SOFTWARE HISTORY
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
- * May 7, 2008				njensen	Initial creation
+ * May 7, 2008				njensen	    Initial creation
+ * Jun 13, 2013     #2044   randerso    Refactored to use IFPServer
  * 
  * </pre>
  * 
@@ -45,30 +50,54 @@ import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 
 public class IFPDB {
 
-    private DatabaseID dbid;
+    private final DatabaseID dbid;
+
+    private final GridParmManager gridParmMgr;
+
+    private final LockManager lockMgr;
 
     private List<String> keys;
 
-    public IFPDB(String db) {
+    /**
+     * Constructor
+     * 
+     * @param db
+     *            Database ID in string form
+     * @throws GfeException
+     */
+    public IFPDB(String db) throws GfeException {
         dbid = new DatabaseID(db);
+        if (!dbid.isValid()) {
+            throw new GfeException("Invalid databaseID: " + db);
+        }
+
+        IFPServer ifpServer = IFPServer.getActiveServer(dbid.getSiteId());
+        if (ifpServer == null) {
+            throw new GfeException("No active IFPServer for site: "
+                    + dbid.getSiteId());
+        }
+        this.gridParmMgr = ifpServer.getGridParmMgr();
+        this.lockMgr = ifpServer.getLockMgr();
+        ServerResponse<List<ParmID>> sr = gridParmMgr.getParmList(dbid);
+
+        if (sr.isOkay()) {
+            List<ParmID> list = sr.getPayload();
+            this.keys = new ArrayList<String>(list.size());
+            for (ParmID p : list) {
+                this.keys.add(p.getCompositeName());
+            }
+        } else {
+            this.keys = Collections.emptyList();
+            throw new GfeException(sr.message());
+        }
     }
 
     /**
      * Returns a list of available parms corresponding to the DatabaseID
      * 
-     * @return
+     * @return the list of available parms
      */
     public List<String> getKeys() {
-        if (keys == null) {
-            List<ParmID> list = GridParmManager.getParmList(dbid).getPayload();
-
-            keys = new ArrayList<String>();
-            if (list != null) {
-                for (ParmID p : list) {
-                    keys.add(p.getCompositeName());
-                }
-            }
-        }
         return keys;
     }
 
@@ -77,26 +106,33 @@ public class IFPDB {
      * 
      * @param parmName
      *            the name of the parm
-     * @return
+     * @return IFPWE instance for parm
      * @throws GfeException
      */
     public IFPWE getItem(String parmName) throws GfeException {
-        return getItem(parmName,IFPWE.SMART_INIT_USER);
+        return getItem(parmName, IFPWE.SMART_INIT_USER);
     }
-    
-    public IFPWE getItem(String parmName, String userName){
+
+    /**
+     * Returns an IFPWE from the database
+     * 
+     * @param parmName
+     * @param userName
+     * @return IFPWE instance for parmName
+     */
+    public IFPWE getItem(String parmName, String userName) {
         String[] split = parmName.split("_");
         String param = split[0];
         String level = split[1];
 
         ParmID pid = new ParmID(param, dbid, level);
-        return new IFPWE(pid,userName);
+        return new IFPWE(pid, userName, gridParmMgr, lockMgr);
     }
 
     /**
      * Returns the time of the database
      * 
-     * @return
+     * @return the model time
      */
     public Date getModelTime() {
         return dbid.getModelDate();
@@ -105,7 +141,7 @@ public class IFPDB {
     /**
      * Returns the short model name of the database
      * 
-     * @return
+     * @return the short model name
      */
     public String getShortModelIdentifier() {
         return dbid.getShortModelId();
@@ -114,7 +150,7 @@ public class IFPDB {
     /**
      * Returns the name of the database
      * 
-     * @return
+     * @return the model name
      */
     public String getModelIdentifier() {
         return dbid.getModelId();
