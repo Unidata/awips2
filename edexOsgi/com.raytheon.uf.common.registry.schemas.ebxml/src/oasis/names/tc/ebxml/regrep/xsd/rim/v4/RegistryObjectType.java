@@ -178,6 +178,17 @@ public class RegistryObjectType extends IdentifiableType {
         this.lid = lid;
     }
 
+    public RegistryObjectType(String id, String lid, String objectType,
+            String owner, String status, String name, String description) {
+        this(id, lid);
+        this.objectType = objectType;
+        this.owner = owner;
+        this.status = status;
+        this.name = new InternationalStringType(name);
+        this.description = new InternationalStringType(description);
+
+    }
+
     /**
      * Gets the value of the name property.
      * 

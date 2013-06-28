@@ -33,7 +33,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 public class IBandwidthRequest extends AbstractPrivilegedRequest {
 
     public static enum RequestType {
-        METADATA_UPDATE,
         // Get the current retrieval plan for the
         // specified begin and end time.
         RETRIEVAL_PLAN, SHOW_ALLOCATION,

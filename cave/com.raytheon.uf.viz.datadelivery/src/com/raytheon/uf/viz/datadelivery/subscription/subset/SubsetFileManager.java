@@ -41,6 +41,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.datadelivery.common.xml.AreaXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.DateRangeTimeXML;
+import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.PointTimeXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SpecificDateTimeXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.TimeXML;
@@ -62,6 +63,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Jul 30, 2012   702      jpiatt     Code cleanup.
  * Aug 22, 2012  0743      djohnson   Add TimeXML subclasses.
  * Nov 19, 2012  1289      bgonzale   Added deleteArea(String) method.
+ * Jun 04, 2013   223      mpduff     Added PointTimeXML to JaxB context.
  * 
  * </pre>
  * 
@@ -70,15 +72,17 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  */
 
 public class SubsetFileManager {
-    private static SubsetFileManager instance = null;
+    private static SubsetFileManager instance = new SubsetFileManager();
 
-    private final String AREA_PATH = "dataDelivery" + File.separator + "subset" + File.separator + "area"
-            + File.separator;
+    private final String AREA_PATH = "dataDelivery" + File.separator + "subset"
+            + File.separator + "area" + File.separator;
 
-    private final String SUBSET_PATH = "dataDelivery" + File.separator + "subset" + File.separator;
+    private final String SUBSET_PATH = "dataDelivery" + File.separator
+            + "subset" + File.separator;
 
     /** Status Handler */
-    private final IUFStatusHandler statusHandler = UFStatus.getHandler(SubsetFileManager.class);
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SubsetFileManager.class);
 
     /** JAXB context */
     private JAXBContext jax;
@@ -101,10 +105,6 @@ public class SubsetFileManager {
      * @return instance
      */
     public static SubsetFileManager getInstance() {
-        if (instance == null) {
-            instance = new SubsetFileManager();
-        }
-
         return instance;
     }
 
@@ -115,8 +115,7 @@ public class SubsetFileManager {
     private void createContext() {
         Class[] classes = new Class[] { AreaXML.class, SubsetXML.class,
                 SpecificDateTimeXML.class, DateRangeTimeXML.class,
-                TimeXML.class,
-                VerticalXML.class };
+                TimeXML.class, VerticalXML.class, PointTimeXML.class };
 
         try {
             jax = JAXBContext.newInstance(classes);
@@ -133,7 +132,7 @@ public class SubsetFileManager {
      * 
      * @param area
      *            The area xml object to save
-     * @param shell 
+     * @param shell
      * @return true if save successful
      */
     public boolean saveArea(AreaXML area, Shell shell) {
@@ -142,13 +141,17 @@ public class SubsetFileManager {
         }
         IPathManager pm = PathManagerFactory.getPathManager();
 
-        LocalizationContext context = pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-        LocalizationFile areaLocFile = pm.getLocalizationFile(context, AREA_PATH + area.getRegionName());
+        LocalizationContext context = pm.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+        LocalizationFile areaLocFile = pm.getLocalizationFile(context,
+                AREA_PATH + area.getRegionName());
 
         if (areaLocFile.getFile().exists()) {
-            String msg = "The file " + areaLocFile.getFile().getName()
+            String msg = "The file "
+                    + areaLocFile.getFile().getName()
                     + " already exists.\n\nWould you like to overwrite the file?";
-            int response = DataDeliveryUtils.showMessage(shell, SWT.YES | SWT.NO, "File Exists", msg);
+            int response = DataDeliveryUtils.showMessage(shell, SWT.YES
+                    | SWT.NO, "File Exists", msg);
             if (response == SWT.NO) {
                 return false;
             }
@@ -221,7 +224,7 @@ public class SubsetFileManager {
         File file = locFile.getFile();
         AreaXML area = new AreaXML();
         try {
-            area = (AreaXML)unmarshaller.unmarshal(file);
+            area = (AreaXML) unmarshaller.unmarshal(file);
         } catch (JAXBException e) {
             statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
             e.printStackTrace();
@@ -237,9 +240,11 @@ public class SubsetFileManager {
     public LocalizationFile[] getSubsets() {
         IPathManager pm = PathManagerFactory.getPathManager();
 
-        LocalizationContext context = pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+        LocalizationContext context = pm.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
         String[] extensions = new String[] { "xml" };
-        this.subsetFiles = pm.listFiles(context, SUBSET_PATH, extensions, false, true);
+        this.subsetFiles = pm.listFiles(context, SUBSET_PATH, extensions,
+                false, true);
 
         return subsetFiles;
     }
@@ -249,19 +254,23 @@ public class SubsetFileManager {
      * 
      * @param subset
      *            the object to save
-     * @param shell 
+     * @param shell
      * @return true if successfully saved
      */
     public boolean saveSubset(SubsetXML subset, Shell shell) {
         IPathManager pm = PathManagerFactory.getPathManager();
 
-        LocalizationContext context = pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-        LocalizationFile subsetLocFile = pm.getLocalizationFile(context, SUBSET_PATH + subset.getSubsetName());
+        LocalizationContext context = pm.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+        LocalizationFile subsetLocFile = pm.getLocalizationFile(context,
+                SUBSET_PATH + subset.getSubsetName());
 
         if (subsetLocFile.getFile().exists()) {
-            String msg = "The file " + subsetLocFile.getFile().getName()
+            String msg = "The file "
+                    + subsetLocFile.getFile().getName()
                     + " already exists.\n\nWould you like to overwrite the file?";
-            int response = DataDeliveryUtils.showMessage(shell, SWT.YES | SWT.NO, "File Exists", msg);
+            int response = DataDeliveryUtils.showMessage(shell, SWT.YES
+                    | SWT.NO, "File Exists", msg);
             if (response == SWT.NO) {
                 return false;
             }
@@ -271,8 +280,7 @@ public class SubsetFileManager {
             marshaller.marshal(subset, subsetLocFile.getFile());
             subsetLocFile.save();
             System.out.println("Saved " + subsetLocFile.getFile().getPath());
-            
-            
+
             return true;
         } catch (JAXBException e) {
             statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
@@ -304,7 +312,8 @@ public class SubsetFileManager {
                 try {
                     return (SubsetXML<?>) unmarshaller.unmarshal(lf.getFile());
                 } catch (JAXBException e) {
-                    statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
                 }
             }
         }
@@ -329,7 +338,8 @@ public class SubsetFileManager {
                 try {
                     lf.delete();
                 } catch (LocalizationOpFailedException e) {
-                    statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
                 }
             }
         }
