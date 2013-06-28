@@ -41,7 +41,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 9, 2012            njensen     Initial creation
+ * Nov 09, 2012            njensen     Initial creation
+ * Jun 03, 2013  #2023     dgilling    Implement getAttributes().
  * 
  * </pre>
  * 
@@ -81,6 +82,11 @@ public class DefaultGeometryData implements IGeometryData {
             result = attributes.get(key);
         }
         return result;
+    }
+
+    @Override
+    public Set<String> getAttributes() {
+        return attributes.keySet();
     }
 
     @Override
@@ -290,5 +296,4 @@ public class DefaultGeometryData implements IGeometryData {
     public void setAttributes(Map<String, Object> attrs) {
         this.attributes = attrs;
     }
-
 }

@@ -25,10 +25,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import com.raytheon.uf.common.auth.resp.SuccessfulExecution;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dissemination.OUPRequest;
 import com.raytheon.uf.common.dissemination.OUPResponse;
 import com.raytheon.uf.common.dissemination.OfficialUserProduct;
+import com.raytheon.uf.common.plugin.nwsauth.user.User;
 import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -49,6 +51,9 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * ------------ ---------- ----------- --------------------------
  * May 10, 2012 14715      rferrel     Initial creation
  * Mar 21, 2013 15375      zhao        Modified to also handle AvnFPS VFT product
+ * Jun 07, 2013  1981      mpduff      Add user to OUPRequest.
+ * Jun 18, 2013  2110      rferrel     Modified to handle the new class RequestRouter.route
+ *                                      returns (SuccessfulExecution).
  * 
  * </pre>
  * 
@@ -183,44 +188,53 @@ public class TafQueueManager implements Runnable {
         }
 
         OUPRequest req = new OUPRequest();
+        req.setUser(new User(OUPRequest.EDEX_ORIGINATION));
         req.setProduct(oup);
-        OUPResponse resp;
+        OUPResponse resp = null;
         boolean success = false;
         String additionalInfo = "";
         try {
-            resp = (OUPResponse) RequestRouter.route(req);
-            success = resp.isSendLocalSuccess();
-            if (resp.hasFailure()) {
-                // check which kind of failure
-                Priority p = Priority.EVENTA;
-                if (!resp.isAttempted()) {
-                    // if was never attempted to send or store even locally
-                    p = Priority.CRITICAL;
-                    additionalInfo = "ERROR local store never attempted";
-                } else if (!resp.isSendLocalSuccess()) {
-                    // if send/store locally failed
-                    p = Priority.CRITICAL;
-                    additionalInfo = "ERROR store locally failed";
-                } else if (!resp.isSendWANSuccess()) {
-                    // if send to WAN failed
-                    if (resp.getNeedAcknowledgment()) {
-                        // if ack was needed, if it never sent then no ack
-                        // was received
+            Object object = RequestRouter.route(req);
+            if (!(object instanceof SuccessfulExecution)) {
+                statusHandler.handle(Priority.ERROR,
+                        "Error transferring Official User Product. Unexpected response class: "
+                                + object.getClass().getName());
+            } else {
+                resp = (OUPResponse) ((SuccessfulExecution) object)
+                        .getResponse();
+                success = resp.isSendLocalSuccess();
+                if (resp.hasFailure()) {
+                    // check which kind of failure
+                    Priority p = Priority.EVENTA;
+                    if (!resp.isAttempted()) {
+                        // if was never attempted to send or store even locally
                         p = Priority.CRITICAL;
-                        additionalInfo = "ERROR send to WAN failed and no acknowledgment received";
-                    } else {
-                        // if no ack was needed
-                        p = Priority.EVENTA;
-                        additionalInfo = "WARNING send to WAN failed";
+                        additionalInfo = "ERROR local store never attempted";
+                    } else if (!resp.isSendLocalSuccess()) {
+                        // if send/store locally failed
+                        p = Priority.CRITICAL;
+                        additionalInfo = "ERROR store locally failed";
+                    } else if (!resp.isSendWANSuccess()) {
+                        // if send to WAN failed
+                        if (resp.getNeedAcknowledgment()) {
+                            // if ack was needed, if it never sent then no ack
+                            // was received
+                            p = Priority.CRITICAL;
+                            additionalInfo = "ERROR send to WAN failed and no acknowledgment received";
+                        } else {
+                            // if no ack was needed
+                            p = Priority.EVENTA;
+                            additionalInfo = "WARNING send to WAN failed";
+                        }
+                    } else if (resp.getNeedAcknowledgment()
+                            && !resp.isAcknowledged()) {
+                        // if sent but not acknowledged when acknowledgment is
+                        // needed
+                        p = Priority.CRITICAL;
+                        additionalInfo = "ERROR no acknowledgment received";
                     }
-                } else if (resp.getNeedAcknowledgment()
-                        && !resp.isAcknowledged()) {
-                    // if sent but not acknowledged when acknowledgment is
-                    // needed
-                    p = Priority.CRITICAL;
-                    additionalInfo = "ERROR no acknowledgment received";
+                    statusHandler.handle(p, resp.getMessage());
                 }
-                statusHandler.handle(p, resp.getMessage());
             }
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
@@ -241,16 +255,16 @@ public class TafQueueManager implements Runnable {
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         Date nextPurgeTime = cal.getTime();
-        
+
         /**
          * (for DR15375)
          */
-        TafQueueVFTMgr vftMgr = TafQueueVFTMgr.getInstance(); 
+        TafQueueVFTMgr vftMgr = TafQueueVFTMgr.getInstance();
         Date nextVftTime = null;
 
         while (true) {
             try {
-            	
+
                 processList = dao.getRecordsToSend();
 
                 if (processList.size() > 0) {
@@ -258,15 +272,15 @@ public class TafQueueManager implements Runnable {
                     // more PENDING may have been added while sending
                     continue;
                 }
-                
+
                 /**
                  * (for DR15375)
                  */
-            	nextVftTime = vftMgr.getNextVftTime();
-                if ( nextVftTime.compareTo(Calendar.getInstance().getTime()) <= 0 ) {
-                	vftMgr.makeVftProduct();
-                	// transmit immediately
-                	continue;
+                nextVftTime = vftMgr.getNextVftTime();
+                if (nextVftTime.compareTo(Calendar.getInstance().getTime()) <= 0) {
+                    vftMgr.makeVftProduct();
+                    // transmit immediately
+                    continue;
                 }
 
                 if (nextPurgeTime.compareTo(Calendar.getInstance().getTime()) <= 0) {
@@ -284,17 +298,18 @@ public class TafQueueManager implements Runnable {
                     nextProccessTime = nextPurgeTime;
                 } else if (nextProccessTime.compareTo(nextPurgeTime) > 0) {
                     nextProccessTime = nextPurgeTime;
-                } else if (nextProccessTime.compareTo(Calendar.getInstance().getTime()) <= 0) {
+                } else if (nextProccessTime.compareTo(Calendar.getInstance()
+                        .getTime()) <= 0) {
                     // immediate transmit placed on queue while processing.
                     continue;
                 }
-                
+
                 /**
                  * (DR15375)
                  */
                 nextVftTime = vftMgr.getNextVftTime();
-                if ( nextVftTime.compareTo(nextProccessTime) < 0 ) {
-                	nextProccessTime = nextVftTime;
+                if (nextVftTime.compareTo(nextProccessTime) < 0) {
+                    nextProccessTime = nextVftTime;
                 }
 
                 synchronized (this) {

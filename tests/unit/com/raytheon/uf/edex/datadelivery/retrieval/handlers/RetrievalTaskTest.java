@@ -62,7 +62,6 @@ import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.common.util.file.FilenameFilters;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.database.dao.DatabaseUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.ServiceTypeFactory;
 import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
@@ -93,7 +92,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * @version 1.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { DatabaseUtil.UNIT_TEST_DB_BEANS_XML,
+@ContextConfiguration(locations = { SpringFiles.UNIT_TEST_DB_BEANS_XML,
         SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class RetrievalTaskTest {

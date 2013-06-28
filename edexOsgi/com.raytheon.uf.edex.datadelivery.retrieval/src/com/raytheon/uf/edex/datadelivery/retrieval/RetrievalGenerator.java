@@ -23,6 +23,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval;
 import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
+import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
@@ -111,4 +112,29 @@ public abstract class RetrievalGenerator {
             return null;
         }
     }
+    
+    /**
+     * clone the param
+     * 
+     * @param original
+     *            parameter
+     * @return
+     */
+    protected Parameter processParameter(Parameter origParm) {
+
+        Parameter param = new Parameter();
+        param.setName(origParm.getName());
+        param.setBaseType(origParm.getBaseType());
+        param.setDataType(origParm.getDataType());
+        param.setDefinition(origParm.getDefinition());
+        param.setFillValue(origParm.getFillValue());
+        param.setLevelType(origParm.getLevelType());
+        param.setMissingValue(origParm.getMissingValue());
+        param.setProviderName(origParm.getProviderName());
+        param.setUnits(origParm.getUnits());
+
+        return param;
+
+    }
+
 }

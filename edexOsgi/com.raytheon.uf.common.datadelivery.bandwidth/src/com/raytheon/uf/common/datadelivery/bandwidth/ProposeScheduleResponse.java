@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 29, 2012 1286       djohnson     Initial creation
+ * May 28, 2013 1650       djohnson     More information when failing to schedule.
  * 
  * </pre>
  * 
@@ -49,7 +50,10 @@ public class ProposeScheduleResponse implements IProposeScheduleResponse {
     private Set<String> unscheduledSubscriptions = Collections.emptySet();
 
     @DynamicSerializeElement
-    private int requiredLatency = IProposeScheduleResponse.REQUIRED_LATENCY_NOT_SET;
+    private int requiredLatency = IProposeScheduleResponse.VALUE_NOT_SET;
+
+    @DynamicSerializeElement
+    private long requiredDataSetSize = IProposeScheduleResponse.VALUE_NOT_SET;
 
     /**
      * {@inheritDoc}
@@ -81,4 +85,21 @@ public class ProposeScheduleResponse implements IProposeScheduleResponse {
     public int getRequiredLatency() {
         return requiredLatency;
     }
+
+
+    /**
+     * @param requiredDataSetSize
+     */
+    public void setRequiredDataSetSize(long requiredDataSetSize) {
+        this.requiredDataSetSize = requiredDataSetSize;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getRequiredDataSetSize() {
+        return requiredDataSetSize;
+    }
+
 }

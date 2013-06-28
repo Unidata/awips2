@@ -160,13 +160,21 @@ public abstract class ExtensibleObjectType {
     }
 
     public void updateSlot(String slotName, Object slotValue) {
+        SlotType slot = getSlotByName(slotName);
+        if (slot == null) {
+            addSlot(slotName, slotValue);
+        } else {
+            slot.getSlotValue().setValue(slotValue);
+        }
+    }
+
+    public SlotType getSlotByName(String slotName) {
         for (SlotType slot : getSlot()) {
             if (slot.getName().equals(slotName)) {
-                slot.getSlotValue().setValue(slotValue);
-                return;
+                return slot;
             }
         }
-        addSlot(slotName, slotValue);
+        return null;
     }
 
     /**
