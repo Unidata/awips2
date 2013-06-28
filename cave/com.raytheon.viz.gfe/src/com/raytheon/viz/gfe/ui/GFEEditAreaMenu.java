@@ -30,7 +30,6 @@ import org.eclipse.ui.actions.CompoundContributionItem;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 
-import com.raytheon.uf.viz.ui.menus.widgets.tearoff.TearOffMenuListener;
 import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IReferenceSetManager;
@@ -81,7 +80,7 @@ public class GFEEditAreaMenu extends CompoundContributionItem {
                 MenuManager mm = new MenuManager(group);
                 menuMgr.add(mm);
 
-                mm.addMenuListener(new TearOffMenuListener(mm));
+                // mm.addMenuListener(new TearOffMenuListener(mm));
                 int count = 0;
                 for (String ref : refMgr.getGroupData(group)) {
                     Map<String, String> parms = new HashMap<String, String>();

@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.datadelivery.subscription;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -67,6 +68,7 @@ import com.raytheon.uf.viz.datadelivery.actions.DataBrowserAction;
 import com.raytheon.uf.viz.datadelivery.common.ui.IGroupAction;
 import com.raytheon.uf.viz.datadelivery.common.ui.ITableChange;
 import com.raytheon.uf.viz.datadelivery.common.ui.TableCompConfig;
+import com.raytheon.uf.viz.datadelivery.help.HelpManager;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceApplyPromptDisplayText;
@@ -120,6 +122,10 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Mar 29, 2013 1841       djohnson   Subscription implementations now provide a copy method.
  * May 09, 2013 2000       djohnson   Copy subscription now requires editing first to prevent duplicates, and remove duplicate code.
  * May 17, 2013 1040       mpduff     Change office id to list for shared subscription.
+ * May 28, 2013 1650       djohnson   Allow specifying filters for what subscriptions to show.
+ * Jun 05, 2013 2064       mpduff     Fix for filtering combo boxes.
+ * Jun 06, 2013 2030       mpduff     Refactored help.
+ * Jun 14, 2013 2064       mpduff     Check for null/disposed sort column.
  * </pre>
  * 
  * @author mpduff
@@ -133,24 +139,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubscriptionManagerDlg.class);
 
-    /** Enumeration to use with Deliver Notify */
-    public static enum SubscriptionNotification {
-        /** Subscription notification of type Delivery */
-        DELIVERY("Delivery"),
-        /** Subscription notification of type Notify */
-        NOTIFY("Notify");
-
-        private String subnotif;
-
-        private SubscriptionNotification(String subnotif) {
-            this.subnotif = subnotif;
-        }
-
-        @Override
-        public String toString() {
-            return subnotif;
-        }
-    }
+    /** Help file */
+    private final String SUBSCRIPTION_MANAGER_HELP_FILE = "help/subscriptionManagerHelp.xml";
 
     /** Enumeration to use with Data set */
     public static enum FullDataset {
@@ -183,9 +173,6 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
 
     /** Subscription Manager Configuration Dialog */
     private SubscriptionManagerConfigDlg configDlg = null;
-
-    /** Help Dialog */
-    private final SubscriptionHelpDlg help = null;
 
     /** Subscription table composite. */
     private SubscriptionTableComp tableComp;
@@ -225,15 +212,30 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
     private final ISubscriptionNotificationService subscriptionNotificationService = DataDeliveryServices
             .getSubscriptionNotificationService();
 
+    private final ISubscriptionManagerFilter filter;
+
+    /** The selected office */
+    private String selectedOffice;
+
+    /** The selected group */
+    private String selectedGroup;
+
+    /** The office display list */
+    private final SortedSet<String> officeDisplayItems = new TreeSet<String>();
+
     /**
      * Constructor
      * 
      * @param parent
      *            The parent shell
+     * @param filter
      */
-    public SubscriptionManagerDlg(Shell parent) {
+    public SubscriptionManagerDlg(Shell parent,
+            ISubscriptionManagerFilter filter) {
         super(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE,
                 CAVE.INDEPENDENT_SHELL | CAVE.PERSPECTIVE_INDEPENDENT);
+
+        this.filter = filter;
 
         setText("Data Delivery Subscription Manager");
     }
@@ -489,7 +491,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                 | SWT.MULTI | SWT.FULL_SELECTION);
         tableConfig.setTableHeight(200);
         tableComp = new SubscriptionTableComp(shell, tableConfig, this,
-                SubscriptionType.MANAGER);
+                SubscriptionType.MANAGER, filter);
 
         tableComp.populateData();
         tableComp.populateTable();
@@ -786,10 +788,37 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
      */
     private void handleFilterSelection() {
 
-        String group = groupCbo.getText();
-        String office = officeCbo.getText();
+        final String group = groupCbo.getText();
+        final String office = officeCbo.getText();
+        this.selectedOffice = office;
+        this.selectedGroup = group;
 
-        tableComp.populateFilteredData(group, office);
+        tableComp.setSubscriptionFilter(new ISubscriptionManagerFilter() {
+            @Override
+            public List<Subscription> getSubscriptions(
+                    ISubscriptionHandler subscriptionHandler)
+                    throws RegistryHandlerException {
+                final List<Subscription> results = filter
+                        .getSubscriptions(subscriptionHandler);
+
+                // Remove any that don't match the configured filters. TODO:
+                // This should be cleaned up at some point in the future
+                for (Iterator<Subscription> iter = results.iterator(); iter
+                        .hasNext();) {
+                    Subscription subscription = iter.next();
+                    if ((office == null || "ALL".equals(office) || subscription
+                            .getOfficeIDs().contains(office))
+                            && (group == null
+                                    || "All Subscriptions".equals(group) || group
+                                        .equals(subscription.getGroupName()))) {
+                        continue;
+                    }
+                    iter.remove();
+                }
+                return results;
+            }
+        });
+        tableComp.populateData();
         tableComp.populateTable();
 
     }
@@ -891,12 +920,13 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
      * Handle the help display dialog.
      */
     private void handleHelp() {
-
-        if (help == null || help.isDisposed()) {
-            SubscriptionHelpDlg help = new SubscriptionHelpDlg(shell);
-            help.open();
-        } else {
-            help.bringToTop();
+        try {
+            HelpManager.getInstance().displayHelpDialog(getShell(),
+                    SUBSCRIPTION_MANAGER_HELP_FILE);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Error loading Help Text file: "
+                            + SUBSCRIPTION_MANAGER_HELP_FILE, e);
         }
     }
 
@@ -936,17 +966,18 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         groupNameList.add(0, "All Subscriptions");
         groupNames = groupNameList.toArray(new String[0]);
         groupCbo.setItems(groupNames);
-        groupCbo.select(0);
+
+        if (this.selectedGroup != null) {
+            groupCbo.select(groupNameList.indexOf(selectedGroup));
+        } else {
+            groupCbo.select(0);
+        }
     }
 
     /**
      * Return the list of office names available. Default is "ALL" office ids
      */
     public void loadOfficeNames() {
-
-        // Create sorted set
-        SortedSet<String> officeDisplayItems = new TreeSet<String>();
-
         int numRows = tableComp.getTable().getItemCount();
 
         if (numRows > 0) {
@@ -966,16 +997,21 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         officeAll[0] = "ALL";
 
         System.arraycopy(officeNames, 0, officeAll, 1, officeNames.length);
-        int idx = 0;
-        for (String site : officeAll) {
-            if (site.equalsIgnoreCase(CURRENT_SITE)) {
-                break;
-            }
-            idx++;
-        }
         officeCbo.setItems(officeAll);
-        officeCbo.select(idx);
 
+        String site = CURRENT_SITE;
+        if (this.selectedOffice != null) {
+            for (Iterator<String> iter = officeDisplayItems.iterator(); iter
+                    .hasNext();) {
+                String next = iter.next();
+                if (next.equals(selectedOffice)) {
+                    site = next;
+                    break;
+                }
+            }
+        }
+
+        officeCbo.select(officeCbo.indexOf(site));
     }
 
     /*
@@ -1014,6 +1050,11 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                     break;
                 }
             }
+        }
+        
+        // If null get the first one
+        if (sortedTableColumn == null) {
+            sortedTableColumn = tableComp.getTable().getColumn(0);
         }
         tableComp.updateSortDirection(sortedTableColumn,
                 tableComp.getSubscriptionData(), false);

@@ -21,6 +21,8 @@ package com.raytheon.uf.common.python.concurrent;
 
 import java.util.concurrent.Callable;
 
+import jep.JepException;
+
 import com.raytheon.uf.common.python.PythonInterpreter;
 
 /**
@@ -32,7 +34,9 @@ import com.raytheon.uf.common.python.PythonInterpreter;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 31, 2013            mnash     Initial creation
+ * Jan 31, 2013            mnash       Initial creation
+ * Jun 04, 2013 2041       bsteffen    Improve exception handling for concurrent
+ *                                     python.
  * 
  * </pre>
  * 
@@ -69,17 +73,21 @@ public class PythonJob<P extends PythonInterpreter, R extends Object>
     public R call() {
         P script = threadPython.get();
         R result = null;
-        try {
-            result = executor.execute(script);
-        } catch (Throwable t) {
-            if (listener != null) {
-                listener.jobFailed(t);
+        if (listener == null) {
+            try {
+                result = executor.execute(script);
+            } catch (JepException e) {
+                throw new PythonJobFailedException(e);
             }
-            return null;
-        }
+        } else {
+            try {
+                result = executor.execute(script);
+            } catch (Throwable t) {
+                listener.jobFailed(t);
+                return null;
+            }
 
-        // fire listener to alert the original caller that we are done
-        if (listener != null) {
+            // fire listener to alert the original caller that we are done
             listener.jobFinished(result);
         }
         return result;

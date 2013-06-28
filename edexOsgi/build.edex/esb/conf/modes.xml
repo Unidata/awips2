@@ -213,6 +213,7 @@
 
     <mode name="statsTemplate" template="true">
         <include>event-common.xml</include>
+        <include>eventbus-common.xml</include>
         <include>stats-common.xml</include>
     </mode>
     <mode name="dataDeliveryTemplate" template="true">
@@ -234,6 +235,7 @@
         <include>persist-ingest.xml</include>
         <include>management-common.xml</include>
         <include>event-ingest.xml</include>
+        <include>purge-logs.xml</include>
         <!-- 
             The pattern datadelivery-registry is used to signify spring configurations 
             that should be loaded when running datadelivery and the registry in a single JVM 
@@ -332,6 +334,7 @@
 		<!--  Purge OGC/DPA registred plugins -->
 		<include>purge-spring.xml</include>
 		<include>ogc-purge.xml</include>
+        <include>purge-logs.xml</include>
 	</mode>
 	<!-- This is MADIS implmentation of dataprovideragent -->
 	<mode name="dataprovideragent">

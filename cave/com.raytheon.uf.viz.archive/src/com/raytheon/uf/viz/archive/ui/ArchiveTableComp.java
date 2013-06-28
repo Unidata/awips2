@@ -19,6 +19,11 @@
  **/
 package com.raytheon.uf.viz.archive.ui;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -28,12 +33,18 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+
+import com.raytheon.uf.common.archive.config.DisplayData;
+import com.raytheon.uf.common.util.SizeUtil;
+import com.raytheon.uf.viz.archive.data.IArchiveTotals;
 
 /**
  * Archive table composite that contains the SWT table.
@@ -53,6 +64,12 @@ import org.eclipse.swt.widgets.TableItem;
  */
 public class ArchiveTableComp extends Composite {
 
+    /** Column to display label information. */
+    private final int LABEL_COL_INDEX = 0;
+
+    /** Column to display size information,. */
+    private final int SIZE_COL_INDEX = 1;
+
     /** Table control. */
     private Table table;
 
@@ -71,7 +88,23 @@ public class ArchiveTableComp extends Composite {
     };
 
     /** Current table type. */
-    private TableType tableType = TableType.Retention;
+    private final TableType type;
+
+    /** Allows the parent dialog log to update other total displays. */
+    private final IArchiveTotals iArchiveTotals;
+
+    /** Data for the currently display table */
+    private DisplayData[] tableData;
+
+    /**
+     * Modification state set to true only when user performs a modification.
+     */
+    private boolean modifiedState = false;
+
+    /**
+     * Listeners to inform when user changes the modification state.
+     */
+    private final List<IModifyListener> modifiedListeners = new CopyOnWriteArrayList<IModifyListener>();
 
     /**
      * Constructor.
@@ -81,10 +114,12 @@ public class ArchiveTableComp extends Composite {
      * @param type
      *            Table type.
      */
-    public ArchiveTableComp(Composite parent, TableType type) {
+    public ArchiveTableComp(Composite parent, TableType type,
+            IArchiveTotals iTotalSelectedSize) {
         super(parent, 0);
 
-        tableType = type;
+        this.type = type;
+        this.iArchiveTotals = iTotalSelectedSize;
         init();
     }
 
@@ -101,43 +136,50 @@ public class ArchiveTableComp extends Composite {
         this.setLayoutData(gd);
 
         createTable();
-        createTableLabels();
 
-        updateSelectionLabel();
+        if (type != TableType.Retention) {
+            createTableLabels();
+        }
     }
 
     /**
      * Create the table control.
      */
     private void createTable() {
+        GridData gd = null;
+
         table = new Table(this, SWT.CHECK | SWT.BORDER | SWT.V_SCROLL
-                | SWT.H_SCROLL | SWT.MULTI);
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
+                | SWT.H_SCROLL | SWT.MULTI | SWT.VIRTUAL);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
         gd.widthHint = 730;
         gd.heightHint = 270;
         table.setLayoutData(gd);
         table.setHeaderVisible(true);
         table.setLinesVisible(true);
+        table.addListener(SWT.SetData, new Listener() {
 
-        TableColumn pathColumn = new TableColumn(table, SWT.CENTER);
-        pathColumn.setText("Path");
+            @Override
+            public void handleEvent(Event event) {
+                TableItem item = (TableItem) event.item;
+                int index = table.indexOf(item);
+                DisplayData displayData = tableData[index];
+                item.setText(new String[] { displayData.getDisplayLabel(),
+                        displayData.getSizeLabel() });
+                item.setChecked(displayData.isSelected());
+            }
+        });
+
+        TableColumn pathColumn = new TableColumn(table, SWT.LEFT);
+        pathColumn.setText("Label");
 
         TableColumn sizeColumn = new TableColumn(table, SWT.CENTER);
-        if (tableType == TableType.Retention) {
-            sizeColumn.setText("Current Size (MB)");
-        } else if (tableType == TableType.Case) {
-            sizeColumn.setText("Size (MB)");
+        if (type == TableType.Retention) {
+            sizeColumn.setText("Current Size");
+        } else if (type == TableType.Case) {
+            sizeColumn.setText("Size");
         }
 
-        populateTable();
-
-        for (int i = 0; i < 2; i++) {
-            table.getColumn(i).setResizable(false);
-            table.getColumn(i).setMoveable(false);
-            table.getColumn(i).pack();
-        }
-
-        table.getColumn(1).setWidth(100);
+        table.getColumn(0).setWidth(500);
 
         table.addMouseListener(new MouseAdapter() {
             @Override
@@ -152,9 +194,23 @@ public class ArchiveTableComp extends Composite {
         table.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                updateSelectionLabel();
+                if (e.detail == SWT.CHECK) {
+                    updateSelectionLabels();
+                    setModified();
+                }
             }
         });
+
+        Listener sortListener = new Listener() {
+
+            @Override
+            public void handleEvent(Event event) {
+                sortColumn(event);
+            }
+        };
+
+        pathColumn.addListener(SWT.Selection, sortListener);
+        sizeColumn.addListener(SWT.Selection, sortListener);
     }
 
     /**
@@ -171,30 +227,89 @@ public class ArchiveTableComp extends Composite {
         selectedLbl = new Label(lblComp, SWT.NONE);
         selectedLbl.setLayoutData(gd);
 
-        /*
-         * TODO : keep for future use. This will be used to show the total size
-         * of the selected items in the table.
-         */
-        // gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        // sizeLbl = new Label(lblComp, SWT.NONE);
-        // sizeLbl.setLayoutData(gd);
-        // sizeLbl.setText("Size of Selected items: 0" + sizeSuffix);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        sizeLbl = new Label(lblComp, SWT.NONE);
+        sizeLbl.setLayoutData(gd);
     }
 
     /**
-     * Update the selection items label.
+     * Sort table roles by desired column and direction.
+     * 
+     * @param e
      */
-    private void updateSelectionLabel() {
-        TableItem[] itemArray = table.getItems();
-        int count = 0;
+    private void sortColumn(Event e) {
+        TableColumn sortColumn = table.getSortColumn();
+        TableColumn eventColumn = (TableColumn) e.widget;
 
-        for (TableItem ti : itemArray) {
-            if (ti.getChecked()) {
-                count++;
-            }
+        int sortDir = table.getSortDirection();
+        int index = eventColumn == table.getColumn(LABEL_COL_INDEX) ? LABEL_COL_INDEX
+                : SIZE_COL_INDEX;
+
+        if (sortColumn == eventColumn) {
+            sortDir = ((sortDir == SWT.UP) ? SWT.DOWN : SWT.UP);
+        } else {
+            table.setSortColumn(eventColumn);
+            sortDir = SWT.UP;
         }
 
-        selectedLbl.setText("Selected Items: " + count);
+        switch (index) {
+        case LABEL_COL_INDEX:
+            Arrays.sort(tableData, DisplayData.LABEL_ORDER);
+            if (sortDir == SWT.DOWN) {
+                ArrayUtils.reverse(tableData);
+            }
+            break;
+        case SIZE_COL_INDEX:
+            Arrays.sort(tableData, DisplayData.SIZE_ORDER);
+            if (sortDir == SWT.DOWN) {
+                ArrayUtils.reverse(tableData);
+            }
+            break;
+        default:
+            // Programmer error should never get here.
+            throw new IndexOutOfBoundsException("Unknown column index.");
+        }
+        table.setSortDirection(sortDir);
+        table.clearAll();
+    }
+
+    /**
+     * Update the selection items labels.
+     */
+    private void updateSelectionLabels() {
+        int count = 0;
+        long tableTotalSize = 0;
+
+        for (int index = 0; index < tableData.length; ++index) {
+            DisplayData displayData = tableData[index];
+            TableItem item = table.getItem(index);
+            if (item.getChecked()) {
+                ++count;
+                displayData.setSelected(true);
+                if (tableTotalSize >= 0) {
+                    long diSize = displayData.getSize();
+                    if (diSize < 0) {
+                        tableTotalSize = diSize;
+                    } else {
+                        tableTotalSize += diSize;
+                    }
+                }
+            } else {
+                displayData.setSelected(false);
+            }
+        }
+        List<DisplayData> displayDatas = Arrays.asList(tableData);
+
+        if (selectedLbl != null) {
+            selectedLbl.setText("Table Selected Items: " + count);
+
+            String sizeString = DisplayData.UNKNOWN_SIZE_LABEL;
+            if (tableTotalSize >= 0) {
+                sizeString = SizeUtil.prettyByteSize(tableTotalSize);
+            }
+            sizeLbl.setText("Table Selected Size: " + sizeString);
+        }
+        iArchiveTotals.updateTotals(displayDatas);
     }
 
     /**
@@ -260,12 +375,11 @@ public class ArchiveTableComp extends Composite {
      */
     private void handleCheckSelectedRow(boolean check) {
         TableItem[] itemArray = table.getSelection();
-
         for (TableItem ti : itemArray) {
             ti.setChecked(check);
         }
 
-        updateSelectionLabel();
+        updateSelectionLabels();
     }
 
     /**
@@ -280,24 +394,86 @@ public class ArchiveTableComp extends Composite {
         for (TableItem ti : itemArray) {
             ti.setChecked(check);
         }
+        setModified();
 
-        updateSelectionLabel();
+        updateSelectionLabels();
+    }
+
+    /**
+     * Check the current table to see if the size of any entries needs to be
+     * updated.
+     * 
+     * @param displayDatas
+     */
+    public void updateSize(List<DisplayData> displayDatas) {
+        if (tableData != null && tableData.length > 0) {
+            for (DisplayData displayData : displayDatas) {
+                for (int index = 0; index < tableData.length; ++index) {
+                    if (displayData.equals(tableData[index])) {
+                        table.getItem(index)
+                                .setText(displayData.getSizeLabel());
+                        table.clear(index);
+                    }
+                }
+            }
+            updateSelectionLabels();
+        }
+    }
+
+    /**
+     * Set up table with values in the list.
+     * 
+     * @param displayDatas
+     */
+    protected void populateTable(List<DisplayData> displayDatas) {
+        tableData = displayDatas.toArray(new DisplayData[0]);
+        table.removeAll();
+        table.setItemCount(tableData.length);
+
+        for (int i = 0; i < 2; i++) {
+            table.getColumn(i).setResizable(false);
+            table.getColumn(i).setMoveable(false);
+            table.getColumn(i).pack();
+        }
+        table.getColumn(0).setWidth(600);
+        table.setSortColumn(table.getColumn(LABEL_COL_INDEX));
+        table.setSortDirection(SWT.UP);
+        table.clearAll();
+    }
+
+    /**
+     * Check the modified state and inform listeners when it changes.
+     */
+    private void setModified() {
+        if (!modifiedState) {
+            modifiedState = true;
+            for (IModifyListener iModifyListener : modifiedListeners) {
+                iModifyListener.modified();
+            }
+        }
+    }
+
+    /**
+     * Reset the modified state.
+     */
+    public void clearModified() {
+        modifiedState = false;
+    }
+
+    /**
+     * Add listener that wants to be informed when the modified state is
+     * changed.
+     * 
+     * @param iModifyListener
+     */
+    public void addModifiedListener(IModifyListener iModifyListener) {
+        modifiedListeners.add(iModifyListener);
     }
 
     /*
-     * TODO : this is just for display purposes. This will go away when the
-     * functionality is implemented.
+     * Remove the listener.
      */
-    private void populateTable() {
-        for (int i = 0; i < 150; i++) {
-            TableItem item = new TableItem(table, SWT.NONE);
-            item.setText(0,
-                    "/home/lvenable/caveData/configuration/base/com.raytheon.uf.viz.gisdatastore/"
-                            + i + "   ");
-            if (i % 5 == 0) {
-                item.setChecked(true);
-            }
-            item.setText(1, "?????");
-        }
+    public void removeModifiedListener(IModifyListener iModifyListener) {
+        modifiedListeners.remove(iModifyListener);
     }
 }

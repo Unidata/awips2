@@ -249,7 +249,7 @@ public abstract class PluginDataObject extends PersistableDataObject implements
 
     @Override
     public String getIdentifier() {
-        return dataURI;
+        return getDataURI();
     }
 
     @Override
@@ -307,12 +307,13 @@ public abstract class PluginDataObject extends PersistableDataObject implements
         } else if (dataTime.getFcstTime() != rhs.getDataTime().getFcstTime()) {
             return false;
         }
-
+        String dataURI = getDataURI();
+        String rhsDataURI = rhs.getDataURI();
         if (dataURI == null) {
-            if (rhs.dataURI != null) {
+            if (rhsDataURI != null) {
                 return false;
             }
-        } else if (!dataURI.equals(rhs.dataURI)) {
+        } else if (!dataURI.equals(rhsDataURI)) {
             return false;
         }
 
@@ -341,7 +342,8 @@ public abstract class PluginDataObject extends PersistableDataObject implements
         int result = 1;
         result = prime * result
                 + ((dataTime == null) ? 0 : dataTime.hashCode());
-        result = prime * result + ((dataURI == null) ? 0 : dataURI.hashCode());
+        result = prime * result
+                + ((getDataURI() == null) ? 0 : dataURI.hashCode());
         result = prime * result + id;
         result = prime * result
                 + ((insertTime == null) ? 0 : insertTime.hashCode());

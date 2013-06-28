@@ -43,6 +43,7 @@ import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
+import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -75,6 +76,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Apr 10, 2013 1891       djohnson     Add getDisplayData() method to pending subscription columns.
  * May 15, 2013 1040       mpduff       Using Set for office Ids.
  * May 20, 2013 2000       djohnson     Add message to inform the user changes were applied.
+ * Jun 04, 2013  223       mpduff       Add point data stuff.
+ * Jun 11, 2013 2064       mpduff       Don't output Parameter header if none exist.
+ * Jun 12, 2013 2064       mpduff       Use SizeUtil to format data size output.
  * </pre>
  * 
  * @author mpduff
@@ -86,12 +90,17 @@ public class DataDeliveryUtils {
     /**
      * Default latency applied to hourly datasets.
      */
-    public static final int HOURLY_DATASET_LATENCY_IN_MINUTES = 40;
+    public static final int GRIDDED_HOURLY_DATASET_LATENCY_IN_MINUTES = 40;
 
     /**
      * Default latency applied non-hourly datasets.
      */
-    public static final int NON_HOURLY_DATASET_LATENCY_IN_MINUTES = 75;
+    public static final int GRIDDED_NON_HOURLY_DATASET_LATENCY_IN_MINUTES = 75;
+
+    /**
+     * Required default latency value for point data.
+     */
+    public static final int POINT_DATASET_DEFAULT_LATENCY_IN_MINUTES = 15;
 
     private static final int UNSET = -1;
 
@@ -269,7 +278,7 @@ public class DataDeliveryUtils {
         DATA_SIZE("Data Size", null) {
             @Override
             public String getDisplayData(SubscriptionManagerRowData rd) {
-                return String.valueOf(rd.getDataSetSize());
+                return SizeUtil.prettyKiloByteSize(rd.getDataSetSize());
             }
         },
         /** Column Group Name */
@@ -622,7 +631,8 @@ public class DataDeliveryUtils {
                 .append(newline);
         fmtStr.append("Dataset Name: ").append(sub.getDataSetName())
                 .append(newline);
-        fmtStr.append("Dataset Size: ").append(sub.getDataSetSize())
+        fmtStr.append("Dataset Size: ")
+                .append(SizeUtil.prettyKiloByteSize(sub.getDataSetSize()))
                 .append(newline);
         fmtStr.append("Provider: ").append(sub.getProvider()).append(newline);
         fmtStr.append("Office IDs: ")
@@ -679,7 +689,7 @@ public class DataDeliveryUtils {
             fmtStr.append(newline);
         }
         final List<Integer> cycles = subTime.getCycleTimes();
-        if (cycles != null) {
+        if (cycles != null && !cycles.isEmpty()) {
             fmtStr.append("Cycles: ").append(newline);
             fmtStr.append("------ ");
             for (int cycle : cycles) {
@@ -689,28 +699,31 @@ public class DataDeliveryUtils {
             fmtStr.append(newline);
         }
 
-        fmtStr.append("Parameters:").append(newline);
         List<Parameter> parmArray = sub.getParameter();
-        for (Parameter p : parmArray) {
-            fmtStr.append("------ Name: ").append(p.getName()).append(newline);
-            fmtStr.append("------ Provider Name: ").append(p.getProviderName())
-                    .append(newline);
-            fmtStr.append("------ Definition: ").append(p.getDefinition())
-                    .append(newline);
-            fmtStr.append("------ Data Type: ").append(p.getDataType())
-                    .append(newline);
+        if (!CollectionUtil.isNullOrEmpty(parmArray)) {
+            fmtStr.append("Parameters:").append(newline);
+            for (Parameter p : parmArray) {
+                fmtStr.append("------ Name: ").append(p.getName())
+                        .append(newline);
+                fmtStr.append("------ Provider Name: ")
+                        .append(p.getProviderName()).append(newline);
+                fmtStr.append("------ Definition: ").append(p.getDefinition())
+                        .append(newline);
+                fmtStr.append("------ Data Type: ").append(p.getDataType())
+                        .append(newline);
 
-            fmtStr.append("------ Level Type: ").append(newline);
-            for (DataLevelType dlt : p.getLevelType()) {
-                fmtStr.append("------------ Type: ").append(dlt.getType())
-                        .append(newline);
-                fmtStr.append("------------ ID: ").append(dlt.getId())
-                        .append(newline);
-                if (dlt.getUnit() != null) {
-                    fmtStr.append("------------ Unit: ").append(dlt.getUnit())
+                fmtStr.append("------ Level Type: ").append(newline);
+                for (DataLevelType dlt : p.getLevelType()) {
+                    fmtStr.append("------------ Type: ").append(dlt.getType())
                             .append(newline);
-                } else {
-                    fmtStr.append("------------ Unit: ").append(newline);
+                    fmtStr.append("------------ ID: ").append(dlt.getId())
+                            .append(newline);
+                    if (dlt.getUnit() != null) {
+                        fmtStr.append("------------ Unit: ")
+                                .append(dlt.getUnit()).append(newline);
+                    } else {
+                        fmtStr.append("------------ Unit: ").append(newline);
+                    }
                 }
             }
         }

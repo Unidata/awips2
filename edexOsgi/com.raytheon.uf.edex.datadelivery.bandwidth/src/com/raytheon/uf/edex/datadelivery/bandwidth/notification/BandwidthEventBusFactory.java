@@ -20,6 +20,7 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.notification;
 
 import com.google.common.eventbus.EventBus;
+import com.raytheon.uf.edex.event.GoogleEventBusFactory;
 
 /**
  * Interface for the bandwidth event bus factory.
@@ -31,6 +32,7 @@ import com.google.common.eventbus.EventBus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 11, 2012            djohnson     Initial creation
+ * May 28, 2013 1650       djohnson     Returns the event buses required by extending GoogleEventBusFactory.
  * 
  * </pre>
  * 
@@ -38,7 +40,7 @@ import com.google.common.eventbus.EventBus;
  * @version 1.0
  */
 
-interface BandwidthEventBusFactory {
+interface BandwidthEventBusFactory extends GoogleEventBusFactory {
 
     /**
      * Get the data set bus.

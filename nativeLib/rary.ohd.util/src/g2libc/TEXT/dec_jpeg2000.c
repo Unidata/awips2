@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "g2libc_inc/grib2.h"
+#include "jasper/jas_image.h"
 #include <jasper/jasper.h>
 #define JAS_1_700_2
 

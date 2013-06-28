@@ -48,7 +48,12 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
 
+import org.apache.cxf.headers.Header;
+import org.apache.cxf.helpers.CastUtils;
+import org.w3c.dom.Element;
+
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
 /**
  * General utility class containing the ebXML object factories.
@@ -70,14 +75,6 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
  */
 
 public class EbxmlObjectUtil {
-
-    /** Default registry base URL */
-    public static final String REGISTRY_BASE_URL = "http://"
-            + System.getenv("EBXML_REGISTRY_HOST") + ":"
-            + System.getenv("EBXML_REGISTRY_WEBSERVER_PORT");
-
-    /** Slot name that holds the source of the notification */
-    public static final String NOTIFICATION_SOURCE_URL_SLOT_NAME = "NotificationSourceURL";
 
     /**
      * The name of the slot designated to hold the home server address of a
@@ -188,9 +185,10 @@ public class EbxmlObjectUtil {
      * @return XMLGregorianCalendar representation of the current time
      * @throws DatatypeConfigurationException
      *             if the time cannot be constructed properly
+     * @throws EbxmlRegistryException
      */
     public static XMLGregorianCalendar getCurrentTimeAsXMLGregorianCalendar()
-            throws DatatypeConfigurationException {
+            throws EbxmlRegistryException {
         return getTimeAsXMLGregorianCalendar(System.currentTimeMillis());
     }
 
@@ -206,10 +204,15 @@ public class EbxmlObjectUtil {
      *             if the time cannot be constructed properly
      */
     public static XMLGregorianCalendar getTimeAsXMLGregorianCalendar(
-            long timeInMillis) throws DatatypeConfigurationException {
+            long timeInMillis) throws EbxmlRegistryException {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeInMillis(timeInMillis);
-        return DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+        try {
+            return DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+        } catch (DatatypeConfigurationException e) {
+            throw new EbxmlRegistryException(
+                    "Error creating XMLGregorianCalendar!", e);
+        }
     }
 
     /**
@@ -373,10 +376,19 @@ public class EbxmlObjectUtil {
         if (mc == null) {
             return "INTERNAL";
         }
+        String ip = null;
+        List<Header> headerList = CastUtils.cast((List<?>) mc
+                .get(Header.HEADER_LIST));
+        for (Header header : headerList) {
+            if (header.getObject() instanceof Element) {
+                if (header.getName().getLocalPart()
+                        .equals(RegistryUtil.CALLING_REGISTRY_SOAP_HEADER_NAME)) {
+                    return ((Element) header.getObject()).getTextContent();
+                }
+            }
+        }
         HttpServletRequest request = (HttpServletRequest) mc
                 .get(MessageContext.SERVLET_REQUEST);
-        String ip = null;
-        request.getHeader("X-Forwarded-For");
 
         for (int i = 0; (i < 5)
                 && (ip == null || ip.isEmpty() || "unknown"
