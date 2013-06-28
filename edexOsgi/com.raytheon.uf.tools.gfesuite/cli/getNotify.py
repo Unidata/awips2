@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -28,6 +29,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    11/18/10                      njensen       Initial Creation.
+#    06/13/13        #2044         randerso      Fixed to use correct python
 #    
 # 
 #

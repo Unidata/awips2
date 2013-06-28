@@ -19,12 +19,12 @@
  **/
 package com.raytheon.edex.plugin.gfe.server.handler;
 
-import com.raytheon.uf.common.dataplugin.gfe.request.CreateNewDbRequest;
-import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
-import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
+import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
+import com.raytheon.uf.common.dataplugin.gfe.request.AbstractGfeRequest;
 
 /**
- * Handler for CreateNewDb request
+ * Abstract base class for GFE request handlers
  * 
  * <pre>
  * 
@@ -32,9 +32,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 2, 2013      #1969  randerso     Initial creation
- * May 3, 2013      #1969  randerso     Code review comment incorporation
- * Jun 13, 2013     #2044  randerso     Refactored to use IFPServer
+ * Jun 13, 2013 2044       randerso     Initial creation
  * 
  * </pre>
  * 
@@ -42,21 +40,15 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * @version 1.0
  */
 
-public class CreateNewDbHandler extends BaseGfeRequestHandler implements
-        IRequestHandler<CreateNewDbRequest> {
+public abstract class BaseGfeRequestHandler {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.serialization.comm.IRequestHandler#handleRequest
-     * (com.raytheon.uf.common.serialization.comm.IServerRequest)
-     */
-    @Override
-    public ServerResponse<?> handleRequest(CreateNewDbRequest request)
-            throws Exception {
-        return getIfpServer(request).getGridParmMgr().createNewDb(
-                request.getDbId());
+    protected IFPServer getIfpServer(AbstractGfeRequest request)
+            throws GfeException {
+        String siteId = request.getSiteID();
+        IFPServer ifpServer = IFPServer.getActiveServer(siteId);
+        if (ifpServer == null) {
+            throw new GfeException("No active IFPServer for site: " + siteId);
+        }
+        return ifpServer;
     }
-
 }

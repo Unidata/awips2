@@ -22,7 +22,6 @@ package com.raytheon.edex.plugin.gfe.server.handler;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetGridHistoryRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
@@ -39,6 +38,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2011            randerso     Initial creation
+ * Jun 13, 2013     #2044  randerso     Refactored to use IFPServer
  * 
  * </pre>
  * 
@@ -46,7 +46,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * @version 1.0
  */
 
-public class GetGridHistoryHandler implements
+public class GetGridHistoryHandler extends BaseGfeRequestHandler implements
         IRequestHandler<GetGridHistoryRequest> {
 
     /*
@@ -59,8 +59,8 @@ public class GetGridHistoryHandler implements
     @Override
     public ServerResponse<Map<TimeRange, List<GridDataHistory>>> handleRequest(
             GetGridHistoryRequest request) throws Exception {
-        return GridParmManager.getGridHistory(request.getParmID(),
-                request.getTimeRanges());
+        return getIfpServer(request).getGridParmMgr().getGridHistory(
+                request.getParmID(), request.getTimeRanges());
     }
 
 }
