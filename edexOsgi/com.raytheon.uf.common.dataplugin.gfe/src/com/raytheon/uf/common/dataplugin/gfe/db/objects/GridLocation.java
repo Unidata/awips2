@@ -61,7 +61,6 @@ import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.adapters.CoordAdapter;
 import com.raytheon.uf.common.serialization.adapters.GeometryAdapter;
@@ -81,18 +80,17 @@ import com.vividsolutions.jts.operation.buffer.BufferParameters;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 
 /**
- * TODO Add Description
+ * Contains spatial definition for GFE grids
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 24, 2008 @1047      randerso    Added fields to store projection
- *                                     information
- * Oct 10, 2012 1260       randerso    Added new constructor that takes a
- *                                     GridCoverage
- * Jul 16, 2013 2181       bsteffen    Convert geometry types to use hibernate-
- *                                     spatial
+ * 04/24/08       @1047     randerso    Added fields to store projection information
+ * 10/10/12      #1260      randerso    Added new constructor that takes a GridCoverage
+ * 07/10/13      #2044      randerso    Changed constructor to take ISpatialObject instead of GridCoverage
+ * 07/16/13      #2181      bsteffen    Convert geometry types to use hibernate-
+ *                                      spatial
  * 
  * 
  * </pre>
@@ -217,7 +215,7 @@ public class GridLocation extends PersistableDataObject implements
             java.awt.Point gridSize, Coordinate domainOrigin,
             Coordinate domainExtent, String timeZone) {
         try {
-            if (id == null || id.isEmpty()) {
+            if ((id == null) || id.isEmpty()) {
                 throw new IllegalArgumentException(
                         "id may not be null or empty");
             }
@@ -304,8 +302,8 @@ public class GridLocation extends PersistableDataObject implements
                 proj, //
                 new Point(
                         //
-                        proj.getGridPointUR().x - proj.getGridPointLL().x + 1,
-                        proj.getGridPointUR().y - proj.getGridPointLL().y + 1),
+                        (proj.getGridPointUR().x - proj.getGridPointLL().x) + 1,
+                        (proj.getGridPointUR().y - proj.getGridPointLL().y) + 1),
                 new Coordinate(proj.getGridPointLL().x, proj.getGridPointLL().y),
                 new Coordinate( //
                         proj.getGridPointUR().x - proj.getGridPointLL().x,
@@ -313,7 +311,7 @@ public class GridLocation extends PersistableDataObject implements
                 "GMT");
     }
 
-    public GridLocation(String id, GridCoverage coverage) {
+    public GridLocation(String id, ISpatialObject coverage) {
         this.siteId = id;
         this.crsObject = coverage.getCrs();
         this.crsWKT = this.crsObject.toWKT();
@@ -869,7 +867,7 @@ public class GridLocation extends PersistableDataObject implements
         float[] data = (float[]) latLonGrid.getNumPy()[0];
         for (int x = 0; x < gloc.getNx(); x++) {
             for (int y = 0; y < gloc.getNy(); y++) {
-                int idx = 2 * (x * gloc.ny + y);
+                int idx = 2 * ((x * gloc.ny) + y);
                 float lon = data[idx];
                 float lat = data[idx + 1];
                 System.out.println(x + "," + y + "  " + lon + ", " + lat);
