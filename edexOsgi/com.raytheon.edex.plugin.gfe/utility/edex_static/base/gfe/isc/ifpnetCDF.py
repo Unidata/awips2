@@ -65,6 +65,7 @@ from com.raytheon.uf.common.localization import LocalizationContext_Localization
 #    04/23/13        1937          dgilling       Reimplement WECache to match
 #                                                 A1, big perf improvement.
 #    05/23/13        1759          dgilling       Remove unnecessary imports.
+#    06/13/13        2044          randerso       Updated for changes to TopoDatabaseManager
 # 
 #
 
@@ -468,10 +469,7 @@ def storeTopoGrid(client, file, databaseID, maskGrid, clipArea):
     pDict = gridLoc.getProjection()
 
     # Get the topo grid
-    topoDB = TopoDatabaseManager.getTopoDatabase(DatabaseID(databaseID).getSiteId())
-    parmId = topoDB.getParmList().getPayload().get(0)
-    tr = topoDB.getGridInventory(parmId).getPayload()
-    topoGrid = topoDB.getGridData(parmId, tr).getPayload().get(0).__numpy__[0]
+    topoGrid = TopoDatabaseManager.getTopoData(gridLoc).getPayload().get(0).__numpy__[0]
     topoGrid = clipToExtrema(topoGrid, clipArea)
     topoGrid = numpy.flipud(topoGrid)
     
