@@ -26,7 +26,6 @@ import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.isc.IscSendQueue;
 import com.raytheon.edex.plugin.gfe.isc.IscSendRecord;
-import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
@@ -55,12 +54,14 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * 06/24/09                njensen     Added sending notifications
  * 09/22/09     3058       rjpeter     Converted to IRequestHandler
  * 02/12/2013        #1597 randerso    Added logging to support GFE Performance investigation
+ * 06/13/13     2044       randerso    Refactored to use IFPServer
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-public class SaveGfeGridHandler implements IRequestHandler<SaveGfeGridRequest> {
+public class SaveGfeGridHandler extends BaseGfeRequestHandler implements
+        IRequestHandler<SaveGfeGridRequest> {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SaveGfeGridHandler.class);
 
@@ -82,19 +83,21 @@ public class SaveGfeGridHandler implements IRequestHandler<SaveGfeGridRequest> {
         try {
             ITimer timer = TimeUtil.getTimer();
             timer.start();
-            sr = GridParmManager.saveGridData(saveRequest, workstationID,
-                    siteID);
+            sr = getIfpServer(request).getGridParmMgr().saveGridData(
+                    saveRequest, workstationID);
             timer.stop();
             perfLog.logDuration("Save Grids: GridParmManager.saveGridData",
                     timer.getElapsedTime());
 
+            // TODO: move this post processing into GridParmManager
             // check for sending to ISC
             timer.reset();
             timer.start();
             IFPServerConfig serverConfig = IFPServerConfigManager
                     .getServerConfig(siteID);
             String iscrta = serverConfig.iscRoutingTableAddress().get("ANCF");
-            if (serverConfig.requestISC() && clientSendStatus && iscrta != null) {
+            if (serverConfig.requestISC() && clientSendStatus
+                    && (iscrta != null)) {
                 List<IscSendRecord> iscSendRequests = new ArrayList<IscSendRecord>(
                         saveRequest.size());
                 for (SaveGridRequest save : saveRequest) {
