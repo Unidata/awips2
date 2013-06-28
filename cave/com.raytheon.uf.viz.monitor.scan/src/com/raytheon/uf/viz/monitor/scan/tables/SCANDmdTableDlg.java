@@ -91,6 +91,8 @@ import com.raytheon.viz.ui.EditorUtil;
  * 03/15/2012	13939	   Mike Duff    For a SCAN Alarms issue
  * Apr 29, 2013 #1945      lvenable    Improved SCAN performance, reworked
  *                                     some bad code, and some code cleanup.
+ * 06 Jun 2013  #2065      lvenable    Added code to alert the user to use the clear
+ *                                     button if they want to close the dialog.
  * 
  * </pre>
  * 
@@ -894,8 +896,10 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
         shell.addShellListener(new ShellAdapter() {
             @Override
             public void shellClosed(ShellEvent e) {
-                e.doit = killDialog;
-                // closeDialog();
+                if (killDialog == false) {
+                    e.doit = false;
+                    displayCloseInstructions("SCAN DMD Table dialog");
+                }
             }
         });
     }

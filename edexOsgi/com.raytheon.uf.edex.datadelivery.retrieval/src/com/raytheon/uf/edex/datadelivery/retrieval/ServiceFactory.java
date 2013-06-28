@@ -21,6 +21,8 @@ package com.raytheon.uf.edex.datadelivery.retrieval;
 
 import java.util.Date;
 
+import com.raytheon.uf.common.datadelivery.registry.Provider;
+
 /**
  * The factory implementation to retrieve service specific classes.
  * 
@@ -31,6 +33,7 @@ import java.util.Date;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 24, 2012 955        djohnson     Initial creation
+ * May 31, 2013 2038       djohnson     Add setProvider.
  * 
  * </pre>
  * 
@@ -61,4 +64,12 @@ public interface ServiceFactory {
      * @return the generator
      */
     RetrievalGenerator getRetrievalGenerator();
+
+    /**
+     * Set the provider.
+     * 
+     * @param provider
+     *            the provider
+     */
+    void setProvider(Provider provider);
 }

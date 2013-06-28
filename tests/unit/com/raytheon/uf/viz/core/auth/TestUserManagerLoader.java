@@ -94,6 +94,11 @@ public class TestUserManagerLoader implements IUserManagerLoader {
         public List<IRole> getRoles(String application) {
             return Collections.emptyList();
         }
+
+        @Override
+        public void updateUserObject(String userId, IAuthenticationData authData) {
+            // Currently unused
+        }
     }
 
     private static final TestUserManager USER_MANAGER = new TestUserManager();

@@ -58,4 +58,7 @@ public final class DataDeliveryRegistryObjectTypes {
 
     public static final String DATASET = RegistryUtil
             .getObjectType(DataSet.class);
+
+    public static final String PROVIDER = RegistryUtil
+            .getObjectType(Provider.class);
 }

@@ -32,7 +32,7 @@ import org.junit.Test;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetFixture;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.registry.SubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 
 /**
@@ -68,7 +68,7 @@ public class DataDeliveryUtilsTest {
         cycleTimes.add(1);
         cycleTimes.add(4);
 
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
         Time subTime = subscription.getTime();
         subTime.setCycleTimes(cycleTimes);
 
@@ -81,7 +81,7 @@ public class DataDeliveryUtilsTest {
         List<Integer> cycleTimes = newArrayList();
         cycleTimes.add(0);
 
-        Subscription subscription = SubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
         Time subTime = subscription.getTime();
         subTime.setCycleTimes(cycleTimes);
 

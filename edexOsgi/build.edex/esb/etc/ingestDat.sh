@@ -19,12 +19,7 @@
 # further licensing information.
 ##
 export INIT_MEM=256 # in Meg
-
-if [ $HIGH_MEM_FLAG == "on" ]; then
-    export MAX_MEM=1792 # in Meg
-else
-    export MAX_MEM=768 # in Meg
-fi
+export MAX_MEM=1792 # in Meg
 
 export JMS_POOL_MIN=16
 export JMS_POOL_MAX=32
