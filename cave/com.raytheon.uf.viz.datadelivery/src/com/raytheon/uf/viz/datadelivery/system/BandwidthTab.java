@@ -48,6 +48,8 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 14, 2013 2000       djohnson     Initial creation
+ * May 23, 2013 1650       djohnson     Reword change bandwidth message.
+ * Jun 12, 2013 2064       mpduff       Update label.
  * 
  * </pre>
  * 
@@ -90,8 +92,7 @@ public class BandwidthTab extends SystemApplyCancelTab {
     protected void initializeTabComponents(Composite mainComp) {
         GridLayout gl = new GridLayout(1, false);
         GridData gd = new GridData(SWT.VERTICAL, SWT.DEFAULT, true, false);
-        Composite configurationComposite = new Composite(mainComp,
-                SWT.NONE);
+        Composite configurationComposite = new Composite(mainComp, SWT.NONE);
         configurationComposite.setLayout(gl);
         configurationComposite.setLayoutData(gd);
 
@@ -113,7 +114,7 @@ public class BandwidthTab extends SystemApplyCancelTab {
         gd = new GridData(165, SWT.DEFAULT);
         Label availBandwith = new Label(outerComp, SWT.NONE);
         availBandwith.setLayoutData(gd);
-        availBandwith.setText("OPSNET Bandwidth (KB):");
+        availBandwith.setText("OPSNET Bandwidth (kB/s):");
 
         final Spinner availBandwidthSpinner = new Spinner(outerComp, SWT.BORDER);
         availBandwidthSpinner.setMinimum(0);
@@ -159,7 +160,7 @@ public class BandwidthTab extends SystemApplyCancelTab {
             }
 
             StringBuilder sb = new StringBuilder(StringUtil.createMessage(
-                    "Changing the default bandwidth for " + Network.OPSNET
+                    "Changing the bandwidth for " + Network.OPSNET
                             + " will unschedule the following subscriptions:",
                     subscriptionNames));
             sb.append(StringUtil.NEWLINE).append(StringUtil.NEWLINE);

@@ -33,7 +33,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 22, 2012 0743       djohnson     Initial creation
+ * Aug 22, 2012 0743       djohnson     Initial creation.
+ * Jun 04, 2013  223       mpduff       Changed hierarchy.
  * 
  * </pre>
  * 
@@ -42,7 +43,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "specificDateTime")
-public class SpecificDateTimeXML extends TimeXML {
+public class SpecificDateTimeXML extends GriddedTimeXML {
 
     @XmlElement(name = "specificDate")
     protected String specificDate;

@@ -20,18 +20,22 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.dao;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.SortedSet;
 
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.edex.datadelivery.bandwidth.BandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 
 /**
- * Extracted from {@link BandwidthContextFactory} so that {@link BandwidthManager}
- * can be run in memory (e.g. for testing proposed bandwidth size limitations
- * and informing the user which subscriptions would be unable to be scheduled).
+ * Extracted from {@link BandwidthContextFactory} so that
+ * {@link BandwidthManager} can be run in memory (e.g. for testing proposed
+ * bandwidth size limitations and informing the user which subscriptions would
+ * be unable to be scheduled).
  * 
  * <pre>
  * 
@@ -40,6 +44,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 23, 2012 1286       djohnson     Initial creation
+ * Jun 03, 2013 2038       djohnson     Add method to get subscription retrievals by provider, dataset, and status.
  * 
  * </pre>
  * 
@@ -191,6 +196,50 @@ public interface IBandwidthDao {
      */
     List<SubscriptionRetrieval> getSubscriptionRetrievals(String provider,
             String dataSetName, Calendar baseReferenceTime);
+
+    /**
+     * Get all the subscription retrievals for the specified dataset, with the
+     * specified status, and ordered by date.
+     * 
+     * @param provider
+     *            The provider name.
+     * 
+     * @param dataSetName
+     *            The dataset name.
+     * 
+     * @param status
+     *            The status
+     * 
+     * @return the subscription retrievals
+     */
+    SortedSet<SubscriptionRetrieval> getSubscriptionRetrievals(String provider,
+            String dataSetName, RetrievalStatus status);
+
+    /**
+     * Get all the subscription retrievals for the specified dataset, with the
+     * specified status, ordered by date, with a start date between the two
+     * specified dates (inclusive).
+     * 
+     * @param provider
+     *            The provider name.
+     * 
+     * @param dataSetName
+     *            The dataset name.
+     * 
+     * @param status
+     *            The status
+     * 
+     * @param earliestDate
+     *            the earliest date
+     * 
+     * @param latestDate
+     *            the latest date
+     * 
+     * @return the subscription retrievals
+     */
+    SortedSet<SubscriptionRetrieval> getSubscriptionRetrievals(String provider,
+            String dataSetName, RetrievalStatus status, Date earliestDate,
+            Date latestDate);
 
     /**
      * Get all the subscription retrievals for the specified dataset and base
