@@ -153,6 +153,15 @@ public class RecordFactory implements IPluginClassMapper {
             map.put("dataURI", dataURI);
             return map;
         } catch (Exception e) {
+            // if this exception was caused by NoPlugin then throw that so that
+            // caller knows exactly why this happened.
+            Throwable cause = e.getCause();
+            while (cause != null) {
+                if (cause instanceof NoPluginException) {
+                    throw (NoPluginException) cause;
+                }
+                cause = cause.getCause();
+            }
             throw new VizException("Unable to create property map for "
                     + dataURI, e);
         }
@@ -251,7 +260,7 @@ public class RecordFactory implements IPluginClassMapper {
         try {
             return getPluginClass(pluginName);
         } catch (NoPluginException e) {
-            throw new PluginException(e.getLocalizedMessage());
+            throw new PluginException(e.getLocalizedMessage(), e);
         }
     }
 }

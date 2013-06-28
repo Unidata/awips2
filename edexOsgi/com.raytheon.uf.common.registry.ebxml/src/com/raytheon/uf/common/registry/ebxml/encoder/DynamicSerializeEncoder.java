@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.registry.ebxml.encoder;
 
+import static com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders.Type.DYNAMIC_SERIALIZE;
+
 import org.apache.commons.codec.binary.Base64;
 
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -36,7 +38,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 7, 2012  1102      djohnson     Initial creation
+ * Sep 07, 2012 1102      djohnson     Initial creation
+ * Jun 03, 2013 2038      djohnson     Add equals/hashcode.
  * 
  * </pre>
  * 
@@ -46,12 +49,19 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 class DynamicSerializeEncoder extends StringBasedEncoder {
 
     /**
+     * @param type
+     */
+    DynamicSerializeEncoder() {
+        super(DYNAMIC_SERIALIZE);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     Object decodeContent(String content) throws SerializationException {
-        return SerializationUtil.transformFromThrift(Base64
-                .decodeBase64(content));
+        return SerializationUtil.transformFromThrift(Object.class,
+                Base64.decodeBase64(content));
     }
 
     /**

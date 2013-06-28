@@ -46,7 +46,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 21, 2012            jsanchez    Initial creation
- * 3/18/2013    1802       bphillip     Implemented transaction boundaries. Changed to extend parameterized PersistableDataObject
+ * Mar 18, 2013 1802       bphillip    Implemented transaction boundaries. Changed to extend parameterized PersistableDataObject
  * May 22, 2013 1917       rjpeter     Added BatchSize annotation.
  * </pre>
  * 

@@ -990,4 +990,11 @@
              key="hydroTimeSeries">
        </component>
     </extension>
+ 	<extension
+       point="com.raytheon.uf.viz.ui.menus.tearoffperspective">
+    	<tearoffperspective
+          enabled="true"
+          perspectiveId="com.raytheon.viz.hydro.HydroPerspective">
+    	</tearoffperspective>
+ 	</extension>
 </plugin>

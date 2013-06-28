@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
@@ -44,13 +45,14 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.jdbc.Work;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
@@ -63,7 +65,6 @@ import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
-import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImpl;
 
 /**
  * The DbInit class is responsible for ensuring that the appropriate tables are
@@ -81,6 +82,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerIm
  * Apr 15, 2013 1693       djohnson     Use a strategy to verify the database is up to date.
  * Apr 30, 2013 1960        djohnson    Extend the generalized DbInit.
  * 5/21/2013    2022       bphillip     Using TransactionTemplate for database initialization
+ * May 29, 2013 1650       djohnson     Reference LifecycleManager as interface type.
  * </pre>
  * 
  * @author bphillip
@@ -88,9 +90,10 @@ import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerIm
  */
 @Transactional
 public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
-        ApplicationListener {
+        ApplicationListener<ContextRefreshedEvent> {
 
-    private static volatile boolean INITIALIZED = false;
+    @VisibleForTesting
+    static volatile boolean INITIALIZED = false;
 
     /** The logger */
     private static final IUFStatusHandler statusHandler = UFStatus
@@ -100,7 +103,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
     private static final String TABLE_CHECK_QUERY = "SELECT tablename FROM pg_tables where schemaname = 'ebxml';";
 
     /** The lifecycle manager instance */
-    private LifecycleManagerImpl lcm;
+    private LifecycleManager lcm;
 
     /** Hibernate session factory */
     private SessionFactory sessionFactory;
@@ -128,6 +131,10 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
         populateDB();
     }
 
+    public static boolean isDbInitialized() {
+        return INITIALIZED;
+    }
+
     /**
      * Populates the RegRep database with the minimum set of objects. The
      * objects are defined in the localization directory.
@@ -138,7 +145,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
      *             If errors occur during the object submission process
      * @throws EbxmlRegistryException
      */
-    private void populateDB() throws SerializationException,
+    protected void populateDB() throws SerializationException,
             MsgRegistryException, EbxmlRegistryException {
         LocalizationFile[] files = PathManagerFactory.getPathManager()
                 .listStaticFiles("ebxml/minDB", new String[] { ".xml" }, true,
@@ -312,7 +319,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
     }
 
     @Override
-    public void onApplicationEvent(ApplicationEvent event) {
+    public void onApplicationEvent(ContextRefreshedEvent event) {
         if (!INITIALIZED) {
             txTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
@@ -365,7 +372,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
      * @param lcm
      *            the lcm to set
      */
-    public void setLcm(LifecycleManagerImpl lcm) {
+    public void setLcm(LifecycleManager lcm) {
         this.lcm = lcm;
     }
 

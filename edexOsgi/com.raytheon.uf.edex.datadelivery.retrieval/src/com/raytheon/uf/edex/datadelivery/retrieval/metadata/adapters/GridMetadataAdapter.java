@@ -28,6 +28,7 @@ import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
@@ -45,21 +46,24 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.ResponseProcessingUtilit
  * ------------ ---------- ----------- --------------------------
  * Nov 19, 2012            bsteffen     Initial javadoc
  * Feb 07, 2013 1543       djohnson     Allow package-level overriding of methods for mocking in tests.
+ * May 12, 2013 753        dhladky      Altered to be more flexible with other types
+ * May 31, 2013 2038       djohnson     Rename setPdos to allocatePdoArray.
  * 
  * </pre>
  * 
  * @author unknown
  * @version 1.0
  */
-public class GridMetadataAdapter extends AbstractMetadataAdapter {
+public class GridMetadataAdapter extends AbstractMetadataAdapter<Integer> {
 
-    public GridMetadataAdapter(RetrievalAttribute attXML)
-            throws InstantiationException {
-
-        loadPDOs(attXML);
+    public GridMetadataAdapter() {
     }
 
-    private void loadPDOs(RetrievalAttribute attXML)
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void processAttributeXml(RetrievalAttribute attXML)
             throws InstantiationException {
         Level[] levels = getLevels(attXML);
         int size = levels.length;
@@ -79,8 +83,7 @@ public class GridMetadataAdapter extends AbstractMetadataAdapter {
             }
         }
 
-        pdos = new GridRecord[size];
-
+        allocatePdoArray(size);
         GridCoverage gridCoverage = ((GriddedCoverage) attXML.getCoverage())
                 .getRequestGridCoverage();
 
@@ -242,5 +245,18 @@ public class GridMetadataAdapter extends AbstractMetadataAdapter {
         }
 
         return vals;
+    }
+  
+    @Override
+    public PluginDataObject getRecord(Integer index) {
+        if (pdos != null && index < pdos.length) {
+            return pdos[index];
+        }
+        return null;
+    }
+
+    @Override
+    public void allocatePdoArray(int size) {
+        pdos = new GridRecord[size];
     }
 }

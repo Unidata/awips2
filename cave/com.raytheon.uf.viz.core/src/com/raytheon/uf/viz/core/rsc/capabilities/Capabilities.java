@@ -52,6 +52,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 2, 2009             chammack    Initial creation
+ * Jun 7, 2013  2074       mnash       Fix for null capabilities trying to be added
  * 
  * </pre>
  * 
@@ -191,7 +192,9 @@ public class Capabilities implements Iterable<AbstractCapability> {
                 collection).iterator();
         while (collectionIterator.hasNext()) {
             AbstractCapability cap = collectionIterator.next();
-            this.backingMap.put(cap.getClass(), cap);
+            if (cap != null) {
+                this.backingMap.put(cap.getClass(), cap);
+            }
         }
     }
 
