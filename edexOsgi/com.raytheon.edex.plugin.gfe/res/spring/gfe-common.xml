@@ -1,6 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean id="gfeProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
@@ -61,7 +61,7 @@
 				<bean ref="parmIdFilter" method="updateParmIdCache" />
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:paramIdCache?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:paramIdCache?level=ERROR"/>
 				</doCatch>
 			</doTry>
 		</route>
@@ -76,7 +76,7 @@
 			    </filter>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:gfeNotify?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:gfeNotify?level=ERROR"/>
                 </doCatch>
             </doTry>
 		</route>
@@ -92,7 +92,7 @@
 				<bean ref="d2dParmIdCache" method="pluginPurged" />
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:paramIdCache?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:paramIdCache?level=ERROR"/>
 				</doCatch>
 			</doTry>
 		</route>
@@ -104,7 +104,7 @@
                 <bean ref="gridParmManager" method="processNotification" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:gridParmManager?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:gridParmManager?level=ERROR"/>
                 </doCatch>
             </doTry>
         </route>

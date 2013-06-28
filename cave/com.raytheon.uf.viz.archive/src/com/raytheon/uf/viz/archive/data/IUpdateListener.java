@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.archive.data;
 
+import java.util.List;
+
 /**
  * A listener to update file/directory information.
  * 
@@ -35,12 +37,11 @@ package com.raytheon.uf.viz.archive.data;
  * @author rferrel
  * @version 1.0
  */
-
 public interface IUpdateListener {
     /**
-     * List of files/directories with updated information
+     * Table display state entries with updated information.
      * 
-     * @param fileInfoArray
+     * @param dirInfos
      */
-    public void update(FileInfo[] fileInfoArray);
+    public void update(List<SizeJobRequest> request);
 }

@@ -64,6 +64,7 @@ public class WfoBandwidthManagerCreator implements IEdexBandwidthManagerCreator 
                 JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-edex-impl.xml"),
                 JarUtil.getResResourcePath("/spring/bandwidth-datadelivery.xml"),
                 JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-daos.xml"),
+                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-eventbus.xml"),
                 JarUtil.getResResourcePath("/spring/thrift-bandwidth.xml"),
                 JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-wfo.xml") };
 

@@ -32,6 +32,8 @@ import java.util.Set;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 29, 2012 1286       djohnson     Initial creation
+ * May 28, 2013 1650       djohnson     More information when failing to schedule.
+ * Jun 12, 2013 2038       djohnson     Maximum allowed size is returned in kilobytes.
  * 
  * </pre>
  * 
@@ -52,11 +54,16 @@ public interface IProposeScheduleResponse {
 
         @Override
         public int getRequiredLatency() {
-            return REQUIRED_LATENCY_NOT_SET;
+            return VALUE_NOT_SET;
+        }
+
+        @Override
+        public long getRequiredDataSetSize() {
+            return VALUE_NOT_SET;
         }
     };
 
-    int REQUIRED_LATENCY_NOT_SET = -1;
+    int VALUE_NOT_SET = -1;
 
     /**
      * Get the set of subscription names that would be unscheduled if the
@@ -73,4 +80,12 @@ public interface IProposeScheduleResponse {
      * @return the required latency
      */
     int getRequiredLatency();
+
+    /**
+     * Get the required dataset size for the subscription to not unschedule any
+     * subscriptions.
+     * 
+     * @return the required dataset size, in kilobytes
+     */
+    long getRequiredDataSetSize();
 }
