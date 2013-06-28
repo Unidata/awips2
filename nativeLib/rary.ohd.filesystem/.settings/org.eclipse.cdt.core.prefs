@@ -1,3 +1,0 @@
-#Sun Mar 07 16:21:30 CST 2010
-eclipse.preferences.version=1
-environment/project/0.1790993038=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\n<environment append\="true" appendContributed\="true">\n<variable delimiter\=";" name\="INSTALL_FROM" operation\="append" value\="awips"/>\n<variable delimiter\=";" name\="INSTALL_TO" operation\="replace" value\="../build.native/i386-pc-linux-gnu/awips"/>\n</environment>\n

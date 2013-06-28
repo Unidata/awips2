@@ -39,6 +39,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GroupDefinition;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Network;
@@ -110,6 +111,7 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Apr 05, 2013 1841       djohnson     Add support for shared subscriptions.
  * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * May 15, 2013 1040       mpduff       Add shared sites.
+ * Jun 04, 2013  223       mpduff       Add point data.
  * </pre>
  * 
  * @author mpduff
@@ -168,7 +170,7 @@ public class CreateSubscriptionDlgPresenter {
 
     private final IGuiThreadTaskExecutor guiThreadTaskExecutor;
 
-    private final Set<Integer> cycleTimes;
+    private Set<Integer> cycleTimes;
 
     private final ISubscriptionNotificationService subscriptionNotificationService = DataDeliveryServices
             .getSubscriptionNotificationService();
@@ -193,9 +195,11 @@ public class CreateSubscriptionDlgPresenter {
         this.create = create;
         this.guiThreadTaskExecutor = guiThreadTaskExecutor;
 
-        // Get cycles
-        cycleTimes = Sets.newTreeSet(((OpenDapGriddedDataSet) dataSet)
-                .getCycles());
+        if (dataSet.getDataSetType() == DataType.GRID) {
+            // Get cycles
+            cycleTimes = Sets.newTreeSet(((OpenDapGriddedDataSet) dataSet)
+                    .getCycles());
+        }
 
         groupComboAction = new Runnable() {
             @Override
@@ -284,26 +288,27 @@ public class CreateSubscriptionDlgPresenter {
     public void init() {
         view.setOkConf(OK_CONF);
 
-        final boolean hasCycleTimes = !cycleTimes.isEmpty();
+        if (this.dataSet.getDataSetType() == DataType.GRID) {
+            final boolean hasCycleTimes = !cycleTimes.isEmpty();
 
-        this.cycleChkList = new ArrayList<CheckBoxConf>(cycleTimes.size());
-        for (int cycle : cycleTimes) {
-            String hour = Strings.padStart(String.valueOf(cycle), 2, '0');
+            this.cycleChkList = new ArrayList<CheckBoxConf>(cycleTimes.size());
+            for (int cycle : cycleTimes) {
+                String hour = Strings.padStart(String.valueOf(cycle), 2, '0');
 
-            CheckBoxConf cb = new CheckBoxConf(hour, false, "Model Cycle Time",
-                    CheckBoxConf.DO_NOTHING);
-            cycleChkList.add(cb);
+                CheckBoxConf cb = new CheckBoxConf(hour, false,
+                        "Model Cycle Time", CheckBoxConf.DO_NOTHING);
+                cycleChkList.add(cb);
+            }
+
+            view.setCycleConf(cycleChkList);
+            ButtonConf sa = new ButtonConf(hasCycleTimes, "Select All",
+                    "Select all cycle times", ButtonConf.DO_NOTHING);
+            ButtonConf da = new ButtonConf(hasCycleTimes, "Deselect All",
+                    "Deselect all cycle times", ButtonConf.DO_NOTHING);
+
+            view.setSelectAllButton(sa);
+            view.setDeselectAllButton(da);
         }
-
-        view.setCycleConf(cycleChkList);
-        ButtonConf sa = new ButtonConf(hasCycleTimes, "Select All",
-                "Select all cycle times", ButtonConf.DO_NOTHING);
-        ButtonConf da = new ButtonConf(hasCycleTimes, "Deselect All",
-                "Deselect all cycle times", ButtonConf.DO_NOTHING);
-
-        view.setSelectAllButton(sa);
-        view.setDeselectAllButton(da);
-
         populate();
     }
 
@@ -375,21 +380,22 @@ public class CreateSubscriptionDlgPresenter {
             view.setPriority(subscription.getPriority());
         }
 
-        List<Integer> cycleTimes = subscription.getTime().getCycleTimes();
-        if (cycleTimes != null) {
-            List<String> cycleStrings = new ArrayList<String>();
+        if (this.dataSet.getDataSetType() == DataType.GRID) {
+            List<Integer> cycleTimes = subscription.getTime().getCycleTimes();
+            if (cycleTimes != null) {
+                List<String> cycleStrings = new ArrayList<String>();
 
-            for (int cycle : cycleTimes) {
-                if (cycle < 10) {
-                    cycleStrings.add("0" + String.valueOf(cycle));
-                } else {
-                    cycleStrings.add(String.valueOf(cycle));
+                for (int cycle : cycleTimes) {
+                    if (cycle < 10) {
+                        cycleStrings.add("0" + String.valueOf(cycle));
+                    } else {
+                        cycleStrings.add(String.valueOf(cycle));
+                    }
                 }
+
+                view.selectCycles(cycleStrings);
             }
-
-            view.selectCycles(cycleStrings);
         }
-
         if (!Strings.isNullOrEmpty(subscription.getGroupName())) {
             view.setGroupName(subscription.getGroupName());
         }
@@ -520,7 +526,9 @@ public class CreateSubscriptionDlgPresenter {
 
         subscription.setDescription(view.getSubscriptionDescription());
 
-        subscription.getTime().setCycleTimes(view.getCycleTimes());
+        if (this.dataSet.getDataSetType() == DataType.GRID) {
+            subscription.getTime().setCycleTimes(view.getCycleTimes());
+        }
 
         subscription.setLatencyInMinutes(view.getLatencyValue());
 
@@ -550,16 +558,25 @@ public class CreateSubscriptionDlgPresenter {
                             DataDeliveryGUIUtils.markBusyInUIThread(jobShell);
                             ISubscriptionServiceResult result = storeSubscription(
                                     subscription, username);
-                            if (result.isAllowFurtherEditing()) {
-                                return new Status(Status.CANCEL,
-                                        CreateSubscriptionDlgPresenter.class
-                                                .getName(),
-                                        result.getMessageToDisplay());
+                            if (result != null) {
+                                if (result.isAllowFurtherEditing()) {
+                                    return new Status(
+                                            Status.CANCEL,
+                                            CreateSubscriptionDlgPresenter.class
+                                                    .getName(), result
+                                                    .getMessageToDisplay());
+                                } else {
+                                    return new Status(
+                                            Status.OK,
+                                            CreateSubscriptionDlgPresenter.class
+                                                    .getName(), result
+                                                    .getMessageToDisplay());
+                                }
                             } else {
-                                return new Status(Status.OK,
+                                return new Status(Status.ERROR,
                                         CreateSubscriptionDlgPresenter.class
                                                 .getName(),
-                                        result.getMessageToDisplay());
+                                        "Error Storing Subscription");
                             }
                         }
                     };

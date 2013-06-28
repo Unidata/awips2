@@ -19,9 +19,14 @@
  **/
 package com.raytheon.uf.viz.archive.ui;
 
+import java.util.Calendar;
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -29,11 +34,15 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
+import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
+import com.raytheon.uf.common.archive.config.DisplayData;
+import com.raytheon.uf.viz.archive.data.IArchiveTotals;
 import com.raytheon.uf.viz.archive.ui.ArchiveTableComp.TableType;
-import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.uf.viz.core.VizApp;
 
 /**
  * Archive retention dialog.
@@ -45,22 +54,34 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 23, 2013 #1964      lvenable     Initial creation
+ * May 31, 2013 #1965      bgonzale     Initial work for updating retention configurations.
+ * Jun 10, 2013 #1966      rferrel      Implemented hooks to get display and save to work.
  * 
  * </pre>
  * 
  * @author lvenable
  * @version 1.0
  */
-public class ArchiveRetentionDlg extends CaveSWTDialog {
+public class ArchiveRetentionDlg extends AbstractArchiveDlg implements
+        IArchiveTotals, IModifyListener {
 
-    /** Table composite that holds the table controls. */
-    private ArchiveTableComp tableComp;
+    /** Current Archive/Category selection's minimum retention hours. */
+    private RetentionHours minRetention;
 
-    /** Archive config combo box. */
-    private Combo archCfgCbo;
+    /** Current Archive/Category selection's extended retention hours. */
+    private RetentionHours extRetention;
 
-    /** Category combo box. */
-    private Combo categoryCbo;
+    /** Displays the total number of selected items for all tables. */
+    private Label totalSelectedItems;
+
+    /** Displays the total size of selected items. */
+    private Label totalSizeLbl;
+
+    /** Performs save action button. */
+    private Button saveBtn;
+
+    /** Flag set when user wants to close with unsaved modifications. */
+    boolean closeFlag = false;
 
     /**
      * Constructor.
@@ -71,18 +92,31 @@ public class ArchiveRetentionDlg extends CaveSWTDialog {
     public ArchiveRetentionDlg(Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.MIN, CAVE.DO_NOT_BLOCK
                 | CAVE.MODE_INDEPENDENT | CAVE.INDEPENDENT_SHELL);
+        this.setSelect = true;
+        this.tableType = TableType.Retention;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, false);
         mainLayout.marginHeight = 2;
         mainLayout.marginWidth = 2;
-
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setText("Archive Retention");
@@ -92,6 +126,7 @@ public class ArchiveRetentionDlg extends CaveSWTDialog {
         gl.marginWidth = 0;
         gl.horizontalSpacing = 0;
         mainComp.setLayout(gl);
+        ArchiveConfigManager.getInstance().reset();
 
         init();
     }
@@ -101,12 +136,8 @@ public class ArchiveRetentionDlg extends CaveSWTDialog {
      */
     private void init() {
         createRetentionControls();
-        createTable();
-        addSeparator(shell, SWT.HORIZONTAL);
+        GuiUtil.addSeparator(shell, SWT.HORIZONTAL);
         createBottomActionButtons();
-
-        // TODO : Remove this when functionality is implemented
-        populateComboBoxes();
     }
 
     /**
@@ -114,7 +145,7 @@ public class ArchiveRetentionDlg extends CaveSWTDialog {
      */
     private void createRetentionControls() {
         Composite retentionComp = new Composite(shell, SWT.NONE);
-        GridLayout gl = new GridLayout(5, false);
+        GridLayout gl = new GridLayout(2, false);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         retentionComp.setLayout(gl);
         retentionComp.setLayoutData(gd);
@@ -122,103 +153,71 @@ public class ArchiveRetentionDlg extends CaveSWTDialog {
         /*
          * Top row of controls.
          */
-        Label archCfgLbl = new Label(retentionComp, SWT.NONE);
-        archCfgLbl.setText("Archive Config: ");
+        createComboControls(retentionComp);
+        createTable();
 
-        gd = new GridData(200, SWT.DEFAULT);
-        archCfgCbo = new Combo(retentionComp, SWT.VERTICAL | SWT.DROP_DOWN
-                | SWT.BORDER | SWT.READ_ONLY);
-        archCfgCbo.setLayoutData(gd);
-        archCfgCbo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                /*
-                 * TODO - add code to update the category combo box
-                 */
-            }
-        });
+        // composite for retention time selection
+        Composite selectionComp = new Composite(retentionComp, SWT.NONE);
+        selectionComp.setLayout(new GridLayout(3, true));
+        selectionComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
+                false));
 
         gd = new GridData();
         gd.horizontalIndent = 20;
-        Label minRetentionLbl = new Label(retentionComp, SWT.NONE);
+        Label minRetentionLbl = new Label(selectionComp, SWT.NONE);
         minRetentionLbl.setText("Minimum Retention: ");
         minRetentionLbl.setLayoutData(gd);
 
         gd = new GridData(60, SWT.DEFAULT);
-        final Spinner minRetentionSpnr = new Spinner(retentionComp, SWT.BORDER);
+        Spinner minRetentionSpnr = new Spinner(selectionComp, SWT.BORDER);
         minRetentionSpnr.setIncrement(1);
         minRetentionSpnr.setPageIncrement(5);
         minRetentionSpnr.setMaximum(Integer.MAX_VALUE);
         minRetentionSpnr.setMinimum(1);
         minRetentionSpnr.setLayoutData(gd);
 
-        final Combo minRetentionCbo = new Combo(retentionComp, SWT.VERTICAL
+        Combo minRetentionCbo = new Combo(selectionComp, SWT.VERTICAL
                 | SWT.DROP_DOWN | SWT.BORDER | SWT.READ_ONLY);
-        minRetentionCbo.addSelectionListener(new SelectionAdapter() {
+        minRetention = new RetentionHours(1, minRetentionSpnr, minRetentionCbo) {
+
             @Override
-            public void widgetSelected(SelectionEvent e) {
-                handleRetentionSelection(minRetentionCbo, minRetentionSpnr);
+            protected boolean handleTimeSelection() {
+                boolean state = super.handleTimeSelection();
+                getSelectedArchive().setRetentionHours(getHours());
+                return state;
             }
-        });
-        minRetentionCbo.add("Hours");
-        minRetentionCbo.add("Days");
-        minRetentionCbo.select(0);
-        minRetentionCbo.setData(minRetentionCbo.getItem(minRetentionCbo
-                .getSelectionIndex()));
+        };
+        minRetention.addModifyListener(this);
 
         /*
          * Bottom row of controls.
          */
-        Label catLbl = new Label(retentionComp, SWT.NONE);
-        catLbl.setText("Category: ");
-
-        gd = new GridData(200, SWT.DEFAULT);
-        categoryCbo = new Combo(retentionComp, SWT.VERTICAL | SWT.DROP_DOWN
-                | SWT.BORDER | SWT.READ_ONLY);
-        categoryCbo.setLayoutData(gd);
-        categoryCbo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                /*
-                 * TODO - add code to update the information in the table
-                 */
-            }
-        });
-
         gd = new GridData();
         gd.horizontalIndent = 20;
-        Label extRetentionLbl = new Label(retentionComp, SWT.NONE);
+        Label extRetentionLbl = new Label(selectionComp, SWT.NONE);
         extRetentionLbl.setText("Extended Retention: ");
         extRetentionLbl.setLayoutData(gd);
 
         gd = new GridData(60, SWT.DEFAULT);
-        final Spinner extRetentionSpnr = new Spinner(retentionComp, SWT.BORDER);
+        Spinner extRetentionSpnr = new Spinner(selectionComp, SWT.BORDER);
         extRetentionSpnr.setIncrement(1);
         extRetentionSpnr.setPageIncrement(5);
         extRetentionSpnr.setMaximum(Integer.MAX_VALUE);
-        extRetentionSpnr.setMinimum(1);
+        extRetentionSpnr.setMinimum(0);
         extRetentionSpnr.setLayoutData(gd);
 
-        final Combo extRetentionCbo = new Combo(retentionComp, SWT.VERTICAL
+        Combo extRetentionCbo = new Combo(selectionComp, SWT.VERTICAL
                 | SWT.DROP_DOWN | SWT.BORDER | SWT.READ_ONLY);
-        extRetentionCbo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                handleRetentionSelection(extRetentionCbo, extRetentionSpnr);
-            }
-        });
-        extRetentionCbo.add("Hours");
-        extRetentionCbo.add("Days");
-        extRetentionCbo.select(0);
-        extRetentionCbo.setData(extRetentionCbo.getItem(extRetentionCbo
-                .getSelectionIndex()));
-    }
+        extRetention = new RetentionHours(1, extRetentionSpnr, extRetentionCbo) {
 
-    /**
-     * Create the table control.
-     */
-    private void createTable() {
-        tableComp = new ArchiveTableComp(shell, TableType.Case);
+            @Override
+            protected boolean handleTimeSelection() {
+                boolean state = super.handleTimeSelection();
+                getSelectedCategory().setRetentionHours(getHours());
+                return state;
+            }
+        };
+        extRetention.addModifyListener(this);
     }
 
     /**
@@ -227,28 +226,36 @@ public class ArchiveRetentionDlg extends CaveSWTDialog {
     private void createBottomActionButtons() {
 
         Composite actionControlComp = new Composite(shell, SWT.NONE);
-        GridLayout gl = new GridLayout(3, false);
+        GridLayout gl = new GridLayout(2, false);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         actionControlComp.setLayout(gl);
         actionControlComp.setLayoutData(gd);
 
-        Button calcSizeBtn = new Button(actionControlComp, SWT.PUSH);
-        calcSizeBtn.setText(" Calculate Sizes ");
-        calcSizeBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                // TODO : add calculate size functionality
-            }
-        });
+        // TODO - For the future ?
+        // Button calcSizeBtn = new Button(actionControlComp, SWT.PUSH);
+        // calcSizeBtn.setText(" Calculate Sizes ");
+        // calcSizeBtn.addSelectionListener(new SelectionAdapter() {
+        // @Override
+        // public void widgetSelected(SelectionEvent e) {
+        // // TODO : add calculate size functionality
+        // // With Roger's automated size calculation code, this doesn't
+        // // seem relevant unless it is for calculating compressed size
+        // }
+        // });
 
-        Button saveBtn = new Button(actionControlComp, SWT.PUSH);
-        saveBtn.setText(" Save... ");
+        saveBtn = new Button(actionControlComp, SWT.PUSH);
+        saveBtn.setText(" Save ");
         saveBtn.addSelectionListener(new SelectionAdapter() {
             @Override
-            public void widgetSelected(SelectionEvent e) {
-                // TODO : add save functionality
+            public void widgetSelected(SelectionEvent selectionEvent) {
+                ArchiveConfigManager manager = ArchiveConfigManager
+                        .getInstance();
+                manager.save();
+                saveBtn.setEnabled(false);
+                clearModified();
             }
         });
+        saveBtn.setEnabled(false);
 
         gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
         Button closeBtn = new Button(actionControlComp, SWT.PUSH);
@@ -257,93 +264,198 @@ public class ArchiveRetentionDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                close();
+                if (verifyClose()) {
+                    close();
+                } else {
+                    e.doit = false;
+                }
             }
         });
     }
 
     /**
-     * Handle the retention selection for both minimum and extended retention.
+     * When unsaved modifications this asks the user to verify the close.
      * 
-     * @param comboBox
-     *            Retention combo box.
-     * @param spinner
-     *            Retention spinner.
+     * @return true when okay to close.
      */
-    private void handleRetentionSelection(Combo comboBox, Spinner spinner) {
-        // If the selection didn't change then just return.
-        if (comboBox.getItem(comboBox.getSelectionIndex()).equals(
-                (String) comboBox.getData())) {
-            return;
+    private boolean verifyClose() {
+        boolean state = true;
+        if (isModified()) {
+            MessageBox box = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK
+                    | SWT.CANCEL);
+            box.setText("Close Retention");
+            box.setMessage("Unsave changes.\nSelect OK to continue.");
+            state = box.open() == SWT.OK;
         }
+        closeFlag = state;
+        return state;
+    }
 
-        int time = 0;
-
-        if (comboBox.getItem(comboBox.getSelectionIndex()).equals("Hours")) {
-            time = convertTime(true, spinner.getSelection());
-        } else {
-            time = convertTime(false, spinner.getSelection());
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#setTotalSizeText(java
+     * .lang.String)
+     */
+    @Override
+    protected void setTotalSizeText(String sizeStringText) {
+        if (totalSizeLbl != null && !totalSizeLbl.isDisposed()) {
+            totalSizeLbl.setText(sizeStringText);
         }
+    }
 
-        spinner.setSelection(time);
-        comboBox.setData(comboBox.getItem(comboBox.getSelectionIndex()));
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#setTotalSelectedItems
+     * (int)
+     */
+    @Override
+    protected void setTotalSelectedItems(int totalSize) {
+        if (totalSelectedItems != null && !totalSelectedItems.isDisposed()) {
+            totalSelectedItems.setText("" + totalSize);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#getStart()
+     */
+    @Override
+    protected Calendar getStart() {
+        // display all elements so no start bound
+        return null;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#getEnd()
+     */
+    @Override
+    protected Calendar getEnd() {
+        // display all elements so no end bound
+        return null;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#updateTotals(java.util
+     * .List)
+     */
+    @Override
+    public void updateTotals(List<DisplayData> displayDatas) {
+        super.updateTotals(displayDatas);
+        if (displayDatas != null) {
+            for (DisplayData displayData : displayDatas) {
+                displayData.updateCategory();
+            }
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#archiveComboSelection()
+     */
+    @Override
+    protected void archiveComboSelection() {
+        super.archiveComboSelection();
+        minRetention.setHours(getSelectedArchive().getRetentionHours());
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#categoryComboSelection
+     * ()
+     */
+    @Override
+    protected void categoryComboSelection() {
+        super.categoryComboSelection();
+        extRetention.setHours(getSelectedCategory().getRetentionHours());
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.archive.ui.IModifyListener#modified()
+     */
+    @Override
+    public void modified() {
+        saveBtn.setEnabled(true);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#clearModified()
+     */
+    @Override
+    public void clearModified() {
+        super.clearModified();
+        minRetention.clearModified();
+        extRetention.clearModified();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#preOpened()
+     */
+    @Override
+    protected void preOpened() {
+        super.preOpened();
+        addModifiedListener(this);
+        shell.addShellListener(new ShellAdapter() {
+
+            @Override
+            public void shellClosed(ShellEvent e) {
+                if (closeFlag || !isModified()) {
+                    return;
+                }
+
+                e.doit = false;
+                VizApp.runAsync(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        if (verifyClose()) {
+                            close();
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#disposed()
+     */
+    @Override
+    protected void disposed() {
+        minRetention.removeModifyListener(this);
+        extRetention.removeModifyListener(this);
+        removeModifiedListener(this);
+        super.disposed();
     }
 
     /**
-     * Covert time from either hours to days or days to hours.
+     * Indicate unsaved user changes.
      * 
-     * @param daysToHours
-     *            Flag indicating how to convert the time.
-     * @param time
-     *            Time to be converted.
-     * @return The converted time.
+     * @return modified
      */
-    private int convertTime(boolean daysToHours, int time) {
-        int convertedTime = 0;
-
-        if (daysToHours) {
-            convertedTime = time * 24;
-        } else {
-            convertedTime = time / 24;
-        }
-
-        return convertedTime;
-    }
-
-    /**
-     * Add a separator line to the provided container.
-     * 
-     * @param container
-     *            Composite.
-     * @param orientation
-     *            Vertical or horizontal orientation.
-     */
-    private void addSeparator(Composite container, int orientation) {
-        // Separator label
-        GridData gd;
-
-        if (orientation == SWT.HORIZONTAL) {
-            gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        } else {
-            gd = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
-        }
-
-        Label sepLbl = new Label(container, SWT.SEPARATOR | orientation);
-        sepLbl.setLayoutData(gd);
-    }
-
-    /********************************************************
-     * TEST METHODS - to be removed when functionality is implemented.
-     * ******************************************************
-     */
-    private void populateComboBoxes() {
-        archCfgCbo.add("Raw");
-        archCfgCbo.add("Processed");
-        archCfgCbo.select(0);
-
-        categoryCbo.add("Radar");
-        categoryCbo.add("Point");
-        categoryCbo.add("Satellite");
-        categoryCbo.select(0);
+    private boolean isModified() {
+        return (saveBtn != null) && !saveBtn.isDisposed()
+                && saveBtn.isEnabled();
     }
 }

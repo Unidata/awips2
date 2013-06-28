@@ -19,14 +19,19 @@
  **/
 package com.raytheon.uf.edex.datadelivery.retrieval;
 
+import java.util.EnumMap;
+
+import org.apache.commons.lang.Validate;
+
 import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.util.ReflectionUtil;
 import com.raytheon.uf.common.util.ServiceLoaderUtil;
+import com.raytheon.uf.common.util.registry.GenericRegistry;
+import com.raytheon.uf.common.util.registry.RegistryException;
 import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
-import com.raytheon.uf.edex.datadelivery.retrieval.opendap.OpenDapServiceFactory;
-import com.raytheon.uf.edex.datadelivery.retrieval.wcs.WcsServiceFactory;
-import com.raytheon.uf.edex.datadelivery.retrieval.wfs.WfsServiceFactory;
-import com.raytheon.uf.edex.datadelivery.retrieval.wxxm.WxxmServiceFactory;
 
 /**
  * Retrieve {@link ServiceType} specific implementations of interfaces.
@@ -40,6 +45,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.wxxm.WxxmServiceFactory;
  * Jul 24, 2012 955        djohnson     Initial creation
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
  * Mar 21, 2013 1794       djohnson     ServiceLoaderUtil now requires the requesting class.
+ * May 31, 2013 2038       djohnson     Plugin contributable registry.
  * 
  * </pre>
  * 
@@ -49,6 +55,37 @@ import com.raytheon.uf.edex.datadelivery.retrieval.wxxm.WxxmServiceFactory;
 
 public final class ServiceTypeFactory {
 
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ServiceTypeFactory.class);
+
+    private static class ServiceTypeRegistry extends
+            GenericRegistry<ServiceType, Class<ServiceFactory>> {
+
+
+        private ServiceTypeRegistry() {
+            super(new EnumMap<ServiceType, Class<ServiceFactory>>(
+                    ServiceType.class));
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Object register(ServiceType t, Class<ServiceFactory> s)
+                throws RegistryException {
+
+            Validate.notNull(t);
+            Validate.notNull(s);
+
+            statusHandler.info("Registered service type factory ["
+                    + s.getName() + "] for service type [" + t + "]");
+
+            return super.register(t, s);
+        }
+    };
+
+    private static final ServiceTypeRegistry serviceTypeRegistry = new ServiceTypeRegistry();
+
     /**
      * Default {@link IServiceFactoryLookup} to be used in production code.
      */
@@ -57,20 +94,21 @@ public final class ServiceTypeFactory {
         @Override
         public ServiceFactory getProviderServiceFactory(Provider provider) {
             final ServiceType serviceType = provider.getServiceType();
-            switch (serviceType) {
-            case OPENDAP:
-                return new OpenDapServiceFactory(provider);
-            case WCS:
-                return new WcsServiceFactory();
-            case WFS:
-                return new WfsServiceFactory();
-            case WXXM:
-                return new WxxmServiceFactory();
-            default:
+            final Class<ServiceFactory> serviceFactoryClass = serviceTypeRegistry
+                    .getRegisteredObject(serviceType);
+            if (serviceFactoryClass == null) {
                 throw new IllegalArgumentException(String.format(
                         "No %s available to handle service type [%s]!",
                         ServiceFactory.class.getSimpleName(), serviceType));
             }
+
+            // Must create a new instance because the implementations are not
+            // thread safe
+            ServiceFactory serviceFactory = ReflectionUtil
+                    .newInstanceOfAssignableType(ServiceFactory.class,
+                            serviceFactoryClass);
+            serviceFactory.setProvider(provider);
+            return serviceFactory;
         }
     }
 
@@ -108,5 +146,14 @@ public final class ServiceTypeFactory {
         provider.setServiceType(serviceType);
         return retrieveServiceFactory(provider).getRetrievalGenerator()
                 .getServiceRetrievalAdapter();
+    }
+
+    /**
+     * Get the service type registry.
+     * 
+     * @return the registry
+     */
+    public static GenericRegistry<ServiceType, Class<ServiceFactory>> getServiceTypeRegistry() {
+        return serviceTypeRegistry;
     }
 }

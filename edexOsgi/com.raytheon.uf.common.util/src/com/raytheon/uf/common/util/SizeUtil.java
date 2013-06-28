@@ -29,6 +29,7 @@ package com.raytheon.uf.common.util;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 24, 2012            njensen     Initial creation
+ * Jun 12, 2013   2064     mpduff      Add prettyKiloByteSize.
  * 
  * </pre>
  * 
@@ -53,7 +54,7 @@ public class SizeUtil {
      * @return the pretty String representation of the byte size
      */
     public static String prettyByteSize(long numberOfBytes) {
-        float n = (float) numberOfBytes;
+        float n = numberOfBytes;
         int reps = 0;
         while (n > BYTES_PER && reps < REP_PREFIX.length - 1) {
             reps++;
@@ -66,4 +67,17 @@ public class SizeUtil {
         return sb.toString();
     }
 
+    /**
+     * Transforms a number of kilobytes to a pretty string based on the total
+     * number of bytes, e.g. B, kB, MB, or GB as fitting. For example: 1000 ->
+     * 1000B, 10000 -> 9.7kB, 100000 -> 97.6kB, 1000000 -> 976.5kB, 10000000 ->
+     * 9.5MB
+     * 
+     * @param numberOfKiloBytes
+     *            * the number to transform to a pretty string
+     * @return the pretty String representation of the byte size
+     */
+    public static String prettyKiloByteSize(long numberOfKiloBytes) {
+        return prettyByteSize(numberOfKiloBytes * BYTES_PER);
+    }
 }

@@ -22,6 +22,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.util;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 import com.raytheon.edex.colormap.ColorMapManager;
 import com.raytheon.uf.common.comm.ProxyConfiguration;
@@ -45,6 +46,7 @@ import dods.dap.DConnect;
  * ------------ ---------- ----------- --------------------------
  * Jun 28, 2012 819        djohnson     Initial creation
  * Apr 01, 2013 1786       mpduff       Pulled proxy settings out to util class.
+ * May 12, 2013 753        dhladky      Expanded for use with other connection types
  * 
  * </pre>
  * 
@@ -60,7 +62,7 @@ public class ConnectionUtil {
             + File.separator + "proxy.properties";
 
     static ConnectionUtil instance = new ConnectionUtil();
-
+    
     static volatile boolean initialized;
 
     private ProxyConfiguration proxySettings;
@@ -107,6 +109,8 @@ public class ConnectionUtil {
         return instance.getProxyInformation();
     }
 
+
+   
     private static synchronized void initialize() {
         ProxyConfiguration proxyInformation = instance.getProxyInformation();
 
