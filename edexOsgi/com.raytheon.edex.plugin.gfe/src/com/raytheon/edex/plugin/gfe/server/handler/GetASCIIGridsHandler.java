@@ -52,6 +52,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 14, 2011  #8983     dgilling     Initial creation
+ * Jun 13, 2013     #2044  randerso     Refactored to use IFPServer
  * 
  * </pre>
  * 
@@ -59,7 +60,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * @version 1.0
  */
 
-public class GetASCIIGridsHandler implements
+public class GetASCIIGridsHandler extends BaseGfeRequestHandler implements
         IRequestHandler<GetASCIIGridsRequest> {
 
     /*
@@ -72,11 +73,14 @@ public class GetASCIIGridsHandler implements
     @Override
     public ServerResponse<String> handleRequest(GetASCIIGridsRequest request)
             throws Exception {
+        GridParmManager gridParmMgr = getIfpServer(request).getGridParmMgr();
+
         ServerResponse<String> sr = new ServerResponse<String>();
 
         // get the grid slices
-        List<IGridSlice> gridSlices = getGridSlices(request.getDatabaseIds(),
-                request.getParmIds(), request.getTimeRange());
+        List<IGridSlice> gridSlices = getGridSlices(gridParmMgr,
+                request.getDatabaseIds(), request.getParmIds(),
+                request.getTimeRange());
         ASCIIGrid aGrid = new ASCIIGrid(gridSlices,
                 request.getCoordConversionString(), request.getSiteID());
 
@@ -89,15 +93,15 @@ public class GetASCIIGridsHandler implements
         return sr;
     }
 
-    private List<IGridSlice> getGridSlices(List<DatabaseID> databaseIds,
-            List<ParmID> parmIds, TimeRange tr) {
+    private List<IGridSlice> getGridSlices(GridParmManager gridParmMgr,
+            List<DatabaseID> databaseIds, List<ParmID> parmIds, TimeRange tr) {
         List<IGridSlice> gridSlices = new ArrayList<IGridSlice>();
 
         // if parms are specified, get their grid slice
         if (parmIds.size() > 0) {
             for (ParmID parmId : parmIds) {
                 // get the time ranges from the inventory
-                ServerResponse<List<TimeRange>> sr = GridParmManager
+                ServerResponse<List<TimeRange>> sr = gridParmMgr
                         .getGridInventory(parmId);
                 if (sr.isOkay()) {
                     List<TimeRange> timeRanges = sr.getPayload();
@@ -118,7 +122,7 @@ public class GetASCIIGridsHandler implements
                     requests.add(request);
 
                     // get the grid slices for the parm
-                    ServerResponse<List<IGridSlice>> sr2 = GridParmManager
+                    ServerResponse<List<IGridSlice>> sr2 = gridParmMgr
                             .getGridData(requests);
                     if (sr2.isOkay()) {
                         gridSlices.addAll(sr2.getPayload());
@@ -131,15 +135,14 @@ public class GetASCIIGridsHandler implements
             // specified database(s)
             for (DatabaseID dbId : databaseIds) {
                 // get the parm list for the database
-                ServerResponse<List<ParmID>> sr = GridParmManager
-                        .getParmList(dbId);
+                ServerResponse<List<ParmID>> sr = gridParmMgr.getParmList(dbId);
                 if (sr.isOkay()) {
                     List<ParmID> parmList = sr.getPayload();
 
                     // get the data for each parm
                     for (ParmID parm : parmList) {
                         // get the time ranges from the inventory
-                        ServerResponse<List<TimeRange>> sr2 = GridParmManager
+                        ServerResponse<List<TimeRange>> sr2 = gridParmMgr
                                 .getGridInventory(parm);
                         if (sr2.isOkay()) {
                             List<TimeRange> timeRanges = sr2.getPayload();
@@ -161,7 +164,7 @@ public class GetASCIIGridsHandler implements
                             requests.add(request);
 
                             // get the grid slices for the parm
-                            ServerResponse<List<IGridSlice>> sr3 = GridParmManager
+                            ServerResponse<List<IGridSlice>> sr3 = gridParmMgr
                                     .getGridData(requests);
                             if (sr3.isOkay()) {
                                 gridSlices.addAll(sr3.getPayload());

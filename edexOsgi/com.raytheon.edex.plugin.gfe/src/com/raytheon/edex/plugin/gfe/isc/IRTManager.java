@@ -27,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 
 /**
@@ -39,6 +40,7 @@ import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 08/10/09     1995       bphillip    Initial creation
+ * 06/13/13     2044       randerso    Refactored to use IFPServer
  * 
  * </pre>
  * 
@@ -81,13 +83,17 @@ public class IRTManager {
      * 
      * @param siteID
      *            The site to activate ISC functionality for
+     * @param config
+     *            server configuration
      * @throws GfeException
      *             If the ISC functionality cannot be activated
      */
-    public void enableISC(String siteID, String mhsID) throws GfeException {
+    public void enableISC(String siteID, IFPServerConfig config)
+            throws GfeException {
 
+        String mhsID = config.getMhsid();
         if (!irtMap.containsKey(mhsID + "--" + siteID)) {
-            irtMap.put(mhsID + "--" + siteID, new GfeIRT(mhsID, siteID));
+            irtMap.put(mhsID + "--" + siteID, new GfeIRT(siteID, config));
         }
 
         logger.info("Starting IRT registration thread for site [" + siteID
