@@ -96,7 +96,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
 
     @Override
     public void getAvailableData(AvailableDataRequest request) {
-        if (request.getSelectedFields() != null
+        if ((request.getSelectedFields() != null)
                 && Arrays.asList(request.getSelectedFields()).contains("Snd")) {
             for (String source : getSupportedSources()) {
                 request.addAvailableSource(source);
@@ -124,7 +124,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
         addLineOrPointStationParameter(catalogEntry, productParameters,
                 "location.stationId");
         String type = getType(sourceKey);
-        if (type != null && !type.isEmpty()) {
+        if ((type != null) && !type.isEmpty()) {
             productParameters.put(getTypeKey(sourceKey), new RequestConstraint(
                     type));
         }
@@ -149,7 +149,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
             query.addColumn("location.latitude");
             query.addColumn("location.longitude");
             query.addOrderBy("location.latitude");
-            if (type != null && !type.isEmpty()) {
+            if ((type != null) && !type.isEmpty()) {
                 query.addConstraint(getTypeKey(sourceKey),
                         new RequestConstraint(type));
             }
@@ -183,8 +183,8 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
     protected SurfaceObsLocation getClosestStation(Coordinate coordinate,
             String sourceKey, Collection<String> ignore) {
         SurfaceObsLocation[] availableStations = getStationLocations(sourceKey);
-        if (availableStations == null || availableStations.length == 0
-                || coordinate == null) {
+        if ((availableStations == null) || (availableStations.length == 0)
+                || (coordinate == null)) {
             return null;
         }
 
@@ -196,14 +196,14 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
         if (index < 1) {
             index = -index;
         }
-        while (index + 1 > availableStations.length) {
+        while ((index + 1) > availableStations.length) {
             index -= 1;
         }
         double bestDistance = Double.MAX_VALUE;
         SurfaceObsLocation bestLoc = null;
         for (int i = index; i >= 0; i--) {
             SurfaceObsLocation loc = availableStations[i];
-            if (ignore != null && ignore.contains(loc.getStationId())) {
+            if ((ignore != null) && ignore.contains(loc.getStationId())) {
                 continue;
             }
             double latD = target.getLatitude() - loc.getLatitude();
@@ -211,7 +211,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
                 break;
             }
             double lonD = target.getLongitude() - loc.getLongitude();
-            double distance = Math.sqrt(latD * latD + lonD * lonD);
+            double distance = Math.sqrt((latD * latD) + (lonD * lonD));
             if (distance < bestDistance) {
                 bestLoc = loc;
                 bestDistance = distance;
@@ -219,7 +219,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
         }
         for (int i = index; i < availableStations.length; i++) {
             SurfaceObsLocation loc = availableStations[i];
-            if (ignore != null && ignore.contains(loc.getStationId())) {
+            if ((ignore != null) && ignore.contains(loc.getStationId())) {
                 continue;
             }
             double latD = target.getLatitude() - loc.getLatitude();
@@ -227,7 +227,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
                 break;
             }
             double lonD = target.getLongitude() - loc.getLongitude();
-            double distance = Math.sqrt(latD * latD + lonD * lonD);
+            double distance = Math.sqrt((latD * latD) + (lonD * lonD));
             if (distance < bestDistance) {
                 bestLoc = loc;
                 bestDistance = distance;
@@ -247,7 +247,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
             HashMap<String, RequestConstraint> productParameters,
             String constraintKey) {
         if (!isPointLine(catalogEntry.getSelectedData().getPlanesKey())
-                && catalogEntry.getDialogSettings().getViewSelection() != ViewMenu.TIMESERIES) {
+                && (catalogEntry.getDialogSettings().getViewSelection() != ViewMenu.TIMESERIES)) {
             return;
         }
         if (catalogEntry.getSelectedData().getSourcesKey().endsWith("OA")) {
@@ -301,8 +301,8 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
                         .getSourcesKey();
                 SurfaceObsLocation closestStation = getClosestStation(
                         coordinate, sourceKey);
-                if (closestStation != null
-                        && closestStation.getStationId() != null) {
+                if ((closestStation != null)
+                        && (closestStation.getStationId() != null)) {
                     productParameters.put(constraintKey, new RequestConstraint(
                             closestStation.getStationId()));
                 } else {
@@ -506,7 +506,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
             Set<Level> levels = getLevels(
                     new String[] { selData.getPlanesKey() },
                     new String[] { selData.getSourcesKey() });
-            if (levels == null || levels.isEmpty()) {
+            if ((levels == null) || levels.isEmpty()) {
                 return false;
             }
             List<String> params = Arrays.asList(selData.getFieldsKey());
@@ -607,9 +607,9 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
     protected Collection<String> get3DPlanes(Collection<String> sources) {
         ViewMenu viewSelection = VolumeBrowserAction.getVolumeBrowserDlg()
                 .getDialogSettings().getViewSelection();
-        if (sources == null || sources.isEmpty()
-                || viewSelection == ViewMenu.PLANVIEW
-                || viewSelection == ViewMenu.TIMESERIES) {
+        if ((sources == null) || sources.isEmpty()
+                || (viewSelection == ViewMenu.PLANVIEW)
+                || (viewSelection == ViewMenu.TIMESERIES)) {
             Set<String> results = new HashSet<String>();
             results.addAll(getPointLineKeys());
             return results;
@@ -642,46 +642,46 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
 
     /**
      * Alter product parameters
-     *
+     * 
      * @param selectedKey
      * @param selectedValue
      * @param productParameters
      */
-	@Override
-	public void alterProductParameters(String selectedKey,
-			String selectedValue,
-			HashMap<String, RequestConstraint> productParameters) {
-		if (selectedKey.equalsIgnoreCase("line")) {
-			LineString line = ToolsDataManager.getInstance().getBaseline(
-					selectedValue);
-			RequestConstraint stationRC = new RequestConstraint();
-			stationRC.setConstraintType(RequestConstraint.ConstraintType.IN);
-			String sourceKey = productParameters.get("pluginName")
-					.getConstraintValue();
-			Collection<String> closest = new ArrayList<String>();
-			for (Coordinate c : line.getCoordinates()) {
-				SurfaceObsLocation loc = getClosestStation(c, sourceKey,
-						closest);
-				if (loc == null) {
-					break;
-				}
-				closest.add(loc.getStationId());
-				stationRC.addToConstraintValueList(loc.getStationId());
-			}
-			productParameters.put("location.stationId", stationRC);
-		} else if (selectedKey.equalsIgnoreCase("point")) {
-			Coordinate point = PointsDataManager.getInstance().getCoordinate(
-					selectedValue);
-			String sourceKey = productParameters.get("pluginName")
-					.getConstraintValue();
+    @Override
+    public void alterProductParameters(String selectedKey,
+            String selectedValue,
+            HashMap<String, RequestConstraint> productParameters) {
+        if (selectedKey.equalsIgnoreCase("line")) {
+            LineString line = ToolsDataManager.getInstance().getBaseline(
+                    selectedValue);
+            RequestConstraint stationRC = new RequestConstraint();
+            stationRC.setConstraintType(RequestConstraint.ConstraintType.IN);
+            String sourceKey = productParameters.get("pluginName")
+                    .getConstraintValue();
+            Collection<String> closest = new ArrayList<String>();
+            for (Coordinate c : line.getCoordinates()) {
+                SurfaceObsLocation loc = getClosestStation(c, sourceKey,
+                        closest);
+                if (loc == null) {
+                    break;
+                }
+                closest.add(loc.getStationId());
+                stationRC.addToConstraintValueList(loc.getStationId());
+            }
+            productParameters.put("location.stationId", stationRC);
+        } else if (selectedKey.equalsIgnoreCase("point")) {
+            Coordinate point = PointsDataManager.getInstance().getCoordinate(
+                    selectedValue);
+            String sourceKey = productParameters.get("pluginName")
+                    .getConstraintValue();
 
-			SurfaceObsLocation closestStation = getClosestStation(point,
-					sourceKey);
-			productParameters.put("location.stationId", new RequestConstraint(
-					closestStation.getStationId()));
-			return;
-		}
-		return;
-	}
-
+            SurfaceObsLocation closestStation = getClosestStation(point,
+                    sourceKey);
+            System.out.println();
+            productParameters.put("location.stationId", new RequestConstraint(
+                    closestStation.getStationId()));
+            return;
+        }
+        return;
+    }
 }

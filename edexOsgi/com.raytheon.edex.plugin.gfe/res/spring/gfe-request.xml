@@ -1,6 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean id="commitGridsHandler"
@@ -578,7 +578,7 @@
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to
-						uri="log:svcBackup?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+						uri="log:svcBackup?level=ERROR" />
 				</doCatch>
 			</doTry>
 		</route>
@@ -600,7 +600,7 @@
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to
-						uri="log:svcBackup?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+						uri="log:svcBackup?level=ERROR" />
 				</doCatch>
 			</doTry>
 		</route>
@@ -616,7 +616,7 @@
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to
-						uri="log:svcBackup?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+						uri="log:svcBackup?level=ERROR" />
 				</doCatch>
 			</doTry>
 		</route>
@@ -631,7 +631,7 @@
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:iscDataRec?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:iscDataRec?level=ERROR"/>
 				</doCatch>
 			</doTry>
 		</route>
@@ -649,7 +649,7 @@
 			    <bean ref="iscSendQueue" method="addSendJobs" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to uri="log:iscSendQueue?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    <to uri="log:iscSendQueue?level=ERROR"/>
                 </doCatch>
             </doTry>
 		</route>

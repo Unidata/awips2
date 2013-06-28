@@ -43,8 +43,7 @@
          id="com.sun.jna"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.dom4j"
@@ -68,8 +67,7 @@
          id="org.apache.commons.cxf"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="it.geosolutions"

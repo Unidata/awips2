@@ -1,6 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean id="oupAckMgr" class="com.raytheon.uf.edex.dissemination.OUPAckManager" />
@@ -20,7 +20,7 @@
 				<bean ref="oupAckMgr" method="processAck" />
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
-					<to uri="log:oup?level=INFO&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+					<to uri="log:oup?level=INFO"/>
 				</doCatch>
 			</doTry>
 		</route>
@@ -43,7 +43,7 @@
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to
-						uri="log:manual?level=ERROR&amp;showCaughtException=true&amp;showStackTrace=true" />
+						uri="log-showbody:manual?level=ERROR" />
 				</doCatch>
 			</doTry>
 		</route>

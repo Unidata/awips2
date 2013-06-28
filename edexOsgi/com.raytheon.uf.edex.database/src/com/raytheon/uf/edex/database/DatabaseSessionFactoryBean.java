@@ -49,6 +49,7 @@ import com.raytheon.uf.common.serialization.SerializableManager;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 10/8/2008    1532        bphillip    Initial checkin
+ * Jun 18, 2013 2117        djohnson    Remove use of config.buildSettings().
  * 
  * </pre>
  * 
