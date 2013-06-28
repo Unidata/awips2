@@ -77,6 +77,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.hydro.timeseries.table.DataRecord;
@@ -126,6 +127,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Feb 05,2013 1578        rferrel     Changes for non-blocking singleton TimeSeriesDlg.
  *                                     Code clean up for non-blocking dialog.
  * Feb 27,2013 1790        rferrel     Bug fix for non-blocking dialogs.
+ * Jun 07, 2013 1981       mpduff      Set user's id on the OUPRequest as it is now protected.
  * 
  * </pre>
  * 
@@ -188,19 +190,21 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
     /**
      * Simple date formatter.
      */
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    private final SimpleDateFormat sdf = new SimpleDateFormat(
+            "yyyy-MM-dd HH:mm");
 
     /**
      * Simple date formatter for the forecast basis time.
      */
-    private SimpleDateFormat prodBasisFmt = new SimpleDateFormat(
+    private final SimpleDateFormat prodBasisFmt = new SimpleDateFormat(
             "yyyy-MM-dd HH:mm:ss");
 
     /** Date format for shef information. */
-    private SimpleDateFormat shefDateFormat = new SimpleDateFormat("yyyyMMdd");
+    private final SimpleDateFormat shefDateFormat = new SimpleDateFormat(
+            "yyyyMMdd");
 
     /** Time format for shef information. */
-    private SimpleDateFormat shefTimeFormat = new SimpleDateFormat("HHmm");
+    private final SimpleDateFormat shefTimeFormat = new SimpleDateFormat("HHmm");
 
     /**
      * Date & Time label.
@@ -210,12 +214,12 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
     /**
      * Beginning time.
      */
-    private Date beginningTime;
+    private final Date beginningTime;
 
     /**
      * Ending time.
      */
-    private Date endingTime;
+    private final Date endingTime;
 
     /**
      * List all forecasts check box.
@@ -394,7 +398,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
     private String siteLabel = null;
 
     /** The list of data for the bottom data display list */
-    private ArrayList<String> modifiedTSList = new ArrayList<String>();
+    private final ArrayList<String> modifiedTSList = new ArrayList<String>();
 
     /** The parent dialog */
     private TimeSeriesDlg parentDialog = null;
@@ -3067,6 +3071,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                     oup.setNeedsWmoHeader(true);
                     oup.setFilename(SHEF_FILE_NAME + "." + getPid());
                     oup.setProductText(text);
+                    req.setUser(UserController.getUserObject());
 
                     req.setCheckBBB(true);
                     req.setProduct(oup);

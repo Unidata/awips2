@@ -28,7 +28,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.AbstractFixture;
 
 /**
- * Move in reusable code from {@link SubscriptionFixture}.
+ * Move in reusable code from {@link SiteSubscriptionFixture}.
  * 
  * <pre>
  * 
@@ -68,8 +68,7 @@ public abstract class BaseSubscriptionFixture<T extends Subscription> extends
                 .setDataSetName(OpenDapGriddedDataSetMetaDataFixture.INSTANCE
                         .get(seedValue).getDataSetName());
         subscription.setDataSetSize(seedValue);
-        subscription.setDataSetType(AbstractFixture.randomEnum(DataType.class,
-                random));
+        subscription.setDataSetType(DataType.GRID);
         subscription.setDeleted(random.nextBoolean());
         subscription.setDescription("description" + random.nextInt());
         subscription.setFullDataSet(random.nextBoolean());

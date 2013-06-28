@@ -47,13 +47,20 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
-import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.common.util.SpringFiles;
+import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl.RETURN_TYPE;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
@@ -70,12 +77,27 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Apr 15, 2013 1914       djohnson     Initial creation
  * Apr 18, 2013 1693       djohnson     Consolidate reusable methods.
  * Apr 23, 2013 1910       djohnson     Allow sub-classes to pass callables and monitor for fault exceptions.
+ * Jun 05, 2013 2038       djohnson     Use TestUtil constant for transactionManager.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { SpringFiles.DATADELIVERY_HANDLERS_XML,
+        SpringFiles.DATADELIVERY_HANDLERS_IMPL_XML, SpringFiles.EBXML_XML,
+        SpringFiles.EBXML_IMPL_XML, SpringFiles.EBXML_QUERYTYPES_XML,
+        SpringFiles.EBXML_REGISTRY_DAO_XML,
+        SpringFiles.EBXML_REGISTRY_ENCODER_XML,
+        SpringFiles.EBXML_WEBSERVICES_XML, SpringFiles.EBXML_XACML_XML,
+        SpringFiles.EBXML_VALIDATOR_PLUGINS_XML,
+        SpringFiles.EBXML_SUBSCRIPTION_XML, SpringFiles.EVENTBUS_COMMON_XML,
+        SpringFiles.UNIT_TEST_DB_BEANS_XML,
+        SpringFiles.UNIT_TEST_EBXML_BEANS_XML,
+        SpringFiles.UNIT_TEST_LOCALIZATION_BEANS_XML })
+@TransactionConfiguration(transactionManager = TestUtil.METADATA_TX_MANAGER, defaultRollback = true)
+@Transactional
 @Ignore
 public class AbstractRegistryTest {
 
@@ -86,12 +108,13 @@ public class AbstractRegistryTest {
     @Autowired
     protected LifecycleManager lifecycleManager;
 
+    @Autowired
     protected QueryManager queryManager;
 
-    @Before
-    public void setUp() {
-        this.queryManager = EDEXUtil.getESBComponent(QueryManager.class,
-                "queryServiceImpl");
+    @BeforeClass
+    @AfterClass
+    public static void resetDbInitialized() {
+        DbInit.INITIALIZED = false;
     }
 
     /**

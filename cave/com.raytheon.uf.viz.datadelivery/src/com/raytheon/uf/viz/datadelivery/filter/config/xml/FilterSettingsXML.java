@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.datadelivery.filter.config.xml;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -39,7 +40,8 @@ import com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 27, 2012            mpduff     Initial creation
+ * Feb 27, 2012            mpduff      Initial creation.
+ * Jun 04, 2012    223     mpduff      Add data set type and refactor method name change.
  * 
  * </pre>
  * 
@@ -51,9 +53,12 @@ import com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml;
 public class FilterSettingsXML implements IDisplayXml {
     @XmlElements({ @XmlElement(name = "Filter", type = FilterTypeXML.class) })
     protected ArrayList<FilterTypeXML> filterTypeList = new ArrayList<FilterTypeXML>();
-    
+
     @XmlElement(name = "area", type = AreaXML.class)
     protected AreaXML area;
+
+    @XmlElements({ @XmlElement(name = "DataSetType", type = String.class) })
+    protected List<String> dataSetTypes = new ArrayList<String>();
 
     /**
      * @return the filterTypeList
@@ -87,17 +92,17 @@ public class FilterSettingsXML implements IDisplayXml {
      * ()
      */
     @Override
-    public String getDisplayXmlString() {
+    public String getPreviewString() {
         final String newline = "\n";
         StringBuilder sb = new StringBuilder();
-        
+
         for (FilterTypeXML ftx : filterTypeList) {
-            sb.append(ftx.getDisplayXmlString());
+            sb.append(ftx.getPreviewString());
             sb.append(newline);
         }
-        
+
         if (area != null) {
-            sb.append(area.getDisplayXmlString()).append(newline);
+            sb.append(area.getPreviewString()).append(newline);
         }
 
         return sb.toString();
@@ -111,9 +116,33 @@ public class FilterSettingsXML implements IDisplayXml {
     }
 
     /**
-     * @param area the area to set
+     * @param area
+     *            the area to set
      */
     public void setArea(AreaXML area) {
         this.area = area;
+    }
+
+    /**
+     * @return the dataSetTypes
+     */
+    public List<String> getDataSetTypes() {
+        return dataSetTypes;
+    }
+
+    /**
+     * @param dataSetTypes
+     *            the dataSetTypes to set
+     */
+    public void setDataSetTypes(List<String> dataSetTypes) {
+        this.dataSetTypes = dataSetTypes;
+    }
+
+    /**
+     * @param type
+     *            the type to add
+     */
+    public void addDataSetType(String type) {
+        this.dataSetTypes.add(type);
     }
 }

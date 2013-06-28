@@ -1,10 +1,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:tx="http://www.springframework.org/schema/tx"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
       http://www.springframework.org/schema/tx
   http://www.springframework.org/schema/tx/spring-tx.xsd
-    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
     <tx:annotation-driven transaction-manager="metadataTxManager"
@@ -46,6 +44,11 @@
         <constructor-arg ref="hibernateBandwidthDbInit" />
     </bean>
 
+    <bean id="dataSetAvailabilityCalculator"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.util.ProviderDataTypeAvailabilityCalculator">
+        <constructor-arg ref="ProviderHandler" />
+    </bean>
+
     <camelContext id="BandwidthManager-context"
         xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
@@ -65,7 +68,7 @@
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
                     <to
-                        uri="log:BandwidthManagerProcess?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+                        uri="log:BandwidthManagerProcess?level=ERROR" />
                 </doCatch>
             </doTry>
         </route>

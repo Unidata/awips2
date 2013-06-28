@@ -72,8 +72,8 @@ public class MemoryDataSetHandler extends
     @Override
     public List<DataSet> getByFilters(List<String> providers,
             List<String> dataSetNames, Set<LevelType> levels,
-            List<String> parameterNames, ReferencedEnvelope envelope)
-            throws RegistryHandlerException {
+            List<String> parameterNames, List<String> dataTypes,
+            ReferencedEnvelope envelope) throws RegistryHandlerException {
         List<DataSet> retVal = new ArrayList<DataSet>();
 
         for (DataSet obj : getAll()) {

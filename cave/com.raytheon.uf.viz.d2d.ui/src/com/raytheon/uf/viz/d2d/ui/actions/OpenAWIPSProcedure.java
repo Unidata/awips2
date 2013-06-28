@@ -47,7 +47,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *    Sep 13, 2007             chammack    Initial Creation.
  *    Oct 16, 2012 1229        rferrel     Change to use ProcedureDlg.displayDialog.
  *    Oct 16, 2012 1229        rferrel     Changes for non-blocking ProcedureListDlg.
- * 
+ *    Jun 7, 2013  2074       mnash        Don't open the dialog if no procedures are deserialized
  * </pre>
  * 
  * @author chammack
@@ -77,10 +77,12 @@ public class OpenAWIPSProcedure extends AbstractHandler {
                         File f = selectedFile.getFile();
                         Procedure p = (Procedure) LoadSerializedXml
                                 .deserialize(f);
-                        ProcedureDlg.displayDialog(LocalizationUtil
-                                .extractName(selectedFile.getName()), p,
-                                VizWorkbenchManager.getInstance()
-                                        .getCurrentWindow().getShell());
+                        if (p != null) {
+                            ProcedureDlg.displayDialog(LocalizationUtil
+                                    .extractName(selectedFile.getName()), p,
+                                    VizWorkbenchManager.getInstance()
+                                            .getCurrentWindow().getShell());
+                        }
                     }
                     dialog = null;
                 }

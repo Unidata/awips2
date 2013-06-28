@@ -78,7 +78,7 @@ public class SiteSubscriptionTest {
 
     @Test
     public void testCopyConstructorSetsSpecifiedName() throws Exception {
-        SiteSubscription subscription = SubscriptionFixture.INSTANCE.get();
+        SiteSubscription subscription = SiteSubscriptionFixture.INSTANCE.get();
 
         Subscription copied = new SiteSubscription(subscription, "newName");
 
@@ -89,7 +89,7 @@ public class SiteSubscriptionTest {
     @Test
     public void testCopyConstructorSetsValuesFromSourceSubscription()
             throws Exception {
-        SiteSubscription subscription = SubscriptionFixture.INSTANCE.get();
+        SiteSubscription subscription = SiteSubscriptionFixture.INSTANCE.get();
 
         Subscription copied = new SiteSubscription(subscription, "newName");
 
