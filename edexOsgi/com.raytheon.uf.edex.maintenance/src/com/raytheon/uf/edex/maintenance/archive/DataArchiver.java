@@ -94,15 +94,6 @@ public class DataArchiver {
                 conf = defaultConf;
             }
 
-            if (conf.getHoursToKeep() > 0) {
-                File pluginArchive = new File(baseArchive, pluginName);
-                if (pluginArchive.isDirectory()) {
-                    long purgeThreshold = System.currentTimeMillis()
-                            - (conf.getHoursToKeep() * 60 * 60 * 1000);
-                    purgeDirectory(pluginArchive, purgeThreshold);
-                }
-            }
-
             if (Boolean.TRUE.equals(conf.getArchivingEnabled())) {
                 for (IPluginArchiver pluginArchiver : pluginArchivers) {
                     pluginArchiver.archivePlugin(pluginName, archivePath, conf);
@@ -132,33 +123,6 @@ public class DataArchiver {
         }
 
         return this;
-    }
-
-    private boolean purgeDirectory(File directory, long purgeThreshold) {
-        File[] listing = directory.listFiles();
-        int numDeleted = 0;
-        for (File file : listing) {
-            if (file.isDirectory()) {
-                if (purgeDirectory(file, purgeThreshold)) {
-                    numDeleted++;
-                }
-            } else if (file.lastModified() < purgeThreshold) {
-                if (file.delete()) {
-                    numDeleted++;
-                }
-            }
-        }
-
-        // we deleted all files/directories, or there were no files in this
-        // directory
-        if (numDeleted == listing.length
-                && !directory.getAbsolutePath().equals(archivePath)) {
-            if (directory.delete()) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private Map<String, DataArchiveConfig> getDataArchiveConfigs() {
@@ -232,8 +196,6 @@ public class DataArchiver {
 
         if (!defaultConf.isHoursToKeepSet()) {
             defaultConf.setHoursToKeep(6);
-        } else if (defaultConf.getHoursToKeep() < 0) {
-
         }
 
         // override unset fields with default

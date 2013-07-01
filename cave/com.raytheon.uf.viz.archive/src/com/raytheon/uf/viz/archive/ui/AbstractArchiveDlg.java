@@ -24,6 +24,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -32,7 +33,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
@@ -96,9 +96,18 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      */
     protected boolean setSelect = false;
 
+    /**
+     * Must be set by sub-class prior to creating table.
+     */
     protected TableType tableType;
 
+    /**
+     * Job that computes sizes of table row entries off the UI thread.
+     */
     protected final SizeJob sizeJob = new SizeJob();
+
+    /** Keeps track of when it is safe to clear the busy cursor. */
+    protected final AtomicInteger busyCnt = new AtomicInteger(0);
 
     /**
      * @param parentShell
@@ -270,15 +279,27 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
         Job job = new Job("setup") {
             @Override
             protected IStatus run(IProgressMonitor monitor) {
-                initInfo();
-                VizApp.runAsync(new Runnable() {
+                ArchiveConfigManager.getInstance().reset();
+                if (!shell.isDisposed()) {
+                    VizApp.runAsync(new Runnable() {
 
-                    @Override
-                    public void run() {
-                        populateComboBoxes();
-                        updateTableComp();
-                    }
-                });
+                        @Override
+                        public void run() {
+                            populateComboBoxes();
+                            setCursorBusy(false);
+                        }
+                    });
+                }
+                initDisplayData();
+                if (!shell.isDisposed()) {
+                    VizApp.runAsync(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            updateTableComp();
+                        }
+                    });
+                }
                 return Status.OK_STATUS;
             }
         };
@@ -360,12 +381,11 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Get information from manager for populating combo boxes and set up to get
-     * selected entries sizes. Intended for use on a non-UI thread.
+     * Set up all display data and queue getting sizes for any that are
+     * selected.
      */
-    private void initInfo() {
+    private void initDisplayData() {
         ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
-        manager.reset();
         Calendar startCal = getStart();
         Calendar endCal = getEnd();
         String[] archiveNames = manager.getArchiveDataNamesList();
@@ -401,18 +421,32 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
         Calendar endCal = getEnd();
 
         setCursorBusy(true);
-        sizeJob.clearQueue();
 
-        ArchiveInfo archiveInfo = archiveInfoMap.get(archiveName);
-        CategoryInfo categoryInfo = archiveInfo.get(categoryName);
+        try {
+            sizeJob.clearQueue();
 
-        for (DisplayData displayData : categoryInfo.getDisplayDataList()) {
-            sizeJob.queue(new SizeJobRequest(displayData, startCal, endCal));
+            ArchiveInfo archiveInfo = archiveInfoMap.get(archiveName);
+
+            // Not yet populated by background job.
+            if (archiveInfo == null) {
+                return;
+            }
+
+            // Not yet populated by background job.
+            CategoryInfo categoryInfo = archiveInfo.get(categoryName);
+            if (categoryInfo == null) {
+                return;
+            }
+
+            for (DisplayData displayData : categoryInfo.getDisplayDataList()) {
+                sizeJob.queue(new SizeJobRequest(displayData, startCal, endCal));
+            }
+            sizeJob.requeueSelected(startCal, endCal);
+
+            tableComp.populateTable(categoryInfo.getDisplayDataList());
+        } finally {
+            setCursorBusy(false);
         }
-        sizeJob.requeueSelected(startCal, endCal);
-
-        tableComp.populateTable(categoryInfo.getDisplayDataList());
-        setCursorBusy(false);
     }
 
     /**
@@ -421,11 +455,12 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      * @param state
      */
     protected void setCursorBusy(boolean state) {
-        Cursor cursor = null;
         if (state) {
-            cursor = shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
+            busyCnt.addAndGet(1);
+            shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+        } else if (busyCnt.addAndGet(-1) == 0) {
+            shell.setCursor(null);
         }
-        shell.setCursor(cursor);
     }
 
     /*
