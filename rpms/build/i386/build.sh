@@ -132,17 +132,15 @@ fi
 
 if [ "${1}" = "-postgres" ]; then
    buildRPM "awips2-postgres"
-   #buildRPM "awips2-database-server-configuration"
+   buildRPM "awips2-database-server-configuration"
+   buildRPM "awips2-database-standalone-configuration"
+   buildRPM "awips2-database"
+   buildRPM "awips2-maps-database"
    buildRPM "awips2-pgadmin3"
-   buildRPM "awips2-tools"
-   buildRPM "awips2-notification"
-   buildRPM "awips2-edex-environment"
-   #buildRPM "awips2-database-standalone-configuration"
-   #buildRPM "awips2-database"
    buildRPM "awips2-data.hdf5-gfe.climo"
    buildRPM "awips2-data.hdf5-topo"
-   #buildRPM "awips2-maps-database"
-   buildRPM "awips2-python-dynamicserialize"
+   buildRPM "awips2-notification"
+   buildRPM "awips2-tools"
 
    exit 0
 fi
@@ -350,7 +348,7 @@ fi
 
 if [ "${1}" = "-viz" ]; then
    buildRPM "awips2"
-#   buildRPM "awips2-common-base"
+   buildRPM "awips2-common-base"
    buildRPM "awips2-rcm"
    buildRPM "awips2-hydroapps-shared"
    buildCAVE
@@ -368,9 +366,6 @@ if [ "${1}" = "-edex" ]; then
    buildRPM "awips2-cli"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
-   buildRPM "awips2-python-dynamicserialize"
-   buildRPM "awips2-python-ufpy"
-   buildRPM "awips2-edex-environment"
    buildEDEX
    if [ $? -ne 0 ]; then
       exit 1
