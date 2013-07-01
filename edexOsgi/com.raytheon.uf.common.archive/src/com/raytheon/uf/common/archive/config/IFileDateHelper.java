@@ -17,31 +17,29 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.pointdata;
+package com.raytheon.uf.common.archive.config;
 
-import com.raytheon.uf.viz.core.drawables.IImage;
+import java.util.Calendar;
 
 /**
- * TODO Add Description
+ * Helper to get a file last modification date.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 16, 2009            mschenke    Initial creation
- * Jun 25, 2013 1869       bsteffen    Fix plot sampling.
+ * Jun 21, 2013            bgonzale     Initial creation
  * 
  * </pre>
  * 
- * @author mschenke
+ * @author bgonzale
  * @version 1.0
  */
 
-public interface IPlotModelGeneratorCaller {
-    public void modelGenerated(PlotInfo[] key, IImage image);
+public interface IFileDateHelper {
 
-    public void clearImages();
+    public Calendar getFileDate(String filenamePath);
 
-    public void messageGenerated(PlotInfo[] key, String message);
 }
