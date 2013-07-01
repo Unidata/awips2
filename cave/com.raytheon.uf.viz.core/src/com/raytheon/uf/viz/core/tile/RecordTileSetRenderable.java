@@ -218,7 +218,7 @@ public class RecordTileSetRenderable extends TileSetRenderable {
                 DrawableImage image = images.get(i);
                 addTileImage(tile, image);
             }
-            target.setNeedsRefresh(true);
+            issueRefresh(target);
         }
 
         public DrawableImage createTileImage(IGraphicsTarget target, Tile tile,
@@ -230,7 +230,7 @@ public class RecordTileSetRenderable extends TileSetRenderable {
                     .constructMesh(tile.tileGeometry,
                             tileSet.getTargetGeometry());
             return new DrawableImage(image, new PixelCoverage(mesh),
-                    RasterMode.ASYNCHRONOUS);
+                    RasterMode.SYNCHRONOUS);
         }
 
     }
@@ -351,6 +351,13 @@ public class RecordTileSetRenderable extends TileSetRenderable {
                 DataStoreFactory.createDataSetName(record.getDataURI(),
                         DataStoreFactory.DEF_DATASET_NAME, tile.tileLevel),
                 tile.getRectangle()).getColorMapData();
+    }
+
+    /**
+     * @param target
+     */
+    protected void issueRefresh(IGraphicsTarget target) {
+        target.setNeedsRefresh(true);
     }
 
     @Override
