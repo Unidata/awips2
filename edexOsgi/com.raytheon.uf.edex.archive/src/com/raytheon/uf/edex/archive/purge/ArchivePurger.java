@@ -24,7 +24,6 @@ import java.util.Collection;
 import com.raytheon.uf.common.archive.config.ArchiveConfig;
 import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
 
-
 /**
  * Purge task to purge archived data based on configured expiration.
  * 
