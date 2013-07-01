@@ -23,11 +23,19 @@ import java.awt.Rectangle;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
+import java.text.ParseException;
+import java.text.ParsePosition;
+
+import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
+import com.raytheon.uf.common.dataplugin.satellite.units.counts.DerivedWVPixel;
+import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
+import com.raytheon.uf.common.dataplugin.satellite.units.goes.PolarPrecipWaterPixel;
+import com.raytheon.uf.common.dataplugin.satellite.units.water.BlendedTPWPixel;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
@@ -39,6 +47,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
+import com.raytheon.uf.viz.derivparam.library.DerivedParameterRequest;
+import com.raytheon.viz.satellite.SatelliteConstants;
 
 /**
  * {@link IColorMapDataRetrievalCallback} for satellite imagery data. Supports
@@ -63,19 +73,16 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
 
     protected Rectangle datasetBounds;
 
-    protected PluginDataObject pdo;
+    protected SatelliteRecord record;
 
     protected String dataset;
 
-    protected boolean signed = false;
-
-    public SatDataRetriever(PluginDataObject pdo, int level,
-            Rectangle dataSetBounds, boolean signed) {
-        this.pdo = pdo;
+    public SatDataRetriever(SatelliteRecord record, int level,
+            Rectangle dataSetBounds) {
+        this.record = record;
         this.datasetBounds = dataSetBounds;
         dataset = DataStoreFactory.createDataSetName(null,
                 SatelliteRecord.SAT_DATASET_NAME, level);
-        this.signed = signed;
     }
 
     /*
@@ -87,14 +94,15 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
     public ColorMapData getColorMapData() {
         // TODO: Read scale/offset out of attributes?
         Buffer data = null;
+        boolean signed = false;
         Request req = Request.buildSlab(new int[] { this.datasetBounds.x,
                 this.datasetBounds.y }, new int[] {
                 this.datasetBounds.x + this.datasetBounds.width,
                 this.datasetBounds.y + this.datasetBounds.height });
         IDataRecord[] dataRecord = null;
         try {
-            dataRecord = DataCubeContainer
-                    .getDataRecord(pdo, req, this.dataset);
+            dataRecord = DataCubeContainer.getDataRecord(record, req,
+                    this.dataset);
             if (dataRecord != null && dataRecord.length == 1) {
                 IDataRecord record = dataRecord[0];
                 if (record instanceof ByteDataRecord) {
@@ -102,6 +110,8 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
                 } else if (record instanceof ShortDataRecord) {
                     data = ShortBuffer.wrap((short[]) record.getDataObject());
                 }
+                Unit<?> recordUnit = getRecordUnit(this.record);
+                signed = recordUnit instanceof GenericPixel;
             }
         } catch (VizDataCubeException e) {
             statusHandler.handle(Priority.SIGNIFICANT,
@@ -127,6 +137,50 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
                 datasetBounds.height }, dataType);
     }
 
+    /**
+     * @param record2
+     * @return
+     */
+    public static Unit<?> getRecordUnit(SatelliteRecord record) {
+        Unit<?> recordUnit = null;
+        String physicalElement = record.getPhysicalElement();
+        DerivedParameterRequest request = (DerivedParameterRequest) record
+                .getMessageData();
+        if (request != null) {
+            physicalElement = request.getParameterAbbreviation();
+        }
+
+        if (record.getUnits() != null && record.getUnits().isEmpty() == false && request == null) {
+            try {
+                recordUnit = UnitFormat.getUCUMInstance().parseProductUnit(
+                        record.getUnits(), new ParsePosition(0));
+            } catch (ParseException e) {
+                statusHandler
+                        .handle(Priority.PROBLEM,
+                                "Unable to parse satellite units: "
+                                        + record.getUnits(), e);
+            }
+        } else if (request != null) {
+            if (physicalElement.equals("satDivWVIR")) {
+                recordUnit = new DerivedWVPixel();
+            } else {
+                recordUnit = new GenericPixel();
+            }
+        }
+
+        if (physicalElement.equals(SatelliteConstants.PRECIP)) {
+            String creatingEntity = record.getCreatingEntity();
+            if (creatingEntity.equals(SatelliteConstants.DMSP)
+                    || creatingEntity.equals(SatelliteConstants.POES)) {
+                recordUnit = new PolarPrecipWaterPixel();
+            } else if (creatingEntity.equals(SatelliteConstants.MISC)) {
+                recordUnit = new BlendedTPWPixel();
+            }
+        }
+
+        return recordUnit;
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -139,8 +193,7 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
         result = prime * result + ((dataset == null) ? 0 : dataset.hashCode());
         result = prime * result
                 + ((datasetBounds == null) ? 0 : datasetBounds.hashCode());
-        result = prime * result + ((pdo == null) ? 0 : pdo.hashCode());
-        result = prime * result + (signed ? 1231 : 1237);
+        result = prime * result + ((record == null) ? 0 : record.hashCode());
         return result;
     }
 
@@ -168,12 +221,10 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
                 return false;
         } else if (!datasetBounds.equals(other.datasetBounds))
             return false;
-        if (pdo == null) {
-            if (other.pdo != null)
+        if (record == null) {
+            if (other.record != null)
                 return false;
-        } else if (!pdo.equals(other.pdo))
-            return false;
-        if (signed != other.signed)
+        } else if (!record.equals(other.record))
             return false;
         return true;
     }
