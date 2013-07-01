@@ -307,7 +307,6 @@ public class PlotResource2 extends
                     if (curFrame == null) {
                         curFrame = startFrameInit(time);
                     }
-                    }
                 }
             }
         }
