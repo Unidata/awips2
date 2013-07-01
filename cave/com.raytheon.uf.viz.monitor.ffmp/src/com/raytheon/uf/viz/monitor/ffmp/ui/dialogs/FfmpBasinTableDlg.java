@@ -118,8 +118,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Mar 29, 2013  1790      rferrel     Bug fix for non-blocking dialogs.
  * Apr 15, 2013  1904      mpduff       Remove calls to reset FFMPConfig.
  * Apr 25, 2013  1902      mpduff       Fixed Thresholds dialog on multiple opens, needed an isDisposed check.
- * Jun 04, 2013 #1984      lvenable     removed unnecessary code.
+ * Jun 04, 2013  1984      lvenable     removed unnecessary code.
  * Jun 06, 2013  2075      njensen      Removed loading labels
+ * Jun 20, 2013  14907     gzhang       Thresholds menu ColorCell check fix.
  * </pre>
  * 
  * @author lvenable
@@ -1086,8 +1087,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
         // Loop over enum from config singleton to create menu items
         for (ThreshColNames colName : ThreshColNames.values()) {
-            if (ffmpConfig.isColorCell(colName)
-                    && (colName != ThreshColNames.GUID)) {// DR 14907
+            if (ffmpConfig.isColorCell(colName)) {// DR 14907
                 // only add a menu item if colorCell is true
                 MenuItem mi = new MenuItem(popupMenu, SWT.NONE);
                 mi.setText(colName.name());
