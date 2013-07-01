@@ -1556,55 +1556,55 @@
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.viz.ui.showHistoryList"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+H">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.uf.viz.d2d.ui.actions.changeLegendMode"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="NUMPAD_ENTER">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.uf.viz.d2d.ui.actions.showPrintDialog"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+P">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.viz.ui.newAWIPSProcedure"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+N">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.viz.ui.openAWIPSProcedure"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+O">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.viz.ui.deleteAWIPSProcedure"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+D">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.viz.ui.copyOutAWIPSProcedure"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+B">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.viz.ui.clear"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+C">
       </key>
       <key
             commandId="com.raytheon.viz.ui.tools.looping.frameTool"
             contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="ARROW_LEFT">
             <parameter
                   id="mode"
@@ -1618,7 +1618,7 @@
       <key
             commandId="com.raytheon.viz.ui.tools.looping.frameTool"
             contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="ARROW_RIGHT">
             <parameter
                   id="mode"
@@ -1632,7 +1632,7 @@
       <key
             commandId="com.raytheon.viz.ui.tools.looping.frameTool"
             contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+ARROW_LEFT">
             <parameter
                   id="mode"
@@ -1646,7 +1646,7 @@
       <key
             commandId="com.raytheon.viz.ui.tools.looping.frameTool"
             contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+ARROW_RIGHT">
             <parameter
                   id="mode"
@@ -1660,7 +1660,7 @@
       <key
             commandId="com.raytheon.viz.ui.tools.looping.frameTool"
             contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="ARROW_DOWN">
          <parameter
                id="mode"
@@ -1674,7 +1674,7 @@
       <key
             commandId="com.raytheon.viz.ui.tools.looping.frameTool"
             contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="ARROW_UP">
          <parameter
                id="mode"
@@ -1688,7 +1688,7 @@
             <key
             commandId="com.raytheon.viz.ui.tools.looping.frameTool"
             contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+ARROW_DOWN">
             <parameter
                   id="mode"
@@ -1702,7 +1702,7 @@
       <key
             commandId="com.raytheon.viz.ui.tools.looping.frameTool"
             contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+ARROW_UP">
             <parameter
                   id="mode"
@@ -1716,7 +1716,7 @@
       <key
             commandId="com.raytheon.viz.ui.tools.looping.frameTool"
             contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="SHIFT+ARROW_LEFT">
             <parameter
                   id="mode"
@@ -1730,7 +1730,7 @@
       <key
             commandId="com.raytheon.viz.ui.tools.looping.frameTool"
             contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="SHIFT+ARROW_RIGHT">
             <parameter
                   id="mode"
@@ -1744,43 +1744,43 @@
       <key
             commandId="com.raytheon.viz.ui.tools.looping.fasterLoop"
             contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="PAGE_UP"/>
       <key
             commandId="com.raytheon.viz.ui.tools.looping.slowerLoop"
             contextId="com.raytheon.viz.ui.loopContext"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="PAGE_DOWN"/>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.uf.viz.d2d.ui.actions.timeOptionsAction"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+T">
       </key>
       <key
             commandId="com.raytheon.uf.viz.d2d.ui.map.actions.fourPanelLayout"
             contextId="com.raytheon.uf.viz.d2d.ui"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="END">
       </key>
       <key
             commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
             contextId="com.raytheon.uf.viz.d2d.ui"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="DELETE">
             <parameter id="direction" value="1"></parameter>
       </key>
       <key
             commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
             contextId="com.raytheon.uf.viz.d2d.ui"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="BACKSPACE">
             <parameter id="direction" value="-1"></parameter>
       </key>
       <key
             commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
             contextId="com.raytheon.uf.viz.d2d.ui"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="1">
             <parameter id="direction" value="1"></parameter>
             <parameter id="startIndex" value="3"></parameter>
@@ -1789,7 +1789,7 @@
       <key
             commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
             contextId="com.raytheon.uf.viz.d2d.ui"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="5">
             <parameter id="direction" value="1"></parameter>
             <parameter id="startIndex" value="3"></parameter>
@@ -1798,7 +1798,7 @@
       <key
             commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
             contextId="com.raytheon.uf.viz.d2d.ui"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="2">
             <parameter id="direction" value="1"></parameter>
             <parameter id="startIndex" value="0"></parameter>
@@ -1807,7 +1807,7 @@
       <key
             commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
             contextId="com.raytheon.uf.viz.d2d.ui"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="6">
             <parameter id="direction" value="1"></parameter>
             <parameter id="startIndex" value="0"></parameter>
@@ -1816,7 +1816,7 @@
       <key
             commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
             contextId="com.raytheon.uf.viz.d2d.ui"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="3">
             <parameter id="direction" value="1"></parameter>
             <parameter id="startIndex" value="1"></parameter>
@@ -1825,7 +1825,7 @@
       <key
             commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
             contextId="com.raytheon.uf.viz.d2d.ui"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="7">
             <parameter id="direction" value="1"></parameter>
             <parameter id="startIndex" value="1"></parameter>
@@ -1834,7 +1834,7 @@
       <key
             commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
             contextId="com.raytheon.uf.viz.d2d.ui"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="4">
             <parameter id="direction" value="1"></parameter>
             <parameter id="startIndex" value="2"></parameter>
@@ -1843,7 +1843,7 @@
       <key
             commandId="com.raytheon.uf.viz.d2d.ui.map.actions.rotatePanels"
             contextId="com.raytheon.uf.viz.d2d.ui"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="8">
             <parameter id="direction" value="1"></parameter>
             <parameter id="startIndex" value="2"></parameter>
@@ -1852,37 +1852,37 @@
       <key
             contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.uf.viz.d2d.ui.actions.dataScaleAction"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+S">
       </key>
       <key
             contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.uf.viz.d2d.ui.actions.imageCombination"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="INSERT">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.uf.viz.d2d.ui.actions.locateCursorAction"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="F12">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.viz.ui.tools.looping.loopProperties"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+L">
       </key>
       <key
       		contextId="com.raytheon.uf.viz.d2d.ui"
             commandId="com.raytheon.viz.ui.imageProperties"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="M1+I">
       </key>
      <key
             commandId="com.raytheon.uf.viz.d2d.ui.actions.increaseBlendAmount"
             contextId="com.raytheon.uf.viz.d2d.ui"
-            schemeId="com.raytheon.viz.ui.awips.scheme"
+            schemeId="com.raytheon.viz.ui.cave.scheme"
             sequence="NUMPAD_ADD"/>
      <key
             commandId="com.raytheon.uf.viz.d2d.ui.actions.decreaseBlendAmount"
