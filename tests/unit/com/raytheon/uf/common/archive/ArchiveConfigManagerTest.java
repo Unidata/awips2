@@ -32,6 +32,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -60,7 +61,9 @@ import com.raytheon.uf.common.util.TestUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 7, 2013  1965       bgonzale    Initial creation
+ * May 7, 2013  1965       bgonzale    Initial creation.
+ *                                     Added additional test data for file newer than purge
+ *                                     time but in directory that is older than purge time.
  * 
  * </pre>
  * 
@@ -72,30 +75,28 @@ public class ArchiveConfigManagerTest {
 
     private static final String RAW = "Raw";
 
-    private static final String SAT_CAT_NAME = "Satellite";
+    private static final String PROCESSED = "Processed";
 
-    private static final String satNameForArchive = "GOES-13";
+    private static final String SAT_CAT_NAME_RAW = "Satellite";
 
     private static File TEST_DIR = TestUtil
             .setupTestClassDir(ArchiveConfigManagerTest.class);
 
-    private final DateFormat yyyyMMFormat = new SimpleDateFormat("yyyyMM");
+    private final DateFormat yyyyFormat = new SimpleDateFormat("yyyy");
+
+    private final DateFormat MMFormat = new SimpleDateFormat("MM");
 
     private final DateFormat ddFormat = new SimpleDateFormat("dd");
 
-    private final DateFormat hhFormat = new SimpleDateFormat("HH");
+    private final DateFormat kkFormat = new SimpleDateFormat("kk");
 
     private final DateFormat mmFormat = new SimpleDateFormat("mm");
 
-    private ArchiveConfigManager manager;
-
-    private ArchiveConfig archive;
-
     private Collection<File> archiveFiles = new ArrayList<File>();
 
-    private Collection<File> expiredFiles = new ArrayList<File>();
-
     private Collection<File> purgeFiles = new ArrayList<File>();
+
+    private Collection<DisplayData> archiveSelectedDisplays = new HashSet<DisplayData>();
 
     private Calendar referenceCalendar;
 
@@ -134,55 +135,83 @@ public class ArchiveConfigManagerTest {
             FileUtils.copyFileToDirectory(srcConfig, destDir);
         }
 
-        manager = ArchiveConfigManager.getInstance();
-        archive = manager.getArchive(RAW);
+        ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
 
-        // configure the test archive to use the test data dir
-        archive.setRootDir(TEST_DIR.getAbsolutePath() + "/data_store/");
+        ArchiveConfig archiveProcessed = manager.getArchive(PROCESSED);
+        archiveProcessed.setRootDir(TEST_DIR.getAbsolutePath() + "/archive/");
+
+        ArchiveConfig archiveRaw = manager.getArchive(RAW);
+        archiveRaw.setRootDir(TEST_DIR.getAbsolutePath() + "/data_store/");
 
         // MessageFormat keys
-        // {0} yyyyMM {1} dd {2} hh {3} mm
+        // args:
+        // {0} dir-yyyy
+        // {1} dir-MM
+        // {2} dir-dd
+        // {3} dir-kk
+        // {4} file-yyyy
+        // {5} file-MM
+        // {6} file-dd
+        // {7} file-kk
+        // {8} file-mm
 
         // **** grib1 ****
-        MessageFormat grib1Format = new MessageFormat(
-                "/grib/{0}{1}/18/NWS_160/GRID255/{2}{3}Z_F001_APCP-ZETA98_KSTR_{1}{2}{3}_125544891.grib.{0}{1}{2}");
-        CategoryConfig grib1Cat = getCategory(archive, "Model grib");
-        createTestFiles(grib1Format, getRetentionHours(archive, grib1Cat),
+        MessageFormat grib1Format_Raw = new MessageFormat(
+                "/grib/{0}{1}{2}/{3}/NWS_160/GRID255/{7}{8}Z_F001_APCP-ZETA98_KSTR_{6}{7}{8}_125544891.grib.{4}{5}{6}{7}");
+        createTestFiles(grib1Format_Raw, archiveRaw, "Model", false,
+                archiveStart, archiveEnd);
+        MessageFormat grib1Format_Processed = new MessageFormat(
+                "/grid/GFS160/BL/GFS160-{4}-{5}-{6}-{7}-FH-162.h5");
+        createTestFiles(grib1Format_Processed, archiveProcessed, "Model",
                 false, archiveStart, archiveEnd);
 
         // **** sat ****
-        CategoryConfig satCat = getCategory(archive, SAT_CAT_NAME);
-        MessageFormat satFormat = new MessageFormat(
-                "/sat/{0}{1}/{2}/GOES-13/{2}{3}Z_SOUND-VIS_10km_EAST-CONUS-TIGE59_KNES_128453.satz.{0}{1}{2}");
-        createTestFiles(satFormat, getRetentionHours(archive, satCat), true,
+        MessageFormat satFormat_Raw = new MessageFormat(
+                "/sat/{0}{1}{2}/{3}/GOES-13/{7}{8}Z_SOUND-VIS_10km_EAST-CONUS-TIGE59_KNES_128453.satz.{4}{5}{6}{7}");
+        createTestFiles(satFormat_Raw, archiveRaw, SAT_CAT_NAME_RAW, true,
                 archiveStart, archiveEnd);
+        MessageFormat satFormat_Processed = new MessageFormat(
+                "/satellite/East CONUS/Sounder Visible imagery/satellite-{4}-{5}-{6}-{7}.h5");
+        createTestFiles(satFormat_Processed, archiveProcessed, "Satellite",
+                true, archiveStart, archiveEnd);
 
         // **** acars ****
-        CategoryConfig otherCat = getCategory(archive, "Model other");
-        int otherCatRetentionHours = getRetentionHours(archive, otherCat);
-        MessageFormat acarsFormat = new MessageFormat(
-                "/acars/{0}{1}/{2}/IUAB01_CWAO_{1}{2}{3}_22714956.bufr.{0}{1}{2}");
-        createTestFiles(acarsFormat, otherCatRetentionHours, false,
+        MessageFormat acarsFormat_Raw = new MessageFormat(
+                "/acars/acars_encrypted/{0}{1}{2}/{3}/IUAB01_CWAO_{6}{7}{8}_22714956.bufr.{4}{5}{6}{7}");
+        createTestFiles(acarsFormat_Raw, archiveRaw, "Observation", false,
                 archiveStart, archiveEnd);
+        MessageFormat acarsFormat_Processed = new MessageFormat(
+                "/acars/acars-{4}-{5}-{6}-{7}.h5");
+        createTestFiles(acarsFormat_Processed, archiveProcessed, "Observation",
+                false, archiveStart, archiveEnd);
 
         // **** binlightning ****
-        MessageFormat binlightningFormat = new MessageFormat(
-                "/binlightning/{0}{1}/{2}/SFUS41_KWBC_{1}{2}{3}_22725485.nldn.{0}{1}{2}");
-        createTestFiles(binlightningFormat, otherCatRetentionHours, false,
-                archiveStart, archiveEnd);
+        MessageFormat binlightningFormat_Raw = new MessageFormat(
+                "/binlightning/{0}{1}{2}/{3}/SFUS41_KWBC_{6}{7}{8}_22725485.nldn.{4}{5}{6}{7}");
+        createTestFiles(binlightningFormat_Raw, archiveRaw, "Misc",
+                false, archiveStart, archiveEnd);
+        MessageFormat binlightningFormat_Processed = new MessageFormat(
+                "/binlightning/binlightning-{4}-{5}-{6}-{7}.h5");
+        createTestFiles(binlightningFormat_Processed, archiveProcessed, "Misc",
+                false, archiveStart, archiveEnd);
 
         // **** bufrsigwx ****
-        MessageFormat bufrsigwxFormat = new MessageFormat(
-                "/bufrsigwx/{0}{1}/{2}/JUWE96_KKCI_{1}{2}{3}_31368878.bufr.{0}{1}{2}");
-        createTestFiles(bufrsigwxFormat, otherCatRetentionHours, false,
+        MessageFormat bufrsigwxFormat_Raw = new MessageFormat(
+                "/bufrsigwx/{0}{1}{2}/{3}/JUWE96_KKCI_{6}{7}{8}_31368878.bufr.{4}{5}{6}{7}");
+        createTestFiles(bufrsigwxFormat_Raw, archiveRaw, "Observation", false,
                 archiveStart, archiveEnd);
+        MessageFormat bufrsigwxFormat_Processed = new MessageFormat(
+                "/bufrsigwx/SWH/sigwxCAT-{4}-{5}-{6}-{7}.h5");
+        createTestFiles(bufrsigwxFormat_Processed, archiveProcessed,
+                "Observation", false, archiveStart, archiveEnd);
 
         // create test archive data dir
         archiveDir = new File(TEST_DIR, TEST_ARCHIVE_DIR);
     }
 
     private int getRetentionHours(ArchiveConfig archive, CategoryConfig category) {
-        return category.getRetentionHours() == 0 ? archive.getRetentionHours()
+        return category == null || category.getRetentionHours() == 0 ? archive
+                .getRetentionHours()
                 : category.getRetentionHours();
     }
 
@@ -198,34 +227,83 @@ public class ArchiveConfigManagerTest {
         return category;
     }
 
-    private void createTestFiles(MessageFormat dataFileNameFormat,
-            int retentionHours, boolean isSelected, Calendar start, Calendar end)
-            throws IOException {
+    private void createTestFiles(MessageFormat fileNameFormat,
+            ArchiveConfig archive, String categoryName, boolean isSelected,
+            Calendar start, Calendar end) throws IOException {
+        CategoryConfig category = getCategory(archive, categoryName);
+        int retentionHours = getRetentionHours(archive, category);
+        String rootDir = archive.getRootDir();
+
         // create data file newer than purge time, within archive time, and
         // isSelected
-        File dataFile = createDataFile(end, dataFileNameFormat);
+        File dataFile = create_DataFile(end, fileNameFormat, rootDir);
         if (isSelected) {
+            ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
+
             archiveFiles.add(dataFile);
+            archiveSelectedDisplays.addAll(manager.getDisplayData(
+                    archive.getName(), categoryName, true));
         }
+        System.out
+                .println("{newer than purge/within archive/isSelected}\n\tFor archive:"
+                        + archive.getName()
+                        + " category:"
+                        + categoryName
+                        + "\n\tcreated file: "
+                        + dataFile.getAbsolutePath()
+                                .substring(rootDir.length()));
 
         // create data file newer than purge time, within archive time, but not
         // in selected
         Calendar moreThanOneDayOld = (Calendar) referenceCalendar.clone();
         moreThanOneDayOld.add(Calendar.DAY_OF_MONTH, -1);
-        createDataFile(moreThanOneDayOld, dataFileNameFormat);
+        dataFile = create_DataFile(moreThanOneDayOld, fileNameFormat, rootDir);
+        System.out
+                .println("{newer than purge/within archive/Not Selected}\nFor archive:"
+                        + archive.getName()
+                        + " category:"
+                        + categoryName
+                        + "\n\tcreated file: "
+                        + dataFile.getAbsolutePath()
+                                .substring(rootDir.length()));
 
         // create data file older than purge time
         Calendar lessThanExpiredCalendar = (Calendar) referenceCalendar.clone();
         lessThanExpiredCalendar.add(Calendar.HOUR, (-1 * retentionHours - 1));
-        dataFile = createDataFile(lessThanExpiredCalendar, dataFileNameFormat);
-        expiredFiles.add(dataFile);
+        dataFile = create_DataFile(lessThanExpiredCalendar, fileNameFormat,
+                rootDir);
         purgeFiles.add(dataFile);
+        System.out.println("{older than purge}\nFor archive:"
+                + archive.getName() + " category:" + categoryName
+                + "\n\tcreated file: "
+                + dataFile.getAbsolutePath().substring(rootDir.length()));
+
+        // // create data file newer than purge time, but in a directory that is
+        // // older than purge time, and outside of archive time frame
+        Calendar newerThanArchiveEnd = (Calendar) end.clone();
+        // newerThanArchiveEnd.add(Calendar.HOUR, 3);
+        // dataFile = create_DataFile(lessThanExpiredCalendar,
+        // newerThanArchiveEnd, fileNameFormat, rootDir);
+        // System.out
+        // .println("{newer than purge/in directory older than purge/outside of archive}\nFor archive:"
+        // + archive.getName()
+        // + " category:"
+        // + categoryName
+        // + "\n created file: " + dataFile.getAbsolutePath());
 
         // create data file newer than purge time and outside of archive time
         // frame
-        Calendar newerThanArchiveEnd = (Calendar) end.clone();
+        newerThanArchiveEnd = (Calendar) end.clone();
         newerThanArchiveEnd.add(Calendar.HOUR, 3);
-        createDataFile(newerThanArchiveEnd, dataFileNameFormat);
+        dataFile = create_DataFile(newerThanArchiveEnd, fileNameFormat, rootDir);
+        System.out
+                .println("{newer than purge/outside of archive}\nFor archive:"
+                        + archive.getName()
+                        + " category:"
+                        + categoryName
+                        + "\n\tcreated file: "
+                        + dataFile.getAbsolutePath()
+                                .substring(rootDir.length()));
     }
 
     private void setupTimes() {
@@ -239,25 +317,40 @@ public class ArchiveConfigManagerTest {
         archiveStart.add(Calendar.HOUR, -20);
         archiveEnd.add(Calendar.HOUR, -3);
 
-        yyyyMMFormat.setCalendar(referenceCalendar);
+        yyyyFormat.setCalendar(referenceCalendar);
+        MMFormat.setCalendar(referenceCalendar);
         ddFormat.setCalendar(referenceCalendar);
-        hhFormat.setCalendar(referenceCalendar);
+        kkFormat.setCalendar(referenceCalendar);
         mmFormat.setCalendar(referenceCalendar);
     }
 
-    private File createDataFile(Calendar referenceCalendar,
-            MessageFormat fileFormat) throws IOException {
-        Date referenceTime = referenceCalendar.getTime();
+    private File create_DataFile(Calendar referenceCalendar,
+            MessageFormat fileFormat, String rootDir) throws IOException {
+        return create_DataFile(referenceCalendar, referenceCalendar,
+                fileFormat, rootDir);
+    }
 
-        String yyyyMM = yyyyMMFormat.format(referenceTime);
-        String dd = ddFormat.format(referenceTime);
-        String hh = hhFormat.format(referenceTime);
-        String mm = mmFormat.format(referenceTime);
-        String[] formatArgs = new String[] { yyyyMM, dd, hh, mm };
+    private File create_DataFile(Calendar directoryReferenceCalendar,
+            Calendar fileReferenceCalendar, MessageFormat fileFormat,
+            String rootDir) throws IOException {
+        Date directoryReferenceTime = directoryReferenceCalendar.getTime();
+        Date fileReferenceTime = fileReferenceCalendar.getTime();
+
+        String dir_yyyy = yyyyFormat.format(directoryReferenceTime);
+        String dir_MM = MMFormat.format(directoryReferenceTime);
+        String dir_dd = ddFormat.format(directoryReferenceTime);
+        String dir_kk = kkFormat.format(directoryReferenceTime);
+        String file_yyyy = yyyyFormat.format(fileReferenceTime);
+        String file_MM = MMFormat.format(fileReferenceTime);
+        String file_dd = ddFormat.format(fileReferenceTime);
+        String file_kk = kkFormat.format(fileReferenceTime);
+        String file_mm = mmFormat.format(fileReferenceTime);
+        String[] formatArgs = new String[] { dir_yyyy, dir_MM, dir_dd, dir_kk,
+                file_yyyy, file_MM, file_dd, file_kk, file_mm };
 
         String filename = fileFormat.format(formatArgs, new StringBuffer(),
                 new FieldPosition(0)).toString();
-        File resultFile = new File(archive.getRootDir(), filename);
+        File resultFile = new File(rootDir, filename);
         String dirname = FilenameUtils
                 .getFullPath(resultFile.getAbsolutePath());
         File dir = new File(dirname);
@@ -267,13 +360,20 @@ public class ArchiveConfigManagerTest {
         return resultFile;
     }
 
-    private Collection<String> createFileNameListNoRootDir(File rootDir,
+    private Collection<String> createFileNameListRemoveTestDir(
             Collection<File> files) {
         List<String> result = new ArrayList<String>(files.size());
         for (File f : files) {
             String absPath = f.getAbsolutePath();
-            String fileRelativePath = absPath.replace(
-                    rootDir.getAbsolutePath(), "");
+            String testDirPath = TEST_DIR.getAbsolutePath();
+            testDirPath = testDirPath.endsWith(File.separator) ? testDirPath
+                    : testDirPath + File.separator;
+            // remove test directory path
+            String fileRelativePath = absPath.replace(testDirPath, "");
+            // remove one directory up
+            int index = fileRelativePath.indexOf(File.separator);
+            fileRelativePath = index >= 0 ? fileRelativePath.substring(index)
+                    : fileRelativePath;
             result.add(fileRelativePath);
         }
         Collections.sort(result);
@@ -292,43 +392,39 @@ public class ArchiveConfigManagerTest {
     @Test
     public void testArchiveManagerCreateArchive() throws IOException,
             ArchiveException {
-        CategoryConfig satCategory = getCategory(archive, SAT_CAT_NAME);
-        List<DisplayData> displays = 
-                manager.getDisplayData(archive.getName(), satCategory.getName());
-        List<DisplayData> selectedDisplays = new ArrayList<DisplayData>();
-        for (DisplayData displayData : displays) {
-            if (displayData.getDisplayLabel().equals(satNameForArchive)) {
-                selectedDisplays.add(displayData);
-            }
-        }
-        Collection<File> archivedFiles = manager.createArchive(archiveDir,
-                selectedDisplays, archiveStart, archiveEnd);
+        ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
+        Collection<File> filesInCreatedArchive = manager.createArchive(
+                archiveDir, archiveSelectedDisplays, archiveStart, archiveEnd);
+
         assertEquals(
                 "The expected archive files and the archived files are not the same",
-                createFileNameListNoRootDir(new File(archive.getRootDir()),
-                        archiveFiles),
-                createFileNameListNoRootDir(archiveDir, archivedFiles));
+                createFileNameListRemoveTestDir(archiveFiles),
+                createFileNameListRemoveTestDir(filesInCreatedArchive));
+
         // check archive directory for files.
         Collection<File> filesFoundInArchive = FileUtils.listFiles(archiveDir,
                 FileFilterUtils.trueFileFilter(),
                 FileFilterUtils.trueFileFilter());
+
         assertEquals(
-                "The expected archive files in the files found in the archive are not the same",
-                archivedFiles, filesFoundInArchive);
+                "The archive files reported and the files found in the archive are not the same",
+                createFileNameListRemoveTestDir(filesInCreatedArchive),
+                createFileNameListRemoveTestDir(filesFoundInArchive));
     }
 
     @Test
     public void testArchiveManagerPurge() throws IOException {
-        Collection<File> filesFoundInPurge = manager
-                .purgeExpiredFromArchive(archive);
-        // sort for comparison
-        List<File> purgeFilesList = new ArrayList<File>(purgeFiles);
-        Collections.sort(purgeFilesList);
-        List<File> foundFilesList = new ArrayList<File>(filesFoundInPurge);
-        Collections.sort(foundFilesList);
+        ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
+        Collection<File> filesFoundInPurge = new ArrayList<File>();
+
+        for (ArchiveConfig a : manager.getArchives()) {
+            filesFoundInPurge.addAll(manager.purgeExpiredFromArchive(a));
+        }
+
         assertEquals(
                 "The expected purge files and the files purged are not the same",
-                purgeFilesList, foundFilesList);
+                createFileNameListRemoveTestDir(purgeFiles),
+                createFileNameListRemoveTestDir(filesFoundInPurge));
     }
 
 }

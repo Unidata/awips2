@@ -119,6 +119,7 @@ import static java.lang.System.out;
  *  								   (this fixes the issue of slow performance when zooming all the way in, when Data Area is set)
  *  10/18/2012     896     sgurung     Refactored PlotResource2 to use new generator class: NcPlotDataThreadPool. Added FrameLoaderJob to populate all frames.
  *  								   Added code to plot stations within 25% of the area outside of the current display area.	
+ * Jun 25, 2013 1869       bsteffen    Fix plot sampling.
  * </pre>
  * 
  * @author brockwoo
@@ -1232,7 +1233,7 @@ public class NcPlotResource2 extends AbstractNatlCntrsResource<PlotResourceData,
 	}
 	
 	@Override
-	 public void messageGenerated(String dataURI, String message) {
+    public void messageGenerated(PlotInfo[] key, String message) {
 	}
 
 	// generate a string used as the key for the StationMap
