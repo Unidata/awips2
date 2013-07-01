@@ -85,6 +85,7 @@ public class SatelliteUnits {
     public static final Unit<Dimensionless> GENERIC_PIXEL = new GenericPixel();
 
     public static void register() {
+        UnitFormat.getUCUMInstance().alias(SI.KELVIN, "kelvin");
         UnitFormat.getUCUMInstance().alias(SI.CELSIUS, "C");
         UnitFormat.getUCUMInstance().label(SatelliteUnits.IR_PIXEL, "IRPixel");
         UnitFormat.getUCUMInstance().label(SatelliteUnits.PRECIP_PIXEL,
