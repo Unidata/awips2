@@ -26,7 +26,11 @@
       <import plugin="com.raytheon.uf.common.archive" version="1.0.0" match="greaterOrEqual"/>
       <import plugin="com.raytheon.uf.common.time" version="1.12.1174" match="greaterOrEqual"/>
       <import plugin="com.raytheon.uf.common.util" version="1.12.1174" match="greaterOrEqual"/>
-      <import plugin="org.apache.commons.io"/>
+      <import plugin="org.apache.commons.lang" version="2.3.0" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.viz.core" version="1.12.1174" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.units" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.status" version="1.12.1174" match="greaterOrEqual"/>
+      <import plugin="org.apache.commons.io" version="2.4.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
@@ -42,5 +46,11 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.io"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
 </feature>
