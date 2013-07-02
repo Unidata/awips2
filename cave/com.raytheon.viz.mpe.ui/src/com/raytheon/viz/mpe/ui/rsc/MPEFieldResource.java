@@ -73,8 +73,8 @@ import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData.MPEFieldFrame;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 29, 2012            mschenke     Initial creation
- * 
+ * Nov 29, 2012            mschenke    Initial creation.
+ * Jul 02, 2013   2160     mpduff      Changed how edited data are called for return.
  * </pre>
  * 
  * @author mschenke
@@ -242,7 +242,7 @@ public class MPEFieldResource extends
     @Override
     public short[] getData(DataTime time) throws VizException {
         MPEFieldFrame frame = getFrame(time);
-        return frame.getEditedData();
+        return getEditedData(frame);
     }
 
     /*
