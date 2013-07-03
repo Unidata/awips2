@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -28,15 +28,15 @@
 # ----------------------------------------------------------------------------
 #
 #     SOFTWARE HISTORY
-#    
+#
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    01/09/13        DR15626       J. Zeng        Add methods 
+#    01/09/13        DR15626       J. Zeng        Add methods
 #                                                   enableISCsend
 #                                                   clientISCSendStatus
 #                                                   manualSendISC_autoMode
 #                                                   manualSendISC_manualMode
-#    01/30/13        1559          dgilling       Fix TypeError in 
+#    01/30/13        1559          dgilling       Fix TypeError in
 #                                                 getGridCellSwath().
 #    Mar 13, 2013    1791          bsteffen       Implement bulk getGrids to
 #                                                 improve performance.
@@ -44,7 +44,9 @@
 #                                                 TCMWindTool
 #    Apr 24, 2013    1947          randerso       Fix UVToMagDir to work with scalar arguments
 #                                                 Cleaned up some constants
-#    
+#    Jun 21, 2013    14983         ryu            Fixed encodeEditArea() to evaluate query
+#                                                 when necessary
+#
 ########################################################################
 import types, string, time, sys
 from math import *
@@ -76,8 +78,8 @@ from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridParmInfo
 from com.raytheon.uf.common.dataplugin.gfe.server.request import SendISCRequest
 
 class SmartScript(BaseTool.BaseTool):
-    
-    def __init__(self, dataMgr):    
+
+    def __init__(self, dataMgr):
         BaseTool.BaseTool.__init__(self)
         self.__dataMgr = dataMgr
         self.__parmMgr = self.__dataMgr.getParmManager()
@@ -89,20 +91,20 @@ class SmartScript(BaseTool.BaseTool):
         #self.__pythonGrids = []
         self.__accessTime = 0
         self.__gridLoc = None
-        self.__topoGrid = None        
+        self.__topoGrid = None
         self.__toolType = "numeric"
         self._empty = zeros(self.getGridShape(), float32)
         self._minus = self._empty - 1
-        self._handlers = dict() 
+        self._handlers = dict()
 
-    
+
     ##
     ## Call ProcessVariableList to obtain values from the user
     ##
     ## @param VariableList: list() of tuples describing the widgets to display
     ##
     ## @return dict() of values gathered from the widgets
-    ##     
+    ##
     def getVariableListInputs(self, VariableList):
         import ProcessVariableList
         return ProcessVariableList.buildWidgetList(VariableList)
@@ -150,7 +152,7 @@ class SmartScript(BaseTool.BaseTool):
 
 
     def loadedParms(self):
-        # Returns a list of tuples that are weather elements that are 
+        # Returns a list of tuples that are weather elements that are
         # loaded.  The tuples are (element, level, model).  element and
         # level are strings.  model is a DatabaseID.
         allParms = self.__parmMgr.getAllParms()
@@ -162,7 +164,7 @@ class SmartScript(BaseTool.BaseTool):
         return retList
 
     def availableParms(self):
-        # Returns a list of tuples that are weather elements that are 
+        # Returns a list of tuples that are weather elements that are
         # available.  The tuples are (element, level, model).  element and
         # level are strings.  model is a DatabaseID.
         retList = []
@@ -191,7 +193,7 @@ class SmartScript(BaseTool.BaseTool):
               dbid))
 
         return retList
-    
+
     def loadParm(self, model, element, level, mostRecent=0):
         # loads a parm and makes it visible.
         parm = self.getParm(model, element, level, timeRange=None,
@@ -209,7 +211,7 @@ class SmartScript(BaseTool.BaseTool):
     # @type weName: String
     # @param level: The level of the element to look for locks on
     # @type level: String
-    # @return: The time ranges 
+    # @return: The time ranges
     # @rtype: Python list of Python TimeRanges
     def lockedByMe(self, weName, level):
         # returns list of time ranges locked by me in this weather element
@@ -227,7 +229,7 @@ class SmartScript(BaseTool.BaseTool):
             tr = TimeRange.TimeRange(jtr)
             lbm.append(tr)
         return lbm
-    
+
     ##
     # Get the list of timeranges locked by other users in this weather element.
     #
@@ -235,7 +237,7 @@ class SmartScript(BaseTool.BaseTool):
     # @type weName: String
     # @param level: The level of the element to look for locks on
     # @type level: String
-    # @return: The time ranges 
+    # @return: The time ranges
     # @rtype: Python list of Python TimeRanges
     def lockedByOther(self, weName, level):
         # returns list of time ranges locked by others in this weather element
@@ -270,7 +272,7 @@ class SmartScript(BaseTool.BaseTool):
             return 0
         else:
             return parm.forceLockTR(tr.toJavaObj())
-            
+
 
     def vtecActiveTable(self):
         #returns the VTEC active table (or specified table)
@@ -283,7 +285,7 @@ class SmartScript(BaseTool.BaseTool):
         #returns the current operating mode of the GFE.
         #Standard, PRACTICE, TEST
         return self.__dataMgr.getOpMode().name()
-   
+
 #------------------------------------------------------------------------
 # ISC control functions
 #------------------------------------------------------------------------
@@ -409,7 +411,7 @@ class SmartScript(BaseTool.BaseTool):
 
         if isinstance(model, DatabaseID.DatabaseID):
             model = model.modelIdentifier()
-        
+
         timeRangeList = None
         if isinstance(timeRange, TimeRange.TimeRange):
             timeRange = timeRange.toJavaObj()
@@ -448,9 +450,9 @@ class SmartScript(BaseTool.BaseTool):
             return retVal
         else:
             return self._getGridsResult(timeRange, noDataError, mode, exprName, result)
-        
-    def _getGridsResult(self, timeRange, noDataError, mode, exprName, result): 
-        retVal = None        
+
+    def _getGridsResult(self, timeRange, noDataError, mode, exprName, result):
+        retVal = None
         if result is not None:
             if len(result) == 0:
                 retVal = None
@@ -475,7 +477,7 @@ class SmartScript(BaseTool.BaseTool):
                     retVal = (result[0], eval(result[1]))
                 else:
                     retVal = (result[0], result[1])
-            
+
         if retVal is None or retVal == []:
             if noDataError == 1:
                 msg = "No corresponding grids for " + exprName + " " + str(timeRange)
@@ -506,11 +508,11 @@ class SmartScript(BaseTool.BaseTool):
             history = grid.getHistory()
             histList = []
             for h in history:
-                histList.append((str(h.getOrigin()), 
-                                 ParmID.ParmID(jParmId=h.getOriginParm()), 
+                histList.append((str(h.getOrigin()),
+                                 ParmID.ParmID(jParmId=h.getOriginParm()),
                                  TimeRange.TimeRange(h.getOriginTimeRange()),
-                                 AbsTime.AbsTime(h.getTimeModified()), 
-                                 str(h.getWhoModified()), 
+                                 AbsTime.AbsTime(h.getTimeModified()),
+                                 str(h.getWhoModified()),
                                  AbsTime.AbsTime(h.getUpdateTime()),
                                  AbsTime.AbsTime(h.getPublishTime())))
 
@@ -611,7 +613,7 @@ class SmartScript(BaseTool.BaseTool):
         from com.raytheon.viz.gfe.edittool import GridID
         gid = GridID(parm, gridTime.javaDate())
         from com.raytheon.uf.common.dataplugin.gfe.db.objects import GFERecord_GridType as GridType
-        
+
         wxType = self.__dataMgr.getClient().getGridParmInfo(parm.getParmID()).getGridType()
         if GridType.SCALAR.equals(wxType):
             from com.raytheon.uf.common.dataplugin.gfe.slice import ScalarGridSlice
@@ -659,7 +661,7 @@ class SmartScript(BaseTool.BaseTool):
     # @type timeRange: com.raytheon.uf.common.time.TimeRange or TimeRange
     # @param mostRecentModel: whether to use current time in request expr.
     # @type mostRecentModel: integer or boolean
-    # @return: Java GridParmInfo object 
+    # @return: Java GridParmInfo object
     def getGridInfo(self, model, element, level, timeRange,
                     mostRecentModel=0):
         if isinstance(model, DatabaseID.DatabaseID):
@@ -815,11 +817,11 @@ class SmartScript(BaseTool.BaseTool):
         uw = - sin(dir * DEG_TO_RAD) * mag
         vw = - cos(dir * DEG_TO_RAD) * mag
         return (uw, vw)
-    
+
     def convertMsecToKts(self, value_Msec):
         # Convert from meters/sec to Kts
         return value_Msec * 3600.0 / 1852.0
-    
+
     def convertKtoF(self, t_K):
         # Convert the temperature from Kelvin to Fahrenheit
         # Degrees Fahrenheit = (Degrees Kelvin - 273.15) / (5/9) + 32
@@ -841,7 +843,7 @@ class SmartScript(BaseTool.BaseTool):
     def convertFtToM(self, value_Ft):
         # Convert the value in Feet to Meters
         return value_Ft * 0.3048
-    
+
 #########################################################################
 ## Error Handling                                                      ##
 #########################################################################
@@ -854,11 +856,11 @@ class SmartScript(BaseTool.BaseTool):
         #  self.abort("Error processing my tool")
         #
         raise TypeError, info
-    
+
     def noData(self, info="Insufficient Data to run Tool"):
         # Raise the NoData exception error
         raise Exceptions.EditActionError("NoData", info)
-    
+
     def cancel(self):
         # Cancels a smart tool without displaying an error message
         raise Exceptions.EditActionError("Cancel", "Cancel")
@@ -875,7 +877,7 @@ class SmartScript(BaseTool.BaseTool):
     #  or "A" (alert)
     # Example:
     #  self.statusBarMsg("Running Smart Tool", "R")
-    # 
+    #
     # @param message: The message to send.
     # @type message: string
     # @param status: Importance of message. "A"=Alert, "R"=Regular, "U"=Urgent;
@@ -887,7 +889,7 @@ class SmartScript(BaseTool.BaseTool):
     def statusBarMsg(self, message, status, category="GFE"):
         from com.raytheon.uf.common.status import UFStatus
         from com.raytheon.uf.common.status import UFStatus_Priority as Priority
-        
+
         if "A" == status:
             importance = Priority.PROBLEM
         elif "R" == status:
@@ -896,10 +898,10 @@ class SmartScript(BaseTool.BaseTool):
             importance = Priority.CRITICAL
         else:
             importance = Priority.SIGNIFICANT
-        
+
         if category not in self._handlers:
             self._handlers[category] = UFStatus.getHandler("GFE", category, 'GFE')
-        
+
         self._handlers[category].handle(importance, message);
 
    #########################
@@ -942,8 +944,8 @@ class SmartScript(BaseTool.BaseTool):
     ##   can be accessed e.g. error.errorType() and error.errorInfo()
     ## If "noData" has been called, the errorType will be "NoData" and
     ##   can be tested by the calling tool or script.
-    
-    
+
+
     def callSmartTool(self, toolName, elementName, editArea=None,
                       timeRange=None, varDict=None,
                       editValues=1, calcArea=0, calcGrid=0,
@@ -977,25 +979,25 @@ class SmartScript(BaseTool.BaseTool):
             emptyEditAreaFlag = False
         if varDict is not None:
             varDict = str(varDict)
-        
+
         parm = self.getParm(self.__mutableID, elementName, "SFC")
         if timeRange is None:
             from com.raytheon.viz.gfe.core.parm import ParmState
             timeRange = parm.getParmState().getSelectedTimeRange()
         else:
             timeRange = timeRange.toJavaObj()
-        
+
         from com.raytheon.viz.gfe.smarttool import SmartUtil
-        
-        result = SmartUtil.callFromSmartScript(self.__dataMgr, toolName, elementName, editArea, 
-                                            timeRange, varDict, emptyEditAreaFlag, 
-                                            JUtil.pylistToJavaStringList(passErrors), 
+
+        result = SmartUtil.callFromSmartScript(self.__dataMgr, toolName, elementName, editArea,
+                                            timeRange, varDict, emptyEditAreaFlag,
+                                            JUtil.pylistToJavaStringList(passErrors),
                                             missingDataMode, parm)
-        
+
         if result:
-            raise Exceptions.EditActionError(errorType="Error", errorInfo=str(result))   
+            raise Exceptions.EditActionError(errorType="Error", errorInfo=str(result))
         return None
-    
+
     def callProcedure(self, name, editArea=None, timeRange=None, varDict=None,
                       missingDataMode="Stop",
                       modal=1):
@@ -1007,18 +1009,18 @@ class SmartScript(BaseTool.BaseTool):
             timeRange = JavaTimeRange()
         else:
             timeRange = timeRange.toJavaObj()
-            
+
         from com.raytheon.viz.gfe.procedures import ProcedureUtil
         if varDict:
             varDict = str(varDict)
 
         result = ProcedureUtil.callFromSmartScript(self.__dataMgr, name, editArea, timeRange, varDict)
-        
+
         # callSmartTool raises the exception put here it is returned.
         if result:
-           return Exceptions.EditActionError(errorType="Error", errorInfo=str(result))   
-        return None        
-    
+           return Exceptions.EditActionError(errorType="Error", errorInfo=str(result))
+        return None
+
 
     ###########################
     ## Creating On-the-fly elements
@@ -1035,19 +1037,19 @@ class SmartScript(BaseTool.BaseTool):
         # If the model and element do not already exist, creates them on-the-fly
         #
         # The descriptiveName, timeConstraints, precision, minAllowedValue,
-        # maxAllowedValue, units, rateParm, discreteKeys, discreteOverlap, 
+        # maxAllowedValue, units, rateParm, discreteKeys, discreteOverlap,
         # and discreteAuxDataLength only need to be
-        # specified for the first grid being created.  These 
-        # values are ignored for subsequent calls to createGrid() for 
+        # specified for the first grid being created.  These
+        # values are ignored for subsequent calls to createGrid() for
         # the same weather element.
 
-        # For new parms, the defaultColorTable is the one to be used for 
+        # For new parms, the defaultColorTable is the one to be used for
         # display.  If not specified and not in the gfe configuration file,
         # a DEFAULT color table will be used.
 
         # DISCRETE elements require a definition for discreteKeys,
-        # discreteAuxDataLength,  and discreteOverlap. For DISCRETE, the 
-        # precision, minAllowedValue, maxAllowedValue, and rateParm 
+        # discreteAuxDataLength,  and discreteOverlap. For DISCRETE, the
+        # precision, minAllowedValue, maxAllowedValue, and rateParm
         # are ignored.
 
         # Note that this works for numeric grids only.
@@ -1126,9 +1128,9 @@ class SmartScript(BaseTool.BaseTool):
                   timeConstraints.getStartTime())
             if precision is None:
                 precision = exampleGPI.getPrecision()
-            if maxAllowedValue is None:                
+            if maxAllowedValue is None:
                 maxAllowedValue = exampleGPI.getMaxValue()
-            if minAllowedValue is None:                
+            if minAllowedValue is None:
                 minAllowedValue = exampleGPI.getMinValue()
             if units is None:
                 units = exampleGPI.getUnitString()
@@ -1174,7 +1176,7 @@ class SmartScript(BaseTool.BaseTool):
                 from com.raytheon.viz.gfe import Activator
                 prefName = element + "_defaultColorTable"
                 Activator.getDefault().getPreferenceStore().setValue(prefName, defaultColorTable)
- 
+
             #create the parm
             parm = self.__parmMgr.createVirtualParm(pid, gpi, None, 1, 1)
 
@@ -1212,7 +1214,7 @@ class SmartScript(BaseTool.BaseTool):
             ngZero = numericGrid[0].astype(float32)
             ngOne = numericGrid[1].astype(float32)
             javaGrid = Grid2DFloat.createGrid(ngZero.shape[1], ngZero.shape[0], ngZero)
-            auxJavaGrid = Grid2DFloat.createGrid(ngOne.shape[1], ngOne.shape[0], ngOne)            
+            auxJavaGrid = Grid2DFloat.createGrid(ngOne.shape[1], ngOne.shape[0], ngOne)
         else:
             raise ValueError, "Unknown elementType: %s" % elementType
 
@@ -1223,7 +1225,7 @@ class SmartScript(BaseTool.BaseTool):
         parm.replaceGriddedData(timeRange, gridData)
 
     ##
-    # 
+    #
     # @param model: Model name
     # @type model: string
     # @param element: Element name
@@ -1253,7 +1255,7 @@ class SmartScript(BaseTool.BaseTool):
         # color.  If "on" is 0, turn off the highlight.
         parm = self.getParm(model, element, level)
         from com.raytheon.viz.gfe.core.msgs import HighlightMsg
-        
+
         trs = jep.jarray(1, javaTimeRange)
         trs[0] = timeRange.toJavaObj()
         HighlightMsg(parm, trs, on, color).send()
@@ -1337,7 +1339,7 @@ class SmartScript(BaseTool.BaseTool):
         # returns most recent NAM12 model
         result = self.__parmMgr.findDatabase(databaseName, version)
         if result is not None:
-            result = DatabaseID.DatabaseID(result)             
+            result = DatabaseID.DatabaseID(result)
         return result
 
     def getDatabase(self, databaseString):
@@ -1372,7 +1374,7 @@ class SmartScript(BaseTool.BaseTool):
         #    timeRange = self.createTimeRange(0,121,"Zulu")
         #    databaseID = self.findDatabase("NAM12")
         #    timeRange = self.createTimeRange(120,241,"Database",databaseID)
-        
+
         if mode == "Database" and dbID is None:
             raise TypeError("SmartScript createTimeRange: " + \
                       "Must specify a database ID for mode=Database")
@@ -1382,12 +1384,12 @@ class SmartScript(BaseTool.BaseTool):
             gmTime = time.mktime(time.gmtime())
             localAbsTime = AbsTime.AbsTime(localTime)
             delta = localTime - gmTime
-            
+
             todayMidnight = AbsTime.absTimeYMD(localAbsTime.year, localAbsTime.month,
                                                localAbsTime.day)
             start = todayMidnight + (startHour * 3600) - delta
             end = todayMidnight + (endHour * 3600) - delta
-            return TimeRange.TimeRange(start, end)                    
+            return TimeRange.TimeRange(start, end)
         elif mode == "Database" and dbID.toJavaObj().getModelTime() != "00000000_0000":
             start = dbID.modelTime() + (startHour * 3600)
             end = dbID.modelTime() + (endHour * 3600)
@@ -1454,7 +1456,7 @@ class SmartScript(BaseTool.BaseTool):
             zoneName = time.strftime("%Z", localTime)
             display = string.replace(display, "GMT", zoneName)
         return display
-        
+
     def _shiftedTimeRange(self, timeRange):
         localTime, shift = self._determineTimeShift()
         return TimeRange.TimeRange(timeRange.startTime() + shift,
@@ -1474,11 +1476,11 @@ class SmartScript(BaseTool.BaseTool):
         ''' Assumes date (default is current Simulate Time) is a UTC time to convert
             to the time zone tz (default is Site Time Zone).
             returns datetime
-            
+
             This should be used instead of time.localtime()
         '''
         from pytz import timezone
-        
+
         if tz is None:
             tzname = self.__dataMgr.getClient().getSiteTimeZone()
             tz = timezone(tzname)
@@ -1490,13 +1492,13 @@ class SmartScript(BaseTool.BaseTool):
 
     def _gmtime(self, date=None):
         ''' This takes date (default current Simulated Time) and converts it to AbsTime
-        
+
             This should be used instead of time.gmtime()
         '''
         if date is None:
             date = SimulatedTime.getSystemTime().getTime()
         return AbsTime.AbsTime(date)
-    
+
     def dayTime(self, timeRange, startHour=6, endHour=18):
         # Return 1 if start of timeRange is between the
         #  startHour and endHour, Return 0 otherwise.
@@ -1508,7 +1510,7 @@ class SmartScript(BaseTool.BaseTool):
             return 1
         else:
             return 0
-        
+
     def determineTimeShift(self):
         loctime, shift = self._determineTimeShift()
         return shift
@@ -1527,7 +1529,7 @@ class SmartScript(BaseTool.BaseTool):
 
     def saveEditArea(self, editAreaName, refData):
         # Saves the AFPS.ReferenceData object with the given name
-        
+
         from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData, ReferenceID
         refID = ReferenceID(editAreaName)
         refData = ReferenceData(refData.getGloc(), refID, refData.getGrid())
@@ -1542,13 +1544,13 @@ class SmartScript(BaseTool.BaseTool):
     def getActiveEditArea(self):
         # Get the AFPS.ReferenceData area for the active one in the GFE
         return self.__dataMgr.getRefManager().getActiveRefSet()
-    
+
     def clearActiveEditArea(self):
         # Clear the active edit area in the GFE
         #area = AFPS.ReferenceData_default()
         #self.__dataMgr.referenceSetMgr().setActiveRefSet(area)
         self.__dataMgr.getRefManager().clearRefSet()
-    
+
     def setActiveElement(self, model, element, level, timeRange,
                          colorTable=None, minMax=None, fitToData=0):
         # Set the given element to the active one in the GFE
@@ -1589,7 +1591,7 @@ class SmartScript(BaseTool.BaseTool):
             fitter.fitToData()
         spatialMgr.activateParm(parm)
         spatialMgr.setSpatialEditorTime(timeRange.startTime().javaDate())
-                
+
 
     def getActiveElement(self):
         return self.__dataMgr.getSpatialDisplayManager().getActivatedParm()
@@ -1616,11 +1618,11 @@ class SmartScript(BaseTool.BaseTool):
 
     def getLatLon(self, x, y):
         # Get the latitude/longitude values for the given grid point
-        from com.vividsolutions.jts.geom import Coordinate        
+        from com.vividsolutions.jts.geom import Coordinate
         coords = Coordinate(float(x), float(y))
         cc2D = self.getGridLoc().latLonCenter(coords)
         return cc2D.y, cc2D.x
-    
+
     def getLatLonGrids(self):
         gridLoc = self.getGridLoc()
         latLonGrid = gridLoc.getLatLonGrid().__numpy__[0];
@@ -1675,10 +1677,10 @@ class SmartScript(BaseTool.BaseTool):
         # of the variations, see the "getValue" documentation above.
 
         siteID = self.__mutableID.siteID()
-        if type(model) is types.StringType:            
+        if type(model) is types.StringType:
             modelStr = model
         else:
-            # Must be a databaseID, so get model string            
+            # Must be a databaseID, so get model string
             modelStr = model.modelName()
         if element == "Topo" or modelStr == self.__mutableID.modelName():
             exprName = element
@@ -1739,7 +1741,7 @@ class SmartScript(BaseTool.BaseTool):
         #print "Expression Name", exprName
         parm = self.__parmMgr.getParmInExpr(exprName, 1)
         return parm
-    
+
     def getParmByExpr(self, exprName):
         #print "Expression Name", exprName
         parm = self.__parmMgr.getParmInExpr(exprName, 1)
@@ -1748,14 +1750,14 @@ class SmartScript(BaseTool.BaseTool):
     ##
     # @param elementNames: ignored
     #
-    # @deprecated: Cacheing is controlled by the system. 
+    # @deprecated: Cacheing is controlled by the system.
     def cacheElements(self, elementNames):
         pass
 
     ##
-    # Cacheing is controlled by the system. Users may still call this method 
+    # Cacheing is controlled by the system. Users may still call this method
     # to delete temporary parms in the parm manager.
-    # 
+    #
     # @param elementNames: ignored
     def unCacheElements(self, elementNames):
         self.__parmMgr.deleteTemporaryParms()
@@ -1808,12 +1810,12 @@ class SmartScript(BaseTool.BaseTool):
             recList = self.__dataMgr.getClient().getGridInventory(parm.getParmID())
             publishTimeRange = timeRange
             if recList is not None:
-                recSize = recList.size()                
+                recSize = recList.size()
                 for x in range(recSize):
                     tr = TimeRange.TimeRange(recList.get(x))
-                    if tr.overlaps(timeRange):                    
+                    if tr.overlaps(timeRange):
                         publishTimeRange = publishTimeRange.combineWith(tr)
-                                
+
             cgr = CommitGridRequest(parm.getParmID(), publishTimeRange.toJavaObj())
             requests.add(cgr)
         resp = self.__dataMgr.getClient().commitGrid(requests)
@@ -1825,7 +1827,7 @@ class SmartScript(BaseTool.BaseTool):
             p = self.__parmMgr.getParm(pid)
             if not p:
                 p = self.__parmMgr.addParm(pid, False, False)
-            p.inventoryArrived(notify.getReplacementTimeRange(), notify.getHistories())                                                                   
+            p.inventoryArrived(notify.getReplacementTimeRange(), notify.getHistories())
 
     def combineMode(self):
         from com.raytheon.viz.gfe.core.parm import ParmState
@@ -1884,7 +1886,7 @@ class SmartScript(BaseTool.BaseTool):
         prefs = Activator.getDefault().getPreferenceStore()
         if prefs.contains(itemName):
             if prefs.isString(itemName):
-                return str(prefs.getString(itemName))            
+                return str(prefs.getString(itemName))
             elif prefs.isInt(itemName):
                 return prefs.getInt(itemName)
             elif prefs.isFloat(itemName):
@@ -1941,7 +1943,7 @@ class SmartScript(BaseTool.BaseTool):
     def getTopo(self):
         # Return the numeric topo grid
         if self.__topoGrid is None:
-            topo = self.__parmMgr.getParmInExpr("Topo", True)            
+            topo = self.__parmMgr.getParmInExpr("Topo", True)
             self.__topoGrid = self.__cycler.getCorrespondingResult(
                                 topo, TimeRange.allTimes().toJavaObj(), "TimeWtAverage")[0]
             self.__topoGrid = self.__topoGrid.getGridSlice().__numpy__[0]
@@ -2019,7 +2021,7 @@ class SmartScript(BaseTool.BaseTool):
     ##
     # Get the index of uglyStr within keys.
     # This routine compares normalized (sorted) versions of uglyStr and
-    # keys to be sure that equivalent hazards are assigned the same grid 
+    # keys to be sure that equivalent hazards are assigned the same grid
     # index.
     # When a matching key is not in keys, uglyStr will be added to keys
     # and the index of the new entry will be returned.
@@ -2029,7 +2031,7 @@ class SmartScript(BaseTool.BaseTool):
     # @param keys: Existing hazard keys
     # @type keys: list
     # @return: The index of a key equivalent to uglyStr in keys
-    # @rtype: int 
+    # @rtype: int
     def getIndex(self, uglyStr, keys):
         # Returns the byte value that corresponds to the
         #   given ugly string. It will add a new key if a new ugly
@@ -2052,7 +2054,7 @@ class SmartScript(BaseTool.BaseTool):
         #  The ugly strings are also used by DISCRETE.  The keys are
         #  separated by '^' for the subkeys.
         #  18 Nov 2005 - tl
-        #  Added sorting to ugly strings to prevent duplicate keys 
+        #  Added sorting to ugly strings to prevent duplicate keys
         #  Duplicate keys causes a bug when generating hazards grids.
 
         sortedUglyStr = self.sortUglyStr(uglyStr)
@@ -2074,6 +2076,10 @@ class SmartScript(BaseTool.BaseTool):
         # "editArea" can be a named area or a referenceData object
         if type(editArea) is types.StringType:
             editArea = self.getEditArea(editArea)
+
+        if editArea.isQuery():
+            editArea = self.__refSetMgr.evaluateQuery(editArea.getQuery())
+
         return editArea.getGrid().__numpy__[0]
 
     def decodeEditArea(self, mask):
@@ -2086,7 +2092,7 @@ class SmartScript(BaseTool.BaseTool):
         bytes = mask.astype('int8')
         grid = Grid2DBit.createBitGrid(nx, ny, bytes)
         return ReferenceData(gridLoc, ReferenceID("test"), grid)
-        
+
 
     def getindicies(self, o, l):
         if o > 0:
@@ -2147,7 +2153,7 @@ class SmartScript(BaseTool.BaseTool):
         gridLoc = self.__parmMgr.compositeGridLocation()
         gridShape = (gridLoc.getNy().intValue(), gridLoc.getNx().intValue())
         return gridShape
-    
+
 #########################################################################
 ## Procedure methods                                                   ##
 #########################################################################
@@ -2203,7 +2209,7 @@ class SmartScript(BaseTool.BaseTool):
     #    Example:
     #       databaseID = self.findDatabase("NAM12") # Most recent NAM12 model
     #       timeRange = self.createTimeRange(0, 49, "Database", databaseID)
-    #       self.copyToCmd([('MaxT', 'T'), ('T', 'MinT')], databaseID, 
+    #       self.copyToCmd([('MaxT', 'T'), ('T', 'MinT')], databaseID,
     #         timeRange)
     #    will copy the Max Temperature into T and T into MinT.
     #    from the latest NAM12 and place them into the forecast.
@@ -2383,10 +2389,10 @@ class SmartScript(BaseTool.BaseTool):
         for element in elements:
             self.__parmOp.fragmentCmd(element, timeRange)
 
-    def assignValueCmd(self, elements, timeRange, value):        
+    def assignValueCmd(self, elements, timeRange, value):
         from com.raytheon.viz.gfe.core.wxvalue import ScalarWxValue, VectorWxValue, WeatherWxValue
         if isinstance(timeRange, TimeRange.TimeRange):
-            timeRange = timeRange.toJavaObj()        
+            timeRange = timeRange.toJavaObj()
         for element in elements:
             parm = self.__parmMgr.getParmInExpr(element, 1)
             if type(value) == types.TupleType:
@@ -2394,8 +2400,8 @@ class SmartScript(BaseTool.BaseTool):
             elif type(value) == types.StringType:
                 newvalue = WeatherKey(value)
                 newvalue = WeatherWxValue(newvalue, parm)
-            else:                
-                newvalue = ScalarWxValue(float(value), parm)            
+            else:
+                newvalue = ScalarWxValue(float(value), parm)
             self.__parmOp.assignValueCmd(element, timeRange, newvalue)
 
     def __getUserFile(self, name, category):
@@ -2407,10 +2413,10 @@ class SmartScript(BaseTool.BaseTool):
         lc = pathMgr.getContext(LocalizationType.valueOf('CAVE_STATIC'), LocalizationLevel.valueOf('USER'))
         lf = pathMgr.getLocalizationFile(lc, path)
         return lf
-        
-    
+
+
     def saveObject(self, name, object, category):
-        import cPickle        
+        import cPickle
         # Save a Python object (e.g. a Numeric grid)
         # in the server under the given name
         #   Example:
@@ -2421,25 +2427,25 @@ class SmartScript(BaseTool.BaseTool):
         idx = fullpath.rfind("/")
         if not os.path.exists(fullpath[:idx]):
             os.makedirs(fullpath[:idx])
-        openfile = open(fullpath, 'w')                
+        openfile = open(fullpath, 'w')
         cPickle.dump(object, openfile)
-        openfile.close()        
+        openfile.close()
         lf.save()
-    
+
     def getObject(self, name, category):
-        import cPickle        
+        import cPickle
         # Returns the given object stored in the server
         #   Example:
         #   discrepancyValueGrid = self.getObject("MyGrid","DiscrepancyValueGrids")
-        #        
+        #
         lf = self.__getUserFile(name, category)
         fullpath = lf.getFile().getPath()
-        openfile = open(fullpath, 'r')                
-        obj = cPickle.load(openfile)                
-        openfile.close()        
+        openfile = open(fullpath, 'r')
+        obj = cPickle.load(openfile)
+        openfile.close()
         return obj
 
-    def deleteObject(self, name, category):        
+    def deleteObject(self, name, category):
         # Delete the given object stored in the server
         #    Example:
         #    self.deleteObject("MyGrid", "DiscrepancyValueGrids")
@@ -2459,7 +2465,7 @@ class SmartScript(BaseTool.BaseTool):
             return a
         else:
             return None
-        
+
     def availableDatabases(self):
         dbs = []
         availDbs = self.__parmMgr.getAvailableDbs()
@@ -2467,7 +2473,7 @@ class SmartScript(BaseTool.BaseTool):
             dbId = availDbs.get(i)
             dbs.append(DatabaseID.DatabaseID(dbId))
         return dbs
-    
+
     def knownOfficeTypes(self):
         import JUtil
         return JUtil.javaStringListToPylist(self.__dataMgr.knownOfficeTypes())
@@ -2475,7 +2481,7 @@ class SmartScript(BaseTool.BaseTool):
     # Retrieves a text product from the text database
     def getTextProductFromDB(self, productID):
         from com.raytheon.viz.gfe.product import TextDBUtil
-        
+
         opMode = self.gfeOperatingMode()=="OPERATIONAL"
         fullText = TextDBUtil.retrieveProduct(productID, opMode)
         textList =  fullText.splitlines(True)
