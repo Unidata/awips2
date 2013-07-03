@@ -21,9 +21,8 @@ package com.raytheon.viz.satellite.tileset;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
-import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
+import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.tile.RecordTileSetRenderable;
 import com.raytheon.uf.viz.core.tile.Tile;
 
@@ -47,9 +46,7 @@ import com.raytheon.uf.viz.core.tile.Tile;
 
 public class SatTileSetRenderable extends RecordTileSetRenderable {
 
-    private final boolean signed;
-
-    private final AbstractVizResource<?,?> resource;
+    private final AbstractVizResource<?, ?> resource;
 
     /**
      * Create satellite tile set renderable
@@ -58,22 +55,26 @@ public class SatTileSetRenderable extends RecordTileSetRenderable {
      * @param record
      * @param signed
      */
-    public SatTileSetRenderable(AbstractVizResource<?,?> resource, SatelliteRecord record) {
+    public SatTileSetRenderable(AbstractVizResource<?, ?> resource,
+            SatelliteRecord record) {
         // Total levels = Number of interpolation levels + base level
         super(resource, record, record.getSpatialObject(), record
                 .getInterpolationLevels() + 1);
         this.resource = resource;
-        // TODO: Better way of determining this (taken from SatFileBasedTileSet)
-        this.signed = resource.getCapability(ColorMapCapability.class)
-                .getColorMapParameters().getDataUnit() instanceof GenericPixel;
     }
 
     @Override
     protected ColorMapData retrieveRecordData(Tile tile) {
-        ColorMapData data = new SatDataRetriever(record, tile.tileLevel,
-                tile.getRectangle(), signed).getColorMapData();
+        return new SatDataRetriever((SatelliteRecord) record, tile.tileLevel,
+                tile.getRectangle()).getColorMapData();
+    }
+    
+    
+
+    @Override
+    protected void issueRefresh(IGraphicsTarget target) {
+        super.issueRefresh(target);
         resource.issueRefresh();
-        return data;
     }
 
     public SatelliteRecord getSatelliteRecord() {
