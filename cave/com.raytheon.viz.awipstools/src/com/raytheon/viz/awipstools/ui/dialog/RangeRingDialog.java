@@ -74,6 +74,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  07-31-12     #875       rferrel    Use MenuButton to show points in groups.
  *  11-05-12     #1304      rferrel    Added Point Change Listener.
  *  11-29-12     #1365      rferrel    Properly close dialog when not on UI thread.
+ *  07-02-2013   #2145      rferrel    populatePointsMenuButton no longer modifies movableRings.
  * 
  * </pre>
  * 
@@ -311,13 +312,6 @@ public class RangeRingDialog extends CaveJFACEDialog implements
 
         // Determine the maximum row.id's width
         rowIdWidth = pointsMenuButton.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
-
-        for (RangeRing ring : rangeRings) {
-            if (ring.getType() != RangeRingType.FIXED) {
-                MovableRingRow row = getNewMovableRow();
-                fillMovableRow(row, ring);
-            }
-        }
     }
 
     private void populatePoints(Menu menu, IPointNode root) {
@@ -668,7 +662,9 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         });
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.eclipse.jface.dialogs.Dialog#close()
      */
     @Override
@@ -679,7 +675,9 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         return super.close();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.uf.viz.points.IPointChangedListener#pointChanged()
      */
     @Override
