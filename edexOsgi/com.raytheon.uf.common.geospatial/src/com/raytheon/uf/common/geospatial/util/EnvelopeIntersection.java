@@ -187,8 +187,8 @@ public class EnvelopeIntersection {
             if (coords[0].equals(coords[coords.length - 1])) {
                 border = gf.createPolygon(gf.createLinearRing(coords), null);
                 border = correctedPolygon = JTS.transform(corrector.correct(JTS
-                        .transform(border,
-                        targetCRSToLatLon)), latLonToTargetCRS);
+                        .transform(border, targetCRSToLatLon)),
+                        latLonToTargetCRS);
             }
         }
         if ((border == null || border.isEmpty() || border.isValid() == false)
@@ -504,7 +504,8 @@ public class EnvelopeIntersection {
                 for (LineString ls : lineStrings) {
                     envelopes.add(ls.getEnvelope());
                 }
-                gf.createGeometryCollection(envelopes.toArray(new Geometry[0]));
+                border = gf.createGeometryCollection(envelopes
+                        .toArray(new Geometry[0]));
             }
         }
 
