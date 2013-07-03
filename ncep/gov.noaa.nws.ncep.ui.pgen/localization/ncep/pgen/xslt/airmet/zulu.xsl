@@ -617,7 +617,7 @@
 		</xsl:param>
 		<xsl:choose>
 			<xsl:when test="$numFzlvl > 0 ">
-				<xsl:variable name="areaRange">
+<!--				<xsl:variable name="areaRange">
 					<xsl:for-each select="//Gfa[@fzlRange]">
 						<xsl:if test="contains(@fzlRange, $FAarea)">
 	                        <xsl:value-of select="substring-after(substring-after(@fzlRange, $FAarea), ';')"/>
@@ -628,11 +628,21 @@
 
 				<xsl:value-of
 					select="substring-before(substring-after($areaRange, ';'),';')" />
+-->
+				<xsl:for-each select="//Gfa[@fzlRange and contains(@fzlRange, $FAarea)]">
+                    <xsl:sort select="substring-after(substring-after(substring-after(@fzlRange, $FAarea), ';'), ';')" data-type="number" order="ascending" />
+                       <xsl:if test="position() = 1">
+ 					      <xsl:value-of select="substring-after(substring-after(substring-after(@fzlRange, $FAarea), ';'), ';')" />
+					</xsl:if>    					
+ 				</xsl:for-each>
 
 			</xsl:when>
 			<xsl:otherwise>
 				<xsl:for-each select="//Gfa[@hazard='M_FZLVL' and contains(@fcstHr,'-')] ">
+                    <xsl:sort select="@bottom" data-type="number" order="ascending" />
+                    <xsl:if test="position() = 1">
 					<xsl:value-of select="@bottom" />
+					</xsl:if>   
 				</xsl:for-each>
 
 			</xsl:otherwise>
@@ -646,7 +656,7 @@
 
 		<xsl:choose>
 			<xsl:when test="$numFzlvl > 0 ">
-				<xsl:variable name="areaRange">
+<!--				<xsl:variable name="areaRange">
 					<xsl:for-each select="//Gfa[@fzlRange]">
 						<xsl:if test="contains(@fzlRange, $FAarea)">
 	                        <xsl:value-of select="substring-after(substring-after(@fzlRange, $FAarea), ';')"/>
@@ -655,12 +665,24 @@
 				</xsl:variable>
 
 				<xsl:value-of select="substring-before($areaRange, ';')" />
+-->
+
+					<xsl:for-each select="//Gfa[@fzlRange and contains(@fzlRange, $FAarea)]">
+                        <xsl:sort select="substring-before(substring-after(substring-after(@fzlRange, $FAarea), ';'), ';')" data-type="number" order="descending" />
+                         <xsl:if test="position() = 1">
+ 					        <xsl:value-of select="substring-before(substring-after(substring-after(@fzlRange, $FAarea), ';'), ';')" />
+					     </xsl:if>    					
+ 					</xsl:for-each>
+
+                
 
 			</xsl:when>
 			<xsl:otherwise>
 				<xsl:for-each select="//Gfa[@hazard='M_FZLVL' and contains(@fcstHr,'-')] ">
-
+                    <xsl:sort select="@top" data-type="number" order="descending" />
+                    <xsl:if test="position() = 1">
 					<xsl:value-of select="@top" />
+					</xsl:if>   
 				</xsl:for-each>
 
 			</xsl:otherwise>

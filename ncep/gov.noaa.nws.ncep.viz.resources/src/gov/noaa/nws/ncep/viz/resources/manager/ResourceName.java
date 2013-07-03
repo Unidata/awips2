@@ -263,17 +263,6 @@ public class ResourceName {
 		return rscCategory == ResourceCategory.OverlayRscCategory;
 	}
 
-	public String getAbbreviatedName() {
-		if( !isValid() ) {
-			return "";
-		}
-		if( !getRscGroup().isEmpty() ) {
-			return rscType + File.separator + rscGroup;
-		}
-		
-		return rscCategory + File.separator + rscType;
-	}
-	
 	public String toString() {
 		if( rscCategory == null || rscCategory == ResourceCategory.NullCategory ||
 			rscType     == null || rscType.isEmpty() ||

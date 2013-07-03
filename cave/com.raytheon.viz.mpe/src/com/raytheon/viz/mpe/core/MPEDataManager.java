@@ -77,6 +77,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Nov 6, 2008  1649      snaples      Added new methods for getting and 
  *                                     updating RawPP records
  * Nov 24, 2008 1748      snaples      Added getters to MPEGageData
+ * Jun 18, 2013 16053     snaples      Removed methods set and getRadarEditFlag
  * </pre>
  * 
  * @author randerso
@@ -669,8 +670,6 @@ public class MPEDataManager {
     private HashMap<String, MPEGageData> editGages = new HashMap<String, MPEGageData>();
 
     private ArrayList<String> badGages = new ArrayList<String>();
-
-    private boolean radarEditFlag = false;
 
     private Map<Date, MPEDateInfo> dateMap;
 
@@ -1482,21 +1481,6 @@ public class MPEDataManager {
         } catch (VizException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * @param radarEditFlag
-     *            the radarEditFlag to set
-     */
-    public void setRadarEditFlag(boolean radarEditFlag) {
-        this.radarEditFlag = radarEditFlag;
-    }
-
-    /**
-     * @return the radarEditFlag
-     */
-    public boolean isRadarEditFlag() {
-        return radarEditFlag;
     }
 
     /**
