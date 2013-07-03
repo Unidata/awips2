@@ -1,22 +1,37 @@
 package gov.noaa.nws.ncep.viz.resources.manager;
 
-import gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider;
+import gov.noaa.nws.ncep.viz.common.area.AreaMenus;
+import gov.noaa.nws.ncep.viz.common.area.AreaMenusMngr;
+import gov.noaa.nws.ncep.viz.common.area.AreaName;
+import gov.noaa.nws.ncep.viz.common.area.AreaMenus.AreaMenuItem;
+import gov.noaa.nws.ncep.viz.common.area.AreaName.AreaSource;
+import gov.noaa.nws.ncep.viz.common.area.IAreaProviderCapable;
+import gov.noaa.nws.ncep.viz.common.area.IGridGeometryProvider;
+import gov.noaa.nws.ncep.viz.common.area.INcAreaProviderFactory;
+import gov.noaa.nws.ncep.viz.common.area.NcAreaProviderMngr;
+import gov.noaa.nws.ncep.viz.common.area.PredefinedArea;
+import gov.noaa.nws.ncep.viz.common.area.PredefinedAreaFactory;
+import gov.noaa.nws.ncep.viz.common.area.IGridGeometryProvider.ZoomLevelStrings;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsDescriptor;
+import gov.noaa.nws.ncep.viz.common.display.INatlCntrsPaneManager;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsRenderableDisplay;
 import gov.noaa.nws.ncep.viz.common.display.INcPaneID;
 import gov.noaa.nws.ncep.viz.common.display.INcPaneLayout;
+import gov.noaa.nws.ncep.viz.common.display.IPaneLayoutable;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayName;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedArea;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedAreasMngr;
-import gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider.ZoomLevelStrings;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedArea.AreaSource;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory.ResourceSelection;
 import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
+import gov.noaa.nws.ncep.viz.ui.display.AbstractNcPaneManager;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
+import gov.noaa.nws.ncep.viz.ui.display.NCPaneManager;
+import gov.noaa.nws.ncep.viz.ui.display.NatlCntrsEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayAreaProviderFactory;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
 import gov.noaa.nws.ncep.viz.ui.display.NcPaneLayout;
 import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 import gov.noaa.nws.ncep.viz.ui.display.NcPaneID;
@@ -30,9 +45,11 @@ import java.util.Vector;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 
+import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 
 /**
@@ -68,6 +85,8 @@ import com.raytheon.uf.viz.core.rsc.DisplayType;
  * 11/18/2012   #630       Greg Hull       construct renderableDisplay from PredefinedArea
  * 11/22/2012   #630       Greg Hull       store Predefined Areas from Resources or Displays
  * 02/20/2013   #972       Greg Hull       support new NcDisplayType
+ * 05/20/2013   #862       Greg Hull       getAvailAreaMenuItems() ; rm maps to store avail areas, 
+ *                                         and use new areaProvider sources.
  *
  * </pre>
  * 
@@ -81,6 +100,12 @@ public class RscBundleDisplayMngr  {
 		
 		private Vector<ResourceSelection> seldResources = new Vector<ResourceSelection>();
 		
+		// if set with a 'custom' area defined by an RBD then this will
+		// be set to the custom area. Since it can't be accessed by an areaFactory
+		// until it is loaded, this is use to reset the area should the user reselect 
+		// the custom area from the gui.
+		private PredefinedArea initialArea = null;
+		
 		private PredefinedArea area = null;
 		
 		// we could use this if we want to be able to reset the area's if
@@ -92,7 +117,7 @@ public class RscBundleDisplayMngr  {
 			seldResources = new Vector<ResourceSelection>();
 			
 			try {
-				area = PredefinedAreasMngr.getDefaultPredefinedAreaForDisplayType( rbdType );
+				area = PredefinedAreaFactory.getDefaultPredefinedAreaForDisplayType( rbdType );
 			} catch (VizException e1) {
 				System.out.println("Error getting default PredefinedArea: "+e1.getMessage() );
 			}
@@ -102,12 +127,28 @@ public class RscBundleDisplayMngr  {
 			}
 		}
 		
+		public PredefinedArea getInitialArea() {
+			return initialArea;
+		}
+
 		public PredefinedArea getArea() {
 			return area;
 		}
 
+		// bit of a hack here. null indicates to reset to a custom area from an rbd
+		// that was initially set from an earlier call to setArea() where the source
+		// was the INITIAL_DISPLAY_AREA from an RBD.
 		public void setArea( PredefinedArea pa ) {
+			if( pa == null ) {
+				area = initialArea;
+			}
+			else {
 			area = pa;
+				if( initialArea == null ||
+					area.getSource() == AreaSource.INITIAL_DISPLAY_AREA ) {
+					initialArea = area;
+				}
+			}
 		}
 		
 		public void setZoomLevel( String zl ) {
@@ -266,17 +307,6 @@ public class RscBundleDisplayMngr  {
 	// any changes from the GUI.
 	private NCTimeMatcher initialTimeMatcher = null; 
 	
-	private Map<String,PredefinedArea> availPredefinedAreas = 
-								new HashMap<String,PredefinedArea>();
-	
-	// TODO : change this to a Predefined area created from the IGridGeometryProvider (ie satellite/radar/grid)
-	// so that we can save the zoomLevel (ex FitToScreen or SizeOfImage)
-	//
-	private Map<String,List<IGridGeometryProvider>> availAreaProvidersMap = 
-		                        new HashMap<String,List<IGridGeometryProvider>>();
-//	private Map<String,List<PredefinedArea>> availAreaProvidersMap = 
-//        new HashMap<String,List<PredefinedArea>>();
-	
 	public NcPaneLayout getMaxPaneLayout() { 
 		return maxLayout;
 	}
@@ -398,24 +428,29 @@ public class RscBundleDisplayMngr  {
 		selectedPaneId = new NcPaneID(); // 0,0
 		selectedPaneData = paneSelectionDataMap.get( selectedPaneId.toString() );
 		
-		availPredefinedAreas.clear();
+//		availPredefinedAreas.clear();
 		
-		for( String pAreaName : PredefinedAreasMngr.getAllAvailAreasForDisplayType( rbdType ) ) {
-			if( !availPredefinedAreas.containsKey( pAreaName ) ) {				
-				try {
-					PredefinedArea parea = PredefinedAreasMngr.getPredefinedArea( dispType, pAreaName); 
-					availPredefinedAreas.put( pAreaName, parea );
-//					System.out.println("adding area "+pAreaName+" "+parea.getProviderName()+ " "+parea.getAreaName() );
-				} catch (VizException e) {
-					System.out.println("Error creating Area, "+pAreaName+": "+ e.getMessage() );
-				}
-//				availAreaProvidersMap.put( pAreaName, new ArrayList<IGridGeometryProvider>() );
-			}
-//			availAreaProvidersMap.get( pAreaName ).add(
-//					PredefinedAreasMngr.getPredefinedArea( pAreaName );)
-		}
+		// if not an NMAP display then there is only one 'default' area.
+		//
+//		if( rbdType != NcDisplayType.NMAP_DISPLAY ) {
+//			PredefinedArea parea = PredefinedAreasMngr.getInstance().createDefaultNonMapArea( rbdType );
+//			availPredefinedAreas.put( parea.getAreaName(), parea );
+//		}
+//		else { // get a list of all the areas 
+//			for( String pAreaName : PredefinedAreasMngr.getInstance().getAvailableAreaNames()/*getAllAvailAreasForDisplayType( rbdType*/ ) {
+//				if( !availPredefinedAreas.containsKey( pAreaName ) ) {		
+//					try {
+//						PredefinedArea parea = PredefinedAreasMngr.getPredefinedArea( /*dispType,*/ pAreaName); 
+//						availPredefinedAreas.put( pAreaName, parea );
+//					}
+//					catch (VizException e) {
+//						System.out.println("Error creating Area, "+pAreaName+": "+ e.getMessage() );
+//					}				
+//				}
+//			}
+//		}	
 
-		availAreaProvidersMap.clear();		
+//		availAreaProvidersMap.clear();		
 		
 		multiPane = false;
 		
@@ -475,8 +510,7 @@ public class RscBundleDisplayMngr  {
 		for( ResourcePair rp : dispPane.getDescriptor().getResourceList() ) {
 			if( rp.getResourceData() instanceof INatlCntrsResourceData ) {
     			try {
-    				ResourceSelection rscSel = 
-    					ResourceFactory.createResource( rp );
+    				ResourceSelection rscSel = ResourceFactory.createResource( rp );
         			
     				addSelectedResource( rscSel );	
         			
@@ -486,8 +520,7 @@ public class RscBundleDisplayMngr  {
     			}
     			catch( VizException ve ) {
         			System.out.println("Unable to load Resource:"+
-        				((INatlCntrsResourceData)rp.getResourceData()).
-        				               getResourceName().toString() );
+        				((INatlCntrsResourceData)rp.getResourceData()).getResourceName().toString() );
         			continue;
     			}
     		}
@@ -495,55 +528,72 @@ public class RscBundleDisplayMngr  {
     			System.out.println("Unable to load non-NC non-System Resource:"+rp.getResourceData().toString() );
     		}
     	}
+		
 		// how to set size-of-image if the imported zoom level is not -1? we can't even tell if 
 		// it has been changed from the original size-of-image???
-
-		// set the areaName and if not a regular PredefinedArea (ie from 
-		// a resource or from a display that has been changed from the original 
-		// area, then we need to add this as an option in the list.
-    	// (we have to do this after setting the selected resources since 
-    	// for resource specified areas the area must be in the list of available areas)
 		//
-		IGridGeometryProvider currArea = dispPane.getCurrentArea();
-		IGridGeometryProvider initialArea = dispPane.getInitialArea();
+
+		// set the selected areaname from the display using the following rules.
+		// if this is from a current editor display and the current area has been changed from the initial area 
+		// that the display was loaded with  then the selected area will be the current area of the display 
+		// (the source is DISPLAY_AREA and the areaname is the name of the display pane)
+		//     if from a current editor and the current and initial areas are the same then use the
+		// name of the area initially used to load the display. 
+		//     if this display pane is imported from and RBD then the initial area and the current area 
+		// should be the same. 
+//		AreaName seldAreaName = new AreaName( AreaSource.PREDEFINED_AREA, rbdType.getDefaultMap() );
+
+		PredefinedArea initialArea = dispPane.getInitialArea();
+		
+//		AreaName seldAreaName = new AreaName( initialArea.getSource(), initialArea.getAreaName() );
+		PredefinedArea seldPredefinedArea = initialArea;
+		
+		// if the display's current area is different than its initial area then  
+		// set the display as the selected area otherwise use the name of the area
+		// originally used to set the display's area.
+		NcDisplayName dispName = dispPane.getPaneName().getDispName();				
+
+		if( dispName.getId() > 0 &&  //dispPane.getPaneManager() instanceof NCPaneManager &&
+			dispPane instanceof IAreaProviderCapable ) {
+			
+			// the name of the display's area will be the name of the pane.
+			AreaName currDispAreaName = new AreaName( AreaSource.DISPLAY_AREA,	
+														((IAreaProviderCapable)dispPane).getAreaName() );			
+			try {
+				IGridGeometryProvider currGeom = NcAreaProviderMngr.createGeomProvider( currDispAreaName );
 
 		// the name of the selected area will be the current area of the imported display
 		// unless the area has not been changed and the initial area is a predefined area
-		String seldAreaName = currArea.getProviderName();
-
-		addAvailAreaProvider( currArea );
-		
-		if( initialArea != null ) { // sanity check ; should only happen for out of date Rbds.
-			PredefinedArea pArea = (PredefinedArea) initialArea;
+				if( currGeom != null && initialArea != null ) { // sanity check 
 			
-			if( pArea.getAreaSource() != AreaSource.DISPLAY_AREA ) {
+					PredefinedArea currArea = PredefinedAreaFactory.createPredefinedArea(currGeom);
 				
-				if( PredefinedArea.areAreasEqual( pArea, (PredefinedArea)currArea ) ) {
-					
-					seldAreaName = pArea.getAreaName();					
-				}
-				else if( pArea.getAreaSource() == AreaSource.RESOURCE_DEFINED ) {
-
-					// set the selected area but also need to update the area with the zoom level
-					// since it was created (when the resource was added) with the default zoom level.
-					//     TODO : will need to change the availAreaProvidersMap to be PredefinedAreas in order to support this.
+					// use the area of the current display if the areas are different
+					// or if the same but the initial area is not a named/saved area name.
 					//
-					seldAreaName = pArea.getAreaName();					
-
-					if( initialArea.getZoomLevel().equals( ZoomLevelStrings.SizeOfImage.toString() ) ) {						
+					if( PredefinedArea.areAreasEqual( initialArea, currArea ) ) {
+						if( initialArea.getSource() == AreaSource.INITIAL_DISPLAY_AREA ) {
+//							seldAreaName = currDispAreaName;
+							seldPredefinedArea = currArea;
+					}
+				}
+					else {
+//						seldAreaName = currDispAreaName;
+						seldPredefinedArea = currArea;
 					}
 				}
 			}
+			catch ( VizException ve ) {
+				System.out.println("error getting curr area for "+dispPane.getPaneName() );
+			}
 		}
-//		else {
-//			System.out.println("Initial  Area not set in RBD???");
-//		}
 
 		try {
-			setAreaProviderName( seldAreaName );
+			setSelectedArea( seldPredefinedArea );
 		}
 		catch ( VizException ve ) {
-			setAreaProviderName( rbdType.getDefaultMap() );
+			setSelectedAreaName( 
+					 new AreaName( AreaSource.PREDEFINED_AREA, rbdType.getDefaultMap() ) );
 		}
     	
 //		setSelectedPaneId( paneId );    	 
@@ -560,130 +610,215 @@ public class RscBundleDisplayMngr  {
 		return paneSelectionDataMap.get( paneId.toString() ).getSelectedResources();
 	}
 		
-	public void addAvailAreaProvider( ResourceSelection rscSel ) {
-		if( !(rscSel.getResourceData() instanceof IGridGeometryProvider) ) {
-			return;
-		}
-
-		addAvailAreaProvider( (IGridGeometryProvider)rscSel.getResourceData() );
-	}
-	
-	public void addAvailAreaProvider( IGridGeometryProvider geomPrvdr ) {
-		if( geomPrvdr instanceof AbstractNatlCntrsRequestableResourceData ) {
-			
-			if( !availAreaProvidersMap.containsKey( geomPrvdr.getProviderName() ) ) {
-				availAreaProvidersMap.put( geomPrvdr.getProviderName(), new ArrayList<IGridGeometryProvider>() );
-			}
-			availAreaProvidersMap.get( geomPrvdr.getProviderName() ).add( geomPrvdr );
-		}
-		else if( geomPrvdr instanceof PredefinedArea ) {
-			if( !availPredefinedAreas.containsKey( geomPrvdr.getProviderName() ) ) {
-				availPredefinedAreas.put( geomPrvdr.getProviderName(), (PredefinedArea)geomPrvdr );
-			}
-		}
-	}
+//	public void addAvailAreaProvider( ResourceSelection rscSel ) {
+//		if( !(rscSel.getResourceData() instanceof IAreaProviderCapable/*IGridGeometryProvider*/) ) {
+//			return;
+//		}
+//
+//		addAvailAreaProvider( (IGridGeometryProvider)rscSel.getResourceData() );
+//	}
+//	
+//	public void addAvailAreaProvider( IGridGeometryProvider geomPrvdr ) {
+//		if( geomPrvdr instanceof AbstractNatlCntrsRequestableResourceData ) {
+//			
+//			if( !availAreaProvidersMap.containsKey( geomPrvdr.getProviderName() ) ) {
+//				availAreaProvidersMap.put( geomPrvdr.getProviderName(), new ArrayList<IGridGeometryProvider>() );
+//			}
+//			availAreaProvidersMap.get( geomPrvdr.getProviderName() ).add( geomPrvdr );
+//		}
+//		else if( geomPrvdr instanceof PredefinedArea ) {
+//			if( !availPredefinedAreas.containsKey( geomPrvdr.getProviderName() ) ) {
+//				availPredefinedAreas.put( geomPrvdr.getProviderName(), (PredefinedArea)geomPrvdr );
+//			}
+//		}
+//	}
 
 	// if null rsc then this means to remove all of the resources
 	//
 	public void removeAvailAreaProvider( ResourceSelection rscSel ) {
 		if( rscSel == null ||			
-		  !(rscSel.getResourceData() instanceof IGridGeometryProvider) ) {
+		  !(rscSel.getResourceData() instanceof IAreaProviderCapable/*IGridGeometryProvider*/) ) {
 			return;
 		}
+		// get the area source and name and then loop thru all other resources 
+		IAreaProviderCapable areaRsc = (IAreaProviderCapable)rscSel.getResourceData();
 		
-		IGridGeometryProvider geomPrvdr = (IGridGeometryProvider)rscSel.getResourceData();
-		
-		if( availAreaProvidersMap.containsKey( geomPrvdr.getProviderName() ) ) {
+//		if( availAreaProvidersMap.containsKey( geomPrvdr.getProviderName() ) ) {
+//			
+//			List<IGridGeometryProvider> list = availAreaProvidersMap.get( geomPrvdr.getProviderName() );
+//
+//			if( !list.contains( geomPrvdr ) ) {
+//				// sanity check. this should be in the list
+//				System.out.println("Sanity Check: removing Area-capable Resource, "+rscSel.getResourceData().getResourceName()+
+//						", that is not in the list of available areas???");
+//			}
+//			list.remove( geomPrvdr );
+//			
+//			if( list.isEmpty() ) {
+//				availAreaProvidersMap.remove( geomPrvdr.getProviderName() );
+//				
+//				// Check if this is the currently selected areaName and if so reset the area to the default
+//				//
+//				for( PaneSelectionData paneData : paneSelectionDataMap.values() ) {
+//					if( paneData.getArea().getProviderName().equals( geomPrvdr.getProviderName() ) ) {
+//							paneData.setArea( 
+//									availPredefinedAreas.get( rbdType.getDefaultMap() ) );
+//					}
+//				}
+//			}
+//		}
+//		else {
+//			System.out.println("Sanity Check: removing Area-capable Resource, "+geomPrvdr.getProviderName()+
+//						", that is not in the map of available areas???");
+//		}
+	}
 			
-			List<IGridGeometryProvider> list = availAreaProvidersMap.get( geomPrvdr.getProviderName() );
+	// return 
+//	public List<AreaName> getAvailAreaNames() {
+	public List<List<AreaMenuItem>> getAvailAreaMenuItems() {
+		List<List<AreaMenuItem>> areaMenuItems = new ArrayList<List<AreaMenuItem>>(); 
+		AreaMenuItem ami, seldami, dfltami;
+	    List<AreaMenuItem> amiList;
+	    AreaName areaName;
 
-			if( !list.contains( geomPrvdr ) ) {
-				// sanity check. this should be in the list
-				System.out.println("Sanity Check: removing Area-capable Resource, "+rscSel.getResourceData().getResourceName()+
-						", that is not in the list of available areas???");
+		// ?? create area factories for NTRANS and SOLAR (just one 'default' area for now...)
+		if( rbdType == NcDisplayType.NTRANS_DISPLAY ||
+			rbdType == NcDisplayType.SOLAR_DISPLAY ) {
+			areaMenuItems.add( new ArrayList<AreaMenuItem>() );
+			areaMenuItems.get(0).add( 
+					new AreaMenuItem( new AreaName( AreaSource.PREDEFINED_AREA, rbdType.getDefaultMap() ) ) ); 
+			return areaMenuItems;
 			}
-			list.remove( geomPrvdr );
 			
-			if( list.isEmpty() ) {
-				availAreaProvidersMap.remove( geomPrvdr.getProviderName() );
+	    // first is the selected area (not in a submenu)
+	    amiList = new ArrayList<AreaMenuItem>();
+	    areaName = new AreaName( getSelectedArea().getSource(), getSelectedArea().getAreaName() );
 				
-				// Check if this is the currently selected areaName and if so reset the area to the default
-				//
-				for( PaneSelectionData paneData : paneSelectionDataMap.values() ) {
-					if( paneData.getArea().getProviderName().equals( geomPrvdr.getProviderName() ) ) {
-							paneData.setArea( 
-									availPredefinedAreas.get( rbdType.getDefaultMap() ) );
+	    if( areaName.getSource() == AreaSource.INITIAL_DISPLAY_AREA ) {
+		    seldami = new AreaMenuItem( "Custom", "", areaName.getName(), areaName.getSource().toString() );
 					}
+	    else {
+		    seldami = new AreaMenuItem( areaName );	    	
+				}
+
+	    amiList.add( seldami );
+	    areaMenuItems.add( amiList );
+
+	    amiList = new ArrayList<AreaMenuItem>();
+
+	    // if the initial area is custom and not seleced then add it since it won't be saved 
+	    // 
+	    PredefinedArea initArea = selectedPaneData.getInitialArea(); 
+	    if( initArea != null && initArea != getSelectedArea() &&
+	    	initArea.getSource() == AreaSource.INITIAL_DISPLAY_AREA ) {
+
+	    	seldami = new AreaMenuItem( "Custom", "",
+	    			initArea.getAreaName(), initArea.getSource().toString() );	    							  
+		    amiList.add( seldami );
+		    areaMenuItems.add( amiList );
+			}
+	    
+		// the default next if its not selected.
+	    if( getSelectedArea().getAreaName().equals( rbdType.getDefaultMap() ) ) {
+	    	dfltami = seldami;
+		}
+		else {
+	    	amiList = new ArrayList<AreaMenuItem>();
+	    	areaName = new AreaName( AreaSource.PREDEFINED_AREA, rbdType.getDefaultMap() );
+	    	dfltami = new AreaMenuItem( areaName );
+	    	amiList.add( dfltami );
+	    	areaMenuItems.add( amiList );
+	}
+	
+	    // next areas from the current display (if multipane then put in a submenu)
+	    amiList = new ArrayList<AreaMenuItem>();
+		AbstractEditor ed = NcDisplayMngr.getActiveNatlCntrsEditor();
+		
+		if( ed != null && NcEditorUtil.getNcDisplayType( ed ) == rbdType ) {
+    		IDisplayPane[] panes = ( NcEditorUtil.arePanesGeoSynced( ed ) ? 
+    				NcEditorUtil.getSelectedPanes(ed) : ed.getDisplayPanes() );
+
+			for( IDisplayPane pane : panes ) {
+				if( pane.getRenderableDisplay() instanceof IAreaProviderCapable ) {
+					IAreaProviderCapable aPrv = (IAreaProviderCapable)pane.getRenderableDisplay();
+			
+					ami = new AreaMenuItem( aPrv.getAreaName(), 
+							(panes.length > 1 ? "Display" : ""), aPrv.getAreaName(),  aPrv.getSourceProvider().toString() );
+					
+					amiList.add( ami );
 				}
 			}
 		}
-		else {
-			System.out.println("Sanity Check: removing Area-capable Resource, "+geomPrvdr.getProviderName()+
-						", that is not in the map of available areas???");
+		
+		if( !amiList.isEmpty() ) {
+			areaMenuItems.add( amiList );
 		}
-	}
-	
-	// return 
-	public List<IGridGeometryProvider> getAvailAreaProviders() {
-		
-		List<IGridGeometryProvider> areaProviderResources = new ArrayList<IGridGeometryProvider>();
-		List<ResourceName> providerRscNames = new ArrayList<ResourceName>();
 
-		if( rbdType == NcDisplayType.NTRANS_DISPLAY ||
-			rbdType == NcDisplayType.SOLAR_DISPLAY ) {
-			
-			try {
-				areaProviderResources.add(
-							PredefinedAreasMngr.getDefaultPredefinedAreaForDisplayType( rbdType ) );
-			} catch (VizException e) {
-			}
-			return areaProviderResources;
-		}
-		
-		// the default first if there is one.
-		
-//		areaProviderResources.add(
-//				(IGridGeometryProvider) availPredefinedAreas.get( rbdType.getDefaultMap() ) );
-
+	    // next are any area provided by a selected resource.
+		// TODO : put these in submenus based on the resource type
+		//for( String rscType : new String[]{ "MCIDAS", "GINI" } ) {
 		// then any possible area-capable resources
-		for( int paneIndx=0 ; paneIndx<currRbdPaneLayout.getNumberOfPanes() ; paneIndx++ ) {
+	    amiList = new ArrayList<AreaMenuItem>();
 
+		for( int paneIndx=0 ; paneIndx<currRbdPaneLayout.getNumberOfPanes() ; paneIndx++ ) {
 			PaneSelectionData paneData = paneSelectionDataMap.get( 
 					currRbdPaneLayout.createPaneId( paneIndx ).toString() );
 
 			for( ResourceSelection rscSel : paneData.getSelectedResources() ) {
-				if( rscSel.getResourceData() instanceof IGridGeometryProvider ) {
-					ResourceName rName = rscSel.getResourceName();
+				if( rscSel.getResourceData() instanceof IAreaProviderCapable ) {
 
-					if( !providerRscNames.contains( rscSel.getResourceName() ) ) {
-						providerRscNames.add( rscSel.getResourceName() );
-						areaProviderResources.add( 
-								(IGridGeometryProvider)rscSel.getResourceData() );
+					IAreaProviderCapable areaRsc = (IAreaProviderCapable)rscSel.getResourceData();
+					
+					areaName = new AreaName( areaRsc.getSourceProvider(), 
+											 areaRsc.getAreaName() );
+					//ami = new AreaMenuItem( areaName );
+					ami = new AreaMenuItem( areaRsc.getAreaName(), 
+							"Resource", areaRsc.getAreaName(),  areaRsc.getSourceProvider().toString() );
+
+					// use the source name as the sub menu name 					
+//					if( rscItems == null ) {
+//						rscItems = new ArrayList<AreaMenuItem>();
+//						areaMenuItems.put( areaRsc.getSourceProvider().toString(),  rscItems );
+//					}
+	
+					if( !amiList.contains( ami ) ) {
+						amiList.add( ami );
 					}
 				}
 			}
 		}
 		
-		// then any areas imported from the current Display
-		//
-		for( PredefinedArea pArea : availPredefinedAreas.values() ) {
-			if( pArea.getAreaSource() == AreaSource.DISPLAY_AREA ) {
-				 areaProviderResources.add( pArea );
-			}
+		if( !amiList.isEmpty() ) {
+			areaMenuItems.add( amiList );
 		}
 
-		// and then the non-default predefined areas		
-		for( String aName : PredefinedAreasMngr.getAllAvailAreasForDisplayType( rbdType ) ) {
-			PredefinedArea pArea = availPredefinedAreas.get( aName );
+		// finally add the areas from the areaMenus file.
+	    Map<String,List<AreaMenuItem>> areaMenusMap = AreaMenusMngr.getInstance().getPredefinedAreasForMenus();
 
-			if( pArea.getAreaSource() == AreaSource.PREDEFINED_AREA ) {//&&
-				//		!pArea.getAreaName().equals( rbdType.getDefaultMap() ) ) {
+	    for( List<AreaMenuItem> alst : areaMenusMap.values() ) {
+	    	if( alst == null || alst.isEmpty() ||
+	    		alst.get(0).getSubMenuName().isEmpty() ) {
+	    		continue;
+	    	}
+	    	areaMenuItems.add( alst );
+	    }
+	    
+	    amiList = new ArrayList<AreaMenuItem>();	   
 
-				areaProviderResources.add( pArea );
+	    if( areaMenusMap.containsKey("") ) {
+	    	for( AreaMenuItem i : areaMenusMap.get( "" ) ) {
+	    		if( !seldami.equals( i ) && 
+	    			!dfltami.equals( i ) ) {
+	    			amiList.add( i );
 			}
 		}
+	    }
+	    
+		if( !amiList.isEmpty() ) {
+			areaMenuItems.add( amiList ); 
+		}
 
-		return areaProviderResources;
+		return areaMenuItems;
 	}	
 	
 	public boolean addSelectedResource( ResourceSelection rsel ) {
@@ -697,7 +832,7 @@ public class RscBundleDisplayMngr  {
 
 		boolean retval = selectedPaneData.addSelectedResource( rsel );
 		
-		addAvailAreaProvider( rsel );
+//		addAvailAreaProvider( rsel );
 		
 		return retval;
 		
@@ -709,7 +844,7 @@ public class RscBundleDisplayMngr  {
 		}
 		rbdModified = true;
 
-		addAvailAreaProvider( rbt );
+//		addAvailAreaProvider( rbt );
 		
 		return true;
 	}
@@ -725,7 +860,7 @@ public class RscBundleDisplayMngr  {
 		rbdModified = true;
 		boolean retval = selectedPaneData.replaceSelectedResource( existingRsc, newRsc );
 		removeAvailAreaProvider( existingRsc );
-		addAvailAreaProvider( newRsc );
+//		addAvailAreaProvider( newRsc );
 		return retval;
 	}
 
@@ -766,58 +901,53 @@ public class RscBundleDisplayMngr  {
 //    	return baseOverlayRBT;
 //    }
    			
-	public PredefinedArea getAreaProvider() {
+	public PredefinedArea getSelectedArea() {
 		return selectedPaneData.getArea();//.getAreaName();//GeoAreaName();
 	}
 	
-	// this has to be a valid/available areas. either a predefined area or a resource.
-	//
-	// If multi-pane and if geoSync is set then we will need to update all of the 
-	public void setAreaProviderName( String areaName ) throws VizException {
-		
-		PredefinedArea seldArea;
-
-		// look up the area name in the map of available areas and set 
-		// 
-		// if this is not a valid predefinedArea then don't set
-		if( availPredefinedAreas.containsKey( areaName ) ) {
-			seldArea = availPredefinedAreas.get( areaName );
-//			areaProvider = (IGridGeometryProvider) availPredefinedAreas.get( areaName );
-		}
-		else if( availAreaProvidersMap.containsKey( areaName ) ) {
-			List<IGridGeometryProvider> areaList = availAreaProvidersMap.get( areaName );
+	// return a map of all the currently selected areanames (with pane id as the key) 
+	public Map<String,AreaName> getAllSelectedAreaNames() {
+		Map<String,AreaName> areasMap = new HashMap<String,AreaName>();
+   		for( int paneIndx=0 ; paneIndx<currRbdPaneLayout.getNumberOfPanes() ; paneIndx++ ) {
+			NcPaneID paneId = (NcPaneID)currRbdPaneLayout.createPaneId(paneIndx); 
 			
-			// if null then assume it is 
-			if( areaList == null || areaList.isEmpty() ) { // sanity check the (maybe empty) list should be created already
-				throw new VizException("Unable to set the Area to "+areaName+".\n "+
-							"Area or Resource is not available (null list sanity check).");
-			}
-			else { // get the first. It doesn't matter which.
-				// create a PredefinedArea from the 
-				seldArea = new PredefinedArea( AreaSource.RESOURCE_DEFINED,
-					areaList.get(0).getProviderName(),					
-					areaList.get(0).getGridGeometry(),
-					areaList.get(0).getMapCenter(),
-					areaList.get(0).getZoomLevel(),
-					getRbdType() );
+			PaneSelectionData psd = paneSelectionDataMap.get( paneId.toString() );
+			areasMap.put( paneId.toString(), new AreaName( psd.getArea().getSource(), psd.getArea().getAreaName() ) );
 			}			
-		} 
-		else {
-			throw new VizException("Unable to set the Area to "+areaName+".\n "+
-									"Area or Resource is not available for selection.");
+		return areasMap;
 		}
 		
+	// called when initializing the pane data
+	// If multi-pane and if geoSync is set then we will need to update all of the panes
+	public void setSelectedArea( PredefinedArea seldArea ) throws VizException {
 		rbdModified = true;
 				
 		if( isMultiPane() && isGeoSyncPanes() ) {
 			for( PaneSelectionData paneData : paneSelectionDataMap.values() ) {
-//				paneData.setAreaProvider( areaProvider );
 				paneData.setArea( seldArea );
 			}
 		}
 		else {
-//			selectedPaneData.setAreaProvider( areaProvider );
 			selectedPaneData.setArea( seldArea );
+		}
+		
+	}
+	
+	// called from the GUI  
+	public void setSelectedAreaName( AreaName areaName ) throws VizException {
+		
+		//  if Custom then use null as a flag to reset to the saved initial area
+		if( areaName.getSource() == AreaSource.INITIAL_DISPLAY_AREA ) {
+			setSelectedArea( null );
+		}
+		else {
+			IGridGeometryProvider geom =  NcAreaProviderMngr.createGeomProvider(areaName);
+			PredefinedArea seldArea = PredefinedAreaFactory.createPredefinedArea( geom );
+			if( seldArea == null ) {
+				throw new VizException("Unable to set the Area to "+areaName.toString() );
+			}
+	
+			setSelectedArea( seldArea );
 		}
 	}
 
@@ -834,16 +964,15 @@ public class RscBundleDisplayMngr  {
 	}
 
 	// update all of the geoAreaNames to the area in the current pane
-	// TODO : what about hidden panes?
+	// Include hidden panes too in case the user expands the number of panes,
+	// the area will be set correctly
+	//
 	public void syncPanesToArea( ) {
 		setGeoSyncPanes( true );
-//		IGridGeometryProvider seldArea = getAreaProvider();
-		PredefinedArea seldArea = getAreaProvider();
+		PredefinedArea seldArea = getSelectedArea();
 		
-		for( int paneIndex=0 ; paneIndex<currRbdPaneLayout.getNumberOfPanes() ; paneIndex++ ) {
-			paneSelectionDataMap.get( 
-					currRbdPaneLayout.createPaneId(paneIndex).toString() ).setArea( seldArea );
-									//setAreaProvider( seldArea );
+		for( PaneSelectionData psd : paneSelectionDataMap.values() ) {
+			psd.setArea( seldArea );
 		}		
 		
 		rbdModified = true;		
@@ -911,17 +1040,17 @@ public class RscBundleDisplayMngr  {
 			
 			PaneSelectionData paneData = paneSelectionDataMap.get( paneId.toString() );
 
-// create a renderable display with the paneId as the name and the selected initial predefinedArea
-//   				IGridGeometryProvider geomPrvdr = paneData.getAreaProvider();
-			
 	        PredefinedArea pArea = paneData.getArea();
  
-//	        String rendDispStr = NcDisplayType.getRederableDisplay( rbdType );
+	        // 
+	        if( pArea.getSource() == AreaSource.DISPLAY_AREA ) {
+	        	pArea.setAreaSource( AreaSource.INITIAL_DISPLAY_AREA.toString() );
+	        	pArea.setAreaName( rbdName );
+	        }
+	        
 	        INatlCntrsRenderableDisplay iNcRendDisp = rbdBndl.getDisplayPane( paneId );
-//		        NcDisplayMngr.createNcRenderableDisplay( rbdType, paneId );
 	        
 	        iNcRendDisp.setInitialArea( pArea );	        
-//				new NCMapRenderableDisplay( paneId, pArea );
 			
 			INatlCntrsDescriptor descr = (INatlCntrsDescriptor)iNcRendDisp.getDescriptor();
 

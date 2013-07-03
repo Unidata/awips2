@@ -1,9 +1,9 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.loadRbd;
 
+import gov.noaa.nws.ncep.viz.common.area.AreaName.AreaSource;
+import gov.noaa.nws.ncep.viz.common.area.PredefinedArea;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsRenderableDisplay;
 import gov.noaa.nws.ncep.viz.common.display.INcPaneID;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedArea;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedArea.AreaSource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.manager.AbstractRBD;
 
@@ -121,22 +121,15 @@ public class RbdViewComposite extends Composite {
 							}
 							
 							// TODO: show the actual center/proj/zoomLevel???
-							if( disp.getInitialArea() instanceof PredefinedArea ) {
+							
 								PredefinedArea area = (PredefinedArea)disp.getInitialArea();
 
-								if( area == null ) {
-									rscNames.add("Unspecified initial Area");
-								}
-								else if( area.getAreaSource() == AreaSource.PREDEFINED_AREA ) {
+							if( area.getSource() == AreaSource.PREDEFINED_AREA ) {
 									rscNames.add("Predefined Area "+area.getAreaName() );
 								}
 								else {
 									rscNames.add("Area From "+area.getAreaName() );
 								}
-							}
-							else {
-								// anything to add or leave blank?
-							}
 							
 							for( ResourcePair rp : mapDescr.getResourceList() ) {
 								if( rp.getResourceData() instanceof INatlCntrsResourceData ) {
