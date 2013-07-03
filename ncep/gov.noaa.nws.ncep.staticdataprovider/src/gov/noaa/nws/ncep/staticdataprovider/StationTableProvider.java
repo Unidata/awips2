@@ -13,11 +13,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
+//import java.awt.Color;
+import java.io.File;
 
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
+import org.dom4j.Document;
+import org.dom4j.Node;
+import org.dom4j.io.SAXReader;
 
+//import com.vividsolutions.jts.geom.Coordinate;
+
+//import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
+
+//import gov.noaa.nws.ncep.common.staticdata.SPCCounty;
 import gov.noaa.nws.ncep.edex.common.stationTables.StationTable;
-import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
+//import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+//import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
@@ -29,6 +40,7 @@ import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 02/12		?			B. Yin   	Moved from PGEN 
+ * 06/13		T1000		J. Wu   	Move clusters from DB to Localization. 
  *
  * </pre>
  * 
@@ -50,8 +62,23 @@ public class StationTableProvider {
 	//merged cluster tables
 	static private HashMap<String,Set<String>> clstTbl;
 
+	//Cluster table names
+	private static String PERM_CLUSTER_TABLE = "WatchCountyPermCluster.xml";
+	private static String STATE_CLUSTER_TABLE = "WatchCountyStateCluster.xml";
+	private static String WFO_CLUSTER_TABLE = "WatchCountyWFOCluster.xml";
+	
+	//Cluster tables
+	static private Set<String> permClstTbl;
+	static private Set<String> stateClstTbl;
+	static private Set<String> wfoClstTbl;
+
 	//volcano table
 	private static StationTable volcanoTbl;    
+
+    /*
+     *  The 15 marine zones "State" names and its 2-digits IDs in NMAP2.
+     */
+    private static HashMap<String, String> marineZoneStates;
 
 	/**
 	 * Return the anchor table
@@ -124,6 +151,11 @@ public class StationTableProvider {
 			// in the cluster including the key itself in the format of fips1+fips2+...
 			clstTbl = new HashMap<String, Set<String>>();
 
+			/*
+			 * We move the cluster tables from NCEP DB to Localization - so we retrieve those
+			 * tables from PGEN localization now.
+			 */
+			/*
 			List<Object[]> rows1 = null;
 			List<Object[]> rows2 = null;
 			List<Object[]> rows3 = null;
@@ -146,6 +178,35 @@ public class StationTableProvider {
 				System.out.println("Read clustering table exception!");
 				e.printStackTrace();
 
+			}
+			*/
+           
+			/*
+			 * Retrieve cluster tables from PGEN localization.
+			 */
+			List<Object[]> rows1 = new ArrayList<Object[]>();
+			List<Object[]> rows2 = new ArrayList<Object[]>();
+			List<Object[]> rows3 = new ArrayList<Object[]>();
+
+			for ( String ss : getWFOClusterTbl() ) {			    
+				String clusters = ss.substring( ss.lastIndexOf('|') + 1 );
+				if ( clusters != null && clusters.length() > 0 ) {
+					rows1.add( new Object[]{ new String( clusters ) } );
+				}
+			}
+			
+			for ( String ss : getStateClusterTbl() ) {
+				String clusters = ss.substring( ss.lastIndexOf('|') + 1 );
+				if ( clusters != null && clusters.length() > 0 ) {
+					rows2.add( new Object[]{ new String( clusters ) } );
+				}
+			}
+			
+			for ( String ss : getPermClusterTbl() ) {
+				String clusters = ss.substring( ss.lastIndexOf('|') + 1 );
+				if ( clusters != null && clusters.length() > 0 ) {
+					rows3.add( new Object[]{ new String( clusters ) } );
+				}
 			}
 
 			//For optional cluster A+B, two entries are needed. "A: A+B" and "B: A+B"
@@ -212,9 +273,167 @@ public class StationTableProvider {
 				}
 			}
 			
+//			writeClusters();
+			
 		}	
 
 		return clstTbl;
 	}
 
+
+    /**
+     *  The equivalent state names and numeric IDs for marine zones.
+     *  These name/numeric IDs match those used in NMAP2.
+     */
+    private static HashMap<String, String> getMarineZoneStateIDs() {
+    	if ( marineZoneStates == null ) {
+    		marineZoneStates = new HashMap<String, String>();
+    		marineZoneStates.put( "60", "LC" );
+    		marineZoneStates.put( "61", "PZ" );
+    		marineZoneStates.put( "62", "LO" );
+    		marineZoneStates.put( "63", "LE" );
+    		marineZoneStates.put( "64", "LM" );
+    		marineZoneStates.put( "65", "LS" );
+    		marineZoneStates.put( "66", "AM" );
+    		marineZoneStates.put( "67", "AN" );
+    		marineZoneStates.put( "68", "GM" );
+    		marineZoneStates.put( "69", "PK" );
+    		marineZoneStates.put( "70", "PH" );
+    		marineZoneStates.put( "71", "PM" );
+    		marineZoneStates.put( "72", "PS" );
+    		marineZoneStates.put( "73", "SL" );
+    		marineZoneStates.put( "74", "LH" );
+	    }
+    	
+    	return marineZoneStates;
+    }
+    
+    /**
+     *  Make FIPS for marine zones to match those in Legacy NMAP2.
+     *  
+     *  Each FIPS is a 6-digit number string as following:
+     *  
+     *  The first two number is the numeric ID of a marine zones "State"
+     *  see getMarineZoneStates() above.
+     *  
+     *  The next three digits is the marine zone's assigned id - the 
+     *  last three digits in its ID (e. g., 123 in "PKZ123" ).
+     *  
+     *  The last digit is always "0".
+     *  
+     *  06/10/2013 - Decided to use the marine zone's ID directly as FIPS.
+     *  
+     */
+    private static String makeMarineZoneIDs( String fips ) {
+	    
+		String id = new String( fips );
+		if ( fips != null && fips.trim().length() >= 4 ) {
+			String stateID;
+			if ( fips.trim().length() == 4 ) {
+				stateID = fips.substring(0, 1);
+		        fips = new String( getMarineZoneStateIDs().get( stateID ) + "Z" + fips.substring(1, 4) );
+		    }
+			else {
+				stateID = fips.substring(0, 2);				
+		        fips = new String( getMarineZoneStateIDs().get( stateID ) + "Z" + fips.substring(2, 5) );
+			}			
+       }
+		
+   	    return id;
+    }
+    
+	/**
+	 * Read a clustering table.
+	 */
+	public static Set<String> loadClstTbl( String tblName ){
+		
+		HashSet<String> clusters = new HashSet<String>();
+			
+		File clusterFile = PgenStaticDataProvider.getProvider().getStaticFile( 
+				PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + 
+				tblName );   	    
+
+		Document clstDoc = null;
+
+		try {
+			SAXReader reader = new SAXReader();
+			clstDoc= reader.read( clusterFile .getAbsoluteFile());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		if ( clstDoc != null ) {
+			List<Node> clstNodes = clstDoc.selectNodes("/root/countyCluster");
+			for ( Node n : clstNodes) {
+				clusters.add( n.getText() );				
+			}
+
+		}
+					
+		return clusters;
+	}
+
+	
+    /**
+	 * Return permanent cluster table
+	 * @return
+	 */
+	public static Set<String> getPermClusterTbl(){
+
+		if ( permClstTbl == null ){
+			permClstTbl = loadClstTbl( PERM_CLUSTER_TABLE );
+		}
+
+		return permClstTbl;
+	}
+	
+    /**
+	 * Return state cluster table
+	 * @return
+	 */
+	public static Set<String> getStateClusterTbl(){
+
+		if ( stateClstTbl == null ){
+			stateClstTbl = loadClstTbl( STATE_CLUSTER_TABLE );
+		}
+
+		return stateClstTbl;
+	}
+
+	/**
+	 * Return WFO cluster table
+	 * @return
+	 */
+	public static Set<String> getWFOClusterTbl(){
+
+		if ( wfoClstTbl == null ){
+			wfoClstTbl = loadClstTbl( WFO_CLUSTER_TABLE );
+		}
+
+		return wfoClstTbl;
+	}
+
+	/**
+	 *  Write out all clusters to a PGEN file (symbol) for testing.
+	 * @return
+	 */
+/*	private static void writeClusters() {
+		 HashSet<String>  fips = new HashSet<String>();
+		 List<Coordinate> pts = new ArrayList<Coordinate>();
+         for ( String ss : clstTbl.keySet() ) {
+        	 for ( String sn : clstTbl.get( ss ) ) {
+        	     if ( !fips.contains( sn ) ) {
+        	    	 fips.add( sn );
+        	    	 SPCCounty spc = SPCCountyProvider.findCounty( sn );
+        	    	 if ( spc != null ) {
+        	    		 pts.add( spc.getCentriod() );
+        	    	 }
+        	     }
+        	 }
+         }
+		         
+         PgenUtil.writePgenFile( "/export/cdbsrv/jwu/workbak/pgen/cluster", "watch_cluster.xml", 
+        		 "DIAMOND", Color.green, 1.0, pts );
+	}
+*/
 }

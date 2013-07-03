@@ -11,6 +11,7 @@
                 <xs:element ref="color"/>
                 <xs:element ref="displayText"/>
                 <xs:element ref="gfaOtlkgenRatio"/>
+                <xs:element ref="fzlvlSFC"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -102,11 +103,18 @@
     <xs:element name="color">
         <xs:complexType>
             <xs:sequence>
-                <xs:element maxOccurs="unbounded" ref="value"/>
+    			<xs:element maxOccurs="unbounded" ref="value" />
             </xs:sequence>
         </xs:complexType>
     </xs:element>
     <xs:element name="displayText">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="value"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="fzlvlSFC">
         <xs:complexType>
             <xs:sequence>
                 <xs:element maxOccurs="unbounded" ref="value"/>
@@ -130,6 +138,8 @@
             <xs:attribute name="name"/>
             <xs:attribute name="originalText"/>
             <xs:attribute name="r" type="xs:integer"/>
+            <xs:attribute name="index" type="xs:integer"/>
+            <xs:attribute name="nmapcolor" type="xs:string"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>
