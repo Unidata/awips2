@@ -48,6 +48,7 @@ import gov.noaa.nws.ncep.viz.common.ui.color.ColorMatrixSelector;
  * 09/11/2009   154        Gang Zhang  Initial creation.
  * 04/27/2010    #245      Greg Hull    Added Apply Button
  * 11/04/2010    #307      Greg Hull    Change Lengths,Widths from String to Double
+ * 03/13/2013   982        Archana     add display stn number attr
  * 
  * </pre>
  * 
@@ -65,7 +66,7 @@ public class EditIDFTAttrsDialog extends AbstractEditResourceAttrsDialog {
 	@Override
 	public Composite createDialog( Composite topComp ) {	
 		
-		GridLayout gridLayout = new GridLayout( 6, false );
+		GridLayout gridLayout = new GridLayout( 2, false );
 		gridLayout.makeColumnsEqualWidth = true;
 
 		Composite colComp = new Composite( topComp, SWT.NONE );
@@ -77,7 +78,7 @@ public class EditIDFTAttrsDialog extends AbstractEditResourceAttrsDialog {
 
 		gridLayout.verticalSpacing = 0;
 		colComp.setLayout( gridLayout );
-				
+        final RscAttrValue rscAttrStationNumber = editedRscAttrSet.getRscAttr(  "displayStationNumber" );				
 		final RscAttrValue rscAttrDistColor = editedRscAttrSet.getRscAttr(  "distanceColor" ); // --- attrs of number,point,and arrow
 		
 		final RscAttrValue rscAttrPointColor = editedRscAttrSet.getRscAttr("pointColor");   
@@ -85,6 +86,12 @@ public class EditIDFTAttrsDialog extends AbstractEditResourceAttrsDialog {
 		final RscAttrValue rscAttrArrowColor = editedRscAttrSet.getRscAttr("arrowColor");          
 		final RscAttrValue rscAttrArrowLength = editedRscAttrSet.getRscAttr("arrowLength");        
 		final RscAttrValue rscAttrArrowLineWidth = editedRscAttrSet.getRscAttr("arrowLineWidth");  
+		
+
+        if( rscAttrStationNumber == null || rscAttrStationNumber.getAttrClass() != Boolean.class ) {
+        	System.out.println("rscAttrStationNumber is null or not of expected class Boolean?");
+        	return null;
+        }
 		
         if( rscAttrArrowColor == null || rscAttrArrowColor.getAttrClass() != RGB.class ) {
         	System.out.println("rscAttrArrowColor is null or not of expected class RGB?");
@@ -114,10 +121,10 @@ public class EditIDFTAttrsDialog extends AbstractEditResourceAttrsDialog {
 			}
 		});		
 		
-		final Label label3_1 = new Label(colComp,SWT.NONE);//dummy
-		final Label label4_1 = new Label(colComp,SWT.NONE);//dummy	
-		final Label label5_1 = new Label(colComp,SWT.NONE);//dummy
-		final Label label6_1 = new Label(colComp,SWT.NONE);//dummy
+//		final Label label3_1 = new Label(colComp,SWT.NONE);//dummy
+//		final Label label4_1 = new Label(colComp,SWT.NONE);//dummy	
+//		final Label label5_1 = new Label(colComp,SWT.NONE);//dummy
+//		final Label label6_1 = new Label(colComp,SWT.NONE);//dummy
 		
 		final Label labelPoint = new Label(colComp,SWT.NONE); labelPoint.setText("Point: ");   // --- point row
 		
@@ -129,10 +136,10 @@ public class EditIDFTAttrsDialog extends AbstractEditResourceAttrsDialog {
 			}
 		});	
 	
-		final Label label3_2 = new Label(colComp,SWT.NONE);//dummy
-		final Label label4_2 = new Label(colComp,SWT.NONE);//dummy
-		final Label label5_2 = new Label(colComp,SWT.NONE);//dummy
-		final Label label6_2 = new Label(colComp,SWT.NONE);//dummy
+//		final Label label3_2 = new Label(colComp,SWT.NONE);//dummy
+//		final Label label4_2 = new Label(colComp,SWT.NONE);//dummy
+//		final Label label5_2 = new Label(colComp,SWT.NONE);//dummy
+//		final Label label6_2 = new Label(colComp,SWT.NONE);//dummy
 		
 		final Label labelArrow = new Label(colComp, SWT.NONE); labelArrow.setText("Arrow: ");   // --- arrow row
 		
@@ -170,6 +177,16 @@ public class EditIDFTAttrsDialog extends AbstractEditResourceAttrsDialog {
 			}
 		});
   
+		final Button displayStationNumberBtn = new Button(colComp, SWT.CHECK);
+		displayStationNumberBtn.setEnabled(true);
+		displayStationNumberBtn.setSelection((Boolean)rscAttrStationNumber.getAttrValue());
+		displayStationNumberBtn.setText("Display Station Number");
+		displayStationNumberBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				rscAttrStationNumber.setAttrValue(displayStationNumberBtn.getSelection());
+
+			}
+		});
         return topComp;
     }
 

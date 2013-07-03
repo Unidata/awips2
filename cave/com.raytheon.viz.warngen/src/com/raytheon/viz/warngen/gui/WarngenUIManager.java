@@ -64,6 +64,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Jan 30, 2013  15439    Qinglu Lin   Code were added to prevent nullPointException from occurring
  *                                     when c2 is null for "case SINGLE_POINT" in move().                                  
  * Mar 28, 2013  DR 15974 D. Friedman  Do not track removed GIDs.
+ * Jun 25, 2013  DR 16013 Qinglu Lin   Called setUniqueFip() in handleMouseUp().
  * 
  * </pre>
  * 
@@ -270,6 +271,9 @@ public class WarngenUIManager extends InputAdapter {
         pointDeleted = false;
         pointCreated = false;
         menuMove = false;
+        if (mouseButton == 1) {
+            warngenLayer.setUniqueFip();
+        }
         return rval;
     }
 

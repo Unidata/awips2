@@ -58,6 +58,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 12/xx/2010               jkorman     Complete rewrite.
  * 11/29/2012               lbousaidi   fixed the decoding issue when the shef starts
  *                                      with :
+ * 6/27/2013    16225       wkwock      Fixed trail with slash and space issue.
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -716,7 +718,8 @@ public class ShefSeparator extends AbstractRecordSeparator {
     private static boolean findTrailingSlash(String data) {
         boolean trailingSlash = false;
         if ((data != null) && (data.length() > 0)) {
-            trailingSlash = (data.charAt(data.length() - 1) == '/');
+        	String trimData = data.trim();
+            trailingSlash = (trimData.charAt(trimData.length() - 1) == '/');
         }
         return trailingSlash;
     }

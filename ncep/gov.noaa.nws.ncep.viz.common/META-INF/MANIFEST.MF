@@ -4,6 +4,8 @@ Bundle-Name: Data Plug-in
 Bundle-SymbolicName: gov.noaa.nws.ncep.viz.common;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: gov.noaa.nws.ncep.viz.common.Activator
+Eclipse-BuddyPolicy: registered, ext, global
+Eclipse-RegisterBuddy: org.apache.velocity, com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.common.status, com.raytheon.viz.ui, com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.uf.common.serialization
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.viz.core,
@@ -14,9 +16,12 @@ Require-Bundle: org.eclipse.ui,
  gov.noaa.nws.ncep.viz.localization;bundle-version="1.0.0",
  org.junit,
  org.geotools,
- org.apache.log4j;bundle-version="1.0.0"
+ org.apache.log4j;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.gempak.parameters.core;bundle-version="1.0.0"
 Eclipse-LazyStart: true
 Export-Package: gov.noaa.nws.ncep.viz.common,
+ gov.noaa.nws.ncep.viz.common.area,
+ gov.noaa.nws.ncep.viz.common.customprojection,
  gov.noaa.nws.ncep.viz.common.dbQuery,
  gov.noaa.nws.ncep.viz.common.display,
  gov.noaa.nws.ncep.viz.common.graphicUtil,

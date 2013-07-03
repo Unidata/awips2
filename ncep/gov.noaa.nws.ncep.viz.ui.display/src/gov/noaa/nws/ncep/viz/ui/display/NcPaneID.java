@@ -76,8 +76,13 @@ public class NcPaneID implements INcPaneID {
 		}
 	}
 
-	public boolean equals( NcPaneID pid ) {
+	@Override
+	public boolean equals( Object p ) {
+		if( p instanceof NcPaneID ) {
+			NcPaneID pid = (NcPaneID)p;
 		return ( pid.getRow() == row && pid.getColumn() == col );
+	}
+		return false;
 	}
 
 	// 1-base Column,Row
