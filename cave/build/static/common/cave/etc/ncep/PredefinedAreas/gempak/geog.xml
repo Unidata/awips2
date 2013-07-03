@@ -232,10 +232,10 @@
           <geog_area_name>WORLD             </geog_area_name>
           <center_lat>14.00</center_lat>
           <center_lon>175.00</center_lon>
-          <lower_left_lat>-90.00</lower_left_lat>
-          <lower_left_lon>-24.00</lower_left_lon>
-          <upper_right_lat>90.00</upper_right_lat>
-          <upper_right_lon>-24.00</upper_right_lon>
+          <lower_left_lat>-89.99</lower_left_lat>
+          <lower_left_lon>-24.01</lower_left_lon>
+          <upper_right_lat>89.99</upper_right_lat>
+          <upper_right_lon>-23.99</upper_right_lon>
           <map_projection_string> CED</map_projection_string>
      </geographical_data>
 
@@ -257,9 +257,9 @@
           <center_lat>0.00</center_lat>
           <center_lon>180.00</center_lon>
           <lower_left_lat>-90.00</lower_left_lat>
-          <lower_left_lon>0.00</lower_left_lon>
+          <lower_left_lon>.01</lower_left_lon>
           <upper_right_lat>90.00</upper_right_lat>
-          <upper_right_lon>0.00</upper_right_lon>
+          <upper_right_lon>-0.01</upper_right_lon>
           <map_projection_string> CED</map_projection_string>
      </geographical_data>
 
@@ -653,9 +653,9 @@
           <center_lat>14.00</center_lat>
           <center_lon>175.00</center_lon>
           <lower_left_lat>-70.00</lower_left_lat>
-          <lower_left_lon>58.00</lower_left_lon>
+          <lower_left_lon>58.01</lower_left_lon>
           <upper_right_lat>70.00</upper_right_lat>
-          <upper_right_lon>58.00</upper_right_lon>
+          <upper_right_lon>57.99</upper_right_lon>
           <map_projection_string> MER//NM</map_projection_string>
      </geographical_data>
 
@@ -665,9 +665,9 @@
           <center_lat>0.00</center_lat>
           <center_lon>0.00</center_lon>
           <lower_left_lat>-70.00</lower_left_lat>
-          <lower_left_lon>-131.00</lower_left_lon>
+          <lower_left_lon>-130.99</lower_left_lon>
           <upper_right_lat>70.00</upper_right_lat>
-          <upper_right_lon>-131.00</upper_right_lon>
+          <upper_right_lon>-131.01</upper_right_lon>
           <map_projection_string> MER//NM</map_projection_string>
      </geographical_data>
 
@@ -677,9 +677,9 @@
           <center_lat>14.00</center_lat>
           <center_lon>175.00</center_lon>
           <lower_left_lat>-70.00</lower_left_lat>
-          <lower_left_lon>70.00</lower_left_lon>
+          <lower_left_lon>69.99</lower_left_lon>
           <upper_right_lat>70.00</upper_right_lat>
-          <upper_right_lon>70.00</upper_right_lon>
+          <upper_right_lon>70.01</upper_right_lon>
           <map_projection_string> MER//NM</map_projection_string>
      </geographical_data>
 
@@ -689,9 +689,9 @@
           <center_lat>14.00</center_lat>
           <center_lon>175.00</center_lon>
           <lower_left_lat>-70.00</lower_left_lat>
-          <lower_left_lon>58.00</lower_left_lon>
+          <lower_left_lon>58.01</lower_left_lon>
           <upper_right_lat>70.00</upper_right_lat>
-          <upper_right_lon>58.00</upper_right_lon>
+          <upper_right_lon>57.99</upper_right_lon>
           <map_projection_string> MER</map_projection_string>
      </geographical_data>
 
@@ -1292,7 +1292,7 @@
           <lower_left_lon>-127.00</lower_left_lon>
           <upper_right_lat>50.00</upper_right_lat>
           <upper_right_lon>-59.00</upper_right_lon>
-          <map_projection_string> LCC/39;-100;0</map_projection_string>
+          <map_projection_string> LCC/39;-100;39</map_projection_string>
      </geographical_data>
 
      <geographical_data>

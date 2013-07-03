@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -46,18 +46,19 @@ import com.raytheon.viz.gfe.smarttool.Tool;
 
 /**
  * Job for running smart tools off the UI thread
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 19, 2010            njensen     Initial creation
  * Jan 18, 2013    1509  njensen  Garbage collect after running tool
  * Apr 03, 2013    1855  njensen   Never dispose interpreters until shutdown
- * 
+ * Jun 25, 2013   16065    ryu     Clear undo parms list before tool execution
+ *
  * </pre>
- * 
+ *
  * @author njensen
  * @version 1.0
  */
@@ -141,6 +142,9 @@ public class SmartToolJob extends AbstractQueueJob<SmartToolRequest> {
                             progressJob.schedule();
                             IStatus pjResult = Status.CANCEL_STATUS;
                             try {
+                                if (request.getOuterLevel()) {
+                                    dataMgr.getParmOp().clearUndoParmList();
+                                }
                                 Tool tool = new Tool(dataMgr.getParmManager(),
                                         request.getPreview().getParm(),
                                         ea.getItemName(), python);
@@ -202,7 +206,7 @@ public class SmartToolJob extends AbstractQueueJob<SmartToolRequest> {
 
     /**
      * Remove a job from the Data Manger's job list.
-     * 
+     *
      * @param dataMgr
      *            - The job's data manager
      * @param job
@@ -230,7 +234,7 @@ public class SmartToolJob extends AbstractQueueJob<SmartToolRequest> {
 
     /**
      * This manages the scheduling of jobs to service a Data Manger's requests.
-     * 
+     *
      * @param dataMgr
      *            - Data Manger for the request
      * @param request
@@ -283,7 +287,7 @@ public class SmartToolJob extends AbstractQueueJob<SmartToolRequest> {
      * This returns an array of two integers the first is the number of Smart
      * Tool Jobs being processed and the second is the number in the queue
      * waiting to be processed.
-     * 
+     *
      * @return cnts
      */
     public static int[] getJobCount() {
@@ -303,7 +307,7 @@ public class SmartToolJob extends AbstractQueueJob<SmartToolRequest> {
 
     /**
      * Determine if there are any Smart Tool Jobs queued and/or being processed.
-     * 
+     *
      * @return true when there are job(s)s queued or being processed otherwise
      *         false
      */

@@ -40,6 +40,7 @@ import com.raytheon.uf.edex.plugin.scan.ScanURIFilter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 18, 2010 5098       grichard    Initial creation
+ * Jun 20, 2013 7613       zhao        Modified getSQL()
  * 
  * </pre>
  * 
@@ -136,7 +137,7 @@ public class HELIProduct extends GridProduct {
      * @return
      */
     public static String getSQL(int interval, String model) {
-        return getGridSQL(interval, model, "Heli", "SFC", "0.0",
-                Level.getInvalidLevelValueAsString());
+        return getGridSQL(interval, model, "Heli", "FHAG", "0.0",
+                "3000.0");
     }
 }
