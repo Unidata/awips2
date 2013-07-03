@@ -62,7 +62,7 @@ import com.raytheon.viz.core.style.image.ImagePreferences;
  *    Jul 25, 2007             chammack    Initial Creation.
  *    Mar 26, 2009     2086    jsanchez    Added a entityList to the match criteria.
  *    Feb 15, 2013 1638        mschenke    Moved GRID_FILL_VALUE from edex.common Util into GridUtil
- * 
+ *    Jun 24, 2013 2122        mschenke    Added method for constructing {@link ColorMapParameters} from {@link StyleRule}
  * </pre>
  * 
  * @author chammack
@@ -94,6 +94,12 @@ public class ColorMapParameterFactory {
         }
         StyleRule sr = StyleManager.getInstance().getStyleRule(
                 StyleManager.StyleType.IMAGERY, match);
+
+        return build(sr, data, level, parameterUnits);
+    }
+
+    public static ColorMapParameters build(StyleRule sr, Object data,
+            SingleLevel level, Unit<?> parameterUnits) {
 
         ColorMapParameters params = new ColorMapParameters();
 
