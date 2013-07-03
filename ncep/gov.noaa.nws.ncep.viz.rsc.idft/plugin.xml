@@ -29,6 +29,13 @@
    <extension
          point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
       <nc-resourceParameter
+            paramClass="java.lang.Boolean"
+            paramName="displayStationNumber"
+            defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="IDFT">
+      </nc-resourceParameter>         
+      <nc-resourceParameter
             paramClass="String"
             paramName="symbolName"
             defaultValue="ASTERISK"

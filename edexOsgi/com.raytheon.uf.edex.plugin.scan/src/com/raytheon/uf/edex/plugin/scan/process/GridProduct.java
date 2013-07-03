@@ -34,7 +34,8 @@ import com.raytheon.uf.edex.plugin.scan.ScanURIFilter;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 2, 2012            bsteffen     Initial creation
+ * Mar 2, 2012             bsteffen     Initial creation
+ * Jun 21, 2013 7613       zhao         Modified getGrigSQL()
  * 
  * </pre>
  * 
@@ -118,7 +119,7 @@ public abstract class GridProduct extends ScanProduct {
         // interval
         sql.append("and reftime > (now()- interval \'" + interval
                 + " minutes\')");
-        sql.append(" order by forecasttime desc" + " limit 1");
+        sql.append(" order by reftime desc, forecasttime desc" + " limit 1");
         return sql.toString();
     }
 }
