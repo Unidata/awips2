@@ -200,4 +200,19 @@
 	         extensionFilter="*ImageryStyleRules.xml">
        </path>
     </extension>
+    <extension point="gov.noaa.nws.ncep.viz.common.areaProvider">
+       <areaProviderSource
+             areaSourceName="MCIDAS_AREA_NAME"
+             isImageBased="true"
+             sourceFactory="gov.noaa.nws.ncep.viz.rsc.satellite.area.McIdasAreaProviderFactory"
+             sourceLocation="mcidas|areaNames"/>    
+       
+       <areaProviderSource
+             areaSourceName="GINI_SECTOR_ID"
+             isImageBased="true"
+             sourceFactory="gov.noaa.nws.ncep.viz.rsc.satellite.area.GiniAreaProviderFactory"
+             sourceLocation="satellite|sector_id"/>    
+               
+   </extension>
+    
 </plugin>

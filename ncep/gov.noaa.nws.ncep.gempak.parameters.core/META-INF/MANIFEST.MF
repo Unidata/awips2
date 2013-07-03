@@ -8,5 +8,6 @@ Import-Package: org.junit
 Export-Package: gov.noaa.nws.ncep.gempak.parameters.core.categorymap,
  gov.noaa.nws.ncep.gempak.parameters.core.contourinterval,
  gov.noaa.nws.ncep.gempak.parameters.core.marshaller.garea,
+ gov.noaa.nws.ncep.gempak.parameters.core.marshaller.garea.station,
  gov.noaa.nws.ncep.gempak.parameters.core.util
 
