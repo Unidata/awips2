@@ -67,6 +67,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 04/09/13       #864      Greg Hull    show Resource Implementation 
  * 04/10/13       #864      Greg Hull    move the isEnabled flag. Show the resource implementation.
  * 04/11/13       #864      Greg Hull    new TimelineGenMethods and EVENT TimeMatchMthd
+ * 06/10/13       #997	    Greg Hull    Copy AttrSets with RDs
  * 
  * </pre>
  * 
@@ -854,11 +855,6 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 
 		newRscDefn.setResourceDefnName( rscTypeName );
 		
-    	// this will copy the localizationFile and the sub-types and attrSets which we do not want.
-//    	if( !newRscDefn.applyAttrSetGroups() ) {
-//    		newRscDefn.getSubTypesMap().clear();	
-//    	}
-    	
 		setSelectedRscDefnFromGUI( newRscDefn );
 
 		//		get the filters and create an entry in the filters map and save the file
@@ -868,7 +864,8 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 		List<String> filtersList=null;
 		try {
 			filtersList = strListAdptr.unmarshal( filterLabelsTxt.getText().trim() );
-		} catch (Exception e1) {
+		} 
+		catch (Exception e1) {
     		MessageDialog warnDlg = new MessageDialog( getShell(), 
     				"Resource", null, 
     				"Unable to parse the filters string.\n"+
@@ -888,7 +885,8 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 		
 		try {
 			rscDefnMngr.saveResourceDefnFiltersFile();
-		} catch (VizException e1) {
+		} 
+		catch (VizException e1) {
     		MessageDialog errDlg = new MessageDialog( getShell(), 
     				"Resource", null, "Error saving a new Resource Filters File:\n"+
     				e1.getMessage(), MessageDialog.ERROR, new String[]{"OK"}, 0);
@@ -935,43 +933,27 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 					rscDefnMngr.saveAttrSetGroup( asg );
 				}
 			}
-			// or a new 'default' attrSet so the user will have something to edit.
+			// Copy all of the attr sets 
     		else {
-    			List<String> availAttrSets = rscDefnMngr.getAvailAttrSets( seldRscDefn );
-
-    			// find an attrSet from the original to copy over for the new resource.
-    			// priority is 'default', 'standard' and then just the first one in the list.
-    			AttributeSet dfltAttrSet = null;
-
-    			for( String attrSetName : availAttrSets ) {
-    				if( dfltAttrSet == null ) {
-    					dfltAttrSet = rscDefnMngr.getAttrSet(seldRscDefn, attrSetName );    						
-    				}
-    				else if( attrSetName.equals("standard" ) ) {
-    					dfltAttrSet = rscDefnMngr.getAttrSet(seldRscDefn, attrSetName );    						    						
-    				}
-    				else if( attrSetName.equals("default" ) ) {
-    					dfltAttrSet = rscDefnMngr.getAttrSet(seldRscDefn, attrSetName );
-    					break;
-    				}    					 
-    			}
-    			if( dfltAttrSet == null ) {
-    				return;
-    			}
+    			List<AttributeSet> availAttrSets = rscDefnMngr.getAttrSetsForResource(seldRscName, false );
     			
+    			for( AttributeSet attrSet : availAttrSets ) {
     			try {
-    				FileReader fr = new FileReader( dfltAttrSet.getFile().getFile() );
-    				char[] attrsSetStr = new char[(int) dfltAttrSet.getFile().getFile().length()];
+    					FileReader fr = new FileReader( attrSet.getFile().getFile() );
+    					char[] attrsSetStr = new char[(int) attrSet.getFile().getFile().length()];
     				fr.read(attrsSetStr);
     				fr.close();
     				
-        			rscDefnMngr.saveAttrSet(newRscDefn, dfltAttrSet.getName(), new String( attrsSetStr ) );
+    					rscDefnMngr.saveAttrSet(newRscDefn, attrSet.getName(), new String( attrsSetStr ) );
         			
-    			} catch (FileNotFoundException fnf ) {
+    				} 
+    				catch (FileNotFoundException fnf ) {
     				throw new VizException( "file not found for default attr set.");
-    			} catch (IOException ioe ) {
+    				} 
+    				catch (IOException ioe ) {
     				throw new VizException( "i/o error copying default attr set file.");
     			}
+    		}			
     		}			
 			seldRscDefn = newRscDefn;
 

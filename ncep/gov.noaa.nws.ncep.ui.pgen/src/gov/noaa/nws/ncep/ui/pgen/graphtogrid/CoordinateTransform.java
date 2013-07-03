@@ -10,8 +10,7 @@ package gov.noaa.nws.ncep.ui.pgen.graphtogrid;
 import java.io.File;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
-import gov.noaa.nws.ncep.viz.customprojection.CustomProjectionServiceImpl;
-import gov.noaa.nws.ncep.viz.customprojection.ICustomProjectionService;
+import gov.noaa.nws.ncep.viz.common.customprojection.CustomProjectionServiceImpl;
 import gov.noaa.nws.ncep.gempak.parameters.core.marshaller.garea.GraphicsAreaCoordinates;
 
 //import org.apache.log4j.Logger;
@@ -43,6 +42,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------	----------	-----------	--------------------------
  * 03/10		#215		J. Wu   	Initial Creation.
  * 07/11        #450        G. Hull     NcPathManager
+ * 05/13        #862        G. Hull     mv CustomProjectionServiceImpl to common
  * 
  * </pre>
  * 
@@ -261,7 +261,7 @@ public class CoordinateTransform {
 	        
 			try {
 
-				ICustomProjectionService customProj = 
+				CustomProjectionServiceImpl customProj = 
 	    		    	new CustomProjectionServiceImpl( projection, garea, 
 	    		    									 geogFilePath, stationFilePath); 
                 CoordinateReferenceSystem crs = customProj.getCoordinateReferenceSystem();

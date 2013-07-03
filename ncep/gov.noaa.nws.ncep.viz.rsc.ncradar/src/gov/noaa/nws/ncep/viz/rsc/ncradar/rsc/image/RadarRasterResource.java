@@ -35,11 +35,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapMeshExtension;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
 
-import gov.noaa.nws.ncep.viz.rsc.ncradar.VizRadarRecord;
-import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
+import com.raytheon.viz.radar.DefaultVizRadarRecord;
+import com.raytheon.viz.radar.VizRadarRecord;
 
 import gov.noaa.nws.ncep.viz.rsc.ncradar.rsc.RadarImageResource;
 import gov.noaa.nws.ncep.viz.rsc.ncradar.rsc.RadarResourceData;
@@ -56,6 +54,7 @@ import gov.noaa.nws.ncep.viz.rsc.ncradar.rsc.RadarResourceData;
  * ------------ ---------- ----------- --------------------------
  * 12/13/2011      #541       S. Gurung   Initial creation
  * 03/30/2012      #651       S. Gurung   Removed method resourceChanged
+ * 06/10/2013      #999     G. Hull     Use queryRecords from base class 
  * 
  * </pre>
  * 
@@ -72,52 +71,8 @@ public class RadarRasterResource extends RadarImageResource<MapDescriptor> {
      * @param loadProps
      * @throws VizException
      */
-    public RadarRasterResource(RadarResourceData rrd, LoadProperties loadProps,
-            IRadarInterrogator interrogator) throws VizException {
-        super(rrd, loadProps, interrogator);
-    }
-    
-    protected HashMap<String, RequestConstraint> queryList;	
-    
-    @Override
-	public void queryRecords() throws VizException {
-
-		queryList = new HashMap<String, RequestConstraint>(
-				resourceData.getMetadataMap());
-
-		LayerProperty prop = new LayerProperty();
-		prop.setDesiredProduct(ResourceType.PLAN_VIEW);
-		prop.setEntryQueryParameters(queryList, false);
-		prop.setNumberOfImages(15000); // TODO: max # records ?? should we cap
-										// this ?
-		String script = null;
-		script = ScriptCreator.createScript(prop);
-
-		if (script == null)
-			return;
-
-		Object[] pdoList = Connector.getInstance().connect(script, null, 60000);
-		//ArrayList<PluginDataObject> pdos = new ArrayList<PluginDataObject>();
-		for (Object pdo : pdoList) {
-			for( IRscDataObject dataObject : processRecord( pdo ) )	{	
-				newRscDataObjsQueue.add(dataObject);
-			}
-		/*pdos.add((PluginDataObject)pdo);*/		
-		}
-		
-		//resourceChanged(ChangeType.DATA_UPDATE, pdos.toArray(new PluginDataObject[]{}));//see getRadarRecord(DataTime)&Map<DataTime, RadarTimeRecord> radarRecords of AbstractRadarResource
-	}
-
-	@Override
-	public void initResource(IGraphicsTarget target) throws VizException {
-		
-		synchronized (this) {
-			super.initResource( target );
-			
-			this.viewType = target.getViewType();
-            this.grphTarget = target;            
-			queryRecords();       	
-		}		
+    public RadarRasterResource(RadarResourceData rrd, LoadProperties loadProps ) throws VizException {
+        super(rrd, loadProps);
 	}
 
     @Override
@@ -234,20 +189,6 @@ public class RadarRasterResource extends RadarImageResource<MapDescriptor> {
         }
 
     }
-
-	@Override
-	public void updateConfig() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.AbstractFrameData createNewFrame(
-			DataTime frameTime, int frameInterval) {
-		// TODO Auto-generated method stub
-		return new FrameData(frameTime, frameInterval );//return null;
-	}
-	
 
 }
 

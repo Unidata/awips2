@@ -178,6 +178,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 05/23/2013  DR 16169    D. Friedman Improve redraw-from-hatched-area polygons.
  * 05/31/2013  DR 16237    D. Friedman Refactor goespatial data routines and watch handling.
  * 06/05/2013  DR 16279    D. Friedman Fix determination of frame time from parsed storm track.
+ * 06/25/2013  DR 16013    Qinglu Lin  Added setUniqueFip() and code for re-hatching polygon.
  * </pre>
  * 
  * @author mschenke
@@ -187,6 +188,8 @@ import com.vividsolutions.jts.io.WKTReader;
 public class WarngenLayer extends AbstractStormTrackResource {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(WarngenLayer.class);
+
+    String uniqueFip = null;
 
     private static class GeospatialDataList {
 
@@ -2621,6 +2624,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         Geometry tmp = removeCounty(state.getWarningArea(),
                                 getFips(f));
                         if (tmp.isEmpty()) {
+                            String fip = getFips(f);
+                            if (fip != null && uniqueFip != null && fip.equals(uniqueFip)) {
+                                updateWarnedAreas(true);
+                            }
                             break;
                         }
 
@@ -3129,5 +3136,16 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
         }
         return new HashSet<String>(namePrefix.values());
+    }
+
+    public void setUniqueFip() {
+        Geometry g = state.getWarningArea();
+        if (g != null) {
+            if (getAllFipsInArea(g).size() == 1) {
+                Set<String> fips = getAllFipsInArea(g);
+                Iterator<String> iter = fips.iterator();
+                uniqueFip = iter.next();
+            }
+        }
     }
 }

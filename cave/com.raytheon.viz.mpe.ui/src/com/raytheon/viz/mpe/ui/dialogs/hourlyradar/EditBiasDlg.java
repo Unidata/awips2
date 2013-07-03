@@ -53,6 +53,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * Jul 27, 2009 2675       mpduff     Initial creation
  * Aug 13, 2009 2675       mpduff     TIM changes added
+ * Jun 18, 2013 16053      snaples    Removed reference to setRadarEditFlag
  * 
  * </pre>
  * 
@@ -250,8 +251,6 @@ public class EditBiasDlg extends CaveSWTDialog {
                 + (double) biasSlider.getSelection() / 100);
         rwrr.setRwBiasValUsed((double) biasSlider.getSelection() / 100);
         IHFSDbGenerated.UpdateRWRadarResult(rwrr);
-
-        MPEDataManager.getInstance().setRadarEditFlag(true);
         setReturnValue(new Double((double) biasSlider.getSelection() / 100));
     }
 }
