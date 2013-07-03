@@ -1649,7 +1649,7 @@ public class PgenResource extends
      *            - end point of the line segment
      * @return
      */
-    public double distanceFromLineSegment(Coordinate loc, Coordinate startPt,
+    public static double distanceFromLineSegment(Coordinate loc, Coordinate startPt,
             Coordinate endPt) {
         double dist = Double.MAX_VALUE;
 
