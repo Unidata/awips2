@@ -13,7 +13,6 @@ Export-Package: gov.noaa.nws.ncep.edex.common.dao,
  gov.noaa.nws.ncep.edex.common.ncinventory,
  gov.noaa.nws.ncep.edex.common.sounding,
  gov.noaa.nws.ncep.edex.common.stationTables,
- gov.noaa.nws.ncep.edex.locations,
  gov.noaa.nws.ncep.edex.tools.decoder,
  gov.noaa.nws.ncep.edex.util
  

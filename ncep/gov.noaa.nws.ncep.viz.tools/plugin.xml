@@ -56,10 +56,6 @@
           id="gov.noaa.nws.ncep.ui.actions.aodt.experimental"
           name="AODT Experimental">
       </command-->
-      <command
-            id="gov.noaa.nws.ncep.viz.ui.actions.createCustomProjection"
-            name="Create Custom Projection">
-      </command>
       <category 
             id="gov.noaa.nws.ncep.viz.ui.modalTool.nav"
             name="Modal Tool">
@@ -79,6 +75,9 @@
             id="gov.noaa.nws.ncep.viz.tools.unzoom"
             name="NC_Unzoom">
       </command>
+      <command id="gov.noaa.nws.ncep.viz.ui.actions.saveArea"
+               name="Save Area">
+      </command>
       <command
             id="gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea"
             name="Load Area">
@@ -88,8 +87,13 @@
                optional="false">
          </commandParameter>
          <commandParameter
-               id="areaType"
-               name="areaType"
+               id="areaSource"
+               name="areaSource"
+               optional="false">
+         </commandParameter>
+         <commandParameter
+               id="recenterOnly"
+               name="recenterOnly"
                optional="true">
          </commandParameter>
       </command>      
@@ -137,6 +141,10 @@
             id="gov.noaa.nws.ncep.viz.colorMapEditor"
             name="Colormap editor">
       </command>
+      <command
+            id="gov.noaa.nws.ncep.viz.CustomProjection"
+            name="CustomProjection">
+      </command>        
       <command
           categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.viz.ui.actions.clearData"
@@ -260,12 +268,17 @@
             commandId="gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea">
       </handler>
       <handler
+            class="gov.noaa.nws.ncep.viz.tools.predefinedArea.SavePredefinedAreaAction"
+            commandId="gov.noaa.nws.ncep.viz.ui.actions.saveArea">
+      </handler>
+      
+      <handler
             class="gov.noaa.nws.ncep.viz.tools.panZoom.ZoomToAction"
             commandId="gov.noaa.nws.ncep.viz.ui.actions.zoomTo">
       </handler>
       <handler
-            class="gov.noaa.nws.ncep.viz.customprojection.CreateCustomProjectionHandler"
-            commandId="gov.noaa.nws.ncep.viz.ui.actions.createCustomProjection">
+            class="gov.noaa.nws.ncep.viz.tools.predefinedArea.CreateCustomProjectionHandler"
+            commandId="gov.noaa.nws.ncep.viz.CustomProjection">
       </handler>
       <handler
             class="gov.noaa.nws.ncep.viz.tools.newEditors.NewDisplayAction"
@@ -275,6 +288,8 @@
             class="gov.noaa.nws.ncep.viz.tools.syncPanes.SyncPanesOptionAction"
             commandId="gov.noaa.nws.ncep.viz.ui.options.SyncPanes">
       </handler>
+      
+    
       <!--
       <handler
             class="gov.noaa.nws.ncep.viz.tools.panZoom.ZoomLockAction"

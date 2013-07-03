@@ -12,6 +12,7 @@ import gov.noaa.nws.ncep.common.staticdata.SPCCounty;
 import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
@@ -20,6 +21,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.TopologyException;
 import com.vividsolutions.jts.io.ParseException;
@@ -35,6 +37,7 @@ import com.vividsolutions.jts.operation.valid.TopologyValidationError;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 02/12		?			B. Yin   	Moved from PGEN 
+ * 06/13	T1000/TTR580	J. Wu   	Use ID for marine zones (no FIPS). 
  *
  * </pre>
  * 
@@ -48,6 +51,12 @@ public class SPCCountyProvider {
 	
 	private static volatile boolean countyLoaded = false; 
 
+    /*
+     *  The 15 marine zones "State" names and its 2-digits IDs in NMAP2.
+     */
+    private static HashMap<String, String> marineZoneStates;
+    
+    
 	/**
 	 * Get all counties and marine zones from the database
 	 * @return
@@ -77,15 +86,21 @@ public class SPCCountyProvider {
 
 			String queryStnTbl = "Select station_number, station_id, state, country FROM stns.mzcntys";
 			String queryCntyBnds = "Select AsBinary(the_geom_0_064), countyname, state, fe_area, cwa, fips, lat, lon FROM mapdata.county";
-			String queryZoneBnds = "Select AsBinary(the_geom_0_064), id, name, wfo, fips, lat, lon FROM mapdata.marinezones";
 
+			boolean noFips4MarineZones = true;
+			String queryZoneBnds = "Select AsBinary(the_geom_0_064), id, name, wfo, lat, lon FROM mapdata.marinezones";
+/*			boolean  noFips4MarineZones = !marineZoneHasFips();
+			if ( noFips4MarineZones ) {
+				queryZoneBnds = "Select AsBinary(the_geom_0_064), id, name, wfo, lat, lon FROM mapdata.marinezones";				
+			}
+			else {
+				queryZoneBnds = "Select AsBinary(the_geom_0_064), id, name, wfo, fips, lat, lon FROM mapdata.marinezones";				
+			}
+*/
 			try {
-				bnds = NcDirectDbQuery.executeQuery(
-						queryCntyBnds, "maps", QueryLanguage.SQL);
-				zones = NcDirectDbQuery.executeQuery(
-						queryZoneBnds, "maps", QueryLanguage.SQL);
-				stns = NcDirectDbQuery.executeQuery(
-						queryStnTbl, "ncep", QueryLanguage.SQL);
+				bnds = NcDirectDbQuery.executeQuery( queryCntyBnds, "maps", QueryLanguage.SQL);
+				zones = NcDirectDbQuery.executeQuery( queryZoneBnds, "maps", QueryLanguage.SQL);
+				stns = NcDirectDbQuery.executeQuery( queryStnTbl, "ncep", QueryLanguage.SQL);
 
 				WKBReader wkbReader = new WKBReader();
 
@@ -150,12 +165,23 @@ public class SPCCountyProvider {
 								cntyFips = cntyFips.substring(1);
 							}
 
-							for ( Object[] stn :stns ){
-								if ( stn[0] != null && ((String)stn[0]).equalsIgnoreCase(cntyFips)){
-									cntyUgc = (String)stn[1];
-									cntyCountry = (String)stn[3];
-								}
+							/*
+							 * set county UGC and country
+							 */
+							cntyCountry = "US";
+							if ( cntyFips.length() == 4 ) {
+								cntyUgc = new String( cntySt + "C" + cntyFips.substring(1, 4) );
 							}
+							else if ( cntyFips.length() > 4 ) {
+								cntyUgc = new String( cntySt + "C" + cntyFips.substring(2, 5) );
+							}
+
+							//for ( Object[] stn :stns ){
+							//	if ( stn[0] != null && ((String)stn[0]).equalsIgnoreCase(cntyFips)){
+							//		cntyUgc = (String)stn[1];
+							//		cntyCountry = (String)stn[3];
+							//	}
+							//}
 
 							SPCCounty existingCnty = findCounty( cntyFips );
 							//				if ( existingCnty != null ){
@@ -177,6 +203,13 @@ public class SPCCountyProvider {
 				}
 
 				//System.out.println("total counties: "+tt);
+				int xIndex = 6;
+				int yIndex = 5;
+				if ( noFips4MarineZones ) {
+					xIndex--;
+					yIndex--;
+				}
+				
 				for ( Object[] zn : zones ){
 
 					if ( zn[0] != null  && zn[1] != null ){ //neither bound nor ugc can be null
@@ -203,8 +236,8 @@ public class SPCCountyProvider {
 
 							Coordinate loc = new Coordinate(0,0); 
 							try {
-								loc.x = ((Number)zn[6]).doubleValue(); 
-								loc.y = ((Number)zn[5]).doubleValue();
+								loc.x = ((Number)zn[xIndex]).doubleValue(); 
+								loc.y = ((Number)zn[yIndex]).doubleValue();
 							}
 							catch ( Exception e ){
 								e.printStackTrace();
@@ -213,8 +246,14 @@ public class SPCCountyProvider {
 
 							if ( znName == null ) znName = "";
 							if ( wfo == null ) wfo ="";
-							if ( zn[4] != null ) fips = ((Integer)zn[4]).toString();
-							else fips = "00000";
+							
+							// Use zone id as FIPS.
+							if ( !noFips4MarineZones && zn[4] != null ) {
+								fips = ((Integer)zn[4]).toString();
+							}
+							else {
+								fips = makeMarineZoneFips( (String)zn[1] );
+							}
 
 							zoneGeo = removeSmallShells(zoneGeo, 0.001);
 
@@ -233,16 +272,46 @@ public class SPCCountyProvider {
 
 							}
 
-							for ( Object[] stn :stns ){
-								if ( stn[0] != null && ((String)stn[1]).equalsIgnoreCase(ugc)){
-									znSt = (String)stn[2];
-									country = (String)stn[3];
-								}
+							/*
+							 * set state and country
+							 */
+							country = "US";
+							if ( ugc != null && ugc.length() > 2 ) {
+								znSt = ugc.substring(0, 2 );
 							}
 
+							//for ( Object[] stn :stns ){
+							//	if ( stn[0] != null && ((String)stn[1]).equalsIgnoreCase(ugc)){
+							//		znSt = (String)stn[2];
+							//		country = (String)stn[3];
+							//	}
+							//}
+
+							//Set centriod.
+							Point cent = zoneGeo.getCentroid();
+							if ( cent != null ) {
+								loc.x = cent.getX();
+					            loc.y = cent.getY();
+							}
+							
+							Geometry zgeo = zoneGeo; 
+							SPCCounty existCnty = findCounty( fips );
+							if ( existCnty != null && existCnty.getName().equalsIgnoreCase( cntyName )  ) {
+								zgeo = existCnty.getShape().union( zoneGeo );
+								existCnty.setShape( zgeo );
+								
+								Point cent1 = zoneGeo.getCentroid();
+								if ( cent1 != null ) {
+									loc.x = cent1.getX();
+						            loc.y = cent1.getY();
+									existCnty.setCentriod( loc );
+								}
+							}
+							else {							
 							SPCCounty cnty = new SPCCounty(fips, cntyName, wfo, ugc, znSt, country,
 									znName, loc, zoneGeo, mZone);
 							allCounties.add(cnty);
+							}
 
 						}
 					}
@@ -252,6 +321,7 @@ public class SPCCountyProvider {
 				System.out.println("db exception reading county tables!");	
 				e.printStackTrace();
 			}
+						
 			countyLoaded = true;
 
 		}
@@ -463,4 +533,80 @@ public class SPCCountyProvider {
 			return geo;
 		}
 	}
+	
+	/**
+	 *  Check if there is "fips" column for marine zone table.
+	 */
+	private static boolean marineZoneHasFips() {
+
+		boolean  hasFips4MarineZones = true;
+
+		String queryZoneFips = "Select fips FROM mapdata.marinezones";
+		
+		try {
+			NcDirectDbQuery.executeQuery( queryZoneFips, "maps", QueryLanguage.SQL);	
+		}
+		catch (Exception e ) {
+			hasFips4MarineZones = false;
+		}
+		
+		return hasFips4MarineZones;
+	}
+	
+    /**
+     *  The equivalent state names and numeric IDs for marine zones.
+     *  These name/numeric IDs match those used in NMAP2.
+     */
+    private static HashMap<String, String> getMarineZoneStates() {
+    	if ( marineZoneStates == null ) {
+    		marineZoneStates = new HashMap<String, String>();
+    		marineZoneStates.put( "LC",  "60" );
+    		marineZoneStates.put( "PZ",  "61" );
+    		marineZoneStates.put( "LO",  "62" );
+    		marineZoneStates.put( "LE",  "63" );
+    		marineZoneStates.put( "LM",  "64" );
+    		marineZoneStates.put( "LS",  "65" );
+    		marineZoneStates.put( "AM",  "66" );
+    		marineZoneStates.put( "AN",  "67" );
+    		marineZoneStates.put( "GM",  "68" );
+    		marineZoneStates.put( "PK",  "69" );
+    		marineZoneStates.put( "PH",  "70" );
+    		marineZoneStates.put( "PM",  "71" );
+    		marineZoneStates.put( "PS",  "72" );
+    		marineZoneStates.put( "SL",  "73" );
+    		marineZoneStates.put( "LH",  "74" );
+	    }
+    	
+    	return marineZoneStates;
+    }
+    
+    /**
+     *  Make FIPS for marine zones to match those in Legacy NMAP2.
+     *  
+     *  Each FIPS is a 6-digit number string as following:
+     *  
+     *  The first two number is the numeric ID of a marine zones "State"
+     *  see getMarineZoneStates() above.
+     *  
+     *  The next three digits is the marine zone's assigned id - the 
+     *  last three digits in its ID (e. g., 123 in "PKZ123" ).
+     *  
+     *  The last digit is always "0".
+     *  
+     *  06/10/2013 - Decided to use the marine zone's ID directly as FIPS.
+     *  
+     */
+    private static String makeMarineZoneFips( String mzID ) {
+	    
+		String fips = "000000";
+		if ( mzID != null && mzID.trim().length() >= 0 ) {
+//			if ( mzID != null && mzID.trim().length() >= 6 ) {
+			fips = new String( mzID );
+//		    String stKey = mzID.substring(0, 2).toUpperCase();
+//		    fips = new String( getMarineZoneStates().get( stKey ) + mzID.substring(3, 6) + "0" );
+		}
+    	
+    	return fips;
+    }
+
 }

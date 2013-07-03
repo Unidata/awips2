@@ -92,9 +92,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Apr 21, 2009            chammack    Refactor to common pointData model
  * Feb 01, 2013 1567       njensen     Refactor handling of updates
  * May 14, 2013 1869       bsteffen    Get plots working without dataURI
+ * May 23, 2013 14996      snaples     Updated processUpdatedPlot to handle AWOS 
+ *                                     stations updates properly
  * Jun 06, 2013 2072       bsteffen    Fix concurrency problems when init is
  *                                     called before time matching is done.
- * 
  * </pre>
  * 
  * @author brockwoo
@@ -383,6 +384,17 @@ public class PlotResource2 extends
         if (existingStation.plotImage != null) {
             existingStation.plotImage.getImage().dispose();
             existingStation.plotImage = null;
+            // DR14966
+            rawMessageMap.remove(existingStation.info[0].dataURI);
+            PlotInfo[] samplePlot = new PlotInfo[1];
+            samplePlot[0] = new PlotInfo();
+            samplePlot[0] = plot;
+            List<PlotInfo[]> list = new ArrayList<PlotInfo[]>();
+            list.add(samplePlot);
+            Params params = Params.SAMPLE_ONLY;
+            GetDataTask task = new GetDataTask(list, params);
+            generator.queueStation(task);
+            // End DR14996
         }
         boolean dup = false;
         for (int i = 0; i < existingStation.info.length; i++) {
@@ -394,9 +406,9 @@ public class PlotResource2 extends
             }
         }
         if (!dup) {
-            existingStation.info = Arrays.copyOf(existingStation.info,
-                    existingStation.info.length + 1);
-            existingStation.info[existingStation.info.length - 1] = plot;
+        	// Added for DR14996
+            existingStation.info = Arrays.copyOf(existingStation.info,1);
+            existingStation.info[0] = plot;
             Arrays.sort(existingStation.info, new Comparator<PlotInfo>() {
                 @Override
                 public int compare(PlotInfo o1, PlotInfo o2) {
