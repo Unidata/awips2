@@ -1,12 +1,17 @@
 package gov.noaa.nws.ncep.viz.ui.display;
 
-import gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider;
-import gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider.ZoomLevelStrings;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedArea.AreaSource;
+import gov.noaa.nws.ncep.viz.common.area.AreaName.AreaSource;
+import gov.noaa.nws.ncep.viz.common.area.IAreaProviderCapable;
+import gov.noaa.nws.ncep.viz.common.area.IGridGeometryProvider;
+import gov.noaa.nws.ncep.viz.common.area.NcAreaProviderMngr;
+import gov.noaa.nws.ncep.viz.common.area.PredefinedArea;
+import gov.noaa.nws.ncep.viz.common.area.PredefinedAreaFactory;
+import gov.noaa.nws.ncep.viz.common.area.IGridGeometryProvider.ZoomLevelStrings;
+import gov.noaa.nws.ncep.viz.common.display.INatlCntrsPaneManager;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsRenderableDisplay;
 import gov.noaa.nws.ncep.viz.common.display.INcPaneID;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedArea;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayName.NcPaneName;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -15,6 +20,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -41,6 +47,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  *  02/10/2011              Chin Chen   handle multiple editor copies dispose issue    
  *  03/07/2011   migration  ghull       call customizeResourceList
  *  11/18/2012   #630       ghull       construct from areaProvider
+ *  05/19/2013   #862       ghull       add paneName, implement IAreaProviderCapable 
  * 
  * </pre>
  * 
@@ -51,7 +58,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
 @XmlType(name = "NC-MapRenderableDisplay")
 @XmlRootElement
 public class NCMapRenderableDisplay extends MapRenderableDisplay implements
-							AddListener, INatlCntrsRenderableDisplay, ISerializableObject {
+							AddListener, INatlCntrsRenderableDisplay, 
+							IAreaProviderCapable, ISerializableObject {
 
     public static final GenericResourceData legendRscData = new GenericResourceData(
             NCLegendResource.class);
@@ -68,11 +76,15 @@ public class NCMapRenderableDisplay extends MapRenderableDisplay implements
     @XmlElement
     private NcPaneID paneId;
     
-    private String paneName; // the rbd/displayName + the paneId if multipane
+//    private String paneName; // the rbd/displayName + the paneId if multipane
+    
+    // either the RBD or the Display's paneManager
+    private INatlCntrsPaneManager paneContainer;
     
     // the initial area that the display is set to. This is used for the unzoom.
     // after the display is loaded the user may pan/zoom in which case the current
     // area(gridGeometry,zoom,mapcenter) will be different than the initial area.
+    // TODO: can we change this to only save the AreaName (with the areaSource.) ?
     //
     @XmlElement
     private PredefinedArea initialArea;
@@ -81,33 +93,24 @@ public class NCMapRenderableDisplay extends MapRenderableDisplay implements
         super();
     }
     
-    // set the initial gridGeometry, mapCenter and zoomLevel from the areaProvider
-    // 
-//    public NCMapRenderableDisplay( INcPaneID pid, 
-//    							   PredefinedArea geomPrvdr ) throws VizException {
-//    	super();
-//    	setPaneId( pid );
-//    	
-//		setDescriptor( new NCMapDescriptor() );
-//
-//		setInitialArea( geomPrvdr );
-//    }
-//
-//    public NCMapRenderableDisplay( INcPaneID pid, NCMapDescriptor desc) {
-//        super(desc);
-//        this.setPaneId( pid );
-////        setInitialArea( PredefinedAreasMngr )
-//    }
-    
-  //public void setInitialArea(IGridGeometryProvider area) {
     @Override
-    public void setInitialArea( IGridGeometryProvider area) {
-    	if( !(area instanceof PredefinedArea ) ) {
-    		System.out.println("NCMapRenderableDisplay.setInitialArea called with non-PredefinedArea???");
+    public void setInitialArea( PredefinedArea area) {
+    	
+    	try {
+			initialArea = PredefinedAreaFactory.clonePredefinedArea( area );
+		} catch (VizException e1) {
+			System.out.println("error cloning PredefinedArea:"+e1.getMessage() );
     		return;
     	}
     	
-    	initialArea = (PredefinedArea) area;
+    	// if this area came from the current area of another display then
+    	// change the source to be this display's initial area so that the 
+		// 
+    	if( initialArea.getSource() == AreaSource.DISPLAY_AREA ) {
+    		
+    		initialArea.setAreaSource( AreaSource.INITIAL_DISPLAY_AREA.toString() );
+    		initialArea.setAreaName( getAreaName() );
+    	}
     	
     	try {
 			setPredefinedArea( initialArea );
@@ -115,25 +118,8 @@ public class NCMapRenderableDisplay extends MapRenderableDisplay implements
 			if( initialArea.getMapCenter() == null ) {
 				initialArea.setMapCenter( getMapCenter() );
 			}
-			
-//			if( initialArea.getAreaSource() == AreaSource.RESOURCE_DEFINED &&
-//				initialArea.getZoomLevel() == -1.0 ) {
-//				
-//				IGridGeometryProvider areaProv = findAreaProviderResource( initialArea.getProviderName() );
-//				double zlvl = 1.0;
-//				
-//				if( areaProv == null ) {
-//			    	System.out.println(  "Can't find resource, " + initialArea.getProviderName() +", to zoom to???");
-//				}
-//				else {
-//					//zlvl = 
-//				}
-//				initialArea.setZoomLevel( zlvl );
-//				
-//	            ((NCMapDescriptor)getDescriptor()).setSuspendZoom( true );
-//			}
-			
-		} catch (VizException e) {
+		} 
+    	catch (VizException e) {
 			System.out.println("Error setting initial area of renderable display:"+e.getMessage() );
 		}
     }
@@ -223,23 +209,6 @@ public class NCMapRenderableDisplay extends MapRenderableDisplay implements
         }
     }
 
-    // create a PredefinedArea using the current gridGeometry/center/zoom.
-    // 
-    public PredefinedArea getCurrentArea() {
-        // 
-    	PredefinedArea curArea = new PredefinedArea( AreaSource.DISPLAY_AREA, 
-    			getPaneName(), getDescriptor().getGridGeometry(), getMapCenter(), 
-    			Double.toString( getZoomLevel() ),
-    			NcDisplayType.NMAP_DISPLAY );
-    	
-    	return curArea;
-    }
-    
-//	@Override
-//	public GeneralGridGeometry getGridGeometry() {
-//		return getDescriptor().getGridGeometry();
-//	}
-
     public double[] getMapCenter() {
         return this.mapCenter;
     }
@@ -248,15 +217,14 @@ public class NCMapRenderableDisplay extends MapRenderableDisplay implements
         return zoomLevel;
     }
 
-    public void setPaneName( String p ) {
-    	paneName = p;
+    @Override
+    public NcPaneName getPaneName() {
+    	if( getPaneManager().getPaneLayout().getNumberOfPanes() == 1 ) {
+        	return new NcPaneName( getPaneManager().getDisplayName() );    		
+    	}
+    	else {
+    		return new NcPaneName( getPaneManager().getDisplayName(), getPaneId() );
     }
-    
-    public String getPaneName() {
-//    	if( getContainer() != null ) {
-//    		return ((NCMapEditor)getContainer()).getDisplayName();
-//    	}
-    	return (paneName == null ? getPaneId().toString() : paneName); // shouldn't be null
     }
 
     @Override
@@ -272,11 +240,42 @@ public class NCMapRenderableDisplay extends MapRenderableDisplay implements
     	paneId = (NcPaneID) pid;
 	}
     
-	// TODO? if null then set to the descriptors gridGeom??
+	// TODO? if null then set to the default. This shouldn't happen except possibly 
+    // in the case of out of date RBDs.
     @Override
-    public IGridGeometryProvider getInitialArea() {
+    public PredefinedArea getInitialArea() {
     	if( initialArea == null ) {
-    		return getCurrentArea();
+			try {
+				initialArea = 
+					PredefinedAreaFactory.getDefaultPredefinedAreaForDisplayType( 
+							NcDisplayType.NMAP_DISPLAY );
+			} catch (VizException e) {
+			}
+
+    		//getCurrentArea();
+//    		try {
+//    			NcDisplayName dispName = dispPane.getPaneName().getDispName();				
+//    			AreaSource as = ( dispName.getId() > 0 ? 
+//    					AreaSource.DISPLAY_AREA : AreaSource.RBD );
+    			// if this display is from an editor then the areaSource is  
+//    			if( getPaneManager() instanceof NatlCntrsEditor ) {
+//    				
+//    				IGridGeometryProvider ia = 
+//    					NcAreaProviderMngr.getSourceProviderFactory( AreaSource.DISPLAY_AREA ).
+//    						createGeomProvider( getPaneName().toString() );
+//    				// sanity check 
+//    				if( ia instanceof PredefinedArea ) {
+//    					initialArea = (PredefinedArea)ia;
+//    				}
+//    			}
+//    			else { // if from an RBD, then the 
+    				// create a PredefinedArea from the geo
+//    				initialArea = NcDisplayAreaProviderFactory.
+//    					createPredefinedAreaFromRenderableDisplay( this, AreaSource.DISPLAY_INITIAL_AREA );    				
+//    			}
+				
+//			} catch (VizException e) {
+//			}    			
     	}
     	return initialArea;
     }
@@ -293,12 +292,6 @@ public class NCMapRenderableDisplay extends MapRenderableDisplay implements
     	super.setExtent(pe);
     }
     
-//    public void setAreaProviderName(String areaName) {
-//        this.areaProviderName = areaName;
-//        
-//        areaProvider = null;        
-//    }
-
     // create a new PredefinedArea based on the current values for the
     // renderable display's geometry, center and zoomlevel. Use the name of the
     // display as the area name. 
@@ -341,4 +334,34 @@ public class NCMapRenderableDisplay extends MapRenderableDisplay implements
         	pm.setDisplayAvailable( false );
         }        
     }
+
+	@Override
+	public AreaSource getSourceProvider() {
+		return AreaSource.DISPLAY_AREA;
+	}
+
+	@Override
+	public String getAreaName() {
+		return getPaneName().toString();
+	}
+ 
+	@Override
+	public void setPaneManager(INatlCntrsPaneManager pm) {
+		paneContainer = pm;
+	}
+
+	@Override 
+	public void setContainer( IDisplayPaneContainer container ) {
+		super.setContainer( container );
+	
+		if( container instanceof AbstractEditor ) {
+			INatlCntrsPaneManager pm = NcEditorUtil.getNcPaneManager( (AbstractEditor)container );
+			setPaneManager( pm );
+		}
+	}
+	
+	@Override
+	public INatlCntrsPaneManager getPaneManager() {
+		return paneContainer;
+	}
 }
