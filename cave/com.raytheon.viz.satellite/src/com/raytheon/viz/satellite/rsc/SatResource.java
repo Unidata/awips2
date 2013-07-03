@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.satellite.rsc;
 
-import java.text.ParseException;
-import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,19 +29,17 @@ import java.util.Map;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
-import javax.measure.unit.UnitFormat;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters.PersistedParameters;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.dataplugin.satellite.units.SatelliteUnits;
-import com.raytheon.uf.common.dataplugin.satellite.units.counts.DerivedWVPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
-import com.raytheon.uf.common.dataplugin.satellite.units.goes.PolarPrecipWaterPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.water.BlendedTPWPixel;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
@@ -72,6 +68,7 @@ import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
 import com.raytheon.viz.core.style.image.ImagePreferences;
 import com.raytheon.viz.core.style.image.SamplePreferences;
 import com.raytheon.viz.satellite.SatelliteConstants;
+import com.raytheon.viz.satellite.tileset.SatDataRetriever;
 import com.raytheon.viz.satellite.tileset.SatTileSetRenderable;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -265,10 +262,24 @@ public class SatResource extends
 
     private void initializeFirstFrame(SatelliteRecord record)
             throws VizException {
-        SingleLevel level = new SingleLevel(Level.LevelType.SURFACE);
-
         SatelliteUnits.register();
-        Unit<?> unit = null;
+        ColorMapParameters colorMapParameters = null;
+        IColorMap colorMap = null;
+        String cmName = null;
+        PersistedParameters persisted = null;
+
+        if (hasCapability(ColorMapCapability.class)) {
+            colorMapParameters = getCapability(ColorMapCapability.class)
+                    .getColorMapParameters();
+            if (colorMapParameters != null) {
+                persisted = colorMapParameters.getPersisted();
+                colorMap = colorMapParameters.getColorMap();
+                cmName = colorMapParameters.getColorMapName();
+            }
+        }
+
+        SingleLevel level = new SingleLevel(Level.LevelType.SURFACE);
+        Unit<?> unit = SatDataRetriever.getRecordUnit(record);
         String physicalElement = null;
         DerivedParameterRequest request = (DerivedParameterRequest) record
                 .getMessageData();
@@ -277,50 +288,12 @@ public class SatResource extends
         } else {
             physicalElement = request.getParameterAbbreviation();
         }
-        if (record.getUnits() != null && request == null) {
-            try {
-                unit = UnitFormat.getUCUMInstance().parseSingleUnit(
-                        record.getUnits(), new ParsePosition(0));
-            } catch (ParseException e) {
-                throw new VizException("Unable parse units ", e);
-            }
-        } else if (request != null) {
-            if (physicalElement.equals("satDivWVIR")) {
-                unit = new DerivedWVPixel();
-            } else {
-                unit = new GenericPixel();
-            }
-        }
-
-        String creatingEntity = null;
-        if (physicalElement.equals(SatelliteConstants.PRECIP)) {
-            creatingEntity = record.getCreatingEntity();
-            if (creatingEntity.equals(SatelliteConstants.DMSP)
-                    || creatingEntity.equals(SatelliteConstants.POES)) {
-                unit = new PolarPrecipWaterPixel();
-            } else if (creatingEntity.equals(SatelliteConstants.MISC)) {
-                unit = new BlendedTPWPixel();
-            }
-        }
-
-        ColorMapParameters colorMapParameters = null;
-
-        IColorMap colorMap = null;
-        String cmName = null;
-        if (hasCapability(ColorMapCapability.class)) {
-            colorMapParameters = getCapability(ColorMapCapability.class)
-                    .getColorMapParameters();
-            if (colorMapParameters != null) {
-                colorMap = colorMapParameters.getColorMap();
-                cmName = colorMapParameters.getColorMapName();
-            }
-        }
 
         // Grab the sampleRange from the preferences
         ParamLevelMatchCriteria match = new ParamLevelMatchCriteria();
         match.setParameterName(Arrays.asList(physicalElement));
         match.setLevels(Arrays.asList((Level) level));
-        match.setCreatingEntityNames(Arrays.asList(creatingEntity));
+        match.setCreatingEntityNames(Arrays.asList(record.getCreatingEntity()));
         StyleRule sr = StyleManager.getInstance().getStyleRule(
                 StyleManager.StyleType.IMAGERY, match);
         if (sr != null && sr.getPreferences() instanceof ImagePreferences) {
@@ -333,8 +306,32 @@ public class SatResource extends
             }
         }
 
-        colorMapParameters = ColorMapParameterFactory.build((Object) null,
-                physicalElement, unit, level, creatingEntity);
+        colorMapParameters = ColorMapParameterFactory.build(sr, null, level,
+                unit);
+        // If null, set from style rules
+        if (cmName == null) {
+            cmName = colorMapParameters.getColorMapName();
+        }
+        if (colorMap == null) {
+            colorMap = colorMapParameters.getColorMap();
+        }
+
+        // Load colormap into parameters
+        if (colorMap == null) {
+            if (cmName == null) {
+                cmName = "Sat/VIS/ZA (Vis Default)";
+            }
+            colorMap = ColorMapLoader.loadColorMap(cmName);
+        }
+
+        if (colorMap != null) {
+            colorMapParameters.setColorMap(colorMap);
+        }
+
+        if (persisted != null) {
+            colorMapParameters.applyPersistedParameters(persisted);
+        }
+
         // TODO: Figure out data/color map min/max values better
         if (unit == null) {
             colorMapParameters.setColorMapMin(0.0f);
@@ -353,17 +350,6 @@ public class SatResource extends
         } else {
             colorMapParameters.setDataMin(0.0f);
             colorMapParameters.setDataMax(255.0f);
-        }
-
-        if (colorMap == null) {
-            if (cmName == null) {
-                cmName = "Sat/VIS/ZA (Vis Default)";
-            }
-            colorMap = ColorMapLoader.loadColorMap(cmName);
-        }
-
-        if (colorMap != null) {
-            colorMapParameters.setColorMap(colorMap);
         }
 
         getCapability(ColorMapCapability.class).setColorMapParameters(
