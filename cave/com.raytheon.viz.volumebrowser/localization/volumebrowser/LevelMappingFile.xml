@@ -38,9 +38,6 @@
 	<Level displayName="Surface" key="Surface">
 		<DatabaseLevel levelName="SFC" levelOneValue="0.0" />
 		<DatabaseLevel levelName="MSL" levelOneValue="0.0" />
-		<DatabaseLevel levelName="BL" levelOneValue="0" />
-		<DatabaseLevel levelName="BLS" levelOneValue="0" />
-		<DatabaseLevel levelName="HYB" levelOneValue="1" />
 	</Level>
 	<Level displayName="10FHAG" key="10FHAG">
 		<DatabaseLevel levelName="FHAG" levelOneValue="10.0" />

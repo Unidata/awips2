@@ -51,6 +51,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 03/04/2013   DCS51      zwang       Initial creation
+ * 06/18/2013   DR16162    zwang       Remove "wind behind"
  * 
  * </pre>
  * 
@@ -185,24 +186,6 @@ public class RadarGFMInterrogator extends RadarGraphicInterrogator implements
                                 pSpd = getSpeed(pU, pV);
                                 pDir = getDir(pU, pV);
                                         
-                                // avg_speed
-                                String spdStr = currFeature
-                                       .getValue(GFMAttributeIDs.AVG_SPEED.toString());
-                                if ((spdStr != null) && (spdStr.length() > 0)) {
-                                   double spd = metersPerSecondToKnots
-                                          .convert(new Double(spdStr));
-                                   spdStr = formatter.format(spd);
-                                }
-                                        
-                                // avg_direction
-                                String dirStr = currFeature
-                                       .getValue(GFMAttributeIDs.AVG_DIRECTION.toString());
-
-                                if ((dirStr != null) && (dirStr.length() > 0)) {
-                                   double dir = new Double(dirStr);
-                                   dirStr = formatter.format(dir);
-                                }
-                                        
                                 // wsHarzard
                                 String wsStr = currFeature
                                        .getValue(GFMAttributeIDs.WSHAZARD.toString());
@@ -214,7 +197,6 @@ public class RadarGFMInterrogator extends RadarGraphicInterrogator implements
                                         
                                 rval.append("Movement " + formatter.format(pSpd) + "kts@" 
                                 		+ formatter.format(pDir) + "\n");
-                                rval.append("Wind Behind " + spdStr + "kts@" + dirStr + "\n");
                                 rval.append("Wind Shear Hazard " + wsStr + "kts ");
                             
                             }

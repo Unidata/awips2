@@ -1,6 +1,9 @@
 package gov.noaa.nws.ncep.viz.resources.manager;
 
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsDescriptor;
+import gov.noaa.nws.ncep.viz.common.display.INcPaneID;
+import gov.noaa.nws.ncep.viz.common.display.IPaneLayoutable;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayName;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
 import gov.noaa.nws.ncep.viz.ui.display.NcPaneID;
 import gov.noaa.nws.ncep.viz.ui.display.NcPaneLayout;
@@ -9,6 +12,15 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+
+import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.IRenderableDisplayChangedListener;
+import com.raytheon.uf.viz.core.IRenderableDisplayChangedListener.DisplayChangeType;
+import com.raytheon.uf.viz.core.datastructure.LoopProperties;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
+import com.raytheon.uf.viz.core.rsc.IInputHandler;
+import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Bundle for Natl Cntrs Resources

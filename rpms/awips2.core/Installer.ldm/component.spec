@@ -9,7 +9,7 @@
 Name: awips2-ldm
 Summary: AWIPS II LDM Distribution
 Version: %{_ldm_version}
-Release: 1
+Release: 3
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
@@ -239,6 +239,7 @@ do
    fi
 done
 /bin/chmod a+x ${_ldm_dir}/bin/*
+/bin/chown ldm:fxalpha ${_ldm_root_dir}/bin
 /bin/chown -R ldm:fxalpha ${_ldm_dir}/etc ${_ldm_dir}/decoders
 popd > /dev/null 2>&1
 
