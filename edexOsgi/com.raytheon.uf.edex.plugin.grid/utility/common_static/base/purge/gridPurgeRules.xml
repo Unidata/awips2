@@ -418,6 +418,11 @@
 		<keyValue>MPE-Local</keyValue>
 		<versionsToKeep>72</versionsToKeep>
 	</rule>
+	<!-- Purge rule for the MPE (MPE-Mosaic) model -->
+	<rule>
+		<keyValue>MPE-Mosaic</keyValue>
+		<versionsToKeep>72</versionsToKeep>
+	</rule>	
 	<!-- Purge rule for the TPCWindProb (TPCWindProb) model -->
 	<rule>
 		<keyValue>TPCWindProb</keyValue>
