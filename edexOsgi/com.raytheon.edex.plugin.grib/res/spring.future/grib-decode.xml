@@ -50,6 +50,8 @@
 		class="com.raytheon.edex.plugin.grib.spatial.GribSpatialCache"
 		factory-method="getInstance" depends-on="gridcoveragelookup"/>
 
+  	<bean id="ncgribFilenameProcessor" class="com.raytheon.edex.plugin.grib.filenameprocessor.NcgribFileNameProcessor" />
+
 	<camelContext id="grib-decode" xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler"
 		autoStartup="false">
@@ -60,6 +62,7 @@
 	 	<route id="gribFileConsumerRoute">
 	 		<from ref="gribFileEndpoint" />
 	 			<bean ref="fileToString" />
+	 			<bean ref="ncgribFilenameProcessor" />
 	 			<setHeader headerName="pluginName">
 	 				<constant>grid</constant> 
 				</setHeader>

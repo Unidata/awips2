@@ -55,6 +55,7 @@ import com.raytheon.viz.mpe.core.MPEDataManager.MPEGageData;
  * Aug 8, 2012   15271	   snaples     Updated hourly slot
  * Jan 02, 2013	 15565     snaples     Fixed problem with wrong time being sent to mpe_fieldgen
  * Mar 14, 2013   1457     mpduff      Fixed memory leak.
+ * Jun 18, 2013  16053     snaples     Removed check for Radar Edit flag
  * </pre>
  * 
  * @author snaples
@@ -181,9 +182,7 @@ public class RegenHrFlds {
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
         this.checkGages();
-        boolean ref = MPEDataManager.getInstance().isRadarEditFlag();
         /* Store any gage edits into the HourlyPP or PseudoGageVal table. */
-        if (num_gage_edit > 0 || ref == true) {
             options.shef_duplicate = shef_dup.USE_REVCODE;
 
             for (MPEGageData gData : gages.values()) {
@@ -270,7 +269,6 @@ public class RegenHrFlds {
                 }
             }
 
-            MPEDataManager.getInstance().setRadarEditFlag(false);
             /*-------------------------------------------------------------------------*/
             /* Read Gage Data and store in structure */
             /*-------------------------------------------------------------------------*/
@@ -299,7 +297,6 @@ public class RegenHrFlds {
 
             MPEDataManager.getInstance().clearEditGages();
             shell.setCursor(null);
-        }
     }
 
     /**

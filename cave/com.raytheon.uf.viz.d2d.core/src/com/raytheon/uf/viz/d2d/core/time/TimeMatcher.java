@@ -48,6 +48,7 @@ import com.raytheon.uf.common.time.DataTime.FLAG;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 19, 2007            chammack    Initial Creation.
+ * May 31, 2013 DR 15908   dhuffman    Removed a null from a method call to cease a null pointer exception.
  * 
  * </pre>
  * 
@@ -938,7 +939,7 @@ public class TimeMatcher {
     // which can be displayed, and the latest available reference time in the
     // sequence, this routine fills up the sequence "loadTimes" with the
     // the proper list of times for a row load to an empty display. By
-    // definition a row load contains analyses plus forecasts from only the
+    // definition a row load contains analysis plus forecasts from only the
     // latest run. Caller creates and owns both depictTimes and loadTimes.
     // loadTimes is assumed to be an empty sequence when call is made.
     // ---------------------------------------------------------------------------
@@ -955,7 +956,7 @@ public class TimeMatcher {
         // filterOldForecasts removes any DataTimes that do not belong in a row
         // load and returns index of first item with latest reference time,
         // which
-        // is the most prefered time to load.
+        // is the most preferred time to load.
         p = filterOldForecasts(depictTimes, latest, noBackfill);
 
         // Add all unfiltered times to the sequence of potential load times.
@@ -1099,7 +1100,7 @@ public class TimeMatcher {
     // time in the sequence, this routine fills up the sequence "loadTimes" with
     // the proper list of times for loading a valid time sequence to an
     // empty display. A valid time sequence attempts to load the most recent
-    // data for each available valid time. Returns valid time of prefered frame.
+    // data for each available valid time. Returns valid time of preferred frame.
     // Caller creates and owns both depictTimes and loadTimes.
     // loadTimes is assumed to be an empty sequence when call is made.
     // ---------------------------------------------------------------------------
@@ -1122,7 +1123,7 @@ public class TimeMatcher {
         validTimeSort(depictTimes, majorIndex, false);
 
         // identify the first item in the sequence with the latest reference
-        // time, which is the most prefered time to load. Store as m.
+        // time, which is the most preferred time to load. Store as m.
         int m = depictTimes.size() - 1;
         for (p = 0; p < majorIndex.size(); p++) {
             if ((depictTimes).get(majorIndex.get(p)).getMatchRef() < latest
@@ -1164,7 +1165,7 @@ public class TimeMatcher {
         // decreases.
         validTimeSort(depictTimes, null, false);
 
-        // By searching backwards thru sorted list for first occurence of
+        // By searching backwards thru sorted list for first occurrence of
         // specified forecast time, we find item with desired valid time that
         // has latest reference time.
         n = depictTimes.size();
@@ -1180,7 +1181,7 @@ public class TimeMatcher {
         // dProg/dt
 
         // Step back again recording all matches to this valid time, return
-        // last one in the list as the prefered ref time.
+        // last one in the list as the preferred ref time.
         for (q = n - 1; q >= 0; q--) {
             if ((depictTimes).get(q).getMatchValid() == v) {
                 loadTimes.add((depictTimes).get(q));
@@ -1190,7 +1191,7 @@ public class TimeMatcher {
         return (loadTimes).get(loadTimes.size() - 1).getRefTime();
     }
 
-    // Given a sequence of available DataTimes for a depictable, the clock time,
+    // Given a sequence of available DataTimes for an able to depict, the clock time,
     // the desired number of frames, and a picture load mode, this routine
     // returns the sequence "loadTimes" with the proper list of times for
     // loading data to an empty display. Caller creates and owns depictTimes
@@ -1484,7 +1485,7 @@ public class TimeMatcher {
         // break;
         // }
 
-        // filter the depictable times by the clock setting.
+        // filter the able to be depicted times by the clock setting.
         Date latest;
         List<DataTime> depictTimesList = new ArrayList<DataTime>(
                 Arrays.asList(depictTimes));
@@ -1527,7 +1528,7 @@ public class TimeMatcher {
             }
             break;
         case ANALYSIS_LOOP:
-            forecast = 0; // intentional fall thru
+            forecast = 0; // intentional fall through
         case INVENTORY:
         case PROG_LOOP:
             filteredTimes = filterByForecast(depictTimes, forecast);
@@ -1541,7 +1542,7 @@ public class TimeMatcher {
                 return new DataTime[0];
             }
             loadTimes = doValTimOverlay(filteredTimes.toArray(new DataTime[0]),
-                    frameTimes, deltaTime, mode, null, tolerance);
+                    frameTimes, deltaTime, mode, latest, tolerance);
             break;
         case FORCED:
             loadTimes = new DataTime[frameTimes.length];
@@ -1590,7 +1591,7 @@ public class TimeMatcher {
         // boolean haveForecasts = (fcstTime > 0); // original code
         boolean haveForecasts = haveForecasts(times);
         if (haveForecasts) {
-            // With forcast time, filter
+            // With forecast time, filter
             filterByForecast(times, fcstTime);
         } else {
             // sort data times
@@ -1598,7 +1599,7 @@ public class TimeMatcher {
         }
 
         long minInterval = intrinsicPeriod(times, haveForecasts).intrinsicPeriod;
-        // the intrinsic period interval is in miliseconds
+        // the intrinsic period interval is in milliseconds
         minInterval /= 1000;
 
         // Round the interval to an appropriate time step.
