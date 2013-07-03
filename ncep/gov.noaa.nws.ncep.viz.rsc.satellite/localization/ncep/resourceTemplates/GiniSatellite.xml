@@ -40,7 +40,7 @@
             </mapping>
             <mapping key="creatingEntity">
                <constraint constraintValue="${satelliteName}" 
-                           constraintType="LIKE"/>
+                           constraintType="EQUALS"/>
             </mapping>
             <mapping key="sectorID">
                <constraint constraintValue="${sectorID}" 

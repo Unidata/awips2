@@ -55,6 +55,7 @@ import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
  * 06/29/12       #568      Greg Hull    add deleteRbd()
  * 07/22/12       #568      Greg Hull    return Rbds and rbdNames sorted by seq num.
  * 02/10/13       #972      Greg Hull    changed to work with AbstractRbds
+ * 05/19/13       #1001     Greg Hull    getRbdsFromSpf(), trap RBD errors
  * 
  * </pre>
  * 
@@ -75,7 +76,6 @@ public class SpfsManager implements ILocalizationFileObserver  {
 	private Map<String, Map<String, Map<String,AbstractRBD<?>>>> spfsMap = null;
 	
 	public static SpfsManager getInstance() {
-		
 		if( instance == null ) {
 			instance = new SpfsManager();			
 		}
@@ -270,25 +270,33 @@ public class SpfsManager implements ILocalizationFileObserver  {
 			throw new VizException("SPF "+ spfName+" doesn't exist.");
 		}
 		
-		AbstractRBD<?> rbdsList[] = new AbstractRBD<?>[ sMap.values().size() ];
+		List<AbstractRBD<?>> clonedRbsList = new ArrayList<AbstractRBD<?> >();
+		
 		int r=0;
 		
 		for( AbstractRBD<?> rbd : sMap.values() ) {
 			
-			rbdsList[r] = AbstractRBD.clone( rbd ); 						
-			
-			rbdsList[r].resolveDominantResource();
+			try {
+				AbstractRBD<?> clonedRBD = AbstractRBD.clone( rbd ); 						
+				clonedRBD.resolveDominantResource();
 			
 			if( resolveLatestCycleTimes ) {
-				rbdsList[r].resolveLatestCycleTimes();
+					clonedRBD.resolveLatestCycleTimes();
 				
 				// if unable to resolve the cycle time then leave as Latest and 
 				// resources will have to gracefully handle NoData.
 			}
-
+				clonedRbsList.add( clonedRBD );
 			r++;
 		}
+			catch ( VizException ve ) {
+				// print a msg but still return other good rbds in the spf
+				System.out.println("Error cloning RBD: "+rbd.rbdName +".\n"+ve.getMessage() );
+			}
+		}
 		
+		AbstractRBD<?> rbdsList[] = new AbstractRBD<?>[ clonedRbsList.size() ];
+		rbdsList = clonedRbsList.toArray( new AbstractRBD<?>[0] );
 		Arrays.sort( rbdsList );
 
 		// make a copy to allow the user to modify the list.

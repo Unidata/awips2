@@ -40,6 +40,7 @@ import com.raytheon.uf.common.time.DataTime;
  * -----------  ----------  ----------- --------------------------
  * 03/27/2013   #975        sgurung     Initial Creation
  * 04/26/2013   #975        qzhou       Added unit checkup. Declared missingVal.
+ * 06/07/2013   #975        qzhou       Fixed an error on conversion
  * </pre>
  * 
  * @author sgurung
@@ -291,8 +292,8 @@ public class GeoMagDecoder extends AbstractDecoder {
 		       	    			d = comp2Val;
 		       	    		
 		       	    		if (h != null && d != null) {
-		       	    			comp1Val = (float) (h * Math.cos(d));
-		       	    			comp2Val = (float) (h * Math.sin(d));
+		       	    			comp1Val = (float) (h * Math.cos(Math.toRadians(d)));
+		       	    			comp2Val = (float) (h * Math.sin(Math.toRadians(d)));
 		       	    		}
 		       	    			
 		       	    	}
