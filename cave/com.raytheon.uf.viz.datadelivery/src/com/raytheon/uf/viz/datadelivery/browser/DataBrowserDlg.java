@@ -83,9 +83,6 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.SubsetManagerDlg;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
-import com.raytheon.viz.ui.widgets.duallist.DualList;
-import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
-import com.raytheon.viz.ui.widgets.duallist.IUpdate;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -119,6 +116,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 04, 2013  223       mpduff       Add data type to filters.
  * Jun 05, 2013 1800       mpduff       Move the area filter below the data type selection.
  * Jun 06, 2013 2030       mpduff       Updates to help.
+ * Jul 05, 2013 2137       mpduff       Changed data type to a single select list, changed layout.
  * 
  * </pre>
  * 
@@ -126,7 +124,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
-        IUpdate, IDataLoad {
+        IDataLoad {
 
     /** Status Handler */
     private final IUFStatusHandler statusHandler = UFStatus
@@ -159,7 +157,7 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
     private LoadSaveConfigDlg loadSaveDlg;
 
     /** List to choose the data types from. */
-    private DualList dataTypesDualList;
+    private org.eclipse.swt.widgets.List datatypeList;
 
     /** Label indicating how many entries are in the table. */
     private Label tableEntriesLabel;
@@ -176,8 +174,11 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
     /** The selected config file that is currently loaded. */
     private String selectedFile;
 
-    /** The area selected label. */
-    private Label areaSelectedLbl;
+    /** The upper left area point label. */
+    private Label upperLeftLabel;
+
+    /** The lower right area point label. */
+    private Label lowerRightLabel;
 
     /** The LocalizationFile object of the currently loaded file. */
     private LocalizationFile locFile;
@@ -267,8 +268,7 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
     protected void initializeComponents(Shell shell) {
         createMenus();
 
-        createDataTypeControls();
-        createAreaControls();
+        createDataTypeAndAreaControls();
         createSashForm();
         createRetSubsControl();
 
@@ -451,28 +451,69 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
     }
 
     /**
-     * Create the controls for selecting an area.
+     * Create the controls for selecting the data types and the area selection.
      */
-    private void createAreaControls() {
-        areaGrp = new Group(shell, SWT.NONE);
+    private void createDataTypeAndAreaControls() {
+        Composite comp = new Composite(shell, SWT.NONE);
+        comp.setLayout(new GridLayout(2, false));
+        comp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+
+        dataTypeGrp = new Group(comp, SWT.NONE);
+        dataTypeGrp.setLayout(new GridLayout(1, false));
+        dataTypeGrp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        dataTypeGrp.setText(" Data Types: ");
+
+        loadDataTypes();
+
+        datatypeList = new org.eclipse.swt.widgets.List(dataTypeGrp, SWT.BORDER
+                | SWT.V_SCROLL);
+        datatypeList
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        datatypeList.addSelectionListener(new SelectionAdapter() {
+
+            /*
+             * (non-Javadoc)
+             * 
+             * @see
+             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
+             * .swt.events.SelectionEvent)
+             */
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                handleDataTypeSelection();
+            }
+        });
+
+        areaGrp = new Group(comp, SWT.NONE);
         areaGrp.setLayout(new GridLayout(1, false));
-        areaGrp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+        areaGrp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         areaGrp.setText(" Areal Coverage: ");
 
         Composite areaComp = new Composite(areaGrp, SWT.NONE);
-        areaComp.setLayout(new GridLayout(4, false));
+        areaComp.setLayout(new GridLayout(2, false));
         areaComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
-        Label areaLabel = new Label(areaComp, SWT.NONE);
-        areaLabel.setText("Area:");
-        areaLabel.setLayoutData(new GridData(SWT.DEFAULT, SWT.CENTER, false,
-                false));
+        Label ulLbl = new Label(areaComp, SWT.NONE);
+        ulLbl.setText("Upper Left:");
+        ulLbl.setLayoutData(new GridData(SWT.DEFAULT, SWT.CENTER, false, false));
 
-        areaSelectedLbl = new Label(areaComp, SWT.BORDER);
-        areaSelectedLbl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+        upperLeftLabel = new Label(areaComp, SWT.BORDER);
+        upperLeftLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
                 true));
 
-        clearBtn = new Button(areaComp, SWT.PUSH);
+        Label lrLbl = new Label(areaComp, SWT.NONE);
+        lrLbl.setText("Lower Right:");
+        lrLbl.setLayoutData(new GridData(SWT.DEFAULT, SWT.CENTER, false, false));
+
+        lowerRightLabel = new Label(areaComp, SWT.BORDER);
+        lowerRightLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+                true));
+
+        Composite comp2 = new Composite(areaGrp, SWT.NONE);
+        comp2.setLayout(new GridLayout(2, true));
+        comp2.setLayoutData(new GridData(SWT.CENTER, SWT.DEFAULT, true, false));
+
+        clearBtn = new Button(comp2, SWT.PUSH);
         clearBtn.setText("Clear");
         clearBtn.setEnabled(false);
         clearBtn.setLayoutData(new GridData(90, SWT.DEFAULT));
@@ -483,7 +524,7 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
             }
         });
 
-        areaBtn = new Button(areaComp, SWT.PUSH);
+        areaBtn = new Button(comp2, SWT.PUSH);
         areaBtn.setText("Set Area...");
         areaBtn.setLayoutData(new GridData(90, SWT.DEFAULT));
         areaBtn.addSelectionListener(new SelectionAdapter() {
@@ -492,27 +533,6 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
                 handleAreaSelection();
             }
         });
-    }
-
-    /**
-     * Create the controls for selecting the data types.
-     */
-    private void createDataTypeControls() {
-        dataTypeGrp = new Group(shell, SWT.NONE);
-        dataTypeGrp.setLayout(new GridLayout(1, false));
-        dataTypeGrp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
-                false));
-        dataTypeGrp.setText(" Data Types: ");
-
-        loadDataTypes();
-
-        DualListConfig config = new DualListConfig();
-        config.setAvailableListLabel("Available:");
-        config.setSelectedListLabel("Selected:");
-        config.setListHeight(70);
-        config.setListWidth(150);
-
-        dataTypesDualList = new DualList(dataTypeGrp, SWT.NONE, config, this);
     }
 
     /**
@@ -671,11 +691,12 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
      */
     private void handleClearArea() {
         getShell().setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
-        areaSelectedLbl.setText("");
+        upperLeftLabel.setText("");
+        lowerRightLabel.setText("");
         clearBtn.setEnabled(false);
         envelope = null;
 
-        if (dataTypesDualList.getSelectedListItems().length != 0) {
+        if (datatypeList.getSelectionIndex() != -1) {
             if (filterExpandBar != null) {
                 filterExpandBar.setEnvelope(null);
             }
@@ -731,11 +752,11 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
      * Update the area label.
      */
     private void updateAreaLabel(ReferencedEnvelope envelope) {
-
         this.envelope = envelope;
 
         if (envelope == null || envelope.isEmpty()) {
-            areaSelectedLbl.setText("");
+            upperLeftLabel.setText("");
+            lowerRightLabel.setText("");
             clearBtn.setEnabled(false);
         } else {
             NumberFormat formatter = new DecimalFormat(".0000");
@@ -748,16 +769,19 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
                 return;
             }
 
-            StringBuilder sb = new StringBuilder("UL: ");
-            sb.append(formatter.format(ul.x) + "," + formatter.format(ul.y));
-            sb.append(", LR: " + formatter.format(lr.x) + ","
-                    + formatter.format(lr.y));
+            StringBuilder sb = new StringBuilder();
+            sb.append(formatter.format(ul.x)).append(", ")
+                    .append(formatter.format(ul.y));
 
-            areaSelectedLbl.setText(sb.toString());
+            upperLeftLabel.setText(sb.toString());
 
-            if (areaSelectedLbl.getText().length() > 0) {
-                clearBtn.setEnabled(true);
-            }
+            sb.setLength(0);
+            sb.append(formatter.format(lr.x)).append(", ")
+                    .append(formatter.format(lr.y));
+
+            lowerRightLabel.setText(sb.toString());
+
+            clearBtn.setEnabled(true);
         }
 
         this.areaDirty = true;
@@ -870,18 +894,21 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
         setText(WINDOW_TITLE);
 
         // Clear the area.
-        areaSelectedLbl.setText("");
+        upperLeftLabel.setText("");
+        lowerRightLabel.setText("");
         clearBtn.setEnabled(false);
         envelope = null;
 
         // Clear the data type.
-        dataTypesDualList.clearSelection();
+        datatypeList.deselectAll();
 
         // Clear the filters.
         updateFilters();
 
-        filterExpandBar.updateFilters(dataTypesDualList.getSelectedListItems(),
-                envelope);
+        String selection = datatypeList.getItem(datatypeList
+                .getSelectionIndex());
+
+        filterExpandBar.updateFilters(selection, envelope);
 
         // Clear the table and disable the buttons.
         resetTableAndControls();
@@ -907,13 +934,12 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
                     xml = new FilterSettingsXML();
 
                     // Save data type
-                    String[] dataTypes = dataTypesDualList
-                            .getSelectedListItems();
+                    String dataType = datatypeList.getItem(datatypeList
+                            .getSelectionIndex());
+
                     FilterTypeXML ftx = new FilterTypeXML();
                     ftx.setFilterType("Data Type");
-                    for (String dataType : dataTypes) {
-                        ftx.addValue(dataType);
-                    }
+                    ftx.addValue(dataType);
 
                     xml.addFilterType(ftx);
 
@@ -971,13 +997,11 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
         xml = new FilterSettingsXML();
 
         // Save data type
-        String[] dataTypes = dataTypesDualList.getSelectedListItems();
+        String dataType = datatypeList
+                .getItem(datatypeList.getSelectionIndex());
         FilterTypeXML ftx = new FilterTypeXML();
         ftx.setFilterType("Data Type");
-        for (String dataType : dataTypes) {
-            ftx.addValue(dataType);
-        }
-
+        ftx.addValue(dataType);
         xml.addFilterType(ftx);
 
         // Save area settings
@@ -1011,10 +1035,11 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
         getShell().setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
 
         // Clear the filters.
-        filterExpandBar.updateFilters(new String[0], envelope);
-        dataTypesDualList.clearSelection();
+        filterExpandBar.updateFilters("", envelope);
+        datatypeList.deselectAll();
 
-        areaSelectedLbl.setText("");
+        upperLeftLabel.setText("");
+        lowerRightLabel.setText("");
         clearBtn.setEnabled(false);
         envelope = null;
 
@@ -1024,24 +1049,24 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
             updateAreaLabel(area.getEnvelope());
         }
 
-        dataTypesDualList.setAvailableItems(dataTypes);
+        datatypeList.setItems(dataTypes.toArray(new String[dataTypes.size()]));
 
         ArrayList<FilterTypeXML> filterTypeList = xml.getFilterTypeList();
         for (FilterTypeXML ftx : filterTypeList) {
             if (ftx.getFilterType().equals("Data Type")) {
                 ArrayList<String> valueList = ftx.getValues();
-                String[] values = new String[valueList.size()];
+                // only one for data type
                 int i = 0;
-                for (String s : valueList) {
-                    values[i] = s;
-                    i++;
+                for (String s : dataTypes) {
+                    if (s.equals(valueList.get(0))) {
+                        i++;
+                        break;
+                    }
                 }
-                dataTypesDualList.selectItems(values);
+                datatypeList.select(i);
             }
         }
 
-        // this.filterExpandBar.updateFilters(dataTypesDualList.getSelectedListItems(),
-        // coordArray);
         filterExpandBar.setFilterSettingsXml(xml);
 
         getShell().setCursor(null);
@@ -1059,10 +1084,9 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
         xml = new FilterSettingsXML();
         filterExpandBar.populateFilterSettingsXml(xml);
 
-        String[] dataTypes = this.dataTypesDualList.getSelectedListItems();
-        for (String type : dataTypes) {
-            xml.addDataSetType(type);
-        }
+        String selectedDataType = this.datatypeList.getItem(datatypeList
+                .getSelectionIndex());
+        xml.addDataSetType(selectedDataType);
 
         final List<DataSet> matchingDataSets = new ArrayList<DataSet>();
         final Shell jobParent = this.getShell();
@@ -1154,27 +1178,21 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
     }
 
     /**
-     * Set flag for has entries.
+     * Data Type selection action
      */
-    @Override
-    public void hasEntries(boolean entries) {
-        shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
-        if (dataTypesDualList != null) {
-            if (filterExpandBar != null) {
-                this.filterExpandBar.updateFilters(
-                        dataTypesDualList.getSelectedListItems(), envelope);
-                this.filterExpandBar.addListener(SWT.SetData, new Listener() {
-                    @Override
-                    public void handleEvent(Event event) {
-                        resetTableAndControls();
-                    }
-                });
-                dataTypeDirty = true;
-            }
+    private void handleDataTypeSelection() {
+        String dataType = datatypeList
+                .getItem(datatypeList.getSelectionIndex());
+        if (filterExpandBar != null) {
+            this.filterExpandBar.updateFilters(dataType, envelope);
+            this.filterExpandBar.addListener(SWT.SetData, new Listener() {
+                @Override
+                public void handleEvent(Event event) {
+                    resetTableAndControls();
+                }
+            });
+            dataTypeDirty = true;
         }
-        shell.setCursor(null);
-
-        resetTableAndControls();
     }
 
     /**
@@ -1190,15 +1208,11 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
             @Override
             public void run() {
                 dataTypes = (ArrayList<String>) dataTypesList;
-                dataTypesDualList.setFullList(dataTypes);
+                for (String type : dataTypes) {
+                    datatypeList.add(type);
+                }
                 getShell().setCursor(null);
             }
         });
-
-    }
-
-    @Override
-    public void selectionChanged() {
-        // unused
     }
 }
