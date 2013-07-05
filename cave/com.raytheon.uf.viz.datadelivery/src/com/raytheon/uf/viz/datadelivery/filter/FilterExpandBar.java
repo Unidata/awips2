@@ -21,8 +21,8 @@ package com.raytheon.uf.viz.datadelivery.filter;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -82,6 +82,7 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
  * Feb 24, 2013   1620     mpduff       Fixed set clean issue when loading configurations.  Set clean 
  *                                      needs to be called after the data load job is complete.
  * May 15, 2013   1040     mpduff       Called markNotBusyInUIThread.
+ * Jul 05, 2013   2137     mpduff       Only a single data type can be selected.
  * Jul 05, 2013   2138     mpduff       Fixed to not use filter if filter is disabled.
  * 
  * </pre>
@@ -113,10 +114,11 @@ public class FilterExpandBar extends Composite implements IFilterUpdate,
 
     private FilterSettingsXML filterSettingsXml;
 
-    private String[] dataTypes;
+    /** The selected data type */
+    private String dataType;
 
     /** List of common filters */
-    private ArrayList<String> filterList = null;
+    private final List<String> filterList = null;
 
     /**
      * envelope for filtering.
@@ -186,8 +188,11 @@ public class FilterExpandBar extends Composite implements IFilterUpdate,
         addSeparator(composite);
     }
 
+    /**
+     * Create the filter expand items.
+     */
     private void createExpandItems() {
-        if (dataTypes != null && dataTypes.length > 0) {
+        if (dataType != null) {
             final Shell parentShell = this.getShell();
             final Job job = new Job("Dataset Discovery...") {
                 @Override
@@ -196,7 +201,7 @@ public class FilterExpandBar extends Composite implements IFilterUpdate,
 
                     DataDeliveryGUIUtils.markBusyInUIThread(parentShell);
                     dataManager.rereadMetaData();
-                    dataManager.readMetaData(dataTypes[0]);
+                    dataManager.readMetaData(dataType);
                     return Status.OK_STATUS;
                 }
             };
@@ -206,37 +211,24 @@ public class FilterExpandBar extends Composite implements IFilterUpdate,
                 public void done(IJobChangeEvent event) {
                     try {
                         DataTypeFilterElementXML dtfe;
-                        HashMap<String, ArrayList<String>> dataFilterMap = new HashMap<String, ArrayList<String>>();
 
-                        // Get filters for each data type
-                        for (int i = 0; i < dataTypes.length; i++) {
-                            String dataType = dataTypes[i];
-                            dtfe = dataTypeFilterXml.getFilterData(dataType);
-                            ArrayList<String> filterIDList = dtfe
-                                    .getFilterIDList();
-                            dataFilterMap.put(dataType, filterIDList);
-                        }
-
-                        // Now have a list of available filter types
-                        // Need to find the common filters
-                        FilterDefinitionManager filterMan = FilterDefinitionManager
-                                .getInstance();
-                        filterList = filterMan.findCommon(dataFilterMap);
+                        // Get filters for the data type
+                        dtfe = dataTypeFilterXml.getFilterData(dataType);
+                        final List<String> filterIDList = dtfe
+                                .getFilterIDList();
 
                         VizApp.runAsync(new Runnable() {
                             @Override
                             public void run() {
                                 // Now we have a list of common filters, lets
-                                // build
-                                // them
-                                for (String filter : filterList) {
+                                // build them
+                                for (String filter : filterIDList) {
                                     final FilterElementsXML fex = filterXml
                                             .getFilter(filter);
                                     String clazz = fex.getClazz();
 
                                     // TODO use reflection here to instantiate
-                                    // the
-                                    // class
+                                    // the class
                                     if (clazz.equals("FilterComp")) {
                                         createFilter(fex);
                                     }
@@ -302,8 +294,9 @@ public class FilterExpandBar extends Composite implements IFilterUpdate,
         final String PARAMETER = "Parameter";
         final String LEVEL = "Level";
         if (displayName.equals(DATA_PROVIDER)) {
-            dualConfig.setFullList(new ArrayList<String>(dataManager
-                    .getAvailableDataProviders()));
+            Set<String> providerSet = dataManager
+                    .getAvailableDataProvidersByType(dataType);
+            dualConfig.setFullList(new ArrayList<String>(providerSet));
             dualConfig.setSelectedList(getFilterSettingsValues(DATA_PROVIDER));
         } else if (displayName.equals(DATA_SET)) {
             dualConfig.setFullList(new ArrayList<String>(dataManager
@@ -593,31 +586,32 @@ public class FilterExpandBar extends Composite implements IFilterUpdate,
     /**
      * Update the filters.
      * 
-     * @param dataTypes
-     *            Array of data types
+     * @param dataType
+     *            the data type
      * @param envelope
      *            envelope
      */
-    public void updateFilters(String[] dataTypes, ReferencedEnvelope envelope) {
-        this.dataTypes = dataTypes;
+    public void updateFilters(String dataType, ReferencedEnvelope envelope) {
+        this.dataType = dataType;
         setEnvelope(envelope);
         disposeExpandItemsAndControls();
         createExpandItems();
     }
 
+    /**
+     * Update the filter settings.
+     */
     private void updateFilterSettings() {
         ArrayList<FilterTypeXML> filterTypeList = filterSettingsXml
                 .getFilterTypeList();
         if (filterTypeList != null && filterTypeList.size() > 0) {
             for (FilterTypeXML ftx : filterTypeList) {
                 if (ftx.getFilterType().equals("Data Type")) {
-                    dataTypes = new String[ftx.getValues().size()];
-                    int i = 0;
-                    for (String dataType : ftx.getValues()) {
-                        dataTypes[i] = dataType;
-                        i++;
+                    // only one data type
+                    List<String> values = ftx.getValues();
+                    if (values != null && values.size() > 0) {
+                        dataType = ftx.getValues().get(0);
                     }
-                    break;
                 }
             }
 
@@ -685,7 +679,6 @@ public class FilterExpandBar extends Composite implements IFilterUpdate,
                 }
             }
         }
-        // return filterSettingsXml;
     }
 
     /**
