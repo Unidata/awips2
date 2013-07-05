@@ -37,33 +37,34 @@ import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.edex.meteoLib.WindComp;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.sounding.SoundingLayer;
+import com.raytheon.uf.common.sounding.SoundingLayer.DATA_TYPE;
 import com.raytheon.uf.common.sounding.VerticalSounding;
 import com.raytheon.uf.common.sounding.WxMath;
-import com.raytheon.uf.common.sounding.SoundingLayer.DATA_TYPE;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
+import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.uf.viz.sounding.SoundingParams;
 import com.raytheon.uf.viz.xy.map.rsc.IInsetMapResource;
 import com.raytheon.uf.viz.xy.map.rsc.PointRenderable;
@@ -71,7 +72,6 @@ import com.raytheon.viz.core.ColorUtil;
 import com.raytheon.viz.core.graphing.LineStroke;
 import com.raytheon.viz.core.graphing.WGraphics;
 import com.raytheon.viz.core.graphing.WindBarbFactory;
-import com.raytheon.viz.skewt.Activator;
 import com.raytheon.viz.skewt.SkewTDescriptor;
 import com.raytheon.viz.skewt.SkewtDisplay;
 import com.raytheon.viz.skewt.rscdata.SkewTResourceData;
@@ -87,7 +87,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 10, 2009            randerso     Initial creation
+ * Sep 10, 2009            randerso    Initial creation
+ * Jul 05, 2013 1869       bsteffen    Fix goes sounding updates.
  * 
  * </pre>
  * 
@@ -1538,4 +1539,24 @@ public class SkewTResource extends
         }
         point.paint(target, paintProps);
     }
+
+    @Override
+    protected void resourceDataChanged(ChangeType type, Object updateObject) {
+        super.resourceDataChanged(type, updateObject);
+        if (type == ChangeType.DATA_UPDATE
+                && updateObject instanceof PluginDataObject[]) {
+            PluginDataObject[] objects = (PluginDataObject[]) updateObject;
+            try {
+                VerticalSounding[] soundings = resourceData
+                        .convertToSounding(objects);
+                for (VerticalSounding vs : soundings) {
+                    addSounding(vs.getDataTime(), vs);
+                }
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+        }
+    }
+
 }
