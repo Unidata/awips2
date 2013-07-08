@@ -1,17 +1,11 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.retrieval;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NavigableMap;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.SortedSet;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -21,8 +15,12 @@ import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthBucketDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
@@ -40,243 +38,26 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Oct 16, 2012 0726       djohnson     Fix bug never updating allocations in memory.
  * Oct 23, 2012 1286       djohnson     Add ability to get/set the default bandwidth.
  * Nov 20, 2012 1286       djohnson     Handle null bucketIds being returned.
+ * Jun 25, 2013 2106       djohnson     Separate state into other classes, promote BandwidthBucket to a class proper.
  * 
  * </pre>
  * 
  * @version 1.0
  */
+// TODO: Need to enable transactions from BandwidthManager forward
+// @Service
+// @Transactional(propagation = MANDATORY)
 public class RetrievalPlan {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RetrievalPlan.class);
 
-    /**
-     * Representation of a bucket of bandwidth. Any methods that directly access
-     * fields or mutate objects should be private, and all access should go
-     * through {@link RetrievalPlan}.
-     */
-    public class BandwidthBucket implements Comparable<BandwidthBucket> {
-
-        // Number of allocated bytes
-        private long currentSize;
-
-        private final List<BandwidthReservation> reservations = new ArrayList<BandwidthReservation>();
-
-        private final List<BandwidthAllocation> allocations = new ArrayList<BandwidthAllocation>();
-
-        // Number of bytes of bandwidth;
-        private final long bucketSize;
-
-        private final long bucketStartTime;
-
-        public BandwidthBucket(long bucketStartTime, long sizeInBytes) {
-            this.bucketStartTime = bucketStartTime;
-            this.bucketSize = sizeInBytes;
-        }
-
-        /**
-         * Add the allocation. Private because all interaction should go through
-         * RetrievalPlan.
-         * 
-         * @param allocation
-         *            the allocation to add
-         */
-        private void add(BandwidthAllocation allocation) {
-            allocations.add(allocation);
-            currentSize += allocation.getEstimatedSizeInBytes();
-        }
-
-        /**
-         * Add the reservation. Private because all interaction should go
-         * through RetrievalPlan.
-         * 
-         * @param reservation
-         *            the reservation to add
-         */
-        private void add(BandwidthReservation reservation) {
-            reservations.add(reservation);
-            currentSize += reservation.getSizeInBytes();
-        }
-
-        public long getAvailableBandwidth() {
-            return Math.max(0, bucketSize - currentSize);
-        }
-
-        public long getBucketSize() {
-            return bucketSize;
-        }
-
-        public long getBucketStartTime() {
-            return bucketStartTime;
-        }
-
-        public long getCurrentSize() {
-            return currentSize;
-        }
-
-        /**
-         * Get the next allocation to be processed. Private because all access
-         * should go through RetrievalPlan.
-         * 
-         * @param agentType
-         *            the agent type
-         * @return the allocation, or null if there is none to process
-         */
-        private BandwidthAllocation getNextReservation(String agentType) {
-            BandwidthAllocation allocation = null;
-            for (BandwidthAllocation o : allocations) {
-                if (RetrievalStatus.READY.equals(o.getStatus())
-                        && o.getAgentType().equals(agentType)) {
-                    allocation = o;
-                    allocation.setStatus(RetrievalStatus.PROCESSING);
-                    // Persist this change to the database
-                    bandwidthDao.createOrUpdate(allocation);
-                    break;
-                }
-            }
-            return allocation;
-        }
-
-        /**
-         * A read-only look at what requests are available in this bucket.
-         * 
-         * @return the unmodifiable list of requests
-         */
-        public List<BandwidthAllocation> getRequests() {
-            return Collections.unmodifiableList(allocations);
-        }
-
-        /**
-         * A read-only look at what reservations are available in this bucket.
-         * 
-         * @return the unmodifiable list of reservations
-         */
-        public List<BandwidthReservation> getReservations() {
-            return Collections.unmodifiableList(reservations);
-        }
-
-        public String showReservations() {
-            StringBuilder sb = new StringBuilder();
-            sb.append(toString()).append("\n");
-
-            for (BandwidthAllocation allocation : allocations) {
-                sb.append("  ").append(allocation.toString()).append("\n");
-            }
-            for (BandwidthReservation reservation : reservations) {
-                sb.append("  ").append(reservation.toString()).append("\n");
-            }
-
-            return sb.toString();
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-            Calendar b = BandwidthUtil.now();
-            b.setTimeInMillis(bucketStartTime);
-            sb.append("Bucket [").append(BandwidthUtil.format(b));
-            sb.append("] bandwidth [").append(bucketSize);
-            sb.append("] available [").append(getAvailableBandwidth())
-                    .append("]);");
-
-            return sb.toString();
-        }
-
-        /**
-         * Remove the bandwidth allocation or reservation by its id. Private
-         * because all access should go through RetrievalPlan.
-         * 
-         * @param id
-         *            the id of the allocation/reservation
-         */
-        private void remove(long id) {
-
-            
-            for (Iterator<BandwidthAllocation> itr = allocations.iterator();itr.hasNext();) {
-                BandwidthAllocation reservation = itr.next();
-                if (reservation.getId() == id) {
-                    itr.remove();
-                }
-            }
-            
-            for (Iterator<BandwidthReservation> itr = reservations.iterator();itr.hasNext();) {
-                BandwidthReservation reservation = itr.next();
-                if (reservation.getId() == id) {
-                    itr.remove();
-                }
-            }
-
-            long totalSize = 0;
-            // Recalculate the current size since
-            for (BandwidthAllocation allocation : allocations) {
-                totalSize += allocation.getEstimatedSizeInBytes();
-            }
-
-            for (BandwidthReservation reservation : reservations) {
-                totalSize += reservation.getSizeInBytes();
-            }
-            currentSize = totalSize;
-        }
-
-        /**
-         * Return whether this bucket is empty.
-         * 
-         * @return true if empty
-         */
-        public boolean isEmpty() {
-            return currentSize == 0;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result
-                    + (int) (bucketStartTime ^ (bucketStartTime >>> 32));
-            return result;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            BandwidthBucket other = (BandwidthBucket) obj;
-            if (bucketStartTime != other.bucketStartTime)
-                return false;
-            return true;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int compareTo(BandwidthBucket o) {
-            if (this.bucketStartTime > o.bucketStartTime) {
-                return 1;
-            } else if (this.bucketStartTime < o.bucketStartTime) {
-                return -1;
-            } else {
-                return 0;
-            }
-        }
-    }
-
-    private final IBandwidthDao bandwidthDao;
+    private IBandwidthDao bandwidthDao;
 
     // which retrieval plan
-    private final Network network;
+    private Network network;
 
-    private final BandwidthMap map;
+    private BandwidthMap map;
 
     // The scheduler used to insert retrievals into the plan
     private IRetrievalScheduler scheduler;
@@ -288,8 +69,10 @@ public class RetrievalPlan {
     // must acquire the locks in the following order: buckets first, then
     // requestMap
 
-    // access to buckets should always be synchronized on buckets itself..
-    private final NavigableMap<Long, BandwidthBucket> buckets = new TreeMap<Long, BandwidthBucket>();
+    private IBandwidthBucketDao bucketsDao;
+
+    // access to buckets should always be synchronized on bucketsLock..
+    private final Object bucketsLock = new Object();
 
     // access to requestMap should always be synchronized on requestMap itself..
     private final Map<Long, Set<Long>> requestMap = new HashMap<Long, Set<Long>>();
@@ -303,20 +86,19 @@ public class RetrievalPlan {
 
     private long bytesPerBucket;
 
-    /**
-     * 
-     * @param network
-     *            The Network to create the RetrievalPlan for.
-     * 
-     * @param map
-     *            The BandwidthMap Object to use to initialize the plan.
-     */
-    public RetrievalPlan(Network network, BandwidthMap map,
-            IBandwidthDao bandwidthDao) {
-        this.network = network;
-        this.bandwidthDao = bandwidthDao;
-        this.map = map;
+    private IBandwidthBucketAllocationAssociator associator;
 
+    /**
+     * Constructor.
+     */
+    public RetrievalPlan() {
+    }
+
+    /**
+     * Initialize the retrieval plan. Intentionally package-private as it should
+     * only be called by {@link RetrievalManager}.
+     */
+    void init() {
         boolean found = false;
         BandwidthRoute route = map.getRoute(network);
         if (route != null) {
@@ -342,10 +124,10 @@ public class RetrievalPlan {
                 // bucket minutes)/bits per byte) ...
                 bytesPerBucket = BandwidthUtil
                         .convertKilobytesPerSecondToBytesPerSpecifiedMinutes(
-                                bw,
-                        bucketMinutes);
+                                bw, bucketMinutes);
 
-                buckets.put(bucket, new BandwidthBucket(bucket, bytesPerBucket));
+                bucketsDao.create(new BandwidthBucket(bucket, bytesPerBucket,
+                        network));
                 currentBucket.add(Calendar.MINUTE, bucketMinutes);
             }
         } else {
@@ -392,7 +174,7 @@ public class RetrievalPlan {
             resize();
         }
 
-        synchronized (buckets) {
+        synchronized (bucketsLock) {
             return scheduler.schedule(this, bandwidthAllocation);
         }
     }
@@ -425,13 +207,13 @@ public class RetrievalPlan {
         // to make sure that the plan maintains "planDays" of schedule..
         if (newEndOfPlan.after(planEnd)) {
 
-            synchronized (buckets) {
+            synchronized (bucketsLock) {
                 // Get the last bucket and add buckets to make up the
                 // difference..
                 // Make the buckets...
-                long bucket = buckets.lastKey();
+                BandwidthBucket bucket = bucketsDao.getLastBucket(network);
                 Calendar currentBucket = BandwidthUtil.now();
-                currentBucket.setTimeInMillis(bucket);
+                currentBucket.setTimeInMillis(bucket.getBucketStartTime());
 
                 // Add the buckets minutes to the last bucket and add
                 // buckets until we have the new plan size.
@@ -439,15 +221,15 @@ public class RetrievalPlan {
 
                 while (!currentBucket.after(newEndOfPlan)) {
                     int bw = map.getBandwidth(network, currentBucket);
-                    bucket = currentBucket.getTimeInMillis();
+                    long bucketStartTime = currentBucket.getTimeInMillis();
                     // Get the bucket size..
                     // buckets are (bandwidth * kilobits/second * 60 seconds *
                     // bucket minutes)/bits per byte) ...
                     bytesPerBucket = BandwidthUtil
                             .convertKilobytesPerSecondToBytesPerSpecifiedMinutes(
-                            bw, bucketMinutes);
-                    buckets.put(bucket, new BandwidthBucket(bucket,
-                            bytesPerBucket));
+                                    bw, bucketMinutes);
+                    bucketsDao.create(new BandwidthBucket(bucketStartTime,
+                            bytesPerBucket, network));
                     currentBucket.add(Calendar.MINUTE, bucketMinutes);
                     statusHandler.info("resize() - Adding bucket [" + bucket
                             + "] bandwidth = [" + bw + "]");
@@ -458,18 +240,12 @@ public class RetrievalPlan {
         // Now remove buckets from the front of the map whos time slot
         // is past and are empty
         long newStart = newStartOfPlan.getTimeInMillis();
-        NavigableMap<Long, BandwidthBucket> x = buckets.headMap(newStart, true);
-        Iterator<Long> itr = x.keySet().iterator();
-        while (itr.hasNext()) {
-            Long key = itr.next();
-            BandwidthBucket b = x.get(key);
-            // If the bucket is empty, remove it from the Map,
-            // which should result in removal from the parent Map,
-            if (b.isEmpty()) {
-                statusHandler.info("resize() - Removing bucket ["
-                        + b.getBucketStartTime() + "]");
-                itr.remove();
-            }
+
+        try {
+            bucketsDao.deleteEmptyBucketsUpToTime(newStart, network);
+        } catch (DataAccessLayerException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to remove empty buckets!", e);
         }
 
         this.planStart = newStartOfPlan;
@@ -480,18 +256,31 @@ public class RetrievalPlan {
         this.scheduler = scheduler;
     }
 
+    /**
+     * Show the contents of the {@link RetrievalPlan}.
+     * 
+     * @return
+     */
     public String showPlan() {
         StringBuilder sb = new StringBuilder();
 
-        synchronized (buckets) {
-            Iterator<Long> itr = buckets.keySet().iterator();
-            while (itr.hasNext()) {
-                BandwidthBucket bucket = getBucket(itr.next());
-                sb.append(bucket.showReservations());
-            }
+        List<BandwidthBucket> buckets = bucketsDao.getAll(network);
+        for (BandwidthBucket bucket : buckets) {
+            sb.append(showBucket(bucket));
         }
 
         return sb.toString();
+    }
+
+    /**
+     * Show the contents of the {@link BandwidthBucket}.
+     * 
+     * @param bucket
+     *            the bucket
+     * @return the String to display
+     */
+    public String showBucket(BandwidthBucket bucket) {
+        return associator.showBucket(bucket);
     }
 
     public void setPlanDays(int planDays) {
@@ -500,6 +289,26 @@ public class RetrievalPlan {
 
     public int getPlanDays() {
         return planDays;
+    }
+
+    public void setNetwork(Network network) {
+        this.network = network;
+    }
+
+    public void setMap(BandwidthMap map) {
+        this.map = map;
+    }
+
+    public void setBandwidthDao(IBandwidthDao bandwidthDao) {
+        this.bandwidthDao = bandwidthDao;
+    }
+
+    public void setBucketsDao(IBandwidthBucketDao bucketsDao) {
+        this.bucketsDao = bucketsDao;
+    }
+
+    public void setAssociator(IBandwidthBucketAllocationAssociator associator) {
+        this.associator = associator;
     }
 
     /**
@@ -512,17 +321,18 @@ public class RetrievalPlan {
     public BandwidthAllocation nextAllocation(String agentType) {
         BandwidthAllocation reservation = null;
 
-        synchronized (buckets) {
+        synchronized (bucketsLock) {
 
             // Get the portion of the Map that is before the
             // current time (DO NOT want to return future reservations)
-            SortedMap<Long, BandwidthBucket> available = buckets
-                    .headMap(buckets.ceilingKey(TimeUtil.currentTimeMillis() + 1));
+            final List<BandwidthBucket> buckets = bucketsDao
+                    .getWhereStartTimeIsLessThanOrEqualTo(
+                            TimeUtil.currentTimeMillis(), network);
 
             // Iterate over the buckets and find the first
             // BandwidthAllocation that is in the READY state
-            for (BandwidthBucket bucket : available.values()) {
-                reservation = bucket.getNextReservation(agentType);
+            for (BandwidthBucket bucket : buckets) {
+                reservation = associator.getNextReservation(bucket, agentType);
                 if (reservation != null) {
                     break;
                 }
@@ -530,12 +340,6 @@ public class RetrievalPlan {
         }
 
         return reservation;
-    }
-
-    private NavigableMap<Long, BandwidthBucket> getBuckets() {
-        synchronized (buckets) {
-            return buckets;
-        }
     }
 
     public void updateRequestMapping(long requestId,
@@ -550,9 +354,42 @@ public class RetrievalPlan {
         }
     }
 
-    public void remove(BandwidthAllocation reservation) {
+    /**
+     * Remove the {@link BandwidthAllocation} from the {@link RetrievalPlan}.
+     * 
+     * @param allocation
+     *            the allocation
+     */
+    public void remove(BandwidthAllocation allocation) {
 
-        synchronized (buckets) {
+        synchronized (bucketsLock) {
+            // Must have both monitors
+            synchronized (requestMap) {
+                Set<Long> bucketIds = requestMap.get(allocation.getId());
+                if (bucketIds == null) {
+                    // This can happen when an allocation/reservation is in a
+                    // DEFERRED state, at a minimum
+                    return;
+                }
+                for (Long bucketId : bucketIds) {
+                    BandwidthBucket bucket = getBucket(bucketId);
+                    bucket.setCurrentSize(bucket.getCurrentSize()
+                            - allocation.getEstimatedSizeInBytes());
+                    associator.removeFromBucket(bucket, allocation);
+                }
+            }
+        }
+    }
+
+    /**
+     * Remove the {@link BandwidthReservation} from the {@link RetrievalPlan}.
+     * 
+     * @param reservation
+     *            the reservation
+     */
+    public void remove(BandwidthReservation reservation) {
+
+        synchronized (bucketsLock) {
             // Must have both monitors
             synchronized (requestMap) {
                 Set<Long> bucketIds = requestMap.get(reservation.getId());
@@ -563,7 +400,9 @@ public class RetrievalPlan {
                 }
                 for (Long bucketId : bucketIds) {
                     BandwidthBucket bucket = getBucket(bucketId);
-                    bucket.remove(reservation.getId());
+                    bucket.setCurrentSize(bucket.getCurrentSize()
+                            - reservation.getSizeInBytes());
+                    associator.removeFromBucket(bucket, reservation);
                 }
             }
         }
@@ -590,7 +429,7 @@ public class RetrievalPlan {
      */
     public void updateBandwidthReservation(BandwidthAllocation allocation) {
         final long id = allocation.getId();
-        synchronized (buckets) {
+        synchronized (bucketsLock) {
             // Must have both monitors
             synchronized (requestMap) {
                 if (!requestMap.containsKey(id)) {
@@ -598,12 +437,10 @@ public class RetrievalPlan {
                             .warn("The request map should always contain a mapping for a bandwidth allocation prior to reaching this point.  "
                                     + "Adding to the map manually, but seeing this message without expecting it signifies a logic error, "
                                     + "and bandwidth is not being properly managed!");
-                    BandwidthBucket bucket = buckets.firstEntry().getValue();
-                    bucket.add(allocation);
+                    BandwidthBucket bucket = bucketsDao.getFirstBucket(network);
+                    addToBucket(bucket, allocation);
                     allocation.setBandwidthBucket(bucket.getBucketStartTime());
                     bandwidthDao.createOrUpdate(allocation);
-
-                    bucket.add(allocation);
 
                     TreeSet<BandwidthBucket> set = Sets.newTreeSet();
                     set.add(bucket);
@@ -613,26 +450,8 @@ public class RetrievalPlan {
                 Set<Long> bucketIds = requestMap.get(id);
                 for (Long bucketId : bucketIds) {
                     BandwidthBucket bucket = getBucket(bucketId);
-                    // Remove the existing version with the same ID and replace
-                    // it
-                    int indexToReplace = -1;
-                    // Direct access to allocations here, because the getter
-                    // returns an unmodifiable version for public access
-                    List<BandwidthAllocation> requests = bucket.allocations;
-                    for (int i = 0; i < requests.size(); i++) {
-                        BandwidthAllocation current = requests.get(i);
-                        if (current.getId() == id) {
-                            indexToReplace = i;
-                            break;
-                        }
-                    }
-
-                    if (indexToReplace > -1) {
-                        requests.set(indexToReplace, allocation);
-                    } else {
-                        statusHandler.warn("Unable to find allocation [" + id
-                                + "] for replacement in the bucket!");
-                    }
+                    associator.removeFromBucket(bucket, allocation);
+                    associator.addToBucket(bucket, allocation);
                 }
             }
         }
@@ -648,32 +467,10 @@ public class RetrievalPlan {
      *             if no bucket exists with the id
      */
     public BandwidthBucket getBucket(long bucketId) {
-        BandwidthBucket bucket = getBuckets().get(bucketId);
+        BandwidthBucket bucket = bucketsDao.getByStartTime(bucketId, network);
         Preconditions.checkNotNull(bucket,
                 "Unable to find bucket for start time [" + bucketId + "]");
         return bucket;
-    }
-
-    /**
-     * Returns the greatest key less than or equal to the given key, or null if
-     * there is no such key.
-     * 
-     * @param key
-     * @return the floored key, or null
-     */
-    private Long floorBucket(long key) {
-        return getBuckets().floorKey(key);
-    }
-
-    /**
-     * Returns the least key greater than or equal to the given key, or null if
-     * there is no such key.
-     * 
-     * @param key
-     * @return the ceiling-ed key, or null
-     */
-    private Long ceilingKey(long key) {
-        return getBuckets().ceilingKey(key);
     }
 
     /**
@@ -687,40 +484,9 @@ public class RetrievalPlan {
      * @return the buckets in the window, sorted in ascending order of start
      *         time
      */
-    public SortedSet<BandwidthBucket> getBucketsInWindow(Long startMillis,
-            Long endMillis) {
-        // Get the bucket for the startTime and endTime.
-        Long startKey = floorBucket(startMillis);
-        if (startKey == null) {
-            // TODO: If this happens a lot (monitor log message frequency)
-            // then change the default behavior to just use a ceilingKey
-            startKey = ceilingKey(startMillis);
-            statusHandler
-                    .info(String
-                            .format("Unable to find bucket before or up to [%s] using nearest bucket of [%s]",
-                                    startMillis, startKey));
-        }
-        Long endKey = floorBucket(endMillis);
-        if (endKey == null) {
-            endKey = ceilingKey(startMillis);
-        }
-
-        // Handle the case where an invalid range was somehow specified
-        // (shouldn't happen, so just throw an exception with as much
-        // information as we have)
-        if (startKey == null || endKey == null) {
-            throw new IllegalArgumentException(
-                    String.format(
-                            "Invalid start and end times requested for getBucketsInWindow(): start time [%s], end time [%s], bucket start key [%s], bucket end key [%s].  "
-                                    + "Plan boundaries: start [%s] end [%s]",
-                            startMillis, endMillis, startKey, endKey,
-                            BandwidthUtil.format(getPlanStart()),
-                            BandwidthUtil.format(getPlanEnd())));
-        }
-
-        NavigableMap<Long, BandwidthBucket> window = getBuckets().subMap(
-                startKey, true, endKey, true);
-        return new TreeSet<BandwidthBucket>(window.values());
+    public SortedSet<BandwidthBucket> getBucketsInWindow(long earliestTime,
+            long latestTime) {
+        return bucketsDao.getBucketsInWindow(earliestTime, latestTime, network);
     }
 
     /**
@@ -733,12 +499,15 @@ public class RetrievalPlan {
      * @throws NullPointerException
      *             if the bucket start time is invalid
      */
-    public void addToBucket(BandwidthBucket bucket, BandwidthAllocation allocation) {
+    public void addToBucket(BandwidthBucket bucket,
+            BandwidthAllocation allocation) {
         long bucketStartTime = bucket.getBucketStartTime();
 
-        synchronized (buckets) {
+        synchronized (bucketsLock) {
             BandwidthBucket actualBucket = getBucket(bucketStartTime);
-            actualBucket.add(allocation);
+            actualBucket.setCurrentSize(actualBucket.getCurrentSize()
+                    + allocation.getEstimatedSizeInBytes());
+            associator.addToBucket(actualBucket, allocation);
         }
     }
 
@@ -756,10 +525,36 @@ public class RetrievalPlan {
             BandwidthReservation reservation) {
         long bucketStartTime = bucket.getBucketStartTime();
 
-        synchronized (buckets) {
+        synchronized (bucketsLock) {
             BandwidthBucket actualBucket = getBucket(bucketStartTime);
-            actualBucket.add(reservation);
+            actualBucket.setCurrentSize(actualBucket.getCurrentSize()
+                    + reservation.getSizeInBytes());
+            associator.addToBucket(actualBucket, reservation);
         }
+    }
+
+    /**
+     * Retrieve the {@link BandwidthAllocation}s for a {@link BandwidthBucket}.
+     * 
+     * @param bucket
+     *            the bucket
+     * @return the bandwidth allocations
+     */
+    public List<BandwidthAllocation> getBandwidthAllocationsForBucket(
+            BandwidthBucket bucket) {
+        return associator.getBandwidthAllocationsForBucket(bucket);
+    }
+
+    /**
+     * Retrieve the {@link BandwidthReservation}s for a {@link BandwidthBucket}.
+     * 
+     * @param bucket
+     *            the bucket
+     * @return the bandwidth reservations
+     */
+    public List<BandwidthReservation> getBandwidthReservationsForBucket(
+            BandwidthBucket bucket) {
+        return associator.getBandwidthReservationsForBucket(bucket);
     }
 
     /**
@@ -770,4 +565,23 @@ public class RetrievalPlan {
     public int getBucketMinutes() {
         return bucketMinutes;
     }
+
+    /**
+     * Copy state from the specied {@link RetrievalPlan}.
+     * 
+     * @param fromPlan
+     *            the other plan
+     */
+    public void copyState(RetrievalPlan fromPlan) {
+        this.bucketsDao.copyState(fromPlan.bucketsDao);
+        this.bucketMinutes = fromPlan.bucketMinutes;
+        this.bytesPerBucket = fromPlan.bytesPerBucket;
+        this.planDays = fromPlan.planDays;
+        this.planEnd = BandwidthUtil.copy(fromPlan.planEnd);
+        this.planStart = BandwidthUtil.copy(fromPlan.planStart);
+        this.requestMap.clear();
+        this.requestMap.putAll(fromPlan.requestMap);
+        this.associator.copyState(fromPlan.associator);
+    }
+
 }
