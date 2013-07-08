@@ -17,6 +17,15 @@
 	<bean id="bandwidthDao" factory-bean="bandwidthContextFactory"
 		factory-method="getBandwidthDao" />
 
+    <bean id="bandwidthBucketDao" factory-bean="bandwidthContextFactory"
+        factory-method="getBandwidthBucketDao" />
+
+    <!-- TODO: Move the associations between a bucket and its allocations into the database -->
+    <bean id="bandwidthBucketAllocationAssociator" class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.InMemoryBandwidthBucketAllocationAssociator">
+        <constructor-arg ref="bandwidthDao" />
+        <constructor-arg ref="bandwidthBucketDao" />
+    </bean>
+
 	<bean id="bandwidthDbInit" factory-bean="bandwidthContextFactory"
         factory-method="getBandwidthDbInit" />
 
@@ -89,8 +98,7 @@
 	</bean>
 
 	<bean id="retrievalManager"
-		class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager"
-		depends-on="bandwidthDbInit">
+		class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager">
 		<constructor-arg ref="bandwidthDao" />
 		<constructor-arg ref="retrievalAgentNotifier" />
 		<property name="retrievalPlans" ref="retrievalPlans" />

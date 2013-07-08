@@ -1,8 +1,10 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.retrieval;
 
+import java.io.Serializable;
 import java.util.Calendar;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.common.util.IDeepCopyable;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
@@ -17,12 +19,17 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * ------------ ---------- ----------- --------------------------
  * Oct 02, 2012 726        jspinks     Initial release.
  * Nov 09, 2012 1286       djohnson    Add getters for bytes.
+ * Jun 24, 2013 2106       djohnson    Add copy constructor.
  * 
  * </pre>
  * 
  * @version 1.0
  */
-public class BandwidthReservation {
+// TODO: Add Hibernate annotations
+public class BandwidthReservation implements Serializable,
+        IDeepCopyable<BandwidthReservation> {
+
+    private static final long serialVersionUID = 4556094983346648973L;
 
     private long id;
 
@@ -66,6 +73,22 @@ public class BandwidthReservation {
         this.network = allocation.getNetwork();
         this.size = bandwidthRequired;
         this.setBandwidthBucket(allocation.getBandwidthBucket());
+    }
+
+    /**
+     * Copy constructor.
+     * 
+     * @param from
+     *            the instance to copy from
+     */
+    public BandwidthReservation(BandwidthReservation from) {
+        this.bandwidthBucket = from.bandwidthBucket;
+        this.endTime = BandwidthUtil.copy(from.endTime);
+        this.id = from.id;
+        this.network = from.network;
+        this.priority = from.priority;
+        this.size = from.size;
+        this.startTime = BandwidthUtil.copy(from.startTime);
     }
 
     @Override
@@ -202,4 +225,11 @@ public class BandwidthReservation {
         return id;
     }
 
+    /**
+     * @return
+     */
+    @Override
+    public BandwidthReservation copy() {
+        return new BandwidthReservation(this);
+    }
 }

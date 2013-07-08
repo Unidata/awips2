@@ -14,6 +14,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.IBandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
+import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 
 /**
  * 
@@ -28,6 +29,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializ
  * Feb 20, 2013 1543       djohnson     Add SW history, separate how to find subscriptions.
  * Apr 16, 2013 1906       djohnson     Implements RegistryInitializedListener.
  * Apr 30, 2013 1960       djohnson     just call init rather than drop/create tables explicitly.
+ * Jun 25, 2013 2106       djohnson     init() now takes a {@link RetrievalManager} as well.
  * 
  * </pre>
  * 
@@ -52,7 +54,8 @@ public class HibernateBandwidthInitializer implements BandwidthInitializer {
     }
 
     @Override
-    public boolean init(IBandwidthManager instance, IBandwidthDbInit dbInit) {
+    public boolean init(IBandwidthManager instance, IBandwidthDbInit dbInit,
+            RetrievalManager retrievalManager) {
 
         this.instance = instance;
 
@@ -66,6 +69,8 @@ public class HibernateBandwidthInitializer implements BandwidthInitializer {
             throw new RuntimeException(
                     "Error generating bandwidth manager tables", e1);
         }
+
+        retrievalManager.initRetrievalPlans();
 
         return true;
     }

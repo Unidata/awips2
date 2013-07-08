@@ -52,9 +52,9 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPri
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
 /**
@@ -74,6 +74,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Feb 27, 2013 1644       djohnson     Bandwidth service is the WFO version.
  * May 20, 2013 1650       djohnson     Add test for returning required dataset size.
  * Jun 12, 2013 2038       djohnson     Add test for returning required dataset size on subscription update.
+ * Jun 25, 2013 2106       djohnson     BandwidthBucket is a big boy class now.
  * 
  * </pre>
  * 

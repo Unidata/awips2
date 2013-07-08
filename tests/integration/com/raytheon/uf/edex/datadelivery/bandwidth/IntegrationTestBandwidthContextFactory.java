@@ -22,6 +22,7 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 import java.io.File;
 
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthContextFactory;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthBucketDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 
@@ -36,6 +37,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
  * ------------ ---------- ----------- --------------------------
  * Oct 24, 2012 1286       djohnson     Initial creation
  * Feb 20, 2013 1543       djohnson     Pass additional super-class constructor arguments.
+ * Jun 25, 2013 2106       djohnson     Add {@link IBandwidthBucketDao}.
  * 
  * </pre>
  * 
@@ -50,11 +52,18 @@ public class IntegrationTestBandwidthContextFactory extends
      * 
      * @param bandwidthDao
      *            the bandwidthDao
+     * @param bandwidthBucketsDao
+     * @param bandwidthManagerCreator
+     *            the creator for the bandwidth manager instance
+     * @param dbInit
+     *            the database initializer
      */
     IntegrationTestBandwidthContextFactory(IBandwidthDao bandwidthDao,
+            IBandwidthBucketDao bandwidthBucketsDao,
             IEdexBandwidthManagerCreator bandwidthManagerCreator,
             IBandwidthDbInit dbInit) {
-        super(bandwidthDao, new IntegrationTestBandwidthInitializer(),
+        super(bandwidthDao, bandwidthBucketsDao,
+                new IntegrationTestBandwidthInitializer(),
                 bandwidthManagerCreator, dbInit);
     }
 
@@ -73,6 +82,7 @@ public class IntegrationTestBandwidthContextFactory extends
      */
     public static File getIntegrationTestBandwidthMapConfigFile() {
         return new IntegrationTestBandwidthContextFactory((IBandwidthDao) null,
+                (IBandwidthBucketDao) null,
                 (IEdexBandwidthManagerCreator) null, (IBandwidthDbInit) null)
                 .getBandwidthMapConfigFile();
     }

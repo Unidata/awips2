@@ -54,11 +54,12 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 07, 2013 1543       djohnson     Initial creation
+ * Feb 07, 2013 1543       djohnson    Initial creation
  * 3/18/2013    1802       bphillip    Added additional database functions. Enforcing mandatory transaction propogation
  * 3/27/2013    1802       bphillip    Changed transaction propagation of query methods
  * 4/9/2013     1802       bphillip    Modified how arguments are passed in to query methods
- * May 1st, 2013   1967  njensen   Fixed autoboxing for Eclipse 3.8
+ * May 01, 2013 1967       njensen     Fixed autoboxing for Eclipse 3.8
+ * Jun 24, 2013 2106       djohnson    Use IDENTIFIER generic for method signature.
  * 
  * </pre>
  * 
@@ -142,7 +143,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public ENTITY getById(Serializable id) {
+    public ENTITY getById(IDENTIFIER id) {
         final Class<ENTITY> entityClass = getEntityClass();
         return entityClass.cast(template.get(entityClass, id));
     }

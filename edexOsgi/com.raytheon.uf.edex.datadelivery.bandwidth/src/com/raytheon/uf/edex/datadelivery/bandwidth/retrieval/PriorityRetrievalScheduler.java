@@ -13,7 +13,7 @@ import java.util.TreeMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan.BandwidthBucket;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
 /**
@@ -29,6 +29,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Oct 17, 2012 0726       djohnson    If unable to find a bucket with floorKey, use ceilingKey.
  * Oct 26, 2012 1286       djohnson    Return list of unscheduled allocations.
  * Jan 25, 2013 1528       djohnson    Lower priority requests should not be able to unschedule higher priority requests.
+ * Jun 25, 2013 2106       djohnson    Access bandwidth bucket contents through RetrievalPlan.
  * </pre>
  * 
  * @version 1.0
@@ -178,7 +179,8 @@ public class PriorityRetrievalScheduler implements IRetrievalScheduler {
         long total = 0;
         List<BandwidthAllocation> lowerPriorityRequests = new ArrayList<BandwidthAllocation>();
         for (BandwidthBucket bucket : window) {
-            for (BandwidthAllocation o : bucket.getRequests()) {
+            for (BandwidthAllocation o : plan
+                    .getBandwidthAllocationsForBucket(bucket)) {
                 long estimatedSizeInBytes = o.getEstimatedSizeInBytes();
                 // This was bad... we just about released giving lower
                 // priority requests the ability to unschedule higher priority

@@ -40,6 +40,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.IDeepCopyable;
 import com.raytheon.uf.common.util.ReflectionUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
@@ -128,16 +129,11 @@ class InMemoryBandwidthDao implements IBandwidthDao {
      * @param sourceList
      * @return
      */
-    @SuppressWarnings("unchecked")
-    private static <T> ArrayList<T> clone(ConcurrentLinkedQueue<T> sourceList) {
-        ArrayList<T> results;
-        try {
-            results = BandwidthUtil.cheapClone(ArrayList.class,
-                    new ArrayList<T>(sourceList));
-        } catch (SerializationException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to clone list, returning empty list.", e);
-            results = new ArrayList<T>();
+    private static <T extends IDeepCopyable<T>> ArrayList<T> clone(
+            ConcurrentLinkedQueue<T> sourceList) {
+        ArrayList<T> results = new ArrayList<T>(sourceList.size());
+        for (T instance : sourceList) {
+            results.add(instance.copy());
         }
 
         return results;
@@ -607,8 +603,8 @@ class InMemoryBandwidthDao implements IBandwidthDao {
         SortedSet<SubscriptionRetrieval> results = getSubscriptionRetrievals(
                 provider, dataSetName, status);
 
-        for (Iterator<SubscriptionRetrieval> iter = results
-                .iterator(); iter.hasNext();) {
+        for (Iterator<SubscriptionRetrieval> iter = results.iterator(); iter
+                .hasNext();) {
             SubscriptionRetrieval subRetrieval = iter.next();
             if (earliestDate.after(subRetrieval.getStartTime().getTime())
                     || latestDate.before(subRetrieval.getStartTime().getTime())) {
@@ -618,4 +614,41 @@ class InMemoryBandwidthDao implements IBandwidthDao {
 
         return results;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<SubscriptionRetrieval> getSubscriptionRetrievals() {
+        ArrayList<BandwidthAllocation> clone = clone(bandwidthAllocations);
+        List<SubscriptionRetrieval> results = new ArrayList<SubscriptionRetrieval>(
+                bandwidthAllocations.size());
+
+        for (Iterator<BandwidthAllocation> iter = clone.iterator(); iter
+                .hasNext();) {
+            BandwidthAllocation current = iter.next();
+            if (current instanceof SubscriptionRetrieval) {
+                results.add((SubscriptionRetrieval) current);
+            }
+        }
+        return results;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<BandwidthAllocation> getBandwidthAllocationsForNetworkAndBucketStartTime(
+            Network network, long bucketStartTime) {
+        final List<BandwidthAllocation> bandwidthAllocations = getBandwidthAllocations(network);
+        for (Iterator<BandwidthAllocation> iter = bandwidthAllocations
+                .iterator(); iter.hasNext();) {
+            final BandwidthAllocation allocation = iter.next();
+            if (allocation.getBandwidthBucket() != bucketStartTime) {
+                iter.remove();
+            }
+        }
+        return bandwidthAllocations;
+    }
+
 }

@@ -25,6 +25,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.IDeepCopyable;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
 /**
@@ -40,6 +41,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Oct 16, 2012 0726       djohnson     Added SW history, added length to subscription.
  * Nov 09, 2012 1286       djohnson     Add convenience methods for retrieving the subscription.
  * Jun 13, 2013 2095       djohnson     Add flag for whether or not data set update should be looked for on aggregating.
+ * Jun 24, 2013 2106       djohnson     Add copy constructor.
  * 
  * </pre>
  * 
@@ -50,8 +52,9 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 @Table(name = "bandwidth_subscription")
 @DynamicSerialize
 @SequenceGenerator(name = "BANDWIDTH_SEQ", sequenceName = "bandwidth_seq", allocationSize = 1, initialValue = 1)
-public class BandwidthSubscription extends PersistableDataObject<Long> implements
-        Serializable, ISerializableObject {
+public class BandwidthSubscription extends PersistableDataObject<Long>
+        implements Serializable, ISerializableObject,
+        IDeepCopyable<BandwidthSubscription> {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(BandwidthSubscription.class);
@@ -157,6 +160,33 @@ public class BandwidthSubscription extends PersistableDataObject<Long> implement
 
     public BandwidthSubscription() {
         // Bean constructor
+    }
+
+    /**
+     * @param bandwidthSubscription
+     */
+    public BandwidthSubscription(BandwidthSubscription bandwidthSubscription) {
+        this.baseReferenceTime = BandwidthUtil.copy(bandwidthSubscription
+                .getBaseReferenceTime());
+        this.checkForDataSetUpdate = bandwidthSubscription.checkForDataSetUpdate;
+        this.cycle = bandwidthSubscription.cycle;
+        this.dataSetName = bandwidthSubscription.dataSetName;
+        this.estimatedSize = bandwidthSubscription.estimatedSize;
+        this.id = bandwidthSubscription.id;
+        this.identifier = bandwidthSubscription.identifier;
+        this.name = bandwidthSubscription.name;
+        this.owner = bandwidthSubscription.owner;
+        this.priority = bandwidthSubscription.priority;
+        this.provider = bandwidthSubscription.provider;
+        this.registryId = bandwidthSubscription.registryId;
+        this.route = bandwidthSubscription.route;
+
+        if (bandwidthSubscription.subSubscription != null) {
+            final int srcLength = bandwidthSubscription.subSubscription.length;
+            this.subSubscription = new byte[srcLength];
+            System.arraycopy(bandwidthSubscription.subSubscription, 0,
+                    this.subSubscription, 0, srcLength);
+        }
     }
 
     /**
@@ -344,5 +374,13 @@ public class BandwidthSubscription extends PersistableDataObject<Long> implement
     @Deprecated
     public void setSubSubscription(byte[] subSubscription) {
         this.subSubscription = subSubscription;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BandwidthSubscription copy() {
+        return new BandwidthSubscription(this);
     }
 }
