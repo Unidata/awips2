@@ -286,6 +286,9 @@ public class EnvelopeUtils {
         try {
             ReferencedEnvelope e = new ReferencedEnvelope(crs);
 
+            latLon1 = normalizeLongitude(e, latLon1);
+            latLon2 = normalizeLongitude(e, latLon2);
+
             DirectPosition2D dp1 = new DirectPosition2D(latLon1.x, latLon1.y);
             DirectPosition2D dp2 = new DirectPosition2D(latLon2.x, latLon2.y);
             MathTransform transform = MapUtil.getTransformFromLatLon(crs);
@@ -321,9 +324,6 @@ public class EnvelopeUtils {
      */
     public static ReferencedEnvelope createSubenvelopeFromLatLon(
             Envelope envelope, Coordinate latLon1, Coordinate latLon2) {
-        latLon1 = EnvelopeUtils.convertToEastWest(latLon1);
-        latLon2 = EnvelopeUtils.convertToEastWest(latLon2);
-
         ReferencedEnvelope result = createEnvelopeFromLatLon(
                 envelope.getCoordinateReferenceSystem(), latLon1, latLon2);
         return new ReferencedEnvelope(result.intersection(reference(envelope)),
@@ -357,20 +357,5 @@ public class EnvelopeUtils {
         } else {
             return new ReferencedEnvelope(envelope);
         }
-    }
-
-    /**
-     * Convert coordinate value to East/West.
-     * 
-     * @param coord
-     *            Coordinate to convert
-     * @return converted coordinate
-     */
-    public static Coordinate convertToEastWest(Coordinate coord) {
-        if (coord.x > 180) {
-            coord.x = coord.x - 360;
-        }
-
-        return coord;
     }
 }
