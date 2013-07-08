@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -31,6 +32,9 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -75,6 +79,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  11-05-12     #1304      rferrel    Added Point Change Listener.
  *  11-29-12     #1365      rferrel    Properly close dialog when not on UI thread.
  *  07-02-2013   #2145      rferrel    populatePointsMenuButton no longer modifies movableRings.
+ *                                      Indicate selected movable ring and only delete selected ring.
+ *                                      Verify listeners for radius, latitude and longitude fields.
  * 
  * </pre>
  * 
@@ -84,25 +90,118 @@ import com.vividsolutions.jts.geom.Coordinate;
 public class RangeRingDialog extends CaveJFACEDialog implements
         IResourceDataChanged, IPointChangedListener {
 
+    /** Fixed Ring labels' combo. */
     private final String FIXED_LABELS[] = { "None", "1", "2", "3", "12", "13",
             "23", "123", "C", "C1", "C2", "C3", "C12", "C13", "C23", "C123" };
 
+    /** Movable Ring labels' combo. */
     private final String MOVABLE_LABELS[] = { "None", "1", "C", "C1" };
 
+    /** One of the new movable ring selections. */
     private final String LATLON = "Lat/Lon";
 
+    /**
+     * A listener to mark a given movable ring's row as selected.
+     */
+    private final FocusListener lastActiveListener = new FocusAdapter() {
+        @Override
+        public void focusGained(FocusEvent e) {
+            Widget w = (Widget) e.getSource();
+            MovableRingRow row = (MovableRingRow) w.getData();
+            clearMovableRingSelection();
+            row.selectRow(true);
+        }
+    };
+
+    /** Key for determining if Widget is for latitude or longitude. */
+    private final String isLatKey = "isLat";
+
+    /** Format for displaying latitude and longitude. */
+    private final String formatLatLon = "%3.6f";
+
+    /**
+     * A listener to verify a movable ring's latitude or longitude value.
+     */
+    private final VerifyListener verifyLatLon = new VerifyListener() {
+
+        @Override
+        public void verifyText(VerifyEvent e) {
+            Text text = (Text) e.getSource();
+            RangeRing ring = ((MovableRingRow) text.getData()).ring;
+            boolean isLat = (Boolean) text.getData(isLatKey);
+
+            if (ring == null) {
+                return;
+            }
+
+            StringBuilder sb = new StringBuilder(text.getText());
+            sb.replace(e.start, e.end, e.text);
+            if (sb.length() > 0) {
+                try {
+                    double value = Double.parseDouble(sb.toString());
+                    Coordinate coord = ring.getCenterCoordinate();
+                    if (isLat) {
+                        coord.y = value;
+                    } else {
+                        coord.x = value;
+                    }
+                    ring.setCenterCoordinate(coord);
+                } catch (NumberFormatException ex) {
+                    if (sb.length() != 1) {
+                        e.doit = false;
+                    } else {
+                        e.doit = "+-.".contains(sb);
+                    }
+                }
+            }
+        }
+    };
+
+    /**
+     * Verify radius values for movable and fix rings.
+     */
+    private final VerifyListener verifyRadius = new VerifyListener() {
+
+        @Override
+        public void verifyText(VerifyEvent e) {
+            Text text = (Text) e.getSource();
+            StringBuilder sb = new StringBuilder(text.getText());
+            sb.replace(e.start, e.end, e.text);
+            if (sb.length() > 0) {
+                try {
+                    int value = Integer.parseInt(sb.toString());
+                    e.doit = value >= 0;
+                } catch (NumberFormatException ex) {
+                    e.doit = false;
+                }
+            }
+        }
+    };
+
+    /**
+     * Groups the display fields for a fixed ring.
+     */
     private class FixedRingRow {
 
+        /** Indicate the view state of the fixed ring. */
         public Button enabled;
 
+        /** The name of the fixed ring. */
         public Label id;
 
+        /** The three radii associated with the fixed ring. */
         public Text[] radii = new Text[3];
 
+        /** Combo box with the labels to display. */
         public Combo label;
 
+        /** The fix ring being displayed. */
         public RangeRing ring;
 
+        /**
+         * Dispose all widgets so the fixed ring's row is removed from the
+         * display.
+         */
         public void dispose() {
             enabled.dispose();
             id.dispose();
@@ -113,21 +212,170 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         }
     }
 
+    /**
+     * This ties the display fields for a movable ring together. Intended to be
+     * displayed in a single row.
+     */
     private class MovableRingRow {
+        /** The ring's display state. */
         public Button enabled;
 
+        /** The ring's name. */
         public Text id;
 
+        /** The ring center's latitude. */
         public Text lat;
 
+        /** The ring centers's longitude. */
         public Text lon;
 
+        /** The ring's radius from the center. */
         public Text radius;
 
+        /** The various labels to display for the ring. */
         public Combo label;
 
+        /** The ring being displayed. */
         public RangeRing ring;
 
+        /** Indicates the ring's row selection state. */
+        private boolean selected = false;
+
+        /**
+         * Where to place the display widgets. Placed directly on the parent so
+         * it can handle sizing an alignment.
+         */
+        private Composite parent;
+
+        /**
+         * Constructor.
+         * 
+         * @param parent
+         */
+        public MovableRingRow(Composite parent) {
+            this.parent = parent;
+            init();
+        }
+
+        /**
+         * Change to ring used by this row and update the display to the ring's
+         * values.
+         * 
+         * @param ring
+         */
+        public void setRing(RangeRing ring) {
+            this.ring = ring;
+            populate();
+        }
+
+        /**
+         * Populates the ring's values for display.
+         */
+        private void populate() {
+            enabled.setSelection(ring.isVisible());
+            id.setText(ring.getId());
+            Coordinate center = ring.getCenterCoordinate();
+            lon.setText(String.format(formatLatLon, center.x));
+            lat.setText(String.format(formatLatLon, center.y));
+            radius.setText(String.valueOf(ring.getRadius()));
+            for (int i = 0; i < MOVABLE_LABELS.length; i++) {
+                if (MOVABLE_LABELS[i].equals(ring.getLabel())) {
+                    label.select(i);
+                    break;
+                }
+            }
+        }
+
+        /**
+         * Create the display.
+         */
+        private void init() {
+            int width6 = convertWidthInCharsToPixels(6);
+            int height = convertHeightInCharsToPixels(1);
+            enabled = new Button(parent, SWT.CHECK);
+            enabled.setData(this);
+            enabled.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    Widget w = (Widget) e.getSource();
+                    MovableRingRow row = (MovableRingRow) w.getData();
+                    if (row.ring != null) {
+                        row.ring.setVisible(row.enabled.getSelection());
+                    }
+                }
+            });
+
+            GridData gd = null;
+            id = new Text(parent, SWT.SINGLE | SWT.BORDER);
+            gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
+            gd.minimumHeight = height;
+            gd.minimumWidth = rowIdWidth;
+            id.setLayoutData(gd);
+            id.setData(this);
+            lat = new Text(parent, SWT.SINGLE | SWT.BORDER);
+            gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
+            gd.minimumHeight = height;
+            lat.setLayoutData(gd);
+            lat.setText("-999.000000");
+            int width = lat.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+            lat.setText("");
+            lat.setData(this);
+            lat.setData(isLatKey, true);
+            lat.addVerifyListener(verifyLatLon);
+            gd.minimumWidth = width;
+            lat.setLayoutData(gd);
+            lon = new Text(parent, SWT.SINGLE | SWT.BORDER);
+            gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
+            gd.minimumHeight = height;
+            gd.minimumWidth = width;
+            lon.setLayoutData(gd);
+            lon.setData(this);
+            lon.setData(isLatKey, false);
+            lon.addVerifyListener(verifyLatLon);
+            radius = new Text(parent, SWT.SINGLE | SWT.BORDER);
+            radius.setLayoutData(new GridData(width6, height));
+            radius.setData(this);
+            radius.addVerifyListener(verifyRadius);
+            label = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
+            label.setItems(MOVABLE_LABELS);
+            label.setData(this);
+            label.select(0);
+
+            enabled.addFocusListener(lastActiveListener);
+            id.addFocusListener(lastActiveListener);
+            lat.addFocusListener(lastActiveListener);
+            lon.addFocusListener(lastActiveListener);
+            radius.addFocusListener(lastActiveListener);
+            label.addFocusListener(lastActiveListener);
+        }
+
+        /**
+         * set the rows select state and update the display.
+         * 
+         * @param state
+         */
+        protected void selectRow(boolean state) {
+            Color bgColor = null;
+            if (state) {
+                bgColor = RangeRingDialog.this.getShell().getDisplay()
+                        .getSystemColor(SWT.COLOR_LIST_SELECTION_TEXT);
+            }
+            enabled.setBackground(bgColor);
+            selected = state;
+        }
+
+        /**
+         * Get the row's selected state.
+         * 
+         * @return state
+         */
+        protected boolean isSelected() {
+            return selected;
+        }
+
+        /**
+         * dispose widgets so ring's row is removed from the display.
+         */
         public void dispose() {
             enabled.dispose();
             id.dispose();
@@ -138,41 +386,41 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         }
     }
 
+    /** Place for the movable ring rows. */
     private Composite movableRingsComposite;
 
+    /** Place for fixed ring rows. */
     private Composite fixedRingsComposite;
 
+    /** resource to inform of any changes. */
     private final AbstractResourceData resourceData;
 
+    /** Data tool manager. */
     private ToolsDataManager toolsDataManager = ToolsDataManager.getInstance();
 
+    /** Point manger used to get tools for selecting points. */
     private PointsDataManager pointsDataManager = PointsDataManager
             .getInstance();
 
+    /** List of Fixed rings in the display. */
     private Collection<FixedRingRow> fixedRings = new ArrayList<FixedRingRow>();
 
+    /** List of movable rings in the display. */
     private Collection<MovableRingRow> movableRings = new ArrayList<MovableRingRow>();
 
+    /** The minimum width for movable ring rows. */
     private int rowIdWidth = SWT.DEFAULT;
 
+    /** Point's selection menu. */
     private MenuButton pointsMenuButton;
 
-    public Widget lastActiveWidget;
-
-    private FocusListener lastActiveListener = new FocusListener() {
-
-        @Override
-        public void focusGained(FocusEvent e) {
-            lastActiveWidget = e.widget;
-        }
-
-        @Override
-        public void focusLost(FocusEvent e) {
-            ;// who cares
-        }
-
-    };
-
+    /**
+     * The Constructor.
+     * 
+     * @param parShell
+     * @param abstractResourceData
+     * @throws VizException
+     */
     public RangeRingDialog(Shell parShell,
             AbstractResourceData abstractResourceData) throws VizException {
         super(parShell);
@@ -210,6 +458,11 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         createMovableRingsComposite(topComposite);
     }
 
+    /**
+     * Create display area for fixed rings.
+     * 
+     * @param topComposite
+     */
     private void createFixedRingsComposite(Composite topComposite) {
         GridData gd = null;
         new Label(topComposite, SWT.NONE).setText("Fixed Rings");
@@ -221,7 +474,7 @@ public class RangeRingDialog extends CaveJFACEDialog implements
 
         fixedRingsComposite.setLayout(new GridLayout(6, false));
         // Make all the labels
-        new Label(fixedRingsComposite, SWT.NONE);
+        new Label(fixedRingsComposite, SWT.NONE).setText("Show");
         new Label(fixedRingsComposite, SWT.NONE).setText("ID");
         new Label(fixedRingsComposite, SWT.NONE).setText("Radii");
         new Label(fixedRingsComposite, SWT.NONE).setText("(NM)");
@@ -229,6 +482,11 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         new Label(fixedRingsComposite, SWT.NONE).setText("Labels");
     }
 
+    /**
+     * Create display area for movable rings.
+     * 
+     * @param topComposite
+     */
     private void createMovableRingsComposite(Composite topComposite) {
         new Label(topComposite, SWT.NONE).setText("Movable Rings");
         Composite borderComposite = new Composite(topComposite, SWT.BORDER);
@@ -242,7 +500,7 @@ public class RangeRingDialog extends CaveJFACEDialog implements
 
         movableRingsComposite.setLayout(new GridLayout(6, false));
         // Make all the labels
-        new Label(movableRingsComposite, SWT.NONE);
+        new Label(movableRingsComposite, SWT.NONE).setText("Show");
         new Label(movableRingsComposite, SWT.NONE).setText("ID");
         new Label(movableRingsComposite, SWT.NONE).setText("Lat");
         new Label(movableRingsComposite, SWT.NONE).setText("Lon");
@@ -279,6 +537,9 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         });
     }
 
+    /**
+     * Populate the Point menus button with all the desired points.
+     */
     private void populatePointsMenuButton() {
         Menu menu = new Menu(pointsMenuButton);
         MenuItem mi0 = new MenuItem(menu, SWT.PUSH);
@@ -314,6 +575,12 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         rowIdWidth = pointsMenuButton.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
     }
 
+    /**
+     * Recursive method for populating points keeping the grouping structure.
+     * 
+     * @param menu
+     * @param root
+     */
     private void populatePoints(Menu menu, IPointNode root) {
         for (IPointNode node : pointsDataManager.getChildren(root)) {
             if (!node.isGroup()) {
@@ -331,12 +598,20 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         }
     }
 
+    /**
+     * Add a movable ring row for the desired selection.
+     * 
+     * @param selection
+     */
     private void addMovableRing(String selection) {
+        String id = null;
+        Coordinate loc = null;
+        int radius = 5;
+
         MovableRingRow row = getNewMovableRow();
         row.enabled.setSelection(true);
-        row.radius.setText("5");
+
         if (LATLON.equals(selection)) {
-            String id = null;
             for (int i = movableRings.size(); id == null; i++) {
                 for (MovableRingRow existingRow : movableRings) {
                     id = "R" + i;
@@ -346,129 +621,80 @@ public class RangeRingDialog extends CaveJFACEDialog implements
                     }
                 }
             }
-            row.id.setText(id);
         } else {
-            Coordinate loc = null;
             if (selection.startsWith("Point ")) {
                 String selectedPoint = selection.substring("Point ".length());
                 loc = pointsDataManager.getCoordinate(selectedPoint);
             }
 
             if (loc != null) {
-                row.id.setText(selection);
-                row.lon.setText(String.valueOf(loc.x));
-                row.lat.setText(String.valueOf(loc.y));
+                id = selection;
             } else {
                 for (FixedRingRow fixedRow : fixedRings) {
                     if (fixedRow.ring.getId().equals(selection)) {
-                        row.id.setText(selection);
+                        id = selection;
                         loc = fixedRow.ring.getCenterCoordinate();
-                        row.lon.setText(String.valueOf(loc.x));
-                        row.lat.setText(String.valueOf(loc.y));
                         break;
                     }
                 }
             }
         }
+
+        if (loc == null) {
+            loc = new Coordinate();
+        }
+
+        RangeRing ring = new RangeRing(id, loc, radius, "None", true);
+        row.setRing(ring);
+
         movableRingsComposite.layout(true);
         getShell().pack();
         row.lat.forceFocus();
     }
 
+    /**
+     * Remove the ring of the selected movable ring row.
+     */
     private void deleteMovableRing() {
-        MovableRingRow deletedRow = null;
-        if (lastActiveWidget != null && !lastActiveWidget.isDisposed()) {
-            for (MovableRingRow row : movableRings) {
-                if (row.enabled == lastActiveWidget
-                        || row.id == lastActiveWidget
-                        || row.lat == lastActiveWidget
-                        || row.lon == lastActiveWidget
-                        || row.radius == lastActiveWidget
-                        || row.label == lastActiveWidget) {
-                    deletedRow = row;
-                    break;
+        for (MovableRingRow row : movableRings) {
+            if (row.isSelected()) {
+                row.dispose();
+                movableRings.remove(row);
+                movableRingsComposite.layout(true);
+                getShell().pack();
+                if (!movableRings.isEmpty()) {
+                    movableRings.iterator().next().selectRow(true);
                 }
+                break;
             }
-        } else if (movableRings.size() > 0) {
-            deletedRow = movableRings.iterator().next();
-        }
-        if (deletedRow != null) {
-            deletedRow.dispose();
-            deletedRow.label.dispose();
-            lastActiveWidget = null;
-            movableRings.remove(deletedRow);
-            movableRingsComposite.layout(true);
-            getShell().pack();
         }
     }
 
+    /**
+     * Clear all selection's of removable ring rows.
+     */
+    private void clearMovableRingSelection() {
+        for (MovableRingRow row : movableRings) {
+            row.selectRow(false);
+        }
+    }
+
+    /**
+     * Insert a row for a ring in the Movable Ring composite.
+     * 
+     * @return row
+     */
     private MovableRingRow getNewMovableRow() {
-        final MovableRingRow row = new MovableRingRow();
-        int width6 = convertWidthInCharsToPixels(6);
-        int height = convertHeightInCharsToPixels(1);
-        row.enabled = new Button(movableRingsComposite, SWT.CHECK);
-        row.enabled.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                if (row.ring != null) {
-                    row.ring.setVisible(row.enabled.getSelection());
-                }
-            }
-        });
-
-        GridData gd = null;
-        row.id = new Text(movableRingsComposite, SWT.SINGLE | SWT.BORDER);
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
-        gd.minimumHeight = height;
-        gd.minimumWidth = rowIdWidth;
-        row.id.setLayoutData(gd);
-        row.lat = new Text(movableRingsComposite, SWT.SINGLE | SWT.BORDER);
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
-        gd.minimumHeight = height;
-        row.lat.setLayoutData(gd);
-        row.lat.setText("-999.000000");
-        int width = row.lat.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
-        row.lat.setText("");
-        gd.minimumWidth = width;
-        row.lat.setLayoutData(gd);
-        row.lon = new Text(movableRingsComposite, SWT.SINGLE | SWT.BORDER);
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
-        gd.minimumHeight = height;
-        gd.minimumWidth = width;
-        row.lon.setLayoutData(gd);
-        row.radius = new Text(movableRingsComposite, SWT.SINGLE | SWT.BORDER);
-        row.radius.setLayoutData(new GridData(width6, height));
-        row.label = new Combo(movableRingsComposite, SWT.DROP_DOWN
-                | SWT.READ_ONLY);
-        row.label.setItems(MOVABLE_LABELS);
-        row.label.select(0);
-        row.enabled.addFocusListener(lastActiveListener);
-        row.id.addFocusListener(lastActiveListener);
-        row.lat.addFocusListener(lastActiveListener);
-        row.lon.addFocusListener(lastActiveListener);
-        row.radius.addFocusListener(lastActiveListener);
-        row.label.addFocusListener(lastActiveListener);
-
+        MovableRingRow row = new MovableRingRow(movableRingsComposite);
         movableRings.add(row);
         return row;
     }
 
-    private void fillMovableRow(MovableRingRow row, RangeRing ring) {
-        row.enabled.setSelection(ring.isVisible());
-        row.id.setText(ring.getId());
-        Coordinate center = ring.getCenterCoordinate();
-        row.lon.setText(String.valueOf(center.x));
-        row.lat.setText(String.valueOf(center.y));
-        row.radius.setText(String.valueOf(ring.getRadius()));
-        for (int i = 0; i < MOVABLE_LABELS.length; i++) {
-            if (MOVABLE_LABELS[i].equals(ring.getLabel())) {
-                row.label.select(i);
-                break;
-            }
-        }
-        row.ring = ring;
-    }
-
+    /**
+     * Insert a row for a ring in the Fixed Ring composite.
+     * 
+     * @return row
+     */
     private FixedRingRow getNewFixedRow() {
         int width = convertWidthInCharsToPixels(6);
         int height = convertHeightInCharsToPixels(1);
@@ -492,6 +718,9 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         row.radii[0].setLayoutData(new GridData(width, height));
         row.radii[1].setLayoutData(new GridData(width, height));
         row.radii[2].setLayoutData(new GridData(width, height));
+        row.radii[0].addVerifyListener(verifyRadius);
+        row.radii[1].addVerifyListener(verifyRadius);
+        row.radii[2].addVerifyListener(verifyRadius);
         row.label = new Combo(fixedRingsComposite, SWT.DROP_DOWN
                 | SWT.READ_ONLY);
         row.label.setItems(FIXED_LABELS);
@@ -500,6 +729,12 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         return row;
     }
 
+    /**
+     * Populate the fields of a fixed ring row.
+     * 
+     * @param row
+     * @param ring
+     */
     private void fillFixedRow(FixedRingRow row, RangeRing ring) {
         row.enabled.setSelection(ring.isVisible());
         row.id.setText(ring.getId());
@@ -516,6 +751,9 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         row.ring = ring;
     }
 
+    /**
+     * Clear display and populate from range rings obtained from the manager.
+     */
     private void load() {
         for (FixedRingRow row : fixedRings) {
             row.dispose();
@@ -526,19 +764,28 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         fixedRings.clear();
         movableRings.clear();
         Collection<RangeRing> rangeRings = toolsDataManager.getRangeRings();
+
         for (RangeRing ring : rangeRings) {
             if (ring.getType() == RangeRingType.FIXED) {
                 FixedRingRow row = getNewFixedRow();
                 fillFixedRow(row, ring);
             } else {
                 MovableRingRow row = getNewMovableRow();
-                fillMovableRow(row, ring);
+                row.setRing(ring);
             }
         }
+
+        if (!movableRings.isEmpty()) {
+            movableRings.iterator().next().selectRow(true);
+        }
+
         getShell().layout(true, true);
         getShell().pack();
     }
 
+    /**
+     * Save users range rings to the manager and notify others of the change.
+     */
     private void saveChanges() {
         Collection<RangeRing> rangeRings = new ArrayList<RangeRing>();
         for (FixedRingRow row : fixedRings) {
@@ -556,8 +803,8 @@ public class RangeRingDialog extends CaveJFACEDialog implements
             boolean enabled = row.enabled.getSelection();
             String id = row.id.getText();
             int radius = checkedParseInt(row.radius.getText());
-            double lat = checkedParseDouble(row.lat.getText());
-            double lon = checkedParseDouble(row.lon.getText());
+            double lat = row.ring.getCenterCoordinate().y;
+            double lon = row.ring.getCenterCoordinate().x;
             Coordinate center = new Coordinate(lon, lat);
             String label = row.label.getText();
             rangeRings.add(new RangeRing(id, center, radius, label, enabled));
@@ -567,6 +814,12 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         load();
     }
 
+    /**
+     * Parse string for integer value and return 0 if error in the parsing.
+     * 
+     * @param string
+     * @return value
+     */
     private int checkedParseInt(String string) {
         try {
             return Integer.parseInt(string);
@@ -575,14 +828,13 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         }
     }
 
-    private double checkedParseDouble(String string) {
-        try {
-            return Double.parseDouble(string);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-    }
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.jface.dialogs.Dialog#createButtonsForButtonBar(org.eclipse
+     * .swt.widgets.Composite)
+     */
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
         // override, so can add calculate as default button.
@@ -637,7 +889,7 @@ public class RangeRingDialog extends CaveJFACEDialog implements
             }
             for (MovableRingRow row : movableRings) {
                 if (row.ring.equals(oldRing)) {
-                    fillMovableRow(row, newRing);
+                    row.setRing(newRing);
                 }
             }
             return;
