@@ -157,6 +157,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                      Changes for non-blocking RiverProFcstGrpPointsDlg.
  *                                      Changes for non-blocking RiverProGenParamsDlg.
  *                                      Changes for non-blocking StatesCountiesZonesDlg.
+ *                                      Changes for non-blocking StationFilterOptionsDlg.
+ *                                      Changes for non-blocking FloodReportDlg.
+ *                                      Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -310,6 +313,16 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
     private RiverProFcstGrpPointsDlg riverProFcst;
 
     /**
+     * Allow one instance of the Station Filter Option dialog.
+     */
+    private StationFilterOptionsDlg stationFilterDlg;
+
+    /**
+     * Alllow one instance of the Flood Report Dialog.
+     */
+    private FloodReportDlg floodReportDlg;
+
+    /**
      * Flood category menu item.
      */
     private MenuItem floodCategoryMI;
@@ -427,7 +440,8 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
      *            Dialog title information.
      */
     public HydroBaseDlg(Shell parent, String titleInfo, String selectedLid) {
-        super(parent, SWT.DIALOG_TRIM | SWT.MIN, CAVE.INDEPENDENT_SHELL);
+        super(parent, SWT.DIALOG_TRIM | SWT.MIN, CAVE.INDEPENDENT_SHELL
+                | CAVE.DO_NOT_BLOCK);
         setText("HydroBase on " + titleInfo);
         this.selectedLid = selectedLid;
     }
@@ -1249,8 +1263,12 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         floodReportMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                FloodReportDlg floodReportDlg = new FloodReportDlg(shell);
-                floodReportDlg.open();
+                if (floodReportDlg == null || floodReportDlg.isDisposed()) {
+                    floodReportDlg = new FloodReportDlg(shell);
+                    floodReportDlg.open();
+                } else {
+                    floodReportDlg.bringToTop();
+                }
             }
         });
 
@@ -1265,10 +1283,6 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                 TextReportDlg textReportDlg = new TextReportDlg(shell, lid
                         .substring(0, lid.indexOf(" ")));
                 textReportDlg.open();
-                // MessageBox messageBox = new MessageBox(shell, SWT.OK);
-                // messageBox.setText("Not Yet Implemented");
-                // messageBox.setMessage("This Function Is Not Yet Implemented");
-                // messageBox.open();
             }
         });
     }
@@ -1822,11 +1836,20 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
      * Opens the Station Filter Dialog
      */
     private void openStationFilterOptions() {
-        StationFilterOptionsDlg stationFilterDlg = new StationFilterOptionsDlg(
-                shell);
-        stationFilterDlg.addListener(this);
-        stationFilterDlg.open();
-        stationFilterDlg.removeListener(this);
+        if (stationFilterDlg == null || stationFilterDlg.isDisposed()) {
+            stationFilterDlg = new StationFilterOptionsDlg(shell);
+            stationFilterDlg.addListener(this);
+            stationFilterDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    stationFilterDlg.removeListener(HydroBaseDlg.this);
+                }
+            });
+            stationFilterDlg.open();
+        } else {
+            stationFilterDlg.bringToTop();
+        }
     }
 
     /*
