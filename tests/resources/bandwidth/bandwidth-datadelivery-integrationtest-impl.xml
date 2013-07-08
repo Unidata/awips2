@@ -10,6 +10,11 @@
     <bean id="bandwidthContextFactory"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.IntegrationTestBandwidthContextFactory">
         <constructor-arg ref="hibernateBandwidthDao" />
+        <!-- TODO: Switch to use database bandwidth buckets 
+        <constructor-arg ref="hibernateBandwidthBucketDao" /> -->
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.datadelivery.bandwidth.InMemoryBandwidthBucketDao" />
+        </constructor-arg>
         <constructor-arg ref="bandwidthManagerCreator" />
         <constructor-arg ref="hibernateBandwidthDbInit" />
     </bean>
