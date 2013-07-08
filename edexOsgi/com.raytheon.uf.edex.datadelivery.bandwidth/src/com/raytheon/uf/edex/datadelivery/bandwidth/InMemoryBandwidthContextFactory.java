@@ -26,6 +26,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.datadelivery.bandwidth.InMemoryBandwidthManager.InMemoryBandwidthInitializer;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthContextFactory;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthBucketDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
@@ -45,6 +46,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 24, 2012 1286       djohnson     Initial creation
+ * Jun 24, 2013 2106       djohnson     Add {@link #getBandwidthBucketDao()}.
  * 
  * </pre>
  * 
@@ -61,9 +63,12 @@ class InMemoryBandwidthContextFactory implements BandwidthContextFactory {
 
     private final IBandwidthDao dao = new InMemoryBandwidthDao();
 
+    private final IBandwidthBucketDao bandwidthBucketsDao = new InMemoryBandwidthBucketDao();
+
     private final IBandwidthDbInit dbInit = new InMemoryBandwidthDbInit();
 
     private final BandwidthInitializer initializer = new InMemoryBandwidthInitializer();
+
 
     /**
      * {@inheritDoc}
@@ -157,5 +162,13 @@ class InMemoryBandwidthContextFactory implements BandwidthContextFactory {
             InMemoryBandwidthContextFactory.BANDWIDTH_MAP_CONFIG_FILES
                     .set(null);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IBandwidthBucketDao getBandwidthBucketDao() {
+        return bandwidthBucketsDao;
     }
 }
