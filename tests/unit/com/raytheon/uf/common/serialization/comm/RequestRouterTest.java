@@ -26,7 +26,12 @@ import static org.mockito.Mockito.verify;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.raytheon.uf.common.auth.RequestConstants;
+import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
+import com.raytheon.uf.common.registry.RegistryConstants;
+import com.raytheon.uf.common.util.DeployTestProperties;
 import com.raytheon.uf.common.util.registry.RegistryException;
+import com.raytheon.uf.edex.auth.RemoteServerRequestRouter;
 
 /**
  * Test {@link RequestRouter}.
@@ -39,6 +44,7 @@ import com.raytheon.uf.common.util.registry.RegistryException;
  * ------------ ---------- ----------- --------------------------
  * Nov 14, 2012 1286       djohnson     Initial creation
  * Mar 05, 2013 1754       djohnson     Test that infinite loop for request server does not occur.
+ * Jul 08, 2013 2106       djohnson     Add setDeployInstance().
  * 
  * </pre>
  * 
@@ -59,6 +65,33 @@ public class RequestRouterTest {
     private final IRequestRouter server2Router = mock(IRequestRouter.class);
 
     private final IServerRequest serverRequest = mock(IServerRequest.class);
+
+    /**
+     * Configures the {@link RequestRouter} to route to deployed EDEX instances.
+     */
+    public static void setDeployInstance() {
+        try {
+            RequestRouterTest.clearRegistry();
+
+            final DeployTestProperties deployTestProperties = DeployTestProperties
+                    .getInstance();
+
+            final RemoteServerRequestRouter requestRouter = new RemoteServerRequestRouter(
+                    deployTestProperties.getRequestServer());
+            final RemoteServerRequestRouter dataDeliveryRouter = new RemoteServerRequestRouter(
+                    deployTestProperties.getDataDeliveryServer());
+            RequestRouterTest.register(
+                    DataDeliveryConstants.DATA_DELIVERY_SERVER,
+                    dataDeliveryRouter);
+            RequestRouterTest.register(
+                    RegistryConstants.EBXML_REGISTRY_SERVICE,
+                    dataDeliveryRouter);
+            RequestRouterTest.register(RequestConstants.REQUEST_SERVER,
+                    requestRouter);
+        } catch (RegistryException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * Registers a router for the specified server key.
@@ -118,8 +151,7 @@ public class RequestRouterTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testUnregisteredRouterWillThrowException()
-            throws Exception {
+    public void testUnregisteredRouterWillThrowException() throws Exception {
         RequestRouter.route(serverRequest, "noRegisteredServer");
     }
 
