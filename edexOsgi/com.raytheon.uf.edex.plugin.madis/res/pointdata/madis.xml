@@ -24,7 +24,7 @@
     <parameter name="dataset" numDims="1" type="INT" />
     <parameter name="restriction" numDims="1" type="INT" />
     <parameter name="timeObs" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
-    <parameter name="dewpoint" numDims="1" type="FLOAT" unit="Kelvin" />
+    <parameter name="dewpoint" numDims="1" type="FLOAT" unit="K" />
     <parameter name="dewpoint_qcd" numDims="1" type="STRING" size="1" />
     <parameter name="dewpoint_qca" numDims="1" type="INT" />
     <parameter name="dewpoint_qcr" numDims="1" type="INT" />
@@ -36,7 +36,7 @@
     <parameter name="altimeter_qcd" numDims="1" type="STRING" size="1" />
     <parameter name="altimeter_qca" numDims="1" type="INT" />
     <parameter name="altimeter_qcr" numDims="1" type="INT" />
-    <parameter name="temperature" numDims="1" type="FLOAT" unit="Kelvin" />
+    <parameter name="temperature" numDims="1" type="FLOAT" unit="K" />
     <parameter name="temperature_qcd" numDims="1" type="STRING" size="1" />
     <parameter name="temperature_qca" numDims="1" type="INT" />
     <parameter name="temperature_qcr" numDims="1" type="INT" />
