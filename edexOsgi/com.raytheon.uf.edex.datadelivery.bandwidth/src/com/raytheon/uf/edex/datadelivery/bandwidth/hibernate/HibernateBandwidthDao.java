@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Feb 13, 2013 1543       djohnson     Converted into a service, created new DAOs as required.
  * Jun 03, 2013 2038       djohnson     Add method to get subscription retrievals by provider, dataset, and status.
  * Jun 13, 2013 2095       djohnson     Implement ability to store a collection of subscriptions.
+ * Jun 24, 2013 2106       djohnson     Implement new methods.
  * 
  * </pre>
  * 
@@ -439,6 +440,24 @@ public class HibernateBandwidthDao implements IBandwidthDao {
     public void setBandwidthDataSetUpdateDao(
             IBandwidthDataSetUpdateDao bandwidthDataSetUpdateDao) {
         this.bandwidthDataSetUpdateDao = bandwidthDataSetUpdateDao;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<SubscriptionRetrieval> getSubscriptionRetrievals() {
+        return subscriptionRetrievalDao.getAll();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<BandwidthAllocation> getBandwidthAllocationsForNetworkAndBucketStartTime(
+            Network network, long bucketStartTime) {
+        return bandwidthAllocationDao.getByNetworkAndBucketStartTime(
+                network, bucketStartTime);
     }
 
 }
