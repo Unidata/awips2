@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import com.google.common.eventbus.Subscribe;
@@ -36,6 +37,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * 3/18/2013    1802       bphillip     Event bus registration is now a post-construct operation to ensure proxy is registered with bus
  * 3/13/2013    1802       bphillip     Moved event bus registration from post-construct to spring static method call
  * Jun 13, 2013 2095       djohnson     Can schedule any subclass of BandwidthAllocation.
+ * Jun 25, 2013 2106       djohnson     Copy state from another instance, add ability to check for proposed bandwidth throughput changes.
  * 
  * </pre>
  * 
@@ -233,6 +235,57 @@ public class RetrievalManager {
         synchronized (notifier) {
             statusHandler.info("Waking up retrieval threads");
             notifier.notifyAll();
+        }
+    }
+
+    /**
+     * @param fromRetrievalManager
+     */
+    public void copyState(RetrievalManager fromRetrievalManager) {
+        for (Entry<Network, RetrievalPlan> entry : fromRetrievalManager.retrievalPlans
+                .entrySet()) {
+            final Network network = entry.getKey();
+            final RetrievalPlan fromPlan = entry.getValue();
+            final RetrievalPlan toPlan = this.retrievalPlans.get(network);
+
+            toPlan.copyState(fromPlan);
+        }
+
+    }
+
+    /**
+     * Check whether a change in the bandwidth throughput is being proposed.
+     * 
+     * @param proposedRetrievalManager
+     *            the other retrieval manager with any proposed changes
+     * @return true if a bandwidth throughput change is being proposed
+     */
+    public boolean isProposingBandwidthChanges(
+            RetrievalManager proposedRetrievalManager) {
+        boolean proposingBandwidthChanges = false;
+
+        // If any retrieval plans have a different value for bandwidth, then
+        // return true
+        for (Entry<Network, RetrievalPlan> entry : this.retrievalPlans
+                .entrySet()) {
+            final RetrievalPlan proposedRetrievalPlan = proposedRetrievalManager.retrievalPlans
+                    .get(entry.getKey());
+            if (proposedRetrievalPlan.getDefaultBandwidth() != entry.getValue()
+                    .getDefaultBandwidth()) {
+                proposingBandwidthChanges = true;
+                break;
+            }
+        }
+
+        return proposingBandwidthChanges;
+    }
+
+    /**
+     * Initializes the retrieval plans.
+     */
+    public void initRetrievalPlans() {
+        for (RetrievalPlan retrievalPlan : this.getRetrievalPlans().values()) {
+            retrievalPlan.init();
         }
     }
 }

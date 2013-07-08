@@ -19,12 +19,10 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
-import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthBucketDao;
 
 /**
- * Integration test {@link BandwidthInitializer}.
+ * Test {@link InMemoryBandwidthBucketDao}.
  * 
  * <pre>
  * 
@@ -32,36 +30,18 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 12, 2012 0726       djohnson     Initial creation
- * Apr 16, 2013 1906       djohnson     Implements RegistryInitializedListener.
+ * Jun 19, 2013 2106       djohnson     Initial creation
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
+public class InMemoryBandwidthBucketDaoTest extends
+        AbstractBandwidthBucketDaoTest {
 
-public class IntegrationTestBandwidthInitializer implements
-        BandwidthInitializer {
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public boolean init(IBandwidthManager instance, IBandwidthDbInit dbInit,
-            RetrievalManager retrievalManager) {
-
-        retrievalManager.initRetrievalPlans();
-
-        return true;
+    protected IBandwidthBucketDao getBandwidthBucketDao() {
+        return new InMemoryBandwidthBucketDao();
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void executeAfterRegistryInit() {
-        // Nothing to do
-    }
-
 }

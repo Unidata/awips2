@@ -49,6 +49,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Feb 20, 2013 1543       djohnson     For now assume all in-memory bandwidth managers are WFOs.
  * Feb 27, 2013 1644       djohnson     Schedule SBN subscriptions.
  * Apr 16, 2013 1906       djohnson     Implements RegistryInitializedListener.
+ * Jun 25, 2013 2106       djohnson     init() now takes a {@link RetrievalManager} as well.
  * 
  * </pre>
  * 
@@ -78,7 +79,8 @@ class InMemoryBandwidthManager extends BandwidthManager {
          * {@inheritDoc}
          */
         @Override
-        public boolean init(IBandwidthManager instance, IBandwidthDbInit dbInit) {
+        public boolean init(IBandwidthManager instance,
+                IBandwidthDbInit dbInit, RetrievalManager retrievalManager) {
             BandwidthManager edexBandwidthManager = EdexBandwidthContextFactory
                     .getInstance();
             if (instance instanceof InMemoryBandwidthManager) {

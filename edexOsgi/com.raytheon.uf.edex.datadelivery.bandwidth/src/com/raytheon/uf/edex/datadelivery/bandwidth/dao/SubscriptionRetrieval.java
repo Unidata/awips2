@@ -31,6 +31,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Oct 16, 2012 0726       djohnson    Added explicit length to subSubscription, 
  *                                     made it nullable for single table strategy.
  * Nov 09, 2012 1286       djohnson    Add reference back to owning BandwidthSubscription.
+ * Jun 24, 2013 2106       djohnson    Add copy constructor.
  * 
  * </pre>
  * 
@@ -74,6 +75,33 @@ public class SubscriptionRetrieval extends BandwidthAllocation {
 
     @Transient
     private transient Subscription subscription;
+
+    /**
+     * Constructor.
+     */
+    public SubscriptionRetrieval() {
+    }
+
+    /**
+     * Copy constructor.
+     * 
+     * @param from
+     *            the instance to copy from
+     */
+    public SubscriptionRetrieval(SubscriptionRetrieval from) {
+        super(from);
+        this.setBandwidthSubscription(from.getBandwidthSubscription().copy());
+        this.setDataSetAvailablityDelay(from.dataSetAvailablityDelay);
+        this.setSubscriptionLatency(from.getSubscriptionLatency());
+        this.setSubsumedBy(from.getSubsumedBy());
+
+        if (from.subSubscription != null) {
+            final int srcLength = from.subSubscription.length;
+            this.subSubscription = new byte[srcLength];
+            System.arraycopy(from.subSubscription, 0, this.subSubscription, 0,
+                    srcLength);
+        }
+    }
 
     /**
      * @return the dataSetAvailablityDelay
@@ -191,5 +219,13 @@ public class SubscriptionRetrieval extends BandwidthAllocation {
     @Deprecated
     public void setSubSubscription(byte[] subSubscription) {
         this.subSubscription = subSubscription;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SubscriptionRetrieval copy() {
+        return new SubscriptionRetrieval(this);
     }
 }

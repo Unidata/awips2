@@ -47,6 +47,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Oct 23, 2012 1286       djohnson     Initial creation
  * Jun 03, 2013 2038       djohnson     Add method to get subscription retrievals by provider, dataset, and status.
  * Jun 13, 2013 2095       djohnson     Implement ability to store a collection of subscriptions.
+ * Jun 24, 2013 2106       djohnson     Add more methods.
  * 
  * </pre>
  * 
@@ -415,4 +416,24 @@ public interface IBandwidthDao {
      */
     List<BandwidthAllocation> getBandwidthAllocationsInState(
             RetrievalStatus state);
+
+    /**
+     * Get all {@link SubscriptionRetrieval} instances.
+     * 
+     * @return the retrievals
+     */
+    List<SubscriptionRetrieval> getSubscriptionRetrievals();
+
+    /**
+     * Get {@link BandwidthAllocation}s for the specified network and start
+     * time.
+     * 
+     * @param network
+     *            the network
+     * @param bucketStartTime
+     *            the bucket start time
+     * @return the allocations
+     */
+    List<BandwidthAllocation> getBandwidthAllocationsForNetworkAndBucketStartTime(
+            Network network, long bucketStartTime);
 }

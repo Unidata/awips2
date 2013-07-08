@@ -68,6 +68,7 @@ import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
@@ -81,7 +82,6 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthRoute;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.SubscriptionRetrievalFulfilled;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
@@ -121,6 +121,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jun 13, 2013 2095       djohnson     Improve bandwidth manager speed, and add performance logging.
  * Jun 18, 2013 2120       dhladky      Add times to pointtime array
  * Jun 20, 2013 1802       djohnson     Check several times for the metadata for now.
+ * Jun 24, 2013 2106       djohnson     Access BandwidthBucket contents through RetrievalPlan.
  * </pre>
  * 
  * @author dhladky
@@ -1227,7 +1228,7 @@ public abstract class BandwidthManager extends
             long bucketId = request.getId();
             RetrievalPlan plan = retrievalManager.getPlan(requestNetwork);
             BandwidthBucket bucket = plan.getBucket(bucketId);
-            response = bucket.showReservations();
+            response = plan.showBucket(bucket);
             break;
 
         case SHOW_DEFERRED:
@@ -1614,7 +1615,7 @@ public abstract class BandwidthManager extends
      */
     @Override
     public void init() {
-        initializer.init(this, dbInit);
+        initializer.init(this, dbInit, retrievalManager);
     }
 
     /**
@@ -1669,28 +1670,52 @@ public abstract class BandwidthManager extends
      * {@inheritDoc}
      */
     public List<BandwidthAllocation> copyState(BandwidthManager copyFrom) {
+        IPerformanceTimer timer = TimeUtil.getPerformanceTimer();
+        timer.start();
+        List<BandwidthAllocation> unscheduled = Collections.emptyList();
         IBandwidthDao fromDao = copyFrom.bandwidthDao;
 
-        Set<Subscription> actualSubscriptions = new HashSet<Subscription>();
-        for (BandwidthSubscription subscription : fromDao
-                .getBandwidthSubscriptions()) {
-            try {
-                Subscription actualSubscription = subscription
-                        .getSubscription();
-                actualSubscriptions.add(actualSubscription);
-            } catch (SerializationException e) {
-                statusHandler
-                        .handle(Priority.PROBLEM,
-                                "Unable to deserialize a subscription, results may not be accurate for modeling bandwidth changes.",
-                                e);
+        final boolean proposingBandwidthChange = retrievalManager
+                .isProposingBandwidthChanges(copyFrom.retrievalManager);
+        if (proposingBandwidthChange) {
+
+            retrievalManager.initRetrievalPlans();
+
+            // Proposing bandwidth changes requires the old way of bringing up a
+            // fresh bandwidth manager and trying the change from scratch
+            unscheduled = Lists.newArrayList();
+            Set<Subscription> actualSubscriptions = new HashSet<Subscription>();
+            for (BandwidthSubscription subscription : fromDao
+                    .getBandwidthSubscriptions()) {
+                try {
+                    Subscription actualSubscription = subscription
+                            .getSubscription();
+                    actualSubscriptions.add(actualSubscription);
+                } catch (SerializationException e) {
+                    statusHandler
+                            .handle(Priority.PROBLEM,
+                                    "Unable to deserialize a subscription, results may not be accurate for modeling bandwidth changes.",
+                                    e);
+                }
             }
+
+            // Now for each subscription, attempt to schedule bandwidth
+            for (Subscription subscription : actualSubscriptions) {
+                unscheduled.addAll(this.schedule(subscription));
+            }
+        } else {
+            // Otherwise we can just copy the entire state of the current system
+            // and attempt the proposed changes
+            bandwidthDao.storeBandwidthSubscriptions(fromDao
+                    .getBandwidthSubscriptions());
+            bandwidthDao.store(fromDao.getSubscriptionRetrievals());
+
+            RetrievalManager fromRetrievalManager = copyFrom.retrievalManager;
+            this.retrievalManager.copyState(fromRetrievalManager);
         }
 
-        // Now for each subscription, attempt to schedule bandwidth
-        List<BandwidthAllocation> unscheduled = new ArrayList<BandwidthAllocation>();
-        for (Subscription subscription : actualSubscriptions) {
-            unscheduled.addAll(this.schedule(subscription));
-        }
+        timer.stop();
+        timer.logLaps("copyingState()", performanceHandler);
 
         return unscheduled;
     }

@@ -17,14 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.datadelivery.bandwidth;
-
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
-import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
+package com.raytheon.uf.common.util;
 
 /**
- * Integration test {@link BandwidthInitializer}.
+ * Interface that denotes a class provides a copy method.
  * 
  * <pre>
  * 
@@ -32,8 +28,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 12, 2012 0726       djohnson     Initial creation
- * Apr 16, 2013 1906       djohnson     Implements RegistryInitializedListener.
+ * Jun 18, 2013 2106       djohnson     Initial creation
  * 
  * </pre>
  * 
@@ -41,27 +36,11 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
  * @version 1.0
  */
 
-public class IntegrationTestBandwidthInitializer implements
-        BandwidthInitializer {
-
+public interface IDeepCopyable<T> {
     /**
-     * {@inheritDoc}
+     * Creates a deep copy of the object.
+     * 
+     * @return the copy
      */
-    @Override
-    public boolean init(IBandwidthManager instance, IBandwidthDbInit dbInit,
-            RetrievalManager retrievalManager) {
-
-        retrievalManager.initRetrievalPlans();
-
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void executeAfterRegistryInit() {
-        // Nothing to do
-    }
-
+    T copy();
 }

@@ -28,6 +28,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthContextFactory;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthBucketDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
@@ -78,6 +79,8 @@ public class EdexBandwidthContextFactory implements BandwidthContextFactory {
 
     private final IBandwidthDao bandwidthDao;
 
+    private final IBandwidthBucketDao bandwidthBucketDao;
+
     private final BandwidthInitializer bandwidthInitializer;
 
     private final IEdexBandwidthManagerCreator bandwidthManagerCreator;
@@ -92,10 +95,12 @@ public class EdexBandwidthContextFactory implements BandwidthContextFactory {
      * @param findSubscriptionStrategy
      */
     EdexBandwidthContextFactory(IBandwidthDao bandwidthDao,
+            IBandwidthBucketDao bandwidthBucketDao,
             BandwidthInitializer bandwidthInitializer,
             IEdexBandwidthManagerCreator bandwidthManagerCreator,
             IBandwidthDbInit dbInit) {
         this.bandwidthDao = bandwidthDao;
+        this.bandwidthBucketDao = bandwidthBucketDao;
         this.bandwidthInitializer = bandwidthInitializer;
         this.bandwidthManagerCreator = bandwidthManagerCreator;
         this.dbInit = dbInit;
@@ -112,6 +117,7 @@ public class EdexBandwidthContextFactory implements BandwidthContextFactory {
     EdexBandwidthContextFactory(BandwidthManager instance) {
         EdexBandwidthContextFactory.instance = instance;
         this.bandwidthDao = null;
+        this.bandwidthBucketDao = null;
         this.bandwidthInitializer = null;
         this.bandwidthManagerCreator = null;
         this.dbInit = null;
@@ -170,6 +176,14 @@ public class EdexBandwidthContextFactory implements BandwidthContextFactory {
     @Override
     public IBandwidthDao getBandwidthDao() {
         return bandwidthDao;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IBandwidthBucketDao getBandwidthBucketDao() {
+        return bandwidthBucketDao;
     }
 
     /**
