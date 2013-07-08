@@ -75,6 +75,8 @@ import com.raytheon.uf.common.util.FileUtil;
  *                                     Updated purgeExpiredFromArchive to check time of files in
  *                                     directory before purging them.
  *                                     Added null check for topLevelDirs in purgeExpiredFromArchive.
+ *                                     Changed to use File.delete() instead of Apache FileUtil.deleteQuietly().
+ *                                     Added warn logging for failure to delete.
  * 
  * </pre>
  * 
@@ -325,8 +327,12 @@ public class ArchiveConfigManager {
         Collection<File> filesPurged = new ArrayList<File>();
 
         if (fileToPurge.isFile() && filter.accept(fileToPurge)) {
-            filesPurged.add(fileToPurge);
-            FileUtils.deleteQuietly(fileToPurge);
+            if (fileToPurge.delete()) {
+                filesPurged.add(fileToPurge);
+            } else {
+                statusHandler.warn("Failed to purge file: "
+                        + fileToPurge.getAbsolutePath());
+            }
         } else if (fileToPurge.isDirectory()) {
             Collection<File> expiredFilesInDir = FileUtils.listFiles(
                     fileToPurge, filter, FileFilterUtils.trueFileFilter());
@@ -339,7 +345,10 @@ public class ArchiveConfigManager {
             // delete it
             if (fileToPurge.list().length == 0
                     && !fileToPurge.getAbsolutePath().equals(archiveRootDir)) {
-                FileUtils.deleteQuietly(fileToPurge);
+                if (!fileToPurge.delete()) {
+                    statusHandler.warn("Failed to purge directory: "
+                            + fileToPurge.getAbsolutePath());
+                }
             }
         }
         return filesPurged;
