@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.edex.database.init.DbInit;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 
 /**
@@ -40,6 +41,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
  * Jul 31, 2012 726         jspinks     Copied and refactored from ebxml registry DbInit
  * Oct 26, 2012 1286        djohnson    Renamed to Hibernate specific.
  * Apr 30, 2013 1960        djohnson    Extend the generalized DbInit.
+ * Jun 24, 2013 2106        djohnson    Add {@link BandwidthBucket} to annotated classes.
  * </pre>
  * 
  * @author jspinks
@@ -72,6 +74,7 @@ public class HibernateBandwidthDbInit extends DbInit implements
          * this Hibernate SessionFactory is aware of
          */
         AnnotationConfiguration aConfig = new AnnotationConfiguration();
+        aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket.class);
         aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate.class);
         aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription.class);
         aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval.class);
