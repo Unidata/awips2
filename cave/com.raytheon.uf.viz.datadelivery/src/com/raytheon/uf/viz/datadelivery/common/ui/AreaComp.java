@@ -734,8 +734,8 @@ public class AreaComp extends Composite implements ISubset {
             // the dialog should always use an envelope in the same crs as the
             // data.
             try {
-                dlgEnvelope = MapUtil.reprojectAndIntersect(fullEnvelope,
-                        dlgEnvelope);
+                dlgEnvelope = MapUtil.reprojectAndIntersect(dlgEnvelope,
+                        fullEnvelope);
             } catch (TransformException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
