@@ -23,6 +23,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.junit.Ignore;
+
+import com.raytheon.uf.common.auth.RequestConstants;
+import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
+
 /**
  * Configuration for deploy tests.
  * 
@@ -34,12 +39,14 @@ import java.util.Properties;
  * ------------ ---------- ----------- --------------------------
  * Sep 14, 2012 1169       djohnson     Initial creation
  * Dec 06, 2012 1397       djohnson     Also set the request server.
+ * Jul 08, 2013 2106       djohnson     Add @Ignore, use constants.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
+@Ignore
 public final class DeployTestProperties {
 
     private static volatile DeployTestProperties INSTANCE;
@@ -57,8 +64,9 @@ public final class DeployTestProperties {
      */
     private DeployTestProperties(Properties properties) {
         this.dataDeliveryServer = properties
-                .getProperty("datadelivery.server");
-        this.requestServer = properties.getProperty("request.server");
+                .getProperty(DataDeliveryConstants.DATA_DELIVERY_SERVER);
+        this.requestServer = properties
+                .getProperty(RequestConstants.REQUEST_SERVER);
         this.userId = properties.getProperty("user.id");
     }
 
@@ -117,4 +125,5 @@ public final class DeployTestProperties {
         }
         return result;
     }
+
 }
