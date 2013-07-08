@@ -82,6 +82,7 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
  * Feb 24, 2013   1620     mpduff       Fixed set clean issue when loading configurations.  Set clean 
  *                                      needs to be called after the data load job is complete.
  * May 15, 2013   1040     mpduff       Called markNotBusyInUIThread.
+ * Jul 05, 2013   2138     mpduff       Fixed to not use filter if filter is disabled.
  * 
  * </pre>
  * 
@@ -101,17 +102,10 @@ public class FilterExpandBar extends Composite implements IFilterUpdate,
      */
     private FilterImages filterImgs;
 
-    // private String dataType;
-
     /**
      * Dialog that will enable or disable a filter.
      */
     private EnableFilterDlg enableFilterDlg = null;
-
-    /**
-     * Controls for the expand bar.
-     */
-    // private ExpandBarControls expandBarControls;
 
     private DataTypeFilterXML dataTypeFilterXml;
 
@@ -676,17 +670,19 @@ public class FilterExpandBar extends Composite implements IFilterUpdate,
             Control control = item.getControl();
             if (control instanceof FilterComp) {
                 FilterComp fc = (FilterComp) control;
-                String[] selectedItems = fc.getSelectedListItems();
-                ArrayList<String> values = new ArrayList<String>();
-                for (String selectedItem : selectedItems) {
-                    values.add(selectedItem);
-                }
-                String type = item.getText();
-                FilterTypeXML ftx = new FilterTypeXML();
-                ftx.setFilterType(type);
-                ftx.setValues(values);
+                if (fc.isEnabled()) {
+                    String[] selectedItems = fc.getSelectedListItems();
+                    ArrayList<String> values = new ArrayList<String>();
+                    for (String selectedItem : selectedItems) {
+                        values.add(selectedItem);
+                    }
+                    String type = item.getText();
+                    FilterTypeXML ftx = new FilterTypeXML();
+                    ftx.setFilterType(type);
+                    ftx.setValues(values);
 
-                filterSettingsXml.addFilterType(ftx);
+                    filterSettingsXml.addFilterType(ftx);
+                }
             }
         }
         // return filterSettingsXml;
