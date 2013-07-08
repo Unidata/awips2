@@ -35,20 +35,15 @@ import javax.measure.quantity.Velocity;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
+import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
@@ -75,6 +70,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 15, 2013 1658       djohnson    Add sequence.
  * May 16, 2013 753        dhladky     Restored dataUri as unique key
  * June 03, 2013 1763      dhladky     Added ValMap lookups for QCD
+ * July 08, 2013  2171     dhladky     Removed dataURI
  * </pre>
  * 
  * @author dhladky
@@ -83,34 +79,29 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "madisseq")
-@Table(name = "madis")
+@Table(name = "madis", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "location", "refTime", "provider", "subProvider", "restriction" }) })
 
 @org.hibernate.annotations.Table(
         appliesTo = "madis",
         indexes = {
                 @Index(name = "madis_wfsQueryIndex", columnNames = { "refTime", "location" }),
-                @Index(name = "madis_uriIndex", columnNames = { "dataURI" })
         }
 )
 
-
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class MadisRecord extends PersistablePluginDataObject implements
         ISpatialEnabled, IDecoderGettable, IPointData {
-    
+
     private static final long serialVersionUID = -2234739310998758367L;
-        
+
     /** A string denoting the provider network */
-    @XmlElement
     @DynamicSerializeElement
     @Column
     @DataURI(position = 1)
     protected String provider;
 
     /** A string denoting the sub provider */
-    @XmlElement
     @DynamicSerializeElement
     @Column
     @DataURI(position = 2)
@@ -118,293 +109,240 @@ public class MadisRecord extends PersistablePluginDataObject implements
     
     @Embedded
     @DataURI(position = 3, embedded = true)
-    @XmlElement
     @DynamicSerializeElement
     private SurfaceObsLocation location;
     
     /** An integer denoting the dataset */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int dataset;
     
     /** An integer denoting the restriction level */
-    @XmlElement
     @DynamicSerializeElement
     @Column
     @DataURI(position = 4)
     private int restriction;
     
     /** A string denoting the time of observation */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private Date timeObs;
     
     /** A float denoting the dewpoint temp */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private float dewpoint = -99999;
     
     /** A QCD denoting the dewpoint quality */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private QCD dewpoint_qcd = QCD.MISSING;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int dewpoint_qca = -99999;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int dewpoint_qcr = -99999;
         
     /** A float denoting the relative humidity */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private float rh = -99999;
     
     /** A string denoting the provider sub network */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private QCD rh_qcd = QCD.MISSING;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int rh_qca = -99999;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int rh_qcr = -99999;
     
     /** A float denoting the altimeter */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private float altimeter = -99999;
     
     /** A QCD denoting the altimeter quality */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private QCD altimeter_qcd = QCD.MISSING;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int altimeter_qca = -99999;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int altimeter_qcr = -99999;
     
     /** A float denoting the temperature */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private float temperature = -99999;
     
     /** A QCD denoting the temperature quality */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private QCD temperature_qcd = QCD.MISSING;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int temperature_qca = -99999;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int temperature_qcr = -99999;
     
     /** An int denoting the windDirection */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int windDirection = -99999;
     
     /** A QCD denoting the wind Direction quality */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private QCD windDirection_qcd = QCD.MISSING;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int windDirection_qca = -99999;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int windDirection_qcr = -99999;
     
     /** A QCD denoting the altimeter quality */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private QCD elevation_qcd = QCD.MISSING;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int elevation_qca = -99999;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int elevation_qcr = -99999;
     
     /** A QCD denoting the latitude quality */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private QCD latitude_qcd = QCD.MISSING;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int latitude_qca = -99999;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int latitude_qcr = -99999;
     
     /** A QCD denoting the longitude quality */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private QCD longitude_qcd = QCD.MISSING;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int longitude_qca = -99999;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int longitude_qcr = -99999;
             
     /** A float denoting the preciprate */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private float precipRate = -99999;
     
     /** A QCD denoting the preciprate quality */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private QCD precipRate_qcd = QCD.MISSING;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int precipRate_qca = -99999;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int precipRate_qcr = -99999;
 
     /** A float denoting the wind speed */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private float windSpeed = -99999;
     
     /** A QCD denoting the windSpeed(wind) quality */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private QCD windSpeed_qcd = QCD.MISSING;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int windSpeed_qca = -99999;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int windSpeed_qcr = -99999;
     
     /** A float denoting the windSpeedgust(wind) */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private float windGust = -99999;
     
     /** A QCD denoting the windSpeedgust(wind) quality */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private QCD windGust_qcd = QCD.MISSING;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int windGust_qca = -99999;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int windGust_qcr = -99999;
     
     /** A float denoting the precipitalWater */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private float precipitalWater = -99999;
     
     /** A QCD denoting the precipitalWater */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private QCD precipitalWater_qcd = QCD.MISSING;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int precipitalWater_qca = -99999;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int precipitalWater_qcr = -99999;
     
     /** A float denoting the pressure */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private float pressure = -99999;
     
     /** A QCD denoting the precipitalWater */
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private QCD pressure_qcd = QCD.MISSING;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int pressure_qca = -99999;
     
-    @XmlElement
     @DynamicSerializeElement
     @Transient
     private int pressure_qcr = -99999;
@@ -1172,122 +1110,36 @@ public class MadisRecord extends PersistablePluginDataObject implements
     public String getStationId() {
         return location.getStationId();
     }
+        
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((getDataURI() == null) ? 0 : getDataURI().hashCode());
+        return result;
+    }
     
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
-        
         if (obj == null) {
             return false;
         }
-        
         if (getClass() != obj.getClass()) {
             return false;
         }
-        
-        final MadisRecord other = (MadisRecord) obj;
-       
-        if (provider == null) {
-            if (other.provider != null) {
+        MadisRecord other = (MadisRecord) obj;
+        if (getDataURI() == null) {
+            if (other.getDataURI() != null) {
                 return false;
             }
-        } 
-        
-        if (!subProvider.equals(other.subProvider)) {
+        } else if (!getDataURI().equals(other.getDataURI())) {
             return false;
         }
-        
-        if (dataset != other.dataset) {
-            return false;
-        }
-                
-        if (restriction != other.restriction) {
-            return false;
-        }
-        
-        if (dewpoint != other.dewpoint) {
-            return false;
-        }
-        
-        if (rh != other.rh) {
-            return false;
-        }
-        
-        if (temperature != other.temperature) {
-            return false;
-        }
-        
-        if (altimeter != other.altimeter) {
-            return false;
-        }
-        
-        if (getStationId() == null) {
-            if (other.getStationId() != null) {
-                return false;
-            }
-        } else if (!getStationId().equals(other.getStationId())) {
-            return false;
-        }
-
-        Double lat = location.getLatitude();
-        if (lat == null) {
-            if (other.location.getLatitude() != null) {
-                return false;
-            }
-        } else {
-            if (!lat.equals(other.location.getLatitude())) {
-                return false;
-            }
-        }
-        Double lon = location.getLongitude();
-        if (lon == null) {
-            if (other.location.getLongitude() != null) {
-                return false;
-            }
-        } else {
-            if (!lon.equals(other.location.getLongitude())) {
-                return false;
-            }
-        }
-        
-        if (timeObs == null) {
-            if (other.timeObs != null) {
-                return false;
-            }
-        } else if (!timeObs.equals(other.timeObs)) {
-            return false;
-        }
-        
-        if (windDirection != other.windDirection) {
-            return false;
-        }
-        
-        if (windGust != other.windGust) {
-            return false;
-        }
-        
-        if (windSpeed != other.windSpeed) {
-            return false;
-        }
-        
-        if (precipitalWater != other.precipitalWater) {
-            return false;
-        }
-        
-        if (precipRate != other.precipRate) {
-            return false;
-        }
-        
         return true;
-    }
-    
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
     }
 
 }
