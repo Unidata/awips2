@@ -23,6 +23,7 @@ import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.util.IDeepCopyable;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
@@ -37,6 +38,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 12, 2012 0726       djohnson     Add SW history, use string version of enum.
+ * Jun 24, 2013 2106       djohnson     Add copy constructor.
  * 
  * </pre>
  * 
@@ -51,7 +53,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 @DynamicSerialize
 @SequenceGenerator(name = "BANDWIDTH_SEQ", sequenceName = "bandwidth_seq", allocationSize = 1, initialValue = 1)
 public class BandwidthAllocation implements IPersistableDataObject<Long>,
-        ISerializableObject, Serializable {
+        ISerializableObject, Serializable, IDeepCopyable<BandwidthAllocation> {
 
     private static final long serialVersionUID = 743702044231376839L;
 
@@ -115,6 +117,39 @@ public class BandwidthAllocation implements IPersistableDataObject<Long>,
         this.network = request.getNetwork();
         this.estimatedSize = size;
         this.bandwidthBucket = request.getBandwidthBucket();
+    }
+
+    /**
+     * Copy constructor.
+     * 
+     * @param from
+     */
+    public BandwidthAllocation(BandwidthAllocation from) {
+        final Calendar fromActualEnd = from.getActualEnd();
+        if (fromActualEnd != null) {
+            this.setActualEnd(BandwidthUtil.copy(fromActualEnd));
+        }
+        final Calendar fromActualStart = from.getActualStart();
+        if (fromActualStart != null) {
+            this.setActualStart(BandwidthUtil.copy(fromActualStart));
+        }
+        final Calendar fromStartTime = from.getStartTime();
+        if (fromStartTime != null) {
+            this.setStartTime(BandwidthUtil.copy(fromStartTime));
+        }
+        final Calendar fromEndTime = from.getEndTime();
+        if (fromEndTime != null) {
+            this.setEndTime(BandwidthUtil.copy(fromEndTime));
+        }
+
+        this.setAgentType(from.getAgentType());
+        this.setBandwidthBucket(from.getBandwidthBucket());
+        this.setEstimatedSize(from.getEstimatedSize());
+        this.setId(from.getId());
+        this.setIdentifier(from.getIdentifier());
+        this.setNetwork(from.getNetwork());
+        this.setPriority(from.getPriority());
+        this.setStatus(from.getStatus());
     }
 
     /**
@@ -308,6 +343,14 @@ public class BandwidthAllocation implements IPersistableDataObject<Long>,
     public boolean isHigherPriorityThan(BandwidthAllocation other) {
         // A lower priority value means it's higher priority
         return this.getPriority() < other.getPriority();
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public BandwidthAllocation copy() {
+        return new BandwidthAllocation(this);
     }
 
 }
