@@ -116,6 +116,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * May 20, 2013 1650       djohnson     Add in capability to find required dataset size.
  * Jun 03, 2013 2038       djohnson     Add base functionality to handle point data type subscriptions.
  * Jun 20, 2013 1802       djohnson     Check several times for the metadata for now.
+ * Jul 09, 2013 2038       djohnson     Correct unregisterFromBandwidthEventBus() to actually do it.
  * </pre>
  * 
  * @author dhladky
@@ -1692,7 +1693,7 @@ public abstract class BandwidthManager extends
      * Unregister from the {@link BandwidthEventBus}.
      */
     private void unregisterFromBandwidthEventBus() {
-        BandwidthEventBus.register(this);
+        BandwidthEventBus.unregister(this);
     }
 
     /**
