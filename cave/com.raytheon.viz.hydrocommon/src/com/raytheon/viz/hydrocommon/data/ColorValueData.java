@@ -24,7 +24,7 @@ import java.util.Map;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
 
 /**
- * TODO Add Description
+ * A sub-class of HydroDBData for handling data for color values.
  * 
  * <pre>
  * 
@@ -32,6 +32,7 @@ import com.raytheon.uf.common.dataquery.db.QueryResultRow;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 10, 2008            mschenke     Initial creation
+ * Jul 01, 2013 2088       rferrel     Part of non-blocking dialogs fixed Comparable.
  * 
  * </pre>
  * 
@@ -40,7 +41,7 @@ import com.raytheon.uf.common.dataquery.db.QueryResultRow;
  */
 
 public class ColorValueData extends HydroDBData implements IHydroDBData,
-        Comparable {
+        Comparable<ColorValueData> {
 
     private static final String databaseName = "colorvalue";
 
@@ -107,17 +108,34 @@ public class ColorValueData extends HydroDBData implements IHydroDBData,
         setColorName(getDBValue("color_name", data, dataMap, ""));
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.hydrocommon.data.IHydroDBData#getConstrainedSelectStatement
+     * ()
+     */
     @Override
     public String getConstrainedSelectStatement() {
         return String.format(constSelectStmtString, userId, applicationName,
                 colorUseName, duration);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrocommon.data.IHydroDBData#getDeleteStatement()
+     */
     @Override
     public String getDeleteStatement() {
         return String.format(deleteStmtString, getPKStatement());
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrocommon.data.IHydroDBData#getExistsStatement()
+     */
     @Override
     public String getExistsStatement() {
         return String.format(existsStmtString, getPKStatement());
@@ -130,17 +148,32 @@ public class ColorValueData extends HydroDBData implements IHydroDBData,
                 colorName);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrocommon.data.IHydroDBData#getPKStatement()
+     */
     @Override
     public String getPKStatement() {
         return String.format(pkStmtString, userId, applicationName,
                 colorUseName, duration, thresholdValue);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrocommon.data.IHydroDBData#getSelectStatement()
+     */
     @Override
     public String getSelectStatement() {
         return selectStmtString;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.hydrocommon.data.IHydroDBData#getUpdateStatement()
+     */
     @Override
     public String getUpdateStatement() {
         return String.format(updateStmtString, userId, applicationName,
@@ -204,17 +237,16 @@ public class ColorValueData extends HydroDBData implements IHydroDBData,
         this.colorName = colorName;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
     @Override
-    public int compareTo(Object o) {
-        if (o instanceof ColorValueData) {
-            double l = Double.parseDouble(getThresholdValue());
-            double r = Double.parseDouble(((ColorValueData) o)
-                    .getThresholdValue());
-            if (l > r) {
-                return 1;
-            }
-        }
-        return 0;
+    public int compareTo(ColorValueData o) {
+        Double left = new Double(getThresholdValue());
+        Double right = new Double(o.getThresholdValue());
+        return left.compareTo(right);
     }
 
 }
