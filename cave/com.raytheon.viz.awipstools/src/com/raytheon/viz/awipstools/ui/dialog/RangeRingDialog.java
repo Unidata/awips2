@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
@@ -49,7 +50,10 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
+import org.geotools.measure.Latitude;
+import org.geotools.measure.Longitude;
 
+import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
@@ -127,30 +131,53 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         @Override
         public void verifyText(VerifyEvent e) {
             Text text = (Text) e.getSource();
-            RangeRing ring = ((MovableRingRow) text.getData()).ring;
+            MovableRingRow row = (MovableRingRow) text.getData();
+            RangeRing ring = row.ring;
             boolean isLat = (Boolean) text.getData(isLatKey);
 
             if (ring == null) {
                 return;
             }
 
+            // Setup the purposed editing changes to the text.
             StringBuilder sb = new StringBuilder(text.getText());
             sb.replace(e.start, e.end, e.text);
-            if (sb.length() > 0) {
+            if (sb.length() == 0) {
+                // Empty string value.
+                if (isLat) {
+                    row.latitude = 0.0;
+                } else {
+                    row.longitude = 0.0;
+                }
+            } else {
                 try {
                     double value = Double.parseDouble(sb.toString());
-                    Coordinate coord = ring.getCenterCoordinate();
+                    // Valid double keep for updates.
                     if (isLat) {
-                        coord.y = value;
+                        row.latitude = value;
                     } else {
-                        coord.x = value;
+                        row.longitude = value;
                     }
-                    ring.setCenterCoordinate(coord);
                 } catch (NumberFormatException ex) {
-                    if (sb.length() != 1) {
-                        e.doit = false;
-                    } else {
+                    // Allow parse error when it may be the start of a
+                    // valid double.
+                    if (sb.length() == 1) {
+                        // Single character is '+', '-' or '.'.
                         e.doit = "+-.".contains(sb);
+                    } else if (sb.length() == 2) {
+                        e.doit = (sb.indexOf("+.") == 0)
+                                || (sb.indexOf("-.") == 0);
+                    } else {
+                        e.doit = false;
+                    }
+
+                    // Treat like an empty string.
+                    if (e.doit) {
+                        if (isLat) {
+                            row.latitude = 0.0;
+                        } else {
+                            row.longitude = 0.0;
+                        }
                     }
                 }
             }
@@ -205,9 +232,9 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         public void dispose() {
             enabled.dispose();
             id.dispose();
-            radii[0].dispose();
-            radii[1].dispose();
-            radii[2].dispose();
+            for (Text text : radii) {
+                text.dispose();
+            }
             label.dispose();
         }
     }
@@ -247,6 +274,19 @@ public class RangeRingDialog extends CaveJFACEDialog implements
          */
         private Composite parent;
 
+        // WARNING Use these to validate the coordinate instead of modifying the
+        // row ring's center coordinate. Modifying the center coordinate makes
+        // changes that impact the perspective the next time it is refreshed.
+        // Thus negating the cancel button. Cloning the ring will break the
+        // connection with the perspective. So moving a ring on the perspective
+        // will not update the lat/lon on the dialog.
+
+        /** Current double value in the lat field. */
+        public double latitude;
+
+        /** Current double value in the lon field. */
+        public double longitude;
+
         /**
          * Constructor.
          * 
@@ -276,7 +316,9 @@ public class RangeRingDialog extends CaveJFACEDialog implements
             id.setText(ring.getId());
             Coordinate center = ring.getCenterCoordinate();
             lon.setText(String.format(formatLatLon, center.x));
+            longitude = center.x;
             lat.setText(String.format(formatLatLon, center.y));
+            latitude = center.y;
             radius.setText(String.valueOf(ring.getRadius()));
             for (int i = 0; i < MOVABLE_LABELS.length; i++) {
                 if (MOVABLE_LABELS[i].equals(ring.getLabel())) {
@@ -711,16 +753,14 @@ public class RangeRingDialog extends CaveJFACEDialog implements
                 row.ring.setVisible(row.enabled.getSelection());
             }
         });
+
         row.id = new Label(fixedRingsComposite, SWT.NONE);
-        row.radii[0] = new Text(fixedRingsComposite, SWT.SINGLE | SWT.BORDER);
-        row.radii[1] = new Text(fixedRingsComposite, SWT.SINGLE | SWT.BORDER);
-        row.radii[2] = new Text(fixedRingsComposite, SWT.SINGLE | SWT.BORDER);
-        row.radii[0].setLayoutData(new GridData(width, height));
-        row.radii[1].setLayoutData(new GridData(width, height));
-        row.radii[2].setLayoutData(new GridData(width, height));
-        row.radii[0].addVerifyListener(verifyRadius);
-        row.radii[1].addVerifyListener(verifyRadius);
-        row.radii[2].addVerifyListener(verifyRadius);
+        for (int i = 0; i < row.radii.length; ++i) {
+            Text text = new Text(fixedRingsComposite, SWT.SINGLE | SWT.BORDER);
+            text.setLayoutData(new GridData(width, height));
+            text.addVerifyListener(verifyRadius);
+            row.radii[i] = text;
+        }
         row.label = new Combo(fixedRingsComposite, SWT.DROP_DOWN
                 | SWT.READ_ONLY);
         row.label.setItems(FIXED_LABELS);
@@ -739,9 +779,17 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         row.enabled.setSelection(ring.isVisible());
         row.id.setText(ring.getId());
         int[] radii = ring.getRadii();
-        row.radii[0].setText(String.valueOf(radii[0]));
-        row.radii[1].setText(String.valueOf(radii[1]));
-        row.radii[2].setText(String.valueOf(radii[2]));
+        int length = Math.min(radii.length, row.radii.length);
+
+        // Guard against to many or to few entries added manually to the
+        // localized file.
+        for (int i = 0; i < length; ++i) {
+            row.radii[i].setText(String.valueOf(radii[i]));
+        }
+        for (int i = length; i < row.radii.length; ++i) {
+            row.radii[i].setText("0");
+        }
+
         for (int i = 0; i < FIXED_LABELS.length; i++) {
             if (FIXED_LABELS[i].equals(ring.getLabel())) {
                 row.label.select(i);
@@ -784,6 +832,54 @@ public class RangeRingDialog extends CaveJFACEDialog implements
     }
 
     /**
+     * Validate the coordinates for the movable rings.
+     * 
+     * @return true when all coordinates are valid
+     */
+    private boolean verifyRings() {
+        String errMsg = null;
+        for (MovableRingRow row : movableRings) {
+            if (row.latitude < Latitude.MIN_VALUE
+                    || row.latitude > Latitude.MAX_VALUE) {
+                errMsg = String.format("Latitude %s is out of range (±90°).",
+                        new Latitude(row.latitude));
+                row.lat.selectAll();
+                row.lat.forceFocus();
+                break;
+            }
+
+            if (row.longitude > 180.0 && row.longitude <= 360.0) {
+                // Adjust value to range (±180°).
+                row.longitude = MapUtil.correctLon(row.longitude);
+                row.lon.setText(String.format(formatLatLon, row.longitude));
+            } else if (row.longitude < Longitude.MIN_VALUE
+                    || row.longitude > Longitude.MAX_VALUE) {
+                // To far outside of range to adjust let the user handle it.
+                errMsg = String.format("Longitude %s is out of range (±180°).",
+                        new Longitude(row.longitude));
+                row.lon.selectAll();
+                row.lon.forceFocus();
+                break;
+            }
+        }
+
+        if (errMsg != null) {
+            final String message = errMsg;
+            // Finish up the listener that called this before opening the
+            // dialog.
+            VizApp.runAsync(new Runnable() {
+
+                @Override
+                public void run() {
+                    MessageDialog.openError(getShell(), "Error", message);
+                }
+            });
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Save users range rings to the manager and notify others of the change.
      */
     private void saveChanges() {
@@ -803,14 +899,11 @@ public class RangeRingDialog extends CaveJFACEDialog implements
             boolean enabled = row.enabled.getSelection();
             String id = row.id.getText();
             int radius = checkedParseInt(row.radius.getText());
-            double lat = row.ring.getCenterCoordinate().y;
-            double lon = row.ring.getCenterCoordinate().x;
-            Coordinate center = new Coordinate(lon, lat);
+            Coordinate center = new Coordinate(row.longitude, row.latitude);
             String label = row.label.getText();
             rangeRings.add(new RangeRing(id, center, radius, label, enabled));
         }
         toolsDataManager.setRangeRings(rangeRings);
-        resourceData.fireChangeListeners(ChangeType.DATA_UPDATE, null);
         load();
     }
 
@@ -844,19 +937,26 @@ public class RangeRingDialog extends CaveJFACEDialog implements
 
         cancelButton.addListener(SWT.Selection, new Listener() {
             public void handleEvent(Event event) {
-                // passing false closes the dialog
-                resourceData.fireChangeListeners(ChangeType.DATA_UPDATE, false);
+                close();
             }
         });
         applyButton.addListener(SWT.Selection, new Listener() {
             public void handleEvent(Event event) {
-                saveChanges();
+                if (verifyRings()) {
+                    saveChanges();
+                    resourceData.fireChangeListeners(ChangeType.DATA_UPDATE,
+                            null);
+                }
             }
         });
         okButton.addListener(SWT.Selection, new Listener() {
             public void handleEvent(Event event) {
-                saveChanges();
-                resourceData.fireChangeListeners(ChangeType.DATA_UPDATE, false);
+                if (verifyRings()) {
+                    saveChanges();
+                    close();
+                } else {
+                    event.doit = false;
+                }
             }
         });
     }
