@@ -34,6 +34,7 @@ import com.raytheon.viz.hydrocommon.HydroDisplayManager;
 import com.raytheon.viz.hydrocommon.colorscalemgr.ColorScaleMgrDlg;
 import com.raytheon.viz.hydrocommon.colorscalemgr.HydroColorManager;
 import com.raytheon.viz.hydrocommon.colorscalemgr.NamedColorSetGroup;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Action for unimplemented features. To be used temporarily until final
@@ -47,6 +48,7 @@ import com.raytheon.viz.hydrocommon.colorscalemgr.NamedColorSetGroup;
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial Creation.
  * 04/07/2010   4671        mpduff      Have the map update upon closure of the dialog.
+ * 07/02/2013   2088        rferrel     Changes for non-blocking ColorScaleMgrDlg.
  * 
  * </pre>
  * 
@@ -60,30 +62,45 @@ public class ColorScaleMgrAction extends AbstractHandler {
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
 
-        String username = LocalizationManager.getInstance().getCurrentUser();
+        if (colorScaleDlg == null || colorScaleDlg.isDisposed()) {
+            String username = LocalizationManager.getInstance()
+                    .getCurrentUser();
 
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        colorScaleDlg = new ColorScaleMgrDlg(shell, username);
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
+            colorScaleDlg = new ColorScaleMgrDlg(shell, username);
 
-        HydroColorManager colorManager = HydroColorManager.getInstance();
-        NamedColorSetGroup ncsg = colorManager.getDefaultColorSetGroup();
-        colorManager.populateDefaultColorUseSets(ncsg.getColorGroupArray());
-        colorManager.readColorValuesFromDatabase();
+            HydroColorManager colorManager = HydroColorManager.getInstance();
+            NamedColorSetGroup ncsg = colorManager.getDefaultColorSetGroup();
+            colorManager.populateDefaultColorUseSets(ncsg.getColorGroupArray());
+            colorManager.readColorValuesFromDatabase();
 
-        colorScaleDlg.setTitle("Hydroview Color Scale Manager - User: "
-                + username);
-        colorScaleDlg.setColorManager(colorManager);
-        boolean dataChanged = (Boolean) colorScaleDlg.open();
-        colorScaleDlg = null;
+            colorScaleDlg.setTitle("Hydroview Color Scale Manager - User: "
+                    + username);
+            colorScaleDlg.setColorManager(colorManager);
+            colorScaleDlg.setCloseCallback(new ICloseCallback() {
 
-        HydroDisplayManager displayManager = HydroDisplayManager.getInstance();
-        displayManager.setColorChanged(dataChanged);
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof Boolean) {
+                        boolean dataChanged = ((Boolean) returnValue)
+                                .booleanValue();
+                        colorScaleDlg = null;
+                        HydroDisplayManager displayManager = HydroDisplayManager
+                                .getInstance();
+                        displayManager.setColorChanged(dataChanged);
 
-        // redraw the main display
-        displayManager.setDataChanged(dataChanged);
-        StationDisplay sd = StationDisplay.getInstance();
-        sd.redraw();
+                        // redraw the main display
+                        displayManager.setDataChanged(dataChanged);
+                        StationDisplay sd = StationDisplay.getInstance();
+                        sd.redraw();
+                    }
+                }
+            });
+            colorScaleDlg.open();
+        } else {
+            colorScaleDlg.bringToTop();
+        }
 
         return null;
     }
