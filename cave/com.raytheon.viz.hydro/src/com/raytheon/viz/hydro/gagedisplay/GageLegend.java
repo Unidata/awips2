@@ -19,19 +19,26 @@
  **/
 package com.raytheon.viz.hydro.gagedisplay;
 
-import org.eclipse.core.runtime.Status;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.SWTError;
-import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.viz.core.CorePlugin;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -41,16 +48,31 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * SOFTWARE HISTORY
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
- * Jul 3, 2008				mpduff	Initial creation
+ * Jul 3, 2008              mpduff      Initial creation
  * Apr 18,2013  1790        rferrel     Minor code clean up.
+ * 09 Jul 2013  #1928       lvenable    Replaced SWT browser with a canvas.
  * 
  * </pre>
  * 
  * @author mpduff
  * @version 1.0
  */
-
 public class GageLegend extends CaveSWTDialog {
+
+    /** Font for the canvas. */
+    private Font font;
+
+    /** Canvas to display the legend. */
+    private Canvas legendCanvas;
+
+    /** Canvas width. */
+    private final int CANVAS_WIDTH = 280;
+
+    /** Canvas height. */
+    private final int CANVAS_HEIGHT = 270;
+
+    /** Map of label text and colors. */
+    private Map<String, RGB> textColorMap = new LinkedHashMap<String, RGB>();
 
     /**
      * Protected constructor.
@@ -60,7 +82,12 @@ public class GageLegend extends CaveSWTDialog {
      */
     protected GageLegend(Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
-        setText("Gage Legend");
+        setText("Gage Color Legend");
+    }
+
+    @Override
+    protected void disposed() {
+        font.dispose();
     }
 
     /*
@@ -72,29 +99,91 @@ public class GageLegend extends CaveSWTDialog {
      */
     @Override
     protected void initializeComponents(final Shell shell) {
+
+        // Setup font and create color map.
         setReturnValue(false);
+        font = new Font(shell.getDisplay(), "Monospace", 16, SWT.BOLD);
+        createColorMap();
 
-        GridData gd = new GridData(150, 350);
-        GridLayout layout = new GridLayout(1, false);
-        Browser browser = null;
-        try {
-            browser = new Browser(shell, SWT.NONE);
-        } catch (SWTError e) {
-            CorePlugin
-                    .getDefault()
-                    .getLog()
-                    .log(new Status(Status.ERROR, CorePlugin.PLUGIN_NAME,
-                            "Could not instantiate Browser ", e));
-            return;
+        // Setup the canvas.
+        legendCanvas = new Canvas(shell, SWT.DOUBLE_BUFFERED);
+        GridData gd = new GridData(SWT.DEFAULT, SWT.TOP, false, true);
+        gd.heightHint = CANVAS_HEIGHT;
+        gd.widthHint = CANVAS_WIDTH;
+
+        legendCanvas.setSize(CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        legendCanvas.setLayoutData(gd);
+        legendCanvas.addPaintListener(new PaintListener() {
+            public void paintControl(PaintEvent e) {
+                drawCanvas(e.gc);
+            }
+        });
+
+        createCloseButton();
+    }
+
+    /**
+     * Draw the canvas.
+     * 
+     * @param gc
+     *            Graphic context.
+     */
+    private void drawCanvas(GC gc) {
+
+        // Setup the GC
+        gc.setAntialias(SWT.ON);
+        gc.setLineWidth(2);
+        gc.setFont(font);
+        gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
+
+        // Draw the background
+        gc.setBackground(getDisplay().getSystemColor(
+                SWT.COLOR_WIDGET_BACKGROUND));
+        gc.fillRectangle(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        // Setup the coordinates and color.
+        int yCoord = 10;
+        int xCoord = 10;
+        int width = CANVAS_WIDTH - (xCoord * 2);
+        int height = 50;
+        Color c;
+
+        // Loop over and draw the legend label and colors.
+        for (Entry<String, RGB> entry : textColorMap.entrySet()) {
+            c = new Color(getDisplay(), entry.getValue());
+
+            gc.setBackground(c);
+            gc.fillRectangle(xCoord, yCoord, width, height);
+            gc.drawRectangle(xCoord, yCoord, width, height);
+
+            gc.drawString(entry.getKey(), xCoord + 10, yCoord + 12, true);
+
+            yCoord += height;
+            c.dispose();
         }
-        browser.setLayout(layout);
-        browser.setLayoutData(gd);
-        browser.setText(getHtml());
+    }
 
+    /**
+     * Create the color map with text and colors.
+     */
+    private void createColorMap() {
+        textColorMap.put("Above Flood Stage", new RGB(255, 0, 0));
+        textColorMap.put("Above Action Stage", new RGB(255, 255, 0));
+        textColorMap.put("Below Action Stage", new RGB(0, 255, 0));
+        textColorMap.put("Missing Data", new RGB(192, 192, 192));
+        textColorMap.put("Missing Stage Data", new RGB(34, 139, 34));
+    }
+
+    /**
+     * Create the close button.
+     */
+    private void createCloseButton() {
         /* Close button */
+        GridLayout layout = new GridLayout(1, false);
         Composite buttonComp = new Composite(shell, SWT.NONE);
         buttonComp.setLayout(layout);
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         buttonComp.setLayoutData(gd);
 
         gd = new GridData(90, SWT.DEFAULT);
@@ -107,32 +196,5 @@ public class GageLegend extends CaveSWTDialog {
                 close();
             }
         });
-    }
-
-    /**
-     * Get the HTML that generates the legend.
-     * 
-     * @return The HTML string
-     */
-    private String getHtml() {
-        StringBuilder sb = new StringBuilder("<html><head>");
-        sb.append("<title>Gage Color Legend</title>");
-        sb.append("</head><body>");
-        sb.append("<table align=\"center\" width=\"90\" cellpadding=\"2\" cellspacing=\"0\" border=\"2\">");
-        sb.append("<tr>");
-        sb.append(" <th align=\"center\" bgcolor=\"#E2E3FE\">Gage Color Legend</td>");
-        sb.append("</tr><tr>");
-        sb.append(" <td align=\"center\" bgcolor=\"#FF0000\">Above Flood Stage</td>");
-        sb.append("</tr><tr>");
-        sb.append(" <td align=\"center\" bgcolor=\"#FFFF00\">Above Action Stage</td>");
-        sb.append("</tr><tr>");
-        sb.append(" <td align=\"center\" bgcolor=\"#00FF00\">Below Action Stage</td>");
-        sb.append("</tr><tr>");
-        sb.append(" <td align=\"center\" bgcolor=\"#C0C0C0\">Missing Data</td>");
-        sb.append("</tr><tr>");
-        sb.append(" <td align=\"center\" bgcolor=\"#228B22\">Missing Stage Data</td>");
-        sb.append("</tr></table></body></html>");
-
-        return sb.toString();
     }
 }
