@@ -19,23 +19,6 @@
  **/
 package com.raytheon.viz.hydrocommon.colorscalemgr;
 
-/**
- * TODO Add Description
- * 
- * <pre>
- *
- * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 8, 2008            mschenke     Initial creation
- *
- * </pre>
- *
- * @author mschenke
- * @version 1.0	
- */
-
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -47,7 +30,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -56,25 +38,26 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
 import com.raytheon.viz.hydrocommon.data.ColorNameData;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
-// TODO : Needs to extend CaveSWTDialog...
-
-public class ColorChooserDlg extends Dialog {
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
-
-    /**
-     * The display control.
-     */
-    private Display display;
-
-    /**
-     * Return value when the shell is disposed.
-     */
-    private String returnColorName = null;
-
+/**
+ * Dialog to select a color by name.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Dec 8, 2008            mschenke     Initial creation
+ * Jul 1, 2013  2088       rferrel     Now extends CaveSWTDialog and made non-blocking.
+ * 
+ * </pre>
+ * 
+ * @author mschenke
+ * @version 1.0
+ */
+public class ColorChooserDlg extends CaveSWTDialog {
     /**
      * Control font.
      */
@@ -96,18 +79,20 @@ public class ColorChooserDlg extends Dialog {
      *            Dialog title information.
      */
     public ColorChooserDlg(Shell parent) {
-        super(parent, 0);
+        super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL,
+                CAVE.DO_NOT_BLOCK);
     }
 
-    /**
-     * Open method used to display the dialog.
+    /*
+     * (non-Javadoc)
      * 
-     * @return True/False.
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
      */
-    public String open() {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-        shell = new Shell(parent, SWT.DIALOG_TRIM);
+    @Override
+    protected void initializeComponents(Shell shell) {
+        setReturnValue(null);
         shell.setText("Color Chooser");
 
         // Create the main layout for the shell.
@@ -119,19 +104,16 @@ public class ColorChooserDlg extends Dialog {
 
         // Initialize all of the controls and layouts
         initializeComponents();
+    }
 
-        shell.pack();
-
-        shell.open();
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
+    @Override
+    protected void disposed() {
         controlFont.dispose();
-
-        return returnColorName;
     }
 
     /**
@@ -144,6 +126,9 @@ public class ColorChooserDlg extends Dialog {
         createBottomButtons();
     }
 
+    /**
+     * Setup Color Table.
+     */
     private void createColorTable() {
         Color c = null;
 
@@ -164,6 +149,7 @@ public class ColorChooserDlg extends Dialog {
         TableColumn column2 = new TableColumn(colorTable, SWT.NONE);
 
         List<ColorNameData> colorNames = DbRGBColors.getAllColors();
+        Display display = getDisplay();
 
         for (ColorNameData colorName : colorNames) {
             if (colorName.getColorValue() != null) {
@@ -184,6 +170,9 @@ public class ColorChooserDlg extends Dialog {
         column2.pack();
     }
 
+    /**
+     * Create control buttons in the bottom composite.
+     */
     private void createBottomButtons() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite mainButtonComp = new Composite(shell, SWT.NONE);
@@ -201,8 +190,8 @@ public class ColorChooserDlg extends Dialog {
         okBtn.setLayoutData(gd);
         okBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                returnColorName = getSelectedColorName();
-                shell.dispose();
+                setReturnValue(getSelectedColorName());
+                close();
             }
         });
 
@@ -212,12 +201,17 @@ public class ColorChooserDlg extends Dialog {
         cancelBtn.setLayoutData(gd);
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                returnColorName = null;
-                shell.dispose();
+                setReturnValue(null);
+                close();
             }
         });
     }
 
+    /**
+     * Get selected color name or null if none selected.
+     * 
+     * @return
+     */
     private String getSelectedColorName() {
         int index = colorTable.getSelectionIndex();
         if (index < 0)
@@ -228,6 +222,12 @@ public class ColorChooserDlg extends Dialog {
         return ti.getText(1);
     }
 
+    /**
+     * Set the initial color color table index; must be done prior to opening
+     * the dialog.
+     * 
+     * @param index
+     */
     public void setSelected(int index) {
         selectedIndex = index;
     }
