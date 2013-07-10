@@ -418,7 +418,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
         browseBtn.setToolTipText("Select directory to place case.");
 
         Label stateLbl = new Label(fileBrowserComp, SWT.NONE);
-        stateLbl.setText("Full - Avaliable:");
+        stateLbl.setText("Full - Available:");
 
         locationStateLbl = new Label(fileBrowserComp, SWT.BORDER);
         gd = new GridData(200, SWT.DEFAULT);
@@ -612,6 +612,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
      */
     private void handleBrowserSelection() {
         DirectoryDialog dlg = new DirectoryDialog(shell, SWT.OPEN);
+        dlg.setText("Case Location");
         String dirName = dlg.open();
         if (dirName != null) {
             locationLbl.setText(trimDirectoryName(dirName));
