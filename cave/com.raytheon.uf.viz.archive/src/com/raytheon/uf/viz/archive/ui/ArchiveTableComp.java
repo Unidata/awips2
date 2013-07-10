@@ -380,6 +380,7 @@ public class ArchiveTableComp extends Composite {
         }
 
         updateSelectionLabels();
+        setModified();
     }
 
     /**
