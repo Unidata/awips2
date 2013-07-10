@@ -24,10 +24,13 @@ import java.util.Set;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.ProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
+import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.JarUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.BandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory.IEdexBandwidthManagerCreator;
+import com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.IBandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
@@ -47,6 +50,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Feb 27, 2013 1644       djohnson     Schedule SBN subscriptions.
  * Mar 11, 2013 1645       djohnson     Add missing Spring file.
  * May 15, 2013 2000       djohnson     Include daos.
+ * Jul 10, 2013 2106       djohnson     Dependency inject registry handlers.
  * 
  * </pre>
  * 
@@ -58,7 +62,7 @@ public class NcfBandwidthManagerCreator implements IEdexBandwidthManagerCreator 
     /**
      * NCF {@link BandwidthManager} implementation.
      */
-    static class NcfBandwidthManager extends BandwidthManager {
+    static class NcfBandwidthManager extends EdexBandwidthManager {
 
         private static final String[] NCF_BANDWIDTH_MANAGER_FILES = new String[] {
                 JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-ncf-edex-impl.xml"),
@@ -79,8 +83,11 @@ public class NcfBandwidthManagerCreator implements IEdexBandwidthManagerCreator 
          */
         public NcfBandwidthManager(IBandwidthDbInit dbInit,
                 IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
-                BandwidthDaoUtil bandwidthDaoUtil) {
-            super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil);
+                BandwidthDaoUtil bandwidthDaoUtil,
+                IDataSetMetaDataHandler dataSetMetaDataHandler,
+                ISubscriptionHandler subscriptionHandler) {
+            super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil,
+                    dataSetMetaDataHandler, subscriptionHandler);
         }
 
         @Override
@@ -113,9 +120,11 @@ public class NcfBandwidthManagerCreator implements IEdexBandwidthManagerCreator 
     @Override
     public IBandwidthManager getBandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
-            BandwidthDaoUtil bandwidthDaoUtil) {
+            BandwidthDaoUtil bandwidthDaoUtil,
+            IDataSetMetaDataHandler dataSetMetaDataHandler,
+            ISubscriptionHandler subscriptionHandler) {
         return new NcfBandwidthManager(dbInit, bandwidthDao, retrievalManager,
-                bandwidthDaoUtil);
+                bandwidthDaoUtil, dataSetMetaDataHandler, subscriptionHandler);
     }
 
 }

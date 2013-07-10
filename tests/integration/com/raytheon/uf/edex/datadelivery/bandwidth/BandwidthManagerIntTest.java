@@ -38,13 +38,10 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.Test;
@@ -54,7 +51,6 @@ import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaDataFixture;
-import com.raytheon.uf.common.datadelivery.registry.ParameterFixture;
 import com.raytheon.uf.common.datadelivery.registry.PointDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.PointDataSetMetaDataFixture;
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
@@ -66,7 +62,6 @@ import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
-import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.time.util.ImmutableDate;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -76,8 +71,6 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
-import com.raytheon.uf.edex.datadelivery.bandwidth.notification.BandwidthEventBus;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlanTest;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
@@ -106,6 +99,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Jun 03, 2013 2038       djohnson     Add support for point data based subscriptions.
  * Jun 03, 2013 2095       djohnson     Move getPointDataSet to superclass.
  * Jun 25, 2013 2106       djohnson     Set subscription latency, access bucket allocations through RetrievalPlan.
+ * Jul 09, 2013 2106       djohnson     InMemoryBandwidthManager no longer receives updates from the EventBus.
  * 
  * </pre>
  * 
@@ -267,8 +261,6 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
     public void testDailyProductSubscriptionReceivesTimeAndUrlFromUpdate()
             throws RegistryHandlerException, ParseException,
             SerializationException {
-        RegistryObjectHandlersUtil.initMemory();
-
         // Store the original subscription
         Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
         DataDeliveryHandlers.getSubscriptionHandler().store(subscription);
@@ -303,8 +295,6 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
     @Test
     public void testDailyProductSubscriptionIsSetToReadyStatus()
             throws RegistryHandlerException, ParseException {
-        RegistryObjectHandlersUtil.initMemory();
-
         // Store the original subscription
         Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
         subscription.getTime().setCycleTimes(Collections.<Integer> emptyList());
@@ -338,7 +328,6 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
     @Test
     public void testSubscriptionLatencyIsPlacedOnSubscriptionDao()
             throws RegistryHandlerException, ParseException {
-        RegistryObjectHandlersUtil.initMemory();
 
         // Store the original subscription
         Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
@@ -713,108 +702,6 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
 
         subscription.setLatencyInMinutes(1);
         bandwidthManager.subscriptionUpdated(subscription);
-    }
-
-    /**
-     * Long-running in-memory bandwidth manager proposed schedule operations
-     * were causing {@link ConcurrentModificationException}s to occur when
-     * receiving events from the {@link BandwidthEventBus}.
-     * 
-     * @throws Exception
-     *             on test failure
-     */
-    @Test
-    public void testInMemoryBandwidthManagerCanReceiveDataSetMetaDataUpdates()
-            throws Exception {
-
-        Subscription subscription = createSubscriptionThatFillsUpABucket();
-        subscription.getTime().setCycleTimes(Arrays.asList(Integer.valueOf(0)));
-
-        bandwidthManager.schedule(subscription);
-        BandwidthManager bwProposed = null;
-        try {
-            bwProposed = bandwidthManager
-                    .startProposedBandwidthManager(BandwidthMap
-                            .load(EdexBandwidthContextFactory
-                                    .getBandwidthMapConfig()));
-            final BandwidthManager proposed = bwProposed;
-
-            final BlockingQueue<Exception> queue = new ArrayBlockingQueue<Exception>(
-                    1);
-
-            final int invocationCount = 10;
-            final CountDownLatch waitForAllThreadsReadyLatch = new CountDownLatch(
-                    invocationCount * 2);
-            final CountDownLatch doneLatch = new CountDownLatch(
-                    invocationCount * 2);
-            for (int i = 0; i < invocationCount; i++) {
-                final int current = i;
-                Thread thread = new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            // Wait for all threads to check in, then they all
-                            // start
-                            // working at once
-                            waitForAllThreadsReadyLatch.countDown();
-                            waitForAllThreadsReadyLatch.await();
-                            proposed.updateGriddedDataSetMetaData(OpenDapGriddedDataSetMetaDataFixture.INSTANCE
-                                    .get(current));
-                        } catch (Exception e) {
-                            queue.offer(e);
-                        }
-                        doneLatch.countDown();
-                    }
-                };
-                thread.start();
-            }
-
-            for (int i = 0; i < invocationCount; i++) {
-                final int current = i;
-                Thread thread = new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            final Subscription subscription2 = SiteSubscriptionFixture.INSTANCE
-                                    .get(current);
-                            subscription2
-                                    .addParameter(ParameterFixture.INSTANCE
-                                            .get(1));
-                            subscription2
-                                    .addParameter(ParameterFixture.INSTANCE
-                                            .get(2));
-                            subscription2
-                                    .addParameter(ParameterFixture.INSTANCE
-                                            .get(3));
-                            subscription2.getTime().setCycleTimes(
-                                    Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9,
-                                            10, 11, 12, 13, 14, 15, 16, 17));
-                            subscription2.setLatencyInMinutes(current);
-                            // Wait for all threads to check in, then they all
-                            // start
-                            // working at once
-                            waitForAllThreadsReadyLatch.countDown();
-                            waitForAllThreadsReadyLatch.await();
-                            proposed.schedule(subscription2);
-                        } catch (Exception e) {
-                            queue.offer(e);
-                        }
-                        doneLatch.countDown();
-                    }
-                };
-                thread.start();
-            }
-
-            // Wait for all threads to finish
-            doneLatch.await();
-
-            final Exception exception = queue.poll();
-            if (exception != null) {
-                throw exception;
-            }
-        } finally {
-            shutdownBandwidthManager(bwProposed);
-        }
     }
 
     /**
