@@ -68,8 +68,7 @@
 					<bean ref="index" method="index" />
 					<multicast parallelProcessing="false">
 						<to uri="direct-vm:warningIngestAlert" />
-						<to uri="jms-warning:queue:edex.spcWatch" />
-						<to uri="jms-warning:queue:edex.tpcWatch" />
+						<bean ref="pluginNotifier" method="send"/>
 						<filter>
 							<method bean="vtecFilter" method="hasVTEC" />
 							<to uri="jms-warning:queue:activeTablePending?destinationResolver=#qpidDurableResolver" />
