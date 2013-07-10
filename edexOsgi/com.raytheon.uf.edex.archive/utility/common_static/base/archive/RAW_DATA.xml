@@ -18,6 +18,16 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+<!-- 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ============ ========== =========== ==========================
+ * Jun 20, 2013 1966       rferrel     Initial creation
+ * 
+ * @author rferrel
+ * @version 1.0
+-->
     <!-- 
     The <archive> contains five types of tags:
         <name>           - Required tag. The id for the archive such as Raw or Processed.
@@ -34,7 +44,8 @@
         <dirPattern>        - Required tag. A regex pattern for finding directories for this category.
                               The pattern is relative to the archive's <rootDir>. Wildcard patterns do not cross directory
                               delimiter /. Thus to match 3 levels of directories you would need .*/.*/.* .
-                              See patterns and groups section.
+                              See patterns and groups section. There may be more then one of these tags. The restriction is they
+                              must all have the same number of groupings and be in the same order.
         <filePattern>       - Optional tag.  A pattern to find files in the directories that match the <dirPattern>.
                               Default is everything in the directories that match <dirPattern>.
                               See patterns and groups section.
@@ -73,6 +84,19 @@
         <displayLabel>{1}</displayLabel>
         <filePattern>redbook-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
         <dateGroupIndices>2,3,4,5</dateGroupIndices>
+        
+     Example with multiple <dirPattern>s 
+     <category>
+        <name>Observation</name>
+        <extRetentionHours>168</extRetentionHours>
+        <dirPattern>(acars|airep|airmet|taf)</dirPattern>
+        <dirPattern>(bufrsigwx|sfcobs)/.*</dirPattern>
+        <displayLabel>{1}</displayLabel>
+        <dateGroupIndices>2,3,4,5</dateGroupIndices>
+        <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
+     </category>
+     The first <dirPattern> looks for files matching the <filePattern> in the directories acars, airep, airmet or taf.
+     The second <dirPattern> expects to find the files in subdirectories of bufrsigwx or sfcobs such as bufrsigwx/SWH.
      
      Here the display will only show, redbook. The directory looked at will be <rootPath>/redbook/. The <dateGroupIndices> all
      come from the <filePattern> since there is one group in the <dirPattern> the groups in the <filePattern> start at two. This
@@ -86,25 +110,40 @@
     <rootDir>/data_store/</rootDir>
     <minRetentionHours>24</minRetentionHours>
     <category>
-        <name>Model grib</name>
+        <name>Model</name>
         <extRetentionHours>168</extRetentionHours>
-        <dirPattern>grib/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)</dirPattern>
-        <displayLabel>{5}</displayLabel>
-        <dateGroupIndices>1,2,3,4</dateGroupIndices>
-    </category>
-    <category>
-        <name>Model grib2</name>
-        <extRetentionHours>168</extRetentionHours>
-        <dirPattern>(grib2)/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)</dirPattern>
+        <dirPattern>(grib|grib2)/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)</dirPattern>
         <displayLabel>{1} - {6}</displayLabel>
         <dateGroupIndices>2,3,4,5</dateGroupIndices>
     </category>
     <category>
-        <name>Model other</name>
+        <name>ModelSounding</name>
         <extRetentionHours>168</extRetentionHours>
-        <dirPattern>(acars|airmet|binlightning|bufrmos|bufrua|bufrsigwx|convsigmet|goessndg|manual|mdlsndg|poessndg|profiler|shef|text)/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
+        <dirPattern>(bufrmos|modelsounding)/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
         <displayLabel>{1}</displayLabel>
         <dateGroupIndices>2,3,4,5</dateGroupIndices>
+    </category>
+    <category>
+        <name>Misc</name>
+        <extRetentionHours>168</extRetentionHours>
+        <dirPattern>(binlightning|climate|cwa|lsr|manual|misc_adm_messages|redbook|shef|summaries|svrwx|tcg|tcs|text|wwa|xml)/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
+        <displayLabel>{1}</displayLabel>
+        <dateGroupIndices>2,3,4,5</dateGroupIndices>
+    </category>
+    <category>
+        <name>Observation</name>
+        <extRetentionHours>168</extRetentionHours>
+        <dirPattern>(airep|airmet|bufrascat|bufrhdw|bufrmthdw|bufrncwf|bufrsigwx|bufrssmi|convsigmet|fire_wx_spot_fcst_reports|forecast|fssobs|intlsigmet|MAROB|maritime|metar|misc_sfc_obs|nonconvsigmet|pirep|sfcobs|synoptic)/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
+        <dirPattern>acars/(.*)/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
+        <displayLabel>{1}</displayLabel>
+        <dateGroupIndices>2,3,4,5</dateGroupIndices>
+    </category>
+    <category>
+        <name>radar</name>
+        <extRetentionHours>168</extRetentionHours>
+        <dirPattern>radar/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)</dirPattern>
+        <displayLabel>{5}</displayLabel>
+        <dateGroupIndices>1,2,3,4</dateGroupIndices>
     </category>
     <category>
         <name>Satellite</name>
@@ -113,4 +152,11 @@
         <displayLabel>{5}</displayLabel>
         <dateGroupIndices>1,2,3,4</dateGroupIndices>
     </category>
-</archive>
+    <category>
+        <name>Sounding</name>
+        <extRetentionHours>168</extRetentionHours>
+        <dirPattern>(acarssounding|bufrua|goessounding|poessounding|profiler|raobs|upperair)/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
+        <displayLabel>{1}</displayLabel>
+        <dateGroupIndices>2,3,4,5</dateGroupIndices>
+    </category>
+ </archive>
