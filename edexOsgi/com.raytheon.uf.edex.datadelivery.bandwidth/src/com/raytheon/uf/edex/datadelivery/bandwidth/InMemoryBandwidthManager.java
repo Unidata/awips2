@@ -50,6 +50,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Feb 27, 2013 1644       djohnson     Schedule SBN subscriptions.
  * Apr 16, 2013 1906       djohnson     Implements RegistryInitializedListener.
  * Jun 25, 2013 2106       djohnson     init() now takes a {@link RetrievalManager} as well.
+ * Jul 09, 2013 2106       djohnson     Add shutdownInternal().
  * 
  * </pre>
  * 
@@ -61,8 +62,9 @@ class InMemoryBandwidthManager extends BandwidthManager {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(InMemoryBandwidthManager.class);
 
-    // TODO DPJ: The NCF and WFO bandwidth managers probably each need an
-    // in-memory version
+    // NOTE: NEVER add the bandwidth-datadelivery-eventbus.xml file to this
+    // array, in-memory versions should not coordinate with the event bus in any
+    // fashion
     public static final String[] IN_MEMORY_BANDWIDTH_MANAGER_FILES = new String[] {
             JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-inmemory-impl.xml"),
             JarUtil.getResResourcePath("/spring/bandwidth-datadelivery.xml"),
@@ -143,6 +145,14 @@ class InMemoryBandwidthManager extends BandwidthManager {
     protected Set<String> scheduleSbnSubscriptions(
             List<Subscription> subscriptions) throws SerializationException {
         return scheduleSubscriptions(subscriptions);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void shutdownInternal() {
+        // Nothing to do for in-memory version
     }
 
 }

@@ -21,6 +21,8 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 
 import java.io.File;
 
+import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
+import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthContextFactory;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthBucketDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
@@ -38,6 +40,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
  * Oct 24, 2012 1286       djohnson     Initial creation
  * Feb 20, 2013 1543       djohnson     Pass additional super-class constructor arguments.
  * Jun 25, 2013 2106       djohnson     Add {@link IBandwidthBucketDao}.
+ * Jul 10, 2013 2106       djohnson     Dependency inject registry handlers.
  * 
  * </pre>
  * 
@@ -57,14 +60,19 @@ public class IntegrationTestBandwidthContextFactory extends
      *            the creator for the bandwidth manager instance
      * @param dbInit
      *            the database initializer
+     * @param dataSetMetaDataHandler
+     * @param subscriptionHandler
      */
     IntegrationTestBandwidthContextFactory(IBandwidthDao bandwidthDao,
             IBandwidthBucketDao bandwidthBucketsDao,
             IEdexBandwidthManagerCreator bandwidthManagerCreator,
-            IBandwidthDbInit dbInit) {
+            IBandwidthDbInit dbInit,
+            IDataSetMetaDataHandler dataSetMetaDataHandler,
+            ISubscriptionHandler subscriptionHandler) {
         super(bandwidthDao, bandwidthBucketsDao,
                 new IntegrationTestBandwidthInitializer(),
-                bandwidthManagerCreator, dbInit);
+                bandwidthManagerCreator, dbInit, dataSetMetaDataHandler,
+                subscriptionHandler);
     }
 
     /**
@@ -81,9 +89,7 @@ public class IntegrationTestBandwidthContextFactory extends
      * @return the file
      */
     public static File getIntegrationTestBandwidthMapConfigFile() {
-        return new IntegrationTestBandwidthContextFactory((IBandwidthDao) null,
-                (IBandwidthBucketDao) null,
-                (IEdexBandwidthManagerCreator) null, (IBandwidthDbInit) null)
-                .getBandwidthMapConfigFile();
+        return new IntegrationTestBandwidthContextFactory(null, null, null,
+                null, null, null).getBandwidthMapConfigFile();
     }
 }
