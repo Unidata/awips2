@@ -9,7 +9,6 @@ import java.util.TreeMap;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.datadelivery.registry.Network;
-import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -38,6 +37,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * 3/13/2013    1802       bphillip     Moved event bus registration from post-construct to spring static method call
  * Jun 13, 2013 2095       djohnson     Can schedule any subclass of BandwidthAllocation.
  * Jun 25, 2013 2106       djohnson     Copy state from another instance, add ability to check for proposed bandwidth throughput changes.
+ * Jul 09, 2013 2106       djohnson     Only needs to unregister from the EventBus when used in an EDEX instance, so handled in EdexBandwidthManager.
  * 
  * </pre>
  * 
@@ -218,7 +218,6 @@ public class RetrievalManager {
      * Shutdown the retrieval manager.
      */
     public void shutdown() {
-        EventBus.unregister(this);
         // From this point forward, only return a poison pill for this retrieval
         // manager, which will cause threads attempting to receive bandwidth
         // allocations to die

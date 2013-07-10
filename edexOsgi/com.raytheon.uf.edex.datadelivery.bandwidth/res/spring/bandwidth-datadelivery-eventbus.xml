@@ -2,6 +2,9 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
+    <bean id="bandwidthEventBus"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.notification.BandwidthEventBusBean" />
+
     <bean factory-bean="eventBus" factory-method="register">
         <constructor-arg ref="retrievalManager" />
     </bean>
