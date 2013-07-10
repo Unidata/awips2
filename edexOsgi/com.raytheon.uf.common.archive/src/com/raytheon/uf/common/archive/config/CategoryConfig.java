@@ -19,7 +19,9 @@
  **/
 package com.raytheon.uf.common.archive.config;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.TreeSet;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -96,7 +98,7 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
      * </pre>
      */
     @XmlElement(name = "dirPattern")
-    private String dirPattern;
+    private List<String> dirPatternList;
 
     /**
      * Use to display the information found by the dirPattern. Any groups in the
@@ -187,21 +189,21 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
     }
 
     /**
-     * Obtain the directory pattern.
+     * Obtain the list of directory patterns.
      * 
-     * @return dirPattern
+     * @return dirPatternList
      */
-    public String getDirPattern() {
-        return dirPattern;
+    public List<String> getDirPatternList() {
+        return new ArrayList<String>(dirPatternList);
     }
 
     /**
-     * Set the directory pattern; must not be null.
+     * Set the directory pattern list; must not be null.
      * 
-     * @param dirPattern
+     * @param dirPatternList
      */
-    public void setDirPattern(String dirPattern) {
-        this.dirPattern = dirPattern;
+    public void setDirPatternList(List<String> dirPatternList) {
+        this.dirPatternList = dirPatternList;
     }
 
     /**
@@ -285,7 +287,7 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
     public int compareTo(CategoryConfig o) {
         return getDisplay().compareToIgnoreCase(o.getDisplay());
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -296,8 +298,11 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
         StringBuilder sb = new StringBuilder();
         sb.append("Category [ name: ").append(getName());
         sb.append(", retentionHours: ").append(getRetentionHours());
-        sb.append(", dirPattern: ").append(getDirPattern());
-        sb.append(", filePattern: ").append(getFilePattern());
+        sb.append(", dirPatternList[ ");
+        for (String dirPattern : getDirPatternList()) {
+            sb.append(" \"").append(dirPattern).append("\",");
+        }
+        sb.append("], filePattern: ").append(getFilePattern());
         sb.append(", displayLabel: ").append(getDisplay());
         sb.append(", dateGroupIndices: ").append(getDateGroupIndices());
         sb.append(", selectedDisplayNames: ");
