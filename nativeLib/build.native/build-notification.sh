@@ -65,7 +65,7 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-PROJECTS_TO_IMPORT=( "org.apache.thrift" "org.apache.qpid" )
+PROJECTS_TO_IMPORT=( "org.apache.thrift" )
 PROJECTS_TO_BUILD=( "edex_com" "edex_notify" )
 
 for project in ${PROJECTS_TO_IMPORT[*]};
@@ -195,13 +195,6 @@ cp -vPf ${BUILD_ROOT}/workspace_/org.apache.thrift/${FOSS_LIB_DIR}/* \
    ${BUILD_ROOT}/awips2/notification/${FOSS_LIB_DIR}
 if [ $? -ne 0 ]; then
    echo "ERROR: Failed to copy the org.apache.thrift lib to its destination."
-   exit 1
-fi
-# org.apache.qpid lib -> notification/lib
-cp -vPf ${BUILD_ROOT}/workspace_/org.apache.qpid/${FOSS_LIB_DIR}/* \
-   ${BUILD_ROOT}/awips2/notification/${FOSS_LIB_DIR}
-if [ $? -ne 0 ]; then
-   echo "ERROR: Failed to copy the org.apache.qpid lib to its destination."
    exit 1
 fi
 
