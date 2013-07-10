@@ -13,7 +13,7 @@ import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.registry.ProviderType;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBundle;
-import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IProviderHandler;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -49,6 +49,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
  * Jan 30, 2013 1543       djohnson     Should not implement IRetrievalHandler.
  * Feb 05, 2013 1580       mpduff       EventBus refactor.
  * Jun 24, 2013 2106       djohnson     Set actual start time when sending to retrieval rather than overwrite scheduled start.
+ * Jul 09, 2013 2106       djohnson     Dependency inject registry handlers.
  * 
  * </pre>
  * 
@@ -68,14 +69,17 @@ public class SubscriptionRetrievalAgent extends
 
     private final IRetrievalDao retrievalDao;
 
+    private final IProviderHandler providerHandler;
+
     public SubscriptionRetrievalAgent(Network network, String destinationUri,
             final Object notifier, int defaultPriority,
             RetrievalManager retrievalManager, IBandwidthDao bandwidthDao,
-            IRetrievalDao retrievalDao) {
+            IRetrievalDao retrievalDao, IProviderHandler providerHandler) {
         super(network, destinationUri, notifier, retrievalManager);
         this.defaultPriority = defaultPriority;
         this.bandwidthDao = bandwidthDao;
         this.retrievalDao = retrievalDao;
+        this.providerHandler = providerHandler;
     }
 
     @Override
@@ -246,10 +250,9 @@ public class SubscriptionRetrievalAgent extends
         return retrievalsGenerated;
     }
 
-    private static Provider getProvider(String providerName) {
+    private Provider getProvider(String providerName) {
         try {
-            return DataDeliveryHandlers.getProviderHandler().getByName(
-                    providerName);
+            return providerHandler.getByName(providerName);
         } catch (RegistryHandlerException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to retrieve provider by name.", e);
