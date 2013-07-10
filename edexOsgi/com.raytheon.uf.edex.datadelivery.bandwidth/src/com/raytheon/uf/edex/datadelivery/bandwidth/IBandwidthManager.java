@@ -21,17 +21,12 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 
 import java.util.List;
 
-import com.google.common.eventbus.AllowConcurrentEvents;
-import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.registry.event.InsertRegistryEvent;
-import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.ISubscriptionAggregator;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.SubscriptionRetrievalFulfilled;
 
 /**
  * Defines the interface of a BandwidthManager.
@@ -43,6 +38,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.SubscriptionRetriev
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 30, 2012 1286       djohnson     Initial creation
+ * Jul 10, 2013 2106       djohnson     Remove EDEX instance specific methods.
  * 
  * </pre>
  * 
@@ -51,27 +47,6 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.SubscriptionRetriev
  */
 
 public interface IBandwidthManager {
-
-    /**
-     * Create a hook into the EDEX Notification sub-system to receive the the
-     * necessary InsertRegistryEvents to drive Bandwidth Management.
-     * 
-     * @param re
-     *            The <code>InsertRegistryEvent</code> Object to evaluate.
-     */
-    @Subscribe
-    void registryEventListener(InsertRegistryEvent re);
-
-    /**
-     * When a Subscription is removed from the Registry, a RemoveRegistryEvent
-     * is generated and forwarded to this method to remove the necessary
-     * BandwidthReservations (and perhaps redefine others).
-     * 
-     * @param event
-     */
-    @Subscribe
-    @AllowConcurrentEvents
-    void subscriptionRemoved(RemoveRegistryEvent event);
 
     /**
      * Schedule all cycles of a Subscription.
@@ -99,7 +74,6 @@ public interface IBandwidthManager {
      * @return
      * @throws SerializationException
      */
-    @Subscribe
     List<BandwidthAllocation> subscriptionUpdated(Subscription subscription)
             throws SerializationException;
 
@@ -109,19 +83,6 @@ public interface IBandwidthManager {
      * @return
      */
     List<BandwidthAllocation> adhocSubscription(AdhocSubscription adhoc);
-
-    /**
-     * The callback method for BandwidthEventBus to use to notify
-     * BandwidthManager that retrievalManager has completed the retrievals for a
-     * Subscription. The updated BandwidthSubscription Object is placed on the
-     * BandwidthEventBus.
-     * 
-     * @param subscription
-     *            The completed subscription.
-     */
-    @Subscribe
-    void subscriptionFulfilled(
-            SubscriptionRetrievalFulfilled subscriptionRetrievalFulfilled);
 
     void setAggregator(ISubscriptionAggregator aggregator);
 
