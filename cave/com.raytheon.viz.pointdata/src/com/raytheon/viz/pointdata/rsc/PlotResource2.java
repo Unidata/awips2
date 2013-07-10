@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.Validate;
@@ -96,6 +95,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     stations updates properly
  * Jun 06, 2013 2072       bsteffen    Fix concurrency problems when init is
  *                                     called before time matching is done.
+ * Jun 25, 2013 1869       bsteffen    Fix plot sampling.
+ * 
  * </pre>
  * 
  * @author brockwoo
@@ -126,8 +127,6 @@ public class PlotResource2 extends
     private JobPool frameRetrievalPool = new JobPool("Retrieving plot frame",
             8, true);
 
-    private TreeMap<String, String> rawMessageMap = new TreeMap<String, String>();
-
     private class FrameRetriever implements Runnable {
 
         private DataTime dataTime;
@@ -145,13 +144,36 @@ public class PlotResource2 extends
 
     }
 
+    /**
+     * A station represents all the data for a single location(station) for a
+     * single frame
+     * 
+     */
     public static class Station {
+        /*
+         * Contains all PlotInfo objects for the same stationId with the same
+         * normalized time(real time will be different)
+         */
         public PlotInfo[] info;
 
+        /*
+         * The image to display for this plot
+         */
         public PointImage plotImage;
 
+        /*
+         * Sampling text for this plot
+         */
+        public String rawMessage;
+
+        /*
+         * Information used be the progressive disclosure algorithm
+         */
         public Object progDiscInfo;
 
+        /*
+         * Location of the plot in descriptor grid space.
+         */
         public Coordinate pixelLocation;
 
     }
@@ -385,7 +407,7 @@ public class PlotResource2 extends
             existingStation.plotImage.getImage().dispose();
             existingStation.plotImage = null;
             // DR14966
-            rawMessageMap.remove(existingStation.info[0].dataURI);
+            existingStation.rawMessage = null;
             PlotInfo[] samplePlot = new PlotInfo[1];
             samplePlot[0] = new PlotInfo();
             samplePlot[0] = plot;
@@ -406,8 +428,8 @@ public class PlotResource2 extends
             }
         }
         if (!dup) {
-        	// Added for DR14996
-            existingStation.info = Arrays.copyOf(existingStation.info,1);
+            // Added for DR14996
+            existingStation.info = Arrays.copyOf(existingStation.info, 1);
             existingStation.info[0] = plot;
             Arrays.sort(existingStation.info, new Comparator<PlotInfo>() {
                 @Override
@@ -516,32 +538,25 @@ public class PlotResource2 extends
                 }
             }
 
-            PlotInfo[] inspectPlot = null;
+            Station inspectPlot = null;
             if (availableStations.size() == 1) {
-                inspectPlot = availableStations.get(0).info;
+                inspectPlot = availableStations.get(0);
             } else if (availableStations.size() > 1) {
                 int index = findClosestPlot(latlon, availableStations);
 
                 if (index != -1) {
-                    inspectPlot = availableStations.get(index).info;
+                    inspectPlot = availableStations.get(index);
                 }
             }
 
             if (inspectPlot != null) {
-                String dataURI = inspectPlot[0].dataURI;
-                if (rawMessageMap.containsKey(dataURI)) {
-                    if (rawMessageMap.get(dataURI) != null) {
-                        message = rawMessageMap.get(dataURI);
-                    }
-                } else {
+                message = inspectPlot.rawMessage;
+                if (message == null) {
                     message = "Generating...";
-                    synchronized (rawMessageMap) {
-                        rawMessageMap.put(dataURI, message);
-                    }
-                    List<PlotInfo[]> list = new ArrayList<PlotInfo[]>();
-                    list.add(inspectPlot);
+                    List<PlotInfo[]> list = new ArrayList<PlotInfo[]>(1);
+                    list.add(inspectPlot.info);
                     Params params = Params.PLOT_AND_SAMPLE;
-                    if (inspectPlot[0].pdv != null) {
+                    if (inspectPlot.info[0].pdv != null) {
                         params = Params.SAMPLE_ONLY;
                     }
                     GetDataTask task = new GetDataTask(list, params);
@@ -737,11 +752,20 @@ public class PlotResource2 extends
     }
 
     @Override
-    public void messageGenerated(String dataURI, String message) {
-        synchronized (rawMessageMap) {
-            rawMessageMap.put(dataURI, message);
+    public void messageGenerated(PlotInfo[] key, String message) {
+        // Key will be the same PlotInfo[] provided to the generator(which will
+        // be all the PlotInfo[] from a single station) and message will be the
+        // sample text.
+        DataTime normTime = getNormalizedTime(key[0].dataTime);
+        FrameInformation frameInfo = this.frameMap.get(normTime);
+        if (frameInfo != null) {
+            Station s = frameInfo.stationMap.get(key[0].stationId);
+            if (s != null) {
+                s.rawMessage = message;
+                issueRefresh();
+            }
         }
-        issueRefresh();
     }
+
 
 }
