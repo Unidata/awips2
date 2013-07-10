@@ -27,4 +27,5 @@ Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.raytheon.viz.ui.personalities.awips
-Import-Package: com.raytheon.uf.common.pypies
+Import-Package: com.raytheon.uf.common.pypies,
+ com.raytheon.uf.viz.core.maps

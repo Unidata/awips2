@@ -18,15 +18,8 @@
    </license>
 
    <requires>
-      <import plugin="org.eclipse.ui" version="3.8.2" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="com.raytheon.viz.ui" version="1.12.1174" match="greaterOrEqual"/>
-      <import plugin="com.raytheon.uf.common.serialization" version="1.12.1174" match="greaterOrEqual"/>
-      <import plugin="com.raytheon.uf.common.localization" version="1.12.1174" match="greaterOrEqual"/>
-      <import plugin="com.raytheon.uf.common.archive" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="com.raytheon.uf.common.time" version="1.12.1174" match="greaterOrEqual"/>
-      <import plugin="com.raytheon.uf.common.util" version="1.12.1174" match="greaterOrEqual"/>
-      <import plugin="org.apache.commons.io"/>
+      <import feature="com.raytheon.uf.common.base.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.base.feature" version="1.0.0.qualifier"/>
    </requires>
 
    <plugin
@@ -38,6 +31,26 @@
 
    <plugin
          id="com.raytheon.uf.common.archive"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.io"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.core.runtime"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.ui"
          download-size="0"
          install-size="0"
          version="0.0.0"

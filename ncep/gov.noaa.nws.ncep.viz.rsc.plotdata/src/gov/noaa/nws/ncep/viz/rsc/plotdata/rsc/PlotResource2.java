@@ -117,6 +117,7 @@ import static java.lang.System.out;
  *  08/22/2012     #809    sgurung     For bgGenerator thread, add stations to queue only when zoomLevel > 0.10
  *  								   (this fixes the issue of slow performance when zooming all the way in, when Data Area is set)	
  *  11/04/2012     #944    ghull       add query for Fcst Plot resources
+ * Jun 25, 2013 1869       bsteffen    Fix plot sampling.
  * </pre>
  * 
  * @author brockwoo
@@ -1084,7 +1085,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, N
 	}
 	
 	@Override
-	 public void messageGenerated(String dataURI, String message) {
+    public void messageGenerated(PlotInfo[] key, String message) {
 	}
 
 	// generate a string used as the key for the StationMap
