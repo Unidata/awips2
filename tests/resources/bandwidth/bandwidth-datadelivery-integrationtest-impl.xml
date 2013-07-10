@@ -17,20 +17,14 @@
         </constructor-arg>
         <constructor-arg ref="bandwidthManagerCreator" />
         <constructor-arg ref="hibernateBandwidthDbInit" />
+        <!-- Registry handlers required for EdexBandwidthManager -->
+        <constructor-arg ref="DataSetMetaDataHandler" />
+        <constructor-arg ref="SubscriptionHandler" />
     </bean>
 
     <bean
         class="com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory">
         <constructor-arg ref="bandwidthManager" />
-    </bean>
-
-    <bean id="registerDataDeliveryHandlers" class="java.lang.String">
-        <!-- required for depends-on -->
-    </bean>
-
-    <bean id="retrievalAgents" class="java.util.Collections"
-        factory-method="emptyMap">
-        <!-- No retrievals for integration test -->
     </bean>
 
     <bean id="dataSetAvailabilityCalculator"
