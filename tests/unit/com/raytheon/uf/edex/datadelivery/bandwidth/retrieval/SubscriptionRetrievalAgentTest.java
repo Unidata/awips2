@@ -66,6 +66,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.Sta
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 30, 2013 1543       djohnson     Initial creation
+ * Jul 10, 2013 2106       djohnson     Inject providerHandler.
  * 
  * </pre>
  * 
@@ -119,7 +120,7 @@ public class SubscriptionRetrievalAgentTest {
 
         SubscriptionRetrievalAgent agent = new SubscriptionRetrievalAgent(
                 route, "someUri", new Object(), 1, null, bandwidthDao,
-                retrievalDao) {
+                retrievalDao, DataDeliveryHandlers.getProviderHandler()) {
             @Override
             void wakeRetrievalTasks() throws EdexException {
                 // Do nothing

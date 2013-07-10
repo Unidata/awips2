@@ -35,6 +35,7 @@ import org.junit.Ignore;
  * May 02, 2013 1910       djohnson     Add validator plugins spring file.
  * May 28, 2013 1650       djohnson     Add event bus spring files.
  * Jun 24, 2013 2106       djohnson     Remove spring file.
+ * Jul 10, 2013 2106       djohnson     Add MEMORY_DATADELIVERY_HANDLERS_XML.
  * 
  * </pre>
  * 
@@ -91,6 +92,8 @@ public class SpringFiles {
     public static final String EBXML_VALIDATOR_PLUGINS_XML = "/spring/ebxml-validator-plugins.xml";
 
     public static final String EVENTBUS_COMMON_XML = "/spring/eventbus-common.xml";
+
+    public static final String MEMORY_DATADELIVERY_HANDLERS_XML = "/datadelivery/memory-datadelivery-handlers.xml";
 
     public static final String UNIT_TEST_DB_BEANS_XML = "/unit-test-db-beans.xml";
 

@@ -16,6 +16,7 @@
         <constructor-arg ref="retrievalManager" />
         <constructor-arg ref="bandwidthDao" />
         <constructor-arg ref="retrievalDao" />
+        <constructor-arg ref="ProviderHandler" />
     </bean>
 
     <util:map id="retrievalAgents">
