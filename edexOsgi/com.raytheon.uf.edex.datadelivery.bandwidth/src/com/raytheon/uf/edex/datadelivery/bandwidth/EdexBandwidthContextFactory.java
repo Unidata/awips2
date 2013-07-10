@@ -21,6 +21,8 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 
 import java.io.File;
 
+import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
+import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -47,6 +49,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * ------------ ---------- ----------- --------------------------
  * Oct 24, 2012 1286       djohnson     Initial creation
  * Feb 20, 2013 1543       djohnson     Add IEdexBandwidthManagerCreator.
+ * Jul 10, 2013 2106       djohnson     Dependency inject registry handlers.
  * 
  * </pre>
  * 
@@ -68,14 +71,18 @@ public class EdexBandwidthContextFactory implements BandwidthContextFactory {
          * @param bandwidthDao
          * @param retrievalManager
          * @param bandwidthDaoUtil
+         * @param dataSetMetaDataHandler
+         * @param subscriptionHandler
          * @return the bandwidth manager
          */
         IBandwidthManager getBandwidthManager(IBandwidthDbInit dbInit,
                 IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
-                BandwidthDaoUtil bandwidthDaoUtil);
+                BandwidthDaoUtil bandwidthDaoUtil,
+                IDataSetMetaDataHandler dataSetMetaDataHandler,
+                ISubscriptionHandler subscriptionHandler);
     }
 
-    private static BandwidthManager instance;
+    private static EdexBandwidthManager instance;
 
     private final IBandwidthDao bandwidthDao;
 
@@ -87,23 +94,36 @@ public class EdexBandwidthContextFactory implements BandwidthContextFactory {
 
     private final IBandwidthDbInit dbInit;
 
+    private final IDataSetMetaDataHandler dataSetMetaDataHandler;
+
+    private final ISubscriptionHandler subscriptionHandler;
+
     /**
      * Intentionally package-private constructor, as it is created from Spring
      * which is able to reflectively instantiate.
      * 
      * @param bandwidthDao
-     * @param findSubscriptionStrategy
+     * @param bandwidthBucketDao
+     * @param bandwidthInitializer
+     * @param bandwidthManagerCreator
+     * @param dbInit
+     * @param dataSetMetaDataHandler
+     * @param subscriptionHandler
      */
     EdexBandwidthContextFactory(IBandwidthDao bandwidthDao,
             IBandwidthBucketDao bandwidthBucketDao,
             BandwidthInitializer bandwidthInitializer,
             IEdexBandwidthManagerCreator bandwidthManagerCreator,
-            IBandwidthDbInit dbInit) {
+            IBandwidthDbInit dbInit,
+            IDataSetMetaDataHandler dataSetMetaDataHandler,
+            ISubscriptionHandler subscriptionHandler) {
         this.bandwidthDao = bandwidthDao;
         this.bandwidthBucketDao = bandwidthBucketDao;
         this.bandwidthInitializer = bandwidthInitializer;
         this.bandwidthManagerCreator = bandwidthManagerCreator;
         this.dbInit = dbInit;
+        this.dataSetMetaDataHandler = dataSetMetaDataHandler;
+        this.subscriptionHandler = subscriptionHandler;
     }
 
     /**
@@ -114,13 +134,9 @@ public class EdexBandwidthContextFactory implements BandwidthContextFactory {
      * @param instance
      *            the {@link BandwidthManager} instance
      */
-    EdexBandwidthContextFactory(BandwidthManager instance) {
+    EdexBandwidthContextFactory(EdexBandwidthManager instance) {
+        this(null, null, null, null, null, null, null);
         EdexBandwidthContextFactory.instance = instance;
-        this.bandwidthDao = null;
-        this.bandwidthBucketDao = null;
-        this.bandwidthInitializer = null;
-        this.bandwidthManagerCreator = null;
-        this.dbInit = null;
     }
 
     /**
@@ -130,7 +146,7 @@ public class EdexBandwidthContextFactory implements BandwidthContextFactory {
      * 
      * @return the instance
      */
-    static BandwidthManager getInstance() {
+    static EdexBandwidthManager getInstance() {
         return instance;
     }
 
@@ -210,6 +226,6 @@ public class EdexBandwidthContextFactory implements BandwidthContextFactory {
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
             BandwidthDaoUtil bandwidthDaoUtil) {
         return bandwidthManagerCreator.getBandwidthManager(dbInit,
-                bandwidthDao, retrievalManager, bandwidthDaoUtil);
+                bandwidthDao, retrievalManager, bandwidthDaoUtil, dataSetMetaDataHandler, subscriptionHandler);
     }
 }
