@@ -38,6 +38,7 @@ import org.eclipse.core.commands.ExecutionException;
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial Creation.
  * 02/05/2013   1578        rferrel     Changes for non-blocking singleton TimeSeriesDlg.
+ * 6/8/2013     15980       wkwock      Fix selected station not update
  * 
  * </pre>
  * 
@@ -48,8 +49,10 @@ public class TimeSeriesAction extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        TimeSeriesDlg.getInstance().open();
+    	TimeSeriesDlg tsd = TimeSeriesDlg.getInstance();
+    	tsd.open();
+        tsd.updateFromDisplayManager();
 
-        return null;
+    	return null;
     }
 }

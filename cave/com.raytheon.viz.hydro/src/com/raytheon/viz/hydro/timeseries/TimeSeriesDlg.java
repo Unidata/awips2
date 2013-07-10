@@ -122,6 +122,7 @@ import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
  * 05 Feb 2013 1578        rferrel     Dialog made non-blocking and a singleton.
  * 06 May 2013  1976       mpduff      Code cleanup.
  * 06 Jun 2013 2076        mpduff      Fix station list selection and graph button enabling.
+ * 0  Jun 2013 15980       wkwock      Fix selected station not update
  * </pre>
  * 
  * @author lvenable
@@ -2612,4 +2613,18 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
     protected void preOpened() {
         super.preOpened();
     }
+
+    /**
+     * In case user selected a different station in the Hydro perspective, 
+     * update currentLid, etc
+     */
+    public void updateFromDisplayManager() {
+        HydroDisplayManager hdm = HydroDisplayManager.getInstance();
+        String newLid=hdm.getCurrentLid();
+        if (newLid!=null && !newLid.equalsIgnoreCase(currentLid)) {
+        	updateAndOpen(newLid, this.displayGraph);
+        	openGraph();
+        }
+    }
+
 }
