@@ -74,6 +74,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * Apr 29, 2013 1910       djohnson     Always shutdown bandwidth managers in tests.
  * Jun 03, 2013 2095       djohnson     Move getPointDataSet in from subclass.
+ * Jul 09, 2013 2106       djohnson     Add datadelivery handlers, since they are now dependency injected.
  * 
  * </pre>
  * 
@@ -82,7 +83,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { SpringFiles.UNIT_TEST_DB_BEANS_XML,
-        SpringFiles.EVENTBUS_COMMON_XML,
+        SpringFiles.EVENTBUS_COMMON_XML, SpringFiles.DATADELIVERY_HANDLERS_XML,
+        SpringFiles.MEMORY_DATADELIVERY_HANDLERS_XML,
         SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML,
         SpringFiles.BANDWIDTH_DATADELIVERY_DAOS_XML,
         SpringFiles.BANDWIDTH_DATADELIVERY_XML,
@@ -95,7 +97,7 @@ public abstract class AbstractBandwidthManagerIntTest {
     protected ApplicationContext context;
 
     @Autowired
-    protected BandwidthManager bandwidthManager;
+    protected EdexBandwidthManager bandwidthManager;
 
     @Autowired
     protected RetrievalManager retrievalManager;

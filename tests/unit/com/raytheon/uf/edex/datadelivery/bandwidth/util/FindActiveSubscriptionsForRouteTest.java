@@ -29,9 +29,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBuilder;
-import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -48,6 +48,7 @@ import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
  * ------------ ---------- ----------- --------------------------
  * Feb 19, 2013 1543       djohnson     Initial creation
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * Jul 10, 2013 2106       djohnson     Inject subscriptionHandler.
  * 
  * </pre>
  * 
@@ -56,12 +57,12 @@ import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
  */
 
 public class FindActiveSubscriptionsForRouteTest {
+    private static ISubscriptionHandler subscriptionHandler;
 
     @BeforeClass
     public static void classSetUp() throws RegistryHandlerException {
         RegistryObjectHandlersUtil.initMemory();
-        final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
-                .getSubscriptionHandler();
+        subscriptionHandler = DataDeliveryHandlers.getSubscriptionHandler();
 
         // Two OPSNET subscriptions
         final SiteSubscription opsnetSub1 = new SubscriptionBuilder()
@@ -86,7 +87,7 @@ public class FindActiveSubscriptionsForRouteTest {
     public void findsSubscriptionForSingleRoute()
             throws RegistryHandlerException {
         final Set<Subscription> subscriptions = new FindActiveSubscriptionsForRoute(
-                Network.SBN).findSubscriptionsToSchedule();
+                subscriptionHandler, Network.SBN).findSubscriptionsToSchedule();
         assertThat(subscriptions, hasSize(2));
         for (Subscription subscription : subscriptions) {
             assertThat(subscription.getRoute(), is(Network.SBN));
@@ -97,7 +98,8 @@ public class FindActiveSubscriptionsForRouteTest {
     public void findsSubscriptionsForMultipleRoutes()
             throws RegistryHandlerException {
         final Set<Subscription> subscriptions = new FindActiveSubscriptionsForRoute(
-                Network.OPSNET, Network.SBN).findSubscriptionsToSchedule();
+                subscriptionHandler, Network.OPSNET, Network.SBN)
+                .findSubscriptionsToSchedule();
         assertThat(subscriptions, hasSize(4));
     }
 
