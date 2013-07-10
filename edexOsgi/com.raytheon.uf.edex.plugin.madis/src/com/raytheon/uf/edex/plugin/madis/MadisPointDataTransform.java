@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
  * ------------ ---------- ----------- --------------------------
  * 28 Mar 2013  1746       dhladky      Created 
  * 10 Jun 2013  1763       dhladky      Updates for speed.
+ * 08 Jul 2013  2171       dhladky     Removed dataURI
  * </pre>
  * 
  * @author dhladky
@@ -163,8 +164,8 @@ public class MadisPointDataTransform {
     public static final String RESTRICTION = "restriction";
 
     public static final String TIME_OBS = "timeObs";
-
-    public static final String DATA_URI = "dataURI";
+    
+    public static final String ID = "id";
 
     public static final String[] ALL_PARAMS = { DATASET, DEWPOINT,
             DEWPOINT_QCD, DEWPOINT_QCA, DEWPOINT_QCR, RH, RH_QCD, RH_QCA,
@@ -248,7 +249,13 @@ public class MadisPointDataTransform {
     private PointDataView buildView(PointDataContainer container,
             MadisRecord record) {
         PointDataView pdv = container.append();
-
+        
+        // I think this is inefficient but, PlotData for SVG reads 
+        // the pointDataView so, the first 3 that are already in the 
+        // DB have to be here.
+        pdv.setString(PROVIDER, record.getProvider());
+        pdv.setString(SUB_PROVIDER, record.getSubProvider());
+        pdv.setInt(RESTRICTION, record.getRestriction());
         pdv.setInt(DATASET, record.getDataset());
         // dewpoint
         pdv.setFloat(DEWPOINT, record.getDewpoint());
@@ -450,9 +457,10 @@ public class MadisPointDataTransform {
         try {
             request = new PointDataQuery(MadisRecord.PLUGIN_NAME);
             request.requestAllLevels();
-            request.addParameter(DATA_URI, record.getDataURI(), "=");
+            request.addParameter(ID, ""+record.getId(), "=");
             request.setParameters(ALL_PARAMS_LIST);
             result = request.execute();
+            
             if (result != null) {
 
                 result.setCurrentSz(result.getAllocatedSz());
@@ -482,22 +490,20 @@ public class MadisPointDataTransform {
 
         PointDataQuery request = null;
         PointDataContainer result = null;
-        StringBuilder uris = new StringBuilder();
+        StringBuilder ids = new StringBuilder();
 
         for (int i = 0; i < records.length; i++) {
-            uris.append(records[i].getDataURI());
+            ids.append(records[i].getId());
             if (i < records.length - 1) {
-                uris.append(COMMA);
+                ids.append(COMMA);
             }
         }
 
         try {
-            // TODO:  We wnat to get rid of dataURI so, 
-            // When we do the 2020 integration this summer, replace dataURI and sue this instead.
-            // RequestConstraint.toConstraintMapping(DataURIUtil.createDataURIMap(uri));
+
             request = new PointDataQuery(MadisRecord.PLUGIN_NAME);
             request.requestAllLevels();
-            request.addParameter(DATA_URI, uris.toString(), IN);
+            request.addParameter(ID, ids.toString(), IN);
             request.setParameters(ALL_PARAMS_LIST);
             result = request.execute();
 
