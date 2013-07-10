@@ -33,6 +33,7 @@ import com.raytheon.uf.edex.event.GoogleEventBusFactory;
  * ------------ ---------- ----------- --------------------------
  * Dec 11, 2012            djohnson     Initial creation
  * May 28, 2013 1650       djohnson     Returns the event buses required by extending GoogleEventBusFactory.
+ * Jul 09, 2013 2106       djohnson     Remove subscriptionBus.
  * 
  * </pre>
  * 
@@ -46,11 +47,6 @@ interface BandwidthEventBusFactory extends GoogleEventBusFactory {
      * Get the data set bus.
      */
     EventBus getDataSetBus();
-
-    /**
-     * Get the subscription bus.
-     */
-    EventBus getSubscriptionBus();
 
     /**
      * Get the retrieval bus.
