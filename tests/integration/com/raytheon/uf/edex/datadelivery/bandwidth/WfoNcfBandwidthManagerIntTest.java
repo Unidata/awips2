@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 27, 2013 1644       djohnson     Initial creation
+ * Jul 10, 2013 2106       djohnson     Dependency inject registry handlers.
  * 
  * </pre>
  * 
@@ -78,6 +79,7 @@ public class WfoNcfBandwidthManagerIntTest extends
         ApplicationContext ncfBandwidthManagerCtx = new ClassPathXmlApplicationContext(
                 new String[] {
                         SpringFiles.UNIT_TEST_DB_BEANS_XML,
+                        SpringFiles.MEMORY_DATADELIVERY_HANDLERS_XML,
                         SpringFiles.RETRIEVAL_DATADELIVERY_DAOS_XML,
                         SpringFiles.BANDWIDTH_DATADELIVERY_DAOS_XML,
                         SpringFiles.BANDWIDTH_DATADELIVERY_XML,
