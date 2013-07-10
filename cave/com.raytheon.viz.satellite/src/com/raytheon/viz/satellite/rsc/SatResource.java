@@ -38,8 +38,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 
 import com.raytheon.uf.common.colormap.IColorMap;
-import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
-import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.dataplugin.satellite.units.SatelliteUnits;
@@ -59,6 +57,7 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IMeshCallback;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -67,6 +66,7 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
+import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.viz.core.style.StyleManager;
 import com.raytheon.uf.viz.core.style.StyleRule;
@@ -98,6 +98,7 @@ import com.raytheon.viz.satellite.SatelliteConstants;
  * - AWIPS2 Baseline Repository --------
  * 07/17/2012        798     jkorman     Use decimationLevels from SatelliteRecord. Removed hard-coded
  * data set names.
+ * 06/14/2013	DR 16070	jgerth		Support for sampling from data mapping
  * </pre>
  * 
  * @author chammack
@@ -244,6 +245,7 @@ public class SatResource extends
             colorMapParameters.setColorMapMin(0.0f);
             colorMapParameters.setColorMapMax(255.0f);
         }
+
         if (unit instanceof GenericPixel) {
             // Derived parameter data will be signed
             colorMapParameters.setDataMin(-128.0f);
@@ -255,8 +257,8 @@ public class SatResource extends
             colorMapParameters.setColorMapMin(0.0f);
             colorMapParameters.setColorMapMax(252.0f);
         } else {
-            colorMapParameters.setDataMin(0.0f);
-            colorMapParameters.setDataMax(255.0f);
+        	colorMapParameters.setDataMin(0.0f);
+        	colorMapParameters.setDataMax(255.0f);
         }
 
         if (colorMap != null) {
@@ -404,11 +406,24 @@ public class SatResource extends
         DataMappingPreferences dataMapping = cmp.getDataMapping();
         if (dataMapping != null) {
             // convert to pixel value for checking labels
-            double pixelValue = cmp.getDisplayToDataConverter().convert(
-                    value.doubleValue());
-            // if the pixel value matches the data mapping entry use that
-            // label instead
-            String label = dataMapping.getLabelValueForDataValue(pixelValue);
+			// START DR 16070 fix 1
+			double pixelValue = value.doubleValue();
+			if (cmp.getDisplayToDataConverter() != null)
+				pixelValue = cmp.getDisplayToDataConverter().convert(
+						value.doubleValue());
+			// if the pixel value matches the data mapping entry use that
+			// label instead
+			String label = null;
+			String gfs = null;
+			if (sampleRange != null) {
+				gfs = sampleRange.getFormatString();
+			}
+			if (gfs != null && gfs.length() < 3) {
+				label = dataMapping.getLabelValueForDataValue(pixelValue, gfs);
+			} else {
+				label = dataMapping.getLabelValueForDataValue(pixelValue);
+			}
+			// END fix 1
             if (label != null) {
                 return label;
             }
@@ -419,6 +434,16 @@ public class SatResource extends
         // counts was not an acceptable unit.
         String unitString = unit == null ? ""
                 : unit.toString().equals("bit") ? "counts" : unit.toString();
+        // START DR 16070 fix 2
+        if (dataMapping != null)
+        	if (dataMapping.getEntries() != null)
+        		if (dataMapping.getEntries().get(0) != null)
+        			if (dataMapping.getEntries().get(0).getOperator() != null)
+        				if (unitString.equals("")
+        						&& dataMapping.getEntries().get(0).getOperator().equals("i")
+        						&& dataMapping.getEntries().get(0).getLabel() != null)
+        					unitString = dataMapping.getEntries().get(0).getLabel();
+        // END fix 2
         double f1 = Double.NEGATIVE_INFINITY;
         double f2 = Double.POSITIVE_INFINITY;
         if (sampleRange != null) {
