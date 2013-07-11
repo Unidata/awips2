@@ -47,7 +47,7 @@ import java.util.regex.Pattern;
 
 public class WMOHeaderFinder {
 
-    private static Pattern WMOPATTERN = Pattern
+    public static Pattern WMO_PATTERN = Pattern
             .compile("([A-Z]{3}[A-Z0-9](\\d{0,2}|[A-Z]{0,2}) [A-Z0-9 ]{4} "
                     + "\\d{6}[^\\r\\n]*)[\\r\\n]+");
 
@@ -89,7 +89,7 @@ public class WMOHeaderFinder {
             byte[] header = new byte[100];
             in.read(header);
             String sHeader = new String(header, "ISO-8859-1");
-            Matcher wmoSearch = WMOPATTERN.matcher(sHeader);
+            Matcher wmoSearch = WMO_PATTERN.matcher(sHeader);
             String messageHeader = null;
             if (wmoSearch.find()) {
                 messageHeader = wmoSearch.group();
