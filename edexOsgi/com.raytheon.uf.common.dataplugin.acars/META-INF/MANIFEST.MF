@@ -3,17 +3,14 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Acars Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.acars
 Bundle-Version: 1.12.1174.qualifier
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.apache.commons.logging,
+Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.pointdata,
- org.geotools,
- javax.persistence,
- javax.measure,
  com.raytheon.uf.common.serialization,
- com.raytheon.uf.common.dataplugin,
- org.hibernate;bundle-version="1.0.0"
+ com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
+ javax.persistence,
+ org.hibernate;bundle-version="1.0.0",
+ javax.measure;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.common.dataplugin.acars
-Import-Package: com.raytheon.uf.common.geospatial,
- com.raytheon.uf.common.time
