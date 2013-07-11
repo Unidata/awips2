@@ -51,11 +51,11 @@ import com.raytheon.uf.viz.core.style.VizStyleException;
 import com.raytheon.uf.viz.xy.InterpUtils;
 import com.raytheon.uf.viz.xy.graph.IGraph;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor;
+import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor.TimeDirection;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
 import com.raytheon.viz.core.contours.util.VectorGraphicsRenderable;
 import com.raytheon.viz.core.graphing.xy.XYData;
 import com.raytheon.viz.core.graphing.xy.XYWindImageData;
-import com.raytheon.viz.core.slice.request.VerticalPointRequest.TimeDirection;
 import com.raytheon.viz.core.style.arrow.ArrowPreferences;
 import com.vividsolutions.jts.geom.Coordinate;
 

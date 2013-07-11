@@ -25,7 +25,6 @@
       <resource
             class="com.raytheon.viz.skewt.rsc.SkewTResource"
             name="SkewT Data"
-            recordClass="com.raytheon.uf.common.dataplugin.bufrua.UAObs"
             renderingOrderId="PLOT"
             resourceType="SOUNDING"/>
 	  <resource 
