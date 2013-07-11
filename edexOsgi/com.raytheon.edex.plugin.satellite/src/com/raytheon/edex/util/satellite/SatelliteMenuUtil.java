@@ -33,9 +33,9 @@ import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
 import com.raytheon.uf.common.menus.xml.CommonIncludeMenuContribution;
 import com.raytheon.uf.common.menus.xml.MenuTemplateFile;
 import com.raytheon.uf.common.menus.xml.VariableSubstitution;
+import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.awipstools.GetWfoCenterHandler;
 import com.raytheon.uf.edex.menus.AbstractMenuUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -90,12 +90,13 @@ public class SatelliteMenuUtil extends AbstractMenuUtil {
         Coordinate coord = null;
         ISpatialQuery sp = null;
         try {
-            coord = new GetWfoCenterHandler().handleRequest(centerPointRequest);
+            coord = (Coordinate) RequestRouter.route(centerPointRequest);
             sp = SpatialQueryFactory.create();
         } catch (Exception e1) {
             statusHandler.error("Unable to send request for lat/lon values");
             return;
         }
+
         try {
             lat = coord.y;
             lon = coord.x;
