@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.raytheon.uf.edex.database.init.DbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttributes;
 
 /**
  * The DbInit class is responsible for ensuring that the appropriate tables are
@@ -42,6 +43,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
  * Oct 26, 2012 1286        djohnson    Renamed to Hibernate specific.
  * Apr 30, 2013 1960        djohnson    Extend the generalized DbInit.
  * Jun 24, 2013 2106        djohnson    Add {@link BandwidthBucket} to annotated classes.
+ * Jul 11, 2013 2106        djohnson    Add {@link SubscriptionRetrievalAttributes}.
  * </pre>
  * 
  * @author jspinks
@@ -79,6 +81,7 @@ public class HibernateBandwidthDbInit extends DbInit implements
         aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription.class);
         aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval.class);
         aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation.class);
+        aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttributes.class);
         return aConfig;
     }
 
