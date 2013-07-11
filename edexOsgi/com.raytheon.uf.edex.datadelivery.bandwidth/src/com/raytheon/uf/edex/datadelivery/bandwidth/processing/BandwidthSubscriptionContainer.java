@@ -17,17 +17,16 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.datadelivery.bandwidth.dao;
+package com.raytheon.uf.edex.datadelivery.bandwidth.processing;
 
-import java.util.Random;
+import java.util.List;
 
-import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.util.AbstractFixture;
-import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 
 /**
- * TODO Add Description
+ * Container class to transport {@link BandwidthSubscription} instances with
+ * their {@link Subscription} since they no longer embed a copy.
  * 
  * <pre>
  * 
@@ -35,34 +34,21 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 13, 2012            djohnson     Initial creation
+ * Jul 11, 2013 2106       djohnson     Initial creation
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
+public class BandwidthSubscriptionContainer {
+    public  final Subscription subscription;
 
-public class SubscriptionDaoFixture extends
-        AbstractFixture<BandwidthSubscription> {
-
-    public static final SubscriptionDaoFixture INSTANCE = new SubscriptionDaoFixture();
-
-    /**
-     * Private.
-     */
-    private SubscriptionDaoFixture() {
-
+    public final List<BandwidthSubscription> newSubscriptions;
+    
+    public BandwidthSubscriptionContainer(Subscription subscription,
+            List<BandwidthSubscription> newSubscriptions) {
+        this.subscription = subscription;
+        this.newSubscriptions = newSubscriptions;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public BandwidthSubscription getInstance(long seedValue, Random random) {
-        Subscription sub = SiteSubscriptionFixture.INSTANCE.get(seedValue);
-        return BandwidthUtil.getSubscriptionDaoForSubscription(sub,
-                BandwidthUtil.now());
-    }
-
 }
