@@ -55,6 +55,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttributes;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttributesFixture;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalFixture;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
@@ -375,19 +377,26 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
     @Test
     public void testGetSubscriptionRetrievalsByProviderAndDataSet()
             throws SerializationException {
+
         // These two have the same dataset name and provider
-        SubscriptionRetrieval entity1 = SubscriptionRetrievalFixture.INSTANCE
+        SubscriptionRetrievalAttributes entity1 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(1);
-        SubscriptionRetrieval entity2 = SubscriptionRetrievalFixture.INSTANCE
+        SubscriptionRetrievalAttributes entity2 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(1);
         // This one does not
-        SubscriptionRetrieval entity3 = SubscriptionRetrievalFixture.INSTANCE
+        SubscriptionRetrievalAttributes entity3 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(2);
 
-        dao.store(entity1.getBandwidthSubscription());
-        dao.store(entity2.getBandwidthSubscription());
-        dao.store(entity3.getBandwidthSubscription());
-        dao.store(Arrays.asList(entity1, entity2, entity3));
+        dao.storeBandwidthSubscriptions(Arrays.asList(entity1
+                .getSubscriptionRetrieval().getBandwidthSubscription(), entity2
+                .getSubscriptionRetrieval().getBandwidthSubscription(), entity3
+                .getSubscriptionRetrieval().getBandwidthSubscription()));
+        dao.store(Arrays.<SubscriptionRetrieval> asList(
+                entity1.getSubscriptionRetrieval(),
+                entity2.getSubscriptionRetrieval(),
+                entity3.getSubscriptionRetrieval()));
+        dao.storeSubscriptionRetrievalAttributes(Arrays.asList(entity1,
+                entity2, entity3));
 
         final Subscription subscription = entity1.getSubscription();
         final String expectedProvider = subscription.getProvider();
@@ -401,10 +410,11 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
 
         for (SubscriptionRetrieval retrieval : results) {
             assertEquals("Incorrect provider found.",
-                    subscription.getProvider(), retrieval.getSubscription()
-                            .getProvider());
+                    subscription.getProvider(), retrieval
+                            .getBandwidthSubscription().getProvider());
             assertEquals("Incorrect data set found.",
-                    subscription.getDataSetName(), retrieval.getSubscription()
+                    subscription.getDataSetName(), retrieval
+                            .getBandwidthSubscription()
                             .getDataSetName());
         }
     }
@@ -413,20 +423,22 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
     public void testGetSubscriptionRetrievalsByProviderDataSetAndBaseReferenceTime()
             throws SerializationException {
         // These two have the same dataset name and provider
-        SubscriptionRetrieval entity1 = SubscriptionRetrievalFixture.INSTANCE
+        SubscriptionRetrievalAttributes entity1 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(1);
-        SubscriptionRetrieval entity2 = SubscriptionRetrievalFixture.INSTANCE
+        SubscriptionRetrievalAttributes entity2 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(1);
         // This one does not
-        SubscriptionRetrieval entity3 = SubscriptionRetrievalFixture.INSTANCE
+        SubscriptionRetrievalAttributes entity3 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(2);
 
-        // Still have to persist the actual subscription daos
         final BandwidthSubscription subDao1 = entity1
+                .getSubscriptionRetrieval()
                 .getBandwidthSubscription();
         final BandwidthSubscription subDao2 = entity2
+                .getSubscriptionRetrieval()
                 .getBandwidthSubscription();
         final BandwidthSubscription subDao3 = entity3
+                .getSubscriptionRetrieval()
                 .getBandwidthSubscription();
 
         // Give each a unique time
@@ -439,16 +451,14 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         three.add(Calendar.HOUR, 1);
         subDao3.setBaseReferenceTime(three);
 
-        // This persists the subscription dao objects and sets them on the
-        // retrievals
-        entity1.setBandwidthSubscription(dao.newBandwidthSubscription(
-                subDao1.getSubscription(), subDao1.getBaseReferenceTime()));
-        entity2.setBandwidthSubscription(dao.newBandwidthSubscription(
-                subDao2.getSubscription(), subDao2.getBaseReferenceTime()));
-        entity3.setBandwidthSubscription(dao.newBandwidthSubscription(
-                subDao3.getSubscription(), subDao3.getBaseReferenceTime()));
-
-        dao.store(Arrays.asList(entity1, entity2, entity3));
+        dao.storeBandwidthSubscriptions(Arrays
+                .asList(subDao1, subDao2, subDao3));
+        dao.store(Arrays.<SubscriptionRetrieval> asList(
+                entity1.getSubscriptionRetrieval(),
+                entity2.getSubscriptionRetrieval(),
+                entity3.getSubscriptionRetrieval()));
+        dao.storeSubscriptionRetrievalAttributes(Arrays.asList(entity1,
+                entity2, entity3));
 
         final Subscription subscription = entity1.getSubscription();
         final String expectedProvider = subscription.getProvider();
@@ -461,7 +471,8 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
                 1, results.size());
 
         SubscriptionRetrieval result = results.iterator().next();
-        final Subscription resultSubscription = result.getSubscription();
+        final BandwidthSubscription resultSubscription = result
+                .getBandwidthSubscription();
         assertEquals("Incorrect provider found.", subscription.getProvider(),
                 resultSubscription.getProvider());
         assertEquals("Incorrect data set found.",
@@ -520,41 +531,36 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
     public void testQuerySubscriptionRetrievalsBySubscriptionId()
             throws SerializationException {
         // These two have the same dataset name and provider
-        SubscriptionRetrieval entity1 = SubscriptionRetrievalFixture.INSTANCE
+        SubscriptionRetrievalAttributes entity1 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(1);
-        SubscriptionRetrieval entity2 = SubscriptionRetrievalFixture.INSTANCE
+        SubscriptionRetrievalAttributes entity2 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(1);
         // This one does not
-        SubscriptionRetrieval entity3 = SubscriptionRetrievalFixture.INSTANCE
+        SubscriptionRetrievalAttributes entity3 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(2);
 
-        // Still have to persist the actual subscription daos
-        final BandwidthSubscription subDao1 = entity1
-                .getBandwidthSubscription();
-        final BandwidthSubscription subDao2 = entity2
-                .getBandwidthSubscription();
-        final BandwidthSubscription subDao3 = entity3
-                .getBandwidthSubscription();
+        dao.storeBandwidthSubscriptions(Arrays.asList(entity1
+                .getSubscriptionRetrieval().getBandwidthSubscription(), entity2
+                .getSubscriptionRetrieval().getBandwidthSubscription(), entity3
+                .getSubscriptionRetrieval().getBandwidthSubscription()));
+        dao.store(Arrays.<SubscriptionRetrieval> asList(
+                entity1.getSubscriptionRetrieval(),
+                entity2.getSubscriptionRetrieval(),
+                entity3.getSubscriptionRetrieval()));
+        dao.storeSubscriptionRetrievalAttributes(Arrays.asList(entity1,
+                entity2, entity3));
 
-        // This persists the subscription dao objects and sets them on the
-        // retrievals
-        entity1.setBandwidthSubscription(dao.newBandwidthSubscription(
-                subDao1.getSubscription(), subDao1.getBaseReferenceTime()));
-        entity2.setBandwidthSubscription(dao.newBandwidthSubscription(
-                subDao2.getSubscription(), subDao2.getBaseReferenceTime()));
-        entity3.setBandwidthSubscription(dao.newBandwidthSubscription(
-                subDao3.getSubscription(), subDao3.getBaseReferenceTime()));
-
-        dao.store(Arrays.asList(entity1, entity2, entity3));
         final List<SubscriptionRetrieval> results = dao
-                .querySubscriptionRetrievals(entity2.getBandwidthSubscription()
+                .querySubscriptionRetrievals(entity2.getSubscriptionRetrieval()
+                        .getBandwidthSubscription()
                         .getId());
         assertEquals(
                 "Should have returned one entity for the subscriptionDao id!",
                 1, results.size());
 
         SubscriptionRetrieval result = results.iterator().next();
-        assertEquals("Incorrect id found.", entity2.getId(), result.getId());
+        assertEquals("Incorrect id found.", entity2.getSubscriptionRetrieval()
+                .getId(), result.getId());
         assertNotSame(entity2, result);
     }
 
@@ -562,40 +568,44 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
     public void testQuerySubscriptionRetrievalsBySubscription()
             throws SerializationException {
         // These two have the same dataset name and provider
-        SubscriptionRetrieval entity1 = SubscriptionRetrievalFixture.INSTANCE
+        SubscriptionRetrievalAttributes entity1 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(1);
-        SubscriptionRetrieval entity2 = SubscriptionRetrievalFixture.INSTANCE
+        SubscriptionRetrievalAttributes entity2 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(1);
         // This one does not
-        SubscriptionRetrieval entity3 = SubscriptionRetrievalFixture.INSTANCE
+        SubscriptionRetrievalAttributes entity3 = SubscriptionRetrievalAttributesFixture.INSTANCE
                 .get(2);
 
         // Still have to persist the actual subscription daos
         final BandwidthSubscription subDao1 = entity1
+                .getSubscriptionRetrieval()
                 .getBandwidthSubscription();
         final BandwidthSubscription subDao2 = entity2
+                .getSubscriptionRetrieval()
                 .getBandwidthSubscription();
         final BandwidthSubscription subDao3 = entity3
+                .getSubscriptionRetrieval()
                 .getBandwidthSubscription();
 
-        // This persists the subscription dao objects and sets them on the
-        // retrievals
-        entity1.setBandwidthSubscription(dao.newBandwidthSubscription(
-                subDao1.getSubscription(), subDao1.getBaseReferenceTime()));
-        entity2.setBandwidthSubscription(dao.newBandwidthSubscription(
-                subDao2.getSubscription(), subDao2.getBaseReferenceTime()));
-        entity3.setBandwidthSubscription(dao.newBandwidthSubscription(
-                subDao3.getSubscription(), subDao3.getBaseReferenceTime()));
 
-        dao.store(Arrays.asList(entity1, entity2, entity3));
+        dao.storeBandwidthSubscriptions(Arrays
+                .asList(subDao1, subDao2, subDao3));
+        dao.store(Arrays.<SubscriptionRetrieval> asList(
+                entity1.getSubscriptionRetrieval(),
+                entity2.getSubscriptionRetrieval(),
+                entity3.getSubscriptionRetrieval()));
+        dao.storeSubscriptionRetrievalAttributes(Arrays.asList(entity1,
+                entity2, entity3));
         final List<SubscriptionRetrieval> results = dao
-                .querySubscriptionRetrievals(entity2.getBandwidthSubscription());
+                .querySubscriptionRetrievals(entity2.getSubscriptionRetrieval()
+                        .getBandwidthSubscription());
         assertEquals(
                 "Should have returned one entity for the subscriptionDao!", 1,
                 results.size());
 
         SubscriptionRetrieval result = results.iterator().next();
-        assertEquals("Incorrect id found.", entity2.getId(), result.getId());
+        assertEquals("Incorrect id found.", entity2.getSubscriptionRetrieval()
+                .getId(), result.getId());
         assertNotSame(entity2, result);
     }
 
@@ -783,9 +793,10 @@ public abstract class AbstractBandwidthDaoTest<T extends IBandwidthDao> {
         final Date startTime = iter.next().getStartTime().getTime();
         final Date endTime = iter.next().getEndTime().getTime();
 
-        final SortedSet<SubscriptionRetrieval> actualReceived = dao.getSubscriptionRetrievals(bandwidthSubscription.getProvider(),
-                bandwidthSubscription.getDataSetName(), RetrievalStatus.READY,
-                startTime, endTime);
+        final SortedSet<SubscriptionRetrieval> actualReceived = dao
+                .getSubscriptionRetrievals(bandwidthSubscription.getProvider(),
+                        bandwidthSubscription.getDataSetName(),
+                        RetrievalStatus.READY, startTime, endTime);
 
         // Verify the correct number of retrievals were returned
         assertThat(actualReceived, hasSize(expectToGet.size()));
