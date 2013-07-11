@@ -76,6 +76,7 @@ import com.raytheon.uf.viz.d2d.nsharp.rsc.D2DNSharpResourceData;
 import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
 import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionRenderableDisplay;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor;
+import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor.TimeDirection;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightRenderableDisplay;
 import com.raytheon.uf.viz.xy.timeseries.display.TimeSeriesRenderableDisplay;
 import com.raytheon.uf.viz.xy.varheight.display.VarHeightDescriptor;
@@ -86,11 +87,10 @@ import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.core.rsc.ICombinedResourceData;
 import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
 import com.raytheon.viz.core.slice.request.HeightScales;
-import com.raytheon.viz.core.slice.request.VerticalPointRequest.TimeDirection;
 import com.raytheon.viz.skewt.SkewtDisplay;
 import com.raytheon.viz.skewt.rscdata.SkewTResourceData;
-import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.BundleProductLoader;
+import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.editor.AbstractEditor;
@@ -925,7 +925,7 @@ public class ProductTableComp extends Composite {
             csDesc.setRenderableDisplay(csDisplay);
 
             selectNewTableItem();
-            
+
             IDataCatalogEntry catalogEntry = getSelectedData().get(0)
                     .getCatalogEntry();
             VBMenuBarItemsMgr.SpaceTimeMenu currentSpaceTime = dialogSettings
@@ -1118,7 +1118,7 @@ public class ProductTableComp extends Composite {
         return (prodIndexes.length == 2
                 && getProductData(prodIndexes[0]).getCatalogEntry()
                         .getDialogSettings().getViewSelection() != ViewMenu.SOUNDING && getProductData(
-                prodIndexes[0]).getDisplayTypeSet().equals(
+                    prodIndexes[0]).getDisplayTypeSet().equals(
                 getProductData(prodIndexes[1]).getDisplayTypeSet()));
     }
 
