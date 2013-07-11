@@ -19,6 +19,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -39,6 +40,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * ------------ ---------- ----------- --------------------------
  * Oct 12, 2012 0726       djohnson     Add SW history, use string version of enum.
  * Jun 24, 2013 2106       djohnson     Add copy constructor.
+ * Jul 11, 2013 2106       djohnson     Use SubscriptionPriority enum.
  * 
  * </pre>
  * 
@@ -89,7 +91,8 @@ public class BandwidthAllocation implements IPersistableDataObject<Long>,
 
     @Column(nullable = false)
     @DynamicSerializeElement
-    private double priority;
+    @Enumerated(EnumType.STRING)
+    private SubscriptionPriority priority;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -203,7 +206,7 @@ public class BandwidthAllocation implements IPersistableDataObject<Long>,
         return Long.valueOf(id);
     }
 
-    public double getPriority() {
+    public SubscriptionPriority getPriority() {
         return priority;
     }
 
@@ -273,7 +276,7 @@ public class BandwidthAllocation implements IPersistableDataObject<Long>,
         setId(identifier.longValue());
     }
 
-    public void setPriority(double priority) {
+    public void setPriority(SubscriptionPriority priority) {
         this.priority = priority;
     }
 
@@ -341,8 +344,7 @@ public class BandwidthAllocation implements IPersistableDataObject<Long>,
      * @return true if this allocation is higher priority than the other one
      */
     public boolean isHigherPriorityThan(BandwidthAllocation other) {
-        // A lower priority value means it's higher priority
-        return this.getPriority() < other.getPriority();
+        return this.getPriority().isHigherPriorityThan(other.getPriority());
     }
 
     /**

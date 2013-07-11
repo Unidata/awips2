@@ -96,7 +96,7 @@ public abstract class BandwidthService extends
      */
     @Override
     @SuppressWarnings("unchecked")
-    public Set<Subscription> proposeBandwidthForNetworkInKilobytes(
+    public Set<String> proposeBandwidthForNetworkInKilobytes(
             Network network, int bandwidth) {
         IBandwidthRequest request = new IBandwidthRequest();
         request.setRequestType(RequestType.PROPOSE_SET_BANDWIDTH);
