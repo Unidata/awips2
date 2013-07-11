@@ -22,6 +22,9 @@
  */
 package com.raytheon.viz.hydro.contacts;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -30,6 +33,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
 import com.raytheon.viz.hydrocommon.contacts.ContactsDlg;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Action for unimplemented features. To be used temporarily until final
@@ -42,6 +46,7 @@ import com.raytheon.viz.hydrocommon.contacts.ContactsDlg;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial Creation.
+ * 07/10/2013   2088        rferrel     Changes for non-blocking ContactsDlg.
  * 
  * </pre>
  * 
@@ -49,33 +54,52 @@ import com.raytheon.viz.hydrocommon.contacts.ContactsDlg;
  * 
  */
 public class ContactsAction extends AbstractHandler {
+    /**
+     * Allow only one dialog per station.
+     */
+    private final Map<String, ContactsDlg> contactsDlgMap = new HashMap<String, ContactsDlg>();
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-        .getShell();
-        
-        if (HydroDisplayManager.getInstance().isCurrentLidSelected(shell) == false)
-        {            
+                .getShell();
+
+        // Assume when false error message already displayed.
+        if (HydroDisplayManager.getInstance().isCurrentLidSelected(shell) == false) {
             return null;
         }
-        
-        
+
         String lid = HydroDisplayManager.getInstance().getCurrentLid();
 
-        String name = HydroDisplayManager.getInstance().getCurrentData()
-                .getName();
-        
-        String title = " - " + lid;
-        
-        if (name != null && name.compareTo("") != 0)
-        {
-            title += " - " + name;
-        }        
-        
-        ContactsDlg contactsDlg = new ContactsDlg(shell, title, false, lid);
-        contactsDlg.open();
+        ContactsDlg contactsDlg = contactsDlgMap.get(lid);
+        if (contactsDlg == null || contactsDlg.isDisposed()) {
 
+            String name = HydroDisplayManager.getInstance().getCurrentData()
+                    .getName();
+            StringBuilder title = new StringBuilder(" - ");
+
+            title.append(lid);
+
+            if (name != null && name.compareTo("") != 0) {
+                title.append(" - ").append(name);
+            }
+
+            contactsDlg = new ContactsDlg(shell, title.toString(), false, lid);
+            contactsDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        String lid = returnValue.toString();
+                        contactsDlgMap.remove(lid);
+                    }
+                }
+            });
+            contactsDlgMap.put(lid, contactsDlg);
+            contactsDlg.open();
+        } else {
+            contactsDlg.bringToTop();
+        }
         return null;
     }
 }
