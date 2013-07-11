@@ -214,10 +214,18 @@ public class ModelCloudHeightSourceImplementation extends
                                     e);
                         }
                         for (PluginDataObject gr : pdos) {
-                            IDataRecord[] drs = (IDataRecord[]) gr
-                                    .getMessageData();
-                            if (drs != null && drs.length > 0) {
-                                gr.setMessageData(((FloatDataRecord) drs[0])
+                            Object messageData = gr.getMessageData();
+                            IDataRecord record = null;
+                            if (messageData instanceof IDataRecord[]) {
+                                IDataRecord[] records = (IDataRecord[]) messageData;
+                                if (records.length > 0) {
+                                    record = records[0];
+                                }
+                            } else if (messageData instanceof IDataRecord) {
+                                record = (IDataRecord) messageData;
+                            }
+                            if (record != null) {
+                                gr.setMessageData(((FloatDataRecord) record)
                                         .getFloatData());
                             }
                         }
