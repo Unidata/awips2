@@ -52,6 +52,7 @@ import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttributes;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.State;
@@ -113,10 +114,17 @@ public class SubscriptionRetrievalAgentTest {
         Subscription subscription = new SubscriptionBuilder().withRoute(route)
                 .build();
         final SubscriptionRetrieval subscriptionRetrieval = new SubscriptionRetrieval();
-        subscriptionRetrieval.setSubscription(subscription);
         subscriptionRetrieval.setNetwork(subscription.getRoute());
 
+        SubscriptionRetrievalAttributes attributes = new SubscriptionRetrievalAttributes();
+        attributes.setSubscriptionRetrieval(subscriptionRetrieval);
+        attributes.setSubscription(subscription);
+
         IBandwidthDao bandwidthDao = mock(IBandwidthDao.class);
+        when(
+                bandwidthDao
+                        .getSubscriptionRetrievalAttributes(subscriptionRetrieval))
+                .thenReturn(attributes);
 
         SubscriptionRetrievalAgent agent = new SubscriptionRetrievalAgent(
                 route, "someUri", new Object(), 1, null, bandwidthDao,

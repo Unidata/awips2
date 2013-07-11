@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Calendar;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.util.IDeepCopyable;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
@@ -20,6 +21,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Oct 02, 2012 726        jspinks     Initial release.
  * Nov 09, 2012 1286       djohnson    Add getters for bytes.
  * Jun 24, 2013 2106       djohnson    Add copy constructor.
+ * Jul 11, 2013 2106       djohnson    Use SubscriptionPriority enum.
  * 
  * </pre>
  * 
@@ -35,7 +37,7 @@ public class BandwidthReservation implements Serializable,
 
     private Network network;
 
-    private double priority;
+    private SubscriptionPriority priority;
 
     private long size;
 
@@ -125,14 +127,14 @@ public class BandwidthReservation implements Serializable,
      * @param priority
      *            the priority to set
      */
-    public void setPriority(double priority) {
+    public void setPriority(SubscriptionPriority priority) {
         this.priority = priority;
     }
 
     /**
      * @return the priority
      */
-    public double getPriority() {
+    public SubscriptionPriority getPriority() {
         return priority;
     }
 

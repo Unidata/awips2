@@ -50,6 +50,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
  * Feb 05, 2013 1580       mpduff       EventBus refactor.
  * Jun 24, 2013 2106       djohnson     Set actual start time when sending to retrieval rather than overwrite scheduled start.
  * Jul 09, 2013 2106       djohnson     Dependency inject registry handlers.
+ * Jul 11, 2013 2106       djohnson     Use SubscriptionPriority enum.
  * 
  * </pre>
  * 
@@ -87,7 +88,8 @@ public class SubscriptionRetrievalAgent extends
             throws EdexException {
         Subscription sub;
         try {
-            sub = retrieval.getSubscription();
+            sub = bandwidthDao.getSubscriptionRetrievalAttributes(retrieval)
+                    .getSubscription();
         } catch (SerializationException e) {
             throw new EdexException("Unable to deserialize the subscription.",
                     e);
@@ -102,7 +104,7 @@ public class SubscriptionRetrievalAgent extends
             return;
         }
         bundle.setBundleId(sub.getSubscriptionId());
-        bundle.setPriority((int) retrieval.getPriority());
+        bundle.setPriority(retrieval.getPriority());
         bundle.setProvider(provider);
         bundle.setConnection(provider.getConnection());
         bundle.setSubscription(sub);
@@ -178,11 +180,8 @@ public class SubscriptionRetrievalAgent extends
             String owner = bundle.getSubscription().getOwner();
             String provider = bundle.getSubscription().getProvider();
 
-            int priority = defaultPriority;
-            Integer bundlePriority = bundle.getPriority();
-            if (bundlePriority != null) {
-                priority = bundlePriority.intValue();
-            }
+            int priority = (bundle.getPriority() != null) ? bundle
+                    .getPriority().getPriorityValue() : defaultPriority;
             Date insertTime = TimeUtil.newCalendar().getTime();
 
             List<RetrievalRequestRecord> requestRecords = new ArrayList<RetrievalRequestRecord>(

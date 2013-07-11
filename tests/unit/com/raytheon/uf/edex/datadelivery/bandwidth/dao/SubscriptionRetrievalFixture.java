@@ -21,7 +21,6 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.dao;
 
 import java.util.Random;
 
-import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.SubscriptionRetrievalAgent;
 
 /**
@@ -65,12 +64,7 @@ public class SubscriptionRetrievalFixture extends
         entity.setBandwidthSubscription(SubscriptionDaoFixture.INSTANCE
                 .get(seedValue));
         entity.setSubscriptionLatency(0);
-        try {
-            entity.setSubscription(entity.getBandwidthSubscription()
-                    .getSubscription());
-        } catch (SerializationException e) {
-            throw new RuntimeException(e);
-        }
+
         return entity;
     }
 
