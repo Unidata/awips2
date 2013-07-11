@@ -209,6 +209,25 @@ public class SatelliteRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private SatMapCoverage coverage;
 
+    /**
+     * No-arg constructor.
+     */
+    public SatelliteRecord() {
+        setPluginName(PLUGIN_ID);
+    }
+
+    /**
+     * Constructs a satellite record from a dataURI
+     * 
+     * @param uri
+     *            The dataURI
+     * @param tableDef
+     *            The table definition associated with this class
+     */
+    public SatelliteRecord(String uri) {
+        super(uri);
+    }
+
     @Override
     public SatMapCoverage getSpatialObject() {
         return coverage;
@@ -252,25 +271,6 @@ public class SatelliteRecord extends PersistablePluginDataObject implements
 
     public void setUpperRightLon(Float upperRightLon) {
         this.upperRightLon = upperRightLon;
-    }
-
-    /**
-     * No-arg constructor.
-     */
-    public SatelliteRecord() {
-        setPluginName(PLUGIN_ID);
-    }
-
-    /**
-     * Constructs a satellite record from a dataURI
-     * 
-     * @param uri
-     *            The dataURI
-     * @param tableDef
-     *            The table definition associated with this class
-     */
-    public SatelliteRecord(String uri) {
-        super(uri);
     }
 
     public Integer getNumRecords() {

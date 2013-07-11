@@ -86,7 +86,6 @@ Export-Package: com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.core.style.level,
  com.raytheon.uf.viz.core.tile,
  com.raytheon.uf.viz.core.time,
- com.raytheon.viz.core.slice,
  com.raytheon.viz.core.slice.request,
  com.raytheon.viz.core.units
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
