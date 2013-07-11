@@ -32,10 +32,8 @@ import com.google.common.collect.Multimap;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.TimeWindowData;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
-import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket;
@@ -58,6 +56,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
  * Dec 06, 2012 1397       djohnson     Initial creation
  * Jan 25, 2013 1528       djohnson     Subscription priority is now an enum.
  * Jun 24, 2013 2106       djohnson     Access bucket allocations through RetrievalPlan.
+ * Jul 11, 2013 2106       djohnson     Use priority straight from the BandwidthSubscription.
  * 
  * </pre>
  * 
@@ -125,7 +124,8 @@ class BandwidthGraphDataAdapter {
                         final SubscriptionRetrieval subRetrieval = (SubscriptionRetrieval) allocation;
                         retrievals.put(allocation.getId(), subRetrieval);
                         subNameToRetrievals.put(subRetrieval
-                                .getBandwidthSubscription().getName(), subRetrieval);
+                                .getBandwidthSubscription().getName(),
+                                subRetrieval);
                     }
                 }
 
@@ -144,16 +144,7 @@ class BandwidthGraphDataAdapter {
             final SubscriptionRetrieval value = entry.getValue();
             BandwidthSubscription dao = value.getBandwidthSubscription();
             final String subName = dao.getName();
-            try {
-                priorityMap.put(subName, dao.getSubscription().getPriority());
-            } catch (SerializationException e) {
-                statusHandler
-                        .handle(Priority.PROBLEM,
-                        "Unable to get access to the actual subscription for ["
-                                + subName + "], skipping...",
-                        e);
-                continue;
-            }
+            priorityMap.put(subName, dao.getPriority());
 
             List<TimeWindowData> timeWindows = dataMap.get(subName);
 

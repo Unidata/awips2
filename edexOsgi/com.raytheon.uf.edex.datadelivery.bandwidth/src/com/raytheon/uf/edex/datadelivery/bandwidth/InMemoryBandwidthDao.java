@@ -37,16 +37,13 @@ import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.ReflectionUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttributes;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
@@ -65,6 +62,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jun 03, 2013 2038       djohnson     Add method to get subscription retrievals by provider, dataset, and status.
  * Jun 13, 2013 2095       djohnson     Implement ability to store a collection of subscriptions.
  * Jul 09, 2013 2106       djohnson     Rather than copy all elements and remove unnecessary, just copy the ones that apply.
+ * Jul 11, 2013 2106       djohnson     Use BandwidthSubscription instead of Subscription.
  * 
  * </pre>
  * 
@@ -72,9 +70,6 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * @version 1.0
  */
 class InMemoryBandwidthDao implements IBandwidthDao {
-
-    private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(InMemoryBandwidthDao.class);
 
     private static final AtomicLong idSequence = new AtomicLong(1);
 
@@ -275,25 +270,16 @@ class InMemoryBandwidthDao implements IBandwidthDao {
 
         for (BandwidthAllocation current : bandwidthAllocations) {
             if (current instanceof SubscriptionRetrieval) {
-                Subscription subscription;
-                try {
-                    final SubscriptionRetrieval subscriptionRetrieval = (SubscriptionRetrieval) current;
-                    subscription = subscriptionRetrieval.getSubscription();
-                    if (provider.equals(subscription.getProvider())
-                            && dataSetName
-                                    .equals(subscription.getDataSetName())
-                            && baseReferenceTime.getTimeInMillis() == subscriptionRetrieval
-                                    .getBandwidthSubscription()
-                                    .getBaseReferenceTime().getTimeInMillis()) {
-                        results.add(subscriptionRetrieval.copy());
-                    }
-                } catch (SerializationException e) {
-                    statusHandler
-                            .handle(Priority.PROBLEM,
-                                    "Unable to deserialize the retrieval's subscription, skipping it...",
-                                    e);
+                BandwidthSubscription subscription;
+                final SubscriptionRetrieval subscriptionRetrieval = (SubscriptionRetrieval) current;
+                subscription = subscriptionRetrieval.getBandwidthSubscription();
+                if (provider.equals(subscription.getProvider())
+                        && dataSetName.equals(subscription.getDataSetName())
+                        && baseReferenceTime.getTimeInMillis() == subscriptionRetrieval
+                                .getBandwidthSubscription()
+                                .getBaseReferenceTime().getTimeInMillis()) {
+                    results.add(subscriptionRetrieval.copy());
                 }
-
             }
         }
 
@@ -310,22 +296,13 @@ class InMemoryBandwidthDao implements IBandwidthDao {
 
         for (BandwidthAllocation current : bandwidthAllocations) {
             if (current instanceof SubscriptionRetrieval) {
-                Subscription subscription;
-                try {
-                    final SubscriptionRetrieval subscriptionRetrieval = (SubscriptionRetrieval) current;
-                    subscription = subscriptionRetrieval.getSubscription();
-                    if (provider.equals(subscription.getProvider())
-                            && dataSetName
-                                    .equals(subscription.getDataSetName())) {
-                        results.add(subscriptionRetrieval.copy());
-                    }
-                } catch (SerializationException e) {
-                    statusHandler
-                            .handle(Priority.PROBLEM,
-                                    "Unable to deserialize the retrieval's subscription, skipping it...",
-                                    e);
+                BandwidthSubscription subscription;
+                final SubscriptionRetrieval subscriptionRetrieval = (SubscriptionRetrieval) current;
+                subscription = subscriptionRetrieval.getBandwidthSubscription();
+                if (provider.equals(subscription.getProvider())
+                        && dataSetName.equals(subscription.getDataSetName())) {
+                    results.add(subscriptionRetrieval.copy());
                 }
-
             }
         }
 
@@ -385,8 +362,7 @@ class InMemoryBandwidthDao implements IBandwidthDao {
      */
     @Override
     public BandwidthSubscription newBandwidthSubscription(
-            Subscription subscription, Calendar baseReferenceTime)
-            throws SerializationException {
+            Subscription subscription, Calendar baseReferenceTime) {
         BandwidthSubscription entity = BandwidthUtil
                 .getSubscriptionDaoForSubscription(subscription,
                         baseReferenceTime);
@@ -541,23 +517,14 @@ class InMemoryBandwidthDao implements IBandwidthDao {
 
         for (BandwidthAllocation current : bandwidthAllocations) {
             if (current instanceof SubscriptionRetrieval) {
-                Subscription subscription;
-                try {
-                    final SubscriptionRetrieval subscriptionRetrieval = (SubscriptionRetrieval) current;
-                    subscription = subscriptionRetrieval.getSubscription();
-                    if (provider.equals(subscription.getProvider())
-                            && dataSetName
-                                    .equals(subscription.getDataSetName())
-                            && status.equals(subscriptionRetrieval.getStatus())) {
-                        results.add(subscriptionRetrieval.copy());
-                    }
-                } catch (SerializationException e) {
-                    statusHandler
-                            .handle(Priority.PROBLEM,
-                                    "Unable to deserialize the retrieval's subscription, skipping it...",
-                                    e);
+                BandwidthSubscription subscription;
+                final SubscriptionRetrieval subscriptionRetrieval = (SubscriptionRetrieval) current;
+                subscription = subscriptionRetrieval.getBandwidthSubscription();
+                if (provider.equals(subscription.getProvider())
+                        && dataSetName.equals(subscription.getDataSetName())
+                        && status.equals(subscriptionRetrieval.getStatus())) {
+                    results.add(subscriptionRetrieval.copy());
                 }
-
             }
         }
 
@@ -587,31 +554,22 @@ class InMemoryBandwidthDao implements IBandwidthDao {
 
         for (BandwidthAllocation current : bandwidthAllocations) {
             if (current instanceof SubscriptionRetrieval) {
-                Subscription subscription;
-                try {
-                    final SubscriptionRetrieval subscriptionRetrieval = (SubscriptionRetrieval) current;
-                    subscription = subscriptionRetrieval.getSubscription();
+                BandwidthSubscription subscription;
+                final SubscriptionRetrieval subscriptionRetrieval = (SubscriptionRetrieval) current;
+                subscription = subscriptionRetrieval.getBandwidthSubscription();
 
-                    final Date subRetrievalStartTime = subscriptionRetrieval
-                            .getStartTime().getTime();
-                    final boolean withinTimeLimits = !(earliestDate
-                            .after(subRetrievalStartTime) || latestDate
-                            .before(subRetrievalStartTime));
+                final Date subRetrievalStartTime = subscriptionRetrieval
+                        .getStartTime().getTime();
+                final boolean withinTimeLimits = !(earliestDate
+                        .after(subRetrievalStartTime) || latestDate
+                        .before(subRetrievalStartTime));
 
-                    if (provider.equals(subscription.getProvider())
-                            && dataSetName
-                                    .equals(subscription.getDataSetName())
-                            && status.equals(subscriptionRetrieval.getStatus())
-                            && withinTimeLimits) {
-                        results.add(subscriptionRetrieval.copy());
-                    }
-                } catch (SerializationException e) {
-                    statusHandler
-                            .handle(Priority.PROBLEM,
-                                    "Unable to deserialize the retrieval's subscription, skipping it...",
-                                    e);
+                if (provider.equals(subscription.getProvider())
+                        && dataSetName.equals(subscription.getDataSetName())
+                        && status.equals(subscriptionRetrieval.getStatus())
+                        && withinTimeLimits) {
+                    results.add(subscriptionRetrieval.copy());
                 }
-
             }
         }
 
@@ -662,6 +620,40 @@ class InMemoryBandwidthDao implements IBandwidthDao {
         }
 
         return allocations;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void store(SubscriptionRetrievalAttributes attributes) {
+        // Does nothing
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void storeSubscriptionRetrievalAttributes(
+            List<SubscriptionRetrievalAttributes> retrievalAttributes) {
+        // Does nothing
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void update(SubscriptionRetrievalAttributes attributes) {
+        // Does nothing
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SubscriptionRetrievalAttributes getSubscriptionRetrievalAttributes(
+            SubscriptionRetrieval retrieval) {
+        return null;
     }
 
 }
