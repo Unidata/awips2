@@ -24,7 +24,7 @@
          point="com.raytheon.uf.viz.sounding.verticalSoundingAdapter">
       <verticalSoundingAdapter
             adapter="com.raytheon.uf.viz.acarssounding.AcarsSoundingAdapter"
-            class="com.raytheon.uf.edex.plugin.acarssounding.common.ACARSSoundingRecord"
+            class="com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord"
             name="ACARSSoundingAdapter">
       </verticalSoundingAdapter>
    </extension>
