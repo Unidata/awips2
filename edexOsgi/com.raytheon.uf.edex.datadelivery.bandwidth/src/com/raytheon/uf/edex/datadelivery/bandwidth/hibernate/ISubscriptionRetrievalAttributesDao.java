@@ -17,17 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.datadelivery.bandwidth.dao;
+package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
-import java.util.Random;
-
-import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.util.AbstractFixture;
-import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
+import com.raytheon.uf.edex.database.dao.ISessionManagedDao;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttributes;
 
 /**
- * TODO Add Description
+ * DAO for {@link SubscriptionRetrievalAttributes} instances.
  * 
  * <pre>
  * 
@@ -35,34 +32,20 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 13, 2012            djohnson     Initial creation
+ * Jul 11, 2013 2106       djohnson     Initial creation
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-
-public class SubscriptionDaoFixture extends
-        AbstractFixture<BandwidthSubscription> {
-
-    public static final SubscriptionDaoFixture INSTANCE = new SubscriptionDaoFixture();
+interface ISubscriptionRetrievalAttributesDao extends
+        ISessionManagedDao<Long, SubscriptionRetrievalAttributes> {
 
     /**
-     * Private.
+     * @param retrieval
+     * @return
      */
-    private SubscriptionDaoFixture() {
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public BandwidthSubscription getInstance(long seedValue, Random random) {
-        Subscription sub = SiteSubscriptionFixture.INSTANCE.get(seedValue);
-        return BandwidthUtil.getSubscriptionDaoForSubscription(sub,
-                BandwidthUtil.now());
-    }
-
+    SubscriptionRetrievalAttributes getBySubscriptionRetrieval(
+            SubscriptionRetrieval retrieval);
 }
