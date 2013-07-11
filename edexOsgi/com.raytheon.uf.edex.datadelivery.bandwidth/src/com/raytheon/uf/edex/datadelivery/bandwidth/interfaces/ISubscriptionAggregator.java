@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
+import com.raytheon.uf.edex.datadelivery.bandwidth.processing.BandwidthSubscriptionContainer;
 
 /**
  * 
@@ -33,13 +34,15 @@ public interface ISubscriptionAggregator {
      * Generate a List of SubscriptionRetrieval Object for the provided
      * BandwidthSubscription Objects.
      * 
-     * @param newSubscriptions
-     *            A List of BandwidthSubscription Objects which were just added
+     * @param container
+     *            A container with a List of BandwidthSubscription Objects which
+     *            were just added, and their subscription
      * 
      * @return The SubscriptionRetrieval Objects used to fulfill the
      *         BandwidthSubscription Objects provided.
      */
-    List<SubscriptionRetrieval> aggregate(List<BandwidthSubscription> newSubscriptions);
+    List<SubscriptionRetrieval> aggregate(
+            BandwidthSubscriptionContainer container);
 
     /**
      * This method is called once all the SubscriptionRetrievals for a
