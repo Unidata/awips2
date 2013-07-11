@@ -160,6 +160,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                      Changes for non-blocking StationFilterOptionsDlg.
  *                                      Changes for non-blocking FloodReportDlg.
  *                                      Make dialog non-blocking.
+ *                                      Changes for non-blocking ContactsDlg.
  * 
  * </pre>
  * 
@@ -318,9 +319,14 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
     private StationFilterOptionsDlg stationFilterDlg;
 
     /**
-     * Alllow one instance of the Flood Report Dialog.
+     * Allow one instance of the Flood Report Dialog.
      */
     private FloodReportDlg floodReportDlg;
+
+    /**
+     * Allow one instance per lid.
+     */
+    private final Map<String, ContactsDlg> contactsDlgMap = new HashMap<String, ContactsDlg>();
 
     /**
      * Flood category menu item.
@@ -639,11 +645,26 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
             public void widgetSelected(SelectionEvent event) {
 
                 String lid = getSelectedLocation().getStation();
-                String lidLoc = getStationAndName();
+                ContactsDlg contactsDlg = contactsDlgMap.get(lid);
+                if (contactsDlg == null || contactsDlg.isDisposed()) {
+                    String lidLoc = getStationAndName();
 
-                ContactsDlg contactsDlg = new ContactsDlg(shell, lidLoc, true,
-                        lid);
-                contactsDlg.open();
+                    contactsDlg = new ContactsDlg(shell, lidLoc, true, lid);
+                    contactsDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (returnValue instanceof String) {
+                                String lid = returnValue.toString();
+                                contactsDlgMap.remove(lid);
+                            }
+                        }
+                    });
+                    contactsDlg.open();
+                    contactsDlgMap.put(lid, contactsDlg);
+                } else {
+                    contactsDlg.bringToTop();
+                }
             }
         });
 
