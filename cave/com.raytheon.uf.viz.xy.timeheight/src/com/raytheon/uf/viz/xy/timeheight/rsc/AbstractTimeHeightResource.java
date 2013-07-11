@@ -60,6 +60,7 @@ import com.raytheon.uf.viz.xy.map.rsc.IGraphableResource;
 import com.raytheon.uf.viz.xy.map.rsc.IInsetMapResource;
 import com.raytheon.uf.viz.xy.map.rsc.PointRenderable;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor;
+import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor.TimeDirection;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
 import com.raytheon.viz.core.graphing.util.GraphPrefsFactory;
 import com.raytheon.viz.core.graphing.xy.XYData;
@@ -67,7 +68,6 @@ import com.raytheon.viz.core.map.GeoUtil;
 import com.raytheon.viz.core.rsc.ICombinedResourceData;
 import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
 import com.raytheon.viz.core.slice.request.HeightScale;
-import com.raytheon.viz.core.slice.request.VerticalPointRequest.TimeDirection;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
