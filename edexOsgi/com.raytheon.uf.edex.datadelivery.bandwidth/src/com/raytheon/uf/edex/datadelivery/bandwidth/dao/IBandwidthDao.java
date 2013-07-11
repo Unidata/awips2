@@ -28,7 +28,6 @@ import java.util.SortedSet;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.datadelivery.bandwidth.BandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 
@@ -317,7 +316,7 @@ public interface IBandwidthDao {
      * @return A newly created and persisted BandwidthSubscription Object.
      */
     BandwidthSubscription newBandwidthSubscription(Subscription subscription,
-            Calendar baseReferenceTime) throws SerializationException;
+            Calendar baseReferenceTime);
 
     /**
      * Get a SubscriptionRetrievals.
@@ -359,12 +358,29 @@ public interface IBandwidthDao {
     void store(BandwidthAllocation bandwidthAllocation);
 
     /**
+     * Persist a SubscriptionRetrievalAttributes to the database.
+     * 
+     * @param attributes
+     *            The SubscriptionRetrievalAttributes to store.
+     */
+    void store(SubscriptionRetrievalAttributes attributes);
+
+    /**
      * Persist a List of SubscriptionRetrievals to the database.
      * 
      * @param retrievals
      *            The SubscriptionRetrievals to store.
      */
     void store(List<SubscriptionRetrieval> retrievals);
+
+    /**
+     * Persist a list of objects to the database.
+     * 
+     * @param entities
+     *            The entities to store.
+     */
+    void storeSubscriptionRetrievalAttributes(
+            List<SubscriptionRetrievalAttributes> retrievalAttributes);
 
     /**
      * Persist a {@link BandwidthSubscription} to the database.
@@ -436,4 +452,19 @@ public interface IBandwidthDao {
      */
     List<BandwidthAllocation> getBandwidthAllocationsForNetworkAndBucketStartTime(
             Network network, long bucketStartTime);
+
+    /**
+     * @param attributes
+     */
+    void update(SubscriptionRetrievalAttributes attributes);
+
+    /**
+     * Get the {@link SubscriptionRetrievalAttributes} for the
+     * {@link SubscriptionRetrieval}.
+     * 
+     * @param retrieval
+     * @return the attributes
+     */
+    SubscriptionRetrievalAttributes getSubscriptionRetrievalAttributes(
+            SubscriptionRetrieval retrieval);
 }
