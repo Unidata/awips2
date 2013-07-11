@@ -27,6 +27,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
  * Feb 14, 2013 1595       djohnson    Use subscription rescheduling strategy.
  * Jun 13, 2013 2095       djohnson    Point subscriptions don't check for dataset updates on aggregation.
  * Jun 25, 2013 2106       djohnson    CheapClone was cheap in ease, not performance.
+ * Jul 11, 2013 2106       djohnson    Use SubscriptionPriority enum.
  * 
  * </pre>
  * 
@@ -204,8 +205,7 @@ public class BandwidthUtil {
      *             on error serializing the subscription
      */
     public static BandwidthSubscription getSubscriptionDaoForSubscription(
-            Subscription subscription, Calendar baseReferenceTime)
-            throws SerializationException {
+            Subscription subscription, Calendar baseReferenceTime) {
         BandwidthSubscription dao = new BandwidthSubscription();
 
         dao.setDataSetName(subscription.getDataSetName());
@@ -213,11 +213,10 @@ public class BandwidthUtil {
         dao.setOwner(subscription.getOwner());
         dao.setName(subscription.getName());
         dao.setEstimatedSize(subscription.getDataSetSize());
-        dao.setSubscription(subscription);
         dao.setRoute(subscription.getRoute());
         dao.setBaseReferenceTime(baseReferenceTime);
         dao.setCycle(baseReferenceTime.get(Calendar.HOUR_OF_DAY));
-        dao.setPriority(subscription.getPriority().getPriorityValue());
+        dao.setPriority(subscription.getPriority());
         dao.setRegistryId(subscription.getId());
         dao.setCheckForDataSetUpdate(subscription.getDataSetType() != DataType.POINT);
         return dao;
