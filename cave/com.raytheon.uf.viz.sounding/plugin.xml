@@ -53,10 +53,5 @@
             class="com.raytheon.uf.common.dataplugin.radar.RadarRecord"
             name="VwpSoundingAdapter">
       </verticalSoundingAdapter>
-      <verticalSoundingAdapter
-            adapter="com.raytheon.uf.viz.acarssounding.AcarsSoundingAdapter"
-            class="com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord"
-            name="AcarsSoundingAdapter">
-      </verticalSoundingAdapter>
    </extension>
 </plugin>
