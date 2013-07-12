@@ -71,6 +71,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttributes;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlanTest;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
@@ -100,6 +101,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Jun 03, 2013 2095       djohnson     Move getPointDataSet to superclass.
  * Jun 25, 2013 2106       djohnson     Set subscription latency, access bucket allocations through RetrievalPlan.
  * Jul 09, 2013 2106       djohnson     InMemoryBandwidthManager no longer receives updates from the EventBus.
+ * Jul 11, 2013 2106       djohnson     Use SubscriptionPriority enum.
  * 
  * </pre>
  * 
@@ -251,10 +253,14 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
                         subscription.getDataSetName(), cal);
         assertEquals("Didn't find the subscription retrieval as expected!", 1,
                 bandwidthAllocations.size());
+
+        SubscriptionRetrievalAttributes attributes = bandwidthDao
+                .getSubscriptionRetrievalAttributes(bandwidthAllocations
+                        .iterator().next());
         assertEquals(
                 "Didn't find the metadata date on the retrieval's subscription!",
-                metadata.getDate(), bandwidthAllocations.iterator().next()
-                        .getSubscription().getTime().getStartDate());
+                metadata.getDate(), attributes.getSubscription().getTime()
+                        .getStartDate());
     }
 
     @Test
@@ -283,7 +289,11 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         assertEquals("Incorrect number of subscription retrievals generated!",
                 1, retrievals.size());
         SubscriptionRetrieval retrieval = retrievals.iterator().next();
-        Subscription retrievalSub = retrieval.getSubscription();
+
+        Subscription retrievalSub = bandwidthDao
+                .getSubscriptionRetrievalAttributes(retrieval)
+                .getSubscription();
+
         assertEquals(
                 "The update's url doesn't seem to have been persisted to the retrieval!",
                 update.getUrl(), retrievalSub.getUrl());
@@ -431,14 +441,12 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         BandwidthAllocation unscheduledAllocation = iter.next();
         assertEquals(
                 "The first subscription with lower priority should have been the one unscheduled.",
-                subscription.getPriority().getPriorityValue(),
-                unscheduledAllocation.getPriority(), 0.0);
+                subscription.getPriority(), unscheduledAllocation.getPriority());
 
         unscheduledAllocation = iter.next();
         assertEquals(
                 "The first subscription with lower priority should have been the one unscheduled.",
-                subscription.getPriority().getPriorityValue(),
-                unscheduledAllocation.getPriority(), 0.0);
+                subscription.getPriority(), unscheduledAllocation.getPriority());
     }
 
     @Test
