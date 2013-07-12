@@ -70,6 +70,7 @@ import com.raytheon.uf.viz.datadelivery.utils.TypeOperationItems;
  * Jan 04, 2013   1420      mpduff     Move rules into a single file.
  * Jan 25, 2013   1528      djohnson   Subscription priority is now an enum.
  * Jun 04, 2013    223      mpduff     Implement point data types.
+ * Jul 11, 2013   2106      djohnson   setAvailableBandwidth service now returns names of subscriptions.
  * 
  * </pre>
  * 
@@ -625,9 +626,9 @@ public class SystemRuleManager {
      * @param bandwidth
      *            the available bandwidth
      * @return empty list if successfully applied, otherwise the set of
-     *         subscriptions that would be unscheduled
+     *         subscription names that would be unscheduled
      */
-    public static Set<Subscription> setAvailableBandwidth(Network network,
+    public static Set<String> setAvailableBandwidth(Network network,
             int bandwidth) {
         return getInstance().bandwidthService
                 .proposeBandwidthForNetworkInKilobytes(network, bandwidth);
