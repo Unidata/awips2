@@ -33,12 +33,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttributes;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
@@ -75,6 +75,8 @@ public class HibernateBandwidthDao implements IBandwidthDao {
     private IBandwidthSubscriptionDao bandwidthSubscriptionDao;
 
     private IBandwidthDataSetUpdateDao bandwidthDataSetUpdateDao;
+
+    private ISubscriptionRetrievalAttributesDao subscriptionRetrievalAttributesDao;
 
     /**
      * Constructor.
@@ -269,8 +271,7 @@ public class HibernateBandwidthDao implements IBandwidthDao {
      */
     @Override
     public BandwidthSubscription newBandwidthSubscription(
-            Subscription subscription, Calendar baseReferenceTime)
-            throws SerializationException {
+            Subscription subscription, Calendar baseReferenceTime) {
         BandwidthSubscription entity = BandwidthUtil
                 .getSubscriptionDaoForSubscription(subscription,
                         baseReferenceTime);
@@ -305,6 +306,11 @@ public class HibernateBandwidthDao implements IBandwidthDao {
     public void remove(BandwidthSubscription subscriptionDao) {
         List<SubscriptionRetrieval> bandwidthReservations = subscriptionRetrievalDao
                 .getBySubscriptionId(subscriptionDao.getIdentifier());
+        for (SubscriptionRetrieval retrieval : bandwidthReservations) {
+            subscriptionRetrievalAttributesDao
+                    .delete(subscriptionRetrievalAttributesDao
+                            .getBySubscriptionRetrieval(retrieval));
+        }
         subscriptionRetrievalDao.deleteAll(bandwidthReservations);
         bandwidthSubscriptionDao.delete(subscriptionDao);
     }
@@ -443,6 +449,22 @@ public class HibernateBandwidthDao implements IBandwidthDao {
     }
 
     /**
+     * @return the subscriptionRetrievalAttributesDao
+     */
+    public ISubscriptionRetrievalAttributesDao getSubscriptionRetrievalAttributesDao() {
+        return subscriptionRetrievalAttributesDao;
+    }
+
+    /**
+     * @param subscriptionRetrievalAttributesDao
+     *            the subscriptionRetrievalAttributesDao to set
+     */
+    public void setSubscriptionRetrievalAttributesDao(
+            ISubscriptionRetrievalAttributesDao subscriptionRetrievalAttributesDao) {
+        this.subscriptionRetrievalAttributesDao = subscriptionRetrievalAttributesDao;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -456,8 +478,40 @@ public class HibernateBandwidthDao implements IBandwidthDao {
     @Override
     public List<BandwidthAllocation> getBandwidthAllocationsForNetworkAndBucketStartTime(
             Network network, long bucketStartTime) {
-        return bandwidthAllocationDao.getByNetworkAndBucketStartTime(
-                network, bucketStartTime);
+        return bandwidthAllocationDao.getByNetworkAndBucketStartTime(network,
+                bucketStartTime);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void store(SubscriptionRetrievalAttributes attributes) {
+        subscriptionRetrievalAttributesDao.create(attributes);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void storeSubscriptionRetrievalAttributes(
+            List<SubscriptionRetrievalAttributes> retrievalAttributes) {
+        subscriptionRetrievalAttributesDao.persistAll(retrievalAttributes);
+    }
+
+    @Override
+    public void update(SubscriptionRetrievalAttributes attributes) {
+        subscriptionRetrievalAttributesDao.update(attributes);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SubscriptionRetrievalAttributes getSubscriptionRetrievalAttributes(
+            SubscriptionRetrieval retrieval) {
+        return subscriptionRetrievalAttributesDao
+                .getBySubscriptionRetrieval(retrieval);
     }
 
 }
