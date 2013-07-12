@@ -1,64 +1,103 @@
 package mhs.core;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Properties;
 
-public class RsyncThread extends Thread {
+/**
+ * TODO Add Description
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ??? ??  ????            bphillip     Initial creation
+ * Jul 15, 2013  #2099     dgilling     Modify to support recursive file listing
+ *                                      since export grids dir structure uses
+ *                                      multiple folders.
+ * 
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1.0
+ */
+public class RsyncThread implements Runnable {
+
+    private static final Map<String, Long> fileVersion = new HashMap<String, Long>();
 
     private Properties props;
 
-    private Map<String, Long> fileVersion;
-
     public RsyncThread(Properties props) {
         this.props = props;
-        fileVersion = new HashMap<String, Long>();
-        this.setDaemon(true);
     }
 
+    @Override
     public void run() {
-        while (true) {
-            try {
-                Thread.sleep(1000);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        String exportGridsDir = props.getProperty("EXPORT_GRIDS");
+        String centralServerDir = props.getProperty("CENTRAL_SERVER");
+        String packScriptDir = props.getProperty("UTIL_DIR");
 
-            String exportGridsDir = (String) props.getProperty("EXPORT_GRIDS");
-            String centralServerDir = (String) props
-                    .getProperty("CENTRAL_SERVER");
-            File[] fileList = new File(exportGridsDir).listFiles();
+        Collection<File> fileList = listCdfFiles(new File(exportGridsDir));
+        for (File file : fileList) {
+            if (file.isFile()) {
+                String currentFilePath = file.getPath();
 
-            String currentFilePath = null;
-            for (File file : fileList) {
-                if (file.isDirectory()) {
-                    continue;
+                boolean copy = true;
+                if ((fileVersion.containsKey(currentFilePath))
+                        && (fileVersion.get(currentFilePath) >= file
+                                .lastModified())) {
+                    copy = false;
                 }
-                currentFilePath = file.getPath();
 
-                boolean copy = false;
-                if (fileVersion.containsKey(currentFilePath)) {
-                    if (fileVersion.get(currentFilePath).longValue() != file
-                            .lastModified()) {
-                        copy = true;
-                    }
-                } else {
-                    copy = true;
-                }
                 if (copy) {
                     String[] copyCmd = new String[] {
-                            centralServerDir + "/../util/packageFile",file.getPath(),
-                            centralServerDir + "/../util/",
-                            file.getName().substring(0, 3), centralServerDir };
+                            packScriptDir + "/packageFile", currentFilePath,
+                            packScriptDir, file.getName().substring(0, 3),
+                            centralServerDir };
                     try {
                         Runtime.getRuntime().exec(copyCmd);
-                        fileVersion.put(file.getPath(), file.lastModified());
+                        fileVersion.put(currentFilePath, file.lastModified());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             }
+        }
+    }
+
+    private Collection<File> listCdfFiles(File path) {
+        Collection<File> fileList = new LinkedList<File>();
+        FileFilter cdfFilter = new FileFilter() {
+
+            @Override
+            public boolean accept(File pathname) {
+                return (pathname.isDirectory() || pathname.getName().endsWith(
+                        ".netcdf"));
+            }
+        };
+        innerListFiles(path, fileList, cdfFilter);
+        return fileList;
+    }
+
+    private void innerListFiles(File path, Collection<File> fileList,
+            FileFilter filter) {
+        try {
+            File[] matchingFiles = path.listFiles(filter);
+            for (File file : matchingFiles) {
+                if (file.isDirectory()) {
+                    innerListFiles(file, fileList, filter);
+                } else if (file.isFile()) {
+                    fileList.add(file);
+                }
+            }
+        } catch (SecurityException e) {
+            e.printStackTrace();
         }
     }
 }
