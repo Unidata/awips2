@@ -27,6 +27,16 @@
         <constructor-arg ref="smartInitSrvCfg" />
   	</bean>
 	
+    <bean factory-bean="pluginNotifier" factory-method="register">
+       <constructor-arg value="warning" />
+       <constructor-arg value="jms-warning:queue:edex.spcWatch" />
+    </bean>
+
+    <bean factory-bean="pluginNotifier" factory-method="register">
+       <constructor-arg value="warning" />
+       <constructor-arg value="jms-warning:queue:edex.tpcWatch" />
+    </bean>
+ 
 	<bean id="spcWatch" class="com.raytheon.edex.plugin.gfe.spc.SPCWatchSrv" />
 	<bean id="tpcWatch" class="com.raytheon.edex.plugin.gfe.tpc.TPCWatchSrv" />
 	<bean id="wclWatch" class="com.raytheon.edex.plugin.gfe.wcl.WCLWatchSrv" />
