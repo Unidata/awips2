@@ -46,7 +46,6 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * @author bphillip
  * @version 1.0
  */
-
 public class GarbageCollector extends CanonicalEbxmlQuery {
 
     @Override
@@ -57,7 +56,6 @@ public class GarbageCollector extends CanonicalEbxmlQuery {
     @Override
     protected void query(QueryType queryType, QueryResponse queryResponse,
             String client) throws EbxmlRegistryException {
-        // TODO:Implement
     }
 
     @Override

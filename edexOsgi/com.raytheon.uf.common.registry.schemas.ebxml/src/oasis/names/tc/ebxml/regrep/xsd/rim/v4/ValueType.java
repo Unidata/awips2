@@ -37,6 +37,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -75,7 +76,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @Table(schema = "ebxml", name = "Value")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public abstract class ValueType {
+public abstract class ValueType implements IPersistableDataObject<Integer> {
 
     @Id
     @SequenceGenerator(name = "ValueTypeGenerator", schema = "ebxml", sequenceName = "ebxml.Value_sequence")
@@ -88,5 +89,10 @@ public abstract class ValueType {
     public abstract void setValue(Object obj);
 
     public abstract String getColumnName();
+
+    @Override
+    public Integer getIdentifier() {
+        return key;
+    }
 
 }
