@@ -21,6 +21,7 @@
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
 import java.math.BigInteger;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,9 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
+
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.constants.ActionTypes;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
@@ -84,6 +88,19 @@ public class AuditableEventTypeDao extends
     /** Order by clause */
     private static final String ORDER_CLAUSE = " order by event.timestamp asc";
 
+    /** The number of hours to retain auditable events */
+    private static final int AUDITABLE_EVENT_RETENTION_TIME = 48;
+
+    /** Cutoff parameter for the query to get the expired events */
+    private static final String GET_EXPIRED_EVENTS_QUERY_CUTOFF_PARAMETER = "cutoff";
+
+    /** Batch size for the query to get expired events */
+    private static final int GET_EXPIRED_EVENTS_QUERY_BATCH_SIZE = 2500;
+
+    /** Query to get Expired AuditableEvents */
+    private static final String GET_EXPIRED_EVENTS_QUERY = "FROM AuditableEventType event where event.timestamp < :"
+            + GET_EXPIRED_EVENTS_QUERY_CUTOFF_PARAMETER;
+
     /**
      * Constructor.
      * 
@@ -95,6 +112,28 @@ public class AuditableEventTypeDao extends
     @Override
     public void create(AuditableEventType event) {
         template.save(event);
+    }
+
+    /**
+     * Deletes auditable events older than 48 hrs old
+     * 
+     * @throws EbxmlRegistryException
+     *             If errors occur purging auditable events
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteExpiredEvents() throws EbxmlRegistryException {
+        Calendar cutoffTime = TimeUtil.newGmtCalendar();
+        cutoffTime.add(Calendar.HOUR_OF_DAY, -AUDITABLE_EVENT_RETENTION_TIME);
+        List<AuditableEventType> expiredEvents = this.executeHQLQuery(
+                GET_EXPIRED_EVENTS_QUERY, GET_EXPIRED_EVENTS_QUERY_BATCH_SIZE,
+                GET_EXPIRED_EVENTS_QUERY_CUTOFF_PARAMETER, EbxmlObjectUtil
+                        .getTimeAsXMLGregorianCalendar(cutoffTime
+                                .getTimeInMillis()));
+        if (!expiredEvents.isEmpty()) {
+            statusHandler.info("Deleting " + expiredEvents.size()
+                    + " Auditable Events prior to: " + cutoffTime.getTime());
+            this.template.deleteAll(expiredEvents);
+        }
     }
 
     /**

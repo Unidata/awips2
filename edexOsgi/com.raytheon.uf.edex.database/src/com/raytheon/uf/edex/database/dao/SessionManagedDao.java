@@ -358,7 +358,12 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
                     .createQuery(statement).setCacheable(true)
                     .setCacheRegion(QUERY_CACHE_REGION);
             for (int i = 0; i < params.length; i += 2) {
-                query.setParameter((String) params[i], params[i + 1]);
+                if (params[i + 1] instanceof Collection<?>) {
+                    query.setParameterList((String) params[i],
+                            (Collection<?>) params[i + 1]);
+                } else {
+                    query.setParameter((String) params[i], params[i + 1]);
+                }
             }
             return query.executeUpdate();
         } catch (Throwable e) {
