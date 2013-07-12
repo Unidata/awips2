@@ -72,6 +72,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * June 03, 2013 1763      dhladky     Added ValMap lookups for QCD
  * July 08, 2013  2171     dhladky     Removed dataURI
  * July 12, 2013  2096     mpduff      Changed temperature unit to F.
+ * July 14, 2013  2180     dhladky     GUI update for mouse over display
  * </pre>
  * 
  * @author dhladky
@@ -571,22 +572,21 @@ public class MadisRecord extends PersistablePluginDataObject implements
      */
     @XmlEnum
     public enum QCD {
-        // C - Coarse pass, passed level 1
-        // S - Screened, passed levels 1 and 2
-        // V - Verified, passed levels 1, 2, and 3
-        // X - Rejected/erroneous, failed level 1
-        // Q - Questioned, passed level 1, failed 2 or 3
-        // G - Subjective good
-        // B - Subjective bad
-        @XmlEnumValue(QCD.V)
-        VERIFIED("V"), @XmlEnumValue(QCD.S)
-        SCREENDED("S"), @XmlEnumValue(QCD.Q)
-        QUESTIONED("Q"), @XmlEnumValue(QCD.B)
-        BAD("B"), @XmlEnumValue(QCD.C)
-        COARSEPASS("C"), @XmlEnumValue(QCD.G)
-        GOOD("G"), @XmlEnumValue(QCD.Z)
-        MISSING("Z"), @XmlEnumValue(QCD.X)
-        REJECTED("X");
+        //C - Coarse pass, passed level 1
+        //S - Screened, passed levels 1 and 2
+        //V - Verified, passed levels 1, 2, and 3
+        //X - Rejected/erroneous, failed level 1
+        //Q - Questioned, passed level 1, failed 2 or 3
+        //G - Subjective good
+        //B - Subjective bad
+        @XmlEnumValue(QCD.V) VERIFIED("V"), 
+        @XmlEnumValue(QCD.S) SCREENED("S"),
+        @XmlEnumValue(QCD.Q) QUESTIONED("Q"),
+        @XmlEnumValue(QCD.B) BAD("B"), 
+        @XmlEnumValue(QCD.C) COARSEPASS("C"), 
+        @XmlEnumValue(QCD.G) GOOD("G"), 
+        @XmlEnumValue(QCD.Z) MISSING("Z"),
+        @XmlEnumValue(QCD.X) REJECTED("X");
 
         private static final String V = "V";
 
@@ -611,7 +611,7 @@ public class MadisRecord extends PersistablePluginDataObject implements
         static {
             Map<String, QCD> map = new HashMap<String, QCD>();
             map.put(V, QCD.VERIFIED);
-            map.put(S, QCD.SCREENDED);
+            map.put(S, QCD.SCREENED);
             map.put(Q, QCD.QUESTIONED);
             map.put(C, QCD.COARSEPASS);
             map.put(B, QCD.BAD);
@@ -622,7 +622,7 @@ public class MadisRecord extends PersistablePluginDataObject implements
 
             Map<String, QCD> map2 = new HashMap<String, QCD>();
             map2.put(QCD.VERIFIED.name(), QCD.VERIFIED);
-            map2.put(QCD.SCREENDED.name(), QCD.SCREENDED);
+            map2.put(QCD.SCREENED.name(), QCD.SCREENED);
             map2.put(QCD.QUESTIONED.name(), QCD.QUESTIONED);
             map2.put(QCD.COARSEPASS.name(), QCD.COARSEPASS);
             map2.put(QCD.BAD.name(), QCD.BAD);
