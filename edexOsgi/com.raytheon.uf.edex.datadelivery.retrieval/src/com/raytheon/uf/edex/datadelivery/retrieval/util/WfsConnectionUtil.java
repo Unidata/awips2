@@ -28,6 +28,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * May 31, 2013 1763       dhladky     refined.
  * Jun 17, 2013 2106       djohnson    Use getUnencryptedPassword().
  * Jun 18, 2013 2120       dhladky     Times fixes and SSL changes
+ * Jul 10, 2013 2180       dhladky     Updated credential requests
  * 
  * </pre>
  * 
@@ -39,8 +40,8 @@ public class WfsConnectionUtil {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(WfsConnectionUtil.class);
-       
-    public static String wfsConnect(String url, Connection conn,
+ 
+    public static String wfsConnect(String url, Connection providerConn,
             String providerName) {
         String xmlResponse = null;
         HttpClient http = null;
@@ -51,15 +52,23 @@ public class WfsConnectionUtil {
             HttpGet get = new HttpGet();
             URI uri = new URI(url);
             // check for the need to do a username password auth check
-            if (conn != null && conn.getUserName() != null
-                    && conn.getPassword() != null) {
+            Connection localConnection = ProviderCredentialsUtil.retrieveCredentials(providerName);
+            
+            if (localConnection != null && localConnection.getProviderKey() != null) {
                 statusHandler.handle(Priority.INFO,
-                        "Attempting credential request: " + providerName);
-                http.setHandler(new WfsCredentialsHandler(conn.getUserName(),
-                        conn.getUnencryptedPassword()));
+                        "Attempting credentialed request: " + providerName);
+                // Local Connection object contains the username, password and
+                // encryption method for
+                // password storage and decrypt.
+                String userName = localConnection
+                        .getUnencryptedUsername();
+                String password = localConnection
+                        .getUnencryptedPassword();
+
+                http.setHandler(new WfsCredentialsHandler(userName, password));
                 http.setHttpsConfiguration(new WfsHttpsConfiguration(uri));
                 http.setCredentials(uri.getHost(), uri.getPort(), providerName,
-                        conn.getUserName(), conn.getUnencryptedPassword());
+                        userName, password);
             }
 
             get.setURI(uri);
@@ -74,6 +83,7 @@ public class WfsConnectionUtil {
 
         return xmlResponse;
     }
+   
     
     /**
      * 
@@ -162,5 +172,5 @@ public class WfsConnectionUtil {
             return httpPort;
         }
     }
-  
+
 }
