@@ -1,7 +1,6 @@
 <configuration debug="false" scan="true">
    <!-- general application log --> 
    <appender name="console" class="ch.qos.logback.core.ConsoleAppender"> 
-      <param name="Threshold" value="INFO" /> 
       <encoder> 
          <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
       </encoder>
@@ -138,11 +137,11 @@
    <appender name="GenArealFFG" class="ch.qos.logback.core.rolling.RollingFileAppender">
       <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
          <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-gen_areal_ffg-%d{yyyyMMdd}.log</fileNamePattern>
+         <maxHistory>30</maxHistory>
       </rollingPolicy> 
       <encoder> 
          <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
-      <maxHistory>30</maxHistory>
+      </encoder>      
    </appender>
    
    <!-- Gen Areal QPE log --> 
