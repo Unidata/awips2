@@ -22,7 +22,9 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -32,6 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
@@ -64,6 +67,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttributes;
 import com.raytheon.uf.edex.datadelivery.bandwidth.notification.BandwidthEventBus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
@@ -84,6 +88,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 10, 2013 2106       djohnson     Extracted from {@link BandwidthManager}.
+ * Jul 11, 2013 2106       djohnson     Look up subscription from the handler directly.
  * 
  * </pre>
  * 
@@ -226,14 +231,12 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
 
             // Schedule the next iteration of the subscription
             BandwidthSubscription dao = sr.getBandwidthSubscription();
-            Subscription subscription = null;
+            Subscription subscription;
             try {
-                subscription = dao.getSubscription();
-            } catch (SerializationException e) {
-                statusHandler.error(
-                        "Failed to extract Subscription from BandwidthSubscription ["
-                                + dao.getIdentifier() + "]", e);
-                // No sense in continuing
+                subscription = subscriptionHandler.getByName(dao.getName());
+            } catch (RegistryHandlerException e1) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to retrieve the subscription by name!", e1);
                 return;
             }
 
@@ -261,19 +264,10 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
                 if (a == null) {
                     // Create the new BandwidthSubscription record with the next
                     // time..
-                    try {
-                        a = bandwidthDao.newBandwidthSubscription(subscription,
-                                next);
-                    } catch (SerializationException e) {
+                    a = bandwidthDao.newBandwidthSubscription(subscription,
+                            next);
 
-                        statusHandler.error(
-                                "Failed to create new BandwidthSubscription from Subscription ["
-                                        + subscription.getId()
-                                        + "] baseReferenceTime ["
-                                        + BandwidthUtil.format(next) + "]", e);
-                    }
-
-                    schedule(a);
+                    schedule(subscription, a);
                 } else {
                     statusHandler
                             .info("Subscription ["
@@ -302,7 +296,7 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
                     || DataDeliveryRegistryObjectTypes.SHARED_SUBSCRIPTION
                             .equals(objectType)) {
                 statusHandler
-                        .info("Recieved Subscription removal notification for Subscription ["
+                        .info("Received Subscription removal notification for Subscription ["
                                 + event.getId() + "]");
                 // Need to locate and remove all BandwidthReservations for the
                 // given subscription..
@@ -455,17 +449,24 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
                 try {
                     // Update the retrieval times on the subscription object
                     // which goes through the retrieval process
-                    final Subscription subscription = retrieval
+                    final SubscriptionRetrievalAttributes subscriptionRetrievalAttributes = bandwidthDao
+                            .getSubscriptionRetrievalAttributes(retrieval);
+                    final Subscription subscription = subscriptionRetrievalAttributes
                             .getSubscription();
-                    subscription.setUrl(dataSetMetaData.getUrl());
-                    subscription.setProvider(dataSetMetaData.getProviderName());
 
                     if (subscription.getTime() instanceof PointTime) {
                         final PointTime subTime = (PointTime) subscription
                                 .getTime();
+                        subscription.setUrl(dataSetMetaData.getUrl());
+                        subscription.setProvider(dataSetMetaData
+                                .getProviderName());
+
                         subTime.setRequestStartAsDate(earliestRetrievalDataTime);
                         subTime.setRequestEndAsDate(latestRetrievalDataTime);
                         subTime.setTimes(time.getTimes());
+
+                        bandwidthDao.update(subscriptionRetrievalAttributes);
+
                         // Now update the retrieval to be ready
                         retrieval.setStatus(RetrievalStatus.READY);
                         bandwidthDaoUtil.update(retrieval);
@@ -561,14 +562,20 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
                     // Need to update the Subscription Object in the
                     // SubscriptionRetrieval with the current DataSetMetaData
                     // URL and time Object
+
+                    SubscriptionRetrievalAttributes attributes = bandwidthDao
+                            .getSubscriptionRetrievalAttributes(retrieval);
+
                     Subscription sub;
                     try {
                         sub = updateSubscriptionWithDataSetMetaData(
-                                retrieval.getSubscription(), dataSetMetaData);
+                                attributes.getSubscription(), dataSetMetaData);
 
                         // Update the SubscriptionRetrieval record with the new
                         // data...
-                        retrieval.setSubscription(sub);
+                        attributes.setSubscription(sub);
+
+                        bandwidthDao.update(attributes);
                     } catch (SerializationException e) {
                         statusHandler
                                 .handle(Priority.PROBLEM,
@@ -604,6 +611,40 @@ public abstract class EdexBandwidthManager extends BandwidthManager {
                                 + BandwidthUtil.format(dataset
                                         .getDataSetBaseTime()) + "]");
             }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void unscheduleSubscriptionsForAllocations(
+            List<BandwidthAllocation> unscheduled) {
+        List<SubscriptionRetrieval> retrievals = Lists.newArrayList();
+        for (BandwidthAllocation unscheduledAllocation : unscheduled) {
+            if (unscheduledAllocation instanceof SubscriptionRetrieval) {
+                SubscriptionRetrieval retrieval = (SubscriptionRetrieval) unscheduledAllocation;
+                retrievals.add(retrieval);
+            }
+        }
+
+        Set<Subscription> subscriptions = new HashSet<Subscription>();
+        for (SubscriptionRetrieval retrieval : retrievals) {
+            try {
+                final Subscription sub = bandwidthDao
+                        .getSubscriptionRetrievalAttributes(retrieval)
+                        .getSubscription();
+                subscriptions.add(sub);
+            } catch (SerializationException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to deserialize a subscription", e);
+                continue;
+            }
+        }
+
+        for (Subscription subscription : subscriptions) {
+            subscription.setUnscheduled(true);
+            subscriptionUpdated(subscription);
         }
     }
 

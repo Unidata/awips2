@@ -155,4 +155,13 @@ class InMemoryBandwidthManager extends BandwidthManager {
         // Nothing to do for in-memory version
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void unscheduleSubscriptionsForAllocations(
+            List<BandwidthAllocation> unscheduled) {
+        // Nothing to do for in-memory version
+    }
+
 }
