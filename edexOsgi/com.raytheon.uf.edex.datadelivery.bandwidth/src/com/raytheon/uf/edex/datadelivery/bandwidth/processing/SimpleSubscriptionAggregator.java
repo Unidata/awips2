@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -32,6 +31,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Nov 09, 2012 1286       djohnson    Rename interface to comply with standards.
  * Nov 20, 2012 1286       djohnson    Change some logging to debug.
  * Jun 13, 2013 2095       djohnson    No need to query the database, we are only receiving new bandwidth subscriptions.
+ * Jul 11, 2013 2106       djohnson    aggregate() signature changed.
  * 
  * </pre>
  * 
@@ -51,7 +51,7 @@ public class SimpleSubscriptionAggregator implements ISubscriptionAggregator {
 
     @Override
     public List<SubscriptionRetrieval> aggregate(
-            List<BandwidthSubscription> newSubscriptions) {
+            BandwidthSubscriptionContainer container) {
 
         List<SubscriptionRetrieval> subscriptionRetrievals = new ArrayList<SubscriptionRetrieval>();
 
@@ -59,42 +59,31 @@ public class SimpleSubscriptionAggregator implements ISubscriptionAggregator {
         // necessary retrievals without regards to 'sharing' retrievals across
         // subscriptions.
 
-        for (BandwidthSubscription subDao : newSubscriptions) {
+        for (BandwidthSubscription subDao : container.newSubscriptions) {
 
             // First check to see if the Object already was scheduled
             // (i.e. has SubscriptionRetrievals associated with it) if
             // not, create a SubscriptionRetrieval for the subscription
 
-                try {
-                    SubscriptionRetrieval subscriptionRetrieval = new SubscriptionRetrieval();
-                    // Link this SubscriptionRetrieval with the subscription.
-                    subscriptionRetrieval.setBandwidthSubscription(subDao);
-                    subscriptionRetrieval.setNetwork(subDao.getRoute());
-                    subscriptionRetrieval
-                            .setAgentType(SubscriptionRetrievalAgent.SUBSCRIPTION_AGENT);
-                    subscriptionRetrieval.setStatus(RetrievalStatus.PROCESSING);
-                    subscriptionRetrieval.setPriority(subDao.getPriority());
-                    subscriptionRetrieval.setEstimatedSize(subDao
-                            .getEstimatedSize());
+            SubscriptionRetrieval subscriptionRetrieval = new SubscriptionRetrieval();
+            // Link this SubscriptionRetrieval with the subscription.
+            subscriptionRetrieval.setBandwidthSubscription(subDao);
+            subscriptionRetrieval.setNetwork(subDao.getRoute());
+            subscriptionRetrieval
+                    .setAgentType(SubscriptionRetrievalAgent.SUBSCRIPTION_AGENT);
+            subscriptionRetrieval.setStatus(RetrievalStatus.PROCESSING);
+            subscriptionRetrieval.setPriority(subDao.getPriority());
+            subscriptionRetrieval.setEstimatedSize(subDao.getEstimatedSize());
 
-                    // Create a Retrieval Object for the Subscription
-                    Subscription sub = subDao.getSubscription();
+            // Create a Retrieval Object for the Subscription
+            Subscription sub = container.subscription;
 
-                    subscriptionRetrieval.setSubscriptionLatency(BandwidthUtil
-                            .getSubscriptionLatency(sub));
-                    subscriptionRetrieval
-                            .setDataSetAvailablityDelay(BandwidthUtil
-                                    .getDataSetAvailablityDelay(sub));
+            subscriptionRetrieval.setSubscriptionLatency(BandwidthUtil
+                    .getSubscriptionLatency(sub));
+            subscriptionRetrieval.setDataSetAvailablityDelay(BandwidthUtil
+                    .getDataSetAvailablityDelay(sub));
 
-                    subscriptionRetrieval.setSubscription(sub);
-                    subscriptionRetrievals.add(subscriptionRetrieval);
-
-                } catch (SerializationException e) {
-                    statusHandler
-                            .warn("Trapped SerializationException attempting to process subscription ["
-                                    + subDao.getIdentifier()
-                                    + "]:  Subscription will not be scheduled.");
-                }
+            subscriptionRetrievals.add(subscriptionRetrieval);
 
             if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
                 statusHandler
