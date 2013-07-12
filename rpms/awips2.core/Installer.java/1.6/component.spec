@@ -2,6 +2,7 @@
 %define _java_major_version 1.6
 %define _java_version %{_java_major_version}.0_43 
 %define _build_arch %(uname -i)
+%define _java_build_loc %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 #
 # AWIPS II Java 1.6 Spec File
@@ -40,18 +41,10 @@ if [ -d %{_build_root} ]; then
       exit 1
    fi
 fi
-mkdir -p %{_build_root}/build-java
-if [ $? -ne 0 ]; then
-   exit 1
+if [ -d %{_java_build_loc} ]; then
+   rm -rf %{_java_build_loc}
 fi
-mkdir -p %{_build_root}/awips2/java
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-mkdir -p %{_build_root}/etc/profile.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
+mkdir -p %{_java_build_loc}
 
 %build
 
@@ -93,7 +86,7 @@ JAVA_ARCH_SRC_DIR="${JAVA_SRC_DIR}/${arch_directory}"
 
 pushd . > /dev/null
 cd ${JAVA_ARCH_SRC_DIR}
-/bin/cp -v ${jdk_bin} %{_build_root}/build-java
+/bin/cp -v ${jdk_bin} %{_java_build_loc}
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -102,25 +95,34 @@ popd > /dev/null
 pushd . > /dev/null
 cd ${JAVA_COMMON_SRC_DIR}
 /usr/bin/patch -i ${jai_bin_patch} \
-   -o %{_build_root}/build-java/${jai_bin}
+   -o %{_java_build_loc}/${jai_bin}
 if [ $? -ne 0 ]; then
    exit 1
 fi
 /usr/bin/patch -i ${jai_imageio_bin_patch} \
-   -o %{_build_root}/build-java/${jai_imageio_bin}
+   -o %{_java_build_loc}/${jai_imageio_bin}
 if [ $? -ne 0 ]; then
    exit 1
 fi
 popd > /dev/null
 
-chmod a+x %{_build_root}/build-java/*.bin
+mkdir -p %{_build_root}/awips2/java
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+mkdir -p %{_build_root}/etc/profile.d
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+chmod a+x %{_java_build_loc}/*.bin
 pushd . > /dev/null
 cd %{_build_root}/awips2/java
 # Used to automatically agree to software licenses.
 touch yes.txt
 echo "yes" > yes.txt
 
-%{_build_root}/build-java/${jdk_bin} -noregister
+%{_java_build_loc}/${jdk_bin} -noregister
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -133,20 +135,16 @@ rm -rfv ${JDK_BIN_var_javahome}
 if [ $? -ne 0 ]; then
    exit 1
 fi
-%{_build_root}/build-java/${jai_bin} < yes.txt
+%{_java_build_loc}/${jai_bin} < yes.txt
 if [ $? -ne 0 ]; then
    exit 1
 fi
-%{_build_root}/build-java/${jai_imageio_bin} < yes.txt
+%{_java_build_loc}/${jai_imageio_bin} < yes.txt
 if [ $? -ne 0 ]; then
    exit 1
 fi
 
 rm -fv yes.txt
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-rm -rf %{_build_root}/build-java
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -189,6 +187,25 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
+_files_to_update=( '/awips2/java/jre/lib/servicetag/registration.xml' \
+   '/awips2/java/register_zh_CN.html' \
+   '/awips2/java/register.html' \
+   '/awips2/java/register_ja.html' )
+
+# update the java paths in a few files
+for _file in ${_files_to_update[*]};
+do
+   sed -e "s,%{_build_root}/awips2/java,/awips2/java," \
+      < %{_build_root}/${_file} > %{_build_root}/${_file}.new
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   mv %{_build_root}/${_file}.new %{_build_root}/${_file}
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+done
+
 %pre
 if [ "${1}" = "2" ]; then
    # Upgrade. Removing the existing /awips2/java/man
@@ -208,6 +225,7 @@ fi
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
+rm -rf %{_java_build_loc}
 
 %files
 %defattr(644,awips,fxalpha,755)
