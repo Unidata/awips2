@@ -22,26 +22,28 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.dao;
 import java.util.Random;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.AbstractFixture;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
 /**
- * TODO Add Description
+ * Creates {@link BandwidthAllocation} instances.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 13, 2012            djohnson     Initial creation
- *
+ * Jul 11, 2013 2106       djohnson     Use SubscriptionPriority enum.
+ * 
  * </pre>
- *
+ * 
  * @author djohnson
- * @version 1.0	
+ * @version 1.0
  */
 
 public abstract class BaseBandwidthAllocationFixture<T extends BandwidthAllocation>
@@ -57,7 +59,7 @@ public abstract class BaseBandwidthAllocationFixture<T extends BandwidthAllocati
         entity.setActualEnd(BandwidthUtil.now());
         entity.setBandwidthBucket(TimeUtil.currentTimeMillis());
         entity.setNetwork(Network.OPSNET);
-        entity.setPriority(1.0);
+        entity.setPriority(SubscriptionPriority.HIGH);
         entity.setStatus(RetrievalStatus.DEFERRED);
         entity.setStartTime(BandwidthUtil.now());
         entity.setEndTime(BandwidthUtil.now());
