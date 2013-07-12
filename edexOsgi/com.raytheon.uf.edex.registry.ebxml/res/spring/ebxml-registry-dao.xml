@@ -2,15 +2,19 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
+	<bean id="slotTypeDao" class="com.raytheon.uf.edex.registry.ebxml.dao.SlotTypeDao">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+	</bean>
+
 	<bean id="registryObjectDao"
 		class="com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao">
 		<property name="sessionFactory" ref="metadataSessionFactory" />
 	</bean>
-	
+
 	<bean id="registryDao" class="com.raytheon.uf.edex.registry.ebxml.dao.RegistryDao">
 		<property name="sessionFactory" ref="metadataSessionFactory" />
 	</bean>
-	
+
 	<bean id="federationDao" class="com.raytheon.uf.edex.registry.ebxml.dao.FederationDao">
 		<property name="sessionFactory" ref="metadataSessionFactory" />
 	</bean>
@@ -72,8 +76,9 @@
 		<property name="sessionFactory" ref="metadataSessionFactory" />
 		<property name="associationDao" ref="associationDao" />
 	</bean>
-	
-	<bean name="notificationTypeDao" class="com.raytheon.uf.edex.registry.ebxml.dao.NotificationTypeDao" >
+
+	<bean name="notificationTypeDao"
+		class="com.raytheon.uf.edex.registry.ebxml.dao.NotificationTypeDao">
 		<property name="sessionFactory" ref="metadataSessionFactory" />
 	</bean>
 </beans>
