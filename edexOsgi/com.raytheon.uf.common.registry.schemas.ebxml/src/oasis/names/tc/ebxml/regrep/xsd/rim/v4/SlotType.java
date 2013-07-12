@@ -43,6 +43,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
 
+import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -88,7 +89,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 // "child_slot_key", referencedColumnName = "key")))
 @Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
 @Table(schema = "ebxml", name = "Slot")
-public class SlotType extends ExtensibleObjectType implements Serializable {
+public class SlotType extends ExtensibleObjectType implements
+        IPersistableDataObject<Integer>, Serializable {
 
     private static final long serialVersionUID = -2184582316481503043L;
 
@@ -98,7 +100,7 @@ public class SlotType extends ExtensibleObjectType implements Serializable {
     @XmlTransient
     private Integer key;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @XmlElement(name = "SlotValue")
     @DynamicSerializeElement
     protected ValueType slotValue;
@@ -256,6 +258,11 @@ public class SlotType extends ExtensibleObjectType implements Serializable {
      */
     public void setType(String value) {
         this.type = value;
+    }
+
+    @Override
+    public Integer getIdentifier() {
+        return key;
     }
 
 }
