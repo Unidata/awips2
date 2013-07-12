@@ -2,6 +2,7 @@
 %define _java_major_version 1.7
 %define _java_version %{_java_major_version}.0_21 
 %define _build_arch %(uname -i)
+%define _java_build_loc %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 #
 # AWIPS II Java 1.7 Spec File
@@ -40,18 +41,12 @@ if [ -d %{_build_root} ]; then
       exit 1
    fi
 fi
-mkdir -p %{_build_root}/build-java
-if [ $? -ne 0 ]; then
-   exit 1
+if [ -d %{_java_build_loc} ]; then
+   rm -rf %{_java_build_loc}
 fi
-mkdir -p %{_build_root}/awips2/java
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-mkdir -p %{_build_root}/etc/profile.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
+mkdir -p %{_java_build_loc}
+
+%build
 
 %install
 build_arch=
@@ -91,7 +86,7 @@ JAVA_ARCH_SRC_DIR="${JAVA_SRC_DIR}/${arch_directory}"
 
 pushd . > /dev/null
 cd ${JAVA_ARCH_SRC_DIR}
-/bin/tar -xvf ${jdk_tar} -C %{_build_root}/build-java
+/bin/tar -xvf ${jdk_tar} -C %{_java_build_loc}
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -100,42 +95,47 @@ popd > /dev/null
 pushd . > /dev/null
 cd ${JAVA_COMMON_SRC_DIR}
 /usr/bin/patch -i ${jai_bin_patch} \
-   -o %{_build_root}/build-java/${jai_bin}
+   -o %{_java_build_loc}/${jai_bin}
 if [ $? -ne 0 ]; then
    exit 1
 fi
 /usr/bin/patch -i ${jai_imageio_bin_patch} \
-   -o %{_build_root}/build-java/${jai_imageio_bin}
+   -o %{_java_build_loc}/${jai_imageio_bin}
 if [ $? -ne 0 ]; then
    exit 1
 fi
 popd > /dev/null
 
-chmod a+x %{_build_root}/build-java/*.bin
+mkdir -p %{_build_root}/awips2/java
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+mkdir -p %{_build_root}/etc/profile.d
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+chmod a+x %{_java_build_loc}/*.bin
 pushd . > /dev/null
 cd %{_build_root}/awips2/java
 # Used to automatically agree to software licenses.
 touch yes.txt
 echo "yes" > yes.txt
 
-/bin/mv %{_build_root}/build-java/${JDK_BIN_var_javahome}/* .
+/bin/mv %{_java_build_loc}/${JDK_BIN_var_javahome}/* .
 if [ $? -ne 0 ]; then
    exit 1
 fi
-%{_build_root}/build-java/${jai_bin} < yes.txt
+%{_java_build_loc}/${jai_bin} < yes.txt
 if [ $? -ne 0 ]; then
    exit 1
 fi
-%{_build_root}/build-java/${jai_imageio_bin} < yes.txt
+%{_java_build_loc}/${jai_imageio_bin} < yes.txt
 if [ $? -ne 0 ]; then
    exit 1
 fi
 
 rm -fv yes.txt
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-rm -rf %{_build_root}/build-java
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -197,6 +197,7 @@ fi
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
+rm -rf %{_java_build_loc}
 
 %files
 %defattr(644,awips,fxalpha,755)
