@@ -49,6 +49,9 @@ import com.raytheon.uf.common.datadelivery.registry.AdhocSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
+import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
+import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
@@ -75,6 +78,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * May 20, 2013 1650       djohnson     Add test for returning required dataset size.
  * Jun 12, 2013 2038       djohnson     Add test for returning required dataset size on subscription update.
  * Jun 25, 2013 2106       djohnson     BandwidthBucket is a big boy class now.
+ * Jul 11, 2013 2106       djohnson     Use SubscriptionPriority enum.
  * 
  * </pre>
  * 
@@ -107,17 +111,23 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
     }
 
     @Test
-    public void testProposeNetworkBandwidthReturnsSubscriptionsUnableToFit() {
+    public void testProposeNetworkBandwidthReturnsSubscriptionsUnableToFit()
+            throws RegistryHandlerException {
 
         // Two subscriptions that will fill up a bucket exactly
         Subscription subscription = createSubscriptionThatFillsHalfABucket();
         Subscription subscription2 = createSubscriptionThatFillsHalfABucket();
 
+        final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
+                .getSubscriptionHandler();
+        subscriptionHandler.store(subscription);
+        subscriptionHandler.store(subscription2);
+
         bandwidthManager.schedule(subscription);
         bandwidthManager.schedule(subscription2);
 
         // Now we propose dropping the bandwidth by just one kb/s
-        Set<Subscription> results = service
+        Set<String> results = service
                 .proposeBandwidthForNetworkInKilobytes(Network.OPSNET,
                         retrievalManager.getPlan(Network.OPSNET)
                                 .getDefaultBandwidth() - 1);
@@ -128,17 +138,23 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
     }
 
     @Test
-    public void testProposeNetworkBandwidthReturnsNoSubscriptionsWhenAbleToFit() {
+    public void testProposeNetworkBandwidthReturnsNoSubscriptionsWhenAbleToFit()
+            throws RegistryHandlerException {
 
         // Two subscriptions that will fill up only a third of a bucket
         Subscription subscription = createSubscriptionThatFillsAThirdOfABucket();
         Subscription subscription2 = createSubscriptionThatFillsAThirdOfABucket();
 
+        ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
+                .getSubscriptionHandler();
+        subscriptionHandler.store(subscription);
+        subscriptionHandler.store(subscription2);
+
         bandwidthManager.schedule(subscription);
         bandwidthManager.schedule(subscription2);
 
         // Now we propose dropping the bandwidth by just one kb/s
-        Set<Subscription> results = service
+        Set<String> results = service
                 .proposeBandwidthForNetworkInKilobytes(Network.OPSNET,
                         retrievalManager.getPlan(Network.OPSNET)
                                 .getDefaultBandwidth() - 1);
@@ -683,7 +699,7 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
         allocation.setStartTime(cal);
         allocation.setEndTime(cal);
         allocation.setNetwork(subscription.getRoute());
-        allocation.setPriority(2);
+        allocation.setPriority(SubscriptionPriority.NORMAL);
         allocation.setAgentType("someAgent");
         allocation.setEstimatedSize(subscription.getDataSetSize() / 2);
 
