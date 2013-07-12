@@ -25,12 +25,13 @@ import java.io.Serializable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * Connection XML
@@ -57,6 +58,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 public class Connection implements ISerializableObject, Serializable {
 
     private static final long serialVersionUID = 8223819912383198409L;
+    
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(Connection.class);
 
     public Connection() {
 
@@ -82,6 +86,8 @@ public class Connection implements ISerializableObject, Serializable {
     @XmlElement(name = "password")
     @DynamicSerializeElement
     private String password;
+
+    private String providerKey;
     
     @XmlElement(name = "encryption")
     @DynamicSerializeElement
@@ -111,36 +117,120 @@ public class Connection implements ISerializableObject, Serializable {
         return password;
     }
 
+    /**
+     * You pass in the providerKey to the local DD client
+     * The reason for this is you don't want the key and 
+     * password ever stored in the same place.  providerKey is kept
+     * in the registry at the WFO & NCF.  The password is stored
+     * encrypted in a connection object file stored in localization.
+     * You can only decrypt when they come together in code here.
+     * 
+     * 
+     * @param providerKey
+     * @return
+     */
     public String getUnencryptedPassword() {
-        if (password != null && encryption != null) {
-            return encryption.decrypt(password);
+        
+        if (password != null && providerKey != null) {
+
+            try {
+                return encryption.decrypt(providerKey, password);
+            } catch (Exception e) {
+                statusHandler.error("Unable to decrypt password!"+e);
+            }
         }
         
         return null;
+    }
+    
+    /**
+     * encrypt password with providerKey
+     *
+     * 
+     * @param providerKey
+     * @return
+     */
+    public void encryptPassword() {
+
+        String encryptPassword = null;
+
+        if (password != null && providerKey != null) {
+
+            try {
+                encryptPassword = encryption.encrypt(providerKey, password);
+                setPassword(encryptPassword);
+            } catch (Exception e) {
+                statusHandler.error("Unable to crypt password!" + e);
+            }
+        }
+    }
+    
+    /**
+     * You pass in the providerKey to the local DD client
+     * The reason for this is you don't want the key and 
+     * password ever stored in the same place.  providerKey is kept
+     * in the registry at the WFO & NCF.  The password is stored
+     * encrypted in a connection object file stored in localization.
+     * You can only decrypt when they come together in code here.
+     * 
+     * 
+     * @param providerKey
+     * @return
+     */
+    public String getUnencryptedUsername() {
+        
+        if (userName != null && providerKey != null) {
+
+            try {
+                return encryption.decrypt(providerKey, userName);
+            } catch (Exception e) {
+                statusHandler.error("Unable to decrypt userName!"+e);
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * encrypt userName with providerKey
+     *
+     * 
+     * @param providerKey
+     * @return
+     */
+    public void encryptUserName() {
+
+        String encryptUserName = null;
+
+        if (userName != null && providerKey != null) {
+
+            try {
+                encryptUserName = encryption.encrypt(providerKey, userName);
+                setUserName(encryptUserName);
+            } catch (Exception e) {
+                statusHandler.error("Unable to crypt userName!" + e);
+            }
+        }
     }
 
     public void setUserName(String userName) {
         this.userName = userName;
     }
     
-    @XmlEnum
-    public enum Encryption {
-        // will have a map of these eventually
-        CLEAR;
-
-        // clear text for now so nothing happens here
-        public String decrypt(String password) {
-            return password;
-        }
-
-    }
-
     public Encryption getEncryption() {
         return encryption;
     }
 
     public void setEncryption(Encryption encryption) {
         this.encryption = encryption;
+    }
+
+    public String getProviderKey() {
+        return providerKey;
+    }
+
+    public void setProviderKey(String providerKey) {
+        this.providerKey = providerKey;
     }
 
 }
