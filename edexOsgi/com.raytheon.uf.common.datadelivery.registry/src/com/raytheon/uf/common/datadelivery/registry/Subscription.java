@@ -38,6 +38,7 @@ import javax.xml.bind.annotation.XmlEnumValue;
  * Mar 25, 2013 1841       djohnson     Extracted from UserSubscription.
  * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * May 15, 2013 1040       mpduff       Changed officeId to a set.
+ * Jul 11, 2013 2106       djohnson     SubscriptionPriority allows comparison.
  * 
  * </pre>
  * 
@@ -92,6 +93,17 @@ public interface Subscription {
         @Override
         public String toString() {
             return priorityName;
+        }
+
+        /**
+         * Check whether this priority is higher than the other priority.
+         * 
+         * @param other
+         *            the other priority
+         * @return true if higher priority
+         */
+        public boolean isHigherPriorityThan(SubscriptionPriority other) {
+            return this.priorityValue < other.priorityValue;
         }
 
         /**
