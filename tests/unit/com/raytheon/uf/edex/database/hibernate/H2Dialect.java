@@ -41,7 +41,7 @@ import org.hibernate.HibernateException;
  * @version 1.0
  */
 public class H2Dialect extends org.hibernate.dialect.H2Dialect {
-    private static final int LARGE_DEFAULT_LENGTH = 3000;
+    private static final int LARGE_DEFAULT_LENGTH = 10000;
 
     @Override
     public String getTypeName(int code, int length, int precision, int scale)
