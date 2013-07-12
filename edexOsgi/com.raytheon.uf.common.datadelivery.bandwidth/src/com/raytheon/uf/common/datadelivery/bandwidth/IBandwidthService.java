@@ -40,6 +40,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
  * Oct 22, 2012 1286       djohnson     Initial creation
  * Nov 20, 2012 1286       djohnson     Add proposeSchedule methods.
  * Dec 06, 2012 1397       djohnson     Add ability to get bandwidth graph data.
+ * Jul 11, 2013 2106       djohnson     Bandwidth service now returns names of subscriptions for proposing bandwidth availability.
  * 
  * </pre>
  * 
@@ -76,10 +77,10 @@ public interface IBandwidthService {
      *            the network
      * @param bandwidth
      *            the bandwidth
-     * @return the set of current subscriptions which would be unable to fit
-     *         into the retrieval plan with the new bandwidth amount
+     * @return the set of current subscription names which would be unable to
+     *         fit into the retrieval plan with the new bandwidth amount
      */
-    Set<Subscription> proposeBandwidthForNetworkInKilobytes(Network network,
+    Set<String> proposeBandwidthForNetworkInKilobytes(Network network,
             int bandwidth);
 
     /**
