@@ -30,7 +30,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -50,6 +49,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * May 14, 2013 2000       djohnson     Initial creation
  * May 23, 2013 1650       djohnson     Reword change bandwidth message.
  * Jun 12, 2013 2064       mpduff       Update label.
+ * Jul 11, 2013 2106       djohnson     SystemRuleManager now returns names of subscriptions.
  * 
  * </pre>
  * 
@@ -149,15 +149,13 @@ public class BandwidthTab extends SystemApplyCancelTab {
         boolean changesApplied = false;
         final int bandwidth = availBandwidthSpinner.getSelection();
 
-        Set<Subscription> unscheduledSubscriptions = SystemRuleManager
+        Set<String> unscheduledSubscriptions = SystemRuleManager
                 .setAvailableBandwidth(Network.OPSNET, bandwidth);
         if (unscheduledSubscriptions.isEmpty()) {
             changesApplied = true;
         } else {
-            Set<String> subscriptionNames = new TreeSet<String>();
-            for (Subscription subscription : unscheduledSubscriptions) {
-                subscriptionNames.add(subscription.getName());
-            }
+            Set<String> subscriptionNames = new TreeSet<String>(
+                    unscheduledSubscriptions);
 
             StringBuilder sb = new StringBuilder(StringUtil.createMessage(
                     "Changing the bandwidth for " + Network.OPSNET
