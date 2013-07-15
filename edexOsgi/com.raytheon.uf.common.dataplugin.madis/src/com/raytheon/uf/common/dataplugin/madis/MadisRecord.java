@@ -71,6 +71,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 16, 2013 753        dhladky     Restored dataUri as unique key
  * June 03, 2013 1763      dhladky     Added ValMap lookups for QCD
  * July 08, 2013  2171     dhladky     Removed dataURI
+ * July 12, 2013  2096     mpduff      Changed temperature unit to F.
  * </pre>
  * 
  * @author dhladky
@@ -81,14 +82,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "madisseq")
 @Table(name = "madis", uniqueConstraints = { @UniqueConstraint(columnNames = {
         "location", "refTime", "provider", "subProvider", "restriction" }) })
-
-@org.hibernate.annotations.Table(
-        appliesTo = "madis",
-        indexes = {
-                @Index(name = "madis_wfsQueryIndex", columnNames = { "refTime", "location" }),
-        }
-)
-
+@org.hibernate.annotations.Table(appliesTo = "madis", indexes = { @Index(name = "madis_wfsQueryIndex", columnNames = {
+        "refTime", "location" }), })
 @DynamicSerialize
 public class MadisRecord extends PersistablePluginDataObject implements
         ISpatialEnabled, IDecoderGettable, IPointData {
@@ -106,171 +101,171 @@ public class MadisRecord extends PersistablePluginDataObject implements
     @Column
     @DataURI(position = 2)
     private String subProvider;
-    
+
     @Embedded
     @DataURI(position = 3, embedded = true)
     @DynamicSerializeElement
     private SurfaceObsLocation location;
-    
+
     /** An integer denoting the dataset */
     @DynamicSerializeElement
     @Transient
     private int dataset;
-    
+
     /** An integer denoting the restriction level */
     @DynamicSerializeElement
     @Column
     @DataURI(position = 4)
     private int restriction;
-    
+
     /** A string denoting the time of observation */
     @DynamicSerializeElement
     @Transient
     private Date timeObs;
-    
+
     /** A float denoting the dewpoint temp */
     @DynamicSerializeElement
     @Transient
     private float dewpoint = -99999;
-    
+
     /** A QCD denoting the dewpoint quality */
     @DynamicSerializeElement
     @Transient
     private QCD dewpoint_qcd = QCD.MISSING;
-    
+
     @DynamicSerializeElement
     @Transient
     private int dewpoint_qca = -99999;
-    
+
     @DynamicSerializeElement
     @Transient
     private int dewpoint_qcr = -99999;
-        
+
     /** A float denoting the relative humidity */
     @DynamicSerializeElement
     @Transient
     private float rh = -99999;
-    
+
     /** A string denoting the provider sub network */
     @DynamicSerializeElement
     @Transient
     private QCD rh_qcd = QCD.MISSING;
-    
+
     @DynamicSerializeElement
     @Transient
     private int rh_qca = -99999;
-    
+
     @DynamicSerializeElement
     @Transient
     private int rh_qcr = -99999;
-    
+
     /** A float denoting the altimeter */
     @DynamicSerializeElement
     @Transient
     private float altimeter = -99999;
-    
+
     /** A QCD denoting the altimeter quality */
     @DynamicSerializeElement
     @Transient
     private QCD altimeter_qcd = QCD.MISSING;
-    
+
     @DynamicSerializeElement
     @Transient
     private int altimeter_qca = -99999;
-    
+
     @DynamicSerializeElement
     @Transient
     private int altimeter_qcr = -99999;
-    
+
     /** A float denoting the temperature */
     @DynamicSerializeElement
     @Transient
     private float temperature = -99999;
-    
+
     /** A QCD denoting the temperature quality */
     @DynamicSerializeElement
     @Transient
     private QCD temperature_qcd = QCD.MISSING;
-    
+
     @DynamicSerializeElement
     @Transient
     private int temperature_qca = -99999;
-    
+
     @DynamicSerializeElement
     @Transient
     private int temperature_qcr = -99999;
-    
+
     /** An int denoting the windDirection */
     @DynamicSerializeElement
     @Transient
     private int windDirection = -99999;
-    
+
     /** A QCD denoting the wind Direction quality */
     @DynamicSerializeElement
     @Transient
     private QCD windDirection_qcd = QCD.MISSING;
-    
+
     @DynamicSerializeElement
     @Transient
     private int windDirection_qca = -99999;
-    
+
     @DynamicSerializeElement
     @Transient
     private int windDirection_qcr = -99999;
-    
+
     /** A QCD denoting the altimeter quality */
     @DynamicSerializeElement
     @Transient
     private QCD elevation_qcd = QCD.MISSING;
-    
+
     @DynamicSerializeElement
     @Transient
     private int elevation_qca = -99999;
-    
+
     @DynamicSerializeElement
     @Transient
     private int elevation_qcr = -99999;
-    
+
     /** A QCD denoting the latitude quality */
     @DynamicSerializeElement
     @Transient
     private QCD latitude_qcd = QCD.MISSING;
-    
+
     @DynamicSerializeElement
     @Transient
     private int latitude_qca = -99999;
-    
+
     @DynamicSerializeElement
     @Transient
     private int latitude_qcr = -99999;
-    
+
     /** A QCD denoting the longitude quality */
     @DynamicSerializeElement
     @Transient
     private QCD longitude_qcd = QCD.MISSING;
-    
+
     @DynamicSerializeElement
     @Transient
     private int longitude_qca = -99999;
-    
+
     @DynamicSerializeElement
     @Transient
     private int longitude_qcr = -99999;
-            
+
     /** A float denoting the preciprate */
     @DynamicSerializeElement
     @Transient
     private float precipRate = -99999;
-    
+
     /** A QCD denoting the preciprate quality */
     @DynamicSerializeElement
     @Transient
     private QCD precipRate_qcd = QCD.MISSING;
-    
+
     @DynamicSerializeElement
     @Transient
     private int precipRate_qca = -99999;
-    
+
     @DynamicSerializeElement
     @Transient
     private int precipRate_qcr = -99999;
@@ -279,84 +274,84 @@ public class MadisRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     @Transient
     private float windSpeed = -99999;
-    
+
     /** A QCD denoting the windSpeed(wind) quality */
     @DynamicSerializeElement
     @Transient
     private QCD windSpeed_qcd = QCD.MISSING;
-    
+
     @DynamicSerializeElement
     @Transient
     private int windSpeed_qca = -99999;
-    
+
     @DynamicSerializeElement
     @Transient
     private int windSpeed_qcr = -99999;
-    
+
     /** A float denoting the windSpeedgust(wind) */
     @DynamicSerializeElement
     @Transient
     private float windGust = -99999;
-    
+
     /** A QCD denoting the windSpeedgust(wind) quality */
     @DynamicSerializeElement
     @Transient
     private QCD windGust_qcd = QCD.MISSING;
-    
+
     @DynamicSerializeElement
     @Transient
     private int windGust_qca = -99999;
-    
+
     @DynamicSerializeElement
     @Transient
     private int windGust_qcr = -99999;
-    
+
     /** A float denoting the precipitalWater */
     @DynamicSerializeElement
     @Transient
     private float precipitalWater = -99999;
-    
+
     /** A QCD denoting the precipitalWater */
     @DynamicSerializeElement
     @Transient
     private QCD precipitalWater_qcd = QCD.MISSING;
-    
+
     @DynamicSerializeElement
     @Transient
     private int precipitalWater_qca = -99999;
-    
+
     @DynamicSerializeElement
     @Transient
     private int precipitalWater_qcr = -99999;
-    
+
     /** A float denoting the pressure */
     @DynamicSerializeElement
     @Transient
     private float pressure = -99999;
-    
+
     /** A QCD denoting the precipitalWater */
     @DynamicSerializeElement
     @Transient
     private QCD pressure_qcd = QCD.MISSING;
-    
+
     @DynamicSerializeElement
     @Transient
     private int pressure_qca = -99999;
-    
+
     @DynamicSerializeElement
     @Transient
     private int pressure_qcr = -99999;
-    
+
     @DynamicSerializeElement
     @Embedded
     private PointDataView pointDataView;
-    
+
     public static final String PLUGIN_NAME = "madis";
 
     public static final String STATION_ID = "stationId";
 
-    public static final Unit<Temperature> TEMPERATURE_UNIT = SI.CELSIUS;
-    
+    public static final Unit<Temperature> TEMPERATURE_UNIT = NonSI.FAHRENHEIT;
+
     public static final Unit<Dimensionless> HUMIDITY_UNIT = NonSI.PERCENT;
 
     public static final Unit<Velocity> WIND_SPEED_UNIT = NonSI.KNOT;
@@ -370,9 +365,9 @@ public class MadisRecord extends PersistablePluginDataObject implements
     public static final Unit<Pressure> PRESSURE_UNIT = SI.HECTO(SI.PASCAL);
 
     public static final Unit<Pressure> ALTIMETER_UNIT = SI.PASCAL;
-    
+
     public static final Unit<Length> PRECIP_UNIT = NonSI.INCH;
-    
+
     /** Keys that map back to known decoder params **/
     private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
     static {
@@ -387,72 +382,99 @@ public class MadisRecord extends PersistablePluginDataObject implements
         PARM_MAP.put(STA_LON, STA_LON);
     }
 
-
     /** MADIS specific parameter keys */
     public static final class ParameterKey {
 
         public static final String RH = "RH";
+
         public static final String RH_QCA = "RH_QCA";
+
         public static final String RH_QCR = "RH_QCR";
+
         public static final String RH_QCD = "RH_QCD";
-        
+
         public static final String TEMPERATURE_QCD = "TEMPERATURE_QCD";
+
         public static final String TEMPERATURE_QCA = "TEMPERATURE_QCA";
+
         public static final String TEMPERATURE_QCR = "TEMPERATURE_QCR";
-        
+
         public static final String DEWPOINT_QCD = "DEWPOINT_QCD";
+
         public static final String DEWPOINT_QCA = "DEWPOINT_QCA";
+
         public static final String DEWPOINT_QCR = "DEWPOINT_QCR";
-        
+
         public static final String WINDDIRECTION_QCD = "WINDDIRECTION_QCD";
+
         public static final String WINDDIRECTION_QCA = "WINDDIRECTION_QCA";
+
         public static final String WINDDIRECTION_QCR = "WINDDIRECTION_QCR";
-        
+
         public static final String WINDSPEED_QCD = "WINDSPEED_QCD";
+
         public static final String WINDSPEED_QCA = "WINDSPEED_QCA";
+
         public static final String WINDSPEED_QCR = "WINDSPEED_QCR";
-        
+
         public static final String WINDGUST_QCD = "WINDGUST_QCD";
+
         public static final String WINDGUST_QCA = "WINDGUST_QCA";
+
         public static final String WINDGUST_QCR = "WINDGUST_QCR";
-        
+
         public static final String PRECIPRATE = "PCPRATE";
+
         public static final String PRECIPRATE_QCA = "PCPRATE_QCA";
+
         public static final String PRECIPRATE_QCR = "PCPRATE_QCR";
+
         public static final String PRECIPRATE_QCD = "PCPRATE_QCD";
 
         public static final String PRECIPITALWATER = "PWV";
+
         public static final String PRECIPITALWATER_QCA = "PWV_QCA";
+
         public static final String PRECIPITALWATER_QCR = "PWV_QCR";
+
         public static final String PRECIPITALWATER_QCD = "PWV_QCD";
-        
+
         public static final String PRESSURE = "P";
+
         public static final String PRESSURE_QCA = "P_QCA";
+
         public static final String PRESSURE_QCR = "P_QCR";
+
         public static final String PRESSURE_QCD = "P_QCD";
 
         public static final String RELATIVEHUMIDITY = "RH";
+
         public static final String RELATIVEHUMIDITY_QCA = "RH_QCA";
+
         public static final String RELATIVEHUMIDITY_QCR = "RH_QCR";
+
         public static final String RELATIVEHUMIDITY_QCD = "RH_QCD";
-        
+
         public static final String PROVIDER = "PROVIDER";
+
         public static final String SUB_PROVIDER = "SUB_PROVIDER";
+
         public static final String STATIONID = "STATIONID";
+
         public static final String RESTRICTION = "RESTRICTION";
     }
-       
-   /**
-    * Get the pointdata view
-    */
+
+    /**
+     * Get the pointdata view
+     */
     @Override
     public PointDataView getPointDataView() {
         return this.pointDataView;
     }
 
-   /**
-    * Set the pointdata view
-    */
+    /**
+     * Set the pointdata view
+     */
     @Override
     public void setPointDataView(PointDataView pointDataView) {
         this.pointDataView = pointDataView;
@@ -463,15 +485,15 @@ public class MadisRecord extends PersistablePluginDataObject implements
         Amount a = null;
 
         String pName = paramName;
-       
+
         if (SFC_TEMP.equals(pName)) {
             if (temperature != -9999) {
                 a = new Amount(temperature, TEMPERATURE_UNIT);
-            } 
+            }
         } else if (SFC_DWPT.equals(pName)) {
             if (dewpoint != -9999) {
                 a = new Amount(dewpoint, TEMPERATURE_UNIT);
-            } 
+            }
         } else if (SFC_WNDSPD.equals(pName)) {
             a = new Amount(windSpeed, WIND_SPEED_UNIT);
         } else if (SFC_WNDGST.equals(pName)) {
@@ -499,7 +521,7 @@ public class MadisRecord extends PersistablePluginDataObject implements
             if (pressure != -9999) {
                 a = new Amount(pressure, PRESSURE_UNIT);
             }
-        } 
+        }
         return a;
     }
 
@@ -523,7 +545,7 @@ public class MadisRecord extends PersistablePluginDataObject implements
     @Override
     public String[] getStrings(final String paramName) {
         if (ParameterKey.PROVIDER.matches(paramName)) {
-            return new String[] {getProvider()};
+            return new String[] { getProvider() };
         } else if (ParameterKey.SUB_PROVIDER.matches(paramName)) {
             return new String[] { getSubProvider() };
         } else if (ParameterKey.STATIONID.matches(paramName)) {
@@ -549,42 +571,43 @@ public class MadisRecord extends PersistablePluginDataObject implements
      */
     @XmlEnum
     public enum QCD {
-        //C - Coarse pass, passed level 1
-        //S - Screened, passed levels 1 and 2
-        //V - Verified, passed levels 1, 2, and 3
-        //X - Rejected/erroneous, failed level 1
-        //Q - Questioned, passed level 1, failed 2 or 3
-        //G - Subjective good
-        //B - Subjective bad
-        @XmlEnumValue(QCD.V) VERIFIED("V"), 
-        @XmlEnumValue(QCD.S) SCREENDED("S"),
-        @XmlEnumValue(QCD.Q) QUESTIONED("Q"),
-        @XmlEnumValue(QCD.B) BAD("B"), 
-        @XmlEnumValue(QCD.C) COARSEPASS("C"), 
-        @XmlEnumValue(QCD.G) GOOD("G"), 
-        @XmlEnumValue(QCD.Z) MISSING("Z"),
-        @XmlEnumValue(QCD.X) REJECTED("X");
+        // C - Coarse pass, passed level 1
+        // S - Screened, passed levels 1 and 2
+        // V - Verified, passed levels 1, 2, and 3
+        // X - Rejected/erroneous, failed level 1
+        // Q - Questioned, passed level 1, failed 2 or 3
+        // G - Subjective good
+        // B - Subjective bad
+        @XmlEnumValue(QCD.V)
+        VERIFIED("V"), @XmlEnumValue(QCD.S)
+        SCREENDED("S"), @XmlEnumValue(QCD.Q)
+        QUESTIONED("Q"), @XmlEnumValue(QCD.B)
+        BAD("B"), @XmlEnumValue(QCD.C)
+        COARSEPASS("C"), @XmlEnumValue(QCD.G)
+        GOOD("G"), @XmlEnumValue(QCD.Z)
+        MISSING("Z"), @XmlEnumValue(QCD.X)
+        REJECTED("X");
 
         private static final String V = "V";
 
         private static final String S = "S";
-        
+
         private static final String Q = "Q";
-        
+
         private static final String C = "C";
-        
+
         private static final String B = "B";
-        
+
         private static final String G = "G";
-        
+
         private static final String Z = "Z";
-        
+
         private static final String X = "X";
-        
-        private static final Map<String,QCD> qcdMap;
-        
+
+        private static final Map<String, QCD> qcdMap;
+
         private static final Map<String, QCD> valMap;
-        
+
         static {
             Map<String, QCD> map = new HashMap<String, QCD>();
             map.put(V, QCD.VERIFIED);
@@ -596,7 +619,7 @@ public class MadisRecord extends PersistablePluginDataObject implements
             map.put(Z, QCD.MISSING);
             map.put(X, QCD.REJECTED);
             qcdMap = Collections.unmodifiableMap(map);
-            
+
             Map<String, QCD> map2 = new HashMap<String, QCD>();
             map2.put(QCD.VERIFIED.name(), QCD.VERIFIED);
             map2.put(QCD.SCREENDED.name(), QCD.SCREENDED);
@@ -623,11 +646,11 @@ public class MadisRecord extends PersistablePluginDataObject implements
         public static QCD fromString(String val) {
             return qcdMap.get(val);
         }
-        
+
         public static QCD fromVal(String val) {
             return valMap.get(val);
         }
-       
+
     }
 
     public String getProvider() {
@@ -789,7 +812,7 @@ public class MadisRecord extends PersistablePluginDataObject implements
     public void setPrecipitalWater_qcd(QCD precipitalWater_qcd) {
         this.precipitalWater_qcd = precipitalWater_qcd;
     }
-    
+
     public float getPressure() {
         return pressure;
     }
@@ -949,7 +972,7 @@ public class MadisRecord extends PersistablePluginDataObject implements
     public void setPrecipitalWater_qcr(int precipitalWater_qcr) {
         this.precipitalWater_qcr = precipitalWater_qcr;
     }
-    
+
     public int getPressure_qca() {
         return pressure_qca;
     }
@@ -986,7 +1009,7 @@ public class MadisRecord extends PersistablePluginDataObject implements
     public void setLocation(SurfaceObsLocation location) {
         this.location = location;
     }
-    
+
     /**
      * Get the geometry latitude.
      * 
@@ -1085,7 +1108,7 @@ public class MadisRecord extends PersistablePluginDataObject implements
     public QCD getElevation_qcd() {
         return elevation_qcd;
     }
-    
+
     public void setDataset(int dataset) {
         this.dataset = dataset;
     }
@@ -1101,7 +1124,7 @@ public class MadisRecord extends PersistablePluginDataObject implements
     public int getRestriction() {
         return restriction;
     }
-    
+
     /**
      * Get the station identifier for this observation.
      * 
@@ -1110,7 +1133,7 @@ public class MadisRecord extends PersistablePluginDataObject implements
     public String getStationId() {
         return location.getStationId();
     }
-        
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -1119,7 +1142,7 @@ public class MadisRecord extends PersistablePluginDataObject implements
                 + ((getDataURI() == null) ? 0 : getDataURI().hashCode());
         return result;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -1141,5 +1164,4 @@ public class MadisRecord extends PersistablePluginDataObject implements
         }
         return true;
     }
-
 }
