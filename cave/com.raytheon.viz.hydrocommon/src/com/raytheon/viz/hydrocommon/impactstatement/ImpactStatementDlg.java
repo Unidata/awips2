@@ -28,6 +28,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ModifyEvent;
@@ -59,6 +63,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.FloodStatementData;
 import com.raytheon.viz.hydrocommon.data.LocationData;
@@ -76,6 +83,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Sep 5, 2008				lvenable	Initial creation.
  * 10/20/2008   1617        grichard    Support impact statement.
  * Jan 5, 2008  1802        askripsk    Complete HydroBase version.
+ * Jul 15, 2013 2088        rferrrel    Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -83,6 +91,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class ImpactStatementDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ImpactStatementDlg.class);
 
     /** The rising element of the impact statement */
     public static final String RISING = "RISING";
@@ -205,24 +215,64 @@ public class ImpactStatementDlg extends CaveSWTDialog {
      */
     private Printer printer;
 
+    /**
+     * Line Height for printer.
+     */
     private int lineHeight = 0;
 
+    /**
+     * Tab width for printer.
+     */
     private int tabWidth = 0;
 
+    /**
+     * Left Margin for printer.
+     */
     private int leftMargin;
 
+    /**
+     * Right margin for printer.
+     */
     private int rightMargin;
 
+    /**
+     * Top margin for printer.
+     */
     private int topMargin;
 
+    /**
+     * Bottom margin for printer.
+     */
     private int bottomMargin;
 
-    private int x, y;
+    /**
+     * Current horizontal location for printer.
+     */
+    private int x;
 
-    private int index, end;
+    /**
+     * Current vertical location for printer.
+     */
+    private int y;
 
-    private StringBuffer wordBuffer;
+    /**
+     * Current location in the text to print.
+     */
+    private int index;
 
+    /**
+     * end of the text to print.
+     */
+    private int end;
+
+    /**
+     * User to print one line of text.
+     */
+    private final StringBuilder wordBuffer = new StringBuilder();
+
+    /**
+     * Use to draw the text for printer.
+     */
     private GC gc;
 
     /**
@@ -251,13 +301,19 @@ public class ImpactStatementDlg extends CaveSWTDialog {
      */
     public ImpactStatementDlg(Shell parent, String titleInfo, String lid,
             boolean fullControl) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Impact Statement" + titleInfo);
 
         this.fullControl = fullControl;
         this.lid = lid;
+        setReturnValue(lid);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -269,14 +325,25 @@ public class ImpactStatementDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
 
         // Initialize all of the controls and layouts
@@ -505,7 +572,7 @@ public class ImpactStatementDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 if (saveRecord()) {
-                    shell.dispose();
+                    close();
                 }
             }
         });
@@ -530,7 +597,7 @@ public class ImpactStatementDlg extends CaveSWTDialog {
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -655,6 +722,9 @@ public class ImpactStatementDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Obtain Data and populate the dialog.
+     */
     private void getDialogData() {
         FloodStatementData seedData = new FloodStatementData();
         seedData.setLid(lid);
@@ -662,12 +732,16 @@ public class ImpactStatementDlg extends CaveSWTDialog {
         try {
             statementData = HydroDBDataManager.getInstance().getData(seedData);
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to load dialog data: ", e);
         }
 
         updateDisplay();
     }
 
+    /**
+     * Update display with current statement data.
+     */
     private void updateDisplay() {
         dataList.removeAll();
 
@@ -684,6 +758,12 @@ public class ImpactStatementDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Format display string for flood statement data.
+     * 
+     * @param currStatement
+     * @return formatedString
+     */
     private String getStatementDisplayString(FloodStatementData currStatement) {
         String fmtStr = "%8S %13S %25S %11S %29S";
 
@@ -693,6 +773,9 @@ public class ImpactStatementDlg extends CaveSWTDialog {
                 (currStatement.getRiseFall().equals("R")) ? RISING : FALLING);
     }
 
+    /**
+     * Clear the informtion fields in the GUI.
+     */
     private void clearInformation() {
         // Set Start to 01/01 and End to 12/31
         beginMonthCbo.select(0);
@@ -707,12 +790,18 @@ public class ImpactStatementDlg extends CaveSWTDialog {
         fallingRdo.setSelection(false);
     }
 
+    /**
+     * Prepare fo new record.
+     */
     private void newRecord() {
         // Clear Form
         clearInformation();
         updateDialogState(DialogStates.NEW_RECORD);
     }
 
+    /**
+     * Delete the selected data list record.
+     */
     private void deleteRecord() {
         int selectedIndex = dataList.getSelectionIndex();
 
@@ -737,8 +826,6 @@ public class ImpactStatementDlg extends CaveSWTDialog {
                     mb.setText("Unable to Delete");
                     mb.setMessage("An error occurred while trying to delete the record.");
                     mb.open();
-
-                    e.printStackTrace();
                 }
             }
         } else {
@@ -749,6 +836,11 @@ public class ImpactStatementDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Save record
+     * 
+     * @return true when record save is successful
+     */
     private boolean saveRecord() {
         boolean successful = false;
 
@@ -814,14 +906,17 @@ public class ImpactStatementDlg extends CaveSWTDialog {
                 mb.setText("Unable to Save");
                 mb.setMessage("An error occurred while trying to save.");
                 mb.open();
-
-                e.printStackTrace();
             }
         }
 
         return successful;
     }
 
+    /**
+     * Update the enable state of buttons base on current state.
+     * 
+     * @param currState
+     */
     private void updateDialogState(DialogStates currState) {
         switch (currState) {
         case NEW_RECORD:
@@ -853,6 +948,9 @@ public class ImpactStatementDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Sent the impact statement record to the printer.
+     */
     private void printRecords() {
         final String text = createSaveFileText();
 
@@ -870,17 +968,22 @@ public class ImpactStatementDlg extends CaveSWTDialog {
              * Do the printing in a background thread so that spooling does not
              * freeze the UI.
              */
-            Thread printingThread = new Thread("PrintTable") {
+            Job job = new Job("PrintTable") {
+
                 @Override
-                public void run() {
+                protected IStatus run(IProgressMonitor monitor) {
                     print(printer, text);
                     printer.dispose();
+                    return Status.OK_STATUS;
                 }
             };
-            printingThread.start();
+            job.schedule();
         }
     }
 
+    /**
+     * Save Impact Statement data to a file.
+     */
     private void saveToFile() {
         String text;
         try {
@@ -895,8 +998,8 @@ public class ImpactStatementDlg extends CaveSWTDialog {
             out.write(text);
             out.close();
         } catch (IOException e) {
-            e.printStackTrace();
-            // TODO Log error here
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to save text to file: ", e);
         }
     }
 
@@ -905,7 +1008,7 @@ public class ImpactStatementDlg extends CaveSWTDialog {
      * @throws VizException
      */
     private String createSaveFileText() {
-        StringBuffer outputStr = new StringBuffer();
+        StringBuilder outputStr = new StringBuilder();
 
         outputStr.append("FLOOD IMPACT STATEMENT LISTING FOR\n");
 
@@ -920,7 +1023,8 @@ public class ImpactStatementDlg extends CaveSWTDialog {
         try {
             locData = HydroDBDataManager.getInstance().getData(seedData);
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler
+                    .handle(Priority.ERROR, "Unable to get text data: ", e);
         }
 
         if ((locData != null) && (locData.size() > 0)) {
@@ -991,7 +1095,7 @@ public class ImpactStatementDlg extends CaveSWTDialog {
      * @return
      */
     private String wrapStatement(String statement) {
-        StringBuffer formattedStatement = new StringBuffer();
+        StringBuilder formattedStatement = new StringBuilder();
 
         String[] words = statement.split(" ");
         int lineWidth = 0;
@@ -1005,7 +1109,7 @@ public class ImpactStatementDlg extends CaveSWTDialog {
             }
 
             // Append current word
-            formattedStatement.append(currWord + " ");
+            formattedStatement.append(currWord).append(" ");
 
             // Set the Current line width
             lineWidth += currWord.length() + 1;
@@ -1027,29 +1131,18 @@ public class ImpactStatementDlg extends CaveSWTDialog {
             Rectangle clientArea = printer.getClientArea();
             Rectangle trim = printer.computeTrim(0, 0, 0, 0);
             Point dpi = printer.getDPI();
-            leftMargin = dpi.x + trim.x; // one inch from left side of paper
-            rightMargin = clientArea.width - dpi.x + trim.x + trim.width; // one
-            // inch
-            // from
-            // right
-            // side
-            // of
-            // paper
-            topMargin = dpi.y + trim.y; // one inch from top edge of paper
-            bottomMargin = clientArea.height - dpi.y + trim.y + trim.height; // one
-            // inch
-            // from
-            // bottom
-            // edge
-            // of
-            // paper
+            // one inch from left side of paper
+            leftMargin = dpi.x + trim.x;
+            // one inch from right side of paper
+            rightMargin = clientArea.width - dpi.x + trim.x + trim.width;
+            // one inch from top edge of paper
+            topMargin = dpi.y + trim.y;
+            // one inch from bottom edge of paper
+            bottomMargin = clientArea.height - dpi.y + trim.y + trim.height;
 
-            /* Create a buffer for computing tab width. */
-            int tabSize = 4; // is tab width a user setting in your UI?
-            StringBuffer tabBuffer = new StringBuffer(tabSize);
-            for (int i = 0; i < tabSize; i++)
-                tabBuffer.append(' ');
-            String tabs = tabBuffer.toString();
+            // Create a buffer for computing tab width.
+            // Tab size four spaces.
+            String tabs = "    ";
 
             /*
              * Create printer GC, and create and set the printer font &
@@ -1090,7 +1183,7 @@ public class ImpactStatementDlg extends CaveSWTDialog {
      */
     private void printText(String text) {
         printer.startPage();
-        wordBuffer = new StringBuffer();
+        wordBuffer.setLength(0);
         x = leftMargin;
         y = topMargin;
         index = 0;
@@ -1137,7 +1230,7 @@ public class ImpactStatementDlg extends CaveSWTDialog {
             }
             gc.drawString(word, x, y, false);
             x += wordWidth;
-            wordBuffer = new StringBuffer();
+            wordBuffer.setLength(0);
         }
     }
 
@@ -1178,7 +1271,8 @@ public class ImpactStatementDlg extends CaveSWTDialog {
                 mb.open();
             }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to check if FK constraints met: ", e);
         }
 
         return rval;
