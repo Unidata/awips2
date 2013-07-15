@@ -10,7 +10,6 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.pointdata;bundle-version="1.11.16",
  com.raytheon.uf.edex.pointdata;bundle-version="1.11.16",
  org.geotools,
- org.apache.commons.logging,
  javax.persistence,javax.measure
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy

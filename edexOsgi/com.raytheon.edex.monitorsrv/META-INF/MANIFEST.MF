@@ -4,11 +4,12 @@ Bundle-Name: Monitorsrv Plug-in
 Bundle-SymbolicName: com.raytheon.edex.monitorsrv
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
-Require-Bundle: com.raytheon.edex.common,
- org.apache.commons.logging,
- org.apache.log4j;bundle-version="1.0.0"
 Export-Package: com.raytheon.edex.monitors,
  com.raytheon.edex.services
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.uf.edex.core,
- com.raytheon.uf.edex.database.dao
+Import-Package: com.raytheon.edex.util,
+ org.apache.commons.logging,
+ org.apache.log4j
+Require-Bundle: com.raytheon.uf.edex.core;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.database;bundle-version="1.0.0",
+ com.raytheon.uf.common.util;bundle-version="1.12.1174"
