@@ -8,7 +8,6 @@ Bundle-Vendor: RAYTHEON
 Require-Bundle: javax.measure,
  javax.persistence,
  com.raytheon.edex.common,
- org.apache.commons.logging,
  com.raytheon.edex.uengine,
  org.apache.commons.lang,
  org.apache.commons.configuration,
@@ -32,7 +31,8 @@ Import-Package: com.raytheon.edex.exception,
  com.raytheon.uf.common.gridcoverage.subgrid,
  com.raytheon.uf.common.status,
  com.raytheon.uf.edex.plugin.grid.dao,
- org.apache.camel
+ org.apache.camel,
+ org.apache.commons.logging
 Export-Package: com.raytheon.edex.objects.hibernate.grib,
  com.raytheon.edex.plugin.grib,
  com.raytheon.edex.plugin.grib.exception,

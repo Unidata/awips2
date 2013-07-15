@@ -7,7 +7,6 @@ Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serializ
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
- org.apache.commons.logging,
  javax.persistence,
  com.raytheon.uf.common.localization;bundle-version="1.12.1174",
  com.raytheon.uf.common.status;bundle-version="1.12.1174"
@@ -16,3 +15,4 @@ Export-Package: com.raytheon.edex.plugin.redbook,
  com.raytheon.edex.plugin.redbook.common.blocks,
  com.raytheon.edex.plugin.redbook.decoder
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.apache.commons.logging
