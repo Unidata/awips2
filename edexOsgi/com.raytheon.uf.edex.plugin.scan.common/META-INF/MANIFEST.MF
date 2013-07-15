@@ -3,10 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Common
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.scan.common
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: com.raytheon.uf.edex.plugin.scan.common.Activator
 Bundle-Vendor: RAYTHEON
-Require-Bundle: org.eclipse.core.runtime,
- com.raytheon.edex.common;bundle-version="1.12.1174",
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.1174",
  com.raytheon.uf.common.sounding
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy

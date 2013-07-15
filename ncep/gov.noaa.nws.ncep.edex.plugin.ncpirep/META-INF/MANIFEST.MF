@@ -9,7 +9,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.1174",
  com.raytheon.uf.edex.pointdata;bundle-version="1.12.1174",
  com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174",
- org.apache.commons.logging;bundle-version="1.1.1",
  org.geotools;bundle-version="2.6.4",
  javax.measure;bundle-version="1.0.0",
  javax.persistence;bundle-version="1.0.0",
@@ -19,4 +18,5 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.1174",
 Export-Package: gov.noaa.nws.ncep.edex.plugin.ncpirep,
  gov.noaa.nws.ncep.edex.plugin.ncpirep.decoder
 Import-Package: com.raytheon.uf.edex.pointdata,
- gov.noaa.nws.ncep.common.tools
+ gov.noaa.nws.ncep.common.tools,
+ org.apache.commons.logging

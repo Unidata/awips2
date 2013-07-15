@@ -10,7 +10,6 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.localization,
  javax.measure,
  org.geotools,
- org.apache.commons.logging,
  javax.persistence
 Export-Package: com.raytheon.edex.plugin.poessounding,
  com.raytheon.edex.plugin.poessounding.decoder
@@ -20,4 +19,5 @@ Import-Package: com.raytheon.uf.common.dataplugin.poessounding,
  com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.pointdata.spatial,
  com.raytheon.uf.common.status,
- com.raytheon.uf.edex.pointdata
+ com.raytheon.uf.edex.pointdata,
+ org.apache.commons.logging

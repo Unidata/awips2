@@ -7,10 +7,10 @@ Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.raytheon.uf.common.spatial.reprojection
 Require-Bundle: org.apache.commons.lang;bundle-version="2.3.0",
- org.apache.commons.logging;bundle-version="1.1.1",
  org.geotools;bundle-version="2.6.4",
  com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174"
+Import-Package: org.apache.commons.logging
 
