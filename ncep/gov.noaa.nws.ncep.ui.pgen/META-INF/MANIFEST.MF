@@ -17,7 +17,6 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.message,
  com.raytheon.viz.core.gl;bundle-version="1.12.1174",
  org.dom4j,
- org.junit;bundle-version="1.0.0",
  gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",
  gov.noaa.nws.ncep.viz.common;bundle-version="1.0.0",
  gov.noaa.nws.ncep.gempak.parameters.core;bundle-version="1.0.0",
@@ -45,5 +44,8 @@ Import-Package: com.raytheon.edex.meteoLib,
  com.raytheon.viz.core.gl,
  com.raytheon.viz.core.gl.images,
  gov.noaa.nws.ncep.common.staticdata,
- javax.measure.unit
+ javax.measure.unit,
+ org.junit,
+ org.junit.runner,
+ org.junit.runners
 Bundle-ClassPath: .

@@ -4,9 +4,7 @@ Bundle-Name: Ogc
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.obs.ogc
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- org.geotools;bundle-version="2.6.4",
+Require-Bundle: org.geotools;bundle-version="2.6.4",
  javax.measure;bundle-version="1.0.0",
  com.raytheon.edex.plugin.obs;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
@@ -19,7 +17,6 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
  org.hibernate;bundle-version="1.0.0",
  com.raytheon.uf.edex.database;bundle-version="1.0.0",
- org.apache.commons.logging;bundle-version="1.1.1",
  com.raytheon.uf.edex.core;bundle-version="1.12.1174",
  com.raytheon.uf.edex.wms;bundle-version="1.0.0",
  com.raytheon.uf.common.util;bundle-version="1.12.1174",

@@ -25,7 +25,6 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.stats;bundle-version="1.0.0",
  com.raytheon.uf.common.event;bundle-version="1.0.0",
  com.raytheon.uf.common.dataaccess;bundle-version="1.0.0",
- org.apache.log4j;bundle-version="1.0.0",
  com.raytheon.uf.common.colormap;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy

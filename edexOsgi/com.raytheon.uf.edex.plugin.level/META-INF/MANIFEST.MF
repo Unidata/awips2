@@ -8,8 +8,6 @@ Bundle-Vendor: Raytheon
 Require-Bundle: com.raytheon.edex.common,
  javax.measure,
  javax.persistence,
- org.eclipse.ui,
- org.eclipse.core.runtime,
  org.apache.commons.lang,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.dataplugin.level,

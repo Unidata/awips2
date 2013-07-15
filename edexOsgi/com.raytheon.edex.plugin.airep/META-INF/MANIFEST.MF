@@ -3,19 +3,22 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Airep Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.airep
 Bundle-Version: 1.12.1174.qualifier
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
-Require-Bundle: org.apache.commons.logging,
- com.raytheon.edex.common,
- com.raytheon.uf.common.pointdata,
- com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
- javax.measure,
- org.geotools,
- javax.persistence,
- org.apache.camel;bundle-version="1.0.0";resolution:=optional,
- org.junit;bundle-version="1.0.0"
 Export-Package: com.raytheon.edex.plugin.airep,
  com.raytheon.edex.plugin.airep.dao,
  com.raytheon.edex.plugin.airep.decoder
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.uf.common.dataplugin.airep
+Import-Package: com.raytheon.edex.db.dao,
+ com.raytheon.edex.esb,
+ com.raytheon.edex.exception,
+ com.raytheon.edex.plugin,
+ org.apache.commons.logging,
+ org.junit
+Require-Bundle: com.raytheon.uf.common.dataplugin.airep;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
+ com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
+ com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
+ com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.database;bundle-version="1.0.0",
+ com.raytheon.uf.edex.core;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174"
