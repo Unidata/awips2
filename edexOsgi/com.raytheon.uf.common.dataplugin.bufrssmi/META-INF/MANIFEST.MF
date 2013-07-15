@@ -12,7 +12,6 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.pointdata;bundle-version="1.11.8",
  com.raytheon.uf.edex.pointdata;bundle-version="1.11.8",
  org.geotools,
- org.apache.commons.logging,
  javax.persistence,
  javax.measure
 Import-Package: com.raytheon.uf.common.dataplugin.bufrssmi,
