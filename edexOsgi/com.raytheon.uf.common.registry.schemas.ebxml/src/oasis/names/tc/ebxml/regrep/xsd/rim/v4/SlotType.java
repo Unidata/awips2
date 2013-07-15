@@ -100,7 +100,7 @@ public class SlotType extends ExtensibleObjectType implements
     @XmlTransient
     private Integer key;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @XmlElement(name = "SlotValue")
     @DynamicSerializeElement
     protected ValueType slotValue;
