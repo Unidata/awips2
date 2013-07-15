@@ -11,7 +11,7 @@ Export-Package: com.raytheon.edex.plugin.taf,
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.pointdata,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
- org.apache.commons.logging,
  org.apache.commons.lang,
  javax.persistence
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.apache.commons.logging

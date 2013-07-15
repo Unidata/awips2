@@ -26,6 +26,4 @@ Export-Package: gov.noaa.nws.ncep.edex.plugin.nctext.common,
 Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.7",
  gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",
  javax.persistence;bundle-version="1.0.0",
- org.apache.commons.logging;bundle-version="1.0.4",
- org.apache.log4j;bundle-version="1.0.0",
  com.raytheon.uf.edex.decodertools;bundle-version="1.11.7"
