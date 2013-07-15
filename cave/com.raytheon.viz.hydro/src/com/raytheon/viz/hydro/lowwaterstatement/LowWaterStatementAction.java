@@ -22,6 +22,9 @@
  */
 package com.raytheon.viz.hydro.lowwaterstatement;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -30,6 +33,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
 import com.raytheon.viz.hydrocommon.lowwaterstatment.LowWaterStatementDlg;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Action for unimplemented features. To be used temporarily until final
@@ -42,6 +46,7 @@ import com.raytheon.viz.hydrocommon.lowwaterstatment.LowWaterStatementDlg;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial Creation.
+ * 07/15/2013   2088        rferrel     Changes for non-blocking LowWaterStatementDlg.
  * 
  * </pre>
  * 
@@ -49,6 +54,8 @@ import com.raytheon.viz.hydrocommon.lowwaterstatment.LowWaterStatementDlg;
  * 
  */
 public class LowWaterStatementAction extends AbstractHandler {
+    private Map<String, LowWaterStatementDlg> lowWaterStmntDlgMap = new HashMap<String, LowWaterStatementDlg>();
+
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
@@ -56,16 +63,35 @@ public class LowWaterStatementAction extends AbstractHandler {
         HydroDisplayManager manager = HydroDisplayManager.getInstance();
         if (manager.isCurrentLidSelected(shell)) {
             String lid = manager.getCurrentLid();
-            String name = manager.getCurrentData().getName();
+            LowWaterStatementDlg lowWaterStmntDlg = lowWaterStmntDlgMap
+                    .get(lid);
 
-            String displayString = " - "
-                    + lid
-                    + ((name != null && name.compareTo("") != 0) ? " - " + name
-                            : "");
+            if (lowWaterStmntDlg == null || lowWaterStmntDlg.isDisposed()) {
+                String name = manager.getCurrentData().getName();
+                StringBuilder displayString = new StringBuilder(" - ");
+                displayString.append(lid);
 
-            LowWaterStatementDlg lowWaterDlg = new LowWaterStatementDlg(shell,
-                    displayString, false, lid);
-            lowWaterDlg.open();
+                if (name != null && name.length() > 0) {
+                    displayString.append(" - ").append(name);
+                }
+
+                lowWaterStmntDlg = new LowWaterStatementDlg(shell,
+                        displayString.toString(), false, lid);
+                lowWaterStmntDlg.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        if (returnValue instanceof String) {
+                            String lid = returnValue.toString();
+                            lowWaterStmntDlgMap.remove(lid);
+                        }
+                    }
+                });
+                lowWaterStmntDlg.open();
+                lowWaterStmntDlgMap.put(lid, lowWaterStmntDlg);
+            } else {
+                lowWaterStmntDlg.bringToTop();
+            }
         }
 
         return null;
