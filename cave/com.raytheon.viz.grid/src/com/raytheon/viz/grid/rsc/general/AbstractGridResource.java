@@ -107,9 +107,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 9, 2011            bsteffen     Initial creation
+ * Mar 09, 2011            bsteffen    Initial creation
  * May 08, 2013 1980       bsteffen    Set paint status in GridResources for
  *                                     KML.
+ * Jul 15, 2013 2107       bsteffen    Fix sampling of grid vector arrows.
  * 
  * </pre>
  * 
@@ -803,7 +804,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         }
         if (map.containsKey(INTERROGATE_DIRECTION)) {
             double dir = (Double) map.get(INTERROGATE_DIRECTION);
-            result += String.format("%.0f\u00B0 ", dir);
+            result = String.format("%.0f\u00B0 ", dir) + result;
         }
         return result;
     }
@@ -853,7 +854,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
             result.put(INTERROGATE_UNIT, "");
         }
         if (data.isVector()) {
-            sampler.setSource(new FloatBufferWrapper(data.getScalarData(), data
+            sampler.setSource(new FloatBufferWrapper(data.getDirection(), data
                     .getGridGeometry()));
             Double dir = sampler.sample(pixel.x, pixel.y);
             result.put(INTERROGATE_DIRECTION, dir);
