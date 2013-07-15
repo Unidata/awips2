@@ -13,7 +13,6 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.binlightning;bundle-version="1
  com.raytheon.uf.edex.cpgsrv;bundle-version="1.11.1";resolution:=optional,
  com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.edex.common;bundle-version="1.11.26",
- org.apache.commons.logging,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.dataplugin.level;bundle-version="1.11.31",
  com.raytheon.uf.common.sounding;bundle-version="1.12.1112",
@@ -23,6 +22,7 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.binlightning;bundle-version="1
  com.raytheon.uf.edex.dat.utils;bundle-version="1.12.1174"
 Export-Package: com.raytheon.uf.edex.plugin.scan,
  com.raytheon.uf.edex.plugin.scan.process
-Import-Package: javax.measure.converter,
- com.raytheon.uf.edex.menus,
- javax.measure.unit
+Import-Package: com.raytheon.uf.edex.menus,
+ javax.measure.converter,
+ javax.measure.unit,
+ org.apache.commons.logging
