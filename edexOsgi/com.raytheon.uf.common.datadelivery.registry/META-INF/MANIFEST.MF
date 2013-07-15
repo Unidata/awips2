@@ -13,7 +13,6 @@ Require-Bundle: com.raytheon.uf.common.registry.schemas.ebxml;bundle-version="1.
  com.raytheon.uf.common.util;bundle-version="1.12.1174",
  com.raytheon.uf.common.localization;bundle-version="1.12.1174",
  org.geotools;bundle-version="2.6.4",
- org.junit,
  com.raytheon.uf.common.comm;bundle-version="1.12.1174",
  org.apache.commons.lang;bundle-version="2.3.0",
  com.google.guava;bundle-version="1.0.0",

@@ -8,8 +8,6 @@ Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serializ
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.31",
  javax.persistence;bundle-version="1.0.0",
- org.junit;bundle-version="1.0.0",
- org.apache.log4j;bundle-version="1.0.0",
  gov.noaa.nws.ncep.common;bundle-version="1.0.0",
  com.raytheon.uf.common.status;bundle-version="1.12.1174"
 Export-Package: gov.noaa.nws.ncep.common.dataplugin.ssha,
