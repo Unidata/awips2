@@ -10,8 +10,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.geotools;bundle-version="2.5.2",
  com.raytheon.viz.ui,
- org.junit,
- org.apache.log4j;bundle-version="1.0.0",
  javax.measure;bundle-version="1.0.0",
  com.sun.jna;bundle-version="3.0.9",
  com.raytheon.viz.alerts,
@@ -52,4 +50,6 @@ Export-Package: gov.noaa.nws.ncep.viz.tools,
 Bundle-ClassPath: .
 Import-Package: gov.noaa.nws.ncep.common.log.logger,
  gov.noaa.nws.ncep.edex.common.ncinventory,
- gov.noaa.nws.ncep.viz.gempak.grid.inv
+ gov.noaa.nws.ncep.viz.gempak.grid.inv,
+ org.apache.log4j,
+ org.junit
