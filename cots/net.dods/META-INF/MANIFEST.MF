@@ -5,9 +5,7 @@ Bundle-SymbolicName: net.dods
 Bundle-Version: 1.1.7.qualifier
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- javax.servlet;bundle-version="2.5.0",
- org.apache.http;bundle-version="4.1.2",
- org.junit
+ org.apache.http;bundle-version="4.1.2"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: gnu-getopt-1.0.6.jar,
@@ -28,5 +26,7 @@ Export-Package: dods.dap,
  dods.util.geturl,
  dods.util.geturl.gui,
  dods.util.gui
-Import-Package: org.apache.http.conn.params,
+Import-Package: javax.servlet,
+ javax.servlet.http,
+ org.apache.http.conn.params,
  org.apache.http.conn.scheme

@@ -13,7 +13,6 @@ Export-Package: com.raytheon.edex.plugin.obs,
  com.raytheon.edex.uengine.tasks.obs
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
- org.apache.commons.logging,
  javax.measure,
  org.geotools,
  com.raytheon.edex.uengine,
@@ -24,4 +23,5 @@ Require-Bundle: com.raytheon.edex.common,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.dataplugin.obs.metar,
  com.raytheon.uf.common.dataplugin.obs.metar.util,
- com.raytheon.uf.common.status
+ com.raytheon.uf.common.status,
+ org.apache.commons.logging
