@@ -9,7 +9,6 @@ Require-Bundle: com.raytheon.uf.edex.cpgsrv;bundle-version="1.11.7";resolution:=
  com.raytheon.edex.common;bundle-version="1.11.7",
  com.raytheon.uf.common.monitor;bundle-version="1.11.7",
  org.apache.commons.collections,
- org.apache.commons.logging;bundle-version="1.0.4",
  com.raytheon.uf.common.dataplugin.cwat;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.binlightning;bundle-version="1.0.0",
  com.raytheon.uf.common.monitor.cpg;bundle-version="1.0.0",
@@ -25,4 +24,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.plugin.cwat,
  com.raytheon.uf.edex.plugin.cwat.common
-Import-Package: com.raytheon.uf.edex.plugin.scan.common
+Import-Package: com.raytheon.uf.edex.plugin.scan.common,
+ org.apache.commons.logging

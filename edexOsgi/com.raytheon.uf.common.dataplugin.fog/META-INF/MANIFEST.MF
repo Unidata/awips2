@@ -9,7 +9,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.raytheon.uf.common.dataplugin.fog, com.raytheon.uf.common.dataplugin.fog.dao, com.raytheon.uf.common.dataplugin.fog.analysis
 Require-Bundle: javax.persistence;bundle-version="1.0.0",
  com.raytheon.edex.common;bundle-version="1.11.1",
- org.apache.commons.logging;bundle-version="1.0.4",
  org.geotools;bundle-version="2.5.2",
  com.raytheon.uf.common.monitor;bundle-version="1.11.5",
  com.raytheon.uf.common.localization;bundle-version="1.11.13",

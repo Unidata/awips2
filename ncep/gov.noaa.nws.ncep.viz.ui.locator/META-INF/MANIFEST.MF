@@ -14,7 +14,6 @@ Require-Bundle: org.eclipse.ui,
  gov.noaa.nws.ncep.viz.common,
  org.geotools;bundle-version="2.5.2",
  gov.noaa.nws.ncep.viz.localization;bundle-version="1.0.0",
- org.junit;bundle-version="1.0.0",
  gov.noaa.nws.ncep.viz.resources
 Eclipse-LazyStart: true
 Export-Package: gov.noaa.nws.ncep.viz.ui.locator,
