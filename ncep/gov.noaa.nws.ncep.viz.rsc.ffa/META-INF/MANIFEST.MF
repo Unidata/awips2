@@ -19,7 +19,6 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.time;bundle-version="1.11.31",
  com.raytheon.uf.edex.decodertools;bundle-version="1.11.31",
  com.raytheon.viz.core;bundle-version="1.11.31",
- org.apache.log4j;bundle-version="1.0.0",
  com.raytheon.viz.ui;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: org.apache.log4j, gov.noaa.nws.ncep.resources, com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.uf.common.serialization
@@ -27,4 +26,5 @@ Eclipse-BuddyPolicy: ext, global
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gov.noaa.nws.ncep.viz.rsc.ffa.rsc,
  gov.noaa.nws.ncep.viz.rsc.ffa.util
-Import-Package: gov.noaa.nws.ncep.viz.ui.display
+Import-Package: gov.noaa.nws.ncep.viz.ui.display,
+ org.apache.log4j

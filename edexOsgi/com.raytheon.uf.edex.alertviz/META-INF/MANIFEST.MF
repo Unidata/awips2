@@ -11,4 +11,3 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.1174",
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Export-Package: com.raytheon.uf.edex.alertviz.handler
-Import-Package: org.apache.commons.logging

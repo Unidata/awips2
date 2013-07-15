@@ -9,11 +9,11 @@ Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.viz.core
 Require-Bundle: javax.persistence;bundle-version="1.0.0",
  com.raytheon.edex.common;bundle-version="1.11.1",
- org.apache.commons.logging;bundle-version="1.0.4",
  org.geotools;bundle-version="2.5.2",
  com.raytheon.uf.common.monitor;bundle-version="1.11.5",
  com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
  javax.measure;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.common.dataplugin.preciprate,
  com.raytheon.uf.common.dataplugin.preciprate.dao
-Import-Package: com.raytheon.uf.common.status
+Import-Package: com.raytheon.uf.common.status,
+ org.apache.commons.logging

@@ -7,8 +7,6 @@ Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serializ
 Bundle-Vendor: NOAA/NWS/NCEP/NCO
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
- org.eclipse.core.runtime,
- org.apache.commons.logging,
  org.geotools,
  javax.measure,
  com.raytheon.edex.uengine,
@@ -23,4 +21,5 @@ Export-Package: gov.noaa.nws.ncep.edex.plugin.mosaic.decoder,
  gov.noaa.nws.ncep.edex.plugin.mosaic.uengine,
  gov.noaa.nws.ncep.edex.plugin.mosaic.util
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: org.junit
+Import-Package: org.apache.commons.logging,
+ org.junit
