@@ -8,4 +8,3 @@ Bundle-Vendor: Raytheon-bundled OSS
 Export-Package: org.apache.commons.logging,
  org.apache.commons.logging.impl
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.apache.log4j
