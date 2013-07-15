@@ -30,7 +30,7 @@ import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.viz.core.datastructure.CubeUtil;
 
 /**
- * TODO Add Description
+ * Plot Data Object.
  * 
  * <pre>
  * 
@@ -38,7 +38,8 @@ import com.raytheon.uf.viz.core.datastructure.CubeUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 19, 2011            njensen     Initial creation
+ * Jul 19, 2011            njensen     Initial creation.
+ * Jul 12, 2013    2096    mpduff      Add method to check if parameter is valid.
  * 
  * </pre>
  * 
@@ -58,7 +59,8 @@ public class PlotData {
         private int dimension;
     }
 
-    private Map<String, PlotValue> valueMap = new HashMap<String, PlotValue>();
+    /** Map of data values */
+    private final Map<String, PlotValue> valueMap = new HashMap<String, PlotValue>();
 
     public void addData(PointDataView pdv) {
         for (String key : pdv.getContainer().getParameters()) {
@@ -220,4 +222,14 @@ public class PlotData {
         }
     }
 
+    /**
+     * Check if the provided parameter is valid (contained in the valueMap)
+     * 
+     * @param param
+     *            The parameter to check
+     * @return true if the parameter exists in the valueMap, false if not
+     */
+    public boolean isValidParameter(String param) {
+        return valueMap.containsKey(param);
+    }
 }
