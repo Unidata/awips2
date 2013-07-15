@@ -17,5 +17,4 @@ Import-Package: com.raytheon.uf.common.localization,
  com.raytheon.uf.common.menus.xml,
  com.raytheon.uf.common.message.response,
  com.raytheon.uf.common.ohd,
- com.raytheon.uf.common.serialization.comm,
- org.apache.commons.logging
+ com.raytheon.uf.common.serialization.comm
