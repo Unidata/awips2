@@ -162,6 +162,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                      Make dialog non-blocking.
  *                                      Changes for non-blocking ContactsDlg.
  *                                      Changes for non-blocking CrestHistoryDlg.
+ *                                      Changes for non-blocking DataSourcesDlg.
+ *                                      Changes for non-blocking ImpactStatementDlg.
+ *                                      Changes for non-blocking LowWaterStatementDlg.
  * 
  * </pre>
  * 
@@ -330,9 +333,24 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
     private final Map<String, ContactsDlg> contactsDlgMap = new HashMap<String, ContactsDlg>();
 
     /**
-     * Allow on instance per station.
+     * Allow one instance per station.
      */
     private final Map<String, CrestHistoryDlg> crestHistDlgMap = new HashMap<String, CrestHistoryDlg>();
+
+    /**
+     * Allow one instance per station.
+     */
+    private final Map<String, DataSourcesDlg> dataSourcesDlgMap = new HashMap<String, DataSourcesDlg>();
+
+    /**
+     * Allow one instance per station.
+     */
+    private final Map<String, ImpactStatementDlg> impactStatementDlgMap = new HashMap<String, ImpactStatementDlg>();
+
+    /**
+     * Allow one instance per station.
+     */
+    private final Map<String, LowWaterStatementDlg> lowWaterStmntDlgMap = new HashMap<String, LowWaterStatementDlg>();
 
     /**
      * Flood category menu item.
@@ -741,12 +759,35 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         dataSourcesMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                DataSourcesDlg dataSourcesDlg = new DataSourcesDlg(shell,
-                        getStationAndName(),
-                        getSelectedLocation().getStation(), true);
-                dataSourcesDlg.open();
+                handleDataSouceDlg();
             }
         });
+    }
+
+    /**
+     * Display data source dialog for selected station.
+     */
+    private void handleDataSouceDlg() {
+        String lid = getSelectedLocation().getStation();
+        DataSourcesDlg dataSourcesDlg = dataSourcesDlgMap.get(lid);
+        if (dataSourcesDlg == null || dataSourcesDlg.isDisposed()) {
+            dataSourcesDlg = new DataSourcesDlg(shell, getStationAndName(),
+                    lid, true);
+            dataSourcesDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        String lid = returnValue.toString();
+                        dataSourcesDlgMap.remove(lid);
+                    }
+                }
+            });
+            dataSourcesDlg.open();
+            dataSourcesDlgMap.put(lid, dataSourcesDlg);
+        } else {
+            dataSourcesDlg.bringToTop();
+        }
     }
 
     /**
@@ -837,14 +878,11 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         // Impact Statement menu item
         impactStatementMI = new MenuItem(riverGageMenu, SWT.NONE);
         impactStatementMI.setText("&Impact Statement...\tCtrl+I");
-        impactStatementMI.setAccelerator(SWT.CTRL + 'T');
+        impactStatementMI.setAccelerator(SWT.CTRL + 'I');
         impactStatementMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                ImpactStatementDlg impactStatementDlg = new ImpactStatementDlg(
-                        shell, getStationAndName(), getSelectedLocation()
-                                .getStation(), true);
-                impactStatementDlg.open();
+                handleImpactStatementDlg();
             }
         });
         riverGageMenuItems.add(impactStatementMI);
@@ -856,10 +894,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         lowWaterStatementMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                LowWaterStatementDlg lowWaterStmntDlg = new LowWaterStatementDlg(
-                        shell, getStationAndName(), true, getSelectedLocation()
-                                .getStation());
-                lowWaterStmntDlg.open();
+                handleLowWaterStatementDlg();
             }
         });
         riverGageMenuItems.add(lowWaterStatementMI);
@@ -1127,6 +1162,34 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
             }
         });
         riverGageMenuItems.add(referencesMI);
+    }
+
+    /**
+     * Bring of Impact Statement Dialog for the selected station.
+     */
+    private void handleImpactStatementDlg() {
+        String lid = getSelectedLocation().getStation();
+        ImpactStatementDlg impactStatementDlg = impactStatementDlgMap.get(lid);
+
+        if (impactStatementDlg == null || impactStatementDlg.isDisposed()) {
+            impactStatementDlg = new ImpactStatementDlg(shell,
+                    getStationAndName(), getSelectedLocation().getStation(),
+                    true);
+            impactStatementDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        String lid = returnValue.toString();
+                        impactStatementDlgMap.remove(lid);
+                    }
+                }
+            });
+            impactStatementDlg.open();
+            impactStatementDlgMap.put(lid, impactStatementDlg);
+        } else {
+            impactStatementDlg.bringToTop();
+        }
     }
 
     /**
@@ -1966,6 +2029,33 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
             modLocDlg.open();
         } else {
             modLocDlg.bringToTop();
+        }
+    }
+
+    /**
+     * Display the Low Water Statement dialog for the selected station.
+     */
+    private void handleLowWaterStatementDlg() {
+        String lid = getSelectedLocation().getStation();
+        LowWaterStatementDlg lowWaterStmntDlg = lowWaterStmntDlgMap.get(lid);
+
+        if (lowWaterStmntDlg == null || lowWaterStmntDlg.isDisposed()) {
+            lowWaterStmntDlg = new LowWaterStatementDlg(shell,
+                    getStationAndName(), true, lid);
+            lowWaterStmntDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        String lid = returnValue.toString();
+                        lowWaterStmntDlgMap.remove(lid);
+                    }
+                }
+            });
+            lowWaterStmntDlg.open();
+            lowWaterStmntDlgMap.put(lid, lowWaterStmntDlg);
+        } else {
+            lowWaterStmntDlg.bringToTop();
         }
     }
 
