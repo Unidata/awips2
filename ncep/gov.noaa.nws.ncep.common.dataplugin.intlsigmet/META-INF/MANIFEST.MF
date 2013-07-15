@@ -8,7 +8,6 @@ Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serializ
 Require-Bundle: gov.noaa.nws.ncep.common;bundle-version="1.0.0",
  com.raytheon.edex.common;bundle-version="1.11.1",
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
-  org.apache.commons.logging;bundle-version="1.0.4",
  org.geotools,
  javax.persistence,
  javax.measure

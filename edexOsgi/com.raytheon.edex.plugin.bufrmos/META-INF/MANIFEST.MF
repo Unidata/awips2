@@ -3,18 +3,20 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Bufrmos Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.bufrmos
 Bundle-Version: 1.12.1174.qualifier
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization, com.raytheon.edex.common
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
-Require-Bundle: org.apache.commons.logging,
- com.raytheon.edex.common,
- com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
- javax.measure,
- org.geotools,
- javax.persistence,
- com.raytheon.uf.edex.pointdata;bundle-version="1.0.0"
 Export-Package: com.raytheon.edex.plugin.bufrmos,
  com.raytheon.edex.plugin.bufrmos.common
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.uf.common.pointdata,
- com.raytheon.uf.common.pointdata.spatial,
- com.raytheon.uf.common.status
+Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
+ com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
+ com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.core;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.database;bundle-version="1.0.0",
+ com.raytheon.uf.edex.pointdata;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174"
+Import-Package: com.raytheon.edex.esb,
+ com.raytheon.edex.exception,
+ com.raytheon.edex.plugin,
+ org.apache.commons.logging

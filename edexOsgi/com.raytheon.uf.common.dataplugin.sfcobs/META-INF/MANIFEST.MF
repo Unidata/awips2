@@ -8,7 +8,6 @@ Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.edex.common,
  org.geotools,
- org.apache.commons.logging,
  javax.persistence,
  javax.measure,
  com.raytheon.uf.common.pointdata;bundle-version="1.11.16",
@@ -17,4 +16,5 @@ Export-Package: com.raytheon.uf.common.dataplugin.sfcobs,
  com.raytheon.uf.common.dataplugin.sfcobs.dao
 Import-Package: com.raytheon.uf.common.status,
  com.raytheon.uf.edex.decodertools.core,
- com.raytheon.uf.edex.decodertools.time
+ com.raytheon.uf.edex.decodertools.time,
+ org.apache.commons.logging

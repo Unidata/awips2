@@ -11,8 +11,6 @@ Export-Package: gov.noaa.nws.ncep.common.dataplugin.atcf,
  gov.noaa.nws.ncep.edex.uengine.tasks.atcf
 Require-Bundle: javax.persistence;bundle-version="1.0.0",
  com.raytheon.edex.common;bundle-version="1.11.31",
- org.apache.log4j;bundle-version="1.0.0",
- org.apache.commons.logging;bundle-version="1.0.4",
  gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",
  gov.noaa.nws.ncep.common;bundle-version="1.0.0"
 Import-Package: com.raytheon.uf.edex.decodertools.core,

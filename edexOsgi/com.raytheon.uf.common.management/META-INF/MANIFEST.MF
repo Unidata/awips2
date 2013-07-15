@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Management
 Bundle-SymbolicName: com.raytheon.uf.common.management
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: com.raytheon.uf.common.management.Activator
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
