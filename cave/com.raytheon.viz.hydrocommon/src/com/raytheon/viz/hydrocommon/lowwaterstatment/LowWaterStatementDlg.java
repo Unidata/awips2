@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.hydrocommon.lowwaterstatment;
 
-import java.util.ArrayList;
-
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -40,6 +38,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.data.LowWaterStatementData;
@@ -54,6 +55,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Sep 5, 2008				lvenable	Initial creation
+ * Jul 15, 2012 2088        rferrel     Make dialog non-blocking
  * 
  * </pre>
  * 
@@ -61,6 +63,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class LowWaterStatementDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(LowWaterStatementDlg.class);
 
     /**
      * Control font.
@@ -135,7 +139,7 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
     /**
      * Low water statement Data for the current location
      */
-    private ArrayList<LowWaterStatementData> lwStatements;
+    private java.util.List<LowWaterStatementData> lwStatements;
 
     /**
      * Flag indicating if all the controls should be displayed.
@@ -144,15 +148,26 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
 
     private enum DialogStates {
         HYDRO_VIEW, NEW, STATEMENTS_AVAILABLE, STATEMENTS_NOT_AVAILABLE
-    }    
-    
+    }
+
     /**
      * text from the remark text box
      */
-    private String currentCriteriaText=null;
-    private String currentSourceText=null;
-    private String currentStatementText=null;
-    
+    private String currentCriteriaText = null;
+
+    /**
+     * Text for current source
+     */
+    private String currentSourceText = null;
+
+    /**
+     * Text for current statement.
+     */
+    private String currentStatementText = null;
+
+    /**
+     * Current button state used to enable buttons.
+     */
     private DialogStates buttonState;
 
     /**
@@ -167,22 +182,33 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
      */
     public LowWaterStatementDlg(Shell parent, String titleInfo,
             boolean fullControls, String lid) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Low Water Statement " + titleInfo);
 
         this.lid = lid;
         this.fullControls = fullControls;
+        setReturnValue(lid);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
-
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
 
         // Initialize all of the controls and layouts
@@ -287,16 +313,15 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
         gd.horizontalSpan = 7;
         criteriaTF = new Text(infoGroup, SWT.BORDER | SWT.MULTI);
         criteriaTF.setLayoutData(gd);
-        currentCriteriaText=criteriaTF.getText();
+        currentCriteriaText = criteriaTF.getText();
         ModifyListener listenerC = new ModifyListener() {
-        	public void modifyText(ModifyEvent e) {
-        		if (criteriaTF.getText().length()>255){
-        			criteriaTF.setText(currentCriteriaText);
-        			shell.getDisplay().beep();
-        		}
-        		else
-        			currentCriteriaText=criteriaTF.getText();
-        	}
+            public void modifyText(ModifyEvent e) {
+                if (criteriaTF.getText().length() > 255) {
+                    criteriaTF.setText(currentCriteriaText);
+                    shell.getDisplay().beep();
+                } else
+                    currentCriteriaText = criteriaTF.getText();
+            }
         };
 
         criteriaTF.addModifyListener(listenerC);
@@ -311,16 +336,15 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
         gd.horizontalSpan = 7;
         sourceTF = new Text(infoGroup, SWT.BORDER | SWT.MULTI);
         sourceTF.setLayoutData(gd);
-        currentSourceText=sourceTF.getText();
+        currentSourceText = sourceTF.getText();
         ModifyListener listenerS = new ModifyListener() {
-        	public void modifyText(ModifyEvent e) {
-        		if (sourceTF.getText().length()>255){
-        			sourceTF.setText(currentSourceText);
-        			shell.getDisplay().beep();
-        		}
-        		else
-        			currentSourceText=sourceTF.getText();
-        	}
+            public void modifyText(ModifyEvent e) {
+                if (sourceTF.getText().length() > 255) {
+                    sourceTF.setText(currentSourceText);
+                    shell.getDisplay().beep();
+                } else
+                    currentSourceText = sourceTF.getText();
+            }
         };
 
         sourceTF.addModifyListener(listenerS);
@@ -335,16 +359,15 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
         gd.horizontalSpan = 7;
         statementTF = new Text(infoGroup, SWT.BORDER | SWT.MULTI);
         statementTF.setLayoutData(gd);
-        currentStatementText=statementTF.getText();
+        currentStatementText = statementTF.getText();
         ModifyListener listenerT = new ModifyListener() {
-        	public void modifyText(ModifyEvent e) {
-        		if (statementTF.getText().length()>200){
-        			statementTF.setText(currentStatementText);
-        			shell.getDisplay().beep();
-        		}
-        		else
-        			currentStatementText=statementTF.getText();
-        	}
+            public void modifyText(ModifyEvent e) {
+                if (statementTF.getText().length() > 200) {
+                    statementTF.setText(currentStatementText);
+                    shell.getDisplay().beep();
+                } else
+                    currentStatementText = statementTF.getText();
+            }
         };
 
         statementTF.addModifyListener(listenerT);
@@ -381,7 +404,7 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
         okBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 saveRecord();
-                shell.dispose();
+                close();
             }
         });
 
@@ -404,7 +427,7 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
         closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -459,8 +482,8 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
             lwStatements = LowWaterStatementDataManager.getInstance()
                     .getLowWaterStatementData(lid);
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to load Water Statement Data: ", e);
         }
 
         // Check if any data was returned
@@ -473,6 +496,10 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
         updateLowWaterStatementData();
     }
 
+    /**
+     * Update the data list with the entries from lwStatements and set the
+     * enable state for the buttons.
+     */
     private void updateLowWaterStatementData() {
         // Clear current Stages
         dataList.removeAll();
@@ -491,10 +518,18 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
         setButtonStates();
     }
 
+    /**
+     * Update the Information display with currently selected statement.
+     */
     private void getLowWaterStatementInformation() {
         updateInformationDisplay(getCurrentlySelectedStatement());
     }
 
+    /**
+     * Update the information Display with desired statement.
+     * 
+     * @param data
+     */
     private void updateInformationDisplay(LowWaterStatementData data) {
         lowerLimitTF.setText(data.getLowerValueString());
         upperLimitTF.setText(data.getUpperValueString());
@@ -505,6 +540,11 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
         statementTF.setText(data.getStatement());
     }
 
+    /**
+     * Get the currently selected statement.
+     * 
+     * @return currData
+     */
     private LowWaterStatementData getCurrentlySelectedStatement() {
         LowWaterStatementData currData = null;
 
@@ -515,6 +555,9 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
         return currData;
     }
 
+    /**
+     * Delete the currently selected statement.
+     */
     private void deleteRecord() {
         LowWaterStatementData currData = getCurrentlySelectedStatement();
 
@@ -525,8 +568,8 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
                     LowWaterStatementDataManager.getInstance().deleteRecord(
                             currData);
                 } catch (VizException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.ERROR,
+                            "Unable to delete Water Statement Record: ", e);
                 }
 
                 getLowWaterStatementData();
@@ -541,6 +584,9 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Clear information to prepare to entery new statement.
+     */
     private void newRecord() {
         clearInformation();
 
@@ -548,6 +594,9 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
         setButtonStates();
     }
 
+    /**
+     * Clear the statement's fields.
+     */
     private void clearInformation() {
         lowerLimitTF.setText("");
         upperLimitTF.setText("");
@@ -630,8 +679,8 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
             LowWaterStatementDataManager.getInstance()
                     .putLowWaterStatementData(dataToSave);
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to Save Water Statement Record: ", e);
         }
 
         getLowWaterStatementData();

@@ -20,6 +20,9 @@
 
 package com.raytheon.viz.hydro.datasources;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -28,6 +31,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
 import com.raytheon.viz.hydrocommon.datasources.DataSourcesDlg;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Action for Data Sources Dialog.
@@ -42,6 +46,7 @@ import com.raytheon.viz.hydrocommon.datasources.DataSourcesDlg;
  * 10/6/2008    1555        grichard    Support data sources.
  * 12/16/2008   1782        grichard    Refreshed Data Sources.
  * 1/11/2008    1802        askripsk    HydroBase implementation.
+ * 07/15/2013   2088        rferrel     Changes for non-blocking DataSourceDlg.
  * 
  * </pre>
  * 
@@ -49,6 +54,7 @@ import com.raytheon.viz.hydrocommon.datasources.DataSourcesDlg;
  * 
  */
 public class DataSourcesAction extends AbstractHandler {
+    private final Map<String, DataSourcesDlg> dataSourcesDlgMap = new HashMap<String, DataSourcesDlg>();
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
@@ -58,16 +64,34 @@ public class DataSourcesAction extends AbstractHandler {
         HydroDisplayManager manager = HydroDisplayManager.getInstance();
         if (manager.isCurrentLidSelected(shell)) {
             String lid = manager.getCurrentLid();
-            String name = manager.getCurrentData().getName();
+            DataSourcesDlg dataSourcesDlg = dataSourcesDlgMap.get(lid);
 
-            String displayString = " - "
-                    + lid
-                    + ((name != null && name.compareTo("") != 0) ? " - " + name
-                            : "");
+            if (dataSourcesDlg == null || dataSourcesDlg.isDisposed()) {
+                String name = manager.getCurrentData().getName();
 
-            DataSourcesDlg dataSourcesDlg = new DataSourcesDlg(shell,
-                    displayString, lid, false);
-            dataSourcesDlg.open();
+                StringBuilder displayString = new StringBuilder(" - ");
+                displayString.append(lid);
+                if (name != null && name.length() > 0) {
+                    displayString.append(" - ").append(name);
+                }
+
+                dataSourcesDlg = new DataSourcesDlg(shell,
+                        displayString.toString(), lid, false);
+                dataSourcesDlg.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        if (returnValue instanceof String) {
+                            String lid = returnValue.toString();
+                            dataSourcesDlgMap.remove(lid);
+                        }
+                    }
+                });
+                dataSourcesDlg.open();
+                dataSourcesDlgMap.put(lid, dataSourcesDlg);
+            } else {
+                dataSourcesDlg.bringToTop();
+            }
         }
 
         return null;
