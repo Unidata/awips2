@@ -190,7 +190,9 @@ function buildFeatureRPMs()
       echo "feature = ${feature}"
       if [ "${feature}" = "com.raytheon.uf.viz.cots.feature" ] ||
          [ "${feature}" = "com.raytheon.uf.viz.base.feature" ] ||
-         [ "${feature}" = "com.raytheon.uf.viz.localization.perspective.feature" ]; then
+         [ "${feature}" = "com.raytheon.uf.viz.localization.perspective.feature" ] ||
+         [ "${feature}" = "com.raytheon.viz.satellite.feature" ] ||
+         [ "${feature}" = "com.raytheon.uf.viz.nwsauth.feature" ]; then
 
          _component_name=""
          _downstream_requires="awips2-common-base"
@@ -202,6 +204,14 @@ function buildFeatureRPMs()
          fi
          if [ "${feature}" = "com.raytheon.uf.viz.localization.perspective.feature" ]; then
             _component_name="awips2-cave-viz-localization-perspective"
+            _downstream_requires="awips2-common-base awips2-cave-viz-base"
+         fi
+         if [ "${feature}" = "com.raytheon.viz.satellite.feature" ]; then
+            _component_name="awips2-cave-viz-satellite"
+            _downstream_requires="awips2-common-base awips2-cave-viz-base awips2-cave-viz-core"
+         fi
+         if [ "${feature}" = "com.raytheon.uf.viz.nwsauth.feature" ]; then
+            _component_name="awips2-cave-viz-nwsauth"
             _downstream_requires="awips2-common-base awips2-cave-viz-base"
          fi
 
