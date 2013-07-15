@@ -161,6 +161,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                      Changes for non-blocking FloodReportDlg.
  *                                      Make dialog non-blocking.
  *                                      Changes for non-blocking ContactsDlg.
+ *                                      Changes for non-blocking CrestHistoryDlg.
  * 
  * </pre>
  * 
@@ -327,6 +328,11 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
      * Allow one instance per lid.
      */
     private final Map<String, ContactsDlg> contactsDlgMap = new HashMap<String, ContactsDlg>();
+
+    /**
+     * Allow on instance per station.
+     */
+    private final Map<String, CrestHistoryDlg> crestHistDlgMap = new HashMap<String, CrestHistoryDlg>();
 
     /**
      * Flood category menu item.
@@ -926,9 +932,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         crestHistoryMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                CrestHistoryDlg crestHistDlg = new CrestHistoryDlg(shell,
-                        getStationLid(), getStationAndName(), true);
-                crestHistDlg.open();
+                handleCrestHistoryDlg();
             }
         });
         riverGageMenuItems.add(crestHistoryMI);
@@ -1123,6 +1127,32 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
             }
         });
         riverGageMenuItems.add(referencesMI);
+    }
+
+    /**
+     * Display Crest History dialog for the station.
+     */
+    private void handleCrestHistoryDlg() {
+        String lid = getStationLid();
+        CrestHistoryDlg crestHistDlg = crestHistDlgMap.get(lid);
+        if (crestHistDlg == null || crestHistDlg.isDisposed()) {
+            crestHistDlg = new CrestHistoryDlg(shell, getStationLid(),
+                    getStationAndName(), true);
+            crestHistDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        String lid = returnValue.toString();
+                        crestHistDlgMap.remove(lid);
+                    }
+                }
+            });
+            crestHistDlg.open();
+            crestHistDlgMap.put(lid, crestHistDlg);
+        } else {
+            crestHistDlg.bringToTop();
+        }
     }
 
     /**
