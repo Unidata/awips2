@@ -34,7 +34,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.TimeZone;
 
-import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -53,11 +52,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.ohd.AppsDefaults;
-import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.RiverDataPoint;
 import com.raytheon.viz.hydrocommon.datamanager.RiverDataManager;
-import com.raytheon.viz.ui.UiPlugin;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -76,12 +76,15 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 26 Jul 2012  14711/963   mpduff      Fix problems adding/removing shift points
  * 22 Jan 2013  15682       lbousaidi   fix openfile problem and changed the path to
  *                                      whfs_import_dir for "Import Curve" button.
+ * 15 Jul 2013  2088        rferrel     Make dialog non-blocking.
  * </pre>
  * 
  * @author lvenable
  * @version 1.0
  */
 public class RatingCurveDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RatingCurveDlg.class);
 
     /**
      * Control font.
@@ -136,17 +139,17 @@ public class RatingCurveDlg extends CaveSWTDialog {
     /**
      * Array of rating curve data (no shift curve).
      */
-    private ArrayList<RatingCurveData> noShiftCurveArray;
+    private java.util.List<RatingCurveData> noShiftCurveArray;
 
     /**
      * Array of rating curve data (with shift curve).
      */
-    private ArrayList<RatingCurveData> shiftCurveArray;
+    private java.util.List<RatingCurveData> shiftCurveArray;
 
     /**
      * Shift Data if available
      */
-    private ArrayList<RatingCurveShiftData> shiftData;
+    private java.util.List<RatingCurveShiftData> shiftData;
 
     /**
      * Shift curve data list control.
@@ -259,18 +262,24 @@ public class RatingCurveDlg extends CaveSWTDialog {
     private boolean newRatingCurve = false;
 
     /**
-     * rating curve points
+     * Rating curve remove points.
      */
-    private ArrayList<RatingCurveData> removedPoints = null;
-
-    private ArrayList<RatingCurveData> addedPoints = null;
+    private java.util.List<RatingCurveData> removedPoints = null;
 
     /**
-     * rating curve shift points
+     * Rating curve added points.
      */
-    private ArrayList<RatingCurveShiftData> removedCurveShifts = null;
+    private java.util.List<RatingCurveData> addedPoints = null;
 
-    private ArrayList<RatingCurveShiftData> addedCurveShifts = null;
+    /**
+     * Rating curve remove shift points.
+     */
+    private java.util.List<RatingCurveShiftData> removedCurveShifts = null;
+
+    /**
+     * Rating curve added shift points.
+     */
+    private java.util.List<RatingCurveShiftData> addedCurveShifts = null;
 
     /**
      * The current selected shift curve
@@ -294,7 +303,7 @@ public class RatingCurveDlg extends CaveSWTDialog {
      */
     public RatingCurveDlg(Shell parent, String lid, String titleInfo,
             boolean fullControls) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Rating Curve" + titleInfo);
 
         this.lid = lid;
@@ -312,8 +321,14 @@ public class RatingCurveDlg extends CaveSWTDialog {
         addedCurveShifts = new ArrayList<RatingCurveShiftData>();
 
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        setReturnValue(lid);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -323,15 +338,25 @@ public class RatingCurveDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
-
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
 
         // Initialize all of the controls and layouts
@@ -491,7 +516,7 @@ public class RatingCurveDlg extends CaveSWTDialog {
         shftRemoveBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-            	removeShift();
+                removeShift();
             }
         });
 
@@ -520,8 +545,9 @@ public class RatingCurveDlg extends CaveSWTDialog {
         curveImportBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-            	final String tokenizedDir = "whfs_import_dir";                
-                String importRating= AppsDefaults.getInstance().getToken(tokenizedDir);
+                final String tokenizedDir = "whfs_import_dir";
+                String importRating = AppsDefaults.getInstance().getToken(
+                        tokenizedDir);
                 FileDialog fd = new FileDialog(shell, SWT.OPEN);
                 fd.setFilterPath(importRating);
                 String[] filterExt = { "*." + extension };
@@ -529,10 +555,10 @@ public class RatingCurveDlg extends CaveSWTDialog {
                 String filename = fd.open();
                 if (filename == null) {
                     return;
-                } else {                   
+                } else {
                     importCurveData(importRatingCurve(filename));
-                }      
-               
+                }
+
             }
         });
 
@@ -543,30 +569,32 @@ public class RatingCurveDlg extends CaveSWTDialog {
         curveClearAllBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                MessageBox messageDialog = new MessageBox(shell, SWT.OK | SWT.CANCEL);
+                MessageBox messageDialog = new MessageBox(shell, SWT.OK
+                        | SWT.CANCEL);
                 messageDialog.setText("Clear Confirmation");
-                messageDialog.setMessage("This will clear the list for " + lid + ".");
+                messageDialog.setMessage("This will clear the list for " + lid
+                        + ".");
                 int response = messageDialog.open();
 
                 if (response == SWT.OK) {
-	                // get rid of every point
-	                removedPoints = noShiftCurveArray;
-	                noShiftCurveArray.clear();
-	                noShiftCurveDataList.removeAll();
-	                noShiftCurveDataList.redraw();
-	                
-	                if (shiftCurveArray != null) {
-	                    shiftCurveArray.clear();
-	                }
-	                shiftCurveDataList.removeAll();
-	                shiftCurveDataList.redraw();
-	
-	                stageTF.setText("");
-	                dischargeTF.setText("");
-	                selectedRatingShift = null;
-	
-	                ratingCurveCanvas.updateCurveData(noShiftCurveArray, floodDbl,
-	                        recordDbl, shiftAmount);
+                    // get rid of every point
+                    removedPoints = noShiftCurveArray;
+                    noShiftCurveArray.clear();
+                    noShiftCurveDataList.removeAll();
+                    noShiftCurveDataList.redraw();
+
+                    if (shiftCurveArray != null) {
+                        shiftCurveArray.clear();
+                    }
+                    shiftCurveDataList.removeAll();
+                    shiftCurveDataList.redraw();
+
+                    stageTF.setText("");
+                    dischargeTF.setText("");
+                    selectedRatingShift = null;
+
+                    ratingCurveCanvas.updateCurveData(noShiftCurveArray,
+                            floodDbl, recordDbl, shiftAmount);
                 }
             }
         });
@@ -579,28 +607,28 @@ public class RatingCurveDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 if (noShiftCurveDataList.getSelectionIndex() != -1) {
-					MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
-							| SWT.OK | SWT.CANCEL);
-					mb.setText("Remove Base Rating Point Confirmation");
-					mb.setMessage("This will remove the highlighted pair.");
-					int response = mb.open();
+                    MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
+                            | SWT.OK | SWT.CANCEL);
+                    mb.setText("Remove Base Rating Point Confirmation");
+                    mb.setMessage("This will remove the highlighted pair.");
+                    int response = mb.open();
 
-					if (response == SWT.OK) {
-						// get rid of this point
-						int index = noShiftCurveDataList.getSelectionIndex();
-						removedPoints.add(noShiftCurveArray.remove(index));
-						remakeRatingCurveDataList();
+                    if (response == SWT.OK) {
+                        // get rid of this point
+                        int index = noShiftCurveDataList.getSelectionIndex();
+                        removedPoints.add(noShiftCurveArray.remove(index));
+                        remakeRatingCurveDataList();
 
-						stageTF.setText("");
-						dischargeTF.setText("");
+                        stageTF.setText("");
+                        dischargeTF.setText("");
 
-						if (getEditingShiftData() != null) {
-							generateShiftList(getEditingShiftData());
-						}
+                        if (getEditingShiftData() != null) {
+                            generateShiftList(getEditingShiftData());
+                        }
 
-						ratingCurveCanvas.updateCurveData(noShiftCurveArray,
-								floodDbl, recordDbl, shiftAmount);
-					}
+                        ratingCurveCanvas.updateCurveData(noShiftCurveArray,
+                                floodDbl, recordDbl, shiftAmount);
+                    }
                 }
             }
         });
@@ -616,7 +644,7 @@ public class RatingCurveDlg extends CaveSWTDialog {
                     RatingCurveData rcd = new RatingCurveData(new Double(
                             stageTF.getText().trim()), new Double(dischargeTF
                             .getText().trim()));
-                	insertBaseCurvePoint(rcd);
+                    insertBaseCurvePoint(rcd);
                 }
             }
         });
@@ -633,23 +661,28 @@ public class RatingCurveDlg extends CaveSWTDialog {
             shiftValueTF.setEditable(true);
         }
     }
-    
-    private void insertBaseCurvePoint(RatingCurveData rcd) {
-    	if (!noShiftCurveArray.contains(rcd)) {
-    		// Check for a matching stage value
-    		RatingCurveData data = null;
-    		for (RatingCurveData d: noShiftCurveArray) {
-    			if (d.getStage() == rcd.getStage()) {
-    				data = d;
-    				break;
-    			}
-    		}
-    			
-    		if (data != null) {
-    			noShiftCurveArray.remove(data);
-    		}
 
-    		noShiftCurveArray.add(rcd);
+    /**
+     * Insert Rating Curve Data removing any old reference to and old rcd.
+     * 
+     * @param rcd
+     */
+    private void insertBaseCurvePoint(RatingCurveData rcd) {
+        if (!noShiftCurveArray.contains(rcd)) {
+            // Check for a matching stage value
+            RatingCurveData data = null;
+            for (RatingCurveData d : noShiftCurveArray) {
+                if (d.getStage() == rcd.getStage()) {
+                    data = d;
+                    break;
+                }
+            }
+
+            if (data != null) {
+                noShiftCurveArray.remove(data);
+            }
+
+            noShiftCurveArray.add(rcd);
             if (!addedPoints.contains(rcd)) {
                 addedPoints.add(rcd);
             } else {
@@ -658,7 +691,7 @@ public class RatingCurveDlg extends CaveSWTDialog {
             }
 
             remakeRatingCurveDataList();
-            
+
             if (getEditingShiftData() != null) {
                 if (getEditingShiftData().isActive()) {
                     int index = shiftDataList.getSelectionIndex();
@@ -666,15 +699,14 @@ public class RatingCurveDlg extends CaveSWTDialog {
                     ratingCurveCanvas.updateCurveData(shiftCurveArray,
                             floodDbl, recordDbl, shiftAmount);
                 } else {
-                    ratingCurveCanvas.updateCurveData(
-                            noShiftCurveArray, floodDbl, recordDbl,
-                            shiftAmount);
+                    ratingCurveCanvas.updateCurveData(noShiftCurveArray,
+                            floodDbl, recordDbl, shiftAmount);
                 }
             } else {
-                ratingCurveCanvas.updateCurveData(noShiftCurveArray,
-                        floodDbl, recordDbl, shiftAmount);
+                ratingCurveCanvas.updateCurveData(noShiftCurveArray, floodDbl,
+                        recordDbl, shiftAmount);
             }
-    	}
+        }
     }
 
     /**
@@ -700,12 +732,13 @@ public class RatingCurveDlg extends CaveSWTDialog {
         shiftCurveDataList.setFont(controlFont);
         shiftCurveDataList.setLayoutData(gd);
         shiftCurveDataList.deselectAll();
-        shiftCurveDataList.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY));
+        shiftCurveDataList.setForeground(Display.getCurrent().getSystemColor(
+                SWT.COLOR_DARK_GRAY));
         shiftCurveDataList.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				shiftCurveDataList.deselectAll();
-			}        	
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                shiftCurveDataList.deselectAll();
+            }
         });
 
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
@@ -724,26 +757,25 @@ public class RatingCurveDlg extends CaveSWTDialog {
                 RatingCurveData data = noShiftCurveArray
                         .get(noShiftCurveDataList.getSelectionIndex());
                 stageTF.setText(String.format("%7.2f", data.getStage()));
-                dischargeTF
-                        .setText(String.format("%7.1f", data.getDischarge()));
+                dischargeTF.setText(String.format("%7.1f", data.getDischarge()));
             }
         });
 
         if (noShiftCurveArray != null) {
             // populate the list
-        	RatingCurveShiftData currentShift = null;
-        	if (shiftData != null && shiftData.size() > 0) {
-	            if (shiftData.get(0).isActive()) {
-		        	currentShift = shiftData.get(0);
-	            }
-        	}
-        	
+            RatingCurveShiftData currentShift = null;
+            if (shiftData != null && shiftData.size() > 0) {
+                if (shiftData.get(0).isActive()) {
+                    currentShift = shiftData.get(0);
+                }
+            }
+
             for (RatingCurveData curve : noShiftCurveArray) {
                 noShiftCurveDataList.add(curve.toString());
             }
             if (noShiftCurveDataList.getItemCount() > 0) {
-            	noShiftCurveDataList.select(0);
-            	generateShiftList(currentShift);
+                noShiftCurveDataList.select(0);
+                generateShiftList(currentShift);
             }
         }
 
@@ -834,7 +866,7 @@ public class RatingCurveDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 save();
-                shell.dispose();
+                close();
             }
         });
 
@@ -858,7 +890,7 @@ public class RatingCurveDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -894,9 +926,9 @@ public class RatingCurveDlg extends CaveSWTDialog {
         if (shiftData != null) {
             for (RatingCurveShiftData rcsd : shiftData) {
                 String fmtStr = "%10S %10S %10S";
-                String tmpStr = String.format(fmtStr, sdf.format(rcsd.getDate()
-                        .getTime()), df.format(rcsd.getValue()), rcsd
-                        .isActive());
+                String tmpStr = String.format(fmtStr,
+                        sdf.format(rcsd.getDate().getTime()),
+                        df.format(rcsd.getValue()), rcsd.isActive());
                 shiftDataList.add(tmpStr);
             }
         }
@@ -907,11 +939,11 @@ public class RatingCurveDlg extends CaveSWTDialog {
         if (label != null) {
             ratingLbl.setText(label);
         }
-        
+
         if (noShiftCurveArray.size() > 0) {
-	        RatingCurveData rcd = noShiftCurveArray.get(0);
-	        this.stageTF.setText(String.valueOf(rcd.getStage()));
-	        this.dischargeTF.setText(String.valueOf(rcd.getDischarge()));
+            RatingCurveData rcd = noShiftCurveArray.get(0);
+            this.stageTF.setText(String.valueOf(rcd.getStage()));
+            this.dischargeTF.setText(String.valueOf(rcd.getDischarge()));
         }
     }
 
@@ -965,7 +997,8 @@ public class RatingCurveDlg extends CaveSWTDialog {
                     recordDbl, shiftAmount);
             newRatingCurve = true;
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to import curve data: ", e);
         }
 
         return newRatingCurve;
@@ -993,7 +1026,7 @@ public class RatingCurveDlg extends CaveSWTDialog {
             // redraw for the full effect
             shiftCurveDataList.redraw();
         } else {
-        	// make the rating curve with no shift data
+            // make the rating curve with no shift data
             for (RatingCurveData curve : noShiftCurveArray) {
                 shiftCurveDataList.add(curve.toString());
             }
@@ -1017,8 +1050,7 @@ public class RatingCurveDlg extends CaveSWTDialog {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
                         | SWT.OK | SWT.CANCEL);
                 mb.setText("Directory Chosen!");
-                mb
-                        .setMessage("Cannot open a directory, choose a rating curve. EX: 'NBD1.rating'");
+                mb.setMessage("Cannot open a directory, choose a rating curve. EX: 'NBD1.rating'");
                 mb.open();
             }
             // if they choose just the file to import
@@ -1027,17 +1059,15 @@ public class RatingCurveDlg extends CaveSWTDialog {
                     try {
                         curve = readFile(fileName);
                     } catch (VizException ve) {
-                        VizApp.logAndAlert(Status.ERROR, ve,
-                                "Error reading in file: " + fileName,
-                                "Error reading in file: " + fileName, UiPlugin
-                                        .getDefault(), UiPlugin.PLUGIN_ID);
+                        statusHandler.handle(Priority.PROBLEM,
+                                "Unable to import file \"" + fileName + "\": ",
+                                ve);
                     }
                 } else {
                     MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
                             | SWT.OK | SWT.CANCEL);
                     mb.setText("Invalid File format Chosen!");
-                    mb
-                            .setMessage("Cannot open this file format, choose rating curve. EX: 'NBD1.rating'");
+                    mb.setMessage("Cannot open this file format, choose rating curve. EX: 'NBD1.rating'");
                     mb.open();
                 }
             }
@@ -1159,6 +1189,9 @@ public class RatingCurveDlg extends CaveSWTDialog {
         return true;
     }
 
+    /**
+     * Update or insert curve data.
+     */
     private void updateInsert() {
         try {
             if (verifyDate(shiftDateTF) && verifyDouble(shiftValueTF)) {
@@ -1167,74 +1200,81 @@ public class RatingCurveDlg extends CaveSWTDialog {
                         .getInstance(TimeZone.getTimeZone("GMT"));
                 cal.setTime(sdf.parse(shiftDateTF.getText()));
                 RatingCurveShiftData rcsd = new RatingCurveShiftData(lid, cal,
-                        new Double(shiftValueTF.getText()), shiftActiveChk
-                                .getSelection());
-                
+                        new Double(shiftValueTF.getText()),
+                        shiftActiveChk.getSelection());
+
                 if (shiftData.size() > 0 && shiftData.contains(rcsd)) {
-	                for (RatingCurveShiftData sd: shiftData) {
-	                	if (rcsd.toString().equals(sd.toString())) {
-	                		sd.setActive(rcsd.isActive());
-	                		sd.setDate(rcsd.getDate());
-	                		sd.setLid(rcsd.getLid());
-	                		sd.setValue(rcsd.getValue());
-	                		break;
-	                	}
-	                }
+                    for (RatingCurveShiftData sd : shiftData) {
+                        if (rcsd.toString().equals(sd.toString())) {
+                            sd.setActive(rcsd.isActive());
+                            sd.setDate(rcsd.getDate());
+                            sd.setLid(rcsd.getLid());
+                            sd.setValue(rcsd.getValue());
+                            break;
+                        }
+                    }
                 } else {
-                	shiftData.add(rcsd);
+                    shiftData.add(rcsd);
                 }
-                
+
                 if (!addedCurveShifts.contains(rcsd)) {
-                	addedCurveShifts.add(rcsd);
+                    addedCurveShifts.add(rcsd);
                 } else {
-                	addedCurveShifts.remove(rcsd);
-                	addedCurveShifts.add(rcsd);
+                    addedCurveShifts.remove(rcsd);
+                    addedCurveShifts.add(rcsd);
                 }
 
                 shiftDataList.removeAll();
                 Collections.sort(shiftData);
 
-                for (RatingCurveShiftData sd: shiftData) {
-                	shiftDataList.add(getShiftListString(sd));
+                for (RatingCurveShiftData sd : shiftData) {
+                    shiftDataList.add(getShiftListString(sd));
                 }
 
                 // Display the latest shift
                 RatingCurveShiftData currentShift = shiftData.get(0);
                 if (currentShift.isActive()) {
-                	generateShiftList(currentShift);
-                	ratingCurveCanvas.updateCurveData(shiftCurveArray,
-                			floodDbl, recordDbl, currentShift.getValue());
+                    generateShiftList(currentShift);
+                    ratingCurveCanvas.updateCurveData(shiftCurveArray,
+                            floodDbl, recordDbl, currentShift.getValue());
                 } else {
-                	ratingCurveCanvas.updateCurveData(noShiftCurveArray,
-                			floodDbl, recordDbl, 0);
+                    ratingCurveCanvas.updateCurveData(noShiftCurveArray,
+                            floodDbl, recordDbl, 0);
                 }
             }
-            
+
             shiftValueTF.setText("");
             shiftDateTF.setText("");
             shiftActiveChk.setSelection(false);
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to insert/update curve data: ", e);
         }
     }
-    
+
+    /**
+     * Remove the selected entries from the shift data list.
+     */
     private void removeShift() {
-    	if (shiftDataList.getItemCount() > 0 && shiftDataList.getSelectionCount() > 0) {
-            MessageBox messageDialog = new MessageBox(shell, SWT.OK | SWT.CANCEL);
+        if (shiftDataList.getItemCount() > 0
+                && shiftDataList.getSelectionCount() > 0) {
+            MessageBox messageDialog = new MessageBox(shell, SWT.OK
+                    | SWT.CANCEL);
             messageDialog.setText("Shift Remove Confirmation");
             messageDialog.setMessage("This will remove the highlighted shift.");
             int response = messageDialog.open();
 
             if (response == SWT.OK) {
-            	String selection = shiftDataList.getItem(shiftDataList.getSelectionIndex());
-            	for (RatingCurveShiftData sd: shiftData) {
-            		if (getShiftListString(sd).equals(selection)) {
-            			removedCurveShifts.add(sd);
-            			break;
-            		}
-            	}
-            	
-            	shiftData.removeAll(removedCurveShifts);
+                String selection = shiftDataList.getItem(shiftDataList
+                        .getSelectionIndex());
+                for (RatingCurveShiftData sd : shiftData) {
+                    if (getShiftListString(sd).equals(selection)) {
+                        removedCurveShifts.add(sd);
+                        break;
+                    }
+                }
+
+                shiftData.removeAll(removedCurveShifts);
                 shiftDataList.removeAll();
                 Collections.sort(shiftData);
                 for (RatingCurveShiftData rcsd : shiftData) {
@@ -1243,26 +1283,26 @@ public class RatingCurveDlg extends CaveSWTDialog {
                 shiftDataList.redraw();
 
                 if (shiftData.size() > 0) {
-                	shiftAmount = shiftData.get(0).getValue();
+                    shiftAmount = shiftData.get(0).getValue();
                 } else {
-                	shiftAmount = 0;
+                    shiftAmount = 0;
                 }
-                
-            	ratingCurveCanvas.updateCurveData(noShiftCurveArray,
-            			floodDbl, recordDbl, shiftAmount);
-            	
-            	if (shiftData.size() > 0) {
-            		RatingCurveShiftData currentShift = shiftData.get(0);
-            		if (currentShift.isActive()) {
-            			generateShiftList(currentShift);
-            		} else {
-            			generateShiftList(null);
-            		}
-            	} else {
-            		generateShiftList(null);
-            	}
+
+                ratingCurveCanvas.updateCurveData(noShiftCurveArray, floodDbl,
+                        recordDbl, shiftAmount);
+
+                if (shiftData.size() > 0) {
+                    RatingCurveShiftData currentShift = shiftData.get(0);
+                    if (currentShift.isActive()) {
+                        generateShiftList(currentShift);
+                    } else {
+                        generateShiftList(null);
+                    }
+                } else {
+                    generateShiftList(null);
+                }
             }
-	    }
+        }
     }
 
     /**
@@ -1307,8 +1347,9 @@ public class RatingCurveDlg extends CaveSWTDialog {
     private String getShiftListString(RatingCurveShiftData rcsd) {
 
         String fmtStr = "%10S %10S %10S";
-        String tmpStr = String.format(fmtStr, sdf.format(rcsd.getDate()
-                .getTime()), df.format(rcsd.getValue()), rcsd.isActive());
+        String tmpStr = String.format(fmtStr,
+                sdf.format(rcsd.getDate().getTime()),
+                df.format(rcsd.getValue()), rcsd.isActive());
 
         return tmpStr;
     }
@@ -1326,34 +1367,35 @@ public class RatingCurveDlg extends CaveSWTDialog {
      * update the noShiftCurveDataList
      */
     private void remakeRatingCurveDataList() {
-    	Collections.sort(noShiftCurveArray);
-    	int index = noShiftCurveDataList.getSelectionIndex();
+        Collections.sort(noShiftCurveArray);
+        int index = noShiftCurveDataList.getSelectionIndex();
         noShiftCurveDataList.removeAll();
         shiftCurveDataList.removeAll();
         for (RatingCurveData rcd : noShiftCurveArray) {
             noShiftCurveDataList.add(rcd.toString());
         }
-        
+
         if (shiftData.size() > 0) {
-	        RatingCurveShiftData currentShift = shiftData.get(0);
-	        if (currentShift.isActive()) {
-	        	generateShiftList(currentShift);
-	        } else {
-	            generateShiftList(null);
-	        }
+            RatingCurveShiftData currentShift = shiftData.get(0);
+            if (currentShift.isActive()) {
+                generateShiftList(currentShift);
+            } else {
+                generateShiftList(null);
+            }
         } else {
             generateShiftList(null);
         }
-        
+
         if (noShiftCurveDataList.getItemCount() > 0) {
-        	if (index >= noShiftCurveDataList.getItemCount()) {
-        		noShiftCurveDataList.select(noShiftCurveDataList.getItemCount() - 1);
-        	} else if (index >= 0 && index < noShiftCurveArray.size()) {
-        		noShiftCurveDataList.select(index);
-        	} else {
-        		noShiftCurveDataList.select(0);
-        	}
-    		noShiftCurveDataList.showSelection();
+            if (index >= noShiftCurveDataList.getItemCount()) {
+                noShiftCurveDataList
+                        .select(noShiftCurveDataList.getItemCount() - 1);
+            } else if (index >= 0 && index < noShiftCurveArray.size()) {
+                noShiftCurveDataList.select(index);
+            } else {
+                noShiftCurveDataList.select(0);
+            }
+            noShiftCurveDataList.showSelection();
 
         }
     }
@@ -1368,7 +1410,7 @@ public class RatingCurveDlg extends CaveSWTDialog {
     }
 
     /**
-     * Get an intance of the Stage data label
+     * Get an instance of the Stage data label
      * 
      * @return the label
      */
