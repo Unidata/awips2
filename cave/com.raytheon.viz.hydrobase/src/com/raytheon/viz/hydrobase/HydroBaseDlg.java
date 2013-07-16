@@ -166,6 +166,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                      Changes for non-blocking ImpactStatementDlg.
  *                                      Changes for non-blocking LowWaterStatementDlg.
  *                                      Changes for non-blocking RatingCurveDlg.
+ *                                      Changes for non-blocking TextReportDlg.
  * 
  * </pre>
  * 
@@ -357,6 +358,11 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
      * Allow one instance per station.
      */
     private final Map<String, RatingCurveDlg> ratingCurveDlgMap = new HashMap<String, RatingCurveDlg>();
+
+    /**
+     * Allow one instance per station.
+     */
+    private final Map<String, TextReportDlg> textReportDlgMap = new HashMap<String, TextReportDlg>();
 
     /**
      * Flood category menu item.
@@ -1422,13 +1428,34 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         textReportsMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String lid = dataList.getItem(dataList.getSelectionIndex())
-                        .trim();
-                TextReportDlg textReportDlg = new TextReportDlg(shell, lid
-                        .substring(0, lid.indexOf(" ")));
-                textReportDlg.open();
+                handleTextReportDlg();
             }
         });
+    }
+
+    /**
+     * Display Text report dialog for the selected station.
+     */
+    private void handleTextReportDlg() {
+        String lid = getStationLid();
+        TextReportDlg textReportDlg = textReportDlgMap.get(lid);
+        if (textReportDlg == null || textReportDlg.isDisposed()) {
+            textReportDlg = new TextReportDlg(shell, lid);
+            textReportDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        String lid = returnValue.toString();
+                        textReportDlgMap.remove(lid);
+                    }
+                }
+            });
+            textReportDlg.open();
+            textReportDlgMap.put(lid, textReportDlg);
+        } else {
+            textReportDlg.bringToTop();
+        }
     }
 
     /**
