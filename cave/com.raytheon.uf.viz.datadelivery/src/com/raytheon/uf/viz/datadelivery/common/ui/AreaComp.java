@@ -92,6 +92,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Mar 21, 2013  1638      mschenke     Changed map scales not tied to d2d
  * Jun 14, 2013  2064      mpduff       Reset controls on load.
  * Jun 21, 2013  2132      mpduff       Swap target and source envelopes.
+ * Jul 12, 2013  2141      mpduff       Valid envelope test happens as needed instead of when changes are made.
  * 
  * </pre>
  * 
@@ -1016,7 +1017,7 @@ public class AreaComp extends Composite implements ISubset {
      * @return the envelopeValid
      */
     public boolean isEnvelopeValid() {
-        return envelopeValid;
+        return validateBoundsText();
     }
 
     private class ValidatingFocusListener implements FocusListener {
