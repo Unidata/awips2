@@ -87,8 +87,12 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 04/24/08       @1047     randerso    Added fields to store projection information
- * 10/10/12      #1260      randerso    Added new constructor that takes a GridCoverage
+ * Apr 24, 2008 @1047      randerso    Added fields to store projection
+ *                                     information
+ * Oct 10, 2012 1260       randerso    Added new constructor that takes a
+ *                                     GridCoverage
+ * Jul 16, 2013 2181       bsteffen    Convert geometry types to use hibernate-
+ *                                     spatial
  * 
  * 
  * </pre>
@@ -184,8 +188,8 @@ public class GridLocation extends PersistableDataObject implements
     @DynamicSerializeElement
     private Coordinate extent;
 
-    @Column(name = "coverage", columnDefinition = "geometry")
-    @Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
+    @Column(name = "coverage")
+    @Type(type = "org.hibernatespatial.GeometryUserType")
     @XmlElement
     @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
