@@ -165,6 +165,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                      Changes for non-blocking DataSourcesDlg.
  *                                      Changes for non-blocking ImpactStatementDlg.
  *                                      Changes for non-blocking LowWaterStatementDlg.
+ *                                      Changes for non-blocking RatingCurveDlg.
  * 
  * </pre>
  * 
@@ -351,6 +352,11 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
      * Allow one instance per station.
      */
     private final Map<String, LowWaterStatementDlg> lowWaterStmntDlgMap = new HashMap<String, LowWaterStatementDlg>();
+
+    /**
+     * Allow one instance per station.
+     */
+    private final Map<String, RatingCurveDlg> ratingCurveDlgMap = new HashMap<String, RatingCurveDlg>();
 
     /**
      * Flood category menu item.
@@ -938,10 +944,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         ratingCurveMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                RatingCurveDlg ratingCurveDlg = new RatingCurveDlg(shell,
-                        getStationLid(), getStationAndName(), true);
-                ratingCurveDlg.open();
-
+                handleRatingCurveDlg();
             }
         });
         riverGageMenuItems.add(ratingCurveMI);
@@ -1215,6 +1218,33 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
             crestHistDlgMap.put(lid, crestHistDlg);
         } else {
             crestHistDlg.bringToTop();
+        }
+    }
+
+    /**
+     * Display Rating Curve Dialog for selected station.
+     */
+    private void handleRatingCurveDlg() {
+        String lid = getStationLid();
+        RatingCurveDlg ratingCurveDlg = ratingCurveDlgMap.get(lid);
+
+        if (ratingCurveDlg == null || ratingCurveDlg.isDisposed()) {
+            ratingCurveDlg = new RatingCurveDlg(shell, lid,
+                    getStationAndName(), true);
+            ratingCurveDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        String lid = returnValue.toString();
+                        ratingCurveDlgMap.remove(lid);
+                    }
+                }
+            });
+            ratingCurveDlg.open();
+            ratingCurveDlgMap.put(lid, ratingCurveDlg);
+        } else {
+            ratingCurveDlg.bringToTop();
         }
     }
 
