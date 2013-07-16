@@ -92,11 +92,11 @@ public class ArchiveConfigManagerTest {
 
     private final DateFormat mmFormat = new SimpleDateFormat("mm");
 
-    private Collection<File> archiveFiles = new ArrayList<File>();
+    private final Collection<File> archiveFiles = new ArrayList<File>();
 
-    private Collection<File> purgeFiles = new ArrayList<File>();
+    private final Collection<File> purgeFiles = new ArrayList<File>();
 
-    private Collection<DisplayData> archiveSelectedDisplays = new HashSet<DisplayData>();
+    private final Collection<DisplayData> archiveSelectedDisplays = new HashSet<DisplayData>();
 
     private Calendar referenceCalendar;
 
@@ -116,24 +116,8 @@ public class ArchiveConfigManagerTest {
         if (referenceCalendar == null) {
             setupTimes();
         }
-        File testLocalization = TestUtil
-                .setupTestClassDir(PathManagerFactoryTest.class);
 
         PathManagerFactoryTest.initLocalization();
-
-        // after setting up test localization get the production config files
-        // and copy them to the the test localization directory.
-        // utility/common_static/base/archive
-        File prodConfigDir = new File(
-                "../edexOsgi/com.raytheon.uf.edex.archive/utility");
-        Collection<File> configs = FileUtils.listFiles(prodConfigDir,
-                FileFilterUtils.trueFileFilter(),
-                FileFilterUtils.trueFileFilter());
-        File destDir = new File(testLocalization,
-                "utility/common_static/base/archive");
-        for (File srcConfig : configs) {
-            FileUtils.copyFileToDirectory(srcConfig, destDir);
-        }
 
         ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
 
