@@ -40,7 +40,7 @@ import com.raytheon.viz.hydrocommon.HydroDisplayManager;
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial Creation.
  * 02/05/2013   1578        rferrel     Changes for non-blocking singleton TimeSeriesDlg.
- * 07/10/2013   2166        mpduff      Select the site.
+ * 07/10/2013   2166        mpduff      Select the site but don't display the graph.
  * 
  * </pre>
  * 
@@ -53,7 +53,7 @@ public class TimeSeriesAction extends AbstractHandler {
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         TimeSeriesDlg dlg = TimeSeriesDlg.getInstance();
         dlg.updateAndOpen(HydroDisplayManager.getInstance().getCurrentLid(),
-                true);
+                false);
 
         return null;
     }
