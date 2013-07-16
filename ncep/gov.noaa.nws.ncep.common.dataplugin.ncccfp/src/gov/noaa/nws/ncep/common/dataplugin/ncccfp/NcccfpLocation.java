@@ -11,8 +11,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.hibernate.annotations.Type;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.serialization.adapters.GeometryAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -31,6 +31,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * 12/14/09		155			F. J. Yen	Updated from to11d3 to to11d6 (changed import of
  *                                      IspatialObject package to ...geospatial.ISpatialObject)
  * 05/26/10		155			F. J. Yen	Refactored from plugin for migration to to11dr11
+ * 07/16/13     2181        bsteffen    Convert geometry types to use hibernate-spatial
  * 
  * </pre>
  * 
@@ -45,8 +46,8 @@ public class NcccfpLocation implements ISpatialObject {
     private static final long serialVersionUID = 8890315829188793187L;
 
     @DataURI(position=0)
-    @Column(name = "location", columnDefinition = "geometry")
-    @Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
+    @Column(name = "location")
+    @Type(type = "org.hibernatespatial.GeometryUserType")
     @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
     private Geometry geometry;
