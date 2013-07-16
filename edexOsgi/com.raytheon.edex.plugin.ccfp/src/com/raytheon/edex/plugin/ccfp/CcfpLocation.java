@@ -45,9 +45,11 @@ import com.vividsolutions.jts.geom.Geometry;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 09/25/08     1532        bphillip    initial creation
- * 09/16/09     3027        njensen  Moved dataURI off geometry
- * 09/17/09     3072        bsteffen    Fixed type of geometry
+ * Sep 25, 2008 1532        bphillip    initial creation
+ * Sep 16, 2009 3027        njensen     Moved dataURI off geometry
+ * Sep 17, 2009 3072        bsteffen    Fixed type of geometry
+ * Jul 16, 2013 2181        bsteffen    Convert geometry types to use hibernate-
+ *                                      spatial
  * 
  * 
  * </pre>
@@ -62,8 +64,8 @@ public class CcfpLocation implements ISpatialObject {
 
     private static final long serialVersionUID = 8890315829188793187L;
 
-    @Column(name = "location", columnDefinition = "geometry")
-    @Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
+    @Column(name = "location")
+    @Type(type = "org.hibernatespatial.GeometryUserType")
     @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
     private Geometry geometry;
