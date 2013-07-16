@@ -30,8 +30,9 @@ import java.util.regex.Pattern;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 18, 2009            mnash     Initial creation
- * 03/04/2013   DCS51      zwang     Add a map type for GFM product
+ * Feb 18, 2009            mnash       Initial creation
+ * Mar 04, 2013 DCS51      zwang       Add a map type for GFM product
+ * Jul 15, 2013 2149       bsteffen    Fix radar mesocyclone regex.
  * 
  * </pre>
  * 
@@ -134,7 +135,7 @@ public class RadarConstants {
     /*
      * For parsing the tabular block for the meso product
      */
-    public static final String MESO_REGEX = "\\s*(.\\w+)\\s+(.{7})\\s+(.\\w+)\\s+(.{2})\\s+(.{2})\\s+(.{3})\\s+(.{3})\\s+(.{3})\\s+(.\\w+)\\s+(.\\w+)\\s+(.\\w+)\\s+(.\\w+)\\s\\s(.{7})\\s+(.{5})";
+    public static final String MESO_REGEX = "\\s*(\\w+)\\s+(.{7})\\s+(\\w+)\\s+(.{2})\\s+(.{2})\\s+(.{3})\\s+(.{3})\\s+(.{3})\\s+(\\w+)\\s+(\\w+)\\s+(\\w+)\\s+(\\w+)\\s\\s(.{7})\\s+(.{5})";
 
     /*
      * For breaking the MESO header out and being able to use the regex below
