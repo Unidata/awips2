@@ -59,6 +59,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------	----------	-----------	--------------------------
  * Sep 9, 2008				lvenable	Initial creation
  * Sep 18, 2009 2772        mpduff      Fixed NullPointer when opening in Read only.
+ * Jul 15, 2013 2088        rferrel     Changes for non-blocking FindReplaceDlg.
+ *                                      Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -179,37 +181,31 @@ public class TextEditorDlg extends CaveSWTDialog {
      *            Parent shell.
      * @param readOnly
      *            Read only flag.
-     * @param fileName
-     *            File name in string format.
-     */
-    public TextEditorDlg(Shell parent, boolean readOnly, String fileName) {
-        this(parent, readOnly, new File(fileName));
-    }
-
-    /**
-     * Constructor.
-     * 
-     * @param parent
-     *            Parent shell.
-     * @param readOnly
-     *            Read only flag.
      * @param file
      *            File to view/edit.
      */
     public TextEditorDlg(Shell parent, boolean readOnly, File file) {
-        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE);
-        if (textFile != null) {
-            if (readOnly == true) {
-                setText(textFile.getName() + " - (Read Only)");
-            } else {
-                setText(textFile.getName());
-            }
-        }
-
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         textFile = file;
         this.readOnly = readOnly;
+
+        if (textFile != null) {
+            StringBuilder sb = new StringBuilder("Text Editor - ");
+            sb.append(textFile.getName());
+            if (readOnly == true) {
+                sb.append(" (Read Only)");
+            }
+            setText(sb.toString());
+        }
+
+        setReturnValue(file);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -220,6 +216,11 @@ public class TextEditorDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
@@ -233,9 +234,15 @@ public class TextEditorDlg extends CaveSWTDialog {
         redoImage.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
 
         undoRedoArray = new ArrayList<String>();
@@ -252,6 +259,11 @@ public class TextEditorDlg extends CaveSWTDialog {
         textST.setFocus();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#shouldOpen()
+     */
     @Override
     protected boolean shouldOpen() {
         // Verify file name
@@ -261,12 +273,10 @@ public class TextEditorDlg extends CaveSWTDialog {
             mb.setMessage("The following file does not exist:\n"
                     + textFile.getAbsolutePath());
             mb.open();
-            setReturnValue(false);
             return false;
         }
 
         if (readFile() == false) {
-            setReturnValue(false);
             return false;
         }
         return true;
@@ -281,7 +291,6 @@ public class TextEditorDlg extends CaveSWTDialog {
         createFileMenu(menuBar);
         createEditMenu(menuBar);
         createOptionsMenu(menuBar);
-        // createHelpMenu(menuBar);
 
         shell.setMenuBar(menuBar);
     }
@@ -338,7 +347,7 @@ public class TextEditorDlg extends CaveSWTDialog {
         exitMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -652,8 +661,6 @@ public class TextEditorDlg extends CaveSWTDialog {
             br.close();
             fr.close();
         } catch (Exception e) {
-            e.printStackTrace();
-
             MessageBox mb = new MessageBox(getParent(), SWT.ICON_ERROR | SWT.OK);
             mb.setText("File Error");
             mb.setMessage("An error occurred reading the file:\n"
@@ -736,15 +743,14 @@ public class TextEditorDlg extends CaveSWTDialog {
     }
 
     /**
-     * DIsplay the find and replace dialog.
+     * Display the find and replace dialog.
      */
     private void findReplaceText() {
-        if (findReplaceDlg == null) {
+        if (findReplaceDlg == null || findReplaceDlg.isDisposed()) {
             findReplaceDlg = new FindReplaceDlg(shell, textST);
             findReplaceDlg.open();
-            findReplaceDlg = null;
         } else {
-            findReplaceDlg.bringToFront();
+            findReplaceDlg.bringToTop();
         }
     }
 
@@ -754,27 +760,18 @@ public class TextEditorDlg extends CaveSWTDialog {
     private void saveFile() {
         FileWriter fw;
 
-        // IPathManager pm = PathManagerFactory.getPathManager();
-        // LocalizationContext lc =
-        // pm.getContext(LocalizationType.COMMON_STATIC,
-        // LocalizationLevel.SITE);
-        // LocalizationFile newTextFile = pm.getLocalizationFile(lc,
-        // "hydro/" + textFile.getName());
-
         try {
-            // fw = new FileWriter(newTextFile.getFile(), false);
             fw = new FileWriter(textFile, false);
 
             fw.write(textST.getText());
             fw.flush();
             fw.close();
-            // newTextFile.save();
         } catch (IOException e) {
-            e.printStackTrace();
-            // } catch (LocalizationCommunicationException e) {
-            // e.printStackTrace();
-            // } catch (LocalizationOpFailedException e) {
-            // e.printStackTrace();
+            MessageBox mb = new MessageBox(getParent(), SWT.ICON_ERROR | SWT.OK);
+            mb.setText("File Error");
+            mb.setMessage("Unable to save file:\n" + textFile.getAbsolutePath()
+                    + "\n" + e.getMessage());
+            mb.open();
         }
     }
 
