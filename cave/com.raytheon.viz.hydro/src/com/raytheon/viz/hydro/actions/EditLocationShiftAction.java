@@ -42,6 +42,7 @@ import com.raytheon.viz.hydrocommon.texteditor.TextEditorDlg;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 18, 2010 2635       mpduff      Initial creation
+ * Jul 16, 2013 2088       rferrel     Changes for non-blocking TextEditorDlg.
  * 
  * </pre>
  * 
@@ -53,16 +54,22 @@ public class EditLocationShiftAction extends AbstractHandler {
     /** The Location Shift Config file */
     private static final String LOCATION_SHIFT_CONFIG = "hydro/config/pdc_loc_shift.txt";
 
+    /** Allow single instance of editor. */
+    private TextEditorDlg textDlg;
+
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
         IPathManager pm = PathManagerFactory.getPathManager();
         File file = pm.getStaticFile(LOCATION_SHIFT_CONFIG);
-        TextEditorDlg textDlg = null;
         if (file != null) {
-            textDlg = new TextEditorDlg(shell, false, file);
-            textDlg.open();
+            if (textDlg == null || textDlg.isDisposed()) {
+                textDlg = new TextEditorDlg(shell, false, file);
+                textDlg.open();
+            } else {
+                textDlg.bringToTop();
+            }
         } else {
 
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
