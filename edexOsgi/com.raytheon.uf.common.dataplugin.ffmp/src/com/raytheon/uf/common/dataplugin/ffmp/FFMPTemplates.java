@@ -88,6 +88,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * 03/18/13      1817       D. Hladky   Fixed issue with BOX where only 1 HUC was showing up.
  * 04/15/13      1902       M. Duff     Generic List
  * 06/10/13      2085       njensen     Use countyMap for efficiency
+ * 07/15/13      2184       dhladky     Remove all HUC's for storage except ALL
  * </pre>
  * 
  * @author dhladky
@@ -1310,6 +1311,25 @@ public class FFMPTemplates {
 
         return map;
     }
+    
+    /**
+     * Find the list of pfafs for this HUC level
+     * @param siteKey
+     * @param huc
+     * @param domains
+     * @return
+     */
+    public synchronized List<Long> getHucKeyList(String siteKey, String huc, List<DomainXML> domains) {
+
+        Set<Long> keys = new HashSet<Long>();
+
+        for (DomainXML domain: domains) {
+            LinkedHashMap<Long, ?> map = getMap(siteKey, domain.getCwa(), huc);
+            keys.addAll(map.keySet());
+        }
+        
+        return new ArrayList<Long>(keys);
+    }
 
     /**
      * Gets the template config manager
@@ -1663,23 +1683,28 @@ public class FFMPTemplates {
         }
         HashMap<String, HashMap<Long, ArrayList<FFMPVirtualGageBasinMetaData>>> virtualMap = virtualGageBasinsInParentPfaf
                 .get(dataKey);
+        ArrayList<Long> result = new ArrayList<Long>();
 
         for (DomainXML domain : domains) {
 
             HashMap<Long, ArrayList<FFMPVirtualGageBasinMetaData>> map = virtualMap
                     .get(domain.getCwa());
             if (map != null) {
+                
                 ArrayList<FFMPVirtualGageBasinMetaData> list = map.get(pfaf);
+                
                 if (list != null && !list.isEmpty()) {
-                    ArrayList<Long> result = new ArrayList<Long>();
-                    for (FFMPVirtualGageBasinMetaData md : list)
-                        result.add(md.getLookupId());
-                    return result;
+
+                    for (FFMPVirtualGageBasinMetaData md : list) {
+                        if (!result.contains(md.getLookupId())) {
+                            result.add(md.getLookupId());
+                        }
+                    }
                 }
             }
         }
 
-        return new ArrayList<Long>();
+        return result;
 
     }
 
@@ -2423,6 +2448,8 @@ public class FFMPTemplates {
         HashMap<String, HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>> virtualMap = vgbsInCounty
                 .get(dataKey);
 
+        ArrayList<Long> result = new ArrayList<Long>();
+        
         for (DomainXML domain : domains) {
 
             HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>> map = virtualMap
@@ -2432,16 +2459,17 @@ public class FFMPTemplates {
                         .get(stateCommaCnty.trim().toUpperCase());
 
                 if (list != null && !list.isEmpty()) {
-                    ArrayList<Long> result = new ArrayList<Long>();
-                    for (FFMPVirtualGageBasinMetaData md : list) {
-                        result.add(md.getLookupId());
 
+                    for (FFMPVirtualGageBasinMetaData md : list) {
+                        if (!result.contains(md.getLookupId())) {
+                            result.add(md.getLookupId());
+                        }
                     }
-                    return result;
                 }
             }
         }
-        return new ArrayList<Long>();
+        
+        return result;
     }
 
 }
