@@ -279,7 +279,6 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
         Job job = new Job("setup") {
             @Override
             protected IStatus run(IProgressMonitor monitor) {
-                ArchiveConfigManager.getInstance().reset();
                 if (!shell.isDisposed()) {
                     VizApp.runAsync(new Runnable() {
 
@@ -554,5 +553,17 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      */
     protected void removeModifiedListener(IModifyListener iModifyListener) {
         tableComp.removeModifiedListener(iModifyListener);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
+    @Override
+    protected void initializeComponents(Shell shell) {
+        ArchiveConfigManager.getInstance().reset();
     }
 }
