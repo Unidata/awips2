@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator;
  * </pre>
  * Apr 16, 2013 1912       bsteffen    Initial bulk hdf5 access for ffmp
  * Apr 18, 2013 1919       dhladky     Fixed VGB breakage
+ * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * 
  * @author dhladky
  * @version 1.0
@@ -182,8 +183,8 @@ public class FFTIProcessor {
      */
     public static FFMPDataContainer populateDataContainer(
             FFMPDataContainer sourceContainer, FFMPTemplates template,
-            ArrayList<String> hucs, Date startDate, Date endDate, String wfo,
-            SourceXML source, String siteKey) {
+            Date startDate, Date endDate, String wfo, SourceXML source,
+            String siteKey) {
 
         ArrayList<String> uris = getUris(startDate, endDate, wfo, source,
                 siteKey);
@@ -209,19 +210,11 @@ public class FFTIProcessor {
             if (!contains) {
                 try {
 
-                    if (hucs == null) {
-                        hucs = new ArrayList<String>();
-                        hucs.add(FFMPRecord.ALL);
-                    }
-
-                    for (String huc : hucs) {
-
-                        rec = populateRecord(rec, huc, template);
-                        FFMPBasinData newData = rec.getBasinData(huc);
-                        sourceContainer.addFFMPEntry(rec.getDataTime()
-                                .getRefTime(), source, newData, huc, siteKey);
-
-                    }
+                    rec = populateRecord(rec, template);
+                    FFMPBasinData newData = rec.getBasinData();
+                    sourceContainer.addFFMPEntry(
+                            rec.getDataTime().getRefTime(), source, newData,
+                            siteKey);
 
                     // System.out.println("Adding Time: "
                     // + rec.getDataTime().getRefTime());
@@ -309,8 +302,7 @@ public class FFTIProcessor {
      * @return
      * @throws PluginException
      */
-    public static FFMPRecord populateRecord(FFMPRecord rec, String huc,
-            FFMPTemplates template) throws PluginException {
+    public static FFMPRecord populateRecord(FFMPRecord rec, FFMPTemplates template) throws PluginException {
 
         try {
 
@@ -328,9 +320,9 @@ public class FFTIProcessor {
             
             // check for gage(VGB) types, if so process as a VGB
             if (source.getSourceType().equals(SOURCE_TYPE.GAGE.getSourceType())) {
-                rec.retrieveVirtualMapFromDataStore(template, huc);
+                rec.retrieveVirtualMapFromDataStore(template);
             } else {
-                rec.retrieveMapFromDataStore(template, huc);
+                rec.retrieveMapFromDataStore(template);
             }
 
             // System.out.println("Size of huc: "

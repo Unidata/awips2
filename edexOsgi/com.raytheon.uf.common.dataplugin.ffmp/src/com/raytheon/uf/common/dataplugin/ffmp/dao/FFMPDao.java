@@ -53,6 +53,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 07/01/09     2521        dhladky    Initial Creation
+ * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * 
  * </pre>
  * 
@@ -103,63 +104,36 @@ public class FFMPDao extends PluginDao {
 
                 // ignore data outside of domain
                 if (vmap.size() > 0) {
-                    for (String key : record.getBasinsMap().keySet()) {
-                        FFMPBasinData fbd = record.getBasinData(key);
-                        LinkedHashMap<Long, ?> map = template.getMap(
-                                record.getSiteKey(), domain.getCwa(), key);
 
-                        int size = 0;
-                        if (key.equals(FFMPRecord.ALL)) {
-                            for (Entry<String, FFMPVirtualGageBasinMetaData> entry : vmap
-                                    .entrySet()) {
-                                if (entry.getValue() != null) {
-                                    size++;
-                                }
-                            }
-                        } else {
-                            for (Long pfaf : map.keySet()) {
-                                ArrayList<Long> vgbpfafs = template
-                                        .getVGBsInAggregate(pfaf,
-                                                record.getSiteKey(), key);
-                                if (vgbpfafs != null) {
-                                    size++;
-                                }
-                            }
+                    FFMPBasinData fbd = record.getBasinData();
+                    int size = 0;
+
+                    for (Entry<String, FFMPVirtualGageBasinMetaData> entry : vmap
+                            .entrySet()) {
+                        if (entry.getValue() != null) {
+                            size++;
                         }
-
-                        float[] dataRec = new float[size];
-                        int i = 0;
-
-                        if (key.equals(FFMPRecord.ALL)) {
-                            for (Entry<String, FFMPVirtualGageBasinMetaData> entry : vmap
-                                    .entrySet()) {
-                                if (entry.getValue() != null) {
-                                    FFMPVirtualGageBasin bd = (FFMPVirtualGageBasin) fbd
-                                            .get(entry.getValue().getLookupId());
-                                    dataRec[i] = bd.getValue();
-                                    i++;
-                                }
-                            }
-                        } else {
-                            for (Long pfaf : map.keySet()) {
-                                ArrayList<Long> vgbpfafs = template
-                                        .getVGBsInAggregate(pfaf,
-                                                record.getSiteKey(), key);
-                                if (vgbpfafs != null) {
-                                    FFMPVirtualGageBasin bd = (FFMPVirtualGageBasin) fbd
-                                            .get(pfaf);
-                                    dataRec[i] = bd.getValue();
-                                    i++;
-                                }
-                            }
-                        }
-
-                        // NAME | GROUP | array |Dimension | dimensions
-                        IDataRecord rec = new FloatDataRecord(key,
-                                record.getDataURI() + "/" + domain.getCwa(),
-                                dataRec, 1, new long[] { size });
-                        dataStore.addDataRecord(rec);
                     }
+
+                    float[] dataRec = new float[size];
+                    int i = 0;
+
+                    for (Entry<String, FFMPVirtualGageBasinMetaData> entry : vmap
+                            .entrySet()) {
+                        if (entry.getValue() != null) {
+                            FFMPVirtualGageBasin bd = (FFMPVirtualGageBasin) fbd
+                                    .get(entry.getValue().getLookupId());
+                            dataRec[i] = bd.getValue();
+                            i++;
+                        }
+                    }
+
+                    // NAME | GROUP | array |Dimension | dimensions
+                    IDataRecord rec = new FloatDataRecord(FFMPRecord.ALL,
+                            record.getDataURI() + "/" + domain.getCwa(),
+                            dataRec, 1, new long[] { size });
+                    dataStore.addDataRecord(rec);
+
                 } else {
                     statusHandler.handle(Priority.DEBUG, "No VGB's in domain: "
                             + domain.getCwa());
@@ -170,44 +144,40 @@ public class FFMPDao extends PluginDao {
 
         else {
 
-            for (String huc : record.getBasinsMap().keySet()) {
+            if (record.getBasinData() != null) {
 
-                if (record.getBasinData(huc) != null) {
+                for (DomainXML domain : template.getDomains()) {
 
-                    for (DomainXML domain : template.getDomains()) {
+                    LinkedHashMap<Long, ?> map = template.getMap(
+                            record.getSiteKey(), domain.getCwa(),
+                            FFMPRecord.ALL);
+                    FFMPBasinData fbd = record.getBasinData();
+                    // ignore data outside domain
+                    if (map.size() > 0 && fbd.getBasins().size() > 0) {
+                        int size = map.size();
 
-                        LinkedHashMap<Long, ?> map = template.getMap(
-                                record.getSiteKey(), domain.getCwa(), huc);
-                        FFMPBasinData fbd = record.getBasinData(huc);
-                        // ignore data outside domain
-                        if (map.size() > 0 && fbd.getBasins().size() > 0) {
-                            int size = map.size();
-
-                            float[] dataRec = new float[size];
-                            int i = 0;
-                            // write individual basins, use template, preserves
-                            // ordering
-                            for (Long pfaf : map.keySet()) {
-                                FFMPBasin bd = fbd.get(pfaf);
-                                if (bd != null) {
-                                    dataRec[i] = bd.getValue();
-                                    i++;
-                                }
+                        float[] dataRec = new float[size];
+                        int i = 0;
+                        // write individual basins, use template, preserves
+                        // ordering
+                        for (Long pfaf : map.keySet()) {
+                            FFMPBasin bd = fbd.get(pfaf);
+                            if (bd != null) {
+                                dataRec[i] = bd.getValue();
+                                i++;
                             }
-                            // NAME | GROUP | array |Dimension | dimensions
-                            if (i > 0) {
-                                IDataRecord rec = new FloatDataRecord(huc,
-                                        record.getDataURI() + "/"
-                                                + domain.getCwa(), dataRec, 1,
-                                        new long[] { size });
-                                dataStore.addDataRecord(rec);
-                            }
-                        } else {
-                            statusHandler.handle(
-                                    Priority.DEBUG,
-                                    "Data outside of domain: "
-                                            + domain.getCwa());
                         }
+                        // NAME | GROUP | array |Dimension | dimensions
+                        if (i > 0) {
+                            IDataRecord rec = new FloatDataRecord(
+                                    FFMPRecord.ALL, record.getDataURI() + "/"
+                                            + domain.getCwa(), dataRec, 1,
+                                    new long[] { size });
+                            dataStore.addDataRecord(rec);
+                        }
+                    } else {
+                        statusHandler.handle(Priority.DEBUG,
+                                "Data outside of domain: " + domain.getCwa());
                     }
                 }
             }
