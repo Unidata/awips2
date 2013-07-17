@@ -119,6 +119,7 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg implements
      */
     @Override
     protected void initializeComponents(Shell shell) {
+        super.initializeComponents(shell);
         setText("Archive Retention");
         Composite mainComp = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(1, false);
@@ -126,8 +127,6 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg implements
         gl.marginWidth = 0;
         gl.horizontalSpacing = 0;
         mainComp.setLayout(gl);
-        ArchiveConfigManager.getInstance().reset();
-
         init();
     }
 
