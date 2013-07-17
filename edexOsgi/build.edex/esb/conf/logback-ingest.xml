@@ -69,22 +69,7 @@
          <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
       </encoder>
    </appender> 
-   
-   <!-- GFEPerformance log --> 
-   <appender name="GFEPerformanceLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-ingest-GFEPerformance-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
-   </appender>
-
-   <appender name="GFEPerformanceLogAsync" class="ch.qos.logback.classic.AsyncAppender">            
-      <appender-ref ref="GFEPerformanceLog" />
-   </appender> 
-
+      
    <!-- Purge log --> 
    <appender name="PurgeLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
       <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
