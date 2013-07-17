@@ -5,7 +5,7 @@ Bundle-SymbolicName: com.raytheon.viz.redbook;singleton:=true
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Activator: com.raytheon.viz.redbook.Activator
 Bundle-Vendor: Raytheon
-Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.common.serialization
 Require-Bundle: org.apache.batik,
  org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -13,7 +13,7 @@ Require-Bundle: org.apache.batik,
  org.geotools,
  com.raytheon.viz.ui,
  org.apache.commons.lang,
- com.raytheon.edex.common,
+ com.raytheon.uf.common.serialization,
  com.raytheon.edex.plugin.redbook,
  com.raytheon.uf.common.pointdata;bundle-version="1.11.26",
  com.raytheon.viz.pointdata;bundle-version="1.11.26",
@@ -24,3 +24,4 @@ Export-Package: com.raytheon.viz.redbook,
  com.raytheon.viz.redbook.rsc,
  com.raytheon.viz.redbookua.rsc
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.uf.common.colormap.prefs
