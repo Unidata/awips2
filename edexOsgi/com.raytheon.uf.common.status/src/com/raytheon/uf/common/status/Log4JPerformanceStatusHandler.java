@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 14, 2013   1584     mpduff      Initial creation
+ * Jun 27, 2013   2142     njensen     Switched to SLF4J
  * 
  * </pre>
  * 
