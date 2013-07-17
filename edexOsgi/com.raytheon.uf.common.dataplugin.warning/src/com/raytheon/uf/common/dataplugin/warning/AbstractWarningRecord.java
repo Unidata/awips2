@@ -49,9 +49,12 @@ import com.vividsolutions.jts.geom.Geometry;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 03/12/2007   1003        bwoodle     initial creation
- * 04/12/2013   1857        bgonzale    Added SequenceGenerator annotation.
- * 05/02/2013   1949        rjpeter     Moved ugcZones to be a column inside table.
+ * Mar 12, 2007 1003        bwoodle     initial creation
+ * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
+ * May 02, 2013 1949        rjpeter     Moved ugcZones to be a column inside
+ *                                      table.
+ * Jul 16, 2013 2181        bsteffen    Convert geometry types to use hibernate-
+ *                                      spatial
  * </pre>
  * 
  * @author bwoodle
@@ -143,8 +146,8 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
     @DynamicSerializeElement
     private boolean ufn;
 
-    @Column(name = "geometry", columnDefinition = "geometry")
-    @Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
+    @Column
+    @Type(type = "org.hibernatespatial.GeometryUserType")
     @DynamicSerializeElement
     private Geometry geometry;
 

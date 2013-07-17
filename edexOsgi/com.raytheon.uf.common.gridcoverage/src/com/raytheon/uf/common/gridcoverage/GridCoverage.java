@@ -68,10 +68,12 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 4/7/09       1994        bphillip    Initial Creation
+ * Apr 07, 2009 1994        bphillip    Initial Creation
  * Sep 07, 2012 1102        djohnson    Add missing JAXB annotations.
- * 09/10/2012   DR 15270    D. Friedman Fix subgrid model name handling.
+ * Sep 10, 2012 15270       D. Friedman Fix subgrid model name handling.
  * Nov 02, 2012 1302        djohnson    Remove commented out code.
+ * Jul 16, 2013 2181        bsteffen    Convert geometry types to use hibernate-
+ *                                      spatial
  * 
  * </pre>
  * 
@@ -113,8 +115,8 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     protected String description;
 
     /** Geometry object holding the corner points of the grid */
-    @Column(name = "the_geom", columnDefinition = "geometry")
-    @Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
+    @Column(name = "the_geom")
+    @Type(type = "org.hibernatespatial.GeometryUserType")
     @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
     protected Geometry geometry;
