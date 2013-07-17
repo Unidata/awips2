@@ -31,7 +31,6 @@ import javax.persistence.Transient;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.common.time.util.ImmutableDate;
 
 /**
  * FFMP basin/aggregated value holder
@@ -48,6 +47,7 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  *                                      from aggregate records and delayed
  *                                      TreeMap creation to the tertiary loader.
  * Apr 26, 2013 1954        bsteffen    Minor code cleanup throughout FFMP.
+ * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * 
  * </pre>
  * 
