@@ -53,6 +53,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Mar 24, 2009            njensen     Initial creation
  * Feb 26, 2013 1447       dgilling    Implement equals().
  * May 10, 2013 1951       rjpeter     Added own id sequence tagging
+ * Jul 16, 2013 2181       bsteffen    Convert geometry types to use hibernate-
+ *                                     spatial
  * </pre>
  * 
  * @author njensen
@@ -141,8 +143,8 @@ public abstract class ActiveTableRecord extends PersistableDataObject {
     @DynamicSerializeElement
     protected boolean ufn;
 
-    @Column(name = "geometry", columnDefinition = "geometry")
-    @Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
+    @Column
+    @Type(type = "org.hibernatespatial.GeometryUserType")
     @DynamicSerializeElement
     protected Geometry geometry;
 
