@@ -191,6 +191,19 @@ public class ArchiveConfig implements Comparable<ArchiveConfig> {
         this.categoryList = categoryList;
     }
 
+    /**
+     * Check for required entries.
+     */
+    public boolean isValid() {
+        return (name != null) && (rootDir != null) && (categoryList != null)
+                && (categoryList.size() > 0);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
     @Override
     public int compareTo(ArchiveConfig o) {
         return getName().compareToIgnoreCase(o.getName());
