@@ -14,7 +14,6 @@ Export-Package: com.raytheon.edex.colormap,
  com.raytheon.edex.db.purge,
  com.raytheon.edex.esb,
  com.raytheon.edex.exception,
- com.raytheon.edex.jmx,
  com.raytheon.edex.msg,
  com.raytheon.edex.plugin,
  com.raytheon.edex.plugin.factory,
@@ -58,6 +57,4 @@ Require-Bundle: net.sf.ehcache,
  org.slf4j;bundle-version="1.7.5"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: junit.framework,
- org.hamcrest,
- org.jmock.api,
  org.junit
