@@ -169,6 +169,8 @@ import com.vividsolutions.jts.geom.Point;
  * Apr 26, 2013  1954       bsteffen    Minor code cleanup throughout FFMP.
  * Jun 06, 2013  2075       njensen     No longer schedules load threads,
  *                                       refactored updates
+ * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
+ *                                       
  * 
  * </pre>
  * 
@@ -598,15 +600,12 @@ public class FFMPResource extends
     private FFMPBasin getBasin(Long key, FFMPRecord.FIELDS bfield,
             Date recentTime, boolean aggregate) throws VizException {
         FFMPBasin basin = null;
-
-        String huc = null;
         if (aggregate) {
-            huc = getHuc();
+            basin = new FFMPBasin(key, aggregate);
         } else {
-            huc = FFMPRecord.ALL;
+            basin = getRecord(bfield, recentTime).getBasinData().getBasins()
+                    .get(key);
         }
-        basin = getRecord(bfield, recentTime).getBasinData(huc).getBasins()
-                .get(key);
 
         return basin;
     }
@@ -680,14 +679,14 @@ public class FFMPResource extends
                     break;
                 }
                 case RATE: {
-                    value = getRateRecord(recentTime).getBasinData(
-                            FFMPRecord.ALL).getMaxValue(pfafs, recentTime);
+                    value = getRateRecord(recentTime).getBasinData()
+                            .getMaxValue(pfafs, recentTime);
                     break;
                 }
                 case QPF: {
-                    value = getQpfRecord(recentTime).getBasinData(
-                            FFMPRecord.ALL).getAverageMaxValue(pfafs,
-                            recentTime, getQpfSourceExpiration());
+                    value = getQpfRecord(recentTime).getBasinData()
+                            .getAverageMaxValue(pfafs, recentTime,
+                                    getQpfSourceExpiration());
                     break;
                 }
                 case GUIDANCE: {
@@ -695,21 +694,17 @@ public class FFMPResource extends
                             .getCountyFipsByPfaf(pfafs.get(0));
 
                     value = getGuidanceRecord()
-                            .getBasinData(FFMPRecord.ALL)
+                            .getBasinData()
                             .getMaxGuidanceValue(pfafs,
                                     getGuidanceInterpolation(getFFGName()),
                                     getGuidSourceExpiration(getFFGName()), fips);
                     break;
                 }
                 case QPE: {
-                    value = getQpeRecord().getBasinData(FFMPRecord.ALL)
-                            .getAccumMaxValue(
-                                    pfafs,
-                                    recentTime,
-                                    getTableTime(),
-                                    getQpeSourceExpiration(),
-                                    getResourceData().getPrimarySourceXML()
-                                            .isRate());
+                    value = getQpeRecord().getBasinData().getAccumMaxValue(
+                            pfafs, recentTime, getTableTime(),
+                            getQpeSourceExpiration(),
+                            getResourceData().getPrimarySourceXML().isRate());
                     break;
                 }
                 }
@@ -737,32 +732,64 @@ public class FFMPResource extends
                         break;
                     }
                     case RATE:
-                        value = getBasin(key, field, recentTime, aggregate)
-                                .getValue(recentTime);
+                        if (aggregate) {
+                            value = getRateRecord(recentTime).getBasinData()
+                                    .getAverageValue(pfafs, recentTime);
+                        } else {
+                            value = getBasin(key, field, recentTime, aggregate)
+                                    .getValue(recentTime);
+                        }
+
                         break;
                     case QPF: {
-                        value = getBasin(key, field, recentTime, aggregate)
-                                .getAverageValue(recentTime,
-                                        getQpfSourceExpiration());
+                        if (aggregate) {
+                            value = getQpfRecord(recentTime).getBasinData()
+                                    .getAverageValue(pfafs, recentTime,
+                                            getQpfSourceExpiration());
+                        } else {
+                            value = getBasin(key, field, recentTime, aggregate)
+                                    .getAverageValue(recentTime,
+                                            getQpfSourceExpiration());
+                        }
                         break;
                     }
                     case GUIDANCE: {
-
-                        value = getGuidanceValue(
-                                (FFMPGuidanceBasin) getBasin(key, field,
-                                        recentTime, aggregate), recentTime,
-                                getFFGName());
-
+                        if (aggregate) {
+                            getGuidanceRecord()
+                                    .getBasinData()
+                                    .getAverageGuidanceValue(
+                                            pfafs,
+                                            getGuidanceInterpolation(getFFGName()),
+                                            getGuidSourceExpiration(getFFGName()));
+                        } else {
+                            value = getGuidanceValue(
+                                    (FFMPGuidanceBasin) getBasin(key, field,
+                                            recentTime, aggregate), recentTime,
+                                    getFFGName());
+                        }
                         break;
                     }
                     case QPE: {
-                        value = getBasin(key, field, recentTime, aggregate)
-                                .getAccumValue(
-                                        getTableTime(),
-                                        recentTime,
-                                        getQpeSourceExpiration(),
-                                        getResourceData().getPrimarySourceXML()
-                                                .isRate());
+                        if (aggregate) {
+                            value = getQpeRecord().getBasinData()
+                                    .getAccumAverageValue(
+                                            pfafs,
+                                            getTableTime(),
+                                            recentTime,
+                                            getQpeSourceExpiration(),
+                                            getResourceData()
+                                                    .getPrimarySourceXML()
+                                                    .isRate());
+                        } else {
+                            value = getBasin(key, field, recentTime, aggregate)
+                                    .getAccumValue(
+                                            getTableTime(),
+                                            recentTime,
+                                            getQpeSourceExpiration(),
+                                            getResourceData()
+                                                    .getPrimarySourceXML()
+                                                    .isRate());
+                        }
                         break;
                     }
                     }
@@ -810,17 +837,15 @@ public class FFMPResource extends
             boolean forced = forceResult.isForced();
             if ((forcedPfafs.size() > 0) && forced) {
                 // Recalculate the guidance using the forced value(s)
-                value = guidRecord.getBasinData(FFMPRecord.ALL)
-                        .getAverageGuidanceValue(pfafList,
-                                this.getGuidanceInterpolation(ffgType),
-                                new Float(value), forcedPfafs,
-                                getGuidSourceExpiration(ffgType));
+                value = guidRecord.getBasinData().getAverageGuidanceValue(
+                        pfafList, this.getGuidanceInterpolation(ffgType),
+                        new Float(value), forcedPfafs,
+                        getGuidSourceExpiration(ffgType));
             } else if (forcedPfafs.size() > 0) {
-                value = guidRecord.getBasinData(FFMPRecord.ALL)
-                        .getAverageGuidanceValue(pfafList,
-                                this.getGuidanceInterpolation(ffgType),
-                                Float.NaN, forcedPfafs,
-                                getGuidSourceExpiration(ffgType));
+                value = guidRecord.getBasinData().getAverageGuidanceValue(
+                        pfafList, this.getGuidanceInterpolation(ffgType),
+                        Float.NaN, forcedPfafs,
+                        getGuidSourceExpiration(ffgType));
             }
         }
 
@@ -906,10 +931,8 @@ public class FFMPResource extends
 
         if ((rateRecord == null) && isNewRate) {
             try {
-                String huc = getHucIfWorstCase();
                 rateRecord = monitor.getRateRecord(getProduct(), getSiteKey(),
-                        getDataKey(), getPrimarySource(), recentTime, huc,
-                        false);
+                        getDataKey(), getPrimarySource(), recentTime, false);
                 isNewRate = false;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -926,10 +949,9 @@ public class FFMPResource extends
     public FFMPRecord getQpeRecord() {
         try {
             if ((qpeRecord == null) && (getTableTime() != null) && isNewQpe) {
-                String huc = getHucIfWorstCase();
-                qpeRecord = monitor.getQPERecord(getProduct(), getSiteKey(),
-                        getDataKey(), getPrimarySource(), getTableTime(), huc,
-                        false);
+                qpeRecord = monitor
+                        .getQPERecord(getProduct(), getSiteKey(), getDataKey(),
+                                getPrimarySource(), getTableTime(), false);
                 isNewQpe = false;
             }
         } catch (Exception e) {
@@ -992,9 +1014,8 @@ public class FFMPResource extends
                     }
                 }
 
-                String huc = getHucIfWorstCase();
                 qpfRecord = monitor.getQPFRecord(getProduct(), getSiteKey(),
-                        getDataKey(), getPrimarySource(), date, huc, false);
+                        getDataKey(), getPrimarySource(), date, false);
                 isNewQpf = false;
             }
         } catch (Exception e) {
@@ -1014,7 +1035,7 @@ public class FFMPResource extends
             if ((virtualRecord == null) && isNewVirtual) {
                 virtualRecord = monitor.getVirtualRecord(getProduct(),
                         getSiteKey(), getDataKey(), getPrimarySource(),
-                        getTableTime(), FFMPRecord.ALL, false);
+                        getTableTime(), false);
                 isNewVirtual = false;
             }
 
@@ -1801,13 +1822,13 @@ public class FFMPResource extends
                     List<Float> guids = null;
                     if ((getQpeRecord() != null)
                             && (getGuidanceRecord() != null)) {
-                        qpes = getQpeRecord().getBasinData(FFMPRecord.ALL)
+                        qpes = getQpeRecord().getBasinData()
                                 .getAccumValues(pfafs, getTableTime(),
                                         recentTime, getQpeSourceExpiration(),
                                         isRate());
 
                         guids = getGuidanceRecord()
-                                .getBasinData(FFMPRecord.ALL)
+                                .getBasinData()
                                 .getGuidanceValues(pfafs,
                                         getGuidanceInterpolation(ffgType),
                                         getGuidSourceExpiration(ffgType));
@@ -1818,20 +1839,19 @@ public class FFMPResource extends
                 } else {
                     if ((getQpeRecord() != null)
                             && (getGuidanceRecord() != null)) {
-                        qpe = getQpeRecord()
-                                .getBasinData(getHuc())
-                                .get(key)
-                                .getAccumValue(
+                        qpe = getQpeRecord().getBasinData()
+                                .getAccumAverageValue(
+                                        pfafs,
                                         getTableTime(),
                                         recentTime,
                                         getQpeSourceExpiration(),
                                         getResourceData().getPrimarySourceXML()
                                                 .isRate());
 
-                        guid = getGuidanceValue(
-                                (FFMPGuidanceBasin) getGuidanceRecord()
-                                        .getBasinData(getHuc()).get(key),
-                                recentTime, ffgType);
+                        guid = getGuidanceRecord().getBasinData()
+                                .getAverageGuidanceValue(pfafs,
+                                        getGuidanceInterpolation(ffgType),
+                                        getGuidSourceExpiration(ffgType));
 
                         diff = FFMPUtils.getDiffValue(qpe, guid);
                     }
@@ -1839,14 +1859,14 @@ public class FFMPResource extends
             } else {
                 if ((getQpeRecord() != null) && (getGuidanceRecord() != null)) {
                     qpe = getQpeRecord()
-                            .getBasinData(FFMPRecord.ALL)
+                            .getBasinData()
                             .get(key)
                             .getAccumValue(getTableTime(), recentTime,
                                     getQpeSourceExpiration(), isRate());
 
                     guid = getGuidanceValue(
                             (FFMPGuidanceBasin) getGuidanceRecord()
-                                    .getBasinData(FFMPRecord.ALL).get(key),
+                                    .getBasinData().get(key),
                             recentTime, ffgType);
                     guid = forceValue(pfafs,
                             getBasin(key, getField(), recentTime, aggregate),
@@ -1881,14 +1901,14 @@ public class FFMPResource extends
                     List<Float> qpes = null;
                     List<Float> guids = null;
                     if (getQpeRecord() != null) {
-                        qpes = getQpeRecord().getBasinData(FFMPRecord.ALL)
+                        qpes = getQpeRecord().getBasinData()
                                 .getAccumValues(pfafs, getTableTime(),
                                         recentTime, getQpeSourceExpiration(),
                                         isRate());
                     }
                     if (getGuidanceRecord() != null) {
                         guids = getGuidanceRecord()
-                                .getBasinData(FFMPRecord.ALL)
+                                .getBasinData()
                                 .getGuidanceValues(pfafs,
                                         getGuidanceInterpolation(ffgType),
                                         getGuidSourceExpiration(ffgType));
@@ -1899,32 +1919,31 @@ public class FFMPResource extends
                 } else {
                     if ((getQpeRecord() != null)
                             && (getGuidanceRecord() != null)) {
-                        qpe = getQpeRecord()
-                                .getBasinData(getHuc())
-                                .get(key)
-                                .getAccumValue(
+                        qpe = getQpeRecord().getBasinData()
+                                .getAccumAverageValue(
+                                        pfafs,
                                         getTableTime(),
                                         recentTime,
                                         getQpeSourceExpiration(),
                                         getResourceData().getPrimarySourceXML()
                                                 .isRate());
-                        guid = getGuidanceValue(
-                                (FFMPGuidanceBasin) getGuidanceRecord()
-                                        .getBasinData(getHuc()).get(key),
-                                recentTime, ffgType);
-                        ratio = FFMPUtils.getRatioValue(qpe, guid);
+
+                        guid = getGuidanceRecord().getBasinData()
+                                .getAverageGuidanceValue(pfafs,
+                                        getGuidanceInterpolation(ffgType),
+                                        getGuidSourceExpiration(ffgType));
                     }
                 }
             } else {
                 if ((getQpeRecord() != null) && (getGuidanceRecord() != null)) {
                     qpe = getQpeRecord()
-                            .getBasinData(FFMPRecord.ALL)
+                            .getBasinData()
                             .get(key)
                             .getAccumValue(getTableTime(), recentTime,
                                     getQpeSourceExpiration(), isRate());
                     guid = getGuidanceValue(
                             (FFMPGuidanceBasin) getGuidanceRecord()
-                                    .getBasinData(FFMPRecord.ALL).get(key),
+                                    .getBasinData().get(key),
                             recentTime, ffgType);
                     ratio = FFMPUtils.getRatioValue(qpe, guid);
                 }
@@ -4043,5 +4062,5 @@ public class FFMPResource extends
         }
         return dataTimes;
     }
-
+   
 }
