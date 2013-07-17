@@ -5,7 +5,7 @@ Bundle-SymbolicName: com.raytheon.viz.volumebrowser;singleton:=true
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Activator: com.raytheon.viz.volumebrowser.Activator
 Bundle-Vendor: Raytheon
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.viz.ui.menus
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization, com.raytheon.uf.viz.ui.menus
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.viz.core,
@@ -24,6 +24,7 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.xy,
  com.raytheon.uf.viz.objectiveanalysis,
  com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.serialization,
  net.sf.swtaddons;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
  com.raytheon.uf.viz.points;bundle-version="1.0.0",
