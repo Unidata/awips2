@@ -20,6 +20,9 @@
 
 package gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections;
 
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.exception.GribException;
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.subgrid.SubNcgrid;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -38,8 +41,6 @@ import org.hibernate.annotations.Type;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.exception.GribException;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.subgrid.SubNcgrid;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -57,8 +58,10 @@ import com.vividsolutions.jts.geom.Polygon;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 4/7/09       1994        bphillip    Initial Creation
- * 5/23/12                  xguo        Merged 4 coverage tables into one
+ * Apr 07, 2009 1994        bphillip    Initial Creation
+ * May 23, 2012             xguo        Merged 4 coverage tables into one
+ * Jul 16, 2013 2181        bsteffen    Convert geometry types to use hibernate-
+ *                                      spatial
  * 
  * </pre>
  * 
@@ -93,8 +96,8 @@ public abstract class NcgridCoverage extends PersistableDataObject implements
     protected String description;
 
     /** Geometry object holding the corner points of the grid */
-    @Column(name = "the_geom", columnDefinition = "geometry")
-    @Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
+    @Column(name = "the_geom")
+    @Type(type = "org.hibernatespatial.GeometryUserType")
     @DynamicSerializeElement
     protected Polygon geometry;
 
