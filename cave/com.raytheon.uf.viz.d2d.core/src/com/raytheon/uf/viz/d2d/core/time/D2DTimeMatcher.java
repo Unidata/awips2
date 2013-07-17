@@ -104,7 +104,6 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
         /** The number of frames time matched against */
         private int lastFrameCount;
 
-
         public DataTime[] getLastBaseTimes() {
             return lastBaseTimes;
         }
@@ -195,6 +194,32 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
         }
     }
 
+    /**
+     * Checks if a resource is contained in the {@link IResourceGroup}
+     * recursively checking for {@link IResourceGroup}s in the group's list
+     * 
+     * @param group
+     * @param resource
+     * @return
+     */
+    private boolean contained(IResourceGroup group,
+            AbstractVizResource<?, ?> resource) {
+        ResourceList list = group.getResourceList();
+        if (list.containsRsc(resource)) {
+            return true;
+        } else {
+            for (ResourcePair rp : list) {
+                if (rp.getResourceData() instanceof IResourceGroup) {
+                    if (contained((IResourceGroup) rp.getResourceData(),
+                            resource)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -205,8 +230,13 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
         synchronized (this) {
             if (timeMatchBasis != null) {
                 IDescriptor tmDescriptor = timeMatchBasis.getDescriptor();
-                if (tmDescriptor != null && tmDescriptor != descriptor) {
-                    redoTimeMatching(timeMatchBasis.getDescriptor());
+                if (tmDescriptor != null) {
+                    if (tmDescriptor != descriptor) {
+                        redoTimeMatching(tmDescriptor);
+                    } else if (contained(tmDescriptor, timeMatchBasis) == false) {
+                        // Checks to ensure the timeMatchBasis is not "orphaned"
+                        timeMatchBasis = null;
+                    }
                 }
             }
             FramesInfo currInfo = descriptor.getFramesInfo();
@@ -499,7 +529,7 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
                 DataTime[] times = makeEmptyLoadList(numberOfFrames, rsc);
                 if (times != null) {
                     TimeCache cache = getTimeCache(rsc);
-                    synchronized(cache){
+                    synchronized (cache) {
                         cache.setTimes(null, times, numberOfFrames);
                     }
                     return times;
