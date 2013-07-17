@@ -46,8 +46,10 @@ import com.vividsolutions.jts.geom.Polygon;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 29, 2011            bclement     Initial creation
- * 04/22/2013   1746      dhladky      Removed DB dependency from WFS code
+ * Mar 29, 2011            bclement    Initial creation
+ * Apr 22, 2013 1746       dhladky     Removed DB dependency from WFS code
+ * Jul 16, 2013 2181       bsteffen    Convert geometry types to use hibernate-
+ *                                     spatial
  *
  **/
 
@@ -89,7 +91,7 @@ public abstract class SimpleLayer<DIMENSION extends SimpleDimension> {
 	@DynamicSerializeElement
 	protected double targetMaxy;
 
-	@Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
+    @Type(type = "org.hibernatespatial.GeometryUserType")
 	@XmlJavaTypeAdapter(value = GeometryAdapter.class)
 	@DynamicSerializeElement
 	protected Polygon crs84Bounds;
