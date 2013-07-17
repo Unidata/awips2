@@ -4,7 +4,6 @@ Bundle-Name: Jep Plug-in
 Bundle-SymbolicName: org.jep
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Raytheon-bundled OSS
-Require-Bundle: org.eclipse.core.runtime
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: jep.jar
 Export-Package: jep
