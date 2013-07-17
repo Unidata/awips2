@@ -41,6 +41,7 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.GridSampler;
 import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
+import com.raytheon.uf.common.geospatial.interpolation.PrecomputedGridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -56,7 +57,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 9, 2011            bsteffen     Initial creation
+ * Mar 09, 2011            bsteffen    Initial creation
+ * Jul 17, 2013 2185       bsteffen    Cache computed grid reprojections.
  * 
  * </pre>
  * 
@@ -217,7 +219,8 @@ public class GeneralGridData {
             Interpolation interpolation) throws FactoryException,
             TransformException {
         GridGeometry2D newGeom = GridGeometry2D.wrap(newGridGeometry);
-        GridReprojection reproj = new GridReprojection(gridGeometry, newGeom);
+        GridReprojection reproj = PrecomputedGridReprojection.getReprojection(
+                gridGeometry, newGeom);
         GridSampler sampler = new GridSampler(interpolation);
         if (isVector()) {
             sampler.setSource(new FloatBufferWrapper(getUComponent(),
