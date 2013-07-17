@@ -77,11 +77,6 @@
       <level value="Info"/>
       <appender-ref ref="ThriftSrvRequestLogAsync" />
    </logger>
-   
-   <logger name="GFEPerformanceLogger" additivity="false">
-      <level value="DEBUG"/>
-      <appender-ref ref="PerformanceLogAsync" />
-   </logger>
 
    <logger name="PerformanceLogger" additivity="false">
       <level value="DEBUG"/>
