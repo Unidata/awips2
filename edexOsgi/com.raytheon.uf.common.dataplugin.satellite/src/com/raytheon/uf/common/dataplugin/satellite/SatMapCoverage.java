@@ -58,9 +58,10 @@ import com.vividsolutions.jts.geom.Polygon;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 7/24/07      353         bphillip   Initial Checkin
- * - AWIPS2 Baseline Repository --------
- * 07/12/2012    798        jkorman     Changed projection "magic" numbers 
+ * Jul 24, 2007 353         bphillip    Initial Checkin
+ * Jul 12, 2012 798         jkorman     Changed projection "magic" numbers
+ * Jul 16, 2013 2181        bsteffen    Convert geometry types to use hibernate-
+ *                                      spatial
  * 
  * </pre>
  */
@@ -177,8 +178,8 @@ public class SatMapCoverage extends PersistableDataObject implements
 	private CoordinateReferenceSystem crsObject;
 
 	/** The map coverage */
-	@Column(name = "the_geom", columnDefinition = "geometry")
-	@Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
+    @Column(name = "the_geom")
+    @Type(type = "org.hibernatespatial.GeometryUserType")
 	@XmlJavaTypeAdapter(value = GeometryAdapter.class)
 	@DynamicSerializeElement
 	private Polygon location;
