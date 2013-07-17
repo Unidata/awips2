@@ -43,9 +43,9 @@ import org.hibernate.annotations.Type;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.ProjectedCRS;
 
-import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.adapters.GeometryAdapter; 
+import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.serialization.adapters.GeometryAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
@@ -179,8 +179,8 @@ public class McidasMapCoverage extends PersistableDataObject implements ISpatial
     private CoordinateReferenceSystem crsObject;
 
     /** The map coverage */
-    @Column(name = "the_geom", columnDefinition = "geometry")
-    @Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
+    @Column(name = "the_geom")
+    @Type(type = "org.hibernatespatial.GeometryUserType")
     @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
     private Polygon location;
