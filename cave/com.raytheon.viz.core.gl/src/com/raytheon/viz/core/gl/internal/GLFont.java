@@ -20,9 +20,9 @@
 
 package com.raytheon.viz.core.gl.internal;
 
-import java.awt.Font;
 import java.io.File;
 
+import com.raytheon.uf.viz.core.drawables.AbstractAWTFont;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.viz.core.gl.IGLFont;
 import com.sun.opengl.util.j2d.TextRenderer;
@@ -36,6 +36,7 @@ import com.sun.opengl.util.j2d.TextRenderer;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 7, 2007             chammack    Initial Creation.
+ * Jul 24, 2013       2189 mschenke    Refactored to share common awt font code
  * 
  * </pre>
  * 
@@ -43,78 +44,33 @@ import com.sun.opengl.util.j2d.TextRenderer;
  * @version 1.0
  */
 
-public class GLFont implements IGLFont {
+public class GLFont extends AbstractAWTFont implements IGLFont {
 
     private boolean disposed = false;
-
-    private String fontName;
 
     private float fontSize;
 
     private float currentFontSize;
 
-    private Style[] styles;
-
-    private Font font;
-
     private TextRenderer textRenderer;
-
-    private boolean smoothing = true;
 
     private File fontFile;
 
+    private FontType fontType;
+
     private float magnification = 1.0f;
 
-    private boolean scaleFont = true;
-
-    public GLFont() {
-        ;
-    }
-
-    public GLFont(File font, float fontSize, Style[] styles) {
-        try {
-            this.fontName = font.getName();
-            this.font = Font.createFont(Font.TRUETYPE_FONT, font).deriveFont(
-                    fontSize);
-            this.currentFontSize = this.fontSize = fontSize;
-            this.styles = styles;
-
-            if (styles != null && styles.length > 0) {
-                for (Style style : styles) {
-                    if (style == Style.BOLD) {
-                        this.font = this.font.deriveFont(Font.BOLD);
-                    } else if (style == Style.ITALIC) {
-                        this.font = this.font.deriveFont(Font.ITALIC);
-                    }
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException("Bad font file", e);
-        }
+    public GLFont(File font, FontType type, float fontSize, Style[] styles) {
+        super(font, type, fontSize, styles);
+        this.fontFile = font;
+        this.fontType = type;
+        this.fontSize = fontSize;
         this.textRenderer = TextRendererCache.getRenderer(this.font);
     }
 
     public GLFont(String fontName, float fontSize, Style[] styles) {
-        this.fontName = fontName;
-        this.currentFontSize = this.fontSize = fontSize;
-        this.styles = styles;
-
-        int style = Font.PLAIN;
-
-        if (styles != null) {
-            for (Style s : styles) {
-                if (s == IFont.Style.BOLD) {
-                    style = (Font.BOLD | style);
-                } else if (s == IFont.Style.ITALIC) {
-                    style = (Font.ITALIC | style);
-                }
-
-            }
-        }
-
-        this.font = new Font(this.fontName, style, (int) fontSize);
+        super(fontName, fontSize, styles);
+        this.fontSize = fontSize;
         this.textRenderer = TextRendererCache.getRenderer(this.font);
     }
 
@@ -130,28 +86,10 @@ public class GLFont implements IGLFont {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.viz.core.drawables.IFont#getFontName()
-     */
-    public String getFontName() {
-        return this.fontName;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see com.raytheon.viz.core.drawables.IFont#getFontSize()
      */
     public float getFontSize() {
         return currentFontSize;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.drawables.IFont#getStyle()
-     */
-    public Style[] getStyle() {
-        return this.styles;
     }
 
     public TextRenderer getTextRenderer() {
@@ -168,9 +106,9 @@ public class GLFont implements IGLFont {
         GLFont newFont = null;
         if (this.fontFile != null) {
             // File based construction
-            newFont = new GLFont(this.fontFile, size, styles);
+            newFont = new GLFont(this.fontFile, fontType, size, getStyle());
         } else {
-            newFont = new GLFont(this.fontName, size, styles);
+            newFont = new GLFont(getFontName(), size, getStyle());
         }
 
         return newFont;
@@ -213,46 +151,6 @@ public class GLFont implements IGLFont {
             return 1.0f;
         }
         return magnification;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.drawables.IFont#getSmoothing()
-     */
-    @Override
-    public boolean getSmoothing() {
-        return smoothing;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.drawables.IFont#setSmoothing(boolean)
-     */
-    @Override
-    public void setSmoothing(boolean smoothing) {
-        this.smoothing = smoothing;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.drawables.IFont#isScaleFont()
-     */
-    @Override
-    public boolean isScaleFont() {
-        return scaleFont;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.drawables.IFont#setScaleFont(boolean)
-     */
-    @Override
-    public void setScaleFont(boolean scaleFont) {
-        this.scaleFont = scaleFont;
     }
 
     /*
