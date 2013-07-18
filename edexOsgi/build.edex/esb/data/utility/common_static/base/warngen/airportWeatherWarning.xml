@@ -1,0 +1,263 @@
+<!-- Airport Weather Warning template -->
+<!-- created using Huntsville as an example -->
+<!-- Customized by Phil Kurimski WFO DTX 12 April 2012 
+     Updated by Phil Kurimski 12 September 2012 OB12.9.1-12 
+     Updated Evan Bookbinder 5-5-13 to change units per Directive -->
+<warngenConfig>
+
+ <!-- Config distance/speed units -->
+ <unitDistance>nmi</unitDistance>
+ <unitSpeed>kn</unitSpeed>
+
+ <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
+ <maps>
+  <map>ACARS Airport Locations</map>
+  <map>Forecast Zones</map>
+ </maps>
+
+ <!-- Followups: VTEC actions of allowable followups when this template is selected -->
+ <followups>
+ </followups>
+ 
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+ </phensigs>
+ 
+  <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>true</enableRestart>
+ 
+  <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>true</autoLockText>
+
+ <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
+ 	included with the warning product include torWatches and/or svrWatches, 
+ 	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
+ <includedWatches>
+  <includedWatch>torWatches</includedWatch>
+  <includedWatch>svrWatches</includedWatch>
+ </includedWatches>
+ 
+ <!-- durations: the list of possible durations of the warning -->
+ <defaultDuration>60</defaultDuration>
+ <durations>
+  <duration>15</duration>
+  <duration>30</duration>
+  <duration>45</duration>
+  <duration>60</duration>
+  <duration>75</duration>
+  <duration>90</duration>
+  <duration>120</duration>
+  <duration>180</duration> 
+  <duration>240</duration>
+  <duration>300</duration>   
+ </durations>
+ 
+<bulletActionGroups>
+<bulletActionGroup action="NEW">
+ <bullets>
+  <!-- <bullet bulletText="***** CLICK 'CREATE TEXT' BELOW AFTER SELECTING AREA *****" bulletType="title"/> -->
+  <bullet bulletText="  *****Choose Airport*****...(Choose 1) " bulletType="title"/>
+  <bullet bulletName="HSV" bulletText="Huntsville (HSV)" bulletGroup="airport"/>
+  <bullet bulletName="MSL" bulletText="Muscle Shoals (MSL)" bulletGroup="airport"/>
+  <!-- You can add additional airports using the same format above -->
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="  ****Choose Specific Threats****" bulletType="title"/>
+  <bullet bulletName="wind" bulletText="Convective Wind Gusts"/>
+  <bullet bulletName="lightning" bulletText="Cloud to ground lightning"/>
+  <bullet bulletName="hail" bulletText="Hail"/>
+  <bullet bulletName="freezingRain" bulletText="Freezing Rain"/>
+  <bullet bulletName="sleetSnow" bulletText="Sleet or Snow"/>
+  <!-- You can add additional Threats using the same format above -->
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="  ****Cancellation Section****" bulletType="title"/>
+  <bullet bulletName="cancelAWW" bulletText="Cancel AWW"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="COR">
+ <bullets>
+  <!-- <bullet bulletText="***** CLICK 'CREATE TEXT' BELOW AFTER SELECTING AREA *****" bulletType="title"/> -->
+  <bullet bulletText="  *****Choose Airport*****...(Choose 1) " bulletType="title"/>
+  <bullet bulletName="HSV" bulletText="Huntsville (HSV)" bulletGroup="airport"/>
+  <bullet bulletName="MSL" bulletText="Muscle Shoals (MSL)" bulletGroup="airport"/>
+  <!-- You can add additional airports using the same format above -->
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="  ****Choose Specific Threats****" bulletType="title"/>
+  <bullet bulletName="wind" bulletText="Convective Wind Gusts"/>
+  <bullet bulletName="lightning" bulletText="Cloud to ground lightning"/>
+  <bullet bulletName="hail" bulletText="Hail"/>
+  <bullet bulletName="freezingRain" bulletText="Freezing Rain"/>
+  <bullet bulletName="sleetSnow" bulletText="Sleet or Snow"/>
+  <!-- You can add additional Threats using the same format above -->
+  <bullet bulletText="  ****Cancellation Section****" bulletType="title"/>
+  <bullet bulletName="cancelAWW" bulletText="Cancel AWW"/>
+</bullets>
+</bulletActionGroup>
+</bulletActionGroups>
+
+<!--  Four variables below have been changed from the County-coded products -->
+<!--  areaSource.areaField -->
+<!--  areaSource.fipsField -->
+<!--  pathcastConfig.areaField and -->
+<!--  geospatialConfig.areaSource -->
+
+<!-- areaSource object to generate county-based information -->
+ <areaSource variable="areas">
+   <areaSource>Zone</areaSource>
+   <inclusionPercent>0</inclusionPercent>
+   <inclusionAndOr>AND</inclusionAndOr>
+   <inclusionArea>0</inclusionArea>
+<!--   <areaField>COUNTYNAME</areaField>  -->
+   <areaField>NAME</areaField> 
+   <parentAreaField>NAME</parentAreaField>
+   <areaNotationField>STATE</areaNotationField>
+   <feAreaField>FE_AREA</feAreaField>
+   <timeZoneField>TIME_ZONE</timeZoneField>
+   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+   <fipsField>STATE_ZONE</fipsField>
+<!--   <fipsField>FIPS</fipsField> -->
+   <pointField>NAME</pointField>
+   <sortBy>
+  	<sort>parent</sort>
+   </sortBy>
+   <pointFilter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1" constraintType="EQUALS" />
+ 		</mapping>
+  </pointFilter>
+  <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
+</areaSource>
+ 
+  <pointSource variable="otherPoints">
+ 	<pointField>NAME</pointField>
+ 	<inclusionPercent>1</inclusionPercent>
+ 	<type>AREA</type>
+ 	<searchMethod>TRACK</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>10</maxResults>
+ 	<distanceThreshold>10</distanceThreshold>
+ 	<sortBy>
+  		<sort>distance</sort>
+  	</sortBy>
+	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="3,4" constraintType="IN" />
+ 		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping>  		
+  	</filter>
+ </pointSource>
+ 
+ 
+ <pointSource variable="closestPoints">
+ 	<pointField>NAME</pointField>
+ 	<type>AREA</type>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping>  		
+ 	</filter>
+ 	<maxResults>1</maxResults>
+ 	<distanceThreshold>100</distanceThreshold>
+ 	<sortBy>
+ 		<sort>distance</sort>
+  		<sort>warngenlev</sort>
+  	</sortBy>
+ </pointSource>
+ 
+ <pointSource variable="otherClosestPoints">
+ 	<pointField>NAME</pointField>
+ 	<type>AREA</type>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping>  		
+ 	</filter>
+ 	<maxResults>5</maxResults>
+ 	<distanceThreshold>100</distanceThreshold>
+ 	<sortBy>
+ 		<sort>distance</sort>
+  		<sort>warngenlev</sort>
+  	</sortBy>
+ </pointSource>
+ 
+<pathcastConfig>
+  <type>AREA</type>
+  <withinPolygon>true</withinPolygon>
+  <distanceThreshold>8.0</distanceThreshold>
+  <interval>5</interval>
+  <delta>5</delta>
+  <maxResults>10</maxResults>
+  <maxGroup>8</maxGroup>
+  <pointField>Name</pointField>
+<!--  <areaField>COUNTYNAME</areaField> --> 
+ <areaField>NAME</areaField> -->
+  <parentAreaField>STATE</parentAreaField>
+  <areaNotationField>STATE</areaNotationField>
+  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+  <sortBy>
+  		<sort>warngenlev</sort>
+  		<sort>population</sort>
+  		<sort>distance</sort>
+  </sortBy>
+  <filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping>  		
+  </filter>
+ </pathcastConfig> 
+ 
+ <pointSource variable="cityList">
+ 	<pointField>NAME</pointField>
+ 	<inclusionPercent>1</inclusionPercent>
+ 	<type>AREA</type>
+ 	<searchMethod>TRACK</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>20</maxResults>
+ 	<distanceThreshold>10</distanceThreshold>
+	<filter> 	
+  	  <mapping key="WARNGENLEV">
+ 		<constraint constraintValue="1,2,3" constraintType="IN" />
+ 	  </mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping>  	  
+ 	</filter>   	
+ 	<sortBy>
+  		<sort>warngenlev</sort>
+  		<sort>population</sort>
+  		<sort>distance</sort>
+  	</sortBy>
+ </pointSource>
+
+<!-- this "include file" tag will grab the Mile Marker XML pointSource tags, 
+and place into this template
+-->  
+<include file="mileMarkers.xml"/>
+ 
+ 
+
+ <geospatialConfig>
+  <pointSource>WarnGenLoc</pointSource>
+  <!--  <areaSource>County</areaSource> -->
+  <areaSource>Zone</areaSource>
+  <parentAreaSource>States</parentAreaSource>
+  <timezoneSource>TIMEZONES</timezoneSource>
+  <timezoneField>TIME_ZONE</timezoneField>
+ </geospatialConfig>
+ 
+ 
+</warngenConfig>

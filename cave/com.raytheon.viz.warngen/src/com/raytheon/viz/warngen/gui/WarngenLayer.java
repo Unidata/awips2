@@ -178,7 +178,10 @@ import com.vividsolutions.jts.io.WKTReader;
  * 05/23/2013  DR 16169    D. Friedman Improve redraw-from-hatched-area polygons.
  * 05/31/2013  DR 16237    D. Friedman Refactor goespatial data routines and watch handling.
  * 06/05/2013  DR 16279    D. Friedman Fix determination of frame time from parsed storm track.
+ * 06/17/1013  DR 15787    Qinglu Lin  Called removeTriplyOverlaidLinesegments().
+ * 06/24/2013  DR 16317    D. Friedman Handle "motionless" track.
  * 06/25/2013  DR 16013    Qinglu Lin  Added setUniqueFip() and code for re-hatching polygon.
+ * 07/09/2013  DR 16376    Qinglu Lin  Removed calling removeOverTriplylaidLinesegment() but called removeOverlaidLinesegment().
  * </pre>
  * 
  * @author mschenke
@@ -412,11 +415,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         Coordinate[] coords = hatched.getCoordinates();
                         PolygonUtil.round(coords, 2);
                         PolygonUtil.adjustPolygon(coords);
+                        PolygonUtil.removeOverlaidLinesegments(coords);
                         GeometryFactory gf = new GeometryFactory();
                         LinearRing lr = gf.createLinearRing(coords);
                         hatchedArea = gf.createPolygon(lr, null);
-                        if (!hatchedArea.isValid())
+                        if (!hatchedArea.isValid()) {
                             hatchedArea = adjustVertex(hatchedArea);
+                        }
                         hatchedWarningArea = createWarnedArea(
                                 latLonToLocal(hatchedArea),
                                 latLonToLocal(warningArea));
@@ -622,7 +627,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
             try {
                 // TODO: Check to see if feasible to try STIData first, might be
                 // too slow
-                if (checkStormTrackData(data = ToolsDataManager.getInstance()
+                displayState.setInitiallyMotionless(!configuration
+                        .isTrackEnabled());
+                if (!configuration.isTrackEnabled()) {
+                    displayState.angle = 0;
+                    displayState.speed = 0;
+                } else if (checkStormTrackData(data = ToolsDataManager
+                        .getInstance()
                         .getStormTrackData())) {
                     displayState.angle = adjustAngle(data.getMotionDirection());
                     displayState.speed = knotToMeterPerSec.convert(data
@@ -769,13 +780,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
             if (warningAction == null || warningAction == WarningAction.NEW) {
                 // Initialize box
+                redrawBoxFromTrack();
                 if (((configuration.isTrackEnabled() == false || configuration
                         .getPathcastConfig() == null) && this.displayState.displayType != DisplayType.POLY)
                         || frameCount == 1) {
-                    createSquare();
                     resetInitialFrame();
-                } else {
-                    redrawBoxFromTrack();
                 }
             } else {
                 redrawBoxFromTrack();
@@ -797,11 +806,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
             if (hasDrawnShaded && shouldDrawShaded) {
                 target.drawShadedShape(shadedCoveredArea, 1.0f);
-            }
-
-            if (displayState.trackVisible == false
-                    && trackUtil.getCurrentFrame(paintProps.getFramesInfo()) != displayState.intialFrame) {
-                displayState.trackVisible = true;
             }
         }
 
@@ -950,8 +954,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
         if (config != null) {
             init(config);
-            displayState.trackVisible = this.configuration.isTrackEnabled()
-                    && this.configuration.getPathcastConfig() != null;
+            displayState.setInitiallyMotionless(
+                    this.configuration.isTrackEnabled() == false
+                    || this.configuration.getPathcastConfig() == null);
         }
     }
 
@@ -1891,6 +1896,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
         if (displayState.mode == Mode.DRAG_ME) {
             return;
         }
+        if ((configuration.isTrackEnabled() == false ||
+                configuration.getPathcastConfig() == null)
+                && !this.displayState.isNonstationary()
+                && this.displayState.displayType != DisplayType.POLY) {
+            createSquare();
+            return;
+        }
+
         DestinationGeodeticCalculator gc = new DestinationGeodeticCalculator();
         GeometryFactory gf = new GeometryFactory();
 
@@ -2215,8 +2228,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
 
         Point point = displayState.dragMePoint;
-        displayState.trackVisible = (motdir != null && motspd != null);
-        if (displayState.trackVisible) {
+        if (motdir != null && motspd != null) {
+            displayState.setInitiallyMotionless(false);
             displayState.angle = adjustAngle(motdir);
             displayState.speed = knotToMeterPerSec.convert(motspd);
 
@@ -2231,6 +2244,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
             point = gf.createPoint(figurePoint(recordFrameTime,
                     currentFrameTime, displayState.speed, displayState.angle));
+        } else {
+            displayState.setInitiallyMotionless(true);
+            displayState.angle = 0;
+            displayState.speed = 0;
         }
 
         // Uses the new dragMePoint when creating a track
@@ -2316,7 +2333,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         int currentFrame = trackUtil.getCurrentFrame(info);
         int frameCount = trackUtil.getFrameCount(info);
         if (currentFrame == frameCount - 1
-                || displayState.trackVisible == false) {
+                || ! displayState.isNonstationary()) {
             return coordinate;
         }
         DataTime[] datatimes = trackUtil.getDataTimes(info);

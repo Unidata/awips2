@@ -88,6 +88,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * 03/18/13      1817       D. Hladky   Fixed issue with BOX where only 1 HUC was showing up.
  * 04/15/13      1902       M. Duff     Generic List
  * 06/10/13      2085       njensen     Use countyMap for efficiency
+ * 07/01/13      2155       dhladky     Fixed duplicate pfafs that were in domainList arrays from overlapping domains.
  * </pre>
  * 
  * @author dhladky
@@ -660,8 +661,15 @@ public class FFMPTemplates {
         for (DomainXML domain : domainList) {
             ArrayList<Long> pfafList = getAggregatePfafsByDomain(pfaf, dataKey,
                     domain.getCwa(), huc);
+            // Sometimes the domains have overlaps in basins. 
+            // You can't blindly add the domain list to the main list.
+            // You have to check if it already exists in the list.
             if (pfafList != null) {
-                list.addAll(pfafList);
+                for (Long lpfaf: pfafList) {
+                    if (!list.contains(lpfaf)) {
+                        list.add(lpfaf);
+                    }
+                }
             }
         }
         return list;
@@ -679,8 +687,15 @@ public class FFMPTemplates {
         for (DomainXML domain : domains) {
             ArrayList<Long> domainList = getAggregatePfafsByDomain(pfaf,
                     dataKey, domain.getCwa(), huc);
+            // Sometimes the domains have overlaps in basins. 
+            // You can't blindly add the domain list to the main list.
+            // You have to check if it already exists in the list.
             if (domainList != null) {
-                list.addAll(domainList);
+                for (Long lpfaf: domainList) {
+                    if (!list.contains(lpfaf)) {
+                        list.add(lpfaf);
+                    }
+                }
             }
         }
         return list;
@@ -705,8 +720,15 @@ public class FFMPTemplates {
                 for (DomainXML domain : domains) {
                     ArrayList<Long> domainList = getAggregatePfafsByDomain(
                             pfaf, product.getProductKey(), domain.getCwa(), huc);
+                    // Sometimes the domains have overlaps in basins. 
+                    // You can't blindly add the domain list to the main list.
+                    // You have to check if it already exists in the list.
                     if (domainList != null) {
-                        domainSet.addAll(domainList);
+                        for (Long lpfaf: domainList) {
+                            if (!list.contains(lpfaf)) {
+                                list.add(lpfaf);
+                            }
+                        }
                     }
                 }
             }
@@ -1657,25 +1679,25 @@ public class FFMPTemplates {
      * @return
      */
     public synchronized ArrayList<Long> getVirtualGageBasinLookupIds(
-            String dataKey, Long pfaf, String huc, String rowName) {
+            String dataKey, Long pfaf, String huc, String rowName,
+            DomainXML domain) {
         if (isCountyRow(huc, rowName)) {
-            return getVgbLookupIdsByCounty(dataKey, pfaf, huc, rowName);
+            return getVgbLookupIdsByCounty(dataKey, pfaf, huc, rowName, domain);
         }
+
         HashMap<String, HashMap<Long, ArrayList<FFMPVirtualGageBasinMetaData>>> virtualMap = virtualGageBasinsInParentPfaf
                 .get(dataKey);
 
-        for (DomainXML domain : domains) {
-
-            HashMap<Long, ArrayList<FFMPVirtualGageBasinMetaData>> map = virtualMap
-                    .get(domain.getCwa());
-            if (map != null) {
-                ArrayList<FFMPVirtualGageBasinMetaData> list = map.get(pfaf);
-                if (list != null && !list.isEmpty()) {
-                    ArrayList<Long> result = new ArrayList<Long>();
-                    for (FFMPVirtualGageBasinMetaData md : list)
-                        result.add(md.getLookupId());
-                    return result;
+        HashMap<Long, ArrayList<FFMPVirtualGageBasinMetaData>> map = virtualMap
+                .get(domain.getCwa());
+        if (map != null) {
+            ArrayList<FFMPVirtualGageBasinMetaData> list = map.get(pfaf);
+            if (list != null && !list.isEmpty()) {
+                ArrayList<Long> result = new ArrayList<Long>();
+                for (FFMPVirtualGageBasinMetaData md : list) {
+                    result.add(md.getLookupId());
                 }
+                return result;
             }
         }
 
@@ -2416,31 +2438,29 @@ public class FFMPTemplates {
      * DR 13228
      */
     public synchronized ArrayList<Long> getVgbLookupIdsByCounty(String dataKey,
-            Long pfaf, String huc, String rowName) {
+            Long pfaf, String huc, String rowName, DomainXML domain) {
 
-        String stateCommaCnty = rowName;
+        String stateCommaCnty = rowName;// .split(",")[1];
 
         HashMap<String, HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>>> virtualMap = vgbsInCounty
                 .get(dataKey);
 
-        for (DomainXML domain : domains) {
+        HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>> map = virtualMap
+                .get(domain.getCwa());
+        if (map != null) {
+            ArrayList<FFMPVirtualGageBasinMetaData> list = map
+                    .get(stateCommaCnty.trim().toUpperCase());
 
-            HashMap<String, ArrayList<FFMPVirtualGageBasinMetaData>> map = virtualMap
-                    .get(domain.getCwa());
-            if (map != null) {
-                ArrayList<FFMPVirtualGageBasinMetaData> list = map
-                        .get(stateCommaCnty.trim().toUpperCase());
+            if (list != null && !list.isEmpty()) {
+                ArrayList<Long> result = new ArrayList<Long>();
+                for (FFMPVirtualGageBasinMetaData md : list) {
+                    result.add(md.getLookupId());
 
-                if (list != null && !list.isEmpty()) {
-                    ArrayList<Long> result = new ArrayList<Long>();
-                    for (FFMPVirtualGageBasinMetaData md : list) {
-                        result.add(md.getLookupId());
-
-                    }
-                    return result;
                 }
+                return result;
             }
         }
+
         return new ArrayList<Long>();
     }
 
