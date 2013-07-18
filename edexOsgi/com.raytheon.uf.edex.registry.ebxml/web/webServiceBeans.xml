@@ -26,23 +26,23 @@
 
 	<bean id="QueryServiceWrapper"
 		class="com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImplWrapper">
-		<constructor-arg name="queryManager" ref="queryServiceImpl" />
+		<constructor-arg ref="queryServiceImpl" />
 	</bean>
 	<bean id="NotificationListenerServiceWrapper"
 		class="com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationListenerImplWrapper">
-		<constructor-arg name="notificationListener" ref="notificationServiceImpl" />
+		<constructor-arg ref="notificationServiceImpl" />
 	</bean>
 	<bean id="LifecycleManagerServiceWrapper"
 		class="com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImplWrapper">
-		<constructor-arg name="lifecycleManager" ref="lcmServiceImpl" />
+		<constructor-arg ref="lcmServiceImpl" />
 	</bean>
 	<bean id="ValidatorServiceWrapper"
 		class="com.raytheon.uf.edex.registry.ebxml.services.validator.ValidatorImplWrapper">
-		<constructor-arg name="validator" ref="validatorServiceImpl" />
+		<constructor-arg ref="validatorServiceImpl" />
 	</bean>
 	<bean id="CatalogerServiceWrapper"
 		class="com.raytheon.uf.edex.registry.ebxml.services.cataloger.CatalogerImplWrapper">
-		<constructor-arg name="cataloger" ref="catalogerServiceImpl" />
+		<constructor-arg ref="catalogerServiceImpl" />
 	</bean>
 
 	<jaxws:server id="RegistryRequest"
