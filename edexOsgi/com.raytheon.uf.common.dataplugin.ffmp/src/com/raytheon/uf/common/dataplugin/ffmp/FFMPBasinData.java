@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +52,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 01/27/13      1569       D. Hladky   Added support for write of aggregate record cache
  * 04/16/13      1912       bsteffen    Initial bulk hdf5 access for ffmp
  * 05/09/13      1919       mpduff      Use parent pfaf instead of lookupId.
+ * 07/09/13      2152       njensen     Ensure purgeData() does not load data
  * 
  * </pre>
  * 
@@ -562,7 +564,28 @@ public class FFMPBasinData implements ISerializableObject {
      * @param date
      */
     public void purgeData(Date date) {
-        for (FFMPBasin basin : getBasins().values()) {
+        // remove old tasks before calling getBasins() since that may
+        // cause them to run
+        if (!tasks.isEmpty()) {
+            synchronized (tasks) {
+                Iterator<LoadTask> itr = tasks.iterator();
+                {
+                    while (itr.hasNext()) {
+                        LoadTask task = itr.next();
+                        if (task instanceof LoadMapTask) {
+                            LoadMapTask mtask = (LoadMapTask) task;
+                            if (mtask.date.before(date)) {
+                                itr.remove();
+                            }
+                        }
+                    }
+                }
+                if (tasks.isEmpty()) {
+                    orderedBasinsCache.clear();
+                }
+            }
+        }
+        for (FFMPBasin basin : basins.values()) {
             basin.purgeData(date);
         }
     }
@@ -573,6 +596,7 @@ public class FFMPBasinData implements ISerializableObject {
      * @param times
      */
     public void populate(List<Long> times) {
+
         long[] timesArr = new long[times.size()];
         for (int i = 0; i < timesArr.length; i += 1) {
             timesArr[i] = times.get(i);

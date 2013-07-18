@@ -751,20 +751,12 @@ void exit_draw_precip_RFCW(Widget w, XtPointer clientdata, XtPointer calldata)
 
 static void apply_edit_polygon(const rubber_poly_data * pPolyNode,
         int ** data_array, const date_struct * pDate, double scale,
-        double factor, int num_rows, int num_columns, int add_flag)
+        double factor, int num_rows, int num_columns, int xorigin,
+        int yorigin, int add_flag)
 {
     float precip_val;
     float scale_val;
     int i;
-    int x;
-    int y;
-    int z;
-    int minx;
-    int miny;
-    int maxx;
-    int maxy;
-    Region polygonRegion = NULL;
-    XPoint * regionPoints = NULL;
 
     if (pPolyNode->draw_source != display_subValue)
     {
@@ -810,113 +802,71 @@ static void apply_edit_polygon(const rubber_poly_data * pPolyNode,
     /*-----------------------------------------------------------*/
     precip_val = pPolyNode->draw_precip_value * factor * scale;
     scale_val = pPolyNode->draw_precip_value;
-
-    minx = (int) ceil (pPolyNode->minx);
-    maxx = (int) floor ( pPolyNode->maxx);
-    miny = (int) ceil (pPolyNode->miny);
-    maxy = (int) floor (pPolyNode->maxy);
-    
-    regionPoints = (XPoint * ) malloc ( pPolyNode->npoints * sizeof (XPoint));
-    
-    if (regionPoints == NULL )
-    {
-        flogMessage ( stderr, "\nIn routine 'apply_edit_polygon':\n"
-                              "Could not allocate memory for region.\n" );
-        return;
-    }
     
     /* Create the region for testing the Polygon */
     for ( i = 0; i < pPolyNode->npoints; ++i )
     {
-        /* Scale the HRAP points to increase resolution for determing whether
-         * or not an HRAP grid bin is inside or outside of a polygon. */
-        regionPoints [ i ].x = pPolyNode->hrap[i].x * REGION_SCALE_FACTOR;
-        regionPoints [ i ].y = pPolyNode->hrap[i].y * REGION_SCALE_FACTOR;
-    }
+        int x_adj = pPolyNode->hrap[i].x - xorigin;
+        int y_adj = pPolyNode->hrap[i].y - yorigin;
 
-    /* Create the region from the points defined above. */
-    polygonRegion = XPolygonRegion ( regionPoints, pPolyNode->npoints, EvenOddRule );
-    
-    for (x=minx; x<=maxx; x++)
-    {
-        for (y=miny; y<=maxy; y++)
+        switch (pPolyNode->draw_source)
         {
-            z = InOutPolyNew(x, y, polygonRegion);
+            case display_rMosaic:
+            case display_avgrMosaic:
+            case display_maxrMosaic:
+            case display_bMosaic:
+            case display_lMosaic:
+            case display_mMosaic:
+            case display_mlMosaic:
+            case display_gageOnly:
+            case display_satPrecip:
+            case display_lsatPrecip:
+            case display_sgMosaic:
+            case display_srMosaic:
+            case display_srgMosaic:
+            case display_p3Mosaic:
+            case display_rfcMosaic:
+            case display_rfcbMosaic:
+            case display_rfcmMosaic:
+            case display_Xmrg:
 
-            if (z == True)
-            {
-                switch (pPolyNode->draw_source)
+                data_array[x_adj][y_adj] = temp_array[x_adj][y_adj];
+
+            case display_subValue:
+
+                if (pPolyNode->raise_flag == True)
                 {
-                    case display_rMosaic:
-                    case display_avgrMosaic:
-                    case display_maxrMosaic:
-                    case display_bMosaic:
-                    case display_lMosaic:
-                    case display_mMosaic:
-                    case display_mlMosaic:
-                    case display_gageOnly:
-                    case display_satPrecip:
-                    case display_lsatPrecip:
-                    case display_sgMosaic:
-                    case display_srMosaic:
-                    case display_srgMosaic:
-                    case display_p3Mosaic:
-                    case display_rfcMosaic:
-                    case display_rfcbMosaic:
-                    case display_rfcmMosaic:
-                    case display_Xmrg:
-
-                        data_array[x][y] = temp_array[x][y];
-
-                    case display_subValue:
-
-                        if (pPolyNode->raise_flag == True)
-                        {
-                            if (data_array[x][y] < precip_val)
-                                data_array[x][y] = precip_val;
-                        }
-                        else if (pPolyNode->lower_flag == True)
-                        {
-                            if (data_array[x][y] > precip_val)
-                                data_array[x][y] = precip_val;
-                        }
-                        else if (pPolyNode->scale_flag == True)
-                        {
-                            data_array[x][y] *= scale_val;
-                        }
-                        else if (pPolyNode->snow_flag == True)
-                        {
-                            data_array[x][y] = precip_val;
-                        }
-                        else if (pPolyNode->set_flag == True)
-                        {
-                            data_array[x][y] = precip_val;
-                        }
-
-                        break;
-
-                    default:
-
-                        flogMessage(stderr,
-                                "In routine 'write_draw_precip_data_RFCW':\n"
-                                    "Unsupported enum DisplayFieldData type\n"
-                                    "Value: %d\n", pPolyNode->draw_source) ;
-                        return;
+                    if (data_array[x_adj][y_adj] < precip_val)
+                        data_array[x_adj][y_adj] = precip_val;
                 }
-            }
+                else if (pPolyNode->lower_flag == True)
+                {
+                    if (data_array[x_adj][y_adj] > precip_val)
+                        data_array[x_adj][y_adj] = precip_val;
+                }
+                else if (pPolyNode->scale_flag == True)
+                {
+                    data_array[x_adj][y_adj] *= scale_val;
+                }
+                else if (pPolyNode->snow_flag == True)
+                {
+                    data_array[x_adj][y_adj] = precip_val;
+                }
+                else if (pPolyNode->set_flag == True)
+                {
+                    data_array[x_adj][y_adj] = precip_val;
+                }
+
+                break;
+
+            default:
+
+                flogMessage(stderr,
+                        "In routine 'write_draw_precip_data_RFCW':\n"
+                            "Unsupported enum DisplayFieldData type\n"
+                            "Value: %d\n", pPolyNode->draw_source) ;
+                return;
         }
-    }
-   
-    if ( regionPoints != NULL )
-    {
-        free ( regionPoints );
-        regionPoints = NULL;
-    }
-    
-    if ( polygonRegion != NULL )
-    {
-        XDestroyRegion ( polygonRegion );
-        polygonRegion = NULL;
     }
     
     return;
@@ -976,7 +926,7 @@ void write_draw_precip_data_RFCW(Widget w, XtPointer clientdata,
     /* Apply the polygon to the MPE product here. */
     apply_edit_polygon(pPolyNode, rad_data[0].data_array, &date_st3,
             scale_factor, units_factor, rad_data[0].maximum_rows,
-            rad_data[0].maximum_columns, addition_flag);
+            rad_data[0].maximum_columns, 0, 0, addition_flag);
 
     /* Make a copy of the draw polygon.  This must be done to preserve
      the polygon. */
@@ -1029,8 +979,8 @@ void write_draw_precip_data_RFCW(Widget w, XtPointer clientdata,
 
 void apply_edit_polygons(int ** precip_data_array, const char * cdate,
         int year, int month, int day, int hour, double scale, double factor,
-        enum DisplayFieldData field, int num_rows, int num_cols, int add_flag,
-        int draw_only_persistent)
+        enum DisplayFieldData field, int num_rows, int num_cols, int xorigin,
+        int yorigin, int add_flag, int draw_only_persistent)
 {
     date_struct date;
     List PolyList;
@@ -1068,7 +1018,8 @@ void apply_edit_polygons(int ** precip_data_array, const char * cdate,
                 {
 
                     apply_edit_polygon(pPolygonNode, precip_data_array, &date,
-                            scale, factor, num_rows, num_cols, add_flag);
+                            scale, factor, num_rows, num_cols, xorigin,
+                            yorigin, add_flag);
                 }
             }
 
