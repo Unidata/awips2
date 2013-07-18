@@ -47,6 +47,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 09/27/12		DR 15471 G.Zhang	 Fixed ConcurrentModificationException
  * 01/27/13     1478     D. Hladky   Re-worked to help with memory size and NAS read write stress
  * Apr 16, 2013 1912        bsteffen    Initial bulk hdf5 access for ffmp
+ * 07/03/13     2131     D. Hladky   Fixed null pointers thrown by new container creation.
  * 
  * </pre>
  * 
@@ -97,13 +98,17 @@ public class FFMPDataContainer {
      * @param hucs
      * @param record
      */
-    public FFMPDataContainer(String sourceName, ArrayList<String> hucs, FFMPAggregateRecord record) {
+    public FFMPDataContainer(String sourceName, ArrayList<String> hucs,
+            FFMPAggregateRecord record) {
         // System.out.println("Creating source with hucs: " + sourceName);
         this.sourceName = sourceName;
+
         for (String huc : hucs) {
             FFMPBasinData basinData = record.getBasinData(huc);
-            basinData.populate(record.getTimes());
-            basinDataMap.put(huc, basinData);
+            if (basinData != null) {
+                basinData.populate(record.getTimes());
+                basinDataMap.put(huc, basinData);
+            }
         }
     }
 
@@ -124,11 +129,11 @@ public class FFMPDataContainer {
 
         FFMPBasinData currBasinData = getBasinData(huc);
 
-        synchronized (currBasinData) {
+        if (currBasinData == null) {
+            setBasinData(huc, newBasinData);
+        } else {
 
-            if (currBasinData == null) {
-                setBasinData(huc, newBasinData);
-            } else {
+            synchronized (currBasinData) {
 
                 for (Long key : newBasinData.getBasins().keySet()) {
 
@@ -158,7 +163,6 @@ public class FFMPDataContainer {
                                         val);
                             }
 
-                            //currBasinData.put(key, basin);
                             syncPut(currBasinData, key, basin);
                         } else {
 
@@ -243,7 +247,7 @@ public class FFMPDataContainer {
                             }
 
                             basin.setValue(date, val);
-                            //currBasinData.put(key, basin);
+                            // currBasinData.put(key, basin);
                             syncPut(currBasinData, key, basin);
                         } else {
 
