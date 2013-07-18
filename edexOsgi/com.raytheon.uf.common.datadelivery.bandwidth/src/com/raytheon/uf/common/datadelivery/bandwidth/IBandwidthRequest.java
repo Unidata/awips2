@@ -23,6 +23,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Oct 23, 2012 1286       djohnson     Add SW history, move to common plugin.
  * Nov 20, 2012 1286       djohnson     Add PROPOSE_SCHEDULE_SUBSCRIPTION.
  * Dec 06, 2012 1397       djohnson     Add GET_BANDWIDTH_GRAPH_DATA.
+ * Jul 18, 2013 1653       mpduff       Add GET_SUBSCRIPTION_STATUS.
  * 
  * </pre>
  * 
@@ -39,7 +40,7 @@ public class IBandwidthRequest extends AbstractPrivilegedRequest {
         /**
          * Schedule a subscription.
          */
-        SCHEDULE_SUBSCRIPTION, SHOW_BUCKET, SHOW_DEFERRED, GET_BANDWIDTH, FORCE_SET_BANDWIDTH, PROPOSE_SET_BANDWIDTH, PROPOSE_SCHEDULE_SUBSCRIPTION, REINITIALIZE, GET_ESTIMATED_COMPLETION, GET_BANDWIDTH_GRAPH_DATA
+        SCHEDULE_SUBSCRIPTION, SHOW_BUCKET, SHOW_DEFERRED, GET_BANDWIDTH, FORCE_SET_BANDWIDTH, PROPOSE_SET_BANDWIDTH, PROPOSE_SCHEDULE_SUBSCRIPTION, REINITIALIZE, GET_ESTIMATED_COMPLETION, GET_BANDWIDTH_GRAPH_DATA, GET_SUBSCRIPTION_STATUS
     }
 
     @DynamicSerializeElement
