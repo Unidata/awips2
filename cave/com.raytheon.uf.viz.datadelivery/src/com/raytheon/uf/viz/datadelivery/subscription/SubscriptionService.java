@@ -40,6 +40,7 @@ import com.google.common.collect.Sets;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
+import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSummary;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
@@ -84,6 +85,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * May 14, 2013 2000       djohnson     Check for subscription overlap/duplication.
  * May 23, 2013 1650       djohnson     Move out some presentation logic to DisplayForceApplyPromptDialog.
  * Jun 12, 2013 2038       djohnson     Launch subscription manager on the UI thread.
+ * Jul 18, 2013 1653       mpduff       Add SubscriptionStatusSummary.
  * 
  * </pre>
  * 
@@ -171,6 +173,8 @@ public class SubscriptionService implements ISubscriptionService {
 
         private final String message;
 
+        private SubscriptionStatusSummary subStatusSummary;
+
         private SubscriptionServiceResult(String message) {
             this(false, message);
         }
@@ -210,6 +214,16 @@ public class SubscriptionService implements ISubscriptionService {
         @Override
         public String getMessageToDisplay() {
             return message;
+        }
+
+        @Override
+        public SubscriptionStatusSummary getSubscriptionStatusSummary() {
+            return this.subStatusSummary;
+        }
+
+        public void setSubscriptionStatusSummary(
+                SubscriptionStatusSummary subscriptionStatusSummary) {
+            this.subStatusSummary = subscriptionStatusSummary;
         }
     }
 
@@ -371,7 +385,15 @@ public class SubscriptionService implements ISubscriptionService {
             }
         };
 
-        return performAction(subscriptions, action, displayTextStrategy);
+        SubscriptionServiceResult result = performAction(subscriptions, action,
+                displayTextStrategy);
+
+        if (!result.allowFurtherEditing) {
+            result.setSubscriptionStatusSummary(bandwidthService
+                    .getSubscriptionStatusSummary(subscription));
+        }
+
+        return result;
     }
 
     /**
