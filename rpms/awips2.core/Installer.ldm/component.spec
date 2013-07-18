@@ -9,7 +9,7 @@
 Name: awips2-ldm
 Summary: AWIPS II LDM Distribution
 Version: %{_ldm_version}
-Release: 4
+Release: 5
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
