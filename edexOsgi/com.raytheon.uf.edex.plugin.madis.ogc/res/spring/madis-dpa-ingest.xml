@@ -34,7 +34,7 @@
         factory-method="register">
         <constructor-arg value="madis" />
         <constructor-arg
-            value="jms-dist:queue:Ingest.madis?destinationResolver=#qpidDurableResolver" />
+            value="jms-dist:queue:Ingest.madis" />
     </bean>
 
     <bean id="madisCamelRegistered" factory-bean="contextManager"
@@ -82,6 +82,7 @@
             <doTry>
                 <pipeline>
                     <bean ref="stringToFile" />
+                    <bean ref="dataUnzipper" method="gunzip"/>
                     <bean ref="madisSeparator" method="separate" />
                 </pipeline>
                 <doCatch>
