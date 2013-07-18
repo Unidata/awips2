@@ -30,7 +30,6 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPDataContainer;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPUtils;
-import com.raytheon.uf.common.dataplugin.ffmp.dao.FFMPDao;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
 import com.raytheon.uf.common.monitor.xml.FFTISourceXML;
@@ -40,7 +39,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
-import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator;
 
 /**
@@ -52,11 +50,14 @@ import com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 01, 2011            dhladky     Initial creation
- * July 11, 2012            dhladky    Edited for FFTI work
- * 02/01/13     1569        D. Hladky   Added constants, records writing switched to pypies
- * </pre>
+ * Jul 11, 2012            dhladky     Edited for FFTI work
+ * Feb 01, 2013 1569       D. Hladky   Added constants, records writing switched
+ *                                     to pypies
  * Apr 16, 2013 1912       bsteffen    Initial bulk hdf5 access for ffmp
  * Apr 18, 2013 1919       dhladky     Fixed VGB breakage
+ * Jun 21, 2013 2131       bsteffen    Revert the slow part of 1919.
+ * July 3, 2013 2131       dhladky     Fixed problems caused by revert.
+ * </pre>
  * 
  * @author dhladky
  * @version 1.0
@@ -187,8 +188,6 @@ public class FFTIProcessor {
 
         ArrayList<String> uris = getUris(startDate, endDate, wfo, source,
                 siteKey);
-        // System.out.println("Number of Records querried: " + siteKey + " : "
-        // + uris.size());
 
         for (String uri : uris) {
 
@@ -216,23 +215,21 @@ public class FFTIProcessor {
 
                     for (String huc : hucs) {
 
-                        rec = populateRecord(rec, huc, template);
-                        FFMPBasinData newData = rec.getBasinData(huc);
-                        sourceContainer.addFFMPEntry(rec.getDataTime()
+                        FFMPRecord populatedRec = populateRecord(rec, huc,
+                                template);
+                        FFMPBasinData newData = populatedRec.getBasinData(huc);
+                        sourceContainer.addFFMPEntry(populatedRec.getDataTime()
                                 .getRefTime(), source, newData, huc, siteKey);
-
                     }
 
-                    // System.out.println("Adding Time: "
-                    // + rec.getDataTime().getRefTime());
-
-                } catch (PluginException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
                     statusHandler.handle(Priority.ERROR,
                             "Source: " + source.getDisplayName() + "  domain: "
                                     + wfo
-                                    + " : failed to retrieve FFMP/FFTI Data ");
+                                    + " : failed to retrieve FFMP/FFTI Data ",
+                            e);
                 }
+
             }
         }
 
@@ -302,7 +299,7 @@ public class FFTIProcessor {
     }
 
     /**
-     * Get "All" basin container populated FFMPRecord
+     * Get populated FFMPRecord
      * 
      * @param rec
      * @param template
@@ -313,19 +310,10 @@ public class FFTIProcessor {
             FFMPTemplates template) throws PluginException {
 
         try {
-
-            FFMPDao dao = (FFMPDao) PluginFactory.getInstance().getPluginDao(
-                    rec.getPluginName());
-            rec = (FFMPRecord) dao.getMetadata(rec.getDataURI());
             
-            if (rec.getPluginName() == null) {
-                //return rec;
-                rec.setPluginName("ffmp");
-            }
-
             SourceXML source = FFMPSourceConfigurationManager.getInstance()
                     .getSource(rec.getSourceName());
-            
+
             // check for gage(VGB) types, if so process as a VGB
             if (source.getSourceType().equals(SOURCE_TYPE.GAGE.getSourceType())) {
                 rec.retrieveVirtualMapFromDataStore(template, huc);
@@ -333,14 +321,13 @@ public class FFTIProcessor {
                 rec.retrieveMapFromDataStore(template, huc);
             }
 
-            // System.out.println("Size of huc: "
-            // + rec.getBasinData(huc).getBasins().size());
-        } catch (Exception se) {
+        } catch (Exception e) {
 
             statusHandler.handle(Priority.ERROR,
                     "Source: " + rec.getSourceName() + " sitekey: "
                             + " domain: " + rec.getWfo()
-                            + " : failed to populate records in FFMP/FFTI");
+                            + " : failed to populate records in FFMP/FFTI", e);
+
         }
 
         return rec;

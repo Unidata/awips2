@@ -169,6 +169,7 @@ import com.vividsolutions.jts.geom.Point;
  * Apr 26, 2013  1954       bsteffen    Minor code cleanup throughout FFMP.
  * Jun 06, 2013  2075       njensen     No longer schedules load threads,
  *                                       refactored updates
+ * Jun 27, 2013  2152       njensen     More thorough disposeInternal()
  * 
  * </pre>
  * 
@@ -538,8 +539,6 @@ public class FFMPResource extends
      */
     @Override
     public void hucChanged() {
-
-        center = null;
         lowestCenter = FFMPRecord.ZOOM.WFO;
 
         if (isAutoRefresh()) {
@@ -1067,9 +1066,6 @@ public class FFMPResource extends
         if (this.getName().indexOf("Table Display") > -1) {
             if (basinTableDlg != null) {
                 closeDialog();
-                if (smallBasinOverlayShape != null) {
-                    smallBasinOverlayShape.dispose();
-                }
             }
 
             HucLevelGeometriesFactory.getInstance().clear();
@@ -1079,10 +1075,31 @@ public class FFMPResource extends
             }
         }
 
+        // dispose of shapes
+        if (smallBasinOverlayShape != null) {
+            smallBasinOverlayShape.dispose();
+        }
+        if (streamShadedShape != null) {
+            streamShadedShape.dispose();
+        }
+        if (streamOutlineShape != null) {
+            streamOutlineShape.dispose();
+        }
+        shadedShapes.dispose();
+
+        // clear takes care of the drawables
         clear();
+        resetRecords();
+        for (PixelCoverage px : vgbDrawables.values()) {
+            px.dispose();
+        }
+        vgbDrawables.clear();
 
         if (monitor.getResourceListenerList().size() == 1) {
-            monitor.nullifyMonitor();
+            // free up the monitor which holds most of the memory
+            FFMPMonitor tempMonitor = monitor;
+            monitor = null;
+            tempMonitor.nullifyMonitor();
         } else {
             monitor.removeResourceListener(this);
         }
@@ -2624,11 +2641,13 @@ public class FFMPResource extends
                     fshell.setCursor(null);
 
                     // check whether or not the dialog needs to be dumped
-                    monitor.splashDispose(getResource());
+                    if (monitor != null) {
+                        monitor.splashDispose(getResource());
 
-                    if (getResourceData().tableLoad && isFirst) {
-                        isFirst = false;
-                        updateDialog();
+                        if (getResourceData().tableLoad && isFirst) {
+                            isFirst = false;
+                            updateDialog();
+                        }
                     }
                 }
 
@@ -3806,21 +3825,23 @@ public class FFMPResource extends
             getTimeOrderedKeys().remove(date);
         }
 
-        monitor.purgeFFMPData(getResourceData().getProduct(), getResourceData()
-                .getPrimarySource(), getSiteKey(), ndate);
+        if (monitor != null) {
+            monitor.purgeFFMPData(getResourceData().getProduct(),
+                    getResourceData().getPrimarySource(), getSiteKey(), ndate);
+        }
 
         try {
-            DataTime lastDate = getResourceData().getAvailableTimes()[getResourceData()
-                    .getAvailableTimes().length - 1];
-
-            for (DataTime dt : drawables.keySet()) {
-                if (!dt.greaterThan(lastDate)) {
-                    drawables.remove(dt);
+            DataTime[] availableTimes = getResourceData().getAvailableTimes();
+            if (availableTimes.length > 0) {
+                DataTime lastDate = availableTimes[availableTimes.length - 1];
+                for (DataTime dt : drawables.keySet()) {
+                    if (!dt.greaterThan(lastDate)) {
+                        drawables.remove(dt);
+                    }
                 }
             }
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.error("Error purging old data", e);
         }
 
     }

@@ -56,6 +56,8 @@ import com.raytheon.viz.mpe.core.MPEDataManager.MPEGageData;
  * Jan 02, 2013	 15565     snaples     Fixed problem with wrong time being sent to mpe_fieldgen
  * Mar 14, 2013   1457     mpduff      Fixed memory leak.
  * Jun 18, 2013  16053     snaples     Removed check for Radar Edit flag
+ * July 7, 2013   2172     bkowal      Polygon Edits will now also trigger an hourly
+ *                                     mpe field regeneration.
  * </pre>
  * 
  * @author snaples
@@ -85,8 +87,6 @@ public class RegenHrFlds {
     float new_pseudo_value;
 
     double pp_value;
-
-    private static final int NUM_HOURLY_SLOTS = 24;
 
     private static final int NUM_6HOURLY_SLOTS = 4;
 
@@ -165,6 +165,10 @@ public class RegenHrFlds {
         int pCount = pseudoList.size();
         num_gage_edit += pCount;
     }
+    
+    private boolean polygonsModified() {
+    	return MPEDataManager.getInstance().isPolygonEditFlag();
+    }
 
     public double round(final double x) {
         double tmp = x + 0.5;
@@ -183,7 +187,8 @@ public class RegenHrFlds {
                 .getShell();
         this.checkGages();
         /* Store any gage edits into the HourlyPP or PseudoGageVal table. */
-            options.shef_duplicate = shef_dup.USE_REVCODE;
+ 
+        options.shef_duplicate = shef_dup.USE_REVCODE;
 
             for (MPEGageData gData : gages.values()) {
 
@@ -269,6 +274,7 @@ public class RegenHrFlds {
                 }
             }
 
+            MPEDataManager.getInstance().setPolygonEditFlag(false);
             /*-------------------------------------------------------------------------*/
             /* Read Gage Data and store in structure */
             /*-------------------------------------------------------------------------*/
@@ -297,6 +303,7 @@ public class RegenHrFlds {
 
             MPEDataManager.getInstance().clearEditGages();
             shell.setCursor(null);
+        
     }
 
     /**

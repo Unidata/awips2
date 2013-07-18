@@ -22,10 +22,8 @@ package com.raytheon.uf.common.dataplugin.gfe.db.objects;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Set;
 import java.util.TimeZone;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -33,20 +31,19 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.gfe.serialize.ParmIDAdapter;
-import com.raytheon.uf.common.dataplugin.gfe.server.lock.Lock;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdapter;
 
@@ -60,9 +57,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 3/6/08       875        bphillip    Initial Creation
- * 5/8/12       #600       dgilling    Implement clone().
+ * 5/8/12       600        dgilling    Implement clone().
  * 01/18/13     1504       randerso    Removed setters since class should be immutable
  * 03/28/13     1949       rjpeter     Normalized database structure.
+ * 06/20/13     2127       rjpeter     Removed unused bidirectional relationships, and
+ *                                     Added OnDelete and Immutable annotations.
  * </pre>
  * 
  * @author bphillip
@@ -72,6 +71,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
 @Entity
 @Table(name = "gfe_parmid", uniqueConstraints = { @UniqueConstraint(columnNames = {
         "dbId_id", "parmName", "parmLevel" }) })
+@Immutable
 @DynamicSerialize
 @DynamicSerializeTypeAdapter(factory = ParmIDAdapter.class)
 public class ParmID implements Comparable<ParmID> {
@@ -107,6 +107,7 @@ public class ParmID implements Comparable<ParmID> {
 
     /** The database that this parm ID is associated with */
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @PrimaryKeyJoinColumn
     @DataURI(position = 0, embedded = true)
     private DatabaseID dbId;
@@ -125,24 +126,6 @@ public class ParmID implements Comparable<ParmID> {
     /** A more extended version of the parameter ID */
     @Transient
     private String parmId;
-
-    /**
-     * Used only for hibernate mappings to allow a cascade delete to all records
-     * when the databaseId is deleted
-     */
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parmId", cascade = { CascadeType.REMOVE })
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @SuppressWarnings("unused")
-    private Set<GFERecord> records;
-
-    /**
-     * Used only for hibernate mappings to allow a cascade delete to all locks
-     * when the databaseId is deleted
-     */
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parmId", cascade = { CascadeType.REMOVE })
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @SuppressWarnings("unused")
-    private Set<Lock> locks;
 
     @Override
     public String toString() {
