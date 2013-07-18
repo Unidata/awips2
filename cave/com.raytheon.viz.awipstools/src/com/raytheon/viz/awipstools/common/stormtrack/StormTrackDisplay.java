@@ -97,6 +97,7 @@ import com.vividsolutions.jts.geom.LineString;
  *                                     the IGraphicsTarget drawWireframeShape method.
  *  15Mar2013	15693	mgamazaychikov Made sure that magnification capability works.
  *  06-11-2013  DR 16234   D. Friedman Fix pivot index when frames count is reduced.
+ *  06-24-2013  DR 16317   D. Friedman Handle "motionless" track.
  * 
  * </pre>
  * 
@@ -297,6 +298,13 @@ public class StormTrackDisplay implements IRenderable {
             // if (trackUtil.getDataTimes().length == 1) {
             // paintDragMeText(target, paintProps, currentState.dragMePoint);
             // }
+            if (currentState.isInitiallyMotionless() && ! currentState.isNonstationary()) {
+                int currentFrame = trackUtil
+                        .getCurrentFrame(paintProps.getFramesInfo());
+                if (currentFrame != currentState.intialFrame) {
+                    paintDragMeText(target, paintProps, currentState.dragMePoint);
+                }
+            }
             break;
         }
         }
@@ -683,7 +691,8 @@ public class StormTrackDisplay implements IRenderable {
             }
             state.geomChanged = false;
         }
-        if (state.mode == Mode.TRACK) {
+        if (state.mode == Mode.TRACK
+                && (!state.isInitiallyMotionless() || state.isNonstationary())) {
             target.drawWireframeShape(cachedTrack, state.color,
                     state.lineWidth, state.lineStyle);
             paintLabels(target, paintProps);
@@ -791,12 +800,24 @@ public class StormTrackDisplay implements IRenderable {
                 .getFramesInfo());
         int pivotIndex = state.displayedPivotIndex;
 
+        double angle;
+        double oppositeAngle;
+        double speed;
+        int startCoordIndex;
+        int endCoordIndex;
+
         DataTime[] dataTimes = trackUtil.getDataTimes(paintProps
                 .getFramesInfo());
         state.timePoints[moveIndex].coord = state.dragMePoint.getCoordinate();
 
-        int startCoordIndex = pivotIndex < moveIndex ? pivotIndex : moveIndex;
-        int endCoordIndex = pivotIndex < moveIndex ? moveIndex : pivotIndex;
+        boolean hasMotion = ! state.isInitiallyMotionless() || state.isNonstationary()
+                || moveIndex != state.intialFrame;
+        if (hasMotion) {
+            startCoordIndex = pivotIndex < moveIndex ? pivotIndex : moveIndex;
+            endCoordIndex = pivotIndex < moveIndex ? moveIndex : pivotIndex;
+        } else {
+            startCoordIndex = endCoordIndex = moveIndex;
+        }
 
         StormCoord startCoord = state.timePoints[startCoordIndex];
         StormCoord endCoord = state.timePoints[endCoordIndex];
@@ -805,18 +826,24 @@ public class StormTrackDisplay implements IRenderable {
         gc.setStartingGeographicPoint(startCoord.coord.x, startCoord.coord.y);
         gc.setDestinationGeographicPoint(endCoord.coord.x, endCoord.coord.y);
 
-        // get speed and angle
-        double angle = gc.getAzimuth();
-        double oppositeAngle = adjustAngle(angle + 180);
+        if (hasMotion) {
+            // get speed and angle
+            angle = gc.getAzimuth();
+            oppositeAngle = adjustAngle(angle + 180);
 
-        double speed = gc.getOrthodromicDistance()
-                / trackUtil
-                        .timeBetweenDataTimes(startCoord.time, endCoord.time);
+            speed = gc.getOrthodromicDistance()
+                    / trackUtil
+                            .timeBetweenDataTimes(startCoord.time, endCoord.time);
 
-        // Tempory fix to prevent a resource error because
-        // the time between data times is 0.
-        if (Double.isNaN(speed)) {
-            return;
+            // Tempory fix to prevent a resource error because
+            // the time between data times is 0.
+            if (Double.isNaN(speed)) {
+                return;
+            }
+        } else {
+            angle = 0;
+            oppositeAngle = 0;
+            speed = 0;
         }
         StormCoord[] timePoints = new StormCoord[state.timePoints.length];
 

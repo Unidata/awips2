@@ -43,7 +43,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 10, 2010 #4517      lvenable     Initial creation
+ * Mar 10, 2010 #4517      lvenable    Initial creation
+ * Jun 17, 2013 #2085      njensen     Double checked locking of instance
  * 
  * </pre>
  * 
@@ -88,7 +89,11 @@ public class FFFGDataMgr {
      */
     public static FFFGDataMgr getInstance() {
         if (classInstance == null) {
-            classInstance = new FFFGDataMgr();
+            synchronized (FFFGDataMgr.class) {
+                if (classInstance == null) {
+                    classInstance = new FFFGDataMgr();
+                }
+            }
         }
 
         return classInstance;
@@ -101,7 +106,7 @@ public class FFFGDataMgr {
      */
     public static FFFGDataMgr getUpdatedInstance() {
         if (classInstance == null) {
-            classInstance = new FFFGDataMgr();
+            classInstance = getInstance();
         } else {
             classInstance.readInMasterXmlManager();
         }
