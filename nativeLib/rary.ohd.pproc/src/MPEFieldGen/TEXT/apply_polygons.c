@@ -143,6 +143,8 @@ void MPEFieldGen_apply_mpe_polygons ( double ** real_mosaic,
                          field,
                          pGeoData->num_rows,
                          pGeoData->num_cols,
+                         pGeoData->hrap_x,
+                         pGeoData->hrap_y,
                          add_flag,
 		         draw_only_persistent ); 
 
