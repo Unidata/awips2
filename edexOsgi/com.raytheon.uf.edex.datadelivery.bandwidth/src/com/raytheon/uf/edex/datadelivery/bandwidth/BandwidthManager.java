@@ -107,6 +107,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Jun 24, 2013 2106       djohnson     Access BandwidthBucket contents through RetrievalPlan.
  * Jul 10, 2013 2106       djohnson     Move EDEX instance specific code into its own class.
  * Jul 11, 2013 2106       djohnson     Propose changing available bandwidth returns subscription names.
+ * Jul 18, 2013 1653       mpduff       Added case GET_SUBSCRIPTION_STATUS.
  * </pre>
  * 
  * @author dhladky
@@ -742,6 +743,15 @@ public abstract class BandwidthManager extends
             break;
         case GET_BANDWIDTH_GRAPH_DATA:
             response = getBandwidthGraphData();
+            break;
+        case GET_SUBSCRIPTION_STATUS:
+            Subscription sub = null;
+            if (subscriptions.size() != 1
+                    || (!((sub = subscriptions.get(0)) instanceof Subscription))) {
+                throw new IllegalArgumentException(
+                        "Must supply one, and only one, subscription to get the status summary.");
+            }
+            response = bandwidthDao.getSubscriptionStatusSummary(sub);
             break;
         default:
             throw new IllegalArgumentException(
