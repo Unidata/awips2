@@ -123,6 +123,7 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIRatioDiff;
  * 02/25/13     1660       D. Hladky   Redesigned data flow for FFTI in order to have only one mosaic piece in memory at a time.
  * 03/13/13     1478       D. Hladky   non-FFTI mosaic containers weren't getting ejected.  Made it so that they are ejected after processing as well.
  * 03/22/13     1803       D. Hladky   Fixed broken performance logging for ffmp.
+ * 07/03/13     2131       D. Hladky   InitialLoad array was forcing total FDC re-query with every update.
  * </pre>
  * 
  * @author dhladky
@@ -191,9 +192,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
     /** FFTI accum/ratio/diff cache **/
     public ConcurrentHashMap<String, FFTIData> fftiData = new ConcurrentHashMap<String, FFTIData>();
-
-    /** checks for initial load **/
-    public ArrayList<String> loadedData = new ArrayList<String>();
 
     /** template config manager **/
     public FFMPTemplateConfigurationManager tempConfig = null;
@@ -1194,180 +1192,182 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
     /**
      * Process the ffmp data container
+     * 
      * @param ffmpRec
      * @param productKey
      */
-		 public void processDataContainer(FFMPRecord ffmpRec, String productKey) {
+    public void processDataContainer(FFMPRecord ffmpRec, String productKey) {
 
-		 		 String sourceName = null;
-		 		 Date backDate = null;
-		 		 String sourceSiteDataKey = null;
-		 		 FFMPDataContainer fdc = null;
-		 		 boolean write = true;
+        String sourceName = null;
+        Date backDate = null;
+        String sourceSiteDataKey = null;
+        FFMPDataContainer fdc = null;
+        boolean write = true;
 
-		 		 try {
-		 		 		 // write out the fast loader cache file
-		 		 		 long ptime = System.currentTimeMillis();
-		 		 		 SourceXML source = getSourceConfig().getSource(
-		 		 		 		 		 ffmpRec.getSourceName());
-		 		 		 String dataKey = ffmpRec.getDataKey();
+        try {
+            // write out the fast loader cache file
+            long ptime = System.currentTimeMillis();
+            SourceXML source = getSourceConfig().getSource(
+                    ffmpRec.getSourceName());
+            String dataKey = ffmpRec.getDataKey();
 
-		 		 		 if (source.getSourceType().equals(
-		 		 		 		 		 SOURCE_TYPE.GUIDANCE.getSourceType())) {
-		 		 		 		 sourceName = source.getDisplayName();
-		 		 		 		 sourceSiteDataKey = sourceName;
-		 		 		 		 // FFG is so infrequent go back a day
-		 		 		 		 backDate = new Date(config.getDate().getTime()
-		 		 		 		 		 		 - (TimeUtil.MILLIS_PER_HOUR * FFG_SOURCE_CACHE_TIME));
-		 		 		 } else {
-		 		 		 		 sourceName = ffmpRec.getSourceName();
-		 		 		 		 sourceSiteDataKey = sourceName + "-" + ffmpRec.getSiteKey()
-		 		 		 		 		 		 + "-" + dataKey;
-		 		 		 		 backDate = new Date(ffmpRec.getDataTime().getRefTime()
-		 		 		 		 		 		 .getTime()
-		 		 		 		 		 		 - (TimeUtil.MILLIS_PER_HOUR * SOURCE_CACHE_TIME));
-		 		 		 }
+            if (source.getSourceType().equals(
+                    SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                sourceName = source.getDisplayName();
+                sourceSiteDataKey = sourceName;
+                // FFG is so infrequent go back a day
+                backDate = new Date(config.getDate().getTime()
+                        - (TimeUtil.MILLIS_PER_HOUR * FFG_SOURCE_CACHE_TIME));
+            } else {
+                sourceName = ffmpRec.getSourceName();
+                sourceSiteDataKey = sourceName + "-" + ffmpRec.getSiteKey()
+                        + "-" + dataKey;
+                backDate = new Date(ffmpRec.getDataTime().getRefTime()
+                        .getTime()
+                        - (TimeUtil.MILLIS_PER_HOUR * SOURCE_CACHE_TIME));
+            }
 
-		 		 		 // deal with setting of needed HUCS
-		 		 		 ArrayList<String> hucs = template.getTemplateMgr().getHucLevels();
+            // deal with setting of needed HUCS
+            ArrayList<String> hucs = template.getTemplateMgr().getHucLevels();
+             
+            if (source.getSourceType().equals(SOURCE_TYPE.GAGE.getSourceType())
+                    || source.getSourceType().equals(
+                            SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                hucs.clear();
+                hucs.add(FFMPRecord.ALL);
+            } else {
+                hucs.remove(FFMPRecord.VIRTUAL);
+            }
 
-		 		 		 if (source.getSourceType().equals(SOURCE_TYPE.GAGE.getSourceType())
-		 		 		 		 		 || source.getSourceType().equals(
-		 		 		 		 		 		 		 SOURCE_TYPE.GUIDANCE.getSourceType())) {
-		 		 		 		 hucs.clear();
-		 		 		 		 hucs.add(FFMPRecord.ALL);
-		 		 		 } else {
-		 		 		 		 hucs.remove(FFMPRecord.VIRTUAL);
-		 		 		 }
 
-		 		 		 // pull from disk if there
-		 		 		 fdc = getFFMPDataContainer(sourceSiteDataKey, hucs, backDate);
+            // pull from disk if there
+            fdc = getFFMPDataContainer(sourceSiteDataKey, hucs, backDate);
 
-		 		 		 // brand new or initial load up
-		 		 		 if (fdc == null || !loadedData.contains(sourceSiteDataKey)) {
+            // brand new or initial load up
+            if (fdc == null) {
 
-		 		 		 		 long time = System.currentTimeMillis();
-		 		 		 		 fdc = new FFMPDataContainer(sourceSiteDataKey, hucs);
-		 		 		 		 fdc = FFTIProcessor.populateDataContainer(fdc, template, hucs,
-		 		 		 		 		 		 backDate, ffmpRec.getDataTime().getRefTime(),
-		 		 		 		 		 		 ffmpRec.getWfo(), source, ffmpRec.getSiteKey());
+                long time = System.currentTimeMillis();
+                fdc = new FFMPDataContainer(sourceSiteDataKey, hucs);
+                fdc = FFTIProcessor.populateDataContainer(fdc, template, hucs,
+                        backDate, ffmpRec.getDataTime().getRefTime(),
+                        ffmpRec.getWfo(), source, ffmpRec.getSiteKey());
 
-		 		 		 		 if (source.getSourceType().equals(
-		 		 		 		 		 		 SOURCE_TYPE.GAGE.getSourceType())
-		 		 		 		 		 		 || source.getSourceType().equals(
-		 		 		 		 		 		 		 		 SOURCE_TYPE.GUIDANCE.getSourceType())) {
-		 		 		 		 		 hucs.clear();
-		 		 		 		 		 hucs.add(FFMPRecord.ALL);
-		 		 		 		 } else {
-		 		 		 		 		 hucs.remove(FFMPRecord.VIRTUAL);
-		 		 		 		 }
+                if (source.getSourceType().equals(
+                        SOURCE_TYPE.GAGE.getSourceType())
+                        || source.getSourceType().equals(
+                                SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                    hucs.clear();
+                    hucs.add(FFMPRecord.ALL);
+                } else {
+                    hucs.remove(FFMPRecord.VIRTUAL);
+                }
 
-		 		 		 		 long time2 = System.currentTimeMillis();
-		 		 		 		 statusHandler.handle(Priority.DEBUG,
-		 		 		 		 		 		 "Populated new source: in " + (time2 - time)
-		 		 		 		 		 		 		 		 + " ms: source: " + sourceSiteDataKey);
+                long time2 = System.currentTimeMillis();
+                statusHandler.handle(Priority.DEBUG,
+                        "Populated new source: in " + (time2 - time)
+                                + " ms: source: " + sourceSiteDataKey);
 
-		 		 		 } else {
+            } else {
 
-		 		 		 		 long time = System.currentTimeMillis();
-		 		 		 		 // guidance sources are treated as a mosaic and are handled
-		 		 		 		 // differently. They are force read at startup.
-		 		 		 		 // This is the main line sequence a source will take when
-		 		 		 		 // updated.
-		 		 		 		 if (!source.getSourceType().equals(
-		 		 		 		 		 		 SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                long time = System.currentTimeMillis();
+                // guidance sources are treated as a mosaic and are handled
+                // differently. They are force read at startup.
+                // This is the main line sequence a source will take when
+                // updated.
+                if (!source.getSourceType().equals(
+                        SOURCE_TYPE.GUIDANCE.getSourceType())) {
 
-		 		 		 		 		 Date newDate = fdc.getNewest();
-		 		 		 		 		 Date oldDate = fdc.getOldest();
+                    Date newDate = fdc.getNewest();
+                    Date oldDate = fdc.getOldest();
 
-		 		 		 		 		 if (newDate != null && oldDate != null) {
-		 		 		 		 		 		 if ((ffmpRec.getDataTime().getRefTime().getTime() - newDate
-		 		 		 		 		 		 		 		 .getTime()) >= (source
-		 		 		 		 		 		 		 		 .getExpirationMinutes(ffmpRec.getSiteKey()) * TimeUtil.MILLIS_PER_MINUTE)) {
-		 		 		 		 		 		 		 // force a re-query back to the newest time in
-		 		 		 		 		 		 		 // existing source container, this will fill in
-		 		 		 		 		 		 		 // gaps
-		 		 		 		 		 		 		 // if
-		 		 		 		 		 		 		 // they exist.
-		 		 		 		 		 		 		 fdc = FFTIProcessor.populateDataContainer(fdc,
-		 		 		 		 		 		 		 		 		 template, null, newDate, ffmpRec
-		 		 		 		 		 		 		 		 		 		 		 .getDataTime().getRefTime(),
-		 		 		 		 		 		 		 		 		 ffmpRec.getWfo(), source, ffmpRec
-		 		 		 		 		 		 		 		 		 		 		 .getSiteKey());
+                    if (newDate != null && oldDate != null) {
+                        if ((ffmpRec.getDataTime().getRefTime().getTime() - newDate
+                                .getTime()) >= (source
+                                .getExpirationMinutes(ffmpRec.getSiteKey()) * TimeUtil.MILLIS_PER_MINUTE)) {
+                            // force a re-query back to the newest time in
+                            // existing source container, this will fill in
+                            // gaps
+                            // if
+                            // they exist.
+                            fdc = FFTIProcessor.populateDataContainer(fdc,
+                                    template, null, newDate, ffmpRec
+                                            .getDataTime().getRefTime(),
+                                    ffmpRec.getWfo(), source, ffmpRec
+                                            .getSiteKey());
 
-		 		 		 		 		 		 } else if (oldDate
-		 		 		 		 		 		 		 		 .after(new Date(
-		 		 		 		 		 		 		 		 		 		 backDate.getTime()
-		 		 		 		 		 		 		 		 		 		 		 		 - (source
-		 		 		 		 		 		 		 		 		 		 		 		 		 		 .getExpirationMinutes(ffmpRec
-		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 .getSiteKey()) * TimeUtil.MILLIS_PER_MINUTE)))) {
-		 		 		 		 		 		 		 // force a re-query back to barrierTime for
-		 		 		 		 		 		 		 // existing source container, this happens if
-		 		 		 		 		 		 		 // the
-		 		 		 		 		 		 		 // ingest was turned off for some period of
-		 		 		 		 		 		 		 // time.
-		 		 		 		 		 		 		 fdc = FFTIProcessor.populateDataContainer(fdc,
-		 		 		 		 		 		 		 		 		 template, null, backDate, oldDate,
-		 		 		 		 		 		 		 		 		 ffmpRec.getWfo(), source,
-		 		 		 		 		 		 		 		 		 ffmpRec.getSiteKey());
-		 		 		 		 		 		 }
-		 		 		 		 		 }
+                        } else if (oldDate
+                                .after(new Date(
+                                        backDate.getTime()
+                                                - (source
+                                                        .getExpirationMinutes(ffmpRec
+                                                                .getSiteKey()) * TimeUtil.MILLIS_PER_MINUTE)))) {
+                            // force a re-query back to barrierTime for
+                            // existing source container, this happens if
+                            // the
+                            // ingest was turned off for some period of
+                            // time.
+                            fdc = FFTIProcessor.populateDataContainer(fdc,
+                                    template, null, backDate, oldDate,
+                                    ffmpRec.getWfo(), source,
+                                    ffmpRec.getSiteKey());
+                        }
+                    }
 
-		 		 		 		 		 long time2 = System.currentTimeMillis();
-		 		 		 		 		 statusHandler.handle(Priority.DEBUG,
-		 		 		 		 		 		 		 "Checked Source files: in " + (time2 - time)
-		 		 		 		 		 		 		 		 		 + " ms: source: " + sourceSiteDataKey);
-		 		 		 		 }
-		 		 		 }
+                    long time2 = System.currentTimeMillis();
+                    statusHandler.handle(Priority.DEBUG,
+                            "Checked Source files: in " + (time2 - time)
+                                    + " ms: source: " + sourceSiteDataKey);
+                }
+            }
 
-		 		 		 // add current record data
-		 		 		 for (String huc : hucs) {
-		 		 		 		 fdc.addFFMPEntry(ffmpRec.getDataTime().getRefTime(), source,
-		 		 		 		 		 		 ffmpRec.getBasinData(huc), huc, ffmpRec.getSiteKey());
-		 		 		 }
+            // add current record data
+            for (String huc : hucs) {
+                fdc.addFFMPEntry(ffmpRec.getDataTime().getRefTime(), source,
+                        ffmpRec.getBasinData(huc), huc, ffmpRec.getSiteKey());
+            }
 
-		 		 		 // cache it temporarily for FFTI use
-		 		 		 if (source.getSourceType().equals(
-		 		 		 		 		 SOURCE_TYPE.GUIDANCE.getSourceType())) {
-		 		 		 		 // only write last one
-		 		 		 		 write = false;
+            // cache it temporarily for FFTI use
+            if (source.getSourceType().equals(
+                    SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                // only write last one
+                write = false;
 
-		 		 		 		 if (!ffmpData.containsKey(sourceSiteDataKey)) {
-		 		 		 		 		 ffmpData.put(sourceSiteDataKey, fdc);
-		 		 		 		 } else {
-		 		 		 		 		 ffmpData.replace(sourceSiteDataKey, fdc);
-		 		 		 		 }
-		 		 		 }
+                if (!ffmpData.containsKey(sourceSiteDataKey)) {
+                    ffmpData.put(sourceSiteDataKey, fdc);
+                } else {
+                    ffmpData.replace(sourceSiteDataKey, fdc);
+                }
+            }
 
-		 		 		 statusHandler.handle(
-		 		 		 		 		 Priority.INFO,
-		 		 		 		 		 "Processed FFMPDataContainer: in "
-		 		 		 		 		 		 		 + (System.currentTimeMillis() - ptime)
-		 		 		 		 		 		 		 + " ms: source: " + sourceSiteDataKey);
-		 		 } catch (Exception e) {
-		 		 		 statusHandler.handle(Priority.ERROR,
-		 		 		 		 		 "Failed Processing FFMPDataContainer" + e.getMessage());
+            statusHandler.handle(
+                    Priority.INFO,
+                    "Processed FFMPDataContainer: in "
+                            + (System.currentTimeMillis() - ptime)
+                            + " ms: source: " + sourceSiteDataKey);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Failed Processing FFMPDataContainer " + e.getMessage(), e);
 
-		 		 } finally {
-		 		 		 // purge it up
-		 		 		 if (fdc != null) {
-		 		 		 		 // this is defensive for if errors get thrown
-		 		 		 		 if (backDate == null) {
-		 		 		 		 		 backDate = new Date((System.currentTimeMillis())
-		 		 		 		 		 		 		 - (TimeUtil.MILLIS_PER_HOUR * SOURCE_CACHE_TIME));
-		 		 		 		 }
+        } finally {
+            // purge it up
+            if (fdc != null) {
+                // this is defensive for if errors get thrown
+                if (backDate == null) {
+                    backDate = new Date((System.currentTimeMillis())
+                            - (TimeUtil.MILLIS_PER_HOUR * SOURCE_CACHE_TIME));
+                }
 
-		 		 		 		 if (!fdc.isPurged()) {
-		 		 		 		 		 fdc.purge(backDate);
-		 		 		 		 }
+                if (!fdc.isPurged()) {
+                    fdc.purge(backDate);
+                }
 
-		 		 		 		 if (write) {
-		 		 		 		 		 // write it out
-		 		 		 		 		 writeAggregateRecord(fdc, sourceSiteDataKey);
-		 		 		 		 }
-		 		 		 }
-		 		 }
-		 }
+                if (write) {
+                    // write it out
+                    writeAggregateRecord(fdc, sourceSiteDataKey);
+                }
+            }
+        }
+    }
 
     /**
      * load existing container
@@ -1575,8 +1575,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
             ffgCheck = false;
             resetFilters();
-
-            loadedData.clear();
 
             if (ffmpData != null) {
                 ffmpData.clear();

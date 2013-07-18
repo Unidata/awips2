@@ -1,7 +1,10 @@
 <!--Generic Marine Weather Statement configuration -->
 <warngenConfig>
-<!-- Original MWS template by Phil Kurimski WFO DTX -->
-<!-- Customized by Tom Birchard WFO DTX 23 September 2011 for Ashfall -->
+<!-- Original MWS template by Phil Kurimski WFO DTX
+     Customized by Tom Birchard WFO DTX 23 September 2011 for Ashfall 
+                   Evan Bookbinder 09-11-2012 Added settings for locations shapefile   
+                                              Added new areaSource objects  
+-->
 
  <!-- Config distance/speed units -->
  <unitDistance>nmi</unitDistance>
@@ -90,7 +93,7 @@
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** Pathcast Section **********" bulletType="title"/>
   <bullet bulletName="pathcast" bulletText="select for pathcast" bulletGroup="group3" parseString="WILL BE NEAR..."/>
-  <bullet bulletName="listoflocations" bulletText="select for a list of locations" bulletGroup="group3" parseString="LOCATIONS IMPACTED INCLUDE..."/>
+  <bullet bulletName="listoflocations" bulletDefault="true" bulletText="Select for a list of locations" bulletGroup="group3"/>
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" bulletGroup="group3" parseString="THOSE ATTENDING"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText=" *****Call to Action SECTION*****" bulletType="title"/>
@@ -120,8 +123,10 @@
   <bullet bulletName="visnear5nm" bulletText="Visibility near 5 NM" bulletGroup="group4" parseString="OVER THE COASTAL WATERS"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** Pathcast Section **********" bulletType="title"/>
-  <bullet bulletName="pathcast" bulletText="select for pathcast" bulletGroup="group3" parseString="WILL BE NEAR..."/>
-  <bullet bulletName="listoflocations" bulletText="select for a list of locations" bulletGroup="group3" parseString="LOCATIONS IMPACTED INCLUDE..."/>
+  <bullet bulletName="pathcast" bulletText="select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="LOCATIONS IMPACTED INCLUDE" showString="LOCATIONS IMPACTED INCLUDE"/>
+  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="LOCATIONS IN THE WARNING INCLUDE" showString="LOCATIONS IN THE WARNING INCLUDE"/>
+  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>  
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="" bulletType="title"/>
    <bullet bulletText=" *****Call to Action SECTION*****" bulletType="title"/>
@@ -131,34 +136,40 @@
 </bulletActionGroup>
 </bulletActionGroups>
 
- <areaConfig>
-  <inclusionPercent>0.00</inclusionPercent>
-  <inclusionAndOr>AND</inclusionAndOr>
-  <inclusionArea>0</inclusionArea>
-  <areaField>NAME</areaField>
-  <parentAreaField>NAME</parentAreaField>
-  <areaNotationField>NAME</areaNotationField>
-  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
-  <fipsField>ID</fipsField>
-  <pointField>NAME</pointField>
-  <sortBy>
-  	<sort>Name</sort>
-  </sortBy>
-  <pointFilter>
+  <!-- Default areaSource object to generate zone based information -->
+ <areaSource variable="areas">
+   <areaSource>MarineZones</areaSource>
+   <inclusionPercent>0</inclusionPercent>
+   <inclusionAndOr>AND</inclusionAndOr>
+   <inclusionArea>0</inclusionArea>
+   <areaField>NAME</areaField>
+   <parentAreaField>NAME</parentAreaField>
+   <areaNotationField>NAME</areaNotationField>
+   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+   <fipsField>ID</fipsField>
+   <pointField>NAME</pointField>
+   <sortBy>
+  	<sort>parent</sort>
+   </sortBy>
+   <pointFilter>
  		<mapping key="WARNGENLEV">
  			<constraint constraintValue="1" constraintType="EQUALS" />
  		</mapping>
   </pointFilter>
   <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
- </areaConfig>
+</areaSource>
 
  <pointSource variable="closestPoints">
  	<pointField>NAME</pointField>
+ 	<type>AREA</type>
  	<searchMethod>POINTS</searchMethod>
  	<filter>
  		<mapping key="WARNGENLEV">
  			<constraint constraintValue="1,2" constraintType="IN" />
  		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="W,C,LW,LC" constraintType="IN" />
+ 	  </mapping> 		
  	</filter>
  	<maxResults>1</maxResults>
  	<distanceThreshold>100</distanceThreshold>
@@ -170,11 +181,15 @@
  
  <pointSource variable="otherClosestPoints">
  	<pointField>NAME</pointField>
+ 	<type>AREA</type>
  	<searchMethod>POINTS</searchMethod>
  	<filter>
  		<mapping key="WARNGENLEV">
- 			<constraint constraintValue="1,2" constraintType="IN" />
+ 			<constraint constraintValue="1" constraintType="IN" />
  		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="W,C,LW,LC" constraintType="IN" />
+ 	  </mapping> 		 		
  	</filter>
  	<maxResults>5</maxResults>
  	<distanceThreshold>100</distanceThreshold>
@@ -185,13 +200,18 @@
  </pointSource>
  
  <pathcastConfig>
-  <withinPolygon>true</withinPolygon>
-  <distanceThreshold>20.0</distanceThreshold>
+ <!-- the withinPolygon variable set to false will bring in points
+ outside of the polygon which is necessary for the pathcast to reference
+ points that are near the water but not on the water -->
+  <withinPolygon>false</withinPolygon>
+  <inclusionPercent>1</inclusionPercent>
+  <distanceThreshold>10.0</distanceThreshold>
   <interval>5</interval>
   <delta>5</delta>
   <maxResults>4</maxResults>
   <maxGroup>8</maxGroup>
   <pointField>Name</pointField>
+  <type>AREA</type>
   <areaField>Name</areaField>
   <parentAreaField>Name</parentAreaField>
   <areaNotationField>Name</areaNotationField>
@@ -200,6 +220,9 @@
  		<mapping key="WARNGENLEV">
  			<constraint constraintValue="1,2" constraintType="IN" />
  		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="W,LW" constraintType="IN" />
+ 	  </mapping> 		 		
   </filter>  
   <sortBy>
   	<sort>distance</sort>
@@ -208,14 +231,19 @@
  
    <pointSource variable="locationList">
  	<pointField>NAME</pointField>
+ 	<inclusionPercent>1</inclusionPercent>
+ 	<type>AREA</type>
  	<searchMethod>TRACK</searchMethod>
  	<withinPolygon>true</withinPolygon>
  	<maxResults>20</maxResults>
  	<distanceThreshold>20</distanceThreshold>
 	<filter> 	
   	  <mapping key="WARNGENLEV">
- 		<constraint constraintValue="1,2,3" constraintType="IN" />
+ 		<constraint constraintValue="1,2,3,4" constraintType="IN" />
  	  </mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="W,LW" constraintType="IN" />
+ 	  </mapping> 	
  	</filter>  	
  	<sortBy>
   		<sort>distance</sort>
@@ -224,6 +252,8 @@
  
   <pointSource variable="otherPoints">
  	<pointField>NAME</pointField>
+ 	<inclusionPercent>1</inclusionPercent>
+ 	<type>AREA</type>
  	<searchMethod>TRACK</searchMethod>
  	<withinPolygon>true</withinPolygon>
  	<maxResults>10</maxResults>
@@ -233,14 +263,17 @@
   	</sortBy>
 	<filter>
  		<mapping key="WARNGENLEV">
- 			<constraint constraintValue="3" constraintType="EQUALS" />
+ 			<constraint constraintValue="3,4" constraintType="IN" />
  		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="W,LW" constraintType="IN" />
+ 	  </mapping> 	 		
   	</filter>
  </pointSource>
  
  
  <geospatialConfig>
-  <pointSource>MarineSites</pointSource>
+  <pointSource>WarnGenLoc</pointSource>
   <areaSource>MarineZones</areaSource>
   <parentAreaSource>MarineZones</parentAreaSource>
   <timezoneSource>TIMEZONES</timezoneSource>

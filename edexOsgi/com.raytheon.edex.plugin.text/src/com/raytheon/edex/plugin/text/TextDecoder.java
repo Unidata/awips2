@@ -27,12 +27,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -77,6 +77,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Aug 26, 2010 2187        cjeanbap    Renamed operationalMode for
  *                                       consistency.
  * Dec 13, 2010 5805        cjeanbap    Parse Report to get AFOS Product Id
+ * Jul 16, 2013 DR 16323    D. Friedman Use concurrent map
  * </pre>
  * 
  * @author
@@ -110,7 +111,7 @@ public class TextDecoder extends AbstractDecoder {
 
     // keeps track of the headers that have been logged as not mapped and the
     // time it was logged, so that each one is only logged once a day
-    private Map<String, Long> notMappedHeaders = new HashMap<String, Long>();
+    private Map<String, Long> notMappedHeaders = new ConcurrentHashMap<String, Long>();
 
     private long msgHdrLogTime = 0;
 

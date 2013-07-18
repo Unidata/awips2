@@ -77,6 +77,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * May 22, 2013    1902   mpduff      Code cleanup.
  * Jun 11, 2013    2085   njensen     Extracted row creation to FFMPRowGenerator and
  *                                     multi-threaded row creation.
+ * July 1, 2013    2155   dhladky     Fixed bug that created more rows than were actually needed.
  * 
  * </pre>
  * 
@@ -164,7 +165,6 @@ public class FFMPDataGenerator {
     public FFMPTableData generateFFMPData() throws Exception {
         // You should always have at least a QPE data source
         FFMPTableData tData = null;
-
         // update the FFFGDataManager
         FFFGDataMgr.getUpdatedInstance();
 
@@ -196,8 +196,9 @@ public class FFMPDataGenerator {
                             }
 
                             for (DomainXML domain : domains) {
+                                
                                 String cwa = domain.getCwa();
-
+                                
                                 if ((cwa.equals(fmdb.getCwa()))
                                         || (domain.isPrimary() && fmdb
                                                 .isPrimaryCwa())) {
@@ -213,7 +214,7 @@ public class FFMPDataGenerator {
                                                 .getVirtualGageBasinLookupIds(
                                                         siteKey, key, huc,
                                                         resource.basinTableDlg
-                                                                .getRowName())) {
+                                                                .getRowName(), domain)) {
                                             try {
                                                 setFFMPRow(
                                                         virtualBasin.get(id),
@@ -263,25 +264,31 @@ public class FFMPDataGenerator {
                 }
                 // show pfafs in aggregation
                 else {
-                    for (Long key : resource.getCenteredAggregatePfafs()) {
+                    
+                    List<Long> centerAggPfafs = resource.getCenteredAggregatePfafs();
+
+                    for (Long key : centerAggPfafs) {
 
                         FFMPBasinMetaData fmdb = ft.getBasin(siteKey, key);
-
+                       
                         if (fmdb != null) {
                             for (DomainXML domain : domains) {
-
                                 if ((domain.getCwa().equals(fmdb.getCwa()))
                                         || (domain.isPrimary() && fmdb
                                                 .isPrimaryCwa())) {
-
+                                    
                                     setFFMPRow(fbd.get(key), tData, false, null);
 
                                     if (virtualBasin != null) {
-                                        for (Long id : ft
-                                                .getVirtualGageBasinLookupIds(
-                                                        siteKey, key, huc,
-                                                        resource.basinTableDlg
-                                                                .getRowName())) {
+                                        
+                                        // We *DO NOT* want all of the aggregate VGB's, 
+                                        // just the one's for this individual basin.
+                                        List<Long> virtuals = ft.getVirtualGageBasinLookupIds(
+                                                siteKey, key, FFMPRecord.ALL,
+                                                resource.basinTableDlg
+                                                        .getRowName(), domain);
+                                        
+                                        for (Long id : virtuals) {
                                             try {
                                                 setFFMPRow(
                                                         virtualBasin.get(id),

@@ -24,26 +24,21 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Set;
 import java.util.TimeZone;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.Immutable;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.gfe.serialize.DatabaseIDAdapter;
@@ -64,6 +59,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
  * 6/25/12      766        dgilling    Fix isValid().
  * 01/18/13     1504       randerso    Removed setters since class should be immutable
  * 03/28/13     1949       rjpeter     Normalized database structure.
+ * 06/20/13     2127       rjpeter     Removed unused bidirectional relationship.
  * </pre>
  * 
  * @author bphillip
@@ -72,6 +68,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
 @Entity
 @Table(name = "gfe_dbid", uniqueConstraints = { @UniqueConstraint(columnNames = {
         "siteId", "modelName", "modelTime", "dbType" }) })
+@Immutable
 @DynamicSerialize
 @DynamicSerializeTypeAdapter(factory = DatabaseIDAdapter.class)
 public class DatabaseID implements Comparable<DatabaseID> {
@@ -145,16 +142,6 @@ public class DatabaseID implements Comparable<DatabaseID> {
     /** The short model identifier */
     @Transient
     private String shortModelId;
-
-    /**
-     * Used only for hibernate mappings to allow a cascade delete to all child
-     * parmIds when the databaseId is deleted. These should not be loaded by or
-     * referenced normally from code from this object.
-     */
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "dbId", cascade = { CascadeType.REMOVE })
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @SuppressWarnings("unused")
-    private Set<ParmID> parmIds;
 
     /**
      * Creates a new DatabaseID
