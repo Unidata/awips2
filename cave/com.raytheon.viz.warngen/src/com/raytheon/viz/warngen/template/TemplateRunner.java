@@ -153,6 +153,7 @@ import com.vividsolutions.jts.io.WKTReader;
  *                                     and secondtimezone can get correct values when warning area covers two time zones.
  * May 10, 2013   1951     rjpeter     Updated ugcZones references
  * May 30, 2013   DR 16237 D. Friedman Fix watch query.
+ * Jun 18, 2013   2118     njensen     Only calculate pathcast if it's actually used
  * </pre>
  * 
  * @author njensen
@@ -488,12 +489,23 @@ public class TemplateRunner {
                     context.put(variableName, points.get(variableName));
                 }
 
-                PathCast[] pathCast = wx.pathcast(threeLetterSiteId);
-                context.put(config.getPathcastConfig().getVariable(), pathCast);
+                boolean hasPathCast = false;
+                for (String s : selectedBullets) {
+                    if (s.indexOf("pathcast") > -1) {
+                        hasPathCast = true;
+                        break;
+                    }
+                }
+                if (hasPathCast) {
+                    PathCast[] pathCast = wx.pathcast(threeLetterSiteId);
+                    context.put(config.getPathcastConfig().getVariable(),
+                            pathCast);
 
-                if (pathCast == null) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "WarnGen critical error: No PathCast Information");
+                    if (pathCast == null) {
+                        statusHandler
+                                .handle(Priority.PROBLEM,
+                                        "WarnGen critical error: No PathCast Information");
+                    }
                 }
 
                 // Now create the "other areas
@@ -1012,15 +1024,17 @@ public class TemplateRunner {
                 request.addConstraint("startTime", new RequestConstraint(
                         TimeUtil.formatDate(startConstraintTime),
                         ConstraintType.LESS_THAN_EQUALS));
-                request.addConstraint("endTime", new RequestConstraint(
-                        TimeUtil.formatDate(endConstraintTime),
-                        ConstraintType.GREATER_THAN_EQUALS));
+                request.addConstraint(
+                        "endTime",
+                        new RequestConstraint(TimeUtil
+                                .formatDate(endConstraintTime),
+                                ConstraintType.GREATER_THAN_EQUALS));
                 /*
                  * TODO: Currently limited to filtering out one of
                  * ("CAN","EXP"). Could use "Act" in addition to "act", but this
                  * should really be fixed the underlying system.
-                request.addConstraint("act", new RequestConstraint("CAN",
-                        ConstraintType.NOT_EQUALS));
+                 * request.addConstraint("act", new RequestConstraint("CAN",
+                 * ConstraintType.NOT_EQUALS));
                  */
                 request.addConstraint("act", new RequestConstraint("EXP",
                         ConstraintType.NOT_EQUALS));
@@ -1030,20 +1044,22 @@ public class TemplateRunner {
                 // TODO: Talk to Jonathan about this... Do I even need officeid
                 // IN or is ugc zone good enough?
 
-                /* Get all UGCs in the CWA now so that the watches will be
+                /*
+                 * Get all UGCs in the CWA now so that the watches will be
                  * formatted with all portions of the affected state(s).
                  * 
                  * Filtering for valid UGCs is performed in processATEntries
                  */
                 RequestConstraint ugcConstraint = new RequestConstraint("",
                         ConstraintType.IN);
-                ugcConstraint.setConstraintValueList(warngenLayer.getAllCountyUgcs());
+                ugcConstraint.setConstraintValueList(warngenLayer
+                        .getAllCountyUgcs());
                 request.addConstraint("ugcZone", ugcConstraint);
 
                 // These are the only fields we need for processing watches
                 request.addFields(new String[] { "issueTime", "startTime",
-                        "endTime", "ugcZone", "phensig", "vtecstr",
-                        "etn", "act" });
+                        "endTime", "ugcZone", "phensig", "vtecstr", "etn",
+                        "act" });
 
                 DbQueryResponse response = (DbQueryResponse) ThriftClient
                         .sendRequest(request);
@@ -1051,9 +1067,10 @@ public class TemplateRunner {
                 List<ActiveTableRecord> records = new ArrayList<ActiveTableRecord>(
                         response.getNumResults());
                 for (Map<String, Object> result : response.getResults()) {
-                    /* TODO: Doing this here because only "EXP" is filtered
-                     * out by the query.  Remove "act" from the field list
-                     * once this is fixed.
+                    /*
+                     * TODO: Doing this here because only "EXP" is filtered out
+                     * by the query. Remove "act" from the field list once this
+                     * is fixed.
                      */
                     if ("CAN".equals(result.get("act")))
                         continue;
@@ -1081,14 +1098,18 @@ public class TemplateRunner {
                         t1 = System.currentTimeMillis();
                         System.out.println("getWatches.polygonBuffer time: "
                                 + (t1 - t0));
-                        validUgcZones = warngenLayer.getUgcsForCountyWatches(watchArea);
+                        validUgcZones = warngenLayer
+                                .getUgcsForCountyWatches(watchArea);
                     } catch (RuntimeException e) {
-                        statusHandler.handle(Priority.ERROR,
-                                "Error determining areas to search for watches.", e);
+                        statusHandler
+                                .handle(Priority.ERROR,
+                                        "Error determining areas to search for watches.",
+                                        e);
                         return rval;
                     }
 
-                    rval = processATEntries(records, warngenLayer, validUgcZones);
+                    rval = processATEntries(records, warngenLayer,
+                            validUgcZones);
                 }
             }
         }

@@ -46,6 +46,7 @@ import com.vividsolutions.jts.geom.Point;
  * 10-27-2010   #6964      bkowal      Added a public class member for the LineStyle.
  * 11/29/2012   15571      Qinglu Lin  Added compuateCurrentStormCenter();
  * 15Mar2013	15693	mgamazaychikov Added magnification.
+ * 06-24-2013   DR 16317   D. Friedman Handle "motionless" track.
  * 
  * </pre>
  * 
@@ -195,6 +196,8 @@ public class StormTrackState {
     /** set magnification to default value */
     public float magnification = 1.0f;
 
+    private boolean initiallyMotionless;
+
     /** Compute the coordinate of the storm center at the time defined by dataTime via interpolation. */
     public boolean compuateCurrentStormCenter(Coordinate coord, DataTime dateTime) {
     	if (futurePoints == null) return false;
@@ -221,5 +224,18 @@ public class StormTrackState {
     		if (coord.x<-180.0)
     			coord.x = 360. + coord.x;
     	return true;
+    }
+
+    public boolean isInitiallyMotionless() {
+        return initiallyMotionless;
+    }
+
+    public void setInitiallyMotionless(boolean initiallyMotionless) {
+        this.initiallyMotionless = initiallyMotionless;
+    }
+
+    // Return true if motion is defined and is not stationary
+    public boolean isNonstationary() {
+        return mode != Mode.DRAG_ME && speed > 0;
     }
 }

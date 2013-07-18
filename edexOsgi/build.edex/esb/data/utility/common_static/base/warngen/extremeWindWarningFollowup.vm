@@ -2,9 +2,8 @@
 ## EWW SVS                                     ##
 ## MODIFIED EVAN BOOKBINDER 09-16-2011 OB11.0.8-8
 ##          Evan Bookbinder 4-25-2012  for OB 12.3.1 (corText)
-##          QINGLU LIN      7-31-2012 DR 15217 use roundAndPad
-##          Qinglu Lin     12-27-2012 DR 15594. Appended true to headlineLocList's parameter list.
-##          D. Friedman    03-13-2013 DR 15892. Use printcoords.
+##          Mike Dangelo 9-13-2012 minor tweaks to ${variables} 
+##          Evan Bookbinder 06-07-2013 Fixed CTAs/&&
 ################################################
 ##
 ### CREATE PHRASING DEPENDING ON WHETHER WE ISSUE EXP PRIOR TO EXPIRATION TIME OR NOT
@@ -56,8 +55,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE. ##
 #end
 ...THE EXTREME WIND WARNING FOR ##
-#headlineLocList(${areas} true true true false true)
- ${expcanHLTag}...
+#headlineLocList(${areas} true true true false) ${expcanHLTag}...
 
 ## One line explanation
 !**EXPLANATION**!
@@ -65,10 +63,10 @@ THIS IS A TEST MESSAGE. ##
 #############
 ## WATCHES ##
 #############
-#if(${list.contains($includedWatches, "torWatches")})
+#if(${list.contains(${includedWatches}, "torWatches")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains($includedWatches, "svrWatches")})
+#if(${list.contains(${includedWatches}, "svrWatches")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #end
@@ -81,49 +79,49 @@ THIS IS A TEST MESSAGE. ##
 #set($reportType = "EXTREME WINDS")
 #set($reportType2 = "THE HURRICANE EYEWALL WAS")
 ##
-#if(${list.contains($bullets, "var1")})
+#if(${list.contains(${bullets}, "var1")})
 #set($reportType1 = "ASSOCIATED WITH A BROAD AREA OF INTENSE THUNDERSTORMS...LOCATED")
 #set($reportType = "EXTREME WINDS WERE OCCURING")
 #set($reportType2 = "THIS AREA OF THUNDERSTORM WINDS WAS")
 #end
 ##
-#if(${list.contains($bullets, "var2")})
+#if(${list.contains(${bullets}, "var2")})
 #set($reportType1 = "ASSOCIATED WITH AN INTENSE LOW PRESSURE AREA...LOCATED")
 #set($reportType = "EXTREME WINDS WERE OCCURING")
 #set($reportType2 = "THIS INTENSE LOW PRESSURE SYSTEM WAS")
 #end
 ##
-#if(${list.contains($bullets, "var3")})
+#if(${list.contains(${bullets}, "var3")})
 #set($reportType1 = "ASSOCIATED WITH A DOWNSLOPE WINDSTORM...LOCATED")
 #set($reportType = "EXTREME WINDS WERE OCCURING")
 #set($reportType2 = "THIS AREA OF DOWNSLOPE WINDS WAS")
 #end
 ##
-#if(${list.contains($bullets, "basis1")})
+#if(${list.contains(${bullets}, "basis1")})
 #set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED EXTREME WINDS")
 #end
 ##
-#if(${list.contains($bullets, "basis2")})
+#if(${list.contains(${bullets}, "basis2")})
 #set($reportType = "SURFACE OBSERVATIONS INDICATED EXTREME WINDS")
 #end
 ##
-#if(${list.contains($bullets, "basis3")})
+#if(${list.contains(${bullets}, "basis3")})
 #set($reportType = "MARITIME OBSERVATIONS INDICATED EXTREME WINDS")
 #end
 ##
-#if(${list.contains($bullets, "basis4")})
+#if(${list.contains(${bullets}, "basis4")})
 #set($reportType = "TRAINED WEATHER SPOTTERS REPORTED EXTREME WINDS")
 #end
 ##
-#if(${list.contains($bullets, "basis5")})
+#if(${list.contains(${bullets}, "basis5")})
 #set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND SURFACE OBSERVATIONS INDICATED EXTREME WINDS")
 #end
 ##
-#if(${list.contains($bullets, "basis6")})
+#if(${list.contains(${bullets}, "basis6")})
 #set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND MARITIME OBSERVATIONS INDICATED EXTREME WINDS")
 #end
 ##
-#if(${list.contains($bullets, "basis7")})
+#if(${list.contains(${bullets}, "basis7")})
 #set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND TRAINED WEATHER SPOTTERS REPORTED EXTREME WINDS")
 #end
 ##
@@ -159,32 +157,40 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE. ##
 #end
 ...AN EXTREME WIND WARNING REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
-#headlineLocList(${areas} true true true false true)...
+#headlineLocList(${areas} true true true false)...
 ## Storm current location description
 
 #if(${productClass}=="T")
 
-THIS IS A TEST MESSAGE. AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}...${reportType}...${reportType1} ##
+THIS IS A TEST MESSAGE. ##
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
+...${reportType}...${reportType1} ##
 #else
 
-AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}...${reportType}...${reportType1} ##
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
+...${reportType}...${reportType1} ##
 #end
-#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "NEAR", 6, "MILES", true)
+#if(${stormType} == "line")
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", false)
+#else
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", true)
+#end
 #if($movementSpeed < 3 || ${stationary})
-. ${reportType2} NEARLY STATIONARY.
+. ${reportType2} NEARLY STATIONARY.##
 #else
-...MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH.
+...MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH.##
 #end
-
-#set ($phenomena = "EXTREME WINDS") 
-#set ($warningType = "WARNING") 
-#if(${list.contains($bullets, "pathcast")})
+  THIS IS AN EXTREMELY DANGEROUS AND LIFE-THREATENING SITUATION!
+  
+#set($phenomena = "EXTREME WINDS") 
+#set($warningType = "WARNING") 
+#if(${list.contains(${bullets}, "pathcast")})
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
 #pathCast("${phenomena} WILL BE NEAR..." ${phenomena} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
-#elseif(${list.contains($bullets, "listofcities")})
+#elseif(${list.contains(${bullets}, "listofcities")})
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
@@ -195,37 +201,36 @@ THIS IS A TEST MESSAGE. ##
 #locationsList("LOCATIONS IMPACTED INCLUDE..." "${phenomena} ARE EXPECTED TO REMAIN OVER MAINLY RURAL AREAS OF" 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
 #end
-##############################################
+
 ###### mile markers ##############
-##############################################
 #parse("milemarkers.vm")
 #####################
 ## CALL TO ACTIONS ##
 #####################
-#if(${list.contains($bullets, "cta1")} || ${list.contains($bullets, "cta2")} || ${list.contains($bullets, "cta3")})
+#if(${list.contains(${bullets}, "cta1")} || ${list.contains(${bullets}, "cta2")} || ${list.contains(${bullets}, "cta3")})
 PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
-#if(${list.contains($bullets, "cta1")})
+#if(${list.contains(${bullets}, "cta1")})
 WIDESPREAD DESTRUCTIVE WINDS OF !** **! TO !** **! MPH WILL SPREAD ACROSS ##
-#headlineLocList(${areas} true true true false true)...PRODUCING SWATHS OF TORNADO-LIKE DAMAGE.
+#headlineLocList(${areas} true true true false)...PRODUCING SWATHS OF TORNADO-LIKE DAMAGE.
 
 #end
-#if(${list.contains($bullets, "cta2")})
+#if(${list.contains(${bullets}, "cta2")})
 TAKE COVER NOW! TREAT THESE IMMINENT EXTREME WINDS AS IF A TORNADO WAS APPROACHING AND MOVE IMMEDIATELY TO THE SAFE ROOM IN YOUR SHELTER. TAKE ACTION NOW TO PROTECT YOUR LIFE!
 
 #end
-#if(${list.contains($bullets, "cta3")})
+#if(${list.contains(${bullets}, "cta3")})
 THE SAFEST PLACE TO BE DURING A MAJOR LANDFALLING HURRICANE IS IN A REINFORCED INTERIOR ROOM AWAY FROM WINDOWS. GET UNDER A TABLE OR OTHER PIECE OF STURDY FURNITURE. USE MATTRESSES...BLANKETS OR PILLOWS TO COVER YOUR HEAD AND BODY. REMAIN IN PLACE THROUGH THE PASSAGE OF THESE LIFE THREATENING CONDITIONS.
 
 #end
 #############
 ## WATCHES ##
 #############
-#if(${list.contains($includedWatches, "torWatches")})
+#if(${list.contains(${includedWatches}, "torWatches")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains($includedWatches, "svrWatches")})
+#if(${list.contains(${includedWatches}, "svrWatches")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #end
@@ -238,49 +243,49 @@ THE SAFEST PLACE TO BE DURING A MAJOR LANDFALLING HURRICANE IS IN A REINFORCED I
 #set($reportType = "EXTREME WINDS")
 #set($reportType2 = "THE HURRICANE EYEWALL WAS")
 ##
-#if(${list.contains($bullets, "var1")})
+#if(${list.contains(${bullets}, "var1")})
 #set($reportType1 = "ASSOCIATED WITH A BROAD AREA OF INTENSE THUNDERSTORMS...LOCATED")
 #set($reportType = "EXTREME WINDS WERE OCCURING")
 #set($reportType2 = "THIS AREA OF THUNDERSTORM WINDS WAS")
 #end
 ##
-#if(${list.contains($bullets, "var2")})
+#if(${list.contains(${bullets}, "var2")})
 #set($reportType1 = "ASSOCIATED WITH AN INTENSE LOW PRESSURE AREA...LOCATED")
 #set($reportType = "EXTREME WINDS WERE OCCURING")
 #set($reportType2 = "THIS INTENSE LOW PRESSURE SYSTEM WAS")
 #end
 ##
-#if(${list.contains($bullets, "var3")})
+#if(${list.contains(${bullets}, "var3")})
 #set($reportType1 = "ASSOCIATED WITH A DOWNSLOPE WINDSTORM...LOCATED")
 #set($reportType = "EXTREME WINDS WERE OCCURING")
 #set($reportType2 = "THIS AREA OF DOWNSLOPE WINDS WAS")
 #end
 ##
-#if(${list.contains($bullets, "basis1")})
+#if(${list.contains(${bullets}, "basis1")})
 #set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED EXTREME WINDS")
 #end
 ##
-#if(${list.contains($bullets, "basis2")})
+#if(${list.contains(${bullets}, "basis2")})
 #set($reportType = "SURFACE OBSERVATIONS INDICATED EXTREME WINDS")
 #end
 ##
-#if(${list.contains($bullets, "basis3")})
+#if(${list.contains(${bullets}, "basis3")})
 #set($reportType = "MARITIME OBSERVATIONS INDICATED EXTREME WINDS")
 #end
 ##
-#if(${list.contains($bullets, "basis4")})
+#if(${list.contains(${bullets}, "basis4")})
 #set($reportType = "TRAINED WEATHER SPOTTERS REPORTED EXTREME WINDS")
 #end
 ##
-#if(${list.contains($bullets, "basis5")})
+#if(${list.contains(${bullets}, "basis5")})
 #set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND SURFACE OBSERVATIONS INDICATED EXTREME WINDS")
 #end
 ##
-#if(${list.contains($bullets, "basis6")})
+#if(${list.contains(${bullets}, "basis6")})
 #set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND MARITIME OBSERVATIONS INDICATED EXTREME WINDS")
 #end
 ##
-#if(${list.contains($bullets, "basis7")})
+#if(${list.contains(${bullets}, "basis7")})
 #set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND TRAINED WEATHER SPOTTERS REPORTED EXTREME WINDS")
 #end
 ##
@@ -315,9 +320,8 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE.##
 #end
-...THE EXTREME WIND WARNING FOR##
-#headlineLocList(${cancelareas} true true true false true)
- ${expcanHLTag}...
+...THE EXTREME WIND WARNING FOR ##
+#headlineLocList(${cancelareas} true true true false) ${expcanHLTag}...
 
 ## One line explanation
 !**EXPLANATION**!
@@ -325,10 +329,10 @@ THIS IS A TEST MESSAGE.##
 #############
 ## WATCHES ##
 #############
-#if(${list.contains($includedWatches, "torWatches")})
+#if(${list.contains(${includedWatches}, "torWatches")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains($includedWatches, "svrWatches")})
+#if(${list.contains(${includedWatches}, "svrWatches")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #if(${productClass}=="T")
@@ -337,13 +341,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 #end
 #printcoords(${areaPoly}, ${list})
 
-TIME...MOT...LOC ##
-${dateUtil.format(${event}, ${timeFormat.time})}Z ##
-${mathUtil.roundAndPad(${movementDirection})}DEG ##
-${mathUtil.round(${movementInKnots})}KT ##
-#foreach(${eventCoord} in ${eventLocation})
-#llFormat(${eventCoord.y}) #llFormat(${eventCoord.x}) ##
-#end
+#tml(${TMLtime}, ${timeFormat}, ${movementDirection}, ${movementInKnots}, ${eventLocation})
 
 
 $$
@@ -364,7 +362,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...AN EXTREME WIND WARNING REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
-#headlineLocList(${areas} true true true false true)...
+#headlineLocList(${areas} true true true false)...
 
 #if(${productClass}=="T")
 
@@ -373,22 +371,27 @@ THIS IS A TEST MESSAGE. AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${lo
 
 AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}...${reportType}...${reportType1} ##
 #end
-#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "NEAR", 6, "MILES")
-#if($movementSpeed < 3 || ${stationary})
-. ${reportType2} NEARLY STATIONARY.
+#if(${stormType} == "line")
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", false)
 #else
-...MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH.
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, "NEAR", 6, "OVER", 2, "MILES", true)
 #end
-
-#set ($phenomena = "EXTREME WINDS") 
-#set ($warningType = "WARNING") 
-#if(${list.contains($bullets, "pathcast")})
+#if($movementSpeed < 3 || ${stationary})
+. ${reportType2} NEARLY STATIONARY.##
+#else
+...MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH.##
+#end
+ THIS IS AN EXTREMELY DANGEROUS AND LIFE-THREATENING SITUATION!
+ 
+#set($phenomena = "EXTREME WINDS") 
+#set($warningType = "WARNING") 
+#if(${list.contains(${bullets}, "pathcast")})
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
 #pathCast("${phenomena} WILL BE NEAR..." ${phenomena} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
-#elseif(${list.contains($bullets, "listofcities")})
+#elseif(${list.contains(${bullets}, "listofcities")})
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
@@ -399,18 +402,26 @@ THIS IS A TEST MESSAGE. ##
 #locationsList("LOCATIONS IMPACTED INCLUDE..." ${phenomena} 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
 #end
-##############################################
 ###### mile markers ##############
-##############################################
-#parse("milemarkers.vm")
-#####################
-## CALL TO ACTIONS ##
-#####################
-#if(${list.contains($bullets, "cta1")} || ${list.contains($bullets, "cta2")} || ${list.contains($bullets, "cta3")})
+## #parse("milemarkers.vm")
+
+##################################
+######### CALLS TO ACTION ########
+##################################
+##Check to see if we've selected any calls to action. In our .xml file
+##we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
+#foreach (${bullet} in ${bullets})
+#if(${bullet.endsWith("CTA")})
+#set($ctaSelected = "YES")
+#end
+#end
+##
+#if(${ctaSelected} == "YES") 
 PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
-#if(${list.contains($bullets, "cta1")})
+##
+#if(${list.contains(${bullets}, "destructiveWindsCTA")})
 WIDESPREAD DESTRUCTIVE WINDS OF !** **! TO !** **! MPH WILL SPREAD ACROSS ##
 #foreach (${area} in ${areas})
  ${area.name} ${area.areaNotation}...##
@@ -418,21 +429,27 @@ WIDESPREAD DESTRUCTIVE WINDS OF !** **! TO !** **! MPH WILL SPREAD ACROSS ##
 PRODUCING SWATHS OF TORNADO-LIKE DAMAGE.
 
 #end
-#if(${list.contains($bullets, "cta2")})
+#if(${list.contains(${bullets}, "takeCoverCTA")})
 TAKE COVER NOW! TREAT THESE IMMINENT EXTREME WINDS AS IF A TORNADO WAS APPROACHING AND MOVE IMMEDIATELY TO THE SAFE ROOM IN YOUR SHELTER. TAKE ACTION NOW TO PROTECT YOUR LIFE!
 
 #end
-#if(${list.contains($bullets, "cta3")})
+#if(${list.contains(${bullets}, "safePlacesCTA")})
 THE SAFEST PLACE TO BE DURING A MAJOR LANDFALLING HURRICANE IS IN A REINFORCED INTERIOR ROOM AWAY FROM WINDOWS. GET UNDER A TABLE OR OTHER PIECE OF STURDY FURNITURE. USE MATTRESSES...BLANKETS OR PILLOWS TO COVER YOUR HEAD AND BODY. REMAIN IN PLACE THROUGH THE PASSAGE OF THESE LIFE THREATENING CONDITIONS.
 
 #end
+##
+#if(${ctaSelected} == "YES") 
+&&
+
+#end
+##
 #############
 ## WATCHES ##
 #############
-#if(${list.contains($includedWatches, "torWatches")})
+#if(${list.contains(${includedWatches}, "torWatches")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains($includedWatches, "svrWatches")})
+#if(${list.contains(${includedWatches}, "svrWatches")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #end
@@ -464,16 +481,15 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE EXTREME WIND WARNING FOR##
-#headlineLocList(${areas} true true true false true)
- ${expcanHLTag}...
+#headlineLocList(${areas} true true true false) ${expcanHLTag}...
 
 #############
 ## WATCHES ##
 #############
-#if(${list.contains($includedWatches, "torWatches")})
+#if(${list.contains(${includedWatches}, "torWatches")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains($includedWatches, "svrWatches")})
+#if(${list.contains(${includedWatches}, "svrWatches")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #end
@@ -485,15 +501,9 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 #end
 #printcoords(${areaPoly}, ${list})
 
-TIME...MOT...LOC ##
-${dateUtil.format(${event}, ${timeFormat.time})}Z ##
-${mathUtil.roundAndPad(${movementDirection})}DEG ##
-${mathUtil.round(${movementInKnots})}KT ##
-#foreach(${eventCoord} in ${eventLocation})
-#llFormat(${eventCoord.y}) #llFormat(${eventCoord.x}) ##
-#end
+#tml(${TMLtime}, ${timeFormat}, ${movementDirection}, ${movementInKnots}, ${eventLocation})
 
 
 $$
 
-!**NAME/INITIALS**!
+#parse("forecasterName.vm")

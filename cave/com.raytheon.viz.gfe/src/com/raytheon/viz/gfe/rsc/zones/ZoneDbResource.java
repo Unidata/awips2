@@ -96,6 +96,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * ------------ ---------- ----------- --------------------------
  *                         wldougher     Initial creation
  * Jul 11, 2011 9928       rferrel       moveGroup now takes list of groups.
+ * Jun 24, 2013 2134       randerso      Fixed NullPointerException in fitToCWA.
  * 
  * </pre>
  * 
@@ -1317,7 +1318,6 @@ public class ZoneDbResource extends
                     query.toString(), MAP_DB, QueryLanguage.SQL);
             if ((result != null) && (result.size() > 0)) {
                 WKBReader wkbReader = new WKBReader();
-                cwaGeometry = wkbReader.read((byte[]) result.get(0)[0]);
                 Geometry geometry = null;
                 // Combine the geometries in the CWA into one geometry
                 for (Object[] row : result) {
@@ -1325,7 +1325,11 @@ public class ZoneDbResource extends
                     // areas w/o marine zones return a row containing null
                     if (wkb != null) {
                         geometry = wkbReader.read(wkb);
-                        cwaGeometry = cwaGeometry.union(geometry);
+                        if (cwaGeometry == null) {
+                            cwaGeometry = geometry;
+                        } else {
+                            cwaGeometry = cwaGeometry.union(geometry);
+                        }
                     }
                 }
             }
