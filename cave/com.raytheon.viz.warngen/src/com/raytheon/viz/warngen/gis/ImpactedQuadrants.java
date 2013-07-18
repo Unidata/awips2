@@ -338,7 +338,7 @@ public class ImpactedQuadrants {
     }
 
     /**
-     * Identifies portions of the parent envelope which is 20% from each edge.
+     * Identifies portions of the parent envelope which is 15% from each edge.
      * 
      * @param impactedQuadrants
      * @param parentEnvelopeInternal
@@ -348,8 +348,8 @@ public class ImpactedQuadrants {
             ImpactedQuadrants impactedQuadrants,
             Envelope parentEnvelopeInternal, Geometry warnedArea) {
 
-        double deltaY = parentEnvelopeInternal.getHeight() * 0.20;
-        double deltaX = parentEnvelopeInternal.getWidth() * 0.20;
+        double deltaY = parentEnvelopeInternal.getHeight() * 0.15;
+        double deltaX = parentEnvelopeInternal.getWidth() * 0.15;
 
         double minLat = parentEnvelopeInternal.getMinY();
         double maxLat = parentEnvelopeInternal.getMaxY();
