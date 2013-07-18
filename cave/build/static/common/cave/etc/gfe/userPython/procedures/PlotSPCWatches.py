@@ -24,11 +24,20 @@
 #
 # PlotSPCWatches
 #
-# This procedure synchonizes the hazards from SPC that are in the active table.
+# This procedure synchronizes the hazards from SPC that are in the active table.
 #
 #
 # Author: lefebvre
 # ----------------------------------------------------------------------------
+#
+#   SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    06/18/13        #2083         dgilling       Code cleanup, reinstated logging
+#                                                 for every hazard grid written.
+#    
+########################################################################
 
 # The MenuItems list defines the GFE menu item(s) under which the
 # Procedure is to appear.
@@ -41,9 +50,7 @@ import time
 import HazardUtils
 import logging
 import UFStatusHandler
-import JUtil
-from java.io import File
-from java.lang import System
+
 
 PLUGIN_NAME = 'com.raytheon.viz.gfe'
 CATEGORY = 'GFE'
@@ -62,8 +69,6 @@ class Procedure (SmartScript.SmartScript):
         nonSPCRecords = []
         spcRecords = []
         spcCANRecords = []
-        areas = []
-        marineAreas = []
 
         vtecTable = self.vtecActiveTable()
         vtecTable = self._hazUtils._filterVTECBasedOnGFEMode(vtecTable)
@@ -73,9 +78,6 @@ class Procedure (SmartScript.SmartScript):
         spcActions = ['NEW','CON','EXT','EXA','EXB']
         othActions = ['NEW','CON','EXT','EXA','EXB','CAN','EXP','UPG']
         spcActionsCAN = ['CAN']
-
-        # Get the local WFO id
-        siteId = self._dbss.getSiteID()
 
         # step 1:  Separate into SPC/nonSPC/spcCAN, keep only certain actions
         for v in vtecTable:
@@ -113,10 +115,10 @@ class Procedure (SmartScript.SmartScript):
         filteredSPCWatches = []
         
         for spcRec in spcRecords:
-            removeRecord = 0
+            removeRecord = False
             for nonSPCRec in nonSPCRecords:
                 if self._recordCompare(spcRec, nonSPCRec, compare):
-                    removeRecord = 1  #match found in nonSPCRecord
+                    removeRecord = True  #match found in nonSPCRecord
                     break
             if not removeRecord:
                 filteredSPCWatches.append(spcRec)
@@ -186,8 +188,8 @@ class Procedure (SmartScript.SmartScript):
         #Records are dictionaries.  Fields are assumed to exist in both recs.
         for f in fields:
             if rec1[f] != rec2[f]:
-                return 0
-        return 1
+                return False
+        return True
 
 
     def removeAllWatches(self):
@@ -255,6 +257,14 @@ class Procedure (SmartScript.SmartScript):
         return watch 
         
         
+
+    def writeHazard(self, key, startTime, endTime, zones):
+        timeRange = self._hazUtils._makeTimeRange(startTime, endTime)
+        zoneMask = self._hazUtils._makeMask(zones)
+        self._hazUtils._addHazard("Hazards", timeRange, key, zoneMask)
+        self.log.info("{} {} {} {}".format(self._hazUtils._printTime(startTime), 
+                        self._hazUtils._printTime(endTime), key, zones))
+
     def execute(self):
         # get the hazard utilities
         self._hazUtils = HazardUtils.HazardUtils(self._dbss, None)
@@ -272,7 +282,8 @@ class Procedure (SmartScript.SmartScript):
             self.log.warning("There are temporary hazard grids loaded. " +\
                      "Please merge all hazards grids before running PlotSPCWatches.")
             self.cancel()
-            
+
+        # hazard locked anywhere by others?
         if self.lockedByOther('Hazards', 'SFC'):
             self.log.warning("There are conflicting locks (red locks - owned by others) on Hazards.  " + \
                 "Please resolve these before running PlotSPCWatches")
@@ -281,45 +292,38 @@ class Procedure (SmartScript.SmartScript):
         watchTable = self.getWatches()
         self.removeAllWatches()
         
-        sumMakeTime = 0.0
-        sumMakeMask = 0.0
-        sumAddHazard = 0.0
-        wtv = watchTable.values()
+        # AWIPS2 porting note: to improve performance of this procedure, we've
+        # made a deviation in how the phenomena from the active table are saved
+        # to grids
+        # We write to the hazards grid in batches. The batches are based on a
+        # set of zones all having the same phen-sig, ETN, and valid time. 
+        watchTable = watchTable.values()
+        def sortkey(x):
+            key = x['phen'] + x['sig'] + str(x['etn']) + \
+                  str(self._hazUtils._makeTimeRange(x['startTime'], x['endTime'])) + \
+                  x['id']               
+            return key
+        watchTable.sort(key=sortkey)
         
-        if len(wtv) > 0:
-            def sortkey(x):
-                key = x['phen'] + x['sig'] + str(x['etn']) + \
-                      str(self._hazUtils._makeTimeRange(x['startTime'], x['endTime'])) + \
-                      x['id']               
-                return key
+        hazKeyToWrite = None
+        hazStartToWrite = None
+        hazEndToWrite = None
+        hazZonesToWrite = []
+        for zh in watchTable:
+            key = zh['phen'] + '.' + zh['sig'] + ":" + str(zh['etn'])
+            if key != hazKeyToWrite or zh['startTime'] != hazStartToWrite or zh['endTime'] != hazEndToWrite:
+                # we have a new hazard, save the previously collected hazard
+                # data to a grid.
+                if hazZonesToWrite:
+                    self.writeHazard(hazKeyToWrite, hazStartToWrite, hazEndToWrite, hazZonesToWrite)
+                hazZonesToWrite = []
+                hazKeyToWrite = key
+                hazStartToWrite = zh['startTime']
+                hazEndToWrite = zh['endTime']
+            hazZonesToWrite.append(zh['id'])
             
-            wtv.sort(key = sortkey)
-            #for zone in watchTable.keys():
-            #    zh = watchTable[zone]
-            prevKey = None
-            prevStart = None
-            prevEnd = None
-            ids = []
-            for zh in wtv:
-                key = zh['phen'] + '.' + zh['sig'] + ":" + str(zh['etn'])
-                if key != prevKey or zh['startTime'] != prevStart or zh['endTime'] != prevEnd:
-                    # new alert
-                    if len(ids) > 0:
-                        zoneMask = self._hazUtils._makeMask(ids)
-                        timeRange = self._hazUtils._makeTimeRange(prevStart, prevEnd)
-                        self._hazUtils._addHazard("Hazards", timeRange, prevKey, zoneMask)
-                    ids = []
-                    prevKey = key
-                    prevStart = zh['startTime']
-                    prevEnd = zh['endTime']
-                ids.append(zh['id'])
-                    
-            # handle the last zones
-            zoneMask = self._hazUtils._makeMask(ids)
-            timeRange = self._hazUtils._makeTimeRange(prevStart, prevEnd)
-            self._hazUtils._addHazard("Hazards", timeRange, prevKey, zoneMask)
-#            LogStream.logEvent(self._hazUtils._printTime(zh['startTime']),
-#              self._hazUtils._printTime(zh['endTime']),
-#              key, zh['id'])
+        # write the last set of collected hazard information to a grid
+        if hazZonesToWrite:
+            self.writeHazard(hazKeyToWrite, hazStartToWrite, hazEndToWrite, hazZonesToWrite)
 
         return
