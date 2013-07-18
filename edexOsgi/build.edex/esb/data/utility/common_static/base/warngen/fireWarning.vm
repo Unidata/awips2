@@ -2,6 +2,7 @@
 ## FIRE WARNING TEMPLATE                                                     ##
 ## VERSION 1.1                                                               ##
 ## CREATED BOOKBINDER/DANGELO - 2-07-12 - Initial OB12 Write                 ##
+##           Mike Dangelo 9-13-2012 minor tweaks to ${variables}             ## 
 ###############################################################################
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FRW${siteId}
@@ -28,11 +29,11 @@ THE FOLLOWING MESSAGE IS BEING TRANSMITTED AT THE REQUEST OF !** ENTER AUTHORIZI
 ############################
 ### FIRE WEATHER EMERGENCY #
 ############################
-#if(${list.contains($bullets, "fireEmergency")})
+#if(${list.contains(${bullets}, "fireEmergency")})
 THIS IS A FIRE EMERGENCY FOR !** EDIT LOCATION(S) **!...TAKE IMMEDIATE SAFETY PRECAUTIONS NOW.
 
 #end
-#if(${list.contains($bullets, "generic")})
+#if(${list.contains(${bullets}, "generic")})
 
 !** TYPE FIRE DETAILS HERE **!.
 
@@ -40,7 +41,7 @@ THIS IS A FIRE EMERGENCY FOR !** EDIT LOCATION(S) **!...TAKE IMMEDIATE SAFETY PR
 
 #end
 
-#if(${list.contains($bullets, "actual")})
+#if(${list.contains(${bullets}, "actual")})
 
 A FIRE WAS LOCATED !** DETAILS **! AND COULD AFFECT !** AREAS **!.
 
@@ -48,7 +49,7 @@ A FIRE WAS LOCATED !** DETAILS **! AND COULD AFFECT !** AREAS **!.
 
 #end
 
-#if(${list.contains($bullets, "racing")})
+#if(${list.contains(${bullets}, "racing")})
 
 A FIRE WAS RACING TOWARD !** LOCATIONS **! AND COULD REACH THERE BY !** TIME **!.
 
@@ -57,16 +58,16 @@ A FIRE WAS RACING TOWARD !** LOCATIONS **! AND COULD REACH THERE BY !** TIME **!
 #end
 
 ## parse file command here is to pull in mile marker info
-##parse("mileMarkers.vm")
+## #parse("mileMarkers.vm")
 
 #####################
 ## CALL TO ACTIONS ##
 #####################
 ###Check to see if we've selected any calls to action. In our .xml file
 ##we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
-#foreach ($bullet in $bullets)
-#if($bullet.endsWith("CTA"))
-#set ($ctaSelected = "YES")
+#foreach (${bullet} in ${bullets})
+#if(${bullet.endsWith("CTA")})
+#set($ctaSelected = "YES")
 #end
 #end
 ##
@@ -79,7 +80,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
 #end
 ##
-#if(${list.contains($bullets, "stayIndoorsCTA")})
+#if(${list.contains(${bullets}, "stayIndoorsCTA")})
 
 STAY INDOORS TO KEEP SAFE FROM THE SMOKE. KEEP WINDOWS AND DOORS SHUT AND TURN OFF ALL VENTILATION SYSTEMS. 
 
@@ -87,7 +88,7 @@ STAY INDOORS TO KEEP SAFE FROM THE SMOKE. KEEP WINDOWS AND DOORS SHUT AND TURN O
 
 #end
 
-#if(${list.contains($bullets, "followInstructionsCTA")})
+#if(${list.contains(${bullets}, "followInstructionsCTA")})
 
 FOLLOW SAFETY INSTRUCTIONS FROM LOCAL LAW ENFORCEMENT OFFICIALS. 
 
@@ -95,7 +96,7 @@ FOLLOW SAFETY INSTRUCTIONS FROM LOCAL LAW ENFORCEMENT OFFICIALS.
 
 #end
 
-#if(${list.contains($bullets, "heedEvacuationsCTA")})
+#if(${list.contains(${bullets}, "heedEvacuationsCTA")})
 
 HEED ANY EVACUATION ORDERS AND FOLLOW ALL SAFETY PRECAUTIONS.
 
@@ -106,10 +107,10 @@ HEED ANY EVACUATION ORDERS AND FOLLOW ALL SAFETY PRECAUTIONS.
 &&
 #end
 
-#### REMOVE ONE # BELOW FOR LAT/LON OUTPUT
-##printcoords(${areaPoly}, ${list})
+#### UN-REMARK BELOW FOR LAT/LON OUTPUT
+## #printcoords(${areaPoly}, ${list})
+
 
 $$
 
-
-!**NAME/INITIALS**!
+#parse("forecasterName.vm")

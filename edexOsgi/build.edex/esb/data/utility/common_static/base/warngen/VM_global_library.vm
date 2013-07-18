@@ -1,12 +1,16 @@
-##### UPDATED 3/2/12 12.2.1-4 BY EVAN BOOKBINDER
+##### MERGED 12.12 1//7/13 BY EVAN BOOKBINDER
 #####         Qinglu Lin    04-04-2012 DR 14691.
-#####         Qinglu Lin    06-18-2012 DR 15043. Use duration in secondBullet.
-#####         Qinglu Lin    07-31-2012 DR 15217. Use roundAndPad for movement direction in DEG.
-#####         Qinglu Lin    08-13-2012 DR 14493. Use corToNewMarker and corEventtime.
-#####         D. Friedman   11-09-2012 DR 15430. Rework included watches. 
-#####         QINGLU LIN    12-27-2012 DR 15594. Added $lock to headlineLocList.
-#####         D. Friedman   03-13-2013 DR 15892. Do not lock portion of state in firstBullet.
+#####         Qinglu Lin    06-18-2012 DR 15043. Use duration in secondBullet. (crosses new day)
+#####         Qinglu Lin    08-13-2012 DR 14493. Use corToNewMarker and corEventtime. 
+#####    Evan Bookbinder    09-12-2012 Corrected syntax errors in mmarkers and tml functions.
+#####                                  Removed lock tags (will be handled by J Sanchez)
+#####                                  Altered areaFormat macro to prevent extra blank spaces
+#####         D. Friedman   11-09-2012 DR 15430. Rework included watches.
+#####    Evan Bookbinder    02-06-2013 Added WrapText macro to handle customization of indents
+#####                                  like the ~ and % characters in A1.
+#####    Evan Bookbinder    05-05-2013 handleClosesPoints and 3rd bullet changes (OVER & now) 
 ####################################################################################################
+#*
 Mile Marker Test Code                                     
 macro "mmarkers" use (called out of VM_global_library.vm):
 
@@ -24,24 +28,12 @@ $simplify is a boolean value (true or false)
          - false is a big list (MM 2...3...AND 4)   
 ###################################################################################################
 *#
-### AUTHOR: EVAN BOOKBINDER
-### PURPOSE: Retrieve closetPoint object name for a given index field 
-###          in the database table.
-#macro(getmarker $objMarkers $markeridx)
-#set($markercounter = 1)
-#foreach($xxmarker in $objMarkers)
-#if ($markercounter == $markeridx)
-$xxmarker.name##
-#end
-#set($markercounter = $markercounter + 1)
-#end
-#end
 
 ### AUTHORS: EVAN BOOKBINDER & MIKE DANGELO
 ### PURPOSE: OUTPUT MILE MARKER, ROAD, INTERSECTION INFO
-#macro(mmarkers $markers $id $name $type $simplify)
+#macro(mmarkers$markers $id $name $type $simplify)
 #set($size = ${list.size($markers)})
-#if (${type.length()} > 0) 
+#if(${type.length()} > 0) 
 #set($singType = "${type} ")
 #set($plurType = "${type}S ")
 #else
@@ -54,34 +46,32 @@ $xxmarker.name##
 #set($phraseCount = 0)
 #set($intIndex = 0)
 #if($size > 0)
-$name ##
+${name} ##
 #if($simplify)
 #foreach($index in $id)
-#set($counter = $counter + 1)
 #set($intIndex = $intIndex.parseInt($index.name))
-#if($counter == 1)
+#if($counter == 0)
 #set($startIdx = $intIndex)
 #set($endIdx = $intIndex)
 #set($startCounter = $counter)
 #set($endCounter = $counter)
-## Only one item in the list
-#if($counter == $size)
-## GET MARKER @ INDEX 1
-#set ($marker1 = "#getmarker(${markers},1)")
-NEAR $singType$marker1.
+## Only one item in the list and it's the first item
+#if($size == 1)
+## GET MARKER @ 0 index
+NEAR ${singType}${list.get(${markers},0).name}.
 #end
 ##Continuation of current segment		
-#elseif(($intIndex - $endIdx) == 1 && ($counter != $size))
+#elseif(($intIndex - $endIdx) == 1 && (${counter} + 1 != ${size}))
 #set($endIdx = $intIndex)
 #set($endCounter = $counter)
 ##We've found a break and we're not on the last item
-#elseif($counter != $size)
-#set ($marker1 = "#getmarker(${markers},${startCounter})")
-#set ($marker2 = "#getmarker(${markers},${endCounter})")
-#if($startCounter == $endCounter)
-NEAR $singType$marker1...##
+#elseif(${counter} + 1 != ${size})
+#set($marker1 = ${list.get(${markers},${startCounter}).name})
+#set($marker2 = ${list.get(${markers},${endCounter}).name})
+#if(${startCounter} == ${endCounter})
+NEAR ${singType}${marker1}...##
 #else
-BETWEEN $plurType$marker1 AND $marker2...##
+BETWEEN ${plurType}${marker1} AND ${marker2}...##
 #end
 #set($phraseCount = $phraseCount + 1)
 #set($startIdx = $intIndex)
@@ -94,26 +84,27 @@ BETWEEN $plurType$marker1 AND $marker2...##
 AND ##
 #end
 ##Continuous range (e.g. 1,2,3,4)
-#if (($intIndex - $endIdx) == 1)
-#set ($marker1 = "#getmarker(${markers},${startCounter})")
-#set ($marker2 = "#getmarker(${markers},${counter})")
-BETWEEN $plurType$marker1 AND $marker2.
+#if(($intIndex - $endIdx) == 1)
+#set($marker1 = ${list.get(${markers},${startCounter}).name})
+#set($marker2 = ${list.get(${markers},${counter}).name})
+BETWEEN ${plurType}${marker1} AND ${marker2}.
 ##Isolated mile marker previous and current (e.g. 1,4)
-#elseif ($startIdx == $endIdx)
-#set ($marker1 = "#getmarker(${markers},${startCounter})")
-#set ($marker2 = "#getmarker(${markers},${counter})")
-$singType$marker1 AND NEAR $singType$marker2.
+#elseif($startIdx == $endIdx)
+#set($marker1 = ${list.get(${markers},${startCounter}).name})
+#set($marker2 = ${list.get(${markers},${counter}).name})
+${singType}${marker1} AND NEAR ${singType}${marker2}.
 ##Continuous range + isolated milemarker at end (e.g. 1,2,3,6)
 #else
-#set ($marker1 = "#getmarker(${markers},${startCounter})")
-#set ($marker2 = "#getmarker(${markers},${endCounter})")
-#set ($marker3 = "#getmarker(${markers},${counter})")
-BETWEEN $plurType$marker1 AND $marker2...AND NEAR $singType$marker3.	
+#set($marker1 = ${list.get(${markers},${startCounter}).name})
+#set($marker2 = ${list.get(${markers},${endCounter}).name})
+#set($marker3 = ${list.get(${markers},${counter}).name})
+BETWEEN ${plurType}${marker1} AND ${marker2}...AND NEAR ${singType}${marker3}.	
 #end
 #end
+#set($counter = $counter + 1)
 #end
 #else
-NEAR $type##
+NEAR ${plurType}##
 #foreach($item in $markers)
 #set($counter = $counter + 1)
 #if($size > 1 && $counter == $size)
@@ -127,6 +118,52 @@ ${item.name}...##
 #end
 #end
 #end
+########END MACRO
+
+### POINT MARKERS - VARIANCE OF MMARKERS BY EVAN BOOKBINDER & MIKE DANGELO
+### see pointMarkers.vm for details 
+### AUTHORS: MIKE DANGELO AND DAVE TOMALAK 
+### PURPOSE: OUTPUT IMPORTANT LOCATIONS/LARGE VENUES
+#macro(pmarkers $markers $id $name $type $column)
+#set($size = ${list.size($markers)})
+#set($lastEntry = ${size} - 1)
+#set($firstPoint = ${list.get($markers, 0).name})
+#set($lastPoint = ${list.get($markers, $lastEntry).name})
+#if(${type.length()} > 0) 
+#set($singType = "${type} ")
+#set($plurType = "${type}S ")
+#else
+#set($singType = "")
+#set($plurType = "")
+#end
+#if(${size} == 1)
+${firstPoint}.
+#end
+#if(${size} == 2)
+${firstPoint} AND ${lastPoint}.
+#end
+#if(${size} > 2)
+#set($counter = 0)
+${name} ${plurType}
+#foreach($item in ${markers})
+#set($counter= ${counter} + 1)
+#if($column)
+#if (${counter} == ${size})
+AND ${lastPoint}.
+#else
+${item.name}...
+#end
+#else
+#if (${counter} == ${size})
+AND ${item.name}.
+#else
+${item.name}...##
+#end
+#end
+#end
+#end
+#end 
+################# END OF POINT MARKERS MACRO
 
 #macro(drainages $riverdrainages)
 #set($size = ${list.size($riverdrainages)})
@@ -146,6 +183,7 @@ ${drainage.name}##
 
 #end
 #end
+########END MACRO
 
 #macro(inserttorwatches $watches $list $secondtimezone $dateUtil $timeFormat)
 #set($torWatches = ${watches.getTorWatches()})
@@ -154,6 +192,7 @@ ${drainage.name}##
 #foreach(${watch} in ${torWatches})
 #if($torWatchFirst)
 #set($torWatchFirst = 0)
+#else
  ##
 #end
 A TORNADO WATCH ${torWatchAlso}REMAINS IN EFFECT UNTIL ${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${localtimezone})}##
@@ -166,7 +205,7 @@ ${dateUtil.period(${watches.getLatestTorTime()},${timeFormat.plain}, 15, ${local
 #set($count = 0)
 #foreach(${portion} in ${watch.getPortions()})
 #set($count = $count + 1)
-#areaFormat(${portion.partOfParentRegion} true false) ${portion.parentRegion}##
+#areaFormat(${portion.partOfParentRegion} true false false) ${portion.parentRegion}##
 #if($count == $numPortions - 1)
  AND ##
 #elseif($count < $numPortions)
@@ -178,6 +217,7 @@ ${dateUtil.period(${watches.getLatestTorTime()},${timeFormat.plain}, 15, ${local
 #end
 
 #end
+########END MACRO
 
 #macro(insertsvrwatches $watches $list $secondtimezone $dateUtil $timeFormat)
 #set($svrWatches = ${watches.getSvrWatches()})
@@ -186,6 +226,7 @@ ${dateUtil.period(${watches.getLatestTorTime()},${timeFormat.plain}, 15, ${local
 #foreach(${watch} in ${svrWatches})
 #if($svrWatchFirst)
 #set($svrWatchFirst = 0)
+#else
  ##
 #end
 A SEVERE THUNDERSTORM WATCH ${svrWatchAlso}REMAINS IN EFFECT UNTIL ${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${localtimezone})}##
@@ -210,6 +251,7 @@ ${dateUtil.period(${watches.getLatestSvrTime()},${timeFormat.plain}, 15, ${local
 #end
 
 #end
+########END MACRO
 
 #macro(printcoords $coordinates $list)
 #set($count = 0)
@@ -226,16 +268,19 @@ LAT...LON ##
 #end
 #end
 #end
+########END MACRO
 
 #macro(headline $officeLoc $backupSite)
 #headlineext(${officeLoc}, ${backupSite}, false)
 #end
+########END MACRO
 
 #macro(backupText $backupSite)
 #if($backupSite)
 ISSUED BY NATIONAL WEATHER SERVICE ${backupSite}
 #end
 #end
+########END MACRO
 
 #macro(headlineext $officeLoc $backupSite $extend)
 #if($extend)
@@ -245,126 +290,141 @@ ISSUED BY NATIONAL WEATHER SERVICE ${backupSite}
 #end
 THE NATIONAL WEATHER SERVICE IN ${officeLoc} HAS ${issueVar}
 #end
+########END MACRO
 
 #macro(direction $d)
 #if($d==45)
 SOUTHWEST##
-#elseif ($d==90)
+#elseif($d==90)
 WEST##
-#elseif ($d==135)
+#elseif($d==135)
 NORTHWEST##
-#elseif ($d==180)
+#elseif($d==180)
 NORTH##
-#elseif ($d==225)
+#elseif($d==225)
 NORTHEAST##
-#elseif ($d==270)
+#elseif($d==270)
 EAST##
-#elseif ($d==315)
+#elseif($d==315)
 SOUTHEAST##
 #else
 SOUTH##
 #end
 #end
+########END MACRO
 
-#macro(areaFormat $directionSet $useCentral $useExtreme)
-#if($useExtreme)
-#if($list.contains($directionSet, "EXTREME"))
-EXTREME ## 
+#macro(areaFormat $directionSet $useCentral $useExtreme $addSpace)
+#set($output = "")
+#if(${useExtreme})
+#if(${list.contains($directionSet, "EXTREME")})
+#set($output = "EXTREME ")
 #end 
 #end
-#if($list.contains($directionSet, "PA"))
-THE PANHANDLE OF##
+#if(${list.contains($directionSet, "PA")})
+#set($output = "${output}THE PANHANDLE OF")
 #end
-#if($list.contains($directionSet, "MI"))
-MIDDLE##
+#if(${list.contains($directionSet, "MI")})
+#set($output = "${output}MIDDLE")
 #end
-#if($list.contains($directionSet, "PD"))
-THE PIEDMONT OF##
+#if(${list.contains($directionSet, "PD")})
+#set($output = "${output}THE PIEDMONT OF")
 #end
-#if($list.contains($directionSet, "UP"))
-UPSTATE##
+#if(${list.contains($directionSet, "UP")})
+#set($output = "${output}UPSTATE")
 #end
-#if($list.contains($directionSet, "BB"))
-BIG BEND##
+#if(${list.contains($directionSet, "BB")})
+#set($output = "${output}BIG BEND")
 #end
-#if($list.contains($directionSet, "ER"))
-EAST CENTRAL UPPER##
+#if(${list.contains($directionSet, "ER")})
+#set($output = "${output}EAST CENTRAL UPPER")
 #end
-#if($list.contains($directionSet, "EU"))
-EASTERN UPPER##
+#if(${list.contains($directionSet, "EU")})
+#set($output = "${output}EASTERN UPPER")
 #end
-#if($list.contains($directionSet, "SR"))
-SOUTH CENTRAL UPPER##
+#if(${list.contains($directionSet, "SR")})
+#set($output = "${output}SOUTH CENTRAL UPPER")
 #end
-#if($list.contains($directionSet, "NR"))
-NORTH CENTRAL UPPER##
+#if(${list.contains($directionSet, "NR")})
+#set($output = "${output}NORTH CENTRAL UPPER")
 #end
-#if($list.contains($directionSet, "WU"))
-WESTERN UPPER##
+#if(${list.contains($directionSet, "WU")})
+#set($output = "${output}WESTERN UPPER")
 #end
-#if($list.contains($directionSet, "DS"))
-DEEP SOUTH##
+#if(${list.contains($directionSet, "DS")})
+#set($output = "${output}DEEP SOUTH")
 #end
-#if($list.contains($directionSet, "NORTH"))
-NORTH##
+#if(${list.contains($directionSet, "NORTH")})
+#set($output = "${output}NORTH")
 #end
-#if($list.contains($directionSet, "SOUTH"))
-SOUTH##
+#if(${list.contains($directionSet, "SOUTH")})
+#set($output = "${output}SOUTH")
 #end
-#if($list.contains($directionSet, "EAST"))
-EAST##
+#if(${list.contains($directionSet, "EAST")})
+#set($output = "${output}EAST")
 #end
-#if($list.contains($directionSet, "WEST"))
-WEST##
+#if(${list.contains($directionSet, "WEST")})
+#set($output = "${output}WEST")
 #end
-#if($list.contains($directionSet, "NE"))
-NORTHEAST##
+#if(${list.contains($directionSet, "NE")})
+#set($output = "${output}NORTHEAST")
 #end 
-#if($list.contains($directionSet, "NW"))
-NORTHWEST##
+#if(${list.contains($directionSet, "NW")})
+#set($output = "${output}NORTHWEST")
 #end 
-#if($list.contains($directionSet, "SE"))
-SOUTHEAST##
+#if(${list.contains($directionSet, "SE")})
+#set($output = "${output}SOUTHEAST")
 #end 
-#if($list.contains($directionSet, "SW"))
-SOUTHWEST##
+#if(${list.contains($directionSet, "SW")})
+#set($output = "${output}SOUTHWEST")
 #end 
-#if($useCentral && $list.contains($directionSet, "CENTRAL")) 
-#if ($list.contains($directionSet, "NORTH") || $list.contains($directionSet, "SOUTH") || $list.contains($directionSet, "EAST") ||$list.contains($directionSet, "WEST"))
- ##
+#if(${useCentral} && ${list.contains($directionSet, "CENTRAL")}) 
+#if(${list.contains($directionSet, "NORTH")} || ${list.contains($directionSet, "SOUTH")} || ${list.contains($directionSet, "EAST")} || ${list.contains($directionSet, "WEST")})
+#set($output = "${output} ")
 #end
-CENTRAL##
-#elseif ($list.contains($directionSet, "NORTH") || $list.contains($directionSet, "SOUTH") || $list.contains($directionSet, "EAST") ||$list.contains($directionSet, "WEST"))
-ERN##
+#set($output = "${output}CENTRAL")
+#elseif(${list.contains($directionSet, "NORTH")} || ${list.contains($directionSet, "SOUTH")} || ${list.contains($directionSet, "EAST")} || ${list.contains($directionSet, "WEST")})
+#set($output = "${output}ERN")
 #end
+#if($addSpace && (${output.length()} > 0)) 
+#set($output = "${output} ")
 #end
+$output##
+#end
+########END MACRO
 
 #macro(llFormat $v)
 #set($v100 = $v * 100)
 ${mathUtil.abs(${mathUtil.round($v100)})}## 
 #end
+########END MACRO
 
-#macro( tml $time $motdir $motspd $timeFormat $eventlocation )
-TIME...MOT...LOC ##
-${dateUtil.format(${start}, ${timeFormat.time})}Z ##
+#macro(tml $time $timeFormat $motdir $motspd $eventlocation )
+###set($time = ${now})
+#if(${corToNewMarker})
+##overload eventTime with global corCreateTime variable
+#set($time = ${corCreateTime})
+#end
+TIME...MOT...LOC ## 
+${dateUtil.format(${time}, ${timeFormat.time})}Z ##
 ${mathUtil.roundAndPad(${motdir})}DEG ##
 ${mathUtil.round(${motspd})}KT ##
 #foreach(${eventCoord} in ${eventLocation})
 #llFormat(${eventCoord.y}) #llFormat(${eventCoord.x}) ##
 #end
 #end
+########END MACRO
 
-#macro(handleClosestPoints $list, $points1, $points2, $stormType, $nearText, $threshold, $units, $useSecondRef)
+#macro(handleClosestPoints $list, $points1, $points2, $stormType, $nearText, $nearThreshold, $overText, $overThreshold, $units, $useSecondRef)
 #if(${stormType} == "line")
 #set($used = [])
 #set($used1 = [])
 #lineOfStorms($used1, $used, $points1, $threshold, $units)
-ALONG A LINE EXTENDING FROM #outputLineOfStorms($used1, $threshold, $units)##
+ALONG A LINE EXTENDING FROM #outputLineOfStorms($used1, $nearText, $nearThreshold, $overThreshold, $units)##
 #if($points2 && $useSecondRef)
 #set($used2 = [])
 #lineOfStorms($used2, $used, $points2, $threshold, $units)
 #if(${used1.size()} == ${used2.size()})
-...OR ALONG A LINE EXTENDING FROM #outputLineOfStorms($used2, $threshold, $units)##
+...OR ALONG A LINE EXTENDING FROM #outputLineOfStorms($used2, $nearText, $nearThreshold, $overThreshold, $units)##
 #end
 #end
 #else
@@ -372,17 +432,39 @@ ALONG A LINE EXTENDING FROM #outputLineOfStorms($used1, $threshold, $units)##
 #if($points2)
 #set($point2 = ${list.get(${points2}, 0)})
 #end
-#if($point1.roundedDistance <= $threshold)
+#if($point1.roundedDistance <= $overThreshold)
+${overText} ##
+#elseif($point1.roundedDistance <= $nearThreshold)
 ${nearText} ##
 #else
 ${point1.roundedDistance} $units #direction(${point1.oppositeRoundedAzimuth}) OF ##
 #end
-${point1.name}##
+#if(${point1.partOfArea}) 
+#set($location = "#areaFormat(${point1.partOfArea} true false false) ${point1.name}")
+#set($location = ${location.trim()})
+#else
+#set($location = "${point1.name}")
+#end
+${location}##
 #if($point2 && $useSecondRef && ${point2.name} != ${point1.name})
-...OR ${point2.roundedDistance} $units #direction(${point2.oppositeRoundedAzimuth}) OF ${point2.name}##
+#if($point2.roundedDistance <= $overThreshold)
+...OR ${overText} ##
+#elseif($point2.roundedDistance <= $nearThreshold)
+...OR ${nearText} ##
+#else
+...OR ${point2.roundedDistance} $units #direction(${point2.oppositeRoundedAzimuth}) OF ##
+#end
+#if(${point2.partOfArea}) 
+#set($location = "#areaFormat(${point2.partOfArea} true false false) ${point2.name}")
+#set($location = ${location.trim()})
+#else
+#set($location = "${point2.name}")
+#end
+${location}##
 #end
 #end
 #end
+########END MACRO
 
 #macro(lineOfStorms $toUse, $usedList, $line, $nearThreshold, $units)
 #foreach(${closestPoints} in ${line})
@@ -398,22 +480,26 @@ ${point1.name}##
 #end
 #end
 #end
+########END MACRO
 
-#macro(outputLineOfStorms $points, $nearThreshold, $units)
-#set ($first = "true")
+#macro(outputLineOfStorms $points, $nearText, $nearThreshold, $overThreshold, $units)
+#set($first = "true")
 #foreach(${closestPoint} in ${points})
 #if(${first} == "true")
-#set ($first = "false")
+#set($first = "false")
 #else
  TO ##
 #end
-#if(${closestPoint.roundedDistance} < ${nearThreshold})
+#if(${closestPoint.roundedDistance} < ${overThreshold})
 ${closestPoint.name}##
+#elseif(${closestPoint.roundedDistance} < ${nearThreshold})
+${nearText} ${closestPoint.name}##
 #else
 ${closestPoint.roundedDistance} ${units} #direction(${closestPoint.oppositeRoundedAzimuth}) OF ${closestPoint.name}##
 #end
 #end
 #end
+########END MACRO
 
 ##################################################################
 ##### BEGIN NEW STATEMENT/ADVISORY COUNTY HEADLINE CODE ##########
@@ -421,7 +507,7 @@ ${closestPoint.roundedDistance} ${units} #direction(${closestPoint.oppositeRound
 ## useCentralxxx = boolean to use the word CENTRAL in the County or State phrase
 ## useExtremexxx = boolean to use the word EXTREME in the county of State phrase
 ##################################################################
-#macro(headlineLocList $areas $useCentralCounty $useExtremeCounty $useCentralState $useExtremeState $lock)
+#macro(headlineLocList $areas $useCentralCounty $useExtremeCounty $useCentralState $useExtremeState)
 #set($countyCount = 0)
 #set($countyCounter = 0)
 #set($itemCount = 0)
@@ -474,6 +560,7 @@ ${closestPoint.roundedDistance} ${units} #direction(${closestPoint.oppositeRound
 #set($prevCounty = ${area.name})
 #set($prevCountyType = ${area.areaNotation})
 #set($prevCountiesType = ${area.areasNotation})
+#set($prevStateAbbrev = ${area.stateabbr})
 #set($prevState = ${area.parentRegion})
 #set($prevPartOfState = ${partOfState})
 #end
@@ -489,137 +576,93 @@ ${closestPoint.roundedDistance} ${units} #direction(${closestPoint.oppositeRound
 #if(${countyCounter} > 2)
 ...##
 #end
+#if(${prevStateAbbrev} == "DC")
+THE ##
+#end
 #if(${prevPartOfCounty.size()} > 0)
-#areaFormat(${prevPartOfCounty} ${useCentralCounty} ${useExtremeCounty}) ##
+#areaFormat(${prevPartOfCounty} ${useCentralCounty} ${useExtremeCounty} true)##
 #end
-#if(${lock} == true)
-<L>${prevCounty}</L>##
-#else
 ${prevCounty}##
-#end
-#if(${prevCountyType} != ${area.areaNotation} || ${useStates} == true)
-#if(${lock} == true)
-<L> ${prevCountyType}</L>##
-#else
+#if((${prevCountyType} != ${area.areaNotation} || ${useStates} == true) && ${prevStateAbbrev} != "DC")
  ${prevCountyType}##
 #end
-#end
-#if(${useStates} == true)
-#if(${lock} == true)
- IN <L>#areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState}) ${prevState}</L>##
-#else
- IN #areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState}) ${prevState}##
-#end
+#if(${useStates} == true && ${prevStateAbbrev} != "DC")
+ IN ##
+#areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState} true)##
+${prevState}##
 #end
 #else
  AND ##
+#if(${prevStateAbbrev} == "DC")
+THE ##
+#end
 #if(${prevPartOfCounty.size()} > 0)
-#areaFormat(${prevPartOfCounty} ${useCentralCounty} ${useExtremeCounty}) ##
+#areaFormat(${prevPartOfCounty} ${useCentralCounty} ${useExtremeCounty} true)##
 #end
-#if(${lock} == true)
-<L>${prevCounty}</L>##
-#else
 ${prevCounty}##
-#end
 #if(${prevCountyType} != ${area.areaNotation} || ${useStates} == true)
 #if(${countyCount} > 1)
 #if(${prevCountiesType})
-#if(${lock} == true)
-<L> ${prevCountiesType}</L>##
-#else
  ${prevCountiesType}##
 #end
-#end
 #elseif(${prevCountyType})
-#if(${lock} == true)
-<L> ${prevCountyType}</L>##
-#else
  ${prevCountyType}##
 #end
 #end
-#end
-#if(${useStates} == true)
-#if(${lock} == true)
- IN <L>#areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState}) ${prevState}</L>##
-#else
- IN #areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState}) ${prevState}##
-#end
+#if(${useStates} == true && ${prevStateAbbrev} != "DC")
+ IN ##
+#areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState} true)##
+${prevState}##
 #end 
 #end
 #set($countyCount = 1)
 ### IF WE ARE ON THE LAST ITEM...OUTPUT THE PREVIOUS AND LAST ITEM
-#elseif (${itemCount} == ${numCounties})
+#elseif(${itemCount} == ${numCounties})
 #if(${countyCount} >= 1)
 #if(${countyCounter} > 2)
 ...##
 #end
+#if(${prevStateAbbrev} == "DC")
+THE ##
+#end
 #if(${prevPartOfCounty.size()} > 0)
-#areaFormat(${prevPartOfCounty} ${useCentralCounty} ${useExtremeCounty}) ##
+#areaFormat(${prevPartOfCounty} ${useCentralCounty} ${useExtremeCounty} true)##
 #end
-#if(${lock} == true)
-<L>${prevCounty}</L>##
-#else
 ${prevCounty}##
-#end
-#if(${prevCountyType} != ${area.areaNotation} || (${prevCountyType} != ${area.areaNotation} || ((${prevState} != ${area.parentRegion} || ${prevPartOfState} != ${partOfState}) && ${useStates} == true)))
+#if(${prevStateAbbrev} != "DC" && (${prevCountyType} != ${area.areaNotation} || (${prevCountyType} != ${area.areaNotation} || ((${prevState} != ${area.parentRegion} || ${prevPartOfState} != ${partOfState}) && ${useStates} == true))))
 #if(${countyCount} > 1)
 #if(${prevCountiesType})
-#if(${lock} == true)
-<L> ${prevCountiesType}</L>##
-#else
  ${prevCountiesType}##
 #end
-#end
 #elseif(${prevCountyType})
-#if(${lock} == true)
-<L> ${prevCountyType}</L>##
-#else
  ${prevCountyType}##
 #end
 #end
-#end
-#if((${prevCountyType} != ${area.areaNotation} || ((${prevState} != ${area.parentRegion} || ${prevPartOfState} != ${partOfState}) && ${useStates} == true)))
-#if(${lock} == true)
- IN <L>#areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState}) ${prevState}</L>##
-#else
- IN #areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState}) ${prevState}##
-#end
+#if((${prevCountyType} != ${area.areaNotation} || ((${prevState} != ${area.parentRegion} || ${prevPartOfState} != ${partOfState}) && ${useStates} == true)) && ${prevStateAbbrev} != "DC")
+ IN ##
+#areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState} true)##
+${prevState}##
 #end
  AND ##
+#if(${area.stateabbr} == "DC")
+THE ##
+#end
 #if(${area.partOfArea})
-#areaFormat(${area.partOfArea} ${useCentralCounty} ${useExtremeCounty}) ##
+#areaFormat(${area.partOfArea} ${useCentralCounty} ${useExtremeCounty} true)##
 #end
-#if(${lock} == true)
-<L>${area.name}##
-#else
 ${area.name}##
-#end
-#if(${countyCount} >= 1)
 #if(${area.areasNotation})
-#if(${lock} == true)
-<L> ${area.areasNotation}</L>##
-#else
+#if(${countyCount} >= 1)
  ${area.areasNotation}##
-#end
-#end
-#elseif(${area.areaNotation})
-#if(${lock} == true)
-<L> ${area.areaNotation}</L>##
 #else
  ${area.areaNotation}##
 #end
 #end
-#if(${lock} == true)
-</L>##
-#else
 ##
-#end
-#if(${useStates} == true)
-#if(${lock} == true)
- IN <L>#areaFormat(${partOfState} ${useCentralState} ${useExtremeState}) ${area.parentRegion}</L>##
-#else
- IN #areaFormat(${partOfState} ${useCentralState} ${useExtremeState}) ${area.parentRegion}##
-#end
+#if(${useStates} == true && ${prevStateAbbrev} != "DC")
+ IN ##
+#areaFormat(${partOfState} ${useCentralState} ${useExtremeState} true)##
+${area.parentRegion}##
 #end
 #else
 #if(${countyCounter} > 1)
@@ -628,20 +671,17 @@ ${area.name}##
  AND ##
 #end
 #end
+#if(${area.stateabbr} == "DC")
+THE ##
+#end
 #if(${area.partOfArea})
-#areaFormat(${area.partOfArea} ${useCentralCounty} ${useExtremeCounty}) ##
+#areaFormat(${area.partOfArea} ${useCentralCounty} ${useExtremeCounty} true)##
 #end
-#if(${lock} == true)
-<L>${area.name} ${area.areaNotation}</L>##
-#else
 ${area.name} ${area.areaNotation}##
-#end
-#if(${useStates} == true)
-#if(${lock} == true)
- IN <L>#areaFormat(${partOfState} ${useCentralState} ${useExtremeState}) ${area.parentRegion}</L>##
-#else
- IN #areaFormat(${partOfState} ${useCentralState} ${useExtremeState}) ${area.parentRegion}##
-#end
+#if(${useStates} == true && ${area.stateabbr} != "DC")
+ IN ##
+#areaFormat(${partOfState} ${useCentralState} ${useExtremeState} true)##
+${area.parentRegion}##
 #end		
 #end
 #set($countyCount = 0)
@@ -652,14 +692,13 @@ ${area.name} ${area.areaNotation}##
 #if(${countyCounter} > 2)
 ...##
 #end
+#if(${prevStateAbbrev} == "DC")
+THE ##
+#end
 #if(${prevPartOfCounty.size()} > 0)
-#areaFormat(${prevPartOfCounty} ${useCentralCounty} ${useExtremeCounty}) ##
+#areaFormat(${prevPartOfCounty} ${useCentralCounty} ${useExtremeCounty} true)##
 #end
-#if(${lock} == true)
-<L>${prevCounty}</L>##
-#else
 ${prevCounty}##
-#end
 #end
 #set($countyCount= $countyCount + 1)
 #end
@@ -673,6 +712,7 @@ ${prevCounty}##
 #set($prevCountyType = ${area.areaNotation})
 #set($prevCountiesType = ${area.areasNotation})
 #set($prevState = ${area.parentRegion})
+#set($prevStateAbbrev = ${area.stateabbr})
 #set($prevPartOfState = ${partOfState})
 ####THIS IS AN INDEPENDENT CITY...ADD TO COUNTER FOR NOW
 #else
@@ -687,71 +727,266 @@ ${prevCounty}##
 #set($intFIPS = 0)
 #if(${intFIPS.parseInt($FIPS)} >= 500 && ${area.stateabbr} != "TX")
 #set($indepCityCount= $indepCityCount + 1)
-#if (${indepCityCount} == 1 && ${countyCount} > 0)
-#if(${prevPartOfCounty})
-#areaFormat(${prevPartOfCounty} ${useCentralCounty} ${useExtremeCounty}) ##
+#if(${indepCityCount} == 1 && ${countyCount} > 0)
+#if(${countyCounter} > 1) 
+...##
 #end
-#if(${lock} == true)
-<L>${prevCounty} ${prevCountyType}</L>##
-#else
-${prevCounty} ${prevCountyType}##
+#if(${prevStateAbbrev} == "DC")
+THE ##
+#end
+#if(${prevPartOfCounty})
+#areaFormat(${prevPartOfCounty} ${useCentralCounty} ${useExtremeCounty} true)##
+#end
+${prevCounty} ##
+#if(${countyCount} > 1 && ${prevStateAbbrev} != "DC")
+#if(${prevCountiesType})
+${prevCountiesType}##
+#elseif(${prevCountyType})
+${prevCountyType}##
+#end
 #end
 #if(${useStates} == true)
-#if(${lock} == true)
- IN <L>#areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState}) ${prevState}</L>##
-#else
- IN #areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState}) ${prevState}##
+ IN ##
+#areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState} true)##
+${prevState}##
 #end
 #end
-#end
-#if (${indepCityCount} == ${numIndepCity})
-#if (${indepCityCount} == 1)
+#if(${indepCityCount} == ${numIndepCity})
+#if(${indepCityCount} == 1)
 ### COUNTIES + 1 INDEPENDENT CITY
-#if (${numCounties} > ${numIndepCity})
-#if(${lock} == true)
- AND THE <L>${area.name}</L>##
-#else
+#if(${numCounties} > ${numIndepCity})
  AND THE ${area.name}##
-#end
 ### NO COUNTIES AND ONE INDEPENDENT CITY
 #else
-#if(${lock} == true)
-THE <L>${area.name}</L>##
-#else
-THE ${area.name}##
+THE ##
+#if(${area.partOfArea})
+#areaFormat(${area.partOfArea} ${useCentralCounty} ${useExtremeCounty} true)##
 #end
+${area.name}##
 #end
 #else
 ## MULTIPLE INDEPENDENT CITIES...LAST ITEM IN THE LIST
-#if(${lock} == true)
- AND THE <L>${area.name}</L>##
+ AND THE ##
+#if(${area.partOfArea})
+#areaFormat(${area.partOfArea} ${useCentralCounty} ${useExtremeCounty} true)##
+#end
+${area.name}##
+#end
 #else
- AND THE ${area.name}##
+...THE ##
+#if(${area.partOfArea})
+#areaFormat(${area.partOfArea} ${useCentralCounty} ${useExtremeCounty} true)##
 #end
-#end
-#else
-#if(${lock} == true)
-...THE <L>${area.name}</L>##
-#else
-...THE ${area.name}##
+${area.name}##
 #end
 #end
 #end
 #end
 #end
-#end
+########END MACRO
 
+####################################################################
+##### BEGIN NEW STATEMENT/ADVISORY ZONE HEADLINE CODE     ##########
+## AUTHORED BY EVAN BOOKBINDER WFO EAX 9-13-2012          ##########
+## useCentralxxx = boolean to use the word CENTRAL in the Zone or State phrase
+## useExtremexxx = boolean to use the word EXTREME in the county of State phrase
+####################################################################
+#macro(zoneHeadlineLocList $areas $useCentralZone $useExtremeZone $useCentralState $useExtremeState)
+#set($zoneCount = 0)
+#set($zoneCounter = 0)
+#set($itemCount = 0)
+#set($numZones = ${list.size($areas)})
+#set($useStates = false)
+### CHECK FOR DUPLICATE COUNTY NAMES WITHIN A CWA
+#parse("dupCounties.vm")
+#foreach (${area} in ${areas})
+#if(${list.contains($dupcounties, "${area.fips}")})
+#set($useStates = true)
+#end
+#end
+##END DUPE COUNTY NAME CHECK
+#foreach (${area} in ${areas})
+####
+## THIS SECTION OF CODE REMOVES CENTRAL AND/OR EXTREME FROM THE PART OF STATE ARRAY
+## IF NECESSARY SO THAT WE CAN LOGICALLY DO OUR COMPARISONS
+#set($partOfState = [])
+#foreach ($pos in ${area.partOfParentRegion})
+#if(${pos} == "CENTRAL")
+#if(${useCentralState})
+#set($temp = $partOfState.add(${pos}))
+#end
+#elseif(${pos} == "EXTREME")
+#if(${useExtremeState})
+#set($temp = $partOfState.add(${pos}))
+#end
+#else
+#set($temp = $partOfState.add(${pos}))
+#end
+#end
+####
+#set($itemCount = $itemCount + 1)
+#set($zoneCounter = $zoneCounter + 1)
+##INITIALIZE CHECK VARIABLES
+#if($zoneCount == 0)
+#if(${area.partOfArea})
+#set($prevPartOfZone = ${area.partOfArea})
+#else
+#set($prevPartOfZone = [])
+#end
+#set($prevZone = ${area.name})
+#set($prevStateAbbrev = ${area.stateabbr})
+#set($prevState = ${area.parentRegion})
+#set($prevPartOfState = ${partOfState})
+#end
+### BEGIN FORMULATING HEADLINE...CHECKING FOR CHANGES IN PART OF STATE,
+### STATE, COUNTYTYPE, AND INDEPENDENT CITIES...AS WELL AS PLURALITY
+###
+### IF WE ARE NOT ON THE LAST ITEM, BUT WE HAVE EITHER
+### 1.) CHANGED COUNTY NOMENCLATURE (COUNTY TO PARISH)
+### 2.) CHANGED STATE (and we have a duplicate zonename requiring the state to be output)
+### 3.) CHANGED PART OF STATE (and we have a duplicate zonename requiring the state to be output)
+#if(${itemCount} < ${numZones} && (((${prevState} != ${area.parentRegion} || ${prevPartOfState} != ${partOfState}) && ${useStates} == true)))
+#if(${zoneCount} == 1)
+#if(${zoneCounter} > 2)
+...##
+#end
+#if(${prevStateAbbrev} == "DC")
+THE ##
+#end
+#if(${prevPartOfZone.size()} > 0)
+#areaFormat(${prevPartOfZone} ${useCentralZone} ${useExtremeZone} true)##
+#end
+${prevZone}##
+#if(${useStates} == true && ${prevStateAbbrev} != "DC")
+ IN ##
+#areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState} true)##
+${prevState}##
+#end
+#else
+ AND ##
+#if(${prevStateAbbrev} == "DC")
+THE ##
+#end
+#if(${prevPartOfZone.size()} > 0)
+#areaFormat(${prevPartOfZone} ${useCentralZone} ${useExtremeZone} true)##
+#end
+${prevZone}##
+#if(${useStates} == true && ${prevStateAbbrev} != "DC")
+ IN ##
+#areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState} true)##
+${prevState}##
+#end 
+#end
+#set($zoneCount = 1)
+### IF WE ARE ON THE LAST ITEM...OUTPUT THE PREVIOUS AND LAST ITEM
+#elseif(${itemCount} == ${numZones})
+#if(${zoneCount} >= 1)
+#if(${zoneCounter} > 2)
+...##
+#end
+#if(${prevStateAbbrev} == "DC")
+THE ##
+#end
+#if(${prevPartOfZone.size()} > 0)
+#areaFormat(${prevPartOfZone} ${useCentralZone} ${useExtremeZone} true)##
+#end
+${prevZone}##
+#if(((${prevState} != ${area.parentRegion} || ${prevPartOfState} != ${partOfState}) && ${useStates} == true)) && ${prevStateAbbrev} != "DC")
+ IN ##
+#areaFormat(${prevPartOfState} ${useCentralState} ${useExtremeState} true)##
+${prevState}##
+#end
+ AND ##
+#if(${area.stateabbr} == "DC")
+THE ##
+#end
+#if(${area.partOfArea})
+#areaFormat(${area.partOfArea} ${useCentralZone} ${useExtremeZone} true)##
+#end
+${area.name}##
+#if(${useStates} == true && ${prevStateAbbrev} != "DC")
+ IN ##
+#areaFormat(${partOfState} ${useCentralState} ${useExtremeState} true)##
+${area.parentRegion}##
+#end
+#else
+#if(${zoneCounter} > 1)
+...AND ##
+#end
+#if(${area.stateabbr} == "DC")
+THE ##
+#end
+#if(${area.partOfArea})
+#areaFormat(${area.partOfArea} ${useCentralZone} ${useExtremeZone} true)##
+#end
+${area.name} ##
+#if(${useStates} == true && ${area.stateabbr} != "DC")
+ IN ##
+#areaFormat(${partOfState} ${useCentralState} ${useExtremeState} true)##
+${area.parentRegion}##
+#end		
+#end
+#set($zoneCount = 0)
+###ELSE WE ARE IN THE MIDDLE OF OUR LIST WITH NO CHANGES...JUST OUTPUT THE 
+###AREA NAME
+#else
+#if(${zoneCounter} > 1)
+#if(${zoneCounter} > 2)
+...##
+#end
+#if(${prevStateAbbrev} == "DC")
+THE ##
+#end
+#if(${prevPartOfZone.size()} > 0)
+#areaFormat(${prevPartOfZone} ${useCentralZone} ${useExtremeZone} true)##
+#end
+${prevZone}##
+#end
+#set($zoneCount= $zoneCount + 1)
+#end
+####DONE OUTPUTTING. SET CURRENT VARIABLES TO PREVIOUS
+#if(${area.partOfArea})
+#set($prevPartOfZone = ${area.partOfArea})
+#else
+#set($prevPartOfZone = [])
+#end
+#set($prevZone = ${area.name})
+#set($prevState = ${area.parentRegion})
+#set($prevStateAbbrev = ${area.stateabbr})
+#set($prevPartOfState = ${partOfState})
+#end
+#end
+########END MACRO
+
+######### MACRO TO GENERATE FIRST BULLET IN WARNINGS ##########
 #macro(firstBullet $areas)
 #foreach (${area} in ${areas}) 
-#if(${area.partOfArea})
-#areaFormat(${area.partOfArea} true true) ##
-#end
 #set($FIPS = ${area.fips.substring(2)})
 #set($intFIPS = 0)
-#if(${intFIPS.parseInt($FIPS)} < 500 || ${area.stateabbr} == "TX")
-<L>${area.name} ${area.areaNotation}</L> IN #areaFormat(${area.partOfParentRegion} true false) <L>${area.parentRegion}...</L>
+##OUTPUT FOR NORMAL COUNTIES/ZONES
+#if((${intFIPS.parseInt($FIPS)} < 500 || ${area.stateabbr} == "TX") && ${area.stateabbr} != "DC")
+#if(${area.partOfArea})
+#areaFormat(${area.partOfArea} true true true)##
+#end
+${area.name} ${area.areaNotation} IN ##
+#areaFormat(${area.partOfParentRegion} true false true)##
+${area.parentRegion}...
+##OUTPUT FOR D.C.
+#elseif (${area.stateabbr} == "DC")
+THE ##
+#if(${area.partOfArea})
+#areaFormat(${area.partOfArea} true false true)##
+#end
+${area.name}...
+##OUTPUT FOR INDEPENDENT CITIES
 #else 
-<L>${area.name}</L> IN #areaFormat(${area.partOfParentRegion} true false) <L>${area.parentRegion}...</L>
+THE ##
+#if(${area.partOfArea})
+#areaFormat(${area.partOfArea} true false true)## 
+#end
+${area.name} IN ##
+#areaFormat(${area.partOfParentRegion} true false true)##
+${area.parentRegion}...
 #end
 #end
 ## COMMENTED OUT 5 LINES BELOW THIS IS GENERALLY NOT UTILIZED - you can unREMARK if desired
@@ -761,7 +996,90 @@ THE ${area.name}##
 ##    THIS INCLUDES THE CITY OF ${list.get(${area.points},0)}
 ## #end
 #end
+########END MACRO
 
+######### MACRO TO GENERATE FIRST BULLET IN WARNINGS ##########
+#macro(firstBulletNew $areas)
+#set($countyFlag = 0)
+#set($parishFlag = 0)
+##ONE LOCATION AND ONLY DC
+#if(${list.size($areas)} == 1 && ${list.get(${areas},0).stateabbr} == "DC")
+...
+##ONE LOCATION AND ONLY Louisiana
+#elseif(${list.size($areas)} == 1 && ${list.get(${areas},0).stateabbr} == "LA")
+THE FOLLOWING PARISH...
+
+##ONE LOCATION OTHERWISE
+#elseif(${list.size($areas)} == 1)
+THE FOLLOWING COUNTY...
+#else
+##MULTIPLE LOCATIONS
+#foreach (${area} in ${areas})
+#if(${area.stateabbr} == "LA")
+#set($parishFlag = ${parishFlag} + 1)
+#end
+#end
+#if(${parishFlag} == 0)
+THE FOLLOWING COUNTIES...
+
+#elseif(${list.size($areas)} == ${parishFlag})
+THE FOLLOWING PARISHES...
+
+#else
+THE FOLLOWING COUNTIES AND PARISHES...
+
+#end
+#end
+
+#set($partOfState = "")
+#set($stateAbbrev = "")
+#foreach (${area} in ${areas})
+#set($test1 = "#areaFormat(${area.partOfParentRegion} true false true)")
+#set($test2 = ${area.stateabbr})
+#if(${test1} != ${partOfState} || ${test2} != ${stateAbbrev})
+#set($partOfState = ${test1})
+#set($stateAbbrev = ${test2})
+#if (${area.stateabbr} != "DC")
+
+  IN ${partOfState}${area.parentRegion}...
+#end
+#end
+#set($FIPS = ${area.fips.substring(2)})
+#set($intFIPS = 0)
+#set($partOfArea = "")
+##OUTPUT FOR NORMAL COUNTIES/ZONES
+#if((${intFIPS.parseInt($FIPS)} < 500 || ${area.stateabbr} == "TX") && ${area.stateabbr} != "DC")
+#if(${area.partOfArea})
+#set($partOfArea = "#areaFormat(${area.partOfArea} true true true)")
+#end
+  ${partOfArea}${area.name}...
+##OUTPUT FOR D.C.
+#elseif (${area.stateabbr} == "DC")
+
+  THE ##
+#if(${area.partOfArea})
+#set($partOfArea = "#areaFormat(${area.partOfArea} true false true)")
+#end
+${partOfArea}${area.name}...
+##OUTPUT FOR INDEPENDENT CITIES
+#else 
+  THE ##
+#if(${area.partOfArea})
+#set($partOfArea = "#areaFormat(${area.partOfArea} true false true)") 
+#end
+${partOfArea}${area.name}...
+#end
+#end
+## COMMENTED OUT 5 LINES BELOW THIS IS GENERALLY NOT UTILIZED - you can unREMARK if desired
+## #if(${list.size($area.points)} > 1)
+##    THIS INCLUDES THE CITIES OF... #foreach (${city} in ${area.points})${city}... #end
+## #elseif(${list.size($area.points)} > 0)  
+##    THIS INCLUDES THE CITY OF ${list.get(${area.points},0)}
+## #end
+#end
+########END MACRO
+
+######### MACRO TO GENERATE SECOND BULLET (UNTIL XXXX AMPM TZ (DAY) IN WARNINGS ##########
 #macro(secondBullet $dateUtil $expire $timeFormat $localtimezone $secondtimezone $duration)
 #if(${duration} >= 360)
 UNTIL ${dateUtil.format(${expire}, ${timeFormat.plain}, 15, ${localtimezone})}##
@@ -776,17 +1094,27 @@ UNTIL ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})}##
 #end
 #end
 #end
+########END MACRO
 
-#macro(thirdBullet $dateUtil $eventtime $timeFormat $localtimezone $secondtimezone)
+######### MACRO TO GENERATE START OF THIRD BULLET
+#macro(thirdBullet $dateUtil $eventTime $timeFormat $localtimezone $secondtimezone)
+#set($time = ${now})
 #if(${corToNewMarker})
-AT ${corEventtime}##
-#else
-AT ${dateUtil.format(${eventtime}, ${timeFormat.clock}, ${localtimezone})}##
+##overload eventTime with global corCreateTime variable
+#set($time = ${corCreateTime})
 #end
+###OLD CODE BLOCK FOR EVENT TIME
+###set($time = ${eventTime})
+###if(${corToNewMarker})
+####overload eventTime with global corEventTime variable
+###set($time = ${corEventTime})
+###end
+AT ${dateUtil.format(${time}, ${timeFormat.clock}, ${localtimezone})}##
 #if(${secondtimezone})
- /${dateUtil.format(${eventtime}, ${timeFormat.clock}, ${secondtimezone})}/##
+ /${dateUtil.format(${time}, ${timeFormat.clock}, ${secondtimezone})}/##
 #end
 #end
+########END MACRO
 
 ## AUTHOR: EVAN BOOKBINDER
 ## This macro will output a pathcast based on the thresholds/parameters
@@ -818,7 +1146,13 @@ ${pathcastLead}
 #set($count = 0)
   ##
 #foreach (${city} in ${pc.points})
-${city.name}##
+#if(${city.partOfArea}) 
+#set($location = "#areaFormat(${city.partOfArea} true false false) ${city.name}")
+#set($location = ${city.trim()})
+#else
+#set($location = "${city.name}")
+#end
+${location}##
 #set($count = $count + 1)
 #if($count == $numCities - 1)
  AND ##
@@ -835,9 +1169,15 @@ ${city.name}##
 
 OTHER LOCATIONS IMPACTED BY ${otherLead} INCLUDE ##
 #set($count = 0)
-#foreach(${location} in ${otherPoints})
+#foreach(${loc} in ${otherPoints})
 #set($count = $count + 1)
-${location.name}##
+#if(${loc.partOfArea}) 
+#set($location = "#areaFormat(${loc.partOfArea} true false false) ${loc.name}")
+#set($location = ${loc.trim()})
+#else
+#set($location = "${loc.name}")
+#end
+${location}##
 #if($count == $numOtherPoints - 1)
  AND ##
 #elseif($count < $numOtherPoints)
@@ -852,15 +1192,21 @@ ${location.name}##
 ${otherLead} WILL REMAIN OVER MAINLY OPEN WATERS.
 #else
 ${otherLead} WILL REMAIN OVER MAINLY RURAL AREAS OF ##
-#headlineLocList(${areas} true true true false false).##
+#headlineLocList(${areas} true true true false).##
 ###NOW SEARCH FOR OTHER POINTS (PRESUMABLY 3s) AND LIST THEM HERE
 ### NEED TO CODE THIS ONCE SECTION IS ADDED
 #set($numOtherPoints = ${list.size($thirdTier)})
 #if($numOtherPoints > 0)
 ..INCLUDING THE FOLLOWING LOCATIONS ##
 #set($count = 0)
-#foreach(${location} in ${thirdTier})
+#foreach(${loc} in ${thirdTier})
 #set($count = $count + 1)
+#if(${loc.partOfArea}) 
+#set($location = "#areaFormat(${loc.partOfArea} true false false) ${loc.name}")
+#set($location = ${loc.trim()})
+#else
+#set($location = "${loc.name}")
+#end
 ${location.name}##
 #if($count == $numOtherPoints - 1)
  AND ##
@@ -875,10 +1221,52 @@ ${location.name}##
 #end
 #end
 #end
+########END MACRO
+
+## AUTHOR: EVAN BOOKBINDER
+## FORCES INDENTED TEXT/LINE WRAPPING
+## INPUT VARIABLES: inString - Input String
+##                  indentChars - # of characters to indent on first line
+##                  indentCharsSub - # of chars to indent on subsequent lines                   
+#macro(wrapText $inString $indentChars $indentCharsSub)
+#set($defLineWrap = 69)
+#set($lineNum = 1)
+#set($applyIndent = 1)
+#set($charcount = 0)
+#set($strArray = ${inString.split(" ")})
+#foreach ($word in $strArray)
+#if(($charcount + ${word.length()} + 1) > $defLineWrap)
+#set($lineNum = ${lineNum} + 1)
+#set($applyIndent = 1)
+#set($charcount = 0)
+
+#end
+#if($applyIndent == 1)
+#set($applyIndent = 0)
+#if($lineNum == 1)
+#set($spaces = $indentChars)
+#else
+#set($spaces = $indentCharsSub)
+#end
+##INITIALIZE Character count for this line
+#set($charcount = $spaces)
+#if(${spaces} > 0)
+#foreach ($indent in [1..${spaces}])
+ ##
+#end
+#end
+#end
+${word} ##
+#set($charcount = $charcount + ${word.length()} + 1)
+#end
+
+#end
+########END MACRO
 
 ## AUTHOR: EVAN BOOKBINDER
 ## OUTPUTS A STRING PADDED WITH WHITESPACE
 ## USED FOR COLUMN FORMATTING OF CITIES
+## input string, column width, force line feeds?
 #macro(padOutput $inString $width $lineFeed)
 #set($ellipsesTest = $width - 3)
 #if(${inString.length()} >= $ellipsesTest)
@@ -900,6 +1288,7 @@ ${inString}...##
 #end
 #end
 #end
+########END MACRO
 
 ## AUTHOR: EVAN BOOKBINDER
 ## Updated by Phil Kurimski to fix an error with one location impacted
@@ -923,23 +1312,29 @@ ${inString}...##
 ##         dateUtil (date utility object)
 ##         timeFormat (time formatting object)
 ##         marineFlag (1 if marine product)
-#macro(locationsList $bulletLead $ruralPhrase $columns $cityList $otherCityList $areas $dateUtil $timeFormat $marineFlag)
-#set($numMajorPoints = ${list.size($cityList)})
+#macro(locationsList $bulletLead $ruralPhrase $columns $locList $otherLocList $areas $dateUtil $timeFormat $marineFlag)
+#set($numMajorPoints = ${list.size($locList)})
 #if($numMajorPoints > 0)
 ${bulletLead}
 #set($count = 0)
-#set($colWidth = 67 / $columns)
+#set($colWidth = 69 / $columns)
 #set($colCount = 0)
-#foreach(${city} in ${cityList})
+#foreach(${loc} in ${locList})
+#if(${loc.partOfArea}) 
+#set($location = "#areaFormat(${loc.partOfArea} true false false) ${loc.name}")
+#set($location = ${location.trim()})
+#else
+#set($location = "${loc.name}")
+#end
 #set($count = $count + 1)
 #if($count < $numMajorPoints)
-#set($strOutput = "${city.name}...")
+#set($strOutput = "${location}...")
 #else
-#set($strOutput = "${city.name}.")
+#set($strOutput = "${location}.")
 #end
 ##Exception for 2 items in straight list
 #if((${count} == ${numMajorPoints} - 1) && $columns == 0)
-#set($strOutput = "${city.name} ")
+#set($strOutput = "${location} ")
 #end
 ##STRAIGHT LIST
 #if($columns == 0)
@@ -965,9 +1360,9 @@ AND ${strOutput}
 #else
 #set($colCount = $colCount + 1)
 #if($colCount != $columns)
-#padOutput(${city.name} $colWidth 0)
+#padOutput(${location} $colWidth 0)
 #else
-#padOutput(${city.name} $colWidth 1)
+#padOutput(${location} $colWidth 1)
 #set($colCount = 0)
 #end
 #end
@@ -981,26 +1376,32 @@ AND ${strOutput}
 ${ruralPhrase} WILL REMAIN OVER MAINLY OPEN WATERS.
 #else
 ## NO MAJOR POINTS FOUND. LIST RURAL AREAS
-${ruralPhrase} WILL REMAIN OVER MAINLY RURAL AREAS OF #headlineLocList(${areas} true true true false false).##
-#set($numMinorPoints = ${list.size($otherCityList)})
+${ruralPhrase} WILL REMAIN OVER MAINLY RURAL AREAS OF #headlineLocList(${areas} true true true false).##
+#set($numMinorPoints = ${list.size($otherLocList)})
 #if(${numMinorPoints} == 1)
-..INCLUDING THE COMMUNITY OF ##
+..WHICH INCLUDES ##
 #elseif(${numMinorPoints} > 1)
-..INCLUDING THE COMMUNITIES OF ##
+..INCLUDING THE FOLLOWING LOCATIONS...##
 #else
 
 #end
 #set($count = 0)
-#foreach(${city} in ${otherCityList})
+#foreach(${loc} in ${otherLocList})
+#if(${loc.partOfArea}) 
+#set($location = "#areaFormat(${loc.partOfArea} true false false) ${loc.name}")
+#set($location = ${location.trim()})
+#else
+#set($location = "${loc.name}")
+#end
 #set($count = $count + 1)
 #if(${count} < ${numMinorPoints} - 1)
-${city.name}...##
+${location}...##
 #elseif(${count} == ${numMinorPoints} - 1)
-${city.name} ##
-#elseif (${count} == ${numMinorPoints} && ${count} != 1)
-AND ${city.name}.
-#elseif (${count} == ${numMinorPoints})
-${city.name}.
+${location} ##
+#elseif(${count} == ${numMinorPoints} && ${count} != 1)
+AND ${location}.
+#elseif(${count} == ${numMinorPoints})
+${location}.
 
 #end
 #end

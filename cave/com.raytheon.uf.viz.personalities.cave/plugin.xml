@@ -113,7 +113,7 @@
                    visible="true">
              </separator>
              <command
-                   commandId="org.eclipse.ui.file.exit"
+                   commandId="com.raytheon.viz.ui.file.exit"
                    label="Exit..."
                    style="push">
              </command>
@@ -181,6 +181,11 @@
                name="index"
                optional="false">
          </commandParameter>
+      </command>
+      <command
+            defaultHandler="com.raytheon.uf.viz.personalities.cave.menu.ExitHandler"
+            id="com.raytheon.viz.ui.file.exit"
+            name="Exit">
       </command>
    </extension>
    <extension
