@@ -199,7 +199,7 @@ public class FFMPRowGenerator implements Runnable {
 
                 mouseOverText = metabasin.getBasinId() + "\n" + lid + "-"
                         + fvgmbd.getName();
-
+ 
                 if (!huc.equals(FFMPRecord.ALL)) {
                     sb.append("-").append(fvgmbd.getName());
                 }

@@ -238,9 +238,9 @@ else
   rm ${logDirectory}/testfile
 fi
 
-if ! qpidPid=$( pidof qpidd )
+if ! qpidPid=$( jps -v | grep qpid | awk '{print $1}' )
 then
-  echoFail "ERROR:\tCan't find qpidd on this host (run: pidof qpidd failed)."
+  echoFail "ERROR:\tCan't find qpidd on this host (run: jps -v | grep qpid failed)."
   exit 1
 fi
 
