@@ -60,6 +60,7 @@ import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.data.resp.NumericImageData;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
+import com.raytheon.uf.viz.core.drawables.IFont.FontType;
 import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
@@ -246,8 +247,24 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *      float, com.raytheon.uf.viz.core.drawables.IFont.Style[])
      */
     public IFont initializeFont(File fontFile, float size, Style[] styles) {
-        return new DispatchingFont(wrappedObject.initializeFont(fontFile, size,
-                styles), getDispatcher(), fontFile);
+        return initializeFont(fontFile, FontType.TRUETYPE, size, styles);
+    }
+
+    /**
+     * @param fontFile
+     * @param type
+     * @param size
+     * @param styles
+     * @return
+     * @see 
+     *      com.raytheon.uf.viz.core.IGraphicsTarget#initializeFont(java.io.File,
+     *      com.raytheon.uf.viz.core.drawables.IFont.FontType float,
+     *      com.raytheon.uf.viz.core.drawables.IFont.Style[])
+     */
+    public IFont initializeFont(File fontFile, FontType type, float size,
+            Style[] styles) {
+        return new DispatchingFont(wrappedObject.initializeFont(fontFile, type,
+                size, styles), getDispatcher(), fontFile);
     }
 
     /**
