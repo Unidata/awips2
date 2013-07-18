@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSummary;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
@@ -63,6 +64,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jun 13, 2013 2095       djohnson     Implement ability to store a collection of subscriptions.
  * Jul 09, 2013 2106       djohnson     Rather than copy all elements and remove unnecessary, just copy the ones that apply.
  * Jul 11, 2013 2106       djohnson     Use BandwidthSubscription instead of Subscription.
+ * Jul 18, 2013 1653       mpduff       Implemented method.
  * 
  * </pre>
  * 
@@ -653,6 +655,13 @@ class InMemoryBandwidthDao implements IBandwidthDao {
     @Override
     public SubscriptionRetrievalAttributes getSubscriptionRetrievalAttributes(
             SubscriptionRetrieval retrieval) {
+        return null;
+    }
+
+    @Override
+    public SubscriptionStatusSummary getSubscriptionStatusSummary(
+            Subscription sub) {
+        // Does nothing
         return null;
     }
 
