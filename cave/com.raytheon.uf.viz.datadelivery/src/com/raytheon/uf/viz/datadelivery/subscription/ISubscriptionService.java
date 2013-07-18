@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.datadelivery.subscription;
 
 import java.util.List;
 
+import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSummary;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -38,6 +39,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceA
  * Nov 7, 2012  1286      djohnson     Initial creation
  * Nov 20, 2012 1286      djohnson     Use IDisplay to display yes/no prompt.
  * Nov 28, 2012 1286      djohnson     Consolidate more notifications.
+ * Jul 18, 2013 1653      mpduff       Added SubscriptionStatusSummary to ISubscriptionServiceResult
  * 
  * </pre>
  * 
@@ -73,6 +75,13 @@ public interface ISubscriptionService {
          * @return the message to display
          */
         String getMessageToDisplay();
+
+        /**
+         * Get the subscription status summary.
+         * 
+         * @return The SubscriptionStatusSummary
+         */
+        SubscriptionStatusSummary getSubscriptionStatusSummary();
     }
 
     /**
