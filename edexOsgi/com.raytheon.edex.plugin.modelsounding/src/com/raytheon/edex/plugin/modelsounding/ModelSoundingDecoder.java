@@ -24,6 +24,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,6 +65,10 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 04/29/13          #1861 bkowal      Create a separate Point Data Container for
  *                                     every record so each forecast hour will
  *                                     receive a unique hdf5 file.
+ * 07/03/13          #2161 bkowal      Store and retrieve the Point Data Containers
+ *                                     by forecast hour and reftime when completing
+ *                                     a decode operation. Overrode default
+ *                                     Point Data Container size.
  * 
  * </pre>
  * 
@@ -76,6 +82,8 @@ public class ModelSoundingDecoder extends AbstractDecoder implements
 
     // Name of the plugin controlling this decoder.
     public static final String PLUGIN_NAME = "modelsounding";
+
+    private static final int PDC_SIZE = 20;
 
     /** The logger */
     private Log logger = LogFactory.getLog(getClass());
@@ -151,16 +159,37 @@ public class ModelSoundingDecoder extends AbstractDecoder implements
                     Iterator<BUFRDataDocument> iterator = document.iterator();
                     List<SoundingSite> pdoList = new ArrayList<SoundingSite>();
 
+                    Map<SoundingTemporalData, PointDataContainer> pdcTemporalMap = new HashMap<SoundingTemporalData, PointDataContainer>();
+
                     while (iterator.hasNext()) {
-                        /*
-                         * Would it be better to cache the Point Data Container
-                         * based on reftime and forecast hour?
-                         */
-                        PointDataContainer container = PointDataContainer
-                                .build(pdd);
+                        BUFRDataDocument dataDoc = iterator.next();
+                        if (dataDoc == null) {
+                            continue;
+                        }
+
+                        SoundingTemporalData soundingTemporalData = ModelSoundingDataAdapter
+                                .getSoundingTemporalInformation(dataDoc);
+
+                        PointDataContainer container = pdcTemporalMap
+                                .get(soundingTemporalData);
+                        if (container == null) {
+                            container = PointDataContainer.build(pdd, PDC_SIZE);
+                            pdcTemporalMap.put(soundingTemporalData, container);
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("Added Point Data Container to Map with: "
+                                        + ((soundingTemporalData == null) ? " NULL"
+                                                : soundingTemporalData
+                                                        .toString()));
+                            }
+                        } else if (logger.isDebugEnabled()) {
+                            logger.debug("Retrieved Point Data Container from Map with: "
+                                    + ((soundingTemporalData == null) ? " NULL"
+                                            : soundingTemporalData.toString()));
+                        }
+
                         SoundingSite soundingData = ModelSoundingDataAdapter
-                                .createSoundingData(iterator, wmoHeader,
-                                        container);
+                                .createSoundingData(dataDoc, wmoHeader,
+                                        container, soundingTemporalData);
                         if (soundingData != null) {
                             soundingData.setTraceId(traceId);
                             soundingData.setPluginName(PLUGIN_NAME);
