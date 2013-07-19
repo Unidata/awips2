@@ -69,37 +69,50 @@ import com.raytheon.viz.core.contours.cache.SubGridCacheKey;
 import com.raytheon.viz.core.contours.util.ContourContainer;
 import com.raytheon.viz.core.contours.util.FortConBuf;
 import com.raytheon.viz.core.contours.util.FortConConfig;
+import com.raytheon.viz.core.contours.util.StreamLineContainer;
+import com.raytheon.viz.core.contours.util.StreamLineContainer.StreamLinePoint;
+import com.raytheon.viz.core.contours.util.StrmPak;
+import com.raytheon.viz.core.contours.util.StrmPakConfig;
 import com.raytheon.viz.core.interval.XFormFunctions;
 import com.raytheon.viz.core.style.contour.ContourPreferences;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * ContourSupport
- * 
- * Provides contouring wrapper
+ * Provides contouring wrapper.
  * 
  * <pre>
  * 
- *    SOFTWARE HISTORY
- *   
- *    Date         Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    Oct 22, 2007             chammack    Initial Creation.
- *    May 26, 2009 #2172       chammack    Use zoomLevel to calculate label spacing
- *    Apr 26, 2010 #4583       rjpeter     Replaced fortran fortconbuf with java port.
- *    Mar 4, 2011   #7747       njensen   Cached subgrid envelopes
- *    Jul 9, 2012  DR 14940    M. Porricelli  Adjust arrow size for streamlines
- *    Feb 15, 2013 1638        mschenke    Moved edex.common Util functions into common Util
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Oct 22, 2007            chammack     Initial Creation.
+ * May 26, 2009  #2172     chammack     Use zoomLevel to calculate label spacing
+ * Apr 26, 2010  #4583     rjpeter      Replaced fortran fortconbuf with java port.
+ * Mar 04, 2011  #7747     njensen      Cached subgrid envelopes
+ * Jul 09, 2012  DR14940   M.Porricelli Adjust arrow size for streamlines
+ * Feb 15, 2013 1638        mschenke    Moved edex.common Util functions into common Util
+ * Jun 26, 2013  #1999     dgilling     Replace native fortran strmpak call 
+ *                                      with java port.
+ * 
  * </pre>
  * 
  * @author chammack
- * @version 1
+ * @version 1.0
  */
 public class ContourSupport {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ContourSupport.class);
 
     private static float smallestContourValue = GridUtil.GRID_FILL_VALUE - 1;
+    
+    private static final String STREAM_LINES_PROPERTY_NAME = "viz.use.legacy.streamlines";
+
+    private static final String LEGACY_STEAMLINES_ON = "true";
+
+    private static final String LEGACY_STEAMLINES_OFF = "false";
+
 
     private static float largestContourValue = GridUtil.GRID_FILL_VALUE + 1;
 
@@ -421,16 +434,20 @@ public class ContourSupport {
                     if (contourLabeling.getNumberOfContours() > 0) {
                         float minData = 1e37f;
                         float maxData = -1e37f;
-                        for (float[] dataRow : subgriddedData)
-                            for (float data : dataRow)
-                                if (data < minData && data != -999999)
+                        for (float[] dataRow : subgriddedData) {
+                            for (float data : dataRow) {
+                                if (data < minData && data != -999999) {
                                     minData = data;
-                                else if (data < 999998 && data > maxData)
+                                } else if (data < 999998 && data > maxData) {
                                     maxData = data;
+                                }
+                            }
+                        }
                         interval = (maxData - minData)
                                 / contourLabeling.getNumberOfContours();
-                        if (interval < 0)
+                        if (interval < 0) {
                             interval = -interval;
+                        }
                         if (interval > initialInterval) {
                             initialInterval = interval;
                             prefs.getContourLabeling().setIncrement(
@@ -526,9 +543,9 @@ public class ContourSupport {
                 int totalNegCoords = 0;
                 for (int i = 0; i < size; i++) {
                     if (contours.contourVals.get(i) > 0) {
-                        totalPosCoords += (int) contours.xyContourPoints.get(i).length / 2;
+                        totalPosCoords += contours.xyContourPoints.get(i).length / 2;
                     } else {
-                        totalNegCoords += (int) contours.xyContourPoints.get(i).length / 2;
+                        totalNegCoords += contours.xyContourPoints.get(i).length / 2;
                     }
                 }
 
@@ -624,9 +641,17 @@ public class ContourSupport {
             int maxX = (int) Math.ceil(Math.min(env.getMaximum(0), sz[0] - 1));
             int maxY = (int) Math.ceil(Math.min(env.getMaximum(1), sz[1] - 1));
 
-            makeStreamLines(uW, vW, minX, minY, maxX, maxY, sz, contourGroup,
-                    currentMagnification, zoom, contourGroup.lastDensity,
-                    rastPosToWorldGrid);
+            if (LEGACY_STEAMLINES_ON.equals(System.getProperty(
+                    STREAM_LINES_PROPERTY_NAME, LEGACY_STEAMLINES_OFF)
+                    .toLowerCase())) {
+                makeStreamLinesLegacy(uW, vW, minX, minY, maxX, maxY, sz,
+                        contourGroup, currentMagnification, zoom,
+                        contourGroup.lastDensity, rastPosToWorldGrid);
+            } else {
+                makeStreamLinesNew(uW, vW, minX, minY, maxX, maxY, sz,
+                        contourGroup, currentMagnification, zoom,
+                        contourGroup.lastDensity, rastPosToWorldGrid);
+            }
         }
 
         return contourGroup;
@@ -883,17 +908,21 @@ public class ContourSupport {
                         // use numberOfContours
                         float minData = 1e37f;
                         float maxData = -1e37f;
-                        for (float[] dataRow : subgriddedData)
-                            for (float dataCell : dataRow)
-                                if (dataCell < minData && dataCell != -999999)
+                        for (float[] dataRow : subgriddedData) {
+                            for (float dataCell : dataRow) {
+                                if (dataCell < minData && dataCell != -999999) {
                                     minData = dataCell;
-                                else if (dataCell < 999998
-                                        && dataCell > maxData)
+                                } else if (dataCell < 999998
+                                        && dataCell > maxData) {
                                     maxData = dataCell;
+                                }
+                            }
+                        }
                         interval = (maxData - minData)
                                 / contourLabeling.getNumberOfContours();
-                        if (interval < 0)
+                        if (interval < 0) {
                             interval = -interval;
+                        }
 
                         if (interval > initialInterval) {
                             initialInterval = interval;
@@ -1055,10 +1084,20 @@ public class ContourSupport {
             int minY = 0;
             int maxX = (int) (sz[0] - 1);
             int maxY = (int) (sz[1] - 1);
-            makeStreamLines(uW, vW, minX, minY, maxX, maxY, sz, contourGroup,
-                    1, 1, contourGroup.lastDensity * 2, gridToPixel);
-            return contourGroup;
 
+            if (LEGACY_STEAMLINES_ON.equals(System.getProperty(
+                    STREAM_LINES_PROPERTY_NAME, LEGACY_STEAMLINES_OFF)
+                    .toLowerCase())) {
+                makeStreamLinesLegacy(uW, vW, minX, minY, maxX, maxY, sz,
+                        contourGroup, 1, 1, contourGroup.lastDensity * 2,
+                        gridToPixel);
+            } else {
+                makeStreamLinesNew(uW, vW, minX, minY, maxX, maxY, sz,
+                        contourGroup, 1, 1, contourGroup.lastDensity * 2,
+                        gridToPixel);
+            }
+
+            return contourGroup;
         } else {
             throw new UnsupportedOperationException(
                     "Contouring is not supported for data type: "
@@ -1067,7 +1106,9 @@ public class ContourSupport {
 
     }
 
-    private static void makeStreamLines(float[] uW, float[] vW, int minX,
+    // TODO Remove this function once use of Java ported version of this
+    // algorithm is accepted by end-users
+    private static void makeStreamLinesLegacy(float[] uW, float[] vW, int minX,
             int minY, int maxX, int maxY, long[] sz, ContourGroup contourGroup,
             double currentMagnification, float zoom, double density,
             MathTransform rastPosToWorldGrid) throws VizException {
@@ -1196,6 +1237,124 @@ public class ContourSupport {
                 contourGroup.posValueShape.addLineSegment(valsArr);
                 vals.clear();
             }
+        } catch (Throwable e) {
+            throw new VizException("Error postprocessing contours", e);
+        }
+    }
+
+    private static void makeStreamLinesNew(float[] uW, float[] vW, int minX,
+            int minY, int maxX, int maxY, long[] sz, ContourGroup contourGroup,
+            double currentMagnification, float zoom, double density,
+            MathTransform rastPosToWorldGrid) throws VizException {
+
+        int szX = (maxX - minX) + 1;
+        int szY = (maxY - minY) + 1;
+        int totalSz = szX * szY;
+        if (totalSz <= 0) {
+            return;
+        }
+        int x = (int) sz[0];
+        int y = (int) sz[1];
+
+        float[][] adjustedUw = new float[szX][szY];
+        float[][] adjustedVw = new float[szX][szY];
+        for (int j = 0; j < szY; j++) {
+            for (int i = 0; i < szX; i++) {
+                float uWVal = uW[(x * (j + minY)) + (i + minX)];
+                if (Float.isNaN(uWVal)) {
+                    uWVal = GridUtil.GRID_FILL_VALUE;
+                }
+                adjustedUw[szX - 1 - i][j] = uWVal;
+
+                float vWVal = vW[(x * (j + minY)) + (i + minX)];
+                if (Float.isNaN(vWVal)) {
+                    vWVal = GridUtil.GRID_FILL_VALUE;
+                }
+                adjustedVw[szX - 1 - i][j] = vWVal;
+            }
+        }
+
+        // Use ported legacy code to determine contour interval
+        long t0 = System.currentTimeMillis();
+
+        double[] center = new double[2];
+        double[] offCenter = new double[2];
+
+        try {
+            rastPosToWorldGrid.transform(new double[] { x / 2.0, y / 2.0 }, 0,
+                    center, 0, 1);
+            rastPosToWorldGrid.transform(new double[] { (x / 2.0) + 1.0,
+                    y / 2.0 }, 0, offCenter, 0, 1);
+        } catch (TransformException e) {
+            throw new VizException(
+                    "Could not perform center calculations for stream lines.",
+                    e);
+        }
+
+        double gridPixelSize = offCenter[0] - center[0];
+        double gridPixelMax = 2000.;
+
+        // If gridPixelSize is large, arrows on streamline will be too small, so
+        // adjust here
+        if (gridPixelSize > gridPixelMax) {
+            gridPixelSize = gridPixelSize / 5;
+        }
+        float arrowSize = (float) (currentMagnification * 5 / zoom / gridPixelSize);
+
+        double spadiv = zoom * density * gridPixelSize / 25;
+
+        double minSpacing = 1.0 / spadiv;
+        double maxSpacing = 3.0 / spadiv;
+        float minspc = 0;
+        float maxspc = 0;
+
+        if (minSpacing > 1) {
+            minspc = (float) Math.sqrt(minSpacing);
+        }
+        if (minspc < 0.1) {
+            minspc = 0.1f;
+        }
+        if (maxSpacing > 1) {
+            maxspc = (float) Math.sqrt(maxSpacing);
+        }
+        if (maxspc < 0.25) {
+            maxspc = 0.25f;
+        }
+
+        StrmPakConfig config = new StrmPakConfig(arrowSize, minspc, maxspc,
+                -1000000f, -999998f);
+        StreamLineContainer container = StrmPak.strmpak(adjustedUw, adjustedVw,
+                szX, szX, szY, config);
+
+        long t1 = System.currentTimeMillis();
+        System.out.println("Contouring took: " + (t1 - t0));
+
+        long tAccum = 0;
+
+        try {
+            for (List<StreamLinePoint> points : container.streamLines) {
+                double[][] valsArr = new double[points.size()][2];
+
+                for (int i = 0; i < points.size(); i++) {
+                    StreamLinePoint point = points.get(i);
+                    try {
+                        long tZ0 = System.currentTimeMillis();
+                        rastPosToWorldGrid.transform(new double[] {
+                                maxX - point.getX(), point.getY() + minY }, 0,
+                                valsArr[i], 0, 1);
+                        long tZ1 = System.currentTimeMillis();
+                        tAccum += (tZ1 - tZ0);
+                    } catch (TransformException e) {
+                        throw new VizException(
+                                "Could not transform stream line coordinate into world grid space.",
+                                e);
+                    }
+                }
+
+                contourGroup.posValueShape.addLineSegment(valsArr);
+            }
+
+            System.out.println("streamline transformation time: " + tAccum);
         } catch (Throwable e) {
             throw new VizException("Error postprocessing contours", e);
         }

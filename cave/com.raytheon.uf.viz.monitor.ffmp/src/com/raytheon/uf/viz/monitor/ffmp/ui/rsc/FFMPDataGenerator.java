@@ -77,6 +77,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * May 22, 2013    1902   mpduff      Code cleanup.
  * Jun 11, 2013    2085   njensen     Extracted row creation to FFMPRowGenerator and
  *                                     multi-threaded row creation.
+ * July 1, 2013    2155   dhladky     Fixed bug that created more rows than were actually needed.
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * 
  * </pre>
@@ -169,13 +170,13 @@ public class FFMPDataGenerator {
         FFFGDataMgr.getUpdatedInstance();
 
         try {
-            
+
             FIELDS field = getBaseField();
 
             if (field == null || baseRec == null) {
                 return tData;
             }
-            
+
             List<DomainXML> domains = resource.getDomains();
 
             if ((centeredAggregationKey == null) || huc.equals(FFMPRecord.ALL)) {
@@ -187,13 +188,13 @@ public class FFMPDataGenerator {
                     tData = new FFMPTableData(fbd.getBasins().size());
 
                     for (Long key : fbd.getBasins().keySet()) {
-
                         FFMPBasinMetaData fmdb = ft.getBasin(siteKey, key);
                         if (fmdb == null) {
                             continue;
                         }
 
                         for (DomainXML domain : domains) {
+
                             String cwa = domain.getCwa();
 
                             if ((cwa.equals(fmdb.getCwa()))
@@ -225,10 +226,8 @@ public class FFMPDataGenerator {
                             }
                         }
                     }
-                }
+                } else {
 
-                else {
- 
                     // Find all of the basins for this HUC level
                     List<Long> keyList = ft
                             .getHucKeyList(siteKey, huc, domains);
@@ -267,17 +266,17 @@ public class FFMPDataGenerator {
 
             // show pfafs in aggregation
             else {
-
                 FFMPBasinData fbd = baseRec.getBasinData();
-                tData = new FFMPTableData(resource.getCenteredAggregatePfafs().size());
+                List<Long> centerAggPfafs = resource
+                        .getCenteredAggregatePfafs();
+                tData = new FFMPTableData(centerAggPfafs.size());
 
-                for (Long key : resource.getCenteredAggregatePfafs()) {
+                for (Long key : centerAggPfafs) {
 
                     FFMPBasinMetaData fmdb = ft.getBasin(siteKey, key);
 
                     if (fmdb != null) {
                         for (DomainXML domain : domains) {
-
                             if ((domain.getCwa().equals(fmdb.getCwa()))
                                     || (domain.isPrimary() && fmdb
                                             .isPrimaryCwa())) {
@@ -285,11 +284,18 @@ public class FFMPDataGenerator {
                                 setFFMPRow(fbd.get(key), tData, false, null);
 
                                 if (virtualBasin != null) {
-                                    for (Long id : ft
+
+                                    // We *DO NOT* want all of the aggregate
+                                    // VGB's,
+                                    // just the one's for this individual basin.
+                                    List<Long> virtuals = ft
                                             .getVirtualGageBasinLookupIds(
-                                                    siteKey, key, FFMPRecord.ALL,
+                                                    siteKey, key,
+                                                    FFMPRecord.ALL,
                                                     resource.basinTableDlg
-                                                            .getRowName())) {
+                                                            .getRowName());
+
+                                    for (Long id : virtuals) {
                                         try {
                                             setFFMPRow(virtualBasin.get(id),
                                                     tData, true, null);
@@ -371,9 +377,9 @@ public class FFMPDataGenerator {
                 null, paintRefTime, true);
         guidRecords = monitor.getGuidanceRecords(product, siteKey, tableTime,
                 true);
-        FFMPRecord virtualRecord = monitor.getVirtualRecord(product, siteKey, dataKey,
-                    product.getVirtual(), tableTime, true);
-        
+        FFMPRecord virtualRecord = monitor.getVirtualRecord(product, siteKey,
+                dataKey, product.getVirtual(), tableTime, true);
+
         try {
             if (rateRecord != null) {
                 rateBasin = rateRecord.getBasinData();

@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -108,6 +109,11 @@ import com.vividsolutions.jts.geom.Point;
  *    Mar 25, 2013 1605       jsanchez    Checks if a storm location is over an urban bound area.
  *    Apr 24, 2013 1943       jsanchez    Calculated partOfArea for a storm location over an urban bound area.
  *    May  2, 2013 1963       jsanchez    Referenced calculateLocationPortion from GisUtil.
+ *    Jun 20, 2013 16224      Qinglu Lin  Updated pathcast() by removing restriction of "i < maxCount" at line 478, 
+ *                                        and added findPointsToBeRemoved(), computeAngle(), and remove pathcast's
+ *                                        points that are in the past.
+ *    Jun 24, 2013 DR 16317   D. Friedman Handle "motionless" track.
+ *    Jun 25, 2013 16224      Qinglu Lin  Resolved the issue with "Date start" for pathcast in CON.
  * 
  * </pre>
  * 
@@ -249,6 +255,8 @@ public class Wx {
 
         GeometryFactory gf = new GeometryFactory();
 
+        boolean flag = true; 
+        List<ClosestPoint> pointsToBeRemoved = null;
         try {
             Abbreviation areaTypeAbbrev = null;
             String trxFileStr = pathcastConfiguration
@@ -268,11 +276,11 @@ public class Wx {
             Geometry bufferedPathCastArea = null;
             List<PathCast> pathcasts = new ArrayList<PathCast>();
             Map<PathCast, Coordinate[]> pathCastCoords = new HashMap<PathCast, Coordinate[]>();
-            if (stormTrackState.trackVisible) {
+            if (stormTrackState.isNonstationary()) {
                 List<Coordinate> coordinates = new ArrayList<Coordinate>();
-                Date start = DateUtil.roundDate(new Date(wwaStartTime + delta),
-                        pathcastConfiguration.getInterval());
-                Date stormTime = new Date(wwaStartTime);
+                Date stormTime = new Date();
+                Date start = DateUtil.roundDate(new Date(stormTime.getTime() + delta),
+                        pathcastConfiguration.getInterval());                
                 DestinationGeodeticCalculator gc = new DestinationGeodeticCalculator();
                 while (start.getTime() <= wwaStopTime) {
                     PathCast cast = new PathCast();
@@ -440,6 +448,23 @@ public class Wx {
                 } else {
                     points = new ArrayList<ClosestPoint>(0);
                 }
+                if (flag) {
+                    pointsToBeRemoved = findPointsToBeRemoved(centroid, points, stormTrackState.angle);
+                    flag = false;
+                }
+
+                if (pointsToBeRemoved != null) {
+                    for (int i=0; i<pointsToBeRemoved.size(); i++) {
+                        for (int j=0; j<points.size(); j++) {
+                            // double comparison below can be replaced by gid comparison when bug in getGid() is fixed.
+                            if (pointsToBeRemoved.get(i).getPoint().x == points.get(j).getPoint().x &&
+                                    pointsToBeRemoved.get(i).getPoint().y == points.get(j).getPoint().y) {
+                                points.remove(j);
+                                break;
+                            }
+                        }
+                    }
+                }
                 pcPoints.put(pc, points);
             }
             // Figure out which points should go with which pathcast. Starts
@@ -452,12 +477,12 @@ public class Wx {
             while (tmp.isEmpty() == false) {
                 PathCast pc = tmp.remove();
                 List<ClosestPoint> points = pcPoints.get(pc);
-                for (int i = 0; i < points.size() && i < maxCount; ++i) {
+                for (int i = 0; i < points.size(); ++i) {
                     ClosestPoint cp = points.get(i);
                     for (PathCast pc2 : tmp) {
                         if (pc2 != pc) {
                             List<ClosestPoint> points2 = pcPoints.get(pc2);
-                            ClosestPoint found = find(cp, points2, maxCount);
+                            ClosestPoint found = find(cp, points2, Integer.MAX_VALUE);
                             if (found != null) {
                                 // We found a point within maxCount in this
                                 // list.
@@ -931,5 +956,31 @@ public class Wx {
      */
     public Date getObsTime() {
         return new Date(this.wwaStartTime);
+    }
+
+    private List<ClosestPoint> findPointsToBeRemoved(Point centroid, List<ClosestPoint> points, double stormtrackAngle) {
+        // convert storm track angle to geometry angle in range of (0,360)
+        double convertedAngle = 90.0 - stormtrackAngle;
+        if (convertedAngle < 0.0)
+            convertedAngle += 360.0;
+
+        Iterator<ClosestPoint> iter = points.iterator();
+        List<ClosestPoint> removedPoints = new ArrayList<ClosestPoint>();
+        while (iter.hasNext()) {
+            ClosestPoint cp = iter.next();
+            double d = Math.abs(convertedAngle - computeAngle(centroid, cp.point));
+            if (d > 180.0)
+                d = 360.0 - d;
+            if (d > 90.0)
+                removedPoints.add(cp);
+        }
+        return removedPoints; 
+    }
+
+    private double computeAngle(Point p, Coordinate c) {
+        double angle = Math.atan2(c.y - p.getY(), c.x - p.getX()) * 180 / Math.PI;
+        if (angle < 0)
+            angle += 360;
+        return angle;
     }
 }

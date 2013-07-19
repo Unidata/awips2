@@ -37,7 +37,7 @@ import com.raytheon.uf.common.units.PiecewisePixel;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 
+ *  6/2013		DR 16070	jgerth		Interpolation capability
  * 
  * </pre>
  * 
@@ -47,6 +47,8 @@ import com.raytheon.uf.common.units.PiecewisePixel;
 @XmlAccessorType(XmlAccessType.NONE)
 public class DataMappingPreferences {
 
+	private String formatString;
+	
 	@XmlAccessorType(XmlAccessType.NONE)
 	public static class DataMappingEntry implements
 			Comparable<DataMappingEntry> {
@@ -177,6 +179,7 @@ public class DataMappingPreferences {
 	private final ArrayList<DataMappingEntry> greaterThanEntries = new ArrayList<DataMappingEntry>();
 	private final ArrayList<DataMappingEntry> lessThanEntries = new ArrayList<DataMappingEntry>();
 	private final ArrayList<DataMappingEntry> equalsEntries = new ArrayList<DataMappingEntry>();
+	private final ArrayList<DataMappingEntry> interpEntries = new ArrayList<DataMappingEntry>();
 	private Unit<?> imageUnit;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -248,8 +251,26 @@ public class DataMappingPreferences {
 			} else if ("<".equals(operator)) {
 				lessThanEntries.add(entry);
 				Collections.sort(lessThanEntries);
+			} else if ("i".equals(operator)) {
+				interpEntries.add(entry);
 			}
 		}
+	}
+
+	/**
+	 * Matches a number against the pixelValue and displays value to the
+	 * number of decimal places set in formatString
+	 * 
+	 * DR 16070
+	 * 
+	 * @param dataValue
+	 * @param formatString
+	 * @return
+	 */
+	public String getLabelValueForDataValue(double dataValue,
+			String formatString) {
+		this.setFormatString(formatString);
+		return this.getLabelValueForDataValue(dataValue);
 	}
 
 	/**
@@ -281,7 +302,96 @@ public class DataMappingPreferences {
 				return entry.getLabel();
 			}
 		}
+		// START DR 16070 fix
+		Double interpValue = this.getNumericValueforDataValue(dataValue);
+		int ies = interpEntries.size();
+		for (int i = 1; i < ies; i++) {
+			Double pixelValue1 = interpEntries.get(i - 1).getPixelValue();
+			Double pixelValue2 = interpEntries.get(i).getPixelValue();
+			if ((dataValue >= pixelValue1) && (dataValue <= pixelValue2)) {
+				if (this.getFormatString() != null)
+					return String.format("%." + this.getFormatString() + "f%s",
+							interpValue, interpEntries.get(i).getLabel());
+				else
+					return String.format("%.1f%s", interpValue, interpEntries
+							.get(i).getLabel());
+			}
+		}
+		// END fix
 		return null;
+	}
+
+	/**
+	 * Get numeric value for data value
+	 * 
+	 * DR 16070
+	 */
+	public Double getNumericValueforDataValue(double dataValue) {
+		Double interpValue;
+		int ies = interpEntries.size();
+		for (int i = 1; i < ies; i++) {
+			Double pixelValue1 = interpEntries.get(i - 1).getPixelValue();
+			Double pixelValue2 = interpEntries.get(i).getPixelValue();
+			Double displValue1 = interpEntries.get(i - 1).getDisplayValue();
+			Double displValue2 = interpEntries.get(i).getDisplayValue();
+			if ((dataValue >= pixelValue1) && (dataValue <= pixelValue2)) {
+				interpValue = displValue1 + (dataValue - pixelValue1)
+						/ (pixelValue2 - pixelValue1)
+						* (displValue2 - displValue1);
+				return interpValue;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get data value for numeric value
+	 * 
+	 * DR 16070
+	 */
+	public Double getDataValueforNumericValue(double numericValue) {
+		Double interpValue;
+		int ies = interpEntries.size();
+		for (int i = 1; i < ies; i++) {
+			Double pixelValue1 = interpEntries.get(i - 1).getPixelValue();
+			Double pixelValue2 = interpEntries.get(i).getPixelValue();
+			Double displValue1 = interpEntries.get(i - 1).getDisplayValue();
+			Double displValue2 = interpEntries.get(i).getDisplayValue();
+			if (displValue1 > displValue2) {
+				if ((numericValue <= displValue1) && (numericValue >= displValue2)) {
+					interpValue = pixelValue1 + (numericValue - displValue1)
+						/ (displValue2 - displValue1)
+						* (pixelValue2 - pixelValue1);
+					return interpValue;
+				}
+			} else {
+				if ((numericValue >= displValue1) && (numericValue <= displValue2)) {
+					interpValue = pixelValue1 + (numericValue - displValue1)
+						/ (displValue2 - displValue1)
+						* (pixelValue2 - pixelValue1);
+					return interpValue;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Set formatString
+	 * 
+	 * DR 16070
+	 */
+	public void setFormatString(String formatString) {
+		this.formatString = formatString;
+	}
+
+	/**
+	 * Get formatString
+	 * 
+	 * DR 16070
+	 */
+	public String getFormatString() {
+		return formatString;
 	}
 
 }

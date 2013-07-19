@@ -39,6 +39,8 @@ void apply_edit_polygons ( int ** precip_data_array,
                            enum DisplayFieldData field,
                            int rows,
                            int cols,
+                           int xorigin,
+                           int yorigin,
                            int add_flag,
                            int draw_only_persistent ); 
 

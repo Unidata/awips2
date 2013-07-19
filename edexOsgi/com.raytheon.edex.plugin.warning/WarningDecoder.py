@@ -33,6 +33,7 @@
 #                                      Initial creation
 #  Feb 19, 2013 1636       rferrel     Use TimeTools to get file timestamp.
 #  May 07, 2013 1973       rferrel     Adjust Issue and Purge times to be relative to start time.
+#  Jun 24, 2013 DR 16317   D. Friedman If no storm line, parse storm motion from event text.
 # </pre>
 #
 # @author rferrel
@@ -68,6 +69,16 @@ REGIONS = {
              "WA":"WESTERN", "WI":"CENTRAL", "WV":"EASTERN",
              "WY":"CENTRAL", "GM":"SOUTHERN" }
 
+BEARINGS = {
+            "NORTH": 0, "NORTHEAST": 45, "EAST": 90, "SOUTHEAST": 135,
+            "SOUTH": 180, "SOUTHWEST": 225, "WEST": 270, "NORTWEST": 315 }
+
+SPEED_CONVERSION = {
+                    "MPH": 0.86898,
+                    "KNOTS": 1,
+                    "KTS": 1,
+                    "KPH": 0.53996
+                    }
 
 class StdWarningDecoder():
 
@@ -744,7 +755,61 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
                 storm = (int(search.group(1)), int(search.group(2)), buf)
                 break
             count = count + 1
+        if storm is None:
+            storm = self._getStormFromEvent()
+
+        LogStream.logEvent('returning storm=%s' % repr(storm))
         return storm
+
+    def _getStormFromEvent(self):
+        event_pattern = re.compile(r'^(?:\* )?AT (?:NOON|MIDNIGHT|\d+)(.*?)\n[ \r\t\f\v]*\n',
+                                   re.M | re.DOTALL)
+        m = event_pattern.search(self._rawMessage)
+        if m is None:
+            return None
+
+        event_text = m.group(1)
+
+        motion_pattern = re.compile(r'\bMOVING\s*(\w+)\s*AT\s*(\d+(?:\.\d*)?)\s*(\w+)')
+        m = motion_pattern.search(event_text)
+        if m is not None:
+            bearing = BEARINGS.get(m.group(1).upper())
+            if bearing is not None:
+                # Bearing is stored as the direction the storm is coming FROM
+                bearing -= 180
+                if bearing < 0:
+                    bearing += 360
+            else:
+                LogStream.logProblem("could not parse bearing '%s' in '%s'" %
+                                     (m.group(1), m.group(0)))
+
+            conversion_factor = SPEED_CONVERSION.get(m.group(3))
+            converted_speed = None
+            if conversion_factor is not None:
+                try:
+                    converted_speed = int(round(float(m.group(2)) * conversion_factor))
+                except StandardError, e:
+                    LogStream.logProblem("error processing speed in '%s': %s" %
+                                         (m.group(0), e))
+            else:
+                LogStream.logProblem("unknown unit '%s' in '%s'" %
+                                     (m.group(3), m.group(0)))
+        else:
+            # find "STATIONARY in the last sentence
+            motion_pattern = re.compile(r'\bSTATIONARY\s*.\s*')
+            if motion_pattern.search(event_text) is not None:
+                bearing = converted_speed = 0
+            else:
+                bearing = converted_speed = None
+
+        # TODO: Storm location: This require parsing (potentially) multiple
+        # references to cities (or marine locations) with distance/bearing
+        # offsets.  Need access to geospatial information to get the actual
+        # lat/lons.
+        if bearing is not None and converted_speed is not None:
+            return (bearing, converted_speed, None)
+        else:
+            return None
 
     def _calcTime(self, yymmdd, hhmm, allZeroValue):
         #Returns tuple of time, and allZeroFlag. Time is based on the 
