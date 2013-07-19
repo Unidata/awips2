@@ -13,6 +13,7 @@ import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
 import gov.noaa.nws.ncep.ui.pgen.display.IVector;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
+import gov.noaa.nws.ncep.ui.pgen.elements.SymbolLocationSet;
 import gov.noaa.nws.ncep.ui.pgen.elements.Vector;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
@@ -21,12 +22,19 @@ import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
 import java.awt.Color;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -40,8 +48,11 @@ import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
+import com.raytheon.uf.viz.core.DrawableString;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Display IDFT data.
@@ -60,13 +71,16 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  * 01/06/2012   530        B. Hebbard  In initResource filter DB query by cycle time
  * 05/23/12     785        Q. Zhou     Added getName for legend.
  * 08/17/12     655        B. Hebbard  Added paintProps as parameter to IDisplayable draw (2)
+ * 03/07/13     982        Archana     Refactored initResource(), paintFrame() and getIDFTRscDataObj()
+ *                                     to improve the performance.     
  * </pre>
  * 
  * @author gzhang 
  * @version 1.0
  */
-public class IDFTResource extends AbstractNatlCntrsResource<IDFTResourceData, NCMapDescriptor> 
-                         implements INatlCntrsResource {
+public class IDFTResource extends
+		AbstractNatlCntrsResource<IDFTResourceData, NCMapDescriptor> implements
+		INatlCntrsResource {
 	
 	ArrayList<DataTime> dataTimes = new ArrayList<DataTime>();
 	
@@ -75,14 +89,12 @@ public class IDFTResource extends AbstractNatlCntrsResource<IDFTResourceData, NC
     private IFont font;
 
 	private class IDFTRscDataObj implements IRscDataObject {
-    	Symbol   pointSymbol;
-    	Vector	 vector;
     	DataTime dataTime;
-//    	int 	 pointNum;  // not used
-    	double   lat,lon;
+		double lat, lon;
     	double   direction;
-    	double   distanceNm;
-    	String   distanceInTenthString;
+		float distanceNm;
+		String idftDistanceStr;
+		public String pointNum;
     	
 		@Override
 		public DataTime getDataTime() {		
@@ -95,18 +107,19 @@ public class IDFTResource extends AbstractNatlCntrsResource<IDFTResourceData, NC
         ArrayList<IDFTRscDataObj> idftDataList;
 
         public FrameData(DataTime frameTime, int timeInt) {
-        	super( frameTime, timeInt );
+			super(frameTime, timeInt);
         	idftDataList = new ArrayList<IDFTRscDataObj>();
     	}
         
-    	public boolean updateFrameData( IRscDataObject rscDataObj ) {
-    		if( !(rscDataObj instanceof IDFTRscDataObj) ) {
-    			System.out.println("IDFT:updateFrameData expecting IDFTRscDataObj instead of: "+ 
-    					rscDataObj.getClass().getName() );
+		@Override
+		public boolean updateFrameData(IRscDataObject rscDataObj) {
+			if (!(rscDataObj instanceof IDFTRscDataObj)) {
+				System.out
+						.println("IDFT:updateFrameData expecting IDFTRscDataObj instead of: "
+								+ rscDataObj.getClass().getName());
     			return false;
-    		}
-    		else {
-    			idftDataList.add( (IDFTRscDataObj)rscDataObj );
+			} else {
+				idftDataList.add((IDFTRscDataObj) rscDataObj);
         		return true;
     		}
     	}
@@ -119,223 +132,231 @@ public class IDFTResource extends AbstractNatlCntrsResource<IDFTResourceData, NC
     	this.idftRscData = (IDFTResourceData) resourceData;    	
     }
 	
-    private IDFTRscDataObj getIDFTRscDataObj( IdftRecord idftRec){
+	private IDFTRscDataObj getIDFTRscDataObj(IdftRecord idftRec) {
     	IDFTRscDataObj idftData = new IDFTRscDataObj();
     	
-    	// the dataTime uses the issue time as the refTime and computes the forecast hour from
-    	// the validTime in the record.
-//    	int fcstSecs = (int)(idftRec.getValidTime().getTime().getTime() / 1000) -
-//    			       (int)(idftRec.getIssueTime().getTime().getTime() / 1000);
-//    	idftData.dataTime = new DataTime( idftRec.getIssueTime().getTime(), fcstSecs );
-    	idftData.dataTime = idftRec.getDataTime();
-//    	idftData.pointNum = idftRec.getPointNum();  // not used
+		idftData.dataTime = new DataTime ( idftRec.getValidTime());//idftRec.getDataTime();
+		idftData.pointNum = idftRec.getPointNum().toString(); // not used
     	idftData.lat = idftRec.getLat();
     	idftData.lon = idftRec.getLon();
     	idftData.direction = idftRec.getDirection();
     	idftData.distanceNm = idftRec.getDistanceNm(); 
-    	idftData.distanceInTenthString = Integer.toString((int)(Math.round(idftData.distanceNm*10))); 
-    	com.vividsolutions.jts.geom.Coordinate coor = new com.vividsolutions.jts.geom.Coordinate(idftData.lon,idftData.lat);
-    	idftData.vector = new Vector( null,
-				new Color[]{Color.YELLOW},
-				idftRscData.getArrowLineWidth().floatValue(),//lineWidth
-				idftRscData.getArrowLength(),//sizeScale 
-				true,   coor,
-				gov.noaa.nws.ncep.ui.pgen.display.IVector.VectorType.ARROW,
-				idftData.distanceNm,
-				idftData.direction,
-				idftRscData.getArrowLength(),//arrowHeadSize, using arrowLength for a match
-				true, "Vector", "Arrow"); // hard-code for clarity
-    	idftData.pointSymbol = new Symbol( null,
-    			new Color[]{Color.RED},
-    			idftRscData.getArrowLineWidth().floatValue(),// lineWidth, same as arrow's
-    			idftRscData.getPointSize(),
-    			true, coor,
-    			"Symbol", "DOT");
+		idftData.idftDistanceStr = String.format("%.1f", idftData.distanceNm) ;
 
         return idftData;
     }
   
-
-	protected IRscDataObject[] processRecord( Object pdo ) {
-		if( !(pdo instanceof IdftRecord) ) {
-			System.out.println( "IDFT processRecord() : Expecting IdftRecord object instead of: "+
-					pdo.getClass().getName() );
+	@Override
+	protected IRscDataObject[] processRecord(Object pdo) {
+		if (!(pdo instanceof IdftRecord)) {
+			System.out
+					.println("IDFT processRecord() : Expecting IdftRecord object instead of: "
+							+ pdo.getClass().getName());
 			return null;
 		}
 		
-		IDFTRscDataObj idftRscDataObj = getIDFTRscDataObj( (IdftRecord)pdo );
+		IDFTRscDataObj idftRscDataObj = getIDFTRscDataObj((IdftRecord) pdo);
 
-		if( idftRscData == null ) {
+		if (idftRscData == null) {
 			return new IDFTRscDataObj[0];
-		}
-		else {
-			return new IDFTRscDataObj[]{ idftRscDataObj };
+		} else {
+			return new IDFTRscDataObj[] { idftRscDataObj };
 		}
 	}
 	
-	public void paintFrame( AbstractFrameData frameData, IGraphicsTarget grphTarget, PaintProperties paintProps) throws VizException {
-		FrameData currFrameData = (FrameData)frameData;
+	@Override
+	public void paintFrame(AbstractFrameData frameData,
+			IGraphicsTarget grphTarget, PaintProperties paintProps)
+			throws VizException {
+		
+		
+		double screenToWorldRatio = paintProps.getCanvasBounds().width /paintProps.getView().getExtent().getWidth();
+		FrameData currFrameData = (FrameData) frameData;
+		
+		if (currFrameData.idftDataList == null || currFrameData.idftDataList.isEmpty() )
+			 return;
+		RGB stationNumColor       = new RGB(0,255,0);
        	RGB pointColorRGB = idftRscData.getPointColor();
-    	java.awt.Color pointColor = new java.awt.Color(pointColorRGB.red,pointColorRGB.green,pointColorRGB.blue);
+		java.awt.Color pointColor = new java.awt.Color(pointColorRGB.red,
+				                        pointColorRGB.green, pointColorRGB.blue);
+		Coordinate dummyCoordinate = new Coordinate(0.0,0.0);
+		
+		/*
+		 * Create the symbol once and render it at all the different locations
+		 */
+		
+		Symbol pointSymbol           = new Symbol(null, new Color[] { pointColor},
+				idftRscData.getArrowLineWidth().floatValue(),idftRscData.getPointSize(),
+                true, dummyCoordinate, "Symbol", "DOT");		
     	
     	RGB    arrowColorRGB = idftRscData.getArrowColor();
-    	java.awt.Color arrowColor = new java.awt.Color(arrowColorRGB.red,arrowColorRGB.green,arrowColorRGB.blue);
+		java.awt.Color arrowColor = new java.awt.Color(arrowColorRGB.red,
+				                        arrowColorRGB.green, arrowColorRGB.blue);		
+		/*
+		 * Create the vector once and render it at all the different locations
+		 */
     	
-    	DisplayElementFactory df = new DisplayElementFactory( grphTarget, getNcMapDescriptor() );
+		Vector arrowVector = new Vector(
+				new Coordinate[]{dummyCoordinate},
+				new Color[]{ arrowColor},
+				idftRscData.getArrowLineWidth().floatValue(),// lineWidth
+				idftRscData.getArrowLength(),// sizeScale
+				true, dummyCoordinate,
+				gov.noaa.nws.ncep.ui.pgen.display.IVector.VectorType.ARROW,
+				1.0, 1.0,
+				idftRscData.getArrowLength(),// arrowHeadSize, using arrowLength for a match
+				true, "Vector", "Arrow");
+		
+		
+
+		DisplayElementFactory df = new DisplayElementFactory(grphTarget,getNcMapDescriptor());
     	
-    	for( IDFTRscDataObj idftData : currFrameData.idftDataList ){
+		List<IVector> arrowList      = new ArrayList<IVector>();
+		List<Coordinate> listOfSymbolCoords = new ArrayList<Coordinate>();
+		Coordinate[] arrayOfSymbolCoords = null;
+
+		for (IDFTRscDataObj idftData : currFrameData.idftDataList) {
         	IExtent extent = paintProps.getView().getExtent();
-        	double maxX = (extent.getMaxX() < 0 ? 0 : extent.getMaxX() );
-        	double minX = (extent.getMinX() < 0 ? 0 : extent.getMinX() );
-        	double maxY = (extent.getMaxY() < 0 ? 0 : extent.getMaxY() );
-        	double minY = (extent.getMinY() < 0 ? 0 : extent.getMinY() );
-        	maxX = ( maxX > 19999 ? 19999 : maxX);
-        	minX = ( minX > 19999 ? 19999 : minX);
-        	maxY = ( maxY >  9999 ?  9999 : maxY);
-        	minY = ( minY >  9999 ?  9999 : minY);
+			double maxX = (extent.getMaxX() < 0 ? 0 : extent.getMaxX());
+			double minX = (extent.getMinX() < 0 ? 0 : extent.getMinX());
+			double maxY = (extent.getMaxY() < 0 ? 0 : extent.getMaxY());
+			double minY = (extent.getMinY() < 0 ? 0 : extent.getMinY());
+			maxX = (maxX > 19999 ? 19999 : maxX);
+			minX = (minX > 19999 ? 19999 : minX);
+			maxY = (maxY > 9999 ? 9999 : maxY);
+			minY = (minY > 9999 ? 9999 : minY);
 
-        	PixelExtent correctedExtent = new PixelExtent(minX, maxX, minY, maxY);
-        	
-        	idftData.pointSymbol.setColors(new java.awt.Color[]{ pointColor });
-        	
-        	idftData.vector.setSizeScale( idftRscData.getArrowLength() );
-        	idftData.vector.setLineWidth( idftRscData.getArrowLineWidth().floatValue() );
-        	idftData.vector.setColors(new java.awt.Color[]{ arrowColor });
-        	
-        	double[] zonePix = this.descriptor.worldToPixel(new double[]{(double) idftData.lon,(double) idftData.lat});
-        	if( zonePix != null && correctedExtent.contains( zonePix[0], zonePix[1] ) ) {
+			PixelExtent correctedExtent = new PixelExtent(minX, maxX, minY,
+					maxY);
 
-        		//TODO:  Suggest refactor to aggregate into List<IVector> here, then (after loop)
-        		//       call df.createDisplayElements( List<IVector>, PaintProperties )
-        		//       for faster performance.
-        		ArrayList<IDisplayable> displayElsArrow = df.createDisplayElements( (IVector)idftData.vector , paintProps );
-        		for ( IDisplayable each : displayElsArrow ) {
+
+			
+			Coordinate worldCoord = new Coordinate(idftData.lon, idftData.lat);
+		
+		    double[] zonePix = this.descriptor.worldToPixel(new double[] {
+					(double) idftData.lon, (double) idftData.lat });
+			if (zonePix != null
+					&& correctedExtent.contains(zonePix[0], zonePix[1])) {
+				
+			    arrowVector = (Vector) arrowVector.copy();
+				arrowVector.setLocation(worldCoord);
+				arrowVector.setDirectionOnly(true);
+				arrowVector.setDirection(idftData.direction);
+				arrowVector.setSizeScale(idftRscData.getArrowLength());
+				arrowVector.setLineWidth(idftRscData.getArrowLineWidth().floatValue());
+				arrowList.add( arrowVector);				
+				
+				listOfSymbolCoords.add(worldCoord);
+				DrawableString distanceInTenthStringTxt = new DrawableString(
+						idftData.idftDistanceStr,
+						idftRscData.getDistanceColor());
+				distanceInTenthStringTxt.setCoordinates(zonePix[0], zonePix[1]);
+				distanceInTenthStringTxt.textStyle = TextStyle.NORMAL;
+				distanceInTenthStringTxt.horizontalAlignment = HorizontalAlignment.LEFT;
+				grphTarget.drawStrings(distanceInTenthStringTxt);
+
+				if ( idftRscData.getDisplayStationNumber() ){
+					DrawableString stationNumber               = new DrawableString ( idftData.pointNum, stationNumColor );
+                    stationNumber.textStyle                    = TextStyle.BOXED;
+                    Rectangle2D distanceInTenthStringTxtBounds = grphTarget.getStringsBounds(distanceInTenthStringTxt);
+                    
+                    stationNumber.setCoordinates(zonePix[0] + distanceInTenthStringTxtBounds.getWidth()/screenToWorldRatio, 
+                    		                     zonePix[1] + distanceInTenthStringTxtBounds.getHeight()/screenToWorldRatio );
+                    grphTarget.drawStrings(stationNumber);
+				}
+
+			}
+		}
+
+		ArrayList<IDisplayable> displayElsArrow = df.createDisplayElements(arrowList, paintProps);
+        for (IDisplayable each : displayElsArrow) {
+        			each.draw(grphTarget, paintProps);
+        			each.dispose();
+        		}
+        arrayOfSymbolCoords = new Coordinate[listOfSymbolCoords.size()];
+        arrayOfSymbolCoords = listOfSymbolCoords.toArray(arrayOfSymbolCoords);
+		SymbolLocationSet pointLocationSet = new SymbolLocationSet(pointSymbol, arrayOfSymbolCoords);
+
+		ArrayList<IDisplayable> displayElsPoint = df.createDisplayElements(pointLocationSet, paintProps);
+		for (IDisplayable each : displayElsPoint) {
         			each.draw(grphTarget, paintProps);
         			each.dispose();
         		}
 
-        		//TODO:  Suggest refactor to create SymbolLocationSet (for identical
-        		//       symbols at many locations), then (after loop)
-        		//       call df.createDisplayElements ( SymbolLocationSet, PaintProperties )
-        		//       for faster performance.
-        		ArrayList<IDisplayable> displayElsPoint = df.createDisplayElements( idftData.pointSymbol , paintProps );
-        		for ( IDisplayable each : displayElsPoint ) {
-        			each.draw(grphTarget, paintProps);
-        			each.dispose();
-        		}
 
-        		grphTarget.drawString( font, idftData.distanceInTenthString, 
-        				zonePix[0], zonePix[1], 0.0, TextStyle.NORMAL, 
-        				idftRscData.getDistanceColor(),
-        				HorizontalAlignment.CENTER, 0.0 );
-
-    		} 
-    	}
+		
+	
 	}
 	
+	@Override
 	public void disposeInternal() {  
 		super.disposeInternal();
-		if( font != null ) {
+		if (font != null) {
 			font.dispose();
 		}    
 	}
 	
-	public void resourceAttrsModified() {
-		// don't need to do anything
-	}
-	
+    @Override
 	protected AbstractFrameData createNewFrame(DataTime frameTime, int timeInt) {
-		return new FrameData(frameTime,timeInt);
+		return new FrameData(frameTime, timeInt);
 	}
 	
 	@Override
 	public void initResource(IGraphicsTarget grphTarget) throws VizException {
 
-		//  Request from the DB all IDFT data corresponding to the
-		//  selected cycle (initial) time, and use the returned PDOs to
-		//  fill up the newRscDataObjsQueue (with RDOs) for later use.
-		
-		//  [ TODO:  Note modeled after FcstPlotResource.initResource().  Is there
-		//           a more efficient way to do this (in the uEngine), i.e., construct
-		//           a single query to match all data keyed to a given reference time,
-		//           rather than filtering the times here, and then doing a separate
-		//           query for each forecast hour? ]
-		
-		//  First, query all of the times in the DB...
+//		// Request from the DB all IDFT data corresponding to the
+//		// selected cycle (initial) time, and use the returned PDOs to
+//		// fill up the newRscDataObjsQueue (with RDOs) for later use.
+//
 		
 		ResourceName rscName = getResourceData().getResourceName();
 		DataTime   cycleTime = rscName.getCycleTime();
 
-		//  ("Latest" should already be resolved here)
-		if( cycleTime == null || rscName.isLatestCycleTime() ) { 
-			return;
+        HashMap<String, RequestConstraint> metadataMap = 
+        	new HashMap<String, RequestConstraint>(
+        			getResourceData().getMetadataMap() );
+       
+		RequestConstraint timeConstraint = new RequestConstraint(); 
+		timeConstraint.setConstraintType(ConstraintType.EQUALS);
+		timeConstraint.setConstraintValue(cycleTime.toString());
+
+		metadataMap.put( "dataTime.refTime", timeConstraint );
+		DbQueryRequest request = new DbQueryRequest();
+		request.setConstraints(metadataMap);
+		try{
+			
+			DbQueryResponse response = (DbQueryResponse) ThriftClient.sendRequest(request);
+			if ( response != null ){
+				List<Map<String, Object>> responseList = null;
+	        	if (response != null) {
+	        		responseList = response.getResults();
+	        		for ( Map<String,Object> eachResponse : responseList ){
+	        			Collection<Object> idftRecordObj = eachResponse.values();
+	        			for (Object pdo : idftRecordObj ){
+	        				for (IRscDataObject dataObject : processRecord(pdo)) {
+	    					newRscDataObjsQueue.add(dataObject);
+		}
+		}
+				}
+			}
 		}
 
-		HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>(
-				resourceData.getMetadataMap());
-
-		LayerProperty property = new LayerProperty();
-		property.setDesiredProduct( ResourceType.PLAN_VIEW );
-		DataTime[] availableTimes;
-
-		try {
-			property.setEntryQueryParameters( queryList );
-			availableTimes = property.getEntryTimes();
-		}
-		catch( VizException e) {
-			throw e;
+		}catch(Exception e){
+			e.printStackTrace();
 		}
 
-		//  ...then loop through all the available times in the DB and if the
-		//  reference time matches the cycle time for this resource and if it
-		//  hasn't already been added, add it to the list of matching DataTime.
 		
-		for( DataTime dt : availableTimes ) {
-			// create a dataTime without a possible validPeriod.
-			DataTime availTime = new DataTime( dt.getRefTime(), dt.getFcstTime() );
-			DataTime refTime = new DataTime( dt.getRefTime() );
-
-			if( cycleTime.equals( refTime ) ) {
-				if( !dataTimes.contains( availTime ) ) {
-					dataTimes.add( availTime );
-				}
-			}
-		}
-
-		//  Now, dataTimes is limited to those that apply to the selected cycle time.
-		//  For each, query the DB for matching records (PDOs), process into RDOs, and
-		//  add to newRscDataObjsQueue.
-
-		for( DataTime dt : dataTimes ) {
-			RequestConstraint timeConstraint = new RequestConstraint( dt.toString() );
-			queryList.put("dataTime", timeConstraint );
-			LayerProperty prop = new LayerProperty();
-			prop.setDesiredProduct(ResourceType.PLAN_VIEW);
-			prop.setEntryQueryParameters(queryList, false);
-			prop.setNumberOfImages(15000); // TODO: max # records ?? should we cap
-			String script = null;
-			script = ScriptCreator.createScript(prop);
-			if (script == null)
-				return;
-
-			Object[] pdoList = Connector.getInstance().connect(script, null, 60000);
-
-			for (Object pdo : pdoList) {
-				for( IRscDataObject dataObject : processRecord( pdo ) )	{	
-					newRscDataObjsQueue.add(dataObject);
-				}
-			}
-		}
-
 	}
 	
 	@Override
 	public String getName() {
 		String legendString = super.getName();
 		FrameData fd = (FrameData) getCurrentFrame();
-		if (fd == null || fd.getFrameTime() == null || fd.idftDataList.size() == 0) {
+		if (fd == null || fd.getFrameTime() == null
+				|| fd.idftDataList.size() == 0) {
 			return legendString + "-No Data";
 		}		
-		return legendString + " "+ NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
+		return legendString + " "
+				+ NmapCommon.getTimeStringFromDataTime(fd.getFrameTime(), "/");
 	}
 }
