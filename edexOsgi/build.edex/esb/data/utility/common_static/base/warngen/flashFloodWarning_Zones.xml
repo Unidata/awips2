@@ -6,6 +6,11 @@
 <!-- Modified by Mike Dangelo 01-26-2012 at CRH TIM 
                  Phil Kurimski 2-29-2012 
                  Qinglu Lin    04-04-2012 DR 14691. Added <feAreaField> tag.
+                 Evan Bookbinder 09-12-2012 DR15179 Added areaSource object to allow for
+                                            county-based headlines in zone based products. 
+                                            Added settings for locations shapefile          
+                 Evan Bookbinder 01-07-2013 LockedGroupsOnFollowup tag
+                 Evan Bookbinder 5-5-2013 fixed <type> variable under areaSource objects      
 -->
 
 <warngenConfig>
@@ -63,6 +68,7 @@
   <duration>480</duration>
  </durations>
  
+<lockedGroupsOnFollowup>ic</lockedGroupsOnFollowup>
 <bulletActionGroups>
 <bulletActionGroup action="NEW" phen="FF" sig="W">
  <bullets>
@@ -85,9 +91,9 @@
   <bullet bulletName="burnScar" bulletText="Also Burn areas with debris flow" bulletGroup="addevent" parseString="BURN SCAR "/>
   <bullet bulletName="mudSlide" bulletText="Mud Slides" bulletGroup="addevent" parseString="MUD SLIDE "/>
   <bullet bulletText="*********** RAIN SO FAR (CHOOSE 1) **********" bulletType="title"/>
-  <bullet bulletName="rain1" bulletText="one inch so far" bulletGroup="rainAmt" parseString="ONE INCH "/>
-  <bullet bulletName="rain2" bulletText="two inches so far" bulletGroup="rainAmt" parseString="TWO INCHES "/>
-  <bullet bulletName="rain3" bulletText="three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES "/>
+  <bullet bulletName="rain1" bulletText="one inch so far" bulletGroup="rainAmt" parseString="ONE INCH OF RAIN HAS FALLEN"/>
+  <bullet bulletName="rain2" bulletText="two inches so far" bulletGroup="rainAmt" parseString="TWO INCHES OF RAIN HAVE FALLEN"/>
+  <bullet bulletName="rain3" bulletText="three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES OF RAIN HAVE FALLEN"/>
   <bullet bulletName="rainEdit" bulletText="user defined amount" bulletGroup="rainAmt" parseString="INCHES HAVE FALLEN "/>
   <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
   <bullet bulletName="addRainfall" bulletText="additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
@@ -129,9 +135,9 @@
   <bullet bulletName="burnScar" bulletText="Also Burn areas with debris flow" bulletGroup="addevent" parseString="BURN SCAR "/>
   <bullet bulletName="mudSlide" bulletText="Mud Slides" bulletGroup="addevent" parseString="MUD SLIDE "/>
   <bullet bulletText="*********** RAIN SO FAR (CHOOSE 1) **********" bulletType="title"/>
-  <bullet bulletName="rain1" bulletText="one inch so far" bulletGroup="rainAmt" parseString="ONE INCH "/>
-  <bullet bulletName="rain2" bulletText="two inches so far" bulletGroup="rainAmt" parseString="TWO INCHES "/>
-  <bullet bulletName="rain3" bulletText="three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES "/>
+  <bullet bulletName="rain1" bulletText="one inch so far" bulletGroup="rainAmt" parseString="ONE INCH OF RAIN HAS FALLEN"/>
+  <bullet bulletName="rain2" bulletText="two inches so far" bulletGroup="rainAmt" parseString="TWO INCHES OF RAIN HAVE FALLEN"/>
+  <bullet bulletName="rain3" bulletText="three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES OF RAIN HAVE FALLEN"/>
   <bullet bulletName="rainEdit" bulletText="user defined amount" bulletGroup="rainAmt" parseString="INCHES HAVE FALLEN "/>
   <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
   <bullet bulletName="addRainfall" bulletText="additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
@@ -173,9 +179,9 @@
   <bullet bulletName="burnScar" bulletText="Also Burn areas with debris flow" bulletGroup="addevent" parseString="BURN SCAR "/>
   <bullet bulletName="mudSlide" bulletText="Mud Slides" bulletGroup="addevent" parseString="MUD SLIDE "/>
   <bullet bulletText="*********** RAIN SO FAR (CHOOSE 1) **********" bulletType="title"/>
-  <bullet bulletName="rain1" bulletText="one inch so far" bulletGroup="rainAmt" parseString="ONE INCH "/>
-  <bullet bulletName="rain2" bulletText="two inches so far" bulletGroup="rainAmt" parseString="TWO INCHES "/>
-  <bullet bulletName="rain3" bulletText="three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES "/>
+  <bullet bulletName="rain1" bulletText="one inch so far" bulletGroup="rainAmt" parseString="ONE INCH OF RAIN HAS FALLEN"/>
+  <bullet bulletName="rain2" bulletText="two inches so far" bulletGroup="rainAmt" parseString="TWO INCHES OF RAIN HAVE FALLEN"/>
+  <bullet bulletName="rain3" bulletText="three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES OF RAIN HAVE FALLEN"/>
   <bullet bulletName="rainEdit" bulletText="user defined amount" bulletGroup="rainAmt" parseString="INCHES HAVE FALLEN "/>
   <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
   <bullet bulletName="addRainfall" bulletText="additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
@@ -198,39 +204,67 @@
 </bulletActionGroup>
 </bulletActionGroups>
 
+<trackEnabled>false</trackEnabled>
+
 <!--  Four variables below have been changed from the County-coded products -->
-<!--  areaConfig.areaField -->
-<!--  areaConfig.fipsField -->
+<!--  areaSource.areaField -->
+<!--  areaSource.fipsField -->
 <!--  pathcast.Config.areaField and -->
 <!--  geospatialConfig.areaSource -->
 
-
-
-
- <areaConfig>
-  <inclusionPercent>0.00</inclusionPercent>
-  <inclusionAndOr>AND</inclusionAndOr>
-  <inclusionArea>0</inclusionArea>
-<!-- <areaField>COUNTYNAME</areaField> -->
-  <areaField>NAME</areaField>
-  <parentAreaField>NAME</parentAreaField>
-  <areaNotationField>STATE</areaNotationField>
-  <feAreaField>FE_AREA</feAreaField>
-  <timeZoneField>TIME_ZONE</timeZoneField>
-  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
-<!-- <fipsField>FIPS</fipsField> -->
-  <fipsField>STATE_ZONE</fipsField> 
-  <pointField>NAME</pointField>
-  <sortBy>
+<!-- Default areaSource object to generate zone based information -->
+ <areaSource variable="areas">
+<!-- <areaSource>County</areaSource> -->
+   <areaSource>Zone</areaSource>
+   <type>HATCHING</type>
+   <inclusionPercent>0</inclusionPercent>
+   <inclusionAndOr>AND</inclusionAndOr>
+   <inclusionArea>0</inclusionArea>
+   <areaField>NAME</areaField>
+   <parentAreaField>NAME</parentAreaField>
+   <areaNotationField>STATE</areaNotationField>
+   <feAreaField>FE_AREA</feAreaField>
+   <timeZoneField>TIME_ZONE</timeZoneField>
+   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+<!--   <fipsField>STATE</fipsField>  -->
+   <fipsField>STATE_ZONE</fipsField>
+   <pointField>NAME</pointField>
+   <sortBy>
   	<sort>parent</sort>
-  </sortBy>
-  <pointFilter>
+   </sortBy>
+   <pointFilter>
  		<mapping key="WARNGENLEV">
  			<constraint constraintValue="1" constraintType="EQUALS" />
  		</mapping>
   </pointFilter>
   <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
- </areaConfig>
+</areaSource>
+ 
+<!-- Add in areaSource object to generate county-based headline if desired -->
+ <areaSource variable="affectedCounties">
+   <areaSource>County</areaSource>
+   <type>INTERSECT</type>
+   <inclusionPercent>0</inclusionPercent>
+   <inclusionAndOr>AND</inclusionAndOr>
+   <inclusionArea>0</inclusionArea>
+   <areaField>COUNTYNAME</areaField>
+   <parentAreaField>NAME</parentAreaField>
+   <areaNotationField>STATE</areaNotationField>
+   <feAreaField>FE_AREA</feAreaField>
+   <timeZoneField>TIME_ZONE</timeZoneField>
+   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+   <fipsField>FIPS</fipsField>
+   <pointField>NAME</pointField>
+   <sortBy>
+  	<sort>parent</sort>
+   </sortBy>
+   <pointFilter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1" constraintType="EQUALS" />
+ 		</mapping>
+  </pointFilter>
+  <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
+</areaSource>
  
  <!-- Required, but unused by this template -->
  <pathcastConfig>
@@ -241,6 +275,7 @@
   <maxResults>4</maxResults>
   <maxGroup>8</maxGroup>
   <pointField>Name</pointField>
+  <type>AREA</type>
   <areaField>NAME</areaField>
   <!--  <areaField>COUNTYNAME</areaField> -->
   <parentAreaField>STATE</parentAreaField>
@@ -253,11 +288,16 @@
  		<mapping key="WARNGENLEV">
  			<constraint constraintValue="1,2" constraintType="IN" />
  		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping> 	 	
   </filter>  
  </pathcastConfig>
  
  <pointSource variable="cityList">
  	<pointField>NAME</pointField>
+ 	<inclusionPercent>1</inclusionPercent>
+ 	<type>AREA</type>
  	<searchMethod>POINTS</searchMethod>
  	<withinPolygon>true</withinPolygon>
  	<maxResults>30</maxResults>
@@ -266,35 +306,48 @@
   	  <mapping key="WARNGENLEV">
  		<constraint constraintValue="1,2,3" constraintType="IN" />
  	  </mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping> 	   
  	</filter> 	
  	<sortBy>
   		<sort>warngenlev</sort>
   		<sort>population</sort>
+  		<sort>distance</sort>
   	</sortBy>	
  </pointSource>
  
 <!-- Required, but unused by this template -->
  <pointSource variable="otherPoints">
  	<pointField>NAME</pointField>
+ 	<type>AREA</type>
  	<searchMethod>TRACK</searchMethod>
  	<withinPolygon>true</withinPolygon>
  	<maxResults>50</maxResults>
  	<distanceThreshold>10</distanceThreshold>
+	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="3,4" constraintType="IN" />
+ 		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping> 	 	
+  	</filter> 	
  	<sortBy>
-  		<sort>warngenlev</sort>
-  		<sort>population</sort>
+  		<sort>distance</sort>
   	</sortBy>
  </pointSource>
 
 <!-- this "include file" tag will grab the Mile Marker XML pointSource tags, 
 and place into this template -->  
 <include file="mileMarkers.xml"/>
-
-
-  <trackEnabled>false</trackEnabled>
+<!-- this "include file" tag will grab the Point Marker XML pointSource tags, 
+and place into this template -->  
+<!--<include file="pointMarkers.xml"/>
+ -->
 
  <geospatialConfig>
-  <pointSource>City</pointSource>
+  <pointSource>WarnGenLoc</pointSource>
 <!--  <areaSource>County</areaSource> -->
   <areaSource>Zone</areaSource>
   <parentAreaSource>States</parentAreaSource>

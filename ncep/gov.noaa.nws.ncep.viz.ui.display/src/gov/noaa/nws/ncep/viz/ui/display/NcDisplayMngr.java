@@ -1,8 +1,10 @@
 package gov.noaa.nws.ncep.viz.ui.display;
 
+import gov.noaa.nws.ncep.viz.common.display.INatlCntrsPaneManager;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsRenderableDisplay;
 import gov.noaa.nws.ncep.viz.common.display.INcPaneID;
 import gov.noaa.nws.ncep.viz.common.display.INcPaneLayout;
+import gov.noaa.nws.ncep.viz.common.display.IPaneLayoutable;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayName;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
@@ -30,6 +32,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 
+import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -42,6 +45,7 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.EditorInput;
 import com.raytheon.viz.ui.panes.PaneManager;
+import com.raytheon.viz.ui.panes.VizDisplayPane;
 
 /**
  * NcDisplayMngr - contains UI utility methods for the NC perspective (See
@@ -65,6 +69,7 @@ import com.raytheon.viz.ui.panes.PaneManager;
  * 05/17/2012     #791       Quan Zhou   Added findEmptyEditor() to check if default editor is empty
  * 08/09/2012     837       Archana      Updated getNcDisplayID() to fix a NumberFormatException     
  * 02/10/2012     #971      Greg Hull    Renamed from NmapUiUtils and add support for NcDisplayType and NcDisplayName
+ * 05/15/2013     #862      Greg Hull    call setPaneManager() ; add method findRenderableDisplayByPaneName()
  * 
  * </pre>
  * 
@@ -285,15 +290,22 @@ public class NcDisplayMngr {
         return null;
     }
     
+    // Note the rbd is a PaneManager but not the NcPaneManager used by editors. 
     public static AbstractRenderableDisplay[] createDisplaysForNcDisplayType( 
-    		NcDisplayType dType, INcPaneLayout pLayout ) throws VizException {
+    		INatlCntrsPaneManager rbd, /*NcDisplayType dType,*/ INcPaneLayout pLayout ) throws VizException {
+    	
     	AbstractRenderableDisplay[] rendDisps = new AbstractRenderableDisplay[ pLayout.getNumberOfPanes() ];
 
-    	AbstractNcPaneManager pm = createNcPaneManagerForDisplayType( dType, pLayout );
+    	AbstractNcPaneManager pm = createNcPaneManagerForDisplayType( rbd.getDisplayType(), pLayout );
     	
     	if( pm != null ) {
     		for( int d=0 ; d<pLayout.getNumberOfPanes() ; d++ ) {
-    			INatlCntrsRenderableDisplay iRendDisp = pm.createNcRenderableDisplay( pLayout.createPaneId( d ) ); 
+    			INatlCntrsRenderableDisplay iRendDisp = 
+    				pm.createNcRenderableDisplay( pLayout.createPaneId( d ) );
+    			
+    			if( iRendDisp instanceof IPaneLayoutable ) {
+    				((IPaneLayoutable)iRendDisp).setPaneManager( rbd );
+    			}
     			if( iRendDisp instanceof AbstractRenderableDisplay ) {
     				rendDisps[d] = (AbstractRenderableDisplay) iRendDisp; 
     			}
@@ -411,6 +423,23 @@ public class NcDisplayMngr {
     	return null;
     }
     
+    public static INatlCntrsRenderableDisplay findRenderableDisplayByPaneName( 
+    		NcDisplayType dispType, String paneName ) {
+    	for( AbstractEditor d : getAllDisplaysOfType( dispType ) ) {
+    		for( IDisplayPane ipane : d.getDisplayPanes() ) {
+    			if( ipane instanceof VizDisplayPane ) {
+    				if( ipane.getRenderableDisplay() instanceof IPaneLayoutable ) {
+    					IPaneLayoutable ncrdisp = (IPaneLayoutable)ipane.getRenderableDisplay();
+    					if( ncrdisp.getPaneName().toString().equals( paneName ) ) {
+    						return (INatlCntrsRenderableDisplay) ncrdisp;
+    					}
+    				}
+    			}
+    		}
+    	}
+    	return null;
+    }
+
     // Assume 
     // First look for an empty display that 
     public static AbstractEditor findUnmodifiedDisplayToLoad( NcDisplayType dispType ) {
