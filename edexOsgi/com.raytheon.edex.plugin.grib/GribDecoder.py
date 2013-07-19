@@ -161,17 +161,6 @@ class GribDecoder():
         
         filePointer = 0;
         version = -1;
-        
-        if os.path.exists(self.fileName):
-            try:
-                version = grib2.checkVersion(self.fileName)
-            except:
-                LogStream.logProblem("Error opening file [", self.fileName, "]: ", sys.exc_info()[1])
-                return records
-        else:
-            LogStream.logProblem("The file does not exist: [", self.fileName, "]")
-            return records
-        
         decodeFile = None        
         if version == 1:
               grib1Decoder = Grib1Decoder()
@@ -619,9 +608,9 @@ class GribDecoder():
             elif pdsTemplateNumber == 2 or pdsTemplateNumber == 12:
                 derivedForecast = pdsTemplate[15]
                 
-                if (derivedForecast == 1):
+                if (derivedForecast == 1 or derivedForecast == 0 ):
                     parameterAbbreviation= parameterAbbreviation+"mean"
-                elif (derivedForecast == 2):
+                elif (derivedForecast == 2 or derivedForecast == 3 or derivedForecast == 4 ):
                     parameterAbbreviation= parameterAbbreviation+"sprd"
                 
                 pdsFields['typeEnsemble'] = Integer(pdsTemplate[15])

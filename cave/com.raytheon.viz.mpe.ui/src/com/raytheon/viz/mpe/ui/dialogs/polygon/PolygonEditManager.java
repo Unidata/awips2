@@ -55,7 +55,12 @@ import com.raytheon.viz.mpe.ui.dialogs.polygon.RubberPolyData.PolygonEditAction;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 3, 2012            mschenke     Initial creation
+ * Dec 3, 2012             mschenke    Initial creation
+ * July 9, 2013     #2172  bkowal      Set a polygon edit flag whenever new polygon
+ *                                     files are written.
+ * Jul 15, 2013  15963     snaples     Removed polygon edit flag, and 
+ *                                     removed unneeded Constant for Backward compatibility.
+ * 
  * 
  * </pre>
  * 
@@ -141,15 +146,6 @@ public class PolygonEditManager {
         }
     }
 
-    /**
-     * This value is used as a multiplier in the file since the values before
-     * this class existed were multiplied by this value due to incorrect
-     * descaling in the UI class. It is expected that values in the
-     * {@link RubberPolyData} are now actually set to precip values and not
-     * scaled by 100*precipValue like before
-     */
-    private static final double BACKWARDS_COMPATIBILITY_VALUE = 100.0;
-
     private final static Set<IPolygonEditsChangedListener> listeners = new LinkedHashSet<IPolygonEditsChangedListener>();
 
     public static void registerListener(IPolygonEditsChangedListener listener) {
@@ -231,12 +227,11 @@ public class PolygonEditManager {
 
                 PolygonEditAction editAction = polyEdit.getEditAction();
                 DisplayFieldData subDrawSource = polyEdit.getSubDrawSource();
-                double precipValue = polyEdit.getPrecipValue()
-                        * BACKWARDS_COMPATIBILITY_VALUE;
+                double precipValue = polyEdit.getPrecipValue();
                 Point[] editPoints = polyEdit.getEditPoints();
                 boolean visible = polyEdit.isVisible();
 
-                String polyEditStr = editAction
+                String polyEditStr = editAction.toPrettyName()
                         + " "
                         + (subDrawSource != null ? subDrawSource.getCv_use()
                                 : String.format("%6.2f", precipValue)) + " "
@@ -360,8 +355,7 @@ public class PolygonEditManager {
                                 subData, -999.0, editPoints, visible,
                                 persistent));
                     } else {
-                        double precipValue = Double.parseDouble(pieces[2])
-                                / BACKWARDS_COMPATIBILITY_VALUE;
+                        double precipValue = Double.parseDouble(pieces[2]);
                         polygonEdits.add(new RubberPolyData(editAction, null,
                                 precipValue, editPoints, visible, persistent));
                     }
