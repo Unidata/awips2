@@ -5,6 +5,7 @@ import gov.noaa.nws.ncep.viz.common.display.INatlCntrsPaneManager;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsRenderableDisplay;
 import gov.noaa.nws.ncep.viz.common.display.INcPaneID;
 import gov.noaa.nws.ncep.viz.common.display.INcPaneLayout;
+import gov.noaa.nws.ncep.viz.common.display.IPaneLayoutable;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayName;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 
@@ -198,11 +199,16 @@ public abstract class AbstractNcPaneManager extends PaneManager
         return paneLayout;
     }
 
-    // 
-    public VizDisplayPane getPane( INcPaneID pid ) {
+    // from INcPaneContainer
+    @Override
+    public IPaneLayoutable getPane( INcPaneID pid ) {
     	if( paneLayout.containsPaneId( pid ) &&
     		paneLayout.getPaneIndex( pid ) < displayPanes.size() ) {    		
-    		return displayPanes.get( paneLayout.getPaneIndex( pid ) ); 
+    		VizDisplayPane vdp = displayPanes.get( paneLayout.getPaneIndex( pid ) );
+    		if( vdp != null && vdp.getRenderableDisplay() instanceof IPaneLayoutable ) {
+    			return (IPaneLayoutable)vdp.getRenderableDisplay();
+    		}
+//    		return displayPanes.get( paneLayout.getPaneIndex( pid ) ); 
     	}
     	return null;
     }

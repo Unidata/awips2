@@ -1,18 +1,17 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd;
 
-import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
-import gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider;
+import gov.noaa.nws.ncep.viz.common.area.AreaMenus.AreaMenuItem;
+import gov.noaa.nws.ncep.viz.common.area.AreaName;
+import gov.noaa.nws.ncep.viz.common.area.AreaName.AreaSource;
+import gov.noaa.nws.ncep.viz.common.area.IGridGeometryProvider.ZoomLevelStrings;
+import gov.noaa.nws.ncep.viz.common.area.PredefinedArea;
+import gov.noaa.nws.ncep.viz.common.customprojection.GempakProjectionValuesUtil;
 import gov.noaa.nws.ncep.viz.common.display.INcPaneID;
 import gov.noaa.nws.ncep.viz.common.display.INcPaneLayout;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayName;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedArea;
-import gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider.ZoomLevelStrings;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedArea.AreaSource;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resourceManager.timeline.TimelineControl;
 import gov.noaa.nws.ncep.viz.resourceManager.timeline.TimelineControl.IDominantResourceChangedListener;
-
 import gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd.ResourceSelectionControl.IResourceSelectedListener;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
@@ -21,25 +20,27 @@ import gov.noaa.nws.ncep.viz.resources.manager.AbstractRBD;
 import gov.noaa.nws.ncep.viz.resources.manager.NcMapRBD;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceBndlLoader;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory;
+import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory.ResourceSelection;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 import gov.noaa.nws.ncep.viz.resources.manager.RscBundleDisplayMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.SpfsManager;
-import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory.ResourceSelection;
 import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
-import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
-import gov.noaa.nws.ncep.viz.ui.display.NcPaneLayout;
 import gov.noaa.nws.ncep.viz.ui.display.NcPaneID;
+import gov.noaa.nws.ncep.viz.ui.display.NcPaneLayout;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -53,11 +54,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -71,26 +71,17 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IEditorReference;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
-import org.geotools.coverage.grid.ImageGeometry;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.viz.ui.UiPlugin;
 import com.raytheon.viz.ui.editor.AbstractEditor;
-
-import gov.noaa.nws.ncep.viz.customprojection.GempakProjectionValuesUtil;
 
 /**
  * Data Selection dialog.
@@ -134,6 +125,8 @@ import gov.noaa.nws.ncep.viz.customprojection.GempakProjectionValuesUtil;
  * 11/16/2012     #630       Greg Hull   Allow selection of resource-defined areas.
  * 12/02/2012     #630       Greg Hull   add zoomLevel combo
  * 01/24/2013     #972       Greg Hull   add NcDisplayType to support NonMap and solar based RBDs
+ * 05/24/2013     #862       Greg Hull   get areas from menus file and change combo to a cascading menu
+ * 06/03/2013     #1001      Greg Hull   allow multiple Remove/TurnOff of resources
  * 
  * </pre>
  * 
@@ -171,8 +164,11 @@ public class CreateRbdControl extends Composite {
     private Button del_rsc_btn = null;
     private Button disable_rsc_btn = null;
     
+   	private ToolItem areaTItm;
+    private AreaMenuItem seldAreaMenuItem = null;
+    
     private Group geo_area_grp = null;
-    private Combo geo_area_combo = null;
+    private MenuManager areaMenuMngr = null;
     
     private Composite geo_area_info_comp = null; // only one of these visible at a time
     private Composite rsc_area_opts_comp = null; // depending on if a satellite area is selected
@@ -373,9 +369,10 @@ public class CreateRbdControl extends Composite {
     private void createRBDGroup() {
     	
     	import_rbd_combo = new Combo( rbd_grp, SWT.DROP_DOWN | SWT.READ_ONLY );
-    	FormData form_data = new FormData(195,20);
+    	FormData form_data = new FormData();//195,20);
     	form_data.left = new FormAttachment( 0, 15 );
     	form_data.top  = new FormAttachment( 0, 30 );
+    	form_data.right= new FormAttachment( 24, 0 );
     	import_rbd_combo.setLayoutData( form_data );
     	import_rbd_combo.setEnabled(true);    	
 
@@ -462,16 +459,47 @@ public class CreateRbdControl extends Composite {
     	// form_data.bottom  = new FormAttachment( 100, -60 ); // if offset for room for the Load and Save buttons
     	form_data.bottom = new FormAttachment( 100, -10 );
     	form_data.left   = new FormAttachment( 0, 10 );
-    	form_data.right  = new FormAttachment( 0, 180 );
+    	form_data.right  = new FormAttachment( 24, 0 );
 
     	geo_area_grp.setLayoutData( form_data );
 
-    	geo_area_combo = new Combo( geo_area_grp, SWT.DROP_DOWN | SWT.READ_ONLY );
+        ToolBar areaTBar = new ToolBar(geo_area_grp, SWT.HORIZONTAL|SWT.RIGHT);
     	form_data = new FormData();
     	form_data.left = new FormAttachment( 0, 10 );
     	form_data.top  = new FormAttachment( 0, 15 );
     	form_data.right = new FormAttachment( 100, -10 );
-    	geo_area_combo.setLayoutData( form_data );
+    	areaTBar.setLayoutData( form_data );
+
+    	areaTItm = new ToolItem(areaTBar, SWT.DROP_DOWN);
+    	areaTItm.setText("");
+    	areaMenuMngr = new MenuManager("CreateRbdControl");
+    	areaMenuMngr.setRemoveAllWhenShown( true );
+    	final Menu areaCtxMenu = areaMenuMngr.createContextMenu( shell );
+    	
+    	areaCtxMenu.setVisible( false );
+    	geo_area_grp.setMenu( areaCtxMenu );
+    	
+    	areaMenuMngr.addMenuListener( new IMenuListener() {
+			@Override
+			public void menuAboutToShow(IMenuManager amngr) {				
+				createAvailAreaMenuItems( amngr );
+			}
+		});
+    	
+    	// Main toolbar button clicked:  show the areas popup menu at 
+    	// the location of the toolbar so it appears like a combo 
+    	// dropdown. This will also trigger the menu manager to create 
+    	// the menu items for the available areas. 
+    	areaTItm.addListener(SWT.Selection, new Listener() {
+        	public void handleEvent(Event event) {
+        		ToolItem ti = ((ToolItem)event.widget);
+        		Rectangle bounds = ti.getBounds();
+        		Point point = ((ToolBar)ti.getParent()).toDisplay(bounds.x, bounds.y + bounds.height);
+        		
+        		areaCtxMenu.setLocation(point);
+        		areaCtxMenu.setVisible(true);
+        	}
+        });
     	
     	// 2 Composites. 1 for when a predefined area is selected which will show the
     	// projection and map center. And 1 for when a satellite resource is selecte which
@@ -487,7 +515,7 @@ public class CreateRbdControl extends Composite {
     	
     	form_data = new FormData();
     	form_data.left = new FormAttachment( 0, 10 );
-    	form_data.top  = new FormAttachment( geo_area_combo, 15, SWT.BOTTOM );
+    	form_data.top  = new FormAttachment( areaTBar, 15, SWT.BOTTOM );
     	form_data.right = new FormAttachment( 100, -10 );
 
     	// both overlap each other since only one visible at a time
@@ -496,12 +524,6 @@ public class CreateRbdControl extends Composite {
     	
     	fit_to_screen_btn = new Button( rsc_area_opts_comp, SWT.RADIO );
     	fit_to_screen_btn.setText( "Fit To Screen");
-    	// grid data layout not needed
-//    	form_data = new FormData();
-//    	form_data.left = new FormAttachment( rsc_area_opts_comp, 0, SWT.LEFT );
-//    	form_data.top  = new FormAttachment( rsc_area_opts_comp, 5, SWT.BOTTOM );
-//    	form_data.right = new FormAttachment( rsc_area_opts_comp, 0, SWT.RIGHT );
-//    	fit_to_screen_btn.setLayoutData( form_data );
 
     	size_of_image_btn = new Button( rsc_area_opts_comp, SWT.RADIO );
     	size_of_image_btn.setText("Size Of Image");
@@ -556,8 +578,9 @@ public class CreateRbdControl extends Composite {
     	custom_area_btn.setLayoutData( form_data );
     	custom_area_btn.setText(" Custom ... ");
     	custom_area_btn.setEnabled(false); // not implemented
-
+    	custom_area_btn.setVisible( false );
     }
+    
     // create the Selected Resources List, the Edit, Delete and Clear buttons
     //
    	private Group createSeldRscsGroup( ) {
@@ -911,14 +934,25 @@ public class CreateRbdControl extends Composite {
     	sel_rsc_btn.addSelectionListener( new SelectionAdapter() {
    			public void widgetSelected(SelectionEvent e) {
    				StructuredSelection sel_elems = (StructuredSelection) seld_rscs_lviewer.getSelection();               
-   				ResourceSelection rscSel = (ResourceSelection)sel_elems.getFirstElement();
+   		   		List<ResourceSelection> seldRscsList = (List<ResourceSelection>) sel_elems.toList();
+   		   		int numSeldRscs = seld_rscs_lviewer.getList().getSelectionCount();
+
+   		   		Boolean isBaseLevelRscSeld = false;
+   		   		ResourceName initRscName = rscSelDlg.getPrevSelectedResource();
+
+   		   		for( ResourceSelection rscSel : seldRscsList ) {
+   		   			isBaseLevelRscSeld |= rscSel.isBaseLevelResource();
+   		   			if( initRscName == null ) {
+   		   				initRscName = rscSel.getResourceName();
+   		   			}
+   		   		}
    				
+   		   		// the replace button is enabled if there is only 1 resource selected and
+   		   		// it is not the base resource
    				if( !rscSelDlg.isOpen()) {
-   					ResourceName initRscName = ( rscSel == null ? 
-   							rscSelDlg.getPrevSelectedResource() : rscSel.getResourceName() );
    					
    					rscSelDlg.open( true, // Replace button is visible
-   							(rscSel != null ? true : false),
+   							(numSeldRscs == 1 && !isBaseLevelRscSeld), // replace enabled
    							initRscName,
    							multi_pane_tog.getSelection(),
    							rbdMngr.getRbdType(),
@@ -953,7 +987,7 @@ public class CreateRbdControl extends Composite {
    				try {
    					ResourceSelection rbt = ResourceFactory.createResource( rscName );
    	   				
-   					rbdMngr.getAreaProvider();
+   					rbdMngr.getSelectedArea();
 
    					
    					// if replacing existing resources, get the selected resources
@@ -977,10 +1011,10 @@ public class CreateRbdControl extends Composite {
    	   					// if replacing a resource which is set to provide the geographic area
    	    		   		// check to see if the current area has been reset to the default because 
    	    		   		// it was not available   	   					
-   	    				String seldArea = rbdMngr.getAreaProvider().getProviderName();
+   	    				String seldArea = rbdMngr.getSelectedArea().getProviderName();
    	    				
-   	    				if( !seldArea.equals( geo_area_combo.getText() ) ) {
-   	    					selectArea( rbdMngr.getAreaProvider() );
+   	    				if( seldAreaMenuItem.getAreaName().equals( seldArea ) ) {
+   	    					updateAreaGUI( ); 
    	    				}
    	   				}
    	   				else {
@@ -1030,33 +1064,6 @@ public class CreateRbdControl extends Composite {
    				}
    			}
    		});
-
-   		// TODO : if geoSync is enabled then this will need to update the 
-   		// area for all of the panes
-    	geo_area_combo.addSelectionListener(new SelectionAdapter() {
-   			public void widgetSelected(SelectionEvent e) {
-   				
-   				try {
-   				     rbdMngr.setAreaProviderName( geo_area_combo.getText() );
-
-   				     selectArea( rbdMngr.getAreaProvider() );
-   				}
-   				catch( VizException vizex ) {
-   					MessageDialog errDlg = new MessageDialog( 
-   							shell, "Error", null, 
-   							vizex.getMessage(),
-   							MessageDialog.ERROR, new String[]{"OK"}, 0);
-   					errDlg.open();
-   				}
-   			}
-   		});
-
-    	geo_area_combo.addListener( SWT.Activate, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				updateAvailAreas();
-			}    		
-    	}); 
 
     	size_of_image_btn.addSelectionListener( new SelectionAdapter() {
    			public void widgetSelected(SelectionEvent e) {
@@ -1110,7 +1117,7 @@ public class CreateRbdControl extends Composite {
    					MessageDialog confirmDlg = new MessageDialog( shell, 
    						"Confirm Geo-Sync Panes", null, 
    						"This will set the Area for all panes to the currently\n"+
-   						"selected Area: "+ rbdMngr.getAreaProvider().getProviderName() + "\n\n"+
+   						"selected Area: "+ rbdMngr.getSelectedArea().getProviderName() + "\n\n"+
    						"Continue?",
    							MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0);
    					confirmDlg.open();
@@ -1149,19 +1156,22 @@ public class CreateRbdControl extends Composite {
     			StructuredSelection sel_elems = (StructuredSelection) seld_rscs_lviewer.getSelection();               
     			Iterator itr = sel_elems.iterator();
     			
+    			// note: the base may be selected if there are multi selected with others.
     			while( itr.hasNext() ) {
-    				
-    				removeSelectedResource( (ResourceSelection) itr.next() );
+    				ResourceSelection rscSel = (ResourceSelection)itr.next();
+    				if( !rscSel.isBaseLevelResource() ) {
+    					removeSelectedResource( rscSel );
+    				}
     			}
     			
    		   		updateSelectedResourcesView( true );
    		   		
    		   		// check to see if the current area has been reset to the default because 
    		   		// it was the 
-   				String seldArea = rbdMngr.getAreaProvider().getProviderName();
+   				String seldArea = rbdMngr.getSelectedArea().getProviderName();
 
-   				if( !seldArea.equals( geo_area_combo.getText() ) ) {   					
-   					selectArea( rbdMngr.getAreaProvider() );
+   				if( seldAreaMenuItem.getAreaName().equals( seldArea) ) {
+   					updateAreaGUI( );
    				}
        		}
        	});
@@ -1169,15 +1179,13 @@ public class CreateRbdControl extends Composite {
        	disable_rsc_btn.addSelectionListener( new SelectionAdapter() {
        		public void widgetSelected( SelectionEvent ev ) {
        			StructuredSelection sel_elems = (StructuredSelection) seld_rscs_lviewer.getSelection();               
+    			Iterator itr = sel_elems.iterator();
 
-//				disable_rsc_btn.setText( !disable_rsc_btn.getSelection() ? 
-//						"Turn On" : "Turn Off" );
-//       			
-       			ResourceSelection rscSel = (ResourceSelection)sel_elems.getFirstElement();
-       			
-       			if( rscSel != null ) {
+    			while( itr.hasNext() ) {
+    				ResourceSelection rscSel = (ResourceSelection)itr.next();
        				rscSel.setIsVisible( !disable_rsc_btn.getSelection() );
        			}
+       			
        			
        			seld_rscs_lviewer.refresh( true );
        			
@@ -1315,13 +1323,7 @@ public class CreateRbdControl extends Composite {
    		
     	rbd_name_txt.setText("");
     	
-    	updateAvailAreas();
-
-//    	for( String szl : StandardZoomLevels ) {
-//        	rsc_area_opts_combo.add( szl );    		
-//    	}
-
-    	selectArea( rbdMngr.getAreaProvider() );// should be the default area
+    	updateAreaGUI( );// should be the default area
     	    	
     	shell.setSize( initDlgSize );
 
@@ -1400,29 +1402,39 @@ public class CreateRbdControl extends Composite {
    	
    	// set the area and update the proj/center field
    	// the
-   	public void selectArea( PredefinedArea area ) {   		
+   	public void updateAreaGUI() {  		
+
+		PredefinedArea area = rbdMngr.getSelectedArea();
 		
-   		geo_area_combo.deselectAll();
+		seldAreaMenuItem = new AreaMenuItem( new AreaName( area.getSource(), area.getAreaName() ) );
+   		areaTItm.setText( seldAreaMenuItem.getMenuName() );
+			
 		geo_area_info_comp.setVisible( false );
 		rsc_area_opts_comp.setVisible( false );
-
-   		// find the area in the available list of areas in the combo menu
-   		//
-		for( int i=0 ; i<geo_area_combo.getItemCount() ; i++ ) {
-		
-			String areaStr = geo_area_combo.getItem(i);
 			
-			if( areaStr.equals( rbdMngr.getAreaProvider().getProviderName() ) ) {
-			
-				geo_area_combo.select(i);
+		if( area.getSource().isImagedBased() ) {
 		
-				// ? anything different if imported from a display? 
-				if( area.getAreaSource() == AreaSource.PREDEFINED_AREA || 
-					area.getAreaSource() == AreaSource.DISPLAY_AREA ) {
+			rsc_area_opts_comp.setVisible( true );
 
+			if( area.getZoomLevel().equals( ZoomLevelStrings.FitToScreen.toString() ) ) {
+				fit_to_screen_btn.setSelection( true );
+				size_of_image_btn.setSelection( false );						
+			}
+			else if( area.getZoomLevel().equals( ZoomLevelStrings.SizeOfImage.toString() ) ) {
+				fit_to_screen_btn.setSelection( false );
+				size_of_image_btn.setSelection( true );
+			}
+			else {
+				/// ????
+				area.setZoomLevel( "1.0" );
+				fit_to_screen_btn.setSelection( true );
+				size_of_image_btn.setSelection( false );
+			}
+		}
+		else {
 					geo_area_info_comp.setVisible( true );
 					
-					String projStr = rbdMngr.getAreaProvider().getGridGeometry().
+			String projStr = rbdMngr.getSelectedArea().getGridGeometry().
 										getCoordinateReferenceSystem().getName().toString();
 					
 					proj_info_txt.setText( projStr );
@@ -1433,63 +1445,86 @@ public class CreateRbdControl extends Composite {
 						
 						if( gempakProjMap.get( gemProj ).equals( projStr ) ) {
 							proj_info_txt.setText( gemProj.toUpperCase() );
+					break;
 						}
 					}
 
+			if( area.getMapCenter() != null ) {
 					Integer lat = (int)(area.getMapCenter()[1] *1000.0);
 					Integer lon = (int)(area.getMapCenter()[0] *1000.0);
 
 					map_center_txt.setText(   
 							Double.toString((double)lat/1000.0) +"/" + Double.toString((double)lon/1000.0) );
 				}
-				else if( area.getAreaSource() == AreaSource.RESOURCE_DEFINED ) {
-
-					rsc_area_opts_comp.setVisible( true );
-
-					if( area.getZoomLevel().equals( ZoomLevelStrings.FitToScreen.toString() ) ) {
-						fit_to_screen_btn.setSelection( true );
-						size_of_image_btn.setSelection( false );						
-					}
-					else if( area.getZoomLevel().equals( ZoomLevelStrings.SizeOfImage.toString() ) ) {
-						fit_to_screen_btn.setSelection( false );
-						size_of_image_btn.setSelection( true );
-					}
 					else {
-						/// ????
-						area.setZoomLevel( "1.0" );
-						fit_to_screen_btn.setSelection( true );
-						size_of_image_btn.setSelection( false );
+				map_center_txt.setText( "N/A" );
 					}
 				}
 
-				break;
+//		if( seldAreaMenuItem == null ) {
+//			try {
+//				rbdMngr.setAreaProviderName( 
+//						new AreaName( AreaSource.PREDEFINED_AREA, 
+//								      rbdMngr.getRbdType().getDefaultMap() ));
+//				updateAreaGUI();
+//			} catch (VizException e) {
+//			}
+//   		}   	   		
 			}
+   
+   	private class SelectAreaAction extends Action {
+   		private AreaMenuItem ami;
+   		
+   		public SelectAreaAction( AreaMenuItem a ) {
+   			super( a.getMenuName() );
+   			ami = a;
 		}
 
-		if( geo_area_combo.getSelectionIndex() == -1 ) {
-//   			System.out.println("rbd Area not found in avail list: adding to the list");
-//   			
+   	    @Override
+   	    public void run() {
 			try {
-				rbdMngr.setAreaProviderName( rbdMngr.getRbdType().getDefaultMap() );
-				geo_area_combo.add( rbdMngr.getRbdType().getDefaultMap() );
-				selectArea( rbdMngr.getAreaProvider() );
-			} catch (VizException e) {
+				rbdMngr.setSelectedAreaName( 
+						new AreaName( AreaSource.getAreaSource( ami.getSource() ), 
+															    ami.getAreaName() ) );
+				updateAreaGUI();
+			} 
+   	    	catch (VizException e) {
+   				MessageDialog errDlg = new MessageDialog( 
+   					     NcDisplayMngr.getCaveShell(), "Error", null, 
+   					     		e.getMessage(), MessageDialog.ERROR, new String[]{"OK"}, 0);
+   				errDlg.open();
 			}
    		}   	   		
    	}
+//   	private void setSeldAreaMenuItem( AreaMenuItem ami ) {
+//   		areaTItm.setText(ami.getAreaName());
+//   		
+//   		seldAreaMenuItem = ami;
+//   		
+//   	}
    	
-   	// get all the currently available selections for the display area
-   	// and add them to the combo.
-   	public void updateAvailAreas() {
-		String seldArea = geo_area_combo.getText();
-		geo_area_combo.removeAll();
+   	public void createAvailAreaMenuItems( IMenuManager aMenuMngr ) {
+   	// a map from the sub-menu name to a list of menu item 
+   		List<List<AreaMenuItem>> availMenuItems = rbdMngr.getAvailAreaMenuItems();
 		
-		for( IGridGeometryProvider availArea : rbdMngr.getAvailAreaProviders() ) {
+   		for( List<AreaMenuItem> amiList : availMenuItems ) {
+   			if( amiList == null || amiList.isEmpty() ) {
+   				continue;
+   			}
 			
-			geo_area_combo.add( availArea.getProviderName() );				
+   			// all the submenu name in the list should be the same.
+   			String subMenuName = amiList.get(0).getSubMenuName();
+   			IMenuManager menuMngrToAddTo = aMenuMngr;
+   			
+   			if( subMenuName != null && !subMenuName.isEmpty() ) {
+   				IMenuManager subMenu  = new MenuManager( subMenuName,
+   						areaMenuMngr.getId() + "." + subMenuName);
+   				aMenuMngr.add( subMenu );
+   				menuMngrToAddTo = subMenu;
+   			}
 
-			if( availArea.getProviderName().equals( seldArea ) ) {
-				geo_area_combo.select( geo_area_combo.getItemCount()-1 );
+    		for( AreaMenuItem ami : amiList ) {
+    			menuMngrToAddTo.add( new SelectAreaAction( ami ) );
 			}
 		}
    	}
@@ -1543,10 +1578,8 @@ public class CreateRbdControl extends Composite {
    			import_rbd_combo.select( import_rbd_combo.getItemCount()-1 );
    		}
    		
-   		// 
-   		updateAvailAreas();
    		
-   		selectArea( rbdMngr.getAreaProvider() );
+   		updateAreaGUI( );
    		    	
     	geo_sync_panes.setSelection( rbdMngr.isGeoSyncPanes() );
     	multi_pane_tog.setSelection( rbdMngr.isMultiPane() );
@@ -1631,9 +1664,7 @@ public class CreateRbdControl extends Composite {
     		}
     	}
     	
-    	// set the selected area
-//    	geo_area_combo.setText( rbdMngr.getAreaProvider().getProviderName() );
-    	selectArea( rbdMngr.getAreaProvider() );
+    	updateAreaGUI( );
 
     	updateSelectedResourcesView( true );
    	}
@@ -1763,54 +1794,39 @@ public class CreateRbdControl extends Composite {
    		int numSeldRscs = seld_rscs_lviewer.getList().getSelectionCount();
    		int numRscs = seld_rscs_lviewer.getList().getItemCount();
 
-   		
    		// the Clear button is enabled if there are more than 1 resources in the list.
    		clr_pane_btn.setEnabled( numRscs > 1 );
 
 		// the edit button is enabled iff there is only one selected resource.
 		edit_rsc_btn.setEnabled( numSeldRscs == 1 );
 		
-		// the delete button is enabled if there is at least one resource selected and it
-		// is not the default overlay.
    		StructuredSelection sel_elems = (StructuredSelection) seld_rscs_lviewer.getSelection();               
-   		List<ResourceSelection> seldRscsList = 
-   			                           (List<ResourceSelection>) sel_elems.toList();
+   		List<ResourceSelection> seldRscsList = (List<ResourceSelection>) sel_elems.toList();
    		
-   		if( numSeldRscs != 1 ) {
-   			del_rsc_btn.setEnabled( false );
-
-   			// TODO : we could allow for the user to replace multiple resources. Or to select
-   			// the resource to replace after the dialog is up...
+   		// Can't delete, replace or turn off the base overlay.
    			//
-   			replace_rsc_btn.setEnabled( false );
-	   		rscSelDlg.setReplaceEnabled( false );
+   		Boolean isBaseLevelRscSeld = false;
+   		Boolean allRscsAreVisible = true;
 
-   			disable_rsc_btn.setEnabled( false );
-   			disable_rsc_btn.setSelection( false );
-   			disable_rsc_btn.setText( "Turn Off");
+   		for( ResourceSelection rscSel : seldRscsList ) {
+   			isBaseLevelRscSeld |= rscSel.isBaseLevelResource();
+   			
+   			allRscsAreVisible &= rscSel.isVisible();
    		}
-   		else {
-   			ResourceSelection rscSel = seldRscsList.get(0);
-   			
-   			// Can't delete, replace or turn off the base overlay.
-   			if( rscSel.isBaseLevelResource() ) {
-   	   			del_rsc_btn.setEnabled( false );
    	   			
-   	   			replace_rsc_btn.setEnabled( false );
-   	   			rscSelDlg.setReplaceEnabled( false );
+   		// the replace button is enabled if there is only 1 resource selected and
+   		// it is not the base resource
+   		rscSelDlg.setReplaceEnabled( (numSeldRscs == 1 && !isBaseLevelRscSeld) );
 
-   	   			disable_rsc_btn.setEnabled( false );
-   	   			disable_rsc_btn.setSelection( false );
-   	   			disable_rsc_btn.setText( "Turn Off");
-   			}
-   			else {
-   	   			del_rsc_btn.setEnabled( true );
-   	   			replace_rsc_btn.setEnabled( true );   	   		
-   	   			rscSelDlg.setReplaceEnabled( true );
+		// the delete button is only disabled if there is one the one base resource selected.
+   		//
+   		del_rsc_btn.setEnabled( numSeldRscs > 1 || (numSeldRscs == 1 && !isBaseLevelRscSeld) );
    	   			
-   	   			disable_rsc_btn.setEnabled( true );
+   		// the disable_rsc_btn is always enabled.
+   		disable_rsc_btn.setEnabled( (numSeldRscs > 0) );
    			
-   	   			if( rscSel.isVisible() ) {
+   		//but the state is  
+  		if( allRscsAreVisible ) {
    	   	   			disable_rsc_btn.setSelection( false );
    	   	   			disable_rsc_btn.setText( "Turn Off");   	   				
    	   			}
@@ -1819,14 +1835,6 @@ public class CreateRbdControl extends Composite {
    	   	   			disable_rsc_btn.setText( "Turn On");
    	   			}
    			}   			
-   		}
-   		// TODO : we could allow for multiple selections to be replaced.
-   		//
-//   		if( rscSelDlg != null && rscSelDlg.isOpen() ) {
-//
-//   			rscSelDlg.setReplaceEnabled( enableReplace );
-//   		}
-   	}
 	
 	// This will load the currently configured RBD (all panes) into
 	// a new editor or the active editor if the name matches the current
@@ -2168,11 +2176,10 @@ public class CreateRbdControl extends Composite {
 			}
 		}
 
-//    	
     	timelineControl.setTimeMatcher( rbdBndl.getTimeMatcher() );
     	
     	// TODO : if geo sync is set and if this geogArea is different than the
-    	// current one then prompt the user what to do.
+    	// current one then pro`mpt the user what to do.
     	// 
 //    	if( geo_sync_panes.getSelection() ) {
 //    		
@@ -2198,7 +2205,7 @@ public class CreateRbdControl extends Composite {
 //    		}
 //    	}
     	
-    	selectArea( rbdMngr.getAreaProvider() );
+    	updateAreaGUI( );
     	
     	updateSelectedResourcesView( true );
     }    
@@ -2266,6 +2273,10 @@ public class CreateRbdControl extends Composite {
 
     		AbstractRBD<?> rbdBndl = rbdMngr.createRbdBundle( saveDlg.getSeldRbdName(), timeMatcher );
 
+//    		if( !checkAndSavePredefinedAreas() ) {
+//    			return;
+//    		}
+    		
     		SpfsManager.getInstance().saveRbdToSpf( savedSpfGroup, savedSpfName, rbdBndl, saveRefTime, saveTimeAsConstant );
 
     		VizApp.runSync(new Runnable() {
@@ -2294,6 +2305,50 @@ public class CreateRbdControl extends Composite {
     		});
     	}
     }
+                
+//		 check to see if any of the selected areas are defined by another display and if so
+//		 prompt the user to save them to a file before saving the RBD. (if we don't do this the
+//		 area can still be saved but there is a problem of what the areaSource will be in this case. It
+//		 could be INITIAL_DISPLAY_AREA but the factory for this area source is currently designed to only
+//		 look for loaded displays and not displays that are saved in an RBD which is what the case will 
+//		 be if this RBD is imported into the ResourceManager again. There are other possible ways to fix 
+//		 this but the most straightforward for now is to just require the user to save the area to a file
+//		 if 
+//    private Boolean checkAndSavePredefinedAreas( ) {
+//
+//    	Map<String,AreaName> seldAreas = rbdMngr.getAllSelectedAreaNames();
+//    	String confirmMsg = "";
+//    	List<String> pids = new ArrayList<String>(seldAreas.keySet());
+//    	
+//    	for( String pid : pids ) {
+//    		if( seldAreas.get( pid ).getSource() != AreaSource.INITIAL_DISPLAY_AREA ) {
+//    			seldAreas.remove( pid );
+//    		}
+//    	}
+//    	
+//    	if( seldAreas.isEmpty() ) {
+//    		return true;
+//    	}
+//    	
+//    	if( !rbdMngr.isMultiPane() ) {
+//    		if( seldAreas.)
+//	    		MessageDialog confirmDlg = new MessageDialog( 
+//		    				shell, "Confirm", null, 
+//		    				"This RBD has been modified.\n\n"+
+//		    				"Do you want to clear the current RBD selections?",
+//		    				MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0);
+//		    		confirmDlg.open();
+//
+//		    		if( confirmDlg.getReturnCode() != MessageDialog.OK ) {
+//		    			return;
+//		    		}           				   			    		
+//
+//    	}
+//    	// if geoSynced just check the first 
+//    	if( rbdMngr.isGeoSyncPanes() ) {
+//    		
+//    	}
+//    }
                 
     // if Editing then save the current rbd to an AbstractRBD<?> 
     private void createEditedRbd() {

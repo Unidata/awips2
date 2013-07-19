@@ -1,8 +1,7 @@
 package gov.noaa.nws.ncep.viz.tools.predefinedArea;
 
 
-import gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedArea.AreaSource;
+import gov.noaa.nws.ncep.viz.common.area.IAreaProviderCapable;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
@@ -24,7 +23,6 @@ public class AreaFromResourceRightClickAction extends AbstractRightClickAction {
 	
 	@Override
 	public void run() {
-//		System.out.println("Running AreaFromResourceRightClickAction");
 		AbstractEditor currEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
 
 		ICommandService service = (ICommandService)currEditor
@@ -33,18 +31,15 @@ public class AreaFromResourceRightClickAction extends AbstractRightClickAction {
 
 		if( cmd != null ) {
 			try {
-				//HashMap<String, Object> params = new HashMap<String, Object>();
-		        
 				Map<String, String> cmdParams = new HashMap<String, String>();
 		        
-				if( !(getSelectedRsc().getResourceData() instanceof IGridGeometryProvider) ) {
+				if( !(getSelectedRsc() instanceof IAreaProviderCapable) ) {
 					System.out.println("???Selected resource is not capable of defining its Area");
 					return;
 				}
-				
-				cmdParams.put("areaName", 
-						((INatlCntrsResourceData)getSelectedRsc().getResourceData()).getResourceName().toString() );
-				cmdParams.put("areaType", AreaSource.RESOURCE_DEFINED.toString() );
+				IAreaProviderCapable areaProv = (IAreaProviderCapable)getSelectedRsc(); 
+				cmdParams.put("areaName", areaProv.getAreaName() );
+				cmdParams.put("areaSource", areaProv.getSourceProvider().toString() );
 			
 				ExecutionEvent exec = new ExecutionEvent(cmd, cmdParams, null, null);
 				cmd.executeWithChecks(exec);
