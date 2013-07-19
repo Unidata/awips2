@@ -45,6 +45,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 09/27/12		DR 15471 G.Zhang	 Fixed ConcurrentModificationException
  * 01/27/13     1478     D. Hladky   Re-worked to help with memory size and NAS read write stress
  * Apr 16, 2013 1912        bsteffen    Initial bulk hdf5 access for ffmp
+ * 07/03/13     2131     D. Hladky   Fixed null pointers thrown by new container creation.
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * 
  * </pre>
@@ -102,9 +103,11 @@ public class FFMPDataContainer {
         this.sourceName = sourceName;
 
         FFMPBasinData basinData = record.getBasins();
+            if (basinData != null) {
         basinData.populate(record.getTimes());
         basins = basinData;
 
+        }
     }
 
     /**
@@ -124,11 +127,11 @@ public class FFMPDataContainer {
 
         FFMPBasinData currBasinData = getBasinData();
 
-        synchronized (currBasinData) {
-
-            if (currBasinData == null) {
+        if (currBasinData == null) {
                 setBasinData(newBasinData);
-            } else {
+        } else {
+
+            synchronized (currBasinData) {
 
                 for (Long key : newBasinData.getBasins().keySet()) {
 
@@ -158,7 +161,6 @@ public class FFMPDataContainer {
                                         val);
                             }
 
-                            // currBasinData.put(key, basin);
                             syncPut(currBasinData, key, basin);
                         } else {
 
