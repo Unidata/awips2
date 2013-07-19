@@ -30,7 +30,7 @@ QPID_LIBS=$QPID_HOME/lib/qpid-all.jar:$QPID_HOME/lib/bdbstore-launch.jar
 export JAVA=java \
        JAVA_VM=-server \
        JAVA_MEM=-Xmx1024m \
-       JAVA_GC="-XX:+UseConcMarkSweepGC -XX:+HeapDumpOnOutOfMemoryError" \
+       JAVA_GC="-XX:+UseConcMarkSweepGC -XX:+CMSIIncrementalMode -XX:NewSize=300m -XX:MaxNewSize=300m -XX:SurvivorRatio=6 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/data/fxa/qpid" \       
        QPID_CLASSPATH=$QPID_LIBS \
        QPID_RUN_LOG=2 
 
