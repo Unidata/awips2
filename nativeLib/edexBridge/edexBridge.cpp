@@ -103,6 +103,7 @@ public:
 			}
 		} catch (const std::exception& error) {
 			// Error occurred during communication.  Clean up the connection and return the number of messages processed.
+                        uerror(error.what());
 			cleanup();
 
 		}

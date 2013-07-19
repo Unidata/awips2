@@ -20,6 +20,9 @@
 package com.raytheon.uf.common.dataplugin.ffmp;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.zip.GZIPInputStream;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -61,10 +65,11 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 9, 2010            rjpeter     Initial creation
+ * Dec 9, 2010             rjpeter     Initial creation
  * Apr 25, 2013 1954       bsteffen    Decompress ffmp geometries to save time
  *                                     loading them.
  * Apr 25, 2013 1954       bsteffen    Undo last commit to avoid invalid geoms.
+ * Jul 03, 2013 2152       rjpeter     Use streams for serialization
  * 
  * </pre>
  * 
@@ -84,15 +89,15 @@ public class HucLevelGeometriesFactory {
     private static final String hucGeomBasePath = "ffmp" + File.separator
             + "aggrGeom";
 
-    private IPathManager pathManager;
+    private final IPathManager pathManager;
 
     public static HucLevelGeometriesFactory getInstance() {
         return instance;
     }
 
-    private ConcurrentMap<String, SoftReference<Map<Long, Geometry>>> geomCache = new ConcurrentHashMap<String, SoftReference<Map<Long, Geometry>>>();
+    private final ConcurrentMap<String, SoftReference<Map<Long, Geometry>>> geomCache = new ConcurrentHashMap<String, SoftReference<Map<Long, Geometry>>>();
 
-    private ConcurrentMap<String, SoftReference<Map<Long, Envelope>>> envCache = new ConcurrentHashMap<String, SoftReference<Map<Long, Envelope>>>();
+    private final ConcurrentMap<String, SoftReference<Map<Long, Envelope>>> envCache = new ConcurrentHashMap<String, SoftReference<Map<Long, Envelope>>>();
 
     private HucLevelGeometriesFactory() {
         pathManager = PathManagerFactory.getPathManager();
@@ -127,10 +132,23 @@ public class HucLevelGeometriesFactory {
                     getGeomPath(dataKey, cwa, huc));
 
             if (f.exists()) {
+                InputStream is = null;
+                boolean deleteFile = false;
+
                 try {
-                    map = (Map<Long, Geometry>) SerializationUtil
-                            .transformFromThrift(FileUtil.file2bytes(
-                                    f.getFile(), true));
+                    File file = f.getFile();
+                    long length = file.length();
+
+                    // read from disk in 8k chunks
+                    int bufferSize = 8 * 1024;
+                    if (bufferSize > length) {
+                        bufferSize = (int) length;
+                    }
+
+                    is = new GZIPInputStream(new FileInputStream(file),
+                            bufferSize);
+
+                    map = SerializationUtil.transformFromThrift(Map.class, is);
                     int sizeGuess = Math.max(
                             Math.abs(pfafs.size() - map.size()), 10);
                     pfafsToGenerate = new ArrayList<Long>(sizeGuess);
@@ -144,8 +162,25 @@ public class HucLevelGeometriesFactory {
                             .handle(Priority.WARN,
                                     "Failed to read geometry map from file.  Deleting file and regenerating.");
 
-                    f.delete();
+                    deleteFile = true;
                     pfafsToGenerate = pfafs;
+                } finally {
+                    if (is != null) {
+                        try {
+                            is.close();
+                        } catch (IOException e1) {
+                            // ignore
+                        }
+                    }
+
+                    if (deleteFile) {
+                        try {
+                            f.delete();
+                        } catch (LocalizationOpFailedException lope) {
+                            statusHandler.handle(Priority.WARN,
+                                    "Can't delete file.");
+                        }
+                    }
                 }
             } else {
                 pfafsToGenerate = pfafs;
@@ -218,7 +253,7 @@ public class HucLevelGeometriesFactory {
         for (Long aggrPfaf : aggrPfafs) {
             Collection<Long> childPfafs = childHucMapping.get(aggrPfaf);
 
-            if (childPfafs != null && childPfafs.size() > 0) {
+            if ((childPfafs != null) && (childPfafs.size() > 0)) {
                 Geometry[] hucGeometries = new Geometry[childPfafs.size()];
                 Iterator<Long> iter = childPfafs.iterator();
                 int i = 0;
@@ -264,7 +299,7 @@ public class HucLevelGeometriesFactory {
     protected Geometry deholer(GeometryFactory gf, Polygon p) {
         int interiorRings = p.getNumInteriorRing();
         int iterations = 0;
-        while (interiorRings > 0 && iterations < 3) {
+        while ((interiorRings > 0) && (iterations < 3)) {
             Geometry[] hucGeometries = new Geometry[interiorRings + 1];
             hucGeometries[0] = p;
             for (int i = 0; i < interiorRings; i++) {
@@ -327,7 +362,7 @@ public class HucLevelGeometriesFactory {
             Set<Long> childPfafs = template.getMap(dataKey, cwa, childHuc)
                     .keySet();
             Map<Long, Collection<Long>> childHucMapping = new HashMap<Long, Collection<Long>>(
-                    (int) (childPfafs.size() / 10 * 1.3) + 1);
+                    (int) ((childPfafs.size() / 10) * 1.3) + 1);
             for (Long childPfaf : childPfafs) {
                 Long pfaf = new Long(childPfaf / divisor);
                 Collection<Long> mappedChildPfafs = childHucMapping.get(pfaf);
@@ -411,11 +446,25 @@ public class HucLevelGeometriesFactory {
                     LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
             LocalizationFile f = pathManager.getLocalizationFile(lc,
                     getEnvelopePath(dataKey, cwa, huc));
+
             if (f.exists()) {
+                InputStream is = null;
+                boolean deleteFile = false;
+
                 try {
-                    map = (Map<Long, Envelope>) SerializationUtil
-                            .transformFromThrift(FileUtil.file2bytes(
-                                    f.getFile(), true));
+                    File file = f.getFile();
+                    long length = file.length();
+
+                    // read from disk in 8k chunks
+                    int bufferSize = 8 * 1024;
+                    if (bufferSize > length) {
+                        bufferSize = (int) length;
+                    }
+
+                    is = new GZIPInputStream(new FileInputStream(file),
+                            bufferSize);
+
+                    map = SerializationUtil.transformFromThrift(Map.class, is);
                     int sizeGuess = Math.max(
                             Math.abs(pfafs.size() - map.size()), 10);
                     pfafsToGenerate = new ArrayList<Long>(sizeGuess);
@@ -428,14 +477,26 @@ public class HucLevelGeometriesFactory {
                     statusHandler
                             .handle(Priority.WARN,
                                     "Failed to pull envelope map from file.  Deleting file and regenerating.");
-                    try {
-                        f.delete();
-                    } catch (LocalizationOpFailedException lope) {
-                        statusHandler.handle(Priority.WARN,
-                                "Can't delete file.");
+
+                    deleteFile = true;
+                    pfafsToGenerate = pfafs;
+                } finally {
+                    if (is != null) {
+                        try {
+                            is.close();
+                        } catch (IOException e1) {
+                            // ignore
+                        }
                     }
 
-                    pfafsToGenerate = pfafs;
+                    if (deleteFile) {
+                        try {
+                            f.delete();
+                        } catch (LocalizationOpFailedException lope) {
+                            statusHandler.handle(Priority.WARN,
+                                    "Can't delete file.");
+                        }
+                    }
                 }
             } else {
                 pfafsToGenerate = pfafs;

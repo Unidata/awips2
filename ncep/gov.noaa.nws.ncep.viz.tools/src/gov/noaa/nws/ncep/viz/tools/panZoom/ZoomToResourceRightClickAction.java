@@ -1,6 +1,23 @@
 package gov.noaa.nws.ncep.viz.tools.panZoom;
 
+/**
+ * 
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ *                                       Created
+ *   05/15/13   #862       G. Hull       Modify to use for new AreaProvider/AreaName
+ *   
+ * </pre>
+ * 
+ * @author ghull
+ * @version 1
+ */
 
+import gov.noaa.nws.ncep.viz.common.area.AreaName;
+import gov.noaa.nws.ncep.viz.common.area.IAreaProviderCapable;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.tools.panZoom.ZoomToAction.ZoomType;
 import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
@@ -32,15 +49,11 @@ public class ZoomToResourceRightClickAction extends AbstractRightClickAction {
 		if( cmd != null ) {
 			try {		        
 				Map<String, String> cmdParams = new HashMap<String, String>();
-				cmdParams.put("zoomType", ZoomType.RESOURCE_DEFINED.toString() );
+				cmdParams.put("zoomType", ZoomType.AREA_PROVIDER.toString() );
 		        
-//				if( !(getSelectedRsc().getResourceData() instanceof IGridGeometryProvider) ) {
-//					System.out.println("???Selected resource is not capable of defining its Area");
-//					return;
-//				}
-				
-				cmdParams.put("zoomLevel", 
-						((INatlCntrsResourceData)getSelectedRsc().getResourceData()).getResourceName().toString() );
+				IAreaProviderCapable areaProv = (IAreaProviderCapable)getSelectedRsc();
+				AreaName areaName = new AreaName( areaProv.getSourceProvider(), areaProv.getAreaName() );
+				cmdParams.put("zoomLevel", areaName.toString() );
 			
 				ExecutionEvent exec = new ExecutionEvent(cmd, cmdParams, null, null);
 				cmd.executeWithChecks(exec);

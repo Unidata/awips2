@@ -89,6 +89,7 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * 02/13/13      #972       Greg Hull    ResourceCategory class and NcDisplayType
  * 04/10/13      #864       Greg Hull    read/save new ResourceFilters file
  * 04/24/13      #838       B. Hebbard   Allow getAllResourceParameters to handle NTRANS (paramVal2 no longer assumed numeric/km)
+ * 06/05/13      #998       Greg Hull    init subTypesList when creating new RD.
  *
  * </pre>
  * 
@@ -311,14 +312,8 @@ public class ResourceDefnsMngr {
 		LocalizationLevel lLvl = locFile.getContext().getLocalizationLevel();
 		
 		synchronized ( rscFiltersMap ) {
-			Object xmlObj = SerializationUtil.jaxbUnmarshalFromXmlFile( fileName );
-			if( !(xmlObj instanceof ResourceDefinitionFilters) ) {
-				rscDefnsWarningsList.add(
-						new VizException( fileName + " is not a ResourceDefinitionFilters xml file???" ) );
-				return;
-			}
-
-			ResourceDefinitionFilters rscDfnFilters = (ResourceDefinitionFilters)xmlObj;
+			ResourceDefinitionFilters rscDfnFilters = SerializationUtil.jaxbUnmarshalFromXmlFile(
+					ResourceDefinitionFilters.class, fileName );
 
 			for( ResourceDefinitionFilter rFilt : rscDfnFilters.getResourceDefinitionFiltersList() ) {
 				String rdName = rFilt.getRscDefnName();
@@ -353,7 +348,13 @@ public class ResourceDefnsMngr {
 		// only create inventories that don't exist.	    
 //	    checkAndSaveNcInventories();
 
+		try {
 		invDefnsMap = getInventoryDefinitions( true );
+		}
+		catch (VizException ve ) {
+			System.out.println(ve.getMessage());
+			invDefnsMap = new HashMap<NcInventoryDefinition,NcInventoryDefinition>();
+		}
 		
 		// this was used to maintain the order in the resourceDefnsTable but now that 
 		// these are separate files, I don't know that this will work. Need to 
@@ -512,19 +513,9 @@ public class ResourceDefnsMngr {
 
 		File rscDefnFile = lFile.getFile();
 		
-		Object xmlObj;
 		try {
-			xmlObj = SerializationUtil.jaxbUnmarshalFromXmlFile( rscDefnFile.getAbsolutePath() );
-
-			if( !(xmlObj instanceof ResourceDefinition) ) {
-				throw new VizException("sanity check: "+rscDefnFile.getAbsolutePath()+
-					" is not a ResourceDefinition xml file");		
-			}
-
-			// copy the resourceDefn to the resourceDefnsMap and then
-			//  verify the implementation, and add the resource Definitions to the map.
-			//
-			ResourceDefinition rscDefn = (ResourceDefinition)xmlObj;
+			ResourceDefinition rscDefn = SerializationUtil.jaxbUnmarshalFromXmlFile( 
+					ResourceDefinition.class, rscDefnFile.getAbsolutePath() );
 
 			// TODO : If the definitions are modified and written out, this will drop any invalid resourceDefns. 
 	    	// Should we save these write them out anyway? Make them disabled?
@@ -670,17 +661,9 @@ public class ResourceDefnsMngr {
 				out.println( "Can't open AttrSetGroup file: "+asgFile.getAbsolutePath() );
 				continue;
 			}
-
-			Object asgObj;
+			AttrSetGroup asg;
 			try {
-				asgObj = SerializationUtil.jaxbUnmarshalFromXmlFile( 
-						asgFile.getAbsolutePath( ) );
-
-				if( !(asgObj instanceof AttrSetGroup) ) { // AttrSetGroupList
-					out.println( asgFile.getAbsolutePath()+
-							" file is expected to be an attrSetGroup file." );
-					continue;
-				}
+				asg = SerializationUtil.jaxbUnmarshalFromXmlFile( AttrSetGroup.class, asgFile.getAbsolutePath( ) );
 
 			} catch (SerializationException e) {
 				throw new VizException("Error Parsing file "+asgFile.getAbsolutePath( ) +"\n"+e.getMessage());
@@ -688,8 +671,6 @@ public class ResourceDefnsMngr {
 
 			// add the ASG's in the list to the map. (PGEN is a special case since
 			// 1 'default' ASG applies to all PGEN resources.)
-			AttrSetGroup asg = (AttrSetGroup) asgObj;
-
 			asg.setLocalizationFile( lclFile );
 
 			// if not PGEN then
@@ -875,7 +856,6 @@ public class ResourceDefnsMngr {
 				throw new VizException( rslts.toString() );
 			}
 			if( !(rslts instanceof ArrayList<?>) ) {
-				out.println("Inventory Directory Directory Error: expecting NcInventoryDefinition[] return." );
 				throw new VizException( "Inventory Directory Request Error: expecting ArrayList<NcInventoryDefinition>." );
 			}
 			else if( ((ArrayList<?>)rslts).isEmpty() ) {
@@ -2129,15 +2109,9 @@ public class ResourceDefnsMngr {
 				throw new VizException( "Can't open AttrSetGroup file: "+asgFile.getAbsolutePath() );
 			}
 
-			Object asgObj;
 			try {
-				asgObj = SerializationUtil.jaxbUnmarshalFromXmlFile( 
-						asgFile.getAbsolutePath( ) );
-
-				if( !(asgObj instanceof AttrSetGroup) ) { // AttrSetGroupList
-					throw new VizException( asgFile.getAbsolutePath()+
-							" file is expected to be an attrSetGroup file." );
-				}
+				asg = SerializationUtil.jaxbUnmarshalFromXmlFile( 
+						AttrSetGroup.class, asgFile.getAbsolutePath( ) );
 
 			} catch (SerializationException e) {
 				throw new VizException("Error Parsing file "+asgFile.getAbsolutePath( ) +"\n"+e.getMessage());
@@ -2145,8 +2119,6 @@ public class ResourceDefnsMngr {
 
 			// add the ASG's in the list to the map. (PGEN is a special case since
 			// 1 'default' ASG applies to all PGEN resources.)
-			asg = (AttrSetGroup) asgObj;
-			
 			asg.setLocalizationFile( lFile );
 			
 			String rscImpl="";
@@ -2480,7 +2452,8 @@ public class ResourceDefnsMngr {
 			if( invDefnsMap.containsKey( invDefn ) ) {
 				rscDefn.setInventoryAlias( invDefnsMap.get( invDefn ).getInventoryName() );
 			}
-			else if( rscDefn.usesInventory() ) {				
+			
+			if( rscDefn.usesInventory() ) {				
 				InventoryLoaderJob invLoader = new InventoryLoaderJob( invDefn, false );
 				
 				invLoader.schedule();
@@ -2501,14 +2474,15 @@ public class ResourceDefnsMngr {
 				}
 
 				rscDefn.setInventoryAlias( invDefn.getInventoryName() );//Initialized( true );
+			}
 				
+			if( rscDefn.getInventoryEnabled() ) {
 				rscDefn.enableInventoryUse();
 			}
 			else {
 				rscDefn.disableInventoryUse();
 			}
 	
-			
 		} catch (SerializationException e) {
 			throw new VizException("Error Serializing AttrSetGroup file:"+e.getMessage() );
 		} catch (LocalizationOpFailedException e) {

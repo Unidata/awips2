@@ -3467,7 +3467,7 @@ public class DisplayElementFactory {
     		 * create shadedshape of the arrow head
     		 */
     		double pointAngle = 60.0;
-    		double height = deviceScale * vect.getArrowHeadSize();
+    		double height = deviceScale * vect.getArrowHeadSize()*2;
     		ArrowHead head = new ArrowHead (new Coordinate(end[0],end[1]), 
     				pointAngle, angle, height, ArrowHeadType.FILLED );
     		Coordinate[] ahead = head.getArrowHeadShape();
@@ -3496,17 +3496,18 @@ public class DisplayElementFactory {
     	 * For each color encountered above, compile the accumulated wireframes (or shaded shapes)
     	 * of that color, package them into a single display element, and add to return list
     	 */
+    	for (Color color : maskMap.keySet()) {
+    		IWireframeShape masks = maskMap.get(color);
+    		masks.compile();
+    		slist.add( new LineDisplayElement(masks, color, (float) (lineWidth + deviceScale)) );
+    	}
     	
     	for (Color color : arrowMap.keySet()) {
     		IWireframeShape arrows = arrowMap.get(color);
     		arrows.compile();
     		slist.add( new LineDisplayElement(arrows, color, lineWidth) );
     	}
-    	for (Color color : maskMap.keySet()) {
-    		IWireframeShape masks = maskMap.get(color);
-    		masks.compile();
-    		slist.add( new LineDisplayElement(masks, color, (float) (lineWidth + deviceScale)) );
-    	}
+
     	for (Color color : arrowHeadMap.keySet()) {
     		IShadedShape arrowHeads = arrowHeadMap.get(color);
     		arrowHeads.compile();

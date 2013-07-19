@@ -1,6 +1,8 @@
 package gov.noaa.nws.ncep.viz.tools.panZoom;
 
-import gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider;
+import gov.noaa.nws.ncep.viz.common.area.AreaName;
+import gov.noaa.nws.ncep.viz.common.area.IGridGeometryProvider;
+import gov.noaa.nws.ncep.viz.common.area.NcAreaProviderMngr;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsRenderableDisplay;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
@@ -37,6 +39,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * ------------ ----------  ----------- --------------------------
  *   11/18/12   #630       G. Hull      
  *   02/22/13   #972       G. Hull       AbstractNcEditor instead of NCMapEditor
+ *   05/15/13   #862       G. Hull      Resources as AreaProviders
  * 
  * </pre>
  * 
@@ -47,7 +50,7 @@ public class ZoomToAction extends AbstractHandler {
 
 	public static enum ZoomType {
 		ZOOMBOX,   //  
-		RESOURCE_DEFINED,  // from a satellite or other resource that can specify an area
+		AREA_PROVIDER,  // from a satellite or other resource that can specify an area
 		ZOOM_LEVEL
 	}
 
@@ -68,9 +71,10 @@ public class ZoomToAction extends AbstractHandler {
         		throw new VizException("zoomTo command parameter not set???");
         	}
 
-        	if( zoomType.equals( ZoomType.RESOURCE_DEFINED.toString() ) ) {
-        		ResourceName zoomRscName = new ResourceName( zoomLevelStr );
-        		zoomToResource( zoomRscName );
+        	// if zooming to an area defined by an areaProvider (ie. sat rsc), 
+        	// then the zoom level is the name of the area.
+        	if( zoomType.equals( ZoomType.AREA_PROVIDER.toString() ) ) {        		
+        		zoomToArea( AreaName.parseAreaNaem( zoomLevelStr ) );
         	}
         	else if( zoomType.equals( ZoomType.ZOOM_LEVEL.toString() ) ) {
         		if( zoomLevelStr.equals("+") || zoomLevelStr.equals("-") ) {
@@ -122,7 +126,10 @@ public class ZoomToAction extends AbstractHandler {
      * @param areaName
      * @throws VizException 
      */
-    public static void zoomToResource( ResourceName zoomRscName ) throws VizException {
+    public static void zoomToArea( AreaName areaName ) throws VizException {
+    	
+    	IGridGeometryProvider geomProv = NcAreaProviderMngr.createGeomProvider( areaName );
+
     	// get the pane of the selected resource.
     	AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
 
@@ -139,29 +146,13 @@ public class ZoomToAction extends AbstractHandler {
     	}
     	
     	NCMapDescriptor mapDescr = ((NCMapRenderableDisplay)rendDisp).getDescriptor();    	
-    	ResourceList rList = mapDescr.getResourceList();
-    	IGridGeometryProvider zoomRsc = null;
-    
-    	for( ResourcePair rp : rList ) {
-    		if( rp.getResourceData() instanceof IGridGeometryProvider &&
-    			zoomRscName.equals( 
-    					((INatlCntrsResourceData)rp.getResourceData()).getResourceName() ) ) {
-    				zoomRsc = (IGridGeometryProvider)rp.getResourceData();
-    				break;
-    		}
-    	}
-    
-    	if( zoomRsc == null ) {
-    		throw new VizException("Can't find resource, "+zoomRscName.toString() +
-    				", to zoom to???");
-    	}
     	
 //    	pane.scaleToClientArea();
 //    	existingDisplay.recenter( existingDisplay.getMapCenter() );
 //    	existingDisplay.getView().zoom( pArea.getZoomLevel() );
 //
 //    	((NCMapDescriptor)existingDisplay.getDescriptor()).setSuspendZoom(false);
-        GeneralGridGeometry gridgeom = zoomRsc.getGridGeometry(); 
+        GeneralGridGeometry gridgeom = geomProv.getGridGeometry(); 
         int xdimArea = gridgeom.getGridRange().getSpan(0);
         int ydimArea = gridgeom.getGridRange().getSpan(1);
 
