@@ -123,6 +123,7 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIRatioDiff;
  * 02/25/13     1660       D. Hladky   Redesigned data flow for FFTI in order to have only one mosaic piece in memory at a time.
  * 03/13/13     1478       D. Hladky   non-FFTI mosaic containers weren't getting ejected.  Made it so that they are ejected after processing as well.
  * 03/22/13     1803       D. Hladky   Fixed broken performance logging for ffmp.
+ * 07/03/13     2131       D. Hladky   InitialLoad array was forcing total FDC re-query with every update.
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * </pre>
  * 
@@ -194,9 +195,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
     /** FFTI accum/ratio/diff cache **/
     public ConcurrentHashMap<String, FFTIData> fftiData = new ConcurrentHashMap<String, FFTIData>();
-
-    /** checks for initial load **/
-    public ArrayList<String> loadedData = new ArrayList<String>();
 
     /** template config manager **/
     public FFMPTemplateConfigurationManager tempConfig = null;
@@ -1236,11 +1234,12 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                         - (TimeUtil.MILLIS_PER_HOUR * SOURCE_CACHE_TIME));
             }
 
+
             // pull from disk if there
             fdc = getFFMPDataContainer(sourceSiteDataKey, backDate);
 
             // brand new or initial load up
-            if (fdc == null || !loadedData.contains(sourceSiteDataKey)) {
+            if (fdc == null) {
 
                 long time = System.currentTimeMillis();
                 fdc = new FFMPDataContainer(sourceSiteDataKey);
@@ -1330,7 +1329,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                             + " ms: source: " + sourceSiteDataKey);
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
-                    "Failed Processing FFMPDataContainer" + e.getMessage());
+                    "Failed Processing FFMPDataContainer " + e.getMessage(), e);
 
         } finally {
             // purge it up
@@ -1567,8 +1566,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
             ffgCheck = false;
             resetFilters();
-
-            loadedData.clear();
 
             if (ffmpData != null) {
                 ffmpData.clear();

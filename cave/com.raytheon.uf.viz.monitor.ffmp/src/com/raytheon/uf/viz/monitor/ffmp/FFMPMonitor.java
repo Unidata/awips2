@@ -97,6 +97,7 @@ import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
  * Apr 26, 2013 1954        bsteffen    Minor code cleanup throughout FFMP.
  * Jun 06, 2013 2075        njensen     No longer starts loading threads, resourceData does that
  * Jun 07, 2013 2075        njensen     Extracted FFMPProcessUris to separate class
+ * Jul 09, 2013 2152        njensen     Synchronize uri requests to avoid duplicating effort
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * 
  * </pre>
@@ -116,6 +117,8 @@ public class FFMPMonitor extends ResourceMonitor {
     private FFMPSplash ffmpSplash;
 
     private String wfo = null;
+
+    private Object uriRequestLock = new Object();
 
     /** Pattern for dates in radar */
     private static ThreadLocal<SimpleDateFormat> datePattern = new ThreadLocal<SimpleDateFormat>() {
@@ -502,36 +505,41 @@ public class FFMPMonitor extends ResourceMonitor {
      */
     public void preloadAvailableUris(String siteKey, String dataKey,
             Set<String> sourceNames, Date time) {
-        DbQueryRequest request = new DbQueryRequest();
-        request.setEntityClass(FFMPRecord.class);
-        request.addRequestField("dataURI");
-        request.setOrderByField("dataTime.refTime", OrderMode.DESC);
+        synchronized (uriRequestLock) {
+            DbQueryRequest request = new DbQueryRequest();
+            request.setEntityClass(FFMPRecord.class);
+            request.addRequestField("dataURI");
+            request.setOrderByField("dataTime.refTime", OrderMode.DESC);
 
-        request.addConstraint("wfo", new RequestConstraint(getWfo()));
-        request.addConstraint("siteKey", new RequestConstraint(siteKey));
-        request.addConstraint("dataTime.refTime", new RequestConstraint(
-                datePattern.get().format(time),
-                ConstraintType.GREATER_THAN_EQUALS));
+            request.addConstraint("wfo", new RequestConstraint(getWfo()));
+            request.addConstraint("siteKey", new RequestConstraint(siteKey));
+            request.addConstraint("dataTime.refTime", new RequestConstraint(
+                    datePattern.get().format(time),
+                    ConstraintType.GREATER_THAN_EQUALS));
 
-        RequestConstraint sourceRC = new RequestConstraint(null,
-                ConstraintType.IN);
-        sourceRC.setConstraintValueList(sourceNames);
-        request.addConstraint("sourceName", sourceRC);
-        try {
-            handleURIRequest(request, siteKey, dataKey, time);
-            FFMPSiteData siteData = siteDataMap.get(siteKey);
-            for (String sourceName : sourceNames) {
-                // This is done to ensure that the previous query time is
-                // updated, even for sources with no data.
-                FFMPSourceData sourceData = siteData.getSourceData(sourceName);
-                Date oldPrevTime = sourceData.getPreviousUriQueryDate();
-                if (oldPrevTime == null || time.before(oldPrevTime)) {
-                    sourceData.setPreviousUriQueryDate(time);
+            RequestConstraint sourceRC = new RequestConstraint(null,
+                    ConstraintType.IN);
+            sourceRC.setConstraintValueList(sourceNames);
+            request.addConstraint("sourceName", sourceRC);
+            try {
+                handleURIRequest(request, siteKey, dataKey, time);
+                FFMPSiteData siteData = siteDataMap.get(siteKey);
+                for (String sourceName : sourceNames) {
+                    // This is done to ensure that the previous query time is
+                    // updated, even for sources with no data.
+                    FFMPSourceData sourceData = siteData
+                            .getSourceData(sourceName);
+                    Date oldPrevTime = sourceData.getPreviousUriQueryDate();
+                    if (oldPrevTime == null || time.before(oldPrevTime)) {
+                        sourceData.setPreviousUriQueryDate(time);
+                    }
                 }
+            } catch (VizException e) {
+                statusHandler
+                        .handle(Priority.PROBLEM,
+                                "FFMP Can't find availble URI list for, "
+                                        + sourceNames, e);
             }
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "FFMP Can't find availble URI list for, " + sourceNames, e);
         }
     }
 
@@ -609,72 +617,78 @@ public class FFMPMonitor extends ResourceMonitor {
     public ConcurrentNavigableMap<Date, List<String>> getAvailableUris(
             String siteKey, String dataKey, String sourceName, Date time,
             boolean retrieveNew) {
-        ConcurrentNavigableMap<Date, List<String>> sortedUris = siteDataMap
-                .get(siteKey).getSourceData(sourceName).getAvailableUris();
-        Date previousQueryTime = siteDataMap.get(siteKey)
-                .getSourceData(sourceName).getPreviousUriQueryDate();
-        Date earliestTime = time;
+        synchronized (uriRequestLock) {
+            ConcurrentNavigableMap<Date, List<String>> sortedUris = siteDataMap
+                    .get(siteKey).getSourceData(sourceName).getAvailableUris();
+            Date previousQueryTime = siteDataMap.get(siteKey)
+                    .getSourceData(sourceName).getPreviousUriQueryDate();
+            Date earliestTime = time;
 
-        SourceXML source = getSourceConfig().getSource(sourceName);
+            SourceXML source = getSourceConfig().getSource(sourceName);
 
-        if (source.getSourceType().equals(SOURCE_TYPE.GUIDANCE.getSourceType())) {
-            // Always look back for guidance types because of long expiration
-            // times, prevents mosaic brittleness from occurring.
-            retrieveNew = true;
-
-            long timeOffset = source.getExpirationMinutes(siteKey)
-                    * TimeUtil.MILLIS_PER_MINUTE;
-            earliestTime = new Date(time.getTime() - timeOffset);
-        }
-
-        if (retrieveNew
-                || (time != null && (previousQueryTime == null || time
-                        .before(previousQueryTime)))) {
-            DbQueryRequest request = new DbQueryRequest();
-            request.setEntityClass(FFMPRecord.class);
-            request.addRequestField("dataURI");
-            request.setOrderByField("dataTime.refTime", OrderMode.DESC);
-
-            request.addConstraint("wfo", new RequestConstraint(getWfo()));
-            request.addConstraint("sourceName", new RequestConstraint(
-                    sourceName));
-            request.addConstraint("siteKey", new RequestConstraint(siteKey));
-            if (!source.isMosaic()) {
-                request.addConstraint("dataKey", new RequestConstraint(dataKey));
-
-            }
-
-            String earliestTimeString = datePattern.get().format(earliestTime);
-
-            if (!retrieveNew && (previousQueryTime != null)) {
-                String latestTimeString = datePattern.get().format(
-                        previousQueryTime);
-                RequestConstraint timeRC = new RequestConstraint(null,
-                        ConstraintType.BETWEEN);
-                timeRC.setBetweenValueList(new String[] { earliestTimeString,
-                        latestTimeString });
-                request.addConstraint("dataTime.refTime", timeRC);
-            } else {
-                request.addConstraint("dataTime.refTime",
-                        new RequestConstraint(earliestTimeString,
-                                ConstraintType.GREATER_THAN_EQUALS));
-            }
-
-            try {
-                handleURIRequest(request, siteKey, dataKey, time);
-            } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "FFMP Can't find availble URI list for, " + sourceName,
-                        e);
-            }
-        }
-
-        if (time != null) {
             if (source.getSourceType().equals(
                     SOURCE_TYPE.GUIDANCE.getSourceType())) {
-                return sortedUris;
-            } else {
-                return sortedUris.tailMap(time, true);
+                // Always look back for guidance types because of long
+                // expiration
+                // times, prevents mosaic brittleness from occurring.
+                retrieveNew = true;
+
+                long timeOffset = source.getExpirationMinutes(siteKey)
+                        * TimeUtil.MILLIS_PER_MINUTE;
+                earliestTime = new Date(time.getTime() - timeOffset);
+            }
+
+            if (retrieveNew
+                    || (time != null && (previousQueryTime == null || time
+                            .before(previousQueryTime)))) {
+                DbQueryRequest request = new DbQueryRequest();
+                request.setEntityClass(FFMPRecord.class);
+                request.addRequestField("dataURI");
+                request.setOrderByField("dataTime.refTime", OrderMode.DESC);
+
+                request.addConstraint("wfo", new RequestConstraint(getWfo()));
+                request.addConstraint("sourceName", new RequestConstraint(
+                        sourceName));
+                request.addConstraint("siteKey", new RequestConstraint(siteKey));
+                if (!source.isMosaic()) {
+                    request.addConstraint("dataKey", new RequestConstraint(
+                            dataKey));
+
+                }
+
+                String earliestTimeString = datePattern.get().format(
+                        earliestTime);
+
+                if (!retrieveNew && (previousQueryTime != null)) {
+                    String latestTimeString = datePattern.get().format(
+                            previousQueryTime);
+                    RequestConstraint timeRC = new RequestConstraint(null,
+                            ConstraintType.BETWEEN);
+                    timeRC.setBetweenValueList(new String[] {
+                            earliestTimeString, latestTimeString });
+                    request.addConstraint("dataTime.refTime", timeRC);
+                } else {
+                    request.addConstraint("dataTime.refTime",
+                            new RequestConstraint(earliestTimeString,
+                                    ConstraintType.GREATER_THAN_EQUALS));
+                }
+
+                try {
+                    handleURIRequest(request, siteKey, dataKey, time);
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "FFMP Can't find availble URI list for, "
+                                    + sourceName, e);
+                }
+            }
+
+            if (time != null) {
+                if (source.getSourceType().equals(
+                        SOURCE_TYPE.GUIDANCE.getSourceType())) {
+                    return sortedUris;
+                } else {
+                    return sortedUris.tailMap(time, true);
+                }
             }
         }
 

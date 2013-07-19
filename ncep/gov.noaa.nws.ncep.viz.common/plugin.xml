@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?>
 <plugin>
+   <extension-point id="areaProvider" name="areaProvider" schema="schema/areaProvider.exsd"/>
+   
     <extension
           point="com.raytheon.uf.viz.localization.localizationpath">
        <path
@@ -16,10 +18,30 @@
        <path
              application="NCEP"
              localizationType="CAVE_STATIC"
+             name="Predefined Areas"
+             recursive="false"
+             value="ncep/PredefinedAreas"
+	          extensionFilter=".xml">
+       </path>
+    </extension>
+    <extension point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="GempakGeogAreas"
+             recursive="false"
+             value="ncep/PredefinedAreas/gempak"
+	          extensionFilter=".xml">
+       </path>
+    </extension>
+    <extension point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
              name="Predefined Area Menus"
              recursive="false"
              value="ncep/PredefinedAreas/menus"
-	          extensionFilter=".tbl">
+	          extensionFilter=".xml">
        </path>
     </extension>
    <extension
@@ -41,5 +63,68 @@
             id="gov.noaa.nws.ncep.viz.common.GraphicsAreaPreferences"
             name="Data Area">
       </page>
+   </extension>
+   
+   <!-- Note that the sourceLocation is currently not used by the Factories.
+        for now they are more like comments but this can be easily changed. 
+     -->
+   <extension point="gov.noaa.nws.ncep.viz.common.areaProvider">
+       <areaProviderSource
+               areaSourceName="PREDEFINED_AREA"
+               sourceFactory="gov.noaa.nws.ncep.viz.common.area.PredefinedAreaFactory"
+               sourceLocation="ncep/PredefinedAreas"/>
+       <areaProviderSource
+               areaSourceName="GEMPAK_SFC_STN_ID"
+               sourceFactory="gov.noaa.nws.ncep.viz.common.area.GempakSfcStnAreaProviderFactory"
+               sourceLocation="ncep/Stations/sfstns.xml"/>
+       <!-- TODO support look up by name/num. use the same factory but can check the source in 
+            to determine which field to look up in sfstns.xml           
+       <areaProviderSource
+               areaSourceName="GEMPAK_SFC_STN_NUM"
+               sourceFactory="gov.noaa.nws.ncep.viz.common.area.PredefinedAreasMngr"
+               sourceLocation="ncep/Stations/sfstns.xml"/>           
+       <areaProviderSource
+               areaSourceName="GEMPAK_SFC_STN_NAME"
+               sourceFactory="gov.noaa.nws.ncep.viz.common.area.PredefinedAreasMngr"
+               sourceLocation="ncep/Stations/sfstns.xml"/>   
+        -->        
+   		<areaProviderSource
+               areaSourceName="GEMPAK_GEOG_AREA_NAME"
+               sourceFactory="gov.noaa.nws.ncep.viz.common.area.GempakGeogAreaProviderFactory"
+               sourceLocation="ncep/PredefinedAreas/gempak/geog.xml"/>
+        <areaProviderSource
+               areaSourceName="GEMPAK_GEOG_AREA_CODE"
+               sourceFactory="gov.noaa.nws.ncep.viz.common.area.GempakGeogAreaProviderFactory"
+               sourceLocation="ncep/PredefinedAreas/gempak/geog.xml"/>
+               
+<!-- The following sources read from the common_obs_spatial db table.
+  Others possible for NEXRAD, WFOID, PIREP, MESONET, BUOY_MOB, SHIP_MOB and other catalogtypes. 
+  -->
+        <areaProviderSource
+               areaSourceName="METAR_STATION_ID"
+               sourceFactory="gov.noaa.nws.ncep.viz.common.area.StationDbAreaProviderFactory"
+               sourceLocation="common_obs_spatial"
+               configSourceData="1"/> <!-- the catalogtype for ICAO (ie. METAR) -->                
+        <areaProviderSource
+               areaSourceName="SYNOP_STATION_ID"
+               sourceFactory="gov.noaa.nws.ncep.viz.common.area.StationDbAreaProviderFactory"
+               sourceLocation="common_obs_spatial"
+               configSourceData="20"/> <!-- the catalogtype SFC_FXD-->
+        <areaProviderSource
+               areaSourceName="UAIR_STATION_ID"
+               sourceFactory="gov.noaa.nws.ncep.viz.common.area.StationDbAreaProviderFactory"
+               sourceLocation="common_obs_spatial"
+               configSourceData="22"/> <!-- the catalogtype for SRC_RAOB-->
+        <areaProviderSource
+               areaSourceName="FIXED_BOUY_ID"
+               sourceFactory="gov.noaa.nws.ncep.viz.common.area.StationDbAreaProviderFactory"
+               sourceLocation="common_obs_spatial"
+               configSourceData="32"/> <!-- the catalogtype SFC_FXD-->
+        <areaProviderSource
+               areaSourceName="CMAN_STATION_ID"
+               sourceFactory="gov.noaa.nws.ncep.viz.common.area.StationDbAreaProviderFactory"
+               sourceLocation="common_obs_spatial"
+               configSourceData="33"/> <!-- the catalogtype CMAN -->
+               
    </extension>
 </plugin>

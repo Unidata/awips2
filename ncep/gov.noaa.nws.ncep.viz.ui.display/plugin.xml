@@ -168,4 +168,21 @@
       </graphicsTarget>
    </extension>
 -->
+    <extension point="gov.noaa.nws.ncep.viz.common.areaProvider">
+       <areaProviderSource
+             areaSourceName="DISPLAY_AREA"
+             isImageBased="false"
+             sourceFactory="gov.noaa.nws.ncep.viz.ui.display.NcDisplayAreaProviderFactory"
+             sourceLocation="current displays"/>    
+               
+   </extension>
+    <extension point="gov.noaa.nws.ncep.viz.common.areaProvider">
+       <areaProviderSource
+             areaSourceName="INITIAL_DISPLAY_AREA"
+             isImageBased="false"
+             sourceFactory="gov.noaa.nws.ncep.viz.ui.display.NcDisplayAreaProviderFactory"
+             sourceLocation="initial area of current displays"/>    
+               
+   </extension>
+
 </plugin>

@@ -47,15 +47,38 @@
 	<field key="ThPcat" displayTypes="IMAGE"/>
 	<field key="Cig" displayTypes="IMAGE"/>
 	<field key="TPCSG" displayTypes="IMAGE"/>
-	<field key="TPCSG_305E2" displayTypes="IMAGE"/>
-	<field key="TPCSG_274E2" displayTypes="IMAGE"/>
-	<field key="TPCSG_244E2" displayTypes="IMAGE"/>
-	<field key="TPCSG_213E2" displayTypes="IMAGE"/>
-	<field key="TPCSG_183E2" displayTypes="IMAGE"/>
-	<field key="TPCSG_152E2" displayTypes="IMAGE"/>
-	<field key="TPCSG_122E2" displayTypes="IMAGE"/>
-	<field key="TPCSG_91E2" displayTypes="IMAGE"/>
-	<field key="TPCSG_61E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-20" displayTypes="IMAGE"/>
+	<field key="TPCSG-30" displayTypes="IMAGE"/>
+	<field key="TPCSG-40" displayTypes="IMAGE"/>
+	<field key="TPCSG-50" displayTypes="IMAGE"/>
+	<field key="TPCSG-60" displayTypes="IMAGE"/>
+	<field key="TPCSG-70" displayTypes="IMAGE"/>
+	<field key="TPCSG-80" displayTypes="IMAGE"/>
+	<field key="TPCSG-90" displayTypes="IMAGE"/>	
+	<field key="TPCSG-61E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-91E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-122E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-152E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-183E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-213E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-244E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-274E2" displayTypes="IMAGE"/>		
+	<field key="TPCSG-305E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-335E2" displayTypes="IMAGE"/>			
+	<field key="TPCSG-366E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-396E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-457E2" displayTypes="IMAGE"/>			
+	<field key="TPCSG-427E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-488E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-518E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-549E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-579E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-610E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-640E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-671E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-701E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-732E2" displayTypes="IMAGE"/>
+	<field key="TPCSG-762E2" displayTypes="IMAGE"/>						
 	<field key="SLDP" displayTypes="IMAGE"/>
 	<field key="TPFI" displayTypes="IMAGE"/>
 	<field key="TIPD" displayTypes="IMAGE"/>
