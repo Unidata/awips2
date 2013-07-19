@@ -38,6 +38,7 @@ import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
  * 09/11/2009   154        Gang Zhang  Initial creation
  * 10/25/2010   307        Greg Hull   rm IdftParam for the forecast day and
  *                                     modify to work for cycle time.
+ * 03/13/2013   982        Archana     add display stn number attr
  *  
  * </pre>
  * 
@@ -52,6 +53,9 @@ public class IDFTResourceData extends AbstractNatlCntrsRequestableResourceData
 				implements INatlCntrsResourceData {
 	
     @XmlElement
+	private Boolean displayStationNumber = new Boolean(true); 
+	
+	@XmlElement
     private String symbolName = "ASTERISK";    
         
 	@XmlElement
@@ -83,6 +87,20 @@ public class IDFTResourceData extends AbstractNatlCntrsRequestableResourceData
 				return "IDFT ";
 			}
 		};
+	}
+
+    /**
+	 * @param displayStationNumber the displayStationNumber to set
+	 */
+	public void setDisplayStationNumber(boolean displayStationNumber) {
+		this.displayStationNumber = displayStationNumber;
+	}
+
+	/**
+	 * @return the displayStationNumber
+	 */
+	public boolean getDisplayStationNumber() {
+		return displayStationNumber;
 	}
 
     public RGB getDistanceColor() {
