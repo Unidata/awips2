@@ -41,7 +41,8 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 10, 2010 #4517      lvenable     Initial creation
+ * Mar 10, 2010 #4517      lvenable    Initial creation
+ * Jun 17, 2013 #2085      njensen     Double checked locking of maps
  * 
  * </pre>
  * 
@@ -135,12 +136,12 @@ public class FFFGSourceXML implements ISerializableObject {
         if (idMap.containsKey(id)) {
             return true;
         }
-        
+
         verifyBasinMap();
         if (basinMap.containsKey(id)) {
             return true;
         }
-        
+
         return false;
     }
 
@@ -157,12 +158,12 @@ public class FFFGSourceXML implements ISerializableObject {
         if (idMap.containsKey(id) == true) {
             return idMap.get(id).getValue();
         }
-        
+
         verifyBasinMap();
         if (basinMap.containsKey(id)) {
             return basinMap.get(id).getValue();
         }
-        
+
         /*
          * In case something (really) weird happens, return "+0.0". This is a
          * fail-safe that will have no effect on the value being adjusted.
@@ -176,11 +177,15 @@ public class FFFGSourceXML implements ISerializableObject {
      */
     private void verifyIdMap() {
         if (idMap == null) {
-            idMap = new HashMap<Long, FFFGSourceItemXML>();
+            synchronized (this) {
+                if (idMap == null) {
+                    idMap = new HashMap<Long, FFFGSourceItemXML>();
 
-            if (sourceItems != null) {
-                for (FFFGSourceItemXML siXML : sourceItems) {
-                    idMap.put(siXML.getId(), siXML);
+                    if (sourceItems != null) {
+                        for (FFFGSourceItemXML siXML : sourceItems) {
+                            idMap.put(siXML.getId(), siXML);
+                        }
+                    }
                 }
             }
         }
@@ -188,11 +193,15 @@ public class FFFGSourceXML implements ISerializableObject {
 
     private void verifyBasinMap() {
         if (basinMap == null) {
-            basinMap = new HashMap<Long, FFFGBasinIdXML>();
+            synchronized (this) {
+                if (basinMap == null) {
+                    basinMap = new HashMap<Long, FFFGBasinIdXML>();
 
-            if (this.basinList != null) {
-                for (FFFGBasinIdXML basin: basinList) {
-                    basinMap.put(basin.getBasinId(), basin);
+                    if (this.basinList != null) {
+                        for (FFFGBasinIdXML basin : basinList) {
+                            basinMap.put(basin.getBasinId(), basin);
+                        }
+                    }
                 }
             }
         }

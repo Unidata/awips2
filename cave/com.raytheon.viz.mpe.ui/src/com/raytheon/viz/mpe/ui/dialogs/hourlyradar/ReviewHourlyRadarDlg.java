@@ -95,6 +95,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 22, 2009 2675       mpduff     Initial creation
  * Aug 13, 2009 2675       mpduff     TIM changes added
  * Nov 08, 2009 3232       mpduff     Implement the precip gage overlay
+ * Jun 18, 2013 16053      snaples    Removed reference to setRadarEditFlag
  * 
  * </pre>
  * 
@@ -316,8 +317,6 @@ public class ReviewHourlyRadarDlg extends CaveSWTDialog implements
                             .updateIgnoreRadar(radId, dpaDate, ignoreRadar);
                     if (status == 0) {
                         System.err.println("Update not successful");
-                    } else {
-                        MPEDataManager.getInstance().setRadarEditFlag(true);
                     }
                 } catch (VizException e) {
                     System.err
