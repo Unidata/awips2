@@ -48,6 +48,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * June 15, 2011    9377     jnjanga     Initial creation
+ *  July 12, 2013   15711     wkwock      Fix verbose, observe mode, etc
  * 
  * 
  * </pre>
@@ -101,6 +102,7 @@ public class AlertalarmStdTextProductUtil {
         options.addOption(CmdlineOptionId.FILE_SUFFIX);
         options.addOption(CmdlineOptionId.FLAGS);
         options.addOption(CmdlineOptionId.PE);
+        options.addOption(CmdlineOptionId.VERBOSE,false);
         return options;
     }
 
@@ -142,7 +144,15 @@ public class AlertalarmStdTextProductUtil {
         for (CmdlineOptionId optId : CmdlineOptionId.values()) {
             String optName = optId.toString();
             System.out.println("optName = " + optName);
-            System.out.println("  optValue = " + line.getOptionValue(optName));
+            if (optName.equalsIgnoreCase("v")) {
+            	if (line.hasOption(optName)) {
+            	    System.out.println("  optValue = true");
+            	} else {
+            		System.out.println("  optValue = false");
+            	}
+            } else {
+                System.out.println("  optValue = " + line.getOptionValue(optName));
+            }
 
             if (line.hasOption(optName)) {
 
@@ -191,7 +201,7 @@ public class AlertalarmStdTextProductUtil {
     private static void printUsage() {
         System.out.print("Usage: report_alarm -d<dbase> -p<product_id> ");
         System.out.print("[-r<report_mode>] [-m<minutes>] [-s<file_suffix>] ");
-        System.out.println("[-f<include_flags>] [-e<PE>]");
+        System.out.println("[-f<include_flags>] [-e<PE>] [-v<verbose>]");
     }
 
     /*
@@ -208,7 +218,11 @@ public class AlertalarmStdTextProductUtil {
         reportWriter = new ReportWriter(currReport, reportOptions, now);
         reportWriter.writeHeader();
         reportWriter.writeBody(aaRecord);
-        reportWriter.writeTrailer();
+        if (reportOptions.getVerbose()) {
+        	reportWriter.writeVerboseTrailer();
+        } else {
+        	reportWriter.writeReportTrailer();
+        }
 
         // save it to the text database if indeed
         // there are alarm events to report.

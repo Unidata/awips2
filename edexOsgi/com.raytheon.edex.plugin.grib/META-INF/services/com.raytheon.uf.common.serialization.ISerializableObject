@@ -11,3 +11,4 @@ com.raytheon.edex.plugin.grib.spatial.FileData
 com.raytheon.edex.plugin.grib.spatial.FileDataList
 com.raytheon.edex.plugin.grib.decoderpostprocessors.PostProcessedModelSet
 com.raytheon.edex.plugin.grib.decoderpostprocessors.PostProcessedModel
+com.raytheon.edex.plugin.grib.filenameprocessor.NcgribModelNameMap

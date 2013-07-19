@@ -120,6 +120,7 @@ import com.vividsolutions.jts.geom.LineString;
  * ------------ ---------- ----------- --------------------------
  * Jan 8, 2009            chammack     Initial creation
  * 03/05/2013   DCS51     zwang        Handle GFM product 
+ * 06/24/2013   DR16162   zwang        Remove "wind behind"
  * 
  * </pre>
  * 
@@ -907,11 +908,9 @@ public class RadarGraphicsPage implements IRenderable {
         int numPoints = currFeature.getPoints().size();
         int numParam = currFeature.getParameters().size();
     
-        String propU, propV, windU, windV, windX, windY;
+        String propU, propV, windX, windY;
         double pU = 0.0;
         double pV = 0.0; 
-        double wU = 0.0; 
-        double wV = 0.0;
         double wX = 0.0;
         double wY = 0.0;
     
@@ -929,14 +928,6 @@ public class RadarGraphicsPage implements IRenderable {
            if ((propV != null) && (propV.length() > 0)) {
               pV = metersPerSecondToKnots.convert(new Double(propV));
            }
-           windU = currFeature.getValue(GFMPacket.GFMAttributeIDs.WINDBEHINDU.getName());
-           if ((windU != null) && (windU.length() > 0)) {
-              wU = metersPerSecondToKnots.convert(new Double(windU));
-           }
-           windV = currFeature.getValue(GFMPacket.GFMAttributeIDs.WINDBEHINDV.getName());
-           if ((windV != null) && (windV.length() > 0)) {
-              wV = metersPerSecondToKnots.convert(new Double(windV));
-           }
            windX = currFeature.getValue(GFMPacket.GFMAttributeIDs.WINDBEHINDX.getName());
            if ((windX != null) && (windX.length() > 0)) {
               wX = Float.parseFloat(windX);
@@ -946,6 +937,13 @@ public class RadarGraphicsPage implements IRenderable {
               wY = Float.parseFloat(windY);
            }
      
+           // Get the nearest point on the MIGFA front to the wind behind point
+           // Plot front movement arrow at this point
+           Coordinate windBehind = new Coordinate(wX, wY);
+           Coordinate plotPoint = getPlotPoint(currFeature, windBehind);
+           wX = plotPoint.x;
+           wY = plotPoint.y;
+           
            // Prop wind arrow
            PlotObject poWind = new PlotObject();
            PointWindDisplay barb = new PointWindDisplay(imgSize * 0.4, 0.5, 2, 0);
@@ -964,26 +962,11 @@ public class RadarGraphicsPage implements IRenderable {
            IImage img = this.target.initializeRaster(new IODataPreparer(imgBuf, UUID.randomUUID().toString(), 0), null);
            poWind.image = img;
            
-           // Wind barb behind front
-           PlotObject wWind = new PlotObject();
-           PointWindDisplay barb1 = new PointWindDisplay(imgSize * 0.4, 0.5, 2, 0);
-           barb1.setImageParameters(imgSize, imgSize, 255, 255, 255, 1);
-           barb1.setColor(this.color);
-           barb1.setWind(wU, wV, false);
-           BufferedImage imgBuf1 = barb1.getWindImage(false, DisplayType.BARB, 1);
-           IImage img1 = this.target.initializeRaster(new IODataPreparer(imgBuf1, UUID.randomUUID().toString(), 0), null);
-           wWind.image = img1;
-           
            ReferencedCoordinate rc = referencedGfmCoord(wX, wY); 
            try {
                poWind.coord = rc.asPixel(this.descriptor.getGridGeometry());
                poWind.pixelOffset = new int[] { 0, 0 };
                images.add(poWind);
-
-               wWind.coord = rc.asPixel(this.descriptor.getGridGeometry());
-               wWind.pixelOffset = new int[] { 0, 0 };
-               images.add(wWind);
-               
            } catch (Exception e) {
                throw new VizException("Unable to transform coordinates", e);
            } 
@@ -1504,4 +1487,38 @@ public class RadarGraphicsPage implements IRenderable {
                 this.gridGeometry, Type.GRID_CENTER);
     }
 
+    /**
+     * Gets the nearest point from GFM front to wind behind point to plot
+     * front movement arrow
+     * 
+     * @param AreaComponent
+     * @param Coordinate
+     * @return Coordinate
+     * 
+     */
+    private Coordinate getPlotPoint(AreaComponent currFeature, Coordinate windBehind) {
+        Coordinate point = new Coordinate();
+        double minDist = Double.MAX_VALUE;
+    
+        int numPoints = currFeature.getPoints().size();
+        double x1 = windBehind.x;
+        double y1 = windBehind.y;
+        double x2 = 0.0;
+        double y2 = 0.0;
+        double dist = 0.0;
+    
+        for (int k = 0; k < numPoints; k++) {
+            x2 = currFeature.getPoints().get(k).getCoordinate1();
+            y2 = currFeature.getPoints().get(k).getCoordinate2();
+            dist = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+            if (dist < minDist) {
+                point.x = x2;
+                point.y = y2;
+                minDist = dist;
+            }
+        }
+    
+        return point;
+    }
+    
 }

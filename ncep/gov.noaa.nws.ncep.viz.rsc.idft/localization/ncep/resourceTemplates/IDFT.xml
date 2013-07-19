@@ -22,6 +22,7 @@
            <arrowColor>${arrowColor}</arrowColor>
            <arrowLength>${arrowLength}</arrowLength>
            <arrowLineWidth>${arrowLineWidth}</arrowLineWidth>
+           <displayStationNumber>${displayStationNumber}</displayStationNumber>
            <requestStyle>METADATA</requestStyle>  
            <metadataMap>
 				<mapping key="pluginName">
