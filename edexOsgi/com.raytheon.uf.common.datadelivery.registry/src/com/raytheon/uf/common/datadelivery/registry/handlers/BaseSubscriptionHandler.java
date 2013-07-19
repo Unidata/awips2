@@ -48,6 +48,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * Feb 20, 2013 1543       djohnson     Add ability to filter on routes.
  * May 28, 2013 1650       djohnson     Add getByNames.
  * Jun 24, 2013 2106       djohnson     Now composes a registryHandler.
+ * Jul 18, 2013 2193       mpduff       Changes for SubscriptionDataSetNameQuery.
  * 
  * </pre>
  * 
@@ -127,8 +128,10 @@ public abstract class BaseSubscriptionHandler<T extends Subscription, QUERY exte
     @Override
     public Set<String> getSubscribedToDataSetNames()
             throws RegistryHandlerException {
+        SubscriptionDataSetNameQuery query = new SubscriptionDataSetNameQuery();
+        query.setRegistryObjectClass(getRegistryObjectClass().getName());
         RegistryQueryResponse<String> response = registryHandler
-                .getObjects(new SubscriptionDataSetNameQuery());
+                .getObjects(query);
 
         checkResponse(response, "getSubscribedToDataSetNames");
 
