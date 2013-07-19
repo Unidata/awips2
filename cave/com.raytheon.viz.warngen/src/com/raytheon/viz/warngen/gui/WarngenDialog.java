@@ -139,6 +139,8 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Apr 30, 2013 DR 16118    Qinglu Lin  For reissue (followup NEW), called redrawFromWarned() in okPressed().
  *  May 17, 2013 DR 16118    Qinglu Lin  Copied the fix from 13.4.1.
  *  May 17, 2013 2012        jsanchez    Preserved the warned area if the hatched area source is the same when changing templates.
+ *  Jun 24, 2013 DR 16317    D. Friedman Handle "motionless" track.
+ *  Jul 16, 2013 DR 16387    Qinglu Lin  Reset totalSegments for each followup product.
  * </pre>
  * 
  * @author chammack
@@ -830,8 +832,10 @@ public class WarngenDialog extends CaveSWTDialog implements
             if (warngenLayer.getWarningArea() == null) {
                 str = "Area selected has no overlap with current area of responsibility";
             } else {
-
-                if (warngenLayer.getStormTrackState().trackVisible) {
+                if (warngenLayer.getStormTrackState().isInitiallyMotionless() &&
+                        ! warngenLayer.getStormTrackState().isNonstationary()) {
+                    str += WarngenConstants.INSTRUCTION_DRAG_STORM + "\n";
+                } else if (warngenLayer.getStormTrackState().trackVisible) {
                     str += "Adjust Centroid in any Frame" + "\n";
                 }
                 str += "Adjust box around Warning Area";
@@ -1022,6 +1026,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                                 startTime.getTime(), endTime.getTime(),
                                 selectedBullets, followupData, backupData);
                         Matcher m = FollowUpUtil.vtecPtrn.matcher(result);
+                        totalSegments = 0;
                         while (m.find()) {
                             totalSegments++;
                         }
@@ -1195,7 +1200,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         }
         if (warngenLayer.getConfiguration().isTrackEnabled() == false
                 || warngenLayer.getConfiguration().getPathcastConfig() == null) {
-            warngenLayer.getStormTrackState().trackVisible = false;
+            warngenLayer.getStormTrackState().setInitiallyMotionless(true);
         }
         warngenLayer.resetInitialFrame();
         warngenLayer.setWarningAction(null);
@@ -1457,11 +1462,15 @@ public class WarngenDialog extends CaveSWTDialog implements
                 warngenLayer.getStormTrackState().displayType = lineOfStorms
                         .getSelection() ? DisplayType.POLY : DisplayType.POINT;
             }
-            if (warngenLayer.getConfiguration().isTrackEnabled() == false
-                    || warngenLayer.getConfiguration().getPathcastConfig() == null) {
-                warngenLayer.getStormTrackState().trackVisible = false;
+            warngenLayer.getStormTrackState().setInitiallyMotionless(
+                    warngenLayer.getConfiguration().isTrackEnabled() == false
+                            || warngenLayer.getConfiguration()
+                                    .getPathcastConfig() == null);
+            if (warngenLayer.getStormTrackState().isInitiallyMotionless()) {
+                warngenLayer.getStormTrackState().speed = 0;
+                warngenLayer.getStormTrackState().angle = 0;
             } else {
-                warngenLayer.getStormTrackState().trackVisible = true;
+                warngenLayer.getStormTrackState().pointMoved = true;
             }
             restartBtn.setEnabled(true);
         } else {

@@ -35,6 +35,10 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Immutable;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.Type;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
@@ -49,9 +53,10 @@ import com.raytheon.uf.common.time.TimeRange;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 04/08/08     #875       bphillip    Initial Creation
- * 06/17/08     #940       bphillip    Implemented GFE Locking
+ * 04/08/08     875        bphillip    Initial Creation
+ * 06/17/08     940        bphillip    Implemented GFE Locking
  * 03/28/13     1949       rjpeter     Normalized database structure, made immutable.
+ * 06/20/13     2127       rjpeter     Added OnDelete and Immutable annotations.
  * </pre>
  * 
  * @author bphillip
@@ -60,6 +65,8 @@ import com.raytheon.uf.common.time.TimeRange;
 @Entity
 @Table(name = "gfe_locks", uniqueConstraints = { @UniqueConstraint(columnNames = {
         "parmId_id", "startTime", "endTime" }) })
+@BatchSize(size = 500)
+@Immutable
 public class Lock {
 
     private static final long serialVersionUID = -7839912817664285509L;
@@ -76,6 +83,7 @@ public class Lock {
      * The parmID of the lock.
      */
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @PrimaryKeyJoinColumn
     private ParmID parmId;
 

@@ -1,16 +1,12 @@
 package gov.noaa.nws.ncep.viz.ui.perspectives.menus;
 
-import gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedAreasMngr;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedArea.AreaSource;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
-import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
-import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
+import gov.noaa.nws.ncep.viz.common.area.AreaMenus.AreaMenuItem;
+import gov.noaa.nws.ncep.viz.common.area.AreaMenusMngr;
+import gov.noaa.nws.ncep.viz.common.area.IAreaProviderCapable;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
+import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +41,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 11/28/12       630        G. Hull      add areaType parameter to the command     
  * 04/17/13       #863       G. Hull      moved code from static Menus to be
  *                                        dynamic MenuManagers here                               
+ * 05/15/13       #862       G. Hull      support areaSources from new AreaMenus file.
  * 
  * </pre>
  * 
@@ -54,108 +51,138 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
 public class PredefinedAreaMenu extends CompoundContributionItem {
 
 	private static String commandId = "gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea";
-    private Map<String, String> cmdParams = new HashMap<String, String>();
 
     @Override
     protected IContributionItem[] getContributionItems() {
     	IMenuManager areaMenuMngr = new MenuManager( "Areas", PredefinedAreaMenu.class.getName() );
     	
+        AbstractEditor ncEd = NcDisplayMngr.getActiveNatlCntrsEditor();
+        NcDisplayType dt = NcEditorUtil.getNcDisplayType( ncEd );
+        
+        if( dt != NcDisplayType.NMAP_DISPLAY ) {
+        	return areaMenuMngr.getItems();
+        }
+
     	addResourceAreaMenuItems( areaMenuMngr );
     	
     	addOtherDisplayAreasMenuItems( areaMenuMngr );
 
-    	addPredefinedAreaMenuItems( areaMenuMngr );
+    	addAreaMenuItems( areaMenuMngr );
     	
     	return areaMenuMngr.getItems();
     }
     
-    private void addPredefinedAreaMenuItems( IMenuManager areaMenuMngr ) {
+    private void addAreaMenuItems( IMenuManager areaMenuMngr ) {
 
-		cmdParams.put("areaName", "xxx"); // 2 command parameters to be filled in below
-        cmdParams.put("areaType", AreaSource.PREDEFINED_AREA.toString() );
+        Map<String,List<AreaMenuItem>> areaMenuItems = 
+        	AreaMenusMngr.getInstance().getPredefinedAreasForMenus();
             	    	
-        AbstractEditor ncEd = NcDisplayMngr.getActiveNatlCntrsEditor();
+		List<String> subMenus = new ArrayList<String>( areaMenuItems.keySet() );
         
-        String predefinedAreas[] = 
-        	PredefinedAreasMngr.getPredefinedAreasForMenus( NcEditorUtil.getNcDisplayType( ncEd ) );
+		// TODO : order this list according to how we want the submenus to be displayed.
+		//
+		
+		// loop thru the subMenus and 
+        for( String subMenuName : subMenus ) {
+        	if( subMenuName.isEmpty() ) {
+        		continue;
+        	}
+//        	System.out.println("subMenuName "+ subMenuName );
+        	
+        	List<AreaMenuItem> menuItems = areaMenuItems.get( subMenuName ); 
+        	if( menuItems == null ||  menuItems.isEmpty() ) {
+        		continue;
+        	}
+    		IMenuManager subMenu  = new MenuManager( subMenuName,
+    										areaMenuMngr.getId() + "." + subMenuName );	
+    		areaMenuMngr.add( subMenu );
         
-        for( String areaName : predefinedAreas ) {
+    		addAreaMenuItems( subMenu, menuItems );
+        }        
 			
-        	cmdParams.put("areaName", areaName );
+		if( areaMenuItems.containsKey( "" ) ) {
+    		addAreaMenuItems( areaMenuMngr, areaMenuItems.get("") );
+		}			
+    }
 			
-        	areaMenuMngr.add( new CommandContributionItem(
+	private void addAreaMenuItems( IMenuManager menuMngr, String subMenuName,
+								   List<IAreaProviderCapable> areaProvList ) {
+		IMenuManager subMenu  = new MenuManager( subMenuName, menuMngr.getId() + "." + subMenuName );	
+		menuMngr.add( subMenu );
+
+		List<AreaMenuItem> amiList = new ArrayList<AreaMenuItem>();
+		
+		for( IAreaProviderCapable ap : areaProvList ) {
+			amiList.add( new AreaMenuItem( ap.getAreaName(), 
+					subMenuName, ap.getAreaName(), ap.getSourceProvider().toString() ));
+		}
+		
+		addAreaMenuItems( subMenu, amiList );
+	}
+    
+	private void addAreaMenuItems( IMenuManager subMenuMngr, List<AreaMenuItem> menuItems ) {
+	    Map<String, String> cmdParams = new HashMap<String, String>();
+
+	    for( AreaMenuItem ami : menuItems ) {
+//	    	if( ami.getSubMenuName().equals( subMenuMngr.getId() ) ) { } // sanity check
+			cmdParams.put("areaName", ami.getAreaName() );
+			cmdParams.put("areaSource", ami.getSource() );
+//			cmdParams.put("recenterOnly", Boolean.toString( ami.getRecenterOnly() ) );
+			
+	    	subMenuMngr.add( new CommandContributionItem(
                     new CommandContributionItemParameter( PlatformUI.getWorkbench(), null,
-                    		commandId, cmdParams, null, null, null, areaName, null, null,
+							commandId, cmdParams, null, null, null, 
+							ami.getMenuName(), null, null,
                             CommandContributionItem.STYLE_PUSH, null, true)) );
         }        
     }
 
+
 	private void addResourceAreaMenuItems( IMenuManager areaMenuMngr ) {
+
+		if( !AreaMenusMngr.getInstance().showImageBasedResourceAreas() ) {
+			return;
+		}
+
 		AbstractEditor currEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
     	
     	if( currEditor == null ) {
     		return;
     	}
     	
-		cmdParams.put("areaName", "xxx"); // 2 command parameters to be filled in below
-		cmdParams.put("areaType", AreaSource.RESOURCE_DEFINED.toString() );
-        
 		// if geoSynced then let the user choose from all panes and otherwise only from
 		// the currently selected panes.
 		IDisplayPane[] panes = 
 			( NcEditorUtil.arePanesGeoSynced(currEditor) ? 
 					currEditor.getDisplayPanes() : NcEditorUtil.getSelectedPanes(currEditor) );
     		
-		IMenuManager rscAreaMenu = null;	
+		List<IAreaProviderCapable> rscList = new ArrayList<IAreaProviderCapable>();
 
 		for( IDisplayPane p : panes ) {
 			ResourceList rList = p.getDescriptor().getResourceList();
 			for( int r=0 ; r<rList.size() ; r++ ) {
-				if( rList.get(r).getResourceData() instanceof IGridGeometryProvider ) {
-					AbstractNatlCntrsRequestableResourceData rsc = 
-						(AbstractNatlCntrsRequestableResourceData) rList.get(r).getResourceData();
-					String rscLabel;
-
-					// Abbreviate since the category and attrSet shouldn't affect the given area.
-					//
-					if( rsc.getResourceName().getRscGroup().isEmpty() ) { 
-						rscLabel = rsc.getResourceName().getRscCategory()+ File.separator+rsc.getResourceName();
-					}
-					else {
-						rscLabel = rsc.getResourceName().getRscType()+File.separator+rsc.getResourceName().getRscGroup();
-					}
-
-					// don't create a subMenu unless there are actually rscs 
-					if( rscAreaMenu == null ) {
-						rscAreaMenu = new MenuManager( "From Resource",
-								areaMenuMngr.getId() + "." + "From Resource" );	
-					}
-
-					cmdParams.put("areaName", rsc.getResourceName().toString() );
-
-					rscAreaMenu.add( new CommandContributionItem(
-							new CommandContributionItemParameter( PlatformUI.getWorkbench(), null,
-									commandId, cmdParams, null, null, null, 
-									rscLabel, null, null,
-									CommandContributionItem.STYLE_PUSH, null, true)) );
+				if( rList.get(r).getResourceData() instanceof IAreaProviderCapable ) {
+					rscList.add( (IAreaProviderCapable) rList.get(r).getResourceData() );
 				}
 			}
 		} // end loop thru panes
 		
-		if( rscAreaMenu != null ) {
-			areaMenuMngr.add( rscAreaMenu );
+		if( !rscList.isEmpty() ) {
+    		addAreaMenuItems( areaMenuMngr, "From Resource", rscList );
 		}
 	}
 	
 	private void addOtherDisplayAreasMenuItems( IMenuManager areaMenuMngr ) {
 
-		cmdParams.put("areaName", "xxx"); // 2 command parameters to be filled in below
-		cmdParams.put("areaType", AreaSource.DISPLAY_AREA.toString() );
+		System.out.println(" show disp areas:"+AreaMenusMngr.getInstance().showDisplayAreas() );
+		
+		if( !AreaMenusMngr.getInstance().showDisplayAreas() ) {
+			return;
+		}
         
 		AbstractEditor currEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
 
-		IMenuManager dispsAreaSubMenu  = new MenuManager( "From Display",
-				areaMenuMngr.getId() + "." + "From Display" );	
+		List<IAreaProviderCapable> dispList = new ArrayList<IAreaProviderCapable>();
 
         for( AbstractEditor ed : NcDisplayMngr.getAllNcDisplays() ) {
 
@@ -167,63 +194,25 @@ public class PredefinedAreaMenu extends CompoundContributionItem {
     		String dispMenuName = NcEditorUtil.getDisplayName(ed).toString();
     		
     		if( numPaneMenus == 1 ) {
-				cmdParams.put("areaName", dispMenuName );
-
     			// if this is the current editor then we only need to show an area option
     			// if there are multiple, non-geosynced panes.
     			//
-				if( ed != currEditor ) {
-    				NCMapRenderableDisplay rdisp = 
-    					(NCMapRenderableDisplay)panes[0].getRenderableDisplay();
-    				
-    				cmdParams.put("areaName", dispMenuName );
-
-    				dispsAreaSubMenu.add( new CommandContributionItem(
-    						new CommandContributionItemParameter( PlatformUI.getWorkbench(), null,
-    								commandId, cmdParams, null, null, null, 
-    								cmdParams.get("areaName"),//rdisp.getCurrentArea().getProviderName(), 
-    								null, null,
-    								CommandContributionItem.STYLE_PUSH, null, true)) );
+				if( ed != currEditor && 
+						panes[0].getRenderableDisplay() instanceof IAreaProviderCapable ) {
+					dispList.add( (IAreaProviderCapable)panes[0].getRenderableDisplay() );
     			}
     		}
     		else {
-    			// create a subMenu
-    			IMenuManager panesAreaSubMenu = new MenuManager( dispMenuName,
-    					dispsAreaSubMenu.getId() + "." + dispMenuName );	
-    			
     			for( IDisplayPane p : panes ) {
-    				NCMapRenderableDisplay rdisp = (NCMapRenderableDisplay)p.getRenderableDisplay();
-
-    				// the provider name is the paneName but is set before loading and so doesn't have the display ID
-    				// which is helpfull/needed when looking up the display/pane to get the area. 
-    				// so for now just set the name here.  			
-    				//    			cmdParams.put("areaName", rdisp.getCurrentArea().getProviderName() );
-
-//    				if( dispsAreaMenu == null ) {
-//    					dispsAreaMenu = new MenuManager( "From Display",
-//    							areaMenuMngr.getId() + "." + "From Display" );	
-//    				}
-
-    				// The areaName is the name of the pane in the display.
-    				// TODO : fold the paneName into the DisplayName class for parsing/generating
-    				//
-    				cmdParams.put("areaName", 
-    						NcEditorUtil.getDisplayName(ed).toString()+"("+rdisp.getPaneId().toString()+")" );
-
-    				panesAreaSubMenu.add( new CommandContributionItem(
-    						new CommandContributionItemParameter( PlatformUI.getWorkbench(), null,
-    								commandId, cmdParams, null, null, null, 
-    								cmdParams.get("areaName"),//rdisp.getCurrentArea().getProviderName(), 
-    								null, null,
-    								CommandContributionItem.STYLE_PUSH, null, true)) );
+    				if( p.getRenderableDisplay() instanceof IAreaProviderCapable ) {
+    					dispList.add( (IAreaProviderCapable)p.getRenderableDisplay() );
+    				}
     			}
-    			
-    			dispsAreaSubMenu.add( panesAreaSubMenu );
     		}
         }
         
-        if( dispsAreaSubMenu.getItems().length > 0 ) { // != null ) {
-            areaMenuMngr.add( dispsAreaSubMenu );
+		if( !dispList.isEmpty() ) {
+    		addAreaMenuItems( areaMenuMngr, "From Display", dispList );
         }
 	}
 }
