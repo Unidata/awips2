@@ -76,6 +76,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
  * May 13, 2013 1869        bsteffen    Remove DataURI column from GFE.
+ * Jun 20, 2013 2127        rjpeter     Added OnDelete annotation.
  * 
  * </pre>
  * 
@@ -108,6 +109,7 @@ public class GFERecord extends PluginDataObject {
      */
     @DataURI(position = 1, embedded = true)
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @PrimaryKeyJoinColumn
     @DynamicSerializeElement
     private ParmID parmId;

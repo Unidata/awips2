@@ -1,19 +1,18 @@
 package gov.noaa.nws.ncep.viz.resources.manager;
 
+import gov.noaa.nws.ncep.viz.common.area.PredefinedArea;
+import gov.noaa.nws.ncep.viz.common.area.PredefinedAreaFactory;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsDescriptor;
+import gov.noaa.nws.ncep.viz.common.display.INatlCntrsPaneManager;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsRenderableDisplay;
 import gov.noaa.nws.ncep.viz.common.display.INcPaneID;
-import gov.noaa.nws.ncep.viz.common.display.INcPaneLayout;
+import gov.noaa.nws.ncep.viz.common.display.IPaneLayoutable;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayName;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedArea;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedAreasMngr;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
-import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
 import gov.noaa.nws.ncep.viz.ui.display.NcPaneID;
@@ -39,7 +38,6 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.VariableSubstitutionUtil;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
-import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
@@ -62,7 +60,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  *    06/20/12       #647      Greg Hull   add clone()
  *    06/29/12       #568      Greg Hull   implement Comparable
  *    11/25/12       #630      Greg Hull   getDefaultRBD()
- *    02/22/10       #972      ghull       created from old RbdBundle
+ *    02/22/10       #972      Greg Hull   created from old RbdBundle
+ *    05/14/13       #862      Greg Hull   implement INatlCntrsPaneManager
  *
  * </pre>
  * 
@@ -71,7 +70,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public abstract class AbstractRBD<T extends AbstractRenderableDisplay> implements ISerializableObject, Comparable<AbstractRBD<?>> {
+public abstract class AbstractRBD<T extends AbstractRenderableDisplay> 
+			implements INatlCntrsPaneManager, ISerializableObject, Comparable<AbstractRBD<?>> {
 
     @XmlElement
     protected NcDisplayType displayType = NcDisplayType.NMAP_DISPLAY;
@@ -110,7 +110,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay> implement
 
     // if created from a loaded display, this it the display id. 
     // 
-    protected int displayId=0;
+    protected int displayId=-1;
     
     @XmlAttribute
     protected String rbdName;
@@ -154,6 +154,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay> implement
 		this.lFile = lFile;
 	}
 
+	@Override
     public NcDisplayType getDisplayType() {
 		return displayType;
 	}
@@ -184,6 +185,26 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay> implement
 
     public NcPaneLayout getPaneLayout() {
 		return paneLayout;
+	}
+
+    // No id since it has not been assigned an id yet
+	@Override
+	public NcDisplayName getDisplayName() {
+		return new NcDisplayName( displayId, getRbdName() );
+	}
+
+	@Override
+	public IPaneLayoutable getPane( INcPaneID pid) {
+    	if( paneLayout.containsPaneId( pid ) &&
+        	paneLayout.getPaneIndex( pid ) < displays.length ) {  
+    		
+    		T pane = displays[ paneLayout.getPaneIndex( pid ) ];
+        	
+    		if( pane != null &&  pane instanceof IPaneLayoutable ) {
+        			return (IPaneLayoutable)pane;
+        		}
+        	}
+        	return null;
 	}
 
 	public Boolean isEdited() {
@@ -224,7 +245,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay> implement
 //        ncEditor = null;
         setPaneLayout(paneLayout);
         try {
-			displays = (T[]) NcDisplayMngr.createDisplaysForNcDisplayType( displayType, paneLayout );
+			displays = (T[]) NcDisplayMngr.createDisplaysForNcDisplayType( this, paneLayout );
 		} catch (VizException e) {
 			System.out.println(e.getMessage());
 		}        	
@@ -257,6 +278,12 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay> implement
 			
 			// set the RbdName inside the renderable display panes
 			clonedRbd.setRbdName( clonedRbd.getRbdName() );
+			
+			for( AbstractRenderableDisplay disp : clonedRbd.getDisplays() ) {
+				if( disp instanceof IPaneLayoutable ) {
+					((IPaneLayoutable)disp).setPaneManager( clonedRbd );
+				}
+			}
 			
     		return clonedRbd;
     		
@@ -295,7 +322,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay> implement
     }
     
     private void createDisplays() throws VizException {
-    	displays = (T[])NcDisplayMngr.createDisplaysForNcDisplayType( displayType, getPaneLayout() );
+    	displays = (T[])NcDisplayMngr.createDisplaysForNcDisplayType( this, getPaneLayout() );
     }
     
     public static AbstractRBD<?> createRbdFromEditor( 
@@ -332,14 +359,19 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay> implement
         geoSyncedPanes = NcEditorUtil.arePanesGeoSynced(ncEditor);
         autoUpdate = NcEditorUtil.getAutoUpdate(ncEditor);
 
-        displays = (T[]) NcDisplayMngr.createDisplaysForNcDisplayType( displayType, 
-        		NcEditorUtil.getPaneLayout(ncEditor) );
+        displays = (T[]) NcDisplayMngr.createDisplaysForNcDisplayType( 
+        		this, NcEditorUtil.getPaneLayout(ncEditor) );
 
         for( int paneIndx=0 ; paneIndx<paneLayout.getNumberOfPanes() ; paneIndx++ ) {
         	IDisplayPane pane = NcEditorUtil.getDisplayPane( 
         			ncEditor, paneLayout.createPaneId(paneIndx) );//new NcPaneID(r, c));
                 
-        	displays[paneIndx] = (T) pane.getRenderableDisplay();                
+        	T rDispPane = (T)pane.getRenderableDisplay( );
+        	
+        	if( rDispPane instanceof IPaneLayoutable ) {
+        		((IPaneLayoutable)rDispPane).setPaneManager( this ); 
+        	}
+        	displays[paneIndx] = rDispPane;
         }
         
         setTimeMatcher( 
@@ -360,25 +392,6 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay> implement
      */
     public void setRbdName(String rbdName) {
         this.rbdName = rbdName;
-        
-        if( displays == null ) {
-        	return;
-        }
-        
-        for( T display : getDisplays() ) {
-        	if( display == null || !(display instanceof INatlCntrsRenderableDisplay) ) 
-        		continue; 
-        	
-        	String idStr = (displayId == 0 ? "" : Integer.toString( displayId )+"-" );
-        	
-        	if( paneLayout.getNumberOfPanes() > 1 ) {
-        		((INatlCntrsRenderableDisplay) display).setPaneName( idStr + getRbdName()+"("+
-        				((INatlCntrsRenderableDisplay) display).getPaneId()+")" );
-        	}
-        	else {
-        		((INatlCntrsRenderableDisplay) display).setPaneName( idStr + getRbdName() );
-        	}
-        }
     }
 
     public String toXML() throws VizException {
@@ -506,17 +519,18 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay> implement
     	if( rbd.displays == null || rbd.displays.length == 0 ) {
     		throw new VizException("Error unmarshalling RBD: the renderable display list is null");
     	}
-    	
-    	for( AbstractRenderableDisplay d : rbd.getDisplays() ) {
-    		if( ((INatlCntrsRenderableDisplay) d).getInitialArea() == null ) {
-    			PredefinedArea dfltArea = 
-    				PredefinedAreasMngr.getDefaultPredefinedAreaForDisplayType( rbd.getDisplayType() );
-    			((INatlCntrsRenderableDisplay) d).setInitialArea( dfltArea );
-    		}
-    	}
+// getInitialArea can't return null.     	
+//    	for( AbstractRenderableDisplay d : rbd.getDisplays() ) {
+//    		if( ((INatlCntrsRenderableDisplay) d).getInitialArea() == null ) {
+//    			PredefinedArea dfltArea = 
+//    				PredefinedAreaFactory.getDefaultPredefinedAreaForDisplayType( rbd.getDisplayType() );
+//    			((INatlCntrsRenderableDisplay) d).setInitialArea( dfltArea );
+//    		}
+//    	}
     	
     	// set the RbdName inside the renderable display panes
-    	rbd.setRbdName( rbd.getRbdName() );
+    	// no longer need to do this since panes can now reference back to the RBD to get name
+//    	rbd.setRbdName( rbd.getRbdName() );
     	
     	return rbd;
     }
@@ -774,4 +788,6 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay> implement
 			return rbdSequence - rbd.rbdSequence;
 		}
 	}
+	
+
 }

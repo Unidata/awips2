@@ -120,6 +120,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Apr 25, 2013  1902      mpduff       Fixed Thresholds dialog on multiple opens, needed an isDisposed check.
  * Jun 04, 2013  1984      lvenable     removed unnecessary code.
  * Jun 06, 2013  2075      njensen      Removed loading labels
+ * Jul 09, 2013  2152      njensen      Fix potential widget disposed error
  * Jun 20, 2013  14907     gzhang       Thresholds menu ColorCell check fix.
  * </pre>
  * 
@@ -2163,7 +2164,12 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             VizApp.runAsync(new Runnable() {
                 @Override
                 public void run() {
-                    processUpdate(fupdateData);
+                    // need to check again because if the UI thread had
+                    // a sizable queue, it could be disposed before this
+                    // executes
+                    if (!FfmpBasinTableDlg.this.isDisposed()) {
+                        processUpdate(fupdateData);
+                    }
                 }
             });
         }
