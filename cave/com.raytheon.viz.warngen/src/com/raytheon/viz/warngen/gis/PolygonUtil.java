@@ -65,6 +65,10 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * 04/16/2013   DR 16045  Qinglu Lin   Relocated removeDuplicateCoordinate(), computeSlope(), 
  *                                     computeCoordinate(), and adjustPolygon from WarngenUIState.
  * 05/23/2013  DR 16169   D. Friedman  Improve redraw-from-hatched-area polygons.
+ * 06/17/2013  DR 15787   Qinglu Lin   Added removeOverlaidLinesegments() and removeTriplyOverlaidLinesegments().
+ * 07/11/2013  DR 16376   Qinglu Lin   Removed removeTriplyOverlaidLinesegments() and updated computeSlope()
+ *                                     and removeOverlaidLinesegments().
+ 
  * 
  * </pre>
  * 
@@ -1112,8 +1116,8 @@ public class PolygonUtil {
      */
     private static double computeSlope(Coordinate[] coords, int i) {
         double min = 1.0E-08;
+        double slope = 1.0E08;
         double dx = coords[i].x - coords[i + 1].x;
-        double slope = 0.0;
         if (Math.abs(dx) > min) {
             slope = (coords[i].y - coords[i + 1].y) / dx;
         }
@@ -1250,5 +1254,60 @@ public class PolygonUtil {
                     computeCoordinate(coords, i, j);
                 }
         }
+    }
+
+    public static Coordinate[] removeOverlaidLinesegments(Coordinate[] coords) {
+        Coordinate[] expandedCoords = null;
+        boolean flag = true;
+        while (flag) {
+            expandedCoords = new Coordinate[coords.length+1];
+            flag = false;
+            for (int i = 0; i < coords.length; i++) {
+                expandedCoords[i] = new Coordinate(coords[i]);
+            }
+            expandedCoords[expandedCoords.length-1] = new Coordinate(coords[1]);
+            double min = 1.0E-8;
+            int m = expandedCoords.length;
+            int count = 0;
+            double slope = 0.0, slope1 = 0.0;
+            for (int i = 0; i < m - 1; i++) {
+                slope = computeSlope(expandedCoords,i);
+                if (count == 0) {
+                    slope1 = slope;
+                    count += 1;
+                } else {
+                    if (Math.abs(slope - slope1) < min) {
+                        count += 1;
+                    } else {
+                        count = 0;
+                        slope1 = slope;
+                        count += 1;
+                    }
+                }
+                if (count == 2) {
+                    // remove the middle point, i.e., that has index of i, of the three that either form two
+                    // overlaid/partial overlaid line segments or is in the middle
+                    // of a straight line segment
+                    coords = new Coordinate[coords.length - 1];
+                    if (i == m - 2) {
+                        for (int j = 1; j < m - 2; j++) {
+                            coords[j-1] = new Coordinate(expandedCoords[j]);
+                        }
+                        coords[coords.length-1] = new Coordinate(coords[0]);
+                    } else {
+                        for (int j = 0; j < i; j++) {
+                            coords[j] = new Coordinate(expandedCoords[j]);
+                        }
+                        for (int j = i + 1; j < expandedCoords.length-2; j++) {
+                            coords[j-1] = new Coordinate(expandedCoords[j]);
+                        }
+                        coords[coords.length-1] = new Coordinate(coords[0]);
+                    }
+                    flag = true;
+                    break;
+                }
+            }
+        }
+        return coords;
     }
 }

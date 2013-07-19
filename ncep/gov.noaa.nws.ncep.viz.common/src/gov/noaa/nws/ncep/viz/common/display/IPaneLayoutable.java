@@ -1,9 +1,9 @@
 package gov.noaa.nws.ncep.viz.common.display;
 
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayName.NcPaneName;
+
 
 /**
- * MapRenderableDisplay for NatlCntrs
- * 
  * <pre>
  * 
  * SOFTWARE HISTORY
@@ -18,7 +18,24 @@ package gov.noaa.nws.ncep.viz.common.display;
  */
 public interface IPaneLayoutable {
 
+	// used for RBDs and editors to let the pane (Renderable Display) objects
+	// have access to the container.
+	// could use IDisplayPaneContainer but there is more stuff in there that isn't applicable
+	// to RBDs.
+	//
+//	public static interface INcPaneContainer {
+//		public abstract IPaneLayoutable getPane( INcPaneID pid );	
+//		
+//	}
+	
     public abstract INcPaneID getPaneId();
     
     public abstract void setPaneId( INcPaneID pid);
+    
+	public abstract NcPaneName getPaneName();
+	
+//    public abstract INcPaneContainer getPaneContainer();
+    public abstract INatlCntrsPaneManager getPaneManager();
+    
+    public abstract void setPaneManager( INatlCntrsPaneManager pm );
 }
