@@ -35,20 +35,22 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
- * TODO Add Description
+ * Converts a PointDataContainer into a UAObs record.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 19, 2009            jkorman     Initial creation
- *
+ * Jul 19, 2013 1992       bsteffen    Remove redundant time columns from
+ *                                     bufrua.
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class BufrUAPointDataTransform {
@@ -121,9 +123,7 @@ public class BufrUAPointDataTransform {
             obs = new UAObs(uri);
 
             long vt = pdv.getNumber("validTime").longValue();
-            obs.setValidTime(TimeTools.newCalendar(vt));
 
-            obs.setRefHour(TimeTools.newCalendar(vt));
             obs.setDataTime(new DataTime(TimeTools.newCalendar(vt)));
 
             SurfaceObsLocation location = new SurfaceObsLocation();
