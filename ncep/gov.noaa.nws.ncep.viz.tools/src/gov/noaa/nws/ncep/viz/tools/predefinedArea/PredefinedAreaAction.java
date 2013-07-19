@@ -2,13 +2,16 @@ package gov.noaa.nws.ncep.viz.tools.predefinedArea;
 
 import java.util.Iterator;
 
-import gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider;
+import gov.noaa.nws.ncep.viz.common.area.AreaName;
+import gov.noaa.nws.ncep.viz.common.area.AreaName.AreaSource;
+import gov.noaa.nws.ncep.viz.common.area.IGridGeometryProvider;
+import gov.noaa.nws.ncep.viz.common.area.NcAreaProviderMngr;
+import gov.noaa.nws.ncep.viz.common.area.PredefinedArea;
+import gov.noaa.nws.ncep.viz.common.area.PredefinedAreaFactory;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsDescriptor;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsRenderableDisplay;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayName;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedArea;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedAreasMngr;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedArea.AreaSource;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
@@ -57,6 +60,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Nov 18, 2012             G. Hull      add areaType parameter and code to get the area based on other types (ie RESOURCES and DISPLAYS)
  * Dec 12  2012    #630     G. Hull      replace ZoomUtil.allowZoom with refreshGUIelements
  * Feb 12  2012    #972     G. Hull      change to INatlCntrsRenderableDisplay
+ * May 15  2013    #862     G. Hull      replace code to get areas from displays or resources with call to 
+ *                                       new NcAreaProviderMngr.createGeomProvider() with areaSource & name 
  * 
  * </pre>
  * 
@@ -71,36 +76,31 @@ public class PredefinedAreaAction extends AbstractHandler {
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
 
-        String areaName = null;
-        String areaType = null;
+        AreaName areaName = null;
         
         try {
         	try {
-        		areaName = event.getParameter("areaName");
-        		areaType = event.getParameter("areaType");
+        		areaName = new AreaName( 
+        				AreaSource.getAreaSource( event.getParameter("areaSource") ),
+        										  event.getParameter("areaName") );
         	} catch (Exception e) {
-        		throw new VizException("areaName parameter not set???");
+        		throw new VizException("areaName or areaSource parameter not recognized");
         	}
 
         	AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
-
-        	PredefinedArea pArea;
-
-        	if( areaType.equals( AreaSource.PREDEFINED_AREA.toString() ) ) {
-        		pArea = PredefinedAreasMngr.getPredefinedArea( 
-        				NcEditorUtil.getNcDisplayType( editor ), areaName );
+        	NcDisplayType dt = NcEditorUtil.getNcDisplayType( editor );
+        	if( dt != NcDisplayType.NMAP_DISPLAY ) {
+        		return null;
         	}
-        	else if( areaType.equals( AreaSource.RESOURCE_DEFINED.toString() ) ) {
-                ResourceName rscName = new ResourceName( areaName );
-        		pArea = getAreaFromResource(editor, rscName );
+
+        	IGridGeometryProvider geomProv = 
+        				NcAreaProviderMngr.createGeomProvider( areaName );
+
+        	if( geomProv == null ) { 
+            	throw new VizException("Unable to create area for,"+areaName.toString() );
         	}
-        	else if( areaType.equals( AreaSource.DISPLAY_AREA.toString() ) ) {
         		
-        		pArea = getAreaFromDisplayPane( areaName );
-        	}
-        	else { 
-        		throw new VizException("Unknown areaType: "+areaType );
-        	}
+        	PredefinedArea pArea = PredefinedAreaFactory.createPredefinedArea( geomProv );
 
         	// get the panes to set the area in.
         	IDisplayPane[] displayPanes = (IDisplayPane[])
@@ -118,7 +118,8 @@ public class PredefinedAreaAction extends AbstractHandler {
 
         	editor.refresh();
 
-        } catch (VizException e) {        	
+        } 
+        catch (VizException e) {        	
         	MessageDialog errDlg = new MessageDialog( 
         			NcDisplayMngr.getCaveShell(), "Error", null, 
         			"Error Changing Area:\n\n"+e.getMessage(),
@@ -139,17 +140,11 @@ public class PredefinedAreaAction extends AbstractHandler {
     	INatlCntrsRenderableDisplay existingDisplay = 
     		(INatlCntrsRenderableDisplay) pane.getRenderableDisplay();
 
-//    	if( !(existingDisplay instanceof INatlCntrsRenderableDisplay) ) {
-//    		return; // only meaningful for map displays
-//    	}
-    	
     	// Note: setGridGeometry does an implicit reproject of all
     	// resources
     	// on the descriptor, so don't need to do this explicitly
     	existingDisplay.setInitialArea( pArea );
     	
-//    	existingDisplay.setPredefinedArea( pArea );
- 
     	pane.setZoomLevel( existingDisplay.getZoomLevel() );
  
     	pane.scaleToClientArea();
@@ -159,78 +154,5 @@ public class PredefinedAreaAction extends AbstractHandler {
     			existingDisplay.getZoomLevel() );
 
     	((INatlCntrsDescriptor)existingDisplay.getDescriptor()).setSuspendZoom(false);
-    }
-
-    
-    private PredefinedArea getAreaFromResource( 
-    		AbstractEditor editor, ResourceName rscName ) throws VizException {
-
-    	IDisplayPane[] displayPanes = (IDisplayPane[])editor.getDisplayPanes();
-    	 
-    	for( IDisplayPane p : displayPanes ) {
-
-    		ResourceList rlist = p.getDescriptor().getResourceList();
-    		Iterator<ResourcePair> iter = rlist.iterator();
-
-    		while( iter.hasNext()) {
-    			ResourcePair rp = iter.next();
-
-    			if( rp.getResourceData() instanceof AbstractNatlCntrsRequestableResourceData &&
-    					rp.getResourceData() instanceof IGridGeometryProvider ) {
-    				ResourceName rName = ((AbstractNatlCntrsRequestableResourceData)rp.getResourceData()).getResourceName();
-
-    				if( rscName.equals( rName ) ) {
-    					IGridGeometryProvider gridCovRsc = (IGridGeometryProvider)rp.getResourceData();
-//    					if( gridCovRsc.getGridGeometry() != null ) {
-    					PredefinedArea pArea = new PredefinedArea( 
-    			        		AreaSource.RESOURCE_DEFINED,
-    			        		gridCovRsc.getProviderName(), 
-    			        		gridCovRsc.getGridGeometry(),
-    			        		gridCovRsc.getMapCenter(),
-    			        		gridCovRsc.getZoomLevel(),
-    			        		((AbstractNatlCntrsRequestableResourceData)rp.getResourceData()).getSupportedDisplayTypes()[0] );
-
-    						return pArea; //.getGridGeometry();
-//    					}
-    				}
-    			}
-    		}
-    	}
-    	throw new VizException( "Unable to change the Display Area. \n"
-    				+ "The Resource "+rscName.toString()+" is not loaded in this editor.\n");
-    }
-    
-    
-    private PredefinedArea getAreaFromDisplayPane( String paneName ) throws VizException {
-    	
-    	String displayName = paneName;
-    	NcPaneID paneId = new NcPaneID(); // 0,0
-    	
-    	if( displayName.endsWith(")") ) {
-    		paneId = NcPaneID.parsePaneId(
-    				displayName.substring( displayName.lastIndexOf('(')+1,
-    									   displayName.lastIndexOf(')') ) );
-
-    		displayName = displayName.substring(0, displayName.indexOf('(') );
-    	}
-
-    	AbstractEditor ed = NcDisplayMngr.findDisplayByID( 
-    			NcDisplayName.parseNcDisplayNameString( displayName ) );
-    	PredefinedArea pArea=null;
-    	
-    	if( ed != null ) {
-    		IDisplayPane[] panes = ed.getDisplayPanes();
-    		for( IDisplayPane p : panes ) {
-
-    			NCMapRenderableDisplay rdisp = (NCMapRenderableDisplay)p.getRenderableDisplay();
-
-    			if( rdisp.getPaneId().equals( paneId) ) {
-    				pArea = rdisp.getCurrentArea();
-    				return pArea;
-    			}
-    		}
-    	}
-    	
-    	throw new VizException("Unable to find Display for: "+paneName );
     }
 }

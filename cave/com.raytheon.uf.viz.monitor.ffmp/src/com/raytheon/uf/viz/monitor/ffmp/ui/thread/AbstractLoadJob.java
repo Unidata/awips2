@@ -52,6 +52,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPResourceData;
  * ------------ ---------- ----------- --------------------------
  * Jun 04, 2013 2075       njensen     Initial creation
  * Jun 07, 2013 2075       njensen     Added progress monitoring
+ * Jul 03, 2013 2152       njensen     Override shouldRun()
  * Jul 15, 2013 2184       dhladky     Remove all HUC's for storage except ALL
  * 
  * </pre>
@@ -285,6 +286,11 @@ public abstract class AbstractLoadJob extends Job {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean shouldRun() {
+        return (super.shouldRun() && FFMPMonitor.isRunning());
     }
 
 }

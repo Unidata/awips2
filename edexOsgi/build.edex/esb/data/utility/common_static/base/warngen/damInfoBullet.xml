@@ -17,9 +17,3 @@
 </damInfoBullets>
 -->
 <!-- End of example. Begin your site specific information here. -->
-<!-- Site Specific Information for WFO Anchorage -->
-<damInfoBullets>
-<damInfoBullet bulletGroup="dam" bulletText="Cooper Lake Hydroelectric Dam (Cooper Landing)" bulletName="CooperLakeDam"  parseString="COOPER LAKE DAM" showString="COOPER LAKE DAM" coords="LAT...LON 6029 14953 6032 15035 6023 15036 6021 14947"/>
-<damInfoBullet bulletGroup="dam" bulletText="Eklutna Lake Dam (Eklutna)" bulletName="EklutnaLakeDam"  parseString="EKLUTNA LAKE DAM" showString="EKLUTNA LAKE DAM" coords="LAT...LON 6148 14944 6148 14914 6139 14912 6140 14943"/>
-<damInfoBullet bulletGroup="dam" bulletText="Solomon Gulch Dam (Valdez)" bulletName="SolomonGulchDam"  parseString="SOLOMON GULCH DAM" showString="SOLOMON GULCH DAM" coords="LAT...LON 6109 14632 6109 14603 6107 14630 6107 14631"/>
-</damInfoBullets>

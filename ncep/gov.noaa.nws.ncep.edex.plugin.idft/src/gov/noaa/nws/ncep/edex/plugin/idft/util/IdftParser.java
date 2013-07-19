@@ -15,6 +15,8 @@
  * 										Remove unneeded imports after using generic StationTable
  * 08Dec2009	   100		F. J. Yen	Modified to11d3 to to11d6
  * 27May2010       100		F. J. Yen	Migrated from to11dr3 to to11dr11
+ * Mar152013       982      Archana     get idftLoc.xml from localization correctly and store
+ *                                      stns in a map instead of a list
  *
  * </pre>
  * 
@@ -22,47 +24,58 @@
  */
 package gov.noaa.nws.ncep.edex.plugin.idft.util;
 
-import static com.raytheon.uf.common.localization.LocalizationContext.LocalizationType.EDEX_STATIC;
 import gov.noaa.nws.ncep.common.dataplugin.idft.IdftRecord;
 import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.edex.common.stationTables.StationTable;
 
-import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 
+
 public class IdftParser {
-    private static List<Station> list = null;
+    private static Map<Integer,Station> idftStnsMap = null;
 
     public IdftParser() {
     }
 
     public static synchronized void readIdftLocs() throws Exception {
 
-        final String NCEP_DIR = "ncep";
-        final String stnsDir = "stns";
-        final String idftLocTableName = "idftLoc.xml";
+        final String idftLocTableName = "ncep/stns/idftLoc.xml";
 
         IPathManager manager = PathManagerFactory.getPathManager();
 
-        LocalizationContext baseContext = null;
-        File baseDir = null;
-        String stnsFileName = null;
-        baseContext = manager.getContext(EDEX_STATIC, LocalizationLevel.BASE);
-        baseDir = manager.getFile(baseContext, NCEP_DIR);
-        stnsFileName = baseDir + File.separator + stnsDir + File.separator
-                + idftLocTableName;
-        StationTable myloc = new StationTable(stnsFileName);
+        LocalizationFile stnsFile = manager.getStaticLocalizationFile(idftLocTableName );
+        
+        StationTable myloc = new StationTable( stnsFile.getFile().getAbsolutePath() );
+
         /*
          * Read and put the IdftLocsTable in list.
          */
-        list = myloc.getStationList();
+        List<Station> idftStnsList = myloc.getStationList();
+    	idftStnsMap = new HashMap<Integer,Station>();
+    	
+        if( idftStnsList != null ) {
+        	for( Station stn : idftStnsList ) {
+        		
+        		Integer stnNum = Integer.parseInt( stn.getStnnum() );
+        		
+        		if( idftStnsMap.containsKey( stnNum ) ) {
+        			// LOG a warning msg
+                    System.out.println("Duplicate stn num, "+
+                    		stn.getStnnum()+ ", in file: "+ stnsFile.getName() );
+        		}
+        		else {
+        			idftStnsMap.put( stnNum, stn );
+        		}
+        	}
+        }
     }
 
     /**
@@ -81,42 +94,32 @@ public class IdftParser {
         /*
          * Regular expression for IDFT report
          */
-        String stnum;
-        int istnum;
         Float signLl;
         record.setPointNum(Integer.parseInt(matchLn.group(1)));
         if (itype == 0) {
             /*
              * If itype equals 0, then no lat/lon in raw data for point. So, get
              * lat/lon from unmarshalled idftLoc.xml and then setLat and setLon.
-             * 
-             * Subtract 1 from indx since index of list starts at 0 whereas the
-             * IDFT point numbers start at 1.
              */
-            int indx = Integer.parseInt(matchLn.group(1)) - 1;
             try {
-                stnum = list.get(indx).getStnnum();
-                istnum = Integer.parseInt(stnum);
-                /*
-                 * Verify if index matches data.
-                 */
-                if (indx == istnum - 1) {
-                    record.setLat(list.get(indx).getLatitude());
-                    record.setLon(list.get(indx).getLongitude());
-                } else {
-                    System.out
-                            .println("Point number "
-                                    + istnum
-                                    + " does not correspond to its position in idftLoc.xml");
+            	Integer stnNum = Integer.parseInt(matchLn.group(1));
+            	
+            	if( !idftStnsMap.containsKey( stnNum ) ) {
+                	// TODO : change this to discard the record instead??
                     record.setLat(IDecoderConstantsN.FLOAT_MISSING);
                     record.setLon(IDecoderConstantsN.FLOAT_MISSING);
+                    System.out.println("Stn Num, "+stnNum +", not found in idftLoc.xml station table.");
+            	}
+            	else {
+            		Station stn = idftStnsMap.get( stnNum );
+                
+            		record.setLat(stn.getLatitude());
+            		record.setLon(stn.getLongitude());
                 }
             } catch (IndexOutOfBoundsException e) {
                 record.setLat(IDecoderConstantsN.FLOAT_MISSING);
                 record.setLon(IDecoderConstantsN.FLOAT_MISSING);
-                System.out
-                        .println("Bad index to idftPoint created from idftLocs.xml");
-                e.printStackTrace();
+                System.out.println("Bad index to idftPoint created from idftLocs.xml");
             }
         } else {
             /*
