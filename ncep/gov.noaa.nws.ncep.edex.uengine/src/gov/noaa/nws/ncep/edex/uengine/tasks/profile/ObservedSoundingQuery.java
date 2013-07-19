@@ -20,6 +20,7 @@ package gov.noaa.nws.ncep.edex.uengine.tasks.profile;
  * Nov 2011                 Chin Chen   changed Ncuair table query algorithm for performance improvement
  * 01/05/2012               S. Gurung   Removed references to UAIR (performed cleanup)
  * 02/28/2012               Chin Chen   modify several sounding query algorithms for better performance
+ * 07/19/2013   1992        bsteffen    Remove redundant time columns from bufrua.
  * </pre>
  * 
  * @author Chin Chen
@@ -151,8 +152,8 @@ public class ObservedSoundingQuery {
 			else {
 				return pf;
 			}
-			fields.add("validTime");// the synoptic time field name defined in UAObs
-			values.add(refTimeCal); 
+            fields.add("dataTime.refTime");// the synoptic time field name defined in UAObs
+            values.add(refTimeCal.getTime());
 			dao = new CoreDao(DaoConfig.forClass(UAObs.class));
 			try {
 				lUairRecords = (List<UAObs>) dao.queryByCriteria(fields, values);
