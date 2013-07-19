@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.dataplugin.bufrua;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -93,6 +92,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * Jun 20, 2013 2128       bsteffen    Ensure setDataURI sets the dataURI.
+ * Jul 19, 2013 1992       bsteffen    Remove redundant time columns from
+ *                                     bufrua.
  * 
  * </pre>
  * 
@@ -173,18 +174,6 @@ public class UAObs extends PersistablePluginDataObject implements
 	// Non persisted value. Hold the last requested level value.
 	@Transient
 	private Integer levelId;
-
-	// Time of the observation.
-	@Column
-	@XmlElement
-	@DynamicSerializeElement
-	private Calendar validTime;
-
-	// Time of the observation to the nearest hour.
-	@Column
-	@XmlElement
-	@DynamicSerializeElement
-	private Calendar refHour;
 
 	// The observation report type.
 	@DataURI(position = 1)
@@ -448,40 +437,6 @@ public class UAObs extends PersistablePluginDataObject implements
 	 */
 	public void setReportType(Integer reportType) {
 		this.reportType = reportType;
-	}
-
-	/**
-	 * @return the validTime
-	 */
-	public Calendar getValidTime() {
-		return validTime;
-	}
-
-	/**
-	 * @param validTime
-	 *            the validTime to set
-	 */
-	public void setValidTime(Calendar validTime) {
-		this.validTime = validTime;
-	}
-
-	/**
-	 * Get the reference hour
-	 * 
-	 * @return the refHour
-	 */
-	public Calendar getRefHour() {
-		return refHour;
-	}
-
-	/**
-	 * Set the reference hour
-	 * 
-	 * @param refHour
-	 *            the refHour to set
-	 */
-	public void setRefHour(Calendar refHour) {
-		this.refHour = refHour;
 	}
 
 	/**
