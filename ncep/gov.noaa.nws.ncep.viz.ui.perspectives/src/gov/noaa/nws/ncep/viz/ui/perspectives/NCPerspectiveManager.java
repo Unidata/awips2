@@ -2,10 +2,12 @@ package gov.noaa.nws.ncep.viz.ui.perspectives;
 
 import gov.noaa.nws.ncep.staticdataprovider.StaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.controls.PgenFileNameDisplay;
+import gov.noaa.nws.ncep.viz.common.area.AreaMenusMngr;
+import gov.noaa.nws.ncep.viz.common.area.NcAreaProviderMngr;
+import gov.noaa.nws.ncep.viz.common.area.PredefinedAreaFactory;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsRenderableDisplay;
 import gov.noaa.nws.ncep.viz.common.display.INcPaneID;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedAreasMngr;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.gempak.grid.inv.NcGridInventory;
 import gov.noaa.nws.ncep.viz.gempak.grid.mapper.GridMapper;
@@ -235,7 +237,7 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
 
         // read in and validate all of the Predefined Area files.
         try {
-        	List<VizException> warnings = PredefinedAreasMngr.readPredefinedAreas();
+        	List<VizException> warnings = NcAreaProviderMngr.initialize();//.getWarnings();//PredefinedAreasMngr.readPredefinedAreas();
         	
         	if( warnings != null && !warnings.isEmpty() ) {
         		final StringBuffer msgBuf = new StringBuffer(
@@ -270,6 +272,8 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
                     MessageDialog.ERROR, new String[] { "OK" }, 0);
             errDlg.open();
         }
+
+        AreaMenusMngr.getInstance();
 
         // Force the RBDs to read from localization to save time
         // bringing up the RBD manager
@@ -338,7 +342,8 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
 
             // ResourceDefnsMngr.getInstance().createInventory();
 
-        } catch (VizException el) {
+        } 
+        catch (VizException el) {
             MessageDialog errDlg = new MessageDialog(
                     perspectiveWindow.getShell(), "Error", null,
                     "Error Initializing NcInventory:\n\n" + el.getMessage(),
@@ -442,6 +447,35 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
         // Experiment.
         // statusLine.setErrorMessage("Status Line ERROR MSG B");
         // statusLine.setMessage("Status Line MESSAGE B");
+
+        // read in and validate all of the Predefined Area files.
+
+        List<VizException> warnings = NcAreaProviderMngr.reinitialize();
+    	
+    	if( warnings != null && !warnings.isEmpty() ) {
+    		final StringBuffer msgBuf = new StringBuffer(
+    				"The following Warnings occurs while re-initializing the Predefined Areas::\n\n");
+    		int numWarns = 0;
+    		for( VizException vizex : warnings ) {
+    			msgBuf.append(" -- " + vizex.getMessage() + "\n");
+
+    			if (++numWarns > 20) {
+    				msgBuf.append(" .....and more....");
+    				break;
+    			}
+    		}
+
+    		VizApp.runAsync(new Runnable() {
+    			@Override
+    			public void run() {
+    				MessageDialog warnDlg = new MessageDialog(
+    						perspectiveWindow.getShell(), "Warning", null,
+    						msgBuf.toString(), MessageDialog.WARNING,
+    						new String[] { "OK" }, 0);
+    				warnDlg.open();
+    			}
+    		});
+        } 
 
         // relayout the shell since we added widgets
         perspectiveWindow.getShell().layout(true, true);
