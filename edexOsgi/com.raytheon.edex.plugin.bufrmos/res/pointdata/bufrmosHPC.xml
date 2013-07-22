@@ -19,11 +19,11 @@
         further_licensing_information.
     -->
 <pointDataDescription>
-  <parameter name="minTempClim" numDims="1" type="FLOAT" />
-  <parameter name="relFreqPrecip" numDims="1" type="INT" />
+  <parameter name="minTempClim" numDims="1" type="FLOAT" unit="K"/>
+  <parameter name="relFreqPrecip" numDims="1" type="INT" unit="%"/>
   <parameter name="proj_hour" numDims="1" type="INT" />
-  <parameter name="maxTempClim" numDims="1" type="FLOAT" />
+  <parameter name="maxTempClim" numDims="1" type="FLOAT" unit="K"/>
   <parameter name="minTemp24Hour" numDims="1" type="FLOAT" unit="K"/>
-  <parameter name="POP24hr" numDims="1" type="INT"/>
+  <parameter name="POP24hr" numDims="1" type="INT" unit="%"/>
   <parameter name="maxTemp24Hour" numDims="1" type="FLOAT" unit="K" />
 </pointDataDescription>

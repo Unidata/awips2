@@ -98,6 +98,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * 02/01/13     1569        D. Hladky   Added constants
  * 02/25/13     1660        D. Hladky   FFTI design change to help mosaic processing.
  * 05/01/2013   15684       zhao        Unlock when Exception caught
+ * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * </pre>
  * 
  * @author dhladky
@@ -212,29 +213,6 @@ public class FFMPProcessor {
             processVirtualGageBasins();
         } else {
             processSource();
-        }
-
-        // don't do gages for anything other than "ALL"
-        if ((sourceId != null)
-                && !source.getSourceType().equals(
-                        FFMPSourceConfigurationManager.SOURCE_TYPE.GAGE
-                                .getSourceType())) {
-
-            //ArrayList<String> hucs = template.getTemplateMgr().getHucLevels();// DR 15514
-            String[] hucs = template.getTemplateMgr().getHucLevelsInArray();// DR 15514
-            synchronized (hucs) {
-                if (hucs != null) {
-                    //for (String huc : hucs) {
-                    for(int i=0; i<hucs.length; i++){	
-                    	String huc = hucs[i];
-                        if (huc != null) {
-                            if (!huc.equals("ALL") || !huc.equals("VIRTUAL")) {
-                                setValues(huc);
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         statusHandler.handle(Priority.INFO,
@@ -471,7 +449,7 @@ public class FFMPProcessor {
                         if (sourceId != null) {
                             for (Long key : map.keySet()) {
 
-                                FFMPBasin basin = getBasin(key, FFMPRecord.ALL);
+                                FFMPBasin basin = getBasin(key);
                                 Date date = null;
                                 Float val = null;
 
@@ -595,7 +573,7 @@ public class FFMPProcessor {
 
                             for (Long key : map.keySet()) {
 
-                                FFMPBasin basin = getBasin(key, "ALL");
+                                FFMPBasin basin = getBasin(key);
                                 float val = 0.0f;
                                 val = processGrib(key, domain.getCwa());
                                 setBasin(basin, val);
@@ -643,11 +621,9 @@ public class FFMPProcessor {
 
 					Date backDate = new Date(ffmpRec.getDataTime().getRefTime()
 							.getTime()-(FFMPGenerator.SOURCE_CACHE_TIME * TimeUtil.MILLIS_PER_HOUR));
-					
-					ArrayList<String> hucs = new ArrayList<String>();
-					hucs.add("ALL");
+	
 					FFMPDataContainer ffgContainer = generator
-							.getFFMPDataContainer(sourceNameString, hucs,
+							.getFFMPDataContainer(sourceNameString, 
 									backDate);
 
                     if (ffgContainer != null
@@ -688,7 +664,7 @@ public class FFMPProcessor {
                                         siteKey, guidFrequency, source,
                                         qpeSource, previousDate, recdate,
                                         generator,
-                                        ffgContainer.getBasinData(FFMPRecord.ALL),
+                                        ffgContainer.getBasinData(),
                                         ffmpRec);
                                 
                                 boolean delayGuidance = figd
@@ -811,9 +787,9 @@ public class FFMPProcessor {
      * 
      * @param ffmp
      */
-    private FFMPBasinData getBasinData(String huc) {
+    private FFMPBasinData getBasinData() {
 
-        return ffmpRec.getBasinData(huc);
+        return ffmpRec.getBasinData();
     }
 
     /**
@@ -823,15 +799,11 @@ public class FFMPProcessor {
      * @param huc
      * @return
      */
-    private FFMPBasin getBasin(Long pfaf, String huc) {
-        FFMPBasin basin = getBasinData(huc).get(pfaf);
+    private FFMPBasin getBasin(Long pfaf) {
+        FFMPBasin basin = getBasinData().get(pfaf);
         if (basin == null) {
-            if (huc.equals(FFMPRecord.ALL)) {
-                basin = new FFMPBasin(pfaf, false);
-            } else {
-                basin = new FFMPBasin(pfaf, true);
-            }
-            getBasinData(huc).put(pfaf, basin);
+            basin = new FFMPBasin(pfaf, false);
+            getBasinData().put(pfaf, basin);
         }
         return basin;
     }
@@ -845,62 +817,13 @@ public class FFMPProcessor {
      */
     private FFMPVirtualGageBasin getVirtualBasin(String lid, Long pfaf,
             String huc) {
-        FFMPVirtualGageBasin basin = (FFMPVirtualGageBasin) getBasinData(huc)
+        FFMPVirtualGageBasin basin = (FFMPVirtualGageBasin) getBasinData()
                 .get(pfaf);
         if (basin == null) {
-            if (huc.equals(FFMPRecord.ALL)) {
-                basin = new FFMPVirtualGageBasin(lid, pfaf, false);
-            } else {
-                basin = new FFMPVirtualGageBasin(lid, pfaf, true);
-            }
-            getBasinData(huc).put(pfaf, basin);
+            basin = new FFMPVirtualGageBasin(lid, pfaf, false);
+            getBasinData().put(pfaf, basin);
         }
         return basin;
-    }
-
-    /**
-     * Sets the values for the aggregated basins
-     * 
-     * @param type
-     * @return
-     */
-    private void setValues(String huc) {
-
-        try {
-            // Get basins for level, we process VGB's differently because it is
-            // a
-            // special case
-            if (!huc.equals(FFMPRecord.VIRTUAL) && !huc.equals(FFMPRecord.ALL)) {
-
-                for (DomainXML domain : template.getDomains()) {
-
-                    LinkedHashMap<Long, ?> map = template.getMap(siteKey,
-                            domain.getCwa(), huc);
-
-                    for (Long pfaf : map.keySet()) {
-                        FFMPBasin basin = getBasin(pfaf, huc);
-                        Float val = 0.0f;
-                        // average values
-                        try {
-                            ArrayList<Long> aggPfafs = template
-                                    .getAggregatePfafs(pfaf, siteKey, huc);
-                            ArrayList<Double> areas = template
-                                    .getAreas(aggPfafs);
-                            val = ffmpRec.getBasinData(FFMPRecord.ALL).getAverageValue(
-                                    aggPfafs, areas);
-                        } catch (Exception e) {
-                            // Value is NAN, ignore it.
-                        }
-
-                        basin.setValue(config.getDate(), val);
-                    }
-                }
-            }
-
-        } catch (Exception e) {
-            config.getGenerator().logger.error("Unable to process " + huc
-                    + " level data");
-        }
     }
 
     /**

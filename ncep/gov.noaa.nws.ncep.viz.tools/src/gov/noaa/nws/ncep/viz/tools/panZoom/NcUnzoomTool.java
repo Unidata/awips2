@@ -9,8 +9,8 @@
 package gov.noaa.nws.ncep.viz.tools.panZoom;
 
 
+import gov.noaa.nws.ncep.viz.common.area.PredefinedArea;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsRenderableDisplay;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedArea;
 import gov.noaa.nws.ncep.viz.tools.predefinedArea.PredefinedAreaAction;
 import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
