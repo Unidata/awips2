@@ -4,4 +4,4 @@
 ### For example: #set ($dupcounties = ["20091","20107","29101","29115"])
 ### IF YOU DO NOT HAVE DUPLICATE COUNTY NAMES USE THE FOLLOWING SYNTAX:
 ### Null example: #set ($dupcounties = [""])
-#set ($dupcounties = ["20091","20107","29101","29115"])
+#set ($dupcounties = [""])

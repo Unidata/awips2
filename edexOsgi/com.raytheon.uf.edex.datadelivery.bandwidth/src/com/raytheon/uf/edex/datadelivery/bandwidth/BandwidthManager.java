@@ -105,6 +105,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Jun 18, 2013 2120       dhladky      Add times to pointtime array
  * Jun 20, 2013 1802       djohnson     Check several times for the metadata for now.
  * Jun 24, 2013 2106       djohnson     Access BandwidthBucket contents through RetrievalPlan.
+ * Jul 09, 2013 2038       djohnson     Correct unregisterFromBandwidthEventBus() to actually do it.
  * Jul 10, 2013 2106       djohnson     Move EDEX instance specific code into its own class.
  * Jul 11, 2013 2106       djohnson     Propose changing available bandwidth returns subscription names.
  * Jul 18, 2013 1653       mpduff       Added case GET_SUBSCRIPTION_STATUS.

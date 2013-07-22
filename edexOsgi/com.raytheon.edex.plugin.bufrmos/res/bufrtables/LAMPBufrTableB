@@ -371,7 +371,7 @@
 0	20	5	  0	       0	  5	TABLE     	PAST WEATHER (2)                           
 0	20	9	 -1	     -40	 11	M         	CEILING ? ? ? ? ? ? ? ? ? ? ? ? ? ? ?      
 0	20	10	  0	       0	  7	%         	CLOUD COVER (TOTAL)                        
-0	20	11	  0	       0	  4	TABLE     	CLOUD AMOUNT                               
+0	20	11	  0	       0	  4	CODE TABLE 	CLOUD AMOUNT                               
 0	20	12	  0	       0	  6	TABLE     	CLOUD TYPE                                 
 0	20	13	 -1	     -40	 11	M         	HEIGHT OF BASE OF CLOUD (SA/SM)            
 0	20	14	 -1	     -40	 11	M         	HEIGHT OF TOP OF CLOUD                     

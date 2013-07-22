@@ -32,7 +32,8 @@ import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * June 15, 2011    9377     jnjanga     Initial creation
- * 
+ * July 12, 2013   15711     wkwock      Fix verbose, observe mode, etc
+ *  
  * </pre>
  * 
  * @author jnjanga
@@ -58,6 +59,8 @@ class ReportOptions {
     private int minutes=0;
 
     private boolean minGiven=false;
+    
+    private boolean verboseFlag=false;
 
     ReportOptions() {
     }
@@ -177,6 +180,14 @@ class ReportOptions {
     public void setMin_val_diff(float min_val_diff) {
         this.min_val_diff = min_val_diff;
     }
+    
+    public boolean getVerbose () {
+    	return verboseFlag ;
+    }
+
+    public void setVerbose (boolean verboseFlg) {
+    	verboseFlag = verboseFlg;
+    }
 
     public void addOption(CmdlineOption option) throws IllegalArgumentException {
         String arg = (String) option.getArg();
@@ -201,6 +212,9 @@ class ReportOptions {
             break;
         case FILE_SUFFIX:
             setFileSuffix(arg);
+            break;
+        case VERBOSE:
+            setVerbose(true);
             break;
         default:
             break;

@@ -74,6 +74,9 @@ import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData.MPEFieldFrame;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 29, 2012            mschenke    Initial creation.
+ * May 28, 2013 15971      lbousaidi    change the reading hour for SATPRE
+ *                                      since the start time in the file is one 
+ *                                      hour less than the file time stamp. 													 
  * Jul 02, 2013   2160     mpduff      Changed how edited data are called for return.
  * </pre>
  * 
@@ -317,9 +320,15 @@ public class MPEFieldResource extends
         for (int i = 0; i < accumInterval; ++i) {
             timeToLoad.setTime(currTime.getRefTime());
             timeToLoad.add(Calendar.HOUR, -i);
-
+                    	
+            if (displayField==DisplayFieldData.satPre) {
+            	 //SATPRE MPE file time stamp is the start time of the hour 
+            	 //i.e. a 12z -13z product has a time stamp of 12z.             	
+            	 timeToLoad.add(Calendar.HOUR, -1);             	 
+            }
+            	 
             XmrgFile file = MPEDisplayManager.getXmrgFile(displayField,
-                    timeToLoad.getTime());
+                   timeToLoad.getTime()); 
             try {
                 file.load();
             } catch (IOException e) {

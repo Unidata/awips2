@@ -44,6 +44,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 7, 2013            njensen     Initial creation
+ * Jul 15, 2013  2184     dhladky     Removed all HUC's but ALL
  * 
  * </pre>
  * 
@@ -64,18 +65,15 @@ public class FFMPProcessUris {
 
     private final Date fbarrierTime;
 
-    private final String fhuc;
-
     private final FFMPMonitor ffmpMonitor;
 
     public FFMPProcessUris(FFMPMonitor ffmpMonitor,
             NavigableMap<Date, List<String>> uriMap, String siteKey,
-            String sourceName, Date barrierTime, String phuc) {
+            String sourceName, Date barrierTime) {
         this.furiMap = uriMap;
         this.fsiteKey = siteKey;
         this.fbarrierTime = barrierTime;
         this.fsourceName = sourceName;
-        this.fhuc = phuc;
         this.ffmpMonitor = ffmpMonitor;
     }
 
@@ -90,7 +88,7 @@ public class FFMPProcessUris {
                 isGuidance = true;
             }
             List<String> loadedUris = ffmpMonitor.getLoadedUris(fsiteKey,
-                    fsourceName, fhuc);
+                    fsourceName);
             Set<FFMPRecord> populatedRecords = new HashSet<FFMPRecord>();
             for (List<String> uris : furiMap.descendingMap().values()) {
                 for (String uri : uris) {
@@ -102,7 +100,7 @@ public class FFMPProcessUris {
                             || isGuidance) {
                         try {
                             record = ffmpMonitor.populateFFMPRecord(uri,
-                                    fsiteKey, fsourceName, fhuc);
+                                    fsiteKey, fsourceName);
                             if (record != null) {
                                 populatedRecords.add(record);
                                 if (source != null) {
@@ -121,7 +119,7 @@ public class FFMPProcessUris {
 
             monitor.beginTask(null, populatedRecords.size());
             for (FFMPRecord record : populatedRecords) {
-                record.getBasinData(fhuc).loadNow();
+                record.getBasinData().loadNow();
                 monitor.worked(1);
             }
         }
