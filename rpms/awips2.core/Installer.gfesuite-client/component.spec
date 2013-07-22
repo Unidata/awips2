@@ -70,7 +70,10 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/GFESuite/products/ISC
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
+mkdir -p ${RPM_BUILD_ROOT}/awips2/GFESuite/products/ATBL
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 # Copy the profile.d scripts.
 PROFILE_D_DIR="rpms/common/environment/awips2-gfesuite/profile.d"
