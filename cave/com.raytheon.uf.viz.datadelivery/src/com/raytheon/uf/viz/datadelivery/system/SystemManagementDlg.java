@@ -57,6 +57,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Jan 17, 2013 1501       djohnson    Close the dialog when force apply occurs, 
  *                                     and check whether changes have already been applied when OK is pressed.
  * May 17, 2013 2000       djohnson    Move bandwidth configuration into its own tab, add subscription overlap rules.
+ * Jul 16, 2013 1655       mpduff      Add system status tab.
  * 
  * </pre>
  * 
@@ -83,6 +84,9 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
 
     /** The bandwidth tab */
     private BandwidthTab bTab;
+
+    /** The status tab */
+    private StatusTab statusTab;
 
     /**
      * Constructor.
@@ -163,6 +167,10 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
         bTab = new BandwidthTab(getTabComposite(tabFolder));
         createTabItem(tabFolder, bTab);
         bTab.init();
+
+        statusTab = new StatusTab(getTabComposite(tabFolder));
+        createTabItem(tabFolder, statusTab);
+        statusTab.init();
 
         lTab.loadList();
         pTab.loadList();
