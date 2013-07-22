@@ -27,11 +27,12 @@
 
 package gov.noaa.nws.ncep.common.dataplugin.idft;
 
-
 import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 import java.util.Calendar;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
@@ -50,6 +51,22 @@ import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
+/**
+ * 
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 07/22/2013   1977       rjpeter     Added getDataURI and annotations.
+ * 
+ * </pre>
+ * 
+ * @author rjpeter
+ * @version 1.0
+ */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "idftseq")
 @Table(name = "idft", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
@@ -57,72 +74,66 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "idft",
-		indexes = {
-				@Index(name = "idft_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "idft", indexes = { @Index(name = "idft_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
+public class IdftRecord extends PluginDataObject {
 
-public class IdftRecord extends PluginDataObject{
-	
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/** Report type */
-	@Column(length=32)
-	@XmlElement
+    /** Report type */
+    @Column(length = 32)
+    @XmlElement
     @DataURI(position = 4)
-	@DynamicSerializeElement
-	private String reportType;
-	
-	@Column
+    @DynamicSerializeElement
+    private String reportType;
+
+    @Column
     @DataURI(position = 1)
     @DynamicSerializeElement
-	@XmlElement
-	private Calendar issueTime;
+    @XmlElement
+    private Calendar issueTime;
 
-	@Column
+    @Column
     @DataURI(position = 2)
     @DynamicSerializeElement
-	@XmlElement
-	private Calendar validTime;
+    @XmlElement
+    private Calendar validTime;
 
     @XmlElement
     @DataURI(position = 3)
     @DynamicSerializeElement
-	private Integer pointNum;
+    private Integer pointNum;
 
     @XmlElement
     @DynamicSerializeElement
-	private Float lat;
+    private Float lat;
 
     @XmlElement
     @DynamicSerializeElement
-	private Float lon;
+    private Float lon;
 
     @XmlElement
     @DynamicSerializeElement
-	private Float direction;
+    private Float direction;
 
     @XmlElement
     @DynamicSerializeElement
-	private Float distanceNm;
+    private Float distanceNm;
 
-
-	/**
+    /**
      * Default Constructor
      */
     public IdftRecord() {
-    	this.issueTime = null;
-    	this.validTime = null;
-    	this.pointNum = IDecoderConstantsN.INTEGER_MISSING;
-    	this.lat = IDecoderConstantsN.FLOAT_MISSING;
-    	this.lon = IDecoderConstantsN.FLOAT_MISSING;
-    	this.direction = IDecoderConstantsN.FLOAT_MISSING;
-    	this.distanceNm = IDecoderConstantsN.FLOAT_MISSING;
+        this.issueTime = null;
+        this.validTime = null;
+        this.pointNum = IDecoderConstantsN.INTEGER_MISSING;
+        this.lat = IDecoderConstantsN.FLOAT_MISSING;
+        this.lon = IDecoderConstantsN.FLOAT_MISSING;
+        this.direction = IDecoderConstantsN.FLOAT_MISSING;
+        this.distanceNm = IDecoderConstantsN.FLOAT_MISSING;
     }
 
     /**
@@ -140,61 +151,75 @@ public class IdftRecord extends PluginDataObject{
         // TODO Auto-generated method stub
         return null;
     }
-    
-    public String getReportType() {
-    	return reportType;
-    }
-    public void setReportType(String reportType) {
-    	this.reportType = reportType;
-    }
-    
-	public Calendar getIssueTime(){
-		return issueTime;
-	}
-	public void setIssueTime(Calendar issueTime){
-		this.issueTime=issueTime;
-	}
-	
-	public Calendar getValidTime(){
-		return validTime;
-	}
-	public void setValidTime(Calendar validTime){
-		this.validTime=validTime;
-	}
-	
-	public Integer getPointNum(){
-		return pointNum;
-	}
-	public void setPointNum(Integer pointNum){
-		this.pointNum=pointNum;
-	}
-	
-	public float getLat(){
-		return lat;
-	}
-	public void setLat(float latitude){
-		this.lat=latitude;
-	}
-	
-	public float getLon(){
-		return lon;
-	}
-	public void setLon(float longitude){
-		this.lon=longitude;
-	}
-	
-	public float getDirection(){
-		return direction;
-	}
-	public void setDirection(float direction){
-		this.direction=direction;
-	}
-	
-	public float getDistanceNm(){
-		return distanceNm;
-	}
-	public void setDistanceNm(float distanceNm){
-		this.distanceNm=distanceNm;
-	}
 
+    public String getReportType() {
+        return reportType;
+    }
+
+    public void setReportType(String reportType) {
+        this.reportType = reportType;
+    }
+
+    public Calendar getIssueTime() {
+        return issueTime;
+    }
+
+    public void setIssueTime(Calendar issueTime) {
+        this.issueTime = issueTime;
+    }
+
+    public Calendar getValidTime() {
+        return validTime;
+    }
+
+    public void setValidTime(Calendar validTime) {
+        this.validTime = validTime;
+    }
+
+    public Integer getPointNum() {
+        return pointNum;
+    }
+
+    public void setPointNum(Integer pointNum) {
+        this.pointNum = pointNum;
+    }
+
+    public float getLat() {
+        return lat;
+    }
+
+    public void setLat(float latitude) {
+        this.lat = latitude;
+    }
+
+    public float getLon() {
+        return lon;
+    }
+
+    public void setLon(float longitude) {
+        this.lon = longitude;
+    }
+
+    public float getDirection() {
+        return direction;
+    }
+
+    public void setDirection(float direction) {
+        this.direction = direction;
+    }
+
+    public float getDistanceNm() {
+        return distanceNm;
+    }
+
+    public void setDistanceNm(float distanceNm) {
+        this.distanceNm = distanceNm;
+    }
+
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }
