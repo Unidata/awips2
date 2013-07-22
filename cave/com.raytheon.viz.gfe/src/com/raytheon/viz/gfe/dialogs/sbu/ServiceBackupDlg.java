@@ -93,6 +93,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Mar 20, 2013    1447    dgilling     Port troubleshooting mode changes
  *                                      from A1 DR 21404, some code cleanup.
  * May 01, 2013    1762    dgilling     Remove national center check.
+ * Jul 22, 2013    1762    dgilling     Fix running as primary check.
  * 
  * </pre>
  * 
@@ -168,7 +169,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
         super(parentShell);
         authorized = CheckPermissions.getAuthorization();
         this.site = LocalizationManager.getInstance().getCurrentSite();
-        this.runningAsPrimary = CheckPermissions.runningAsPrimary();
+        this.runningAsPrimary = CheckPermissions.runningAsPrimary(this.site);
         if (!ServiceBackupJobManager.getInstance().isRunning()) {
             ServiceBackupJobManager.getInstance().start();
         }
