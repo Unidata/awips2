@@ -62,7 +62,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * June 15, 2011    9377     jnjanga     Initial creation
- * 
+ *  July 12, 2013   15711     wkwock      Fix verbose, observe mode, etc
  * 
  * </pre>
  * 
@@ -215,10 +215,28 @@ class ReportWriter {
         writeln("--------------------------------------------------------------------");
     }
 
+    public void writeReportTrailer() {
+ /* if no alarms found, then write message */
+ 
+    	if (alarmCount == 0) {
+    		writeln("\nNO ALERT/ALARM DATA TO REPORT FOR GIVEN REQUEST.\n");
+    	} else {
+    		String reportMode=opt.getMode().toString();
+    		if (reportMode.equals("")) {
+    			writeln("\n"+alarmCount+" ALERT/ALARMS REPORTED.");
+    		}else {
+    			writeln("\n"+alarmCount+" ALERT/ALARMS REPORTED. ("+reportMode+" MODE)");
+    		}
+    	}
+ 
+    	writeln ("\nEND OF REPORT");
+    	writeToDisk();
+    }
+
     /**
      * Writes the report's trailer information.
      */
-    public void writeTrailer() {
+    public void writeVerboseTrailer() {
 
         if (alarmCount == 0) {
             writeNewline();
@@ -226,55 +244,57 @@ class ReportWriter {
             writeNewline();
             writeNewline();
         } else {
-            writeNewline();
-            writeln("ALERT/ALARMS REPORTED. " + alarmCount);
-            writeln("-------------------------------------------------------------------");
+    		String reportMode=opt.getMode().toString();
+    		if (reportMode.equals("")) {
+    			writeln("\n"+alarmCount+" ALERT/ALARMS REPORTED.");
+    		}else {
+    			writeln("\n"+alarmCount+" ALERT/ALARMS REPORTED. ("+reportMode+" MODE)");
+    		}
+            writeln("\n-------------------------------------------------------------------");
             writeln("Limits: shown above are the alert threshold/alarm threshold.");
             writeln("Info grouped by location, physical element, type-source and check type.");
             writeln("Upper, lower, diff and rate-of-change (roc) limits are shown for each group.");
             writeln("Columns shown are: threat type > level, time, value [details].");
             writeln("For forecast data, the time of the forecast is also given.");
-            writeln("Threat types: roc  =>value shown exceeded rate-of-change threshold");
+            writeln("Threat types: ");
+            writeln("              roc  =>value shown exceeded rate-of-change threshold");
             writeln("              lower<=value exceeded threshold");
-            writeNewline();
             writeln("              upper=>value exceeded threshold");
-            writeNewline();
-            writeln("              diff=>value exceeded threshold");
-            writeNewline();
+            writeln("              diff=>value exceeded threshold\n");
         }
 
         // describe the report mode in somewhat verbose terms.
         switch (opt.getMode()) {
         case ALL:
-            writeln("REPORT MODE:  ALL");
+            writeln("REPORT MODE: ALL");
             writeln("Listing all data.");
             break;
         case UNREPORTED:
-            writeln("REPORT MODE:  UNREPORTED");
+            writeln("REPORT MODE: UNREPORTED");
             writeln("Listing all unreported records.");
             break;
         case RECENT:
-            writeln("REPORT MODE:  RECENT");
+            writeln("REPORT MODE: RECENT");
             writeln("Listing observed and forecast records posted within the");
             writeln("past " + opt.getMinutes() + " minutes");
             break;
         case NEAR_NOW:
-            writeln("REPORT MODE:  NEAR NOW");
+            writeln("REPORT MODE: NEAR NOW");
             writeln("Listing observed value within the past "
                     + opt.getMinutes());
             writeln("and forecast value within the next " + opt.getMinutes()
                     + " .");
             break;
         case NEAREST:
-            writeln("REPORT MODE:  NEAREST");
+            writeln("REPORT MODE: NEAREST");
             writeln("Listing most recent observed value and earliest forecast value.");
             break;
         case LATEST_MAXFCST:
-            writeln("REPORT MODE:  LATEST_MAXFCST");
+            writeln("REPORT MODE: LATEST_MAXFCST");
             writeln("Listing most recent observed value and maximum forecast value.");
             break;
         case FRESH:
-            writeln("REPORT MODE:  FRESH");
+            writeln("REPORT MODE: FRESH");
             writeln("For observed data, listing all records that are later than "
                     + opt.getMinutes());
             writeln("minutes after the time of the most recent reported value. ");
@@ -283,7 +303,7 @@ class ReportWriter {
                     + " minutes.");
             break;
         case NEW_OR_INCREASED:
-            writeln("REPORT MODE:  NEW_OR_INCREASED");
+            writeln("REPORT MODE: NEW_OR_INCREASED");
             writeln("For observed data, listing unreported records if, the previous");
             writeln("reported was later than " + opt.getMinutes()
                     + " minutes ago OR if the report");
@@ -461,7 +481,7 @@ class ReportWriter {
                         alarmCount++;
                     }
                 }
-
+            }
                 if (grpTs0 == 'F' || grpTs0 == 'C') {
                     if (maxfcst != null
                             && isNotNull(maxfcst.getActionTime().getTime())) {
@@ -474,8 +494,6 @@ class ReportWriter {
                         }
                     }
                 }
-
-            }
 
             break;
 
@@ -731,11 +749,12 @@ class ReportWriter {
         // make a description of the type portion of the type-source field
         String typeInfo = null;
         String ts = grpData.get(0).getId().getTs();
-        if (ts.equals("C"))
+        String ts1StChr = ts.substring(0,1).toUpperCase();
+        if (ts1StChr.equals("C"))
             typeInfo = "Contingengy";
-        else if (ts.equals("F"))
+        else if (ts1StChr.equals("F"))
             typeInfo = "Forecast";
-        else if (ts.equals("P"))
+        else if (ts1StChr.equals("P"))
             typeInfo = "Processed";
         else
             typeInfo = "Observed";
@@ -797,7 +816,9 @@ class ReportWriter {
             else
                 lim.append("undef");
 
-            writeln(lim.toString());
+            if (opt.getVerbose()){
+            	writeln(lim.toString());
+            }
 
         } else {
             log.info("No data limits found in Database while writing alert/alarm group report!");

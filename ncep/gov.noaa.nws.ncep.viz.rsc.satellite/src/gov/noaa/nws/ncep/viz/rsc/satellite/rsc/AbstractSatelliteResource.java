@@ -2,7 +2,9 @@ package gov.noaa.nws.ncep.viz.rsc.satellite.rsc;
 
 import gov.noaa.nws.ncep.edex.common.metparameters.parameterconversion.NcUnits;
 import gov.noaa.nws.ncep.viz.common.ColorMapUtil;
-import gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider;
+import gov.noaa.nws.ncep.viz.common.area.IAreaProviderCapable;
+import gov.noaa.nws.ncep.viz.common.area.IGridGeometryProvider;
+import gov.noaa.nws.ncep.viz.common.area.AreaName.AreaSource;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
@@ -109,6 +111,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  02/25/13         972     Greg Hull  define on NCMapDescriptor instead of IMapDescriptor
  *  04/30/2013      *886     sgilbert    Changed number of levels from 4 to 2 for native
  *                                       satellite projections in the McidasFileBasedTileSet
+ *  05/20/2013      862      ghull       implement IAreaProviderCapable
  * </pre>
  * 
  * @author chammack
@@ -116,8 +119,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public abstract class AbstractSatelliteResource extends
         AbstractNatlCntrsResource<SatelliteResourceData, NCMapDescriptor>
-        implements IGridGeometryProvider, INatlCntrsResource,
-        IResourceDataChanged {
+        implements  INatlCntrsResource, IResourceDataChanged, IAreaProviderCapable {
 
     protected SatelliteResourceData satRscData;
 
@@ -1023,29 +1025,15 @@ public abstract class AbstractSatelliteResource extends
         }
     }
 
-    // for IGridGeometryProvider
+    // for IAreaProviderCapable which triggers the Fit To Screen and Size Of Image
+    // context menus
     @Override
-    public GeneralGridGeometry getGridGeometry() {
-        return ((IGridGeometryProvider) getResourceData()).getGridGeometry();
+	public AreaSource getSourceProvider() {
+		return satRscData.getSourceProvider();
     }
 
     @Override
-    public String getProviderName() {
-        return ((IGridGeometryProvider) getResourceData()).getProviderName();
-    }
-
-    @Override
-    public double[] getMapCenter() {
-        return ((IGridGeometryProvider) getResourceData()).getMapCenter();
-    }
-
-    @Override
-    public String getZoomLevel() {
-        return ((IGridGeometryProvider) getResourceData()).getZoomLevel();
-    }
-
-    @Override
-    public void setZoomLevel(String zl) {
-        ((IGridGeometryProvider) getResourceData()).setZoomLevel(zl);
+	public String getAreaName() {
+		return satRscData.getAreaName();
     }
 }

@@ -1,11 +1,11 @@
 package gov.noaa.nws.ncep.viz.resources.manager;
 
+import gov.noaa.nws.ncep.viz.common.area.AreaName.AreaSource;
+import gov.noaa.nws.ncep.viz.common.area.PredefinedArea;
+import gov.noaa.nws.ncep.viz.common.area.IGridGeometryProvider.ZoomLevelStrings;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsDescriptor;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsRenderableDisplay;
 import gov.noaa.nws.ncep.viz.common.display.INcPaneLayout;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedArea;
-import gov.noaa.nws.ncep.viz.common.display.IGridGeometryProvider.ZoomLevelStrings;
-import gov.noaa.nws.ncep.viz.common.display.PredefinedArea.AreaSource;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayName;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
@@ -341,12 +341,9 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
     	//    	
     	pane.setRenderableDisplay( mapDisplay );
     	
-//    	NCDisplayPane ncPane = (NCDisplayPane)pane;
+		PredefinedArea initArea = mapDisplay.getInitialArea();
     	
-    	if( mapDisplay.getInitialArea() instanceof PredefinedArea ) {
-    		PredefinedArea initArea = (PredefinedArea)mapDisplay.getInitialArea();
-
-    		if( initArea.getAreaSource() == AreaSource.RESOURCE_DEFINED ) {
+		if( initArea.getSource() != AreaSource.PREDEFINED_AREA ) {
 
     			if( initArea.getZoomLevel().equals( ZoomLevelStrings.SizeOfImage.toString() ) ) {
 
@@ -358,7 +355,6 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
 
     			}
     		}
-    	}
     	
     	pane.setZoomLevel( mapDisplay.getZoomLevel() );
     	pane.refresh();

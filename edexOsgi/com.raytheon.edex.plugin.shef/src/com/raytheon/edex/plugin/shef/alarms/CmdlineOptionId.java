@@ -27,7 +27,7 @@ package com.raytheon.edex.plugin.shef.alarms;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * June 15, 2011    9377     jnjanga     Initial creation
- * 
+ *  July 12, 2013   15711     wkwock      Fix verbose, observe mode, etc
  * 
  * </pre>
  * 
@@ -86,6 +86,12 @@ public enum CmdlineOptionId {
             return "e";
         }
 
+    },
+    
+    VERBOSE("Verbose") {
+    	public String toString() {
+    		return "v";
+    	}
     };
 
     CmdlineOptionId(String desc) {
