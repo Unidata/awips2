@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
+import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSummary;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
@@ -41,6 +42,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
  * Nov 20, 2012 1286       djohnson     Add proposeSchedule methods.
  * Dec 06, 2012 1397       djohnson     Add ability to get bandwidth graph data.
  * Jul 11, 2013 2106       djohnson     Bandwidth service now returns names of subscriptions for proposing bandwidth availability.
+ * Jul 18, 2013 1653       mpduff       Added getSubscriptionStatusSummary.
  * 
  * </pre>
  * 
@@ -143,4 +145,15 @@ public interface IBandwidthService {
      * @return bandwidth graph data
      */
     BandwidthGraphData getBandwidthGraphData();
+
+    /**
+     * Get the Subscription status summary.
+     * 
+     * @param subscription
+     *            The subscription
+     * 
+     * @return The summary
+     */
+    SubscriptionStatusSummary getSubscriptionStatusSummary(
+            Subscription subscription);
 }
