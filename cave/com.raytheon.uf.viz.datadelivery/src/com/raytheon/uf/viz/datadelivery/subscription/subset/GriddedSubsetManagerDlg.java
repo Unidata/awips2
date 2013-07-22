@@ -101,6 +101,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Jun 04, 2013  223       mpduff       Added grid specific items to this class.
  * Jun 11, 2013 2064       mpduff       Fix editing of subscriptions.
  * Jun 14, 2013 2108       mpduff       Refactored DataSizeUtils.
+ * Jul 18, 2013 2205       djohnson     If null time is selected from the dialog, return null for the adhoc.
  * 
  * 
  * </pre>
@@ -589,6 +590,9 @@ public class GriddedSubsetManagerDlg
 
         if (sub instanceof AdhocSubscription) {
             newTime = setupDataSpecificTime(newTime, sub);
+            if (newTime == null) {
+                return null;
+            }
             sub.setTime(newTime);
         } else if (!create) {
             Time time = sub.getTime();

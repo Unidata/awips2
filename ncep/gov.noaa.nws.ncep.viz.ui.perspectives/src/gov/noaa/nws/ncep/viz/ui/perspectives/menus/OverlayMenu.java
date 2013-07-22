@@ -68,7 +68,7 @@ public class OverlayMenu extends CompoundContributionItem {
             
             NcDisplayType dispType = NcEditorUtil.getNcDisplayType( 
             			NcDisplayMngr.getActiveNatlCntrsEditor() );
-            if( dispType == null ) { // ???
+            if( dispType != NcDisplayType.NMAP_DISPLAY ) { // ???
                 return new IContributionItem[0];
             }
 

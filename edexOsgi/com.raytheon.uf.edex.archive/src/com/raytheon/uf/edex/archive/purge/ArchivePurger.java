@@ -19,10 +19,14 @@
  **/
 package com.raytheon.uf.edex.archive.purge;
 
+import java.io.File;
 import java.util.Collection;
 
 import com.raytheon.uf.common.archive.config.ArchiveConfig;
 import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Purge task to purge archived data based on configured expiration.
@@ -34,6 +38,7 @@ import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May  6, 2013 1965       bgonzale    Initial creation
+ *                                     Added info logging for purge counts.
  * 
  * </pre>
  * 
@@ -42,6 +47,8 @@ import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
  */
 
 public class ArchivePurger {
+    private final static IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ArchiveConfigManager.class);
 
     /**
      * Purge expired elements from the archives.
@@ -50,7 +57,19 @@ public class ArchivePurger {
         ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
         Collection<ArchiveConfig> archives = manager.getArchives();
         for (ArchiveConfig archive : archives) {
-            manager.purgeExpiredFromArchive(archive);
+            Collection<File> deletedFiles = manager
+                    .purgeExpiredFromArchive(archive);
+            if (statusHandler.isPriorityEnabled(Priority.INFO)) {
+                StringBuilder sb = new StringBuilder(archive.getName());
+                sb.append("::Archive Purged ");
+                sb.append(deletedFiles.size());
+                sb.append(" file");
+                if (deletedFiles.size() != 1) {
+                    sb.append("s");
+                }
+                sb.append(".");
+                statusHandler.info(sb.toString());
+            }
         }
     }
 }
