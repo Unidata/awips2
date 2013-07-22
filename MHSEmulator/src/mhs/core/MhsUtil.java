@@ -5,10 +5,30 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.net.InetAddress;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Library module for MHS emulator.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ??? ??  ????            bphillip     Initial creation
+ * Jul 15, 2013  #2099     dgilling     Use safer exception handling for file I/O.
+ * 
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1.0
+ */
 public class MhsUtil {
 
     public static final SimpleDateFormat logDateFormat = new SimpleDateFormat(
@@ -19,32 +39,51 @@ public class MhsUtil {
 
     public static final String END_TOKEN = "------!!!!END!!!!------";
 
-    public static final File MY_MHS_FILE = new File(
-            "/awips2/.myMHS");
+    public static final File MY_MHS_FILE = new File("/awips2/.myMHS");
 
-    public static final File MSG_ID_FILE = new File(
-            "/awips2/.msgCount");
+    public static final File MSG_ID_FILE = new File("/awips2/.msgCount");
 
-    public static String getMsgId() throws Exception {
-        if (!MSG_ID_FILE.exists()) {
-            MSG_ID_FILE.createNewFile();
-            BufferedWriter out = new BufferedWriter(new FileWriter(MSG_ID_FILE));
-            out.write("0");
-            out.close();
+    private MhsUtil() {
+        throw new AssertionError();
+    }
+
+    public static String getMsgId() throws IOException {
+        if (MSG_ID_FILE.createNewFile()) {
+            BufferedWriter out = null;
+            try {
+                out = new BufferedWriter(new FileWriter(MSG_ID_FILE));
+                out.write("0");
+            } finally {
+                if (out != null) {
+                    out.close();
+                }
+            }
         }
+
         BufferedReader in = null;
-        in = new BufferedReader(new FileReader(MSG_ID_FILE));
-        String msgId = in.readLine().trim();
-        int newMsgNumber = Integer.parseInt(msgId) + 1;
-        in.close();
-        BufferedWriter out = new BufferedWriter(new FileWriter(MSG_ID_FILE));
-        out.write(String.valueOf(newMsgNumber));
-        out.close();
-        for (int i = msgId.length(); i < 6; i++) {
-            msgId = "0" + msgId;
+        int newMsgNumber;
+        try {
+            in = new BufferedReader(new FileReader(MSG_ID_FILE));
+            String msgId = in.readLine().trim();
+            newMsgNumber = Integer.parseInt(msgId) + 1;
+        } finally {
+            if (in != null) {
+                in.close();
+            }
         }
 
-        return msgId;
+        BufferedWriter out = null;
+        try {
+            out = new BufferedWriter(new FileWriter(MSG_ID_FILE));
+            out.write(String.valueOf(newMsgNumber));
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+        }
+
+        NumberFormat formatter = new DecimalFormat("000000");
+        return formatter.format(newMsgNumber);
     }
 
     public static int byteArrayToInt(byte[] b, int offset) {
@@ -73,26 +112,26 @@ public class MhsUtil {
             logFile = new File(logDir
                     + InetAddress.getLocalHost().getCanonicalHostName() + "-"
                     + mode + "-" + MhsUtil.logDateFormat.format(new Date()));
+            logFile.createNewFile();
 
-            if (logFile != null) {
-                if (!logFile.exists()) {
-                    logFile.createNewFile();
-                }
-            }
             message += MhsUtil.logMsgFormat.format(new Date());
             for (Object obj : msg) {
                 message += obj.toString() + " ";
             }
             message += "\n";
 
-            BufferedWriter out = new BufferedWriter(new FileWriter(logFile,
-                    true));
-            out.write(message.trim());
-            out.write("\n");
-            out.close();
-
+            BufferedWriter out = null;
+            try {
+                out = new BufferedWriter(new FileWriter(logFile, true));
+                out.write(message.trim());
+                out.write("\n");
+            } finally {
+                if (out != null) {
+                    out.close();
+                }
+            }
         } catch (Exception e) {
-            // ignore
+            e.printStackTrace();
         }
     }
 
