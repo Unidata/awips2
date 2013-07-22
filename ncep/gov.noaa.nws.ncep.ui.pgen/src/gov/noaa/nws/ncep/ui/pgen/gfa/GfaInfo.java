@@ -30,6 +30,7 @@ import org.eclipse.swt.graphics.RGB;
  * 07/10		#223		M.Laryukhin	Initial creation
  * 02/12		#662		J. Wu		Adjust forecast hour with color/line width
  * 02/12		#672		J. Wu		Add FA area specific state list
+ * 06/13		#674/TTR426	J. Wu		Added getFzlvlSfcColor() & getDefaultRGB().
  * 
  * </pre>
  * 
@@ -83,6 +84,11 @@ public class GfaInfo {
 	 * State orders in each FA area.
 	 */
 	private static HashMap<String, ArrayList<String> > stateOrderByArea;
+	
+	/**
+	 * Pairs like ("red", new RGB(255, 0, 0)) read from gfa.xml
+	 */
+	private static HashMap<String, RGB> fzlvlSfcColors;	
 	
 	/**
 	 * Getter for the document. 
@@ -178,9 +184,23 @@ public class GfaInfo {
 	 * 
 	 * @param hazard
 	 * @param fcstHr
-	 * @return
+	 * @return Color[]
 	 */
 	public static Color[] getDefaultColors(String hazard, String fcstHr) {
+		RGB rgb = getDefaultRGB( hazard, fcstHr );
+		
+		Color color = new Color(rgb.red, rgb.green, rgb.blue);
+		return new Color[]{color, color};
+	}
+
+	/**
+	 * Returns the default color's RGB for the hazard and forecast hour pair. 
+	 * 
+	 * @param hazard
+	 * @param fcstHr
+	 * @return RGB
+	 */
+	public static RGB getDefaultRGB(String hazard, String fcstHr) {
 		if (definedColors == null) {
 			loadColors();
 		}
@@ -233,8 +253,8 @@ public class GfaInfo {
 		String colorStr = hazardNodes.get(0).valueOf("@" + gfaType );
 		
 		RGB rgb = definedColors.get(colorStr);
-		Color color = new Color(rgb.red, rgb.green, rgb.blue);
-		return new Color[]{color, color};
+		
+		return rgb;
 	}
 	
 	/**
@@ -367,4 +387,30 @@ public class GfaInfo {
 		return stateOrderByArea;
 	}
 	
+	/**
+	 * Get colors for FZLVL SFC snapshot, smear, or outlook.
+	 * Default is "sky".
+	 */
+	public static RGB getFzlvlSfcColor( String name ) {
+
+		if ( definedColors == null ) {
+			loadColors();
+		}
+		
+		List<Node> colorNodes = selectNodes("/root/fzlvlSFC/value");
+		
+		if ( fzlvlSfcColors == null ) {	
+			fzlvlSfcColors = new HashMap<String, RGB>();
+			for ( Node nd : colorNodes ) {				
+				fzlvlSfcColors.put( nd.valueOf("@name"), definedColors.get( nd.valueOf("@nmapcolor") ) );
+			}
+		}
+		
+		RGB clr = fzlvlSfcColors.get( name );
+		
+		if ( clr == null ) clr = definedColors.get( "sky" );
+		
+		return clr;
+
+	}
 }

@@ -51,9 +51,18 @@
 		<subcenter>0</subcenter>
 		<grid>2291</grid>
 		<process>
-			<id>50</id>
 			<id>58</id>
 			<id>18</id>
+		</process>
+	</model>
+
+	<model>
+		<name>fens</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>2291</grid>
+		<process>
+			<id>50</id>
 		</process>
 	</model>
 
@@ -63,12 +72,21 @@
 		<subcenter>0</subcenter>
 		<grid>361181002</grid>
 		<process>
-			<id>50</id>
 			<id>18</id>
 			<id>58</id>
 		</process>
 	</model>
 
+	<model>
+		<name>fens</name>
+		<center>58</center>
+		<subcenter>0</subcenter>
+		<grid>361181002</grid>
+		<process>
+			<id>50</id>
+		</process>
+	</model>
+	
 	<model>
 		<name>fnmocWave</name>
 		<center>58</center>
