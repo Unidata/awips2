@@ -46,6 +46,7 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
+import com.raytheon.uf.common.geospatial.interpolation.PrecomputedGridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.data.ByteBufferWrapper;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
@@ -60,9 +61,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 5/16/08      875        bphillip    Initial Creation.
- * 10/10/12     #1260      randerso    Added getters for source and destination glocs
- * 02/19/13     #1637      randerso    Fixed remapping of byte grids
+ * May 16, 2008 875        bphillip    Initial Creation.
+ * Oct 10, 2012 1260       randerso    Added getters for source and destination
+ *                                     glocs
+ * Feb 19, 2013 1637       randerso    Fixed remapping of byte grids
+ * Jul 17, 2013 2185       bsteffen    Cache computed grid reprojections.
  * 
  * </pre>
  * 
@@ -462,8 +465,8 @@ public class RemapGrid {
         GridGeometry2D destGeometry = MapUtil.getGridGeometry(destinationGloc);
         synchronized (this) {
             if (interp == null) {
-                interp = new GridReprojection(sourceGeometry, destGeometry);
-                interp.computeTransformTable();
+                interp = PrecomputedGridReprojection.getReprojection(
+                        sourceGeometry, destGeometry);
             }
         }
         DataSource source = new ByteBufferWrapper(data, sourceGeometry);
@@ -540,8 +543,8 @@ public class RemapGrid {
                     .getGridGeometry(destinationGloc);
             synchronized (this) {
                 if (interp == null) {
-                    interp = new GridReprojection(sourceGeometry, destGeometry);
-                    interp.computeTransformTable();
+                    interp = PrecomputedGridReprojection.getReprojection(
+                            sourceGeometry, destGeometry);
                 }
             }
             DataSource source = new FloatArrayWrapper(data, sourceGeometry);
