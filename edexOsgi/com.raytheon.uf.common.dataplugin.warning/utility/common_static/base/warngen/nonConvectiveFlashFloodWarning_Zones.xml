@@ -6,9 +6,12 @@
           Modified Phil Kurimski         01-26-2012  OB 12.1.1-1
           Modified Phil Kurimski         02-29-2012  OB 12.2.1-3 
           Modified Qinglu Lin            04-04-2012 DR 14691. Added <feAreaField> tag.
-          Modified Phil Kurimski         04-27-2012
-          Modified Qinglu Lin            10-04-2012 DR 15426. Added damic to <lockedGroupsOnFollowup> tag.
--->          
+          Modified Phil Kurimski         04-27-2012  
+          Modified Evan Bookbinder       09-12-2012 DR15179 Added areaSource object to 
+                                         allow for county-based headlines in zone based products.
+          Modified Evan Bookbinder       05-05-2013 fixed <type> variable under areaSource objects 
+          Modified Evan Bookbinder       06-26-2013 Added "U" Unknown severity                                                                                             
+-->
 
  <!-- Config distance/speed units -->
  <unitDistance>mi</unitDistance>
@@ -68,12 +71,13 @@
 <!-- Customized several sections in bullet section including:
         Added Flash Flood Emergency Headline
  	Changed the CTA Bullet names for easier parsing in the vm file -->
-<lockedGroupsOnFollowup>dam,ic,damic</lockedGroupsOnFollowup>
+<lockedGroupsOnFollowup>dam,ic</lockedGroupsOnFollowup>
 <bulletActionGroups>
 <bulletActionGroup action="NEW" phen="FF" sig="W">
  <bullets>
   <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
   <bullet bulletText="******** FLOOD SEVERITY (choose 1) *******" bulletType="title"/>
+  <bullet bulletName="sevUnk" bulletText="Unknown" bulletDefault="true" bulletGroup="floodSeverity" floodSeverity="U"/>
   <bullet bulletName="sev1" bulletText="Minor flood" bulletGroup="floodSeverity" floodSeverity="1"/>
   <bullet bulletName="sev2" bulletText="Moderate flood" bulletGroup="floodSeverity" floodSeverity="2"/>
   <bullet bulletName="sev3" bulletText="Major flood" bulletGroup="floodSeverity" floodSeverity="3"/>
@@ -93,15 +97,15 @@
   <bullet bulletText="* causes was selected. Choose one reporter, one dam, and *"/>
   <bullet bulletText="* optionally one associated scenario and the rule of thumb. *"/>
   <bullet bulletText="****** DAM FAILURE REPORTED BY (choose 1) ******" bulletType="title"/>
-  <bullet bulletName="county" bulletText="County dispatch" bulletGroup="group2" bulletDefault="true" parseString="COUNTY DISPATCH REPORTED"/>
-  <bullet bulletName="lawEnforcement" bulletText="Law enforcement" bulletGroup="group2" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
-  <bullet bulletName="corps" bulletText="Corps of engineers" bulletGroup="group2" parseString="CORPS OF ENGINEERS REPORTED"/>
-  <bullet bulletName="damop" bulletText="Dam operator" bulletGroup="group2" parseString="DAM OPERATORS REPORTED"/>
-  <bullet bulletName="bureau" bulletText="Bureau of reclamation" bulletGroup="group2" parseString="BUREAU OF RECLAMATION REPORTED"/>
-  <bullet bulletName="public" bulletText="Public" bulletGroup="group2" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="county" bulletText="County dispatch" bulletGroup="reportedBy" bulletDefault="true" parseString="COUNTY DISPATCH REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law enforcement" bulletGroup="reportedBy" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="corps" bulletText="Corps of engineers" bulletGroup="reportedBy" parseString="CORPS OF ENGINEERS REPORTED"/>
+  <bullet bulletName="damop" bulletText="Dam operator" bulletGroup="reportedBy" parseString="DAM OPERATORS REPORTED"/>
+  <bullet bulletName="bureau" bulletText="Bureau of reclamation" bulletGroup="reportedBy" parseString="BUREAU OF RECLAMATION REPORTED"/>
+  <bullet bulletName="public" bulletText="Public" bulletGroup="reportedBy" parseString="THE PUBLIC REPORTED"/>
   <bullet bulletText="************ (OPTIONAL) LOCATIONS IMPACTED  **************" bulletType="title"/>
-  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="toggle4" parseString="WILL BE NEAR..."/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="toggle4" bulletDefault="true" parseString="LOCATIONS IMPACTED INCLUDE..."/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast"/>
  <!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
   <bullet bulletText="****** CALLS TO ACTION (choose 1 or more) ******" bulletType="title"/>
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES"/>
@@ -139,6 +143,7 @@
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
   <bullet bulletText="******** FLOOD SEVERITY (choose 1) *******" bulletType="title"/>
+  <bullet bulletName="sevUnk" bulletText="Unknown" bulletGroup="floodSeverity" floodSeverity="U"/>
   <bullet bulletName="sev1" bulletText="Minor flood" bulletGroup="floodSeverity" floodSeverity="1"/>
   <bullet bulletName="sev2" bulletText="Moderate flood" bulletGroup="floodSeverity" floodSeverity="2"/>
   <bullet bulletName="sev3" bulletText="Major flood" bulletGroup="floodSeverity" floodSeverity="3"/>
@@ -158,19 +163,23 @@
   <bullet bulletText="* causes was selected. Choose one reporter, one dam, and *"/>
   <bullet bulletText="* optionally one associated scenario and the rule of thumb. *"/>
   <bullet bulletText="****** DAM FAILURE REPORTED BY (choose 1) ******" bulletType="title"/>
-  <bullet bulletName="county" bulletText="County dispatch" bulletGroup="group2" bulletDefault="true" parseString="COUNTY DISPATCH REPORTED"/>
-  <bullet bulletName="lawEnforcement" bulletText="Law enforcement" bulletGroup="group2" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
-  <bullet bulletName="corps" bulletText="Corps of engineers" bulletGroup="group2" parseString="CORPS OF ENGINEERS REPORTED"/>
-  <bullet bulletName="damop" bulletText="Dam operator" bulletGroup="group2" parseString="DAM OPERATORS REPORTED"/>
-  <bullet bulletName="bureau" bulletText="Bureau of reclamation" bulletGroup="group2" parseString="BUREAU OF RECLAMATION REPORTED"/>
-  <bullet bulletName="public" bulletText="The public" bulletGroup="group2" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="county" bulletText="County dispatch" bulletGroup="reportedBy" bulletDefault="true" parseString="COUNTY DISPATCH REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law enforcement" bulletGroup="reportedBy" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="corps" bulletText="Corps of engineers" bulletGroup="reportedBy" parseString="CORPS OF ENGINEERS REPORTED"/>
+  <bullet bulletName="damop" bulletText="Dam operator" bulletGroup="reportedBy" parseString="DAM OPERATORS REPORTED"/>
+  <bullet bulletName="bureau" bulletText="Bureau of reclamation" bulletGroup="reportedBy" parseString="BUREAU OF RECLAMATION REPORTED"/>
+  <bullet bulletName="public" bulletText="The public" bulletGroup="reportedBy" parseString="THE PUBLIC REPORTED"/>
  <!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
   <bullet bulletText="************ (OPTIONAL) LOCATIONS IMPACTED  **************" bulletType="title"/>
-  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="toggle4" parseString="WILL BE NEAR..."/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="toggle4" bulletDefault="true" parseString="LOCATIONS IMPACTED INCLUDE..."/>
-  <bullet bulletText="****** CALLS TO ACTION (choose 1 or more) ******" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS IMPACTED INCLUDE" showString="LOCATIONS IMPACTED INCLUDE"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE" showString="LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS IN THE WARNING INCLUDE" showString="LOCATIONS IN THE WARNING INCLUDE"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
+  <bullet bulletText="****** ADDITIONAL INFO ******" bulletType="title"/>
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES"/>
   <bullet bulletName="floodMoving" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
+  <bullet bulletText="****** CALLS TO ACTION (choose 1 or more) ******" bulletType="title"/>
   <bullet bulletName="taddCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
   <bullet bulletName="vehicleCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
@@ -202,6 +211,7 @@
  <bullets>
   <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
   <bullet bulletText="******** FLOOD SEVERITY (choose 1) *******" bulletType="title"/>
+  <bullet bulletName="sevUnk" bulletText="Unknown" bulletGroup="floodSeverity" floodSeverity="U"/>
   <bullet bulletName="sev1" bulletText="Minor flood" bulletGroup="floodSeverity" floodSeverity="1"/>
   <bullet bulletName="sev2" bulletText="Moderate flood" bulletGroup="floodSeverity" floodSeverity="2"/>
   <bullet bulletName="sev3" bulletText="Major flood" bulletGroup="floodSeverity" floodSeverity="3"/>
@@ -221,19 +231,23 @@
   <bullet bulletText="* causes was selected. Choose one reporter, one dam, and *"/>
   <bullet bulletText="* optionally one associated scenario and the rule of thumb. *"/>
   <bullet bulletText="****** DAM FAILURE REPORTED BY (choose 1) ******" bulletType="title"/>
-  <bullet bulletName="county" bulletText="County dispatch" bulletGroup="group2" bulletDefault="true" parseString="COUNTY DISPATCH REPORTED"/>
-  <bullet bulletName="lawEnforcement" bulletText="Law enforcement" bulletGroup="group2" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
-  <bullet bulletName="corps" bulletText="Corps of engineers" bulletGroup="group2" parseString="CORPS OF ENGINEERS REPORTED"/>
-  <bullet bulletName="damop" bulletText="Dam operator" bulletGroup="group2" parseString="DAM OPERATORS REPORTED"/>
-  <bullet bulletName="bureau" bulletText="Bureau of reclamation" bulletGroup="group2" parseString="BUREAU OF RECLAMATION REPORTED"/>
-  <bullet bulletName="public" bulletText="The public" bulletGroup="group2" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="county" bulletText="County dispatch" bulletGroup="reportedBy" bulletDefault="true" parseString="COUNTY DISPATCH REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law enforcement" bulletGroup="reportedBy" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="corps" bulletText="Corps of engineers" bulletGroup="reportedBy" parseString="CORPS OF ENGINEERS REPORTED"/>
+  <bullet bulletName="damop" bulletText="Dam operator" bulletGroup="reportedBy" parseString="DAM OPERATORS REPORTED"/>
+  <bullet bulletName="bureau" bulletText="Bureau of reclamation" bulletGroup="reportedBy" parseString="BUREAU OF RECLAMATION REPORTED"/>
+  <bullet bulletName="public" bulletText="The public" bulletGroup="reportedBy" parseString="THE PUBLIC REPORTED"/>
  <!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
   <bullet bulletText="************ (OPTIONAL) LOCATIONS IMPACTED  **************" bulletType="title"/>
-  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="toggle4" parseString="WILL BE NEAR..."/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="toggle4" bulletDefault="true" parseString="LOCATIONS IMPACTED INCLUDE..."/>
-  <bullet bulletText="****** CALLS TO ACTION (choose 1 or more) ******" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS IMPACTED INCLUDE" showString="LOCATIONS IMPACTED INCLUDE"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE" showString="LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS IN THE WARNING INCLUDE" showString="LOCATIONS IN THE WARNING INCLUDE"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
+  <bullet bulletText="****** ADDITIONAL INFO ******" bulletType="title"/>
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES"/>
   <bullet bulletName="floodMoving" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
+  <bullet bulletText="****** CALLS TO ACTION (choose 1 or more) ******" bulletType="title"/>
   <bullet bulletName="taddCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
   <bullet bulletName="vehicleCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
@@ -263,41 +277,72 @@
  </bulletActionGroup>
 </bulletActionGroups> 
 
+<trackEnabled>false</trackEnabled>
+
 <!--  Four variables below have been changed from the County-coded products -->
-<!--  areaConfig.areaField -->
-<!--  areaConfig.fipsField -->
-<!--  pathcast.Config.areaField and -->
+<!--  areaSource.areaField -->
+<!--  areaSource.fipsField -->
+<!--  pathcastConfig.areaField and -->
 <!--  geospatialConfig.areaSource -->
 
- <areaConfig>
-  <inclusionPercent>0.00</inclusionPercent>
-  <inclusionAndOr>AND</inclusionAndOr>
-  <inclusionArea>0</inclusionArea>
-  <!--  <areaField>COUNTYNAME</areaField> -->
-  <areaField>NAME</areaField>
-  <parentAreaField>NAME</parentAreaField>
-  <areaNotationField>STATE</areaNotationField>
-  <feAreaField>FE_AREA</feAreaField>
-  <timeZoneField>TIME_ZONE</timeZoneField>
-  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
-  <!--  <fipsField>FIPS</fipsField> -->
-  <fipsField>STATE_ZONE</fipsField>
-  <pointField>NAME</pointField>
-  <sortBy>
+  <!-- Default areaSource object to generate zone based information -->
+ <areaSource variable="areas">
+<!--  <areaSource>County</areaSource> -->
+   <areaSource>Zone</areaSource>
+   <type>HATCHING</type>
+   <inclusionPercent>0</inclusionPercent>
+   <inclusionAndOr>AND</inclusionAndOr>
+   <inclusionArea>0</inclusionArea>
+   <areaField>NAME</areaField>
+   <parentAreaField>NAME</parentAreaField>
+   <areaNotationField>STATE</areaNotationField>
+   <feAreaField>FE_AREA</feAreaField>
+   <timeZoneField>TIME_ZONE</timeZoneField>
+   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+<!-- <fipsField>STATE</fipsField> -->
+   <fipsField>STATE_ZONE</fipsField>
+   <pointField>NAME</pointField>
+   <sortBy>
   	<sort>parent</sort>
-  </sortBy>
-  <pointFilter>
+   </sortBy>
+   <pointFilter>
  		<mapping key="WARNGENLEV">
  			<constraint constraintValue="1" constraintType="EQUALS" />
  		</mapping>
   </pointFilter>
   <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
- </areaConfig>
+</areaSource>
+ 
+ <!-- Add in areaSource object to generate county-based headline if desired -->
+ <areaSource variable="affectedCounties">
+   <areaSource>COUNTY</areaSource>
+   <type>INTERSECT</type>
+   <inclusionPercent>0</inclusionPercent>
+   <inclusionAndOr>AND</inclusionAndOr>
+   <inclusionArea>0</inclusionArea>
+   <areaField>COUNTYNAME</areaField>
+   <parentAreaField>NAME</parentAreaField>
+   <areaNotationField>STATE</areaNotationField>
+   <feAreaField>FE_AREA</feAreaField>
+   <timeZoneField>TIME_ZONE</timeZoneField>
+   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+   <fipsField>FIPS</fipsField>
+   <pointField>NAME</pointField>
+   <sortBy>
+  	<sort>parent</sort>
+   </sortBy>
+   <pointFilter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1" constraintType="EQUALS" />
+ 		</mapping>
+  </pointFilter>
+  <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
+</areaSource>
 
- <trackEnabled>false</trackEnabled>
 
-<!--  This section is required, but unused -->
  <pathcastConfig>
+  <inclusionPercent>1</inclusionPercent>
+  <type>AREA</type>
   <withinPolygon>true</withinPolygon>
   <distanceThreshold>8.0</distanceThreshold>
   <interval>5</interval>
@@ -317,40 +362,53 @@
  		<mapping key="WARNGENLEV">
  			<constraint constraintValue="1,2" constraintType="IN" />
  		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping>  		
   </filter>  
  </pathcastConfig>
  
  <pointSource variable="cityList">
  	<pointField>NAME</pointField>
+ 	<inclusionPercent>1</inclusionPercent>
+ 	<type>AREA</type>
  	<searchMethod>POINTS</searchMethod>
  	<withinPolygon>true</withinPolygon>
  	<maxResults>30</maxResults>
  	<distanceThreshold>200</distanceThreshold>
 	<filter> 	
   	  <mapping key="WARNGENLEV">
- 		<constraint constraintValue="1,2,3" constraintType="IN" />
+ 		<constraint constraintValue="1,2,3,4" constraintType="IN" />
  	  </mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping>  	  
  	</filter>  	
  	<sortBy>
   		<sort>warngenlev</sort>
   		<sort>population</sort>
+  		<sort>distance</sort>
   	</sortBy>	
  </pointSource>
  
- <!--  This section is required, but unused -->
   <pointSource variable="otherPoints">
  	<pointField>NAME</pointField>
+ 	<inclusionPercent>1</inclusionPercent>
+ 	<type>AREA</type>
  	<searchMethod>POINTS</searchMethod>
  	<withinPolygon>true</withinPolygon>
  	<maxResults>10</maxResults>
  	<distanceThreshold>200</distanceThreshold>
  	<sortBy>
-  		<sort>name</sort>
+  		<sort>distance</sort>
   	</sortBy>
 	<filter>
  		<mapping key="WARNGENLEV">
- 			<constraint constraintValue="3" constraintType="EQUALS" />
+ 			<constraint constraintValue="3,4" constraintType="IN" />
  		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping>  		
   	</filter>
  </pointSource>
 
@@ -360,8 +418,8 @@ and place into this template
 <include file="mileMarkers.xml"/>
 
  <geospatialConfig>
-  <pointSource>City</pointSource>
-  <!-- <areaSource>County</areaSource> -->
+  <pointSource>WarnGenLoc</pointSource>
+<!-- <areaSource>County</areaSource> -->
   <areaSource>Zone</areaSource>
   <parentAreaSource>States</parentAreaSource>
   <timezoneSource>TIMEZONES</timezoneSource>

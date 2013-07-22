@@ -9,7 +9,6 @@ package gov.noaa.nws.ncep.ui.pgen.gfa;
 
 import static gov.noaa.nws.ncep.ui.pgen.gfa.Gfa.nvl;
 import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
-import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
@@ -18,6 +17,7 @@ import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.ui.pgen.store.PgenStorageException;
 import gov.noaa.nws.ncep.ui.pgen.store.StorageUtils;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
+import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +26,7 @@ import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
@@ -36,7 +37,9 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * GFA Generate functionality.
@@ -54,7 +57,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * 05/12		#610		J. Wu		Assign issue/until times if they are missing.
  * 11/12		#952		J. Wu		Format for "TURB_HI" and "TURB-LO". 
  * 12/12		#953		J. Wu		Use deep copy when generating XML to avoid 
- * 04/13        #977        S. Gilbert  PGEN Database support                                     the parents of DEs in the layer..
+ * 04/13        #977        S. Gilbert  PGEN Database support
+ * 05/13		#610		J. Wu		Implemented FZLVL range (TTR425) 
  * </pre>
  * 
  * @author M.Laryukhin
@@ -63,6 +67,7 @@ import com.vividsolutions.jts.geom.Geometry;
 public class GfaGenerate {
 
     private static final String TEXT_TYPE = "TEXT";
+	private GeometryFactory gf = new GeometryFactory();
 
     // private final static Logger logger = Logger.getLogger(GfaGenerate.class);
     private Transformer transformer;
@@ -123,6 +128,11 @@ public class GfaGenerate {
         for (Gfa gg : adjusted) {
             String area = gg.getGfaArea();
 
+            if ( area == null || gg.getGfaStates() == null ||
+            		gg.getGfaStates().trim().length() == 0 ) {
+            	continue;
+            }
+            
             ArrayList<String> oldStates = new ArrayList<String>();
             ArrayList<String> oldStatesNoWater = new ArrayList<String>();
             for (String ss : gg.getGfaStates().split(" ")) {
@@ -177,14 +187,13 @@ public class GfaGenerate {
          */
         for (String category : categories) {
             for (String area : areas) {
-                List<AbstractDrawableComponent> ret = filterSelected(adjusted,
-                        area, category);
+                List<Gfa> ret = filterSelected( adjusted, area, category );
 
                 // If no issue/until times, assign them.
-                for (AbstractDrawableComponent de : ret) {
-                    if (de instanceof Gfa && !((Gfa) de).isSnapshot()
-                            && ((Gfa) de).getAttribute(Gfa.ISSUE_TIME) == null) {
-                        GfaRules.assignIssueTime(((Gfa) de));
+                for (Gfa de : ret) {
+                    if (!de.isSnapshot()
+                            && de.getAttribute(Gfa.ISSUE_TIME) == null) {
+                        GfaRules.assignIssueTime( de );
                     }
                 }
 
@@ -199,12 +208,21 @@ public class GfaGenerate {
                 p.addLayer(l);
 
                 /*
+                 * Find freezing range for this area!
+                 */
+                String fzlvlRange = findFreezingRange( all, ret, area, category );
+
+                /*
                  * Note - needs to use a copy so it won't change the parent of
                  * the original G-Airmets, e.g. l.add( de ) will set the parent
                  * of the 'de" to be "l"!
                  */
-                for (AbstractDrawableComponent gss : ret) {
-                    l.add(gss.copy());
+                for ( Gfa gss : ret) {
+                	Gfa gfaCopy = gss.copy();
+                	if ( fzlvlRange != null ) {
+                		gfaCopy.setGfaValue( Gfa.FZL_RANGE, fzlvlRange );
+               	    }
+                    l.add( gfaCopy );
                 }
                 // l.add( ret );
 
@@ -216,13 +234,15 @@ public class GfaGenerate {
                 // Needs to add an empty Gfa to carry the issue/until for proper
                 // formatting.
                 if (ret.size() == 0) {
-                    addNullGfa(products, category);
+                	addNullGfa( products, category, fzlvlRange );                                        
                 }
 
                 String xml = SerializationUtil.marshalToXml(products);
 
-                if (sb.length() > 0 && !sb.toString().endsWith("\n\n"))
+                if (sb.length() > 0 && !sb.toString().endsWith("\n\n")) {
                     sb.append("\n\n");
+                }
+                
                 String prdXml = generateProduct(xml, category, area).trim();
                 temp.append(prdXml);
 
@@ -264,10 +284,9 @@ public class GfaGenerate {
      * @param cats
      * @return
      */
-    private static List<AbstractDrawableComponent> filterSelected(
-            List<Gfa> all, String area, String category) {
+    private static List<Gfa> filterSelected( List<Gfa> all, String area, String category) {
 
-        ArrayList<AbstractDrawableComponent> ret = new ArrayList<AbstractDrawableComponent>();
+        ArrayList<Gfa> ret = new ArrayList<Gfa>();
 
         int ii = 0;
         for (Gfa g : all) {
@@ -448,12 +467,12 @@ public class GfaGenerate {
 
     /*
      * Adds an empty Gfa to the product so it can pass issue/until time for
-     * correct formatting.
+     * correct formatting.  Freezing range should be set if provided.
      * 
      * Note - this should be called only when there is no Gfa smears in the
      * "prds".
      */
-    private void addNullGfa(Products prds, String category) {
+    private void addNullGfa(Products prds, String category, String fzlRange ) {
 
         gov.noaa.nws.ncep.ui.pgen.file.Gfa fgfa = new gov.noaa.nws.ncep.ui.pgen.file.Gfa();
 
@@ -464,6 +483,12 @@ public class GfaGenerate {
         // issue/until time.
         fgfa.setHazard(setFirstHazardType(category));
         fgfa.setFcstHr("0-6");
+
+        // If freezing range is provided, set it and set hazard type as "FZLVL".
+        if ( fzlRange != null ) {
+            fgfa.setHazard( "FZLVL" );
+            fgfa.setFzlRange( fzlRange );
+        }
 
         //
         SimpleDateFormat sdf = new SimpleDateFormat("ddHHmm");
@@ -508,4 +533,369 @@ public class GfaGenerate {
 
     }
 
+    /*
+     *  Find the freezing range from FZLVL/M_FZLVL airmets.
+     */
+    private String findFreezingRange( List<Gfa> all, List<Gfa> selected,
+    		                          String area,  String cat ) {
+    	
+    	if ( !cat.equalsIgnoreCase( "ZULU" ) ) {
+    		return null;
+    	}
+    	
+		
+    	String fzlRange = null;
+    	String topStr = null;
+		String botStr = null;
+		
+    	/*
+    	 * If no FZLVL/M_FZLVL in this area, find range using those outside of
+    	 * this area, if any.
+    	 */
+    	if ( selected == null || selected.size() == 0 ) {
+        	int[] extRange = findExernalFzlvlRange( all, area ); 
+        	if ( extRange[0] != -1 ) {
+        		topStr = padding( extRange[0] );
+           		botStr = padding( extRange[1] );
+       	    }
+    	}
+    	else {
+    	   	/* 
+    		 * First - find the worst range from existing FZL_RANGE in FZLVL airmets.
+    		 *         If no existing range found, then find the worst top/bottom from 
+    		 *         FZLVLs' levels ( top = level + 40 and bottom = level - 40)
+    		 * Second - find the worst top/bottom from M_FZLVLs
+    		 * 
+    		 * Third  - find the worst case range using info from step 1 and 2.
+    		 * 
+    		 */
+    		int[] existingRange = findExistingFzlRange( all, selected, area );   	
+    		int[] mfzlRange = findMfzlvlRange( all, selected, area );
+
+    		if ( existingRange[0] == -1 ) {
+    			existingRange = findFzlvlLevelRange( all, selected, area );
+    		}
+
+    		if ( existingRange[0] != -1 || mfzlRange[0] != -1 ) {
+    			topStr = padding( Math.max( existingRange[0], mfzlRange[0] ) );
+    		}
+
+    		if ( existingRange[1] != 9999 || mfzlRange[1] != 9999 ){
+    			botStr = padding( Math.min( existingRange[1], mfzlRange[1] ) );
+    		}
+    	}
+    	
+    	// Now create a range string.
+    	if ( topStr != null && botStr != null ) {
+    		fzlRange = area + ";" + topStr + ";" + botStr;
+    	}
+    	    	
+    	return fzlRange;
+    	       	
+    }
+    	
+   
+    /*
+     *  Retrieve the worst FZLVL range from ranges existing in FZLVL airmet/outlook. 
+     *  Such existing range should be in the form as "MIA;160;40", retrievable as 
+     *  gfa.getGfaValue( Gfa.FZL_RANGE ).
+     */
+    private int[] findExistingFzlRange( List<Gfa> all, List<Gfa> selected, String area ) {
+    	
+    	int[] topBot = { -1, 9999 };
+    	
+	    for ( Gfa elem : selected ) {
+	    	
+	    	String gtype = elem.getGfaHazard();
+		    		    	
+	    	if ( !gtype.equalsIgnoreCase("FZLVL") || elem.isSnapshot() ) { 
+	    		continue;
+	        }
+	    	
+	    	String range1 = elem.getGfaValue( Gfa.FZL_RANGE );
+    	    if ( range1 != null ) {
+    	    	String[] rangeInfo = range1.split(";");
+    	    	if ( rangeInfo.length >= 3 && rangeInfo[0].equalsIgnoreCase( area ) ) {
+    	    		int top1 = -1;
+    	    		int bot1 = -1;
+    	    		
+    	    		try {
+    	    			top1 = Integer.parseInt( rangeInfo[1] );
+    	    		}
+    	    		catch ( Exception e ) {
+    	    			e.printStackTrace();
+    	    		}
+    	    		
+    	    		if ( rangeInfo[2].equalsIgnoreCase("SFC") ) {
+    	    			bot1 = 0;
+    	    		}
+    	    		else {
+    	    		    try {
+    	    			    bot1 = Integer.parseInt( rangeInfo[2] );
+    	    		    }
+    	    		    catch ( Exception e ) {
+    	    			    e.printStackTrace();
+    	    		    }
+    	    		}
+    	    		
+    	    		if ( top1 >= 0  && bot1 >= 0 ) {	    	    		
+    	    		    topBot[0] = Math.max( topBot[0], top1 );
+    	    		    topBot[1] = Math.min( topBot[1], bot1 );
+    	    		}
+    	    	}
+    	    }
+ 	    }
+	      	   	
+    	return topBot;  	
+    }
+
+    /*
+     *  Retrieve the worst range from existing top/bottom of M_FZLVL airmet/outlook. 
+     *  Such top/bottom are retrievable as gfa.getGfaTop() & gfa.getGfaBottom().
+     */
+    private int[] findMfzlvlRange( List<Gfa> all, List<Gfa> selected, String area ) {
+    	
+    	int[] topBot = { -1, 9999 };
+
+    	for ( Gfa elem : selected ) {
+	    	
+	    	String gtype = elem.getGfaHazard();
+		    		    	
+	    	if ( !gtype.equalsIgnoreCase("M_FZLVL") || elem.isSnapshot() ) { 
+	    		continue;
+	        }
+    		
+	    	int top2 = -1;
+    		int bot2 = -1;
+    		
+    		if ( elem.getGfaTop() != null ) {
+    		    try {
+    			    top2 = Integer.parseInt( elem.getGfaTop() );
+    		    }
+    		    catch ( Exception e ) {
+    			    e.printStackTrace();
+    		    }
+    	    }
+    		
+    		String botStr = elem.getGfaBottom();
+    		if ( botStr != null ) {
+    		    if ( botStr.equalsIgnoreCase( "SFC") ) {
+    		    	bot2 = 0;
+    		    }
+    		    else {
+    			    try {
+    			        bot2 = Integer.parseInt( elem.getGfaBottom() );
+    		        }
+    		        catch ( Exception e ) {
+    			        e.printStackTrace();
+    		        }
+    		    }
+    	    }
+    		
+    		if ( top2 >= 0 && bot2 >= 0 ) {
+    		    topBot[0] = Math.max( topBot[0], top2 );
+    		    topBot[1] = Math.min( topBot[1], bot2 );	    			
+    		}
+	    	  	    
+	    }
+	       	   	
+    	return topBot;
+    	
+    }
+    
+    /*
+     *  Retrieve the worst range from existing levels of FZLVL airmet/outlook. 
+     *  Such levels are retrievable as gfa.getGfaValue( Gfa.LEVEL ).
+     */
+    private int[] findFzlvlLevelRange( List<Gfa> all, List<Gfa> selected, String area ) {
+    	
+    	int[] topBot = { -1, 9999 };
+	    for ( Gfa elem : selected ) {
+	    	
+	    	String gtype = elem.getGfaHazard();
+		    		    	
+	    	if ( !gtype.equalsIgnoreCase("FZLVL") || elem.isSnapshot() ) { 
+	    		continue;
+	        }
+    		
+	    	int top2 = -1;
+    		int bot2 = -1;
+    		
+    		String  levelStr = elem.getGfaValue( Gfa.LEVEL );
+    		int lvl = -1;
+    		
+    		if ( levelStr != null ) {
+    			
+    			if ( levelStr.equalsIgnoreCase( "SFC" ) ) {
+    				top2 = 40;
+    				bot2 = 0;
+    			}
+    			else {
+    		        try {
+    			        lvl = Integer.parseInt( levelStr );
+    		        }
+    		        catch ( Exception e ) {
+    			        e.printStackTrace();
+    		        }
+    		        
+    		        if ( lvl >= 0 && lvl <= 40 ) {
+    	   				top2 = 40;
+        				bot2 = 0;   		        	
+    		        }
+    		        else {
+       	   				top2 = lvl + 40;
+        				bot2 = lvl - 40;   		        	   		        	
+    		        }  		        
+    			}
+    	    }
+    		
+    		
+    		if ( top2 >= 0 && bot2 >= 0 ) {
+    		    topBot[0] = Math.max( topBot[0], top2 );
+    		    topBot[1] = Math.min( topBot[1], bot2 );	    			
+    		}
+	    	  	    
+	    }
+	       	   	
+    	return topBot;
+    	
+    }
+    
+    /*
+     * Find the top and base levels for a FA area that is not intersected by any FZLVL 
+     * contours. It sorts all external fzlvls by distance from the area centroid, then 
+     * uses the level from that contour.  If the contour is to the left of the area then 
+     * the answer is base = contour level, top = base + 040.  If the contour is to the
+     * right of the area then the answer top = contour level, base = top - 040.
+     * 
+     * See legacy af_getExternalFzlvlRng() in af_getAirmetXml.c.  
+     * 
+     * Note (1) only FZLVLs are used, not M_FZLVLs.
+     *      (2) All FZLVLs are used, including snapshots.  
+     * 
+     */   
+    private int[] findExernalFzlvlRange( List<Gfa> all, String area ) {
+    	
+    	int[] topBot = { -1, 9999 };
+
+    	HashMap<String, Geometry> areaBnds = GfaClip.getInstance().getFaAreaBounds();
+    	
+    	Coordinate center = gf.createLinearRing( areaBnds.get(area ).getCoordinates() ).getCentroid().getCoordinate();	
+    	
+    	Gfa closestGfa = null;
+    	double minDist = Double.MAX_VALUE;
+    	
+	    for ( Gfa elem : all ) {
+	    	
+	    	String gtype = elem.getGfaHazard();
+		    		    	
+	    	if ( !gtype.equalsIgnoreCase("FZLVL") ) { 
+	    		continue;
+	        }
+	    	
+	    	// Find distance from the FA Area's centroid to this FZLVL.
+            double dist = distance( elem, center ); 
+            if ( dist < minDist ) {
+            	minDist = dist;
+            	closestGfa = elem;
+            }
+            
+	    }
+        	    
+	    if ( closestGfa != null ) {
+	    	boolean isLeft = GfaSnap.getInstance().atLeft( center, closestGfa.getLinePoints(), 
+	    			                                    closestGfa.isClosedLine(), 0.0 );
+	    	
+    		String  levelStr = closestGfa.getGfaValue( Gfa.LEVEL );
+    		int lvl = -1;
+    		
+    		if ( levelStr != null ) {
+    			
+    			if ( levelStr.equalsIgnoreCase( "SFC" ) ) {
+                    lvl = 0;
+    			}
+    			else {
+    		        try {
+    			        lvl = Integer.parseInt( levelStr );
+    		        }
+    		        catch ( Exception e ) {
+    			        e.printStackTrace();
+    		        }    		        
+    			}
+    	    }    		
+    		
+    		if ( lvl >= 0 ) {
+    		    if ( !isLeft ) {  // FZLVL is at right of FA area
+    			    topBot[0] = lvl + 40;
+    		        topBot[1] = lvl;
+    		    }
+    		    else {   // FZLVL is at left of FA area
+    			    topBot[0] = lvl;
+    		        topBot[1] = lvl - 40;
+    		        if ( topBot[1] < 0 ) topBot[1] = 0;
+    		    }
+    		}	    	  	    
+	    }
+     	   	
+    	return topBot;
+    	
+    }
+    
+    /*
+     * Pad a value between 0 to 100 in format of "0xx". 
+     */   
+    private String padding( int value ) {
+    	
+    	StringBuilder str = new StringBuilder();
+    	if ( value <= 0 ) {
+    		str.append( "SFC" );
+    	}
+    	else {
+    		if ( value < 100 ) {
+    		    str.append( "0" + value );
+    	    }
+    	    else {
+    		    str.append( value );
+    	    }
+    	}
+    	
+    	return str.toString();
+    	
+    }
+    
+    /*
+     * Find the distance from a given point to a Gfa line or polygon. 
+     */   
+    private double distance( Gfa gfa, Coordinate loc ) {
+    	
+        double dist = Double.MAX_VALUE;
+        double minDist = Double.MAX_VALUE;
+        
+        Object pts[] = gfa.getPoints().toArray();
+
+        for ( int ii = 0; ii < pts.length; ii++ ) {
+
+            if ( ii == pts.length - 1 ) {
+                if ( gfa.isClosedLine() ) {
+                    dist = PgenResource.distanceFromLineSegment( loc,
+                            (Coordinate) pts[ii], (Coordinate) pts[0]);
+                } 
+                else {
+                    break;
+                }
+            } 
+            else {
+                dist = PgenResource.distanceFromLineSegment( loc, (Coordinate) pts[ii],
+                        (Coordinate) pts[ii + 1]);
+            }
+
+            if ( dist < minDist ) {
+                minDist = dist;
+            }    		
+    	}
+    	
+    	return minDist;
+    	
+    }
+    
 }

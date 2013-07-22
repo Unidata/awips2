@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -43,7 +43,7 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
 
 /**
  * Utilities for smart tools
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -51,9 +51,10 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
  * Feb 21, 2008            njensen     Initial creation
  * Dec 1,  2009  1426      ryu         Add time range warning
  * Nov 15, 2012 1298       rferrel     Changes for non-blocking prcedures.
- * 
+ * Jun 25, 2013  16065     ryu         Passing outerLevel to smart tool job.
+ *
  * </pre>
- * 
+ *
  * @author njensen
  * @version 1.0
  */
@@ -66,7 +67,7 @@ public class SmartUtil {
      * Checks if LD_PRELOAD is set in the environment. If not, jep may have
      * issues importing modules. (Note that this presumes LD_PRELOAD was set
      * correctly to point at the python .so file).
-     * 
+     *
      * @return if LD_PRELOAD is set
      */
     public static boolean isLdPreloadSet() {
@@ -80,9 +81,10 @@ public class SmartUtil {
     }
 
     public static SmartToolRequest buildSmartToolRequest(DataManager dm,
-            PreviewInfo preview) {
+            PreviewInfo preview, boolean outerLevel) {
         SmartToolRequest req = new SmartToolRequest();
         req.setPreview(preview);
+        req.setOuterLevel(outerLevel);
         return req;
     }
 
@@ -114,7 +116,7 @@ public class SmartUtil {
     private static void runToolNoVarDict(DataManager dm, String toolName) {
         PreviewInfo pi = checkAndBuildPreview(dm, toolName);
         if (pi != null) {
-            SmartToolRequest req = buildSmartToolRequest(dm, pi);
+            SmartToolRequest req = buildSmartToolRequest(dm, pi, true);
             if (req != null) {
                 SmartToolJob.enqueue(dm, req);
             }
@@ -143,7 +145,8 @@ public class SmartUtil {
                 timeRange, editArea, emptyEditAreaFlag,
                 MissingDataMode.valueFrom(missingDataMode));
         PreviewInfo pi = new PreviewInfo(editAction, passErrors, parm);
-        final SmartToolRequest req = SmartUtil.buildSmartToolRequest(dm, pi);
+        final SmartToolRequest req = SmartUtil.
+                buildSmartToolRequest(dm, pi, false);
 
         if (varDict != null) {
             req.setVarDict(varDict);

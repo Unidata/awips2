@@ -10,17 +10,6 @@
 
 <gribModelSet>
 	<!-- SUBCENTER 0 -->
-
-	<model>
-                <name>nogapse</name>
-                <center>58</center>
-                <subcenter>0</subcenter>
-                <grid>360181001</grid>
-                <process>
-                        <id>1</id>
-                </process>
-        </model>
-
 	<model>
 		<name>estofsPR</name>
 		<center>7</center>
@@ -1701,7 +1690,6 @@
 			<id>77</id>
 			<id>81</id>
 			<id>225</id>
-			<id>255</id>
 		</process>
 	</model>
 
@@ -1727,7 +1715,6 @@
 			<id>77</id>
 			<id>81</id>
 			<id>225</id>
-			<id>255</id>
 		</process>
 	</model>
 
@@ -1762,6 +1749,29 @@
 	</model>
 
 	<model>
+		<name>gfs</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>145073001</grid>
+		<process>
+			<id>96</id>
+			<id>77</id>
+			<id>81</id>
+		</process>
+	</model>
+
+	<model>
+		<name>gfs</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>375</grid>
+		<process>
+			<id>96</id>
+			<id>81</id>
+		</process>
+	</model>
+
+	<model>
 		<name>gdas</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1788,18 +1798,6 @@
 		<grid>372</grid>
 		<process>
 			<id>82</id>
-		</process>
-	</model>
-
-	<model>
-		<name>gfs</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>145073001</grid>
-		<process>
-			<id>96</id>
-			<id>77</id>
-			<id>81</id>
 		</process>
 	</model>
 
@@ -1939,17 +1937,6 @@
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>221</grid>
-		<process>
-			<id>96</id>
-			<id>81</id>
-		</process>
-	</model>
-
-	<model>
-		<name>gfs</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>375</grid>
 		<process>
 			<id>96</id>
 			<id>81</id>
@@ -2402,40 +2389,10 @@
 	</model>
 
 	<model>
-		<name>naefsBC</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>375</grid>
-		<process>
-			<id>114</id>
-		</process>
-	</model>
-
-	<model>
-		<name>naefsBC</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>372</grid>
-		<process>
-			<id>114</id>
-		</process>
-	</model>
-
-	<model>
-		<name>naefsBC</name>
+		<name>naefs</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grid>3</grid>
-		<process>
-			<id>114</id>
-		</process>
-	</model>
-
-	<model>
-		<name>naefsBC</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>361181001</grid>
 		<process>
 			<id>114</id>
 		</process>

@@ -92,6 +92,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 04/08/13     #1949      rjpeter     Normalized GFE Database.
  * 05/22/13     #2025      dgilling    Re-implement functions needed by 
  *                                     GetLatestDbTimeRequest and GetLatestModelDbIdRequest.
+ * 05/20/13     #2127      rjpeter     Set session's to read only and switched to stateless where possible.
  * </pre>
  * 
  * @author bphillip
@@ -128,6 +129,7 @@ public class GFEDao extends DefaultPluginDao {
 
         try {
             sess = getHibernateTemplate().getSessionFactory().openSession();
+            sess.setDefaultReadOnly(true);
             int tries = 0;
             Transaction tx = null;
             while ((rval == null) && (tries < QUERY_RETRY)) {
@@ -217,9 +219,12 @@ public class GFEDao extends DefaultPluginDao {
 
         try {
             sess = getHibernateTemplate().getSessionFactory().openSession();
+            sess.setDefaultReadOnly(true);
             tx = sess.beginTransaction();
 
             // reattach so dbId doesn't requery
+            // Only safe because DatabaseID has no OneToMany or ManyToMany
+            // relations
             sess.buildLockRequest(LockOptions.NONE).lock(dbId);
 
             Query query = sess.createQuery("FROM ParmID WHERE dbId = ?");
@@ -265,8 +270,11 @@ public class GFEDao extends DefaultPluginDao {
 
         try {
             sess = getHibernateTemplate().getSessionFactory().openSession();
+            sess.setDefaultReadOnly(true);
 
             // reattach so dbId doesn't requery
+            // Only safe because DatabaseID has no OneToMany or ManyToMany
+            // relations
             sess.buildLockRequest(LockOptions.NONE).lock(parmId.getDbId());
 
             int tries = 0;
@@ -571,9 +579,11 @@ public class GFEDao extends DefaultPluginDao {
 
         try {
             sess = getHibernateTemplate().getSessionFactory().openSession();
+            sess.setDefaultReadOnly(true);
             tx = sess.beginTransaction();
 
             // reattach so parmId doesn't requery
+            // Only safe because ParmID has no OneToMany or ManyToMany relations
             sess.buildLockRequest(LockOptions.NONE).lock(parmId);
 
             Query query = sess.createQuery("FROM GFERecord WHERE parmId = ?");
@@ -622,9 +632,11 @@ public class GFEDao extends DefaultPluginDao {
             // stateless session so we can bulk query histories instead of once
             // per record via hibernate
             sess = getHibernateTemplate().getSessionFactory().openSession();
+            sess.setDefaultReadOnly(true);
             tx = sess.beginTransaction();
 
             // reattach so parmId doesn't requery
+            // Only safe because ParmID has no OneToMany or ManyToMany relations
             sess.buildLockRequest(LockOptions.NONE).lock(parmId);
 
             // start and end specifically reversed as we want
@@ -681,11 +693,12 @@ public class GFEDao extends DefaultPluginDao {
             return;
         }
 
-        Session sess = null;
+        StatelessSession sess = null;
         Transaction tx = null;
 
         try {
-            sess = getHibernateTemplate().getSessionFactory().openSession();
+            sess = getHibernateTemplate().getSessionFactory()
+                    .openStatelessSession();
             tx = sess.beginTransaction();
             Query query = sess
                     .createQuery("DELETE FROM GFERecord WHERE parmId = :parmId"
@@ -694,6 +707,7 @@ public class GFEDao extends DefaultPluginDao {
             query.setParameterList("times", times);
             int rowsDeleted = query.executeUpdate();
             tx.commit();
+            tx = null;
             statusHandler.info("Deleted " + rowsDeleted
                     + " records from the database.");
 
@@ -948,11 +962,12 @@ public class GFEDao extends DefaultPluginDao {
             ids.add(hist.getId());
         }
 
-        Session sess = null;
+        StatelessSession sess = null;
         Transaction tx = null;
 
         try {
-            sess = getHibernateTemplate().getSessionFactory().openSession();
+            sess = getHibernateTemplate().getSessionFactory()
+                    .openStatelessSession();
             tx = sess.beginTransaction();
             Query q = sess
                     .createSQLQuery("UPDATE gfe_gridhistory SET publishtime=:publishtime WHERE id IN (:ids)");
@@ -1073,11 +1088,12 @@ public class GFEDao extends DefaultPluginDao {
             ids.add(rec.getId());
         }
 
-        Session sess = null;
+        StatelessSession sess = null;
         Transaction tx = null;
 
         try {
-            sess = getHibernateTemplate().getSessionFactory().openSession();
+            sess = getHibernateTemplate().getSessionFactory()
+                    .openStatelessSession();
             tx = sess.beginTransaction();
             Query q = sess
                     .createQuery("DELETE FROM GFERecord WHERE id in (:ids)");

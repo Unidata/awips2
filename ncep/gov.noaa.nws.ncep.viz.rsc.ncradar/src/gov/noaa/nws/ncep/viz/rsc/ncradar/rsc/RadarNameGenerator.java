@@ -48,6 +48,7 @@ import com.raytheon.viz.core.style.image.ImagePreferences;
  * 12/08/2011      #541    S. Gurung   Initial creation
  * 01/03/2012              S. Gurung   Append "No Data" to radar name when record is null
  * 05/23/12       785      Q. Zhou    Modified getName for legend.
+ * 06/08/13       999      G. Hull     changed to get level from record instead of dataTime.
  * </pre>
  * 
  * @author sgurung
@@ -100,7 +101,7 @@ public class RadarNameGenerator extends AbstractNameGenerator {
                 rsc = (AbstractRadarResource<AbstractDescriptor>) vizRsc;
             }
 
-            RadarRecord record = rsc.getRadarRecord(rsc.getDescriptor().getTimeForResource(rsc));
+            RadarRecord record = rsc.getCurrentRadarRecord();//rsc.getDescriptor().getTimeForResource(rsc));
             if (record == null) {
                 return "Radar-No Data";
             }
@@ -185,14 +186,15 @@ public class RadarNameGenerator extends AbstractNameGenerator {
                     getTilt(rsc, record));
             outputString = HOUR.matcher(outputString).replaceFirst(hours);
             
-            if( rsc.displayedDate == null ) {
-        		String retLegStr = "No Data " + outputString; 
-        		outputString = null; // no data so tilt is not set so recompute next time.
-        		return retLegStr;
-        	}
-        	else {        		
-        		outputString = outputString + " " + NmapCommon.getTimeStringFromDataTime(rsc.displayedDate, "/") ;                
-        	}
+//            if( rsc.displayedDate == null ) {
+//        		String retLegStr = "No Data " + outputString; 
+//        		outputString = null; // no data so tilt is not set so recompute next time.
+//        		return retLegStr;
+//        	}
+//        	else {        		
+        		outputString = outputString + " " + NmapCommon.getTimeStringFromDataTime(
+        				record.getDataTime()/*rsc.displayedDate*/, "/") ;                
+//        	}
         }
         return outputString;
 
@@ -204,10 +206,13 @@ public class RadarNameGenerator extends AbstractNameGenerator {
         if (record != null && record.getTrueElevationAngle() != 0) {
             tilt = String.format("%1.1f ", record.getTrueElevationAngle());
         } else {
+        	// changed to get straight from record instead of dataTime.
+        	Float displayedLevel = record.getPrimaryElevationAngle().floatValue();
+        	
             if (rsc.actualLevel.equals("") || rsc.actualLevel.equals("0")
                     || rsc.actualLevel.equals("0.0")) {
-                if (rsc.displayedLevel > 0.0) {
-                    tilt = String.format("%1.1f ", rsc.displayedLevel);
+                if (/*rsc.*/displayedLevel > 0.0) {
+                    tilt = String.format("%1.1f ", /*rsc.*/displayedLevel);
                 }
             } else {
                 tilt = rsc.actualLevel;

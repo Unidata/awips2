@@ -50,7 +50,8 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 06/17/08     #940       bphillip    Initial Creation
- * 04/19/13                rjpeter     Normalized GFE Database.
+ * 04/19/13     #1949      rjpeter     Normalized GFE Database.
+ * 06/20/13     #2127      rjpeter     Set session to read only.
  * </pre>
  * 
  * @author bphillip
@@ -98,10 +99,13 @@ public class GFELockDao extends CoreDao {
 
         try {
             sess = getHibernateTemplate().getSessionFactory().openSession();
+            sess.setDefaultReadOnly(true);
             tx = sess.beginTransaction();
 
             // reattach object so any parmIds found don't requery
             for (ParmID requiredParmId : parmIds) {
+                // Only safe because ParmID has no OneToMany or ManyToMany
+                // relations
                 sess.buildLockRequest(LockOptions.NONE).lock(requiredParmId);
             }
 

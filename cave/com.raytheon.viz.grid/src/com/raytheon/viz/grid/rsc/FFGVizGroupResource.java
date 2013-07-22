@@ -35,7 +35,6 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
-import com.raytheon.viz.core.rsc.VizGroupResourceData;
 
 /**
  * FFG Group Resource class.
@@ -49,6 +48,8 @@ import com.raytheon.viz.core.rsc.VizGroupResourceData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 19, 2012  1162      mpduff      Initial creation.
+ * Jun 21, 2013 DR15394	mgamazaychikov Implement IResourceDataChanged and 
+ * 									   override resourceChanged method.
  * 
  * </pre>
  * 
@@ -57,8 +58,8 @@ import com.raytheon.viz.core.rsc.VizGroupResourceData;
  */
 
 public class FFGVizGroupResource extends
-        AbstractVizResource<VizGroupResourceData, MapDescriptor> implements
-        IResourceDataChanged, IRefreshListener {
+		AbstractVizResource<FfgVizGroupResourceData, MapDescriptor> implements
+		IResourceDataChanged, IRefreshListener {
 
     private final String NO_DATA = "No Data";
 
@@ -68,10 +69,11 @@ public class FFGVizGroupResource extends
      * @param resourceData
      * @param loadProperties
      */
-    protected FFGVizGroupResource(VizGroupResourceData resourceData,
+    protected FFGVizGroupResource(FfgVizGroupResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
         dataTimes = new ArrayList<DataTime>();
+        this.resourceData.addChangeListener(this);        
     }
 
     /*
@@ -189,7 +191,6 @@ public class FFGVizGroupResource extends
     @Override
     public void refresh() {
         // TODO Auto-generated method stub
-
     }
 
     /*
@@ -200,8 +201,15 @@ public class FFGVizGroupResource extends
      * .raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,
      * java.lang.Object)
      */
-    @Override
-    public void resourceChanged(ChangeType type, Object object) {
-        // TODO Auto-generated method stub
+	@Override
+	public void resourceChanged(ChangeType type, Object object) {
+        if ( object instanceof Object[]){
+        	this.resourceData.getRscs().get(0).getResourceData().update(object);
+        }
+        else if (object instanceof Object){
+        	ArrayList<Object> theObjectList = new ArrayList<Object>(); 
+        	theObjectList.add(object); 
+        	this.resourceData.getRscs().get(0).getResourceData().update(theObjectList.toArray());
+        }
     }
 }
