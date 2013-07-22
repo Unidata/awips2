@@ -14,9 +14,16 @@ import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
+import gov.noaa.nws.ncep.ui.pgen.elements.Product;
+import gov.noaa.nws.ncep.ui.pgen.elements.ProductInfo;
+import gov.noaa.nws.ncep.ui.pgen.elements.ProductTime;
+import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.Label;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.LabeledLine;
+import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
+import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
+import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.graphtogrid.CoordinateTransform;
 import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductConfigureDialog;
@@ -30,6 +37,7 @@ import gov.noaa.nws.ncep.viz.common.display.INatlCntrsPaneManager;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayName;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 
+import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.text.DecimalFormat;
@@ -39,6 +47,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TimeZone;
 
 import javax.xml.transform.Transformer;
@@ -118,7 +127,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * 07/10		  #215		J. Wu		  Added calendarToGempakDattim()
  * 09/10		  #63		J. Wu		  Added CURRENT_WORKING_DIRCTORY
  * 09/10		  #304		B. Yin		  Added a method to load a tool editing LabeledLine
- * 10/10          #310      %. Gilbert    Added PgenMode
+ * 10/10          #310      S. Gilbert    Added PgenMode
  * 02/11		  #405		J. Wu		  Set CURRENT_WORKING_DIRCTORY to user-defined directory
  * 										    in the PGEN preference page
  * 03/11		  			J. Wu		  Added getSphPolyArea() && getPolyArea()
@@ -131,6 +140,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * 05/12		 #769		B. Yin		  Moved the creation of UTC time from TCA dialog to here.
  * 03/13         #972       G. Hull       add isNatlCntrsEditor()
  * 03/13		 #927		B. Yin		  Moved isUnmovable from the PgenSelectTool class.
+ * 06/13		 #1000		J. Wu		  Added utility function writePgenFile().
  * 
  * </pre>
  * 
@@ -2068,4 +2078,32 @@ public class PgenUtil {
     	
     	return false;
     }
+    
+	/*
+	 * Write a set of points into a PGEN file - each point represents the location of a Symbol.
+	 */
+	public static void writePgenFile( String path, String fname, String symName, Color symClr,
+			                   double size, List<Coordinate> pts ) {
+		
+		//Default product/layer to hold symbols
+		Product activeProduct = new Product("Default", "Default", "Default",
+	  		      new ProductInfo(), new ProductTime(), new ArrayList<Layer>() );
+		    
+		Layer activeLayer = new Layer();
+		activeProduct.addLayer( activeLayer );
+		    
+		List<Product> productList = new ArrayList<Product>();
+		productList.add( activeProduct );
+		
+		for ( Coordinate c : pts ) {
+    	     Symbol cmm = new Symbol( null, new Color[] {symClr},
+        			1.0F, size, false, c, "Symbol", symName );  
+    	     activeLayer.add( cmm );
+		}
+
+        Products filePrds1 = ProductConverter.convert( productList  );
+        String aa = path + "/" + fname;
+        FileTools.write( aa, filePrds1 ); 		
+	}
+
 }

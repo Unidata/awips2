@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.monitor.ffmp.ui.thread;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -31,7 +30,6 @@ import java.util.Set;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
-import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.xml.FFMPRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductRunXML;
@@ -54,6 +52,8 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPResourceData;
  * ------------ ---------- ----------- --------------------------
  * Jun 04, 2013 2075       njensen     Initial creation
  * Jun 07, 2013 2075       njensen     Added progress monitoring
+ * Jul 03, 2013 2152       njensen     Override shouldRun()
+ * Jul 15, 2013 2184       dhladky     Remove all HUC's for storage except ALL
  * 
  * </pre>
  * 
@@ -81,8 +81,6 @@ public abstract class AbstractLoadJob extends Job {
 
     protected FFMPMonitor ffmpMonitor;
 
-    protected List<String> hucsToLoad = null;
-
     /**
      * Constructor
      * 
@@ -105,28 +103,13 @@ public abstract class AbstractLoadJob extends Job {
         this.resourceData = resourceData;
         this.startTime = timeBack;
         this.endTime = mostRecentTime;
-        this.hucsToLoad = hucsToLoad;
 
         // configure FFMP
-        this.hucsToLoad.remove(FFMPRecord.VIRTUAL);
         FFMPRunXML runXML = FFMPRunConfigurationManager.getInstance()
                 .getRunner(resourceData.wfo);
         this.productRun = runXML.getProduct(resourceData.siteKey);
         this.product = resourceData.getProduct();
         this.ffmpMonitor = FFMPMonitor.getInstance();
-
-        // just for debugging/logging
-        StringBuilder sb = new StringBuilder();
-        sb.append(name);
-        sb.append(" hucs to load: ");
-        Iterator<String> itr = this.hucsToLoad.iterator();
-        while (itr.hasNext()) {
-            sb.append(itr.next());
-            if (itr.hasNext()) {
-                sb.append(", ");
-            }
-        }
-        System.out.println(sb.toString());
     }
 
     /**
@@ -165,10 +148,8 @@ public abstract class AbstractLoadJob extends Job {
             }
         }
         if (rateURI != null) {
-            for (String phuc : hucsToLoad) {
-                ffmpMonitor.processUri(rateURI, resourceData.siteKey,
-                        product.getRate(), startTime, phuc);
-            }
+            ffmpMonitor.processUri(rateURI, resourceData.siteKey,
+                    product.getRate(), startTime);
         }
     }
 
@@ -190,12 +171,10 @@ public abstract class AbstractLoadJob extends Job {
     protected void doQpe(NavigableMap<Date, List<String>> qpeURIs,
             SubMonitor smonitor) {
         if (!qpeURIs.isEmpty()) {
-            smonitor.beginTask(null, hucsToLoad.size() * PROGRESS_FACTOR);
-            for (String phuc : hucsToLoad) {
-                ffmpMonitor.processUris(qpeURIs, resourceData.siteKey,
-                        product.getQpe(), startTime, phuc,
-                        smonitor.newChild(PROGRESS_FACTOR));
-            }
+            smonitor.beginTask(null, PROGRESS_FACTOR);
+            ffmpMonitor.processUris(qpeURIs, resourceData.siteKey,
+                    product.getQpe(), startTime,
+                    smonitor.newChild(PROGRESS_FACTOR));
         }
     }
 
@@ -246,12 +225,11 @@ public abstract class AbstractLoadJob extends Job {
         // Use this method of QPF data retrieval if you don't have cache
         // files
         if (!qpfURIs.isEmpty()) {
-            smonitor.beginTask(null, hucsToLoad.size() * PROGRESS_FACTOR);
-            for (String phuc : hucsToLoad) {
-                ffmpMonitor.processUris(qpfURIs, resourceData.siteKey,
-                        productQpf, startTime, phuc,
-                        smonitor.newChild(PROGRESS_FACTOR));
-            }
+            smonitor.beginTask(null, PROGRESS_FACTOR);
+
+            ffmpMonitor.processUris(qpfURIs, resourceData.siteKey, productQpf,
+                    startTime, smonitor.newChild(PROGRESS_FACTOR));
+
         }
     }
 
@@ -264,7 +242,7 @@ public abstract class AbstractLoadJob extends Job {
                         product.getVirtual(), startTime);
         if (!virtualURIs.isEmpty()) {
             ffmpMonitor.processUris(virtualURIs, resourceData.siteKey,
-                    product.getVirtual(), startTime, FFMPRecord.ALL, smonitor);
+                    product.getVirtual(), startTime, smonitor);
         }
     }
 
@@ -303,11 +281,16 @@ public abstract class AbstractLoadJob extends Job {
                 if (iguidURIs != null && !iguidURIs.isEmpty()) {
                     ffmpMonitor.processUris(iguidURIs, resourceData.siteKey,
                             guidSource.getSourceName(), startTime,
-                            FFMPRecord.ALL,
+
                             smonitor.newChild(PROGRESS_FACTOR / subWork));
                 }
             }
         }
+    }
+
+    @Override
+    public boolean shouldRun() {
+        return (super.shouldRun() && FFMPMonitor.isRunning());
     }
 
 }
