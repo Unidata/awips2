@@ -28,6 +28,7 @@ import java.util.Set;
 import com.raytheon.uf.common.auth.req.BasePrivilegedServerService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest.RequestType;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
+import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSummary;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
@@ -50,6 +51,7 @@ import com.raytheon.uf.common.util.LogUtil;
  * Nov 20, 2012 1286       djohnson     Add proposeSchedule methods.
  * Dec 06, 2012 1397       djohnson     Add ability to get bandwidth graph data.
  * Feb 27, 2013 1644       djohnson     Now abstract, sub-classes provide specific service lookup keys.
+ * Jul 18, 2013 1653       mpduff       Add getSubscriptionStatusSummary method.
  * 
  * </pre>
  * 
@@ -96,8 +98,8 @@ public abstract class BandwidthService extends
      */
     @Override
     @SuppressWarnings("unchecked")
-    public Set<String> proposeBandwidthForNetworkInKilobytes(
-            Network network, int bandwidth) {
+    public Set<String> proposeBandwidthForNetworkInKilobytes(Network network,
+            int bandwidth) {
         IBandwidthRequest request = new IBandwidthRequest();
         request.setRequestType(RequestType.PROPOSE_SET_BANDWIDTH);
         request.setNetwork(network);
@@ -250,6 +252,23 @@ public abstract class BandwidthService extends
                     "Unable to retrieve bandwidth graph data, returning null.",
                     e);
             return null;
+        }
+    }
+
+    @Override
+    public SubscriptionStatusSummary getSubscriptionStatusSummary(
+            Subscription subscription) {
+        IBandwidthRequest request = new IBandwidthRequest();
+        request.setSubscriptions(Arrays.<Subscription> asList(subscription));
+        request.setRequestType(RequestType.GET_SUBSCRIPTION_STATUS);
+        try {
+            return sendRequest(request, SubscriptionStatusSummary.class);
+        } catch (Exception e) {
+            statusHandler
+                    .handle(Priority.PROBLEM,
+                            "Unable to retrieve the estimated completion time, returning the current time.",
+                            e);
+            return new SubscriptionStatusSummary();
         }
     }
 }

@@ -21,6 +21,8 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
@@ -30,6 +32,7 @@ import org.hibernate.jdbc.Work;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSummary;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
@@ -58,6 +61,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jun 03, 2013 2038       djohnson     Add method to get subscription retrievals by provider, dataset, and status.
  * Jun 13, 2013 2095       djohnson     Implement ability to store a collection of subscriptions.
  * Jun 24, 2013 2106       djohnson     Implement new methods.
+ * Jul 18, 2013 1653       mpduff       Added getSubscriptionStatusSummary.
  * 
  * </pre>
  * 
@@ -514,4 +518,60 @@ public class HibernateBandwidthDao implements IBandwidthDao {
                 .getBySubscriptionRetrieval(retrieval);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SubscriptionStatusSummary getSubscriptionStatusSummary(
+            Subscription sub) {
+        SubscriptionStatusSummary summary = new SubscriptionStatusSummary();
+
+        List<BandwidthSubscription> bandwidthSubList = this
+                .getBandwidthSubscription(sub);
+        Collections.sort(bandwidthSubList,
+                new Comparator<BandwidthSubscription>() {
+                    @Override
+                    public int compare(BandwidthSubscription o1,
+                            BandwidthSubscription o2) {
+                        Calendar date1 = o1.getBaseReferenceTime();
+                        Calendar date2 = o2.getBaseReferenceTime();
+                        if (date1.before(date2)) {
+                            return -1;
+                        } else if (date1.after(date2)) {
+                            return 1;
+                        }
+
+                        return 0;
+                    }
+                });
+
+        List<SubscriptionRetrieval> subRetrievalList = this
+                .querySubscriptionRetrievals(bandwidthSubList.get(0));
+        Collections.sort(subRetrievalList,
+                new Comparator<SubscriptionRetrieval>() {
+                    @Override
+                    public int compare(SubscriptionRetrieval o1,
+                            SubscriptionRetrieval o2) {
+                        Calendar date1 = o1.getStartTime();
+                        Calendar date2 = o2.getStartTime();
+                        if (date1.before(date2)) {
+                            return -1;
+                        } else if (date1.after(date2)) {
+                            return 1;
+                        }
+
+                        return 0;
+                    }
+
+                });
+
+        summary.setStartTime(subRetrievalList.get(0).getStartTime()
+                .getTimeInMillis());
+        summary.setEndTime(subRetrievalList.get(subRetrievalList.size() - 1)
+                .getEndTime().getTimeInMillis());
+        summary.setDataSize(sub.getDataSetSize());
+        summary.setLatency(sub.getLatencyInMinutes());
+
+        return summary;
+    }
 }

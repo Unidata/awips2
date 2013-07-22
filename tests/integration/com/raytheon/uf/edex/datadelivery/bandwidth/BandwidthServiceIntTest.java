@@ -43,6 +43,7 @@ import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.bandwidth.WfoBandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
+import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSummary;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.TimeWindowData;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscriptionFixture;
@@ -79,7 +80,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jun 12, 2013 2038       djohnson     Add test for returning required dataset size on subscription update.
  * Jun 25, 2013 2106       djohnson     BandwidthBucket is a big boy class now.
  * Jul 11, 2013 2106       djohnson     Use SubscriptionPriority enum.
- * 
+ * Jul 18, 2013 1653       mpduff       Added test for sub status summary.
  * </pre>
  * 
  * @author djohnson
@@ -127,10 +128,9 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
         bandwidthManager.schedule(subscription2);
 
         // Now we propose dropping the bandwidth by just one kb/s
-        Set<String> results = service
-                .proposeBandwidthForNetworkInKilobytes(Network.OPSNET,
-                        retrievalManager.getPlan(Network.OPSNET)
-                                .getDefaultBandwidth() - 1);
+        Set<String> results = service.proposeBandwidthForNetworkInKilobytes(
+                Network.OPSNET, retrievalManager.getPlan(Network.OPSNET)
+                        .getDefaultBandwidth() - 1);
 
         assertEquals(
                 "Expected one subscription to not have been able to fit with the new bandwidth!",
@@ -154,10 +154,9 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
         bandwidthManager.schedule(subscription2);
 
         // Now we propose dropping the bandwidth by just one kb/s
-        Set<String> results = service
-                .proposeBandwidthForNetworkInKilobytes(Network.OPSNET,
-                        retrievalManager.getPlan(Network.OPSNET)
-                                .getDefaultBandwidth() - 1);
+        Set<String> results = service.proposeBandwidthForNetworkInKilobytes(
+                Network.OPSNET, retrievalManager.getPlan(Network.OPSNET)
+                        .getDefaultBandwidth() - 1);
 
         assertTrue(
                 "Expected to be able to fit all subscriptions with the new bandwidth!",
@@ -676,6 +675,78 @@ public class BandwidthServiceIntTest extends AbstractWfoBandwidthManagerIntTest 
 
         assertThat(priorityMap.get(subscription2.getName()),
                 is(equalTo(subscription2.getPriority())));
+    }
+
+    @Test
+    public void testProposeScheduleSubscriptionsReturnsStatusSummary() {
+        Subscription subscription = createSubscriptionThatFillsUpTwoBuckets();
+
+        subscription.getTime().setCycleTimes(
+                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
+        subscription.setLatencyInMinutes(3);
+
+        IProposeScheduleResponse response = service
+                .proposeSchedule(subscription);
+
+        SubscriptionStatusSummary sum = service
+                .getSubscriptionStatusSummary(subscription);
+
+        List<BandwidthAllocation> allocationList = bandwidthDao
+                .getBandwidthAllocations(Network.OPSNET);
+        long actualStartTime = allocationList.get(0).getStartTime()
+                .getTimeInMillis();
+        long actualEndTime = allocationList.get(0).getEndTime()
+                .getTimeInMillis();
+
+        assertEquals("DataSize does not match", subscription.getDataSetSize(),
+                sum.getDataSize());
+        assertEquals("Latency does not match",
+                subscription.getLatencyInMinutes(), sum.getLatency());
+        assertEquals("Start time does not match", actualStartTime,
+                sum.getStartTime());
+        assertEquals("End time does not match", actualEndTime, sum.getEndTime());
+    }
+
+    @Test
+    public void testProposeScheduleFragmentedSubscriptionReturnsStatusSummary() {
+        Subscription subscription = createSubscriptionThatFillsUpTwoBuckets();
+        subscription.setLatencyInMinutes(6);
+        subscription.setPriority(SubscriptionPriority.HIGH);
+
+        // Reserves a full bucket at 19700103 18:03:00 which fragments the
+        // subscription to 19700103 18:00:00 and 18:06:00
+        BandwidthAllocation allocation = createAllocationToReserveMiddleBucket(subscription);
+
+        retrievalManager.schedule(Arrays.asList(allocation));
+
+        IProposeScheduleResponse response = service
+                .proposeSchedule(subscription);
+
+        SubscriptionStatusSummary sum = service
+                .getSubscriptionStatusSummary(subscription);
+
+        List<BandwidthAllocation> allocationList = bandwidthDao
+                .getBandwidthAllocations(Network.OPSNET);
+        for (BandwidthAllocation ba : allocationList) {
+            System.out.println(ba);
+        }
+        long actualStartTime = -1;
+        long actualEndTime = -1;
+
+        for (BandwidthAllocation ba : allocationList) {
+            if (ba instanceof SubscriptionRetrieval) {
+                actualStartTime = ba.getStartTime().getTimeInMillis();
+                actualEndTime = ba.getEndTime().getTimeInMillis();
+                break;
+            }
+        }
+        assertEquals("DataSize does not match", subscription.getDataSetSize(),
+                sum.getDataSize());
+        assertEquals("Latency does not match",
+                subscription.getLatencyInMinutes(), sum.getLatency());
+        assertEquals("Start time does not match", actualStartTime,
+                sum.getStartTime());
+        assertEquals("End time does not match", actualEndTime, sum.getEndTime());
     }
 
     /**
