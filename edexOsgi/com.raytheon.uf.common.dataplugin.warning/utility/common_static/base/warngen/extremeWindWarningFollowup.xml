@@ -2,6 +2,10 @@
       MODIFIED EVAN BOOKBINDER 09-16-2011 OB11.0.8-8
       EVAN BOOKBINDER WFO EAX 11-4-2011 removed bulletDefaults that prevented auto selection
       Qinglu Lin    04-04-2012 DR 14691. Added <feAreaField> tag.
+      Evan Bookbinder 09-11-2012 Added settings for locations shapefile
+                                 Added new areaSource object
+      Evan Bookbinder 03-01-2013 Fixed Group Settings
+      Evan Bookbinder 06-07-2013 Fixed CTAs
 -->
 <warngenConfig>
 
@@ -71,83 +75,98 @@
 </bulletActionGroup>
 <bulletActionGroup action="CON" phen="EW" sig="W">
  <bullets>
-  <bullet bulletName="var1" bulletText="convective winds" bulletGroup="group1" parseString="ASSOCIATED WITH A BROAD AREA OF INTENSE THUNDERSTORMS"/>
-  <bullet bulletName="var2" bulletText="non-hurricane winds" bulletGroup="group1" parseString="ASSOCIATED WITH AN INTENSE LOW PRESSURE AREA"/>
-  <bullet bulletName="var3" bulletText="downslope winds" bulletGroup="group1" parseString="ASSOCIATED WITH A DOWNSLOPE WINDSTORM"/>
+  <bullet bulletText="***** THREAT ******" bulletType="title"/>
+  <bullet bulletName="var1" bulletText="Hurricane Eyewall" bulletGroup="warnReason" parseString="ASSOCIATED WITH THE EYEWALL" showString="ASSOCIATED WITH THE EYEWALL"/>
+  <bullet bulletName="var2" bulletText="Convective winds" bulletGroup="warnReason" parseString="ASSOCIATED WITH A BROAD AREA OF INTENSE THUNDERSTORMS" showString="ASSOCIATED WITH A BROAD AREA OF INTENSE THUNDERSTORMS"/>
+  <bullet bulletName="var3" bulletText="Non-hurricane winds" bulletGroup="warnReason" parseString="ASSOCIATED WITH AN INTENSE LOW PRESSURE AREA" showString="ASSOCIATED WITH AN INTENSE LOW PRESSURE AREA"/>
+  <bullet bulletName="var4" bulletText="Downslope winds" bulletGroup="warnReason" parseString="ASSOCIATED WITH A DOWNSLOPE WINDSTORM" showString="ASSOCIATED WITH A DOWNSLOPE WINDSTORM"/>
   <bullet bulletText="***** BASIS FOR WARNING (CHOOSE 1) ******" bulletType="title"/>
-  <bullet bulletName="basis1" bulletText="Doppler radar indicated" bulletGroup="group2" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED"/>
-  <bullet bulletName="basis2" bulletText="surface observations indicated..." bulletGroup="group2" parseString="SURFACE OBSERVATIONS INDICATED EXTREME WINDS"/>
-  <bullet bulletName="basis3" bulletText="maritime observations indicated..." bulletGroup="group2" parseString="MARITIME OBSERVATIONS INDICATED EXTREME WINDS"/>
-  <bullet bulletName="basis4" bulletText="spotters indicated..." bulletGroup="group2" parseString="TRAINED WEATHER SPOTTERS REPORTED EXTREME WINDS"/>
-  <bullet bulletName="basis5" bulletText="radar and surface observations..." bulletGroup="group2" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND SURFACE OBSERVATIONS"/>
-  <bullet bulletName="basis6" bulletText="radar and maritime observations..." bulletGroup="group2" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND MARITIME OBSERVATIONS"/>
-  <bullet bulletName="basis7" bulletText="radar and spotters..." bulletGroup="group2" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND TRAINED WEATHER SPOTTERS"/>
+  <bullet bulletName="basis1" bulletText="Doppler radar indicated" bulletGroup="warnBasis" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED"/>
+  <bullet bulletName="basis2" bulletText="Surface observations indicated..." bulletGroup="warnBasis" parseString="SURFACE OBSERVATIONS INDICATED EXTREME WINDS"/>
+  <bullet bulletName="basis3" bulletText="Maritime observations indicated..." bulletGroup="warnBasis" parseString="MARITIME OBSERVATIONS INDICATED EXTREME WINDS"/>
+  <bullet bulletName="basis4" bulletText="Spotters indicated..." bulletGroup="warnBasis" parseString="TRAINED WEATHER SPOTTERS REPORTED EXTREME WINDS"/>
+  <bullet bulletName="basis5" bulletText="Radar and surface observations..." bulletGroup="warnBasis" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND SURFACE OBSERVATIONS"/>
+  <bullet bulletName="basis6" bulletText="Radar and maritime observations..." bulletGroup="warnBasis" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND MARITIME OBSERVATIONS"/>
+  <bullet bulletName="basis7" bulletText="Radar and spotters..." bulletGroup="warnBasis" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND TRAINED WEATHER SPOTTERS"/>
   <bullet bulletText="*********** CALL TO ACTIONS (CHOOSE 1 OR MORE) **********" bulletType="title"/>
-  <bullet bulletName="cta1" bulletText="Specific wind values" parseString="WIDESPREAD DESTRUCTIVE WINDS OF"/>
-  <bullet bulletName="cta2" bulletText="CTA - Take cover now" parseString="TAKE COVER NOW!"/>
-  <bullet bulletName="cta3" bulletText="CTA - Safe places to be" parseString="THE SAFEST PLACE TO BE DURING"/>
+  <bullet bulletName="destructiveWindsCTA" bulletText="Specific wind values" parseString="WIDESPREAD DESTRUCTIVE WINDS OF"/>
+  <bullet bulletName="takeCoverCTA" bulletText="CTA - Take cover now" parseString="TAKE COVER NOW!"/>
+  <bullet bulletName="safePlacesCTA" bulletText="Hurricane CTA - Safe places to be" parseString="THE SAFEST PLACE TO BE DURING"/>
   <bullet bulletText="*********** Pathcast? **********" bulletType="title"/>
-  <bullet bulletName="pathcast" bulletText="select for pathcast" bulletGroup="toggle4" parseString="WILL BE NEAR..."/>
-  <bullet bulletName="listofcities" bulletText="select for a list of cities" bulletGroup="toggle4" parseString="LOCATIONS IMPACTED INCLUDE..."/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS IMPACTED INCLUDE" showString="LOCATIONS IMPACTED INCLUDE"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS IN THE WARNING INCLUDE" showString="LOCATIONS IN THE WARNING INCLUDE"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
  </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="COR" phen="EW" sig="W">
  <bullets>
-  <bullet bulletName="var1" bulletText="convective winds" bulletGroup="group1" parseString="ASSOCIATED WITH A BROAD AREA OF INTENSE THUNDERSTORMS"/>
-  <bullet bulletName="var2" bulletText="non-hurricane winds" bulletGroup="group1" parseString="ASSOCIATED WITH AN INTENSE LOW PRESSURE AREA"/>
-  <bullet bulletName="var3" bulletText="downslope winds" bulletGroup="group1" parseString="ASSOCIATED WITH A DOWNSLOPE WINDSTORM"/>
+  <bullet bulletText="***** THREAT ******" bulletType="title"/>
+  <bullet bulletName="var1" bulletText="Hurricane Eyewall" bulletGroup="warnReason" parseString="ASSOCIATED WITH THE EYEWALL" showString="ASSOCIATED WITH THE EYEWALL"/>
+  <bullet bulletName="var2" bulletText="Convective winds" bulletGroup="warnReason" parseString="ASSOCIATED WITH A BROAD AREA OF INTENSE THUNDERSTORMS" showString="ASSOCIATED WITH A BROAD AREA OF INTENSE THUNDERSTORMS"/>
+  <bullet bulletName="var3" bulletText="Non-hurricane winds" bulletGroup="warnReason" parseString="ASSOCIATED WITH AN INTENSE LOW PRESSURE AREA" showString="ASSOCIATED WITH AN INTENSE LOW PRESSURE AREA"/>
+  <bullet bulletName="var4" bulletText="Downslope winds" bulletGroup="warnReason" parseString="ASSOCIATED WITH A DOWNSLOPE WINDSTORM" showString="ASSOCIATED WITH A DOWNSLOPE WINDSTORM"/>
   <bullet bulletText="***** BASIS FOR WARNING (CHOOSE 1) ******" bulletType="title"/>
-  <bullet bulletName="basis1" bulletText="Doppler radar indicated" bulletGroup="group2" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED"/>
-  <bullet bulletName="basis2" bulletText="surface observations indicated..." bulletGroup="group2" parseString="SURFACE OBSERVATIONS INDICATED EXTREME WINDS"/>
-  <bullet bulletName="basis3" bulletText="maritime observations indicated..." bulletGroup="group2" parseString="MARITIME OBSERVATIONS INDICATED EXTREME WINDS"/>
-  <bullet bulletName="basis4" bulletText="spotters indicated..." bulletGroup="group2" parseString="TRAINED WEATHER SPOTTERS REPORTED EXTREME WINDS"/>
-  <bullet bulletName="basis5" bulletText="radar and surface observations..." bulletGroup="group2" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND SURFACE OBSERVATIONS"/>
-  <bullet bulletName="basis6" bulletText="radar and maritime observations..." bulletGroup="group2" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND MARITIME OBSERVATIONS"/>
-  <bullet bulletName="basis7" bulletText="radar and spotters..." bulletGroup="group2" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND TRAINED WEATHER SPOTTERS"/>
+  <bullet bulletName="basis1" bulletText="Doppler radar indicated" bulletGroup="warnBasis" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED"/>
+  <bullet bulletName="basis2" bulletText="Surface observations indicated..." bulletGroup="warnBasis" parseString="SURFACE OBSERVATIONS INDICATED EXTREME WINDS"/>
+  <bullet bulletName="basis3" bulletText="Maritime observations indicated..." bulletGroup="warnBasis" parseString="MARITIME OBSERVATIONS INDICATED EXTREME WINDS"/>
+  <bullet bulletName="basis4" bulletText="Spotters indicated..." bulletGroup="warnBasis" parseString="TRAINED WEATHER SPOTTERS REPORTED EXTREME WINDS"/>
+  <bullet bulletName="basis5" bulletText="Radar and surface observations..." bulletGroup="warnBasis" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND SURFACE OBSERVATIONS"/>
+  <bullet bulletName="basis6" bulletText="Radar and maritime observations..." bulletGroup="warnBasis" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND MARITIME OBSERVATIONS"/>
+  <bullet bulletName="basis7" bulletText="Radar and spotters..." bulletGroup="warnBasis" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND TRAINED WEATHER SPOTTERS"/>
   <bullet bulletText="*********** CALL TO ACTIONS (CHOOSE 1 OR MORE) **********" bulletType="title"/>
-  <bullet bulletName="cta1" bulletText="Specific wind values" parseString="WIDESPREAD DESTRUCTIVE WINDS OF"/>
-  <bullet bulletName="cta2" bulletText="CTA - Take cover now" parseString="TAKE COVER NOW!"/>
-  <bullet bulletName="cta3" bulletText="CTA - Safe places to be" parseString="THE SAFEST PLACE TO BE DURING"/>
+  <bullet bulletName="destructiveWindsCTA" bulletText="Specific wind values" parseString="WIDESPREAD DESTRUCTIVE WINDS OF"/>
+  <bullet bulletName="takeCoverCTA" bulletText="CTA - Take cover now" parseString="TAKE COVER NOW!"/>
+  <bullet bulletName="safePlacesCTA" bulletText="Hurricane CTA - Safe places to be" parseString="THE SAFEST PLACE TO BE DURING"/>
   <bullet bulletText="*********** Pathcast? **********" bulletType="title"/>
-  <bullet bulletName="pathcast" bulletText="select for pathcast" bulletGroup="toggle4" parseString="WILL BE NEAR..."/>
-  <bullet bulletName="listofcities" bulletText="select for a list of cities" bulletGroup="toggle4" parseString="LOCATIONS IMPACTED INCLUDE..."/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS IMPACTED INCLUDE" showString="LOCATIONS IMPACTED INCLUDE"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS IN THE WARNING INCLUDE" showString="LOCATIONS IN THE WARNING INCLUDE"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
+  
  </bullets>
 </bulletActionGroup>
 </bulletActionGroups>
 
- <areaConfig>
-  <inclusionPercent>0.00</inclusionPercent>
-  <inclusionAndOr>AND</inclusionAndOr>
-  <inclusionArea>0</inclusionArea>
-  <areaField>COUNTYNAME</areaField>
-  <parentAreaField>NAME</parentAreaField>
-  <areaNotationField>STATE</areaNotationField>
-  <feAreaField>FE_AREA</feAreaField>
-  <timeZoneField>TIME_ZONE</timeZoneField>
-  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
-  <fipsField>FIPS</fipsField>
-  <pointField>NAME</pointField>
-  <sortBy>
+ <!-- areaSource object to generate county-based information -->
+ <areaSource variable="areas">
+   <areaSource>County</areaSource>
+   <inclusionPercent>0</inclusionPercent>
+   <inclusionAndOr>AND</inclusionAndOr>
+   <inclusionArea>0</inclusionArea>
+   <areaField>COUNTYNAME</areaField>
+   <parentAreaField>NAME</parentAreaField>
+   <areaNotationField>STATE</areaNotationField>
+   <feAreaField>FE_AREA</feAreaField>
+   <timeZoneField>TIME_ZONE</timeZoneField>
+   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+   <fipsField>FIPS</fipsField>
+   <pointField>NAME</pointField>
+   <sortBy>
   	<sort>parent</sort>
-  </sortBy>
-  <pointFilter>
+   </sortBy>
+   <pointFilter>
  		<mapping key="WARNGENLEV">
  			<constraint constraintValue="1" constraintType="EQUALS" />
  		</mapping>
   </pointFilter>
   <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
- </areaConfig>
+</areaSource>
  
  <pointSource variable="closestPoints">
  	<pointField>NAME</pointField>
+ 	<type>AREA</type>
  	<searchMethod>POINTS</searchMethod>
  	<filter>
  		<mapping key="WARNGENLEV">
  			<constraint constraintValue="1,2" constraintType="IN" />
  		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping> 
  	</filter>
  	<maxResults>1</maxResults>
- 	<distanceThreshold>50</distanceThreshold>
+ 	<distanceThreshold>100</distanceThreshold>
  	<sortBy>
  		<sort>distance</sort>
   		<sort>warngenlev</sort>
@@ -157,11 +176,15 @@
  
  <pointSource variable="otherClosestPoints">
  	<pointField>NAME</pointField>
+ 	<type>AREA</type>
  	<searchMethod>POINTS</searchMethod>
  	<filter>
  		<mapping key="WARNGENLEV">
  			<constraint constraintValue="1,2" constraintType="IN" />
  		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping> 		
  	</filter>
  	<maxResults>5</maxResults>
  	<distanceThreshold>100</distanceThreshold>
@@ -173,6 +196,7 @@
  </pointSource>
  
  <pathcastConfig>
+  <inclusionPercent>1</inclusionPercent>
   <withinPolygon>true</withinPolygon>
   <distanceThreshold>8.0</distanceThreshold>
   <interval>5</interval>
@@ -180,22 +204,30 @@
   <maxResults>4</maxResults>
   <maxGroup>8</maxGroup>
   <pointField>Name</pointField>
+  <type>AREA</type>
   <areaField>COUNTYNAME</areaField>
   <parentAreaField>STATE</parentAreaField>
   <areaNotationField>STATE</areaNotationField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
   <sortBy>
-  	<sort>distance</sort>
+  		<sort>warngenlev</sort>
+  		<sort>population</sort>
+  		<sort>distance</sort>
   </sortBy>
   <filter>
  		<mapping key="WARNGENLEV">
  			<constraint constraintValue="1,2" constraintType="IN" />
  		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping> 		
   </filter>  
  </pathcastConfig>
  
    <pointSource variable="cityList">
+    <inclusionPercent>1</inclusionPercent>
  	<pointField>NAME</pointField>
+ 	<type>AREA</type>
  	<searchMethod>TRACK</searchMethod>
  	<withinPolygon>true</withinPolygon>
  	<maxResults>20</maxResults>
@@ -204,15 +236,21 @@
   	  <mapping key="WARNGENLEV">
  		<constraint constraintValue="1,2,3" constraintType="IN" />
  	  </mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping> 	  
  	</filter> 	
  	<sortBy>
   		<sort>warngenlev</sort>
   		<sort>population</sort>
+  		<sort>distance</sort>
   	</sortBy>
  </pointSource>
  
   <pointSource variable="otherPoints">
  	<pointField>NAME</pointField>
+ 	<inclusionPercent>1</inclusionPercent>
+ 	<type>AREA</type>
  	<searchMethod>TRACK</searchMethod>
  	<withinPolygon>true</withinPolygon>
  	<maxResults>10</maxResults>
@@ -222,8 +260,11 @@
   	</sortBy>
 	<filter>
  		<mapping key="WARNGENLEV">
- 			<constraint constraintValue="3" constraintType="EQUALS" />
+ 			<constraint constraintValue="3,4" constraintType="IN" />
  		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping> 		
   	</filter>
  </pointSource>
  
@@ -232,9 +273,8 @@ and place into this template
 -->  
 <include file="mileMarkers.xml"/>
 
-
  <geospatialConfig>
-  <pointSource>City</pointSource>
+  <pointSource>WarnGenLoc</pointSource>
   <areaSource>County</areaSource>
   <parentAreaSource>States</parentAreaSource>
   <timezoneSource>TIMEZONES</timezoneSource>
