@@ -35,6 +35,7 @@ import javax.xml.bind.annotation.XmlElement;
 import com.raytheon.uf.common.colormap.AbstractColorMap;
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.IColorMap;
+import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 
@@ -53,6 +54,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  *    Feb 14, 2013 1616        bsteffen    Add option for interpolation of
  *                                         colormap parameters, disable colormap
  *                                         interpolation by default.
+ *    Jun 14, 2013	DR 16070	jgerth		Utilize data mapping
  * 
  * </pre>
  * 
@@ -908,7 +910,18 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
 
             if (colorMapRange != 0.0) {
                 double pixelValue;
-                if (displayToImage != null) {
+                // START DR 16070 fix
+                if (this.dataMapping != null)
+                	if (this.dataMapping.getEntries() != null)
+                		if (this.dataMapping.getEntries().get(0) != null)
+                			if (this.dataMapping.getEntries().get(0).getOperator() != null)
+                				if (this.dataMapping.getEntries().get(0).getOperator().equals("i")) {
+                					Double dValue = this.dataMapping.getDataValueforNumericValue(dispValue);
+                						if (dValue != null)
+                							return (dValue.floatValue() - colorMapMin) / colorMapRange;
+                	}
+                // END fix
+            	if (displayToImage != null) {
                     pixelValue = displayToImage.convert(dispValue);
                 } else {
                     pixelValue = dispValue;

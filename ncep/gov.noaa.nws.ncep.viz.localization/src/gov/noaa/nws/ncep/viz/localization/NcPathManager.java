@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * 04/15/2013     #864      Greg Hull    RESOURCE_FILTERS
  * 04/17/2013     #863      Greg Hull    AREA_MENUS_FILE    
  * 04/10/2013     #958      qzhou        Added SOLAR_IMG_STYLE_RULES
+ * 05/15/2013     #862      Greg Hull    AreaMenus tbl to xml
  * </pre>
  * 
  * @author ghull 
@@ -87,7 +88,7 @@ public class NcPathManager {
 
 		public static final String RESOURCE_FILTERS    = RSC_DEFNS_DIR+ File.separator+"ResourceFilters.xml";
 		public static final String AREA_MENUS_FILE     = PREDEFINED_AREAS_DIR + File.separator+
-														   "menus"+ File.separator+"AreaMenus.tbl";
+														   "menus"+ File.separator+"AreaMenus.xml";
 		
 // No longer used. location is now a parameter for the StaticPgenOverlayResource.
 //		public static final String PGEN_XML_OVERLAYS   = NCEP_ROOT + "StaticPgenOverlays";

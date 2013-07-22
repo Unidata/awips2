@@ -50,6 +50,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  *                                     and message are never null.
  * Apr 10, 2013 1893       bsteffen    Switch machine to be LOCAL instead of
  *                                     using RuntimeMXBean
+ * Jun 24, 2013 2135       randerso    Fixed NullPointerException in buildMessageAndDetails
  * 
  * </pre>
  * 
@@ -171,16 +172,22 @@ public class StatusMessage implements ISerializableObject, IMessage {
 
     public static void buildMessageAndDetails(String msg, Throwable throwable,
             StatusMessage sm) {
-        int len = msg.indexOf('\n');
-        if (len < 0) {
-            len = msg.length();
+        String shortenedMsg;
+        if (msg != null) {
+            int len = msg.indexOf('\n');
+            if (len < 0) {
+                len = msg.length();
+            }
+            if (len > MAX_MESSAGE_LENGTH) {
+                len = MAX_MESSAGE_LENGTH;
+            }
+            // No line breaks, break at reasonable length
+            shortenedMsg = msg.substring(0, len);
+        } else if (throwable != null) {
+            shortenedMsg = throwable.getClass().getName();
+        } else {
+            shortenedMsg = "No message: ";
         }
-        if (len > MAX_MESSAGE_LENGTH) {
-            len = MAX_MESSAGE_LENGTH;
-        }
-
-        // No line breaks, break at reasonable length
-        String shortenedMsg = msg.substring(0, len);
 
         StringBuffer detailsBuffer = new StringBuffer();
         detailsBuffer.append(msg);

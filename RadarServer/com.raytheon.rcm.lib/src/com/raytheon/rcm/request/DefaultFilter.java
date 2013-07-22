@@ -21,6 +21,18 @@ package com.raytheon.rcm.request;
 
 import com.raytheon.rcm.config.RadarType;
 
+/**
+ * Filters the duplicate requests
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date   Ticket#    Engineer    Description
+ * ------ ---------- ----------- --------------------------
+ *                               Initial creation
+ * 062413 DR16023    zwang       Support all cuts for nexrad 
+ * </pre>
+ */
+
 /* Should ref CODE src/cpc104/lib003/product_attr_table */
 
 public class DefaultFilter extends Filter {
@@ -298,6 +310,19 @@ public class DefaultFilter extends Filter {
             boolean elevEq = false;
             
             if (elevList != null) { 
+                // If one of the request is an all cuts, perform exact comparison
+                if ((a.getElevationSelection() == Request.ALL_ELEVATIONS &&
+                    a.getElevationAngle() != 0)	||
+                    (b.getElevationSelection() == Request.ALL_ELEVATIONS &&
+                    b.getElevationAngle() != 0)) {
+                    if (a.getElevationSelection() == b.getElevationSelection() &&
+                        a.getElevationAngle() == b.getElevationAngle()	) {
+                        return COMPLETE_MATCH;
+                    }
+                    else {
+                        return NO_MATCH;
+                    }
+                }
                 // If elevList is provided, compare equivalent elevation angles.
                 if (a.getElevationSelection() == b.getElevationSelection()) {
                     if (a.getElevationSelection() == Request.ALL_ELEVATIONS &&
