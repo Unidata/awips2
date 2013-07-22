@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml;
 
+import java.io.ByteArrayInputStream;
+
 import javax.jws.WebService;
 
 import com.raytheon.uf.common.registry.IRegistryRequestService;
@@ -44,12 +46,13 @@ import com.raytheon.uf.edex.auth.RemoteRequestRouteWrapper;
 public class RegistryRemoteRequestWrapper extends RemoteRequestRouteWrapper
         implements IRegistryRequestService {
 
+    @Override
     public byte[] request(byte[] data) {
         return executeThrift(data);
     }
 
     public byte[] executeThrift(byte[] data) {
-        return super.executeThrift(data);
+        return super.executeThrift(new ByteArrayInputStream(data));
     }
 
 }

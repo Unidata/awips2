@@ -40,6 +40,7 @@ import com.raytheon.viz.hydrocommon.HydroDisplayManager;
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial Creation.
  * 02/05/2013   1578        rferrel     Changes for non-blocking singleton TimeSeriesDlg.
+ * 6/8/2013     15980       wkwock      Fix selected station not update
  * 07/10/2013   2166        mpduff      Select the site but don't display the graph.
  * 
  * </pre>
@@ -55,6 +56,6 @@ public class TimeSeriesAction extends AbstractHandler {
         dlg.updateAndOpen(HydroDisplayManager.getInstance().getCurrentLid(),
                 false);
 
-        return null;
+    	return null;
     }
 }

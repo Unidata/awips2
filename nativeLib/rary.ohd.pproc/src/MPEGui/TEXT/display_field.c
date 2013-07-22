@@ -600,6 +600,8 @@ void display_field ( char fname [ ] , int len_fname, int map_index )
                        rad_data[ map_index ].maximum_rows,
                        rad_data[ map_index ].maximum_columns,
                        0,
+                       0,
+                       0,
                        0 );
 
  /* Check if the delete polygon list is displayed.  If it is,
