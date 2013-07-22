@@ -3,9 +3,8 @@
      EVAN BOOKBINDER WFO EAX 3-23-2011 Initial creation
                              4-13-2011 Merge in OB11.4 Coding Changes
                              9-15-2011 Merge in OB11.8.0-8 Coding Changes, Zone Codes
-     Mike Dangelo 02-27-2012 minor tweaks
-     Phil Kurimski 3-01-2012
-     Qinglu Lin              04-04-2012 DR 14691. Added <feAreaField> tag.
+                             9-12-2012 Added in new areaSource object and recode
+                                       for new locations shapefile
  -->
 <warngenConfig>
 
@@ -23,9 +22,7 @@
 
  <!-- Followups: VTEC actions of allowable followups when this template is selected -->
  <followups>
-   <followup>NEW</followup>
-   <followup>COR</followup>
-  </followups>
+ </followups>
  
  <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
  <phensigs>
@@ -63,61 +60,62 @@
 <bulletActionGroup action="NEW">
  <bullets>
   <bullet bulletText="*********** BASIS FOR ADVISORY (CHOOSE 1) **********" bulletType="title"/>
-  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="toggle1" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
-  <bullet bulletName="stormSpotters" bulletText="Storm spotters reported" bulletGroup="toggle1" parseString="STORM SPOTTERS REPORTED"/>
-  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement reported" bulletGroup="toggle1" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
-  <bullet bulletName="emergencyMgmt" bulletText="Emergency Management Reported" bulletGroup="toggle1" parseString="EMERGENCY MANAGEMENT REPORTED"/>
-  <bullet bulletName="public" bulletText="Public Reported" bulletGroup="toggle1" parseString="THE PUBLIC REPORTED"/>
-  <bullet bulletName="amateurRadio" bulletText="Amateur Radio Operators Reported" bulletGroup="toggle1" parseString="AMATUER RADIO OPERATORS REPORTED"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="advBasis" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
+  <bullet bulletName="stormSpotters" bulletText="Trained spotters reported" bulletGroup="advBasis" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement reported" bulletGroup="advBasis" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="emergencyMgmt" bulletText="Emergency Management Reported" bulletGroup="advBasis" parseString="EMERGENCY MANAGEMENT REPORTED"/>
+  <bullet bulletName="public" bulletText="Public Reported" bulletGroup="advBasis" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="amateurRadio" bulletText="Amateur Radio Operators Reported" bulletGroup="advBasis" parseString="AMATUER RADIO OPERATORS REPORTED"/>
   <bullet bulletText="******* THREAT (CHOOSE UP TO 1 EACH WIND/HAIL) ******" bulletType="title"/>
-  <bullet bulletName="wind30" bulletText="Winds 30 mph or greater" bulletGroup="toggle2" parseString="30 MPH"/>
-  <bullet bulletName="wind40" bulletText="Strong winds 40 mph or greater" bulletGroup="toggle2" parseString="40 MPH"/>
-  <bullet bulletName="wind50" bulletText="Strong winds 50 mph or greater" bulletGroup="toggle2" parseString="50 MPH"/>
-  <bullet bulletName="peaHail" bulletText="Pea sized hail" bulletGroup="toggle3" parseString="PEA SIZED HAIL"/>
-  <bullet bulletName="dimeHail" bulletText="Dime sized hail" bulletGroup="toggle3" parseString="DIME SIZED HAIL"/>
-  <bullet bulletName="nickelHail" bulletText="Nickel sized hail" bulletGroup="toggle3" parseString="NICKEL SIZED HAIL"/>
+  <bullet bulletName="wind30" bulletText="Winds 30 mph or greater" bulletGroup="windThreat" parseString="30 MPH"/>
+  <bullet bulletName="wind40" bulletText="Strong winds 40 mph or greater" bulletGroup="windThreat" parseString="40 MPH"/>
+  <bullet bulletName="wind50" bulletText="Strong winds 50 mph or greater" bulletGroup="windThreat" parseString="50 MPH"/>
+  <bullet bulletName="peaHail" bulletText="Pea sized hail" bulletGroup="hailThreat" parseString="PEA SIZED HAIL"/>
+  <bullet bulletName="dimeHail" bulletText="Dime sized hail" bulletGroup="hailThreat" parseString="DIME SIZED HAIL"/>
+  <bullet bulletName="nickelHail" bulletText="Nickel sized hail" bulletGroup="hailThreat" parseString="NICKEL SIZED HAIL"/>
   <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
-  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="toggle4" parseString="WILL BE NEAR..."/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="toggle4" bulletDefault="true" parseString="LOCATIONS IMPACTED INCLUDE..."/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletDefault="true" bulletText="Select for a list of cities" bulletGroup="pcast"/>
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
   <bullet bulletName="lightningCTA" bulletText="Frequent Lightning" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
-  <bullet bulletName="stormIntensifyCTA" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
+  <bullet bulletName="stormIntensify" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
   <!-- 
   <bullet bulletText="******** MILE MARKERS *********" bulletType="title"/>
   <bullet bulletName="interstates" bulletText="Interstate Mile Markers" bulletDefault="true" />
   <bullet bulletName="roads" bulletText="Road Markers" />
-  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletGroup="toggle2" bulletDefault="true" parseString=""/>
   -->
  </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="COR">
  <bullets>
   <bullet bulletText="*********** BASIS FOR ADVISORY (CHOOSE 1) **********" bulletType="title"/>
-  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="toggle1" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
-  <bullet bulletName="stormSpotters" bulletText="Storm spotters reported" bulletGroup="toggle1" parseString="STORM SPOTTERS REPORTED"/>
-  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement reported" bulletGroup="toggle1" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
-  <bullet bulletName="emergencyMgmt" bulletText="Emergency Management Reported" bulletGroup="toggle1" parseString="EMERGENCY MANAGEMENT REPORTED"/>
-  <bullet bulletName="public" bulletText="Public Reported" bulletGroup="toggle1" parseString="THE PUBLIC REPORTED"/>
-  <bullet bulletName="amateurRadio" bulletText="Amateur Radio Operators Reported" bulletGroup="toggle1" parseString="AMATUER RADIO OPERATORS REPORTED"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="advBasis" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
+  <bullet bulletName="stormSpotters" bulletText="Trained spotters reported" bulletGroup="advBasis" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement reported" bulletGroup="advBasis" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="emergencyMgmt" bulletText="Emergency Management Reported" bulletGroup="advBasis" parseString="EMERGENCY MANAGEMENT REPORTED"/>
+  <bullet bulletName="public" bulletText="Public Reported" bulletGroup="advBasis" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="amateurRadio" bulletText="Amateur Radio Operators Reported" bulletGroup="advBasis" parseString="AMATUER RADIO OPERATORS REPORTED"/>
   <bullet bulletText="******* THREAT (CHOOSE UP TO 1 EACH WIND/HAIL) ******" bulletType="title"/>
-  <bullet bulletName="wind30" bulletText="Winds 30 mph or greater" bulletGroup="toggle2" parseString="30 MPH"/>
-  <bullet bulletName="wind40" bulletText="Strong winds 40 mph or greater" bulletGroup="toggle2" parseString="40 MPH"/>
-  <bullet bulletName="wind50" bulletText="Strong winds 50 mph or greater" bulletGroup="toggle2" parseString="50 MPH"/>
-  <bullet bulletName="peaHail" bulletText="Pea sized hail" bulletGroup="toggle3" parseString="PEA SIZED HAIL"/>
-  <bullet bulletName="dimeHail" bulletText="Dime sized hail" bulletGroup="toggle3" parseString="DIME SIZED HAIL"/>
-  <bullet bulletName="nickelHail" bulletText="Nickel sized hail" bulletGroup="toggle3" parseString="NICKEL SIZED HAIL"/>
+  <bullet bulletName="wind30" bulletText="Winds 30 mph or greater" bulletGroup="windThreat" parseString="30 MPH"/>
+  <bullet bulletName="wind40" bulletText="Strong winds 40 mph or greater" bulletGroup="windThreat" parseString="40 MPH"/>
+  <bullet bulletName="wind50" bulletText="Strong winds 50 mph or greater" bulletGroup="windThreat" parseString="50 MPH"/>
+  <bullet bulletName="peaHail" bulletText="Pea sized hail" bulletGroup="hailThreat" parseString="PEA SIZED HAIL"/>
+  <bullet bulletName="dimeHail" bulletText="Dime sized hail" bulletGroup="hailThreat" parseString="DIME SIZED HAIL"/>
+  <bullet bulletName="nickelHail" bulletText="Nickel sized hail" bulletGroup="hailThreat" parseString="NICKEL SIZED HAIL"/>
   <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
-  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="toggle4" parseString="WILL BE NEAR..."/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="toggle4" bulletDefault="true" parseString="LOCATIONS IMPACTED INCLUDE..."/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS IMPACTED INCLUDE" showString="LOCATIONS IMPACTED INCLUDE"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="LOCATIONS IN THE WARNING INCLUDE" showString="LOCATIONS IN THE WARNING INCLUDE"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
   <bullet bulletName="lightningCTA" bulletText="Frequent Lightning" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
-  <bullet bulletName="stormIntensifyCTA" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
+  <bullet bulletName="stormIntensify" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
   <bullet bulletText="" bulletType="title"/>
@@ -125,44 +123,85 @@
   <bullet bulletText="******** MILE MARKERS *********" bulletType="title"/>
   <bullet bulletName="interstates" bulletText="Interstate Mile Markers" bulletDefault="true" />
   <bullet bulletName="roads" bulletText="Road Markers" />
-  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletGroup="toggle2" bulletDefault="true" parseString=""/>
   -->
  </bullets>
 </bulletActionGroup>
 </bulletActionGroups>
 
- <areaConfig>
-  <inclusionPercent>0.00</inclusionPercent>
-  <inclusionAndOr>AND</inclusionAndOr>
-  <inclusionArea>0</inclusionArea>
-  <areaField>NAME</areaField>
-  <parentAreaField>NAME</parentAreaField>
-  <areaNotationField>STATE</areaNotationField>
-  <feAreaField>FE_AREA</feAreaField>
-  <timeZoneField>TIME_ZONE</timeZoneField>
-  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
-  <fipsField>STATE_ZONE</fipsField>
-  <sortBy>
+<!--  Four variables below have been changed from the County-coded products -->
+<!--  areaSource.areaField -->
+<!--  areaSource.fipsField -->
+<!--  pathcastConfig.areaField and -->
+<!--  geospatialConfig.areaSource -->
+
+<!-- Default areaSource object to generate zone based information -->
+ <areaSource variable="areas">
+<!--    <areaSource>County</areaSource> -->
+   <areaSource>Zone</areaSource>
+   <type>HATCHING</type>
+   <inclusionPercent>0</inclusionPercent>
+   <inclusionAndOr>AND</inclusionAndOr>
+   <inclusionArea>0</inclusionArea>
+   <areaField>NAME</areaField>
+   <parentAreaField>NAME</parentAreaField>
+   <areaNotationField>STATE</areaNotationField>
+   <feAreaField>FE_AREA</feAreaField>
+   <timeZoneField>TIME_ZONE</timeZoneField>
+   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+<!-- <fipsField>STATE</fipsField> -->
+   <fipsField>STATE_ZONE</fipsField>
+   <pointField>NAME</pointField>
+   <sortBy>
   	<sort>parent</sort>
-  </sortBy>
-  <pointFilter>
+   </sortBy>
+   <pointFilter>
  		<mapping key="WARNGENLEV">
  			<constraint constraintValue="1" constraintType="EQUALS" />
  		</mapping>
   </pointFilter>
   <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
- </areaConfig>
+</areaSource>
+ 
+  <!-- Add in areaSource object to generate county-based headline if desired -->
+ <areaSource variable="affectedCounties">
+   <areaSource>COUNTY</areaSource>
+   <type>INTERSECT</type>
+   <inclusionPercent>0</inclusionPercent>
+   <inclusionAndOr>AND</inclusionAndOr>
+   <inclusionArea>0</inclusionArea>
+   <areaField>COUNTYNAME</areaField>
+   <parentAreaField>NAME</parentAreaField>
+   <areaNotationField>STATE</areaNotationField>
+   <feAreaField>FE_AREA</feAreaField>
+   <timeZoneField>TIME_ZONE</timeZoneField>
+   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+   <fipsField>FIPS</fipsField>
+   <pointField>NAME</pointField>
+   <sortBy>
+  	<sort>parent</sort>
+   </sortBy>
+   <pointFilter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1" constraintType="EQUALS" />
+ 		</mapping>
+  </pointFilter>
+  <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
+</areaSource>
  
  <pointSource variable="closestPoints">
  	<pointField>NAME</pointField>
+ 	<type>AREA</type>
  	<searchMethod>POINTS</searchMethod>
  	<filter>
  		<mapping key="WARNGENLEV">
  			<constraint constraintValue="1,2" constraintType="IN" />
  		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping>  		
  	</filter>
  	<maxResults>1</maxResults>
- 	<distanceThreshold>50</distanceThreshold>
+ 	<distanceThreshold>100</distanceThreshold>
  	<sortBy>
  		<sort>distance</sort>
   		<sort>warngenlev</sort>
@@ -172,11 +211,15 @@
  
  <pointSource variable="otherClosestPoints">
  	<pointField>NAME</pointField>
+ 	<type>AREA</type>
  	<searchMethod>POINTS</searchMethod>
  	<filter>
  		<mapping key="WARNGENLEV">
  			<constraint constraintValue="1" constraintType="EQUALS" />
  		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping>  		
  	</filter>
  	<maxResults>5</maxResults>
  	<distanceThreshold>100</distanceThreshold>
@@ -186,47 +229,62 @@
  </pointSource>
  
  <pathcastConfig>
+  <inclusionPercent>1</inclusionPercent>
+  <type>AREA</type>
   <withinPolygon>true</withinPolygon>
   <distanceThreshold>8.0</distanceThreshold>
   <interval>5</interval>
   <delta>5</delta>
   <maxResults>4</maxResults>
   <maxGroup>8</maxGroup>
-  <pointField>Name</pointField> 
-<!--  <areaField>COUNTYNAME</areaField> -->
+  <pointField>Name</pointField>
+<!--  <areaField>COUNTYNAME</areaField> --> 
   <areaField>NAME</areaField>
   <parentAreaField>STATE</parentAreaField>
   <areaNotationField>STATE</areaNotationField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
   <sortBy>
-  	<sort>distance</sort>
+  		<sort>warngenlev</sort>
+  		<sort>population</sort>
+  		<sort>distance</sort>
   </sortBy>
-  <filter>
+	<filter>
  		<mapping key="WARNGENLEV">
  			<constraint constraintValue="1,2" constraintType="IN" />
  		</mapping>
-  </filter>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping> 	 		
+  	</filter>  
  </pathcastConfig>
  
  <pointSource variable="cityList">
  	<pointField>NAME</pointField>
+ 	<inclusionPercent>1</inclusionPercent>
+ 	<type>AREA</type>
  	<searchMethod>TRACK</searchMethod>
  	<withinPolygon>true</withinPolygon>
  	<maxResults>20</maxResults>
  	<distanceThreshold>10</distanceThreshold>
-	<filter> 	
-  	  <mapping key="WARNGENLEV">
- 		<constraint constraintValue="1,2,3" constraintType="IN" />
- 	  </mapping>
- 	</filter>  	
+	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2,3" constraintType="IN" />
+ 		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping> 	 		
+  	</filter> 	
  	<sortBy>
   		<sort>warngenlev</sort>
   		<sort>population</sort>
+  		<sort>distance</sort>
   	</sortBy>
  </pointSource>
  
   <pointSource variable="otherPoints">
  	<pointField>NAME</pointField>
+ 	<inclusionPercent>1</inclusionPercent>
+ 	<type>AREA</type>
  	<searchMethod>TRACK</searchMethod>
  	<withinPolygon>true</withinPolygon>
  	<maxResults>10</maxResults>
@@ -236,14 +294,18 @@
   	</sortBy>
 	<filter>
  		<mapping key="WARNGENLEV">
- 			<constraint constraintValue="3" constraintType="IN" />
+ 			<constraint constraintValue="3,4" constraintType="IN" />
  		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping> 	 		
   	</filter>
  </pointSource>
 
  <geospatialConfig>
-  <pointSource>City</pointSource>
-  <areaSource>ZONE</areaSource>
+  <pointSource>WarnGenLoc</pointSource>
+<!-- <areaSource>County</areaSource> -->
+  <areaSource>Zone</areaSource>
   <parentAreaSource>States</parentAreaSource>
   <timezoneSource>TIMEZONES</timezoneSource>
   <timezoneField>TIME_ZONE</timezoneField>

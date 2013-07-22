@@ -47,6 +47,8 @@ import com.raytheon.viz.alerts.IAlertObserver;
  * Updates the Natl Cntrs resources as data comes in. This was copied from Raytheon's AutoUpdater 
  * to fix a couple of bugs in their code. 
  * 
+ * 06/13 : We could probably use Raytheon's AutoUpdater now but we would need to override the AbstractRequestableResources update() method
+ * 
  * 
  * <pre>
  * 
@@ -58,6 +60,7 @@ import com.raytheon.viz.alerts.IAlertObserver;
  *    06/07/11      #445       xGuo        Data Manager Performance Improvements
  *                                         process alert message to update data resource
  *    03/21/12      #606       ghull       resources no longer need to be updated
+ *    06/16/13      #768       ghull       don't replace URI spaces with '_'s
  *    
  * </pre>
  * 
@@ -107,30 +110,9 @@ public class NcAutoUpdater implements IAlertObserver {
         //	   new HashMap<AbstractNatlCntrsRequestableResourceData, List<Object>>();
         int errors = 0;
 
-        // change all the attributes with spaces to '_'s.
-        // known attribute with this problem are areaName, hazardType, watchNumber, and
-        // reportType,
-//        System.out.println("recieved Alert Msg with "+alertMessages.size() + " msgs");
-        
         for( AlertMessage message : alertMessages) {
             Map<String, Object> attribs = new HashMap<String,Object>( message.decodedAlert );
 
-//            System.out.println( message.dataURI );
-            
-            for( String attrName : attribs.keySet() ) {
-        		Object attribsObj = attribs.get( attrName );
-        		if( attribsObj instanceof String && 
-        		          !attrName.equals("dataTime") ) {
-        			
-        			String attrStr = ((String)attribsObj); 
-        		    if( attrStr.indexOf(' ') != -1 ) {   
-        		    	
-        			   attribs.put(attrName, attrStr.replace(' ', '_') );
-//           			System.out.println( "WARNING: auto update message for URI"+ message.dataURI +
-//   					"\n     Attribute "+ attrName +" has a space : '"+ (String)attribsObj +"'" );
-            		}
-            	}
-            }
             try {
                 // System.out.println("extract took: " + (tZ1 - tZ0));
                 java.util.List<AbstractVizResource<?, ?>> rscList = DataUpdateTree
@@ -166,11 +148,6 @@ public class NcAutoUpdater implements IAlertObserver {
                             reqResourceData.autoUpdate( objectToSend );                    		
                             r1.issueRefresh();                        	
                         }
-                        
-//                        if (objectToSend != null) {
-//                            displayList.add(md);
-//                            addToMapList(reqResourceData, pdoSendMap, objectToSend);
-//                        }
                     }
                 }
 
@@ -182,17 +159,4 @@ public class NcAutoUpdater implements IAlertObserver {
             }
         }
     }
-
-    /*
-    private void addToMapList(AbstractNatlCntrsRequestableResourceData data,
-            Map<AbstractNatlCntrsRequestableResourceData, List<Object>> map, Object obj) {
-
-        List<Object> list = map.get(data);
-        if (list == null) {
-            list = new ArrayList<Object>();
-            map.put(data, list);
-        }
-        list.add(obj);
-    }
-    */
 }
