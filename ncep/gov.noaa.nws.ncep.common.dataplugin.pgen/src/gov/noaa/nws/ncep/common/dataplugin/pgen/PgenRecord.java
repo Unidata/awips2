@@ -1,5 +1,7 @@
 package gov.noaa.nws.ncep.common.dataplugin.pgen;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
@@ -30,7 +32,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * Apr 22, 2013            sgilbert     Initial creation
  * Jun 26, 2013            bhebbard     Added SequenceGenerator annotation
- * 
+ * Jul 22, 2013 1977       rjpeter      Added getDataURI and annotations.
  * </pre>
  * 
  * @author sgilbert
@@ -262,4 +264,10 @@ public class PgenRecord extends PersistablePluginDataObject {
         return null;
     }
 
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
+    }
 }
