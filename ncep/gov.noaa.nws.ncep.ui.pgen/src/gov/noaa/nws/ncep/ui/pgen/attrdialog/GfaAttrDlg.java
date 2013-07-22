@@ -65,6 +65,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 07/12        #663        Q. Zhou     Add selected Gfa in movetext listener. Added get/set for MoveTextBtn
  * 12/12		#908		B. Yin		Added empty items in drop-down menus for multi-selecting
  * 12/12  		#937        J. Wu    	Update G_Airmet layers/hazard - "C&V"
+ * 05/13		#610		J. Wu		Implemented FZLVL range (TTR425) 
+ * 06/13		#674/TTR426	J. Wu		Added color settings for surface FZLVLs.
+ * 
  * </pre>
  * 
  * @author mlaryukhin
@@ -202,6 +205,7 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 		addSelectionListeners();
 		
 		populateTagCbo();
+
 	}
 
 	/**
@@ -256,13 +260,22 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 	}
 
 	private void createColorButtonSelector() {
+		
 		cs = new ColorButtonSelector(panelComboGroup);
 		if (rgbLastUsed == null) {
-			cs.setColorValue(getRGB(hazardCbo.getItem(hazardIndexLastUsed), fcstHrCbo
-					.getSelectionIndex()));
+
+			RGB rgb = getDefaultRGB( hazardCbo.getItem(hazardIndexLastUsed), getGfaFcstHr() );
+			
+			if ( hazardCbo.getItem(hazardIndexLastUsed).equalsIgnoreCase( "FZLVL" ) ) {
+				rgb = getDefaultFzlvlSfcColor( getGfaFcstHr() );
+			}
+			
+			cs.setColorValue( rgb );				
+			
 		} else {
 			cs.setColorValue(rgbLastUsed);
 		}
+		
 		cs.addListener(new IPropertyChangeListener(){
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
@@ -319,6 +332,21 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 		}
 		if(type != null) updateType();
 		hazardSpecificGroup.setVisible(nodes.size() > 0);
+		
+  		/*
+  		 * Adjust the color for FZLVL SFC.
+  		 */
+		if ( hazardCbo.getText().equalsIgnoreCase( "FZLVL") ) {			
+			Widget levelCmb = widgets.get( Gfa.LEVEL );
+			if ( levelCmb != null && !levelCmb.isDisposed() ) {
+				String lvl = ((Combo)widgets.get( Gfa.LEVEL )).getText();
+				if ( lvl.equalsIgnoreCase( "SFC" ) ) {
+					RGB useFzlvlSfcClr = getDefaultFzlvlSfcColor( getGfaFcstHr() );			
+				    cs.setColorValue( useFzlvlSfcClr );
+				}
+			}
+		}		
+		
 	}
 	
 	/**
@@ -514,8 +542,15 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 			} else {
 				requiredCrosses.put(lblStr, l);
 			}
-		} else {
+		} 
+		else {
 			txt = createTextAttr(g, w, h, horizontalSpan, scrollable, editable);
+			txt.addFocusListener( new FocusAdapter() {
+				public void focusLost( FocusEvent e ) {
+					updateValues();
+				}
+			});
+
 		}
 
 		boolean digitsOnly = "digitsOnly".equalsIgnoreCase(node.valueOf("@characterType"));
@@ -558,7 +593,9 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 			index = cbo.indexOf(v);
 		}
 		index = (index == -1) ? 0: index;
+		
 		cbo.select(index);
+		
 		values.put(lblStr, cbo.getText());
 		widgets.put(lblStr, cbo);
 		cbo.addSelectionListener(new SelectionAdapter(){
@@ -1161,6 +1198,7 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 	 * Updates the values map with the information from the screen. 
 	 */
 	private void updateValues(){
+
 		for(String key: widgets.keySet()){
 			Widget w = widgets.get(key);
 			if(w == null || w.isDisposed()) continue;
@@ -1172,12 +1210,26 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 					values.put(Gfa.BOTTOM, (splitValue.length > 1) ? splitValue[1]:null);
 				}
 				values.put(key, v);
-			} else if (w instanceof Combo){
+			} else if (w instanceof Combo) {
 				values.put(key, ((Combo) w).getText());
+				if ( key.equalsIgnoreCase( Gfa.LEVEL) ) {
+					String lvl = ((Combo)w).getText();
+					
+					RGB clr = getDefaultRGB( hazardCbo.getItem(hazardIndexLastUsed), getGfaFcstHr() );
+					if ( hazardCbo.getText().equalsIgnoreCase( "FZLVL") ) {
+						if ( lvl.equalsIgnoreCase( "SFC" ) ) {
+							clr = getDefaultFzlvlSfcColor( getGfaFcstHr() );
+						}
+					}
+					
+					cs.setColorValue( clr );
+				}
 			} else if (w instanceof Button){
 				values.put(key, "" + ((Button) w).getSelection());
 			}
 		}
+		
+		
 		
 		updateVORText();
 	}
@@ -1347,8 +1399,10 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 	}
 	
 	public void redrawHazardSpecificPanel() {
+		
 		// save settings
 		setAttrForDlg(GfaAttrDlg.this);
+		
 		// repaint a part of the dialog
 		Shell shell = hazardSpecificGroup.getShell();
 		if(hazardSpecificGroup != null){
@@ -1371,8 +1425,8 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 		}
 
 		// update color 
-		String hazard = hazardCbo.getText();
-		rgbLastUsed = getRGB(hazard, fcstHrCbo.getSelectionIndex());
+//		rgbLastUsed = getRGB(hazard, fcstHrCbo.getSelectionIndex());
+		rgbLastUsed = getDefaultRGB( hazardCbo.getItem(hazardIndexLastUsed), getGfaFcstHr() );		
 		cs.setColorValue(rgbLastUsed);
 		
 		shell.pack();
@@ -1380,7 +1434,9 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 			warning.dispose();
 			warning = null;
 		}
+		
 		createHazardSpecificPanel();
+				
 		createBottomPanel();
 		shell.pack();
 	}
@@ -1626,14 +1682,30 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 
 	private void updateColorWhenOtherTextChanged(String s) {
 		String hazard = hazardCbo.getText();
+				
+		RGB fzlvlClr = null;
+		if ( hazard.equalsIgnoreCase( "FZLVL") ) {
+			Widget levelCmb = widgets.get( Gfa.LEVEL );
+			if ( levelCmb != null && !levelCmb.isDisposed() ) {
+				String lvl = ((Combo)widgets.get( Gfa.LEVEL )).getText();
+				if ( lvl.equalsIgnoreCase( "SFC" ) ) {
+					fzlvlClr = getDefaultFzlvlSfcColor( s );
+				}
+			}
+		}
+		
 		if("Other".equals(fcstHrCbo.getText())) {
 			String str = s;
 			if(str.endsWith(":") || str.endsWith("-")) str = str.substring(0, str.length()-1);
 			Color[] c = GfaInfo.getDefaultColors(hazard, str);
 			RGB rgb = new RGB(c[0].getRed(), c[0].getGreen(), c[0].getBlue());
+			if ( fzlvlClr != null  ) rgb = fzlvlClr;
+						
 			cs.setColorValue(rgb);
-		} else {
-			cs.setColorValue(getRGB(hazard, fcstHrCbo.getSelectionIndex()));
+		} 
+		else {
+			RGB clr = getDefaultRGB( hazardCbo.getItem(hazardIndexLastUsed), getGfaFcstHr() );
+			cs.setColorValue( clr );
 		}
 	}
 
@@ -2025,6 +2097,32 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 
 		index = fcstHrCbo.indexOf("Other");
 		fcstHrCbo.select(index);
+	}
+	
+	/*
+	 *  Find the color 
+	 */
+	private RGB getDefaultFzlvlSfcColor( String fcsthr ) {
+		
+		RGB rgb = GfaInfo.getFzlvlSfcColor( "Other" );
+		
+		if ( fcsthr != null ) {
+			String[] hrmin = fcsthr.split("-");
+			if ( hrmin.length > 1 ) {
+				double hr = Double.parseDouble( hrmin[0] );
+				if ( hr >= 6 ) {
+					rgb = GfaInfo.getFzlvlSfcColor( "outlook" );
+				}
+				else {
+					rgb = GfaInfo.getFzlvlSfcColor( "smear" );
+				}
+			}
+			else {
+				rgb = GfaInfo.getFzlvlSfcColor( "snapshot" );
+			}
+		}
+		
+		return rgb;
 	}
 }
 

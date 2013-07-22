@@ -31,6 +31,7 @@ import org.geotools.referencing.GeodeticCalculator;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * 
@@ -102,9 +103,18 @@ public class GisUtil {
 
         // Test for central by not being near adjacent borders.
         if (useCentral && iQuad.centralGeom != null
-                && iQuad.centralGeom.contains(warnedArea)) {
+                && iQuad.centralGeom.intersects(warnedArea) && !iQuad.north
+                && !iQuad.south && !iQuad.east && !iQuad.west) {
             portions.add(Direction.CENTRAL);
             return portions;
+        }
+
+        // If the parentGeom is oddly shaped (i.e. BROOMFIELD), the intended
+        // special cases won't work. A basic comparison can only be applied.
+        Coordinate centre = parentGeom.getEnvelopeInternal().centre();
+        GeometryFactory gf = new GeometryFactory();
+        if (!parentGeom.intersects(gf.createPoint(centre))) {
+            return getPointDesc(iQuad, useExtreme);
         }
 
         // Possible case of a stripe across the middle
@@ -120,8 +130,9 @@ public class GisUtil {
 
         // All quadrants in use.
         if (iQuad.q == 4 && iQuad.qq == 4) {
-            if ((iQuad.north && iQuad.south && !iQuad.east && !iQuad.west)
-                    || (iQuad.east && iQuad.west && !iQuad.north && !iQuad.south)) {
+            if (useCentral
+                    && ((iQuad.north && iQuad.south && !iQuad.east && !iQuad.west) || (iQuad.east
+                            && iQuad.west && !iQuad.north && !iQuad.south))) {
                 // Add CENTRAL if north and south are impacted, but not east and
                 // west. Apply vice versa
                 portions.add(Direction.CENTRAL);
@@ -158,19 +169,6 @@ public class GisUtil {
             } else if (iQuad.sw != 1 && (iQuad.nne || iQuad.ene)) {
                 portions.add(Direction.NORTH);
                 portions.add(Direction.EAST);
-            }
-        }
-
-        // Three diagonal quadrants in use.
-        if (iQuad.qq == 3 && portions.isEmpty()) {
-            if (iQuad.nn == 0) {
-                portions.add(Direction.SOUTH);
-            } else if (iQuad.ss == 0) {
-                portions.add(Direction.NORTH);
-            } else if (iQuad.ww == 0) {
-                portions.add(Direction.EAST);
-            } else if (iQuad.ee == 0) {
-                portions.add(Direction.WEST);
             }
         }
 
@@ -230,18 +228,18 @@ public class GisUtil {
         EnumSet<Direction> portions = EnumSet.noneOf(Direction.class);
         int counter = 0;
 
-        if (iQuad.north) {
+        if (iQuad.north && !iQuad.south) {
             portions.add(Direction.NORTH);
             counter++;
-        } else if (iQuad.south) {
+        } else if (iQuad.south && !iQuad.north) {
             portions.add(Direction.SOUTH);
             counter++;
         }
 
-        if (iQuad.east) {
+        if (iQuad.east && !iQuad.west) {
             portions.add(Direction.EAST);
             counter++;
-        } else if (iQuad.west) {
+        } else if (iQuad.west && !iQuad.east) {
             portions.add(Direction.WEST);
             counter++;
         }
@@ -263,6 +261,10 @@ public class GisUtil {
         Iterator<Direction> dirIter = set.iterator();
         while (dirIter.hasNext()) {
             list.add(dirIter.next().toString());
+        }
+
+        if (list.isEmpty()) {
+            return null;
         }
         return list;
     }
@@ -368,11 +370,9 @@ public class GisUtil {
                     portions.add(Direction.WEST);
                 }
 
-                if (azimuth < (90 - DIRECTION_DELTA)
-                        && azimuth > (-90 + DIRECTION_DELTA)) {
+                if (Math.abs(azimuth) < (90 - DIRECTION_DELTA)) {
                     portions.add(Direction.NORTH);
-                } else if (azimuth > (90 + DIRECTION_DELTA)
-                        && azimuth < (-90 - DIRECTION_DELTA)) {
+                } else if (Math.abs(azimuth) > (90 + DIRECTION_DELTA)) {
                     portions.add(Direction.SOUTH);
                 }
 

@@ -91,6 +91,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 02Oct2012    1229        rferrel     Option to allow blocking when top dialog.
  * 13Dec2012    1353        rferrel     Fix bug introduced in the Show all dialogs.
  * 30Jan2013    DR 14736    D. Friedman Display local time.
+ * 24Jun2013	DR 15733	XHuang		Display MAX_BUTTON_CNT (8 button).
  * 
  * </pre>
  * 
@@ -436,7 +437,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         textBtnArray = new ArrayList<Button>();
         textEditorArray = new ArrayList<TextEditorDialog>();
 
-        for (int x = 1; x <= INIT_BUTTON_CNT; ++x) {
+        for (int x = 1; x <= MAX_BUTTON_CNT; ++x) {	
             createButtonAndTextEditor(x);
         }
     }

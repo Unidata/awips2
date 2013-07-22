@@ -20,11 +20,9 @@
 package com.raytheon.uf.viz.monitor.ffmp;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
@@ -42,6 +40,7 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
  * ------------ ---------- ----------- --------------------------
  * Feb 18, 2013            njensen     Initial creation
  * Feb 28, 2013  1729      dhladky     Sped up, synch blocks were hanging it.
+ * Jul 15, 2013  2184      dhladky     Removed all HUC's but ALL
  * 
  * </pre>
  * 
@@ -59,7 +58,7 @@ public class FFMPSourceData {
     private ConcurrentNavigableMap<Date, List<String>> availableUris = new ConcurrentSkipListMap<Date, List<String>>();
 
     /** map of huc to list of loaded URIs **/
-    private ConcurrentMap<String, List<String>> loadedUris = new ConcurrentHashMap<String, List<String>>();
+    private List<String> loadedUris = new ArrayList<String>();
 
     /**
      * Clears the data
@@ -68,7 +67,9 @@ public class FFMPSourceData {
         ffmpData = null;
         previousUriQueryDate = null;
         availableUris.clear();
-        loadedUris.clear();
+        synchronized (loadedUris) {
+            loadedUris.clear();
+        }
     }
 
     /**
@@ -110,45 +111,23 @@ public class FFMPSourceData {
     }
 
     /**
-     * Gets the URIs associated with a HUC that have been loaded.
+     * Gets the URIs that have been loaded.
      * 
-     * @param huc
      * @return
      */
-    public List<String> getLoadedUris(String huc) {
-
-        List<String> loaded = loadedUris.get(huc);
-
-        if (loaded == null) {
-            loaded = new ArrayList<String>();
-            List<String> previous = loadedUris.putIfAbsent(huc, loaded);
-            if (previous != null) {
-                return previous;
-            }
-        }
-
-        return loaded;
+    public List<String> getLoadedUris() {
+        return Collections.unmodifiableList(loadedUris);
     }
 
     /**
-     * Tracks a URI associated with a HUC as loaded.
+     * Tracks a URI as loaded.
      * 
-     * @param huc
      * @param uri
      */
-    public void addLoadedUri(String huc, String uri) {
-
-        List<String> uriList = loadedUris.get(huc);
-
-        if (uriList == null) {
-            uriList = new ArrayList<String>();
-            List<String> previous = loadedUris.putIfAbsent(huc, uriList);
-            if (previous != null) {
-                uriList = previous;
-            }
+    public void addLoadedUri(String uri) {
+        synchronized (loadedUris) {
+            loadedUris.add(uri);
         }
-
-        uriList.add(uri);
     }
 
     /**
@@ -161,21 +140,23 @@ public class FFMPSourceData {
     }
 
     /**
-     * Gets the set of HUCs that have loaded some URIs.
-     * 
-     * @return
-     */
-    public Set<String> getLoadedHucs() {
-        return loadedUris.keySet();
-    }
-
-    /**
      * Gets the Available URIs based on time.
      * 
      * @return
      */
     public ConcurrentNavigableMap<Date, List<String>> getAvailableUris() {
         return availableUris;
+    }
+
+    /**
+     * Removes a URI
+     * 
+     * @param uri
+     */
+    public void removeLoadedUri(String uri) {
+        synchronized (loadedUris) {
+            loadedUris.remove(uri);
+        }
     }
 
 }

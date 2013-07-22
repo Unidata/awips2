@@ -56,6 +56,8 @@ import com.vividsolutions.jts.geom.Point;
  * Oct 26, 2007 391        jkorman     Initial Coding.
  * May 17, 2013 1869       bsteffen    Remove DataURI column from sat plot
  *                                     types.
+ * Jul 09, 2013 1869       bsteffen    Switch location hibernate type to use
+ *                                     hibernate spatial.
  * Jul 16, 2013 2181       bsteffen    Convert geometry types to use hibernate-
  *                                     spatial
  * 
