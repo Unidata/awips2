@@ -25,6 +25,7 @@ import com.raytheon.uf.common.dataplugin.gfe.request.CheckServiceBackupPrimarySi
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -42,6 +43,9 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * Nov 14, 2012 		   jdynina		Added check for national center
  * May 02, 2013  #1762     dgilling     Replace national center check with
  *                                      a svcbu PRIMARY_SITES check.
+ * Jul 22, 2013  #1762     dgilling     Ensure all fields of
+ *                                      CheckServiceBackupPrimarySiteRequest are
+ *                                      filled.
  * 
  * </pre>
  * 
@@ -85,8 +89,10 @@ public class CheckPermissions {
         return authorized;
     }
 
-    public static boolean runningAsPrimary() {
+    public static boolean runningAsPrimary(String siteId) {
         CheckServiceBackupPrimarySiteRequest request = new CheckServiceBackupPrimarySiteRequest();
+        request.setSiteID(siteId);
+        request.setWorkstationID(VizApp.getWsId());
         try {
             @SuppressWarnings("unchecked")
             ServerResponse<Boolean> sr = (ServerResponse<Boolean>) ThriftClient
