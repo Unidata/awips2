@@ -25,6 +25,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -38,6 +40,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.raytheon.uf.common.auth.user.IUser;
+import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSummary;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GroupDefinition;
@@ -70,6 +73,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.CancelForceApplyAndIncrease
 import com.raytheon.uf.viz.datadelivery.subscription.GroupDefinitionManager;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
+import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionStatusDlg;
 import com.raytheon.uf.viz.datadelivery.subscription.view.ICreateSubscriptionDlgView;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
@@ -112,6 +116,7 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * May 15, 2013 1040       mpduff       Add shared sites.
  * Jun 04, 2013  223       mpduff       Add point data.
+ * Jul 18, 2013 1653       mpduff       Add SubscriptionStatusSummary and the display dialog.
  * </pre>
  * 
  * @author mpduff
@@ -551,6 +556,9 @@ public class CreateSubscriptionDlgPresenter {
                 setSubscriptionId(subscription);
 
                 if (autoApprove) {
+                    final BlockingQueue<SubscriptionStatusSummary> exchanger = new ArrayBlockingQueue<SubscriptionStatusSummary>(
+                            1);
+
                     final Shell jobShell = view.getShell();
                     Job job = new Job("Creating Subscription...") {
                         @Override
@@ -566,6 +574,10 @@ public class CreateSubscriptionDlgPresenter {
                                                     .getName(), result
                                                     .getMessageToDisplay());
                                 } else {
+                                    SubscriptionStatusSummary sum = result
+                                            .getSubscriptionStatusSummary();
+
+                                    exchanger.add(sum);
                                     return new Status(
                                             Status.OK,
                                             CreateSubscriptionDlgPresenter.class
@@ -600,9 +612,18 @@ public class CreateSubscriptionDlgPresenter {
                                                 public void run() {
                                                     if (!view.isDisposed()) {
                                                         if (subscriptionCreated) {
-                                                            view.displayPopup(
-                                                                    CREATED_TITLE,
-                                                                    status.getMessage());
+                                                            try {
+                                                                displaySummary(
+                                                                        exchanger
+                                                                                .take(),
+                                                                        status.getMessage());
+
+                                                            } catch (InterruptedException e) {
+                                                                statusHandler
+                                                                        .handle(Priority.PROBLEM,
+                                                                                e.getLocalizedMessage(),
+                                                                                e);
+                                                            }
                                                             view.setStatus(Status.OK);
                                                             view.closeDlg();
                                                         } else {
@@ -730,6 +751,15 @@ public class CreateSubscriptionDlgPresenter {
         }
 
         return true;
+    }
+
+    /**
+     * Display the summary dialog
+     */
+    private void displaySummary(SubscriptionStatusSummary summary, String msg) {
+        SubscriptionStatusDlg dlg = new SubscriptionStatusDlg(view.getShell(),
+                summary, msg);
+        dlg.open();
     }
 
     /**
