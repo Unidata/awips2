@@ -3,6 +3,7 @@
      Version 1.1 EVAN BOOKBINDER/MIKE DANGELO 2-07-2012 Initial creation
      Modified MIKE REGA 5-10-2012 DR 14525 added timeZoneField
                                   DR 14691 added feAreaField
+              Evan Bookbinder 09-12-2012 added new areaSource object
  -->
 <warngenConfig>
 
@@ -87,38 +88,45 @@
 </bulletActionGroup>
 </bulletActionGroups>
 
- <areaConfig>
-  <inclusionPercent>0.00</inclusionPercent>
-  <inclusionAndOr>AND</inclusionAndOr>
-  <inclusionArea>0</inclusionArea>
-  <areaField>COUNTYNAME</areaField>
-  <parentAreaField>NAME</parentAreaField>
-  <areaNotationField>STATE</areaNotationField>
-  <feAreaField>FE_AREA</feAreaField>
-  <timeZoneField>TIME_ZONE</timeZoneField>
-  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
-  <fipsField>FIPS</fipsField>
-  <sortBy>
+ <!-- Default areaSource object to generate zone based information -->
+ <areaSource variable="areas">
+   <areaSource>Zone</areaSource>
+   <inclusionPercent>0</inclusionPercent>
+   <inclusionAndOr>AND</inclusionAndOr>
+   <inclusionArea>0</inclusionArea>
+   <areaField>NAME</areaField>
+   <parentAreaField>NAME</parentAreaField>
+   <feAreaField>FE_AREA</feAreaField>
+   <timeZoneField>TIME_ZONE</timeZoneField>
+   <areaNotationField>STATE</areaNotationField>
+   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+   <fipsField>STATE_ZONE</fipsField>
+   <pointField>NAME</pointField>
+   <sortBy>
   	<sort>parent</sort>
-  </sortBy>
-  <pointFilter>
+   </sortBy>
+   <pointFilter>
  		<mapping key="WARNGENLEV">
  			<constraint constraintValue="1" constraintType="EQUALS" />
  		</mapping>
   </pointFilter>
   <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
- </areaConfig>
+</areaSource>
  
  <pointSource variable="closestPoints">
  	<pointField>NAME</pointField>
+ 	<type>AREA</type>
  	<searchMethod>POINTS</searchMethod>
  	<filter>
  		<mapping key="WARNGENLEV">
  			<constraint constraintValue="1,2" constraintType="IN" />
  		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping>  		
  	</filter>
  	<maxResults>1</maxResults>
- 	<distanceThreshold>50</distanceThreshold>
+ 	<distanceThreshold>100</distanceThreshold>
  	<sortBy>
  		<sort>distance</sort>
   		<sort>warngenlev</sort>
@@ -128,11 +136,15 @@
  
  <pointSource variable="otherClosestPoints">
  	<pointField>NAME</pointField>
+ 	<type>AREA</type>
  	<searchMethod>POINTS</searchMethod>
  	<filter>
  		<mapping key="WARNGENLEV">
  			<constraint constraintValue="1" constraintType="EQUALS" />
  		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping>  		
  	</filter>
  	<maxResults>5</maxResults>
  	<distanceThreshold>100</distanceThreshold>
@@ -142,6 +154,8 @@
  </pointSource>
  
  <pathcastConfig>
+  <inclusionPercent>1</inclusionPercent>
+  <type>AREA</type>
   <withinPolygon>true</withinPolygon>
   <distanceThreshold>8.0</distanceThreshold>
   <interval>5</interval>
@@ -154,17 +168,24 @@
   <areaNotationField>STATE</areaNotationField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
   <sortBy>
-  	<sort>distance</sort>
+  		<sort>warngenlev</sort>
+  		<sort>population</sort>
+  		<sort>distance</sort>
   </sortBy>
   <filter>
  		<mapping key="WARNGENLEV">
  			<constraint constraintValue="1,2" constraintType="IN" />
  		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping> 	 		
   </filter>  
  </pathcastConfig>
  
  <pointSource variable="cityList">
  	<pointField>NAME</pointField>
+ 	<inclusionPercent>1</inclusionPercent>
+ 	<type>AREA</type>
  	<searchMethod>TRACK</searchMethod>
  	<withinPolygon>true</withinPolygon>
  	<maxResults>20</maxResults>
@@ -173,15 +194,21 @@
   	  <mapping key="WARNGENLEV">
  		<constraint constraintValue="1,2,3" constraintType="IN" />
  	  </mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping> 	 	  
  	</filter> 	 	
  	<sortBy>
   		<sort>warngenlev</sort>
   		<sort>population</sort>
+  		<sort>distance</sort>
   	</sortBy>
  </pointSource>
  
   <pointSource variable="otherPoints">
  	<pointField>NAME</pointField>
+ 	<inclusionPercent>1</inclusionPercent>
+ 	<type>AREA</type>
  	<searchMethod>TRACK</searchMethod>
  	<withinPolygon>true</withinPolygon>
  	<maxResults>10</maxResults>
@@ -191,13 +218,16 @@
   	</sortBy>
 	<filter>
  		<mapping key="WARNGENLEV">
- 			<constraint constraintValue="3" constraintType="IN" />
+ 			<constraint constraintValue="3,4" constraintType="IN" />
  		</mapping>
+  	  <mapping key="LANDWATER">
+ 		<constraint constraintValue="L,LW,LC" constraintType="IN" />
+ 	  </mapping> 	 		
   	</filter>
  </pointSource>
 
  <geospatialConfig>
-  <pointSource>City</pointSource>
+  <pointSource>WarnGenLoc</pointSource>
   <areaSource>County</areaSource>
   <parentAreaSource>States</parentAreaSource>
   <timezoneSource>TIMEZONES</timezoneSource>
@@ -207,7 +237,6 @@
 <!-- this "include file" tag will grab the Mile Marker XML pointSource tags, 
 and place into this template  
 -->
-<!-- <include file="mileMarkers.xml"/> -->
-
+<include file="mileMarkers.xml"/>
 
 </warngenConfig>

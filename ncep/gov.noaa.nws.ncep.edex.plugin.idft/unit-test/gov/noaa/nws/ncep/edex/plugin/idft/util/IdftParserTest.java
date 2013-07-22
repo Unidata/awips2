@@ -46,7 +46,7 @@ public class IdftParserTest {
 		Matcher m2 = dataLnPattern2.matcher(thePntRec2);
 		if (m2.find()) {
 			IdftParser.processIdft(m2, 6, record);	
-		    assertEquals (410, record.getPointNum());
+		    assertEquals (410, record.getPointNum().intValue());
 			assertEquals (-66.8, record.getLat());
 			assertEquals (-73.3, record.getLon());
 			assertEquals (253.0F, record.getDirection());
@@ -56,7 +56,7 @@ public class IdftParserTest {
 		m2 = dataLnPattern2.matcher(thePntRec2);
 		if (m2.find()) {
 			IdftParser.processIdft(m2, 6, record);	
-		    assertEquals (390, record.getPointNum());
+		    assertEquals (390, record.getPointNum().intValue());
 			assertEquals (50.5, record.getLat());
 			assertEquals (10.3, record.getLon());
 			assertEquals (180.0F, record.getDirection());

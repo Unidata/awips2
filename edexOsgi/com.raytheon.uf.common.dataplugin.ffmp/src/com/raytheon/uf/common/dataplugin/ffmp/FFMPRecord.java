@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.ref.WeakReference;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -89,6 +88,7 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * Apr 18, 2013 1919       dhladky     Added method for VGB loading
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
+ * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * 
  * </pre>
  * 
@@ -142,23 +142,25 @@ public class FFMPRecord extends PersistablePluginDataObject
     private String siteKey;
 
     @Transient
-    private HashMap<String, FFMPBasinData> basinsMap = new HashMap<String, FFMPBasinData>();
+    private FFMPBasinData basins = new FFMPBasinData();;
 
     @Transient
     private int expiration = 0;
 
     @Transient
     private boolean isRate = false;
-    
+
     protected static ConcurrentMap<Long, WeakReference<ImmutableDate>> cacheTimes = new ConcurrentHashMap<Long, WeakReference<ImmutableDate>>();
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPRecord.class);
-    
+
     /** ALL HUC LEVEL **/
     public static final String ALL = "ALL";
+
     /** COUNTY HUC LEVEL **/
     public static final String COUNTY = "COUNTY";
+
     /** VIRTUAL HUC LEVEL **/
     public static final String VIRTUAL = "VIRTUAL";
 
@@ -359,8 +361,8 @@ public class FFMPRecord extends PersistablePluginDataObject
      * @param hucName
      */
 
-    public void setBasinData(FFMPBasinData basins, String hucName) {
-        basinsMap.put(hucName, basins);
+    public void setBasinData(FFMPBasinData basins) {
+        this.basins = basins;
     }
 
     /**
@@ -369,22 +371,8 @@ public class FFMPRecord extends PersistablePluginDataObject
      * @param basins
      * @param hucName
      */
-    public FFMPBasinData getBasinData(String hucName) {
-        FFMPBasinData basins = basinsMap.get(hucName);
-        if (basins == null) {
-            basins = new FFMPBasinData(hucName);
-            basinsMap.put(hucName, basins);
-        }
+    public FFMPBasinData getBasinData() {
         return basins;
-    }
-
-    /**
-     * Gets the map if you need it
-     * 
-     * @return
-     */
-    public HashMap<String, FFMPBasinData> getBasinsMap() {
-        return basinsMap;
     }
 
     /**
@@ -394,41 +382,36 @@ public class FFMPRecord extends PersistablePluginDataObject
      * @param huc
      */
     public void retrieveMapFromDataStore(File datastoreFile, String uri,
-            FFMPTemplates template, String huc, Date date, String sourceName)
+            FFMPTemplates template, Date date, String sourceName)
             throws Exception {
 
-        FFMPBasinData fbd = getBasinData(huc);
+        FFMPBasinData fbd = getBasinData();
         ImmutableDate idate = getCacheDate(date);
-
-        boolean aggregate = true;
-
-        if (huc.equals(ALL)) {
-            aggregate = false;
-        }
+        boolean aggregate = false;
 
         for (DomainXML domain : template.getDomains()) {
 
             LinkedHashMap<Long, ?> map = template.getMap(getSiteKey(),
-                    domain.getCwa(), huc);
+                    domain.getCwa(), FFMPRecord.ALL);
 
             if (map != null && !map.isEmpty()) {
                 fbd.addBasins(datastoreFile, uri, getSiteKey(),
-                        domain.getCwa(), huc, sourceName, idate, map.keySet(),
-                        aggregate);
+                        domain.getCwa(), FFMPRecord.ALL, sourceName, idate,
+                        map.keySet(), aggregate);
             }
         }
     }
 
-    public void retrieveMapFromDataStore(FFMPTemplates template, String huc)
+    public void retrieveMapFromDataStore(FFMPTemplates template)
             throws Exception {
         retrieveMapFromDataStore(getDataStoreFile(), getDataURI(), template,
-                huc, getDataTime().getRefTime(), getSourceName());
+                getDataTime().getRefTime(), getSourceName());
     }
 
-    public void retrieveVirtualMapFromDataStore(FFMPTemplates template,
-            String huc) throws Exception {
-        retrieveVirtualMapFromDataStore(getDataStoreFile(), getDataURI(), template,
-                getDataTime().getRefTime(), getSourceName());
+    public void retrieveVirtualMapFromDataStore(FFMPTemplates template)
+            throws Exception {
+        retrieveVirtualMapFromDataStore(getDataStoreFile(), getDataURI(),
+                template, getDataTime().getRefTime(), getSourceName());
     }
 
     private File getDataStoreFile() {
@@ -523,7 +506,7 @@ public class FFMPRecord extends PersistablePluginDataObject
     public void retrieveVirtualMapFromDataStore(File datastoreFile, String uri,
             FFMPTemplates template, Date date, String sourceName)
             throws StorageException, FileNotFoundException {
-        FFMPBasinData fbd = getBasinData(ALL);
+        FFMPBasinData fbd = getBasinData();
         String key = getDataKey();
         ImmutableDate idate = getCacheDate(date);
 
@@ -537,8 +520,7 @@ public class FFMPRecord extends PersistablePluginDataObject
 
                 if (size > 0) {
                     fbd.addVirtualBasins(datastoreFile, uri, key,
-                            domain.getCwa(), idate,
-                            lids.values());
+                            domain.getCwa(), idate, lids.values());
                 }
             }
         }
@@ -569,10 +551,9 @@ public class FFMPRecord extends PersistablePluginDataObject
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("\n dataURI: " + getDataURI() + "\n");
-        if (basinsMap != null) {
-            for (String key : basinsMap.keySet()) {
-                sb.append(key + " : " + basinsMap.get(key).getBasins().size()
-                        + "\n");
+        if (basins != null) {
+            for (Long key : basins.getBasins().keySet()) {
+                sb.append(key + " : " + basins.get(key).getValue() + "\n");
             }
         }
 
@@ -635,10 +616,7 @@ public class FFMPRecord extends PersistablePluginDataObject
      * @param date
      */
     public void purgeData(Date date) {
-
-        for (FFMPBasinData basinData : getBasinsMap().values()) {
-            basinData.purgeData(date);
-        }
+        basins.purgeData(date);
     }
 
     public void setSiteKey(String siteKey) {
@@ -648,21 +626,20 @@ public class FFMPRecord extends PersistablePluginDataObject
     public String getSiteKey() {
         return siteKey;
     }
-    
+
     /**
      * Get the fully populated aggregate record
+     * 
      * @return
      */
     public FFMPAggregateRecord getAggregateRecord() {
         FFMPAggregateRecord fdcr = new FFMPAggregateRecord();
-        
-        for (FFMPBasinData basinData: basinsMap.values()) {
-            fdcr.addBasinData(basinData);
-        }
-        
+
+        fdcr.setBasins(basins);
+
         return fdcr;
     }
-    
+
     /**
      * Creates and populates a version of this record from an aggregate record
      * 
@@ -671,14 +648,11 @@ public class FFMPRecord extends PersistablePluginDataObject
     public FFMPRecord(FFMPAggregateRecord fdcr) {
 
         List<Long> times = fdcr.getTimes();
-
-        for (FFMPBasinData basinData: fdcr.getBasinsMap().values()) {
-            // Keep in mind times can be null, Guidance basins are like that
-            basinData.populate(times);
-            setBasinData(basinData, basinData.getHucLevel());
-        }
+        FFMPBasinData fdcrBasins = fdcr.getBasins();
+        fdcrBasins.populate(times);
+        setBasinData(fdcrBasins);
     }
-    
+
     /**
      * Gets and maintains the list of times. This will lesson memory consumption
      * because it means all FFMPBasin TreeMap date keys reference back to this
@@ -691,7 +665,7 @@ public class FFMPRecord extends PersistablePluginDataObject
 
         WeakReference<ImmutableDate> idate = cacheTimes.get(date.getTime());
         ImmutableDate myDate = null;
-        
+
         if (idate != null) {
             myDate = idate.get();
         }
@@ -701,22 +675,19 @@ public class FFMPRecord extends PersistablePluginDataObject
             myDate = new ImmutableDate(time);
             idate = new WeakReference<ImmutableDate>(myDate);
             cacheTimes.putIfAbsent(time, idate);
-        } 
+        }
 
         return myDate;
     }
-       
-    
+
     /**
      * Populate data from the cache files
+     * 
      * @param basins
      * @param hucName
      */
-    public void populate(FFMPBasinData basins, String hucName) {
-  
-        setBasinData(basins, hucName);
-        //System.out.println("Adding Whole Object Cache Data: "+hucName+" "+getSourceName());
-        
+    public void populate(FFMPBasinData basins) {
+        setBasinData(basins);
     }
 
     @Override

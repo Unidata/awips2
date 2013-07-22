@@ -1338,7 +1338,7 @@ public class GfaSnap {
 	  * 
 	  * @return boolean	  true -left of or on line; false - right of line
 	  */
-     private boolean atLeft( Coordinate pp, Coordinate[] line, boolean closed, double tolerance ) {
+     public boolean atLeft( Coordinate pp, Coordinate[] line, boolean closed, double tolerance ) {
     	 
     	 // Check if closed line has duplicate end point.
     	 boolean clsd = closed;	

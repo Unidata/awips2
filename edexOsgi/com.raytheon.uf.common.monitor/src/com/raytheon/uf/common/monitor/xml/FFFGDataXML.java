@@ -41,7 +41,8 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 10, 2010 #4517      lvenable     Initial creation
+ * Mar 10, 2010 #4517      lvenable    Initial creation
+ * Jun 17, 2013 #2085      njensen     Double checked locking of maps
  * 
  * </pre>
  * 
@@ -152,14 +153,18 @@ public class FFFGDataXML implements ISerializableObject {
      */
     private void verifySourceDataMap() {
         if (sourceDataMap == null) {
-            sourceDataMap = new HashMap<String, FFFGSourceXML>();
+            synchronized (this) {
+                if (sourceDataMap == null) {
+                    sourceDataMap = new HashMap<String, FFFGSourceXML>();
 
-            if (sources == null) {
-                return;
-            }
+                    if (sources == null) {
+                        return;
+                    }
 
-            for (FFFGSourceXML srcXML : sources) {
-                sourceDataMap.put(srcXML.getSourceName(), srcXML);
+                    for (FFFGSourceXML srcXML : sources) {
+                        sourceDataMap.put(srcXML.getSourceName(), srcXML);
+                    }
+                }
             }
         }
     }
