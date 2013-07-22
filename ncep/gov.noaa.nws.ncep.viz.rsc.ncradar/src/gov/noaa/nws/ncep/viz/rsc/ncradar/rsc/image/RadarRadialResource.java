@@ -36,8 +36,8 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.viz.awipstools.capabilities.EAVCapability;
 import com.raytheon.viz.awipstools.common.EstimatedActualVelocity;
 
-import gov.noaa.nws.ncep.viz.rsc.ncradar.VizRadarRecord;
-import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
+import com.raytheon.viz.radar.DefaultVizRadarRecord;
+import com.raytheon.viz.radar.VizRadarRecord;
 import gov.noaa.nws.ncep.viz.rsc.ncradar.rsc.RadarImageResource;
 import gov.noaa.nws.ncep.viz.rsc.ncradar.rsc.RadarResourceData;
 import com.raytheon.viz.radar.rsc.image.IRadialMeshExtension;
@@ -75,9 +75,8 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor> {
      * @param loadProps
      * @throws VizException
      */
-    public RadarRadialResource(RadarResourceData rrd, LoadProperties loadProps,
-            IRadarInterrogator interrogator) throws VizException {
-        super(rrd, loadProps, interrogator);
+    public RadarRadialResource(RadarResourceData rrd, LoadProperties loadProps) throws VizException {
+        super(rrd, loadProps);
     }
 
     /*
@@ -87,7 +86,7 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor> {
      */
     @Override
     public Amount getElevation() {
-        RadarRecord radarRecord = getRadarRecord(displayedDate);
+        RadarRecord radarRecord = getCurrentRadarRecord();
 
         if (radarRecord != null) {
             return new Amount(radarRecord.getElevation(), NonSI.FOOT);
@@ -124,34 +123,6 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor> {
             }
         }
         images.clear();
-    }
-
-    @Override
-    public String inspect(Map<String, String> dataMap) {
-        StringBuilder sb = new StringBuilder(super.inspect(dataMap));
-
-        if (dataMap != null && dataMap.containsKey(EAV_VALUE)) {
-            sb.append(" ").append(dataMap.get(EAV_VALUE));
-        }
-        return sb.toString();
-    }
-
-    @Override
-    public Map<String, String> interrogate(Coordinate latLon) {
-        Map<String, String> dataMap = super.interrogate(latLon);
-
-        // add EAV values to dataMap, if necessary
-        if (hasCapability(EAVCapability.class)) {
-            EAVCapability eavCap = getCapability(EAVCapability.class);
-            if (eavCap.isCapabilityActive()) {
-                if (dataMap != null) {
-                    EstimatedActualVelocity eav = eavCap.getEav();
-                    dataMap.put(EAV_VALUE, eav.getEAVValue(latLon,
-                            new HashMap<String, Object>(dataMap)));
-                }
-            }
-        }
-        return dataMap;
     }
 
     protected static class RadarRadialDataRetrievalAdapter extends
@@ -208,64 +179,5 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor> {
         return target.getExtension(IRadialMeshExtension.class).constructMesh(
                 radarRecord, ((IMapDescriptor) descriptor).getGridGeometry());
     }
-
-	@Override
-	public void updateConfig() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	
-	protected HashMap<String, RequestConstraint> queryList;	
-
-	@Override
-	public void queryRecords() throws VizException {
-
-		queryList = new HashMap<String, RequestConstraint>(
-				resourceData.getMetadataMap());
-
-		LayerProperty prop = new LayerProperty();
-		prop.setDesiredProduct(ResourceType.PLAN_VIEW);
-		prop.setEntryQueryParameters(queryList, false);
-		prop.setNumberOfImages(15000); // TODO: max # records ?? should we cap
-										// this ?
-		String script = null;
-		script = ScriptCreator.createScript(prop);
-
-		if (script == null)
-			return;
-
-		Object[] pdoList = Connector.getInstance().connect(script, null, 60000);
-		//ArrayList<PluginDataObject> pdos = new ArrayList<PluginDataObject>();
-		for (Object pdo : pdoList) {
-			for( IRscDataObject dataObject : processRecord( pdo ) )	{	
-				newRscDataObjsQueue.add(dataObject);
-			}
-			/*pdos.add((PluginDataObject)pdo);*/		
-		}
-		
-		//resourceChanged(ChangeType.DATA_UPDATE, pdos.toArray(new PluginDataObject[]{}));//see getRadarRecord(DataTime)&Map<DataTime, RadarTimeRecord> radarRecords of AbstractRadarResource
-	}
-
-	@Override
-	public void initResource(IGraphicsTarget target) throws VizException {
-		
-		synchronized (this) {
-			super.initResource( target );
-			
-			this.viewType = target.getViewType();
-            this.grphTarget = target;            
-			queryRecords();       	
-		}		
-	}
-
-	@Override
-	protected gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.AbstractFrameData createNewFrame(
-			DataTime frameTime, int frameInterval) {
-		// TODO Auto-generated method stub
-		return new FrameData(frameTime, frameInterval );//return null;
-	}
-	   
-
 }
 

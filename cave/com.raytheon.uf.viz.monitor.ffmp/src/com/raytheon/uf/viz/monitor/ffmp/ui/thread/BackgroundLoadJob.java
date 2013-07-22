@@ -66,63 +66,70 @@ public class BackgroundLoadJob extends AbstractLoadJob {
      */
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        SubMonitor smonitor = SubMonitor.convert(monitor, "Loading Data", 2500);
-        long t0 = System.currentTimeMillis();
+        try {
+            SubMonitor smonitor = SubMonitor.convert(monitor, "Loading Data",
+                    2500);
+            long t0 = System.currentTimeMillis();
 
-        // preload available URIs
-        smonitor.subTask("Preloading URIs...");
-        if (preloadAvailableUris) {
-            preloadAvailableUris();
-        }
-        smonitor.worked(100);
-        if (!this.shouldRun()) {
-            return Status.CANCEL_STATUS;
-        }
+            // preload available URIs
+            smonitor.subTask("Preloading URIs...");
+            if (preloadAvailableUris) {
+                preloadAvailableUris();
+            }
+            smonitor.worked(100);
+            if (!this.shouldRun()) {
+                return Status.CANCEL_STATUS;
+            }
 
-        // QPE
-        smonitor.subTask("Processing QPE...");
-        NavigableMap<Date, List<String>> qpeURIs = getQpeUris();
-        smonitor.worked(100);
-        doQpe(qpeURIs, smonitor.newChild(1000));
-        if (!this.shouldRun()) {
-            return Status.CANCEL_STATUS;
-        }
+            // QPE
+            smonitor.subTask("Processing QPE...");
+            NavigableMap<Date, List<String>> qpeURIs = getQpeUris();
+            smonitor.worked(100);
+            doQpe(qpeURIs, smonitor.newChild(1000));
+            if (!this.shouldRun()) {
+                return Status.CANCEL_STATUS;
+            }
 
-        // QPF
-        smonitor.subTask("Processing QPF...");
-        List<NavigableMap<Date, List<String>>> qpfs = getQpfUris(startTime);
-        smonitor.worked(100);
-        SubMonitor qpfmonitor = smonitor.newChild(1000);
-        qpfmonitor.beginTask(null, qpfs.size() * PROGRESS_FACTOR);
-        int i = 0;
-        for (NavigableMap<Date, List<String>> qpfURIs : qpfs) {
-            doQpf(qpfURIs, product.getQpf(i),
-                    qpfmonitor.newChild(PROGRESS_FACTOR));
-            i++;
-        }
-        if (!this.shouldRun()) {
-            return Status.CANCEL_STATUS;
-        }
+            // QPF
+            smonitor.subTask("Processing QPF...");
+            List<NavigableMap<Date, List<String>>> qpfs = getQpfUris(startTime);
+            smonitor.worked(100);
+            SubMonitor qpfmonitor = smonitor.newChild(1000);
+            qpfmonitor.beginTask(null, qpfs.size() * PROGRESS_FACTOR);
+            int i = 0;
+            for (NavigableMap<Date, List<String>> qpfURIs : qpfs) {
+                doQpf(qpfURIs, product.getQpf(i),
+                        qpfmonitor.newChild(PROGRESS_FACTOR));
+                i++;
+            }
+            if (!this.shouldRun()) {
+                return Status.CANCEL_STATUS;
+            }
 
-        // Virtual
-        smonitor.subTask("Processing Virtual...");
-        doVirtual(smonitor.newChild(200));
-        if (!this.shouldRun()) {
-            return Status.CANCEL_STATUS;
-        }
+            // Virtual
+            smonitor.subTask("Processing Virtual...");
+            doVirtual(smonitor.newChild(200));
+            if (!this.shouldRun()) {
+                return Status.CANCEL_STATUS;
+            }
 
-        // Guidance
-        smonitor.subTask("Processing Guidance...");
-        doGuidance(startTime, smonitor.newChild(200));
-        if (!this.shouldRun()) {
-            return Status.CANCEL_STATUS;
-        }
+            // Guidance
+            smonitor.subTask("Processing Guidance...");
+            doGuidance(startTime, smonitor.newChild(200));
+            if (!this.shouldRun()) {
+                return Status.CANCEL_STATUS;
+            }
 
-        smonitor.done();
-        System.out.println(this.getName() + " took: "
-                + (System.currentTimeMillis() - t0));
+            smonitor.done();
+            System.out.println(this.getName() + " took: "
+                    + (System.currentTimeMillis() - t0));
+
+        } catch (Exception e) {
+            statusHandler.error("Couldn't complete " + this.getName(), e);
+        }
 
         return Status.OK_STATUS;
+
     }
 
     public void setPreloadAvailableUris(boolean preload) {

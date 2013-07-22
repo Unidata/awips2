@@ -55,6 +55,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * ------------ ---------- ----------- --------------------------
  * Jan 28, 2011            mpduff      Initial creation.
  * Sep 11, 2012  1162      mpduff      Made mergeMetaDataMap method public.
+ * Jun 21, 2013 DR15394        mgamazaychikov Remove implementation of resourceChanged
  * 
  * </pre>
  * 
@@ -104,9 +105,9 @@ public class VizGroupResourceData extends AbstractRequestableResourceData
                         .construct(resourceList.get(i).getLoadProperties(),
                                 descriptor);
                 rsc.setDescriptor(descriptor);
+                rsc.getResourceData().addChangeListener(this);
                 resourceList.get(i).setResource(rsc);
                 rscs.add(rsc);
-                rsc.getResourceData().addChangeListener(this);
             } catch (NoDataAvailableException e) {
                 // Do nothing
             }
@@ -276,12 +277,7 @@ public class VizGroupResourceData extends AbstractRequestableResourceData
      */
     @Override
     public void resourceChanged(ChangeType type, Object object) {
-        for (ResourcePair rp : resourceList) {
-            if ((rp.getResource() != null)
-                    && (rp.getResource().getResourceData() != null)) {
-                fireChangeListeners(type, object);
-            }
-        }
+        // TODO Auto-generated method stub
     }
 
     @Override

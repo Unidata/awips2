@@ -64,6 +64,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * ------------ ---------- ----------- --------------------------
  * Jan 24, 2013   1552     mpduff      Initial creation
  * Apr 16, 2013 1912       bsteffen    Initial bulk hdf5 access for ffmp
+ * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * 
  * </pre>
  * 
@@ -126,8 +127,7 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
             for (Map.Entry<String, Object> es : map.entrySet()) {
                 FFMPRecord rec = (FFMPRecord) es.getValue();
                 try {
-                    rec.retrieveMapFromDataStore(templates, (String) request
-                            .getIdentifiers().get(HUC));
+                    rec.retrieveMapFromDataStore(templates);
                 } catch (Exception e) {
                     throw new DataRetrievalException(
                             "Failed to retrieve the IDataRecord for PluginDataObject: "
@@ -204,7 +204,7 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
         String siteKey = (String) request.getIdentifiers().get(SITE_KEY);
         String cwa = (String) request.getIdentifiers().get(WFO);
 
-        FFMPBasinData basinData = rec.getBasinData(huc);
+        FFMPBasinData basinData = rec.getBasinData();
 
         Map<Long, FFMPBasin> basinDataMap = basinData.getBasins();
 

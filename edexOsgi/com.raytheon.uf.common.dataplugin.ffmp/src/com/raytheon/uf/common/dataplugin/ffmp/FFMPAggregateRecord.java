@@ -21,7 +21,6 @@ package com.raytheon.uf.common.dataplugin.ffmp;
  **/
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
@@ -37,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 01/27/13     1478        D. Hladky   Created to reduce memory and disk read/writes for FFMP
+ * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * 
  * </pre>
  * 
@@ -52,8 +52,6 @@ public class FFMPAggregateRecord implements ISerializableObject {
 
     @DynamicSerializeElement
     private String sourceSiteDataKey;
-
-    private static final long serialVersionUID = 767745643535471L;
     
     /**
      * Aggregate Record implementation for FFMP
@@ -63,8 +61,16 @@ public class FFMPAggregateRecord implements ISerializableObject {
     }
    
     @DynamicSerializeElement
-    private HashMap<String, FFMPBasinData> basinsMap = new HashMap<String, FFMPBasinData>();
+    private FFMPBasinData basins;
     
+    public FFMPBasinData getBasins() {
+        return basins;
+    }
+
+    public void setBasins(FFMPBasinData basins) {
+        this.basins = basins;
+    }
+
     @DynamicSerializeElement
     private List<Long> times = new ArrayList<Long>();
 
@@ -82,34 +88,6 @@ public class FFMPAggregateRecord implements ISerializableObject {
      */
     public List<Long> getTimes() {
         return times;
-    }
-
-    public void setBasinsMap(HashMap<String, FFMPBasinData> basinsMap) {
-        this.basinsMap = basinsMap;
-    }
-
-    public HashMap<String, FFMPBasinData> getBasinsMap() {
-        return basinsMap;
-    }
-    
-    /**
-     * Add a basin Data aggregate object
-     * @param cacheData
-     */
-    public void addBasinData(FFMPBasinData basinData) {
-        basinsMap.put(basinData.getHucLevel(), basinData);
-    }
-    
-    /**
-     * Gets the BasinData object
-     * @param huc
-     * @return
-     */
-    public FFMPBasinData getBasinData(String huc) {
-        if (basinsMap.containsKey(huc)) {
-            return basinsMap.get(huc);
-        }
-        return null;
     }
     
     /**

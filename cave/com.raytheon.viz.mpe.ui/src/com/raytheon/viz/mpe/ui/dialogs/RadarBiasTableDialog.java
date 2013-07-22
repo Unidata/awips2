@@ -63,6 +63,7 @@ import com.raytheon.viz.mpe.ui.radartable.ReadBiasTableParam;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 14, 2009            snaples     Initial creation
+ * Jun 18, 2013  16053     snaples     Removed reference to setRadarEditFlag
  * 
  * </pre>
  * 
@@ -501,7 +502,6 @@ public class RadarBiasTableDialog extends Dialog {
                 rwrr.setMemSpanUsed((double) memspan);
                 rwrr.setRwBiasValUsed((double) editbias[i]);
                 IHFSDbGenerated.UpdateRWRadarResult(rwrr);
-                MPEDataManager.getInstance().setRadarEditFlag(true);
             } else {
                 continue;
             }

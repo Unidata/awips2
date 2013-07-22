@@ -55,9 +55,9 @@
              <visibleWhen>
                 <reference
                       definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
-                </reference></visibleWhen>
-                         <menu
-                   label="New">
+                </reference>
+             </visibleWhen>
+             <menu label="New">
                 <command
                      commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
                      id="gov.noaa.nws.ncep.viz.actions.resourceManager"
@@ -91,28 +91,26 @@
                  </parameter>
                       
                 </command>
-                <command
-                    commandId="gov.noaa.nws.ncep.viz.ui.actions.createCustomProjection"
-                    label="Area...">
-              </command>                
              </menu>
          
              <separator
                    name="beforeSaveGroup"
                    visible="true">
              </separator>
-             <command
-                   commandId="com.raytheon.viz.ui.actions.notImplemented"
-                   label="Save"
+             <menu label="Save">
+             
+	             <command  commandId="com.raytheon.viz.ui.actions.saveScreen"
+	                   label="Screen..."
                    style="push"
                    mnemonic="S">
              </command>
              <command
-                   commandId="com.raytheon.viz.ui.actions.saveScreen"
-                   label="Save As ..."
+	                   commandId="gov.noaa.nws.ncep.viz.ui.actions.saveArea"
+	                   label="Area..."
                    style="push"
                    mnemonic="A">
              </command>
+	         </menu>
              <!-- <separator
                    name="beforePreferences"
                    visible="true">
@@ -263,17 +261,10 @@
                        id="gov.noaa.nws.ncep.viz.ui.perspectives.menus.AreasFromResourcesMenu">
                  </dynamic>
             </menu>
- THIS COULD BE UNCOMMENTED TO IMPLEMENT NMAPs 'GET SETTINGS' FUNCTIONALITY
-            <menu  label="From Display">
-                 <dynamic
-                       class="gov.noaa.nws.ncep.viz.ui.perspectives.menus.AreasFromDisplaysMenu"
-                       id="gov.noaa.nws.ncep.viz.ui.perspectives.menus.AreasFromDisplaysMenu">
-                 </dynamic>
-            </menu>
- -->
-            <command  commandId="gov.noaa.nws.ncep.viz.ui.actions.createCustomProjection"
+            <command  commandId="gov.noaa.nws.ncep.viz.CustomProjection"
                     label="Custom...">
             </command>
+ -->
            </menu>
            <!--
            <menu id=""
@@ -427,11 +418,16 @@
                     style="push">
               </command>
               <command
+                    commandId="gov.noaa.nws.ncep.viz.CustomProjection"                    
+                    label="Custom Area...">
+              </command>
+              <!--
+              <command
                     commandId="sync.file.tool.command"
                     label="Sync File Tool"
                     style="push">
               </command>
-              
+              -->
            </menu>
            <!--menu
                 id="NCHelp"
@@ -834,22 +830,6 @@
             id="gov.noaa.nws.ncep.viz.ui.modalTool"
             name="Modal Tool">
       </category>
-      <!--
-      <command
-            id="gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea"
-            name="Load Area">
-         <commandParameter
-               id="areaName"
-               name="areaName"
-               optional="false">
-         </commandParameter>
-         <commandParameter
-               id="areaType"
-               name="areaType"
-               optional="true">
-         </commandParameter>
-      </command>
-      -->
       <command
             id="gov.noaa.nws.ncep.viz.ui.actions.loadOverlay"
             name="Load Overlay">

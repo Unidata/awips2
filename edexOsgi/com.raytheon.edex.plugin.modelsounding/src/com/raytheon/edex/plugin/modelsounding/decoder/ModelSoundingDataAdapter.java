@@ -23,12 +23,12 @@ import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.Rep
 
 import java.io.File;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.raytheon.edex.plugin.modelsounding.SoundingTemporalData;
 import com.raytheon.edex.plugin.modelsounding.common.SoundingModels;
 import com.raytheon.edex.plugin.modelsounding.common.SoundingSite;
 import com.raytheon.uf.common.geospatial.spi.SPIContainer;
@@ -61,6 +61,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Mar 17, 2008 1026       jkorman     Initial implementation.
  * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
  *                                     work without dataURI.
+ * 20130703           2161 bkowal      Relocated the logic used to retrieve
+ *                                     temporal information into its own function.
  * 
  * </pre>
  * 
@@ -73,11 +75,11 @@ public class ModelSoundingDataAdapter {
             .getLog(ModelSoundingDataAdapter.class);
 
     private static final Object LOCK = new Object();
-    
+
     public static final String SPI_FILE = "basemaps/modelBufr.spi";
 
     public static final String MODEL_STATION_LIST = "modelBufrStationList.txt";
-    
+
     private static SoundingStations stationsList = new SoundingStations(
             MODEL_STATION_LIST);
 
@@ -85,8 +87,8 @@ public class ModelSoundingDataAdapter {
 
     public static void updateSPIData() {
         SPIContainer spi = populateSPIData();
-        synchronized(LOCK) {
-            if((spi != null)&&(spi.isLoaded())) {
+        synchronized (LOCK) {
+            if ((spi != null) && (spi.isLoaded())) {
                 SPI_DATA = spi;
             }
         }
@@ -97,8 +99,8 @@ public class ModelSoundingDataAdapter {
      */
     public static void updateStationList() {
         SoundingStations ss = new SoundingStations(MODEL_STATION_LIST);
-        synchronized(LOCK) {
-            if(ss != null) {
+        synchronized (LOCK) {
+            if (ss != null) {
                 stationsList = ss;
             }
         }
@@ -107,16 +109,52 @@ public class ModelSoundingDataAdapter {
     public static void update() {
         SoundingStations ss = new SoundingStations(MODEL_STATION_LIST);
         SPIContainer spi = populateSPIData();
-        synchronized(LOCK) {
-            if(ss != null) {
+        synchronized (LOCK) {
+            if (ss != null) {
                 stationsList = ss;
             }
-            if((spi != null)&&(spi.isLoaded())) {
+            if ((spi != null) && (spi.isLoaded())) {
                 SPI_DATA = spi;
             }
         }
     }
-    
+
+    public static SoundingTemporalData getSoundingTemporalInformation(
+            BUFRDataDocument dataDoc) {
+        Calendar obsTime = dataDoc.getEnclosingDocument().getSection1()
+                .getSectionDate();
+        if (obsTime == null) {
+            return null;
+        }
+
+        // Get the primary data list.
+        List<IBUFRDataPacket> dataList = dataDoc.getList();
+        IBUFRDataPacket dp = dataList.get(0);
+        int d = dp.getReferencingDescriptor().getDescriptor();
+        // retrieve the forecast seconds
+        Long forecastSeconds = null;
+        if (d == BUFRDescriptor.createDescriptor(0, 4, 194)) {
+            forecastSeconds = (dp.getValue() != null) ? ((Double) dp.getValue())
+                    .longValue() : null;
+        }
+
+        SoundingTemporalData soundingTemporalData = new SoundingTemporalData();
+        soundingTemporalData.setObsTime(obsTime);
+
+        DataTime dt = new DataTime(obsTime, forecastSeconds.intValue());
+        soundingTemporalData.setDt(dt);
+
+        Calendar baseTime = dt.getRefTimeAsCalendar();
+        soundingTemporalData.setRefTime(baseTime.getTimeInMillis() / 1000L);
+
+        Calendar validTime = dt.getValidTime();
+        soundingTemporalData.setValidTime(validTime.getTimeInMillis() / 1000L);
+
+        soundingTemporalData.setForecastHr((int) (forecastSeconds / 3600));
+
+        return soundingTemporalData;
+    }
+
     /**
      * Construct a ProfilerObs instance from the BUFR decoded data contained in
      * the specified separator.
@@ -127,64 +165,56 @@ public class ModelSoundingDataAdapter {
      *            the wmo header
      * @return A ProfilerObs instance, or null in the event of an error.
      */
-    public static SoundingSite createSoundingData(
-            Iterator<BUFRDataDocument> iterator, WMOHeader wmoHeader,
-            PointDataContainer container) {
+    public static SoundingSite createSoundingData(BUFRDataDocument dataDoc,
+            WMOHeader wmoHeader, PointDataContainer container,
+            SoundingTemporalData soundingTemporalData) {
 
         SoundingSite obsData = null;
 
-        synchronized(LOCK) {
+        synchronized (LOCK) {
             try {
-                BUFRDataDocument dataDoc = iterator.next();
-                if (dataDoc != null) {
+                SoundingModels model = SoundingModels.getModel(wmoHeader
+                        .getCccc());
+                // Get the primary data list.
+                List<IBUFRDataPacket> dataList = dataDoc.getList();
+                // Extract the header data.
+                PointDataView view = container.append();
+                obsData = getHeaderData(dataList, model, view);
 
-                    SoundingModels model = SoundingModels.getModel(wmoHeader.getCccc());
-                    // Get the primary data list.
-                    List<IBUFRDataPacket> dataList = dataDoc.getList();
-                    // Extract the header data.
-                    PointDataView view = container.append();
-                    obsData = getHeaderData(dataList, model, view);
-
-                    if (obsData != null) {
-                        switch (model) {
-                        case MODEL_GFS: {
-                            obsData.setReportType(model.getReportType());
-                            obsData = getGFSSiteData(dataList, obsData, view);
-                            break;
-                        }
-                        case MODEL_ETA: {
-                            obsData.setReportType(model.getReportType());
-                            obsData = getETASiteData(dataList, obsData, view);
-                            break;
-                        }
-                        }
-
-                        obsData.setWmoHeader(wmoHeader.getWmoHeader());
-
-                        Calendar obsTime = dataDoc.getEnclosingDocument().getSection1()
-                                .getSectionDate();
-                        if (obsTime != null) {
-
-                            obsData.setTimeObs(obsTime);
-                            DataTime dt = new DataTime(obsTime, obsData
-                                    .getFcstSeconds().intValue());
-
-                            obsData.setDataTime(dt);
-
-                            Calendar validTime = dt.getValidTime();
-                            view.setLong("validTime",
-                                    validTime.getTimeInMillis() / 1000L);
-
-                        }
-
-                        obsData.setPointDataView(view);
+                if (obsData != null) {
+                    switch (model) {
+                    case MODEL_GFS: {
+                        obsData.setReportType(model.getReportType());
+                        obsData = getGFSSiteData(dataList, obsData, view);
+                        break;
                     }
+                    case MODEL_ETA: {
+                        obsData.setReportType(model.getReportType());
+                        obsData = getETASiteData(dataList, obsData, view);
+                        break;
+                    }
+                    }
+
+                    obsData.setWmoHeader(wmoHeader.getWmoHeader());
+
+                    if (soundingTemporalData != null) {
+
+                        obsData.setTimeObs(soundingTemporalData.getObsTime());
+
+                        obsData.setDataTime(soundingTemporalData.getDt());
+
+                        view.setLong("validTime",
+                                soundingTemporalData.getValidTime());
+
+                    }
+
+                    obsData.setPointDataView(view);
                 }
-            } catch(Throwable t) {
+            } catch (Throwable t) {
                 logger.error("Error decoding BUFR data", t);
             }
         }
-        
+
         return obsData;
     }
 
