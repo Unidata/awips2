@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
 
+import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSummary;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
@@ -47,6 +48,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Jun 03, 2013 2038       djohnson     Add method to get subscription retrievals by provider, dataset, and status.
  * Jun 13, 2013 2095       djohnson     Implement ability to store a collection of subscriptions.
  * Jun 24, 2013 2106       djohnson     Add more methods.
+ * Jul 18, 2013 1653       mpduff       Added getSubscriptionStatusSummary.
  * 
  * </pre>
  * 
@@ -122,10 +124,11 @@ public interface IBandwidthDao {
      * Get a BandwidthSubscription.
      * 
      * @param identifier
-     *            Retrieve the BandwidthSubscription with the specified identifier.
+     *            Retrieve the BandwidthSubscription with the specified
+     *            identifier.
      * 
-     * @return The BandwidthSubscription that has the specified identifier or null if
-     *         no such BandwidthSubscription exists.
+     * @return The BandwidthSubscription that has the specified identifier or
+     *         null if no such BandwidthSubscription exists.
      */
     BandwidthSubscription getBandwidthSubscription(long identifier);
 
@@ -133,13 +136,15 @@ public interface IBandwidthDao {
      * Get a BandwidthSubscription.
      * 
      * @param registryId
-     *            Retrieve the BandwidthSubscription with the specified registryId.
+     *            Retrieve the BandwidthSubscription with the specified
+     *            registryId.
      * @param baseReferenceTime
      *            Retrieve the BandwidthSubscription with the specified
      *            baseReferenceTime.
      * 
      * @return The BandwidthSubscription that has the specified identifier and
-     *         baseReferenceTime or null if no such BandwidthSubscription exists.
+     *         baseReferenceTime or null if no such BandwidthSubscription
+     *         exists.
      */
     BandwidthSubscription getBandwidthSubscription(String registryId,
             Calendar baseReferenceTime);
@@ -154,7 +159,8 @@ public interface IBandwidthDao {
      * @return A List of BandwidthSubscriptions that have the same owner,
      *         provider, name and dataSetName and the specified subscription.
      */
-    List<BandwidthSubscription> getBandwidthSubscription(Subscription subscription);
+    List<BandwidthSubscription> getBandwidthSubscription(
+            Subscription subscription);
 
     /**
      * Get a BandwidthSubscriptions.
@@ -166,7 +172,8 @@ public interface IBandwidthDao {
      * @return A List of BandwidthSubscriptions that has the specified
      *         registryId or null if no such BandwidthSubscription exists.
      */
-    List<BandwidthSubscription> getBandwidthSubscriptionByRegistryId(String registryId);
+    List<BandwidthSubscription> getBandwidthSubscriptionByRegistryId(
+            String registryId);
 
     /**
      * Retrieve a SubscriptionRetrieval Object from the database given an
@@ -263,8 +270,8 @@ public interface IBandwidthDao {
             String dataSetName);
 
     /**
-     * Return all the BandwidthSubscription Objects in the database in ascending order
-     * based on the BandwidthSubscription's baseReferenceTime attribute.
+     * Return all the BandwidthSubscription Objects in the database in ascending
+     * order based on the BandwidthSubscription's baseReferenceTime attribute.
      * 
      * @return A List of BandwidthSubscription Objects.
      */
@@ -286,28 +293,29 @@ public interface IBandwidthDao {
      * @return All the SubscriptionRetrievals that are scheduled for the
      *         specified time.
      */
-    List<BandwidthSubscription> getBandwidthSubscriptions(String provider, String dataSetName,
-            Calendar baseReferenceTime);
+    List<BandwidthSubscription> getBandwidthSubscriptions(String provider,
+            String dataSetName, Calendar baseReferenceTime);
 
     /**
      * Create a new BandwidthDataSetUpdate Object based on the dataSetMetaData
      * Object provided.
      * 
      * @param dataSetMetaData
-     *            The DataSetMetaData Object to create the BandwidthDataSetUpdate
-     *            Object from.
+     *            The DataSetMetaData Object to create the
+     *            BandwidthDataSetUpdate Object from.
      * 
      * @return A newly created and persisted BandwidthDataSetUpdate Object.
      */
-    BandwidthDataSetUpdate newBandwidthDataSetUpdate(DataSetMetaData dataSetMetaData);
+    BandwidthDataSetUpdate newBandwidthDataSetUpdate(
+            DataSetMetaData dataSetMetaData);
 
     /**
      * Create a new BandwidthSubscription Object based on the Subscription and
      * Calendar Objects provided.
      * 
      * @param Subscription
-     *            The Subscription Object to create the BandwidthSubscription Object
-     *            from.
+     *            The Subscription Object to create the BandwidthSubscription
+     *            Object from.
      * 
      * @param baseReferenceTime
      *            The base reference time to set on the newly created
@@ -467,4 +475,14 @@ public interface IBandwidthDao {
      */
     SubscriptionRetrievalAttributes getSubscriptionRetrievalAttributes(
             SubscriptionRetrieval retrieval);
+
+    /**
+     * Get the subscription status summary.
+     * 
+     * @param sub
+     *            The subscription
+     * 
+     * @return the SubscriptionStatusSummary
+     */
+    SubscriptionStatusSummary getSubscriptionStatusSummary(Subscription sub);
 }
