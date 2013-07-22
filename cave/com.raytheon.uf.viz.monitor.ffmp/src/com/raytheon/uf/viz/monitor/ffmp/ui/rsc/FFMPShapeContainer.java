@@ -20,6 +20,7 @@ package com.raytheon.uf.viz.monitor.ffmp.ui.rsc;
  * further licensing information.
  **/
 
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -35,7 +36,8 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 15 Sept, 2011 10899          dhladky     Initial creation
+ * 15 Sept, 2011 10899     dhladky     Initial creation
+ * 27 June, 2013 2152      njensen     Added dispose()
  * </pre>
  * 
  * @author dhladky
@@ -107,13 +109,27 @@ public class FFMPShapeContainer {
 
         return shape;
     }
-    
+
     /**
      * clears the shapes
+     * 
      * @return
      */
     public void clear() {
-    	shadedShapes.clear();
+        shadedShapes.clear();
+    }
+
+    public void dispose() {
+        for (String key : shadedShapes.keySet()) {
+            ConcurrentHashMap<String, IColormapShadedShape> innerMap = shadedShapes
+                    .get(key);
+            Iterator<IColormapShadedShape> itr = innerMap.values().iterator();
+            while (itr.hasNext()) {
+                itr.next().dispose();
+            }
+            innerMap.clear();
+        }
+        shadedShapes.clear();
     }
 
 }

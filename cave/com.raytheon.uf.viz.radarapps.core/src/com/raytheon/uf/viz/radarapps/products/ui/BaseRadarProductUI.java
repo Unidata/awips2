@@ -98,6 +98,7 @@ import com.raytheon.viz.ui.widgets.MinimumSizeComposite;
  *                                      needed methods abstract.
  * Jul 31, 2012 #875       rferrel     Points now group in menu items.
  * Oct 04, 2012 #1248      rferrel     Added Point change listener.
+ * Jun 24, 2013 DR16023    zwang       Support all cuts for nexrad
  * 
  * </pre>
  * 
@@ -1725,7 +1726,8 @@ public abstract class BaseRadarProductUI {
 
     private static final ElevationSelection[] wsrElevationSelections = {
             ElevationSelection.ALL, ElevationSelection.UP_TO,
-            ElevationSelection.LOWEST_N, ElevationSelection.SINGLE };
+            ElevationSelection.LOWEST_N, ElevationSelection.SINGLE,
+            ElevationSelection.ALL_MATCHING};
 
     private static final ElevationSelection[] tdwrElevationSelections = {
             ElevationSelection.SINGLE, ElevationSelection.ALL_MATCHING };

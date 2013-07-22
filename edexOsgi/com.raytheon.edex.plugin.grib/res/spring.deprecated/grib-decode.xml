@@ -67,7 +67,7 @@
 	 				<constant>grid</constant> 
 				</setHeader>
 				<to uri="ingest-grib:queue:Ingest.Grib" />
-		</route>		   
+		</route>
 	
 		<!-- Begin Grib Decode Route -->
 		<route id="gribIngestRoute">

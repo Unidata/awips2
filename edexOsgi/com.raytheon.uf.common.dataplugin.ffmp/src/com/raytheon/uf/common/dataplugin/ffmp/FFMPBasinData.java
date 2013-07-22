@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +52,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 01/27/13      1569       D. Hladky   Added support for write of aggregate record cache
  * 04/16/13      1912       bsteffen    Initial bulk hdf5 access for ffmp
  * 05/09/13      1919       mpduff      Use parent pfaf instead of lookupId.
+ * 07/09/13      2152       njensen     Ensure purgeData() does not load data
+ * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * 
  * </pre>
  * 
@@ -59,7 +62,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @DynamicSerialize
 public class FFMPBasinData implements ISerializableObject {
-    private static final long serialVersionUID = 8162247989509750715L;
 
     public static final double GUIDANCE_MISSING = -999999.0;
 
@@ -79,15 +81,6 @@ public class FFMPBasinData implements ISerializableObject {
      * Cache of basins in order for easy population from Load Tasks.
      */
     private final Map<String, FFMPBasin[]> orderedBasinsCache = new HashMap<String, FFMPBasin[]>();
-
-    /**
-     * Public one arg constructor
-     * 
-     * @param huc_level
-     */
-    public FFMPBasinData(String hucLevel) {
-        setHucLevel(hucLevel);
-    }
 
     /**
      * No arg hibernate constructor
@@ -172,6 +165,8 @@ public class FFMPBasinData implements ISerializableObject {
      * Extracts the average value for an aggregation of basins
      * 
      * @param pfaf_ids
+     * @param startDate
+     * @param finishDate
      * @return
      */
     public float getAverageValue(ArrayList<Long> pfaf_ids, Date beforeDate,
@@ -183,6 +178,55 @@ public class FFMPBasinData implements ISerializableObject {
             FFMPBasin basin = getBasins().get(pfaf);
             if (basin != null) {
                 tvalue += basin.getValue(beforeDate, afterDate);
+                i++;
+            }
+        }
+        tvalue = tvalue / i;
+
+        return tvalue;
+    }
+
+    /**
+     * Extracts the average value for an aggregation of basins
+     * 
+     * @param pfaf_ids
+     * @param exact
+     *            date
+     * @return
+     */
+    public float getAverageValue(ArrayList<Long> pfaf_ids, Date date) {
+
+        float tvalue = 0.0f;
+        int i = 0;
+        for (Long pfaf : pfaf_ids) {
+            FFMPBasin basin = getBasins().get(pfaf);
+            if (basin != null) {
+                tvalue += basin.getValue(date);
+                i++;
+            }
+        }
+        tvalue = tvalue / i;
+
+        return tvalue;
+    }
+
+    /**
+     * Extracts the average value for an aggregation of basins
+     * 
+     * @param pfaf_ids
+     * @param date
+     * @param expirationTime
+     * @return
+     */
+    public float getAverageValue(ArrayList<Long> pfaf_ids, Date date,
+            long epirationTime) {
+
+        float tvalue = 0.0f;
+        int i = 0;
+        for (Long pfaf : pfaf_ids) {
+            FFMPBasin basin = getBasins().get(pfaf);
+            if (basin != null) {
+                tvalue += basin.getAverageValue(date, epirationTime);
                 i++;
             }
         }
@@ -229,8 +273,8 @@ public class FFMPBasinData implements ISerializableObject {
      * @param pfaf_ids
      * @return
      */
-    public float getAccumAverageValue(ArrayList<Long> pfaf_ids,
-            Date beforeDate, Date afterDate, long expirationTime, boolean rate) {
+    public float getAccumAverageValue(List<Long> pfaf_ids, Date beforeDate,
+            Date afterDate, long expirationTime, boolean rate) {
 
         float tvalue = 0.0f;
         int i = 0;
@@ -535,6 +579,34 @@ public class FFMPBasinData implements ISerializableObject {
     }
 
     /**
+     * Gets the average guidance value for an aggregate basin
+     * 
+     * @param pfaf_ids
+     * @param interpolation
+     * @param expiration
+     * @return
+     */
+    public Float getAverageGuidanceValue(List<Long> pfaf_ids,
+            FFMPGuidanceInterpolation interpolation, long expiration) {
+
+        float tvalue = 0.0f;
+        int i = 0;
+
+        List<Float> vals = getGuidanceValues(pfaf_ids, interpolation,
+                expiration);
+        if (vals != null) {
+            for (Float val : vals) {
+                tvalue += val;
+                i++;
+            }
+        } else {
+            return null;
+        }
+
+        return tvalue / i;
+    }
+
+    /**
      * used for max ratio and diff calcs
      * 
      * @param pfaf_ids
@@ -562,7 +634,28 @@ public class FFMPBasinData implements ISerializableObject {
      * @param date
      */
     public void purgeData(Date date) {
-        for (FFMPBasin basin : getBasins().values()) {
+        // remove old tasks before calling getBasins() since that may
+        // cause them to run
+        if (!tasks.isEmpty()) {
+            synchronized (tasks) {
+                Iterator<LoadTask> itr = tasks.iterator();
+                {
+                    while (itr.hasNext()) {
+                        LoadTask task = itr.next();
+                        if (task instanceof LoadMapTask) {
+                            LoadMapTask mtask = (LoadMapTask) task;
+                            if (mtask.date.before(date)) {
+                                itr.remove();
+                            }
+                        }
+                    }
+                }
+                if (tasks.isEmpty()) {
+                    orderedBasinsCache.clear();
+                }
+            }
+        }
+        for (FFMPBasin basin : basins.values()) {
             basin.purgeData(date);
         }
     }
@@ -573,6 +666,7 @@ public class FFMPBasinData implements ISerializableObject {
      * @param times
      */
     public void populate(List<Long> times) {
+
         long[] timesArr = new long[times.size()];
         for (int i = 0; i < timesArr.length; i += 1) {
             timesArr[i] = times.get(i);

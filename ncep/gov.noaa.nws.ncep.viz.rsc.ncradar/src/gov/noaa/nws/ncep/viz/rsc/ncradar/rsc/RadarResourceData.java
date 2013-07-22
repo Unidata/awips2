@@ -33,9 +33,7 @@ import com.raytheon.uf.viz.core.exception.NoDataAvailableException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
 import gov.noaa.nws.ncep.viz.rsc.ncradar.rsc.AbstractRadarResource;
-import gov.noaa.nws.ncep.viz.rsc.ncradar.rsc.RadarProductFactory;
 
 /**
  * Provides the metadata and constructor for Radar
@@ -48,6 +46,7 @@ import gov.noaa.nws.ncep.viz.rsc.ncradar.rsc.RadarProductFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 12/08/2011      #541       S. Gurung   Initial creation
+ * 06/10/2013    #999       G. hull     rm RadarProductFactory til interrogate is supported 
  * 
  * </pre>
  * 
@@ -90,6 +89,21 @@ public class RadarResourceData extends AbstractNatlCntrsRequestableResourceData 
 	@XmlElement
 	private Float contrast;
 	
+	public Integer getProductCode() {
+        RequestConstraint productCodeConstraint = metadataMap.get("productCode");
+
+        if( productCodeConstraint == null ||
+        	productCodeConstraint.getConstraintType() != ConstraintType.EQUALS) {
+        	return -1;
+        }
+        try {
+        	return Integer.parseInt(productCodeConstraint.getConstraintValue());
+        } catch (NumberFormatException e) {
+        	// It was a good effort but it just wasn't meant to be.           
+        }
+        return -1;
+	}
+	
 	public Float getAlpha() {
 		return alpha;
 	}
@@ -120,51 +134,44 @@ public class RadarResourceData extends AbstractNatlCntrsRequestableResourceData 
 
     @Override
     protected AbstractVizResource<?, ?> constructResource(
-            LoadProperties loadProperties, PluginDataObject[] objects)
-            throws VizException {
-        AbstractVizResource<?, ?> rrd = null;
+            LoadProperties loadProperties, PluginDataObject[] objects) throws VizException {
         String format = null;
-        int productCode = -1;
-        RequestConstraint productCodeConstraint = metadataMap
-                .get("productCode");
-        if (productCodeConstraint != null
-                && productCodeConstraint.getConstraintType() == ConstraintType.EQUALS) {
-            try {
-                productCode = Integer.parseInt(productCodeConstraint
-                        .getConstraintValue());
-            } catch (NumberFormatException e) {
-                // It was a good effort but it just wasn't meant to be.
-            }
-        }
+        Integer prodCode = getProductCode();
         if (AbstractRadarResource.infoDict != null) {
-            RadarInfo info = AbstractRadarResource.infoDict
-                    .getInfo(productCode);
-            if (info != null) {
-                format = info.getFormat();
+            RadarInfo info = AbstractRadarResource.infoDict.getInfo( prodCode );
+            
+            if (info == null ) {
+            	throw new VizException( "Unable to create resource for productCode:"+ prodCode );
             }
-        }
-        if (format != null && productCode != -1) {
-        	 IRadarInterrogator interrogator = RadarProductFactory.buildInterrogator(productCode, format);
-
-		     if (!"".equals(format)) {
-		         rrd = RadarProductFactory.buildResource(this, loadProperties,
-		                 interrogator, productCode, format);
-		         /*for (PluginDataObject p : objects) {
-		             ((AbstractRadarResource<?>) rrd).addRecord(p);
-		         }*/
-		     }
-        	if ("Raster".equals(format)) {
-                   rrd = new RadarRasterResource(this, loadProperties, interrogator);
-            } else if ("Radial".equals(format)) {
-                    rrd = new RadarRadialResource(this, loadProperties, interrogator);
-            }
-        } else if ("".equals(format)) {
+            format = info.getFormat().trim();
+            
+            if( format == null || format.equals( "" ) ) {
             statusHandler.handle(Priority.ERROR,
-                    "There is not format defined in radarInfo.txt");
-        } else {
-            throw new NoDataAvailableException();
+            	  			"There is not format defined in radarInfo.txt for "+ prodCode );
+            	throw new VizException( "Unable to create resource for productCode:"+prodCode );
+            }
         }
-        return rrd;
+        
+        if( "Raster".equals(format)) {
+        	return new RadarRasterResource(this, loadProperties);
+        } 
+        
+        if( "Radial".equals(format)) {
+        	return new RadarRadialResource(this, loadProperties);
+        } 
+        
+        // this shouldn't happen since the template constrains on Raster,Radial        
+        if ("Graphic".equals(format)) {
+        	if( prodCode == 166) {
+            	throw new VizException( "Radar Product 166 (Melting Layer) is not supported");
+//        		return new RadarMLResource(this, loadProperties);
+        	} 
+        	else {
+        		throw new VizException( "Radar Graphic Products are not supported");
+//        		return new RadarGraphicsResource(this, loadProperties);
+        	}
+        }
+        throw new VizException( "Radar Format "+format+" is not recognized");
     }
 
     /**

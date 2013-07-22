@@ -85,7 +85,7 @@ public class GeographicalData {
      *     
      */
     public String getGeogCode() {
-        return geogCode;
+        return geogCode.trim();
     }
 
     /**
@@ -97,7 +97,7 @@ public class GeographicalData {
      *     
      */
     public void setGeogCode(String value) {
-        this.geogCode = value;
+        this.geogCode = value.trim();
     }
 
     /**
@@ -109,7 +109,7 @@ public class GeographicalData {
      *     
      */
     public String getGeogAreaName() {
-        return geogAreaName;
+        return geogAreaName.trim();
     }
 
     /**
@@ -121,7 +121,7 @@ public class GeographicalData {
      *     
      */
     public void setGeogAreaName(String value) {
-        this.geogAreaName = value;
+        this.geogAreaName = value.trim();
     }
 
     /**
@@ -289,7 +289,7 @@ public class GeographicalData {
      *     
      */
     public void setMapProjectionString(String value) {
-        this.mapProjectionString = value;
+        this.mapProjectionString = value.trim();
     }
 
 }
