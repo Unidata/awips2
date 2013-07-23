@@ -21,10 +21,12 @@
 #define _THRIFT_TRANSPORT_TFDTRANSPORT_H_ 1
 
 #include <string>
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
+#endif
 
 #include "TTransport.h"
-#include "TServerSocket.h"
+#include "TVirtualTransport.h"
 
 namespace apache { namespace thrift { namespace transport {
 
@@ -32,7 +34,7 @@ namespace apache { namespace thrift { namespace transport {
  * Dead-simple wrapper around a file descriptor.
  *
  */
-class TFDTransport : public TTransport {
+class TFDTransport : public TVirtualTransport<TFDTransport> {
  public:
   enum ClosePolicy
   { NO_CLOSE_ON_DESTROY = 0
