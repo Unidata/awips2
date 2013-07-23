@@ -20,7 +20,7 @@
 #ifndef _THRIFT_PROTOCOL_TJSONPROTOCOL_H_
 #define _THRIFT_PROTOCOL_TJSONPROTOCOL_H_ 1
 
-#include "TProtocol.h"
+#include "TVirtualProtocol.h"
 
 #include <stack>
 
@@ -86,13 +86,8 @@ class TJSONContext;
  * may try to provide a C component for this, so that other languages could
  * bind to the same underlying implementation for maximum consistency.
  *
- * Note further that JavaScript itself is not capable of representing
- * floating point infinities -- presumably when we have a JavaScript Thrift
- * client, this would mean that infinities get converted to not-a-number in
- * transmission. I don't know of any work-around for this issue.
- *
  */
-class TJSONProtocol : public TProtocol {
+class TJSONProtocol : public TVirtualProtocol<TJSONProtocol> {
  public:
 
   TJSONProtocol(boost::shared_ptr<TTransport> ptrans);
@@ -243,6 +238,9 @@ class TJSONProtocol : public TProtocol {
 
   uint32_t readBool(bool& value);
 
+  // Provide the default readBool() implementation for std::vector<bool>
+  using TVirtualProtocol<TJSONProtocol>::readBool;
+
   uint32_t readByte(int8_t& byte);
 
   uint32_t readI16(int16_t& i16);
@@ -291,6 +289,7 @@ class TJSONProtocol : public TProtocol {
   };
 
  private:
+  TTransport* trans_;
 
   std::stack<boost::shared_ptr<TJSONContext> > contexts_;
   boost::shared_ptr<TJSONContext> context_;
@@ -315,7 +314,7 @@ class TJSONProtocolFactory : public TProtocolFactory {
 
 
 // TODO(dreiss): Move part of ThriftJSONString into a .cpp file and remove this.
-#include <transport/TBufferTransports.h>
+#include <thrift/transport/TBufferTransports.h>
 
 namespace apache { namespace thrift {
 

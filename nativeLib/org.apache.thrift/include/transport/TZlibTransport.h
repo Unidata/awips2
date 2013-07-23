@@ -21,7 +21,8 @@
 #define _THRIFT_TRANSPORT_TZLIBTRANSPORT_H_ 1
 
 #include <boost/lexical_cast.hpp>
-#include <transport/TTransport.h>
+#include <thrift/transport/TTransport.h>
+#include <thrift/transport/TVirtualTransport.h>
 
 struct z_stream_s;
 
@@ -69,14 +70,12 @@ class TZlibTransportException : public TTransportException {
  *               the underlying transport is TBuffered or TMemory.
  *
  */
-class TZlibTransport : public TTransport {
+class TZlibTransport : public TVirtualTransport<TZlibTransport> {
  public:
 
   /**
    * @param transport    The transport to read compressed data from
    *                     and write compressed data to.
-   * @param use_for_rpc  True if this object will be used for RPC,
-   *                     false if this is a standalone object.
    * @param urbuf_size   Uncompressed buffer size for reading.
    * @param crbuf_size   Compressed buffer size for reading.
    * @param uwbuf_size   Uncompressed buffer size for writing.
@@ -85,17 +84,15 @@ class TZlibTransport : public TTransport {
    * TODO(dreiss): Write a constructor that isn't a pain.
    */
   TZlibTransport(boost::shared_ptr<TTransport> transport,
-                 bool use_for_rpc,
                  int urbuf_size = DEFAULT_URBUF_SIZE,
                  int crbuf_size = DEFAULT_CRBUF_SIZE,
                  int uwbuf_size = DEFAULT_UWBUF_SIZE,
                  int cwbuf_size = DEFAULT_CWBUF_SIZE) :
     transport_(transport),
-    standalone_(!use_for_rpc),
     urpos_(0),
     uwpos_(0),
     input_ended_(false),
-    output_flushed_(false),
+    output_finished_(false),
     urbuf_size_(urbuf_size),
     crbuf_size_(crbuf_size),
     uwbuf_size_(uwbuf_size),
@@ -107,13 +104,6 @@ class TZlibTransport : public TTransport {
     rstream_(NULL),
     wstream_(NULL)
   {
-
-    if (!standalone_) {
-      throw TTransportException(
-          TTransportException::BAD_ARGS,
-          "TZLibTransport has not been tested for RPC.");
-    }
-
     if (uwbuf_size_ < MIN_DIRECT_DEFLATE_SIZE) {
       // Have to copy this into a local because of a linking issue.
       int minimum = MIN_DIRECT_DEFLATE_SIZE;
@@ -144,9 +134,17 @@ class TZlibTransport : public TTransport {
   // Don't call this outside of the constructor.
   void initZlib();
 
+  /**
+   * TZlibTransport destructor.
+   *
+   * Warning: Destroying a TZlibTransport object may discard any written but
+   * unflushed data.  You must explicitly call flush() or finish() to ensure
+   * that data is actually written and flushed to the underlying transport.
+   */
   ~TZlibTransport();
 
   bool isOpen();
+  bool peek();
 
   void open() {
     transport_->open();
@@ -162,10 +160,25 @@ class TZlibTransport : public TTransport {
 
   void flush();
 
+  /**
+   * Finalize the zlib stream.
+   *
+   * This causes zlib to flush any pending write data and write end-of-stream
+   * information, including the checksum.  Once finish() has been called, no
+   * new data can be written to the stream.
+   */
+  void finish();
+
   const uint8_t* borrow(uint8_t* buf, uint32_t* len);
 
   void consume(uint32_t len);
 
+  /**
+   * Verify the checksum at the end of the zlib stream.
+   *
+   * This may only be called after all data has been read.
+   * It verifies the checksum that was written by the finish() call.
+   */
   void verifyChecksum();
 
    /**
@@ -181,29 +194,55 @@ class TZlibTransport : public TTransport {
   inline void checkZlibRv(int status, const char* msg);
   inline void checkZlibRvNothrow(int status, const char* msg);
   inline int readAvail();
-  void flushToZlib(const uint8_t* buf, int len, bool finish = false);
+  void flushToTransport(int flush);
+  void flushToZlib(const uint8_t* buf, int len, int flush);
+  bool readFromZlib();
 
+ private:
+  // Deprecated constructor signature.
+  //
+  // This used to be the constructor signature.  If you are getting a compile
+  // error because you are trying to use this constructor, you need to update
+  // your code as follows:
+  // - Remove the use_for_rpc argument in the constructur.
+  //   There is no longer any distinction between RPC and standalone zlib
+  //   transports.  (Previously, only standalone was allowed, anyway.)
+  // - Replace TZlibTransport::flush() calls with TZlibTransport::finish()
+  //   in your code.  Previously, flush() used to finish the zlib stream.
+  //   Now flush() only flushes out pending data, so more writes can be
+  //   performed after a flush().  The finish() method can be used to finalize
+  //   the zlib stream.
+  //
+  // If we don't declare this constructor, old code written as
+  // TZlibTransport(trans, false) still compiles but behaves incorrectly.
+  // The second bool argument is converted to an integer and used as the
+  // urbuf_size.
+  TZlibTransport(boost::shared_ptr<TTransport> transport,
+                 bool use_for_rpc,
+                 int urbuf_size = DEFAULT_URBUF_SIZE,
+                 int crbuf_size = DEFAULT_CRBUF_SIZE,
+                 int uwbuf_size = DEFAULT_UWBUF_SIZE,
+                 int cwbuf_size = DEFAULT_CWBUF_SIZE);
+
+ protected:
   // Writes smaller than this are buffered up.
   // Larger (or equal) writes are dumped straight to zlib.
-  static const int MIN_DIRECT_DEFLATE_SIZE = 32;
+  static const uint32_t MIN_DIRECT_DEFLATE_SIZE = 32;
 
   boost::shared_ptr<TTransport> transport_;
-  bool standalone_;
 
   int urpos_;
   int uwpos_;
 
-  /// True iff zlib has reached the end of a stream.
-  /// This is only ever true in standalone protcol objects.
+  /// True iff zlib has reached the end of the input stream.
   bool input_ended_;
-  /// True iff we have flushed the output stream.
-  /// This is only ever true in standalone protcol objects.
-  bool output_flushed_;
+  /// True iff we have finished the output stream.
+  bool output_finished_;
 
-  int urbuf_size_;
-  int crbuf_size_;
-  int uwbuf_size_;
-  int cwbuf_size_;
+  uint32_t urbuf_size_;
+  uint32_t crbuf_size_;
+  uint32_t uwbuf_size_;
+  uint32_t cwbuf_size_;
 
   uint8_t* urbuf_;
   uint8_t* crbuf_;
@@ -213,6 +252,24 @@ class TZlibTransport : public TTransport {
   struct z_stream_s* rstream_;
   struct z_stream_s* wstream_;
 };
+
+
+/**
+ * Wraps a transport into a zlibbed one.
+ *
+ */
+class TZlibTransportFactory : public TTransportFactory {
+ public:
+  TZlibTransportFactory() {}
+
+  virtual ~TZlibTransportFactory() {}
+
+  virtual boost::shared_ptr<TTransport> getTransport(
+                                         boost::shared_ptr<TTransport> trans) {
+    return boost::shared_ptr<TTransport>(new TZlibTransport(trans));
+  }
+};
+
 
 }}} // apache::thrift::transport
 

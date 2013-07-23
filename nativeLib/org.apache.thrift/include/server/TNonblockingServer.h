@@ -20,32 +20,79 @@
 #ifndef _THRIFT_SERVER_TNONBLOCKINGSERVER_H_
 #define _THRIFT_SERVER_TNONBLOCKINGSERVER_H_ 1
 
-#include <Thrift.h>
-#include <server/TServer.h>
-#include <transport/TBufferTransports.h>
-#include <concurrency/ThreadManager.h>
+#include <thrift/Thrift.h>
+#include <thrift/server/TServer.h>
+#include <thrift/transport/TBufferTransports.h>
+#include <thrift/transport/TSocket.h>
+#include <thrift/concurrency/ThreadManager.h>
 #include <climits>
+#include <thrift/concurrency/Thread.h>
+#include <thrift/concurrency/PlatformThreadFactory.h>
+#include <thrift/concurrency/Mutex.h>
 #include <stack>
+#include <vector>
 #include <string>
 #include <errno.h>
 #include <cstdlib>
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #include <event.h>
+
+
 
 namespace apache { namespace thrift { namespace server {
 
 using apache::thrift::transport::TMemoryBuffer;
+using apache::thrift::transport::TSocket;
 using apache::thrift::protocol::TProtocol;
 using apache::thrift::concurrency::Runnable;
 using apache::thrift::concurrency::ThreadManager;
+using apache::thrift::concurrency::PlatformThreadFactory;
+using apache::thrift::concurrency::ThreadFactory;
+using apache::thrift::concurrency::Thread;
+using apache::thrift::concurrency::Mutex;
+using apache::thrift::concurrency::Guard;
 
-// Forward declaration of class
-class TConnection;
+#ifdef LIBEVENT_VERSION_NUMBER
+#define LIBEVENT_VERSION_MAJOR (LIBEVENT_VERSION_NUMBER >> 24)
+#define LIBEVENT_VERSION_MINOR ((LIBEVENT_VERSION_NUMBER >> 16) & 0xFF)
+#define LIBEVENT_VERSION_REL ((LIBEVENT_VERSION_NUMBER >> 8) & 0xFF)
+#else
+// assume latest version 1 series
+#define LIBEVENT_VERSION_MAJOR 1
+#define LIBEVENT_VERSION_MINOR 14
+#define LIBEVENT_VERSION_REL 13
+#define LIBEVENT_VERSION_NUMBER ((LIBEVENT_VERSION_MAJOR << 24) | (LIBEVENT_VERSION_MINOR << 16) | (LIBEVENT_VERSION_REL << 8))
+#endif
+
+#if LIBEVENT_VERSION_NUMBER < 0x02000000
+ typedef int evutil_socket_t;
+#endif
+
+#ifndef SOCKOPT_CAST_T
+#   ifndef _WIN32
+#       define SOCKOPT_CAST_T void
+#   else
+#       define SOCKOPT_CAST_T char
+#   endif // _WIN32
+#endif
+
+template<class T>
+inline const SOCKOPT_CAST_T* const_cast_sockopt(const T* v) {
+  return reinterpret_cast<const SOCKOPT_CAST_T*>(v);
+}
+
+template<class T>
+inline SOCKOPT_CAST_T* cast_sockopt(T* v) {
+  return reinterpret_cast<SOCKOPT_CAST_T*>(v);
+}
 
 /**
- * This is a non-blocking server in C++ for high performance that operates a
- * single IO thread. It assumes that all incoming requests are framed with a
- * 4 byte length indicator and writes out responses using the same framing.
+ * This is a non-blocking server in C++ for high performance that
+ * operates a set of IO threads (by default only one). It assumes that
+ * all incoming requests are framed with a 4 byte length indicator and
+ * writes out responses using the same framing.
  *
  * It does not use the TServerTransport framework, but rather has socket
  * operations hardcoded for use with select.
@@ -60,7 +107,13 @@ enum TOverloadAction {
   T_OVERLOAD_DRAIN_TASK_QUEUE  ///< Drop some tasks from head of task queue */
 };
 
+class TNonblockingIOThread;
+
 class TNonblockingServer : public TServer {
+ private:
+  class TConnection;
+
+  friend class TNonblockingIOThread;
  private:
   /// Listen backlog
   static const int LISTEN_BACKLOG = 1024;
@@ -68,14 +121,38 @@ class TNonblockingServer : public TServer {
   /// Default limit on size of idle connection pool
   static const size_t CONNECTION_STACK_LIMIT = 1024;
 
-  /// Maximum size of buffer allocated to idle connection
-  static const uint32_t IDLE_BUFFER_MEM_LIMIT = 8192;
+  /// Default limit on frame size
+  static const int MAX_FRAME_SIZE = 256 * 1024 * 1024;
 
   /// Default limit on total number of connected sockets
   static const int MAX_CONNECTIONS = INT_MAX;
 
   /// Default limit on connections in handler/task processing
   static const int MAX_ACTIVE_PROCESSORS = INT_MAX;
+
+  /// Default size of write buffer
+  static const int WRITE_BUFFER_DEFAULT_SIZE = 1024;
+
+  /// Maximum size of read buffer allocated to idle connection (0 = unlimited)
+  static const int IDLE_READ_BUFFER_LIMIT = 1024;
+
+  /// Maximum size of write buffer allocated to idle connection (0 = unlimited)
+  static const int IDLE_WRITE_BUFFER_LIMIT = 1024;
+
+  /// # of calls before resizing oversized buffers (0 = check only on close)
+  static const int RESIZE_BUFFER_EVERY_N = 512;
+
+  /// # of IO threads to use by default
+  static const int DEFAULT_IO_THREADS = 1;
+
+  /// File descriptor of an invalid socket
+  static const int INVALID_SOCKET_VALUE = -1;
+
+  /// # of IO threads this server will use
+  size_t numIOThreads_;
+
+  /// Whether to set high scheduling priority for IO threads
+  bool useHighPriorityIOThreads_;
 
   /// Server socket file descriptor
   int serverSocket_;
@@ -89,14 +166,17 @@ class TNonblockingServer : public TServer {
   /// Is thread pool processing?
   bool threadPoolProcessing_;
 
-  /// The event base for libevent
-  event_base* eventBase_;
+  // Factory to create the IO threads
+  boost::shared_ptr<PlatformThreadFactory> ioThreadFactory_;
 
-  /// Event struct, used with eventBase_ for connection events
-  struct event serverEvent_;
+  // Vector of IOThread objects that will handle our IO
+  std::vector<boost::shared_ptr<TNonblockingIOThread> > ioThreads_;
 
-  /// Event struct, used with eventBase_ for task completion notification
-  struct event notificationEvent_;
+  // Index of next IO Thread to be used (for round-robin)
+  uint32_t nextIOThread_;
+
+  // Synchronizes access to connection stack and similar data
+  Mutex connMutex_;
 
   /// Number of TConnection object we've created
   size_t numTConnections_;
@@ -113,6 +193,9 @@ class TNonblockingServer : public TServer {
   /// Limit for number of open connections
   size_t maxConnections_;
 
+  /// Limit for frame size
+  size_t maxFrameSize_;
+
   /// Time in milliseconds before an unperformed task expires (0 == infinite).
   int64_t taskExpireTime_;
 
@@ -127,11 +210,33 @@ class TNonblockingServer : public TServer {
   TOverloadAction overloadAction_;
 
   /**
-   * Max read buffer size for an idle connection.  When we place an idle
-   * TConnection into connectionStack_, we insure that its read buffer is
-   * reduced to this size to insure that idle connections don't hog memory.
+   * The write buffer is initialized (and when idleWriteBufferLimit_ is checked
+   * and found to be exceeded, reinitialized) to this size.
    */
-  size_t idleBufferMemLimit_;
+  size_t writeBufferDefaultSize_;
+
+  /**
+   * Max read buffer size for an idle TConnection.  When we place an idle
+   * TConnection into connectionStack_ or on every resizeBufferEveryN_ calls,
+   * we will free the buffer (such that it will be reinitialized by the next
+   * received frame) if it has exceeded this limit.  0 disables this check.
+   */
+  size_t idleReadBufferLimit_;
+
+  /**
+   * Max write buffer size for an idle connection.  When we place an idle
+   * TConnection into connectionStack_ or on every resizeBufferEveryN_ calls,
+   * we insure that its write buffer is <= to this size; otherwise we
+   * replace it with a new one of writeBufferDefaultSize_ bytes to insure that
+   * idle connections don't hog memory. 0 disables this check.
+   */
+  size_t idleWriteBufferLimit_;
+
+  /**
+   * Every N calls we check the buffer size limits on a connected TConnection.
+   * 0 disables (i.e. the checks are only done when a connection closes).
+   */
+  int32_t resizeBufferEveryN_;
 
   /// Set if we are currently in an overloaded state.
   bool overloaded_;
@@ -141,9 +246,6 @@ class TNonblockingServer : public TServer {
 
   /// Count of connections dropped on overload since server started
   uint64_t nTotalConnectionsDropped_;
-
-  /// File descriptors for pipe used for task completion notification.
-  int notificationPipeFDs_[2];
 
   /**
    * This is a stack of all the objects that have been created but that
@@ -163,79 +265,120 @@ class TNonblockingServer : public TServer {
    */
   void handleEvent(int fd, short which);
 
- public:
-  TNonblockingServer(boost::shared_ptr<TProcessor> processor,
-                     int port) :
-    TServer(processor),
-    serverSocket_(-1),
-    port_(port),
-    threadPoolProcessing_(false),
-    eventBase_(NULL),
-    numTConnections_(0),
-    numActiveProcessors_(0),
-    connectionStackLimit_(CONNECTION_STACK_LIMIT),
-    maxActiveProcessors_(MAX_ACTIVE_PROCESSORS),
-    maxConnections_(MAX_CONNECTIONS),
-    taskExpireTime_(0),
-    overloadHysteresis_(0.8),
-    overloadAction_(T_OVERLOAD_NO_ACTION),
-    idleBufferMemLimit_(IDLE_BUFFER_MEM_LIMIT),
-    overloaded_(false),
-    nConnectionsDropped_(0),
-    nTotalConnectionsDropped_(0) {}
+  void init(int port) {
+    serverSocket_ = -1;
+    numIOThreads_ = DEFAULT_IO_THREADS;
+    nextIOThread_ = 0;
+    useHighPriorityIOThreads_ = false;
+    port_ = port;
+    threadPoolProcessing_ = false;
+    numTConnections_ = 0;
+    numActiveProcessors_ = 0;
+    connectionStackLimit_ = CONNECTION_STACK_LIMIT;
+    maxActiveProcessors_ = MAX_ACTIVE_PROCESSORS;
+    maxConnections_ = MAX_CONNECTIONS;
+    maxFrameSize_ = MAX_FRAME_SIZE;
+    taskExpireTime_ = 0;
+    overloadHysteresis_ = 0.8;
+    overloadAction_ = T_OVERLOAD_NO_ACTION;
+    writeBufferDefaultSize_ = WRITE_BUFFER_DEFAULT_SIZE;
+    idleReadBufferLimit_ = IDLE_READ_BUFFER_LIMIT;
+    idleWriteBufferLimit_ = IDLE_WRITE_BUFFER_LIMIT;
+    resizeBufferEveryN_ = RESIZE_BUFFER_EVERY_N;
+    overloaded_ = false;
+    nConnectionsDropped_ = 0;
+    nTotalConnectionsDropped_ = 0;
+  }
 
-  TNonblockingServer(boost::shared_ptr<TProcessor> processor,
-                     boost::shared_ptr<TProtocolFactory> protocolFactory,
+ public:
+  template<typename ProcessorFactory>
+  TNonblockingServer(
+      const boost::shared_ptr<ProcessorFactory>& processorFactory,
+      int port,
+      THRIFT_OVERLOAD_IF(ProcessorFactory, TProcessorFactory)) :
+    TServer(processorFactory) {
+    init(port);
+  }
+
+  template<typename Processor>
+  TNonblockingServer(const boost::shared_ptr<Processor>& processor,
                      int port,
-                     boost::shared_ptr<ThreadManager> threadManager = boost::shared_ptr<ThreadManager>()) :
-    TServer(processor),
-    serverSocket_(-1),
-    port_(port),
-    threadManager_(threadManager),
-    eventBase_(NULL),
-    numTConnections_(0),
-    numActiveProcessors_(0),
-    connectionStackLimit_(CONNECTION_STACK_LIMIT),
-    maxActiveProcessors_(MAX_ACTIVE_PROCESSORS),
-    maxConnections_(MAX_CONNECTIONS),
-    taskExpireTime_(0),
-    overloadHysteresis_(0.8),
-    overloadAction_(T_OVERLOAD_NO_ACTION),
-    idleBufferMemLimit_(IDLE_BUFFER_MEM_LIMIT),
-    overloaded_(false),
-    nConnectionsDropped_(0),
-    nTotalConnectionsDropped_(0) {
-    setInputTransportFactory(boost::shared_ptr<TTransportFactory>(new TTransportFactory()));
-    setOutputTransportFactory(boost::shared_ptr<TTransportFactory>(new TTransportFactory()));
+                     THRIFT_OVERLOAD_IF(Processor, TProcessor)) :
+    TServer(processor) {
+    init(port);
+  }
+
+  template<typename ProcessorFactory>
+  TNonblockingServer(
+      const boost::shared_ptr<ProcessorFactory>& processorFactory,
+      const boost::shared_ptr<TProtocolFactory>& protocolFactory,
+      int port,
+      const boost::shared_ptr<ThreadManager>& threadManager =
+        boost::shared_ptr<ThreadManager>(),
+      THRIFT_OVERLOAD_IF(ProcessorFactory, TProcessorFactory)) :
+    TServer(processorFactory) {
+
+    init(port);
+
     setInputProtocolFactory(protocolFactory);
     setOutputProtocolFactory(protocolFactory);
     setThreadManager(threadManager);
   }
 
-  TNonblockingServer(boost::shared_ptr<TProcessor> processor,
-                     boost::shared_ptr<TTransportFactory> inputTransportFactory,
-                     boost::shared_ptr<TTransportFactory> outputTransportFactory,
-                     boost::shared_ptr<TProtocolFactory> inputProtocolFactory,
-                     boost::shared_ptr<TProtocolFactory> outputProtocolFactory,
-                     int port,
-                     boost::shared_ptr<ThreadManager> threadManager = boost::shared_ptr<ThreadManager>()) :
-    TServer(processor),
-    serverSocket_(-1),
-    port_(port),
-    threadManager_(threadManager),
-    eventBase_(NULL),
-    numTConnections_(0),
-    numActiveProcessors_(0),
-    connectionStackLimit_(CONNECTION_STACK_LIMIT),
-    maxActiveProcessors_(MAX_ACTIVE_PROCESSORS),
-    maxConnections_(MAX_CONNECTIONS),
-    taskExpireTime_(0),
-    overloadHysteresis_(0.8),
-    overloadAction_(T_OVERLOAD_NO_ACTION),
-    idleBufferMemLimit_(IDLE_BUFFER_MEM_LIMIT),
-    overloaded_(false),
-    nConnectionsDropped_(0),
-    nTotalConnectionsDropped_(0) {
+  template<typename Processor>
+  TNonblockingServer(
+      const boost::shared_ptr<Processor>& processor,
+      const boost::shared_ptr<TProtocolFactory>& protocolFactory,
+      int port,
+      const boost::shared_ptr<ThreadManager>& threadManager =
+        boost::shared_ptr<ThreadManager>(),
+      THRIFT_OVERLOAD_IF(Processor, TProcessor)) :
+    TServer(processor) {
+
+    init(port);
+
+    setInputProtocolFactory(protocolFactory);
+    setOutputProtocolFactory(protocolFactory);
+    setThreadManager(threadManager);
+  }
+
+  template<typename ProcessorFactory>
+  TNonblockingServer(
+      const boost::shared_ptr<ProcessorFactory>& processorFactory,
+      const boost::shared_ptr<TTransportFactory>& inputTransportFactory,
+      const boost::shared_ptr<TTransportFactory>& outputTransportFactory,
+      const boost::shared_ptr<TProtocolFactory>& inputProtocolFactory,
+      const boost::shared_ptr<TProtocolFactory>& outputProtocolFactory,
+      int port,
+      const boost::shared_ptr<ThreadManager>& threadManager =
+        boost::shared_ptr<ThreadManager>(),
+      THRIFT_OVERLOAD_IF(ProcessorFactory, TProcessorFactory)) :
+    TServer(processorFactory) {
+
+    init(port);
+
+    setInputTransportFactory(inputTransportFactory);
+    setOutputTransportFactory(outputTransportFactory);
+    setInputProtocolFactory(inputProtocolFactory);
+    setOutputProtocolFactory(outputProtocolFactory);
+    setThreadManager(threadManager);
+  }
+
+  template<typename Processor>
+  TNonblockingServer(
+      const boost::shared_ptr<Processor>& processor,
+      const boost::shared_ptr<TTransportFactory>& inputTransportFactory,
+      const boost::shared_ptr<TTransportFactory>& outputTransportFactory,
+      const boost::shared_ptr<TProtocolFactory>& inputProtocolFactory,
+      const boost::shared_ptr<TProtocolFactory>& outputProtocolFactory,
+      int port,
+      const boost::shared_ptr<ThreadManager>& threadManager =
+        boost::shared_ptr<ThreadManager>(),
+      THRIFT_OVERLOAD_IF(Processor, TProcessor)) :
+    TServer(processor) {
+
+    init(port);
+
     setInputTransportFactory(inputTransportFactory);
     setOutputTransportFactory(outputTransportFactory);
     setInputProtocolFactory(inputProtocolFactory);
@@ -249,6 +392,31 @@ class TNonblockingServer : public TServer {
 
   boost::shared_ptr<ThreadManager> getThreadManager() {
     return threadManager_;
+  }
+
+  /**
+   * Sets the number of IO threads used by this server. Can only be used before
+   * the call to serve() and has no effect afterwards.  We always use a
+   * PosixThreadFactory for the IO worker threads, because they must joinable
+   * for clean shutdown.
+   */
+  void setNumIOThreads(size_t numThreads) {
+    numIOThreads_ = numThreads;
+  }
+
+  /** Return whether the IO threads will get high scheduling priority */
+  bool useHighPriorityIOThreads() const {
+    return useHighPriorityIOThreads_;
+  }
+
+  /** Set whether the IO threads will get high scheduling priority. */
+  void setUseHighPriorityIOThreads(bool val) {
+    useHighPriorityIOThreads_ = val;
+  }
+
+  /** Return the number of IO threads used by this server. */
+  size_t getNumIOThreads() const {
+    return numIOThreads_;
   }
 
   /**
@@ -277,20 +445,6 @@ class TNonblockingServer : public TServer {
     threadManager_->add(task, 0LL, taskExpireTime_);
   }
 
-  event_base* getEventBase() const {
-    return eventBase_;
-  }
-
-  /// Increment our count of the number of connected sockets.
-  void incrementNumConnections() {
-    ++numTConnections_;
-  }
-
-  /// Decrement our count of the number of connected sockets.
-  void decrementNumConnections() {
-    --numTConnections_;
-  }
-
   /**
    * Return the count of sockets currently connected to.
    *
@@ -298,6 +452,15 @@ class TNonblockingServer : public TServer {
    */
   size_t getNumConnections() const {
     return numTConnections_;
+  }
+
+  /**
+   * Return the count of sockets currently connected to.
+   *
+   * @return count of connected sockets.
+   */
+  size_t getNumActiveConnections() const {
+    return getNumConnections() - getNumIdleConnections();
   }
 
   /**
@@ -323,11 +486,13 @@ class TNonblockingServer : public TServer {
 
   /// Increment the count of connections currently processing.
   void incrementActiveProcessors() {
+    Guard g(connMutex_);
     ++numActiveProcessors_;
   }
 
   /// Decrement the count of connections currently processing.
   void decrementActiveProcessors() {
+    Guard g(connMutex_);
     if (numActiveProcessors_ > 0) {
       --numActiveProcessors_;
     }
@@ -367,6 +532,27 @@ class TNonblockingServer : public TServer {
    */
   void setMaxActiveProcessors(size_t maxActiveProcessors) {
     maxActiveProcessors_ = maxActiveProcessors;
+  }
+
+  /**
+   * Get the maximum allowed frame size.
+   *
+   * If a client tries to send a message larger than this limit,
+   * its connection will be closed.
+   *
+   * @return Maxium frame size, in bytes.
+   */
+  size_t getMaxFrameSize() const {
+    return maxFrameSize_;
+  }
+
+  /**
+   * Set the maximum allowed frame size.
+   *
+   * @param maxFrameSize The new maximum frame size.
+   */
+  void setMaxFrameSize(size_t maxFrameSize) {
+    maxFrameSize_ = maxFrameSize;
   }
 
   /**
@@ -444,35 +630,155 @@ class TNonblockingServer : public TServer {
   bool drainPendingTask();
 
   /**
-   * Get the maximum limit of memory allocated to idle TConnection objects.
+   * Get the starting size of a TConnection object's write buffer.
    *
-   * @return # bytes beyond which we will shrink buffers when idle.
+   * @return # bytes we initialize a TConnection object's write buffer to.
    */
-  size_t getIdleBufferMemLimit() const {
-    return idleBufferMemLimit_;
+  size_t getWriteBufferDefaultSize() const {
+    return writeBufferDefaultSize_;
   }
 
   /**
-   * Set the maximum limit of memory allocated to idle TConnection objects.
-   * If a TConnection object goes idle with more than this much memory
-   * allocated to its buffer, we shrink it to this value.
+   * Set the starting size of a TConnection object's write buffer.
+   *
+   * @param size # bytes we initialize a TConnection object's write buffer to.
+   */
+  void setWriteBufferDefaultSize(size_t size) {
+    writeBufferDefaultSize_ = size;
+  }
+
+  /**
+   * Get the maximum size of read buffer allocated to idle TConnection objects.
+   *
+   * @return # bytes beyond which we will dealloc idle buffer.
+   */
+  size_t getIdleReadBufferLimit() const {
+    return idleReadBufferLimit_;
+  }
+
+  /**
+   * [NOTE: This is for backwards compatibility, use getIdleReadBufferLimit().]
+   * Get the maximum size of read buffer allocated to idle TConnection objects.
+   *
+   * @return # bytes beyond which we will dealloc idle buffer.
+   */
+  size_t getIdleBufferMemLimit() const {
+    return idleReadBufferLimit_;
+  }
+
+  /**
+   * Set the maximum size read buffer allocated to idle TConnection objects.
+   * If a TConnection object is found (either on connection close or between
+   * calls when resizeBufferEveryN_ is set) with more than this much memory
+   * allocated to its read buffer, we free it and allow it to be reinitialized
+   * on the next received frame.
+   *
+   * @param limit of bytes beyond which we will shrink buffers when checked.
+   */
+  void setIdleReadBufferLimit(size_t limit) {
+    idleReadBufferLimit_ = limit;
+  }
+
+  /**
+   * [NOTE: This is for backwards compatibility, use setIdleReadBufferLimit().]
+   * Set the maximum size read buffer allocated to idle TConnection objects.
+   * If a TConnection object is found (either on connection close or between
+   * calls when resizeBufferEveryN_ is set) with more than this much memory
+   * allocated to its read buffer, we free it and allow it to be reinitialized
+   * on the next received frame.
+   *
+   * @param limit of bytes beyond which we will shrink buffers when checked.
+   */
+  void setIdleBufferMemLimit(size_t limit) {
+    idleReadBufferLimit_ = limit;
+  }
+
+
+
+  /**
+   * Get the maximum size of write buffer allocated to idle TConnection objects.
+   *
+   * @return # bytes beyond which we will reallocate buffers when checked.
+   */
+  size_t getIdleWriteBufferLimit() const {
+    return idleWriteBufferLimit_;
+  }
+
+  /**
+   * Set the maximum size write buffer allocated to idle TConnection objects.
+   * If a TConnection object is found (either on connection close or between
+   * calls when resizeBufferEveryN_ is set) with more than this much memory
+   * allocated to its write buffer, we destroy and construct that buffer with
+   * writeBufferDefaultSize_ bytes.
    *
    * @param limit of bytes beyond which we will shrink buffers when idle.
    */
-  void setIdleBufferMemLimit(size_t limit) {
-    idleBufferMemLimit_ = limit;
+  void setIdleWriteBufferLimit(size_t limit) {
+    idleWriteBufferLimit_ = limit;
   }
 
+  /**
+   * Get # of calls made between buffer size checks.  0 means disabled.
+   *
+   * @return # of calls between buffer size checks.
+   */
+  int32_t getResizeBufferEveryN() const {
+    return resizeBufferEveryN_;
+  }
+
+  /**
+   * Check buffer sizes every "count" calls.  This allows buffer limits
+   * to be enforced for persistant connections with a controllable degree
+   * of overhead. 0 disables checks except at connection close.
+   *
+   * @param count the number of calls between checks, or 0 to disable
+   */
+  void setResizeBufferEveryN(int32_t count) {
+    resizeBufferEveryN_ = count;
+  }
+
+  /**
+   * Main workhorse function, starts up the server listening on a port and
+   * loops over the libevent handler.
+   */
+  void serve();
+
+  /**
+   * Causes the server to terminate gracefully (can be called from any thread).
+   */
+  void stop();
+
+ private:
+  /**
+   * Callback function that the threadmanager calls when a task reaches
+   * its expiration time.  It is needed to clean up the expired connection.
+   *
+   * @param task the runnable associated with the expired task.
+   */
+  void expireClose(boost::shared_ptr<Runnable> task);
+
+  /// Creates a socket to listen on and binds it to the local port.
+  void createAndListenOnSocket();
+
+  /**
+   * Takes a socket created by createAndListenOnSocket() and sets various
+   * options on it to prepare for use in the server.
+   *
+   * @param fd descriptor of socket to be initialized/
+   */
+  void listenSocket(int fd);
   /**
    * Return an initialized connection object.  Creates or recovers from
    * pool a TConnection and initializes it with the provided socket FD
    * and flags.
    *
    * @param socket FD of socket associated with this connection.
-   * @param flags initial lib_event flags for this connection.
+   * @param addr the sockaddr of the client
+   * @param addrLen the length of addr
    * @return pointer to initialized TConnection object.
    */
-  TConnection* createConnection(int socket, short flags);
+  TConnection* createConnection(int socket, const sockaddr* addr,
+                                            socklen_t addrLen);
 
   /**
    * Returns a connection to pool or deletion.  If the connection pool
@@ -482,14 +788,67 @@ class TNonblockingServer : public TServer {
    * @param connection the TConection being returned.
    */
   void returnConnection(TConnection* connection);
+};
 
+class TNonblockingIOThread : public Runnable {
+ public:
+  // Creates an IO thread and sets up the event base.  The listenSocket should
+  // be a valid FD on which listen() has already been called.  If the
+  // listenSocket is < 0, accepting will not be done.
+  TNonblockingIOThread(TNonblockingServer* server,
+                       int number,
+                       int listenSocket,
+                       bool useHighPriority);
+
+  ~TNonblockingIOThread();
+
+  // Returns the event-base for this thread.
+  event_base* getEventBase() const { return eventBase_; }
+
+  // Returns the server for this thread.
+  TNonblockingServer* getServer() const { return server_; }
+
+  // Returns the number of this IO thread.
+  int getThreadNumber() const { return number_; }
+
+  // Returns the thread id associated with this object.  This should
+  // only be called after the thread has been started.
+  Thread::id_t getThreadId() const { return threadId_; }
+
+  // Returns the send-fd for task complete notifications.
+  evutil_socket_t getNotificationSendFD() const { return notificationPipeFDs_[1]; }
+
+  // Returns the read-fd for task complete notifications.
+  evutil_socket_t getNotificationRecvFD() const { return notificationPipeFDs_[0]; }
+
+  // Returns the actual thread object associated with this IO thread.
+  boost::shared_ptr<Thread> getThread() const { return thread_; }
+
+  // Sets the actual thread object associated with this IO thread.
+  void setThread(const boost::shared_ptr<Thread>& t) { thread_ = t; }
+
+  // Used by TConnection objects to indicate processing has finished.
+  bool notify(TNonblockingServer::TConnection* conn);
+
+  // Enters the event loop and does not return until a call to stop().
+  virtual void run();
+
+  // Exits the event loop as soon as possible.
+  void stop();
+
+  // Ensures that the event-loop thread is fully finished and shut down.
+  void join();
+
+ private:
   /**
-   * Callback function that the threadmanager calls when a task reaches
-   * its expiration time.  It is needed to clean up the expired connection.
+   * C-callable event handler for signaling task completion.  Provides a
+   * callback that libevent can understand that will read a connection
+   * object's address from a pipe and call connection->transition() for
+   * that object.
    *
-   * @param task the runnable associated with the expired task.
+   * @param fd the descriptor the event occurred on.
    */
-  void expireClose(boost::shared_ptr<Runnable> task);
+  static void notifyHandler(evutil_socket_t fd, short which, void* v);
 
   /**
    * C-callable event handler for listener events.  Provides a callback
@@ -499,308 +858,57 @@ class TNonblockingServer : public TServer {
    * @param which the flags associated with the event.
    * @param v void* callback arg where we placed TNonblockingServer's "this".
    */
-  static void eventHandler(int fd, short which, void* v) {
+  static void listenHandler(evutil_socket_t fd, short which, void* v) {
     ((TNonblockingServer*)v)->handleEvent(fd, which);
   }
 
-  /// Creates a socket to listen on and binds it to the local port.
-  void listenSocket();
+  /// Exits the loop ASAP in case of shutdown or error.
+  void breakLoop(bool error);
 
-  /**
-   * Takes a socket created by listenSocket() and sets various options on it
-   * to prepare for use in the server.
-   *
-   * @param fd descriptor of socket to be initialized/
-   */
-  void listenSocket(int fd);
+  /// Registers the events for the notification & listen sockets
+  void registerEvents();
 
   /// Create the pipe used to notify I/O process of task completion.
   void createNotificationPipe();
 
-  /**
-   * Get notification pipe send descriptor.
-   *
-   * @return write fd for pipe.
-   */
-  int getNotificationSendFD() const {
-    return notificationPipeFDs_[1];
-  }
+  /// Unregisters our events for notification and listen sockets.
+  void cleanupEvents();
 
-  /**
-   * Get notification pipe receive descriptor.
-   *
-   * @return read fd of pipe.
-   */
-  int getNotificationRecvFD() const {
-    return notificationPipeFDs_[0];
-  }
+  /// Sets (or clears) high priority scheduling status for the current thread.
+  void setCurrentThreadHighPriority(bool value);
 
-  /**
-   * Register the core libevent events onto the proper base.
-   *
-   * @param base pointer to the event base to be initialized.
-   */
-  void registerEvents(event_base* base);
-
-  /**
-   * Main workhorse function, starts up the server listening on a port and
-   * loops over the libevent handler.
-   */
-  void serve();
-};
-
-/// Two states for sockets, recv and send mode
-enum TSocketState {
-  SOCKET_RECV,
-  SOCKET_SEND
-};
-
-/**
- * Five states for the nonblocking servr:
- *  1) initialize
- *  2) read 4 byte frame size
- *  3) read frame of data
- *  4) send back data (if any)
- *  5) force immediate connection close
- */
-enum TAppState {
-  APP_INIT,
-  APP_READ_FRAME_SIZE,
-  APP_READ_REQUEST,
-  APP_WAIT_TASK,
-  APP_SEND_RESULT,
-  APP_CLOSE_CONNECTION
-};
-
-/**
- * Represents a connection that is handled via libevent. This connection
- * essentially encapsulates a socket that has some associated libevent state.
- */
-class TConnection {
  private:
-
-  /// Starting size for new connection buffer
-  static const int STARTING_CONNECTION_BUFFER_SIZE = 1024;
-
-  /// Server handle
+  /// associated server
   TNonblockingServer* server_;
 
-  /// Socket handle
-  int socket_;
+  /// thread number (for debugging).
+  const int number_;
 
-  /// Libevent object
-  struct event event_;
+  /// The actual physical thread id.
+  Thread::id_t threadId_;
 
-  /// Libevent flags
-  short eventFlags_;
+  /// If listenSocket_ >= 0, adds an event on the event_base to accept conns
+  int listenSocket_;
 
-  /// Socket mode
-  TSocketState socketState_;
+  /// Sets a high scheduling priority when running
+  bool useHighPriority_;
 
-  /// Application state
-  TAppState appState_;
+  /// pointer to eventbase to be used for looping
+  event_base* eventBase_;
 
-  /// How much data needed to read
-  uint32_t readWant_;
+  /// Used with eventBase_ for connection events (only in listener thread)
+  struct event serverEvent_;
 
-  /// Where in the read buffer are we
-  uint32_t readBufferPos_;
+  /// Used with eventBase_ for task completion notification
+  struct event notificationEvent_;
 
-  /// Read buffer
-  uint8_t* readBuffer_;
+ /// File descriptors for pipe used for task completion notification.
+  evutil_socket_t notificationPipeFDs_[2];
 
-  /// Read buffer size
-  uint32_t readBufferSize_;
-
-  /// Write buffer
-  uint8_t* writeBuffer_;
-
-  /// Write buffer size
-  uint32_t writeBufferSize_;
-
-  /// How far through writing are we?
-  uint32_t writeBufferPos_;
-
-  /// How many times have we read since our last buffer reset?
-  uint32_t numReadsSinceReset_;
-
-  /// How many times have we written since our last buffer reset?
-  uint32_t numWritesSinceReset_;
-
-  /// Task handle
-  int taskHandle_;
-
-  /// Task event
-  struct event taskEvent_;
-
-  /// Transport to read from
-  boost::shared_ptr<TMemoryBuffer> inputTransport_;
-
-  /// Transport that processor writes to
-  boost::shared_ptr<TMemoryBuffer> outputTransport_;
-
-  /// extra transport generated by transport factory (e.g. BufferedRouterTransport)
-  boost::shared_ptr<TTransport> factoryInputTransport_;
-  boost::shared_ptr<TTransport> factoryOutputTransport_;
-
-  /// Protocol decoder
-  boost::shared_ptr<TProtocol> inputProtocol_;
-
-  /// Protocol encoder
-  boost::shared_ptr<TProtocol> outputProtocol_;
-
-  /// Go into read mode
-  void setRead() {
-    setFlags(EV_READ | EV_PERSIST);
-  }
-
-  /// Go into write mode
-  void setWrite() {
-    setFlags(EV_WRITE | EV_PERSIST);
-  }
-
-  /// Set socket idle
-  void setIdle() {
-    setFlags(0);
-  }
-
-  /**
-   * Set event flags for this connection.
-   *
-   * @param eventFlags flags we pass to libevent for the connection.
-   */
-  void setFlags(short eventFlags);
-
-  /**
-   * Libevent handler called (via our static wrapper) when the connection
-   * socket had something happen.  Rather than use the flags libevent passed,
-   * we use the connection state to determine whether we need to read or
-   * write the socket.
-   */
-  void workSocket();
-
-  /// Close this connection and free or reset its resources.
-  void close();
-
- public:
-
-  class Task;
-
-  /// Constructor
-  TConnection(int socket, short eventFlags, TNonblockingServer *s) {
-    readBuffer_ = (uint8_t*)std::malloc(STARTING_CONNECTION_BUFFER_SIZE);
-    if (readBuffer_ == NULL) {
-      throw new apache::thrift::TException("Out of memory.");
-    }
-    readBufferSize_ = STARTING_CONNECTION_BUFFER_SIZE;
-
-    numReadsSinceReset_ = 0;
-    numWritesSinceReset_ = 0;
-
-    // Allocate input and output tranpsorts
-    // these only need to be allocated once per TConnection (they don't need to be
-    // reallocated on init() call)
-    inputTransport_ = boost::shared_ptr<TMemoryBuffer>(new TMemoryBuffer(readBuffer_, readBufferSize_));
-    outputTransport_ = boost::shared_ptr<TMemoryBuffer>(new TMemoryBuffer());
-
-    init(socket, eventFlags, s);
-    server_->incrementNumConnections();
-  }
-
-  ~TConnection() {
-    std::free(readBuffer_);
-    server_->decrementNumConnections();
-  }
-
-  /**
-   * Check read buffer against a given limit and shrink it if exceeded.
-   *
-   * @param limit we limit buffer size to.
-   */
-  void checkIdleBufferMemLimit(size_t limit);
-
-  /// Initialize
-  void init(int socket, short eventFlags, TNonblockingServer *s);
-
-  /**
-   * This is called when the application transitions from one state into
-   * another. This means that it has finished writing the data that it needed
-   * to, or finished receiving the data that it needed to.
-   */
-  void transition();
-
-  /**
-   * C-callable event handler for connection events.  Provides a callback
-   * that libevent can understand which invokes connection_->workSocket().
-   *
-   * @param fd the descriptor the event occured on.
-   * @param which the flags associated with the event.
-   * @param v void* callback arg where we placed TConnection's "this".
-   */
-  static void eventHandler(int fd, short /* which */, void* v) {
-    assert(fd == ((TConnection*)v)->socket_);
-    ((TConnection*)v)->workSocket();
-  }
-
-  /**
-   * C-callable event handler for signaling task completion.  Provides a
-   * callback that libevent can understand that will read a connection
-   * object's address from a pipe and call connection->transition() for
-   * that object.
-   *
-   * @param fd the descriptor the event occured on.
-   */
-  static void taskHandler(int fd, short /* which */, void* /* v */) {
-    TConnection* connection;
-    ssize_t nBytes;
-    while ((nBytes = read(fd, (void*)&connection, sizeof(TConnection*)))
-        == sizeof(TConnection*)) {
-      connection->transition();
-    }
-    if (nBytes > 0) {
-      throw TException("TConnection::taskHandler unexpected partial read");
-    }
-    if (errno != EWOULDBLOCK && errno != EAGAIN) {
-      GlobalOutput.perror("TConnection::taskHandler read failed, resource leak", errno);
-    }
-  }
-
-  /**
-   * Notification to server that processing has ended on this request.
-   * Can be called either when processing is completed or when a waiting
-   * task has been preemptively terminated (on overload).
-   *
-   * @return true if successful, false if unable to notify (check errno).
-   */
-  bool notifyServer() {
-    TConnection* connection = this;
-    if (write(server_->getNotificationSendFD(), (const void*)&connection,
-             sizeof(TConnection*)) != sizeof(TConnection*)) {
-      return false;
-    }
-
-    return true;
-  }
-
-  /// Force connection shutdown for this connection.
-  void forceClose() {
-    appState_ = APP_CLOSE_CONNECTION;
-    if (!notifyServer()) {
-      throw TException("TConnection::forceClose: failed write on notify pipe");
-    }
-  }
-
-  /// return the server this connection was initialized for.
-  TNonblockingServer* getServer() {
-    return server_;
-  }
-
-  /// get state of connection.
-  TAppState getState() {
-    return appState_;
-  }
+  /// Actual IO Thread
+  boost::shared_ptr<Thread> thread_;
 };
 
 }}} // apache::thrift::server
 
-#endif // #ifndef _THRIFT_SERVER_TSIMPLESERVER_H_
+#endif // #ifndef _THRIFT_SERVER_TNONBLOCKINGSERVER_H_
