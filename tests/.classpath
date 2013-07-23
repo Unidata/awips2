@@ -52,7 +52,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.mchange"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.commons.management"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.commons.io"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.facebook.thrift"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.datastorage"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.event"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.datadelivery.event"/>
@@ -96,5 +95,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.commons.cxf"/>
 	<classpathentry kind="src" path="/com.raytheon.uf.common.archive"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.datadelivery.bandwidth.ncf"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.thrift"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

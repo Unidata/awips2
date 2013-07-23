@@ -21,6 +21,7 @@ package com.raytheon.uf.common.serialization.thrift;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,14 +35,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.sf.cglib.beans.BeanMap;
 import net.sf.cglib.reflect.FastClass;
 
-import com.facebook.thrift.TException;
-import com.facebook.thrift.protocol.TField;
-import com.facebook.thrift.protocol.TList;
-import com.facebook.thrift.protocol.TMap;
-import com.facebook.thrift.protocol.TMessage;
-import com.facebook.thrift.protocol.TSet;
-import com.facebook.thrift.protocol.TStruct;
-import com.facebook.thrift.protocol.TType;
+import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TField;
+import org.apache.thrift.protocol.TList;
+import org.apache.thrift.protocol.TMap;
+import org.apache.thrift.protocol.TMessage;
+import org.apache.thrift.protocol.TSet;
+import org.apache.thrift.protocol.TStruct;
+import org.apache.thrift.protocol.TType;
+
 import com.raytheon.uf.common.serialization.BaseSerializationContext;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager.EnclosureType;
@@ -67,6 +69,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * Sep 28, 2012 #1195       djohnson    Add ability to specify adapter at field level.
  * Nov 02, 2012 1302        djohnson    No more field level adapters.
  * Apr 25, 2013 1954        bsteffen    Size Collections better.
+ * Jul 23, 2013 2215        njensen     Updated for thrift 0.9.0
  * 
  * </pre>
  * 
@@ -128,7 +131,7 @@ public class ThriftSerializationContext extends BaseSerializationContext {
     @Override
     public byte[] readBinary() throws SerializationException {
         try {
-            return this.protocol.readBinary();
+            return this.protocol.readBinary().array();
         } catch (TException e) {
             throw new SerializationException(e);
         }
@@ -255,7 +258,7 @@ public class ThriftSerializationContext extends BaseSerializationContext {
     @Override
     public void writeBinary(byte[] arg0) throws SerializationException {
         try {
-            this.protocol.writeBinary(arg0);
+            this.protocol.writeBinary(ByteBuffer.wrap(arg0));
         } catch (TException e) {
             throw new SerializationException(e);
         }
@@ -713,10 +716,7 @@ public class ThriftSerializationContext extends BaseSerializationContext {
     private boolean serializeField(Object val, Class<?> valClass, byte type,
             String keyStr, ISerializationTypeAdapter adapter, short id)
             throws TException, SerializationException {
-        TField field = new TField();
-        field.type = type;
-        field.id = id;
-        field.name = keyStr;
+        TField field = new TField(keyStr, type, id);
         protocol.writeFieldBegin(field);
 
         if (type != TType.VOID) {
@@ -1347,6 +1347,24 @@ public class ThriftSerializationContext extends BaseSerializationContext {
         try {
             this.protocol.writeI32(dubs.length);
             this.protocol.writeD64List(dubs);
+        } catch (TException e) {
+            throw new SerializationException(e);
+        }
+    }
+
+    @Override
+    public void writeBuffer(ByteBuffer buffer) throws SerializationException {
+        try {
+            this.protocol.writeBinary(buffer);
+        } catch (TException e) {
+            throw new SerializationException(e);
+        }
+    }
+
+    @Override
+    public ByteBuffer readBuffer() throws SerializationException {
+        try {
+            return this.protocol.readBinary();
         } catch (TException e) {
             throw new SerializationException(e);
         }
