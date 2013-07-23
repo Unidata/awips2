@@ -20,16 +20,19 @@
 #ifndef _THRIFT_PROTOCOL_TPROTOCOL_H_
 #define _THRIFT_PROTOCOL_TPROTOCOL_H_ 1
 
-#include <transport/TTransport.h>
-#include <protocol/TProtocolException.h>
+#include <thrift/transport/TTransport.h>
+#include <thrift/protocol/TProtocolException.h>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/static_assert.hpp>
 
+#ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
+#endif
 #include <sys/types.h>
 #include <string>
 #include <map>
+#include <vector>
 
 
 // Use this to get around strict aliasing rules.
@@ -76,24 +79,30 @@ namespace apache { namespace thrift { namespace protocol {
 
 using apache::thrift::transport::TTransport;
 
-#ifdef HAVE_SYS_PARAM_H_
+#ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
 
-#ifndef __BYTE_ORDER
+#ifndef __THRIFT_BYTE_ORDER
 # if defined(BYTE_ORDER) && defined(LITTLE_ENDIAN) && defined(BIG_ENDIAN)
-#  define __BYTE_ORDER BYTE_ORDER
-#  define __LITTLE_ENDIAN LITTLE_ENDIAN
-#  define __BIG_ENDIAN BIG_ENDIAN
+#  define __THRIFT_BYTE_ORDER BYTE_ORDER
+#  define __THRIFT_LITTLE_ENDIAN LITTLE_ENDIAN
+#  define __THRIFT_BIG_ENDIAN BIG_ENDIAN
 # else
 #  include <boost/config.hpp>
-#  define __BYTE_ORDER BOOST_BYTE_ORDER
-#  define __LITTLE_ENDIAN BOOST_LITTLE_ENDIAN
-#  define __BIG_ENDIAN BOOST_BIG_ENDIAN
+#  include <boost/detail/endian.hpp>
+#  define __THRIFT_BYTE_ORDER BOOST_BYTE_ORDER
+#  ifdef BOOST_LITTLE_ENDIAN
+#   define __THRIFT_LITTLE_ENDIAN __THRIFT_BYTE_ORDER
+#   define __THRIFT_BIG_ENDIAN 0
+#  else
+#   define __THRIFT_LITTLE_ENDIAN 0
+#   define __THRIFT_BIG_ENDIAN __THRIFT_BYTE_ORDER
+#  endif
 # endif
 #endif
 
-#if __BYTE_ORDER == __BIG_ENDIAN
+#if __THRIFT_BYTE_ORDER == __THRIFT_BIG_ENDIAN
 #  define ntohll(n) (n)
 #  define htonll(n) (n)
 # if defined(__GNUC__) && defined(__GLIBC__)
@@ -113,18 +122,21 @@ using apache::thrift::transport::TTransport;
 #  define htolell(n) bswap_64(n)
 #  define letohll(n) bswap_64(n)
 # endif /* GNUC & GLIBC */
-#elif __BYTE_ORDER == __LITTLE_ENDIAN
+#elif __THRIFT_BYTE_ORDER == __THRIFT_LITTLE_ENDIAN
 #  define htolell(n) (n)
 #  define letohll(n) (n)
 # if defined(__GNUC__) && defined(__GLIBC__)
 #  include <byteswap.h>
 #  define ntohll(n) bswap_64(n)
 #  define htonll(n) bswap_64(n)
-# else /* GNUC & GLIBC */
-#  define ntohll(n) ( (((unsigned long long)ntohl(n)) << 32) + ntohl(n >> 32) )
-#  define htonll(n) ( (((unsigned long long)htonl(n)) << 32) + htonl(n >> 32) )
-# endif /* GNUC & GLIBC */
-#else /* __BYTE_ORDER */
+# elif defined(_MSC_VER) /* Microsoft Visual C++ */
+#  define ntohll(n) ( _byteswap_uint64((uint64_t)n) )
+#  define htonll(n) ( _byteswap_uint64((uint64_t)n) )
+# else /* Not GNUC/GLIBC or MSVC */
+#  define ntohll(n) ( (((uint64_t)ntohl(n)) << 32) + ntohl(n >> 32) )
+#  define htonll(n) ( (((uint64_t)htonl(n)) << 32) + htonl(n >> 32) )
+# endif /* GNUC/GLIBC or MSVC or something else */
+#else /* __THRIFT_BYTE_ORDER */
 # error "Can't define htonll or ntohll!"
 #endif
 
@@ -165,6 +177,112 @@ enum TMessageType {
   T_ONEWAY     = 4
 };
 
+
+/**
+ * Helper template for implementing TProtocol::skip().
+ *
+ * Templatized to avoid having to make virtual function calls.
+ */
+template <class Protocol_>
+uint32_t skip(Protocol_& prot, TType type) {
+  switch (type) {
+  case T_BOOL:
+    {
+      bool boolv;
+      return prot.readBool(boolv);
+    }
+  case T_BYTE:
+    {
+      int8_t bytev;
+      return prot.readByte(bytev);
+    }
+  case T_I16:
+    {
+      int16_t i16;
+      return prot.readI16(i16);
+    }
+  case T_I32:
+    {
+      int32_t i32;
+      return prot.readI32(i32);
+    }
+  case T_I64:
+    {
+      int64_t i64;
+      return prot.readI64(i64);
+    }
+  case T_DOUBLE:
+    {
+      double dub;
+      return prot.readDouble(dub);
+    }
+  case T_STRING:
+    {
+      std::string str;
+      return prot.readBinary(str);
+    }
+  case T_STRUCT:
+    {
+      uint32_t result = 0;
+      std::string name;
+      int16_t fid;
+      TType ftype;
+      result += prot.readStructBegin(name);
+      while (true) {
+        result += prot.readFieldBegin(name, ftype, fid);
+        if (ftype == T_STOP) {
+          break;
+        }
+        result += skip(prot, ftype);
+        result += prot.readFieldEnd();
+      }
+      result += prot.readStructEnd();
+      return result;
+    }
+  case T_MAP:
+    {
+      uint32_t result = 0;
+      TType keyType;
+      TType valType;
+      uint32_t i, size;
+      result += prot.readMapBegin(keyType, valType, size);
+      for (i = 0; i < size; i++) {
+        result += skip(prot, keyType);
+        result += skip(prot, valType);
+      }
+      result += prot.readMapEnd();
+      return result;
+    }
+  case T_SET:
+    {
+      uint32_t result = 0;
+      TType elemType;
+      uint32_t i, size;
+      result += prot.readSetBegin(elemType, size);
+      for (i = 0; i < size; i++) {
+        result += skip(prot, elemType);
+      }
+      result += prot.readSetEnd();
+      return result;
+    }
+  case T_LIST:
+    {
+      uint32_t result = 0;
+      TType elemType;
+      uint32_t i, size;
+      result += prot.readListBegin(elemType, size);
+      for (i = 0; i < size; i++) {
+        result += skip(prot, elemType);
+      }
+      result += prot.readListEnd();
+      return result;
+    }
+  case T_STOP: case T_VOID: case T_U64: case T_UTF8: case T_UTF16:
+    break;
+  }
+  return 0;
+}
+
 /**
  * Abstract class for a thrift protocol driver. These are all the methods that
  * a protocol must implement. Essentially, there must be some way of reading
@@ -187,215 +305,346 @@ class TProtocol {
    * Writing functions.
    */
 
-  virtual uint32_t writeMessageBegin(const std::string& name,
-                                     const TMessageType messageType,
-                                     const int32_t seqid) = 0;
+  virtual uint32_t writeMessageBegin_virt(const std::string& name,
+                                          const TMessageType messageType,
+                                          const int32_t seqid) = 0;
 
-  virtual uint32_t writeMessageEnd() = 0;
+  virtual uint32_t writeMessageEnd_virt() = 0;
 
 
-  virtual uint32_t writeStructBegin(const char* name) = 0;
+  virtual uint32_t writeStructBegin_virt(const char* name) = 0;
 
-  virtual uint32_t writeStructEnd() = 0;
+  virtual uint32_t writeStructEnd_virt() = 0;
 
-  virtual uint32_t writeFieldBegin(const char* name,
-                                   const TType fieldType,
-                                   const int16_t fieldId) = 0;
+  virtual uint32_t writeFieldBegin_virt(const char* name,
+                                        const TType fieldType,
+                                        const int16_t fieldId) = 0;
 
-  virtual uint32_t writeFieldEnd() = 0;
+  virtual uint32_t writeFieldEnd_virt() = 0;
 
-  virtual uint32_t writeFieldStop() = 0;
+  virtual uint32_t writeFieldStop_virt() = 0;
 
-  virtual uint32_t writeMapBegin(const TType keyType,
-                                 const TType valType,
-                                 const uint32_t size) = 0;
+  virtual uint32_t writeMapBegin_virt(const TType keyType,
+                                      const TType valType,
+                                      const uint32_t size) = 0;
 
-  virtual uint32_t writeMapEnd() = 0;
+  virtual uint32_t writeMapEnd_virt() = 0;
 
-  virtual uint32_t writeListBegin(const TType elemType,
-                                  const uint32_t size) = 0;
+  virtual uint32_t writeListBegin_virt(const TType elemType,
+                                       const uint32_t size) = 0;
 
-  virtual uint32_t writeListEnd() = 0;
+  virtual uint32_t writeListEnd_virt() = 0;
 
-  virtual uint32_t writeSetBegin(const TType elemType,
-                                 const uint32_t size) = 0;
+  virtual uint32_t writeSetBegin_virt(const TType elemType,
+                                      const uint32_t size) = 0;
 
-  virtual uint32_t writeSetEnd() = 0;
+  virtual uint32_t writeSetEnd_virt() = 0;
 
-  virtual uint32_t writeBool(const bool value) = 0;
+  virtual uint32_t writeBool_virt(const bool value) = 0;
 
-  virtual uint32_t writeByte(const int8_t byte) = 0;
+  virtual uint32_t writeByte_virt(const int8_t byte) = 0;
 
-  virtual uint32_t writeI16(const int16_t i16) = 0;
+  virtual uint32_t writeI16_virt(const int16_t i16) = 0;
 
-  virtual uint32_t writeI32(const int32_t i32) = 0;
+  virtual uint32_t writeI32_virt(const int32_t i32) = 0;
 
-  virtual uint32_t writeI64(const int64_t i64) = 0;
+  virtual uint32_t writeI64_virt(const int64_t i64) = 0;
 
-  virtual uint32_t writeDouble(const double dub) = 0;
+  virtual uint32_t writeDouble_virt(const double dub) = 0;
 
-  virtual uint32_t writeString(const std::string& str) = 0;
+  virtual uint32_t writeString_virt(const std::string& str) = 0;
 
-  virtual uint32_t writeBinary(const std::string& str) = 0;
+  virtual uint32_t writeBinary_virt(const std::string& str) = 0;
+
+  uint32_t writeMessageBegin(const std::string& name,
+                             const TMessageType messageType,
+                             const int32_t seqid) {
+    T_VIRTUAL_CALL();
+    return writeMessageBegin_virt(name, messageType, seqid);
+  }
+
+  uint32_t writeMessageEnd() {
+    T_VIRTUAL_CALL();
+    return writeMessageEnd_virt();
+  }
+
+
+  uint32_t writeStructBegin(const char* name) {
+    T_VIRTUAL_CALL();
+    return writeStructBegin_virt(name);
+  }
+
+  uint32_t writeStructEnd() {
+    T_VIRTUAL_CALL();
+    return writeStructEnd_virt();
+  }
+
+  uint32_t writeFieldBegin(const char* name,
+                           const TType fieldType,
+                           const int16_t fieldId) {
+    T_VIRTUAL_CALL();
+    return writeFieldBegin_virt(name, fieldType, fieldId);
+  }
+
+  uint32_t writeFieldEnd() {
+    T_VIRTUAL_CALL();
+    return writeFieldEnd_virt();
+  }
+
+  uint32_t writeFieldStop() {
+    T_VIRTUAL_CALL();
+    return writeFieldStop_virt();
+  }
+
+  uint32_t writeMapBegin(const TType keyType,
+                         const TType valType,
+                         const uint32_t size) {
+    T_VIRTUAL_CALL();
+    return writeMapBegin_virt(keyType, valType, size);
+  }
+
+  uint32_t writeMapEnd() {
+    T_VIRTUAL_CALL();
+    return writeMapEnd_virt();
+  }
+
+  uint32_t writeListBegin(const TType elemType, const uint32_t size) {
+    T_VIRTUAL_CALL();
+    return writeListBegin_virt(elemType, size);
+  }
+
+  uint32_t writeListEnd() {
+    T_VIRTUAL_CALL();
+    return writeListEnd_virt();
+  }
+
+  uint32_t writeSetBegin(const TType elemType, const uint32_t size) {
+    T_VIRTUAL_CALL();
+    return writeSetBegin_virt(elemType, size);
+  }
+
+  uint32_t writeSetEnd() {
+    T_VIRTUAL_CALL();
+    return writeSetEnd_virt();
+  }
+
+  uint32_t writeBool(const bool value) {
+    T_VIRTUAL_CALL();
+    return writeBool_virt(value);
+  }
+
+  uint32_t writeByte(const int8_t byte) {
+    T_VIRTUAL_CALL();
+    return writeByte_virt(byte);
+  }
+
+  uint32_t writeI16(const int16_t i16) {
+    T_VIRTUAL_CALL();
+    return writeI16_virt(i16);
+  }
+
+  uint32_t writeI32(const int32_t i32) {
+    T_VIRTUAL_CALL();
+    return writeI32_virt(i32);
+  }
+
+  uint32_t writeI64(const int64_t i64) {
+    T_VIRTUAL_CALL();
+    return writeI64_virt(i64);
+  }
+
+  uint32_t writeDouble(const double dub) {
+    T_VIRTUAL_CALL();
+    return writeDouble_virt(dub);
+  }
+
+  uint32_t writeString(const std::string& str) {
+    T_VIRTUAL_CALL();
+    return writeString_virt(str);
+  }
+
+  uint32_t writeBinary(const std::string& str) {
+    T_VIRTUAL_CALL();
+    return writeBinary_virt(str);
+  }
 
   /**
    * Reading functions
    */
 
-  virtual uint32_t readMessageBegin(std::string& name,
-                                    TMessageType& messageType,
-                                    int32_t& seqid) = 0;
+  virtual uint32_t readMessageBegin_virt(std::string& name,
+                                         TMessageType& messageType,
+                                         int32_t& seqid) = 0;
 
-  virtual uint32_t readMessageEnd() = 0;
+  virtual uint32_t readMessageEnd_virt() = 0;
 
-  virtual uint32_t readStructBegin(std::string& name) = 0;
+  virtual uint32_t readStructBegin_virt(std::string& name) = 0;
 
-  virtual uint32_t readStructEnd() = 0;
+  virtual uint32_t readStructEnd_virt() = 0;
 
-  virtual uint32_t readFieldBegin(std::string& name,
-                                  TType& fieldType,
-                                  int16_t& fieldId) = 0;
+  virtual uint32_t readFieldBegin_virt(std::string& name,
+                                       TType& fieldType,
+                                       int16_t& fieldId) = 0;
 
-  virtual uint32_t readFieldEnd() = 0;
+  virtual uint32_t readFieldEnd_virt() = 0;
 
-  virtual uint32_t readMapBegin(TType& keyType,
-                                TType& valType,
-                                uint32_t& size) = 0;
+  virtual uint32_t readMapBegin_virt(TType& keyType,
+                                     TType& valType,
+                                     uint32_t& size) = 0;
 
-  virtual uint32_t readMapEnd() = 0;
+  virtual uint32_t readMapEnd_virt() = 0;
 
-  virtual uint32_t readListBegin(TType& elemType,
-                                 uint32_t& size) = 0;
+  virtual uint32_t readListBegin_virt(TType& elemType,
+                                      uint32_t& size) = 0;
 
-  virtual uint32_t readListEnd() = 0;
+  virtual uint32_t readListEnd_virt() = 0;
 
-  virtual uint32_t readSetBegin(TType& elemType,
-                                uint32_t& size) = 0;
+  virtual uint32_t readSetBegin_virt(TType& elemType,
+                                     uint32_t& size) = 0;
 
-  virtual uint32_t readSetEnd() = 0;
+  virtual uint32_t readSetEnd_virt() = 0;
 
-  virtual uint32_t readBool(bool& value) = 0;
+  virtual uint32_t readBool_virt(bool& value) = 0;
 
-  virtual uint32_t readByte(int8_t& byte) = 0;
+  virtual uint32_t readBool_virt(std::vector<bool>::reference value) = 0;
 
-  virtual uint32_t readI16(int16_t& i16) = 0;
+  virtual uint32_t readByte_virt(int8_t& byte) = 0;
 
-  virtual uint32_t readI32(int32_t& i32) = 0;
+  virtual uint32_t readI16_virt(int16_t& i16) = 0;
 
-  virtual uint32_t readI64(int64_t& i64) = 0;
+  virtual uint32_t readI32_virt(int32_t& i32) = 0;
 
-  virtual uint32_t readDouble(double& dub) = 0;
+  virtual uint32_t readI64_virt(int64_t& i64) = 0;
 
-  virtual uint32_t readString(std::string& str) = 0;
+  virtual uint32_t readDouble_virt(double& dub) = 0;
 
-  virtual uint32_t readBinary(std::string& str) = 0;
+  virtual uint32_t readString_virt(std::string& str) = 0;
 
-  uint32_t readBool(std::vector<bool>::reference ref) {
-    bool value;
-    uint32_t rv = readBool(value);
-    ref = value;
-    return rv;
+  virtual uint32_t readBinary_virt(std::string& str) = 0;
+
+  uint32_t readMessageBegin(std::string& name,
+                            TMessageType& messageType,
+                            int32_t& seqid) {
+    T_VIRTUAL_CALL();
+    return readMessageBegin_virt(name, messageType, seqid);
+  }
+
+  uint32_t readMessageEnd() {
+    T_VIRTUAL_CALL();
+    return readMessageEnd_virt();
+  }
+
+  uint32_t readStructBegin(std::string& name) {
+    T_VIRTUAL_CALL();
+    return readStructBegin_virt(name);
+  }
+
+  uint32_t readStructEnd() {
+    T_VIRTUAL_CALL();
+    return readStructEnd_virt();
+  }
+
+  uint32_t readFieldBegin(std::string& name,
+                          TType& fieldType,
+                          int16_t& fieldId) {
+    T_VIRTUAL_CALL();
+    return readFieldBegin_virt(name, fieldType, fieldId);
+  }
+
+  uint32_t readFieldEnd() {
+    T_VIRTUAL_CALL();
+    return readFieldEnd_virt();
+  }
+
+  uint32_t readMapBegin(TType& keyType, TType& valType, uint32_t& size) {
+    T_VIRTUAL_CALL();
+    return readMapBegin_virt(keyType, valType, size);
+  }
+
+  uint32_t readMapEnd() {
+    T_VIRTUAL_CALL();
+    return readMapEnd_virt();
+  }
+
+  uint32_t readListBegin(TType& elemType, uint32_t& size) {
+    T_VIRTUAL_CALL();
+    return readListBegin_virt(elemType, size);
+  }
+
+  uint32_t readListEnd() {
+    T_VIRTUAL_CALL();
+    return readListEnd_virt();
+  }
+
+  uint32_t readSetBegin(TType& elemType, uint32_t& size) {
+    T_VIRTUAL_CALL();
+    return readSetBegin_virt(elemType, size);
+  }
+
+  uint32_t readSetEnd() {
+    T_VIRTUAL_CALL();
+    return readSetEnd_virt();
+  }
+
+  uint32_t readBool(bool& value) {
+    T_VIRTUAL_CALL();
+    return readBool_virt(value);
+  }
+
+  uint32_t readByte(int8_t& byte) {
+    T_VIRTUAL_CALL();
+    return readByte_virt(byte);
+  }
+
+  uint32_t readI16(int16_t& i16) {
+    T_VIRTUAL_CALL();
+    return readI16_virt(i16);
+  }
+
+  uint32_t readI32(int32_t& i32) {
+    T_VIRTUAL_CALL();
+    return readI32_virt(i32);
+  }
+
+  uint32_t readI64(int64_t& i64) {
+    T_VIRTUAL_CALL();
+    return readI64_virt(i64);
+  }
+
+  uint32_t readDouble(double& dub) {
+    T_VIRTUAL_CALL();
+    return readDouble_virt(dub);
+  }
+
+  uint32_t readString(std::string& str) {
+    T_VIRTUAL_CALL();
+    return readString_virt(str);
+  }
+
+  uint32_t readBinary(std::string& str) {
+    T_VIRTUAL_CALL();
+    return readBinary_virt(str);
+  }
+
+  /*
+   * std::vector is specialized for bool, and its elements are individual bits
+   * rather than bools.   We need to define a different version of readBool()
+   * to work with std::vector<bool>.
+   */
+  uint32_t readBool(std::vector<bool>::reference value) {
+    T_VIRTUAL_CALL();
+    return readBool_virt(value);
   }
 
   /**
    * Method to arbitrarily skip over data.
    */
   uint32_t skip(TType type) {
-    switch (type) {
-    case T_BOOL:
-      {
-        bool boolv;
-        return readBool(boolv);
-      }
-    case T_BYTE:
-      {
-        int8_t bytev;
-        return readByte(bytev);
-      }
-    case T_I16:
-      {
-        int16_t i16;
-        return readI16(i16);
-      }
-    case T_I32:
-      {
-        int32_t i32;
-        return readI32(i32);
-      }
-    case T_I64:
-      {
-        int64_t i64;
-        return readI64(i64);
-      }
-    case T_DOUBLE:
-      {
-        double dub;
-        return readDouble(dub);
-      }
-    case T_STRING:
-      {
-        std::string str;
-        return readBinary(str);
-      }
-    case T_STRUCT:
-      {
-        uint32_t result = 0;
-        std::string name;
-        int16_t fid;
-        TType ftype;
-        result += readStructBegin(name);
-        while (true) {
-          result += readFieldBegin(name, ftype, fid);
-          if (ftype == T_STOP) {
-            break;
-          }
-          result += skip(ftype);
-          result += readFieldEnd();
-        }
-        result += readStructEnd();
-        return result;
-      }
-    case T_MAP:
-      {
-        uint32_t result = 0;
-        TType keyType;
-        TType valType;
-        uint32_t i, size;
-        result += readMapBegin(keyType, valType, size);
-        for (i = 0; i < size; i++) {
-          result += skip(keyType);
-          result += skip(valType);
-        }
-        result += readMapEnd();
-        return result;
-      }
-    case T_SET:
-      {
-        uint32_t result = 0;
-        TType elemType;
-        uint32_t i, size;
-        result += readSetBegin(elemType, size);
-        for (i = 0; i < size; i++) {
-          result += skip(elemType);
-        }
-        result += readSetEnd();
-        return result;
-      }
-    case T_LIST:
-      {
-        uint32_t result = 0;
-        TType elemType;
-        uint32_t i, size;
-        result += readListBegin(elemType, size);
-        for (i = 0; i < size; i++) {
-          result += skip(elemType);
-        }
-        result += readListEnd();
-        return result;
-      }
-    default:
-      return 0;
-    }
+    T_VIRTUAL_CALL();
+    return skip_virt(type);
+  }
+  virtual uint32_t skip_virt(TType type) {
+    return ::apache::thrift::protocol::skip(*this, type);
   }
 
   inline boost::shared_ptr<TTransport> getTransport() {
@@ -414,11 +663,9 @@ class TProtocol {
  protected:
   TProtocol(boost::shared_ptr<TTransport> ptrans):
     ptrans_(ptrans) {
-    trans_ = ptrans.get();
   }
 
   boost::shared_ptr<TTransport> ptrans_;
-  TTransport* trans_;
 
  private:
   TProtocol() {}
@@ -434,6 +681,15 @@ class TProtocolFactory {
   virtual ~TProtocolFactory() {}
 
   virtual boost::shared_ptr<TProtocol> getProtocol(boost::shared_ptr<TTransport> trans) = 0;
+};
+
+/**
+ * Dummy protocol class.
+ *
+ * This class does nothing, and should never be instantiated.
+ * It is used only by the generator code.
+ */
+class TDummyProtocol : public TProtocol {
 };
 
 }}} // apache::thrift::protocol

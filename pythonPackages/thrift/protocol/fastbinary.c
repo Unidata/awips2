@@ -1,20 +1,61 @@
-// Copyright (c) 2006- Facebook
-// Distributed under the Thrift Software License
-//
-// See accompanying file LICENSE or visit the Thrift site at:
-// http://developers.facebook.com/thrift/
-//
-// NOTE:  This code was contributed by an external developer.
-//        The internal Thrift team has reviewed and tested it,
-//        but we cannot guarantee that it is production-ready.
-//        Please feel free to report bugs and/or success stories
-//        to the public mailing list.
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 #include <Python.h>
 #include "cStringIO.h"
-#include <stdbool.h>
 #include <stdint.h>
-#include <netinet/in.h>
+#ifndef _WIN32
+# include <stdbool.h>
+# include <netinet/in.h>
+#else
+# include <WinSock2.h>
+# pragma comment (lib, "ws2_32.lib")
+# define BIG_ENDIAN (4321)
+# define LITTLE_ENDIAN (1234)
+# define BYTE_ORDER LITTLE_ENDIAN
+# if defined(_MSC_VER) && _MSC_VER < 1600
+   typedef int _Bool;
+#  define bool _Bool
+#  define false 0 
+#  define true 1
+# endif
+# define inline __inline
+#endif
+
+/* Fix endianness issues on Solaris */
+#if defined (__SVR4) && defined (__sun)
+ #if defined(__i386) && !defined(__i386__)
+  #define __i386__
+ #endif
+
+ #ifndef BIG_ENDIAN
+  #define BIG_ENDIAN (4321)
+ #endif
+ #ifndef LITTLE_ENDIAN
+  #define LITTLE_ENDIAN (1234)
+ #endif
+
+ /* I386 is LE, even on Solaris */
+ #if !defined(BYTE_ORDER) && defined(__i386__)
+  #define BYTE_ORDER LITTLE_ENDIAN
+ #endif
+#endif
 
 // TODO(dreiss): defval appears to be unused.  Look into removing it.
 // TODO(dreiss): Make parse_spec_args recursive, and cache the output
@@ -49,6 +90,16 @@ typedef enum TType {
   T_UTF8       = 16,
   T_UTF16      = 17
 } TType;
+
+#ifndef __BYTE_ORDER
+# if defined(BYTE_ORDER) && defined(LITTLE_ENDIAN) && defined(BIG_ENDIAN)
+#  define __BYTE_ORDER BYTE_ORDER
+#  define __LITTLE_ENDIAN LITTLE_ENDIAN
+#  define __BIG_ENDIAN BIG_ENDIAN
+# else
+#  error "Cannot determine endianness"
+# endif
+#endif
 
 // Same comment as the enum.  Sorry.
 #if __BYTE_ORDER == __BIG_ENDIAN
@@ -419,7 +470,7 @@ output_val(PyObject* output, PyObject* value, TType type, PyObject* typeargs) {
 
   case T_MAP: {
     PyObject *k, *v;
-    int pos = 0;
+    Py_ssize_t pos = 0;
     Py_ssize_t len;
 
     MapTypeArgs parsedargs;
@@ -450,6 +501,8 @@ output_val(PyObject* output, PyObject* value, TType type, PyObject* typeargs) {
         Py_DECREF(v);
         return false;
       }
+      Py_DECREF(k);
+      Py_DECREF(v);
     }
     break;
   }
@@ -860,8 +913,12 @@ decode_struct(DecodeBuffer* input, PyObject* output, PyObject* spec_seq) {
       return false;
     }
     if (parsedspec.type != type) {
-      PyErr_SetString(PyExc_TypeError, "struct field had wrong type while reading");
-      return false;
+      if (!skip(input, type)) {
+        PyErr_SetString(PyExc_TypeError, "struct field had wrong type while reading and can't be skipped");
+        return false;
+      } else {
+        continue;
+      }
     }
 
     fieldval = decode_val(input, parsedspec.type, parsedspec.typeargs);
@@ -1068,11 +1125,12 @@ decode_val(DecodeBuffer* input, TType type, PyObject* typeargs) {
 
   case T_STRUCT: {
     StructTypeArgs parsedargs;
+	PyObject* ret;
     if (!parse_struct_args(&parsedargs, typeargs)) {
       return NULL;
     }
 
-    PyObject* ret = PyObject_CallObject(parsedargs.klass, NULL);
+    ret = PyObject_CallObject(parsedargs.klass, NULL);
     if (!ret) {
       return NULL;
     }
@@ -1105,8 +1163,8 @@ decode_binary(PyObject *self, PyObject *args) {
   PyObject* transport = NULL;
   PyObject* typeargs = NULL;
   StructTypeArgs parsedargs;
-  DecodeBuffer input = {};
-
+  DecodeBuffer input = {0, 0};
+  
   if (!PyArg_ParseTuple(args, "OOO", &output_obj, &transport, &typeargs)) {
     return NULL;
   }
