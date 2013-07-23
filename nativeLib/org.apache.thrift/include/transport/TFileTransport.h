@@ -20,22 +20,33 @@
 #ifndef _THRIFT_TRANSPORT_TFILETRANSPORT_H_
 #define _THRIFT_TRANSPORT_TFILETRANSPORT_H_ 1
 
-#include "TTransport.h"
-#include "Thrift.h"
-#include "TProcessor.h"
+#include <thrift/transport/TTransport.h>
+#include <thrift/Thrift.h>
+#include <thrift/TProcessor.h>
 
 #include <string>
 #include <stdio.h>
 
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
+#endif
+
+#ifdef USE_BOOST_THREAD
+#include <boost/thread.hpp>
+#endif
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
+
+#include <thrift/concurrency/Mutex.h>
+#include <thrift/concurrency/Monitor.h>
 
 namespace apache { namespace thrift { namespace transport {
 
 using apache::thrift::TProcessor;
 using apache::thrift::protocol::TProtocolFactory;
+using apache::thrift::concurrency::Mutex;
+using apache::thrift::concurrency::Monitor;
 
 // Data pertaining to a single event
 typedef struct eventInfo {
@@ -190,7 +201,7 @@ class TFileTransport : public TFileReaderTransport,
   uint32_t getCurChunk();
 
   // for changing the output file
-  void resetOutputFile(int fd, std::string filename, int64_t offset);
+  void resetOutputFile(int fd, std::string filename, off_t offset);
 
   // Setter/Getter functions for user-controllable options
   void setReadBuffSize(uint32_t readBuffSize) {
@@ -273,9 +284,24 @@ class TFileTransport : public TFileReaderTransport,
     return eofSleepTime_;
   }
 
+  /*
+   * Override TTransport *_virt() functions to invoke our implementations.
+   * We cannot use TVirtualTransport to provide these, since we need to inherit
+   * virtually from TTransport.
+   */
+  virtual uint32_t read_virt(uint8_t* buf, uint32_t len) {
+    return this->read(buf, len);
+  }
+  virtual uint32_t readAll_virt(uint8_t* buf, uint32_t len) {
+    return this->readAll(buf, len);
+  }
+  virtual void write_virt(const uint8_t* buf, uint32_t len) {
+    this->write(buf, len);
+  }
+
  private:
   // helper functions for writing to a file
-  void enqueueEvent(const uint8_t* buf, uint32_t eventLen, bool blockUntilFlush);
+  void enqueueEvent(const uint8_t* buf, uint32_t eventLen);
   bool swapEventBuffers(struct timespec* deadline);
   bool initBufferAndWriteThread();
 
@@ -345,7 +371,11 @@ class TFileTransport : public TFileReaderTransport,
   static const uint32_t DEFAULT_WRITER_THREAD_SLEEP_TIME_US = 60 * 1000 * 1000;
 
   // writer thread id
-  pthread_t writerThreadId_;
+#ifdef USE_BOOST_THREAD
+	std::auto_ptr<boost::thread> writerThreadId_;
+#else
+	pthread_t writerThreadId_;
+#endif
 
   // buffers to hold data before it is flushed. Each element of the buffer stores a msg that
   // needs to be written to the file.  The buffers are swapped by the writer thread.
@@ -353,15 +383,15 @@ class TFileTransport : public TFileReaderTransport,
   TFileTransportBuffer *enqueueBuffer_;
 
   // conditions used to block when the buffer is full or empty
-  pthread_cond_t notFull_, notEmpty_;
+  Monitor notFull_, notEmpty_;
   volatile bool closing_;
 
   // To keep track of whether the buffer has been flushed
-  pthread_cond_t flushed_;
+  Monitor flushed_;
   volatile bool forceFlush_;
 
   // Mutex that is grabbed when enqueueing and swapping the read/write buffers
-  pthread_mutex_t mutex_;
+  Mutex mutex_;
 
   // File information
   std::string filename_;
