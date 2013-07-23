@@ -21,8 +21,8 @@
 #define STATSPROCESSOR_H
 
 #include <boost/shared_ptr.hpp>
-#include <transport/TTransport.h>
-#include <protocol/TProtocol.h>
+#include <thrift/transport/TTransport.h>
+#include <thrift/protocol/TProtocol.h>
 #include <TProcessor.h>
 
 namespace apache { namespace thrift { namespace processor {
@@ -39,7 +39,9 @@ public:
   {}
   virtual ~StatsProcessor() {};
 
-  virtual bool process(boost::shared_ptr<apache::thrift::protocol::TProtocol> piprot, boost::shared_ptr<apache::thrift::protocol::TProtocol> poprot) {
+  virtual bool process(boost::shared_ptr<apache::thrift::protocol::TProtocol> piprot,
+                       boost::shared_ptr<apache::thrift::protocol::TProtocol> poprot,
+                       void* serverContext) {
 
     piprot_ = piprot;
 

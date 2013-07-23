@@ -20,12 +20,33 @@
 #ifndef _THRIFT_TRANSPORT_TTRANSPORT_H_
 #define _THRIFT_TRANSPORT_TTRANSPORT_H_ 1
 
-#include <Thrift.h>
+#include <thrift/Thrift.h>
 #include <boost/shared_ptr.hpp>
-#include <transport/TTransportException.h>
+#include <thrift/transport/TTransportException.h>
 #include <string>
 
 namespace apache { namespace thrift { namespace transport {
+
+/**
+ * Helper template to hoist readAll implementation out of TTransport
+ */
+template <class Transport_>
+uint32_t readAll(Transport_ &trans, uint8_t* buf, uint32_t len) {
+  uint32_t have = 0;
+  uint32_t get = 0;
+
+  while (have < len) {
+    get = trans.read(buf+have, len-have);
+    if (get <= 0) {
+      throw TTransportException(TTransportException::END_OF_FILE,
+                                "No more data to read.");
+    }
+    have += get;
+  }
+
+  return have;
+}
+
 
 /**
  * Generic interface for a method of transporting data. A TTransport may be
@@ -83,8 +104,13 @@ class TTransport {
    * @return How many bytes were actually read
    * @throws TTransportException If an error occurs
    */
-  virtual uint32_t read(uint8_t* /* buf */, uint32_t /* len */) {
-    throw TTransportException(TTransportException::NOT_OPEN, "Base TTransport cannot read.");
+  uint32_t read(uint8_t* buf, uint32_t len) {
+    T_VIRTUAL_CALL();
+    return read_virt(buf, len);
+  }
+  virtual uint32_t read_virt(uint8_t* /* buf */, uint32_t /* len */) {
+    throw TTransportException(TTransportException::NOT_OPEN,
+                              "Base TTransport cannot read.");
   }
 
   /**
@@ -95,20 +121,12 @@ class TTransport {
    * @return How many bytes read, which must be equal to size
    * @throws TTransportException If insufficient data was read
    */
-  virtual uint32_t readAll(uint8_t* buf, uint32_t len) {
-    uint32_t have = 0;
-    uint32_t get = 0;
-
-    while (have < len) {
-      get = read(buf+have, len-have);
-      if (get <= 0) {
-        throw TTransportException(TTransportException::END_OF_FILE,
-				  "No more data to read.");
-      }
-      have += get;
-    }
-
-    return have;
+  uint32_t readAll(uint8_t* buf, uint32_t len) {
+    T_VIRTUAL_CALL();
+    return readAll_virt(buf, len);
+  }
+  virtual uint32_t readAll_virt(uint8_t* buf, uint32_t len) {
+    return apache::thrift::transport::readAll(*this, buf, len);
   }
 
   /**
@@ -116,20 +134,32 @@ class TTransport {
    * This can be over-ridden to perform a transport-specific action
    * e.g. logging the request to a file
    *
+   * @return number of bytes read if available, 0 otherwise.
    */
-  virtual void readEnd() {
+  virtual uint32_t readEnd() {
     // default behaviour is to do nothing
-    return;
+    return 0;
   }
 
   /**
    * Writes the string in its entirety to the buffer.
    *
+   * Note: You must call flush() to ensure the data is actually written,
+   * and available to be read back in the future.  Destroying a TTransport
+   * object does not automatically flush pending data--if you destroy a
+   * TTransport object with written but unflushed data, that data may be
+   * discarded.
+   *
    * @param buf  The data to write out
    * @throws TTransportException if an error occurs
    */
-  virtual void write(const uint8_t* /* buf */, uint32_t /* len */) {
-    throw TTransportException(TTransportException::NOT_OPEN, "Base TTransport cannot write.");
+  void write(const uint8_t* buf, uint32_t len) {
+    T_VIRTUAL_CALL();
+    write_virt(buf, len);
+  }
+  virtual void write_virt(const uint8_t* /* buf */, uint32_t /* len */) {
+    throw TTransportException(TTransportException::NOT_OPEN,
+                              "Base TTransport cannot write.");
   }
 
   /**
@@ -137,10 +167,11 @@ class TTransport {
    * This can be over-ridden to perform a transport-specific action
    * at the end of a request.
    *
+   * @return number of bytes written if available, 0 otherwise
    */
-  virtual void writeEnd() {
+  virtual uint32_t writeEnd() {
     // default behaviour is to do nothing
-    return;
+    return 0;
   }
 
   /**
@@ -149,7 +180,9 @@ class TTransport {
    *
    * @throws TTransportException if an error occurs
    */
-  virtual void flush() {}
+  virtual void flush() {
+    // default behaviour is to do nothing
+  }
 
   /**
    * Attempts to return a pointer to \c len bytes, possibly copied into \c buf.
@@ -163,7 +196,10 @@ class TTransport {
    *
    * @oaram buf  A buffer where the data can be stored if needed.
    *             If borrow doesn't return buf, then the contents of
-   *             buf after the call are undefined.
+   *             buf after the call are undefined.  This parameter may be
+   *             NULL to indicate that the caller is not supplying storage,
+   *             but would like a pointer into an internal buffer, if
+   *             available.
    * @param len  *len should initially contain the number of bytes to borrow.
    *             If borrow succeeds, *len will contain the number of bytes
    *             available in the returned pointer.  This will be at least
@@ -175,7 +211,11 @@ class TTransport {
    *         the transport's internal buffers.
    * @throws TTransportException if an error occurs
    */
-  virtual const uint8_t* borrow(uint8_t* /* buf */, uint32_t* /* len */) {
+  const uint8_t* borrow(uint8_t* buf, uint32_t* len) {
+    T_VIRTUAL_CALL();
+    return borrow_virt(buf, len);
+  }
+  virtual const uint8_t* borrow_virt(uint8_t* /* buf */, uint32_t* /* len */) {
     return NULL;
   }
 
@@ -188,8 +228,13 @@ class TTransport {
    * @param len  How many bytes to consume
    * @throws TTransportException If an error occurs
    */
-  virtual void consume(uint32_t /* len */) {
-    throw TTransportException(TTransportException::NOT_OPEN, "Base TTransport cannot consume.");
+  void consume(uint32_t len) {
+    T_VIRTUAL_CALL();
+    consume_virt(len);
+  }
+  virtual void consume_virt(uint32_t /* len */) {
+    throw TTransportException(TTransportException::NOT_OPEN,
+                              "Base TTransport cannot consume.");
   }
 
  protected:
