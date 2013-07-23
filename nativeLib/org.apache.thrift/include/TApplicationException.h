@@ -20,7 +20,7 @@
 #ifndef _THRIFT_TAPPLICATIONEXCEPTION_H_
 #define _THRIFT_TAPPLICATIONEXCEPTION_H_ 1
 
-#include <Thrift.h>
+#include <thrift/Thrift.h>
 
 
 namespace apache { namespace thrift {
@@ -41,7 +41,9 @@ class TApplicationException : public TException {
     INVALID_MESSAGE_TYPE = 2,
     WRONG_METHOD_NAME = 3,
     BAD_SEQUENCE_ID = 4,
-    MISSING_RESULT = 5
+    MISSING_RESULT = 5,
+    INTERNAL_ERROR = 6,
+    PROTOCOL_ERROR = 7
   };
 
   TApplicationException() :
