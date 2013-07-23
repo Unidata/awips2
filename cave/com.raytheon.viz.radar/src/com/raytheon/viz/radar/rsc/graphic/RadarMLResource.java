@@ -69,14 +69,17 @@ import com.raytheon.viz.radar.rsc.RadarResourceData;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Displays the melting layer as provided by radar (i.e. displays the levels at
+ * which snow is turned to a mixture of snow and water and then in turn that is
+ * changed to water only).
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 16, 2010            mnash     Initial creation
+ * Sep 16, 2010            mnash       Initial creation
+ * Jul 13, 2103 2223       njensen     Overrode remove() to fix memory leak
  * 
  * </pre>
  * 
@@ -148,133 +151,140 @@ public class RadarMLResource extends RadarGraphicsResource {
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         GeneralEnvelope generalEnvelope = new GeneralEnvelope(2);
-        Map<Integer, IWireframeShape> shapeMap = shapes.get(paintProps
-                .getDataTime());
-        if (shapeMap == null || refresh == true) {
-            if (shapeMap != null) {
-                for (IWireframeShape w : shapeMap.values()) {
-                    if (w != null) {
-                        w.dispose();
-                    }
-                }
-            }
-            shapeMap = new HashMap<Integer, IWireframeShape>();
-            shapes.put(paintProps.getDataTime(), shapeMap);
-            displayedDate = null;
+        Map<Integer, IWireframeShape> shapeMap = null;
+        synchronized (shapes) {
+            shapeMap = shapes.get(paintProps.getDataTime());
 
-            IWireframeShape ws = null;
-
-            if ((paintProps == null) || (paintProps.getDataTime() == null)) {
-                return;
-            }
-
-            displayedDate = paintProps.getDataTime();
-
-            displayedLevel = displayedDate.getLevelValue().floatValue();
-
-            // retrieve record if not yet populated
-            RadarRecord radarRecord = getRadarRecord(displayedDate);
-            if (radarRecord == null) {
-                return;
-            }
-
-            File loc = HDF5Util.findHDF5Location(radarRecord);
-            IDataStore dataStore = DataStoreFactory.getDataStore(loc);
-            try {
-                RadarDataRetriever.populateRadarRecord(dataStore, radarRecord);
-            } catch (FileNotFoundException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            } catch (StorageException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            }
-
-            ProjectedCRS crs = radarRecord.getCRS();
-            // Per section 3.3.3
-            generalEnvelope.setCoordinateReferenceSystem(crs);
-            generalEnvelope.setRange(0, -256000 * 2, 256000 * 2);
-            generalEnvelope.setRange(1, -256000 * 2, 256000 * 2);
-
-            // [-2048, 2048] == range of 4095 (inclusive 0), plus 1 because
-            // GGR is exclusive (?)
-            GeneralGridGeometry gg = new GeneralGridGeometry(
-                    new GeneralGridEnvelope(new int[] { 0, 0 }, new int[] {
-                            4096, 4096 }, false), generalEnvelope);
-            SymbologyBlock block = radarRecord.getSymbologyBlock();
-            ReferencedCoordinate coordinate1;
-            ReferencedCoordinate coordinate2;
-            Map<Integer, Coordinate[]> coordinates = new HashMap<Integer, Coordinate[]>();
-            if (block != null) {
-                for (int i = 0; i < block.getNumLayers(); i++) {
-                    for (int j = 1; j < block.getNumPackets(i); j++) {
-                        if (block.getPacket(i, j) instanceof LinkedContourVectorPacket) {
-                            List<LinkedVector> vector = ((LinkedContourVectorPacket) block
-                                    .getPacket(i, j)).getVectors();
-                            Coordinate[] coords = new Coordinate[vector.size() + 1];
-                            for (int l = 0; l < coords.length - 1; l++) {
-                                if (!coordinates.containsKey(vector.get(l)
-                                        .getTheColor())) {
-                                    coordinates.put(Integer.valueOf(vector.get(
-                                            l).getTheColor()), coords);
-                                }
-
-                                // transform the coordinates to the correct
-                                // locations
-                                coordinate1 = new ReferencedCoordinate(
-                                        rectifyCoordinate(new Coordinate(vector
-                                                .get(l).getI1(), vector.get(l)
-                                                .getJ1())), gg,
-                                        Type.GRID_CENTER);
-                                coordinate2 = new ReferencedCoordinate(
-                                        rectifyCoordinate(new Coordinate(vector
-                                                .get(l).getI2(), vector.get(l)
-                                                .getJ2())), gg,
-                                        Type.GRID_CENTER);
-                                try {
-                                    // coords[l] = coordinate1.asLatLon();
-                                    coords[l] = coordinate2.asLatLon();
-                                } catch (TransformException e1) {
-                                    statusHandler.handle(Priority.PROBLEM,
-                                            e1.getLocalizedMessage(), e1);
-
-                                } catch (FactoryException e1) {
-                                    statusHandler.handle(Priority.PROBLEM,
-                                            e1.getLocalizedMessage(), e1);
-
-                                }
-                            }
-                            coords[coords.length - 1] = coords[0];
+            if (shapeMap == null || refresh == true) {
+                if (shapeMap != null) {
+                    for (IWireframeShape w : shapeMap.values()) {
+                        if (w != null) {
+                            w.dispose();
                         }
                     }
                 }
-                refresh = false;
+                shapeMap = new HashMap<Integer, IWireframeShape>();
+                shapes.put(paintProps.getDataTime(), shapeMap);
+                displayedDate = null;
+
+                IWireframeShape ws = null;
+
+                if ((paintProps == null) || (paintProps.getDataTime() == null)) {
+                    return;
+                }
+
+                displayedDate = paintProps.getDataTime();
+
+                displayedLevel = displayedDate.getLevelValue().floatValue();
+
+                // retrieve record if not yet populated
+                RadarRecord radarRecord = getRadarRecord(displayedDate);
+                if (radarRecord == null) {
+                    return;
+                }
+
+                File loc = HDF5Util.findHDF5Location(radarRecord);
+                IDataStore dataStore = DataStoreFactory.getDataStore(loc);
+                try {
+                    RadarDataRetriever.populateRadarRecord(dataStore,
+                            radarRecord);
+                } catch (FileNotFoundException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                } catch (StorageException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
+
+                ProjectedCRS crs = radarRecord.getCRS();
+                // Per section 3.3.3
+                generalEnvelope.setCoordinateReferenceSystem(crs);
+                generalEnvelope.setRange(0, -256000 * 2, 256000 * 2);
+                generalEnvelope.setRange(1, -256000 * 2, 256000 * 2);
+
+                // [-2048, 2048] == range of 4095 (inclusive 0), plus 1 because
+                // GGR is exclusive (?)
+                GeneralGridGeometry gg = new GeneralGridGeometry(
+                        new GeneralGridEnvelope(new int[] { 0, 0 }, new int[] {
+                                4096, 4096 }, false), generalEnvelope);
+                SymbologyBlock block = radarRecord.getSymbologyBlock();
+                ReferencedCoordinate coordinate1;
+                ReferencedCoordinate coordinate2;
+                Map<Integer, Coordinate[]> coordinates = new HashMap<Integer, Coordinate[]>();
+                if (block != null) {
+                    for (int i = 0; i < block.getNumLayers(); i++) {
+                        for (int j = 1; j < block.getNumPackets(i); j++) {
+                            if (block.getPacket(i, j) instanceof LinkedContourVectorPacket) {
+                                List<LinkedVector> vector = ((LinkedContourVectorPacket) block
+                                        .getPacket(i, j)).getVectors();
+                                Coordinate[] coords = new Coordinate[vector
+                                        .size() + 1];
+                                for (int l = 0; l < coords.length - 1; l++) {
+                                    if (!coordinates.containsKey(vector.get(l)
+                                            .getTheColor())) {
+                                        coordinates.put(Integer.valueOf(vector
+                                                .get(l).getTheColor()), coords);
+                                    }
+
+                                    // transform the coordinates to the correct
+                                    // locations
+                                    coordinate1 = new ReferencedCoordinate(
+                                            rectifyCoordinate(new Coordinate(
+                                                    vector.get(l).getI1(),
+                                                    vector.get(l).getJ1())),
+                                            gg, Type.GRID_CENTER);
+                                    coordinate2 = new ReferencedCoordinate(
+                                            rectifyCoordinate(new Coordinate(
+                                                    vector.get(l).getI2(),
+                                                    vector.get(l).getJ2())),
+                                            gg, Type.GRID_CENTER);
+                                    try {
+                                        // coords[l] = coordinate1.asLatLon();
+                                        coords[l] = coordinate2.asLatLon();
+                                    } catch (TransformException e1) {
+                                        statusHandler.handle(Priority.PROBLEM,
+                                                e1.getLocalizedMessage(), e1);
+
+                                    } catch (FactoryException e1) {
+                                        statusHandler.handle(Priority.PROBLEM,
+                                                e1.getLocalizedMessage(), e1);
+
+                                    }
+                                }
+                                coords[coords.length - 1] = coords[0];
+                            }
+                        }
+                    }
+                    refresh = false;
+                }
+
+                // looping through the coordinates in order to create a
+                // wireframe
+                // shape
+                for (Integer num : coordinates.keySet()) {
+                    if (shapeMap.get(num) == null) {
+                        ws = target.createWireframeShape(true, this.descriptor);
+                    } else {
+                        ws = shapeMap.get(num);
+                    }
+                    ws.addLineSegment(coordinates.get(num));
+                    shapeMap.put(num, ws);
+                }
             }
 
-            // looping through the coordinates in order to create a wireframe
-            // shape
-            for (Integer num : coordinates.keySet()) {
-                if (shapeMap.get(num) == null) {
-                    ws = target.createWireframeShape(true, this.descriptor);
-                } else {
-                    ws = shapeMap.get(num);
+            if (shapeMap != null) {
+                for (Integer num : shapeMap.keySet()) {
+                    LineStyle lineStyle = style.get(num);
+                    if (getCapability(OutlineCapability.class).getLineStyle() != LineStyle.DEFAULT) {
+                        lineStyle = getCapability(OutlineCapability.class)
+                                .getLineStyle();
+                    }
+                    target.drawWireframeShape(
+                            shapeMap.get(num),
+                            getCapability(ColorableCapability.class).getColor(),
+                            getCapability(OutlineCapability.class)
+                                    .getOutlineWidth(), lineStyle);
                 }
-                ws.addLineSegment(coordinates.get(num));
-                shapeMap.put(num, ws);
-            }
-        }
-
-        if (shapeMap != null) {
-            for (Integer num : shapeMap.keySet()) {
-                LineStyle lineStyle = style.get(num);
-                if (getCapability(OutlineCapability.class).getLineStyle() != LineStyle.DEFAULT) {
-                    lineStyle = getCapability(OutlineCapability.class)
-                            .getLineStyle();
-                }
-                target.drawWireframeShape(shapeMap.get(num),
-                        getCapability(ColorableCapability.class).getColor(),
-                        getCapability(OutlineCapability.class)
-                                .getOutlineWidth(), lineStyle);
             }
         }
 
@@ -378,5 +388,19 @@ public class RadarMLResource extends RadarGraphicsResource {
 
         c.y = 4096 - c.y;
         return c;
+    }
+
+    @Override
+    public void remove(DataTime dataTime) {
+        synchronized (shapes) {
+            Map<Integer, IWireframeShape> shapeMap = shapes.remove(dataTime);
+            if (shapeMap != null) {
+                for (IWireframeShape shp : shapeMap.values()) {
+                    shp.dispose();
+                }
+                shapeMap.clear();
+            }
+        }
+        super.remove(dataTime);
     }
 }
