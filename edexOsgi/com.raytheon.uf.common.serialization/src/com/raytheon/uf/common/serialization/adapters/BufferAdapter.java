@@ -43,7 +43,8 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 3, 2012            mschenke     Initial creation
+ * May 03, 2012            mschenke    Initial creation
+ * Jul 23, 2013 2215       njensen     Updated for thrift 0.9.0
  * 
  * </pre>
  * 
@@ -102,7 +103,8 @@ public class BufferAdapter implements ISerializationTypeAdapter<Buffer> {
             throw new SerializationException("Could not handle buffer type: "
                     + buffer.getClass());
         }
-        serializer.writeBinary(bb.array());
+        bb.rewind();
+        serializer.writeBuffer(bb);
     }
 
     /*
@@ -117,10 +119,13 @@ public class BufferAdapter implements ISerializationTypeAdapter<Buffer> {
             throws SerializationException {
         boolean direct = deserializer.readBool();
         byte type = deserializer.readByte();
-        byte[] bytes = deserializer.readBinary();
-        ByteBuffer buffer = direct ? ByteBuffer.allocateDirect(bytes.length)
-                : ByteBuffer.allocate(bytes.length);
-        buffer.put(bytes);
+        ByteBuffer buffer = deserializer.readBuffer();
+        if (buffer.isDirect() != direct) {
+            ByteBuffer copyBuffer = direct ? ByteBuffer.allocateDirect(buffer
+                    .capacity()) : ByteBuffer.allocate(buffer.capacity());
+            copyBuffer.put(buffer);
+            buffer = copyBuffer;
+        }
         buffer.rewind();
         Buffer dataBuffer = null;
         switch (type) {

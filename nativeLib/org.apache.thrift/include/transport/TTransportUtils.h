@@ -24,10 +24,10 @@
 #include <cstring>
 #include <string>
 #include <algorithm>
-#include <transport/TTransport.h>
+#include <thrift/transport/TTransport.h>
 // Include the buffered transports that used to be defined here.
-#include <transport/TBufferTransports.h>
-#include <transport/TFileTransport.h>
+#include <thrift/transport/TBufferTransports.h>
+#include <thrift/transport/TFileTransport.h>
 
 namespace apache { namespace thrift { namespace transport {
 
@@ -38,7 +38,7 @@ namespace apache { namespace thrift { namespace transport {
  * go anywhere.
  *
  */
-class TNullTransport : public TTransport {
+class TNullTransport : public TVirtualTransport<TNullTransport> {
  public:
   TNullTransport() {}
 
@@ -79,7 +79,13 @@ class TPipedTransport : virtual public TTransport {
     pipeOnWrite_ = false;
 
     rBuf_ = (uint8_t*) std::malloc(sizeof(uint8_t) * rBufSize_);
+    if (rBuf_ == NULL) {
+      throw std::bad_alloc();
+    }
     wBuf_ = (uint8_t*) std::malloc(sizeof(uint8_t) * wBufSize_);
+    if (wBuf_ == NULL) {
+      throw std::bad_alloc();
+    }
   }
 
   TPipedTransport(boost::shared_ptr<TTransport> srcTrans,
@@ -91,7 +97,13 @@ class TPipedTransport : virtual public TTransport {
     wBufSize_(sz), wLen_(0) {
 
     rBuf_ = (uint8_t*) std::malloc(sizeof(uint8_t) * rBufSize_);
+    if (rBuf_ == NULL) {
+      throw std::bad_alloc();
+    }
     wBuf_ = (uint8_t*) std::malloc(sizeof(uint8_t) * wBufSize_);
+    if (wBuf_ == NULL) {
+      throw std::bad_alloc();
+    }
   }
 
   ~TPipedTransport() {
@@ -136,7 +148,7 @@ class TPipedTransport : virtual public TTransport {
 
   uint32_t read(uint8_t* buf, uint32_t len);
 
-  void readEnd() {
+  uint32_t readEnd() {
 
     if (pipeOnRead_) {
       dstTrans_->write(rBuf_, rPos_);
@@ -148,24 +160,40 @@ class TPipedTransport : virtual public TTransport {
     // If requests are being pipelined, copy down our read-ahead data,
     // then reset our state.
     int read_ahead = rLen_ - rPos_;
+    uint32_t bytes = rPos_;
     memcpy(rBuf_, rBuf_ + rPos_, read_ahead);
     rPos_ = 0;
     rLen_ = read_ahead;
+
+    return bytes;
   }
 
   void write(const uint8_t* buf, uint32_t len);
 
-  void writeEnd() {
+  uint32_t writeEnd() {
     if (pipeOnWrite_) {
       dstTrans_->write(wBuf_, wLen_);
       dstTrans_->flush();
     }
+    return wLen_;
   }
 
   void flush();
 
   boost::shared_ptr<TTransport> getTargetTransport() {
     return dstTrans_;
+  }
+
+  /*
+   * Override TTransport *_virt() functions to invoke our implementations.
+   * We cannot use TVirtualTransport to provide these, since we need to inherit
+   * virtually from TTransport.
+   */
+  virtual uint32_t read_virt(uint8_t* buf, uint32_t len) {
+    return this->read(buf, len);
+  }
+  virtual void write_virt(const uint8_t* buf, uint32_t len) {
+    this->write(buf, len);
   }
 
  protected:
@@ -237,9 +265,9 @@ class TPipedFileReaderTransport : public TPipedTransport,
   void close();
   uint32_t read(uint8_t* buf, uint32_t len);
   uint32_t readAll(uint8_t* buf, uint32_t len);
-  void readEnd();
+  uint32_t readEnd();
   void write(const uint8_t* buf, uint32_t len);
-  void writeEnd();
+  uint32_t writeEnd();
   void flush();
 
   // TFileReaderTransport functions
@@ -249,6 +277,21 @@ class TPipedFileReaderTransport : public TPipedTransport,
   uint32_t getCurChunk();
   void seekToChunk(int32_t chunk);
   void seekToEnd();
+
+  /*
+   * Override TTransport *_virt() functions to invoke our implementations.
+   * We cannot use TVirtualTransport to provide these, since we need to inherit
+   * virtually from TTransport.
+   */
+  virtual uint32_t read_virt(uint8_t* buf, uint32_t len) {
+    return this->read(buf, len);
+  }
+  virtual uint32_t readAll_virt(uint8_t* buf, uint32_t len) {
+    return this->readAll(buf, len);
+  }
+  virtual void write_virt(const uint8_t* buf, uint32_t len) {
+    this->write(buf, len);
+  }
 
  protected:
   // shouldn't be used
