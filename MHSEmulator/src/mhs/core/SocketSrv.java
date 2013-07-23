@@ -40,7 +40,8 @@ import java.util.regex.Pattern;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * ??? ??  ????            bphillip     Initial creation
- * Jul 15, 2013  #2099     dgilling     Code cleanup.
+ * Jul 15, 2013  #2009     dgilling     Code cleanup.
+ * Jul 23, 2013  #2009     dgilling     Fix NullPointerException on start up.
  * 
  * </pre>
  * 
@@ -146,8 +147,11 @@ public class SocketSrv {
     }
 
     public void run() throws IOException {
-        Runnable rsyncJob = new RsyncThread(serverProps);
-        rsyncThread.scheduleWithFixedDelay(rsyncJob, 1, 1, TimeUnit.SECONDS);
+        if (rsyncThread != null) {
+            Runnable rsyncJob = new RsyncThread(serverProps);
+            rsyncThread
+                    .scheduleWithFixedDelay(rsyncJob, 1, 1, TimeUnit.SECONDS);
+        }
 
         ServerSocket socket = new ServerSocket(serverPort);
         while (!mhsRequestHandler.isShutdown()) {
