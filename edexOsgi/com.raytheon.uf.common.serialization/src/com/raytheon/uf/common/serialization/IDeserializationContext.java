@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.serialization;
 
+import java.nio.ByteBuffer;
+
 /**
  * Defines the interface for deserialization capability
  * 
@@ -28,6 +30,7 @@ package com.raytheon.uf.common.serialization;
  * ------------	----------	-----------	--------------------------
  * Aug 12, 2008             chammack    Initial creation
  * Sep 14, 2012 1169        djohnson    Added readObject().
+ * Jul 23, 2013 2215        njensen     Added readBuffer()
  * 
  * </pre>
  * 
@@ -115,6 +118,14 @@ public interface IDeserializationContext {
      * @throws SerializationException
      */
     byte[] readBinary() throws SerializationException;
+
+    /**
+     * Read a byte buffer
+     * 
+     * @return
+     * @throws SerializationException
+     */
+    ByteBuffer readBuffer() throws SerializationException;
 
     /**
      * Read a float array

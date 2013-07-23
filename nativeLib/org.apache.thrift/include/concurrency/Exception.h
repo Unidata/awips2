@@ -21,7 +21,7 @@
 #define _THRIFT_CONCURRENCY_EXCEPTION_H_ 1
 
 #include <exception>
-#include <Thrift.h>
+#include <thrift/Thrift.h>
 
 namespace apache { namespace thrift { namespace concurrency {
 
@@ -31,7 +31,11 @@ class UncancellableTaskException : public apache::thrift::TException {};
 
 class InvalidArgumentException : public apache::thrift::TException {};
 
-class IllegalStateException : public apache::thrift::TException {};
+class IllegalStateException : public apache::thrift::TException {
+public:
+  IllegalStateException() {}
+  IllegalStateException(const std::string& message) : TException(message) {}
+};
 
 class TimedOutException : public apache::thrift::TException {
 public:
