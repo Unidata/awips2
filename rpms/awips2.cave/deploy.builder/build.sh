@@ -191,7 +191,7 @@ function buildFeatureRPMs()
       if [ "${feature}" = "com.raytheon.uf.viz.cots.feature" ] ||
          [ "${feature}" = "com.raytheon.uf.viz.base.feature" ] ||
          [ "${feature}" = "com.raytheon.uf.viz.localization.perspective.feature" ] ||
-         [ "${feature}" = "com.raytheon.uf.viz.archive.feature" ]; then
+         [ "${feature}" = "com.raytheon.uf.viz.archive.feature" ] ||
          [ "${feature}" = "com.raytheon.viz.satellite.feature" ] ||
          [ "${feature}" = "com.raytheon.uf.viz.nwsauth.feature" ]; then
 
