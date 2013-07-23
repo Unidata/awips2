@@ -21,10 +21,10 @@
 #define PEEKPROCESSOR_H
 
 #include <string>
-#include <TProcessor.h>
-#include <transport/TTransport.h>
-#include <transport/TTransportUtils.h>
-#include <transport/TBufferTransports.h>
+#include <thrift/TProcessor.h>
+#include <thrift/transport/TTransport.h>
+#include <thrift/transport/TTransportUtils.h>
+#include <thrift/transport/TBufferTransports.h>
 #include <boost/shared_ptr.hpp>
 
 namespace apache { namespace thrift { namespace processor {
@@ -53,7 +53,8 @@ class PeekProcessor : public apache::thrift::TProcessor {
   void setTargetTransport(boost::shared_ptr<apache::thrift::transport::TTransport> targetTransport);
 
   virtual bool process(boost::shared_ptr<apache::thrift::protocol::TProtocol> in,
-                       boost::shared_ptr<apache::thrift::protocol::TProtocol> out);
+                       boost::shared_ptr<apache::thrift::protocol::TProtocol> out,
+                       void* connectionContext);
 
   // The following three functions can be overloaded by child classes to
   // achieve desired peeking behavior
