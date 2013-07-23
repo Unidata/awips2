@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.serialization;
 
+import java.nio.ByteBuffer;
+
 /**
  * Defines the interface for serialization capability
  * 
@@ -27,7 +29,8 @@ package com.raytheon.uf.common.serialization;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * Aug 07, 2008             chammack    Initial creation
- * Sep 14, 2012 1169        djohnson    Added writeObject(OBject).
+ * Sep 14, 2012 1169        djohnson    Added writeObject(Object).
+ * Jul 23, 2013 2215        njensen     Added writeBuffer(ByteBuffer)
  * 
  * </pre>
  * 
@@ -91,8 +94,7 @@ public interface ISerializationContext {
      * @param dub
      * @throws SerializationException
      */
-    void writeDoubleArray(double[] dubs)
-            throws SerializationException;
+    void writeDoubleArray(double[] dubs) throws SerializationException;
 
     /**
      * Write a float
@@ -119,13 +121,20 @@ public interface ISerializationContext {
     void writeBinary(byte[] bin) throws SerializationException;
 
     /**
+     * Write a byte buffer
+     * 
+     * @param buffer
+     * @throws SerializationException
+     */
+    void writeBuffer(ByteBuffer buffer) throws SerializationException;
+
+    /**
      * Write a float array
      * 
      * @param floats
      * @throws SerializationException
      */
-    void writeFloatArray(float[] floats)
-            throws SerializationException;
+    void writeFloatArray(float[] floats) throws SerializationException;
 
     /**
      * Write a message header
@@ -133,8 +142,7 @@ public interface ISerializationContext {
      * @param messageName
      * @throws SerializationException
      */
-    void writeMessageStart(String messageName)
-            throws SerializationException;
+    void writeMessageStart(String messageName) throws SerializationException;
 
     /**
      * Write a message footer
