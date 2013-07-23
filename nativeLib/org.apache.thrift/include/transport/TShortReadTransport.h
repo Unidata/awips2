@@ -22,7 +22,8 @@
 
 #include <cstdlib>
 
-#include <transport/TTransport.h>
+#include <thrift/transport/TTransport.h>
+#include <thrift/transport/TVirtualTransport.h>
 
 namespace apache { namespace thrift { namespace transport { namespace test {
 
@@ -32,7 +33,7 @@ namespace apache { namespace thrift { namespace transport { namespace test {
  * the read amount is randomly reduced before being passed through.
  *
  */
-class TShortReadTransport : public TTransport {
+class TShortReadTransport : public TVirtualTransport<TShortReadTransport> {
  public:
   TShortReadTransport(boost::shared_ptr<TTransport> transport, double full_prob)
     : transport_(transport)
