@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Thrift Plug-in
+Bundle-Name: Communication Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.serialization.comm
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
