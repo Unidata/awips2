@@ -22,6 +22,9 @@
 
 #include "TServerTransport.h"
 #include <boost/shared_ptr.hpp>
+#ifndef _WIN32
+   typedef int SOCKET;
+#endif
 
 namespace apache { namespace thrift { namespace transport {
 
@@ -43,6 +46,8 @@ class TServerSocket : public TServerTransport {
   void setSendTimeout(int sendTimeout);
   void setRecvTimeout(int recvTimeout);
 
+  void setAcceptTimeout(int accTimeout);
+
   void setRetryLimit(int retryLimit);
   void setRetryDelay(int retryDelay);
 
@@ -56,21 +61,23 @@ class TServerSocket : public TServerTransport {
 
  protected:
   boost::shared_ptr<TTransport> acceptImpl();
+  virtual boost::shared_ptr<TSocket> createSocket(SOCKET client);
 
  private:
   int port_;
   std::string path_;
-  int serverSocket_;
+  SOCKET serverSocket_;
   int acceptBacklog_;
   int sendTimeout_;
   int recvTimeout_;
+  int accTimeout_;
   int retryLimit_;
   int retryDelay_;
   int tcpSendBuffer_;
   int tcpRecvBuffer_;
 
-  int intSock1_;
-  int intSock2_;
+  SOCKET intSock1_;
+  SOCKET intSock2_;
 };
 
 }}} // apache::thrift::transport
