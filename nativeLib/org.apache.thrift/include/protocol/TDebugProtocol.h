@@ -20,8 +20,7 @@
 #ifndef _THRIFT_PROTOCOL_TDEBUGPROTOCOL_H_
 #define _THRIFT_PROTOCOL_TDEBUGPROTOCOL_H_ 1
 
-#include "TProtocol.h"
-#include "TOneWayProtocol.h"
+#include "TVirtualProtocol.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -46,7 +45,7 @@ Complaints are not. :R
  * Reading from this protocol is not supported.
  *
  */
-class TDebugProtocol : public TWriteOnlyProtocol {
+class TDebugProtocol : public TVirtualProtocol<TDebugProtocol> {
  private:
   enum write_state_t
   { UNINIT
@@ -59,7 +58,8 @@ class TDebugProtocol : public TWriteOnlyProtocol {
 
  public:
   TDebugProtocol(boost::shared_ptr<TTransport> trans)
-    : TWriteOnlyProtocol(trans, "TDebugProtocol")
+    : TVirtualProtocol<TDebugProtocol>(trans)
+    , trans_(trans.get())
     , string_limit_(DEFAULT_STRING_LIMIT)
     , string_prefix_size_(DEFAULT_STRING_PREFIX_SIZE)
   {
@@ -78,11 +78,11 @@ class TDebugProtocol : public TWriteOnlyProtocol {
   }
 
 
-  virtual uint32_t writeMessageBegin(const std::string& name,
-                                     const TMessageType messageType,
-                                     const int32_t seqid);
+  uint32_t writeMessageBegin(const std::string& name,
+                             const TMessageType messageType,
+                             const int32_t seqid);
 
-  virtual uint32_t writeMessageEnd();
+  uint32_t writeMessageEnd();
 
 
   uint32_t writeStructBegin(const char* name);
@@ -141,6 +141,8 @@ class TDebugProtocol : public TWriteOnlyProtocol {
 
   static std::string fieldTypeName(TType type);
 
+  TTransport* trans_;
+
   int32_t string_limit_;
   int32_t string_prefix_size_;
 
@@ -169,7 +171,7 @@ class TDebugProtocolFactory : public TProtocolFactory {
 
 
 // TODO(dreiss): Move (part of) ThriftDebugString into a .cpp file and remove this.
-#include <transport/TBufferTransports.h>
+#include <thrift/transport/TBufferTransports.h>
 
 namespace apache { namespace thrift {
 
