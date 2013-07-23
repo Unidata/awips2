@@ -63,7 +63,7 @@
 #if T_GLOBAL_DEBUGGING_LEVEL > 0
   #define T_DEBUG(format_string,...)                                        \
     if (T_GLOBAL_DEBUGGING_LEVEL > 0) {                                     \
-      fprintf(stderr,"[%s,%d] " #format_string " \n", __FILE__, __LINE__,##__VA_ARGS__); \
+      fprintf(stderr,"[%s,%d] " format_string " \n", __FILE__, __LINE__,##__VA_ARGS__); \
   }
 #else
   #define T_DEBUG(format_string,...)
@@ -84,7 +84,7 @@
         time(&now);                                                       \
         ctime_r(&now, dbgtime);                                           \
         dbgtime[24] = '\0';                                               \
-        fprintf(stderr,"[%s,%d] [%s] " #format_string " \n", __FILE__, __LINE__,dbgtime,##__VA_ARGS__); \
+        fprintf(stderr,"[%s,%d] [%s] " format_string " \n", __FILE__, __LINE__,dbgtime,##__VA_ARGS__); \
       }                                                                   \
     }
 #else
@@ -101,7 +101,7 @@
  */
 #define T_DEBUG_L(level, format_string,...)                               \
   if ((level) > 0) {                                                      \
-    fprintf(stderr,"[%s,%d] " #format_string " \n", __FILE__, __LINE__,##__VA_ARGS__); \
+    fprintf(stderr,"[%s,%d] " format_string " \n", __FILE__, __LINE__,##__VA_ARGS__); \
   }
 
 
@@ -117,7 +117,7 @@
     time(&now);                                                         \
     ctime_r(&now, dbgtime);                                             \
     dbgtime[24] = '\0';                                                 \
-    fprintf(stderr,"[%s,%d] [%s] ERROR: " #format_string " \n", __FILE__, __LINE__,dbgtime,##__VA_ARGS__); \
+    fprintf(stderr,"[%s,%d] [%s] ERROR: " format_string " \n", __FILE__, __LINE__,dbgtime,##__VA_ARGS__); \
   }
 
 
@@ -134,7 +134,7 @@
     time(&now);                                                         \
     ctime_r(&now, dbgtime);                                             \
     dbgtime[24] = '\0';                                                 \
-    fprintf(stderr,"[%s,%d] [%s] ERROR: Going to abort " #format_string " \n", __FILE__, __LINE__,dbgtime,##__VA_ARGS__); \
+    fprintf(stderr,"[%s,%d] [%s] ERROR: Going to abort " format_string " \n", __FILE__, __LINE__,dbgtime,##__VA_ARGS__); \
     exit(1);                                                            \
   }
 
@@ -153,11 +153,47 @@
         time(&now);                                                           \
         ctime_r(&now, dbgtime);                                               \
         dbgtime[24] = '\0';                                                   \
-        fprintf(stderr,"[%s] " #format_string " \n", dbgtime,##__VA_ARGS__);  \
+        fprintf(stderr,"[%s] " format_string " \n", dbgtime,##__VA_ARGS__);  \
       }                                                                       \
     }
 #else
   #define T_LOG_OPER(format_string,...)
+#endif
+
+
+/**
+ * T_GLOBAL_DEBUG_VIRTUAL = 0 or unset: normal operation,
+ *                                      virtual call debug messages disabled
+ * T_GLOBAL_DEBUG_VIRTUAL = 1:          log a debug messages whenever an
+ *                                      avoidable virtual call is made
+ * T_GLOBAL_DEBUG_VIRTUAL = 2:          record detailed info that can be
+ *                                      printed by calling
+ *                                      apache::thrift::profile_print_info()
+ */
+#if T_GLOBAL_DEBUG_VIRTUAL > 1
+  #define T_VIRTUAL_CALL()                                                \
+    ::apache::thrift::profile_virtual_call(typeid(*this))
+  #define T_GENERIC_PROTOCOL(template_class, generic_prot, specific_prot) \
+    do {                                                                  \
+      if (!(specific_prot)) {                                             \
+        ::apache::thrift::profile_generic_protocol(                     \
+            typeid(*template_class), typeid(*generic_prot));              \
+      }                                                                   \
+    } while (0)
+#elif T_GLOBAL_DEBUG_VIRTUAL == 1
+  #define T_VIRTUAL_CALL()                                                \
+    fprintf(stderr,"[%s,%d] virtual call\n", __FILE__, __LINE__)
+  #define T_GENERIC_PROTOCOL(template_class, generic_prot, specific_prot) \
+    do {                                                                  \
+      if (!(specific_prot)) {                                             \
+        fprintf(stderr,                                                   \
+                "[%s,%d] failed to cast to specific protocol type\n",     \
+                __FILE__, __LINE__);                                      \
+      }                                                                   \
+    } while (0)
+#else
+  #define T_VIRTUAL_CALL()
+  #define T_GENERIC_PROTOCOL(template_class, generic_prot, specific_prot)
 #endif
 
 #endif // #ifndef _THRIFT_TLOGGING_H_
