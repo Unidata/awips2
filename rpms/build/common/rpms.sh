@@ -227,7 +227,7 @@ function unpackHttpdPypies()
    # into the: ${AWIPSII_TOP_DIR}/SOURCES directory.
    awips2_core_directory=${WORKSPACE}/rpms/awips2.core
    httpd_pypies_directory=${awips2_core_directory}/Installer.httpd-pypies
-   httpd_SOURCES=${httpd_pypies_directory}/src/httpd-2.2.3-SOURCES.tar
+   httpd_SOURCES=${httpd_pypies_directory}/src/httpd-2.2.15-SOURCES.tar
 
    /bin/tar -xvf ${httpd_SOURCES} -C ${AWIPSII_TOP_DIR}/SOURCES
    if [ $? -ne 0 ]; then
