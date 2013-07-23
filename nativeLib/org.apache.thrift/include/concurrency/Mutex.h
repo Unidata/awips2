@@ -21,6 +21,7 @@
 #define _THRIFT_CONCURRENCY_MUTEX_H_ 1
 
 #include <boost/shared_ptr.hpp>
+#include <boost/noncopyable.hpp>
 
 namespace apache { namespace thrift { namespace concurrency {
 
@@ -100,7 +101,26 @@ private:
   boost::shared_ptr<impl> impl_;
 };
 
-class Guard {
+/**
+ * A ReadWriteMutex that guarantees writers will not be starved by readers:
+ * When a writer attempts to acquire the mutex, all new readers will be
+ * blocked from acquiring the mutex until the writer has acquired and
+ * released it. In some operating systems, this may already be guaranteed
+ * by a regular ReadWriteMutex.
+ */
+class NoStarveReadWriteMutex : public ReadWriteMutex {
+public:
+  NoStarveReadWriteMutex();
+
+  virtual void acquireRead() const;
+  virtual void acquireWrite() const;
+
+private:
+  Mutex mutex_;
+  mutable volatile bool writerWaiting_;
+};
+
+class Guard : boost::noncopyable {
  public:
   Guard(const Mutex& value, int64_t timeout = 0) : mutex_(&value) {
     if (timeout == 0) {
@@ -133,11 +153,11 @@ class Guard {
 // as to whether we're doing acquireRead() or acquireWrite().
 enum RWGuardType {
   RW_READ = 0,
-  RW_WRITE = 1,
+  RW_WRITE = 1
 };
 
 
-class RWGuard {
+class RWGuard : boost::noncopyable {
   public:
     RWGuard(const ReadWriteMutex& value, bool write = false)
          : rw_mutex_(value) {
@@ -166,7 +186,7 @@ class RWGuard {
 
 // A little hack to prevent someone from trying to do "Guard(m);"
 // Such a use is invalid because the temporary Guard object is
-// destoryed at the end of the line, releasing the lock.
+// destroyed at the end of the line, releasing the lock.
 // Sorry for polluting the global namespace, but I think it's worth it.
 #define Guard(m) incorrect_use_of_Guard(m)
 #define RWGuard(m) incorrect_use_of_RWGuard(m)
