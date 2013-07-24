@@ -160,7 +160,7 @@ if [ "${1}" = "-delta" ]; then
       exit 1
    fi
    buildRPM "awips2-edex-environment"
-   buildRPM "awips2-notification"
+   #buildRPM "awips2-notification"
 
    exit 0
 fi
