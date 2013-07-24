@@ -45,6 +45,7 @@ import org.eclipse.swt.widgets.TableItem;
 import com.raytheon.uf.common.archive.config.DisplayData;
 import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.viz.archive.data.IArchiveTotals;
+import com.raytheon.uf.viz.archive.data.SizeJob;
 
 /**
  * Archive table composite that contains the SWT table.
@@ -69,6 +70,12 @@ public class ArchiveTableComp extends Composite {
 
     /** Column to display size information,. */
     private final int SIZE_COL_INDEX = 1;
+
+    /** Name of table's archive. */
+    String archiveName;
+
+    /** Name of table's category. */
+    String categoryName;
 
     /** Table control. */
     private Table table;
@@ -107,6 +114,11 @@ public class ArchiveTableComp extends Composite {
     private final List<IModifyListener> modifiedListeners = new CopyOnWriteArrayList<IModifyListener>();
 
     /**
+     * Use to update the selections for size job queues.
+     */
+    private final SizeJob sizeJob;
+
+    /**
      * Constructor.
      * 
      * @param parent
@@ -115,11 +127,12 @@ public class ArchiveTableComp extends Composite {
      *            Table type.
      */
     public ArchiveTableComp(Composite parent, TableType type,
-            IArchiveTotals iTotalSelectedSize) {
+            IArchiveTotals iTotalSelectedSize, SizeJob sizeJob) {
         super(parent, 0);
 
         this.type = type;
         this.iArchiveTotals = iTotalSelectedSize;
+        this.sizeJob = sizeJob;
         init();
     }
 
@@ -286,6 +299,8 @@ public class ArchiveTableComp extends Composite {
             if (item.getChecked()) {
                 ++count;
                 displayData.setSelected(true);
+                sizeJob.setSelect(archiveName, categoryName,
+                        displayData.getDisplayLabel(), true);
                 if (tableTotalSize >= 0) {
                     long diSize = displayData.getSize();
                     if (diSize < 0) {
@@ -296,6 +311,8 @@ public class ArchiveTableComp extends Composite {
                 }
             } else {
                 displayData.setSelected(false);
+                sizeJob.setSelect(archiveName, categoryName,
+                        displayData.getDisplayLabel(), false);
             }
         }
         List<DisplayData> displayDatas = Arrays.asList(tableData);
@@ -426,7 +443,10 @@ public class ArchiveTableComp extends Composite {
      * 
      * @param displayDatas
      */
-    protected void populateTable(List<DisplayData> displayDatas) {
+    protected void populateTable(String archiveName, String categoryName,
+            List<DisplayData> displayDatas) {
+        this.archiveName = archiveName;
+        this.categoryName = categoryName;
         tableData = displayDatas.toArray(new DisplayData[0]);
         table.removeAll();
         table.setItemCount(tableData.length);
