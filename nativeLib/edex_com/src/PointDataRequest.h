@@ -55,7 +55,7 @@ typedef void CPointDataRequest;
 
 #include "Notification_types.h"
 #include "NotificationProtocol.h"
-#include "transport/THttpClient.h"
+#include "thrift/transport/THttpClient.h"
 #include "PointData_types.h"
 #include <iostream>
 #include <stdint.h>

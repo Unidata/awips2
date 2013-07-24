@@ -41,6 +41,7 @@ uint32_t NotificationProtocol::readFieldBegin(std::string& name,
 		TType& fieldType, int16_t& fieldId) {
 	uint32_t result = 0;
 	int8_t type;
+
 	result += readByte(type);
 	fieldType = (TType) type;
 	if (fieldType == apache::thrift::protocol::T_STOP) {
@@ -63,13 +64,13 @@ uint32_t NotificationProtocol::writeFieldBegin(const char* name,
 		const TType fieldType, const int16_t fieldId) {
 	uint32_t result = 0;
 	result += writeByte(fieldType);
-	result += writeString(name);
+	result += writeString(std::string(name));
 	result += writeI16(fieldId);
 	return result;
 }
 
 uint32_t NotificationProtocol::writeStructBegin(const char* name) {
 	uint32_t result = 0;
-	result += writeString(name);
+	result += writeString(std::string(name));
 	return 0;
 }
