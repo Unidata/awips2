@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IView;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IFont;
+import com.raytheon.uf.viz.core.drawables.IFont.FontType;
 import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
@@ -134,9 +135,10 @@ public class KmlGraphicsTarget extends AbstractGraphicsTarget {
     }
 
     @Override
-    public KmlFont initializeFont(File fontFile, float size, Style[] styles) {
+    public IFont initializeFont(File fontFile, FontType type, float size,
+            Style[] styles) {
         try {
-            return new KmlFont(fontFile, size, styles);
+            return new KmlFont(fontFile, type, size, styles);
         } catch (FontFormatException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         } catch (IOException e) {
