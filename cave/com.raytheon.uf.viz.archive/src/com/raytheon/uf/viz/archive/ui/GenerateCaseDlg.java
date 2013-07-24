@@ -107,7 +107,7 @@ public class GenerateCaseDlg extends CaveSWTDialog {
     /** When true compress the case directory. */
     private final boolean doCompress;
 
-    /** When true break the compress file into multliple files. */
+    /** When true break the compress file into multiple files. */
     private final boolean doMultiFiles;
 
     /** The compress size for muliple files. */
