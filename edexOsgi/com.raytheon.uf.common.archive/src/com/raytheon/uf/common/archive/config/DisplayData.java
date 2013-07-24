@@ -225,4 +225,29 @@ public class DisplayData implements Comparable<DisplayData> {
         }
         return result;
     }
+
+    public String getArchiveName() {
+        return archiveConfig.getName();
+    }
+
+    public String getCategoryName() {
+        return categoryConfig.getName();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("DisplayData[");
+        sb.append("displayLabel: ").append(displayLabel);
+        sb.append(", isSlected: ").append(selected);
+        sb.append(", size: ").append(size);
+        sb.append(", category.name: ").append(categoryConfig.getName());
+        sb.append(", archive.name: ").append(archiveConfig.getName())
+                .append("]");
+        return sb.toString();
+    }
 }
