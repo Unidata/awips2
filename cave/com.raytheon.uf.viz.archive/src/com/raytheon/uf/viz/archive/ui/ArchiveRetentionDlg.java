@@ -56,6 +56,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * May 23, 2013 #1964      lvenable     Initial creation
  * May 31, 2013 #1965      bgonzale     Initial work for updating retention configurations.
  * Jun 10, 2013 #1966      rferrel      Implemented hooks to get display and save to work.
+ * Jul 24, 2013 #2220      rferrel      Add recompute size button.
  * 
  * </pre>
  * 
@@ -225,22 +226,10 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg implements
     private void createBottomActionButtons() {
 
         Composite actionControlComp = new Composite(shell, SWT.NONE);
-        GridLayout gl = new GridLayout(2, false);
+        GridLayout gl = new GridLayout(3, false);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         actionControlComp.setLayout(gl);
         actionControlComp.setLayoutData(gd);
-
-        // TODO - For the future ?
-        // Button calcSizeBtn = new Button(actionControlComp, SWT.PUSH);
-        // calcSizeBtn.setText(" Calculate Sizes ");
-        // calcSizeBtn.addSelectionListener(new SelectionAdapter() {
-        // @Override
-        // public void widgetSelected(SelectionEvent e) {
-        // // TODO : add calculate size functionality
-        // // With Roger's automated size calculation code, this doesn't
-        // // seem relevant unless it is for calculating compressed size
-        // }
-        // });
 
         saveBtn = new Button(actionControlComp, SWT.PUSH);
         saveBtn.setText(" Save ");
@@ -255,6 +244,16 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg implements
             }
         });
         saveBtn.setEnabled(false);
+
+        Button sizeBtn = new Button(actionControlComp, SWT.PUSH);
+        sizeBtn.setText(" Recompute Sizes ");
+        sizeBtn.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                resetSizes();
+            }
+        });
 
         gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
         Button closeBtn = new Button(actionControlComp, SWT.PUSH);
