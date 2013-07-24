@@ -37,6 +37,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.fog.FogRecord.FOG_THREAT;
+import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.AdjacentWfoMgr;
@@ -145,12 +146,11 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     private Geometry geoAdjAreas = null;
 
     /** Data URI pattern for fog **/
-    private final Pattern fogPattern = Pattern.compile(DataURI.SEPARATOR
-            + OBS + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR
-            + wildCard + DataURI.SEPARATOR + cwa + DataURI.SEPARATOR
-            + wildCard + DataURI.SEPARATOR + wildCard
-            + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR
-            + "fog");
+    private final Pattern fogPattern = Pattern.compile(DataURI.SEPARATOR + OBS
+            + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR + wildCard
+            + DataURI.SEPARATOR + cwa + DataURI.SEPARATOR + wildCard
+            + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR + wildCard
+            + DataURI.SEPARATOR + "fog");
 
     /**
      * Private constructor, singleton
@@ -490,6 +490,7 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     public void algorithmUpdate() {
 
         Display.getDefault().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 Iterator<IFogResourceListener> iter = fogResources.iterator();
 
@@ -524,6 +525,7 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
      * 
      * @param drawTime
      */
+    @Override
     public void updateDialogTime(Date dialogTime) {
         this.dialogTime = dialogTime;
         fireMonitorEvent(zoneDialog.getClass().getName());
@@ -549,6 +551,7 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
      * com.raytheon.uf.viz.monitor.fog.listeners.IFogResourceListener#closeDialog
      * ()
      */
+    @Override
     public void closeDialog() {
         if (zoneDialog != null) {
             monitor.removeMonitorListener(zoneDialog);
@@ -586,7 +589,11 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
      * Get adjacent areas.
      */
     public void getAdjAreas() {
-        this.geoAdjAreas = AdjacentWfoMgr.getAdjacentAreas(cwa);
+        try {
+            this.geoAdjAreas = AdjacentWfoMgr.getAdjacentAreas(cwa);
+        } catch (SpatialException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
     }
 
     /**
