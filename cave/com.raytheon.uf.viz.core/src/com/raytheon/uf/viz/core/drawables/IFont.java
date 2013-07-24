@@ -29,7 +29,7 @@ package com.raytheon.uf.viz.core.drawables;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 7, 2007             chammack    Initial Creation.
- * 
+ * Jul 18, 2013       2189 mschenke    Added ability to specify font type
  * </pre>
  * 
  * @author chammack
@@ -42,6 +42,11 @@ public interface IFont {
     public static enum Style {
         BOLD, ITALIC
     };
+
+    /** Type of font */
+    public static enum FontType {
+        TRUETYPE, TYPE1
+    }
 
     /**
      * Return the name of the font
