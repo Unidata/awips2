@@ -6,5 +6,4 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gov.noaa.nws.ncep.gempak.parameterconversionlibrary
-Import-Package: gov.noaa.nws.ncep.edex.common.sounding,
- org.junit
+Import-Package: gov.noaa.nws.ncep.edex.common.sounding
