@@ -59,6 +59,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jul 10, 2008	#1233	    chammack	Initial creation
+ * Jul 18, 2013 #2199       mschenke    Made code only smooth data once
  * 
  * </pre>
  * 
@@ -85,6 +86,8 @@ public abstract class ContourRenderable implements IRenderable {
     private int outlineWidth;
 
     private final String uuid;
+
+    private IDataRecord[] data;
 
     // This is the width of CONUS
     private static final double METERS_AT_BASE_ZOOMLEVEL = 5878649.0;
@@ -118,6 +121,20 @@ public abstract class ContourRenderable implements IRenderable {
         this.descriptor = descriptor;
         uuid = UUID.randomUUID().toString();
         this.requestMap = new HashMap<String, ContourCreateRequest>();
+    }
+
+    private IDataRecord[] getContourData() throws VizException {
+        if (data == null) {
+            data = getData();
+            if (data != null) {
+                GeneralGridGeometry gridGeometry = getGridGeometry();
+                ContourPreferences contourPrefs = getPreferences();
+                if (gridGeometry != null && contourPrefs != null) {
+                    data = smoothData(data, gridGeometry, contourPrefs);
+                }
+            }
+        }
+        return data;
     }
 
     /**
@@ -254,11 +271,6 @@ public abstract class ContourRenderable implements IRenderable {
                                 || contourGroup[i].lastDensity != density
                                 || pdRatio > 2 || pdRatio < 0.5) {
 
-                            IDataRecord[] dataRecord = getData();
-                            if (dataRecord == null) {
-                                return;
-                            }
-
                             GeneralGridGeometry gridGeometry = getGridGeometry();
                             ContourPreferences contourPrefs = getPreferences();
 
@@ -267,8 +279,10 @@ public abstract class ContourRenderable implements IRenderable {
                                 return;
                             }
 
-                            dataRecord = smoothData(dataRecord, gridGeometry,
-                                    contourPrefs);
+                            IDataRecord[] dataRecord = getContourData();
+                            if (dataRecord == null) {
+                                return;
+                            }
 
                             ContourGroup cg = null;
                             // generate the identifier
