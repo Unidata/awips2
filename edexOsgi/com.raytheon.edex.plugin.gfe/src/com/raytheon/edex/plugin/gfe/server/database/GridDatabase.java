@@ -44,8 +44,6 @@ import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.message.WsId;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.util.Pair;
 
@@ -76,15 +74,14 @@ import com.raytheon.uf.common.util.Pair;
  * 03/15/13     #1795      njensen     Added updatePublishTime()
  * 04/23/13     #1949      rjpeter     Added default implementations of history by time range
  *                                     and cachedParmId
- * 05/02/13      #1969     randerso    Removed unnecessary updateDbs method
+ * 05/02/13     #1969      randerso    Removed unnecessary updateDbs method
+ * 06/13/13     #2044      randerso    Code cleanup
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
 public abstract class GridDatabase {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(GridDatabase.class);
 
     /**
      * The base directory where the GFE HDF5 data is stored
@@ -120,11 +117,27 @@ public abstract class GridDatabase {
         this.dbId = dbId;
     }
 
+    /**
+     * Retrieve the FloatDataRecord for a grid from HDF5
+     * 
+     * @param parmId
+     * @param time
+     * @return the FloatDataRecord
+     * @throws GfeException
+     */
     public FloatDataRecord retrieveFromHDF5(ParmID parmId, TimeRange time)
             throws GfeException {
         return retrieveFromHDF5(parmId, Arrays.asList(new TimeRange[] { time }))[0];
     }
 
+    /**
+     * Retrieve FloatDataRecords for a multiple time ranges from HDF5
+     * 
+     * @param parmId
+     * @param times
+     * @return the FloatDataRecords
+     * @throws GfeException
+     */
     public FloatDataRecord[] retrieveFromHDF5(ParmID parmId,
             List<TimeRange> times) throws GfeException {
         FloatDataRecord[] scalarData = null;
@@ -170,12 +183,29 @@ public abstract class GridDatabase {
         return scalarData;
     }
 
+    /**
+     * Retrieve the magnitude and direction grids for a vector parm from HDF5
+     * 
+     * @param parmId
+     * @param time
+     * @return the the magnitude and direction grids
+     * @throws GfeException
+     */
     public FloatDataRecord[] retrieveVectorFromHDF5(ParmID parmId,
             TimeRange time) throws GfeException {
         return retrieveVectorFromHDF5(parmId,
                 Arrays.asList(new TimeRange[] { time }))[0];
     }
 
+    /**
+     * Retrieve the magnitude and direction grids for multiple time ranges for a
+     * vector parm from HDF5
+     * 
+     * @param parmId
+     * @param times
+     * @return array of magnitude and direction grids
+     * @throws GfeException
+     */
     public FloatDataRecord[][] retrieveVectorFromHDF5(ParmID parmId,
             List<TimeRange> times) throws GfeException {
         FloatDataRecord[][] vectorData = null;
@@ -196,7 +226,7 @@ public abstract class GridDatabase {
                 IDataRecord[] rawData = entry.getKey().retrieveGroups(groups,
                         Request.ALL);
 
-                if (rawData.length != groups.length * 2) {
+                if (rawData.length != (groups.length * 2)) {
                     throw new IllegalArgumentException(
                             "Invalid number of dataSets returned expected  per group, received: "
                                     + ((double) rawData.length / groups.length));
@@ -207,7 +237,7 @@ public abstract class GridDatabase {
                 for (TimeRange timeRange : pair.getFirst()) {
                     FloatDataRecord[] recs = new FloatDataRecord[2];
                     for (int i = 0; i < 2; i++) {
-                        IDataRecord rec = rawData[count * 2 + i];
+                        IDataRecord rec = rawData[(count * 2) + i];
                         if ("Mag".equals(rec.getName())) {
                             recs[0] = (FloatDataRecord) rec;
                         } else if ("Dir".equals(rec.getName())) {
@@ -236,12 +266,29 @@ public abstract class GridDatabase {
         return vectorData;
     }
 
+    /**
+     * Retrieves the data and keys for a Discrete grid from HDF5
+     * 
+     * @param parmId
+     * @param time
+     * @return ByteDataRecords[] array containing the data and keys
+     * @throws GfeException
+     */
     public ByteDataRecord[] retrieveDiscreteFromHDF5(ParmID parmId,
             TimeRange time) throws GfeException {
         return retrieveDiscreteFromHDF5(parmId,
                 Arrays.asList(new TimeRange[] { time }))[0];
     }
 
+    /**
+     * Retrieves the ByteDataRecord for a Discrete grid for multiple time ranges
+     * from HDF5
+     * 
+     * @param parmId
+     * @param times
+     * @return array containing the data and keys for the specified times
+     * @throws GfeException
+     */
     public ByteDataRecord[][] retrieveDiscreteFromHDF5(ParmID parmId,
             List<TimeRange> times) throws GfeException {
         ByteDataRecord[][] byteRecords = null;
@@ -262,7 +309,7 @@ public abstract class GridDatabase {
                 IDataRecord[] rawData = entry.getKey().retrieveGroups(groups,
                         Request.ALL);
 
-                if (rawData.length != groups.length * 2) {
+                if (rawData.length != (groups.length * 2)) {
                     throw new IllegalArgumentException(
                             "Invalid number of dataSets returned expected 2 per group, received: "
                                     + ((double) rawData.length / groups.length));
@@ -273,7 +320,7 @@ public abstract class GridDatabase {
                 for (TimeRange timeRange : pair.getFirst()) {
                     ByteDataRecord[] recs = new ByteDataRecord[2];
                     for (int i = 0; i < 2; i++) {
-                        IDataRecord rec = rawData[count * 2 + i];
+                        IDataRecord rec = rawData[(count * 2) + i];
 
                         if ("Data".equals(rec.getName())) {
                             recs[0] = (ByteDataRecord) rec;
@@ -327,6 +374,9 @@ public abstract class GridDatabase {
         return valid;
     }
 
+    /**
+     * Delete the database and HDF5 records for this database
+     */
     public abstract void deleteDb();
 
     /**
@@ -357,6 +407,8 @@ public abstract class GridDatabase {
      * 
      * @param id
      *            The parmID to get the inventory for
+     * @param tr
+     *            the time range
      * @return The server response
      */
     public ServerResponse<List<TimeRange>> getGridInventory(ParmID id,
@@ -415,20 +467,23 @@ public abstract class GridDatabase {
      *            The parmID to get the history for
      * @param trs
      *            The time ranges to get the history for
-     * @param history
-     *            The history
      * @return The server status
      */
     public abstract ServerResponse<Map<TimeRange, List<GridDataHistory>>> getGridHistory(
             ParmID id, List<TimeRange> trs);
 
+    /**
+     * get the projection ID for this database
+     * 
+     * @return the projection ID
+     */
     public abstract String getProjectionId();
 
-    public ModelState modelState() {
-        throw new UnsupportedOperationException("Not implemented for class "
-                + this.getClass().getName());
-    }
-
+    /**
+     * Retrieve the DatabaseID for this database
+     * 
+     * @return the DatabaseID
+     */
     public DatabaseID getDbId() {
         return dbId;
     }
@@ -472,7 +527,7 @@ public abstract class GridDatabase {
      *            the histories to alter in the database
      * @param publishTime
      *            the publish time to update to
-     * @return
+     * @return ServerResponse containing status only
      */
     public ServerResponse<?> updatePublishTime(List<GridDataHistory> history,
             Date publishTime) {
@@ -490,7 +545,7 @@ public abstract class GridDatabase {
      *            the time range to update sent time for
      * @param sentTime
      *            the sent time to update to
-     * @return
+     * @return ServerResponse containing updated histories
      */
     public ServerResponse<Map<TimeRange, List<GridDataHistory>>> updateSentTime(
             final ParmID parmId, TimeRange tr, Date sentTime) {
@@ -498,6 +553,16 @@ public abstract class GridDatabase {
                 + this.getClass().getName());
     }
 
+    /**
+     * Save grid slices
+     * 
+     * @param parmId
+     * @param tr
+     * @param sliceData
+     * @param requestor
+     * @param skipDelete
+     * @return ServerResponse containing status only
+     */
     public ServerResponse<?> saveGridSlices(ParmID parmId, TimeRange tr,
             List<IGridSlice> sliceData, WsId requestor,
             List<TimeRange> skipDelete) {
@@ -507,14 +572,16 @@ public abstract class GridDatabase {
     }
 
     /**
-     * Return the internally cache'd parmID for this database implementation.
+     * Return the internally cached parmID for this database implementation.
      * 
      * @param parmID
-     * @return
+     * @return cached ParmID
      * @throws GfeException
      *             If the parm does not exist for this database.
      */
     public ParmID getCachedParmID(ParmID parmID) throws GfeException {
+        // base implementation, must be overridden by Databases that store
+        // ParmID objects
         return parmID;
     }
 }

@@ -83,6 +83,8 @@ import com.raytheon.uf.common.util.Pair;
  *                                      Scalar/VectorGridSlices, refactor
  *                                      Discrete/WeatherGridSlices builders.
  * Jun 05, 2013  #2063      dgilling    Port history() from A1.
+ * Jun 13, 2013  #2044      randerso    Refactored to use non-singleton 
+ *                                      GridParmManager and LockManager
  * 
  * </pre>
  * 
@@ -92,6 +94,7 @@ import com.raytheon.uf.common.util.Pair;
 
 public class IFPWE {
 
+    /** The smart init user name */
     public static final String SMART_INIT_USER = "smartInit";
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -100,6 +103,10 @@ public class IFPWE {
     private final ParmID parmId;
 
     private final String siteId;
+
+    private final GridParmManager gridParmMgr;
+
+    private final LockManager lockMgr;
 
     private final GridParmInfo gpi;
 
@@ -111,17 +118,18 @@ public class IFPWE {
      * Constructor
      * 
      * @param parm
-     *            the parm the IFPWE corresponds to
-     * @throws GfeException
+     * @param userName
+     * @param gridParmMgr
+     * @param lockMgr
      */
-    public IFPWE(ParmID parm) {
-        this(parm, SMART_INIT_USER);
-    }
-
-    public IFPWE(ParmID parm, String userName) {
+    public IFPWE(ParmID parm, String userName, GridParmManager gridParmMgr,
+            LockManager lockMgr) {
         parmId = parm;
         siteId = parm.getDbId().getSiteId();
-        gpi = GridParmManager.getGridParmInfo(parmId).getPayload();
+        this.gridParmMgr = gridParmMgr;
+        this.lockMgr = lockMgr;
+
+        gpi = gridParmMgr.getGridParmInfo(parmId).getPayload();
         wsId = new WsId(null, userName, "EDEX");
     }
 
@@ -133,7 +141,7 @@ public class IFPWE {
     public List<TimeRange> getKeys() {
         if (availableTimes == null) {
             availableTimes = new ArrayList<TimeRange>();
-            List<TimeRange> times = GridParmManager.getGridInventory(parmId)
+            List<TimeRange> times = gridParmMgr.getGridInventory(parmId)
                     .getPayload();
             if (times != null) {
                 Collections.sort(times);
@@ -182,8 +190,7 @@ public class IFPWE {
         reqList.add(req);
         List<IGridSlice> data = new ArrayList<IGridSlice>();
 
-        ServerResponse<List<IGridSlice>> ssr = GridParmManager
-                .getGridData(reqList);
+        ServerResponse<List<IGridSlice>> ssr = gridParmMgr.getGridData(reqList);
         data = ssr.getPayload();
 
         IGridSlice slice = null;
@@ -212,8 +219,8 @@ public class IFPWE {
     public List<Pair<IGridSlice, List<GridDataHistory>>> get(
             List<TimeRange> times, boolean histories) {
         GetGridRequest ggr = new GetGridRequest(parmId, times);
-        ServerResponse<List<IGridSlice>> sr = GridParmManager
-                .getGridData(Arrays.asList(ggr));
+        ServerResponse<List<IGridSlice>> sr = gridParmMgr.getGridData(Arrays
+                .asList(ggr));
 
         if (!sr.isOkay()) {
             String msg = "Could not retrieve grid data for parm [" + parmId
@@ -258,10 +265,9 @@ public class IFPWE {
             TimeRange timeRangeSpan) throws GfeException {
         statusHandler.debug("Getting lock for ParmID: " + parmId + " TR: "
                 + timeRangeSpan);
-        ServerResponse<List<LockTable>> lockResponse = LockManager
-                .getInstance().requestLockChange(
-                        new LockRequest(parmId, timeRangeSpan, LockMode.LOCK),
-                        wsId, siteId);
+        ServerResponse<List<LockTable>> lockResponse = lockMgr
+                .requestLockChange(new LockRequest(parmId, timeRangeSpan,
+                        LockMode.LOCK), wsId);
         if (lockResponse.isOkay()) {
             statusHandler.debug("LOCKING: Lock granted for: " + wsId
                     + " for time range: " + timeRangeSpan);
@@ -283,8 +289,8 @@ public class IFPWE {
                 records);
 
         try {
-            ServerResponse<?> sr = GridParmManager.saveGridData(
-                    Arrays.asList(sgr), wsId, siteId);
+            ServerResponse<?> sr = gridParmMgr.saveGridData(Arrays.asList(sgr),
+                    wsId);
             if (sr.isOkay()) {
                 SendNotifications.send(sr.getNotifications());
             } else {
@@ -293,10 +299,9 @@ public class IFPWE {
                         + sr.message());
             }
         } finally {
-            ServerResponse<List<LockTable>> unLockResponse = LockManager
-                    .getInstance().requestLockChange(
-                            new LockRequest(parmId, timeRangeSpan,
-                                    LockMode.UNLOCK), wsId, siteId);
+            ServerResponse<List<LockTable>> unLockResponse = lockMgr
+                    .requestLockChange(new LockRequest(parmId, timeRangeSpan,
+                            LockMode.UNLOCK), wsId);
             if (unLockResponse.isOkay()) {
                 statusHandler.debug("LOCKING: Unlocked for: " + wsId + " TR: "
                         + timeRangeSpan);
@@ -319,7 +324,7 @@ public class IFPWE {
      *         string format.
      */
     public List<String> history(final TimeRange tr) {
-        ServerResponse<Map<TimeRange, List<GridDataHistory>>> sr = GridParmManager
+        ServerResponse<Map<TimeRange, List<GridDataHistory>>> sr = gridParmMgr
                 .getGridHistory(parmId, Arrays.asList(tr));
 
         if (!sr.isOkay()) {
@@ -357,17 +362,16 @@ public class IFPWE {
         req.setParmId(parmId);
         List<SaveGridRequest> reqList = new ArrayList<SaveGridRequest>();
         reqList.add(req);
-        String siteID = parmId.getDbId().getSiteId();
         boolean combineLocks = this.wsId.getUserName().equals(SMART_INIT_USER);
         if (!combineLocks) {
             statusHandler.debug("Getting lock for ParmID: " + parmId + " TR: "
                     + req.getReplacementTimeRange());
         }
-        ServerResponse<List<LockTable>> lockResponse = LockManager
-                .getInstance().requestLockChange(
-                        new LockRequest(req.getParmId(),
-                                req.getReplacementTimeRange(), LockMode.LOCK),
-                        wsId, siteID, combineLocks);
+        ServerResponse<List<LockTable>> lockResponse = lockMgr
+                .requestLockChange(
+                        new LockRequest(req.getParmId(), req
+                                .getReplacementTimeRange(), LockMode.LOCK),
+                        wsId, combineLocks);
 
         if (!lockResponse.isOkay()) {
             throw new GfeException("Request lock failed. "
@@ -377,8 +381,7 @@ public class IFPWE {
                     + " for time range: " + req.getReplacementTimeRange());
         }
         try {
-            ServerResponse<?> resp = GridParmManager.saveGridData(reqList,
-                    wsId, siteID);
+            ServerResponse<?> resp = gridParmMgr.saveGridData(reqList, wsId);
             if (resp.isOkay()) {
                 try {
                     ServerResponse<?> notifyResponse = SendNotifications
@@ -404,12 +407,11 @@ public class IFPWE {
                 statusHandler.debug("Releasing lock for ParmID: " + parmId
                         + " TR: " + req.getReplacementTimeRange());
             }
-            ServerResponse<List<LockTable>> unLockResponse = LockManager
-                    .getInstance().requestLockChange(
-                            new LockRequest(req.getParmId(),
-                                    req.getReplacementTimeRange(),
-                                    LockMode.UNLOCK), wsId, siteID,
-                            combineLocks);
+            ServerResponse<List<LockTable>> unLockResponse = lockMgr
+                    .requestLockChange(
+                            new LockRequest(req.getParmId(), req
+                                    .getReplacementTimeRange(), LockMode.UNLOCK),
+                            wsId, combineLocks);
             if (!unLockResponse.isOkay()) {
                 throw new GfeException("Request unlock failed. "
                         + unLockResponse.message());

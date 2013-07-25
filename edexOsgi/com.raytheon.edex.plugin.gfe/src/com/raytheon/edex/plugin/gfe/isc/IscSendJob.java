@@ -35,10 +35,11 @@ import com.raytheon.edex.plugin.gfe.config.GFESiteActivation;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
-import com.raytheon.edex.plugin.gfe.server.GridParmManager;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridHistoryUpdateNotification;
@@ -62,6 +63,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  *                                      from queue into run().
  * 04/23/13      #1949      rjpeter     Move setting of lastSentTime to dao
  *                                      and removed initial delay.
+ * 06/13/13      2044       randerso    Refactored to use IFPServer
  * </pre>
  * 
  * @author bphillip
@@ -198,24 +200,44 @@ public class IscSendJob implements Runnable {
             }
 
             try {
-                GridDatabase gridDb = GridParmManager.getDb(id.getDbId());
-                ServerResponse<Map<TimeRange, List<GridDataHistory>>> sr = gridDb
-                        .updateSentTime(id, tr, new Date());
-                if (sr.isOkay()) {
-                    WsId wsId = new WsId(InetAddress.getLocalHost(), "ISC",
-                            "ISC");
-                    List<GridHistoryUpdateNotification> notifications = new ArrayList<GridHistoryUpdateNotification>(
-                            1);
-                    Map<TimeRange, List<GridDataHistory>> histories = sr
-                            .getPayload();
-                    notifications.add(new GridHistoryUpdateNotification(id,
-                            histories, wsId, siteId));
-                    SendNotifications.send(notifications);
+                DatabaseID dbId = id.getDbId();
+                IFPServer ifpServer = IFPServer.getActiveServer(dbId
+                        .getSiteId());
+                if (ifpServer != null) {
+                    GridDatabase gridDb = ifpServer.getGridParmMgr()
+                            .getDatabase(dbId);
+                    if (gridDb != null) {
+                        ServerResponse<Map<TimeRange, List<GridDataHistory>>> sr = gridDb
+                                .updateSentTime(id, tr, new Date());
+                        if (sr.isOkay()) {
+                            WsId wsId = new WsId(InetAddress.getLocalHost(),
+                                    "ISC", "ISC");
+                            List<GridHistoryUpdateNotification> notifications = new ArrayList<GridHistoryUpdateNotification>(
+                                    1);
+                            Map<TimeRange, List<GridDataHistory>> histories = sr
+                                    .getPayload();
+                            notifications
+                                    .add(new GridHistoryUpdateNotification(id,
+                                            histories, wsId, siteId));
+                            SendNotifications.send(notifications);
 
+                        } else {
+                            statusHandler
+                                    .error("Error updating last sent times in GFERecords: "
+                                            + sr.getMessages());
+                        }
+                    } else {
+                        // no such database exists
+                        statusHandler
+                                .error("Error processing ISC send request for :"
+                                        + dbId
+                                        + ", the database does not exist.");
+                    }
                 } else {
+                    // no active server for request
                     statusHandler
-                            .error("Error updating last sent times in GFERecords: "
-                                    + sr.getMessages());
+                            .error("Error processing ISC send request for :"
+                                    + dbId + ", no active IFPServer for site.");
                 }
             } catch (Exception e) {
                 statusHandler.error(
