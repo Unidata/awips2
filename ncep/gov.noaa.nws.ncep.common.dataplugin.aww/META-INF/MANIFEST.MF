@@ -12,7 +12,6 @@ Import-Package: com.raytheon.uf.edex.decodertools.core,
  com.raytheon.uf.edex.decodertools.time,
  com.raytheon.uf.edex.wmo.message,
  gov.noaa.nws.ncep.edex.common.dao,
- org.junit,
  org.osgi.framework
 Export-Package: gov.noaa.nws.ncep.common.dataplugin.aww,
  gov.noaa.nws.ncep.common.dataplugin.aww.dao
