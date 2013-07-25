@@ -72,6 +72,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 10, 2013 1951       rjpeter      Updated ugcZones references
  * May 31, 2013 DR 16264   D. Friedman  Fix query in prepare method.
  * Jun 05, 2013 DR 16279   D. Friedman  Fix updating of issuance time for followups.
+ * Jul 22, 2013 2176       jsanchez     Set the raw message for an EXT.
  * </pre>
  * 
  * @author mschenke
@@ -312,6 +313,7 @@ public class CurrentWarnings {
                         if (rval != null) {
                             rval.setEndTime(warning.getEndTime());
                             rval.setIssueTime(warning.getIssueTime());
+                            rval.setRawmessage(warning.getRawmessage());
                         }
                     }
                 }
