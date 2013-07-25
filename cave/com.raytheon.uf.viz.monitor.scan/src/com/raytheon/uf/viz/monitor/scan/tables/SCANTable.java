@@ -59,6 +59,7 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanColors;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.TVSTable;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.monitor.scan.ScanMonitor;
 import com.raytheon.uf.viz.monitor.scan.data.ScanDataGenerator;
 import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlertedAlarms;
@@ -81,6 +82,7 @@ import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlertedAlar
  *                                     the table column images.  This is to fix the Windows
  *                                     issue on the images being blank and throwing errors.
  *                                     Also cleaned up some code.
+ * Jul 24, 2013  2218      mpduff      Change method signature.
  * 
  * </pre>
  * 
@@ -148,7 +150,7 @@ public abstract class SCANTable extends Composite {
 
     private Point extent;
 
-    private String site;
+    private final String site;
 
     protected Point mouseMovePt = new Point(0, 0);
 
@@ -678,10 +680,9 @@ public abstract class SCANTable extends Composite {
                 || ((scanTable == ScanTables.DMD) && !mgr.getAlertedAlarms(
                         site, scanTable).isEmpty())) {
             ScanMonitor monitor = ScanMonitor.getInstance();
-            if (monitor.getMostRecent(monitor, scanTable.name(), site) != null) {
-                checkBlink(sdg,
-                        monitor.getMostRecent(monitor, scanTable.name(), site)
-                                .getRefTime());
+            DataTime dt = monitor.getMostRecent(scanTable.name(), site);
+            if (dt != null) {
+                checkBlink(sdg, dt.getRefTime());
             }
         }
 
