@@ -20,41 +20,43 @@
 ##
 # edex startup script
 
-# Verify that awips2-python and awips2-java are installed.
-rpm -q awips2-python > /dev/null 2>&1
-RC=$?
-if [ ${RC} -ne 0 ]; then
-   echo "ERROR: awips2-python Must Be Installed."
-   echo "Unable To Continue ... Terminating."
-   exit 1
-fi
+if [ -z "${SKIP_RPM_CHECK}" ]; then
+    # Verify that awips2-python and awips2-java are installed.
+    rpm -q awips2-python > /dev/null 2>&1
+    RC=$?
+    if [ ${RC} -ne 0 ]; then
+        echo "ERROR: awips2-python Must Be Installed."
+        echo "Unable To Continue ... Terminating."
+        exit 1
+    fi
 
-rpm -q awips2-java > /dev/null 2>&1
-RC=$?
-if [ ${RC} -ne 0 ]; then
-   echo "ERROR: awips2-java Must Be Installed."
-   echo "Unable To Continue ... Terminating."
-   exit 1
-fi
+    rpm -q awips2-java > /dev/null 2>&1
+    RC=$?
+    if [ ${RC} -ne 0 ]; then
+        echo "ERROR: awips2-java Must Be Installed."
+        echo "Unable To Continue ... Terminating."
+        exit 1
+    fi
 
-rpm -q awips2-psql > /dev/null 2>&1
-RC=$?
-if [ ${RC} -ne 0 ]; then
-   echo "ERROR: awips2-psql Must Be Installed."
-   echo "Unable To Continue ... Terminating."
-   exit 1
+    rpm -q awips2-psql > /dev/null 2>&1
+    RC=$?
+    if [ ${RC} -ne 0 ]; then
+        echo "ERROR: awips2-psql Must Be Installed."
+        echo "Unable To Continue ... Terminating."
+        exit 1
+    fi
 fi
-
-# Find the locations of awips2-python and awips2-java.
-PYTHON_INSTALL="/awips2/python"
-JAVA_INSTALL="/awips2/java"
-PSQL_INSTALL="/awips2/psql"
 
 path_to_script=`readlink -f $0`
 dir=$(dirname $path_to_script)
 
 export EDEX_HOME=$(dirname $dir)
 awips_home=$(dirname $EDEX_HOME)
+
+# Find the locations of awips2-python and awips2-java.
+PYTHON_INSTALL="$awips_home/python"
+JAVA_INSTALL="$awips_home/java"
+PSQL_INSTALL="$awips_home/psql"
 
 # Source The File With The Localization Information
 source ${dir}/setup.env
@@ -80,8 +82,7 @@ export PATH=$PATH:$awips_home/GFESuite/bin:$awips_home/GFESuite/ServiceBackup/sc
 export PATH=$PATH:$PROJECT/bin
 
 export JAVA_HOME="${JAVA_INSTALL}"
-export LD_LIBRARY_PATH=$EDEX_HOME/lib/native/linux32/awips1:${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:${PSQL_INSTALL}/lib:$PROJECT/sharedLib
-export LD_LIBRARY_PATH=/awips2/edex/lib/lib_illusion:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$EDEX_HOME/lib/lib_illusion:$EDEX_HOME/lib/native/linux32/awips1:${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:${PSQL_INSTALL}/lib:$PROJECT/sharedLib:$LD_LIBRARY_PATH
 
 export LD_PRELOAD="libpython.so"
 export FXA_DATA=$EDEX_HOME/data/fxa
