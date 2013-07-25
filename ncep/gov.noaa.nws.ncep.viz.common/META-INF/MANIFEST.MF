@@ -30,8 +30,5 @@ Export-Package: gov.noaa.nws.ncep.viz.common,
  gov.noaa.nws.ncep.viz.common.ui.color
 Import-Package: com.raytheon.uf.common.comm,
  com.vividsolutions.jts.geom,
- javax.measure.unit,
- org.junit,
- org.junit.runner,
- org.junit.runners
+ javax.measure.unit
 

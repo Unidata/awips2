@@ -18,5 +18,4 @@ Require-Bundle: com.raytheon.rcm.lib;bundle-version="1.0.0",
  org.quartz;bundle-version="1.8.6"
 Import-Package: com.raytheon.uf.common.util,
  org.apache.commons.logging,
- org.apache.log4j,
- org.junit
+ org.apache.log4j
