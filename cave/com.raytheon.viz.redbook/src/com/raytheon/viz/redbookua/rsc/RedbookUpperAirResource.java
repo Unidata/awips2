@@ -85,6 +85,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 24, 2010 1029       dfriedma    Initial creation
+ * Jul 24, 2013 2203       njensen     Synchronized init and dispose of frames
  * 
  * </pre>
  * 
@@ -390,20 +391,27 @@ public class RedbookUpperAirResource extends
                 }
             }
 
-            images = new IImage[pointData.getCurrentSz()];
-
-            for (int i = 0; i < pointData.getCurrentSz(); ++i) {
-                PointDataView pdv = pointData.readRandom(i);
-                float lat = pdv.getFloat(RedbookUpperAirDecoder.P_LATITUDE);
-                float lon = pdv.getFloat(RedbookUpperAirDecoder.P_LONGITUDE);
-                PlotData pd = new PlotData();
-                pd.addData(pdv);
-                BufferedImage bImage = pmf.getStationPlot(pd, lat, lon);
-                IImage image = null;
-                if (bImage != null)
-                    image = target.initializeRaster(new IODataPreparer(bImage,
-                            "rbua"/* UUID.randomUUID().toString() */, 0), null);
-                images[i] = image;
+            synchronized (this) {
+                if (pointData != null) {
+                    images = new IImage[pointData.getCurrentSz()];
+                    for (int i = 0; i < pointData.getCurrentSz(); ++i) {
+                        PointDataView pdv = pointData.readRandom(i);
+                        float lat = pdv
+                                .getFloat(RedbookUpperAirDecoder.P_LATITUDE);
+                        float lon = pdv
+                                .getFloat(RedbookUpperAirDecoder.P_LONGITUDE);
+                        PlotData pd = new PlotData();
+                        pd.addData(pdv);
+                        BufferedImage bImage = pmf.getStationPlot(pd, lat, lon);
+                        IImage image = null;
+                        if (bImage != null)
+                            image = target.initializeRaster(new IODataPreparer(
+                                    bImage, "rbua"/*
+                                                   * UUID.randomUUID().toString()
+                                                   */, 0), null);
+                        images[i] = image;
+                    }
+                }
             }
 
             synchronized (job) {
@@ -413,16 +421,18 @@ public class RedbookUpperAirResource extends
         }
 
         public void dispose() {
-            if (images != null)
-                for (int i = 0; i < images.length; ++i) {
-                    if (images[i] != null) {
-                        images[i].dispose();
-                        images[i] = null;
+            synchronized (this) {
+                if (images != null)
+                    for (int i = 0; i < images.length; ++i) {
+                        if (images[i] != null) {
+                            images[i].dispose();
+                            images[i] = null;
+                        }
                     }
-                }
-            valid = false;
-            redbookRecord = null;
-            pointData = null;
+                valid = false;
+                redbookRecord = null;
+                pointData = null;
+            }
         }
 
         public void paint(IGraphicsTarget target, PaintProperties paintProps)
