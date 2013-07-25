@@ -16,4 +16,3 @@ Export-Package: com.raytheon.uf.common.util,
  com.raytheon.uf.common.util.mapping,
  com.raytheon.uf.common.util.registry,
  com.raytheon.uf.common.util.session
-Import-Package: org.junit
