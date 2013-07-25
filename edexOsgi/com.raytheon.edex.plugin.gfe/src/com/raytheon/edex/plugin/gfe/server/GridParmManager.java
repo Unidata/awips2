@@ -17,7 +17,6 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-
 package com.raytheon.edex.plugin.gfe.server;
 
 import java.util.ArrayList;
@@ -26,29 +25,29 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.raytheon.edex.plugin.gfe.cache.d2dparms.D2DParmIdCache;
+import com.raytheon.edex.plugin.gfe.config.GridDbConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
-import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.db.dao.GFEDao;
 import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabase;
-import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.IFPGridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.NetCDFDatabaseManager;
-import com.raytheon.edex.plugin.gfe.server.database.TopoDatabaseManager;
+import com.raytheon.edex.plugin.gfe.server.database.VGridDatabase;
+import com.raytheon.edex.plugin.gfe.server.lock.LockManager;
+import com.raytheon.edex.plugin.gfe.smartinit.SmartInitQueue;
+import com.raytheon.edex.plugin.gfe.smartinit.SmartInitRecord;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID.DataType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
@@ -61,6 +60,8 @@ import com.raytheon.uf.common.dataplugin.gfe.server.request.CommitGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.GetGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.SaveGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -71,11 +72,14 @@ import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.database.plugin.PluginFactory;
+import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
+import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
+import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.purge.PurgeLogger;
 
 /**
- * Class used to manage grid parms
+ * Class used to manage grid parms. Maintains an in memory cache of all known
+ * GridDatabase objects
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -100,6 +104,7 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  *                                     Removed inventory from DBInvChangedNotification
  * 05/03/13     #1974      randerso    Fixed error logging to include stack trace
  * 05/14/13     #2004      randerso    Added methods to synch GridParmManager across JVMs
+ * 05/30/13     #2044      randerso    Refactored to better match A1 design. Removed D2DParmIDCache.
  * </pre>
  * 
  * @author bphillip
@@ -113,54 +118,78 @@ public class GridParmManager {
     private static final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("GFE:");
 
-    /** The data access object for retrieving GFE grid records */
-    private static GFEDao gfeDao;
+    protected static final String TASK_NAME = "GridParmManager";
 
-    /** The logger */
-    private static transient Log logger = LogFactory
-            .getLog(GridParmManager.class);
+    private static final String SMART_INIT_TASK_DETAILS = "SmartInit:";
 
-    private static Map<DatabaseID, GridDatabase> dbMap = new ConcurrentHashMap<DatabaseID, GridDatabase>();
+    // don't rerun the smart init fire if they have been run in the last 30
+    // minutes
+    private static final int SMART_INIT_TIMEOUT = 1800000;
 
-    static {
-        try {
-            gfeDao = (GFEDao) PluginFactory.getInstance().getPluginDao("gfe");
-        } catch (PluginException e) {
-            logger.error("Unable to get gfe dao", e);
-        }
-    }
+    private String siteID;
+
+    private IFPServerConfig config;
+
+    private LockManager lockMgr;
+
+    private Map<DatabaseID, GridDatabase> dbMap = new ConcurrentHashMap<DatabaseID, GridDatabase>();
 
     /**
-     * Creates a new GridParm based on a ParmID
+     * Construct a GridParmManager
      * 
-     * @param id
-     *            The parmID for the new GridParm
-     * @return A grid parm
+     * @param siteID
+     * @param config
+     * @param lockMgr
+     * @throws PluginException
+     * @throws DataAccessLayerException
      * @throws GfeException
-     *             If problems occur while accessing the IFPServer config
      */
-    private static GridParm gridParm(ParmID id) throws GfeException {
-        if (id.getDbId().getModelName().equals("Satellite")) {
-            D2DSatDatabase satDb = (D2DSatDatabase) getDb(id.getDbId());
-            return satDb.findParm(id);
+    public GridParmManager(String siteID, IFPServerConfig config,
+            LockManager lockMgr) throws PluginException,
+            DataAccessLayerException, GfeException {
+        this.siteID = siteID;
+        this.config = config;
+        this.lockMgr = lockMgr;
+        this.lockMgr.setGridParmMgr(this);
 
-        }
-        return new GridParm(id, getDb(id.getDbId()));
+        initializeManager();
     }
 
     /**
-     * Returns the grid inventory through "trs" for the parmId. Returns the
-     * status. Zeros trs. Calls gridParm() to look up the parameter. If not
-     * found, returns the appropriate error. Calls the grid parm's
-     * getGridInventory() to obtain the inventory.
+     * Dispose the GridParmManager
+     */
+    public void dispose() {
+        NetCDFDatabaseManager.removeDatabases(siteID);
+    }
+
+    private GridParm gridParm(ParmID id) {
+        GridDatabase db = getDatabase(id.getDbId());
+        if (db != null) {
+            return createParm(id);
+        } else {
+            return new GridParm();
+        }
+    }
+
+    private GridParm createParm(ParmID id) {
+        GridDatabase db = getDatabase(id.getDbId());
+        if (db != null) {
+            return new GridParm(id, lockMgr, db);
+        } else {
+            statusHandler
+                    .debug("No matching GridDatabase for requested ParmID  in createParm()");
+            // TODO: should we return null?
+            return new GridParm();
+        }
+    }
+
+    /**
+     * Get inventory for a parm
      * 
      * @param parmId
-     *            The parmID to get the inventory for
-     * @param trs
-     *            The resulting time ranges
-     * @return The server response
+     * @return server response containing list of TimeRanges
      */
-    public static ServerResponse<List<TimeRange>> getGridInventory(ParmID parmId) {
+    public ServerResponse<List<TimeRange>> getGridInventory(ParmID parmId) {
 
         ServerResponse<List<TimeRange>> sr = new ServerResponse<List<TimeRange>>();
         try {
@@ -173,8 +202,8 @@ public class GridParmManager {
             }
         } catch (Exception e) {
             sr.addMessage("Unknown Parm: " + parmId + " in getGridInventory()");
-            logger.error("Unknown Parm: " + parmId + " in getGridInventory()",
-                    e);
+            statusHandler.error("Unknown Parm: " + parmId
+                    + " in getGridInventory()", e);
         }
 
         return sr;
@@ -192,8 +221,8 @@ public class GridParmManager {
      *            The timeRange to get the inventory for
      * @return The server response
      */
-    public static ServerResponse<List<TimeRange>> getGridInventory(
-            ParmID parmId, TimeRange timeRange) {
+    public ServerResponse<List<TimeRange>> getGridInventory(ParmID parmId,
+            TimeRange timeRange) {
 
         ServerResponse<List<TimeRange>> sr = new ServerResponse<List<TimeRange>>();
         try {
@@ -206,28 +235,19 @@ public class GridParmManager {
             }
         } catch (Exception e) {
             sr.addMessage("Unknown Parm: " + parmId + " in getGridInventory()");
-            logger.error("Unknown Parm: " + parmId + " in getGridInventory()",
-                    e);
+            statusHandler.error("Unknown Parm: " + parmId
+                    + " in getGridInventory()", e);
         }
 
         return sr;
     }
 
     /**
-     * Returns the grid history through "history" for the parmId and specified
-     * grids. Returns the status.
-     * 
-     * Zeros trs. Calls gridParm() to look up the parameter. If not found,
-     * returns the appropriate error. Calls the grid parm's getGridHistory() to
-     * obtain the histories.
-     * 
      * @param parmId
-     *            The parmID to get the history for
      * @param trs
-     *            The time ranges to get the history for
-     * @return The server response
+     * @return map of TimeRanges to Lists of GridDataHistorys
      */
-    public static ServerResponse<Map<TimeRange, List<GridDataHistory>>> getGridHistory(
+    public ServerResponse<Map<TimeRange, List<GridDataHistory>>> getGridHistory(
             ParmID parmId, List<TimeRange> trs) {
         ServerResponse<Map<TimeRange, List<GridDataHistory>>> sr = new ServerResponse<Map<TimeRange, List<GridDataHistory>>>();
 
@@ -241,26 +261,20 @@ public class GridParmManager {
             }
         } catch (Exception e) {
             sr.addMessage("Unknown Parm: " + parmId + " in getGridInventory()");
-            logger.error("Unknown Parm: " + parmId + " in getGridInventory()",
-                    e);
+            statusHandler.error("Unknown Parm: " + parmId
+                    + " in getGridInventory()", e);
         }
 
         return sr;
     }
 
     /**
-     * * Returns the grid parameter information through "info" for the parmId.
-     * Returns the status. Calls gridParm() to look up the parameter. If not
-     * found, resets the GridParmInfo and logs the appropriate error. If found,
-     * calls the grid parm's getGridParmInfo().
+     * Get GridParmInfo for a parm
      * 
      * @param parmId
-     *            The parmID for which to get GridParmInfo for
-     * @param info
-     *            The grid parm info
-     * @return The server status
+     * @return the GridParmInfo
      */
-    public static ServerResponse<GridParmInfo> getGridParmInfo(ParmID parmId) {
+    public ServerResponse<GridParmInfo> getGridParmInfo(ParmID parmId) {
 
         ServerResponse<GridParmInfo> sr = new ServerResponse<GridParmInfo>();
 
@@ -275,56 +289,39 @@ public class GridParmManager {
             }
         } catch (Exception e) {
             sr.addMessage("Unknown Parm: " + parmId + " in getGridParmInfo()");
-            logger.error("Unknown Parm: " + parmId + " in getGridParmInfo()", e);
+            statusHandler.error("Unknown Parm: " + parmId
+                    + " in getGridParmInfo()", e);
         }
         return sr;
     }
 
     /**
-     * Request to save grid data. The data is in the saveRequest. The changes
-     * are returned as notifications through "changes". Returns the status.
-     * 
-     * Zeros "changes". Loop through each save request and do the following: 1)
-     * get the gridParm() for the request, 2) call the GridParm's saveGridData,
-     * 3) call dataTime() on the saveRequest and create a GridUpdateNotification
-     * and append it to changes.
+     * Save grid data
      * 
      * @param saveRequest
-     *            The save requests
      * @param requestorId
-     *            The workstation ID of the requester
-     * @param changes
-     *            The update notifications
-     * @return The server status
+     * @return ServerResponse with status only
      */
-    public static ServerResponse<?> saveGridData(
-            List<SaveGridRequest> saveRequest, WsId requestorId, String siteID) {
+    public ServerResponse<?> saveGridData(List<SaveGridRequest> saveRequest,
+            WsId requestorId) {
 
-        ServerResponse<List<GridUpdateNotification>> sr = new ServerResponse<List<GridUpdateNotification>>();
+        ServerResponse<?> sr = new ServerResponse<Object>();
 
         // process each request
         for (SaveGridRequest req : saveRequest) {
             ServerResponse<?> ssr = null;
             GridParm gp = null;
-            try {
-                gp = gridParm(req.getParmId());
-                if (!gp.isValid()) {
-                    sr.addMessage("Unknown Parm: " + req.getParmId()
-                            + " in saveGridData()");
-                    logger.error("Unknown Parm: " + req.getParmId()
-                            + " in saveGridData()");
-                    continue;
-                }
-            } catch (GfeException e1) {
+            gp = gridParm(req.getParmId());
+            if (!gp.isValid()) {
                 sr.addMessage("Unknown Parm: " + req.getParmId()
                         + " in saveGridData()");
-                logger.error("Unknown Parm: " + req.getParmId()
-                        + " in saveGridData()", e1);
+                statusHandler.error("Unknown Parm: " + req.getParmId()
+                        + " in saveGridData()");
                 continue;
             }
 
             // save the data
-            ssr = gp.saveGridData(req, requestorId, siteID);
+            ssr = gp.saveGridData(req, requestorId);
             sr.addMessages(ssr);
             if (!ssr.isOkay()) {
                 sr.addMessage("Save Grid Data Failed for: " + req.getParmId()
@@ -345,24 +342,12 @@ public class GridParmManager {
     }
 
     /**
-     * Request for grid data. The data is returned through "data".
-     * 
-     * Zeroes "data". Loop through each getRequest. For each entry, do the
-     * following: 1) get the gridParm(), 2) call the grid parm's getGridData, 3)
-     * append the set of returned GridSlices to the returned argument. In case
-     * of error, zero data. The changes should always be zero length, unless an
-     * invalid grid is retrieved from the database; the GridParm class handles
-     * filling up the changes entry.
+     * Get grid data
      * 
      * @param getRequest
-     *            The get data requests
-     * @param data
-     *            The returned data
-     * @param changes
-     *            The grid update notifications
-     * @return The server response
+     * @return list of grid slices
      */
-    public static ServerResponse<List<IGridSlice>> getGridData(
+    public ServerResponse<List<IGridSlice>> getGridData(
             List<GetGridRequest> getRequest) {
 
         ServerResponse<List<IGridSlice>> sr = new ServerResponse<List<IGridSlice>>();
@@ -389,7 +374,7 @@ public class GridParmManager {
             } catch (Exception e) {
                 sr.addMessage("Unknown Parm: " + req.getParmId()
                         + " in getGridData()");
-                logger.error("Unknown Parm: " + req.getParmId()
+                statusHandler.error("Unknown Parm: " + req.getParmId()
                         + " in getGridData()", e);
             }
         }
@@ -398,35 +383,16 @@ public class GridParmManager {
     }
 
     /**
-     * * Request to commit data to the official database. The changes are
-     * returned through the calling argument "changes".
-     * 
-     * Zeros changes. Find the GridDatabase* for the official database.
-     * 
-     * CommitGridRequests can be of type parm, or of type database. This routine
-     * converts all database-type requests to individual parm-type requests.
-     * 
-     * Loop through each commit request and do the following: 1) get the
-     * gridParm*, 2) get the GridParm's inventory, 3) determine the set of time
-     * ranges for the grids that overlap but are contained within the commit
-     * request, 4) get the grid data from the source, 5) verify that the
-     * GridParmInfo for the source and destination are matched (not exactly
-     * equal though), 6) modify the retrieved DataSlices GridDataHistory and
-     * parmID to match the destination, 7) call the official GridDatabase's
-     * saveGridData(), 8) assemble a GridUpdateNotification and append it to
-     * changes.
+     * Commit (Publish) grids
      * 
      * @param request
-     *            The commit grid request
      * @param requestorId
-     *            The workstation ID of the requester
      * @param changes
-     *            The grid update notifications
-     * @return The server response
+     * @return list of GridUpdateNotifications for updated grids
      */
-    public static ServerResponse<List<GridUpdateNotification>> commitGrid(
+    public ServerResponse<List<GridUpdateNotification>> commitGrid(
             List<CommitGridRequest> request, WsId requestorId,
-            List<GridUpdateNotification> changes, String siteID) {
+            List<GridUpdateNotification> changes) {
 
         ServerResponse<List<GridUpdateNotification>> sr = new ServerResponse<List<GridUpdateNotification>>();
         sr.setPayload(new ArrayList<GridUpdateNotification>());
@@ -450,7 +416,7 @@ public class GridParmManager {
             return sr;
         }
 
-        logger.info("Publish/Commit Grids Request: " + parmReq);
+        statusHandler.info("Publish/Commit Grids Request: " + parmReq);
         List<CommitGridRequest> failures = new ArrayList<CommitGridRequest>();
 
         ITimer inventoryTimer = TimeUtil.getTimer();
@@ -468,16 +434,8 @@ public class GridParmManager {
 
             // for the source data
             GridParm sourceGP = null;
-            try {
-                sourceGP = gridParm(req.getParmId());
-                if (!sourceGP.isValid()) {
-                    ssr.addMessage("Unknown Source Parm: " + req.getParmId()
-                            + " in commitGrid()");
-                    srDetailed.addMessages(ssr);
-                    failures.add(req);
-                    continue;
-                }
-            } catch (GfeException e) {
+            sourceGP = gridParm(req.getParmId());
+            if (!sourceGP.isValid()) {
                 ssr.addMessage("Unknown Source Parm: " + req.getParmId()
                         + " in commitGrid()");
                 srDetailed.addMessages(ssr);
@@ -489,16 +447,8 @@ public class GridParmManager {
             ParmID destParmId = new ParmID(req.getParmId().getParmName(),
                     officialDBid, req.getParmId().getParmLevel());
             GridParm destGP = null;
-            try {
-                destGP = gridParm(destParmId);
-                if (!destGP.isValid()) {
-                    ssr.addMessage("Unknown Destination Parm: " + destGP
-                            + " in commitGrid()");
-                    srDetailed.addMessages(ssr);
-                    failures.add(req);
-                    continue;
-                }
-            } catch (GfeException e) {
+            destGP = gridParm(destParmId);
+            if (!destGP.isValid()) {
                 ssr.addMessage("Unknown Destination Parm: " + destGP
                         + " in commitGrid()");
                 srDetailed.addMessages(ssr);
@@ -807,211 +757,153 @@ public class GridParmManager {
     }
 
     /**
-     * Returns the database inventory in "databases".
+     * Get database inventory
      * 
-     * Zeros databases. Sequentially goes through _dbs and extracts out the
-     * database ids. Returns them. Note that no errors can occur from this
-     * routine although a ServerResponse is returned.
-     * 
-     * @param databases
-     *            The database inventory
-     * @return The server response
+     * @return list of available DatabaseIDs
      */
-    public static ServerResponse<List<DatabaseID>> getDbInventory(String siteID) {
+    public ServerResponse<List<DatabaseID>> getDbInventory() {
         ServerResponse<List<DatabaseID>> sr = new ServerResponse<List<DatabaseID>>();
-        List<DatabaseID> databases = new ArrayList<DatabaseID>();
-        List<DatabaseID> gfeDbs = null;
-        List<DatabaseID> singletons = null;
-        List<DatabaseID> d2dDbs = null;
 
-        try {
-            gfeDbs = gfeDao.getDatabaseInventory(siteID);
-        } catch (DataAccessLayerException e) {
-            sr.addMessage("Unable to get IFP databases for site: " + siteID);
-            logger.error("Unable to get IFP databases for site: " + siteID, e);
-            return sr;
-        }
+        List<DatabaseID> databases = new ArrayList<DatabaseID>(
+                this.dbMap.keySet());
 
-        d2dDbs = D2DParmIdCache.getInstance().getDatabaseIDs();
-
-        try {
-            singletons = IFPServerConfigManager.getServerConfig(siteID)
-                    .getSingletonDatabases();
-        } catch (GfeException e) {
-            sr.addMessage("Unable to get singleton databases");
-            logger.error("Unable to get singleton databases", e);
-            return sr;
-        }
-
-        if (singletons != null) {
-            for (DatabaseID singleton : singletons) {
-                if (singleton.getSiteId().equals(siteID)) {
-                    databases.add(singleton);
-                }
-            }
-        }
-
-        for (DatabaseID dbId : gfeDbs) {
-            if (!databases.contains(dbId)) {
-                databases.add(dbId);
-            }
-        }
-
-        if (d2dDbs != null) {
-            for (DatabaseID d2d : d2dDbs) {
-                if (d2d.getSiteId().equals(siteID)) {
-                    databases.add(d2d);
-                }
-            }
-        }
-
-        DatabaseID topoDbId = TopoDatabaseManager.getTopoDbId(siteID);
-        databases.add(topoDbId);
-        databases.addAll(NetCDFDatabaseManager.getDatabaseIds(siteID));
         sr.setPayload(databases);
         return sr;
     }
 
     /**
-     * Command to create a new database. This functions as a no-op if the
-     * database already exists. A user cannot create a new database which is the
-     * singleton type -- since that assumes there is no model time.
+     * Get a database if available
      * 
-     * Checks if "id" is a Grid-type database. Checks to see if the database
-     * already exists. If found, then returns okay. If not found, then calls
-     * createDB() to handle the creation.
-     * 
-     * @param id
-     *            The database ID of the database to create
-     * @return The server response
+     * @param dbId
+     * @return GridDatabase or null if not available
      */
-    public static ServerResponse<?> createNewDb(DatabaseID id) {
-        ServerResponse<?> sr = new ServerResponse<String>();
-        if (!id.getFormat().equals(DatabaseID.DataType.GRID)) {
-            sr.addMessage("Invalid database id for createNewDb(): " + id);
+    public GridDatabase getDatabase(DatabaseID dbId) {
+        // look up the database in the map
+        GridDatabase db = this.dbMap.get(dbId);
+
+        // if db not in map try to create it
+        if (db == null) {
+            if (dbId.getDbType().equals("D2D")) {
+                db = D2DGridDatabase.getDatabase(config, dbId);
+            } else {
+                ServerResponse<GridDatabase> status = createDB(dbId);
+                if (status.isOkay()) {
+                    db = status.getPayload();
+                    createDbNotification(Arrays.asList(dbId), null);
+                }
+            }
+
+            if (db != null) {
+                this.addDB(db);
+            }
+        }
+
+        return db;
+    }
+
+    /**
+     * Create a new database
+     * 
+     * @param dbId
+     * @return ServerResponse containing the created database
+     */
+    public ServerResponse<GridDatabase> createNewDb(DatabaseID dbId) {
+
+        ServerResponse<GridDatabase> sr = new ServerResponse<GridDatabase>();
+
+        if (!dbId.getFormat().equals(DataType.GRID)) {
+            sr.addMessage("Invalid database id for createNewDb(): " + dbId);
             return sr;
         }
 
-        // Check if this is a singleton database
-        DatabaseID idWOTime = id.stripModelTime();
-        List<DatabaseID> dbIds;
-        try {
-            dbIds = IFPServerConfigManager.getServerConfig(id.getSiteId())
-                    .getSingletonDatabases();
-        } catch (GfeException e) {
-            sr.addMessage("Error retrieving singleton databases from IFPServerConfig");
-            logger.error(
-                    "Error retrieving singleton databases from IFPServerConfig",
-                    e);
-            return sr;
+        GridDatabase db = this.getDatabase(dbId);
+        if (db != null) {
+            return sr; // database already exists
         }
-        if (dbIds.contains(idWOTime)) {
-            sr.addMessage("Cannot create database " + id
+
+        // is it a singleton database?
+        DatabaseID idWOTime = dbId.stripModelTime();
+        if (this.config.getSingletonDatabases().contains(idWOTime)) {
+            sr.addMessage("Cannot create database " + dbId
                     + ". It is a singleton database [" + idWOTime);
             return sr;
         }
 
-        List<DatabaseID> inv = getDbInventory(id.getSiteId()).getPayload();
-        try {
-            createDB(id);
-            if (!inv.contains(id)) {
-                createDbNotification(id.getSiteId(),
-                        Arrays.asList(new DatabaseID[] { id }),
-                        new ArrayList<DatabaseID>());
-            }
-        } catch (GfeException e) {
-            sr.addMessage("Unable to create database: " + id);
-            logger.error("Unable to create database: " + id, e);
-            return sr;
-        }
-
         return sr;
     }
 
-    public static ServerResponse<?> deleteDb(DatabaseID id) {
+    /**
+     * Delete database
+     * 
+     * @param dbId
+     * @return ServerResponse containg status only
+     */
+    public ServerResponse<?> deleteDb(DatabaseID dbId) {
         ServerResponse<?> sr = new ServerResponse<String>();
 
-        List<DatabaseID> inv = getDbInventory(id.getSiteId()).getPayload();
-        if (!inv.contains(id)) {
+        GridDatabase db = this.getDatabase(dbId);
+        if (db == null) {
             statusHandler.handle(Priority.PROBLEM, "Cannot delete database "
-                    + id + ". It does not exist");
-            sr.addMessage("Cannot delete database " + id
+                    + dbId + ". It does not exist");
+            sr.addMessage("Cannot delete database " + dbId
                     + ". It does not exist");
             return sr;
         }
 
-        DatabaseID idWOTime = id.stripModelTime();
-        IFPServerConfig config = null;
-        try {
-            config = IFPServerConfigManager.getServerConfig(id.getSiteId());
-        } catch (GfeException e) {
-            sr.addMessage("Error retrieving serverconfig for " + id.getSiteId());
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error retrieving serverconfig for " + id.getSiteId(), e);
-            return sr;
-        }
-
-        if (config.getSingletonDatabases().contains(idWOTime)) {
-            sr.addMessage("Cannot delete database " + id
+        // is it a singleton or official database?
+        DatabaseID idWOTime = dbId.stripModelTime();
+        if (this.config.getSingletonDatabases().contains(idWOTime)) {
+            sr.addMessage("Cannot delete database " + dbId
                     + ". It is a singleton database");
             statusHandler.handle(Priority.PROBLEM, "Cannot delete database "
-                    + id + ". It is a singleton database");
+                    + dbId + ". It is a singleton database");
             return sr;
         }
 
-        if (config.getOfficialDatabases().contains(idWOTime)) {
-            sr.addMessage("Cannot delete database " + id
+        if (this.config.getOfficialDatabases().contains(idWOTime)) {
+            sr.addMessage("Cannot delete database " + dbId
                     + ". It is an official database");
             statusHandler.handle(Priority.PROBLEM, "Cannot delete database "
-                    + id + ". It is an official database");
+                    + dbId + ". It is an official database");
             return sr;
         }
 
-        deallocateDb(id, true);
+        // delete it
+        deallocateDb(dbId, true);
         return sr;
     }
 
     /**
-     * Returns the parameter list for the given database.
+     * Retrieve the parm list for database
      * 
-     * Zeros parmList. Looks up the database using "id". Asks the GridDatabase
-     * for the parm list.
-     * 
-     * @param id
-     *            The databases ID to get the parameter list for
-     * @return The server response
+     * @param dbId
+     * @return the parm list
      */
-    public static ServerResponse<List<ParmID>> getParmList(DatabaseID id) {
+    public ServerResponse<List<ParmID>> getParmList(DatabaseID dbId) {
+
         ServerResponse<List<ParmID>> sr = new ServerResponse<List<ParmID>>();
-        try {
-            GridDatabase db = getDb(id);
-            if (db != null) {
-                sr = db.getParmList();
-            } else {
-                sr.addMessage("Database " + id
-                        + " does not exist for getParmList()");
-            }
-        } catch (Exception e) {
-            sr.addMessage("Error getting db: " + id);
-            logger.error("Error getting db: " + id, e);
+
+        GridDatabase db = getDatabase(dbId);
+
+        if (db == null) {
+            sr.addMessage("Database " + dbId
+                    + " does not exist for getParmList()");
+            return sr;
         }
+
+        sr = db.getParmList();
         return sr;
     }
 
     /**
-     * Performs a database version purge. Returns the status.
+     * Perform database based on versions
      * 
-     * Gets the current database inventory. Sorts it. Uses the server config to
-     * get the number of databases required for each category (e.g., Model) and
-     * determine which ones to delete. Calls deallocateDB() with the deleteFlag
-     * set to true for each db to delete.
-     * 
-     * @return The server response
+     * @return ServerResponse containing status only
      */
-    public static ServerResponse<?> versionPurge(String siteID) {
+    public ServerResponse<?> versionPurge() {
 
         ServerResponse<List<DatabaseID>> sr = new ServerResponse<List<DatabaseID>>();
-        sr = getDbInventory(siteID);
+        sr = getDbInventory();
         if (!sr.isOkay()) {
             sr.addMessage("VersionPurge failed - couldn't get inventory");
             return sr;
@@ -1038,12 +930,7 @@ public class GridParmManager {
                 count = 0;
 
                 // determine desired number of versions
-                try {
-                    desiredVersions = IFPServerConfigManager.getServerConfig(
-                            siteID).desiredDbVersions(dbId);
-                } catch (GfeException e) {
-                    logger.error("Error retreiving serverConfig", e);
-                }
+                desiredVersions = this.config.desiredDbVersions(dbId);
             }
 
             // process the id and determine whether it should be purged
@@ -1055,35 +942,26 @@ public class GridParmManager {
             }
         }
 
-        // kludge to keep dbMap in synch until GridParmManager/D2DParmICache
-        // merge/refactor
-        dbMap.keySet().retainAll(databases);
-
-        createDbNotification(siteID, databases);
+        createDbNotification(databases);
 
         return sr;
     }
 
     /**
-     * Command to perform grid purging. Returns the status.
-     * 
-     * Zeroes the notifications. Go sequentially through the _parms sequence and
-     * get the purge configuration value from the config file for the database
-     * by calling purgeTime(), call the GridParm's timePurge() and append its
-     * returned notifications to this functions notifications.
+     * Purge grids based on time
      * 
      * @param gridNotifications
-     *            The grid changed notifications
+     *            list to add GridUpdateNotifications
      * @param lockNotifications
-     *            The lock notifications
-     * @return The server response
+     *            list to add LockNotifications
+     * @return ServerResponse containing status only
      */
-    public static ServerResponse<?> gridsPurge(
+    public ServerResponse<?> gridsPurge(
             List<GridUpdateNotification> gridNotifications,
-            List<LockNotification> lockNotifications, String siteID) {
+            List<LockNotification> lockNotifications) {
 
         ServerResponse<List<DatabaseID>> sr = new ServerResponse<List<DatabaseID>>();
-        sr = getDbInventory(siteID);
+        sr = getDbInventory();
 
         if (!sr.isOkay()) {
             sr.addMessage("GridsPurge failed - couldn't get inventory");
@@ -1093,10 +971,6 @@ public class GridParmManager {
         List<DatabaseID> databases = sr.getPayload();
 
         for (DatabaseID dbId : databases) {
-            if (dbId.getDbType().equals("D2D")) {
-                continue;
-            }
-
             Date purgeTime = purgeTime(dbId);
             if (purgeTime == null) {
                 continue;
@@ -1115,21 +989,16 @@ public class GridParmManager {
             for (ParmID parmId : parmIds) {
                 List<GridUpdateNotification> gridNotify = new ArrayList<GridUpdateNotification>();
                 List<LockNotification> lockNotify = new ArrayList<LockNotification>();
-                GridParm gp = null;
-                try {
-                    gp = gridParm(parmId);
-                } catch (GfeException e) {
-                    sr.addMessage("Error getting parm for: " + parmId);
-                    logger.error("Error getting parm for: " + parmId, e);
-                    continue;
-                }
-                ServerResponse<Integer> sr1 = gp.timePurge(purgeTime,
-                        gridNotify, lockNotify, siteID);
-                sr.addMessages(sr1);
-                purgedCount += sr1.getPayload();
+                GridParm gp = createParm(parmId);
+                if (gp.isValid()) {
+                    ServerResponse<Integer> sr1 = gp.timePurge(purgeTime,
+                            gridNotify, lockNotify);
+                    sr.addMessages(sr1);
+                    purgedCount += sr1.getPayload();
 
-                gridNotifications.addAll(gridNotify);
-                lockNotifications.addAll(lockNotify);
+                    gridNotifications.addAll(gridNotify);
+                    lockNotifications.addAll(lockNotify);
+                }
             }
 
             PurgeLogger.logInfo("Purge " + purgedCount + " items from " + dbId,
@@ -1139,15 +1008,317 @@ public class GridParmManager {
         return sr;
     }
 
-    public static Date purgeTime(DatabaseID id) {
-        int numHours = 0;
+    private ServerResponse<GridDatabase> createDB(DatabaseID id) {
+        ServerResponse<GridDatabase> status = new ServerResponse<GridDatabase>();
+        GridDatabase db = this.dbMap.get(id);
+        if (db != null) {
+            status.setPayload(db);
+            return status;
+        } // already exists
+
+        if (!id.isValid() || !id.getFormat().equals(DataType.GRID)) {
+            status.addMessage("Database id "
+                    + id
+                    + " is not valid, or is not a grid-type.  Cannot create database.");
+            return status;
+        }
+
+        // create the grid database
+        GridDbConfig dbConfig = this.config.gridDbConfig(id);
+        if (dbConfig == null) {
+            status.addMessage("Unable to obtain GridDbConfig information for creation"
+                    + " in createDB() for " + id);
+
+            // TODO: implement A2 equivalent
+            // make list of files that match this "bad" database
+            // TextString dir = PathMgr::dirname(filename) + '/';
+            // TextString baseName = PathMgr::basename(filename);
+            // TextString dbName = PathMgr::stripExtension(baseName);
+            // SeqOf<TextString> filenames = PathMgr::listDir(dir);
+            // unsigned pos = 0;
+            // TextString badTime =
+            // AbsTime::current().string("/BADDB-%Y%m%d_%H%M-");
+            // for (int i = 0; i < filenames.length(); i++)
+            // if (PathMgr::isFile(dir + filenames[i]) &&
+            // filenames[i].found(dbName, pos))
+            // {
+            // logVerbose << "Deleting Bogus Database:" << filenames[i]
+            // << std::endl;
+            // TextString bdir = _config.baseDir() + "/BAD";
+            // PathMgr::mkdir(bdir);
+            // TextString sourceF = dir + filenames[i];
+            // TextString destF = bdir + badTime + filenames[i];
+            // TextString cmd = "mv " + sourceF + ' ' + destF;
+            // system(cmd.stringPtr());
+            // logProblem << "Bad database moved to: " << destF << std::endl;
+            // }
+
+            return status;
+        }
+
+        // we attempt to create the GridDatabase twice, if fails the 1st time,
+        // we delete it and try again. Singleton databases get two tries,
+        // non-singletons are simply deleted if invalid.
+        int trys = 0;
+        int maxtrys = 2;
+        if (id.getModelTime().equals(DatabaseID.NO_MODEL_TIME)) {
+            maxtrys = 1;
+        }
+
+        while (trys < maxtrys) {
+            if (trys != 0) {
+                statusHandler.error("Attempting to recreate: ");
+            }
+
+            db = new IFPGridDatabase(id, dbConfig);
+            // ServerResponse sr;
+            // sr = db->databaseIsValid();
+            // if (sr.okay())
+            if (db.databaseIsValid()) {
+                break; // database is okay - continue processing
+            }
+            //
+            // // error on creating database
+            // logProblem << "Database invalid with id: " << id << std::endl;
+            // logProblem << sr << std::endl;
+            // logProblem << "Deleting bogus database: " << id << std::endl;
+            //
+            // // make list of files that match this "bad" database
+            // TextString dir = PathMgr::dirname(filename) + '/';
+            // TextString baseName = PathMgr::basename(filename);
+            // TextString dbName = PathMgr::stripExtension(baseName);
+            // SeqOf<TextString> filenames = PathMgr::listDir(dir);
+            // TextString badTime =
+            // AbsTime::current().string("/BADDB-%Y%m%d_%H%M-");
+            // unsigned int pos = 0;
+            // for (int i = 0; i < filenames.length(); i++)
+            // if (PathMgr::isFile(dir + filenames[i])
+            // && filenames[i].found(dbName, pos))
+            // {
+            // TextString bdir = _config.baseDir() + "/BAD";
+            // PathMgr::mkdir(bdir);
+            // TextString sourceF = dir + filenames[i];
+            // TextString destF = bdir + badTime + filenames[i];
+            // TextString cmd = "mv " + sourceF + ' ' + destF;
+            // system(cmd.stringPtr());
+            // logProblem << "Bad database moved to: " << destF << std::endl;
+            // }
+            // //db->deleteDb(); // delete the database (not needed since we
+            // move
+            // // files to a "BAD" directory
+            // delete db;
+            // db = NULL;
+            if ((trys + 1) == maxtrys) { // final loop
+                status.addMessage("Database " + id + " is not valid.");
+                // status += sr;
+                return null;
+            }
+            trys++;
+        }
+
+        if (db != null) {
+            addDB(db);
+        } // add to list of databases if not-NULL
+
+        status.setPayload(db);
+        return status;
+    }
+
+    private void deallocateDb(DatabaseID id, boolean deleteFile) {
+        GridDatabase db = this.dbMap.remove(id);
+
+        if ((db != null) && deleteFile) {
+            db.deleteDb();
+        }
+    }
+
+    private void initializeManager() throws GfeException,
+            DataAccessLayerException, PluginException {
+        // get existing list (of just GRIDs)
+        GFEDao gfeDao = new GFEDao();
+        List<DatabaseID> inventory = gfeDao.getDatabaseInventory(siteID);
+
+        // get list of singleton databases from config
+        // and add them if missing from inventory (GRID-type only)
+        for (DatabaseID manID : this.config.getSingletonDatabases()) {
+            if (manID.getFormat().equals(DataType.GRID)
+                    && !inventory.contains(manID)) {
+                inventory.add(manID);
+            }
+        }
+
+        // create the databases (the list should now only contain GRID dbs)
+        ServerResponse<GridDatabase> sr = new ServerResponse<GridDatabase>();
+        for (DatabaseID dbId : inventory) {
+            sr = createDB(dbId);
+        }
+        if (!sr.isOkay()) {
+            statusHandler.error(sr.message());
+        }
+
+        NetCDFDatabaseManager.initializeNetCDFDatabases(config);
+        for (DatabaseID dbId : NetCDFDatabaseManager.getDatabaseIds(siteID)) {
+            GridDatabase db = NetCDFDatabaseManager.getDb(dbId);
+            addDB(db);
+        }
+
+        // Fire up the sat database.
+        D2DSatDatabase satDb = new D2DSatDatabase(config);
+        addDB(satDb);
+
+        initD2DDbs();
+
+        // only fire smartInits if queue is instantiated
+        SmartInitQueue queue = SmartInitQueue.getQueue();
+        if (queue != null) {
+            // acquire cluster lock since only needs to happen once
+            ClusterTask ct = ClusterLockUtils.lookupLock(TASK_NAME,
+                    SMART_INIT_TASK_DETAILS + siteID);
+
+            // TODO: reconsider this as changes to localConfig may change what
+            // smartInits should be run
+            // TODO: re-enable check
+            // if ((ct.getLastExecution() + SMART_INIT_TIMEOUT) < System
+            // .currentTimeMillis()) {
+            ct = ClusterLockUtils.lock(TASK_NAME, SMART_INIT_TASK_DETAILS
+                    + siteID, SMART_INIT_TIMEOUT, false);
+            if (LockState.SUCCESSFUL.equals(ct.getLockState())) {
+                boolean clearTime = false;
+                try {
+                    for (DatabaseID dbId : this.dbMap.keySet()) {
+                        if (dbId.getDbType().equals("D2D")) {
+                            statusHandler.info("Firing smartinit for: " + dbId);
+                            VGridDatabase db = (VGridDatabase) getDatabase(dbId);
+                            SortedSet<Date> validTimes = db.getValidTimes();
+                            for (Date validTime : validTimes) {
+                                queue.queue(
+                                        siteID,
+                                        config,
+                                        dbId,
+                                        validTime,
+                                        false,
+                                        SmartInitRecord.SITE_ACTIVATION_INIT_PRIORITY);
+                            }
+                        }
+                    }
+                } finally {
+                    ClusterLockUtils.unlock(ct, clearTime);
+                }
+            }
+            // }
+        }
+    }
+
+    private void initD2DDbs() throws GfeException {
+        for (String d2dModelName : config.getD2dModels()) {
+            try {
+                // get dbId to get desiredDbVersions (date doesn't matter)
+                DatabaseID dbId = D2DGridDatabase.getDbId(d2dModelName,
+                        new Date(), config);
+                int desiredVersions = config.desiredDbVersions(dbId);
+
+                for (Date refTime : D2DGridDatabase.getModelRunTimes(
+                        d2dModelName, desiredVersions)) {
+                    D2DGridDatabase db = new D2DGridDatabase(config,
+                            d2dModelName, refTime);
+                    addDB(db);
+                }
+            } catch (Exception e) {
+                statusHandler.error("Error initializing D2D model: "
+                        + d2dModelName, e);
+            }
+        }
+    }
+
+    /**
+     * @param gridRecords
+     */
+    public void filterGridRecords(List<GridRecord> gridRecords) {
+        List<GridUpdateNotification> guns = new LinkedList<GridUpdateNotification>();
+        for (GridRecord record : gridRecords) {
+            String d2dModelName = record.getDatasetId();
+            Date refTime = record.getDataTime().getRefTime();
+            DatabaseID dbId = D2DGridDatabase.getDbId(d2dModelName, refTime,
+                    config);
+            // not a d2d model we care about
+            if (dbId == null) {
+                continue;
+            }
+
+            D2DGridDatabase db = (D2DGridDatabase) this.dbMap.get(dbId);
+            if (db == null) {
+                // New database
+                try {
+                    db = new D2DGridDatabase(config, d2dModelName, refTime);
+                } catch (GfeException e) {
+                    statusHandler.error("Error creating D2DGridDatabase: "
+                            + dbId, e);
+                    continue;
+                }
+                addDB(db);
+                statusHandler.info("filterGridRecords new D2D database: "
+                        + dbId);
+                GfeNotification dbInv = new DBInvChangeNotification(
+                        Arrays.asList(dbId), null, siteID);
+                SendNotifications.send(dbInv);
+            }
+
+            GridUpdateNotification gun = db.update(record);
+            if (gun != null) {
+                guns.add(gun);
+
+                // only fire smartInits if queue is instantiated
+                SmartInitQueue queue = SmartInitQueue.getQueue();
+                if (queue != null) {
+                    Date validTime = gun.getReplacementTimeRange().getStart();
+                    queue.queue(siteID, config, dbId, validTime, false,
+                            SmartInitRecord.LIVE_SMART_INIT_PRIORITY);
+                }
+            }
+        }
+
+        // send notifications;
+        try {
+            SendNotifications.send(guns);
+        } catch (Exception e) {
+            statusHandler.error("Unable to send grib ingest notifications", e);
+        }
+    }
+
+    /**
+     * @param records
+     */
+    public void filterSatelliteRecords(List<SatelliteRecord> records) {
+
+        DatabaseID dbId = D2DSatDatabase.getDbId(siteID);
+        D2DSatDatabase db = (D2DSatDatabase) getDatabase(dbId);
+
+        List<GridUpdateNotification> guns = new LinkedList<GridUpdateNotification>();
+        for (SatelliteRecord record : records) {
+            GridUpdateNotification gun = db.update(record);
+            if (gun != null) {
+                guns.add(gun);
+
+                // only fire smartInits if queue is instantiated
+                SmartInitQueue queue = SmartInitQueue.getQueue();
+                if (queue != null) {
+                    Date validTime = gun.getReplacementTimeRange().getStart();
+                    queue.queue(siteID, config, dbId, validTime, false,
+                            SmartInitRecord.LIVE_SMART_INIT_PRIORITY);
+                }
+            }
+        }
 
         try {
-            numHours = IFPServerConfigManager.getServerConfig(id.getSiteId())
-                    .gridPurgeAgeInHours(id);
-        } catch (GfeException e) {
-            logger.error("Error calculating purge time", e);
+            SendNotifications.send(guns);
+        } catch (Exception e) {
+            statusHandler.error(
+                    "Unable to send satellite ingest notifications", e);
         }
+    }
+
+    private Date purgeTime(DatabaseID id) {
+        int numHours = this.config.gridPurgeAgeInHours(id);
 
         if (numHours < 1) {
             return null; // don't perform time based purge
@@ -1155,117 +1326,18 @@ public class GridParmManager {
 
         // calculate purge time based on present time
         return new Date(System.currentTimeMillis()
-                - (numHours * Util.MILLI_PER_HOUR));
+                - (numHours * TimeUtil.MILLIS_PER_HOUR));
 
     }
 
-    /**
-     * Creates a new database with the given databaseID.<br>
-     * This method retrieves the configuration for this database from the
-     * IFPServerConfig and creates an hdf5 file
-     * 
-     * @param dbId
-     *            The database to create
-     */
-    private static GridDatabase createDB(DatabaseID dbId) throws GfeException {
-
-        /*
-         * Validate the database ID. Throws an exception if the database ID is
-         * invalid
-         */
-        if (!dbId.isValid() || (dbId.getFormat() != DatabaseID.DataType.GRID)) {
-            throw new GfeException(
-                    "Database id "
-                            + dbId
-                            + " is not valid, or is not a grid-type. Cannot create database.");
-        }
-
-        /*
-         * Create the database (create the hdf5 file)
-         */
-        GridDatabase db = getDb(dbId);
-
-        if (!db.databaseIsValid()) {
-            throw new GfeException("Database invalid with id: " + dbId);
-        }
-        return db;
-    }
-
-    /**
-     * Utility method to get the correct type of database
-     * 
-     * @param dbId
-     *            The database ID of the database to retrieve
-     * @return The Grid Database or null if database not available
-     * @throws GfeException
-     */
-    public static GridDatabase getDb(DatabaseID dbId) throws GfeException {
-        GridDatabase db = dbMap.get(dbId);
-        if (db == null) {
-            String dbType = dbId.getDbType();
-            String siteId = dbId.getSiteId();
-            String modelName = dbId.getModelName();
-            if ("D2D".equals(dbType)) {
-                if (modelName.equals("Satellite")) {
-                    db = D2DSatDatabaseManager.getSatDatabase(dbId.getSiteId());
-
-                } else {
-                    db = NetCDFDatabaseManager.getDb(dbId);
-                }
-                if (db == null) {
-                    IFPServerConfig serverConfig = IFPServerConfigManager
-                            .getServerConfig(siteId);
-                    try {
-                        // this is still necessary on other JVMs from where
-                        // ingested
-                        String d2dModelName = serverConfig
-                                .d2dModelNameMapping(modelName);
-                        db = new D2DGridDatabase(serverConfig, d2dModelName,
-                                dbId.getModelTimeAsDate());
-                    } catch (Exception e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                e.getLocalizedMessage(), e);
-                        db = null;
-                    }
-                }
-            } else {
-                // Check for topo type
-                String topoModel = TopoDatabaseManager.getTopoDbId(siteId)
-                        .getModelName();
-                if (topoModel.equals(modelName)) {
-                    db = TopoDatabaseManager.getTopoDatabase(dbId.getSiteId());
-
-                } else {
-                    db = new IFPGridDatabase(dbId);
-                    if (db.databaseIsValid()) {
-                        ((IFPGridDatabase) db).updateDbs();
-                    }
-                }
-            }
-
-            if ((db != null) && db.databaseIsValid()) {
-                dbMap.put(dbId, db);
-            }
-        }
-        return db;
-    }
-
-    public static void purgeDbCache(String siteID) {
-        Iterator<DatabaseID> iter = dbMap.keySet().iterator();
-        while (iter.hasNext()) {
-            DatabaseID dbId = iter.next();
-            if (dbId.getSiteId().equals(siteID)) {
-                iter.remove();
-            }
-        }
-    }
-
-    private static ServerResponse<GridDatabase> getOfficialDB(
-            CommitGridRequest req) {
+    private ServerResponse<GridDatabase> getOfficialDB(CommitGridRequest req) {
         ServerResponse<GridDatabase> sr = new ServerResponse<GridDatabase>();
 
-        GridDatabase officialDBPtr = null;
-        DatabaseID officialID = new DatabaseID();
+        GridDatabase db = null;
+        DatabaseID officialID = null;
+
+        // Extract out the DatabaseID from the CommitGridRequest
+        // Note that this database id is the source and not the destination
         DatabaseID requestID = null;
         if (req.isParmRequest()) {
             requestID = req.getParmId().getDbId();
@@ -1275,17 +1347,7 @@ public class GridParmManager {
 
         // find name of official database corresponding to the Commit Grid
         // Request
-        IFPServerConfig config = null;
-        try {
-            config = IFPServerConfigManager.getServerConfig(requestID
-                    .getSiteId());
-        } catch (GfeException e) {
-            sr.addMessage("Unable to IFPServerConfig Instance");
-            logger.error("Unable to IFPServerConfig Instance", e);
-            return sr;
-        }
-        for (int i = 0; i < config.getOfficialDatabases().size(); i++) {
-            DatabaseID off = config.getOfficialDatabases().get(i);
+        for (DatabaseID off : this.config.getOfficialDatabases()) {
             // for a match, the siteid, type, and format must be the same
             if (requestID.getSiteId().equals(off.getSiteId())
                     && requestID.getDbType().equals(off.getDbType())
@@ -1294,44 +1356,50 @@ public class GridParmManager {
                 break;
             }
         }
-        if (officialID.equals(new DatabaseID())) {
+        if (officialID == null) {
             sr.addMessage("No official database specified in config that matches request Req="
                     + req + " OfficialDBs: " + config.getOfficialDatabases());
             sr.addMessage("Commit Grid Operation aborted");
             return sr;
         }
 
-        try {
-            officialDBPtr = getDb(officialID);
-        } catch (GfeException e) {
-            sr.addMessage("Unable to create database: " + officialID);
-            logger.error("Unable to create database: " + officialID, e);
-            return sr;
+        // now look up the GridDatabase from the name
+        db = this.dbMap.get(officialID);
+        if (db == null) {
+            sr.addMessage("Official Database [" + officialID
+                    + "] does not exist." + "  Commit Grid Operation aborted");
+        } else {
+            sr.setPayload(db);
         }
-        sr.setPayload(officialDBPtr);
 
         return sr;
     }
 
-    private static ServerResponse<List<CommitGridRequest>> convertToParmReq(
+    private ServerResponse<List<CommitGridRequest>> convertToParmReq(
             List<CommitGridRequest> in) {
         ServerResponse<List<CommitGridRequest>> sr = new ServerResponse<List<CommitGridRequest>>();
         List<CommitGridRequest> out = new ArrayList<CommitGridRequest>();
 
-        for (int i = 0; i < in.size(); i++) {
-            if (in.get(i).isParmRequest()) {
-                out.add(in.get(i));
-            } else if (in.get(i).isDatabaseRequest()) {
+        for (CommitGridRequest req : in) {
+            if (req.isParmRequest()) {
+                out.add(req);
+
+            } else if (req.isDatabaseRequest()) {
 
                 // get the parm list for this database
-                List<ParmID> parmList = getParmList(in.get(0).getDbId())
-                        .getPayload();
-                for (int p = 0; p < parmList.size(); p++) {
-                    out.add(new CommitGridRequest(parmList.get(0), in.get(i)
-                            .getTimeRange(), in.get(i).isClientSendStatus()));
+                GridDatabase db = this.getDatabase(req.getDbId());
+                if (db != null) {
+                    List<ParmID> parmList = db.getParmList().getPayload();
+                    for (ParmID pid : parmList) {
+                        out.add(new CommitGridRequest(pid, req.getTimeRange(),
+                                req.isClientSendStatus()));
+                    }
+                } else {
+                    sr.addMessage("Could not find database for "
+                            + req.getDbId() + " in convertToParmReq()");
                 }
             } else {
-                sr.addMessage("Invalid Commit Grid Request: " + in.get(i)
+                sr.addMessage("Invalid Commit Grid Request: " + req
                         + " in convertToParmReq()");
                 break;
             }
@@ -1349,6 +1417,8 @@ public class GridParmManager {
     private static ServerResponse<?> compareGridParmInfoForCommit(
             GridParmInfo source, GridParmInfo dest) {
         ServerResponse<?> sr = new ServerResponse<String>();
+
+        // TODO why is this commented out?
 
         // if (!source.getGridLoc().equals(dest.getGridLoc())
         // || source.isTimeIndependentParm() != dest
@@ -1370,20 +1440,19 @@ public class GridParmManager {
         return sr;
     }
 
-    private static void createDbNotification(String siteID,
-            List<DatabaseID> prevInventory) {
-        List<DatabaseID> newInventory = getDbInventory(siteID).getPayload();
+    private void createDbNotification(List<DatabaseID> prevInventory) {
+        List<DatabaseID> newInventory = getDbInventory().getPayload();
         List<DatabaseID> additions = new ArrayList<DatabaseID>(newInventory);
         additions.removeAll(prevInventory);
 
         List<DatabaseID> deletions = new ArrayList<DatabaseID>(prevInventory);
         deletions.removeAll(newInventory);
 
-        createDbNotification(siteID, additions, deletions);
+        createDbNotification(additions, deletions);
     }
 
-    private static void createDbNotification(String siteID,
-            List<DatabaseID> additions, List<DatabaseID> deletions) {
+    private void createDbNotification(List<DatabaseID> additions,
+            List<DatabaseID> deletions) {
         if (!additions.isEmpty() || !deletions.isEmpty()) {
             DBInvChangeNotification notify = new DBInvChangeNotification(
                     additions, deletions, siteID);
@@ -1391,46 +1460,141 @@ public class GridParmManager {
         }
     }
 
-    private static void deallocateDb(DatabaseID id, boolean deleteFile) {
-        if (deleteFile) {
-            try {
-                getDb(id).deleteDb();
-            } catch (GfeException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to purge model database: " + id, e);
-            }
-        }
-        dbMap.remove(id);
-    }
-
-    public static void processNotification(Object msg) {
-        if (msg instanceof List) {
-            for (Object obj : (List<?>) msg) {
-                if (obj instanceof GfeNotification) {
-                    handleGfeNotification((GfeNotification) obj);
-                }
-            }
-        } else if (msg instanceof GfeNotification) {
-            handleGfeNotification((GfeNotification) msg);
-        }
-    }
-
-    private static void handleGfeNotification(GfeNotification notif) {
+    /**
+     * @param notif
+     */
+    public void handleGfeNotification(GfeNotification notif) {
+        // TODO: add UUID or some other identifier (hostname/process id?) to
+        // notif so we can recognize
+        // and not process notifications sent by this GridParmManager instance
         if (notif instanceof DBInvChangeNotification) {
             DBInvChangeNotification invChanged = (DBInvChangeNotification) notif;
 
+            ServerResponse<GridDatabase> sr = new ServerResponse<GridDatabase>();
             for (DatabaseID dbId : invChanged.getAdditions()) {
+                if (dbId.getDbType().equals("D2D")) {
+                    try {
+                        this.addDB(new D2DGridDatabase(config, dbId));
+                        statusHandler
+                                .info("handleGfeNotification new D2D database: "
+                                        + dbId);
+                    } catch (GfeException e) {
+                        statusHandler.error("Error creating D2DGridDatabase: "
+                                + dbId, e);
+                    }
+                } else {
+                    sr = this.createDB(dbId);
+                }
+            }
+            if (!sr.isOkay()) {
+                statusHandler.error("Error updating GridParmManager: "
+                        + sr.message());
+            }
+
+            for (DatabaseID dbId : invChanged.getDeletions()) {
+                statusHandler.info("handleGfeNotification removing database: "
+                        + dbId);
+                this.dbMap.remove(dbId);
+            }
+        } else if (notif instanceof GridUpdateNotification) {
+            DatabaseID satDbId = D2DSatDatabase.getDbId(siteID);
+            GridUpdateNotification gun = (GridUpdateNotification) notif;
+            if (gun.getParmId().getDbId().equals(satDbId)) {
+                D2DSatDatabase db = (D2DSatDatabase) this.dbMap.get(satDbId);
+                db.update(gun);
+            }
+        }
+    }
+
+    /**
+     * @param db
+     */
+    public void addDB(GridDatabase db) {
+        this.dbMap.put(db.getDbId(), db);
+    }
+
+    /**
+     * Process D2D grid data purge notification
+     */
+    public void d2dGridDataPurged() {
+        List<DatabaseID> currentInventory = new ArrayList<DatabaseID>(
+                this.dbMap.keySet());
+        List<DatabaseID> newInventory = new ArrayList<DatabaseID>(
+                currentInventory.size());
+        List<String> d2dModels = config.getD2dModels();
+        for (String d2dModelName : d2dModels) {
+            String gfeModel = config.gfeModelNameMapping(d2dModelName);
+            if (gfeModel != null) {
+                DatabaseID dbId = D2DGridDatabase.getDbId(d2dModelName,
+                        new Date(), config);
+                int desiredVersions = config.desiredDbVersions(dbId);
                 try {
-                    getDb(dbId);
-                } catch (GfeException e) {
+                    List<DatabaseID> dbIds = D2DGridDatabase
+                            .getD2DDatabaseIdsFromDb(config, d2dModelName,
+                                    desiredVersions);
+                    newInventory.addAll(dbIds);
+                } catch (DataAccessLayerException e) {
+                    statusHandler.error(e.getLocalizedMessage(), e);
+                }
+            }
+        }
+
+        List<DatabaseID> added = new ArrayList<DatabaseID>(newInventory);
+        added.removeAll(currentInventory);
+        List<DatabaseID> deleted = new ArrayList<DatabaseID>(currentInventory);
+        deleted.removeAll(newInventory);
+
+        // remove satellite database and non-D2D databases from added
+        DatabaseID satDbid = D2DSatDatabase.getDbId(siteID);
+        Iterator<DatabaseID> iter = added.iterator();
+        while (iter.hasNext()) {
+            DatabaseID dbid = iter.next();
+            if (!dbid.getDbType().equals("D2D") || dbid.equals(satDbid)) {
+                iter.remove();
+            } else {
+                // add the new database
+                try {
+                    D2DGridDatabase db = new D2DGridDatabase(config, dbid);
+                    addDB(db);
+                    statusHandler.info("d2dGridDataPurged new D2D database: "
+                            + dbid);
+                } catch (Exception e) {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
                 }
             }
+        }
 
-            for (DatabaseID dbId : invChanged.getDeletions()) {
-                dbMap.remove(dbId);
+        iter = deleted.iterator();
+        while (iter.hasNext()) {
+            DatabaseID dbid = iter.next();
+            if (!dbid.getDbType().equals("D2D") || dbid.equals(satDbid)) {
+                iter.remove();
+            } else {
+                // remove the database
+                statusHandler.info("d2dGridDataPurged removing database: "
+                        + dbid);
+                this.dbMap.remove(dbid);
             }
         }
+
+        if ((added.size() > 0) || (deleted.size() > 0)) {
+            DBInvChangeNotification changed = new DBInvChangeNotification(
+                    added, deleted, siteID);
+
+            SendNotifications.send(changed);
+        }
+    }
+
+    /**
+     * Process D2D satellite data purge notification
+     */
+    public void d2dSatDataPurged() {
+        DatabaseID dbId = D2DSatDatabase.getDbId(siteID);
+        D2DSatDatabase db = (D2DSatDatabase) getDatabase(dbId);
+
+        List<GridUpdateNotification> notifs = db.update();
+
+        SendNotifications.send(notifs);
     }
 }
