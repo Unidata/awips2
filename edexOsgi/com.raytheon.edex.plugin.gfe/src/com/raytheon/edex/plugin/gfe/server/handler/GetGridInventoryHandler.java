@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetGridInventoryRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
@@ -41,12 +40,13 @@ import com.raytheon.uf.common.time.TimeRange;
  * 04/18/08     #875       bphillip    Initial Creation
  * 09/22/09     3058       rjpeter     Converted to IRequestHandler
  * 06/06/13     #2073      dgilling    Ensure payload is always populated.
+ * 06/13/13     2044       randerso     Refactored to use IFPServer
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-public class GetGridInventoryHandler implements
+public class GetGridInventoryHandler extends BaseGfeRequestHandler implements
         IRequestHandler<GetGridInventoryRequest> {
     @Override
     public ServerResponse<Map<ParmID, List<TimeRange>>> handleRequest(
@@ -54,8 +54,8 @@ public class GetGridInventoryHandler implements
         ServerResponse<Map<ParmID, List<TimeRange>>> sr = new ServerResponse<Map<ParmID, List<TimeRange>>>();
         Map<ParmID, List<TimeRange>> inventory = new HashMap<ParmID, List<TimeRange>>();
         for (ParmID parmId : request.getParmIds()) {
-            ServerResponse<List<TimeRange>> timeSr = GridParmManager
-                    .getGridInventory(parmId);
+            ServerResponse<List<TimeRange>> timeSr = getIfpServer(request)
+                    .getGridParmMgr().getGridInventory(parmId);
             List<TimeRange> times = timeSr.getPayload();
             inventory.put(parmId, times);
             sr.addMessages(timeSr);
