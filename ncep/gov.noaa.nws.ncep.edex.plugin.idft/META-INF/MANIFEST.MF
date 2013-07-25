@@ -15,7 +15,4 @@ Import-Package: com.raytheon.uf.edex.decodertools.core,
  com.raytheon.uf.edex.wmo.message,
  gov.noaa.nws.ncep.common.dataplugin.idft,
  gov.noaa.nws.ncep.edex.util,
- org.apache.log4j,
- org.junit
-Export-Package: gov.noaa.nws.ncep.edex.plugin.idft.decoder,
- gov.noaa.nws.ncep.edex.plugin.idft.util
+ org.apache.log4j
