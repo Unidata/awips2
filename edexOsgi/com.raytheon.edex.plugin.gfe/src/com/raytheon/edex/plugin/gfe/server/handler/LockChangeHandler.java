@@ -23,7 +23,6 @@ package com.raytheon.edex.plugin.gfe.server.handler;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.edex.plugin.gfe.server.lock.LockManager;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.gfe.request.LockChangeRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
@@ -47,12 +46,15 @@ import com.raytheon.uf.common.status.UFStatus;
  * 04/24/13     1949       rjpeter     Added list sizing
  * 06/12/13     2099       randerso    Send GridUpdateNotifications,
  *                                     clean up error handling
+ * 06/13/13     2044       randerso     Refactored to use IFPServer
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-public class LockChangeHandler implements IRequestHandler<LockChangeRequest> {
+public class LockChangeHandler extends BaseGfeRequestHandler implements
+        IRequestHandler<LockChangeRequest> {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(LockChangeHandler.class);
 
@@ -60,9 +62,9 @@ public class LockChangeHandler implements IRequestHandler<LockChangeRequest> {
     public ServerResponse<List<LockTable>> handleRequest(
             LockChangeRequest request) throws Exception {
         String siteID = request.getSiteID();
-        ServerResponse<List<LockTable>> sr = LockManager.getInstance()
+        ServerResponse<List<LockTable>> sr = getIfpServer(request).getLockMgr()
                 .requestLockChange(request.getRequests(),
-                        request.getWorkstationID(), siteID);
+                        request.getWorkstationID());
 
         if (sr.isOkay()) {
             try {
