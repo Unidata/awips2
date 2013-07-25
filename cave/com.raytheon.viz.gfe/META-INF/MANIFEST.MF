@@ -70,6 +70,5 @@ Import-Package: com.raytheon.edex.meteoLib,
  org.eclipse.jdt.ui;resolution:=optional,
  org.eclipse.jface.text;resolution:=optional,
  org.eclipse.jface.text.contentassist;resolution:=optional,
- org.eclipse.ui.texteditor.spelling;resolution:=optional,
- org.junit
+ org.eclipse.ui.texteditor.spelling;resolution:=optional
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
