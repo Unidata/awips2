@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="unit"/>
+	<classpathentry excluding="com/raytheon/viz/gfe/ui/runtimeui/TestSmartScript.java|com/raytheon/viz/gfe/ui/runtimeui/TestHazardUtils.java|com/raytheon/viz/gfe/core/parm/TestParmManager.java|com/raytheon/viz/gfe/core/parm/TestParm.java|gov/noaa/nws/ncep/gempak/parameters/title/TITLETest.java|gov/noaa/nws/ncep/gempak/parameters/marker/MARKERTest.java|gov/noaa/nws/ncep/gempak/parameters/line/LineDataStringParserTest.java|gov/noaa/nws/ncep/gempak/parameters/hilo/HILOTest.java|gov/noaa/nws/ncep/gempak/parameters/colors/COLORSTest.java|gov/noaa/nws/ncep/gempak/parameters/colorbar/CLRBARTest.java" kind="src" path="unit"/>
 	<classpathentry kind="src" path="deploy"/>
 	<classpathentry kind="src" path="resources"/>
 	<classpathentry kind="src" path="integration"/>
@@ -140,5 +140,15 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.wcp"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.wcp"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.uengine"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.viz.gfe"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.viz.rsc.pgen"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.viz.common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.viz.tools"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.gempak.parameters"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.ui.pgen"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.gempak.parameterConversionLibrary"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.gempak.parameters.core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.rcm.lib"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.rcm.server"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
