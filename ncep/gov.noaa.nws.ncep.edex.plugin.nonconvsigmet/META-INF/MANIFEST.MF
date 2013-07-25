@@ -14,5 +14,4 @@ Require-Bundle: gov.noaa.nws.ncep.common.dataplugin.nonconvsigmet;bundle-version
  org.geotools,
  javax.persistence,
  javax.measure
-Import-Package: org.apache.commons.logging,
- org.junit
+Import-Package: org.apache.commons.logging
