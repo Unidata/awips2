@@ -27,5 +27,4 @@ Export-Package: gov.noaa.nws.ncep.viz.rsc.wavesat,
  gov.noaa.nws.ncep.viz.rsc.wavesat.rsc
 Import-Package: gov.noaa.nws.ncep.viz.ui.display,
  com.raytheon.viz.alerts,
- com.raytheon.uf.viz.core.alerts,
- org.junit
+ com.raytheon.uf.viz.core.alerts
