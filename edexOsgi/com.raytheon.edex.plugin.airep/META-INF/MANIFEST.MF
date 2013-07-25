@@ -12,8 +12,7 @@ Import-Package: com.raytheon.edex.db.dao,
  com.raytheon.edex.esb,
  com.raytheon.edex.exception,
  com.raytheon.edex.plugin,
- org.apache.commons.logging,
- org.junit
+ org.apache.commons.logging
 Require-Bundle: com.raytheon.uf.common.dataplugin.airep;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",

@@ -96,5 +96,16 @@
 	<classpathentry kind="src" path="/com.raytheon.uf.common.archive"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.datadelivery.bandwidth.ncf"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.thrift"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.gfe"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.gfe"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.python"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.airep"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.airep"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.message"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.shef"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.meteolib"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.obs"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.pirep"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.pirep"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
