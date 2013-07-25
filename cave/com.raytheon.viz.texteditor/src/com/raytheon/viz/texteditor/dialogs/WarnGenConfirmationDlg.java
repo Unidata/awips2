@@ -71,7 +71,7 @@ public class WarnGenConfirmationDlg extends CaveSWTDialog {
     private String IMAGE_PRACTICE = "res/images/twsPractice.gif";
 
     protected WarnGenConfirmationDlg(Shell parentShell, String title,
-            String productMessage, String modeMessage, CAVEMode mode) {
+            String productMessage, String modeMessage) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL, CAVE.NONE
                 | CAVE.DO_NOT_BLOCK);
 
@@ -79,7 +79,7 @@ public class WarnGenConfirmationDlg extends CaveSWTDialog {
 
         this.productMessage = productMessage;
         this.modeMessage = modeMessage;
-        this.mode = mode;
+        this.mode = CAVEMode.getMode();
         setReturnValue(Boolean.FALSE);
     }
 
