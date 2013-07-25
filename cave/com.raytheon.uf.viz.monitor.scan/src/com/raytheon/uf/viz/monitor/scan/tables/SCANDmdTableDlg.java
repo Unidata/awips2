@@ -93,6 +93,7 @@ import com.raytheon.viz.ui.EditorUtil;
  *                                     some bad code, and some code cleanup.
  * 06 Jun 2013  #2065      lvenable    Added code to alert the user to use the clear
  *                                     button if they want to close the dialog.
+ * Jul 24, 2013  2218      mpduff      Change method signature.
  * 
  * </pre>
  * 
@@ -974,7 +975,7 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
 
                 if ((currentTime != null)
                         && (currentElevation != null)
-                        && currentTime.equals(scan.getMostRecent(scan,
+                        && currentTime.equals(scan.getMostRecent(
                                 scanTable.name(), site).getRefTime())
                         && (currentElevation != scan.getDmdTilt(site))) {
                     // do nothing
@@ -1001,23 +1002,22 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
                 // closes the alarm dialog if new data comes in or user switches
                 // frame
                 if (getLinkToFrame(scanTable.name())
-                        || currentTime.equals(scan.getMostRecent(scan,
+                        || currentTime.equals(scan.getMostRecent(
                                 scanTable.name(), site).getRefTime())) {
                     if ((alarmsDlg != null) && alarmsDlg.isOpen()) {
                         alarmsDlg.close();
                     }
                 }
 
+                Date date = scan.getMostRecent(scanTable.name(), site)
+                        .getRefTime();
                 if ((EditorUtil.getActiveVizContainer() != null)
                         && !(EditorUtil.getActiveVizContainer()
                                 .getLoopProperties().isLooping())
                         && (mgr.getScheduledAlarms(site, scanTable).size() > 0)
-                        && currentTime.equals(scan.getMostRecent(scan,
-                                scanTable.name(), site).getRefTime())
+                        && currentTime.equals(date)
                         && !scanCfg.getAlarmsDisabled(scanTable)) {
-                    dmdTableComp.checkBlink(sdg,
-                            scan.getMostRecent(scan, scanTable.name(), site)
-                                    .getRefTime());
+                    dmdTableComp.checkBlink(sdg, date);
                     if (mgr.getAlertedAlarms(site, scanTable).size() > 0) {
                         alarmBtn.setVisible(true);
                         addAlarmTimer();
