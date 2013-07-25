@@ -19,12 +19,11 @@
  **/
 package com.raytheon.uf.common.util;
 
-
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * TODO Add Description
+ * Tests for mangling/unmangling of file names
  * 
  * <pre>
  * 
@@ -32,7 +31,9 @@ import org.junit.Test;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 26, 2011            randerso     Initial creation
+ * Oct 26, 2011            randerso    Initial creation
+ * Jul 25, 2013 2208       njensen     Consolidated other tests
+ * 
  * 
  * </pre>
  * 
@@ -41,6 +42,36 @@ import org.junit.Test;
  */
 
 public class FileUtilTest {
+
+    private static final String[] unmangled = { "Hour 0-240", "Yes/No",
+            "N. America" };
+
+    private static final String[] mangled = { "Hour_CA0_CN240", "Yes_CPNo",
+            "N_CO_CAAmerica" };
+
+    /**
+     * Test method for
+     * {@link com.raytheon.uf.common.util.FileUtil#mangle(java.lang.String)}.
+     */
+    @Test
+    public void testMangle() {
+        for (int i = 0; i < unmangled.length; i++) {
+            String result = FileUtil.mangle(unmangled[i]);
+            Assert.assertEquals(mangled[i], result);
+        }
+    }
+
+    /**
+     * Test method for
+     * {@link com.raytheon.uf.common.util.FileUtil#unmangle(java.lang.String)}.
+     */
+    @Test
+    public void testUnmangle() {
+        for (int i = 0; i < mangled.length; i++) {
+            String result = FileUtil.unmangle(mangled[i]);
+            Assert.assertEquals(unmangled[i], result);
+        }
+    }
 
     /**
      * Test method for
