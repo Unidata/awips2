@@ -16,8 +16,7 @@ Import-Package: gov.noaa.nws.ncep.gempak.parameters.core.contourinterval,
  gov.noaa.nws.ncep.gempak.parameters.core.util,
  gov.noaa.nws.ncep.viz.common.ui,
  gov.noaa.nws.ncep.viz.common.ui.color,
- gov.noaa.nws.ncep.viz.localization,
- org.junit
+ gov.noaa.nws.ncep.viz.localization
 Export-Package: gov.noaa.nws.ncep.gempak.parameters,
  gov.noaa.nws.ncep.gempak.parameters.colors,
  gov.noaa.nws.ncep.gempak.parameters.colorbar,
