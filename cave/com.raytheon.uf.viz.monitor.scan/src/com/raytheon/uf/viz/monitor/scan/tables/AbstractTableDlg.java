@@ -78,6 +78,7 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.LoadSaveConfigDlg.DialogTy
  * Apr 26, 2013 #1945      lvenable    Some code cleanup.
  * 06 Jun 2013  #2065      lvenable    Added convenience method to alert the user to use the clear
  *                                     button if they want to close the dialog.
+ * Jul 24, 2013 #2218      mpduff      Changed method signature.
  * </pre>
  * 
  * @author lvenable
@@ -487,8 +488,7 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
         if (getLinkToFrame(scanTable.name())) {
             time = scanMonitor.getScanTime(scanTable, site);
         } else {
-            DataTime dt = scanMonitor.getMostRecent(scanMonitor,
-                    scanTable.name(), site);
+            DataTime dt = scanMonitor.getMostRecent(scanTable.name(), site);
 
             if (dt != null) {
                 time = dt.getRefTime();
