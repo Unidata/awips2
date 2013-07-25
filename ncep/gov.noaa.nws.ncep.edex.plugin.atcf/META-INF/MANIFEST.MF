@@ -16,7 +16,4 @@ Import-Package: gov.noaa.nws.ncep.common.dataplugin.atcf,
  gov.noaa.nws.ncep.edex.tools.decoder,
  gov.noaa.nws.ncep.edex.util,
  org.apache.commons.logging,
- org.apache.log4j,
- org.junit
-Export-Package: gov.noaa.nws.ncep.edex.plugin.atcf.decoder,
- gov.noaa.nws.ncep.edex.plugin.atcf.util
+ org.apache.log4j
