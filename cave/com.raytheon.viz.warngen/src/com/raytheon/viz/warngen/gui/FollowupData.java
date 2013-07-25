@@ -37,6 +37,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
  * May 7, 2013  1973       rferrel     Changes to properly display Issue Time.
+ * Jul 22, 2013 2176       jsanchez    Added EMER to the display string in the update list.
  * 
  * </pre>
  * 
@@ -92,6 +93,9 @@ public class FollowupData extends WarningRecord {
             rval.append(buildExpStr(status, record));
         }
 
+        if (record.getRawmessage().contains("EMERGENCY")) {
+            rval.append(" EMER");
+        }
         equvialentString = rval.substring(0,
                 record.getProductClass().equals("T") ? 20 : 18);
 
