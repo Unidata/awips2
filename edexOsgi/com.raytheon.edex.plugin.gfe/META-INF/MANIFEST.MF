@@ -67,8 +67,6 @@ Import-Package: com.raytheon.edex.db.dao,
  com.raytheon.uf.common.time.util,
  com.raytheon.uf.edex.activetable,
  com.raytheon.uf.edex.site,
- junit.framework,
  org.apache.commons.logging,
- org.hibernate,
- org.junit
+ org.hibernate
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
