@@ -13,5 +13,4 @@ Export-Package: gov.noaa.nws.ncep.common.dataplugin.ntrans,
 Bundle-Vendor: AWIPS II migration
 Import-Package: com.raytheon.uf.edex.decodertools.core,
  com.raytheon.uf.edex.decodertools.time,
- com.raytheon.uf.edex.wmo.message,
- org.junit
+ com.raytheon.uf.edex.wmo.message
