@@ -30,6 +30,5 @@ Import-Package: com.raytheon.edex.plugin.obs,
  com.raytheon.uf.common.dataplugin.sfcobs,
  com.raytheon.uf.common.dataplugin.text.request,
  com.raytheon.uf.common.ohd,
- org.apache.commons.logging,
- org.junit
+ org.apache.commons.logging
 
