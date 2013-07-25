@@ -17,7 +17,6 @@ Import-Package: com.raytheon.uf.common.pointdata,
  gov.noaa.nws.ncep.edex.tools.decoder,
  gov.noaa.nws.ncep.edex.util,
  org.apache.commons.logging,
- org.apache.log4j,
- org.junit
+ org.apache.log4j
 Export-Package: gov.noaa.nws.ncep.edex.plugin.ncpafm.decoder,
  gov.noaa.nws.ncep.edex.plugin.ncpafm.util
