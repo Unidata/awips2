@@ -12,4 +12,3 @@ Require-Bundle: meteolib.jni,
 Export-Package: com.raytheon.edex.meteoLib
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: org.junit
