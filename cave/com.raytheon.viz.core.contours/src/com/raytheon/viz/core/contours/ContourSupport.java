@@ -91,10 +91,11 @@ import com.vividsolutions.jts.geom.Geometry;
  * Apr 26, 2010  #4583     rjpeter      Replaced fortran fortconbuf with java port.
  * Mar 04, 2011  #7747     njensen      Cached subgrid envelopes
  * Jul 09, 2012  DR14940   M.Porricelli Adjust arrow size for streamlines
- * Feb 15, 2013 1638        mschenke    Moved edex.common Util functions into common Util
+ * Feb 15, 2013 1638       mschenke     Moved edex.common Util functions into common Util
  * Jun 26, 2013  #1999     dgilling     Replace native fortran strmpak call 
  *                                      with java port.
  * 
+ * Jul 18, 2013 2199       mschenke     Ensured contouring is only occurring over visible area
  * </pre>
  * 
  * @author chammack
@@ -666,8 +667,25 @@ public class ContourSupport {
             GridGeometry2D imageGeometry2D = GridGeometry2D
                     .wrap(imageGridGeometry);
 
+            GridGeometry2D mapGeometry2D = GridGeometry2D.wrap(mapGridGeometry);
+
+            // Start with a grid envelope in screen space0
+            GridEnvelope2D screenGridEnvelope = new GridEnvelope2D(
+                    (int) Math.floor(workingExtent.getMinX()),
+                    (int) Math.floor(workingExtent.getMinY()),
+                    (int) Math.ceil(workingExtent.getWidth()),
+                    (int) Math.ceil(workingExtent.getHeight()));
+            // intersect with mapGeometry so we only have points on the actual
+            // display
+            screenGridEnvelope = new GridEnvelope2D(
+                    screenGridEnvelope.intersection(mapGeometry2D
+                            .getGridRange2D()));
+            // convert from screen grid space to screen crs space.
+            Envelope2D screenCRSEnvelope = mapGeometry2D
+                    .gridToWorld(screenGridEnvelope);
+
             org.opengis.geometry.Envelope subgridCRSEnvelope = MapUtil
-                    .reprojectAndIntersect(mapGridGeometry.getEnvelope(),
+                    .reprojectAndIntersect(screenCRSEnvelope,
                             imageGridGeometry.getEnvelope());
 
             GridEnvelope2D subgridEnv = imageGeometry2D
