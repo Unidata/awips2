@@ -43,6 +43,5 @@ Import-Package: com.raytheon.edex.plugin.modelsounding.common,
  gov.noaa.nws.ncep.edex.plugin.ncgrib.dao,
  javax.measure.converter,
  javax.measure.unit,
- org.apache.commons.logging,
- org.junit
+ org.apache.commons.logging
 
