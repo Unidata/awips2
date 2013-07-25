@@ -8,6 +8,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.rzo.yajsw.boot.WrapperLoader;
 import org.rzo.yajsw.io.CyclicBufferFileInputStream;
 import org.rzo.yajsw.io.CyclicBufferFilePrintStream;
@@ -260,20 +261,27 @@ public class BSDProcess extends PosixProcess
 
 	private String getCurrentJava()
 	{
-		int myPid = OperatingSystem.instance().processManagerInstance().currentProcessId();
-		Process myProcess = OperatingSystem.instance().processManagerInstance().getProcess(myPid);
-		String cmd = myProcess.getCommand();
-		String jvm = null;
-		if (cmd.startsWith("\""))
-			jvm = cmd.substring(0, cmd.indexOf("\" ") + 1);
-		else
-			jvm = cmd.substring(0, cmd.indexOf(" "));
+        Boolean system_java = BooleanUtils.toBoolean(getEnvironmentAsMap().get(
+                "use.system.java"));
 
-		/*
-		 * bkowal
-		 * Always return the AWIPS II Java.
-		 */
-		return "/awips2/java/bin/java";
+        String java = "/awips2/java/bin/java";
+        
+        if (system_java) {
+            int myPid = OperatingSystem.instance().processManagerInstance()
+                    .currentProcessId();
+            Process myProcess = OperatingSystem.instance()
+                    .processManagerInstance().getProcess(myPid);
+            String cmd = myProcess.getCommand();
+            String jvm = null;
+            if (cmd.startsWith("\""))
+                jvm = cmd.substring(0, cmd.indexOf("\" ") + 1);
+            else
+                jvm = cmd.substring(0, cmd.indexOf(" "));
+
+            java = jvm;
+        }
+        
+        return java;
 	}
 
 	public String getCommandInternal()
