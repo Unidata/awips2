@@ -27,7 +27,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
 
 /**
  * Thrift request handler for <code>IscDataRecRequest</code>. Takes request and
- * places it on a queue to be executed by <code>IscReceiveSrv</code>.
+ * places it on a queue to be executed by <code>IscReceiveSrv</code> .
  * 
  * <pre>
  * 

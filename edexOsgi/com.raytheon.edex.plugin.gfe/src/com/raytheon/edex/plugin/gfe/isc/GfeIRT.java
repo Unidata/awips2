@@ -32,8 +32,7 @@ import jep.JepException;
 
 import com.raytheon.edex.plugin.gfe.config.GridDbConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
-import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
-import com.raytheon.edex.plugin.gfe.server.GridParmManager;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
@@ -60,6 +59,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * ------------ ----------  ----------- --------------------------
  * 07/14/09     1995       bphillip    Initial creation
  * Mar 14, 2013 1794       djohnson    FileUtil.listFiles now returns List.
+ * 06/13/13     2044       randerso    Refactored to use IFPServer
  * 
  * </pre>
  * 
@@ -74,6 +74,8 @@ public class GfeIRT extends Thread {
 
     /** The site ID associated with this IRT thread */
     private final String siteID;
+
+    private final IFPServerConfig config;
 
     /** The MHS ID associated with this IRT thread */
     private final String mhsID;
@@ -96,10 +98,11 @@ public class GfeIRT extends Thread {
      *            The site ID to create the GfeIRT object for
      * @throws GfeException
      */
-    public GfeIRT(String mhsid, String siteid) throws GfeException {
+    public GfeIRT(String siteid, IFPServerConfig config) throws GfeException {
         this.setDaemon(true);
         this.siteID = siteid;
-        this.mhsID = mhsid;
+        this.config = config;
+        this.mhsID = config.getMhsid();
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext cx = pathMgr.getContext(
                 LocalizationType.EDEX_STATIC, LocalizationLevel.BASE);
@@ -118,7 +121,7 @@ public class GfeIRT extends Thread {
             }
         };
         java.lang.Runtime.getRuntime().addShutdownHook(hook);
-        shutdownHooks.put(mhsid + siteid, hook);
+        shutdownHooks.put(mhsID + siteID, hook);
     }
 
     @Override
@@ -132,11 +135,8 @@ public class GfeIRT extends Thread {
             script = new PythonScript(scriptFile, includePath);
             Map<String, Object> args = new HashMap<String, Object>();
 
-            IFPServerConfig config = IFPServerConfigManager
-                    .getServerConfig(siteID);
             GridLocation domain = config.dbDomain();
 
-            String site = config.getSiteID().get(0);
             List<Integer> gridDims = new ArrayList<Integer>();
             gridDims.add(domain.getNy());
             gridDims.add(domain.getNx());
@@ -150,13 +150,15 @@ public class GfeIRT extends Thread {
             // determine which parms are wanted
             List<String> parmsWanted = config.requestedISCparms();
             if (parmsWanted.isEmpty()) {
-                List<DatabaseID> dbs = GridParmManager.getDbInventory(site)
-                        .getPayload();
+                // TODO gridParmMgr should be passed in when GFEIRT created
+                // whole class needs clean up
+                List<DatabaseID> dbs = IFPServer.getActiveServer(siteID)
+                        .getGridParmMgr().getDbInventory().getPayload();
 
                 for (int i = 0; i < dbs.size(); i++) {
                     if (dbs.get(i).getModelName().equals("ISC")
                             && dbs.get(i).getDbType().equals("")
-                            && dbs.get(i).getSiteId().equals(site)) {
+                            && dbs.get(i).getSiteId().equals(siteID)) {
                         GridDbConfig gdc = config.gridDbConfig(dbs.get(i));
                         parmsWanted = gdc.parmAndLevelList();
                     }
@@ -177,7 +179,7 @@ public class GfeIRT extends Thread {
                 LocalizationContext commonStaticConfig = pathMgr.getContext(
                         LocalizationType.COMMON_STATIC,
                         LocalizationLevel.CONFIGURED);
-                commonStaticConfig.setContextName(site);
+                commonStaticConfig.setContextName(siteID);
                 File editAreaDir = pathMgr.getFile(commonStaticConfig,
                         "gfe/editAreas");
 
@@ -187,8 +189,8 @@ public class GfeIRT extends Thread {
                         return name.trim().matches("ISC_\\p{Alnum}{3}\\.xml");
                     }
                 };
-                List<File> editAreas = FileUtil.listFiles(editAreaDir,
-                        filter, false);
+                List<File> editAreas = FileUtil.listFiles(editAreaDir, filter,
+                        false);
 
                 String name = "";
                 for (File f : editAreas) {
@@ -206,7 +208,7 @@ public class GfeIRT extends Thread {
             args.put("serverHost", config.getServerHost());
             args.put("serverPort", config.getRpcPort());
             args.put("serverProtocol", config.getProtocolVersion());
-            args.put("site", site);
+            args.put("site", siteID);
             args.put("parmsWanted", config.requestedISCparms());
             args.put("gridDims", gridDims);
             args.put("gridProj", domain.getProjection().getProjectionID()
@@ -223,10 +225,6 @@ public class GfeIRT extends Thread {
         } catch (JepException e) {
             statusHandler
                     .fatal("Error starting GFE ISC. ISC functionality will be unavailable!!",
-                            e);
-        } catch (GfeException e) {
-            statusHandler
-                    .fatal("Unable to get Mhs ID. ISC functionality will be unavailable!!",
                             e);
         } finally {
             if (script != null) {
