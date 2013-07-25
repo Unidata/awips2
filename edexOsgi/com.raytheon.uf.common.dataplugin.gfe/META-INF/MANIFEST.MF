@@ -59,7 +59,5 @@ Import-Package: com.raytheon.edex.exception,
  com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.time,
- com.raytheon.uf.common.util,
- junit.framework,
- org.junit
+ com.raytheon.uf.common.util
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
