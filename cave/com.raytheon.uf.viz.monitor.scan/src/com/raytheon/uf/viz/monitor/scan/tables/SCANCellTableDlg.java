@@ -87,11 +87,12 @@ import com.raytheon.viz.ui.EditorUtil;
  * ------------ ---------- ----------- --------------------------
  * Nov 21, 2009 #3039      lvenable    Initial creation
  * 
- * 03/15/2012	13939	   Mike Duff    For a SCAN Alarms issue
+ * 03/15/2012	13939	   mpduff      For a SCAN Alarms issue
  * Apr 26, 2013 #1945      lvenable    Improved SCAN performance, reworked
  *                                     some bad code, and some code cleanup.
  * 06 Jun 2013  #2065      lvenable    Added code to alert the user to use the clear
  *                                     button if they want to close the dialog.
+ * Jul 24, 2013 2218       mpduff      Method signature changed.
  * 
  * </pre>
  * 
@@ -186,7 +187,7 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
     private SCANAlarmsDlg alarmDlg = null;
 
     /** Date format for the time label. */
-    private SimpleDateFormat dateFmt = new SimpleDateFormat(
+    private final SimpleDateFormat dateFmt = new SimpleDateFormat(
             "E MMM dd HH:mm yyyy");
 
     /**
@@ -1086,8 +1087,7 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
                 // closes the alarm dialog if new data comes in or user switches
                 // frame
                 Date scanMostRecentTime = null;
-                DataTime dataTime = scan.getMostRecent(scan, scanTable.name(),
-                        site);
+                DataTime dataTime = scan.getMostRecent(scanTable.name(), site);
                 if (dataTime != null) {
                     scanMostRecentTime = dataTime.getRefTime();
                 }
