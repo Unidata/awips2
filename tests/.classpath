@@ -107,5 +107,38 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.obs"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.pirep"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.pirep"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.ffg"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.ffg"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.airmet"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.airmet"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.atcf"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.atcf"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.aww"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.aww"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.convsigmet"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.convsigmet"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.idft"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.idft"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.intlsigmet"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.ncpafm"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.intlsigmet"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.ncpafm"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.ncscd"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.nctaf"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.ncuair"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.ncscd"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.nctaf"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.ncuair"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.nonconvsigmet"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.stormtrack"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.tcm"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.nonconvsigmet"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.stormtrack"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.tcm"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.wcp"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.wcp"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.uengine"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
