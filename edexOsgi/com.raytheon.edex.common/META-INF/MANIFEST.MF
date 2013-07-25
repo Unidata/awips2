@@ -55,5 +55,3 @@ Require-Bundle: net.sf.ehcache,
  com.raytheon.uf.edex.core;visibility:=reexport,
  org.slf4j;bundle-version="1.7.5"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: junit.framework,
- org.junit
