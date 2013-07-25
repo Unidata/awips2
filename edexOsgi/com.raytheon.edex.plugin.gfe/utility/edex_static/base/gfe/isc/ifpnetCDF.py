@@ -40,7 +40,7 @@ from com.raytheon.edex.plugin.gfe.config import IFPServerConfigManager
 from com.raytheon.uf.common.dataplugin.gfe.config import ProjectionData_ProjectionType as ProjectionType
 from com.raytheon.edex.plugin.gfe.smartinit import IFPDB
 from com.raytheon.edex.plugin.gfe.util import CartDomain2D
-from com.raytheon.edex.plugin.gfe.server.database import TopoDatabaseManager
+from com.raytheon.edex.plugin.gfe.server import IFPServer
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import DatabaseID
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData
@@ -465,11 +465,13 @@ def storeTopoGrid(client, file, databaseID, maskGrid, clipArea):
     "Stores the topo grid in the database"
 
     # Get the grid location and projection information
-    gridLoc = IFPServerConfigManager.getServerConfig(DatabaseID(databaseID).getSiteId()).dbDomain()
+    ifpServer = IFPServer.getActiveServer(DatabaseID(databaseID).getSiteId())
+    
+    gridLoc = ifpServer.getConfig().dbDomain()
     pDict = gridLoc.getProjection()
 
     # Get the topo grid
-    topoGrid = TopoDatabaseManager.getTopoData(gridLoc).getPayload().get(0).__numpy__[0]
+    topoGrid = ifpServer.getTopoMgr().getTopoData(gridLoc).getPayload().__numpy__[0]
     topoGrid = clipToExtrema(topoGrid, clipArea)
     topoGrid = numpy.flipud(topoGrid)
     
