@@ -15,5 +15,4 @@ Require-Bundle: gov.noaa.nws.ncep.common.dataplugin.airmet;bundle-version="1.0.0
  javax.persistence,
  javax.measure
 Import-Package: org.apache.commons.logging,
- org.apache.log4j,
- org.junit
+ org.apache.log4j
