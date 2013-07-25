@@ -62,6 +62,7 @@ import com.raytheon.uf.viz.monitor.scan.ScanMonitor;
  * Oct 13, 2009            dhladky     Initial creation
  * Feb 28, 2013 1731       bsteffen    Optimize construction of scan resource.
  * Apr 18, 2013    1926    njensen     Reuse URIs in construction of resource
+ * Jul 24, 2013    2218    mpduff      Changed method signature.
  * 
  * </pre>
  * 
@@ -171,8 +172,7 @@ public class ScanResourceData extends AbstractRequestableResourceData {
                     && !getScan()
                             .getDialog(ScanTables.valueOf(tableType), icao)
                             .getCurrentShell().isDisposed()) {
-                DataTime time = getScan().getMostRecent(getScan(), tableType,
-                        icao);
+                DataTime time = getScan().getMostRecent(tableType, icao);
                 if (time != null) {
                     getScan().updateDialog(
                             ScanTables.valueOf(tableType),
