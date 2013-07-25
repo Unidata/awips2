@@ -53,6 +53,7 @@ import com.raytheon.uf.common.dataplugin.gfe.weather.WxDefinition;
  * 04/08/08     #875       bphillip    Changed exception handling
  * 06/24/08     #1160      randerso    Added a method to get the Topo dbId
  * 07/09/09     #2590      njensen     No longer singleton
+ * 06/24/13     #2044      randerso    Renamed satdirs to satdata to match serverConfig.py
  * 
  * </pre>
  * 
@@ -139,7 +140,7 @@ public class IFPServerConfig {
 
     private Map<String, String> _netCDFDirs;
 
-    private Map<String, String> _satDirs;
+    private Map<String, String> _satData;
 
     private int _tableFetchTime;
 
@@ -433,7 +434,7 @@ public class IFPServerConfig {
         _mhsid = config.mhsid;
 
         _tableFetchTime = config.tableFetchTime;
-        _satDirs = config.satDirs;
+        _satData = config.satData;
         _netCDFDirs = config.netCDFDirs;
         _prdDir = config.prdDir;
         _logFilePurgeAfter = config.logFilePurgeAfter;
@@ -760,8 +761,8 @@ public class IFPServerConfig {
         _iscPort = p;
     }
 
-    public Map<String, String> satDirs() {
-        return _satDirs;
+    public Map<String, String> satData() {
+        return _satData;
     }
 
     public Map<String, String> netCDFDirs() {
