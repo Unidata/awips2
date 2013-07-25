@@ -43,8 +43,5 @@ Import-Package: com.raytheon.edex.meteoLib,
  com.raytheon.viz.core.gl,
  com.raytheon.viz.core.gl.images,
  gov.noaa.nws.ncep.common.staticdata,
- javax.measure.unit,
- org.junit,
- org.junit.runner,
- org.junit.runners
+ javax.measure.unit
 Bundle-ClassPath: .
