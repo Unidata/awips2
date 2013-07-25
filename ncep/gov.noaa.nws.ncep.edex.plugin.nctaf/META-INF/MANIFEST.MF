@@ -21,5 +21,4 @@ Import-Package: com.raytheon.edex.exception,
  gov.noaa.nws.ncep.common.dataplugin.tcm,
  gov.noaa.nws.ncep.common.tools,
  org.apache.commons.logging,
- org.apache.log4j,
- org.junit
+ org.apache.log4j

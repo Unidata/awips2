@@ -14,5 +14,4 @@ Import-Package: com.raytheon.uf.edex.decodertools.core,
  com.raytheon.uf.edex.wmo.message,
  gov.noaa.nws.ncep.common.tools,
  org.apache.commons.logging,
- org.apache.log4j,
- org.junit
+ org.apache.log4j
