@@ -1233,7 +1233,18 @@ else:   #######DCS3501 WEST_CONUS
 #---------------------------------------------------------------------------
 #
 
-# This table contains directory names and weather element names.
+# This table contains product ID and weather element names for satellite data
+#
+# A product ID consists of the sector ID and physical element of the
+# satellite product.
+#
+# Examples:
+# 
+#   "East CONUS/Imager Visible"
+#   "East CONUS/Imager 11 micron IR"
+#   "East CONUS/Imager 13 micron (IR)"
+#   "East CONUS/Imager 3.9 micron IR"
+#
 
 # Alaska OCONUS
 if SID in ALASKA_SITES:
@@ -1901,7 +1912,7 @@ def doIt():
     IFPConfigServer.timeZone                = timeZone
     IFPConfigServer.d2dModels               = doConfig.d2dParse(D2DMODELS)
     IFPConfigServer.netCDFDirs              = doConfig.netcdfParse(NETCDFDIRS)
-    IFPConfigServer.satDirs                 = doConfig.parseSat(SATDATA)
+    IFPConfigServer.satData                 = doConfig.parseSat(SATDATA)
     IFPConfigServer.domain                  = domain
 
     (serverHost, mhsid, \
