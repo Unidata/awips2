@@ -32,7 +32,7 @@ import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.isc.IscSendQueue;
 import com.raytheon.edex.plugin.gfe.isc.IscSendRecord;
-import com.raytheon.edex.plugin.gfe.server.GridParmManager;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.edex.plugin.gfe.server.lock.LockManager;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.gfe.request.CommitGridsRequest;
@@ -60,12 +60,14 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * 06/16/09                 njensen    Send notifications
  * 09/22/09     3058       rjpeter     Converted to IRequestHandler
  * 03/17/13     1773       njensen   Log performance
+ * 06/13/13     2044       randerso    Refactored to use IFPServer
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-public class CommitGridsHandler implements IRequestHandler<CommitGridsRequest> {
+public class CommitGridsHandler extends BaseGfeRequestHandler implements
+        IRequestHandler<CommitGridsRequest> {
     protected final transient Log logger = LogFactory.getLog(getClass());
 
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
@@ -75,6 +77,8 @@ public class CommitGridsHandler implements IRequestHandler<CommitGridsRequest> {
     @Override
     public ServerResponse<List<GridUpdateNotification>> handleRequest(
             CommitGridsRequest request) throws Exception {
+        IFPServer ifpServer = getIfpServer(request);
+
         ServerResponse<List<GridUpdateNotification>> sr = new ServerResponse<List<GridUpdateNotification>>();
         List<CommitGridRequest> commits = request.getCommits();
         WsId workstationID = request.getWorkstationID();
@@ -95,7 +99,7 @@ public class CommitGridsHandler implements IRequestHandler<CommitGridsRequest> {
         // check that there are not locks for each commit request
         for (CommitGridRequest commitRequest : commits) {
             sr.addMessages(lockCheckForCommit(commitRequest, workstationID,
-                    siteID));
+                    ifpServer.getLockMgr()));
         }
         timer.stop();
         perfLog.logDuration("Publish Grids: Lock Check For Commit",
@@ -105,8 +109,8 @@ public class CommitGridsHandler implements IRequestHandler<CommitGridsRequest> {
             timer.reset();
             timer.start();
             List<GridUpdateNotification> changes = new ArrayList<GridUpdateNotification>();
-            ServerResponse<?> ssr = GridParmManager.commitGrid(commits,
-                    workstationID, changes, siteID);
+            ServerResponse<?> ssr = ifpServer.getGridParmMgr().commitGrid(
+                    commits, workstationID, changes);
             timer.stop();
             perfLog.logDuration("Publish Grids: GridParmManager.commitGrid",
                     timer.getElapsedTime());
@@ -124,7 +128,7 @@ public class CommitGridsHandler implements IRequestHandler<CommitGridsRequest> {
                         .getServerConfig(siteID);
                 String iscrta = serverConfig.iscRoutingTableAddress().get(
                         "ANCF");
-                if (sr.isOkay() && iscrta != null
+                if (sr.isOkay() && (iscrta != null)
                         && serverConfig.sendiscOnPublish() && clientSendStatus
                         && serverConfig.requestISC()) {
                     for (GridUpdateNotification change : changes) {
@@ -188,7 +192,7 @@ public class CommitGridsHandler implements IRequestHandler<CommitGridsRequest> {
     }
 
     private ServerResponse<?> lockCheckForCommit(CommitGridRequest request,
-            WsId workstationID, String siteID) {
+            WsId workstationID, LockManager lockMgr) {
         ServerResponse<Object> sr = new ServerResponse<Object>();
         List<LockTable> lockTables = new ArrayList<LockTable>();
         LockTableRequest lockTableRequest = null;
@@ -200,8 +204,7 @@ public class CommitGridsHandler implements IRequestHandler<CommitGridsRequest> {
             lockTableRequest = new LockTableRequest(request.getDbId());
         }
 
-        lockTables = LockManager.getInstance()
-                .getLockTables(lockTableRequest, workstationID, siteID)
+        lockTables = lockMgr.getLockTables(lockTableRequest, workstationID)
                 .getPayload();
         if (sr.isOkay()) {
             for (int j = 0; j < lockTables.size(); j++) {
