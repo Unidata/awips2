@@ -10,11 +10,8 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.10.13",
  gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",
  gov.noaa.nws.ncep.common;bundle-version="1.0.0",
  gov.noaa.nws.ncep.common.dataplugin.wcp;bundle-version="1.0.0"
-Export-Package: gov.noaa.nws.ncep.edex.plugin.wcp.decoder,
- gov.noaa.nws.ncep.edex.plugin.wcp.util
 Import-Package: com.raytheon.uf.edex.decodertools.core,
  gov.noaa.nws.ncep.edex.util,
  org.apache.commons.logging,
- org.apache.log4j,
- org.junit
+ org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
