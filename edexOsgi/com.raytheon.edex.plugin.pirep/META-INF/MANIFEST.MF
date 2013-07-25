@@ -17,5 +17,4 @@ Export-Package: com.raytheon.edex.plugin.pirep,
  com.raytheon.edex.plugin.pirep.decoder
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.dataplugin.pirep,
- org.apache.commons.logging,
- org.junit
+ org.apache.commons.logging
