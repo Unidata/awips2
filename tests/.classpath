@@ -6,7 +6,6 @@
 	<classpathentry kind="src" path="integration"/>
 	<classpathentry kind="src" path="manual"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.junit"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.commons.codec"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.slf4j"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.eclipse.jetty"/>
@@ -150,5 +149,8 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.gempak.parameters.core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.rcm.lib"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.rcm.server"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.hamcrest"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.mockito"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
