@@ -85,8 +85,8 @@ import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.FontMetrics;
@@ -100,7 +100,6 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
@@ -142,7 +141,6 @@ import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
-// import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -176,7 +174,6 @@ import com.raytheon.viz.texteditor.msgs.ITextEditorCallback;
 import com.raytheon.viz.texteditor.msgs.IWmoBrowserCallback;
 import com.raytheon.viz.texteditor.notify.NotifyExpiration;
 import com.raytheon.viz.texteditor.print.PrintDisplay;
-import com.raytheon.viz.texteditor.qc.QualityControl;
 import com.raytheon.viz.texteditor.scripting.dialogs.IScriptEditor;
 import com.raytheon.viz.texteditor.scripting.dialogs.IScriptEditorObserver;
 import com.raytheon.viz.texteditor.scripting.dialogs.ScriptEditorDialog;
@@ -190,6 +187,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.dialogs.SWTMessageBox;
+
+// import com.raytheon.uf.viz.core.RGBColors;
 
 /**
  * Main Text Editor dialog.
@@ -328,6 +327,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 										*.xml files in localization; 
  * 										add selection listener to catch the highlight words and 
  * 										set the highlight colors.	
+ * 23Jul2013   2176         jsanchez    Added a new confirmation message for emergency warnings.
  * 25July2013  15733        GHull       Read font and color prefs from TextEditorCfg.
  * 
  * </pre>
@@ -376,9 +376,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * System colro to use for foreground color when an obs is updated.
      */
     private static final int UPDATE_FG = SWT.COLOR_WHITE;
-    
+
     private final int HIGHLIGHT_BG = SWT.COLOR_RED;
-    
+
     /**
      * The length of BEGIN_ELEMENT_TAG.
      */
@@ -789,19 +789,19 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     /**
      * Small font menu item.
      */
-//    private MenuItem smallFontItem;
+    // private MenuItem smallFontItem;
 
     /**
      * Medium font menu item.
      */
- //   private MenuItem mediumFontItem;
+    // private MenuItem mediumFontItem;
 
     /**
      * Large font menu item.
      */
-//    private MenuItem largeFontItem;
+    // private MenuItem largeFontItem;
 
-     /**
+    /**
      * Overstrike (overwrite) menu item.
      */
     private MenuItem overStrikeItem;
@@ -1015,12 +1015,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Styled text editor.
      */
     private StyledText textEditor;
-    
+
     /**
      * default font
      */
     private Font dftFont;
-    
+
     /**
      * Composite containing the editor buttons.
      */
@@ -1292,12 +1292,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private static final String[] popupItems = { "Select All", "Cut", "Copy",
             "Paste" };
-    
+
     /**
      * Currently active popupItems.
      */
     private static final boolean[] isPopItemDefault = { true, false, true,
-        false };
+            false };
 
     /**
      * Indictes this instance of dialog if for a warnGen.
@@ -1375,14 +1375,16 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * needs to be done.
      */
     private boolean isPreviousLineWrapped;
- 
+
     private Color textForeground;
+
     private Color textBackground;
+
     private Color highlightForeground;
+
     private Color highlightBackground;
 
-//	protected Color color;
-    
+    // protected Color color;
 
     /**
      * Constructor with additional cave style rules
@@ -2044,7 +2046,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         Menu fontSizeSubMenu = new Menu(shell, SWT.DROP_DOWN);
         fontSizeMenuItem.setMenu(fontSizeSubMenu);
         createFontSizeSubMenu(fontSizeSubMenu);
-         
+
         // ------------------------------
         // Create overstrike menu item
         // ------------------------------
@@ -2865,7 +2867,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private void createAutoWrapSubMenu(Menu autoWrapSubMenu) {
         AutoWrapCfg autoWrapcfg = getAutoWrapCfg();
         for (WrapButtonCfg buttonCfg : autoWrapcfg.getButtons()) {
-        	MenuItem item = new MenuItem(autoWrapSubMenu, SWT.RADIO);
+            MenuItem item = new MenuItem(autoWrapSubMenu, SWT.RADIO);
             item.setText(buttonCfg.getLabelName());
             item.setSelection(buttonCfg.isSelected());
             item.setData(buttonCfg);
@@ -2953,11 +2955,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      *            The font size sub menu.
      */
     private void createFontSizeSubMenu(Menu fontSizeSubMenu) {
-    	
-		FontSizeCfg fontSizeCfg = TextEditorCfg.getTextEditorCfg().getFontSizeCfg();
-		SizeButtonCfg seldFontBtn = TextEditorCfg.getTextEditorCfg().getSelectedFontButton();
-    	
-    	for (SizeButtonCfg buttonCfg : fontSizeCfg.getButtons()) {
+        
+        FontSizeCfg fontSizeCfg = TextEditorCfg.getTextEditorCfg().getFontSizeCfg();
+        SizeButtonCfg seldFontBtn = TextEditorCfg.getTextEditorCfg().getSelectedFontButton();
+        
+        for (SizeButtonCfg buttonCfg : fontSizeCfg.getButtons()) {
             MenuItem item = new MenuItem(fontSizeSubMenu, SWT.RADIO);
             item.setText(buttonCfg.getLabelName());
             item.setSelection( false );
@@ -2965,33 +2967,33 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             
             // if this button is the initial selection.
             if( seldFontBtn.getLabelName().equals( buttonCfg.getLabelName() ) ) {            	
-            	item.setSelection(true);
+                item.setSelection(true);
             	setDefaultFont( seldFontBtn.getFontSize(), seldFontBtn.getFontName() );
             }
-           
+
             item.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent event) {
-                	 MenuItem item = (MenuItem) event.getSource();
-                	 if (item.getSelection()) {
-                		 int selectFontSize = ( (SizeButtonCfg) item.getData()).getFontSize();
+                    MenuItem item = (MenuItem) event.getSource();
+                    if (item.getSelection()) {
+                        int selectFontSize = ( (SizeButtonCfg) item.getData()).getFontSize();
                 		 String seldFontName = ((SizeButtonCfg) item.getData()).getFontName();
                 	
                 		 setDefaultFont( selectFontSize, seldFontName );
-                		 
-                		 textEditor.setFont(dftFont);
-                		 headerTF.setFont(dftFont);
-                	 }
+
+                        textEditor.setFont(dftFont);
+                        headerTF.setFont(dftFont);
+                    }
                 }
             });
         }
-       
+
     }
 
     public void setDefaultFont( int fontSize, String fontName ) {
     	dftFont =  new Font( getDisplay(), fontName, fontSize, SWT.NORMAL);    	    	
     }
-    
+
     /**
      * Initialize the components and put them on the display.
      */
@@ -3032,7 +3034,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 displayAfosBrowser();
             }
         });
-     
+
         // Add the Load History button.
         rd = new RowData(BUTTON_WIDTH, BUTTON_HEIGHT);
         loadHistoryBtn = new Button(topBtnRowComp, SWT.PUSH);
@@ -3563,7 +3565,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         headerTF = new Text(headerTFComp, SWT.BORDER | SWT.MULTI
                 | SWT.READ_ONLY);
         headerTF.setLayoutData(gd);
-        
+
         headerTF.setFont(dftFont);
         headerTF.setEditable(false);
 
@@ -3731,7 +3733,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         textEditorComp = new Composite(shell, SWT.NONE);
         GridLayout gridLayout = new GridLayout(1, false);
 //        TextColorsCfg textColorCfg = null;
-        
+
         textEditorComp.setLayout(gridLayout);
         textEditorComp.setLayoutData(gd);
 
@@ -3751,31 +3753,32 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         textEditor.setEditable(false);
         airportToolTip = new DefaultToolTip(textEditor, SWT.DEFAULT, true);
         textEditor.setKeyBinding(SWT.INSERT, SWT.NULL); // DR 7826
-        
+
 //        textColorCfg = getTextColorCfg();
         setDefaultTextColor( TextEditorCfg.getTextEditorCfg() );
         textEditor.setForeground(textForeground);
         textEditor.setBackground(textBackground);
-                                
+
         textEditor.addSelectionListener(new SelectionListener() {
             @Override
             public void widgetDefaultSelected(SelectionEvent e) {
-                System.out.println("\ntextEditor default selection event --" + e.toString());
+                System.out.println("\ntextEditor default selection event --"
+                        + e.toString());
             }
 
             @Override
-            public void widgetSelected(SelectionEvent  e) {
-           	
-            	StyledText stylText = (StyledText) e.getSource();
-            	
- //           	String slctText = stylText.getSelectionText();
- //           	int length = slctText.length();
-            	
-            	stylText.setSelectionBackground(highlightBackground);
-            	stylText.setSelectionForeground(highlightForeground);
+            public void widgetSelected(SelectionEvent e) {
+
+                StyledText stylText = (StyledText) e.getSource();
+
+                // String slctText = stylText.getSelectionText();
+                // int length = slctText.length();
+
+                stylText.setSelectionBackground(highlightBackground);
+                stylText.setSelectionForeground(highlightForeground);
 
             }
-        }); 
+        });
 
         textEditor.addKeyListener(new KeyAdapter() {
             @Override
@@ -3841,8 +3844,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             public void verifyKey(VerifyEvent event) {
                 // Ignore edit keys when not in edit mode.
                 if (textEditor.getEditable() == false) {
-            		return;
-            	}
+                    return;
+                }
                 if (event.keyCode == SWT.DEL || event.keyCode == SWT.BS
                         || event.keyCode == SWT.SHIFT) {
                     // Do nothing...
@@ -3942,7 +3945,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 }
 
                 if (e.button == 3) {
-                	processPopup();
+                    processPopup();
                 }
             }
 
@@ -3982,6 +3985,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 //    	
 //    	return textColorsCfg;
 //    }
+
     
     private void setDefaultTextColor(TextEditorCfg  txtClrCfg ) {
         	
@@ -3990,52 +3994,52 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     	highlightBackground = new Color(shell.getDisplay(), txtClrCfg.getHighlightTextBackgroundColor() );
     	highlightForeground = new Color(shell.getDisplay(), txtClrCfg.getHighlightTextForegroundColor() );   
     }
-    
+
     /**
      * Process the user choice from the popup list. DR14842 - re-written
      */
-	private void processPopup() {
-		Menu menu = new Menu(shell, SWT.POP_UP);
-		List<String> items = Arrays.asList(popupItems);
-		for (String pi : popupItems) {
-			MenuItem mi = new MenuItem(menu, SWT.PUSH);
-			mi.setText(pi);
-			if (isEditMode()) {
-				mi.setEnabled(true);
-			} else {
-				mi.setEnabled(isPopItemDefault[items.indexOf(pi)]);
-			}
-			mi.addListener(SWT.Selection, new Listener() {
+    private void processPopup() {
+        Menu menu = new Menu(shell, SWT.POP_UP);
+        List<String> items = Arrays.asList(popupItems);
+        for (String pi : popupItems) {
+            MenuItem mi = new MenuItem(menu, SWT.PUSH);
+            mi.setText(pi);
+            if (isEditMode()) {
+                mi.setEnabled(true);
+            } else {
+                mi.setEnabled(isPopItemDefault[items.indexOf(pi)]);
+            }
+            mi.addListener(SWT.Selection, new Listener() {
                 @Override
-				public void handleEvent(Event event) {
-					handleSelection(event);
-				}
-			});
-		}
-		menu.setVisible(true);
-	}
-    
+                public void handleEvent(Event event) {
+                    handleSelection(event);
+                }
+            });
+        }
+        menu.setVisible(true);
+    }
+
     /**
-     * Handle the selection from the popup menu 
+     * Handle the selection from the popup menu
      * 
      * @param event
      */
-	protected void handleSelection(Event event) {
-		MenuItem item = (MenuItem) event.widget;
-		String choice = item.getText();
-		if (choice != null) {
-			if (popupItems[0].equals(choice)) {
-				textEditor.selectAll();
-			} else if (popupItems[1].equals(choice)) {
-				cutText();
-			} else if (popupItems[2].equals(choice)) {
-				copyText();
-			} else if (popupItems[3].equals(choice)) {
-				pasteText();
-			}
-			textEditor.update();
-		}
-	}
+    protected void handleSelection(Event event) {
+        MenuItem item = (MenuItem) event.widget;
+        String choice = item.getText();
+        if (choice != null) {
+            if (popupItems[0].equals(choice)) {
+                textEditor.selectAll();
+            } else if (popupItems[1].equals(choice)) {
+                cutText();
+            } else if (popupItems[2].equals(choice)) {
+                copyText();
+            } else if (popupItems[3].equals(choice)) {
+                pasteText();
+            }
+            textEditor.update();
+        }
+    }
 
     /**
      * creates the bar containing the script runner controls.
@@ -4850,47 +4854,31 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      *            true if product is to be resent
      */
     synchronized private void sendProduct(final boolean resend) {
-        final CAVEMode mode = CAVEMode.getMode();
         StdTextProduct prod = getStdTextProduct();
-        String afosId = prod.getCccid() + prod.getNnnid() + prod.getXxxid();
-        final String title = QualityControl.getProductWarningType(prod
-                .getNnnid());
-        final StringBuilder productMessage = new StringBuilder();
-
-        final StringBuilder modeMessage = new StringBuilder();
-        modeMessage.append("The workstation is in ").append(mode)
-                .append(" mode.");
-
-        if (resend) {
-            productMessage.append("You are about to RESEND a " + afosId + "\n");
-            productMessage.append(title).append(".\n");
-            modeMessage.append("\nThere is no QC check for resend product.");
-        } else if (warnGenFlag) {
-            productMessage.append("You are about to SEND a " + afosId + "\n");
-            productMessage.append(title).append(".\n");
-
-            QualityControl qcCheck = new QualityControl();
-            if (qcCheck.checkWarningInfo(headerTF.getText().toUpperCase(),
-                    textEditor.getText().toUpperCase(), prod.getNnnid()) == false) {
+        if (warnGenFlag) {
+            QCConfirmationMsg qcMsg = new QCConfirmationMsg();
+            if (!qcMsg.checkWarningInfo(headerTF.getText().toUpperCase(),
+                    textEditor.getText().toUpperCase(), prod.getNnnid())) {
                 WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell,
-                        "Problem Detected by QC", qcCheck.getErrorMessage(),
-                        "Do you really want to Send?\n", mode);
+                        qcMsg.getTitle(), qcMsg.getProductMessage(),
+                        qcMsg.getModeMessage());
                 wgcd.setCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {
-                        if (Boolean.TRUE.equals(returnValue))
-                            finishSendProduct(resend, title, mode,
-                                    productMessage, modeMessage);
+                        if (Boolean.TRUE.equals(returnValue)) {
+                            checkEmergencyProduct(resend);
+                        }
 
                     }
                 });
                 wgcd.open();
-
-                return;
+            } else {
+                checkEmergencyProduct(resend);
             }
+        } else {
+            finishSendProduct(resend);
         }
-        finishSendProduct(resend, title, mode, productMessage, modeMessage);
     }
 
     /**
@@ -4899,21 +4887,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * the WarnGen being sent.
      * 
      * @param resend
-     * @param title
-     * @param mode
-     * @param productMessage
-     * @param modeMessage
      */
-    private void finishSendProduct(final boolean resend, String title,
-            CAVEMode mode, StringBuilder productMessage,
-            StringBuilder modeMessage) {
-        Pattern p = Pattern.compile(".\\%[s].");
-        Matcher m = p.matcher(STORED_SENT_MSG);
-
-        final boolean result = (CAVEMode.OPERATIONAL.equals(mode) || CAVEMode.TEST
-                .equals(mode));
-        modeMessage.append(result ? m.replaceAll(" ") : m.replaceAll(" not "));
-
+    private void finishSendProduct(final boolean resend) {
         if (statusBarLabel.getText().startsWith("Attachment:")) {
             StringBuilder sb = new StringBuilder("An Attachment file (");
             int startIndex = "Attachment:".length() + 1;
@@ -4936,19 +4911,56 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         if (!verifyRequiredFields()) {
             return;
         }
+        StdTextProduct prod = getStdTextProduct();
+        String afosId = prod.getCccid() + prod.getNnnid() + prod.getXxxid();
+        SendConfirmationMsg sendMsg = new SendConfirmationMsg(resend, afosId,
+                prod.getNnnid());
 
-        WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell, title,
-                productMessage.toString(), modeMessage.toString(), mode);
+        WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell,
+                sendMsg.getTitle(), sendMsg.getProductMessage(),
+                sendMsg.getModeMessage());
         wgcd.setCloseCallback(new ICloseCallback() {
 
             @Override
             public void dialogClosed(Object returnValue) {
                 if (Boolean.TRUE.equals(returnValue)) {
-                    warngenCloseCallback(resend, result);
+                    warngenCloseCallback(resend);
                 }
             }
         });
         wgcd.open();
+    }
+
+    /**
+     * Checks if the product is a emergency warning product and opens up the
+     * WarnGen Confirmation Dialog if necessary.
+     * 
+     * @param resend
+     *            true if product is to be resent
+     */
+    private void checkEmergencyProduct(final boolean resend) {
+        StdTextProduct prod = getStdTextProduct();
+        EmergencyConfirmationMsg emergencyMsg = new EmergencyConfirmationMsg();
+        if (emergencyMsg.checkWarningInfo(headerTF.getText().toUpperCase(),
+                textEditor.getText().toUpperCase(), prod.getNnnid()) == false) {
+
+            WarnGenConfirmationDlg wgcd = new WarnGenConfirmationDlg(shell,
+                    emergencyMsg.getTitle(), emergencyMsg.getProductMessage(),
+                    emergencyMsg.getModeMessage());
+            wgcd.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (Boolean.TRUE.equals(returnValue)) {
+                        finishSendProduct(resend);
+                    }
+
+                }
+            });
+            wgcd.open();
+        } else {
+            finishSendProduct(resend);
+        }
     }
 
     /**
@@ -4958,10 +4970,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * @param resend
      * @param result
      */
-    private void warngenCloseCallback(boolean resend, boolean isOperational) {
+    private void warngenCloseCallback(boolean resend) {
 
         // DR14553 (make upper case in product)
         String body = textEditor.getText().toUpperCase();
+        CAVEMode mode = CAVEMode.getMode();
+        boolean isOperational = (CAVEMode.OPERATIONAL.equals(mode) || CAVEMode.TEST
+                .equals(mode));
         if (isOperational) {
             removeOptionalFields();
 
@@ -5614,93 +5629,94 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 textEditor.setText("");
             }
         } else {
-        // TODO FIX PARSING
+            // TODO FIX PARSING
 
-        // First, set the current header by assuming that it usually
-        // consists of the first two lines of text in the text product,
-        // though there will be exceptions to that "rule" as handled below.
-        // So, obtain the AFOS NNNxxx. If it's where it is supposed to be
-        // in the new format, then the existing header is already an AWIPS
+            // First, set the current header by assuming that it usually
+            // consists of the first two lines of text in the text product,
+            // though there will be exceptions to that "rule" as handled below.
+            // So, obtain the AFOS NNNxxx. If it's where it is supposed to be
+            // in the new format, then the existing header is already an AWIPS
             // text product identifier. Otherwise it is a legacy AFOS
             // identifier.
-        if (TextDisplayModel.getInstance().hasStdTextProduct(token)) {
-            StdTextProduct textProd = TextDisplayModel.getInstance()
-                    .getStdTextProduct(token);
-            StdTextProductId prodId = textProd.getProdId();
-            try {
-                // start of second line of text
-                start = textEditor.getOffsetAtLine(thisLine + 1);
-                if ((textEditor.getText(start, start + afosNnnLimit)
-                        .equals(prodId.getNnnid()))
+            if (TextDisplayModel.getInstance().hasStdTextProduct(token)) {
+                StdTextProduct textProd = TextDisplayModel.getInstance()
+                        .getStdTextProduct(token);
+                StdTextProductId prodId = textProd.getProdId();
+                try {
+                    // start of second line of text
+                    start = textEditor.getOffsetAtLine(thisLine + 1);
+                    if ((textEditor.getText(start, start + afosNnnLimit)
+                            .equals(prodId.getNnnid()))
                             && (textEditor.getText(start + afosNnnLimit + 1,
                                     start + afosXxxLimit).equals(prodId
                                     .getXxxid()))) {
-                    // Text matches the products nnnid and xxxid
-                    numberOfLinesOfHeaderText = 2;
+                        // Text matches the products nnnid and xxxid
+                        numberOfLinesOfHeaderText = 2;
                     } else if (textEditor.getText(start,
                             start + afosNnnLimit + 2).equals(
                             AFOSParser.DRAFT_PIL)
                             || textEditor.getText(start,
                                     start + afosNnnLimit + 2).equals("TTAA0")) {
-                    // Text matches temporary WRKWG#
-                    numberOfLinesOfHeaderText = 2;
-                } else {
+                        // Text matches temporary WRKWG#
+                        numberOfLinesOfHeaderText = 2;
+                    } else {
+                        // Assume this header block is a legacy AFOS identifier.
+                        numberOfLinesOfHeaderText = 1;
+                    }
+                } catch (IllegalArgumentException e) {
                     // Assume this header block is a legacy AFOS identifier.
                     numberOfLinesOfHeaderText = 1;
                 }
-            } catch (IllegalArgumentException e) {
-                // Assume this header block is a legacy AFOS identifier.
-                numberOfLinesOfHeaderText = 1;
             }
-        }
 
-        try {
-            start = 0;
-            finish = textEditor.getOffsetAtLine(thisLine
-                    + numberOfLinesOfHeaderText) - 1;
-        } catch (IllegalArgumentException e) {
-            // The text does not span enough lines so use the full extent
-            // of the product.
-            finish = textEditor.getCharCount() - 1;
-        }
+            try {
+                start = 0;
+                finish = textEditor.getOffsetAtLine(thisLine
+                        + numberOfLinesOfHeaderText) - 1;
+            } catch (IllegalArgumentException e) {
+                // The text does not span enough lines so use the full extent
+                // of the product.
+                finish = textEditor.getCharCount() - 1;
+            }
 
-        // Set the content of the header block to consist of just the header of
-        // the text product... it will get reunited with the body when it is
-        // saved.
-        if (finish > start) {
-            headerTF.setText(textEditor.getText(start, finish));
-        } else {
-            headerTF.setText("");
-        }
+            // Set the content of the header block to consist of just the header
+            // of
+            // the text product... it will get reunited with the body when it is
+            // saved.
+            if (finish > start) {
+                headerTF.setText(textEditor.getText(start, finish));
+            } else {
+                headerTF.setText("");
+            }
 
-        // Next, set the current body by assuming that it always
-        // consists of the rest of the text product beyond the line(s)
-        // of text in the header.
-        try {
-            int numberOfBlankLines = -1;
-            String line = null;
-            do {
-                numberOfBlankLines++;
+            // Next, set the current body by assuming that it always
+            // consists of the rest of the text product beyond the line(s)
+            // of text in the header.
+            try {
+                int numberOfBlankLines = -1;
+                String line = null;
+                do {
+                    numberOfBlankLines++;
                     line = textEditor.getLine(thisLine
                             + numberOfLinesOfHeaderText + numberOfBlankLines);
-            } while (line.length() == 0 || line.equals(""));
-            // Note: 'st' is a reference to 'textEditor'...
-            // delelete the header from the text in 'textEditor'
-            finish = textEditor.getOffsetAtLine(thisLine
-                    + numberOfLinesOfHeaderText + numberOfBlankLines);
-            textEditor.setSelection(start, finish);
-            textEditor.setEditable(true);
-            textEditor.invokeAction(SWT.DEL);
-            textEditor.setEditable(false);
-        } catch (IllegalArgumentException e) {
-            // There is no text product body, so set it to the empty string.
-            textEditor.setText("");
-        }
+                } while (line.length() == 0 || line.equals(""));
+                // Note: 'st' is a reference to 'textEditor'...
+                // delelete the header from the text in 'textEditor'
+                finish = textEditor.getOffsetAtLine(thisLine
+                        + numberOfLinesOfHeaderText + numberOfBlankLines);
+                textEditor.setSelection(start, finish);
+                textEditor.setEditable(true);
+                textEditor.invokeAction(SWT.DEL);
+                textEditor.setEditable(false);
+            } catch (IllegalArgumentException e) {
+                // There is no text product body, so set it to the empty string.
+                textEditor.setText("");
+            }
         }
         // set editor status flags
         dirty = false;
     }
-        
+
     /**
      * Update the editor's header text field.
      * 
@@ -5907,9 +5923,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         statusBarLabel.update();
         setBusy(true);
 
-            if (queryTransport == null) {
-                queryTransport = TextEditorUtil.getTextDbsrvTransport();
-            }
+        if (queryTransport == null) {
+            queryTransport = TextEditorUtil.getTextDbsrvTransport();
+        }
         productQueryJob.addRequest(command, isObsUpdated);
     }
 
@@ -7594,9 +7610,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     protected void disposed() {
         textEditor.setFont(shell.getFont());
         headerTF.setFont(shell.getFont());
-        
+
         if (dftFont != null) {
-        	dftFont.dispose();
+            dftFont.dispose();
         }
 
         if (clipboard != null) {
@@ -8188,7 +8204,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private void displayAirportTooltip(Point location) {
         String word = parseProduct(textEditor, location.y);
         if (word != null) {
-        String result = AfosBrowserModel.getInstance().getNodeHelp(word);
+            String result = AfosBrowserModel.getInstance().getNodeHelp(word);
             if (result != null) {
                 // dispaly below and to the right of location.
                 location.x += 5;
@@ -8214,29 +8230,29 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         String result = new String("");
         try {
-        char c = lineText.charAt(0);
-        if ((c == 'M') || (c == 'S') || (c == 'T')) {
+            char c = lineText.charAt(0);
+            if ((c == 'M') || (c == 'S') || (c == 'T')) {
                 // # Most obs start with METAR, SPECI, TESTM, or TESTS. Skip
                 // over
-            // that tag,
-            // # a space, and the K or P, to get to the 3-char station ID.
-            if (lineText.length() > 10) {
-                result = lineText.substring(7, 10);
-            } else {
-                result = lineText.substring(lineText.length() - 3);
-            }
-        } else if ((c == 'W') || (c == 'Y')) {
+                // that tag,
+                // # a space, and the K or P, to get to the 3-char station ID.
+                if (lineText.length() > 10) {
+                    result = lineText.substring(7, 10);
+                } else {
+                    result = lineText.substring(lineText.length() - 3);
+                }
+            } else if ((c == 'W') || (c == 'Y')) {
                 // # Canadian SAOs have 3-character IDs, starting with W or Y.
                 // Grab
-            // 'em.
-            result = lineText.substring(0, 3);
-        } else {
+                // 'em.
+                result = lineText.substring(0, 3);
+            } else {
                 // # Some military obs don't get tagged. Skip the K or P and get
                 // 3
-            // chars.
-            int wordLineStart = 1;
-            result = lineText.substring(wordLineStart, wordLineStart + 4);
-        }
+                // chars.
+                int wordLineStart = 1;
+                result = lineText.substring(wordLineStart, wordLineStart + 4);
+            }
         } catch (StringIndexOutOfBoundsException ex) {
             // User has non METAR/SAO products and the parsing failed.
             result = null;
