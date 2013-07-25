@@ -18,4 +18,3 @@ Export-Package: com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.serialization.annotations,
  com.raytheon.uf.common.serialization.thrift
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: org.junit
