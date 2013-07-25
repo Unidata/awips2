@@ -23,7 +23,6 @@ package com.raytheon.edex.plugin.gfe.server.handler;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetGridParmInfoRequest;
@@ -39,12 +38,13 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * ------------ ---------- ----------- --------------------------
  * 04/08/08     #875       bphillip    Initial Creation
  * 09/22/09     3058       rjpeter     Converted to IRequestHandler
+ * 06/13/13     2044       randerso     Refactored to use IFPServer
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-public class GetGridParmInfoHandler implements
+public class GetGridParmInfoHandler extends BaseGfeRequestHandler implements
         IRequestHandler<GetGridParmInfoRequest> {
     @Override
     public ServerResponse<List<GridParmInfo>> handleRequest(
@@ -52,8 +52,8 @@ public class GetGridParmInfoHandler implements
         List<GridParmInfo> parmInfo = new ArrayList<GridParmInfo>();
         ServerResponse<List<GridParmInfo>> sr = new ServerResponse<List<GridParmInfo>>();
         for (ParmID parmId : request.getParmIds()) {
-            ServerResponse<GridParmInfo> ssr = GridParmManager
-                    .getGridParmInfo(parmId);
+            ServerResponse<GridParmInfo> ssr = getIfpServer(request)
+                    .getGridParmMgr().getGridParmInfo(parmId);
             if (ssr.isOkay()) {
                 parmInfo.add(ssr.getPayload());
             }
