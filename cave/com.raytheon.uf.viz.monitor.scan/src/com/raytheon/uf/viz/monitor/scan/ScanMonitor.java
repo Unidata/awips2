@@ -112,6 +112,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * Apr 18, 2013     1926   njensen    Changed inner data maps to have Long key
  *                                                       to avoid !TimeStamp.equals(Date) issue
  * Apr 26, 2013     1926   njensen     Optimized getAvailableUris()
+ * Jul 24, 2013     2218   mpduff      Improved error handling, optimizations
  * </pre>
  * 
  * @author dhladky
@@ -120,24 +121,29 @@ import com.vividsolutions.jts.io.WKBReader;
  */
 
 public class ScanMonitor extends ResourceMonitor implements IScanDialogListener {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ScanMonitor.class);
 
-    /** boolean for initialization **/
-    // public static boolean isInitialized = false;
-    public ArrayList<String> icaos = new ArrayList<String>();
+    /** List of icaos */
+    public List<String> icaos = new ArrayList<String>();
 
-    private HashMap<String, String> cwas = new HashMap<String, String>();
+    /** Map of icao -> encompassing CWA */
+    private final Map<String, String> cwas = new HashMap<String, String>();
 
-    private HashMap<String, Date> cellDialogTime = new HashMap<String, Date>();
+    /** Map of icao -> dialog time */
+    private final Map<String, Date> cellDialogTime = new HashMap<String, Date>();
 
-    private HashMap<String, Date> dmdDialogTime = new HashMap<String, Date>();
+    /** Map of icao -> dialog time */
+    private final Map<String, Date> dmdDialogTime = new HashMap<String, Date>();
 
-    private HashMap<String, Date> cellScanTime = new HashMap<String, Date>();
+    /** Map of icao -> scan time */
+    private final Map<String, Date> cellScanTime = new HashMap<String, Date>();
 
-    private HashMap<String, Date> dmdScanTime = new HashMap<String, Date>();
+    /** Map of icao -> scan time */
+    private final Map<String, Date> dmdScanTime = new HashMap<String, Date>();
 
-    private Map<String, Map<ScanTables, ScanTime>> times = new HashMap<String, Map<ScanTables, ScanTime>>();
+    /** Map of icao -> map of ScanTable -> ScanTime */
+    private final Map<String, Map<ScanTables, ScanTime>> times = new HashMap<String, Map<ScanTables, ScanTime>>();
 
     /** Singleton instance of this class */
     private static ScanMonitor monitor = null;
@@ -161,30 +167,22 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     public Map<String, ConcurrentMap<Long, ScanTableData>> cellData = null;
 
     /** Array of scan listeners **/
-    private final ArrayList<IScanRadarListener> scanListeners = new ArrayList<IScanRadarListener>();
+    private final List<IScanRadarListener> scanListeners = new ArrayList<IScanRadarListener>();
 
     /** Scan splash **/
     public SCANSplash scanSplashDlg = null;
 
-    /** Cell table Dialog **/
-    // /public SCANCellTableDlg cellDialog = null;
+    /** Map of icao -> cell table dialog */
+    private final ConcurrentHashMap<String, SCANCellTableDlg> cellDialogs = new ConcurrentHashMap<String, SCANCellTableDlg>();
 
-    public ConcurrentHashMap<String, SCANCellTableDlg> cellDialogs = new ConcurrentHashMap<String, SCANCellTableDlg>();
+    /** Map of icao -> meso table dialog */
+    private final ConcurrentHashMap<String, SCANMesoTableDlg> mesoDialogs = new ConcurrentHashMap<String, SCANMesoTableDlg>();
 
-    /** Meso Table Dialog **/
-    // public SCANMesoTableDlg mesoDialog = null;
+    /** Map of icao -> tvs table dialog */
+    private final ConcurrentHashMap<String, SCANTvsTableDlg> tvsDialogs = new ConcurrentHashMap<String, SCANTvsTableDlg>();
 
-    public ConcurrentHashMap<String, SCANMesoTableDlg> mesoDialogs = new ConcurrentHashMap<String, SCANMesoTableDlg>();
-
-    /** TVS Table Dialog **/
-    // public SCANTvsTableDlg tvsDialog = null;
-
-    public ConcurrentHashMap<String, SCANTvsTableDlg> tvsDialogs = new ConcurrentHashMap<String, SCANTvsTableDlg>();
-
-    /** DMD Table Dialog **/
-    // public SCANDmdTableDlg dmdDialog = null;
-
-    public ConcurrentHashMap<String, SCANDmdTableDlg> dmdDialogs = new ConcurrentHashMap<String, SCANDmdTableDlg>();
+    /** Map of icao -> dmd table dialog */
+    private final ConcurrentHashMap<String, SCANDmdTableDlg> dmdDialogs = new ConcurrentHashMap<String, SCANDmdTableDlg>();
 
     /** SCAN Monitor Configuration object **/
     private SCANMonitorConfig config = null;
@@ -192,17 +190,22 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     /** SCAN table Configuration object **/
     private SCANConfig scanConfig = null;
 
-    public HashMap<String, Double> cellTilts = new HashMap<String, Double>();
+    /** Map of icao -> cell tilt angle */
+    private final Map<String, Double> cellTilts = new HashMap<String, Double>();
 
-    public HashMap<String, Double> dmdTilts = new HashMap<String, Double>();
+    /** Map of icao -> dmd tilt angle */
+    private final Map<String, Double> dmdTilts = new HashMap<String, Double>();
 
-    public GeometryFactory factory = new GeometryFactory();
+    /** The geometry factory */
+    private final GeometryFactory factory = new GeometryFactory();
 
-    private HashMap<String, Coordinate> stationCoors = new HashMap<String, Coordinate>();
+    /** Station -> Coordinate map */
+    private final Map<String, Coordinate> stationCoors = new HashMap<String, Coordinate>();
 
     /** Pattern for dates in radar */
     public static String datePattern = "yyyy-MM-dd HH:mm:ss";
 
+    /** Map of Date -> ScanRecord */
     private final ConcurrentSkipListMap<Date, ScanRecord> dmdRecordList = new ConcurrentSkipListMap<Date, ScanRecord>();
 
     /**
@@ -215,8 +218,10 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
      */
     private boolean dataUpdated = false;
 
+    /** Instantiate flag */
     private boolean instantiated = false;
 
+    /** Latest elevation */
     private Double latestElevation = null;
 
     /** used for Unwarned TVS, STR **/
@@ -230,17 +235,16 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     }
 
     /**
-     * Actual initialization if necessary
+     * Get instance, actual initialization if necessary
      * 
-     * @return
+     * @return The singleton instance
      */
-    public static synchronized ScanMonitor getInstance() {
-
+    public static final synchronized ScanMonitor getInstance() {
         if (monitor == null) {
             monitor = new ScanMonitor();
             monitor.createDataStructures();
-            // isInitialized = true;
         }
+
         return monitor;
     }
 
@@ -259,6 +263,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
      * Sets the config
      * 
      * @param config
+     *            The config object
      */
     public void setConfig(SCANMonitorConfig config) {
         this.config = config;
@@ -267,7 +272,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     /**
      * gets the config
      * 
-     * @return
+     * @return The config object
      */
     public SCANMonitorConfig getConfig() {
         if (config == null) {
@@ -279,7 +284,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     /**
      * gets the scan table config
      * 
-     * @return
+     * @return the SCANConfig object
      */
     public SCANConfig getScanConfig() {
         if (scanConfig == null) {
@@ -292,24 +297,17 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
      * reset the data structs
      */
     public void resetData() {
-        if (dmdData != null) {
-            dmdData.clear();
-        }
-        if (cellData != null) {
-            cellData.clear();
-        }
-        if (tvsData != null) {
-            tvsData.clear();
-        }
-        if (mdData != null) {
-            mdData.clear();
-        }
+        dmdData.clear();
+        cellData.clear();
+        tvsData.clear();
+        mdData.clear();
     }
 
     /**
      * Initial setup of monitor
      * 
-     * @param stations
+     * @param icao
+     *            The icao to initialize
      */
     @SuppressWarnings("rawtypes")
     public void setup(String icao) {
@@ -332,8 +330,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
 
     @Override
     public void thresholdUpdate(IMonitorThresholdEvent me) {
-        // TODO Auto-generated method stub
-
+        // No-op
     }
 
     @Override
@@ -349,20 +346,22 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     @Override
     public void nullifyMonitor(String icao) {
 
-        if (cellDialogs.get(icao) == null) {
+        if (cellDialogs.get(icao) != null) {
             monitor.removeMonitorListener(cellDialogs.get(icao));
             monitor.cellData.remove(icao);
             monitor.mdData.remove(icao);
             monitor.tvsData.remove(icao);
+            cellDialogs.remove(icao);
         }
-        if (dmdDialogs.get(icao) == null) {
+        if (dmdDialogs.get(icao) != null) {
             monitor.removeMonitorListener(dmdDialogs.get(icao));
             monitor.dmdData.remove(icao);
+            dmdDialogs.remove(icao);
         }
 
-        if ((dmdDialogs == null) && (cellDialogs == null)) {
+        if ((dmdDialogs.isEmpty()) && (cellDialogs.isEmpty())) {
             // kill this monitor
-            monitor = null;
+            nullifyMonitor();
         }
     }
 
@@ -374,25 +373,45 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     /**
      * Gets the radar station ICAOs
      * 
-     * @return
+     * @return list of icaos
      */
-    public ArrayList<String> getIcaos() {
+    public List<String> getIcaos() {
         return icaos;
     }
 
+    /**
+     * Add an icao.
+     * 
+     * @param icao
+     *            the icao to add
+     */
     public void addIcao(String icao) {
-        icaos.add(icao);
-
+        if (icao != null) {
+            icaos.add(icao);
+        }
     }
 
+    /**
+     * Populate the icao -> cwa map.
+     * 
+     * @param icao
+     *            The icao
+     */
     public void setCwa(String icao) {
-        cwas.put(icao, getCWABySpatialQuery(getStationCoordinate(icao)));
+        try {
+            cwas.put(icao, getCWABySpatialQuery(getStationCoordinate(icao)));
+        } catch (Exception e) {
+            statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
+        }
     }
 
     /**
      * Gets the cell tilt angle
      * 
-     * @return
+     * @param icao
+     *            The icao
+     * 
+     * @return The cell tilt angle
      */
     public double getCellTilt(String icao) {
         if (cellTilts.get(icao) == null) {
@@ -401,19 +420,40 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
         return cellTilts.get(icao);
     }
 
+    /**
+     * Set the cell tilt for the provided icao
+     * 
+     * @param cellTilt
+     *            The tilt
+     * @param icao
+     *            The icao
+     */
     public void setCellTilt(double cellTilt, String icao) {
-        cellTilts.put(icao, cellTilt);
+        if (icao != null) {
+            cellTilts.put(icao, cellTilt);
+        }
     }
 
     /**
-     * Gets the dmd tilt angle
+     * Gets the DMD tilt angle
      * 
-     * @return
+     * @param icao
+     *            The icao
+     * 
+     * @return The tilt angle for the icao
      */
     public double getDmdTilt(String icao) {
         return dmdTilts.get(icao);
     }
 
+    /**
+     * Set the DMD tilt for the provided icao
+     * 
+     * @param dmdTilt
+     *            The tilt
+     * @param icao
+     *            The icao
+     */
     public void setDmdTilt(double dmdTilt, String icao) {
         dmdTilts.put(icao, dmdTilt);
     }
@@ -422,10 +462,15 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
      * Gets the latest records
      * 
      * @param type
+     *            The type of record
+     * @param icao
+     *            The icao
      * @param date
+     *            The date
      * @param tilt
-     *            (aka azimuth)
-     * @return
+     *            The tilt (aka azimuth)
+     * @return The corresponding ScanRecord
+     * @throws VizException
      */
     public ScanRecord getScanRecord(ScanTables type, String icao, Date date,
             double tilt) throws VizException {
@@ -450,18 +495,16 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
      * Return the tilt angle at which the table is currently at
      * 
      * @param type
+     *            table type
      * @param icao
-     * @return
+     *            icao
+     * @return current tilt angle
      */
     public Double getTiltAngle(ScanTables type, String icao) {
         double angle = 0.0;
         if (type == ScanTables.DMD) {
             angle = getDmdTilt(icao);
-        } else if (type == ScanTables.CELL) {
-            angle = getCellTilt(icao);
-        } else if (type == ScanTables.TVS) {
-            angle = getCellTilt(icao);
-        } else if (type == ScanTables.MESO) {
+        } else {
             angle = getCellTilt(icao);
         }
 
@@ -471,55 +514,61 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     /**
      * Get most recent time
      * 
-     * @param data
-     * @return
+     * @param type
+     *            Table Type
+     * @param icao
+     *            The ICAO
+     * @return The DataTime
      */
-    public DataTime getMostRecent(IMonitor monitor, String type, String icao) {
-
-        DataTime time = null;
+    public DataTime getMostRecent(String type, String icao) {
         ScanTables scanType = ScanTables.valueOf(type);
         if ((scanType == ScanTables.MESO) || (scanType == ScanTables.TVS)) {
             scanType = ScanTables.CELL;
         }
         Set<Long> ds = getData(scanType, icao).keySet();
-        DataTime[] times = new DataTime[ds.size()];
-        int i = 0;
-        for (Long d : ds) {
-            times[i] = new DataTime(new Date(d));
-            i++;
+        if (ds == null || ds.isEmpty()) {
+            return null;
         }
-        java.util.Arrays.sort(times);
-        if (times.length > 0) {
-            time = times[times.length - 1]; // most recent
+        List<Long> timeList = new ArrayList<Long>();
+        for (Long d : ds) {
+            timeList.add(d);
         }
 
-        return time;
+        Collections.sort(timeList);
+
+        return new DataTime(new Date(timeList.get(timeList.size() - 1)));
     }
 
     /**
      * Get the Keys for my table
      * 
      * @param type
+     *            table type
+     * @param icao
+     *            the icao
      * @param time
-     * @return
+     *            the time
+     * @return The keys
      */
 
     public Set<String> getTableKeys(ScanTables type, String icao, Date time) {
         Set<String> keySet = null;
-        try {
-            if (getTableData(type, icao, time) != null) {
-                keySet = getTableData(type, icao, time).getTableData().keySet();
-            } else {
-                return null;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (getTableData(type, icao, time) != null) {
+            keySet = getTableData(type, icao, time).getTableData().keySet();
+        } else {
+            return null;
         }
         return keySet;
     }
 
     /**
      * Sends a String from the TABLE enum for which table data to grab
+     * 
+     * @param table
+     *            The table
+     * @param icao
+     *            The icao
+     * @return The table data for the icao
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public ConcurrentMap<Long, ?> getData(ScanTables table, String icao) {
@@ -561,6 +610,14 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
 
     /**
      * Gets the tableData by time, type
+     * 
+     * @param table
+     *            The table
+     * @param icao
+     *            The icao
+     * @param time
+     *            The time
+     * @return The table data for the time and icao
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public ScanTableData<?> getTableData(ScanTables table, String icao,
@@ -573,8 +630,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
         case TVS:
         case MESO:
             tableData = (ScanTableData<?>) data.get(longtime);
-            if (tableData == null
-                    && (table == ScanTables.TVS || table == ScanTables.MESO)) {
+            if (tableData == null) {
                 tableData = getNewTableData(table, icao, time,
                         getTiltAngle(table, icao));
                 if (tableData != null) {
@@ -596,12 +652,19 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
 
     /**
      * Get the DMD Table Data by elevation.
+     * 
+     * @param icao
+     *            The icao
+     * @param time
+     *            The time
+     * @param tiltAngle
+     *            The tilt angle
+     * @return The DMD table data
      */
     public ScanTableData<?> getDmdTableData(String icao, Date time,
             double tiltAngle) {
-        ScanTables dmd = ScanTables.DMD;
         ScanTableData<?> tableData = null;
-        ConcurrentMap<Long, ?> data = getData(dmd, icao);
+        ConcurrentMap<Long, ?> data = getData(ScanTables.DMD, icao);
         DMDScanData dmdsd = (DMDScanData) data.get(time.getTime());
         if (dmdsd != null) {
             tableData = dmdsd.getTableData(time.getTime());
@@ -612,8 +675,17 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
 
     /**
      * gets the newest tableData by time, type
+     * 
+     * @param type
+     *            The type
+     * @param icao
+     *            the icao
+     * @param date
+     *            the date
+     * @param tilt
+     *            the tilt
+     * @return table data
      */
-
     public ScanTableData<?> getNewTableData(ScanTables type, String icao,
             Date date, double tilt) {
         ScanTableData<?> data = null;
@@ -623,7 +695,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
                 data = getScanRecord(type, icao, date, tilt).getTableData();
             }
         } catch (VizException ve) {
-            System.out.println("Couldn't load new ScanRecord: " + type.name());
+            statusHandler.warn("Couldn't load new ScanRecord: " + type.name());
         }
 
         return data;
@@ -632,9 +704,11 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     /**
      * Set new row data
      * 
+     * @param icao
      * @param data
      * @param date
      * @param angle
+     * @param scanTime
      * @param type
      */
     @SuppressWarnings({ "unchecked" })
@@ -666,11 +740,17 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     /**
      * launch one of the scan table dialogs
      * 
+     * @param shell
+     *            The parent shell
+     * @param icao
+     *            The icao
      * @param table
+     *            the table type
      */
+    @Override
     public void launchDialog(Shell shell, String icao, ScanTables table) {
         if (table.equals(ScanTables.CELL)) {
-            if (cellDialogs.size() == 0) {
+            if (cellDialogs.isEmpty()) {
                 getScanConfig().reload(ScanTables.CELL);
             }
             if (cellDialogs.get(icao) == null) {
@@ -681,7 +761,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
                 cellDialog.addMonitorControlListener(monitor);
             }
         } else if (table.equals(ScanTables.DMD)) {
-            if (dmdDialogs.size() == 0) {
+            if (dmdDialogs.isEmpty()) {
                 getScanConfig().reload(ScanTables.DMD);
             }
             if (dmdDialogs.get(icao) == null) {
@@ -692,7 +772,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
                 dmdDialog.addMonitorControlListener(monitor);
             }
         } else if (table.equals(ScanTables.MESO)) {
-            if (mesoDialogs.size() == 0) {
+            if (mesoDialogs.isEmpty()) {
                 getScanConfig().reload(ScanTables.MESO);
             }
             if (mesoDialogs.get(icao) == null) {
@@ -705,7 +785,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
                 return;
             }
         } else if (table.equals(ScanTables.TVS)) {
-            if (tvsDialogs.size() == 0) {
+            if (tvsDialogs.isEmpty()) {
                 getScanConfig().reload(ScanTables.TVS);
             }
             if (tvsDialogs.get(icao) == null) {
@@ -726,6 +806,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
      * add a listener
      * 
      * @param isrl
+     *            listener to add
      */
     public void addScanRadarListener(IScanRadarListener isrl) {
         scanListeners.add(isrl);
@@ -735,6 +816,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
      * remove a listener
      * 
      * @param isrl
+     *            listener to remove
      */
     public void removeScanRadarListener(IScanRadarListener isrl) {
         scanListeners.remove(isrl);
@@ -750,6 +832,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
                         .getRow(ident).getLon();
                 final Coordinate coor = new Coordinate(lon, lat, 0.0);
                 Display.getDefault().asyncExec(new Runnable() {
+                    @Override
                     public void run() {
                         Iterator<IScanRadarListener> iter = scanListeners
                                 .iterator();
@@ -765,6 +848,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     @Override
     public void paintScan() {
         Display.getDefault().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 Iterator<IScanRadarListener> iter = scanListeners.iterator();
                 while (iter.hasNext()) {
@@ -777,6 +861,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     @Override
     public void updateDrawingConfig() {
         Display.getDefault().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 // actually using IScanRadarListener interface as gateway to
                 // call other methods on ScanResource.
@@ -792,6 +877,9 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
      * close down the dialog
      * 
      * @param type
+     *            dialog type
+     * @param icao
+     *            the icao
      */
     public void closeDialog(ScanTables type, String icao) {
         if (type.equals(ScanTables.CELL)) {
@@ -838,7 +926,8 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     /**
      * close down all open scan dialogs
      * 
-     * @param type
+     * @param icao
+     *            the icao
      */
     public void closeDialog(String icao) {
         final String ficao = icao;
@@ -857,18 +946,22 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
      * Gets the dialogs
      * 
      * @param scanTables
-     * @return
+     *            table type
+     * @param icao
+     *            the icao
+     * @return the dialog
      */
     public AbstractTableDlg getDialog(
             com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables scanTables,
             String icao) {
-        if (scanTables.equals(ScanTables.CELL)) {
+        switch (scanTables) {
+        case CELL:
             return cellDialogs.get(icao);
-        } else if (scanTables.equals(ScanTables.DMD)) {
+        case DMD:
             return dmdDialogs.get(icao);
-        } else if (scanTables.equals(ScanTables.MESO)) {
+        case MESO:
             return mesoDialogs.get(icao);
-        } else if (scanTables.equals(ScanTables.TVS)) {
+        case TVS:
             return tvsDialogs.get(icao);
         }
 
@@ -974,8 +1067,15 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
      * Updates the Monitor and Dialog with info from resource
      * 
      * @param type
+     *            the type
+     * @param icao
+     *            the icao
      * @param dialogTime
+     *            the dialog time
+     * @param scanTime
+     *            the scan time
      * @param tilt
+     *            the tilt angle
      */
     public void updateDialog(ScanTables type, String icao, Date dialogTime,
             Date scanTime, double tilt) {
@@ -994,65 +1094,46 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     }
 
     /**
-     * Dialogs retrieve the drawTime=
+     * Dialogs retrieve the drawTime
      * 
-     * @return
+     * @param type
+     *            The dialog type
+     * @param icao
+     *            the icao
+     * 
+     * @return the dialog time
      */
     public Date getDialogTime(ScanTables type, String icao) {
-        Date dialogTime = null;
-        if (type.equals(ScanTables.CELL)) {
-            if (cellDialogTime.get(icao) == null) {
-                return null;
-            } else {
-                dialogTime = cellDialogTime.get(icao);
-            }
-        } else if (type.equals(ScanTables.DMD)) {
-            if (dmdDialogTime.get(icao) == null) {
-                return null;
-            } else {
-                dialogTime = dmdDialogTime.get(icao);
-            }
-        } else if (type.equals(ScanTables.MESO)) {
-            dialogTime = cellDialogTime.get(icao);
-        } else if (type.equals(ScanTables.TVS)) {
-            dialogTime = cellDialogTime.get(icao);
+        if (type.equals(ScanTables.DMD)) {
+            return dmdDialogTime.get(icao);
+        } else {
+            return cellDialogTime.get(icao);
         }
-
-        return dialogTime;
     }
 
     /**
-     * Dialogs retrieve the drawTime=
+     * Dialogs retrieve the drawTime
      * 
-     * @return
+     * @param type
+     *            The dialog type
+     * @param icao
+     *            the icao
+     * 
+     * @return the scan time
      */
     public Date getScanTime(ScanTables type, String icao) {
-        Date scanTime = null;
-        if (type.equals(ScanTables.CELL)) {
-            if (cellScanTime.get(icao) == null) {
-                return null;
-            } else {
-                scanTime = cellScanTime.get(icao);
-            }
-        } else if (type.equals(ScanTables.DMD)) {
-            if (dmdScanTime.get(icao) == null) {
-                return null;
-            } else {
-                scanTime = dmdScanTime.get(icao);
-            }
-        } else if (type.equals(ScanTables.MESO)) {
-            scanTime = cellScanTime.get(icao);
-        } else if (type.equals(ScanTables.TVS)) {
-            scanTime = cellScanTime.get(icao);
+        if (type.equals(ScanTables.DMD)) {
+            return dmdScanTime.get(icao);
+        } else {
+            return cellScanTime.get(icao);
         }
-
-        return scanTime;
     }
 
     /**
      * launches the splash screen
      * 
      * @param shell
+     *            The parent shell
      */
     public void launchSplash(Shell shell) {
         scanSplashDlg = new SCANSplash(shell);
@@ -1079,26 +1160,26 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
         switch (table) {
         case MESO:
             if ((mesoDialogs.get(icao) != null)
-                    && (mesoDialogs.get(icao).getCurrentShell().isDisposed() == false)) {
+                    && (!mesoDialogs.get(icao).getCurrentShell().isDisposed())) {
                 mesoDialogs.get(icao).updateThresh(attr);
             }
             break;
         case CELL:
             if ((cellDialogs.get(icao) != null)
-                    && (cellDialogs.get(icao).getCurrentShell().isDisposed() == false)) {
+                    && (!cellDialogs.get(icao).getCurrentShell().isDisposed())) {
                 cellDialogs.get(icao).updateThresh(attr);
             }
             break;
 
         case DMD:
             if ((dmdDialogs.get(icao) != null)
-                    && (dmdDialogs.get(icao).getCurrentShell().isDisposed() == false)) {
+                    && (!dmdDialogs.get(icao).getCurrentShell().isDisposed())) {
                 dmdDialogs.get(icao).updateThresh(attr);
             }
             break;
         case TVS:
             if ((tvsDialogs.get(icao) != null)
-                    && (tvsDialogs.get(icao).getCurrentShell().isDisposed() == false)) {
+                    && (!tvsDialogs.get(icao).getCurrentShell().isDisposed())) {
                 tvsDialogs.get(icao).updateThresh(attr);
             }
             break;
@@ -1106,28 +1187,29 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     }
 
     /**
-     * Get CWA Query
+     * Get CWA for the provided coordinate
      * 
      * @param c
-     * @return
+     *            the Coordinate of the CWA
+     * @return the CWA for he provided coordinate
+     * @throws Exception
+     *             on error
      */
-    public String getCWABySpatialQuery(Coordinate c) {
+    private String getCWABySpatialQuery(Coordinate c) throws Exception {
         ISpatialQuery sq = null;
+        String cwa = null;
         try {
             sq = SpatialQueryFactory.create();
-        } catch (SpatialException e1) {
-            e1.printStackTrace();
-        }
-        // convert coordinate to point geometry
-        Point geometry = factory.createPoint(c);
-        SpatialQueryResult[] results = null;
-        try {
+            // convert coordinate to point geometry
+            Point geometry = factory.createPoint(c);
+            SpatialQueryResult[] results = null;
             results = sq.query("cwa", new String[] { "cwa" }, geometry, null,
                     false, SearchMode.WITHIN);
-        } catch (Exception e) {
-            e.printStackTrace();
+            cwa = (String) results[0].attributes.get("cwa");
+        } catch (SpatialException e) {
+            throw new SpatialException(
+                    "Error getting CWA by provided coordinates");
         }
-        String cwa = (String) results[0].attributes.get("cwa");
 
         return cwa;
     }
@@ -1135,7 +1217,8 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     /**
      * Gets the station Coordinate
      * 
-     * @return
+     * @param icao
+     *            The icao
      */
     public void setStationCoordinate(String icao) {
 
@@ -1150,16 +1233,19 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
             stationCoors.put(icao, stationGeo.getCoordinate());
 
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.error("Error setting station coordinates", e);
         } catch (ParseException pe) {
-            pe.printStackTrace();
+            statusHandler.error("Error setting station coordinates", pe);
         }
     }
 
     /**
      * Gets the StationCoordinate
      * 
-     * @return
+     * @param icao
+     *            The icao
+     * 
+     * @return the coordinates for the icao
      */
     public Coordinate getStationCoordinate(String icao) {
         return stationCoors.get(icao);
@@ -1168,7 +1254,10 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     /**
      * Gets the CWA
      * 
-     * @return
+     * @param icao
+     *            The icao
+     * 
+     * @return the CWA for the icao
      */
     public String getCwa(String icao) {
         return cwas.get(icao);
@@ -1176,6 +1265,9 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
 
     /**
      * Get the DMD frames for the max angle for the Volume Scan Time.
+     * 
+     * @param icao
+     *            The icao
      * 
      * @return Array of times for the specified data
      */
@@ -1194,7 +1286,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
             List<Object[]> results = DirectDbQuery.executeQuery(sql,
                     "metadata", QueryLanguage.SQL);
 
-            if (results.size() > 0) {
+            if (!results.isEmpty()) {
                 recordList = new long[results.size()];
                 for (int i = 0; i < recordList.length; i++) {
                     Object[] oa = results.get(i);
@@ -1203,7 +1295,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
                 }
             }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.error("Error getting DMD max angle times", e);
         }
         return recordList;
     }
@@ -1214,7 +1306,11 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
      * @param angle
      *            (aka azimuth)
      * @param date
+     *            the date
      * @param type
+     *            the type
+     * @param icao
+     *            the icao
      * @return data uri
      */
     public String getAvailableUri(Double angle, Date date, ScanTables type,
@@ -1244,12 +1340,21 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
             }
 
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.error("Unable to get URI", e);
         }
 
         return uri;
     }
 
+    /**
+     * Get available URIs for the type and icao
+     * 
+     * @param type
+     *            the Type
+     * @param icao
+     *            the icao
+     * @return list of URIs
+     */
     public List<String> getAvailableUris(ScanTables type, String icao) {
         List<String> uriList = null;
         String sql = null;
@@ -1295,7 +1400,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
      *            Ident.
      * @param currentTime
      *            Time currently displayed in the DMD table dialog
-     * @return The time height graph data.
+     * @return The time height graph data or null if empty.
      */
     public TreeMap<Long, DMDTableDataRow> getTimeHeightGraphData(String icao,
             SCANConfigEnums.DMDTable tableCol, String dmdIdent, Date currentTime) {
@@ -1303,10 +1408,8 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
         DMDScanData dmdScanData;
 
         for (Date date : getTimeOrderedKeys(this, ScanTables.DMD.name(), icao)) {
-            if (date.getTime() <= currentTime.getTime() + 240000) { // currenttime
-                                                                    // plus 4
-                                                                    // minutes
-                // dmdScanData = new DMDScanData();
+            // Current time plus 4 minutes
+            if (date.getTime() <= currentTime.getTime() + 240000) {
                 dmdScanData = (DMDScanData) getData(ScanTables.DMD, icao).get(
                         date.getTime());
 
@@ -1320,7 +1423,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
             }
         }
 
-        if (mapData.isEmpty() == true) {
+        if (mapData.isEmpty()) {
             return null;
         }
 
@@ -1345,7 +1448,9 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     /**
      * Order the dates
      * 
-     * @param set
+     * @param monitor
+     * @param type
+     * @param icao
      * @return
      */
     public List<Date> getTimeOrderedKeys(IMonitor monitor, String type,
@@ -1362,6 +1467,9 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
      * Create a list of ScanRecords containing only the maximum tilt angle for
      * each volume scan and the number of records to match the number of frames
      * being displayed.
+     * 
+     * @param rec
+     *            The ScanRecord
      */
     public void addDmdScanRecord(ScanRecord rec) {
         boolean added = false;
@@ -1397,10 +1505,21 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
         return returnList;
     }
 
+    /**
+     * Set the number of frames.
+     * 
+     * @param frames
+     *            number of frames
+     */
     public void setFrames(int frames) {
         this.frames = frames;
     }
 
+    /**
+     * Get the number of frames
+     * 
+     * @return number of frames
+     */
     public int getFrames() {
         return this.frames;
     }
@@ -1443,8 +1562,6 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
             if (script != null) {
                 resp = Connector.getInstance().connect(script, null, 60000);
 
-                // System.out.println("Number of active CWA warnings: "+resp.length);
-
                 for (int i = 0; i < resp.length; i++) {
 
                     AbstractWarningRecord rec = (AbstractWarningRecord) resp[i];
@@ -1480,30 +1597,22 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
                     }
 
                     if (sts && !tor) {
-                        // cells.add(new UnwarnedCell(key, WARN_TYPE.SEVERE));
                         cells.put(key, new UnwarnedCell(key, WARN_TYPE.SEVERE));
-                    }
-                    if (!sts && tor) {
-                        // cells.add(new UnwarnedCell(key, WARN_TYPE.TVS));
+                    } else if (!sts && tor) {
                         cells.put(key, new UnwarnedCell(key, WARN_TYPE.TVS));
-                    }
-                    // more critical cell gets added by when you find both
-                    if (sts && tor) {
+                    } else if (sts && tor) {
+                        // more critical cell gets added by when you find both
                         // cells.add(new UnwarnedCell(key, WARN_TYPE.TVS));
                         cells.put(key, new UnwarnedCell(key, WARN_TYPE.TVS));
                     }
                 }
                 if (severe && !tvs) {
                     if (isUnwarned(ctdr, WARN_TYPE.SEVERE)) {
-                        // cells.add(new UnwarnedCell((String)key,
-                        // WARN_TYPE.SEVERE));
                         cells.put(key, new UnwarnedCell(key, WARN_TYPE.SEVERE));
                     }
                 }
                 if (!severe && tvs) {
                     if (isUnwarned(ctdr, WARN_TYPE.TVS)) {
-                        // cells.add(new UnwarnedCell((String)key,
-                        // WARN_TYPE.TVS));
                         cells.put(key, new UnwarnedCell(key, WARN_TYPE.TVS));
                     }
                 }
@@ -1511,7 +1620,6 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
 
             // run over tvs first, eliminate already warned events
             for (String key : cells.keySet()) {
-
                 CellTableDataRow ctdr = (CellTableDataRow) cellTable
                         .getRow(cells.get(key).getCellId());
                 Point point = factory.createPoint(new Coordinate(ctdr.getLon(),
@@ -1563,9 +1671,6 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
             for (String cellId : removeList) {
                 cells.remove(cellId);
             }
-
-            // System.out.println("Number of cells unwarned: "+cells.size());
-
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, "Error retreiving warnings",
                     e);
@@ -1578,8 +1683,10 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
      * Run over the unwarned criteria checks
      * 
      * @param row
+     *            row to check
      * @param warnType
-     * @return
+     *            warn type
+     * @return true if unwarned
      */
     public boolean isUnwarned(CellTableDataRow row, WARN_TYPE warnType) {
 
@@ -1590,6 +1697,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
         boolean tvs = false;
         boolean hail = false;
 
+        final String NONE = "NONE";
         if (warnType == WARN_TYPE.SEVERE) {
 
             // actual value checks
@@ -1610,7 +1718,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
                 }
             }
             if (getScanConfig().getUnwarnedConfig().getSvrMesoStRank()
-                    && !row.getMdaSR().equals("NONE")) {
+                    && !row.getMdaSR().equals(NONE)) {
                 if (getScanConfig().getUnwarnedConfig().getSvrMesoStRankVal() <= ScanUtils
                         .parseMDASR(row.getMdaSR())) {
                     mdasr = true;
@@ -1619,7 +1727,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
                 }
             }
             if (getScanConfig().getUnwarnedConfig().getSvrTvs()) {
-                if (!row.getTvs().equals("NONE")) {
+                if (!row.getTvs().equals(NONE)) {
                     tvs = true;
                 } else {
                     tvs = false;
@@ -1636,7 +1744,6 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
 
             if (tvs || mdasr || hail || vil || dbz) {
                 isUnwarned = true;
-                // System.out.println("CEll: "+row.getIdent()+" meets SEVERE criteria");
             }
 
         } else if (warnType == WARN_TYPE.TVS) {
@@ -1658,7 +1765,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
                 }
             }
             if (getScanConfig().getUnwarnedConfig().getTorMesoStRank()
-                    && !row.getMdaSR().equals("NONE")) {
+                    && !row.getMdaSR().equals(NONE)) {
                 if (getScanConfig().getUnwarnedConfig().getTorMesoStRankVal() <= ScanUtils
                         .parseMDASR(row.getMdaSR())) {
                     mdasr = true;
@@ -1667,7 +1774,7 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
                 }
             }
             if (getScanConfig().getUnwarnedConfig().getTorTvs()) {
-                if (!row.getTvs().equals("NONE")) {
+                if (!row.getTvs().equals(NONE)) {
                     tvs = true;
                 } else {
                     tvs = false;
@@ -1676,7 +1783,6 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
 
             if (tvs || mdasr || vil || dbz) {
                 isUnwarned = true;
-                // System.out.println("CEll: "+row.getIdent()+" meets TVS criteria");
             }
         }
 
@@ -1691,24 +1797,35 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     }
 
     /**
-     * @param dataUpdateFlag
+     * @param dataUpdated
      *            the dataUpdateFlag to set
      */
     public void setDataUpdated(boolean dataUpdated) {
         this.dataUpdated = dataUpdated;
     }
 
+    /**
+     * Is this class instantiated.
+     * 
+     * @return true if instantiated
+     */
     public boolean isInstantiated() {
         return instantiated;
     }
 
+    /**
+     * Set instantiation flag.
+     * 
+     * @param instantiated
+     *            true if instantiated
+     */
     public void setInstantiated(boolean instantiated) {
         this.instantiated = instantiated;
     }
 
     @Override
     public ArrayList<Date> getTimeOrderedKeys(IMonitor monitor, String type) {
-        // // TODO Auto-generated method stub
+        // No-op
         return null;
     }
 
@@ -1716,6 +1833,8 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
      * Gets a list of the site keys
      * 
      * @param type
+     *            Table type
+     * @return Set of sites
      */
     public Set<String> getSites(ScanTables type) {
         Set<String> data = null;
@@ -1731,10 +1850,26 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
         return data;
     }
 
+    /**
+     * Get the time
+     * 
+     * @param icao
+     * @param scanTable
+     * @param timeType
+     * @return
+     */
     public Date getTime(String icao, ScanTables scanTable, ScanTimeType timeType) {
         return times.get(icao).get(scanTable).getTime(timeType);
     }
 
+    /**
+     * Set the time
+     * 
+     * @param icao
+     * @param scanTable
+     * @param timeType
+     * @param date
+     */
     public void setTime(String icao, ScanTables scanTable,
             ScanTimeType timeType, Date date) {
         if (times.get(icao) == null) {
@@ -1766,9 +1901,8 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
     /**
      * fire off a cleaner
      * 
-     * @param product
-     * @param source
-     * @param siteKey
+     * @param icao
+     * @param table
      * @param date
      */
     public void purgeSCANData(String icao, ScanTables table, Date date) {
@@ -1784,11 +1918,11 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
      */
     private class PurgeSCANData implements Runnable {
 
-        private String icao;
+        private final String icao;
 
-        private ScanTables table;
+        private final ScanTables table;
 
-        private Date date;
+        private final Date date;
 
         public PurgeSCANData(String icao, ScanTables table, Date date) {
 
@@ -1839,5 +1973,4 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
             }
         }
     }
-
 }
