@@ -12,4 +12,5 @@ Export-Package: com.raytheon.uf.common.dataquery,
  com.raytheon.uf.common.dataquery.responses
 Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.12.1173",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1173"
-Import-Package: com.raytheon.uf.common.time
+Import-Package: com.raytheon.uf.common.time,
+ com.raytheon.uf.common.time.util

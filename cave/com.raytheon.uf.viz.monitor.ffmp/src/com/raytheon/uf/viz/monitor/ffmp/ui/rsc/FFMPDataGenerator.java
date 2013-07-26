@@ -78,6 +78,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * Jun 11, 2013    2085   njensen     Extracted row creation to FFMPRowGenerator and
  *                                     multi-threaded row creation.
  * July 1, 2013    2155   dhladky     Fixed bug that created more rows than were actually needed.
+ * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * 
  * </pre>
  * 
@@ -169,136 +170,140 @@ public class FFMPDataGenerator {
         FFFGDataMgr.getUpdatedInstance();
 
         try {
+
             FIELDS field = getBaseField();
 
             if (field == null || baseRec == null) {
                 return tData;
             }
-            FFMPBasinData fbd = null;
-            if (centeredAggregationKey != null) {
-                fbd = baseRec.getBasinData(FFMPRecord.ALL);
-            } else {
-                fbd = baseRec.getBasinData(huc);
-            }
 
-            tData = new FFMPTableData(fbd.getBasins().size());
             List<DomainXML> domains = resource.getDomains();
-            if (!fbd.getBasins().isEmpty()) {
-                if ((centeredAggregationKey == null)
-                        || huc.equals(FFMPRecord.ALL)) {
-                    // System.out.println(fbd.getBasins().keySet().size()
-                    // + " rows in the table");
+
+            if ((centeredAggregationKey == null) || huc.equals(FFMPRecord.ALL)) {
+                // System.out.println(fbd.getBasins().keySet().size()
+                // + " rows in the table");
+                if (huc.equals(FFMPRecord.ALL)) {
+
+                    FFMPBasinData fbd = baseRec.getBasinData();
+                    tData = new FFMPTableData(fbd.getBasins().size());
+
                     for (Long key : fbd.getBasins().keySet()) {
-                        if (huc.equals(FFMPRecord.ALL)) {
-                            FFMPBasinMetaData fmdb = ft.getBasin(siteKey, key);
-                            if (fmdb == null) {
-                                continue;
-                            }
+                        FFMPBasinMetaData fmdb = ft.getBasin(siteKey, key);
+                        if (fmdb == null) {
+                            continue;
+                        }
 
-                            for (DomainXML domain : domains) {
-                                
-                                String cwa = domain.getCwa();
-                                
-                                if ((cwa.equals(fmdb.getCwa()))
-                                        || (domain.isPrimary() && fmdb
-                                                .isPrimaryCwa())) {
-                                    try {
-                                        setFFMPRow(fbd.get(key), tData, false,
-                                                cwa);
-                                    } catch (Exception e) {
-                                        statusHandler.handle(Priority.PROBLEM,
-                                                "Couldn't create table row", e);
-                                    }
-                                    if (virtualBasin != null) {
-                                        for (Long id : ft
-                                                .getVirtualGageBasinLookupIds(
-                                                        siteKey, key, huc,
-                                                        resource.basinTableDlg
-                                                                .getRowName(), domain)) {
-                                            try {
-                                                setFFMPRow(
-                                                        virtualBasin.get(id),
-                                                        tData, true, cwa);
-                                            } catch (Exception e) {
-                                                statusHandler.handle(
-                                                        Priority.PROBLEM,
-                                                        "Couldn't create table row"
-                                                                + e);
-                                            }
-                                        }
-                                    }
+                        for (DomainXML domain : domains) {
+
+                            String cwa = domain.getCwa();
+
+                            if ((cwa.equals(fmdb.getCwa()))
+                                    || (domain.isPrimary() && fmdb
+                                            .isPrimaryCwa())) {
+                                try {
+                                    setFFMPRow(fbd.get(key), tData, false, cwa);
+                                } catch (Exception e) {
+                                    statusHandler.handle(Priority.PROBLEM,
+                                            "Couldn't create table row", e);
                                 }
-                            }
-
-                        } else {
-                            /*
-                             * make sure at least one basin in the agg is in the
-                             * CWA
-                             */
-
-                            List<Long> pfafs = ft.getAggregatePfafs(key,
-                                    siteKey, huc);
-
-                            boolean isVGB = false;
-                            if (ft.checkVGBsInAggregate(key, siteKey, huc)) {
-                                isVGB = true;
-                            }
-
-                            if (!pfafs.isEmpty()) {
-
-                                FFMPBasinMetaData fmdb = ft.getBasinInDomains(
-                                        siteKey, domains, pfafs);
-
-                                if (fmdb != null) {
-                                    try {
-                                        setFFMPRow(fbd.get(key), tData, isVGB,
-                                                null);
-                                    } catch (Exception e) {
-                                        statusHandler.handle(Priority.PROBLEM,
-                                                "Couldn't create table row", e);
+                                if (virtualBasin != null) {
+                                    for (Long id : ft
+                                            .getVirtualGageBasinLookupIds(
+                                                    siteKey, key, huc,
+                                                    resource.basinTableDlg
+                                                            .getRowName())) {
+                                        try {
+                                            setFFMPRow(virtualBasin.get(id),
+                                                    tData, true, cwa);
+                                        } catch (Exception e) {
+                                            statusHandler.handle(
+                                                    Priority.PROBLEM,
+                                                    "Couldn't create table row"
+                                                            + e);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                } else {
+
+                    // Find all of the basins for this HUC level
+                    List<Long> keyList = ft
+                            .getHucKeyList(siteKey, huc, domains);
+                    tData = new FFMPTableData(keyList.size());
+
+                    for (Long key : keyList) {
+
+                        List<Long> pfafs = ft.getAggregatePfafs(key, siteKey,
+                                huc);
+
+                        boolean isVGB = false;
+                        if (ft.checkVGBsInAggregate(key, siteKey, huc)) {
+                            isVGB = true;
+                        }
+
+                        if (!pfafs.isEmpty()) {
+
+                            FFMPBasinMetaData fmdb = ft.getBasinInDomains(
+                                    siteKey, domains, pfafs);
+
+                            if (fmdb != null) {
+                                try {
+                                    FFMPBasin basin = new FFMPBasin(key, true);
+                                    setFFMPRow(basin, tData, isVGB, null);
+                                } catch (Exception e) {
+                                    statusHandler.handle(Priority.PROBLEM,
+                                            "Couldn't create table row", e);
+                                }
+                            }
+                        }
+
+                    }
                 }
-                // show pfafs in aggregation
-                else {
-                    
-                    List<Long> centerAggPfafs = resource.getCenteredAggregatePfafs();
 
-                    for (Long key : centerAggPfafs) {
+            }
 
-                        FFMPBasinMetaData fmdb = ft.getBasin(siteKey, key);
-                       
-                        if (fmdb != null) {
-                            for (DomainXML domain : domains) {
-                                if ((domain.getCwa().equals(fmdb.getCwa()))
-                                        || (domain.isPrimary() && fmdb
-                                                .isPrimaryCwa())) {
-                                    
-                                    setFFMPRow(fbd.get(key), tData, false, null);
+            // show pfafs in aggregation
+            else {
+                FFMPBasinData fbd = baseRec.getBasinData();
+                List<Long> centerAggPfafs = resource
+                        .getCenteredAggregatePfafs();
+                tData = new FFMPTableData(centerAggPfafs.size());
 
-                                    if (virtualBasin != null) {
-                                        
-                                        // We *DO NOT* want all of the aggregate VGB's, 
-                                        // just the one's for this individual basin.
-                                        List<Long> virtuals = ft.getVirtualGageBasinLookupIds(
-                                                siteKey, key, FFMPRecord.ALL,
-                                                resource.basinTableDlg
-                                                        .getRowName(), domain);
-                                        
-                                        for (Long id : virtuals) {
-                                            try {
-                                                setFFMPRow(
-                                                        virtualBasin.get(id),
-                                                        tData, true, null);
-                                            } catch (Exception e) {
-                                                statusHandler
-                                                        .handle(Priority.PROBLEM,
-                                                                "Couldn't create table row",
-                                                                e);
-                                            }
+                for (Long key : centerAggPfafs) {
+
+                    FFMPBasinMetaData fmdb = ft.getBasin(siteKey, key);
+
+                    if (fmdb != null) {
+                        for (DomainXML domain : domains) {
+                            if ((domain.getCwa().equals(fmdb.getCwa()))
+                                    || (domain.isPrimary() && fmdb
+                                            .isPrimaryCwa())) {
+
+                                setFFMPRow(fbd.get(key), tData, false, null);
+
+                                if (virtualBasin != null) {
+
+                                    // We *DO NOT* want all of the aggregate
+                                    // VGB's,
+                                    // just the one's for this individual basin.
+                                    List<Long> virtuals = ft
+                                            .getVirtualGageBasinLookupIds(
+                                                    siteKey, key,
+                                                    FFMPRecord.ALL,
+                                                    resource.basinTableDlg
+                                                            .getRowName());
+
+                                    for (Long id : virtuals) {
+                                        try {
+                                            setFFMPRow(virtualBasin.get(id),
+                                                    tData, true, null);
+                                        } catch (Exception e) {
+                                            statusHandler
+                                                    .handle(Priority.PROBLEM,
+                                                            "Couldn't create table row",
+                                                            e);
                                         }
                                     }
                                 }
@@ -340,7 +345,6 @@ public class FFMPDataGenerator {
         Date tableTime = resource.getTableTime();
 
         FIELDS field = null;
-        String localHuc = null;
 
         FfmpTableConfigData ffmpTableCfgData = FfmpTableConfig.getInstance()
                 .getTableConfigData(siteKey);
@@ -365,37 +369,27 @@ public class FFMPDataGenerator {
 
         monitor.setQpeWindow(new FFMPTimeWindow(tableTime, qpeTime));
 
-        if (isWorstCase || (centeredAggregationKey != null)) {
-            // make sure that "ALL" is loaded
-            localHuc = FFMPRecord.ALL;
-        } else {
-            localHuc = huc;
-        }
-
         FFMPRecord rateRecord = monitor.getRateRecord(product, siteKey,
-                dataKey, product.getRate(), paintRefTime, localHuc, true);
+                dataKey, product.getRate(), paintRefTime, true);
         FFMPRecord qpeRecord = monitor.getQPERecord(product, siteKey, dataKey,
-                product.getQpe(), tableTime, localHuc, true);
+                product.getQpe(), tableTime, true);
         FFMPRecord qpfRecord = monitor.getQPFRecord(product, siteKey, dataKey,
-                null, paintRefTime, localHuc, true);
+                null, paintRefTime, true);
         guidRecords = monitor.getGuidanceRecords(product, siteKey, tableTime,
-                localHuc, true);
-        FFMPRecord virtualRecord = null;
-        if (localHuc.equals(FFMPRecord.ALL)) {
-            virtualRecord = monitor.getVirtualRecord(product, siteKey, dataKey,
-                    product.getVirtual(), tableTime, localHuc, true);
-        }
+                true);
+        FFMPRecord virtualRecord = monitor.getVirtualRecord(product, siteKey,
+                dataKey, product.getVirtual(), tableTime, true);
 
         try {
             if (rateRecord != null) {
-                rateBasin = rateRecord.getBasinData(localHuc);
+                rateBasin = rateRecord.getBasinData();
                 if (!rateBasin.getBasins().isEmpty()) {
                     field = FIELDS.RATE;
                     baseRec = rateRecord;
                 }
             }
             if (qpeRecord != null) {
-                qpeBasin = qpeRecord.getBasinData(localHuc);
+                qpeBasin = qpeRecord.getBasinData();
                 if (!qpeBasin.getBasins().isEmpty()) {
                     field = FIELDS.QPE;
                     if (baseRec == null) {
@@ -404,21 +398,21 @@ public class FFMPDataGenerator {
                 }
             }
             if (qpfRecord != null) {
-                qpfBasin = qpfRecord.getBasinData(localHuc);
+                qpfBasin = qpfRecord.getBasinData();
             }
             if (guidRecords != null) {
                 guidBasins = new HashMap<String, FFMPBasinData>();
                 for (String type : guidRecords.keySet()) {
                     if (guidRecords.get(type) != null) {
                         guidBasins.put(type, guidRecords.get(type)
-                                .getBasinData(localHuc));
+                                .getBasinData());
                     } else {
                         guidBasins.put(type, null);
                     }
                 }
             }
             if (virtualRecord != null) {
-                virtualBasin = virtualRecord.getBasinData(localHuc);
+                virtualBasin = virtualRecord.getBasinData();
             }
 
             // Get interpolators
