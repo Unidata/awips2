@@ -64,13 +64,13 @@ public class GLFont extends AbstractAWTFont implements IGLFont {
         super(font, type, fontSize, styles);
         this.fontFile = font;
         this.fontType = type;
-        this.fontSize = fontSize;
+        this.currentFontSize = this.fontSize = fontSize;
         this.textRenderer = TextRendererCache.getRenderer(this.font);
     }
 
     public GLFont(String fontName, float fontSize, Style[] styles) {
         super(fontName, fontSize, styles);
-        this.fontSize = fontSize;
+        this.currentFontSize = this.fontSize = fontSize;
         this.textRenderer = TextRendererCache.getRenderer(this.font);
     }
 
