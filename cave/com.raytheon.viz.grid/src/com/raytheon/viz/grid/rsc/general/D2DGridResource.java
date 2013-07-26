@@ -20,6 +20,7 @@
 package com.raytheon.viz.grid.rsc.general;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.measure.unit.Unit;
 
@@ -73,10 +74,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 9, 2011            bsteffen     Initial creation
+ * Mar 09, 2011            bsteffen    Initial creation
  * Feb 25, 2013 1659       bsteffen    Add PDOs to D2DGridResource in
  *                                     constructor to avoid duplicate data
  *                                     requests.
+ * Jul 15, 2013 2107       bsteffen    Fix sampling of grid vector arrows.
  * 
  * </pre>
  * 
@@ -273,18 +275,25 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
 
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
-        if (getDisplayType() == DisplayType.IMAGE) {
-            return super.inspect(coord);
-        } else if (resourceData.isSampling()) {
-            GridRecord record = getCurrentGridRecord();
-            if (record == null) {
-                return super.inspect(coord);
+        if (resourceData.isSampling()) {
+            if (getDisplayType() == DisplayType.ARROW) {
+                Map<String, Object> map = interrogate(coord);
+                if (map == null) {
+                    return "NO DATA";
+                }
+                double value = (Double) map.get(INTERROGATE_VALUE);
+                return sampleFormat.format(value) + map.get(INTERROGATE_UNIT);
+            } else if (getDisplayType() == DisplayType.CONTOUR) {
+                GridRecord record = getCurrentGridRecord();
+                if (record != null) {
+                    return record.getParameter().getAbbreviation() + "="
+                            + super.inspect(coord);
+                }
             }
-            return record.getParameter().getAbbreviation() + "="
-                    + super.inspect(coord);
-        } else {
+        } else if (getDisplayType() != DisplayType.IMAGE) {
             return null;
         }
+        return super.inspect(coord);
     }
 
     @Override
