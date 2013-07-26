@@ -35,8 +35,8 @@
 			value="com.raytheon.uf.common.dataplugin.warning.WarningRecord" />
 	</bean>
 	<bean id="practiceProductOfftimeHandler" class="com.raytheon.uf.edex.activetable.PracticeProductOfftimeHandler"/>
-   <bean id="uriAggregator" class="com.raytheon.uf.edex.esb.camel.DataUriAggregator" />
-   <bean id="toDataURI" class="com.raytheon.uf.edex.esb.camel.ToDataURI" />
+   <bean id="uriAggregator" class="com.raytheon.uf.edex.ingest.notification.DataUriAggregator" />
+   <bean id="toDataURI" class="com.raytheon.uf.edex.ingest.notification.ToDataURI" />
 	<camelContext id="activetable-camel"
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
