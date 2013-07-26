@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.monitor.scan.commondialogs;
 
-import java.util.Set;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
@@ -45,49 +43,71 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.viz.monitor.scan.ScanMonitor;
 import com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg;
 import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager;
-import com.raytheon.uf.viz.monitor.scan.tables.SCANCellTableDlg;
 import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlarmType;
-import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlertedAlarms;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
+/**
+ * SCAN Alarm Threshold Dialog.
+ * 
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ *
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 24 Jul 2013  #2143      skorolev    Changes for non-blocking dialogs.
+ *
+ * </pre>
+ *
+ * @author 
+ * @version 1.0	
+ */
 public class SCANAlarmThreshDlg extends CaveSWTDialog implements
         ICommonDialogAction {
 
+    /* SCAN Table */
     private ScanTables scanTable;
-
+    /* SCAN Configuration */
     private SCANConfig scanCfg;
-
+    /* Attribute combo control */
     private Combo attributeCbo;
-
+    /* Disable All Alarms Checkbox */
     private Button disableAllAlarmChk;
-
+    /* Absolute Value Rdo */
     private Button absValueRdo;
-
+    /* Rate Of Change Rdo */
     private Button rateOfChangeRdo;
-
+    /* Selected Choice Label */
     private Label selectedChoiceLbl;
-
+    /* Time Frame Value */
     private Text valueTF;
-
+    /* Unit Label */
     private Label unitsLbl;
-
+    /* "Absolute Value" */
     private final String absValStr = "Absolute Value";
-
+    /* "Rate of Change" */
     private final String rocStr = "Rate of Change";
-
+    /* Bell Checkbox */
     private Button bellChk;
-
+    /* SCAN Alarm Alert Manager */
     private SCANAlarmAlertManager mgr;
-
+    /* Alarm Type */
     private AlarmType type;
-
+    /* prevAttr */
     private String prevAttr;
-
+    /* Site */
     private String site = null;
 
+    /**
+     * Constructor
+     * 
+     * @param site
+     * @param parentShell
+     * @param scanTable
+     */
     public SCANAlarmThreshDlg(String site, Shell parentShell,
             ScanTables scanTable) {
-        super(parentShell);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         if (scanTable == ScanTables.CELL) {
             setText("CELL Alarm Thresh");
         } else {
@@ -99,6 +119,9 @@ public class SCANAlarmThreshDlg extends CaveSWTDialog implements
         this.site = site;
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -108,6 +131,9 @@ public class SCANAlarmThreshDlg extends CaveSWTDialog implements
         return mainLayout;
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org.eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         // Initialize all of the controls and layouts
@@ -119,6 +145,9 @@ public class SCANAlarmThreshDlg extends CaveSWTDialog implements
         attributeChanged();
     }
 
+    /**
+     * Create Dialog Controls
+     */
     private void createControls() {
         Composite controlComp = new Composite(shell, SWT.NONE);
         controlComp.setLayout(new GridLayout(3, false));
@@ -230,6 +259,9 @@ public class SCANAlarmThreshDlg extends CaveSWTDialog implements
         unitsLbl.setLayoutData(gd);
     }
 
+    /**
+     * Create Bottom Buttons.
+     */
     private void createBottomButtons() {
         Composite buttonComp = new Composite(shell, SWT.NONE);
         buttonComp.setLayout(new GridLayout(2, true));
@@ -255,7 +287,7 @@ public class SCANAlarmThreshDlg extends CaveSWTDialog implements
                 } else {
                 	tableDlg.turnOnAlarm();
                 }
-                shell.dispose();
+                close();
             }
         });
 
@@ -272,6 +304,11 @@ public class SCANAlarmThreshDlg extends CaveSWTDialog implements
         });
     }
 
+    /**
+     * Add Separator.
+     * 
+     * @param parentComp
+     */
     private void addSeparator(Composite parentComp) {
         GridLayout gl = (GridLayout) parentComp.getLayout();
 
@@ -281,6 +318,9 @@ public class SCANAlarmThreshDlg extends CaveSWTDialog implements
         sepLbl.setLayoutData(gd);
     }
 
+    /**
+     * Populate Attribute Combo control.
+     */
     private void populateAttributeCombo() {
         AbsConfigMgr absCfgMgr = scanCfg.getAbsConfigMgr(scanTable);
 
@@ -293,17 +333,12 @@ public class SCANAlarmThreshDlg extends CaveSWTDialog implements
         attributeCbo.select(0);
     }
 
+    /**
+     * Attribute Changed.
+     */
     private void attributeChanged() {
         String attrName = attributeCbo
                 .getItem(attributeCbo.getSelectionIndex());
-        /*
-         * Check if the alarm is disabled and enable/disable the controls.
-         */
-        // boolean alarmDisabled = scanCfg.getAlarmsDisabled(scanTable);
-        // System.out.println("alarmDisabled = " + alarmDisabled);
-        // disableAllAlarmChk.setSelection(alarmDisabled);
-        //
-        // disableSelectedAttributeAlarm(alarmDisabled);
 
         /*
          * Set the value text control with the proper abs/roc value.
@@ -316,15 +351,12 @@ public class SCANAlarmThreshDlg extends CaveSWTDialog implements
         unitsLbl.setText(scanCfg.getAbsConfigMgr(scanTable).getUnit(attrName));
     }
 
+    /**
+     * Disable Selected Attribute Alarm.
+     * 
+     * @param alarmDisabled
+     */
     private void disableSelectedAttributeAlarm(boolean alarmDisabled) {
-        // String attrName =
-        // attributeCbo.getItem(attributeCbo.getSelectionIndex());
-        // boolean alarmEnabled = !disableAlarmChk.getSelection();
-        //
-        // scanCfg.getAbsConfigMgr(scanTable).setAlarmDisabled(attrName,
-        // alarmEnabled);
-
-        System.out.println("alarmDisabled = " + alarmDisabled);
 
         absValueRdo.setEnabled(!alarmDisabled);
 
@@ -341,6 +373,9 @@ public class SCANAlarmThreshDlg extends CaveSWTDialog implements
         valueTF.setEnabled(!alarmDisabled);
     }
 
+    /**
+     * Alarm Choice Changed.
+     */
     private void alarmChoiceChanged() {
         if (!valueTF.getText().isEmpty()) {
             mgr.updateScheduledAlarm(site, scanTable, prevAttr, type,
@@ -366,6 +401,9 @@ public class SCANAlarmThreshDlg extends CaveSWTDialog implements
         prevAttr = attrName;
     }
 
+    /**
+     * Validate And Set Time Frame Value.
+     */
     private void validateAndSetValue() {
         int newValue = 0;
         String valueStr = valueTF.getText().trim();
@@ -406,8 +444,11 @@ public class SCANAlarmThreshDlg extends CaveSWTDialog implements
         }
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.ICommonDialogAction#closeDialog()
+     */
     @Override
     public void closeDialog() {
-        shell.dispose();
+        close();
     }
 }
