@@ -76,6 +76,7 @@ import com.raytheon.uf.viz.monitor.scan.data.UnwarnedCell;
 import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlarmType;
 import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlertedAlarms;
 import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * This class displays the CELL table dialog.
@@ -92,7 +93,8 @@ import com.raytheon.viz.ui.EditorUtil;
  *                                     some bad code, and some code cleanup.
  * 06 Jun 2013  #2065      lvenable    Added code to alert the user to use the clear
  *                                     button if they want to close the dialog.
- * Jul 24, 2013 2218       mpduff      Method signature changed.
+ * Jul 24, 2013 #2218      mpduff      Method signature changed.
+ * Jul 26, 2013 #2143      skorolev    Changes for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -488,11 +490,22 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
         alarmBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
+                if(alarmDlg==null || alarmDlg.isDisposed()){
                 alarmDlg = new SCANAlarmsDlg(shell, ScanTables.CELL, site);
+                alarmDlg.setCloseCallback(new ICloseCallback(){
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        if (!alarmBtn.isDisposed()
+                                && (mgr.getAlertedAlarmCount(site, scanTable) == 0)) {
+                            turnOffAlarm();
+                        }
+                    }
+                    
+                });
                 alarmDlg.open();
-                if (!alarmBtn.isDisposed()
-                        && (mgr.getAlertedAlarmCount(site, scanTable) == 0)) {
-                    turnOffAlarm();
+                } else {
+                    alarmDlg.bringToTop();
                 }
             }
         });
@@ -755,13 +768,22 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
      * Display the Attributes dialog.
      */
     private void displayAttributesDialog() {
-        if ((attributeDlg == null)
-                || (attributeDlg.getParent().isDisposed() == true)) {
+        if (attributeDlg == null
+                || attributeDlg.getParent().isDisposed() == true) {
             attributeDlg = new SCANAttributesDlg(shell, scanTable, this);
+            attributeDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(attributeDlg);
+                    attributeDlg = null;
+                }
+
+            });
             registerDialog(attributeDlg);
             attributeDlg.open();
-            attributeDlg = null;
-            unregisterDialog(attributeDlg);
+        } else {
+            attributeDlg.bringToTop();
         }
     }
 
@@ -771,10 +793,19 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
     private void displayColorThresholdDialog() {
         if (colorThresholdDlg == null) {
             colorThresholdDlg = new SCANColorThreshDlg(shell, scanTable, this);
+            colorThresholdDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(colorThresholdDlg);
+                    colorThresholdDlg = null;
+                }
+
+            });
             registerDialog(colorThresholdDlg);
             colorThresholdDlg.open();
-            unregisterDialog(colorThresholdDlg);
-            colorThresholdDlg = null;
+        } else {
+            colorThresholdDlg.bringToTop();
         }
     }
 
@@ -782,12 +813,21 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
      * Display the Storm Cell dialog.
      */
     private void displayStormCellDialog() {
-        if (scidDlg == null) {
+        if (scidDlg == null || scidDlg.isDisposed()) {
             scidDlg = new StormCellIdDisplayDlg(shell, this);
+            scidDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(scidDlg);
+                    scidDlg = null;
+                }
+
+            });
             registerDialog(scidDlg);
             scidDlg.open();
-            unregisterDialog(scidDlg);
-            scidDlg = null;
+        } else {
+            scidDlg.bringToTop();
         }
     }
 
@@ -795,12 +835,21 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
      * Display the Alarm threshold dialog.
      */
     private void displayAlarmThresholdDialog() {
-        if (alarmThreshDlg == null) {
+        if (alarmThreshDlg == null || alarmThreshDlg.isDisposed()) {
             alarmThreshDlg = new SCANAlarmThreshDlg(site, shell, scanTable);
+            alarmThreshDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(alarmThreshDlg);
+                    alarmThreshDlg = null;
+                }
+            });
             registerDialog(alarmThreshDlg);
             alarmThreshDlg.open();
-            unregisterDialog(alarmThreshDlg);
-            alarmThreshDlg = null;
+
+        } else {
+            alarmThreshDlg.bringToTop();
         }
     }
 
@@ -808,13 +857,22 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
      * Display the Alarm Time Limit dialog.
      */
     private void displayAlarmTimeLimitDialog() {
-        if (alarmTimeLimitDlg == null) {
+        if (alarmTimeLimitDlg == null || alarmTimeLimitDlg.isDisposed()) {
             alarmTimeLimitDlg = new SCANAlarmTimeLimitDlg(shell, scanTable,
                     this.site);
+            alarmTimeLimitDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(alarmTimeLimitDlg);
+                    alarmTimeLimitDlg = null;
+                }
+
+            });
             registerDialog(alarmTimeLimitDlg);
             alarmTimeLimitDlg.open();
-            unregisterDialog(alarmTimeLimitDlg);
-            alarmTimeLimitDlg = null;
+        } else {
+            alarmTimeLimitDlg.bringToTop();
         }
     }
 
@@ -822,36 +880,50 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
      * Display the Unwarned Alarm dialog.
      */
     private void displayUnwarnedAlarmDialog() {
-        if (unwarnedAlarmDlg == null) {
+        if (unwarnedAlarmDlg == null || unwarnedAlarmDlg.isDisposed()) {
             unwarnedAlarmDlg = new SCANUnwarnedDlg(shell);
-            registerDialog(unwarnedAlarmDlg);
-            Boolean okSelected = (Boolean) unwarnedAlarmDlg.open();
+            unwarnedAlarmDlg.setCloseCallback(new ICloseCallback() {
 
-            // The check box is a toggle... so capture the toggled state.
-            Boolean isEnabled = unwarnedChk.getEnabled();
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    // The check box is a toggle... so capture the toggled
+                    // state.
+                    Boolean isEnabled = unwarnedChk.getEnabled();
+                    if (returnValue instanceof Boolean) {
+                        Boolean okSelected = (Boolean) returnValue;
+                        if (okSelected) {
+                            if ((scanCfg.getUnwarnedConfig().getUnwarnedTor() == false)
+                                    && (scanCfg.getUnwarnedConfig()
+                                            .getUnwarnedSvr() == false)) {
+                                unwarnedChk.setSelection(false);
+                            } else {
+                                unwarnedChk.setSelection(true);
+                            }
+                        } else if ((scanCfg.getUnwarnedConfig()
+                                .getUnwarnedTor() == true)
+                                && (scanCfg.getUnwarnedConfig()
+                                        .getUnwarnedSvr() == true)) {
+                            unwarnedChk.setSelection(true);
+                        } else {
+                            // If the checkbox should not change state, reverse
+                            // the effect
+                            // of the toggle behavior inherent to the checkbox.
+                            unwarnedChk.setSelection(!isEnabled);
+                        }
+                    }
+                    unregisterDialog(unwarnedAlarmDlg);
+                    unwarnedAlarmDlg = null;
 
-            if (okSelected == true) {
-                if ((scanCfg.getUnwarnedConfig().getUnwarnedTor() == false)
-                        && (scanCfg.getUnwarnedConfig().getUnwarnedSvr() == false)) {
-                    unwarnedChk.setSelection(false);
-                } else {
-                    unwarnedChk.setSelection(true);
+                    IMonitorConfigurationEvent imce = new IMonitorConfigurationEvent(
+                            SCANCellTableDlg.this);
+                    SCANCellTableDlg.this.fireConfigUpdate(imce);
                 }
-            } else if ((scanCfg.getUnwarnedConfig().getUnwarnedTor() == true)
-                    && (scanCfg.getUnwarnedConfig().getUnwarnedSvr() == true)) {
-                unwarnedChk.setSelection(true);
-            } else {
-                // If the checkbox should not change state, reverse the effect
-                // of the toggle behavior inherent to the checkbox.
-                unwarnedChk.setSelection(!isEnabled);
-            }
+            });
 
-            unwarnedAlarmDlg = null;
-            unregisterDialog(unwarnedAlarmDlg);
-
-            IMonitorConfigurationEvent imce = new IMonitorConfigurationEvent(
-                    this);
-            this.fireConfigUpdate(imce);
+            registerDialog(unwarnedAlarmDlg);
+            unwarnedAlarmDlg.open();
+        } else {
+            unwarnedAlarmDlg.bringToTop();
         }
     }
 
@@ -859,13 +931,21 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
      * Display the Create and Edit Trend Set dialog.
      */
     private void displayCreateEditTrendDialog() {
-        if (editTrendDlg == null) {
+        if (editTrendDlg == null || editTrendDlg.isDisposed()) {
             editTrendDlg = new EditCreateTrendDlg(shell, scanTable);
+            editTrendDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    updateDefineActiveTrendMenu();
+                    editTrendDlg = null;
+                    unregisterDialog(editTrendDlg);
+                }
+            });
             registerDialog(editTrendDlg);
             editTrendDlg.open();
-            updateDefineActiveTrendMenu();
-            editTrendDlg = null;
-            unregisterDialog(editTrendDlg);
+        } else {
+            editTrendDlg.bringToTop();
         }
     }
 
@@ -1010,7 +1090,7 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
     @Override
     public void shellDisposeDialog() {
         killDialog = true;
-        shell.dispose();
+        close();
     }
 
     /**
@@ -1223,6 +1303,9 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
         // nop op
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.uf.viz.monitor.scan.tables.ITableAction#centerByStormId(java.lang.String)
+     */
     @Override
     public void centerByStormId(String stormId) {
         fireRecenter(stormId, scanTable, site);
@@ -1280,6 +1363,12 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#
+     * displayTrendSetGraphs(java.lang.String)
+     */
     @Override
     public void displayTrendSetGraphs(String ident) {
         scanTableComp.displayTrendSetGraphFromMap(ident);

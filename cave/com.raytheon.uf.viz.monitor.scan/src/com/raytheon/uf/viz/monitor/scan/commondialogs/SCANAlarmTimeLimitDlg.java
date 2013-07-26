@@ -43,6 +43,7 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.monitor.scan.xml.ScanAlarmXML;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase.CAVE;
 
 /**
  * 
@@ -53,6 +54,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 22, 2010            lvenable     Initial creation
+ * 24 Jul 2013 #2143       skorolev     Changes for non-blocking dialogs.
  *
  * </pre>
  *
@@ -62,30 +64,64 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 public class SCANAlarmTimeLimitDlg extends CaveSWTDialog implements
         ICommonDialogAction {
 
+    /**
+     * Scan Tables
+     */
     private ScanTables scanTable;
 
+    /**
+     * Cell Spinner
+     */
     private Spinner cellSpnr;
 
+    /**
+     * Meso Spinner
+     */
     private Spinner mesoSpnr;
 
+    /**
+     * TVS Spinner
+     */
     private Spinner tvsSpnr;
 
+    /**
+     * DMD Spinner
+     */
     private Spinner dmdSpnr;
 
+    /**
+     * Label Width
+     */
     private int labelWidth = 80;
 
+    /**
+     * Width Spinner
+     */
     private int spinnerWidth = 70;
     
+    /**
+     * SCAN Alarm XML
+     */
     private ScanAlarmXML dataXML;
 
+    /**
+     * Constructor
+     * 
+     * @param parentShell
+     * @param scanTable
+     * @param site
+     */
     public SCANAlarmTimeLimitDlg(Shell parentShell, ScanTables scanTable,
             String site) {
-        super(parentShell);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         setText("Alarm Time Limit for: " + site);
 
         this.scanTable = scanTable;
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -95,6 +131,9 @@ public class SCANAlarmTimeLimitDlg extends CaveSWTDialog implements
         return mainLayout;
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org.eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         
@@ -114,6 +153,9 @@ public class SCANAlarmTimeLimitDlg extends CaveSWTDialog implements
         createBottomButtons();
     }
 
+    /**
+     * Create CELL, MESO, TVS Controls.
+     */
     private void createCellMesoTvsControls() {
         Composite controlComp = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(3, false);
@@ -195,6 +237,9 @@ public class SCANAlarmTimeLimitDlg extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * Create DMD Controls
+     */
     private void createDmdControls() {
         Composite controlComp = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(3, false);
@@ -231,6 +276,9 @@ public class SCANAlarmTimeLimitDlg extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * Create Bottom Buttons.
+     */
     private void createBottomButtons() {
         Composite buttonComp = new Composite(shell, SWT.NONE);
         buttonComp.setLayout(new GridLayout(2, true));
@@ -247,7 +295,7 @@ public class SCANAlarmTimeLimitDlg extends CaveSWTDialog implements
             public void widgetSelected(SelectionEvent e) {
                 
                 saveAlarmData();
-                shell.dispose();
+                close();
             }
         });
 
@@ -259,16 +307,22 @@ public class SCANAlarmTimeLimitDlg extends CaveSWTDialog implements
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                shell.dispose();
+                close();
             }
         });
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.ICommonDialogAction#closeDialog()
+     */
     @Override
     public void closeDialog() {
-        shell.dispose();
+        close();
     }
 
+    /**
+     * Read Alarm Data.
+     */
     private void readAlarmData()
     {
         try
@@ -281,12 +335,14 @@ public class SCANAlarmTimeLimitDlg extends CaveSWTDialog implements
         }
         catch (Exception e)
         {
-//            e.printStackTrace();
             System.out.println("*** ScanAlarms.xml not available.");
             dataXML = null;
         } 
     }
     
+    /**
+     * Save Alarm Data.
+     */
     private void saveAlarmData()
     {
         if (dataXML == null)
@@ -329,6 +385,11 @@ public class SCANAlarmTimeLimitDlg extends CaveSWTDialog implements
         }
     }
     
+    /**
+     * Get Full Path And File Name.
+     * 
+     * @return file name
+     */
     public String getFullPathAndFileName()
     {
         String fs = String.valueOf(File.separatorChar);
