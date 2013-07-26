@@ -176,3 +176,4 @@ INSERT INTO awips.nctext_inputfile_type VALUES (176,'sps','W');
 INSERT INTO awips.nctext_inputfile_type VALUES (177,'warwatch','W');
 INSERT INTO awips.nctext_inputfile_type VALUES (178,'warnsumm','W');
 INSERT INTO awips.nctext_inputfile_type VALUES (179,'coutlook','W');
+INSERT INTO awips.nctext_inputfile_type VALUES (180,'fwddy38','W');
