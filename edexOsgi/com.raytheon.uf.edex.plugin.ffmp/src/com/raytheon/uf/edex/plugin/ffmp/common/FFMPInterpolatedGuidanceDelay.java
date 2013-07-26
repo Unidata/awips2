@@ -20,7 +20,6 @@ package com.raytheon.uf.edex.plugin.ffmp.common;
  * further licensing information.
  **/
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
@@ -45,6 +44,7 @@ import com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator;
  * 29 July, 2012 578           dhladky     memory work
  * 27 Jan,  2013 1478          dhladky     Changed arraylist to list for times, more constants
  * 02/01/13     1569        D. Hladky      Added constants
+ * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * </pre>
  * 
  * @author dhladky
@@ -93,15 +93,14 @@ public class FFMPInterpolatedGuidanceDelay {
     public boolean calculateDelayedGuidance() {
 
         boolean delayGuidance = false;
-        ArrayList<String> hucs = new ArrayList<String>();
-        hucs.add(FFMPRecord.ALL);
 
-        FFMPDataContainer qpeContainer = generator.getFFMPDataContainer(qpeSource.getSourceName()
-                + "-" + siteKey + "-" + siteKey, hucs, backDate);
+        FFMPDataContainer qpeContainer = generator.getFFMPDataContainer(
+                qpeSource.getSourceName() + "-" + siteKey + "-" + siteKey,
+                backDate);
 
         // Don't do anything, we have no QPE
         if (qpeContainer != null) {
-            
+
             long expirationTime = qpeSource.getExpirationMinutes(siteKey)
                     * TimeUtil.MILLIS_PER_MINUTE;
             // determine lag_time
@@ -115,8 +114,8 @@ public class FFMPInterpolatedGuidanceDelay {
                     .getOrderedTimes(currentRecord.getDataTime().getRefTime());
 
             // EQUATION: Guid = GuidOld + R i/d (GuidNew - GuidOld)
-            for (Entry<Long, FFMPBasin> entry : currentRecord.getBasinsMap()
-                    .get(FFMPRecord.ALL).getBasins().entrySet()) {
+            for (Entry<Long, FFMPBasin> entry : currentRecord.getBasinData()
+                    .getBasins().entrySet()) {
                 FFMPBasin currBasin = entry.getValue();
                 FFMPGuidanceBasin oldBasin = (FFMPGuidanceBasin) previousGuidanceData
                         .get(entry.getKey());
@@ -136,8 +135,8 @@ public class FFMPInterpolatedGuidanceDelay {
                         // this is essentially a ratio of the first accumulation
                         // step increment
                         // to the total amount over this time window.
-                        FFMPBasin qpeBasin = qpeContainer.getBasinData(
-                                FFMPRecord.ALL).get(entry.getKey());
+                        FFMPBasin qpeBasin = qpeContainer.getBasinData().get(
+                                entry.getKey());
 
                         if (qpeBasin != null) {
                             float intervalAccum = qpeBasin.getAccumValue(
@@ -160,7 +159,7 @@ public class FFMPInterpolatedGuidanceDelay {
                     currBasin.setValue(newDate, val);
                 }
             }
-            
+
             delayGuidance = true;
         }
 

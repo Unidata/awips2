@@ -32,7 +32,6 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -81,6 +80,7 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPConfigBasinXML;
  * Mar 06, 2013 1769       dhladky     Changed threading to use count down latch.
  * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
  * Jun 06, 2013 2075       njensen     Use new load jobs
+ * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * 
  * </pre>
  * 
@@ -208,7 +208,6 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                         }
                     }
                 }
-
                 this.domains = defaults;
 
                 final Date mostRecentTime = availableTimes[availableTimes.length - 1]
@@ -216,56 +215,23 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                 final double configTimeFrame = cfgBasinXML.getTimeFrame();
                 final Date timeBack = new Date(
                         (long) (mostRecentTime.getTime() - (configTimeFrame * TimeUtil.MILLIS_PER_HOUR)));
-                final List<String> initialHucs = new ArrayList<String>();
-                initialHucs.add(FFMPRecord.ALL);
-                final String defaultLayer = monitor.getConfig()
-                        .getFFMPConfigData().getLayer();
-                if (!defaultLayer.equals(FFMPRecord.ALL)) {
-                    initialHucs.add(defaultLayer);
-                }
+                final List<String> onlyAllHuc = new ArrayList<String>();
+                onlyAllHuc.add(FFMPRecord.ALL);
                 InitialLoadJob initialJob = new InitialLoadJob(this, timeBack,
-                        mostRecentTime, initialHucs);
+                        mostRecentTime, onlyAllHuc);
 
-                // schedule the secondary load to start as soon as the initial
-                // completes
-                // secondary load will be the same time period as initial with
-                // the hucs that the initial job did not do
+                // schedule the background load to start as soon as the initial
+                // completes, it will load the other hours back to 24
                 initialJob.addJobChangeListener(new JobChangeAdapter() {
                     @Override
                     public void done(IJobChangeEvent event) {
-                        Date secondStartTime = timeBack;
-                        List<String> secondaryHucs = FFMPTemplateConfigurationManager
-                                .getInstance().getHucLevels();
-                        secondaryHucs.removeAll(initialHucs);
-
-                        BackgroundLoadJob secondaryJob = new BackgroundLoadJob(
-                                "Secondary FFMP Load", FFMPResourceData.this,
-                                secondStartTime, mostRecentTime, secondaryHucs);
-                        secondaryJob.setPriority(Job.SHORT);
-                        // schedule the tertiary load as soon as the
-                        // secondary completes
-                        // tertiary load will do 24 hours back of the
-                        // same hucs as the initial load
-                        secondaryJob
-                                .addJobChangeListener(new JobChangeAdapter() {
-                                    @Override
-                                    public void done(IJobChangeEvent event) {
-                                        List<String> tertiaryHucs = new ArrayList<String>();
-                                        tertiaryHucs.add(FFMPRecord.ALL);
-                                        Date tertiaryStartTime = new Date(
-                                                mostRecentTime.getTime()
-                                                        - (24 * TimeUtil.MILLIS_PER_HOUR));
-                                        BackgroundLoadJob tertiaryJob = new BackgroundLoadJob(
-                                                "Tertiary FFMP Load",
-                                                FFMPResourceData.this,
-                                                tertiaryStartTime, timeBack,
-                                                tertiaryHucs);
-                                        tertiaryJob
-                                                .setPreloadAvailableUris(true);
-                                        tertiaryJob.schedule();
-                                    }
-                                });
-                        secondaryJob.schedule();
+                        Date backgroundStartTime = new Date(mostRecentTime
+                                .getTime() - (24 * TimeUtil.MILLIS_PER_HOUR));
+                        BackgroundLoadJob backgroundJob = new BackgroundLoadJob(
+                                "Background FFMP Load", FFMPResourceData.this,
+                                backgroundStartTime, timeBack, onlyAllHuc);
+                        backgroundJob.setPreloadAvailableUris(true);
+                        backgroundJob.schedule();
                     }
                 });
                 initialJob.schedule();
@@ -274,7 +240,7 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                 // background so the first paints of the resource
                 // will be faster
                 List<String> earlyLoadHucs = new ArrayList<String>();
-                earlyLoadHucs.addAll(initialHucs);
+                earlyLoadHucs.addAll(onlyAllHuc);
                 for (String otherHuc : FFMPTemplateConfigurationManager
                         .getInstance().getHucLevels()) {
                     if (!earlyLoadHucs.contains(otherHuc)) {
@@ -324,8 +290,7 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                             .getAvailableUris(siteKey, dataKey, sourceName,
                                     standAloneTime);
                     monitor.processUris(sourceURIs, siteKey, sourceName,
-                            standAloneTime, FFMPRecord.ALL,
-                            SubMonitor.convert(null));
+                            standAloneTime, SubMonitor.convert(null));
                 }
             }
         }
@@ -427,10 +392,10 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
     public void populateRecord(FFMPRecord precord) throws VizException {
         try {
             getMonitor().populateFFMPRecord(siteKey, precord,
-                    precord.getSourceName(), huc);
+                    precord.getSourceName());
         } catch (Exception e) {
             throw new VizException("Failed to populate ffmp record "
-                    + precord.getDataURI() + " for huc " + huc);
+                    + precord.getDataURI());
         }
     }
 
