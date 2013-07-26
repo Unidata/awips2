@@ -38,9 +38,10 @@ HURR_LOCAL   stations.tbl W $TEXT_DATA2/tropical/HLS                 HLS
 DAY_1        day1.bull    B $TEXT_DATA/spc/day1                      day1
 DAY_2        day2.bull    B $TEXT_DATA/spc/day2                      day2
 DAY_3        day3.bull    B $TEXT_DATA/spc/day3                      day3
-DAY_1_PT     day1pts.bull B $TEXT_DATA/spc/otlkpts                   ptsdy1
-DAY_2_PT     day2pts.bull B $TEXT_DATA/spc/otlkpts                   ptsdy2
-DAY_3_PT     day3pts.bull B $TEXT_DATA/spc/otlkpts                   ptsdy3
+DAY_3_8_OLK  stations.tbl B $TEXT_DATA/../all_prods/forecast/land    fwddy38
+DAY_1_PT     day1pts.bull B $TEXT_DATA/watch_warn/tstrm_warn         ptsdy1
+DAY_2_PT     day2pts.bull B $TEXT_DATA/watch_warn/tstrm_warn         ptsdy2
+DAY_3_PT     day3pts.bull B $TEXT_DATA/watch_warn/tstrm_warn         ptsdy3
 WATCH_BOX    watndsc.bull B $TEXT_DATA/spc/watch2                    wtch2
 ALL_WBOX     watbox.bull  B $TEXT_DATA/spc/watch                     watch
 WATCH_NDSC   watndsc.bull B $TEXT_DATA/spc/watch2                    wtch2

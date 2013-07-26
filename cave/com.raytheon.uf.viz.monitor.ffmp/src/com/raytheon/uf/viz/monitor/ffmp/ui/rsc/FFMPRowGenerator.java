@@ -59,6 +59,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 11, 2013 2085       njensen     Initial creation
+ * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * 
  * </pre>
  * 
@@ -208,7 +209,7 @@ public class FFMPRowGenerator implements Runnable {
                         new FFMPTableCellData(rowField, sb.toString(),
                                 mouseOverText));
 
-                if (!isWorstCase || huc.equals(FFMPRecord.ALL)
+                if (huc.equals(FFMPRecord.ALL)
                         || (centeredAggregationKey != null)) {
 
                     if (!cBasin.getValues().isEmpty()) {
@@ -272,8 +273,73 @@ public class FFMPRowGenerator implements Runnable {
                                 FIELDS.DIFF, diffValue));
                         i += 3;
                     }
-                } else {
+                } else if (isWorstCase) {
                     trd = getMaxValue(trd, cBasin);
+                } else {
+                    // general Aggregate HUC processing
+                    ArrayList<Long> pfafs = ft.getAggregatePfafs(
+                            cBasin.getPfaf(), siteKey, domain);
+
+                    if (!cBasin.getValues().isEmpty()) {
+                        rate = vgBasin.getAverageValue(paintRefTime,
+                                expirationTime);
+                        if (sliderTime > 0.00) {
+                            FFMPTimeWindow window = monitor.getQpeWindow();
+                            qpeBasin.getAccumAverageValue(pfafs,
+                                    window.getAfterTime(),
+                                    window.getBeforeTime(), expirationTime,
+                                    isRate);
+                        } else {
+                            qpe = 0.0f;
+                        }
+                    }
+
+                    trd.setTableCellData(1, new FFMPTableCellData(FIELDS.RATE,
+                            rate));
+                    trd.setTableCellData(2, new FFMPTableCellData(FIELDS.QPE,
+                            qpe));
+
+                    if (qpfBasin != null) {
+                        FFMPTimeWindow window = monitor.getQpfWindow();
+                        qpf = qpfBasin.getAverageValue(pfafs,
+                                window.getAfterTime(), window.getBeforeTime());
+                    }
+                    trd.setTableCellData(3, new FFMPTableCellData(FIELDS.QPF,
+                            qpf));
+
+                    // run over each guidance type
+                    int i = 0;
+                    for (String guidType : guidBasins.keySet()) {
+                        guidance = Float.NaN;
+
+                        FFMPTableCellData guidCellData = getGuidanceCellData(
+                                cBasin, domain, guidType, parentBasinPfaf);
+                        if (guidCellData == null) {
+                            // check for forcing even if no data are available
+                            guidance = getForcedAvg(domain, cBasin, guidType);
+                            boolean forced = !guidance.isNaN();
+                            guidCellData = new FFMPTableCellData(
+                                    FIELDS.GUIDANCE, guidance, forced);
+                        } else {
+                            guidance = guidCellData.getValueAsFloat();
+                        }
+
+                        trd.setTableCellData(i + 4, guidCellData);
+
+                        float ratioValue = Float.NaN;
+                        float diffValue = Float.NaN;
+
+                        // If guidance is NaN then it cannot be > 0
+                        if (!qpe.isNaN() && (guidance > 0.0f)) {
+                            ratioValue = FFMPUtils.getRatioValue(qpe, guidance);
+                            diffValue = FFMPUtils.getDiffValue(qpe, guidance);
+                        }
+                        trd.setTableCellData(i + 5, new FFMPTableCellData(
+                                FIELDS.RATIO, ratioValue));
+                        trd.setTableCellData(i + 6, new FFMPTableCellData(
+                                FIELDS.DIFF, diffValue));
+                        i += 3;
+                    }
                 }
 
                 trd.setSortCallback(tData);
@@ -292,22 +358,46 @@ public class FFMPRowGenerator implements Runnable {
 
                 if (!isWorstCase || huc.equals(FFMPRecord.ALL)
                         || (centeredAggregationKey != null)) {
+
+                    ArrayList<Long> pfafs = null;
+
+                    if (cBasin.getAggregated()) {
+                        pfafs = ft.getAggregatePfafs(cBasin.getPfaf(), siteKey,
+                                huc);
+                    }
+
                     if (rateBasin != null) {
-                        FFMPBasin basin = rateBasin.get(cBasinPfaf);
-                        if (basin != null) {
-                            rate = basin.getValue(paintRefTime);
+                        if (cBasin.getAggregated()) {
+                            rate = rateBasin.getAverageValue(pfafs,
+                                    paintRefTime);
+                        } else {
+                            FFMPBasin basin = rateBasin.get(cBasinPfaf);
+                            if (basin != null) {
+                                rate = basin.getValue(paintRefTime);
+                            }
                         }
+
                     }
                     trd.setTableCellData(1, new FFMPTableCellData(FIELDS.RATE,
                             rate));
 
                     if (qpeBasin != null) {
-                        FFMPBasin basin = qpeBasin.get(cBasinPfaf);
-                        if (basin != null) {
-                            FFMPTimeWindow window = monitor.getQpeWindow();
-                            qpe = basin.getAccumValue(window.getAfterTime(),
+
+                        FFMPTimeWindow window = monitor.getQpeWindow();
+
+                        if (cBasin.getAggregated()) {
+                            qpe = qpeBasin.getAccumAverageValue(pfafs,
+                                    window.getAfterTime(),
                                     window.getBeforeTime(), expirationTime,
                                     isRate);
+                        } else {
+                            FFMPBasin basin = qpeBasin.get(cBasinPfaf);
+                            if (basin != null) {
+                                qpe = basin.getAccumValue(
+                                        window.getAfterTime(),
+                                        window.getBeforeTime(), expirationTime,
+                                        isRate);
+                            }
                         }
                     }
 
@@ -315,11 +405,19 @@ public class FFMPRowGenerator implements Runnable {
                             qpe));
 
                     if (qpfBasin != null) {
-                        FFMPBasin basin = qpfBasin.get(cBasinPfaf);
-                        if (basin != null) {
-                            FFMPTimeWindow window = monitor.getQpfWindow();
-                            qpf = basin.getAverageValue(window.getAfterTime(),
+                        FFMPTimeWindow window = monitor.getQpfWindow();
+                        if (cBasin.getAggregated()) {
+                            qpf = qpfBasin.getAverageValue(pfafs,
+                                    window.getAfterTime(),
                                     window.getBeforeTime());
+                        } else {
+                            FFMPBasin basin = qpfBasin.get(cBasinPfaf);
+                            if (basin != null) {
+
+                                qpf = basin.getAverageValue(
+                                        window.getAfterTime(),
+                                        window.getBeforeTime());
+                            }
                         }
                     }
 
@@ -436,13 +534,13 @@ public class FFMPRowGenerator implements Runnable {
         if (cBasin instanceof FFMPVirtualGageBasin) {
             if (!pfafs.isEmpty()) {
                 if (virtualBasin != null) {
-                    rate = virtualBasin.get(cBasin.getPfaf()).getValue(
-                            paintRefTime);
+
+                    rate = virtualBasin.getMaxValue(pfafs, paintRefTime);
 
                     if (sliderTime > 0.00) {
-                        qpe = virtualBasin.get(cBasin.getPfaf()).getAccumValue(
-                                monitor.getQpeWindow().getAfterTime(),
-                                monitor.getQpeWindow().getBeforeTime(),
+                        qpe = virtualBasin.getAccumMaxValue(pfafs, monitor
+                                .getQpeWindow().getAfterTime(), monitor
+                                .getQpeWindow().getBeforeTime(),
                                 expirationTime, isRate);
                     } else {
                         qpe = 0.0f;
@@ -454,10 +552,9 @@ public class FFMPRowGenerator implements Runnable {
                 trd.setTableCellData(2, new FFMPTableCellData(FIELDS.QPE, qpe));
 
                 if (qpfBasin != null) {
-                    qpf = new Float(qpfBasin.get(cBasin.getPfaf()).getMaxValue(
-                            monitor.getQpfWindow().getAfterTime(),
-                            monitor.getQpfWindow().getBeforeTime()))
-                            .floatValue();
+                    qpf = qpfBasin.getMaxValue(pfafs, monitor.getQpfWindow()
+                            .getAfterTime(), monitor.getQpfWindow()
+                            .getBeforeTime());
                 }
 
                 trd.setTableCellData(3, new FFMPTableCellData(FIELDS.QPF, qpf));
@@ -534,7 +631,7 @@ public class FFMPRowGenerator implements Runnable {
                         if (isWorstCase) {
                             guidance = guidRecords
                                     .get(guidType)
-                                    .getBasinData(FFMPRecord.ALL)
+                                    .getBasinData()
                                     .getMaxGuidanceValue(
                                             pfafs,
                                             resource.getGuidanceInterpolators()
@@ -542,11 +639,16 @@ public class FFMPRowGenerator implements Runnable {
                                             resource.getGuidSourceExpiration(guidType),
                                             cBasin.getPfaf());
                         } else {
-                            FFMPGuidanceBasin basin = (FFMPGuidanceBasin) guidRecords
-                                    .get(guidType).getBasinData(huc)
-                                    .get(cBasin.getPfaf());
-                            guidance = resource.getGuidanceValue(basin, monitor
-                                    .getQpeWindow().getBeforeTime(), guidType);
+
+                            guidance = guidRecords
+                                    .get(guidType)
+                                    .getBasinData()
+                                    .getAverageGuidanceValue(
+                                            pfafs,
+                                            resource.getGuidanceInterpolators()
+                                                    .get(guidType),
+                                            resource.getGuidSourceExpiration(guidType));
+
                         }
 
                         trd.setTableCellData(i + 4, new FFMPTableCellData(
@@ -766,17 +868,6 @@ public class FFMPRowGenerator implements Runnable {
     private FFMPTableCellData getGuidanceCellData(FFMPBasin cBasin,
             String domain, String guidType, Long parentBasinPfaf) {
         long cBasinPfaf = cBasin.getPfaf();
-
-        FFMPBasinData guidBasin = guidBasins.get(guidType);
-
-        FFMPGuidanceBasin ffmpGuidBasin = null;
-        if (guidBasin != null) {
-            ffmpGuidBasin = (FFMPGuidanceBasin) guidBasin.get(cBasinPfaf);
-        }
-
-        if (ffmpGuidBasin == null) {
-            return null;
-        }
         List<Long> pfafList = Collections.emptyList();
         List<Long> forcedPfafs = Collections.emptyList();
         boolean forced = false;
@@ -806,8 +897,7 @@ public class FFMPRowGenerator implements Runnable {
         if (FFFGDataMgr.getInstance().isForcingConfigured()) {
             FFMPBasin parentBasin = cBasin;
             if (cBasinPfaf != parentBasinPfaf.longValue()) {
-                parentBasin = baseRec.getBasinData(FFMPRecord.ALL).get(
-                        parentBasinPfaf);
+                parentBasin = baseRec.getBasinData().get(parentBasinPfaf);
             }
             ForceUtilResult forceResult = forceUtil.calculateForcings(domain,
                     ft, parentBasin);
@@ -819,20 +909,22 @@ public class FFMPRowGenerator implements Runnable {
             // Recalculate guidance using the forced value(s)
             guidance = guidRecords
                     .get(guidType)
-                    .getBasinData(FFMPRecord.ALL)
+                    .getBasinData()
                     .getAverageGuidanceValue(pfafList,
                             resource.getGuidanceInterpolators().get(guidType),
                             guidance, forcedPfafs,
                             resource.getGuidSourceExpiration(guidType));
         } else {
-            if (ffmpGuidBasin != null) {
-                guidance = resource.getGuidanceValue(ffmpGuidBasin,
-                        paintRefTime, guidType);
 
-                if (guidance < 0.0f) {
-                    guidance = Float.NaN;
-                }
+            FFMPGuidanceBasin ffmpGuidBasin = (FFMPGuidanceBasin) guidRecords
+                    .get(guidType).getBasinData().get(cBasinPfaf);
+            guidance = resource.getGuidanceValue(ffmpGuidBasin, paintRefTime,
+                    guidType);
+
+            if (guidance < 0.0f) {
+                guidance = Float.NaN;
             }
+
         }
 
         return new FFMPTableCellData(FIELDS.GUIDANCE, guidance, forced);
