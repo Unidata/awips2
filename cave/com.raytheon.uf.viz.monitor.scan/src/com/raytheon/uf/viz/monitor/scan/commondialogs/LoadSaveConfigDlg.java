@@ -45,35 +45,60 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase.CAVE;
 
+/**
+ * Open and Save Dialog for configuration files.
+ * 
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ *
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 24 Jul 2013  #2143      skorolev    Changes for non-blocking dialogs.
+ *
+ * </pre>
+ *
+ * @author 
+ * @version 1.0	
+ */
 public class LoadSaveConfigDlg extends CaveSWTDialog {
 
     public static enum DialogType {
         OPEN, SAVE_AS
     };
 
+    /* Type of dialog */
     private DialogType dialogType;
-
+    /* Font type */
     private Font controlFont;
-
+    /* File list control */
     private List cfgFileList;
-
+    /*  LocalizationFile  */
     private LocalizationFile selectedFile;
-
+    /*  Localization Files  */
     private LocalizationFile[] locFiles;
-
+    /*  Tree map of localization files   */
     private TreeMap<String, LocalizationFile> locFileMap;
-
+    /*  Name of new file  */
     private Text newFileNameTF;
-
+    /*  Action button   */
     private Button actionBtn;
-
+    /*  SCAN Table   */
     private ScanTables scanTable;
-
+    /*   SCAN configuration  */
     private SCANConfig scanCfg;
 
+    /**
+     * Constructor
+     * 
+     * @param parent
+     * @param type
+     * @param scanTable
+     */
     public LoadSaveConfigDlg(Shell parent, DialogType type, ScanTables scanTable) {
-        super(parent, SWT.TITLE);
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         if (type == DialogType.OPEN) {
             setText("Load " + scanTable.name() + " Configuration");
         } else {
@@ -85,6 +110,9 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         scanCfg = SCANConfig.getInstance();
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -95,12 +123,18 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
         setReturnValue(selectedFile);
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org.eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         locFileMap = new TreeMap<String, LocalizationFile>();
@@ -114,6 +148,9 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         getAvailableConfigFiles();
     }
 
+    /**
+     * Create List control.
+     */
     private void createListControl() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite controlComp = new Composite(shell, SWT.NONE);
@@ -161,6 +198,9 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Create bottom buttons.
+     */
     private void createBottomButtons() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite mainButtonComp = new Composite(shell, SWT.NONE);
@@ -189,7 +229,7 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
                 public void widgetSelected(SelectionEvent event) {
                     if (validateFileName() == true) {
                         saveAction();
-                        shell.dispose();
+                        close();
                     }
                 }
             });
@@ -202,18 +242,26 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 selectedFile = null;
-                shell.dispose();
+                setReturnValue(null);
+                close();
             }
         });
     }
 
+    /**
+     * Open action.
+     */
     private void openAction() {
         int selectedIndex = cfgFileList.getSelectionIndex();
         String str = cfgFileList.getItem(selectedIndex);
         selectedFile = locFileMap.get(str);
-        shell.dispose();
+        setReturnValue(selectedFile);
+        close();
     }
 
+    /**
+     * Save action.
+     */
     private void saveAction() {
         // TODO : need to save a file
 
@@ -224,10 +272,15 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         String newFileName = getConfigPath() + fileName;
         selectedFile = pm.getLocalizationFile(context, newFileName);
-
-        shell.dispose();
+        setReturnValue(selectedFile);
+        close();
     }
 
+    /**
+     * Validate file.
+     * 
+     * @return
+     */
     private boolean validateFileName() {
         StringBuffer strBuf = new StringBuffer(newFileNameTF.getText().trim());
 
@@ -278,6 +331,9 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         return true;
     }
 
+    /**
+     * Get available configuration files.
+     */
     private void getAvailableConfigFiles() {
         String[] extensions = new String[] { ".xml" };
         locFiles = PathManagerFactory.getPathManager().listStaticFiles(
@@ -288,11 +344,6 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         }
 
         for (int i = 0; i < locFiles.length; i++) {
-            System.out.println("Get file, get name --- "
-                    + locFiles[i].getFile().getName());
-            System.out.println("Get name           *** "
-                    + locFiles[i].getName());
-            // locFileMap.put(locFiles[i].getName(), locFiles[i]);
             locFileMap.put(locFiles[i].getFile().getName(), locFiles[i]);
         }
 
@@ -305,10 +356,20 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Get path.
+     * 
+     * @return
+     */
     private String getConfigPath() {
         return scanCfg.getConfigurationPath(scanTable);
     }
 
+    /**
+     * Get localization file.
+     * 
+     * @return
+     */
     public LocalizationFile getSelectedFile() {
         return selectedFile;
     }
