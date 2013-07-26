@@ -40,6 +40,7 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.UnwarnedConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanColors;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase.CAVE;
 
 /**
  * 
@@ -50,7 +51,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 25, 2009            lvenable     Initial creation
+ * Oct 25, 2009            lvenable    Initial creation
+ * 24 Jul 2013  #2143      skorolev    Changes non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -151,10 +153,13 @@ public class SCANUnwarnedDlg extends CaveSWTDialog implements
      *            Parent shell.
      */
     public SCANUnwarnedDlg(Shell parentShell) {
-        super(parentShell, SWT.DIALOG_TRIM, CAVE.MODE_INDEPENDENT);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         setText("Unwarned Alarm Control");
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -164,11 +169,17 @@ public class SCANUnwarnedDlg extends CaveSWTDialog implements
         return mainLayout;
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         topLabelFont.dispose();
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org.eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -205,8 +216,6 @@ public class SCANUnwarnedDlg extends CaveSWTDialog implements
 
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gd.horizontalSpan = 4;
-
-        // TODO
 
         createInfoString();
         Label msgLbl = new Label(controlComp, SWT.NONE);
@@ -544,6 +553,9 @@ public class SCANUnwarnedDlg extends CaveSWTDialog implements
         mb.open();
     }
 
+    /**
+     * Create Info String.
+     */
     private void createInfoString() {
         infoText = new StringBuilder();
 
@@ -579,6 +591,11 @@ public class SCANUnwarnedDlg extends CaveSWTDialog implements
                 .append("magenta for TOR warnings and yellow for SVR warnings.");
     }
 
+    /**
+     * Setup Button Mouse Listeners.
+     * 
+     * @param btn
+     */
     private void setupButtonMouseListeners(final Button btn) {
         btn.addMouseMoveListener(new MouseMoveListener() {
             @Override
@@ -604,8 +621,11 @@ public class SCANUnwarnedDlg extends CaveSWTDialog implements
         });
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.ICommonDialogAction#closeDialog()
+     */
     @Override
     public void closeDialog() {
-        shell.dispose();
+        close();
     }
 }
