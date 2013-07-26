@@ -56,6 +56,10 @@
 		</and>
 	</condition>
 	
+	<condition property="cots.dir" value="${basedir}/.." else="${basedir}/../../cots">
+		<available file="${basedir}/../org.springframework" />
+	</condition>
+
 	<!-- Set default EDEX install location for copy filter -->
 	<property name="def.edex.install.dir" value="/awips" />
 	<condition property="edex.home" value="$EdexBaseDir" else="${def.edex.install.dir}">
@@ -117,23 +121,23 @@
 		</chmod>
 
 		<copy todir="${deploy.dir}/lib" flatten="true">
-			<fileset dir="../org.apache.activemq" includes="**/*.jar" />
-			<fileset dir="../org.apache.qpid" includes="**/*.jar" />
-			<fileset dir="../org.slf4j" includes="**/*.jar" />
-			<fileset dir="../org.apache.commons.beanutils" includes="**/*.jar" />
-			<fileset dir="../org.apache.commons.codec" includes="**/*.jar" />
-			<fileset dir="../org.apache.commons.collections" includes="**/*.jar" />
-			<fileset dir="../org.apache.commons.lang" includes="**/*.jar" />
-			<fileset dir="../org.apache.commons.logging" includes="**/*.jar" />
-			<fileset dir="../org.apache.mina" includes="**/*.jar" />
-			<fileset dir="../org.apache.log4j" includes="**/*.jar" />
-			<fileset dir="../javax.jms" includes="**/*.jar" />
-			<fileset dir="../org.springframework">
-				<include name="**/spring-beans*.jar" />
-				<include name="**/spring-context*.jar" />
-				<include name="**/quartz-all*.jar" />
+			<fileset dir="${cots.dir}/org.apache.activemq" includes="**/*.jar" />
+			<fileset dir="${cots.dir}/org.apache.qpid" includes="**/*.jar" />
+			<fileset dir="${cots.dir}/org.slf4j" includes="**/*.jar" />
+			<fileset dir="${cots.dir}/org.apache.commons.beanutils" includes="**/*.jar" />
+			<fileset dir="${cots.dir}/org.apache.commons.codec" includes="**/*.jar" />
+			<fileset dir="${cots.dir}/org.apache.commons.collections" includes="**/*.jar" />
+			<fileset dir="${cots.dir}/org.apache.commons.lang" includes="**/*.jar" />
+			<fileset dir="${cots.dir}/org.apache.commons.logging" includes="**/*.jar" />
+			<fileset dir="${cots.dir}/org.apache.mina" includes="**/*.jar" />
+			<fileset dir="${cots.dir}/org.apache.log4j" includes="**/*.jar" />
+			<fileset dir="${cots.dir}/javax.jms" includes="**/*.jar" />
+			<fileset dir="${cots.dir}/org.springframework">
+				<include name="**/*spring*beans*.jar" />
+				<include name="**/*spring*context*.jar" />
 			</fileset>
-			<fileset dir="../org.itadaki.bzip2" includes="**/*.jar" />
+			<fileset dir="${cots.dir}/org.itadaki.bzip2" includes="**/*.jar" />
+			<fileset dir="${cots.dir}/org.quartz" includes="**/*.jar" />
 		</copy>
 
 		<delete dir="bin" />
