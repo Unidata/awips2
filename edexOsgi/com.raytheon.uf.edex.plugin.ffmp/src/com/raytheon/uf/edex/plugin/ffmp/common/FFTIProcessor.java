@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator;
  * Apr 18, 2013 1919       dhladky     Fixed VGB breakage
  * Jun 21, 2013 2131       bsteffen    Revert the slow part of 1919.
  * July 3, 2013 2131       dhladky     Fixed problems caused by revert.
+ * Jul 15, 2013 2184       dhladky     Remove all HUC's for storage except ALL
  * </pre>
  * 
  * @author dhladky
@@ -183,8 +184,8 @@ public class FFTIProcessor {
      */
     public static FFMPDataContainer populateDataContainer(
             FFMPDataContainer sourceContainer, FFMPTemplates template,
-            ArrayList<String> hucs, Date startDate, Date endDate, String wfo,
-            SourceXML source, String siteKey) {
+            Date startDate, Date endDate, String wfo, SourceXML source,
+            String siteKey) {
 
         ArrayList<String> uris = getUris(startDate, endDate, wfo, source,
                 siteKey);
@@ -208,20 +209,11 @@ public class FFTIProcessor {
             if (!contains) {
                 try {
 
-                    if (hucs == null) {
-                        hucs = new ArrayList<String>();
-                        hucs.add(FFMPRecord.ALL);
-                    }
-
-                    for (String huc : hucs) {
-
-                        FFMPRecord populatedRec = populateRecord(rec, huc,
-                                template);
-                        FFMPBasinData newData = populatedRec.getBasinData(huc);
-                        sourceContainer.addFFMPEntry(populatedRec.getDataTime()
-                                .getRefTime(), source, newData, huc, siteKey);
-                    }
-
+                    rec = populateRecord(rec, template);
+                    FFMPBasinData newData = rec.getBasinData();
+                    sourceContainer.addFFMPEntry(
+                            rec.getDataTime().getRefTime(), source, newData,
+                            siteKey);
                 } catch (Exception e) {
                     statusHandler.handle(Priority.ERROR,
                             "Source: " + source.getDisplayName() + "  domain: "
@@ -306,19 +298,19 @@ public class FFTIProcessor {
      * @return
      * @throws PluginException
      */
-    public static FFMPRecord populateRecord(FFMPRecord rec, String huc,
+    public static FFMPRecord populateRecord(FFMPRecord rec,
             FFMPTemplates template) throws PluginException {
 
         try {
-            
+
             SourceXML source = FFMPSourceConfigurationManager.getInstance()
                     .getSource(rec.getSourceName());
 
             // check for gage(VGB) types, if so process as a VGB
             if (source.getSourceType().equals(SOURCE_TYPE.GAGE.getSourceType())) {
-                rec.retrieveVirtualMapFromDataStore(template, huc);
+                rec.retrieveVirtualMapFromDataStore(template);
             } else {
-                rec.retrieveMapFromDataStore(template, huc);
+                rec.retrieveMapFromDataStore(template);
             }
 
         } catch (Exception e) {

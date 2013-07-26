@@ -25,6 +25,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
@@ -42,6 +43,7 @@ import javax.xml.bind.annotation.XmlType;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * RequestConstraint - Constraints on a uEngine request
@@ -55,9 +57,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Aug 21, 2007             chammack    Initial Creation.
- *    May 27, 2009      2408   jsanchez    Cast value to String.
- *    Sep 28, 2009      3099   bsteffen    Fixed constraintCompare to convert all non-numeric objects to String
- *    Nov 05, 2009      3553   rjpeter     Added isNull capability.
+ *    May 27, 2009 2408        jsanchez    Cast value to String.
+ *    Sep 28, 2009 3099        bsteffen    Fixed constraintCompare to convert
+ *                                         all non-numeric objects to String
+ *    Nov 05, 2009 3553        rjpeter     Added isNull capability.
+ *    Jul 09, 2013 1869        bsteffen    Format Calendar when making
+ *                                         Constraint Mapping.
  * 
  * </pre>
  * 
@@ -524,6 +529,8 @@ public class RequestConstraint implements ISerializableObject, Cloneable {
             String constraintValue = null;
             if (value == null) {
                 constraintType = ConstraintType.ISNULL;
+            } else if (value instanceof Calendar) {
+                constraintValue = TimeUtil.formatCalendar((Calendar) value);
             } else {
                 constraintValue = value.toString();
                 if (value.getClass().isArray() || value instanceof Collection) {
