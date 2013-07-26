@@ -44,6 +44,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * Apr 25, 2011            mpduff     Initial creation
  * Dec 23, 2011 13608	   mgamazay	  Added initialization of ident to the constructor 
+ * 24 Jul 2013 #2143       skorolev   Changes for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -64,18 +65,24 @@ public class TimeHeightMsgBox extends CaveSWTDialog implements
      * @param swtStyle
      */
     protected TimeHeightMsgBox(Shell parentShell, String ident) {
-        super(parentShell, SWT.DIALOG_TRIM | SWT.MODELESS);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.MODELESS, CAVE.DO_NOT_BLOCK);
         setText("Unavailable T-H Trend");
         this.ident = ident;
 
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org.eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         createMessage();
         createButtons();
     }
 
+    /**
+     * Create Message.
+     */
     private void createMessage() {
         Image img = Display.getCurrent().getSystemImage(SWT.ICON_QUESTION);
 
@@ -94,6 +101,9 @@ public class TimeHeightMsgBox extends CaveSWTDialog implements
         msgLabel.setText(msg);
     }
 
+    /**
+     * Create Buttons.
+     */
     private void createButtons() {
         Composite buttonComp = new Composite(shell, SWT.NONE);
         buttonComp.setLayout(new GridLayout(2, false));
@@ -129,8 +139,11 @@ public class TimeHeightMsgBox extends CaveSWTDialog implements
         });
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.ICommonDialogAction#closeDialog()
+     */
     @Override
     public void closeDialog() {
-        shell.dispose();
+        close();
     }
 }
