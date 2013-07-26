@@ -53,6 +53,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 04/16/13      1912       bsteffen    Initial bulk hdf5 access for ffmp
  * 05/09/13      1919       mpduff      Use parent pfaf instead of lookupId.
  * 07/09/13      2152       njensen     Ensure purgeData() does not load data
+ * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * 
  * </pre>
  * 
@@ -61,7 +62,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @DynamicSerialize
 public class FFMPBasinData implements ISerializableObject {
-    private static final long serialVersionUID = 8162247989509750715L;
 
     public static final double GUIDANCE_MISSING = -999999.0;
 
@@ -81,15 +81,6 @@ public class FFMPBasinData implements ISerializableObject {
      * Cache of basins in order for easy population from Load Tasks.
      */
     private final Map<String, FFMPBasin[]> orderedBasinsCache = new HashMap<String, FFMPBasin[]>();
-
-    /**
-     * Public one arg constructor
-     * 
-     * @param huc_level
-     */
-    public FFMPBasinData(String hucLevel) {
-        setHucLevel(hucLevel);
-    }
 
     /**
      * No arg hibernate constructor
@@ -174,6 +165,8 @@ public class FFMPBasinData implements ISerializableObject {
      * Extracts the average value for an aggregation of basins
      * 
      * @param pfaf_ids
+     * @param startDate
+     * @param finishDate
      * @return
      */
     public float getAverageValue(ArrayList<Long> pfaf_ids, Date beforeDate,
@@ -185,6 +178,55 @@ public class FFMPBasinData implements ISerializableObject {
             FFMPBasin basin = getBasins().get(pfaf);
             if (basin != null) {
                 tvalue += basin.getValue(beforeDate, afterDate);
+                i++;
+            }
+        }
+        tvalue = tvalue / i;
+
+        return tvalue;
+    }
+
+    /**
+     * Extracts the average value for an aggregation of basins
+     * 
+     * @param pfaf_ids
+     * @param exact
+     *            date
+     * @return
+     */
+    public float getAverageValue(ArrayList<Long> pfaf_ids, Date date) {
+
+        float tvalue = 0.0f;
+        int i = 0;
+        for (Long pfaf : pfaf_ids) {
+            FFMPBasin basin = getBasins().get(pfaf);
+            if (basin != null) {
+                tvalue += basin.getValue(date);
+                i++;
+            }
+        }
+        tvalue = tvalue / i;
+
+        return tvalue;
+    }
+
+    /**
+     * Extracts the average value for an aggregation of basins
+     * 
+     * @param pfaf_ids
+     * @param date
+     * @param expirationTime
+     * @return
+     */
+    public float getAverageValue(ArrayList<Long> pfaf_ids, Date date,
+            long epirationTime) {
+
+        float tvalue = 0.0f;
+        int i = 0;
+        for (Long pfaf : pfaf_ids) {
+            FFMPBasin basin = getBasins().get(pfaf);
+            if (basin != null) {
+                tvalue += basin.getAverageValue(date, epirationTime);
                 i++;
             }
         }
@@ -231,8 +273,8 @@ public class FFMPBasinData implements ISerializableObject {
      * @param pfaf_ids
      * @return
      */
-    public float getAccumAverageValue(ArrayList<Long> pfaf_ids,
-            Date beforeDate, Date afterDate, long expirationTime, boolean rate) {
+    public float getAccumAverageValue(List<Long> pfaf_ids, Date beforeDate,
+            Date afterDate, long expirationTime, boolean rate) {
 
         float tvalue = 0.0f;
         int i = 0;
@@ -534,6 +576,34 @@ public class FFMPBasinData implements ISerializableObject {
             }
         }
         return values;
+    }
+
+    /**
+     * Gets the average guidance value for an aggregate basin
+     * 
+     * @param pfaf_ids
+     * @param interpolation
+     * @param expiration
+     * @return
+     */
+    public Float getAverageGuidanceValue(List<Long> pfaf_ids,
+            FFMPGuidanceInterpolation interpolation, long expiration) {
+
+        float tvalue = 0.0f;
+        int i = 0;
+
+        List<Float> vals = getGuidanceValues(pfaf_ids, interpolation,
+                expiration);
+        if (vals != null) {
+            for (Float val : vals) {
+                tvalue += val;
+                i++;
+            }
+        } else {
+            return null;
+        }
+
+        return tvalue / i;
     }
 
     /**

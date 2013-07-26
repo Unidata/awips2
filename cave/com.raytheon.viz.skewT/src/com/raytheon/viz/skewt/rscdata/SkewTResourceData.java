@@ -50,7 +50,8 @@ import com.raytheon.viz.skewt.rsc.SkewTResource;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 23, 2009            randerso     Initial creation
+ * Sep 23, 2009            randerso    Initial creation
+ * Jul 05, 2013 1869       bsteffen    Fix goes sounding updates.
  * 
  * </pre>
  * 
@@ -92,16 +93,20 @@ public class SkewTResourceData extends AbstractRequestableResourceData {
     protected SkewTResource constructResource(LoadProperties loadProperties,
             PluginDataObject[] objects) throws VizException {
 
+        soundings = convertToSounding(objects);
+
+        return new SkewTResource(this, loadProperties);
+    }
+
+    public VerticalSounding[] convertToSounding(PluginDataObject[] objects)
+            throws VizException {
         if (objects != null && objects.length > 0) {
             AbstractVerticalSoundingAdapter adapter = getAdapter(objects[0]);
             adapter.setObjects(objects);
-            soundings = adapter.createSoundings();
+            return adapter.createSoundings();
         } else {
-            soundings = new VerticalSounding[0];
+            return new VerticalSounding[0];
         }
-
-        SkewTResource rsc = new SkewTResource(this, loadProperties);
-        return rsc;
     }
 
     protected AbstractVerticalSoundingAdapter getAdapter(PluginDataObject object)

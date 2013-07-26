@@ -37,6 +37,7 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.bind.DataBindingException;
 import javax.xml.bind.JAXB;
 
 import org.apache.commons.io.FileUtils;
@@ -75,6 +76,8 @@ import com.raytheon.uf.common.util.FileUtil;
  *                                     Updated purgeExpiredFromArchive to check time of files in
  *                                     directory before purging them.
  *                                     Added null check for topLevelDirs in purgeExpiredFromArchive.
+ *                                     Changed to use File.delete() instead of Apache FileUtil.deleteQuietly().
+ *                                     Added warn logging for failure to delete.
  * 
  * </pre>
  * 
@@ -89,7 +92,7 @@ public class ArchiveConfigManager {
     private final static ArchiveConfigManager instance = new ArchiveConfigManager();
 
     /** Localize directory for the archive configuration files. */
-    public final String ARCHIVE_DIR = "archive";
+    public final String ARCHIVE_DIR = "archiver/purger";
 
     /** Localization manager. */
     private IPathManager pathMgr;
@@ -165,19 +168,6 @@ public class ArchiveConfigManager {
         String[] names = nameList.toArray(new String[0]);
         Arrays.sort(names, 0, names.length, String.CASE_INSENSITIVE_ORDER);
         return names;
-    }
-
-    /**
-     * Load the archiveConfig information from the localized file.
-     * 
-     * @param lFile
-     * @return archiveConfig
-     * @throws IOException
-     * @throws LocalizationException
-     */
-    public ArchiveConfig loadArchiveData(LocalizationFile lFile)
-            throws IOException, LocalizationException {
-        return unmarshalArhiveConfigFromXmlFile(lFile);
     }
 
     /**
@@ -280,9 +270,9 @@ public class ArchiveConfigManager {
             Calendar purgeTime = calculateExpiration(archive, category);
             CategoryFileDateHelper helper = new CategoryFileDateHelper(
                     category, archive.getRootDir());
-            IOFileFilter fileDateFilter = FileFilterUtils.and(
-                    FileFilterUtils.fileFileFilter(),
-                    new FileDateFilter(null, purgeTime, helper));
+            IOFileFilter fileDateFilter = FileFilterUtils.and(FileFilterUtils
+                    .fileFileFilter(), new FileDateFilter(null, purgeTime,
+                    helper));
 
             // Remove the directory associated with this category from the not
             // purged list since it is being purged.
@@ -320,13 +310,17 @@ public class ArchiveConfigManager {
         return filesPurged;
     }
 
-    private Collection<File> purgeFile(File fileToPurge,
-            IOFileFilter filter, final String archiveRootDir) {
+    private Collection<File> purgeFile(File fileToPurge, IOFileFilter filter,
+            final String archiveRootDir) {
         Collection<File> filesPurged = new ArrayList<File>();
 
         if (fileToPurge.isFile() && filter.accept(fileToPurge)) {
-            filesPurged.add(fileToPurge);
-            FileUtils.deleteQuietly(fileToPurge);
+            if (fileToPurge.delete()) {
+                filesPurged.add(fileToPurge);
+            } else {
+                statusHandler.warn("Failed to purge file: "
+                        + fileToPurge.getAbsolutePath());
+            }
         } else if (fileToPurge.isDirectory()) {
             Collection<File> expiredFilesInDir = FileUtils.listFiles(
                     fileToPurge, filter, FileFilterUtils.trueFileFilter());
@@ -339,7 +333,10 @@ public class ArchiveConfigManager {
             // delete it
             if (fileToPurge.list().length == 0
                     && !fileToPurge.getAbsolutePath().equals(archiveRootDir)) {
-                FileUtils.deleteQuietly(fileToPurge);
+                if (!fileToPurge.delete()) {
+                    statusHandler.warn("Failed to purge directory: "
+                            + fileToPurge.getAbsolutePath());
+                }
             }
         }
         return filesPurged;
@@ -394,9 +391,19 @@ public class ArchiveConfigManager {
         for (LocalizationFile lFile : files) {
             try {
                 ArchiveConfig archiveConfig = unmarshalArhiveConfigFromXmlFile(lFile);
-                archiveNameToLocalizationFileMap.put(archiveConfig.getName(),
-                        lFile);
-                archiveMap.put(archiveConfig.getName(), archiveConfig);
+                if (archiveConfig != null && archiveConfig.isValid()) {
+                    archiveNameToLocalizationFileMap.put(
+                            archiveConfig.getName(), lFile);
+                    archiveMap.put(archiveConfig.getName(), archiveConfig);
+                } else {
+                    statusHandler.handle(Priority.ERROR,
+                            "Bad Archive configuration file: "
+                                    + lFile.getFile().getName());
+                }
+            } catch (DataBindingException ex) {
+                statusHandler.handle(Priority.ERROR,
+                        "Bad Archive configuration file \""
+                                + lFile.getFile().getName() + "\": ", ex);
             } catch (IOException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
@@ -762,7 +769,8 @@ public class ArchiveConfigManager {
      * @throws LocalizationException
      */
     private ArchiveConfig unmarshalArhiveConfigFromXmlFile(
-            LocalizationFile lFile) throws IOException, LocalizationException {
+            LocalizationFile lFile) throws IOException, LocalizationException,
+            DataBindingException {
         ArchiveConfig archiveConfig = null;
         LocalizationFileInputStream stream = null;
         try {
