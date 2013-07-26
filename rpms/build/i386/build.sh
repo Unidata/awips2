@@ -362,10 +362,10 @@ fi
 
 if [ "${1}" = "-edex" ]; then
    #buildRPM "awips2"
-   buildRPM "awips2-common-base"
-   buildRPM "awips2-adapt-native"
-   buildRPM "awips2-python-qpid"
-   buildRPM "awips2-cli"
+   #buildRPM "awips2-common-base"
+   #buildRPM "awips2-adapt-native"
+   #buildRPM "awips2-python-qpid"
+   #buildRPM "awips2-cli"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
    buildEDEX
