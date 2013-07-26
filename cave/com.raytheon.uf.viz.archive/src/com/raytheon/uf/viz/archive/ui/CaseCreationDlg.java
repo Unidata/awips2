@@ -48,7 +48,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
-import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
 import com.raytheon.uf.common.archive.config.DisplayData;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.SizeUtil;
@@ -136,9 +135,6 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
     private SimpleDateFormat dateFmt = new SimpleDateFormat(
             "E MMM dd yyyy HH:00 z");
 
-    /** Archive configuration manager */
-    private ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
-
     /** Number of selected items. */
     private int selectedItemsSize = 0;
 
@@ -179,6 +175,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
      */
     @Override
     protected void initializeComponents(Shell shell) {
+        super.initializeComponents(shell);
         setText("Archive Case Creation");
         Composite mainComp = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(1, false);
@@ -186,9 +183,6 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
         gl.marginWidth = 0;
         gl.horizontalSpacing = 0;
         mainComp.setLayout(gl);
-
-        manager.reset();
-
         init();
     }
 

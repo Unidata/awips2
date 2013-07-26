@@ -56,6 +56,8 @@ import com.vividsolutions.jts.geom.Point;
  * Oct 26, 2007 391        jkorman     Initial Coding.
  * May 17, 2013 1869       bsteffen    Remove DataURI column from sat plot
  *                                     types.
+ * Jul 09, 2013 1869       bsteffen    Switch location hibernate type to use
+ *                                     hibernate spatial.
  * 
  * </pre>
  * 
@@ -100,7 +102,7 @@ public class SurfaceObsLocation implements ISpatialObject, Cloneable {
     private Boolean locationDefined = Boolean.FALSE;
 
     @Column(name = "location", columnDefinition = "geometry")
-    @Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
+    @Type(type = "org.hibernatespatial.GeometryUserType")
     @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
     private Point location;

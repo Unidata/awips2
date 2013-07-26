@@ -27,6 +27,8 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.catalog.ScriptCreator;
@@ -50,6 +52,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  *    Aug 13, 2007             chammack    Initial Creation.
  *    Dec 03, 2007 461         bphillip    Modified Time Matching to use VizTim
  *    Aug 19, 2009 2586        rjpeter     Updated error handling.
+ *    Jul 05, 2013 1869        bsteffen    Fix goes sounding updates.
  * </pre>
  * 
  * @author chammack
@@ -155,8 +158,13 @@ public class Loader {
                     "Map must contain a datauri and plugin name");
         }
 
-        vals.put(DATAURI_COLUMN, new RequestConstraint(obj.get(DATAURI_COLUMN)
-                .toString()));
+        try {
+            vals.putAll(RequestConstraint.toConstraintMapping(DataURIUtil
+                    .createDataURIMap(obj.get(DATAURI_COLUMN).toString())));
+        } catch (PluginException e) {
+            throw new VizException(e);
+        }
+
         vals.put(PLUGINNAME_COLUMN, new RequestConstraint(obj.get(
                 PLUGINNAME_COLUMN).toString()));
         lp.setDesiredProduct(ResourceType.PLAN_VIEW);
