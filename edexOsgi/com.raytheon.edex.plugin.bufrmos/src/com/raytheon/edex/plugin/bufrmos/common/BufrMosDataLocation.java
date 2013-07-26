@@ -47,7 +47,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 24, 2011            rjpeter     Initial creation
- * Jun 28, 2012  #827      dgilling    Annotate id field for serialization.
+ * Jun 28, 2012 827        dgilling    Annotate id field for serialization.
+ * Jul 26, 2013 1051       bsteffen    Discard bufrmos data with invalid
+ *                                     location.
  * 
  * </pre>
  * 
@@ -130,6 +132,16 @@ public class BufrMosDataLocation extends PersistableDataObject {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public boolean isValid() {
+        if (longitude == null || latitude == null) {
+            return false;
+        }
+        if (latitude > 90.0 || latitude < -90.0) {
+            return false;
+        }
+        return true;
     }
 
     @Override
