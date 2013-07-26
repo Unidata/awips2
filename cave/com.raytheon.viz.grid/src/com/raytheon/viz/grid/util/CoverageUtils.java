@@ -68,7 +68,8 @@ import com.raytheon.viz.alerts.observers.ProductAlertObserver;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 8, 2010            rjpeter     Initial creation
+ * Jan 08, 2010            rjpeter     Initial creation
+ * Jul 25, 2013 2112       bsteffen    Fix volume browser sounding errors.
  * 
  * </pre>
  * 
@@ -149,6 +150,13 @@ public class CoverageUtils implements IAlertObserver {
                 set.add(new UniqueIdGridCoverageWrapper(coverage));
             }
             rval = coverageCache.get(datasetId);
+            if (rval == null) {
+                HashSet<UniqueIdGridCoverageWrapper> set = new HashSet<UniqueIdGridCoverageWrapper>(
+                        0);
+                coverageCache.put(datasetId, set);
+                rval = set;
+
+            }
         }
         List<GridCoverage> finalSet = new ArrayList<GridCoverage>(rval.size());
         for (UniqueIdGridCoverageWrapper wrapper : rval) {
