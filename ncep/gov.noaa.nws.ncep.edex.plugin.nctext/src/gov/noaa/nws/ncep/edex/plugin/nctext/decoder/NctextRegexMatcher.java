@@ -164,12 +164,14 @@ public final class NctextRegexMatcher {
 		//split above pattern to the following 3 patterns so matchFileRegex() can be coded in a generic way.
 		thisMap.put(Pattern.compile("^FXHW60 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "area"); 
 		thisMap.put(Pattern.compile("^FXPN60 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "area"); 
-		thisMap.put(Pattern.compile("^FXPS60 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "area"); 
-		
+		thisMap.put(Pattern.compile("^FXPS60 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "area"); 		
 		thisMap.put(Pattern.compile("^...... .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).*(\n|\r)FA[0-9].*"), "area");	//aviation forecasts
 		thisMap.put(Pattern.compile("^WWUS30 KWNS (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"),"wtch2");
 		thisMap.put(Pattern.compile("^FNUS21 KWNS (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"),"fwddy1");
 		thisMap.put(Pattern.compile("^FNUS22 KWNS (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"),"fwddy2");
+		thisMap.put(Pattern.compile("^FNUS28 KWNS (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"),"fwddy38");
+		thisMap.put(Pattern.compile("^FNUS21 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).*(\n|\r)FWDDY1.*"),"fire1"); //spc uses this regex for fwddy1 also
+		thisMap.put(Pattern.compile("^FNUS22 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).*(\n|\r)FWDDY2.*"),"fire2");	//spc uses this regex for fwddy2 also	
 		thisMap.put(Pattern.compile("^WOUS64 KWNS (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "wou");
 		thisMap.put(Pattern.compile("^ABNT20 KNHC (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "outlk"); //clashes with TWO
 		thisMap.put(Pattern.compile("^ACPN50 PHFO (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "outlk");
@@ -267,14 +269,13 @@ public final class NctextRegexMatcher {
 		thisMap.put(Pattern.compile("^WAUS1 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "airm");	//no data to test
 		thisMap.put(Pattern.compile("^WAAK01 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "airm");	//no data to test
 		thisMap.put(Pattern.compile("^WOUS20 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "stat");
-		thisMap.put(Pattern.compile("^FVXX2[0-4] .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "volc");    			
+		thisMap.put(Pattern.compile("^FVXX2[0-7] .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "volc");
 		thisMap.put(Pattern.compile("^FVCN0[0-4] .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "volc");
 		thisMap.put(Pattern.compile("^FVAU0[2-4] .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "volc");  
 		thisMap.put(Pattern.compile("^ACUS4[1-5] .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "storm");
 		thisMap.put(Pattern.compile("^FSUS02 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "srp");
 		thisMap.put(Pattern.compile("^ASUS01 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "sus");
 		thisMap.put(Pattern.compile("^FXPA00 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "expac");  //no  folder for raw data in server  			
-		thisMap.put(Pattern.compile("^FVXX2[0-7] .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "vlcf"); //clashes with volc FVXX2[0-4]
 	    thisMap.put(Pattern.compile("^ACUS48 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "day48");
 		thisMap.put(Pattern.compile("^FNUS31 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).*(\n|\r)PFWFD1.*"), "pfwfd1"); 
 		thisMap.put(Pattern.compile("^FNUS32 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).*(\n|\r)PFWFD2.*"), "pfwfd2");  
@@ -288,9 +289,6 @@ public final class NctextRegexMatcher {
 		thisMap.put(Pattern.compile("^ACUS01 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "day1");
 		thisMap.put(Pattern.compile("^ACUS02 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "day2");
 		thisMap.put(Pattern.compile("^ACUS03 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "day3");
-		thisMap.put(Pattern.compile("^WWUS01 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"),"ptsdy1"); //no data to test
-		thisMap.put(Pattern.compile("^WWUS02 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"),"ptsdy2");//no data to test
-		thisMap.put(Pattern.compile("^WWUS03 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"),"ptsdy3");//no data to test
 		thisMap.put(Pattern.compile("^WWUS20 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"),"watch");
 		thisMap.put(Pattern.compile("^WWUS50 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).*(\n|\r)SEV[0-9].*"),"sev");
 		thisMap.put(Pattern.compile("^WWUS60 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).*(\n|\r)SEVSPC.*"),"sevmkc");
@@ -299,8 +297,6 @@ public final class NctextRegexMatcher {
 		thisMap.put(Pattern.compile("^ACUS11 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"),"meso");
 		thisMap.put(Pattern.compile("^NWUS20 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).*(\n|\r)STADTS"),"dts"); 
 		thisMap.put(Pattern.compile("^NWUS20 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"),"svr"); 
-		thisMap.put(Pattern.compile("^FNUS21 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).*(\n|\r)FWDDY1.*"),"fire1"); //spc uses this regex for fwddy1 also
-		thisMap.put(Pattern.compile("^FNUS22 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).*(\n|\r)FWDDY2.*"),"fire2");	//spc uses this regex for fwddy2 also	
 		thisMap.put(Pattern.compile("^WHXX9[09] .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "mdl"); // not sure if this regex is correct - no test data to verify
 		thisMap.put(Pattern.compile("^WHXX0[1-4] .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "mdl");
 		thisMap.put(Pattern.compile("^URNT10 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "antreco");	
@@ -341,13 +337,14 @@ public final class NctextRegexMatcher {
 		thisMap.put(Pattern.compile("^W[CSV]AK[01][0-9] KKCI (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "intl"); //regexes clash for intl and sgmt	
 		thisMap.put(Pattern.compile("^W[CSV]AK[01][0-9] PHFO (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "intl"); //regexes clash for intl and sgmt	
 		thisMap.put(Pattern.compile("^W[CSV]AK[01][0-9] PAWU (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "intl"); //regexes clash for intl and sgmt	
-		
-		
+		thisMap.put(Pattern.compile("^WUUS01 KWNS (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "ptsdy1"); //regexes clash for convective outlook point product day1
+		thisMap.put(Pattern.compile("^WUUS02 KWNS (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "ptsdy2"); //regexes clash for convective outlook point product day2
+		thisMap.put(Pattern.compile("^WUUS03 KWNS (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "ptsdy3"); //regexes clash for convective outlook point product day3
 		thisMap.put(Pattern.compile("^WSUS4[012] .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "conv");
 		thisMap.put(Pattern.compile("^W[CSV]US0[1-6] KKCI (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "sgmt");	
 		thisMap.put(Pattern.compile("^WSUK.. .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "sgmt");	
 		thisMap.put(Pattern.compile("^WS[^U]... .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "sgmt");        //regexes clash for intl and sgmt
-		thisMap.put(Pattern.compile("^FT.... .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)*TAF[A-Z]{3}(.|\r|\n)*"), "taf"); //observed TAFS
+		thisMap.put(Pattern.compile("^FT.... .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)*TAF[A-Z]{3}(.|\r|\n)*"), "taf"); //aviation TAFS
 		thisMap.put(Pattern.compile("^FT.... .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+TAF( |\r|\n){1}(.|\r|\n)*"), "fts"); //aviation TAFS
 		thisMap.put(Pattern.compile("^...... KWBC (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).*(\n|\r)(HSF).*"), "HSF");   //conflicts with FLN
 		thisMap.put(Pattern.compile("^...... PHFO (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).*(\n|\r)(HSF).*"), "HSF");  
