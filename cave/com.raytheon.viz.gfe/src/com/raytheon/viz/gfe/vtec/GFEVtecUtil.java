@@ -41,6 +41,9 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 14, 2013  #1842     dgilling     Initial creation
+ * Jul 19, 2013  #1842     dgilling     Use VtecUtil.replaceFirstVtecString()
+ *                                      to ensure start times of in progress
+ *                                      events aren't set to the wrong time.
  * 
  * </pre>
  * 
@@ -94,7 +97,11 @@ public class GFEVtecUtil {
                         vtec.getPhensig(), true);
                 vtec.setSequence(newEtn);
             }
-            vtecMatcher.appendReplacement(finalOutput, vtec.getVtecString());
+            vtecMatcher
+                    .appendReplacement(
+                            finalOutput,
+                            VtecUtil.replaceFirstVtecString(
+                                    vtec.getVtecString(), vtec));
         }
         vtecMatcher.appendTail(finalOutput);
         return finalOutput.toString();
