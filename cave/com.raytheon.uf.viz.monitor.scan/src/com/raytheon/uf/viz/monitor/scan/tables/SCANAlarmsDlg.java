@@ -47,9 +47,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 2, 2010            mnash     Initial creation
+ * Dec 2, 2010             mnash       Initial creation
  * 
- * 03/15/2012	13939	   Mike Duff    For a SCAN Alarms issue
+ * 03/15/2012	13939	   Mike Duff   For a SCAN Alarms issue
+ * 24 Jul 2013 #2143       skorolev    Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -59,30 +60,56 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 public class SCANAlarmsDlg extends CaveSWTDialog {
 
+    /**
+     * Scrolled Composite
+     */
     private ScrolledComposite sc;
 
+    /**
+     * Button Composite
+     */
     private Composite btnComp;
 
+    /**
+     * Button Width
+     */
     private int buttonWidth = 150;
 
+    /**
+     * SCAN Alarm Alert Manager
+     */
     private SCANAlarmAlertManager mgr;
 
+    /**
+     * SCAN Tables
+     */
     private ScanTables type;
 
+    /**
+     * Clear All Button
+     */
     private Button clearAllBtn;
 
+    /**
+     * Site
+     */
     private String site;
 
     /**
+     * Constructor
+     * 
      * @param parentShell
      */
     protected SCANAlarmsDlg(Shell parentShell, ScanTables scanTable, String site) {
-        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         this.site = site;
         type = scanTable;
         mgr = SCANAlarmAlertManager.getInstance(site);
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org.eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         if (type == ScanTables.CELL) {
@@ -96,6 +123,11 @@ public class SCANAlarmsDlg extends CaveSWTDialog {
         createClearAllButton(shell);
     }
 
+    /**
+     * Create Alarm Buttons.
+     * 
+     * @param shell
+     */
     private void createAlarmButtons(final Shell shell) {
         Composite comp = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(1, false);
@@ -168,7 +200,7 @@ public class SCANAlarmsDlg extends CaveSWTDialog {
                         btn.dispose();
                         btnComp.layout();
                         if (mgr.getAlertedAlarms(site, type).size() <= 0) {
-                            shell.dispose();
+                            close();
                         }
                     }
                 });
@@ -190,6 +222,11 @@ public class SCANAlarmsDlg extends CaveSWTDialog {
         sc.layout();
     }
 
+    /**
+     * Create "Clear All" Button
+     * 
+     * @param shell
+     */
     private void createClearAllButton(final Shell shell) {
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gd.widthHint = buttonWidth + 30;
@@ -208,12 +245,8 @@ public class SCANAlarmsDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 mgr.clearAlertedAlarms(site, type);
-                shell.dispose();
+                close();
             }
         });
-    }
-
-    public void closeDisplay() {
-        shell.dispose();
     }
 }
