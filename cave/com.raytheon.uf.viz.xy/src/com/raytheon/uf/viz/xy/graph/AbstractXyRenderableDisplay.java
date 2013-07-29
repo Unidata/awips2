@@ -53,6 +53,7 @@ import com.raytheon.uf.viz.xy.map.rsc.GraphResource;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 10, 2009            mschenke     Initial creation
+ * 06/24/2013   2140       randerso    Changed to use standardized paint error handling
  * 
  * </pre>
  * 
@@ -82,20 +83,20 @@ public abstract class AbstractXyRenderableDisplay extends
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
         super.paint(target, paintProps);
-        if (getDescriptor() instanceof XyGraphDescriptor == false) {
+        if ((getDescriptor() instanceof XyGraphDescriptor) == false) {
             return;
         }
         GraphProperties gProps = new GraphProperties(paintProps);
         gProps.setWorldExtent(worldExtent);
         GraphResource gRsc = ((XyGraphDescriptor) getDescriptor())
                 .getGraphResource();
-        if (gRsc != null && gRsc.getStatus() == ResourceStatus.NEW) {
+        if ((gRsc != null) && (gRsc.getStatus() == ResourceStatus.NEW)) {
             gRsc.init(target);
         }
 
         for (ResourcePair rp : getDescriptor().getResourceList()) {
             AbstractVizResource<?, ?> rsc = rp.getResource();
-            if (rsc == null || rp.getProperties().isVisible() == false) {
+            if ((rsc == null) || (rp.getProperties().isVisible() == false)) {
                 continue;
             }
             if (rsc.hasCapability(ImagingCapability.class)) {
@@ -103,14 +104,7 @@ public abstract class AbstractXyRenderableDisplay extends
                         .getAlpha());
             }
             gProps.setDataTime(descriptor.getTimeForResource(rsc));
-            try {
-                rsc.paint(target, gProps);
-            } catch (Throwable e) {
-                rp.getProperties().setVisible(false);
-                throw new VizException("Paint error: " + e.getMessage()
-                        + ":: The resource has been disabled.", e);
-            }
-
+            paintResource(rp, target, gProps);
         }
     }
 
