@@ -37,6 +37,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 19, 2009            mnash     Initial creation
+ * 07/29/2013   2148       mnash     Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -47,12 +48,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 public class HailPositivePacket extends SymbologyPacket implements
         ISerializableObject {
-    private static final int HAIL_POSITIVE13 = 13;
-
-    static {
-        PacketFactory.registerPacketType(HailPositivePacket.class,
-                HAIL_POSITIVE13);
-    }
 
     public HailPositivePacket(int packetId, DataInputStream in)
             throws IOException {

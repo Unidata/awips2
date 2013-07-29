@@ -38,6 +38,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 28, 2009            mnash     Initial creation
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -55,15 +56,6 @@ public class SCITDataPacket extends SymbologyPacket implements
 
     public SCITDataPacket() {
 
-    }
-
-    private static final int SCIT_PAST_DATA23 = 23;
-
-    private static final int SCIT_FORECAST_DATA24 = 24;
-
-    static {
-        PacketFactory.registerPacketType(SCITDataPacket.class,
-                SCIT_PAST_DATA23, SCIT_FORECAST_DATA24);
     }
 
     /**

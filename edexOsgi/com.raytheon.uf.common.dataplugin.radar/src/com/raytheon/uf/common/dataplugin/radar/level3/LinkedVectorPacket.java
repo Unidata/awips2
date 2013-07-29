@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 5, 2008            mnash     Initial creation
+ * 07/29/2013   2148       mnash     Refactor registering of packets to Spring
  * </pre>
  * 
  * @author mnash
@@ -44,6 +45,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 public class LinkedVectorPacket extends SymbologyPacket implements
         ISerializableObject {
+    private static final int LINKED_VECTOR_PACKET9 = 9;
 
     /**
      * @param packetId
@@ -57,15 +59,6 @@ public class LinkedVectorPacket extends SymbologyPacket implements
 
     public LinkedVectorPacket() {
 
-    }
-
-    private static final int LINKED_VECTOR_PACKET6 = 6;
-
-    private static final int LINKED_VECTOR_PACKET9 = 9;
-
-    static {
-        PacketFactory.registerPacketType(LinkedVectorPacket.class,
-                LINKED_VECTOR_PACKET6, LINKED_VECTOR_PACKET9);
     }
 
     @DynamicSerializeElement

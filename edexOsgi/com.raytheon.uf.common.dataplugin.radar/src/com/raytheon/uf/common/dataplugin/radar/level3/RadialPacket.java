@@ -31,18 +31,21 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * RadialPacket is a class that will allow access to the actual radar data
  * contained in a radial product.
  * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 10/25/2007   #465       randerso    initial creation
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
+ * 
+ * </pre>
+ * 
  * @author randerso
  * @version 1.0
  */
 public class RadialPacket extends SymbologyPacket {
     private final static IUFStatusHandler handler = UFStatus
             .getHandler(RadialPacket.class);
-
-    public static final int RADIAL_DATA_PACKET_4BIT = 0xAF1F;
-    static {
-        PacketFactory.registerPacketType(RadialPacket.class,
-                RADIAL_DATA_PACKET_4BIT);
-    }
 
     protected int firstBinIndex;
 
