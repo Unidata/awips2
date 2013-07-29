@@ -103,6 +103,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * May 23, 2013  2020      mpduff       Call updateControls();
  * May 28, 2013  1650      djohnson     More information when failing to schedule subscriptions.
  * Jun 14, 2013  2064      mpduff       Null check for sorted column.
+ * Jul 29, 2013  2232      mpduff       IndexOutOfBoundsException check.
  * 
  * </pre>
  * 
@@ -701,15 +702,17 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
      */
     @Override
     protected void handleTableSelection(SelectionEvent e) {
-        TableItem item = table.getSelection()[0];
-        TableColumn[] columns = table.getColumns();
+        if (table.getSelectionIndex() > -1) {
+            TableItem item = table.getSelection()[0];
+            TableColumn[] columns = table.getColumns();
 
-        for (int i = 0; i < columns.length; i++) {
-            if (columns[i].getText().equals("Active")) {
-                if (item.getText(i).equalsIgnoreCase("T")) {
-                    subActionCallback.activateButtonUpdate("Deactivate");
-                } else {
-                    subActionCallback.activateButtonUpdate("Activate");
+            for (int i = 0; i < columns.length; i++) {
+                if (columns[i].getText().equals("Active")) {
+                    if (item.getText(i).equalsIgnoreCase("T")) {
+                        subActionCallback.activateButtonUpdate("Deactivate");
+                    } else {
+                        subActionCallback.activateButtonUpdate("Activate");
+                    }
                 }
             }
         }
