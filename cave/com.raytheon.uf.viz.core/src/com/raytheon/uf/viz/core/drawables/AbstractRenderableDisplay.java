@@ -66,6 +66,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 06, 2009            bgonzale     Initial creation
+ * Jun 24, 2013   2140     randerso     Added paintResource method
  * 
  * </pre>
  * 
@@ -147,14 +148,17 @@ public abstract class AbstractRenderableDisplay implements IRenderableDisplay {
         this.initializedTarget = null;
     }
 
+    @Override
     public IExtent getExtent() {
         return this.view.getExtent();
     }
 
+    @Override
     public int getWorldHeight() {
         return descriptor.getGridGeometry().getGridRange().getHigh(1) + 1;
     }
 
+    @Override
     public int getWorldWidth() {
         return descriptor.getGridGeometry().getGridRange().getHigh(0) + 1;
     }
@@ -273,6 +277,7 @@ public abstract class AbstractRenderableDisplay implements IRenderableDisplay {
     /**
      * @return the view
      */
+    @Override
     public IView getView() {
         return view;
     }
@@ -387,6 +392,7 @@ public abstract class AbstractRenderableDisplay implements IRenderableDisplay {
      * 
      * @return zoom
      */
+    @Override
     public double getZoom() {
         return this.view.getZoom();
     }
@@ -415,6 +421,7 @@ public abstract class AbstractRenderableDisplay implements IRenderableDisplay {
         target.setBackgroundColor(backgroundColor);
     }
 
+    @Override
     public void setup(IGraphicsTarget target) {
         this.initializedTarget = target;
         this.view.setupView(target);
@@ -532,14 +539,17 @@ public abstract class AbstractRenderableDisplay implements IRenderableDisplay {
         return null;
     }
 
+    @Override
     public void setSwapping(boolean swapping) {
         this.swapping = swapping;
     }
 
+    @Override
     public boolean isSwapping() {
         return this.swapping;
     }
 
+    @Override
     public Map<String, Object> getGlobalsMap() {
         globals.put(VizConstants.FRAME_COUNT_ID, getDescriptor()
                 .getFramesInfo().getFrameCount());
@@ -596,4 +606,23 @@ public abstract class AbstractRenderableDisplay implements IRenderableDisplay {
         }
     }
 
+    /**
+     * Standardized method to handle Paint Errors
+     * 
+     * @param pair
+     * @param target
+     * @param paintProps
+     * @throws VizException
+     */
+    protected void paintResource(ResourcePair pair, IGraphicsTarget target,
+            PaintProperties paintProps) throws VizException {
+        try {
+            pair.getResource().paint(target, paintProps);
+        } catch (Throwable e) {
+            pair.getProperties().setVisible(false);
+            throw new VizException("Paint error: " + e.getMessage()
+                    + ":: The resource [" + pair.getResource().getSafeName()
+                    + "] has been disabled.", e);
+        }
+    }
 }
