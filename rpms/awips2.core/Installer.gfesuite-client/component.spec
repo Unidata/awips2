@@ -58,11 +58,11 @@ if [ ${RC} -ne 0 ]; then
 fi
 
 # Create additional directories that are required.
-mkdir -p ${RPM_BUILD_ROOT}/awips2/GFESuite/exportgrids/tmp
+mkdir -p ${RPM_BUILD_ROOT}/awips2/GFESuite/exportgrids/primary
 if [ $? -ne 0 ]; then
    exit 1
 fi
-mkdir -p ${RPM_BUILD_ROOT}/awips2/GFESuite/exportgrids2
+mkdir -p ${RPM_BUILD_ROOT}/awips2/GFESuite/exportgrids/backup
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -97,7 +97,6 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/GFESuite/bin/src/*
 %dir /awips2/GFESuite/exportgrids
 /awips2/GFESuite/exportgrids/*
-%dir /awips2/GFESuite/exportgrids2
 %defattr(644,awips,fxalpha,775)
 %dir /awips2/GFESuite/products
 /awips2/GFESuite/products/*
