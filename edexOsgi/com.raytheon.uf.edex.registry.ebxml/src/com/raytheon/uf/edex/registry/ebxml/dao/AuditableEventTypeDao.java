@@ -61,6 +61,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 4/9/2013     1802       bphillip    Removed exception catching
  * Apr 17, 2013 1914       djohnson    Use strategy for subscription processing.
  * May 02, 2013 1910       djohnson    Broke out registry subscription notification to a service class.
+ * 7/29/2013    2191       bphillip    Changed method to get expired events
  * 
  * </pre>
  * 
@@ -94,9 +95,6 @@ public class AuditableEventTypeDao extends
     /** Cutoff parameter for the query to get the expired events */
     private static final String GET_EXPIRED_EVENTS_QUERY_CUTOFF_PARAMETER = "cutoff";
 
-    /** Batch size for the query to get expired events */
-    private static final int GET_EXPIRED_EVENTS_QUERY_BATCH_SIZE = 2500;
-
     /** Query to get Expired AuditableEvents */
     private static final String GET_EXPIRED_EVENTS_QUERY = "FROM AuditableEventType event where event.timestamp < :"
             + GET_EXPIRED_EVENTS_QUERY_CUTOFF_PARAMETER;
@@ -115,25 +113,20 @@ public class AuditableEventTypeDao extends
     }
 
     /**
-     * Deletes auditable events older than 48 hrs old
+     * Gets auditable events older than 48 hrs old
      * 
      * @throws EbxmlRegistryException
      *             If errors occur purging auditable events
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteExpiredEvents() throws EbxmlRegistryException {
+    public List<AuditableEventType> getExpiredEvents(int limit)
+            throws EbxmlRegistryException {
         Calendar cutoffTime = TimeUtil.newGmtCalendar();
         cutoffTime.add(Calendar.HOUR_OF_DAY, -AUDITABLE_EVENT_RETENTION_TIME);
-        List<AuditableEventType> expiredEvents = this.executeHQLQuery(
-                GET_EXPIRED_EVENTS_QUERY, GET_EXPIRED_EVENTS_QUERY_BATCH_SIZE,
+        return this.executeHQLQuery(GET_EXPIRED_EVENTS_QUERY, limit,
                 GET_EXPIRED_EVENTS_QUERY_CUTOFF_PARAMETER, EbxmlObjectUtil
                         .getTimeAsXMLGregorianCalendar(cutoffTime
                                 .getTimeInMillis()));
-        if (!expiredEvents.isEmpty()) {
-            statusHandler.info("Deleting " + expiredEvents.size()
-                    + " Auditable Events prior to: " + cutoffTime.getTime());
-            this.template.deleteAll(expiredEvents);
-        }
     }
 
     /**
