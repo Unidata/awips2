@@ -40,7 +40,6 @@ import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationNodeType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationSchemeType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ExtensibleObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
@@ -329,7 +328,8 @@ public class LifecycleManagerImpl implements LifecycleManager {
             statusHandler
                     .info("Client has selected to check object references before submitting objects.");
             ValidateObjectsRequest validateObjectsRequest = new ValidateObjectsRequest();
-            validateObjectsRequest.setOriginalObjects(request.getRegistryObjectList());
+            validateObjectsRequest.setOriginalObjects(request
+                    .getRegistryObjectList());
 
             // Uses the validation service directly, not going through the
             // web-service client interface
@@ -338,8 +338,10 @@ public class LifecycleManagerImpl implements LifecycleManager {
                             EbxmlObjectUtil.spiObjectFactory
                                     .createValidateObjectsResponse());
 
-            final List<RegistryExceptionType> validationExceptions = validationResponse.getException();
-            final List<RegistryExceptionType> responseExceptions = response.getException();
+            final List<RegistryExceptionType> validationExceptions = validationResponse
+                    .getException();
+            final List<RegistryExceptionType> responseExceptions = response
+                    .getException();
 
             if (!validationExceptions.isEmpty()) {
                 // Only care about unresolved references
@@ -636,7 +638,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
     }
 
     private void checkReplica(SubmitObjectsRequest request,
-            ExtensibleObjectType object1, ExtensibleObjectType object2)
+            RegistryObjectType object1, RegistryObjectType object2)
             throws MsgRegistryException {
         boolean fromNotification = request
                 .getSlotValue(EbxmlObjectUtil.HOME_SLOT_NAME) != null;
@@ -645,7 +647,11 @@ public class LifecycleManagerImpl implements LifecycleManager {
         String object2Home = object2
                 .getSlotValue(EbxmlObjectUtil.HOME_SLOT_NAME);
 
+        if (object1.getOwner().equals(object2.getOwner())) {
+            return;
+        }
         if (fromNotification) {
+
             if (object1Home != null && object2Home == null) {
                 throw EbxmlExceptionUtil.createMsgRegistryException(
                         "Cannot overwrite local object with replica",
