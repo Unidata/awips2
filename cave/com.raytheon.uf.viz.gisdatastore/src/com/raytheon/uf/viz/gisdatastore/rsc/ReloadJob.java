@@ -55,6 +55,7 @@ import com.vividsolutions.jts.geom.Point;
  * ------------ ---------- ----------- --------------------------
  * Oct 31, 2012      #1326 randerso     Initial creation
  * Feb 22, 2013      #1641 randerso     Added checks for using ID as label or shading attribute
+ * Jul 24, 2014      #1908 randerso     Removed debug sysouts
  * 
  * </pre>
  * 
@@ -201,14 +202,14 @@ class ReloadJob extends Job {
             pendingRequest = null;
         }
         while (req != null) {
-            System.out.println("Processing request: " + req.number);
+            // System.out.println("Processing request: " + req.number);
 
             Result result = new Result();
             FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = null;
             Iterator<SimpleFeature> featureIterator = null;
             try {
                 if (pendingRequest != null) {
-                    System.out.println("Canceling request: " + req.number);
+                    // System.out.println("Canceling request: " + req.number);
                     result.dispose();
                     result = null;
                     return Status.CANCEL_STATUS;
@@ -216,13 +217,13 @@ class ReloadJob extends Job {
 
                 List<String> fields = new ArrayList<String>();
                 fields.add(req.geomField);
-                if (req.labelField != null
+                if ((req.labelField != null)
                         && !fields.contains(req.labelField)
                         && !req.labelField
                                 .equals(DataStoreResource.ID_ATTRIBUTE_NAME)) {
                     fields.add(req.labelField);
                 }
-                if (req.shadingField != null
+                if ((req.shadingField != null)
                         && !fields.contains(req.shadingField)
                         && !req.shadingField
                                 .equals(DataStoreResource.ID_ATTRIBUTE_NAME)) {
@@ -238,7 +239,7 @@ class ReloadJob extends Job {
                 List<LabelNode> newLabels = new ArrayList<LabelNode>();
 
                 IShadedShape newShadedShape = null;
-                if (req.isProduct || req.shadingField != null) {
+                if (req.isProduct || (req.shadingField != null)) {
                     newShadedShape = req.target.createShadedShape(false,
                             req.rsc.getDescriptor().getGridGeometry(), true);
                 }
@@ -297,7 +298,8 @@ class ReloadJob extends Job {
                 int numPoints = 0;
                 while (featureIterator.hasNext()) {
                     if (pendingRequest != null) {
-                        System.out.println("Canceling request: " + req.number);
+                        // System.out.println("Canceling request: " +
+                        // req.number);
                         result.dispose();
                         result = null;
                         return Status.CANCEL_STATUS;
@@ -340,7 +342,7 @@ class ReloadJob extends Job {
                         shadingAttr = id;
                     }
 
-                    if (labelAttr != null && g != null) {
+                    if ((labelAttr != null) && (g != null)) {
                         String label;
                         if (labelAttr instanceof BigDecimal) {
                             label = Double.toString(((Number) labelAttr)
@@ -402,7 +404,8 @@ class ReloadJob extends Job {
                         ColorableCapability.class).getColor();
                 for (Geometry g : resultingGeoms) {
                     if (pendingRequest != null) {
-                        System.out.println("Canceling request: " + req.number);
+                        // System.out.println("Canceling request: " +
+                        // req.number);
                         result.dispose();
                         result = null;
                         return Status.CANCEL_STATUS;
@@ -426,13 +429,14 @@ class ReloadJob extends Job {
 
                 newOutlineShape.compile();
 
-                if (req.isProduct || req.shadingField != null) {
+                if (req.isProduct || (req.shadingField != null)) {
                     newShadedShape.compile();
                 }
 
                 for (Geometry g : highlightGeoms) {
                     if (pendingRequest != null) {
-                        System.out.println("Canceling request: " + req.number);
+                        // System.out.println("Canceling request: " +
+                        // req.number);
                         result.dispose();
                         result = null;
                         return Status.CANCEL_STATUS;
@@ -465,7 +469,7 @@ class ReloadJob extends Job {
                     featureCollection.close(featureIterator);
                 }
                 if (result != null) {
-                    System.out.println("Completed request: " + req.number);
+                    // System.out.println("Completed request: " + req.number);
                     if (resultQueue.size() == QUEUE_LIMIT) {
                         resultQueue.poll();
                     }
