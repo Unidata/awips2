@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.fog.FogRecord;
 import com.raytheon.uf.common.dataplugin.fog.FogRecord.FOG_THREAT;
+import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.config.SSMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.AdjacentWfoMgr;
@@ -147,13 +148,11 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     private final List<ISSResourceListener> fogResources = new ArrayList<ISSResourceListener>();
 
     /** Pattern for SAFESEAS **/
-    private final Pattern ssPattern = Pattern
-            .compile(DataURI.SEPARATOR + OBS + DataURI.SEPARATOR
-                    + wildCard + DataURI.SEPARATOR + wildCard
-                    + DataURI.SEPARATOR + cwa + DataURI.SEPARATOR
-                    + wildCard + DataURI.SEPARATOR + wildCard
-                    + DataURI.SEPARATOR + wildCard
-                    + DataURI.SEPARATOR + "ss");
+    private final Pattern ssPattern = Pattern.compile(DataURI.SEPARATOR + OBS
+            + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR + wildCard
+            + DataURI.SEPARATOR + cwa + DataURI.SEPARATOR + wildCard
+            + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR + wildCard
+            + DataURI.SEPARATOR + "ss");
 
     /**
      * Private constructor, singleton
@@ -411,6 +410,7 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
      * 
      * @param dialogTime
      */
+    @Override
     public void updateDialogTime(Date dialogTime) {
         this.dialogTime = dialogTime;
         fireMonitorEvent(zoneDialog.getClass().getName());
@@ -586,7 +586,11 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
      * Gets adjacent areas
      */
     public void getAdjAreas() {
-        this.setGeoAdjAreas(AdjacentWfoMgr.getAdjacentAreas(cwa));
+        try {
+            this.setGeoAdjAreas(AdjacentWfoMgr.getAdjacentAreas(cwa));
+        } catch (SpatialException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
     }
 
     /**
@@ -620,6 +624,7 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
     @Override
     public void fogUpdate() {
         Display.getDefault().asyncExec(new Runnable() {
+            @Override
             public void run() {
                 Iterator<ISSResourceListener> iter = fogResources.iterator();
                 while (iter.hasNext()) {
