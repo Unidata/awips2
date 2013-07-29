@@ -31,6 +31,15 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Copyright 2006 Raytheon Corporation
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
+ * 
+ * </pre>
+ * 
  * @author Bryan Rockwood
  * @version 1.0
  */
