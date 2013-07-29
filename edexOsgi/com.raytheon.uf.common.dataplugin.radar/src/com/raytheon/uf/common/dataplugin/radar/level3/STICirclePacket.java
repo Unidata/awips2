@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 1-26-2009               mnash       Initial Creation
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -57,12 +58,6 @@ public class STICirclePacket extends SymbologyPacket implements
 
     public STICirclePacket() {
 
-    }
-
-    private static final int SCIT_CIRCLE25 = 25;
-
-    static {
-        PacketFactory.registerPacketType(STICirclePacket.class, SCIT_CIRCLE25);
     }
 
     @DynamicSerialize

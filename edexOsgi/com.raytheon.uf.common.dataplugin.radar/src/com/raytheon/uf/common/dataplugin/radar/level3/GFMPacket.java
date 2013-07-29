@@ -39,6 +39,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 03/04/13     DCS51      zwang       Initial creation
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -49,12 +50,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 public class GFMPacket extends GenericDataPacket {
     public static enum GFMAttributeIDs {
-    	DETECT_ID("detect_num"), FORECAST_DELTA_T("forecast_delta_t"),
-    	PROPU("propU"), PROPV("propV"),
-    	AVG_SPEED("avg_speed"), AVG_DIRECTION("avg_direction"),
-    	WINDBEHINDU("windBehindU"), WINDBEHINDV("windBehindV"),
-    	WINDBEHINDX("windBehindX"), WINDBEHINDY("windBehindY"),
-    	WSHAZARD("wsHazard");
+        DETECT_ID("detect_num"), FORECAST_DELTA_T("forecast_delta_t"), PROPU(
+                "propU"), PROPV("propV"), AVG_SPEED("avg_speed"), AVG_DIRECTION(
+                "avg_direction"), WINDBEHINDU("windBehindU"), WINDBEHINDV(
+                "windBehindV"), WINDBEHINDX("windBehindX"), WINDBEHINDY(
+                "windBehindY"), WSHAZARD("wsHazard");
 
         private String name;
 
@@ -92,8 +92,6 @@ public class GFMPacket extends GenericDataPacket {
         }
     }
 
-    private static final int GFM_PRODUCT_CODE = 140;
-
     @DynamicSerializeElement
     private List<String> featureIDs;
 
@@ -104,17 +102,11 @@ public class GFMPacket extends GenericDataPacket {
     @DynamicSerializeElement
     private HashMap<String, GenericDataParameter> params;
 
-    static {
-        PacketFactory.registerGenericPacketType(GFMPacket.class,
-                GFM_PRODUCT_CODE);
-    }
-
     public GFMPacket(int packetId, DataInputStream in) throws IOException {
         super(packetId, in);
     }
 
     public GFMPacket() {
-
     }
 
     public String getValue(String featureID, GFMAttributeIDs attributeID) {
@@ -179,35 +171,35 @@ public class GFMPacket extends GenericDataPacket {
         featureIDs = new ArrayList<String>();
         params = new HashMap<String, GenericDataParameter>();
         String detectID = "";
-    	String deltaT = "";
-    	String gfmID = "";
-    	
+        String deltaT = "";
+        String gfmID = "";
+
         for (GenericDataParameter param : parameters) {
             params.put(param.getId(), param);
         }
         // Get the DETECT_ID out of each component
         for (GenericDataComponent currFeature : components) {
             // Loop through the values for the DETECT_ID
-        	for (GenericDataParameter currParam : currFeature.getParameters()) {
+            for (GenericDataParameter currParam : currFeature.getParameters()) {
                 if (currParam.getId().equalsIgnoreCase(
-                        GFMAttributeIDs.DETECT_ID.toString())) 
-                	detectID = currParam.getValue();
+                        GFMAttributeIDs.DETECT_ID.toString()))
+                    detectID = currParam.getValue();
                 if (currParam.getId().equalsIgnoreCase(
-                        GFMAttributeIDs.FORECAST_DELTA_T.toString())) 
-                	deltaT = currParam.getValue();
+                        GFMAttributeIDs.FORECAST_DELTA_T.toString()))
+                    deltaT = currParam.getValue();
             }
-        	
-        	// combine the detectID and deltaT to form a new ID (gfmID)
-        	gfmID = detectID + ":" + deltaT;
-        	features.put(gfmID, currFeature);
-        	featureIDs.add(gfmID);
+
+            // combine the detectID and deltaT to form a new ID (gfmID)
+            gfmID = detectID + ":" + deltaT;
+            features.put(gfmID, currFeature);
+            featureIDs.add(gfmID);
         }
     }
-    
+
     @Override
     protected void init(DataInputStream in) throws IOException {
         super.init(in);
-        
+
         // Relates all of the GFM feature based on the gfmID
         groupFeatures();
     }
