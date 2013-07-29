@@ -37,6 +37,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 19, 2009            mnash     Initial creation
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -55,13 +56,6 @@ public class VectorArrowPacket extends SymbologyPacket implements
 
     public VectorArrowPacket() {
 
-    }
-
-    private static final int VECTOR_ARROW_PACKET5 = 5;
-
-    static {
-        PacketFactory.registerPacketType(VectorArrowPacket.class,
-                VECTOR_ARROW_PACKET5);
     }
 
     @DynamicSerialize
