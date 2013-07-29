@@ -28,6 +28,7 @@ package com.raytheon.uf.common.dataplugin.radar.level3;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 19, 2009            mnash     Initial creation
+ * 07/29/2013   2148       mnash     Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -36,10 +37,5 @@ package com.raytheon.uf.common.dataplugin.radar.level3;
  */
 
 public class HailProbablePacket extends HailPositivePacket {
-    private static final int HAIL_PROBABLE14 = 14;
 
-    static {
-        PacketFactory.registerPacketType(HailProbablePacket.class,
-                HAIL_PROBABLE14);
-    }
 }
