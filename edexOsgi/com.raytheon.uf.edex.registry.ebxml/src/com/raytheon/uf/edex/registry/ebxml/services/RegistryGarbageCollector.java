@@ -19,8 +19,22 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services;
 
+import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AuditableEventType;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.edex.database.RunnableWithTransaction;
 import com.raytheon.uf.edex.registry.ebxml.dao.AuditableEventTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.SlotTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
@@ -38,15 +52,31 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 7/11/2013    1707        bphillip    Initial implementation
+ * 7/29/2013    2191        bphillip    Added executors to remove orphaned slots and expired events
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
+@Service
+@Transactional
 public class RegistryGarbageCollector {
+
+    /** The logger instance */
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RegistryGarbageCollector.class);
 
     /** Sentinel to denote if the garbage collection is currently running */
     private AtomicBoolean running = new AtomicBoolean(false);
+
+    /** The executor service to remove orphaned slots */
+    private ThreadPoolExecutor orphanedSlotExecutor;
+
+    /** The executor service to remove expired events */
+    private ThreadPoolExecutor expiredEventExecutor;
+
+    /** The transaction template to use for asynchronous tasks */
+    private TransactionTemplate txTemplate;
 
     /** Data access object for SlotType */
     private SlotTypeDao slotDao;
@@ -54,11 +84,16 @@ public class RegistryGarbageCollector {
     /** Data access object for AuditableEventType */
     private AuditableEventTypeDao eventDao;
 
+    private static final int QUEUE_MAX_SIZE = 500;
+
     /**
      * Creates a new GarbageCollector object
      */
     public RegistryGarbageCollector() {
-
+        orphanedSlotExecutor = new ThreadPoolExecutor(1, 3, 1L,
+                TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>(250));
+        expiredEventExecutor = new ThreadPoolExecutor(1, 3, 1L,
+                TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>(250));
     }
 
     /**
@@ -70,24 +105,119 @@ public class RegistryGarbageCollector {
      *            The auditable event dao to use
      */
     public RegistryGarbageCollector(SlotTypeDao slotDao,
-            AuditableEventTypeDao eventDao) {
+            AuditableEventTypeDao eventDao, TransactionTemplate txTemplate) {
+        this();
         this.slotDao = slotDao;
         this.eventDao = eventDao;
+        this.txTemplate = txTemplate;
+
     }
 
     /**
      * Cleans up the registry by removing unused and/or orphaned objects
      */
-    public void gc() throws EbxmlRegistryException {
+    public void gc() {
+
         if (!running.compareAndSet(false, true)) {
             return;
         }
         try {
-            eventDao.deleteExpiredEvents();
-            slotDao.deleteOrphanedSlots();
+            purgeOrphanedSlots();
+            purgeExpiredEvents();
+        } catch (EbxmlRegistryException e) {
+            statusHandler.error("Error purging auditable events!", e);
         } finally {
             running.set(false);
         }
     }
 
+    /**
+     * Purges orphaned slots in the registry
+     */
+    private void purgeOrphanedSlots() {
+        /*
+         * Determines how many more orphaned slots can be added to the queue
+         * based on the existing queue size
+         */
+        int limit = QUEUE_MAX_SIZE - orphanedSlotExecutor.getQueue().size();
+        if (limit > QUEUE_MAX_SIZE * .25) {
+            List<Integer> orphanedSlotIds = slotDao.getOrphanedSlotIds(limit);
+            for (Integer slotId : orphanedSlotIds) {
+                try {
+                    orphanedSlotExecutor.submit(new RemoveOrphanedSlot(
+                            txTemplate, slotId));
+                } catch (RejectedExecutionException e) {
+                    // Could not add more to the queue since it is full
+                }
+            }
+        }
+    }
+
+    /**
+     * Purges expired events older than 2 days
+     * 
+     * @throws EbxmlRegistryException
+     *             If errors occur while enqueuing events to be deleted
+     */
+    private void purgeExpiredEvents() throws EbxmlRegistryException {
+        int limit = QUEUE_MAX_SIZE - expiredEventExecutor.getQueue().size();
+        if (limit > QUEUE_MAX_SIZE * .25) {
+            List<AuditableEventType> expiredEvents = eventDao
+                    .getExpiredEvents(limit);
+            for (AuditableEventType event : expiredEvents) {
+                try {
+                    expiredEventExecutor.submit(new RemoveExpiredEvent(
+                            txTemplate, event));
+                } catch (RejectedExecutionException e) {
+                    // Could not add more to the queue since it is full
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Task to remove orphaned slots that is run asynchronously
+     * 
+     * @author bphillip
+     * 
+     */
+    private class RemoveOrphanedSlot extends RunnableWithTransaction {
+
+        /** The id of the orphaned slot to be removed by this task */
+        private Integer slotId;
+
+        public RemoveOrphanedSlot(TransactionTemplate txTemplate, Integer slotId) {
+            super(txTemplate);
+            this.slotId = slotId;
+        }
+
+        @Override
+        public void runWithTransaction() {
+            slotDao.deleteBySlotId(slotId);
+        }
+    }
+
+    /**
+     * Task to remove expired auditable eventss
+     * 
+     * @author bphillip
+     * 
+     */
+    private class RemoveExpiredEvent extends RunnableWithTransaction {
+
+        /** The event to be removed */
+        private AuditableEventType event;
+
+        public RemoveExpiredEvent(TransactionTemplate txTemplate,
+                AuditableEventType event) {
+            super(txTemplate);
+            this.event = event;
+        }
+
+        @Override
+        public void runWithTransaction() {
+            eventDao.delete(event);
+        }
+    }
 }
