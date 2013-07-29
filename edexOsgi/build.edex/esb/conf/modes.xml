@@ -186,29 +186,19 @@
         <includeMode>statsTemplate</includeMode>
 	</mode>
 	<mode name="registry">
-		<include>ebxml.*\.xml</include>
+        <!-- WFO Registry production mode -->
+        <include>ebxml.*\.xml</include>
         <includeMode>statsTemplate</includeMode>
         <includeMode>dataDeliveryTemplate</includeMode>
         <exclude>.*datadelivery-ncf.*</exclude>
+        <exclude>harvester-*</exclude>
+        <exclude>crawler-*</exclude>
 	</mode>
-    <!-- Eventually these two modes will either become the production versions,
-         or the existing registry server will be migrated to one or the other. -->
     <mode name="ncfRegistry">
         <include>ebxml.*\.xml</include>
         <includeMode>statsTemplate</includeMode>
         <includeMode>dataDeliveryTemplate</includeMode>
         <exclude>.*datadelivery-wfo.*</exclude>
-    </mode>
-    <mode name="wfoRegistry">
-        <include>ebxml.*\.xml</include>
-        <includeMode>statsTemplate</includeMode>
-        <includeMode>dataDeliveryTemplate</includeMode>
-        <!-- TODO: These patterns can be commented out when this mode is productionized -->
-        <include>.*sbn-simulator.*</include>
-        <!-- END TODO -->
-        <exclude>.*datadelivery-ncf.*</exclude>
-        <exclude>harvester-*</exclude>
-        <exclude>crawler-*</exclude>
     </mode>
 
     <mode name="statsTemplate" template="true">
@@ -261,6 +251,17 @@
 
 	<!-- modes listed below are not supported in a production setting, they 
 		are for DEVELOPMENT purposes only -->
+    <mode name="devWfoRegistry">
+         <!-- This is the development WFO registry mode.
+         It runs the sbn simulator for development. -->
+        <include>.*sbn-simulator.*</include>
+        <include>ebxml.*\.xml</include>
+        <includeMode>statsTemplate</includeMode>
+        <includeMode>dataDeliveryTemplate</includeMode>
+        <exclude>.*datadelivery-ncf.*</exclude>
+        <exclude>harvester-*</exclude>
+        <exclude>crawler-*</exclude>
+    </mode>
 	<mode name="grib">
 		<include>grib-common.xml</include>
 		<include>grib-decode.xml</include>
