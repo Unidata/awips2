@@ -33,6 +33,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.raytheon.uf.common.registry.constants.RegistryAvailability;
 import com.raytheon.uf.common.registry.services.rest.IRegistryAvailableRestService;
+import com.raytheon.uf.common.registry.services.rest.IRegistryDataAccessService;
 import com.raytheon.uf.common.registry.services.rest.IRegistryObjectsRestService;
 import com.raytheon.uf.common.registry.services.rest.IRepositoryItemsRestService;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -50,6 +51,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 5/21/2013    2022        bphillip    Initial implementation
+ * 7/29/2013    2191        bphillip    Implemented registry data access service
  * </pre>
  * 
  * @author bphillip
@@ -87,6 +89,16 @@ public class RegistryRESTServices {
                 }
             });
 
+    /** Map of known registry data access services */
+    private static LoadingCache<String, IRegistryDataAccessService> registryDataAccessServiceMap = CacheBuilder
+            .newBuilder().expireAfterAccess(1, TimeUnit.HOURS)
+            .build(new CacheLoader<String, IRegistryDataAccessService>() {
+                public IRegistryDataAccessService load(String key) {
+                    return JAXRSClientFactory.create(key,
+                            IRegistryDataAccessService.class);
+                }
+            });
+
     /**
      * The logger
      */
@@ -99,11 +111,9 @@ public class RegistryRESTServices {
      * @param baseURL
      *            The base URL of the registry
      * @return The service implementation
-     * @throws RegistryServiceException
-     *             If an invalid URL is provided
      */
     public static IRegistryObjectsRestService getRegistryObjectService(
-            String baseURL) throws RegistryServiceException {
+            String baseURL) {
         try {
             return registryObjectServiceMap.get(baseURL);
         } catch (ExecutionException e) {
@@ -124,8 +134,6 @@ public class RegistryRESTServices {
      * @return The object
      * @throws JAXBException
      *             If errors occur while serializing the object
-     * @throws RegistryServiceException
-     *             If an invalid URL is provided
      */
     public static <T extends RegistryObjectType> T getRegistryObject(
             Class<T> expectedType, String baseURL, String objectId)
@@ -140,11 +148,9 @@ public class RegistryRESTServices {
      * @param baseURL
      *            The base URL of the registry
      * @return The service implementation
-     * @throws RegistryServiceException
-     *             If an invalid URL is provided
      */
     public static IRepositoryItemsRestService getRepositoryItemService(
-            String baseURL) throws RegistryServiceException {
+            String baseURL) {
         try {
             return repositoryItemServiceMap.get(baseURL);
         } catch (ExecutionException e) {
@@ -161,11 +167,9 @@ public class RegistryRESTServices {
      * @param repositoryItemId
      *            The id of the object
      * @return The repository item
-     * @throws RegistryServiceException
-     *             If an invalid URL is provided
      */
     public static byte[] getRepositoryItem(String baseURL,
-            String repositoryItemId) throws RegistryServiceException {
+            String repositoryItemId) {
         return getRepositoryItemService(baseURL).getRepositoryItem(
                 repositoryItemId);
     }
@@ -176,11 +180,9 @@ public class RegistryRESTServices {
      * @param baseURL
      *            The base URL of the registry
      * @return THe registry available service implementation
-     * @throws RegistryServiceException
-     *             If an invalid URL is provided
      */
     public static IRegistryAvailableRestService getRegistryAvailableService(
-            String baseURL) throws RegistryServiceException {
+            String baseURL) {
         try {
             return registryAvailabilityServiceMap.get(baseURL);
         } catch (ExecutionException e) {
@@ -204,8 +206,25 @@ public class RegistryRESTServices {
         } catch (Throwable t) {
             statusHandler.error(
                     "Registry at [" + baseURL + "] not available: ",
-                    t.getLocalizedMessage());
+                    t.getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Gets the data access service for the specified registry URL
+     * 
+     * @param baseURL
+     *            The baseURL of the registry
+     * @return The data access service for the specified registry URL
+     */
+    public static IRegistryDataAccessService getRegistryDataAccessService(
+            String baseURL) {
+        try {
+            return registryDataAccessServiceMap.get(baseURL);
+        } catch (ExecutionException e) {
+            throw new RegistryServiceException(
+                    "Error getting Registry Availability Rest Service", e);
         }
     }
 }
