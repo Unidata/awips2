@@ -1,1 +1,2 @@
 com.raytheon.uf.edex.registry.ebxml.services.query.adhoc.AdhocQueryExpression
+com.raytheon.uf.edex.registry.ebxml.services.rest.RestResponse
