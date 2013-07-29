@@ -13,7 +13,8 @@ Export-Package: com.raytheon.uf.common.registry,
  com.raytheon.uf.common.registry.ebxml.slots,
  com.raytheon.uf.common.registry.handler,
  com.raytheon.uf.common.registry.services,
- com.raytheon.uf.common.registry.services.rest
+ com.raytheon.uf.common.registry.services.rest,
+ com.raytheon.uf.common.registry.services.rest.response
 Require-Bundle: org.apache.commons.codec;bundle-version="1.4.0",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
  com.raytheon.uf.common.util;bundle-version="1.12.1174",

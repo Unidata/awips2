@@ -26,6 +26,7 @@ import java.util.List;
 import javax.xml.bind.JAXBException;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
+import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.FederationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.OrganizationType;
@@ -38,6 +39,7 @@ import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 
 /**
  * 
@@ -50,12 +52,14 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 5/22/2013    1707        bphillip    Initial implementation
+ * 7/29/2013    2191        bphillip    Implemented registry sync for registries that have been down for an extended period of time
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-public class NcfRegistryFederationManager extends RegistryFederationManager {
+public class NcfRegistryFederationManager extends RegistryFederationManager
+        implements RegistryInitializedListener {
 
     /**
      * Creates a new NcfRegistryFederationManager
@@ -103,7 +107,12 @@ public class NcfRegistryFederationManager extends RegistryFederationManager {
             objects.add(primaryContact);
             objects.add(federationAssociation);
             submitObjects(objects);
-            replicationManager.submitRemoteSubscriptions(registry.getBaseURL());
+            replicationManager.submitRemoteSubscriptions(registry);
+            try {
+                replicationManager.checkDownTime();
+            } catch (MsgRegistryException e) {
+                throw new EbxmlRegistryException("Error checkint down time!", e);
+            }
         } else {
             statusHandler.info("Federation is disabled for this registry.");
         }
