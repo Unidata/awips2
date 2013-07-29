@@ -46,6 +46,7 @@ import org.hibernate.usertype.UserType;
  * ------------ ---------- ----------- --------------------------
  * Feb 21, 2012 #184       bphillip     Initial creation
  * 4/9/2013     1802       bphillip    Added null check
+ * 7/29/2013    2191       bphillip    Fixed equals method
  * 
  * </pre>
  * 
@@ -77,7 +78,11 @@ public class XMLGregorianCalendarType implements UserType {
     public boolean equals(Object x, Object y) throws HibernateException {
         if (x instanceof XMLGregorianCalendar
                 && y instanceof XMLGregorianCalendar) {
-            return x.equals(y);
+            try {
+                return x.equals(y);
+            } catch (ClassCastException e) {
+                return y.equals(x);
+            }
         } else {
             return false;
         }
