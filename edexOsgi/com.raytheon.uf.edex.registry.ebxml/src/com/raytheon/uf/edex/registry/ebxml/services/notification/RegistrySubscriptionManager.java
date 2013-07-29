@@ -310,11 +310,7 @@ public class RegistrySubscriptionManager implements
                     if (subscriptionShouldRun(sub)) {
                         try {
                             processSubscription(subNotificationListener);
-                        } catch (EbxmlRegistryException e) {
-                            statusHandler.error(
-                                    "Errors occurred while processing subscription ["
-                                            + sub.getId() + "]", e);
-                        } catch (MsgRegistryException e) {
+                        } catch (Throwable e) {
                             statusHandler.error(
                                     "Errors occurred while processing subscription ["
                                             + sub.getId() + "]", e);
