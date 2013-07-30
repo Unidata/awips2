@@ -32,6 +32,9 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -64,6 +67,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.Capabilities;
  * Feb 4, 2009             chammack    Initial creation from original IVizResource
  * Mar 3, 2009      2032   jsanchez    Added getDescriptor and paintProps.
  * Mar 29, 2013     1638   mschenke    Fixed leak of data change listener
+ * Jun 24, 2013     2140   randerso    Added getSafeName method
  * 
  * </pre>
  * 
@@ -73,6 +77,9 @@ import com.raytheon.uf.viz.core.rsc.capabilities.Capabilities;
 
 @SuppressWarnings("unchecked")
 public abstract class AbstractVizResource<T extends AbstractResourceData, D extends IDescriptor> {
+
+    protected static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(AbstractVizResource.class);
 
     public enum ResourceStatus {
         NEW, LOADING, INITIALIZED, DISPOSED
@@ -143,7 +150,8 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
     private IResourceDataChanged changeListener = new IResourceDataChanged() {
         @Override
         public void resourceChanged(ChangeType type, Object object) {
-            if (type == ChangeType.DATA_REMOVE && object instanceof DataTime) {
+            if ((type == ChangeType.DATA_REMOVE)
+                    && (object instanceof DataTime)) {
                 remove((DataTime) object);
             } else {
                 AbstractVizResource.this.resourceDataChanged(type, object);
@@ -467,7 +475,7 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
         }
         case LOADING: {
             // still initializing, check for exceptions
-            if (initJob != null && initJob.exception != null) {
+            if ((initJob != null) && (initJob.exception != null)) {
                 VizException e = initJob.exception;
                 // Reset status and job
                 status = ResourceStatus.NEW;
@@ -592,7 +600,7 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
     public final void registerListener(IDisposeListener listener) {
         if (this instanceof IResourceGroup) {
             for (ResourcePair rp : ((IResourceGroup) this).getResourceList()) {
-                if (rp != null && rp.getResource() != null) {
+                if ((rp != null) && (rp.getResource() != null)) {
                     rp.getResource().registerListener(listener);
                 }
             }
@@ -812,5 +820,24 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
      */
     protected void setProperties(ResourceProperties properties) {
         this.properties = properties;
+    }
+
+    /**
+     * Gets the resource name or class name if resource.getName() fails.
+     * 
+     * This should only be used to get as good a name as possible for the
+     * resource in exceptional conditions.
+     * 
+     * @return the safe resource name
+     */
+    public final String getSafeName() {
+        String safeResourceName = this.getClass().getSimpleName();
+        try {
+            safeResourceName = this.getName();
+        } catch (Throwable e) {
+            // This means they just won't get as useful of a message.
+            statusHandler.handle(Priority.DEBUG, e.getLocalizedMessage(), e);
+        }
+        return safeResourceName;
     }
 }
