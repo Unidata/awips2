@@ -58,6 +58,8 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/javax.measure"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/javax.vecmath"/>
 	<classpathentry exported="true" kind="lib" path="lib/h2-1.3.171.jar"/>
+	<classpathentry kind="lib" path="lib/swt_gtk_linux_x86_64.jar"/>
+	<classpathentry kind="lib" path="lib/swt_gtk_linux_x86.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.gridcoverage"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.datadelivery.service"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.viz.ui"/>
