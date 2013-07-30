@@ -28,6 +28,7 @@
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 11/9/09       3375       brockwoo    Initial Creation
+ * 07/29/13      2215       bkowal      Update for thrift 0.9.0
  *
  * </pre>
  *
@@ -38,19 +39,21 @@
 #ifndef NOTIFICATIONPROTOCOL_H_
 #define NOTIFICATIONPROTOCOL_H_
 
-#include "TReflectionLocal.h"
-#include "protocol/TProtocol.h"
-#include "protocol/TBinaryProtocol.h"
+#include "thrift/TReflectionLocal.h"
+#include "thrift/protocol/TProtocol.h"
+#include "thrift/protocol/TBinaryProtocol.h"
+#include "thrift/protocol/TVirtualProtocol.h"
 #include "NotificationProtocol.h"
 
 using apache::thrift::protocol::TType;
 using apache::thrift::protocol::TMessageType;
+using apache::thrift::protocol::TVirtualProtocol;
 using apache::thrift::protocol::TBinaryProtocol;
 using apache::thrift::transport::TTransport;
 
-class NotificationProtocol : public TBinaryProtocol {
+class NotificationProtocol : public TVirtualProtocol<NotificationProtocol, TBinaryProtocol> {
 public:
-	NotificationProtocol(boost::shared_ptr<TTransport> trans) : TBinaryProtocol(trans) {}
+	NotificationProtocol(boost::shared_ptr<TTransport> trans) : TVirtualProtocol<NotificationProtocol, TBinaryProtocol>(trans) {}
 
 	uint32_t readFieldBegin(std::string& name, TType& fieldType,
 			int16_t& fieldId);
