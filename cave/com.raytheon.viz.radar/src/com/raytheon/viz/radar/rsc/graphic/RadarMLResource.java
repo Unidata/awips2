@@ -268,6 +268,7 @@ public class RadarMLResource extends RadarGraphicsResource {
     public void remove(DataTime dataTime) {
         synchronized (shapes) {
             disposeShapeMap(shapes.get(dataTime));
+            shapes.remove(dataTime);
         }
         super.remove(dataTime);
     }
@@ -292,7 +293,7 @@ public class RadarMLResource extends RadarGraphicsResource {
         Map<Integer, IWireframeShape> shapeMap = null;
         synchronized (shapes) {
             shapeMap = shapes.get(time);
-            if (shapeMap == null || refresh == true) {
+            if (shapeMap == null || refresh == true && time != null) {
                 if (shapeMap != null) {
                     disposeShapeMap(shapeMap);
                 }
@@ -420,8 +421,10 @@ public class RadarMLResource extends RadarGraphicsResource {
      * Disposes of the internal shapes, passing in the shapes you want disposed.
      */
     private void disposeShapeMap(Map<Integer, IWireframeShape> shapeMap) {
-        for (IWireframeShape shape : shapeMap.values()) {
-            shape.dispose();
+        if (shapeMap != null) {
+            for (IWireframeShape shape : shapeMap.values()) {
+                shape.dispose();
+            }
         }
     }
 }
