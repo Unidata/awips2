@@ -34,8 +34,9 @@ import org.junit.Test;
 
 import com.raytheon.uf.common.comm.HttpClient.HttpClientResponse;
 import com.raytheon.uf.common.datadelivery.registry.Connection;
-import com.raytheon.uf.common.datadelivery.registry.Connection.Encryption;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
+import com.raytheon.uf.common.datadelivery.registry.Encryption.Algorithim;
+import com.raytheon.uf.common.datadelivery.registry.Encryption.Padding;
 import com.raytheon.uf.common.datadelivery.registry.Projection;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
@@ -54,6 +55,7 @@ import com.raytheon.uf.common.util.ProxiedJettyServer;
  * ------------ ---------- ----------- --------------------------
  * Jun 11, 2013   1763     dhladky      Initial creation
  * Jun 17, 2013   2106     djohnson     Use unencrypted password getter.
+ * July15, 2103   2180     dhladky      Updated encryption
  * 
  * </pre>
  * 
@@ -115,7 +117,14 @@ public class HttpProxiedClientValidCredentialsTest {
             Connection conn = new Connection();
             conn.setUserName(HttpProxyTestConstants.USERNAME);
             conn.setPassword(HttpProxyTestConstants.PASSWD);
-            conn.setEncryption(Encryption.CLEAR);
+            conn.setProviderKey(HttpProxyTestConstants.PROVIDER_KEY);
+            com.raytheon.uf.common.datadelivery.registry.Encryption encryption = new com.raytheon.uf.common.datadelivery.registry.Encryption();
+            encryption.setAlgorithim(Algorithim.AES);
+            encryption.setPadding(Padding.AES);
+            conn.setEncryption(encryption);
+            // encrypt credentials
+            conn.encryptUserName();
+            conn.encryptPassword();
             conn.setUrl(HttpProxyTestConstants.HTTPS_URI);
             // projection object
             Projection proj = new Projection();
@@ -146,12 +155,14 @@ public class HttpProxiedClientValidCredentialsTest {
             if (conn1 != null && conn1.getUserName() != null
                     && conn1.getPassword() != null) {
 
+                conn1.setProviderKey(HttpProxyTestConstants.PROVIDER_KEY);
                 final String unencryptedPassword = conn1.getUnencryptedPassword();
+                final String unencryptedUsername = conn1.getUnencryptedUsername();
                 http.setCredentials(uri.getHost(), uri.getPort(),
-                        provider.getName(), conn1.getUserName(),
+                        provider.getName(), unencryptedUsername,
                         unencryptedPassword);
 
-                System.out.println("Credentials set! " + conn1.getUserName()
+                System.out.println("Credentials set! " + unencryptedUsername
                         + " " + unencryptedPassword);
             }
 
