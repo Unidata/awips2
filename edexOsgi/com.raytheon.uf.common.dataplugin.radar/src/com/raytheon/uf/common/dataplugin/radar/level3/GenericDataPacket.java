@@ -39,6 +39,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 4, 2009            mnash     Initial creation
+ * 07/29/2013   2148       mnash     Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -59,18 +60,7 @@ public class GenericDataPacket extends SymbologyPacket implements
 
     }
 
-    private static final int GENERIC_DATA28 = 28;
-
     private static final int GENERIC_DATA29 = 29;
-
-    private static final int DPR_PRODUCT_CODE = 176;
-
-    static {
-        PacketFactory.registerPacketType(GenericDataPacket.class,
-                GENERIC_DATA28, GENERIC_DATA29);
-        PacketFactory.registerGenericPacketType(GenericDataPacket.class,
-                DPR_PRODUCT_CODE);
-    }
 
     @DynamicSerializeElement
     public String name;
