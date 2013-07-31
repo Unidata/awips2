@@ -40,13 +40,10 @@ import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.common.util.StringUtil;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionManagerRowData;
 import com.raytheon.uf.viz.datadelivery.subscription.approve.SubscriptionApprovalRowData;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -79,6 +76,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 04, 2013  223       mpduff       Add point data stuff.
  * Jun 11, 2013 2064       mpduff       Don't output Parameter header if none exist.
  * Jun 12, 2013 2064       mpduff       Use SizeUtil to format data size output.
+ * Jul 26, 2031 2232       mpduff       Removed sendAuthorizationRequest method.
  * </pre>
  * 
  * @author mpduff
@@ -740,20 +738,6 @@ public class DataDeliveryUtils {
      */
     public static String getFormatedList(Set<String> list) {
         return StringUtil.getIndentedList(list, "            ");
-    }
-
-    /**
-     * Send an authorization request
-     * 
-     * @param request
-     *            The request object
-     * @return DataDeliveryAuthReqeust object
-     * @throws VizException
-     */
-    public static DataDeliveryAuthRequest sendAuthorizationRequest(
-            DataDeliveryAuthRequest request) throws VizException {
-        return (DataDeliveryAuthRequest) ThriftClient
-                .sendPrivilegedRequest(request);
     }
 
     /**

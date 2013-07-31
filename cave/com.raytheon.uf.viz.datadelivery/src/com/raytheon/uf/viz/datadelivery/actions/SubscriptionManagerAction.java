@@ -24,13 +24,13 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.common.auth.AuthException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.auth.UserController;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionManagerFilter;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionManagerDlg;
@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionManagerFilters;
  * Jan 10, 2012            mpduff       Initial creation
  * Oct 03, 2012 1241       djohnson     Use {@link DataDeliveryPermission}.
  * May 28, 2013 1650       djohnson     Allow using filters for the Subscription Manager Dialog.
+ * Jul 26, 2031   2232     mpduff       Refactored Data Delivery permissions.
  * 
  * </pre>
  * 
@@ -65,7 +66,8 @@ public class SubscriptionManagerAction extends AbstractHandler {
     private SubscriptionManagerDlg dlg = null;
 
     /** Permission String */
-    private final DataDeliveryPermission permission = DataDeliveryPermission.SUBSCRIPTION_VIEW;
+    private final String permission = DataDeliveryPermission.SUBSCRIPTION_VIEW
+            .toString();
 
     /**
      * Constructor.
@@ -103,7 +105,7 @@ public class SubscriptionManagerAction extends AbstractHandler {
                     dlg.bringToTop();
                 }
             }
-        } catch (VizException e) {
+        } catch (AuthException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
 
