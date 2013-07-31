@@ -32,21 +32,13 @@ package com.raytheon.uf.edex.wcs.provider;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.xml.bind.JAXBElement;
-
-import net.opengis.ows.v_1_1_0.AllowedValues;
-import net.opengis.ows.v_1_1_0.DCP;
 import net.opengis.ows.v_1_1_0.DomainType;
-import net.opengis.ows.v_1_1_0.HTTP;
 import net.opengis.ows.v_1_1_0.ObjectFactory;
-import net.opengis.ows.v_1_1_0.Operation;
-import net.opengis.ows.v_1_1_0.OperationsMetadata;
-import net.opengis.ows.v_1_1_0.RequestMethodType;
 
+import com.raytheon.uf.edex.ogc.common.AbstractOpDescriber;
 import com.raytheon.uf.edex.ogc.common.OgcOperationInfo;
 import com.raytheon.uf.edex.ogc.common.OgcServiceInfo;
 import com.raytheon.uf.edex.wcs.provider.OgcWcsProvider.WcsOpType;
@@ -56,131 +48,91 @@ import com.raytheon.uf.edex.wcs.provider.OgcWcsProvider.WcsOpType;
  * @author bclement
  * @version 1.0
  */
-public class OperationsDescriber {
+public class OperationsDescriber extends AbstractOpDescriber<WcsOpType> {
 
-	protected ObjectFactory owsFactory = new ObjectFactory();
+    protected ObjectFactory owsFactory = new ObjectFactory();
 
-	public OperationsMetadata getOpData(OgcServiceInfo<WcsOpType> serviceinfo) {
-		OperationsMetadata rval = new OperationsMetadata();
-		List<Operation> operations = new LinkedList<Operation>();
-		for (OgcOperationInfo<WcsOpType> op : serviceinfo.getOperations()) {
-			Operation to = new Operation();
-			to.setName(op.getType().toString());
-			to.setDCP(getDcpList(op));
-			to.setParameter(getOpParams(op));
-			operations.add(to);
-		}
-		rval.setOperation(operations);
-		rval.setParameter(getParams(serviceinfo));
-		return rval;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.ogc.common.AbstractOpDescriber#getParams(com.raytheon
+     * .uf.edex.ogc.common.OgcServiceInfo)
+     */
+    @Override
+    protected List<DomainType> getParams(OgcServiceInfo<WcsOpType> serviceinfo) {
+        List<DomainType> rval = new LinkedList<DomainType>();
+        // TODO: this info should be passed in from somewhere
+        DomainType parameter = new DomainType();
+        parameter.setName("srsName");
+        List<String> value = new LinkedList<String>();
+        value.add("EPSG:4326");
+        rval.add(parameter);
+        return rval;
+    }
 
-	protected List<DomainType> getParams(OgcServiceInfo<WcsOpType> serviceinfo) {
-		List<DomainType> rval = new LinkedList<DomainType>();
-		// TODO: this info should be passed in from somewhere
-		DomainType parameter = new DomainType();
-		parameter.setName("srsName");
-		List<String> value = new LinkedList<String>();
-		value.add("EPSG:4326");
-		rval.add(parameter);
-		return rval;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.ogc.common.AbstractOpDescriber#getOpParams(com.raytheon
+     * .uf.edex.ogc.common.OgcOperationInfo)
+     */
+    @Override
+    protected List<DomainType> getOpParams(OgcOperationInfo<WcsOpType> op) {
 
-	protected List<DCP> getDcpList(OgcOperationInfo<WcsOpType> op) {
-		List<DCP> rval = new LinkedList<DCP>();
-		DCP dcp = new DCP();
-		HTTP http = new HTTP();
-		List<JAXBElement<RequestMethodType>> value = new LinkedList<JAXBElement<RequestMethodType>>();
-		if (op.hasHttpGet()) {
-			RequestMethodType req = getRequestType(op.getHttpGetRes());
-			value.add(owsFactory.createHTTPPost(req));
-		}
-		if (op.hasHttpPost()) {
-			RequestMethodType req = getRequestType(op.getHttpPostRes());
-			value.add(owsFactory.createHTTPPost(req));
-		}
-		http.setGetOrPost(value);
-		dcp.setHTTP(http);
-		rval.add(dcp);
-		return rval;
-	}
+        List<DomainType> opParamList = new ArrayList<DomainType>();
 
-	protected RequestMethodType getRequestType(String value) {
-		RequestMethodType rval = owsFactory.createRequestMethodType();
-		rval.setHref(value);
-		return rval;
-	}
+        switch (op.getType()) {
+        case GetCapabilities:
+            opParamList = Arrays.asList(
+                    getAsDomainType("AcceptVersions", op.getVersions()),
+                    getAsDomainType("AcceptFormats", op.getFormats()),
+                    getAsDomainType("service", op.getServices()));
+            break;
+        case DescribeCoverage:
+            opParamList = Arrays.asList(
+                    getAsDomainType("AcceptVersions", op.getVersions()),
+                    getAsDomainType("AcceptFormats", op.getFormats()),
+                    getAsDomainType("service", op.getServices()));// ,
+            // getAsDomainType("Identifier", getLayerIdentifierList()));
+            break;
+        case GetCoverage:
+            opParamList = Arrays
+                    .asList(getAsDomainType("AcceptVersions", op.getVersions()),
+                            getAsDomainType("AcceptFormats", op.getFormats()),
+                            getAsDomainType("service", op.getServices()),
+                            // getAsDomainType("Identifier",
+                            // getLayerIdentifierList()),
+                            getAsDomainType("InterpolationType",
+                                    getInterpolationType()),
+                            getAsDomainType("store",
+                                    Arrays.asList("true", "false")));
+            break;
+        default:
 
-	private List<DomainType> getOpParams(OgcOperationInfo<WcsOpType> op) {
+        }
 
-		List<DomainType> opParamList = new ArrayList<DomainType>();
+        return opParamList;
+    }
 
-		switch (op.getType()) {
-		case GetCapabilities:
-			opParamList = Arrays.asList(
-					getAsDomainType("AcceptVersions", op.getVersions()),
-					getAsDomainType("AcceptFormats", op.getFormats()),
-					getAsDomainType("service", op.getServices()));
-			break;
-		case DescribeCoverage:
-			opParamList = Arrays.asList(
-					getAsDomainType("AcceptVersions", op.getVersions()),
-					getAsDomainType("AcceptFormats", op.getFormats()),
-					getAsDomainType("service", op.getServices()));// ,
-			// getAsDomainType("Identifier", getLayerIdentifierList()));
-			break;
-		case GetCoverage:
-			opParamList = Arrays
-					.asList(getAsDomainType("AcceptVersions", op.getVersions()),
-							getAsDomainType("AcceptFormats", op.getFormats()),
-							getAsDomainType("service", op.getServices()),
-							// getAsDomainType("Identifier",
-							// getLayerIdentifierList()),
-							getAsDomainType("InterpolationType",
-									getInterpolationType()),
-							getAsDomainType("format", getFormat()));
-			break;
-		default:
+    /**
+     * @return default interpolation types
+     */
+    protected List<String> getInterpolationType() {
+        List<String> interpolationType = new ArrayList<String>();
 
-		}
+        interpolationType.add("nearest");
+        interpolationType.add("linear");
 
-		return opParamList;
-	}
+        return interpolationType;
+    }
 
-	protected List<String> getInterpolationType() {
-		List<String> interpolationType = new ArrayList<String>();
+    /**
+     * @return default formats
+     */
+    protected List<String> getFormat() {
+        return new ArrayList<String>();
+    }
 
-		interpolationType.add("nearest");
-		interpolationType.add("linear");
-
-		return interpolationType;
-	}
-
-	protected List<String> getFormat() {
-		List<String> format = new ArrayList<String>();
-
-		format.add("IDataRecord");
-		// format.add("image/tiff");
-		// format.add("image/jpeg");
-		// format.add("image/netcdf");
-
-		return format;
-	}
-
-	protected DomainType getAsDomainType(String name, Collection<String> values) {
-		DomainType rval = new DomainType();
-		rval.setName(name);
-
-		AllowedValues avs = new AllowedValues();
-
-		List<Object> toVals = new LinkedList<Object>();
-		for (String val : values) {
-			toVals.add(val);
-		}
-
-		avs.setValueOrRange(toVals);
-		rval.setAllowedValues(avs);
-
-		return rval;
-	}
 }

@@ -29,6 +29,8 @@
  */
 package com.raytheon.uf.edex.wfs.request;
 
+import javax.xml.namespace.QName;
+
 /**
  * @author bclement
  * 
@@ -50,6 +52,12 @@ public class QualifiedName {
 	public QualifiedName(String namespace, String name) {
 		this(namespace, name, null);
 	}
+
+    public QualifiedName(QName name) {
+        this.namespace = name.getNamespaceURI();
+        this.name = name.getLocalPart();
+        this.prefix = name.getPrefix();
+    }
 
 	@Override
 	public int hashCode() {

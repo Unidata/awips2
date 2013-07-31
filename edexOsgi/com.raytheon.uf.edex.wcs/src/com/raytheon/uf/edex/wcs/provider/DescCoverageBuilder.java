@@ -65,6 +65,7 @@ import net.opengis.wcs.v_1_1_2.SpatialDomainType;
 import net.opengis.wcs.v_1_1_2.TimePeriodType;
 import net.opengis.wcs.v_1_1_2.TimeSequenceType;
 
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311CoordinateConverter;
 import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311LinearRingConverter;
 import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311PolygonConverter;
@@ -72,8 +73,10 @@ import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311SRSReferenceGroupConverter;
 
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.edex.ogc.common.OgcBoundingBox;
 import com.raytheon.uf.edex.ogc.common.db.LayerTransformer;
+import com.raytheon.uf.edex.ogc.common.spatial.Composite3DBoundingBox;
+import com.raytheon.uf.edex.ogc.common.spatial.CrsLookup;
+import com.raytheon.uf.edex.ogc.common.spatial.VerticalCoordinate;
 import com.raytheon.uf.edex.wcs.reg.CoverageDescription;
 import com.raytheon.uf.edex.wcs.reg.RangeAxis;
 import com.raytheon.uf.edex.wcs.reg.RangeField;
@@ -111,16 +114,29 @@ public class DescCoverageBuilder {
 				ringConv);
 	}
 
-	protected List<JAXBElement<?>> getBboxes(List<OgcBoundingBox> bboxes) {
+    protected List<JAXBElement<?>> getBboxes(List<Composite3DBoundingBox> bboxes) {
 		if (bboxes == null) {
 			return null;
 		}
 		List<JAXBElement<?>> rval = new ArrayList<JAXBElement<?>>(bboxes.size());
-		for (OgcBoundingBox from : bboxes) {
+        for (Composite3DBoundingBox from : bboxes) {
 			BoundingBoxType to = owsFactory.createBoundingBoxType();
-			to.setLowerCorner(Arrays.asList(from.getMinx(), from.getMiny()));
-			to.setUpperCorner(Arrays.asList(from.getMaxx(), from.getMaxy()));
-			to.setDimensions(BigInteger.valueOf(2));
+            ReferencedEnvelope horiz = from.getHorizontal();
+            List<Double> lc = new ArrayList<Double>(3);
+            List<Double> uc = new ArrayList<Double>(3);
+            lc.add(horiz.getMinX());
+            lc.add(horiz.getMinY());
+            uc.add(horiz.getMaxX());
+            uc.add(horiz.getMaxY());
+            if (from.hasVertical()) {
+                VerticalCoordinate vert = from.getVertical();
+                lc.add(vert.getMin());
+                uc.add(vert.getMax());
+            }
+            to.setUpperCorner(uc);
+            to.setLowerCorner(lc);
+            to.setCrs(CrsLookup.createCrsURN(from));
+            to.setDimensions(BigInteger.valueOf(lc.size()));
 			rval.add(owsFactory.createBoundingBox(to));
 		}
 		return rval;
@@ -271,7 +287,8 @@ public class DescCoverageBuilder {
 			return null;
 		}
 		FieldType rval = new FieldType();
-		rval.setIdentifier(from.getIdentifier());
+
+        rval.setIdentifier(from.getIdentifier());
 		rval.setDefinition(getUnamed(from.getDefinition()));
 		rval.setInterpolationMethods(getInterps(from.getDefaultInterpolation(),
 				from.getAdditionalInterpolations()));

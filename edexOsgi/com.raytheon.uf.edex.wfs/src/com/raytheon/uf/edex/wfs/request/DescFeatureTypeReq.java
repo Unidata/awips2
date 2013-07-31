@@ -81,7 +81,28 @@ public class DescFeatureTypeReq extends WfsRequest {
 		}
 	}
 
-	public void addTypename(QualifiedName typename) {
+    /**
+     * @param obj
+     */
+    public DescFeatureTypeReq(
+            net.opengis.wfs.v_2_0_0.DescribeFeatureTypeType req) {
+        super(Type.DescribeFeature);
+        setRawrequest(req);
+        String outputFormat = req.getOutputFormat();
+        if (outputFormat != null && !outputFormat.isEmpty()) {
+            setOutputformat(outputFormat);
+        }
+        List<QName> typeName = req.getTypeName();
+        if (typeName != null) {
+            for (QName n : typeName) {
+                QualifiedName qname = new QualifiedName(n.getNamespaceURI(),
+                        n.getLocalPart(), n.getPrefix());
+                addTypename(qname);
+            }
+        }
+    }
+
+    public void addTypename(QualifiedName typename) {
 		if (this.typenames == null) {
 			this.typenames = new ArrayList<QualifiedName>();
 		}
