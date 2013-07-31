@@ -19,11 +19,11 @@
  **/
 package com.raytheon.uf.viz.datadelivery.services;
 
+import com.raytheon.uf.common.auth.req.IPermissionsService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
 import com.raytheon.uf.common.datadelivery.service.IGroupDefinitionService;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.common.datadelivery.service.subscription.ISubscriptionOverlapService;
-import com.raytheon.uf.viz.datadelivery.subscription.IPermissionsService;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
 
 /**
@@ -39,6 +39,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
  * ------------ ---------- ----------- --------------------------
  * Nov 09, 2012 1286       djohnson     Initial creation
  * May 20, 2013 2000       djohnson     Add subscription overlap service.
+ * Jul 26, 2031   2232     mpduff       Moved IPermissionsService to common.
  * 
  * </pre>
  * 
