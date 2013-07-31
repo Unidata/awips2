@@ -51,6 +51,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Sep 24, 2008            chammack     Initial creation
  * Nov 13, 2008            njensen      Added thrift methods
  * May 22, 2013 1917       rjpeter      Added non-pretty print option to jaxb serialize methods.
+ * Aug 18, 2013 #2097      dhladky      Allowed extension by OGCJAXBManager
  * </pre>
  * 
  * @author chammack
@@ -106,7 +107,7 @@ public class JAXBManager {
 
     private final JAXBContext jaxbContext;
 
-    private final Queue<Unmarshaller> unmarshallers = new ConcurrentLinkedQueue<Unmarshaller>();
+    protected final Queue<Unmarshaller> unmarshallers = new ConcurrentLinkedQueue<Unmarshaller>();
 
     protected final Queue<Marshaller> marshallers = new ConcurrentLinkedQueue<Marshaller>();
 

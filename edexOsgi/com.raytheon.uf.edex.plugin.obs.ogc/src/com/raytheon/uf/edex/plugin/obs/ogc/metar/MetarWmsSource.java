@@ -34,6 +34,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginProperties;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.edex.ogc.common.db.DefaultPointDataDimension;
 import com.raytheon.uf.edex.ogc.common.db.LayerTransformer;
 import com.raytheon.uf.edex.wms.WmsException;
 import com.raytheon.uf.edex.wms.reg.PointDataWmsSource;
@@ -45,7 +46,8 @@ import com.raytheon.uf.edex.wms.styling.FeatureStyleProvider;
  * @author bclement
  * @version 1.0
  */
-public class MetarWmsSource extends PointDataWmsSource {
+public class MetarWmsSource extends
+        PointDataWmsSource<DefaultPointDataDimension, MetarLayer> {
 
 	private static final String geometryField = "location.location";
 
@@ -59,10 +61,10 @@ public class MetarWmsSource extends PointDataWmsSource {
 	 * @param styles
 	 * @throws Exception
 	 */
-	public MetarWmsSource(PluginProperties props, LayerTransformer transformer)
-			throws Exception {
-		super(props, "metar", transformer,
-				new MetarFeatureFactory());
+    public MetarWmsSource(PluginProperties props,
+            LayerTransformer<DefaultPointDataDimension, MetarLayer> transformer)
+            throws Exception {
+		super(props, "metar", transformer, new MetarFeatureFactory());
 	}
 
 	/*

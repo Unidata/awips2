@@ -31,14 +31,15 @@
 package com.raytheon.uf.edex.wfs.request;
 
 import com.raytheon.uf.edex.ogc.common.OgcResponse;
+import com.raytheon.uf.edex.ogc.common.http.MimeType;
 
 public class WfsRequest {
 
 	public enum Type {
-		GetFeature, DescribeFeature, GetCapabilities, Transaction, ERROR
+        GetFeature, DescribeFeature, GetCapabilities, Transaction, ERROR, ListStoredQueries, DescribeStoredQueries, GetPropertyValue
 	}
 
-	protected Object rawrequest;
+    protected Object rawrequest;
 
 	protected Type type;
 
@@ -46,7 +47,7 @@ public class WfsRequest {
 
 	protected String[] roles;
 
-	private String exceptionFormat = OgcResponse.TEXT_XML_MIME;
+    private MimeType exceptionFormat = OgcResponse.TEXT_XML_MIME;
 
 	public WfsRequest(Type type) {
 		super();
@@ -72,7 +73,7 @@ public class WfsRequest {
 	 * @param rawrequest
 	 *            the rawrequest to set
 	 */
-	public void setRawrequest(Object rawrequest) {
+    public void setRawrequest(Object rawrequest) {
 		this.rawrequest = rawrequest;
 	}
 
@@ -109,14 +110,14 @@ public class WfsRequest {
 	/**
 	 * @param exceptionFormat the exceptionFormat to set
 	 */
-	public void setExceptionFormat(String exceptionFormat) {
+    public void setExceptionFormat(MimeType exceptionFormat) {
 		this.exceptionFormat = exceptionFormat;
 	}
 
 	/**
 	 * @return the exceptionFormat
 	 */
-	public String getExceptionFormat() {
+    public MimeType getExceptionFormat() {
 		return exceptionFormat;
 	}
 

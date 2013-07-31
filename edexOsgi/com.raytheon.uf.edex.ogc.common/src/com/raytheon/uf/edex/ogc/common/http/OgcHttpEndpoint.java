@@ -29,6 +29,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 
+import com.raytheon.uf.edex.ogc.common.stats.OgcStatsRecorder;
+import com.raytheon.uf.edex.ogc.common.stats.StatsRecorderFinder;
+
 /**
  * TODO - Class comment here
  * 
@@ -45,18 +48,26 @@ import org.apache.camel.Processor;
  * @version 1
  */
 public class OgcHttpEndpoint implements Processor {
+	
+	public static final String HEADER_AC_ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
+	
+	public static final String HEADER_AC_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
+	
+	public static final String HEADER_AC_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
 
-	protected OgcHttpPool pool;
+    protected IOgcHttpPooler pool;
 
 	/**
 	 * 
 	 */
-	public OgcHttpEndpoint(OgcHttpPool pool) {
+    public OgcHttpEndpoint(IOgcHttpPooler pool) {
 		this.pool = pool;
 	}
 
 	@Override
 	public void process(Exchange ex) throws Exception {
+
+        long start = System.nanoTime();
 
 		Map<String, Object> headers = ex.getIn().getHeaders();
 
@@ -64,6 +75,8 @@ public class OgcHttpEndpoint implements Processor {
 				HttpServletResponse.class);
 		HttpServletRequest httpRequest = ex.getIn().getBody(
 				HttpServletRequest.class);
+		
+		setCorsHeaders(headers, response);
 
 		long id = Thread.currentThread().getId();
 		OgcHttpHandler handler = (OgcHttpHandler) pool.borrowObject(id);
@@ -73,7 +86,28 @@ public class OgcHttpEndpoint implements Processor {
 			ogcReq.setInputStream(ex.getIn().getBody(InputStream.class));
 		}
 		handler.handle(ogcReq);
+
+        // TODO get service from request somehow?? remove time and duration
+        // calculation from critical path
+		OgcStatsRecorder statRecorder = StatsRecorderFinder.find();
+        statRecorder.recordRequest(System.currentTimeMillis(),
+                System.nanoTime() - start, "OGCRest", true);
+
 		pool.returnObject(id, handler);
 	}
 
+	/**
+	 * Set the CORS headers allowing access from alternate origins.
+	 * @param headers
+	 * @param response
+	 */
+    protected void setCorsHeaders(Map<String, Object> headers, HttpServletResponse response) {
+        String allowedOrigins = "*";
+    	
+        response.setHeader(HEADER_AC_ALLOW_ORIGIN, allowedOrigins);
+
+        response.setHeader(HEADER_AC_ALLOW_CREDENTIALS, "false");
+
+        response.setHeader(HEADER_AC_EXPOSE_HEADERS,"");
+	}
 }
