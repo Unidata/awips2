@@ -31,6 +31,7 @@ import org.junit.Ignore;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 9, 2013            mpduff     Initial creation
+ * July 15, 2013  2180    dhladky    Updated for encryption
  * 
  * </pre>
  * 
