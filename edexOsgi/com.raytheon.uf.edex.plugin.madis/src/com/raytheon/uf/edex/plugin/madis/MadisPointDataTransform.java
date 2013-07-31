@@ -251,8 +251,9 @@ public class MadisPointDataTransform {
         PointDataView pdv = container.append();
         
         // I think this is inefficient but, PlotData for SVG reads 
-        // the pointDataView so, the first 3 that are already in the 
+        // the pointDataView so, the first 4 that are already in the 
         // DB have to be here.
+        pdv.setLong(TIME_OBS, record.getDataTime().getRefTime().getTime());
         pdv.setString(PROVIDER, record.getProvider());
         pdv.setString(SUB_PROVIDER, record.getSubProvider());
         pdv.setInt(RESTRICTION, record.getRestriction());
