@@ -19,9 +19,9 @@
  **/
 package com.raytheon.uf.viz.archive.data;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class maintains the state of the archive selection so it can be restored
@@ -42,7 +42,7 @@ import java.util.Set;
  */
 
 public class ArchiveInfo {
-    private final Map<String, CategoryInfo> categoryInfoMap = new HashMap<String, CategoryInfo>();
+    private final Map<String, CategoryInfo> categoryInfoMap = new ConcurrentHashMap<String, CategoryInfo>();
 
     public void add(CategoryInfo categoryInfo) {
         categoryInfoMap.put(categoryInfo.getCategoryName(), categoryInfo);
