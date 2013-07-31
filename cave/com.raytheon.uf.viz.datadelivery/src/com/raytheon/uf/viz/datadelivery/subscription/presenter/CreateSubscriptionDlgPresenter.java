@@ -39,6 +39,8 @@ import org.eclipse.swt.widgets.Shell;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+import com.raytheon.uf.common.auth.AuthException;
+import com.raytheon.uf.common.auth.req.IPermissionsService;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSummary;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
@@ -66,13 +68,13 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.IGuiThreadTaskExecutor;
 import com.raytheon.uf.viz.core.auth.UserController;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.CancelForceApplyAndIncreaseLatencyDisplayText;
 import com.raytheon.uf.viz.datadelivery.subscription.GroupDefinitionManager;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
+import com.raytheon.uf.viz.datadelivery.subscription.RequestFromServerPermissionsService;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionStatusDlg;
 import com.raytheon.uf.viz.datadelivery.subscription.view.ICreateSubscriptionDlgView;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
@@ -117,6 +119,7 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * May 15, 2013 1040       mpduff       Add shared sites.
  * Jun 04, 2013  223       mpduff       Add point data.
  * Jul 18, 2013 1653       mpduff       Add SubscriptionStatusSummary and the display dialog.
+ * Jul 26, 2031 2232       mpduff       Refactored Data Delivery permissions.
  * </pre>
  * 
  * @author mpduff
@@ -545,125 +548,126 @@ public class CreateSubscriptionDlgPresenter {
         String currentUser = LocalizationManager.getInstance().getCurrentUser();
         final String username = user.uniqueId().toString();
 
-        if (this.create) {
+        // Check for permission
+        IPermissionsService permissionsService = DataDeliveryServices
+                .getPermissionsService();
+        boolean autoApprove = false;
+        if (permissionsService instanceof RequestFromServerPermissionsService) {
             try {
-                boolean autoApprove = DataDeliveryServices
-                        .getPermissionsService()
+                // check to see if user is authorized to approve. If so then
+                // auto-approve
+                autoApprove = ((RequestFromServerPermissionsService) permissionsService)
                         .checkPermissionToChangeSubscription(user,
                                 PENDING_APPROVAL_MESSAGE, subscription)
                         .isAuthorized();
-
-                setSubscriptionId(subscription);
-
-                if (autoApprove) {
-                    final BlockingQueue<SubscriptionStatusSummary> exchanger = new ArrayBlockingQueue<SubscriptionStatusSummary>(
-                            1);
-
-                    final Shell jobShell = view.getShell();
-                    Job job = new Job("Creating Subscription...") {
-                        @Override
-                        protected IStatus run(IProgressMonitor monitor) {
-                            DataDeliveryGUIUtils.markBusyInUIThread(jobShell);
-                            ISubscriptionServiceResult result = storeSubscription(
-                                    subscription, username);
-                            if (result != null) {
-                                if (result.isAllowFurtherEditing()) {
-                                    return new Status(
-                                            Status.CANCEL,
-                                            CreateSubscriptionDlgPresenter.class
-                                                    .getName(), result
-                                                    .getMessageToDisplay());
-                                } else {
-                                    SubscriptionStatusSummary sum = result
-                                            .getSubscriptionStatusSummary();
-
-                                    exchanger.add(sum);
-                                    return new Status(
-                                            Status.OK,
-                                            CreateSubscriptionDlgPresenter.class
-                                                    .getName(), result
-                                                    .getMessageToDisplay());
-                                }
-                            } else {
-                                return new Status(Status.ERROR,
-                                        CreateSubscriptionDlgPresenter.class
-                                                .getName(),
-                                        "Error Storing Subscription");
-                            }
-                        }
-                    };
-                    job.addJobChangeListener(new JobChangeAdapter() {
-                        @Override
-                        public void done(final IJobChangeEvent event) {
-                            try {
-                                final IStatus status = event.getResult();
-
-                                final boolean subscriptionCreated = status
-                                        .isOK();
-                                if (subscriptionCreated) {
-                                    sendSubscriptionNotification(subscription,
-                                            username);
-                                }
-
-                                if (!Strings.isNullOrEmpty(status.getMessage())) {
-                                    guiThreadTaskExecutor
-                                            .runAsync(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    if (!view.isDisposed()) {
-                                                        if (subscriptionCreated) {
-                                                            try {
-                                                                displaySummary(
-                                                                        exchanger
-                                                                                .take(),
-                                                                        status.getMessage());
-
-                                                            } catch (InterruptedException e) {
-                                                                statusHandler
-                                                                        .handle(Priority.PROBLEM,
-                                                                                e.getLocalizedMessage(),
-                                                                                e);
-                                                            }
-                                                            view.setStatus(Status.OK);
-                                                            view.closeDlg();
-                                                        } else {
-                                                            view.setStatus(Status.CANCEL);
-                                                            view.displayPopup(
-                                                                    "Unable to Create Subscription",
-                                                                    status.getMessage());
-                                                        }
-                                                    }
-                                                }
-                                            });
-                                }
-                            } finally {
-                                DataDeliveryGUIUtils
-                                        .markNotBusyInUIThread(jobShell);
-                            }
-                        }
-                    });
-                    job.schedule();
-                    return false;
-                } else {
-                    InitialPendingSubscription pendingSub = subscription
-                            .initialPending(currentUser);
-
-                    try {
-                        handler.store(pendingSub);
-
-                        this.subscription = pendingSub;
-
-                        subscriptionNotificationService
-                                .sendCreatedPendingSubscriptionNotification(
-                                        pendingSub, username);
-                    } catch (RegistryHandlerException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Unable to create pending subscription.", e);
-                    }
-                }
-            } catch (VizException e) {
+            } catch (AuthException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
+            }
+        }
+
+        if (this.create) {
+            setSubscriptionId(subscription);
+            if (autoApprove) {
+                final BlockingQueue<SubscriptionStatusSummary> exchanger = new ArrayBlockingQueue<SubscriptionStatusSummary>(
+                        1);
+
+                final Shell jobShell = view.getShell();
+                Job job = new Job("Creating Subscription...") {
+                    @Override
+                    protected IStatus run(IProgressMonitor monitor) {
+                        DataDeliveryGUIUtils.markBusyInUIThread(jobShell);
+                        ISubscriptionServiceResult result = storeSubscription(
+                                subscription, username);
+                        if (result != null) {
+                            if (result.isAllowFurtherEditing()) {
+                                return new Status(Status.CANCEL,
+                                        CreateSubscriptionDlgPresenter.class
+                                                .getName(),
+                                        result.getMessageToDisplay());
+                            } else {
+                                SubscriptionStatusSummary sum = result
+                                        .getSubscriptionStatusSummary();
+
+                                exchanger.add(sum);
+                                return new Status(Status.OK,
+                                        CreateSubscriptionDlgPresenter.class
+                                                .getName(),
+                                        result.getMessageToDisplay());
+                            }
+                        } else {
+                            return new Status(Status.ERROR,
+                                    CreateSubscriptionDlgPresenter.class
+                                            .getName(),
+                                    "Error Storing Subscription");
+                        }
+                    }
+                };
+                job.addJobChangeListener(new JobChangeAdapter() {
+                    @Override
+                    public void done(final IJobChangeEvent event) {
+                        try {
+                            final IStatus status = event.getResult();
+
+                            final boolean subscriptionCreated = status.isOK();
+                            if (subscriptionCreated) {
+                                sendSubscriptionNotification(subscription,
+                                        username);
+                            }
+
+                            if (!Strings.isNullOrEmpty(status.getMessage())) {
+                                guiThreadTaskExecutor.runAsync(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (!view.isDisposed()) {
+                                            if (subscriptionCreated) {
+                                                try {
+                                                    displaySummary(
+                                                            exchanger.take(),
+                                                            status.getMessage());
+
+                                                } catch (InterruptedException e) {
+                                                    statusHandler.handle(
+                                                            Priority.PROBLEM,
+                                                            e.getLocalizedMessage(),
+                                                            e);
+                                                }
+                                                view.setStatus(Status.OK);
+                                                view.closeDlg();
+                                            } else {
+                                                view.setStatus(Status.CANCEL);
+                                                view.displayPopup(
+                                                        "Unable to Create Subscription",
+                                                        status.getMessage());
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        } finally {
+                            DataDeliveryGUIUtils
+                                    .markNotBusyInUIThread(jobShell);
+                        }
+                    }
+                });
+                job.schedule();
+                return false;
+            } else {
+                InitialPendingSubscription pendingSub = subscription
+                        .initialPending(currentUser);
+
+                try {
+                    handler.store(pendingSub);
+
+                    this.subscription = pendingSub;
+
+                    subscriptionNotificationService
+                            .sendCreatedPendingSubscriptionNotification(
+                                    pendingSub, username);
+                } catch (RegistryHandlerException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to create pending subscription.", e);
+                }
             }
         } else {
             // Check for pending subscription, can only have one pending change
@@ -692,61 +696,47 @@ public class CreateSubscriptionDlgPresenter {
                 return false;
             }
 
-            // check to see if user is authorized to approve. If so then
-            // auto-approve
-            try {
-                boolean autoApprove = DataDeliveryServices
-                        .getPermissionsService()
-                        .checkPermissionToChangeSubscription(user,
-                                PENDING_APPROVAL_MESSAGE, subscription)
-                        .isAuthorized();
-
-                if (autoApprove) {
-                    try {
-                        final ISubscriptionServiceResult response = subscriptionService
-                                .update(subscription,
-                                        new CancelForceApplyAndIncreaseLatencyDisplayText(
-                                                "update", view.getShell()));
-                        if (response.hasMessageToDisplay()) {
-                            view.displayPopup(UPDATED_TITLE,
-                                    response.getMessageToDisplay());
-                        }
-
-                        // If there was a force apply prompt, and the user
-                        // selects no, then we want to allow them to
-                        // continue editing the subscription
-                        if (response.isAllowFurtherEditing()) {
-                            return false;
-                        }
-
-                        subscriptionNotificationService
-                                .sendUpdatedSubscriptionNotification(
-                                        subscription, username);
-
-                    } catch (RegistryHandlerException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Unable to update subscription.", e);
+            if (autoApprove) {
+                try {
+                    final ISubscriptionServiceResult response = subscriptionService
+                            .update(subscription,
+                                    new CancelForceApplyAndIncreaseLatencyDisplayText(
+                                            "update", view.getShell()));
+                    if (response.hasMessageToDisplay()) {
+                        view.displayPopup(UPDATED_TITLE,
+                                response.getMessageToDisplay());
                     }
-                } else {
-                    setSubscriptionId(subscription);
-                    try {
-                        pendingSubHandler.update(pendingSub);
 
-                        subscriptionNotificationService
-                                .sendCreatedPendingSubscriptionForSubscriptionNotification(
-                                        pendingSub, username);
-
-                        final String msg = PENDING_APPROVAL_MESSAGE;
-                        view.displayPopup("Subscription Pending", msg);
-                    } catch (RegistryHandlerException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Unable to create pending subscription.", e);
+                    // If there was a force apply prompt, and the user
+                    // selects no, then we want to allow them to
+                    // continue editing the subscription
+                    if (response.isAllowFurtherEditing()) {
+                        return false;
                     }
+
+                    subscriptionNotificationService
+                            .sendUpdatedSubscriptionNotification(subscription,
+                                    username);
+
+                } catch (RegistryHandlerException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to update subscription.", e);
                 }
+            } else {
+                setSubscriptionId(subscription);
+                try {
+                    pendingSubHandler.update(pendingSub);
 
-            } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
+                    subscriptionNotificationService
+                            .sendCreatedPendingSubscriptionForSubscriptionNotification(
+                                    pendingSub, username);
+
+                    final String msg = PENDING_APPROVAL_MESSAGE;
+                    view.displayPopup("Subscription Pending", msg);
+                } catch (RegistryHandlerException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to create pending subscription.", e);
+                }
             }
         }
 

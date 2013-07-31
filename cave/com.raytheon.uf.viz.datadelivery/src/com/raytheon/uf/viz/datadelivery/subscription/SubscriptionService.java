@@ -37,6 +37,8 @@ import org.eclipse.swt.widgets.Shell;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.raytheon.uf.common.auth.AuthException;
+import com.raytheon.uf.common.auth.req.IPermissionsService;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
@@ -58,7 +60,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.datadelivery.actions.SubscriptionManagerAction;
 import com.raytheon.uf.viz.datadelivery.system.SystemRuleManager;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
@@ -86,6 +87,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * May 23, 2013 1650       djohnson     Move out some presentation logic to DisplayForceApplyPromptDialog.
  * Jun 12, 2013 2038       djohnson     Launch subscription manager on the UI thread.
  * Jul 18, 2013 1653       mpduff       Add SubscriptionStatusSummary.
+ * Jul 26, 2031 2232       mpduff       Refactored Data Delivery permissions.
  * 
  * </pre>
  * 
@@ -488,7 +490,13 @@ public class SubscriptionService implements ISubscriptionService {
                     final String username = user.uniqueId().toString();
 
                     try {
-                        boolean authorized = permissionsService
+                        if (!(permissionsService instanceof RequestFromServerPermissionsService)) {
+                            throw new RegistryHandlerException(
+                                    "Invalid Handler "
+                                            + permissionsService.getClass()
+                                                    .toString());
+                        }
+                        boolean authorized = ((RequestFromServerPermissionsService) permissionsService)
                                 .checkPermissionToChangeSubscription(user,
                                         PENDING_SUBSCRIPTION_AWAITING_APPROVAL,
                                         subscription).isAuthorized();
@@ -514,7 +522,7 @@ public class SubscriptionService implements ISubscriptionService {
                             continue;
                         }
 
-                    } catch (VizException e) {
+                    } catch (AuthException e) {
                         statusHandler.handle(Priority.INFO,
                                 e.getLocalizedMessage(), e);
                     }
