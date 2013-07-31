@@ -25,13 +25,13 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.common.auth.AuthException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.auth.UserController;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.datadelivery.browser.DataBrowserDlg;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 
@@ -47,6 +47,7 @@ import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
  * ------------ ---------- ----------- --------------------------
  * Feb 12, 2012            lvenable     Initial creation
  * Oct 03, 2012 1241       djohnson     Use {@link DataDeliveryPermission}.
+ * Jul 26, 2013   2236     mpduff       Refactored Data Delivery Permissions.
  * 
  * </pre>
  * 
@@ -61,7 +62,8 @@ public class DataBrowserAction extends AbstractHandler {
     /** Instance of the dialog */
     private DataBrowserDlg dlg = null;
 
-    private final DataDeliveryPermission permission = DataDeliveryPermission.SUBSCRIPTION_DATASET_BROWSER;
+    private final String permission = DataDeliveryPermission.SUBSCRIPTION_DATASET_BROWSER
+            .toString();
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
@@ -73,8 +75,7 @@ public class DataBrowserAction extends AbstractHandler {
                     + permission;
 
             if (DataDeliveryServices.getPermissionsService()
-                    .checkPermission(user, msg, permission)
-                    .isAuthorized()) {
+                    .checkPermission(user, msg, permission).isAuthorized()) {
                 if ((dlg == null) || (dlg.isDisposed() == true)) {
                     Shell shell = PlatformUI.getWorkbench()
                             .getActiveWorkbenchWindow().getShell();
@@ -84,7 +85,7 @@ public class DataBrowserAction extends AbstractHandler {
                     dlg.bringToTop();
                 }
             }
-        } catch (VizException e) {
+        } catch (AuthException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
 
