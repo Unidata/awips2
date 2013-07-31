@@ -49,8 +49,18 @@ public class WcsException extends Exception {
 	protected Code code;
 
 	public WcsException(OgcException ogc) {
-		this(Code.valueOf(ogc.getCode().toString()), ogc.getMessage());
+        this(decode(ogc.getCode().toString()), ogc.getMessage());
 	}
+
+    private static Code decode(String code) {
+        Code rval;
+        try {
+            rval = Code.valueOf(code);
+        } catch (Throwable t) {
+            rval = Code.NoApplicableCode;
+        }
+        return rval;
+    }
 
 	public WcsException(Code code) {
 		super();

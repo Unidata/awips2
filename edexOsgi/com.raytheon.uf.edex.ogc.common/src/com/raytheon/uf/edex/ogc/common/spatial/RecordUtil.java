@@ -153,11 +153,11 @@ public class RecordUtil {
                 nativeEnvelope, envelope);
     }
 
-    protected static DataReprojector getDataReprojector(IDataStore dataStore) {
+    public static DataReprojector getDataReprojector(IDataStore dataStore) {
         return new DataReprojector(dataStore);
     }
 
-    protected static ReferencedEnvelope getNativeEnvelope(ISpatialObject spatial)
+    public static ReferencedEnvelope getNativeEnvelope(ISpatialObject spatial)
             throws FactoryException {
         CoordinateReferenceSystem crs = spatial.getCrs();
         Geometry geom = spatial.getGeometry();
