@@ -42,7 +42,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -67,6 +66,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
  * 03/28/13     1949       rjpeter     Normalized database structure.
  * 06/20/13     2127       rjpeter     Removed unused bidirectional relationship.
  * 06/13/13     2044       randerso    Code cleanup
+ * 07/31/13     2057       randerso    Added removedDate
  * </pre>
  * 
  * @author bphillip
@@ -75,7 +75,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
 @Entity
 @Table(name = "gfe_dbid", uniqueConstraints = { @UniqueConstraint(columnNames = {
         "siteId", "modelName", "modelTime", "dbType" }) })
-@Immutable
 @DynamicSerialize
 @DynamicSerializeTypeAdapter(factory = DatabaseIDAdapter.class)
 public class DatabaseID implements Comparable<DatabaseID> {
@@ -146,6 +145,10 @@ public class DatabaseID implements Comparable<DatabaseID> {
     @Column(length = 13, nullable = false)
     @DataURI(position = 2)
     private String modelTime = NO_MODEL_TIME;
+
+    /** Date database was removed from localConfig.py. */
+    @Column(nullable = true)
+    private Date removedDate;
 
     /** The model identifier */
     @Transient
@@ -476,6 +479,21 @@ public class DatabaseID implements Comparable<DatabaseID> {
 
     public String getModelTime() {
         return modelTime;
+    }
+
+    /**
+     * @return the removedDate
+     */
+    public Date getRemovedDate() {
+        return removedDate;
+    }
+
+    /**
+     * @param removedDate
+     *            the removedDate to set
+     */
+    public void setRemovedDate(Date removedDate) {
+        this.removedDate = removedDate;
     }
 
     /**
