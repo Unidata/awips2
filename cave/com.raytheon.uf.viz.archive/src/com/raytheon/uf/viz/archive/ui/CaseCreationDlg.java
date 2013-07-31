@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.archive.ui;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -51,11 +50,8 @@ import org.eclipse.swt.widgets.Spinner;
 import com.raytheon.uf.common.archive.config.DisplayData;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.SizeUtil;
-import com.raytheon.uf.viz.archive.data.ArchiveInfo;
-import com.raytheon.uf.viz.archive.data.CategoryInfo;
 import com.raytheon.uf.viz.archive.data.IArchiveTotals;
 import com.raytheon.uf.viz.archive.data.IUpdateListener;
-import com.raytheon.uf.viz.archive.data.SizeJobRequest;
 import com.raytheon.uf.viz.archive.ui.ArchiveTableComp.TableType;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.ui.dialogs.AwipsCalendar;
@@ -74,6 +70,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * May 23, 2013 #1964     lvenable     Initial creation
  * Jun 10, 2013 #1966      rferrel     Implemented back in hooks for display
  *                                      and generation of cases.
+ * Jul 24, 2013 #2220      rferrel     Add recompute size button.
  * 
  * </pre>
  * 
@@ -451,6 +448,16 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
             }
         });
 
+        Button sizeBtn = new Button(actionControlComp, SWT.PUSH);
+        sizeBtn.setText(" Recompute Sizes ");
+        sizeBtn.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                resetSizes();
+            }
+        });
+
         gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
         Button closeBtn = new Button(actionControlComp, SWT.PUSH);
         closeBtn.setText(" Close ");
@@ -687,7 +694,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
 
             if (!startDate.equals(date)) {
                 startDate = date;
-                resetSizes();
+                sizeJob.resetTime(getStart(), getEnd());
             }
         } else {
             if (date.before(startDate)) {
@@ -700,7 +707,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
             }
             if (!endDate.equals(date)) {
                 endDate = date;
-                resetSizes();
+                sizeJob.resetTime(getStart(), getEnd());
             }
         }
 
@@ -752,73 +759,12 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
         checkGenerateButton();
     }
 
-    /**
-     * Reset all entries to unknown size, recompute the sizes for the current
-     * display table and and other selected entries.
-     */
-    private void resetSizes() {
-        List<DisplayData> selectedDatas = new ArrayList<DisplayData>();
-        for (String archiveName : archiveInfoMap.keySet()) {
-            ArchiveInfo archiveInfo = archiveInfoMap.get(archiveName);
-            for (String categoryName : archiveInfo.getCategoryNames()) {
-                CategoryInfo categoryInfo = archiveInfo.get(categoryName);
-                for (DisplayData displayData : categoryInfo
-                        .getDisplayDataList()) {
-                    displayData.setSize(DisplayData.UNKNOWN_SIZE);
-                    if (displayData.isSelected()) {
-                        selectedDatas.add(displayData);
-                    }
-                }
-            }
-        }
-
-        populateTableComp();
-
-        if (selectedDatas.size() > 0) {
-            String archiveName = getSelectedArchiveName();
-            String categoryName = getSelectedCategoryName();
-            Calendar startCal = getStart();
-            Calendar endCal = getEnd();
-
-            for (DisplayData displayData : selectedDatas) {
-                if (!displayData.isArchive(archiveName)
-                        || !displayData.isCategory(categoryName)) {
-                    sizeJob.queue(new SizeJobRequest(displayData, startCal,
-                            endCal));
-                }
-            }
-        }
-    }
-
-    /**
-     * Get the data information on all selected items; not just the currently
-     * displayed table.
-     * 
-     * @return selectedDatas
-     */
-    private List<DisplayData> getSelectedData() {
-        List<DisplayData> selectedDatas = new ArrayList<DisplayData>();
-        for (String archiveName : archiveInfoMap.keySet()) {
-            ArchiveInfo archiveInfo = archiveInfoMap.get(archiveName);
-            for (String categoryName : archiveInfo.getCategoryNames()) {
-                CategoryInfo categoryInfo = archiveInfo.get(categoryName);
-                for (DisplayData displayData : categoryInfo
-                        .getDisplayDataList()) {
-                    if (displayData.isSelected()) {
-                        selectedDatas.add(displayData);
-                    }
-                }
-            }
-        }
-        return selectedDatas;
-    }
-
     /*
      * (non-Javadoc)
      * 
      * @see com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#getStart()
      */
-    // @Override
+    @Override
     protected Calendar getStart() {
         Calendar startCal = TimeUtil.newCalendar();
         startCal.setTimeInMillis(startDate.getTime());
@@ -830,7 +776,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
      * 
      * @see com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#getEnd()
      */
-    // @Override
+    @Override
     protected Calendar getEnd() {
         Calendar endCal = TimeUtil.newCalendar();
         endCal.setTimeInMillis(endDate.getTime());
