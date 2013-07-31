@@ -32,6 +32,7 @@ import org.junit.Ignore;
  * ------------ ---------- ----------- --------------------------
  * Jun 11, 2013 1763       dhladky      Initial creation
  * Jun 17, 2013 2106       djohnson     Use username/password from HttpTestConstants.
+ * Jul 15, 2013 2180       dhladky      Updated for encryption
  * 
  * </pre>
  * 
@@ -46,6 +47,9 @@ public class HttpProxyTestConstants extends HttpTestConstants {
     public static final String REALM = "MADISOGC";
     
     public static final String CONTEXT = "wfs";
+    
+    // 32 character length
+    public static final String PROVIDER_KEY = "1qaz2wsx3edc4rfv5tgb6yhn6yhn7ujm8";
 
     public static final String HOST = "dev11";
     
