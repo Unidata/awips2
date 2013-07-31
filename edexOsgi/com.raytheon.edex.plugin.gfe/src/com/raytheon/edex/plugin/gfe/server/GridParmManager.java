@@ -105,6 +105,8 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  * 05/03/13     #1974      randerso    Fixed error logging to include stack trace
  * 05/14/13     #2004      randerso    Added methods to synch GridParmManager across JVMs
  * 05/30/13     #2044      randerso    Refactored to better match A1 design. Removed D2DParmIDCache.
+ * 07/30/13     #2057      randerso    Added support for marking obsoleted databases for removal and
+ *                                     eventually purging them
  * </pre>
  * 
  * @author bphillip
@@ -1028,97 +1030,45 @@ public class GridParmManager {
         if (dbConfig == null) {
             status.addMessage("Unable to obtain GridDbConfig information for creation"
                     + " in createDB() for " + id);
-
-            // TODO: implement A2 equivalent
-            // make list of files that match this "bad" database
-            // TextString dir = PathMgr::dirname(filename) + '/';
-            // TextString baseName = PathMgr::basename(filename);
-            // TextString dbName = PathMgr::stripExtension(baseName);
-            // SeqOf<TextString> filenames = PathMgr::listDir(dir);
-            // unsigned pos = 0;
-            // TextString badTime =
-            // AbsTime::current().string("/BADDB-%Y%m%d_%H%M-");
-            // for (int i = 0; i < filenames.length(); i++)
-            // if (PathMgr::isFile(dir + filenames[i]) &&
-            // filenames[i].found(dbName, pos))
-            // {
-            // logVerbose << "Deleting Bogus Database:" << filenames[i]
-            // << std::endl;
-            // TextString bdir = _config.baseDir() + "/BAD";
-            // PathMgr::mkdir(bdir);
-            // TextString sourceF = dir + filenames[i];
-            // TextString destF = bdir + badTime + filenames[i];
-            // TextString cmd = "mv " + sourceF + ' ' + destF;
-            // system(cmd.stringPtr());
-            // logProblem << "Bad database moved to: " << destF << std::endl;
-            // }
-
-            return status;
-        }
-
-        // we attempt to create the GridDatabase twice, if fails the 1st time,
-        // we delete it and try again. Singleton databases get two tries,
-        // non-singletons are simply deleted if invalid.
-        int trys = 0;
-        int maxtrys = 2;
-        if (id.getModelTime().equals(DatabaseID.NO_MODEL_TIME)) {
-            maxtrys = 1;
-        }
-
-        while (trys < maxtrys) {
-            if (trys != 0) {
-                statusHandler.error("Attempting to recreate: ");
-            }
-
+        } else {
+            // attempt to create the GridDatabase
             db = new IFPGridDatabase(id, dbConfig);
-            // ServerResponse sr;
-            // sr = db->databaseIsValid();
-            // if (sr.okay())
             if (db.databaseIsValid()) {
-                break; // database is okay - continue processing
-            }
-            //
-            // // error on creating database
-            // logProblem << "Database invalid with id: " << id << std::endl;
-            // logProblem << sr << std::endl;
-            // logProblem << "Deleting bogus database: " << id << std::endl;
-            //
-            // // make list of files that match this "bad" database
-            // TextString dir = PathMgr::dirname(filename) + '/';
-            // TextString baseName = PathMgr::basename(filename);
-            // TextString dbName = PathMgr::stripExtension(baseName);
-            // SeqOf<TextString> filenames = PathMgr::listDir(dir);
-            // TextString badTime =
-            // AbsTime::current().string("/BADDB-%Y%m%d_%H%M-");
-            // unsigned int pos = 0;
-            // for (int i = 0; i < filenames.length(); i++)
-            // if (PathMgr::isFile(dir + filenames[i])
-            // && filenames[i].found(dbName, pos))
-            // {
-            // TextString bdir = _config.baseDir() + "/BAD";
-            // PathMgr::mkdir(bdir);
-            // TextString sourceF = dir + filenames[i];
-            // TextString destF = bdir + badTime + filenames[i];
-            // TextString cmd = "mv " + sourceF + ' ' + destF;
-            // system(cmd.stringPtr());
-            // logProblem << "Bad database moved to: " << destF << std::endl;
-            // }
-            // //db->deleteDb(); // delete the database (not needed since we
-            // move
-            // // files to a "BAD" directory
-            // delete db;
-            // db = NULL;
-            if ((trys + 1) == maxtrys) { // final loop
+                // get databaseID object from database
+                DatabaseID dbId = db.getDbId();
+
+                if (dbId.getRemovedDate() != null) {
+                    // mark database as not removed
+                    try {
+                        GFEDao gfeDao = new GFEDao();
+                        gfeDao.setDatabaseRemovedDate(dbId, null);
+                        statusHandler.info("Database " + dbId + " restored");
+                    } catch (Exception e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                "Unable to mark database restored: " + dbId, e);
+                    }
+                }
+
+                // add to list of databases
+                addDB(db);
+            } else {
                 status.addMessage("Database " + id + " is not valid.");
-                // status += sr;
-                return null;
+                db = null;
             }
-            trys++;
         }
 
-        if (db != null) {
-            addDB(db);
-        } // add to list of databases if not-NULL
+        if (db == null) {
+            // mark database as removed
+            try {
+                GFEDao gfeDao = new GFEDao();
+                gfeDao.setDatabaseRemovedDate(id, new Date());
+                statusHandler.warn("Database " + id + " marked for removal in "
+                        + GFEDao.REMOVED_DB_PURGE_TIME + " days.");
+            } catch (Exception e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to mark database removed: " + id, e);
+            }
+        }
 
         status.setPayload(db);
         return status;
@@ -1151,9 +1101,9 @@ public class GridParmManager {
         ServerResponse<GridDatabase> sr = new ServerResponse<GridDatabase>();
         for (DatabaseID dbId : inventory) {
             sr = createDB(dbId);
-        }
-        if (!sr.isOkay()) {
-            statusHandler.error(sr.message());
+            if (!sr.isOkay()) {
+                statusHandler.error(sr.message());
+            }
         }
 
         NetCDFDatabaseManager.initializeNetCDFDatabases(config);
