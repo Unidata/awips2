@@ -45,9 +45,11 @@ import com.raytheon.uf.edex.ogc.common.db.SimpleLayer;
 
 public class MadisDimension extends SimpleDimension {
 
-    /**
-     * {@inheritDoc}
-     */
+	private static final long serialVersionUID = -2255916443759465372L;
+
+	/**
+	 * {@inheritDoc}
+	 */
     @Override
     public Set<String> getValues() {
         return new HashSet<String>();

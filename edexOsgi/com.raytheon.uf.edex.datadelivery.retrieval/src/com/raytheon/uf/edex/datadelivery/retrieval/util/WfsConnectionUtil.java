@@ -3,7 +3,8 @@ package com.raytheon.uf.edex.datadelivery.retrieval.util;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 
 import com.raytheon.uf.common.comm.HttpClient;
 import com.raytheon.uf.common.comm.HttpClient.HttpClientResponse;
@@ -31,6 +32,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Jun 18, 2013 2120       dhladky     Times fixes and SSL changes
  * Jul 10, 2013 2180       dhladky     Updated credential requests
  * Aug 23, 2013 2180       mpduff      Implement changes to ProviderCredentialsUtil
+ * Aug 06, 2013 2097       dhladky     WFS 2.0 compliance upgrade and switched to POST
  * 
  * </pre>
  * 
@@ -54,16 +56,19 @@ public class WfsConnectionUtil {
      *            The data provider's name
      * @return xml response
      */
-    public static String wfsConnect(String url, Connection providerConn,
+    public static String wfsConnect(String request, Connection providerConn,
             String providerName) {
+
         String xmlResponse = null;
         HttpClient http = null;
+        String rootUrl = null;
 
         try {
-            // TODO: consider using HTTP POST instead of GET
+
+            rootUrl = providerConn.getUrl();
             http = HttpClient.getInstance();
-            HttpGet get = new HttpGet();
-            URI uri = new URI(url);
+            URI uri = new URI(rootUrl);
+            HttpPost post = new HttpPost(uri);
             // check for the need to do a username password auth check
             ProviderCredentials creds = ProviderCredentialsUtil
                     .retrieveCredentials(providerName);
@@ -84,12 +89,13 @@ public class WfsConnectionUtil {
                         userName, password);
             }
 
-            get.setURI(uri);
-            HttpClientResponse response = http.executeRequest(get);
+            post.setEntity(new StringEntity(request, "text/xml", "ISO-8859-1"));
+            HttpClientResponse response = http.executeRequest(post);
             xmlResponse = new String(response.data);
+
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "Couldn't connect to WFS server: " + url, e);
+                    "Couldn't connect to WFS server: " + rootUrl, e);
         }
 
         return xmlResponse;
