@@ -1,0 +1,41 @@
+@startuml
+
+package "EDEX WMS Component" {
+  [WMS HTTP Endpoint] as wmshttp
+
+  [WMS 1.3.0 Provider] as wms130
+  
+  () "WMS Source" as isrc
+  
+   [WMS Source Accessor] as reg
+  
+  [Abstract Coverage WMS Source] as covsrc
+  [Abstract Feature WMS Source] as featsrc
+  
+  [Styled Layer Descriptor (SLD) Styler] as fstyle
+  [Colormap Data Styler] as cstyle
+}
+
+node "EDEX Feature Data Plug-in Adapter" {
+  [Plug-in WMS Source] as fsrc
+} 
+
+node "EDEX Coverage Data Plug-in Adapter" {
+  [Plug-in WMS Source] as csrc
+} 
+
+wmshttp *-- wms130
+
+reg o-- "*" isrc
+
+wms130 *-- reg
+
+isrc -- covsrc
+isrc -- featsrc
+csrc -left-|> covsrc
+fsrc -left-|> featsrc
+
+cstyle *-left- covsrc
+featsrc *-right- fstyle
+
+@enduml

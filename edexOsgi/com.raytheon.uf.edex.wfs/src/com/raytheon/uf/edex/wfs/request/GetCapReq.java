@@ -47,6 +47,14 @@ public class GetCapReq extends WfsRequest {
 	public GetCapReq(GetCapabilitiesType getCap) {
 		super(Type.GetCapabilities);
 		setRawrequest(getCap);
-	}
+    }
+
+    /**
+     * @param obj
+     */
+    public GetCapReq(net.opengis.wfs.v_2_0_0.GetCapabilitiesType getCap) {
+        super(Type.GetCapabilities);
+        setRawrequest(getCap);
+    }
 
 }

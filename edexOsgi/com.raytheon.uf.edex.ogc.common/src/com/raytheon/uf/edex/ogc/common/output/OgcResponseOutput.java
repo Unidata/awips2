@@ -31,19 +31,21 @@
 package com.raytheon.uf.edex.ogc.common.output;
 
 import java.awt.image.RenderedImage;
-import java.io.PrintWriter;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import com.raytheon.uf.edex.ogc.common.OgcException;
 import com.raytheon.uf.edex.ogc.common.OgcException.Code;
 import com.raytheon.uf.edex.ogc.common.OgcResponse;
+import com.raytheon.uf.edex.ogc.common.OgcResponse.ErrorType;
 
 /**
  *
@@ -52,7 +54,7 @@ import com.raytheon.uf.edex.ogc.common.OgcResponse;
  */
 public class OgcResponseOutput {
 
-	public static void output(OgcResponse response, HttpServletResponse httpRes)
+    public static void output(OgcResponse response, IOgcHttpResponse httpRes)
 			throws Exception {
 		switch (response.getType()) {
 		case TEXT:
@@ -71,56 +73,78 @@ public class OgcResponseOutput {
 	}
 
 
-	protected static void checkError(OgcResponse response,
-			HttpServletResponse httpRes) {
-		int code = HttpServletResponse.SC_OK;
-		switch (response.getError()) {
-		case INT_ERR:
-			code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-			break;
-		case BAD_REQ:
-			code = HttpServletResponse.SC_BAD_REQUEST;
-			break;
-		case NOT_IMPLEMENTED:
-			code = HttpServletResponse.SC_NOT_IMPLEMENTED;
-			break;
-		}
+    protected static void checkError(OgcResponse response,
+            IOgcHttpResponse httpRes) {
+        int code = getErrorCode(response.getError());
 		httpRes.setStatus(code);
 	}
 
-	public static void sendText(OgcResponse response,
-			HttpServletResponse httpRes) throws Exception {
-		httpRes.setContentType(response.getMimetype());
-		checkError(response, httpRes);
-		Object obj = response.getBody();
-		ServletOutputStream out = null;
-		PrintWriter writer = null;
-		try {
-			if (obj instanceof byte[]) {
-				// UTF8 bytes
-				httpRes.setCharacterEncoding("UTF-8");
-				out = httpRes.getOutputStream();
-				out.write((byte[]) obj);
-			} else {
-				writer = httpRes.getWriter();
-				writer.write(obj.toString());
-			}
-		} catch (Exception e) {
-			httpRes.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			throw e;
-		} finally {
-			if (out != null) {
-				out.close();
-			}
-			if (writer != null) {
-				writer.close();
-			}
-		}
+    public static int getErrorCode(ErrorType error) {
+        int code;
+        switch (error) {
+        case INT_ERR:
+            code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+            break;
+        case BAD_REQ:
+            code = HttpServletResponse.SC_BAD_REQUEST;
+            break;
+        case NOT_IMPLEMENTED:
+            code = HttpServletResponse.SC_NOT_IMPLEMENTED;
+            break;
+        case NONE:
+            code = HttpServletResponse.SC_OK;
+            break;
+        default:
+            throw new IllegalArgumentException("Unsupported error type: "
+                    + error);
+        }
+        return code;
+    }
+
+    public static void sendText(OgcResponse response, IOgcHttpResponse httpRes)
+            throws Exception {
+        OutputStream out = httpRes.getOutputStream();
+        sendText(response, httpRes, out);
 	}
 
-	public static void sendImage(OgcResponse response,
-			HttpServletResponse httpRes) throws Exception {
-		String mimetype = response.getMimetype();
+    /**
+     * Send text when output stream has already be retrieved. Closes output
+     * stream.
+     * 
+     * @param response
+     * @param httpRes
+     * @param out
+     * @throws Exception
+     */
+    public static void sendText(OgcResponse response, IOgcHttpResponse httpRes,
+            OutputStream out) throws Exception {
+        httpRes.setContentType(response.getMimetype().toString());
+        checkError(response, httpRes);
+        Object obj = response.getBody();
+        try {
+            if (obj instanceof byte[]) {
+                // UTF8 bytes
+                httpRes.setCharacterEncoding("UTF-8");
+                out.write((byte[]) obj);
+                out.flush();
+            } else {
+                Writer writer = new OutputStreamWriter(out);
+                writer.write(obj.toString());
+                writer.flush();
+            }
+        } catch (Exception e) {
+            httpRes.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw e;
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+        }
+    }
+
+    public static void sendImage(OgcResponse response, IOgcHttpResponse httpRes)
+            throws Exception {
+        String mimetype = response.getMimetype().toString();
 		checkError(response, httpRes);
 		httpRes.setContentType(mimetype);
 		ImageOutputStream out = null;
@@ -146,8 +170,8 @@ public class OgcResponseOutput {
 	}
 
 	public static void sendByteArray(OgcResponse response,
-			HttpServletResponse httpRes) throws Exception {
-		httpRes.setContentType(response.getMimetype());
+            IOgcHttpResponse httpRes) throws Exception {
+        httpRes.setContentType(response.getMimetype().toString());
 		checkError(response, httpRes);
 		Object obj = response.getBody();
 		byte[] arr;
@@ -158,10 +182,11 @@ public class OgcResponseOutput {
 		} else {
 			throw new Exception("Unsupported class: " + obj.getClass());
 		}
-		ServletOutputStream out = null;
+        OutputStream out = null;
 		try {
 			out = httpRes.getOutputStream();
 			out.write(arr);
+            out.flush();
 		} catch (Exception e) {
 			httpRes.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			throw e;

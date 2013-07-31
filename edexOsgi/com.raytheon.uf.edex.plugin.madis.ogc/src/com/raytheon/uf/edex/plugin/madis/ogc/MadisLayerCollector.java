@@ -20,26 +20,12 @@ package com.raytheon.uf.edex.plugin.madis.ogc;
  * further licensing information.
  **/
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.Calendar;
+import java.util.TimeZone;
 
-import org.geotools.geometry.jts.JTS;
-import org.geotools.geometry.jts.ReferencedEnvelope;
-
-import com.raytheon.uf.common.datadelivery.harvester.ConfigLayer;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.madis.MadisRecord;
-import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.ogc.common.db.LayerTransformer;
-import com.raytheon.uf.edex.ogc.common.db.WFSLayerCollector;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
+import com.raytheon.uf.edex.ogc.common.db.ILayerStore;
+import com.raytheon.uf.edex.ogc.common.db.SingleLayerCollector;
 
 /**
  * 
@@ -56,135 +42,27 @@ import com.vividsolutions.jts.geom.Envelope;
  * @version 1.0
  */
 
-public class MadisLayerCollector extends WFSLayerCollector<MadisDimension, MadisLayer, MadisRecord> {
+public class MadisLayerCollector extends
+        SingleLayerCollector<MadisDimension, MadisLayer, MadisRecord> {
 
     private static final String MADIS_LAYER_NAME = "madis";
 
-    private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(MadisLayerCollector.class);
-
-    private final int roundCutoff = 45;
-
-    private volatile boolean alreadyInitialized; 
-    
-    public MadisLayerCollector(
-            LayerTransformer<MadisDimension, MadisLayer> transformer) {
-        super(transformer, MadisLayer.class, MadisRecord.class);
-        initializeLayer(layer, new MadisRecord());
+    public MadisLayerCollector(ILayerStore store) {
+        super(MadisLayer.class, MadisRecord.class, MADIS_LAYER_NAME, store);
     }
 
-    @Override
-    public void addAll(Collection<MadisRecord> coll) {
-        for (MadisRecord rec : coll) {
-            addToTimes(layer, rec);
-            addToDims(layer, rec);
-        }
-    }
-
-    private Date getTime(MadisRecord record) {
-        Date timeObs = record.getTimeObs();
-        return roundToHour(timeObs, roundCutoff);
-    }
-
-    /**
-     * {@inheritDoc}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.ogc.common.db.SingleLayerCollector#getTime(com.raytheon
+     * .uf.common.dataplugin.PluginDataObject)
      */
     @Override
-    protected void addToTimes(MadisLayer layer, MadisRecord record) {
-        synchronized (layer) {
-            if (record != null) {
-                SortedSet<Date> times = layer.getTimes();
-                times.add(getTime(record));
-                statusHandler.handle(Priority.DEBUG, "Adding madis layer: "
-                        + record.toString());
-            }
-        }
-    }
-
-    /**
-     * Filter geographically
-     */
-    public PluginDataObject[] geoFilter(PluginDataObject[] pdos) {
-
-        Collection<MadisRecord> withInGeoConstraint = new ArrayList<MadisRecord>();
-        PluginDataObject[] pdor = null;
-        
-        synchronized (layer) {
-
-            for (PluginDataObject record : pdos) {
-
-                MadisRecord rec = (MadisRecord) record;
-                
-                if (rec != null) {
-
-                    Envelope e = getCoverage().getEnvelope();
-
-                    if (rec.getLocation() != null) {
-
-                        Coordinate c = rec.getLocation().getLocation()
-                                .getCoordinate();
-
-                        if (c != null) {
-
-                            if (e.contains(c)) {
-                                withInGeoConstraint.add(rec);
-                            } else {
-                                statusHandler.handle(Priority.DEBUG,
-                                        "Madis record discarded:  outside of range: "
-                                                + rec.getLatitude() + " "
-                                                + rec.getLongitude());
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        if (!withInGeoConstraint.isEmpty()) {
-            int size = withInGeoConstraint.size();
-            pdor = withInGeoConstraint.toArray(new PluginDataObject[size]);
-        }
-
-        return pdor;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean initializeLayer(MadisLayer layer, MadisRecord rec) {
-        if (!alreadyInitialized) {
-            synchronized (layer) {
-                layer.setName(MADIS_LAYER_NAME);
-                // create the main point data set
-                setDataSet(layer);
-                ConfigLayer configLayer = getAgent().getLayer(layer.getName());
-                Coordinate lowerRight = getCoverage().getLowerRight();
-                Coordinate upperLeft = getCoverage().getUpperLeft();
-                ReferencedEnvelope env = new ReferencedEnvelope(upperLeft.x,
-                        lowerRight.x, lowerRight.y, upperLeft.y,
-                        MapUtil.LATLON_PROJECTION);
-                layer.setCrs84Bounds(JTS.toGeometry((Envelope) env));
-                layer.setTargetCrsCode(configLayer.getCrs());
-                layer.setTargetMaxx(env.getMaxX());
-                layer.setTargetMaxy(env.getMaxY());
-                layer.setTargetMinx(env.getMinX());
-                layer.setTargetMiny(env.getMinY());
-                layer.setTimes(new TreeSet<Date>());
-                // install main dataset name on registry
-                storeDataSet(getDataSet());
-            }
-            alreadyInitialized = true;
-        }
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected String getLayerName(MadisRecord rec) {
-        return MADIS_LAYER_NAME;
+    protected Calendar getTime(MadisRecord record) {
+        Calendar rval = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        rval.setTime(record.getTimeObs());
+        return rval;
     }
 
 }

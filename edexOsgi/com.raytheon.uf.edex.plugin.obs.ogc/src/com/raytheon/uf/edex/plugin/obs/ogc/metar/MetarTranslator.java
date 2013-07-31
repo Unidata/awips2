@@ -34,13 +34,11 @@ import java.util.ArrayList;
 
 import javax.xml.bind.JAXBElement;
 
-import net.opengis.gml.v_3_1_1.AbstractFeatureType;
-
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.obs.metar.MetarRecord;
 import com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.Metar;
 import com.raytheon.uf.edex.plugin.obs.ogc.metar.feature.MetarObjectFactory;
-import com.raytheon.uf.edex.wfs.reg.WfsTranslator;
+import com.raytheon.uf.edex.wfs.reg.IPdoGmlTranslator;
 
 /**
  * 
@@ -58,31 +56,42 @@ import com.raytheon.uf.edex.wfs.reg.WfsTranslator;
  * @version 1.0
  */
 
-public class MetarTranslator implements WfsTranslator {
+public class MetarTranslator implements IPdoGmlTranslator {
 
-	public MetarTranslator() {
-		
-	}
+    public static final String GML_VERSION = "3.1.1";
 
-	@Override
-	public ArrayList<JAXBElement<? extends AbstractFeatureType>> translate(
-			PluginDataObject[] pdos) {
-		ArrayList<JAXBElement<? extends AbstractFeatureType>> rval = new ArrayList<JAXBElement<? extends AbstractFeatureType>>(
-				pdos.length);
-		for (PluginDataObject pdo : pdos) {
-			rval.add(translate(pdo));
-		}
-		return rval;
-	}
+    public MetarTranslator() {
 
-	/**
-	 * @param pdo
-	 * @return
-	 */
-	public JAXBElement<Metar> translate(PluginDataObject pdo) {
-		MetarRecord record = (MetarRecord) pdo;
-		Metar to = new Metar(record);
-		return new MetarObjectFactory().create(to);
-	}
+    }
+
+    @Override
+    public ArrayList<JAXBElement<?>> translate(PluginDataObject[] pdos) {
+        ArrayList<JAXBElement<?>> rval = new ArrayList<JAXBElement<?>>(
+                pdos.length);
+        for (PluginDataObject pdo : pdos) {
+            rval.add(translate(pdo));
+        }
+        return rval;
+    }
+
+    /**
+     * @param pdo
+     * @return
+     */
+    public JAXBElement<Metar> translate(PluginDataObject pdo) {
+        MetarRecord record = (MetarRecord) pdo;
+        Metar to = new Metar(record);
+        return new MetarObjectFactory().create(to);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.edex.wfs.reg.PdoGmlTranslator#getVersion()
+     */
+    @Override
+    public String getVersion() {
+        return GML_VERSION;
+    }
 
 }

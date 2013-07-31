@@ -32,8 +32,8 @@ package com.raytheon.uf.edex.wfs;
 
 import org.apache.commons.pool.KeyedPoolableObjectFactory;
 
-import com.raytheon.uf.edex.wfs.provider.OgcWfsProvider;
 import com.raytheon.uf.edex.wfs.reg.WfsRegistryImpl;
+import com.raytheon.uf.edex.wfs.v1_1_0.Wfs1_1_0Provider;
 
 /**
  * TODO Add Description
@@ -63,7 +63,7 @@ public class WfsHttpFactory implements KeyedPoolableObjectFactory {
 	 */
 	@Override
 	public Object makeObject(Object key) throws Exception {
-		return new WfsHttpHandler(new OgcWfsProvider(registry));
+		return new WfsHttpHandler(new Wfs1_1_0Provider(registry));
 	}
 
 	/*
