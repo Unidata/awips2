@@ -17,17 +17,22 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.datadelivery.request;
+package com.raytheon.uf.common.plugin.nwsauth;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+
 import com.raytheon.uf.common.auth.req.AbstractPrivilegedRequest;
+import com.raytheon.uf.common.auth.req.IPermissionsService.IAuthorizedPermissionResponse;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * Authorization request for data delivery.
+ * Nws Authorization Request object.
  * 
  * <pre>
  * 
@@ -35,8 +40,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 12, 2012            mpduff       Initial creation
- * Oct 03, 2012 1241       djohnson     Use {@link DataDeliveryPermission}.
+ * Jul 26, 2013   2232     mpduff      Initial creation
  * 
  * </pre>
  * 
@@ -44,7 +48,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class DataDeliveryAuthRequest extends AbstractPrivilegedRequest implements ISerializableObject {
+public class NwsAuthRequest extends AbstractPrivilegedRequest implements
+        ISerializableObject, IAuthorizedPermissionResponse {
 
     /**
      * Authorized flag, true if authorized.
@@ -58,20 +63,31 @@ public class DataDeliveryAuthRequest extends AbstractPrivilegedRequest implement
     @DynamicSerializeElement
     private String notAuthorizedMessage = "Not Authorized";
 
+    /**
+     * List of requested permissions.
+     */
     @DynamicSerializeElement
-    private DataDeliveryPermissionsContainer permissionsContainer = new DataDeliveryPermissionsContainer();
+    @XmlElements({ @XmlElement(type = String.class) })
+    private List<String> requestList = new ArrayList<String>();
+
+    /**
+     * List of permissions that were authorized.
+     */
+    @DynamicSerializeElement
+    @XmlElements({ @XmlElement(type = String.class) })
+    private List<String> authorizedList = new ArrayList<String>();
 
     /**
      * Constructor
      */
-    public DataDeliveryAuthRequest() {
+    public NwsAuthRequest() {
 
     }
-
 
     /**
      * @return the authorized
      */
+    @Override
     public boolean isAuthorized() {
         return authorized;
     }
@@ -103,8 +119,8 @@ public class DataDeliveryAuthRequest extends AbstractPrivilegedRequest implement
      * @param permission
      *            Authorized permission
      */
-    public void addAuthorized(DataDeliveryPermission permission) {
-        this.permissionsContainer.addAuthorized(permission);
+    public void addAuthorized(String permission) {
+        this.authorizedList.add(permission);
     }
 
     /**
@@ -113,8 +129,8 @@ public class DataDeliveryAuthRequest extends AbstractPrivilegedRequest implement
      * 
      * @param permission
      */
-    public void addRequestedPermissions(DataDeliveryPermission permission) {
-        addRequestedPermissions(new DataDeliveryPermission[] { permission });
+    public void addRequestedPermissions(String permission) {
+        this.addRequestedPermissions(permission);
     }
 
     /**
@@ -122,11 +138,11 @@ public class DataDeliveryAuthRequest extends AbstractPrivilegedRequest implement
      * 
      * @param permissions
      */
-    public void addRequestedPermissions(DataDeliveryPermission... permissions) {
-        for (DataDeliveryPermission permission : permissions) {
-            permissionsContainer.addRequestedPermission(permission);
+    public void addRequestedPermissions(String... permissions) {
+        for (String permission : permissions) {
+            this.requestList.add(permission);
         }
-     }
+    }
 
     /**
      * Check whether the authorizations allowed for this user contain a
@@ -136,38 +152,52 @@ public class DataDeliveryAuthRequest extends AbstractPrivilegedRequest implement
      *            the permission to check for
      * @return true if the authorized list contains the permission
      */
-    public boolean isAuthorized(DataDeliveryPermission permission) {
-        return permissionsContainer.contains(permission);
+    public boolean isAuthorized(String permission) {
+        return this.authorizedList.contains(permission);
     }
 
     /**
-     * @return
+     * @return the requestList
      */
-    public List<DataDeliveryPermission> getRequestedPermissions() {
-        return permissionsContainer.getRequestedPermissions();
+    public List<String> getRequestedPermissions() {
+        return this.requestList;
     }
 
     /**
-     * Added only to comply with dynamic serialization. DO NOT USE.
-     * 
-     * @return the permissionsContainer
-     * @deprecated added only to comply with dynamic serialization
+     * @return the requestList
      */
-    @Deprecated
-    public DataDeliveryPermissionsContainer getPermissionsContainer() {
-        return permissionsContainer;
+    public List<String> getRequestList() {
+        return requestList;
     }
 
     /**
-     * Added only to comply with dynamic serialization. DO NOT USE.
-     * 
-     * @param permissionsContainer
-     *            the permissionsContainer to set
-     * @deprecated added only to comply with dynamic serialization
+     * @return the authorizedList
      */
-    @Deprecated
-    public void setPermissionsContainer(
-            DataDeliveryPermissionsContainer permissionsContainer) {
-        this.permissionsContainer = permissionsContainer;
+    public List<String> getAuthorizedList() {
+        return authorizedList;
+    }
+
+    /**
+     * @param requestList
+     *            the requestList to set
+     */
+    public void setRequestList(List<String> requestList) {
+        this.requestList = requestList;
+    }
+
+    /**
+     * @param authorizedList
+     *            the authorizedList to set
+     */
+    public void setAuthorizedList(List<String> authorizedList) {
+        this.authorizedList = authorizedList;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean hasPermission(String permission) {
+        return isAuthorized();
     }
 }
