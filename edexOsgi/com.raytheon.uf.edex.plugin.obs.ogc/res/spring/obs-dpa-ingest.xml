@@ -22,10 +22,8 @@
 		depends-on="persistCamelRegistered">
 		<constructor-arg ref="obs-camel"/>
   	</bean>
-  	
-  	<bean id="metarLayerCollector" class="com.raytheon.uf.edex.plugin.obs.ogc.metar.MetarLayerCollector" depends-on="registerDataDeliveryHandlers, registerRequestRegistryRouter, registerObsPlugin" >
-		<constructor-arg ref="metarLayerTransformer" />
-	</bean>
+	
+	<bean id="metarIngestFilter" class="com.raytheon.uf.edex.ogc.common.util.PluginFilterProcessor"/>
 
 	<camelContext id="obs-camel"
 		xmlns="http://camel.apache.org/schema/spring"
@@ -54,7 +52,7 @@
 				<pipeline>
 					<bean ref="stringToFile" />
 					<bean ref="obsDecoder" method="decode" />
-					<bean ref="metarLayerCollector" method="geoFilter"/>
+					<bean ref="metarIngestFilter"/>
 					<bean ref="metarPointData" method="toPointData" />
 					<bean ref="metarLayerCollector" method="add"/>
 					<to uri="direct-vm:persistIndex" />
@@ -64,11 +62,6 @@
 					<to uri="log:metar"/>
 				</doCatch>
 			</doTry>
-		</route>
-		
-		<route id="metarLayerRoute">
-			<from uri="quartz://metar/layers?cron=0+*+*+*+*+?" />
-			<bean ref="metarLayerCollector" method="buildLayerUpdate" />
 		</route>
 	
 	</camelContext>
