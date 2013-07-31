@@ -30,13 +30,13 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.List;
 
+import com.raytheon.uf.common.auth.AuthException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.auth.UserController;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 
@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 17, 2013  2000       djohnson   Consolidate duplicate code from latency and priority versions.
+ * Jul 26, 2031  2232       mpduff     Refactored Data Delivery permissions.
  * 
  * </pre>
  * 
@@ -129,8 +130,8 @@ public abstract class SystemRulesTab extends SystemTab {
         gd.widthHint = 375;
         gd.heightHint = 200;
 
-        rulesList = new List(listComp, SWT.BORDER | SWT.MULTI
-                | SWT.V_SCROLL | SWT.H_SCROLL | SWT.SINGLE);
+        rulesList = new List(listComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL
+                | SWT.H_SCROLL | SWT.SINGLE);
         rulesList.setLayoutData(gd);
         rulesList.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -237,7 +238,8 @@ public abstract class SystemRulesTab extends SystemTab {
      * New/Edit rule action handler.
      */
     private void handleRule() {
-        final DataDeliveryPermission permission = DataDeliveryPermission.SYSTEM_MANAGEMENT_CREATE;
+        final String permission = DataDeliveryPermission.SYSTEM_MANAGEMENT_CREATE
+                .toString();
         IUser user = UserController.getUserObject();
         String msg = user.uniqueId() + notAuthorizedMsg + permission;
 
@@ -278,7 +280,7 @@ public abstract class SystemRulesTab extends SystemTab {
                 }
 
             }
-        } catch (VizException e) {
+        } catch (AuthException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error occurred in authorization request", e);
         }
@@ -288,7 +290,8 @@ public abstract class SystemRulesTab extends SystemTab {
      * Delete rule action handler.
      */
     private void handleDeleteRule() {
-        final DataDeliveryPermission permission = DataDeliveryPermission.SYSTEM_MANAGEMENT_CREATE;
+        final String permission = DataDeliveryPermission.SYSTEM_MANAGEMENT_CREATE
+                .toString();
         IUser user = UserController.getUserObject();
         String msg = user.uniqueId() + notAuthorizedMsg + permission;
 
@@ -317,7 +320,7 @@ public abstract class SystemRulesTab extends SystemTab {
                     return;
                 }
             }
-        } catch (VizException e) {
+        } catch (AuthException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error occurred in authorization request", e);
         }
