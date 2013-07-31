@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.dataplugin.gfe.request;
 
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+
 /**
  * Request to determine whether specified site id is one of the server's
  * configured primary sites for service backup.
@@ -30,6 +32,7 @@ package com.raytheon.uf.common.dataplugin.gfe.request;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 02, 2013            dgilling     Initial creation
+ * Jul 22, 2013            dgilling     Add missing DynamicSerialize annotation.
  * 
  * </pre>
  * 
@@ -37,6 +40,7 @@ package com.raytheon.uf.common.dataplugin.gfe.request;
  * @version 1.0
  */
 
+@DynamicSerialize
 public class CheckServiceBackupPrimarySiteRequest extends AbstractGfeRequest {
 
 }
