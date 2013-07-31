@@ -43,6 +43,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.raytheon.uf.common.auth.req.IPermissionsService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
@@ -77,6 +78,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceA
  * Nov 20, 2012 1286       djohnson     Rewrite to support proposing subscription stores/updates and force applying.
  * Jan 02, 2012 1345       djohnson     Fix broken tests from using VizApp to move work off the UI thread.
  * May 08, 2000 2013       djohnson     Allow checks for duplicate subscriptions.
+ * Jul 26, 2031  2232      mpduff       Refactored Data Delivery permissions.
  * 
  * </pre>
  * 
@@ -112,7 +114,7 @@ public abstract class AbstractSubscriptionServiceTest {
 
     final IBandwidthService mockBandwidthService = mock(IBandwidthService.class);
 
-    final IPermissionsService permissionsService = mock(IPermissionsService.class);
+    final IPermissionsService permissionsService = mock(RequestFromServerPermissionsService.class);
 
     final ISubscriptionOverlapService subscriptionOverlapService = mock(ISubscriptionOverlapService.class);
 
@@ -351,6 +353,7 @@ public abstract class AbstractSubscriptionServiceTest {
             throws RegistryHandlerException {
         // Not valid for adhocs
     }
+
     /**
      * Verifies that the only interactions with the subscription handler are to
      * check for duplicate/overlapping subscriptions.
@@ -506,4 +509,3 @@ public abstract class AbstractSubscriptionServiceTest {
      */
     abstract ForceApplyPromptConfiguration getExpectedForceApplyPromptConfiguration();
 }
-
