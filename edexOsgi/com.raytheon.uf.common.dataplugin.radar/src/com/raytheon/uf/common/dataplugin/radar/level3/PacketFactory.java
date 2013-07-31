@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.GenericUtil;
-import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -39,6 +38,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 03/04/2013   DCS51      zwang       Handle GFM product
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -48,81 +48,46 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 public class PacketFactory {
     /** The logger */
-    private static final IUFStatusHandler handler = UFStatus.getHandler(PacketFactory.class);
+    private static final IUFStatusHandler handler = UFStatus
+            .getHandler(PacketFactory.class);
 
-    private static Map<Integer, Class<? extends SymbologyPacket>> classMap = new HashMap<Integer, Class<? extends SymbologyPacket>>();
+    private Map<Integer, Class<? extends SymbologyPacket>> classMap = new HashMap<Integer, Class<? extends SymbologyPacket>>();
 
-    private static Map<Integer, Class<? extends SymbologyPacket>> genericClassMap = new HashMap<Integer, Class<? extends SymbologyPacket>>();
+    private Map<Integer, Class<? extends SymbologyPacket>> genericClassMap = new HashMap<Integer, Class<? extends SymbologyPacket>>();
 
-    public synchronized static void registerPacketType(
+    private static final PacketFactory instance = new PacketFactory();
+
+    public static synchronized PacketFactory getInstance() {
+        return instance;
+    }
+
+    public synchronized Class<? extends SymbologyPacket> registerPacketType(
             Class<? extends SymbologyPacket> packetClass, int... packetIds) {
         for (int packetId : packetIds) {
-            if (handler.isPriorityEnabled(Priority.DEBUG)) {
-                handler.handle(Priority.DEBUG, "Registering packet ID: " + packetId
-                                + " with class " + packetClass.getName());
+            if (handler.isPriorityEnabled(Priority.INFO)) {
+                handler.handle(Priority.INFO, "Registering packet ID: "
+                        + packetId + " with class " + packetClass.getName());
             }
             classMap.put(packetId, packetClass);
         }
+        return packetClass;
     }
 
-    public synchronized static void registerGenericPacketType(
+    public synchronized Class<? extends SymbologyPacket> registerGenericPacketType(
             Class<? extends SymbologyPacket> packetClass, int... productIds) {
         for (int productId : productIds) {
-            if (handler.isPriorityEnabled(Priority.DEBUG)) {
-                handler.handle(Priority.DEBUG, "Registering product ID: " + productId
-                                + " with class " + packetClass.getName());
+            if (handler.isPriorityEnabled(Priority.INFO)) {
+                handler.handle(Priority.INFO, "Registering product ID: "
+                        + productId + " with class " + packetClass.getName());
             }
             genericClassMap.put(productId, packetClass);
         }
+        return packetClass;
     }
 
-    static {
-        // TODO: get appropriate directory. See recordFactory.loadRecordFromUri
-
-        // TODO !!! Had to hardcode when in cave
-
-        String[] v = new String[] { LinkedVectorPacket.class.getName(),
-                UnlinkedVectorPacket.class.getName(),
-                RasterPacket.class.getName(), RadialPacket.class.getName(),
-                TextSymbolPacket.class.getName(),
-                RadialPacket8bit.class.getName(),
-                HdaHailPacket.class.getName(), StormIDPacket.class.getName(),
-                MesocyclonePacket.class.getName(),
-                CorrelatedShearPacket.class.getName(),
-                TVSPacket.class.getName(), ETVSPacket.class.getName(),
-                WindBarbPacket.class.getName(),
-                STICirclePacket.class.getName(),
-                SpecialGraphicSymbolPacket.class.getName(),
-                SCITDataPacket.class.getName(),
-                PrecipDataPacket.class.getName(),
-                CellTrendVolumeScanPacket.class.getName(),
-                VectorArrowPacket.class.getName(),
-                CellTrendDataPacket.class.getName(),
-                HailPositivePacket.class.getName(),
-                HailProbablePacket.class.getName(),
-                GenericDataPacket.class.getName(),
-                LinkedContourVectorPacket.class.getName(),
-                UnlinkedContourVectorPacket.class.getName(),
-                GFMPacket.class.getName(),
-                DMDPacket.class.getName() };
-
-        // Properties props =
-        // PropertiesFactory.getInstance().getPluginProperties(
-        // "RADAR");
-        //
-        // List<String> list = props.getPluginPropertyList("PacketList");
-        //
-        for (String className : v) {
-            try {
-                Class.forName(className);
-            } catch (ClassNotFoundException e) {
-                handler.handle(Priority.ERROR, "No class found: " + className);
-            }
-        }
-    }
-
-    public static SymbologyPacket createPacket(int packetId, DataInputStream in)
+    public SymbologyPacket createPacket(int packetId, DataInputStream in)
             throws IOException {
+
         SymbologyPacket packet = null;
         Class<? extends SymbologyPacket> packetClass = classMap.get(packetId);
 
@@ -139,11 +104,12 @@ public class PacketFactory {
                         .getConstructor(int.class, DataInputStream.class);
                 packet = ctor.newInstance(packetId, in);
             } catch (Exception e) {
-                handler.handle(Priority.ERROR,
-                        "Unable to construct class " + packetClass.getName(), e);
+                handler.handle(Priority.ERROR, "Unable to construct class "
+                        + packetClass.getName(), e);
             }
         } else {
-            handler.handle(Priority.ERROR, "No class registered for packet ID: " + packetId);
+            handler.handle(Priority.ERROR,
+                    "No class registered for packet ID: " + packetId);
         }
         return packet;
     }
