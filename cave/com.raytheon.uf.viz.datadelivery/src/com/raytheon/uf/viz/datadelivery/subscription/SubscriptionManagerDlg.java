@@ -51,6 +51,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableColumn;
 
+import com.raytheon.uf.common.auth.AuthException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
@@ -62,7 +63,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.auth.UserController;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.datadelivery.actions.DataBrowserAction;
 import com.raytheon.uf.viz.datadelivery.common.ui.IGroupAction;
@@ -126,6 +126,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Jun 05, 2013 2064       mpduff     Fix for filtering combo boxes.
  * Jun 06, 2013 2030       mpduff     Refactored help.
  * Jun 14, 2013 2064       mpduff     Check for null/disposed sort column.
+ * Jul 26, 2031   2232     mpduff     Refactored Data Delivery permissions.
  * </pre>
  * 
  * @author mpduff
@@ -598,7 +599,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
      */
     private void createSubscription() {
         // check to see if authorized
-        final DataDeliveryPermission permission = DataDeliveryPermission.SUBSCRIPTION_CREATE;
+        final String permission = DataDeliveryPermission.SUBSCRIPTION_CREATE
+                .toString();
         IUser user = UserController.getUserObject();
         String msg = user.uniqueId()
                 + " is not authorized to create subscriptions";
@@ -614,7 +616,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
             statusHandler.handle(
                     com.raytheon.uf.common.status.UFStatus.Priority.ERROR,
                     e.getLocalizedMessage(), e);
-        } catch (VizException e) {
+        } catch (AuthException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }
@@ -627,7 +629,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
      */
     private void handleGroupCreate(boolean create) {
 
-        final DataDeliveryPermission permission = DataDeliveryPermission.SUBSCRIPTION_CREATE;
+        final String permission = DataDeliveryPermission.SUBSCRIPTION_CREATE
+                .toString();
         IUser user = UserController.getUserObject();
         String msg = user.uniqueId()
                 + " is not authorized to access the Dataset Discovery Browser\nPermission: "
@@ -660,7 +663,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                     }
                 }
             }
-        } catch (VizException e) {
+        } catch (AuthException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error occurred in authorization request", e);
         }
@@ -720,7 +723,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
             return;
         }
 
-        final DataDeliveryPermission permission = DataDeliveryPermission.SUBSCRIPTION_DELETE;
+        final String permission = DataDeliveryPermission.SUBSCRIPTION_DELETE
+                .toString();
 
         IUser user = UserController.getUserObject();
         String msg = user.uniqueId()
@@ -778,7 +782,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                     job.schedule();
                 }
             }
-        } catch (VizException e) {
+        } catch (AuthException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }
@@ -833,7 +837,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         getShell().setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
 
         // Check for activate premissions
-        final DataDeliveryPermission permission = DataDeliveryPermission.SUBSCRIPTION_ACTIVATE;
+        final String permission = DataDeliveryPermission.SUBSCRIPTION_ACTIVATE
+                .toString();
 
         final IUser user = UserController.getUserObject();
         final String username = user.uniqueId().toString();
@@ -896,7 +901,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                     }
                 }
             }
-        } catch (VizException e) {
+        } catch (AuthException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
 
@@ -1051,7 +1056,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                 }
             }
         }
-        
+
         // If null get the first one
         if (sortedTableColumn == null) {
             sortedTableColumn = tableComp.getTable().getColumn(0);
@@ -1087,12 +1092,16 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
 
             return DataDeliveryServices
                     .getPermissionsService()
-                    .checkPermissions(user, msg,
-                            DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE,
-                            DataDeliveryPermission.SUBSCRIPTION_APPROVE_USER,
-                            DataDeliveryPermission.SUBSCRIPTION_APPROVE_VIEW)
-                    .isAuthorized();
-        } catch (VizException e) {
+                    .checkPermissions(
+                            user,
+                            msg,
+                            DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE
+                                    .toString(),
+                            DataDeliveryPermission.SUBSCRIPTION_APPROVE_USER
+                                    .toString(),
+                            DataDeliveryPermission.SUBSCRIPTION_APPROVE_VIEW
+                                    .toString()).isAuthorized();
+        } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
 
