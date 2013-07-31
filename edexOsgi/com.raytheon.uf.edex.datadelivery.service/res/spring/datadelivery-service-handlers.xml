@@ -12,6 +12,9 @@
 
     <bean id="subscriptionDeleteServiceHandler"
         class="com.raytheon.uf.edex.datadelivery.service.services.SubscriptionDeleteHandler" />
+        
+    <bean id="providerKeyRequestServiceHandler"
+        class="com.raytheon.uf.edex.datadelivery.service.services.ProviderKeyRequestHandler" />
 
     <bean id="groupDefinitionServiceHandler"
         class="com.raytheon.uf.edex.datadelivery.service.services.GroupDefinitionServiceHandler">
@@ -28,6 +31,12 @@
         <constructor-arg
             value="com.raytheon.uf.common.datadelivery.registry.GroupDefinitionServiceRequest" />
         <constructor-arg ref="groupDefinitionServiceHandler" />
+    </bean>
+    
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.datadelivery.registry.ProviderKeyRequest" />
+        <constructor-arg ref="providerKeyRequestServiceHandler" />
     </bean>
 
 </beans>
