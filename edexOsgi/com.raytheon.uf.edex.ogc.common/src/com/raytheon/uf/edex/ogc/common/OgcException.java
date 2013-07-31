@@ -29,7 +29,7 @@ public class OgcException extends Exception {
 	private static final long serialVersionUID = -5832661027013919871L;
 
 	public enum Code {
-		InvalidFormat, InvalidCRS, LayerNotDefined, MissingDimensionValue, InvalidDimensionValue, OperationNotSupported, MissingParameterValue, InvalidParameterValue, InternalServerError
+        InvalidFormat, InvalidCRS, LayerNotDefined, MissingDimensionValue, InvalidDimensionValue, OperationNotSupported, MissingParameterValue, InvalidParameterValue, InternalServerError, InvalidRequest, VersionNegotiationFailed
 	}
 	
 	protected Code code;
