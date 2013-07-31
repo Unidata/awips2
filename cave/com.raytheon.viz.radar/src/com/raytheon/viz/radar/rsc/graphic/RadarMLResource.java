@@ -293,10 +293,8 @@ public class RadarMLResource extends RadarGraphicsResource {
         Map<Integer, IWireframeShape> shapeMap = null;
         synchronized (shapes) {
             shapeMap = shapes.get(time);
-            if (shapeMap == null || refresh == true && time != null) {
-                if (shapeMap != null) {
-                    disposeShapeMap(shapeMap);
-                }
+            if (time != null && (shapeMap == null || refresh)) {
+                disposeShapeMap(shapeMap);
                 shapeMap = new HashMap<Integer, IWireframeShape>();
                 shapes.put(time, shapeMap);
                 displayedDate = time;
