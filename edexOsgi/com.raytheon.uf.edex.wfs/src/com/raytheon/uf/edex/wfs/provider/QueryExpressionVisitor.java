@@ -34,9 +34,8 @@ import java.util.List;
 
 import net.opengis.filter.v_1_1_0.PropertyNameType;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.wfs.filter.ExpressionProcessor;
 import com.raytheon.uf.edex.wfs.filter.OgcExpressionVisitor;
 
@@ -47,7 +46,7 @@ import com.raytheon.uf.edex.wfs.filter.OgcExpressionVisitor;
  */
 public class QueryExpressionVisitor implements OgcExpressionVisitor {
 
-	protected Log log = LogFactory.getLog(this.getClass());
+	protected IUFStatusHandler log = UFStatus.getHandler(this.getClass());
 
 	/*
 	 * (non-Javadoc)

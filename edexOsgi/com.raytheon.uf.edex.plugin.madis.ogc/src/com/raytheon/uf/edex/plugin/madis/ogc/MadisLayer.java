@@ -50,9 +50,25 @@ import com.raytheon.uf.edex.ogc.common.db.SimpleLayer;
 @DynamicSerialize
 public class MadisLayer extends SimpleLayer<MadisDimension> {
 
-    @Override
+	private static final long serialVersionUID = 1L;
+
+	@Override
     public Set<MadisDimension> getDimensions() {
         return new TreeSet<MadisDimension>();
     }
+
+	/**
+	 * 
+	 */
+	public MadisLayer() {
+		super();
+	}
+
+	/**
+	 * @param other
+	 */
+	public MadisLayer(SimpleLayer<MadisDimension> other) {
+		super(other);
+	}
 
 }
