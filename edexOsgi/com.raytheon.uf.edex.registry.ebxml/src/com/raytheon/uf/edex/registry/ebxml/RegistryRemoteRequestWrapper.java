@@ -37,6 +37,8 @@ import com.raytheon.uf.edex.auth.RemoteRequestRouteWrapper;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 5/3/2013     1948        bphillip    Initial implementation
+ * 7/26/2031    2232        mpduff      Don't override executeThrift.
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -48,11 +50,6 @@ public class RegistryRemoteRequestWrapper extends RemoteRequestRouteWrapper
 
     @Override
     public byte[] request(byte[] data) {
-        return executeThrift(data);
+        return executeThrift(new ByteArrayInputStream(data));
     }
-
-    public byte[] executeThrift(byte[] data) {
-        return super.executeThrift(new ByteArrayInputStream(data));
-    }
-
 }

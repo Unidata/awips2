@@ -53,6 +53,7 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * ------------ ---------- ----------- --------------------------
  * May 23, 2012            mpduff     Initial creation
  * Aug 08, 2012    863     jpiatt     Added new interface method.
+ * Jul 28, 2013   2236     mpduff     Made resizable.
  * 
  * </pre>
  * 
@@ -61,7 +62,7 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  */
 
 public class ManageUserDlg extends CaveSWTDialog implements IUpdate {
-   
+
     /** The Stack Layout. */
     private final StackLayout stackLayout = new StackLayout();
 
@@ -79,26 +80,31 @@ public class ManageUserDlg extends CaveSWTDialog implements IUpdate {
 
     /** Permissions dual list */
     private DualList permDualList;
-    
+
     /** User role dual list */
     private DualList userRoleDualList;
-    
+
     /** Stack composite */
     private Composite stackComp;
 
-    /** The application currently selected.*/
+    /** The application currently selected. */
     private final String application;
 
     /**
      * Constructor.
      * 
-     * @param parent parent shell
-     * @param type type of data being edited
-     * @param selection selection being passed in
-     * @param application application working on
+     * @param parent
+     *            parent shell
+     * @param type
+     *            type of data being edited
+     * @param selection
+     *            selection being passed in
+     * @param application
+     *            application working on
      */
-    public ManageUserDlg(Shell parent, String type, String selection, String application) {
-        super(parent, SWT.DIALOG_TRIM);
+    public ManageUserDlg(Shell parent, String type, String selection,
+            String application) {
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE);
         this.selection = selection;
         this.type = type;
         this.application = application;
@@ -137,33 +143,39 @@ public class ManageUserDlg extends CaveSWTDialog implements IUpdate {
 
         String[] entries;
         if (type.equalsIgnoreCase("Role")) {
-            entries = new String[] { "Assigned Roles", "Assigned Permissions", "Assign Role to Users" };
+            entries = new String[] { "Assigned Roles", "Assigned Permissions",
+                    "Assign Role to Users" };
         } else {
             entries = new String[] { "Assigned Roles", "Assigned Permissions" };
         }
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         editCbo = new Combo(labelComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         editCbo.setLayoutData(gd);
-     
+
         editCbo.setItems(entries);
         editCbo.select(0);
         editCbo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if (editCbo.getItem(editCbo.getSelectionIndex()).equals("Assigned Roles")) {
+                if (editCbo.getItem(editCbo.getSelectionIndex()).equals(
+                        "Assigned Roles")) {
                     stackLayout.topControl = roleDualList;
-                } else if (editCbo.getItem(editCbo.getSelectionIndex()).equals("Assigned Permissions")) {
+                } else if (editCbo.getItem(editCbo.getSelectionIndex()).equals(
+                        "Assigned Permissions")) {
                     stackLayout.topControl = permDualList;
-                } else if (editCbo.getItem(editCbo.getSelectionIndex()).equals("Assign Role to Users")) {
+                } else if (editCbo.getItem(editCbo.getSelectionIndex()).equals(
+                        "Assign Role to Users")) {
                     stackLayout.topControl = userRoleDualList;
                 }
-                
+
                 stackComp.layout();
             }
         });
 
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         stackComp = new Composite(shell, SWT.NONE);
         stackComp.setLayout(stackLayout);
+        stackComp.setLayoutData(gd);
 
         NwsRoleDataManager manager = NwsRoleDataManager.getInstance();
         ArrayList<String> selectedList = new ArrayList<String>();
@@ -172,7 +184,8 @@ public class ManageUserDlg extends CaveSWTDialog implements IUpdate {
         String selectedLabel = "Selected Roles:";
 
         // build roles widgets
-        String[] userRoles = manager.getRoleData(application).getUserRoles(this.selection);
+        String[] userRoles = manager.getRoleData(application).getUserRoles(
+                this.selection);
         for (String role : userRoles) {
             selectedList.add(role);
         }
@@ -181,7 +194,7 @@ public class ManageUserDlg extends CaveSWTDialog implements IUpdate {
         for (String role : roles) {
             fullList.add(role);
         }
-        
+
         DualListMenuData menuData = new DualListMenuData();
         menuData.setApplication(this.application);
         menuData.setMenuText("Details...");
@@ -201,7 +214,8 @@ public class ManageUserDlg extends CaveSWTDialog implements IUpdate {
         // Build permissions widgets
         ArrayList<String> selectedPermList = new ArrayList<String>();
         ArrayList<String> fullPermList = new ArrayList<String>();
-        String[] userPerms = manager.getRoleData(application).getUserPermissions(this.selection);
+        String[] userPerms = manager.getRoleData(application)
+                .getUserPermissions(this.selection);
         for (String perm : userPerms) {
             selectedPermList.add(perm);
         }
@@ -245,9 +259,10 @@ public class ManageUserDlg extends CaveSWTDialog implements IUpdate {
         userRoleConfig.setListHeight(90);
         userRoleConfig.setListWidth(175);
         userRoleConfig.setFullList(fullUserList);
-        
-        userRoleDualList = new DualList(stackComp, SWT.NONE, userRoleConfig, this);
-        
+
+        userRoleDualList = new DualList(stackComp, SWT.NONE, userRoleConfig,
+                this);
+
         int buttonWidth = 75;
         GridData btnData = new GridData(buttonWidth, SWT.DEFAULT);
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false);
@@ -290,54 +305,56 @@ public class ManageUserDlg extends CaveSWTDialog implements IUpdate {
         String[] selectedUsers = userRoleDualList.getSelectedListItems();
         String[] permissions = permDualList.getSelectedListItems();
         String[] roles = roleDualList.getSelectedListItems();
-        
+
         NwsRoleDataManager man = NwsRoleDataManager.getInstance();
         NwsRoleData roleData = man.getRoleData(application);
-        
+
         if (type.equalsIgnoreCase("User")) {
-            ArrayList<UserXML> userList = (ArrayList<UserXML>) roleData.getUserList();
-            for (UserXML user: userList) {
+            ArrayList<UserXML> userList = (ArrayList<UserXML>) roleData
+                    .getUserList();
+            for (UserXML user : userList) {
                 if (user.getUserId().equals(selection)) {
                     // Update permissions
                     ArrayList<String> permissionList = new ArrayList<String>();
-                    for (String perm: permissions) {
+                    for (String perm : permissions) {
                         permissionList.add(perm);
                     }
                     user.setPermissionList(permissionList);
-                    
+
                     // Update roles
                     ArrayList<String> roleList = new ArrayList<String>();
-                    for (String role: roles) {
+                    for (String role : roles) {
                         roleList.add(role);
                     }
                     user.setRoleList(roleList);
                     break;
-                }               
-            }            
+                }
+            }
         } else { // type is role
-            ArrayList<RoleXML> roleList = (ArrayList<RoleXML>) roleData.getRoleList();
-            for (RoleXML role: roleList) {
+            ArrayList<RoleXML> roleList = (ArrayList<RoleXML>) roleData
+                    .getRoleList();
+            for (RoleXML role : roleList) {
                 if (role.getRoleId().equals(selection)) {
                     // Update permissions, start by clearing the list
                     role.getPermissionList().clear();
-                    for (String perm: permissions) {
+                    for (String perm : permissions) {
                         if (!role.getPermissionList().contains(perm)) {
                             role.addPermission(perm);
                         }
                     }
-                    
+
                     // Add roles
-                    for (String r: roles) {
+                    for (String r : roles) {
                         if (!role.getPermissionList().contains(r)) {
                             role.addPermission(r);
                         }
                     }
                 }
             }
-            
+
             // Add role to selected users
-            for (String selectedUser: selectedUsers) {
-                for (UserXML user: roleData.getUserList()) {
+            for (String selectedUser : selectedUsers) {
+                for (UserXML user : roleData.getUserList()) {
                     if (selectedUser.equals(user.getUserId())) {
                         if (!user.getRoleList().contains(selection)) {
                             user.addRole(selection);
@@ -347,10 +364,10 @@ public class ManageUserDlg extends CaveSWTDialog implements IUpdate {
                 }
             }
         }
-        
+
         close();
     }
-    
+
     @Override
     public void hasEntries(boolean entries) {
         this.setReturnValue(true);
@@ -359,6 +376,6 @@ public class ManageUserDlg extends CaveSWTDialog implements IUpdate {
     @Override
     public void selectionChanged() {
         // unused
-        
+
     }
 }
