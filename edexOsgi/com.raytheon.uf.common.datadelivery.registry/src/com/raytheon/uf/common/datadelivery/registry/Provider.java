@@ -153,11 +153,11 @@ public class Provider implements ISerializableObject {
 
     @XmlElements({ @XmlElement(name = "projection", type = Projection.class) })
     @DynamicSerializeElement
-    private List<Projection> projection;;
+    private List<Projection> projection;
 
     public Provider() {
 
-    };
+    }
 
     // TODO: Need to add a bunch of things here!
 
