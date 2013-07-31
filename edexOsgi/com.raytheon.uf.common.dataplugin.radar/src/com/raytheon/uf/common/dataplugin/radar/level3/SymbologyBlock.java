@@ -38,6 +38,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 11-02-2007   465        randerso    Major revision to support full level 3 radar decode
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
+ * 
  * 
  * </pre>
  * 
@@ -109,8 +111,8 @@ public class SymbologyBlock extends AbstractBlock implements
                         break; // found layer divider break out of packet loop
                     }
 
-                    SymbologyPacket symPacket = PacketFactory.createPacket(
-                            packetId, in);
+                    SymbologyPacket symPacket = PacketFactory.getInstance()
+                            .createPacket(packetId, in);
 
                     if (symPacket != null) {
                         packet.add(symPacket);
