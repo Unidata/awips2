@@ -330,9 +330,15 @@
 		<include>request-router.xml</include>
 		<include>utility-request.xml</include>
 		<include>dpa-datadelivery.xml</include>
+		<!-- Don't want this for DPA, we don't need a local registry -->
+		<exclude>harvester-datadelivery-standalone.xml</exclude>
+		
 		<!-- OGC/DPA services -->
 		<include>ogc-common.xml</include>
 		<include>.*-ogc-request.xml</include>
+		<include>.*-ogc-rest-request.xml</include>
+		<include>.*-ogc-soap-request.xml</include>
+		<include>.*-ogc-soap-wsdl.xml</include>
 		<!--  Purge OGC/DPA registred plugins -->
 		<include>purge-spring.xml</include>
 		<include>purge-spring-impl.xml</include>
@@ -342,10 +348,10 @@
 	<mode name="dataprovideragent">
 		<includeMode>dataProviderAgentTemplate</includeMode>
 		<!-- pointdata/madis specific services -->
-		<include>madis-common.xml</include>
 		<include>pointdata-common.xml</include>
-		<include>madis-dpa-ingest.xml</include>
+		<include>madis-common.xml</include>
 		<include>madis-ogc.xml</include>
+		<include>madis-ogc-registry.xml</include>
 		<!-- pointdata/obs specific services 
 		<include>obs-common.xml</include>
 		<include>pointdata-common.xml</include>
