@@ -27,6 +27,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.common.auth.AuthException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
@@ -35,7 +36,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.auth.UserController;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.datadelivery.common.ui.LoadSaveConfigDlg;
 import com.raytheon.uf.viz.datadelivery.common.ui.LoadSaveConfigDlg.DialogType;
 import com.raytheon.uf.viz.datadelivery.filter.MetaDataManager;
@@ -58,6 +58,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
  * Aug 10, 2012 1022       djohnson     Store provider name in {@link SubsetXml}, use GriddedDataSet.
  * Aug 21, 2012 0743       djohnson     Change getMetaData to getDataSet.
  * Oct 03, 2012 1241       djohnson     Use {@link DataDeliveryPermission}.
+ * Jul 26, 2031   2232     mpduff       Refactored Data Delivery permissions.
  * 
  * </pre>
  * 
@@ -80,7 +81,8 @@ public class SubsetAction extends AbstractHandler {
     /** Dialog instance */
     private LoadSaveConfigDlg loadDlg = null;
 
-    private final DataDeliveryPermission permission = DataDeliveryPermission.SUBSCRIPTION_EDIT;
+    private final String permission = DataDeliveryPermission.SUBSCRIPTION_EDIT
+            .toString();
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
@@ -120,7 +122,7 @@ public class SubsetAction extends AbstractHandler {
                     dlg.bringToTop();
                 }
             }
-        } catch (VizException e) {
+        } catch (AuthException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
 
