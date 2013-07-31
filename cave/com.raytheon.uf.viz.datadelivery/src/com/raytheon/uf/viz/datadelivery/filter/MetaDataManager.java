@@ -69,6 +69,7 @@ import com.raytheon.uf.viz.datadelivery.filter.config.xml.FilterTypeXML;
  * Dec 10, 2012 1259       bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Jun 04, 2013  223       mpduff       Add data set type to filter.
  * Jul 05, 2013 2137       mpduff       Single data type.
+ * Jul 29, 2013 2196       bgonzale     Added levels isEmpty check.
  * 
  * </pre>
  * 
@@ -254,7 +255,8 @@ public class MetaDataManager {
                 List<String> levels = DataDeliveryHandlers
                         .getParameterHandler().getDataLevelTypeDescriptions(
                                 dataTypeList);
-                if (levels != null && levels.get(0) != null) {
+                if (levels != null && !levels.isEmpty()
+                        && levels.get(0) != null) {
                     allAvailableLevels.addAll(levels);
                 }
             } catch (RegistryHandlerException e) {
