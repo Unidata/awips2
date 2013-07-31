@@ -37,7 +37,7 @@ public class OgcPrefix {
 	 */
 	public static final String GML = "gml";
 
-	public static final String ISM = "ism";
+    public static final String ISM = "icism";
 
 	/**
 	 * Open Geospatial Consortium
@@ -109,4 +109,17 @@ public class OgcPrefix {
 	public static final String SLD = "sld";
 
 	public static final String SE = "se";
+
+    public static final String WX = "wx";
+
+    public static final String AVWX = "avwx";
+
+    public static final String FES = "fes";
+
+    public static final String WSNT = "wsn-b";
+
+    public static final String WSA = "wsa";
+
+    public static final String OWSNT = "owsnt";
+
 }

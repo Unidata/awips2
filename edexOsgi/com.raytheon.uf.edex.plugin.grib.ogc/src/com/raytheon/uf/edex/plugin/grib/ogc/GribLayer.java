@@ -1,28 +1,16 @@
+/**
+ * Copyright 09/24/12 Raytheon Company.
+ *
+ * Unlimited Rights
+ * This software was developed pursuant to Contract Number 
+ * DTFAWA-10-D-00028 with the US Government. The US Government’s rights 
+ * in and to this copyrighted software are as specified in DFARS
+ * 252.227-7014 which was made part of the above contract. 
+ */
+
 package com.raytheon.uf.edex.plugin.grib.ogc;
 
-/**
- * This software was developed and / or modified by Raytheon Company,
- * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
- * U.S. EXPORT CONTROLLED TECHNICAL DATA
- * This software product contains export-restricted data whose
- * export/transfer/disclosure is restricted by U.S. law. Dissemination
- * to non-U.S. persons whether in the United States or abroad requires
- * an export license or other authorization.
- * 
- * Contractor Name:        Raytheon Company
- * Contractor Address:     6825 Pine Street, Suite 340
- *                         Mail Stop B8
- *                         Omaha, NE 68106
- *                         402.291.0100
- * 
- * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
- * further licensing information.
- **/
-
 import java.util.Date;
-import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -33,56 +21,160 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.edex.ogc.common.db.SimpleLayer;
-/**
- * 
- * GribLayer
- * 
- * <pre>
- * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 04/01/2013   1746       dhladky      Initial creation
- * </pre>
- * 
- * @author dhladky
- * @version 1.0
- */
-
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class GribLayer extends SimpleLayer<GribDimension> {
+public abstract class GribLayer extends SimpleLayer<GribDimension> {
 
-	@XmlElement
-	@DynamicSerializeElement
-    protected Set<GribDimension> dimensions;
+    private static final long serialVersionUID = 6934503885157257766L;
+
+    @XmlElement
+    @DynamicSerializeElement
+    protected String coverageName;
+
+    @XmlElement
+    @DynamicSerializeElement
+    protected String crsWkt;
+
+    @XmlElement
+    @DynamicSerializeElement
+    protected double nativeMinX;
+
+    @XmlElement
+    @DynamicSerializeElement
+    protected double nativeMinY;
+
+    @XmlElement
+    @DynamicSerializeElement
+    protected double nativeMaxX;
+
+    @XmlElement
+    @DynamicSerializeElement
+    protected double nativeMaxY;
+
+    @XmlElement
+    @DynamicSerializeElement
+    protected boolean vertical = true;
 
 	public GribLayer() {
-        this(new TreeSet<Date>(), new TreeSet<GribDimension>());
 	}
 
-	public GribLayer(TreeSet<Date> times, Set<GribDimension> dimensions) {
-		this.times = times;
-		this.dimensions = dimensions;
-	}
+    public GribLayer(GribLayer other) {
+        super(other);
+        this.times = new TreeSet<Date>(other.getTimes());
+        this.coverageName = other.getCoverageName();
+        this.crsWkt = other.getCrsWkt();
+        this.nativeMaxX = other.nativeMaxX;
+        this.nativeMaxY = other.nativeMaxY;
+        this.nativeMinX = other.nativeMinX;
+        this.nativeMinY = other.nativeMinY;
+        this.vertical = other.vertical;
+    }
 
-	public void setTimes(TreeSet<Date> times) {
-		this.times = times;
-	}
+    /**
+     * @return the coverageName
+     */
+    public String getCoverageName() {
+        return coverageName;
+    }
 
-    public void setDimensions(Set<GribDimension> dimensions) {
-		this.dimensions = dimensions;
-	}
+    /**
+     * @param coverageName
+     *            the coverageName to set
+     */
+    public void setCoverageName(String coverageName) {
+        this.coverageName = coverageName;
+    }
 
-	@Override
-    public Set<GribDimension> getDimensions() {
-		return dimensions;
-	}
+    /**
+     * @return the crsWkt
+     */
+    public String getCrsWkt() {
+        return crsWkt;
+    }
 
-	@Override
-	public SortedSet<Date> getTimes() {
-		return times;
-	}
+    /**
+     * @param crsWkt
+     *            the crsWkt to set
+     */
+    public void setCrsWkt(String crsWkt) {
+        this.crsWkt = crsWkt;
+    }
+
+    /**
+     * @return the nativeMinX
+     */
+    public double getNativeMinX() {
+        return nativeMinX;
+    }
+
+    /**
+     * @param nativeMinX
+     *            the nativeMinX to set
+     */
+    public void setNativeMinX(double nativeMinX) {
+        this.nativeMinX = nativeMinX;
+    }
+
+    /**
+     * @return the nativeMinY
+     */
+    public double getNativeMinY() {
+        return nativeMinY;
+    }
+
+    /**
+     * @param nativeMinY
+     *            the nativeMinY to set
+     */
+    public void setNativeMinY(double nativeMinY) {
+        this.nativeMinY = nativeMinY;
+    }
+
+    /**
+     * @return the nativeMaxX
+     */
+    public double getNativeMaxX() {
+        return nativeMaxX;
+    }
+
+    /**
+     * @param nativeMaxX
+     *            the nativeMaxX to set
+     */
+    public void setNativeMaxX(double nativeMaxX) {
+        this.nativeMaxX = nativeMaxX;
+    }
+
+    /**
+     * @return the nativeMaxY
+     */
+    public double getNativeMaxY() {
+        return nativeMaxY;
+    }
+
+    /**
+     * @param nativeMaxY
+     *            the nativeMaxY to set
+     */
+    public void setNativeMaxY(double nativeMaxY) {
+        this.nativeMaxY = nativeMaxY;
+    }
+
+    /**
+     * @return the vertical
+     */
+    public boolean isVertical() {
+        return vertical;
+    }
+
+    /**
+     * @param vertical
+     *            the vertical to set
+     */
+    public void setVertical(boolean vertical) {
+        this.vertical = vertical;
+    }
 
 }
