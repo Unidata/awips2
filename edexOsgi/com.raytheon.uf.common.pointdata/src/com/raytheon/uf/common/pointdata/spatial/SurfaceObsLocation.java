@@ -60,6 +60,7 @@ import com.vividsolutions.jts.geom.Point;
  *                                     hibernate spatial.
  * Jul 16, 2013 2181       bsteffen    Convert geometry types to use hibernate-
  *                                     spatial
+ * July 15, 2013 2180      dhladky     Changed to hibernate spatial type (Done in 13.51) not in dev
  * 
  * </pre>
  * 
@@ -103,7 +104,7 @@ public class SurfaceObsLocation implements ISpatialObject, Cloneable {
     @DynamicSerializeElement
     private Boolean locationDefined = Boolean.FALSE;
 
-    @Column
+    @Column(name = "location", columnDefinition = "geometry")
     @Type(type = "org.hibernatespatial.GeometryUserType")
     @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
