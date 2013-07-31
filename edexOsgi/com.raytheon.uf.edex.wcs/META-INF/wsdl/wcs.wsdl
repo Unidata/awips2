@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:wcs="http://www.opengis.net/wcs/1.1" xmlns:wcs-soap="http://www.opengis.net/wcs/soap/1.1"
+    xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:ows="http://www.opengis.net/ows/1.1" targetNamespace="http://wcs.edex.uf.raytheon.com" 
+    xmlns:tns="http://wcs.edex.uf.raytheon.com" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <!-- ============================================================== -->
+    <!-- WCS request/response types -->
+    <!-- ============================================================== -->
+    <wsdl:types xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        <xsd:schema targetNamespace="http://www.opengis.net/wcs/1.1" xmlns:wcs="http://www.opengis.net/wcs/1.1" xmlns:xmime="http://www.w3.org/2005/05/xmlmime"
+            elementFormDefault="qualified" version="1.1.2">
+            <xsd:include schemaLocation="http://schemas.opengis.net/wcs/1.1/wcsAll.xsd" />
+        </xsd:schema>
+    </wsdl:types>
+
+    <!-- ============================================================== -->
+    <!-- WCS request messages -->
+    <!-- ============================================================== -->
+    <wsdl:message name="GetCapabilitiesRequest">
+        <wsdl:part name="Body" element="wcs:GetCapabilities" />
+    </wsdl:message>
+    <wsdl:message name="DescribeCoverageRequest">
+        <wsdl:part name="Body" element="wcs:DescribeCoverage" />
+    </wsdl:message>
+    <wsdl:message name="GetCoverageRequest">
+        <wsdl:part name="Body" element="wcs:GetCoverage" />
+    </wsdl:message>
+
+    <!-- ============================================================== -->
+    <!-- WCS response messages -->
+    <!-- ============================================================== -->
+    <wsdl:message name="GetCapabilitiesResponse">
+        <wsdl:part name="Body" element="wcs:Capabilities" />
+    </wsdl:message>
+    <wsdl:message name="DescribeCoverageResponse">
+        <wsdl:part name="Body" element="wcs:CoverageDescriptions" />
+    </wsdl:message>
+    <wsdl:message name="GetCoverageResponse">
+        <wsdl:part name="response" element="wcs:Coverages" />
+        <wsdl:part name="coverageData" type="xsd:base64Binary" />
+    </wsdl:message>
+    <wsdl:message name="ServiceExceptionReport">
+        <wsdl:part name="Body" element="ows:ExceptionReport" />
+    </wsdl:message>
+
+    <!-- ============================================================== -->
+    <!-- WCS port -->
+    <!-- ============================================================== -->
+    <wsdl:portType name="WcsPortType">
+        <wsdl:operation name="GetCapabilitiesOperation">
+            <wsdl:input message="tns:GetCapabilitiesRequest" />
+            <wsdl:output message="tns:GetCapabilitiesResponse" />
+            <wsdl:fault name="ServiceExceptionReport"
+                message="tns:ServiceExceptionReport" />
+        </wsdl:operation>
+        <wsdl:operation name="DescribeCoverageOperation">
+            <wsdl:input message="tns:DescribeCoverageRequest" />
+            <wsdl:output message="tns:DescribeCoverageResponse" />
+            <wsdl:fault name="ServiceExceptionReport"
+                message="tns:ServiceExceptionReport" />
+        </wsdl:operation>
+        <wsdl:operation name="GetCoverageOperation">
+            <wsdl:input message="tns:GetCoverageRequest" />
+            <wsdl:output message="tns:GetCoverageResponse" />
+            <wsdl:fault name="ServiceExceptionReport"
+                message="tns:ServiceExceptionReport" />
+        </wsdl:operation>
+    </wsdl:portType>
+
+    <!-- ============================ Bindings Section ================================ -->
+
+    <!-- ============================================================== -->
+    <!-- WCS binding -->
+    <!-- ============================================================== -->
+    <wsdl:binding name="WcsSoapBinding" type="tns:WcsPortType">
+        <soap:binding style="document"
+            transport="http://schemas.xmlsoap.org/soap/http" />
+        <wsdl:operation name="GetCapabilitiesOperation">
+            <soap:operation />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="ServiceExceptionReport">
+                <soap:fault name="ServiceExceptionReport"
+                    use="literal" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="DescribeCoverageOperation">
+            <soap:operation />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+            <wsdl:fault name="ServiceExceptionReport">
+                <soap:fault name="ServiceExceptionReport"
+                    use="literal" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetCoverageOperation">
+            <soap:operation />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <mime:multipartRelated>
+                    <mime:part>
+                        <soap:body parts="response" use="literal"/>
+                    </mime:part>
+                    <mime:part>
+                        <mime:content part="coverageData" type="application/octet-stream"/>
+                    </mime:part>
+                </mime:multipartRelated>
+            </wsdl:output>
+            <wsdl:fault name="ServiceExceptionReport">
+                <soap:fault name="ServiceExceptionReport"
+                    use="literal" />
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <!-- ============================ Service Section ================================ -->
+    <wsdl:service name="wcs">
+        <wsdl:port name="Wcs" binding="tns:WcsSoapBinding">
+            <soap:address location="http://0.0.0.0:8086/wcs1.1.2"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions> 

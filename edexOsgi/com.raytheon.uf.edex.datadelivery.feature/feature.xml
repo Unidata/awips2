@@ -74,5 +74,18 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+         
+   <plugin
+         id="org.w3.XMLSchema"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
+   <plugin
+         id="com.raytheon.uf.common.nc4"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+   
 </feature>

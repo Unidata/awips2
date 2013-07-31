@@ -44,18 +44,24 @@ public class VisitorBag {
 
 	protected String spatialField;
 
+    protected String verticalField;
+
 	protected Map<String, String> fieldMap;
+
+    protected String idField;
 
 	/**
 	 * @param converter
 	 * @param rootEntity
 	 * @param spatialField
 	 */
-	public VisitorBag(Class<?> rootEntity,
-			String spatialField) {
+    public VisitorBag(Class<?> rootEntity, String spatialField,
+            String verticalField, String idField) {
 		super();
 		this.rootEntity = rootEntity;
 		this.spatialField = spatialField;
+        this.verticalField = verticalField;
+        this.idField = idField;
 	}
 
 	public String filterField(String field) {
@@ -89,5 +95,35 @@ public class VisitorBag {
 	public void setFieldMap(Map<String, String> fieldMap) {
 		this.fieldMap = fieldMap;
 	}
+
+    /**
+     * @return the idField
+     */
+    public String getIdField() {
+        return idField;
+    }
+
+    /**
+     * @param idField
+     *            the idField to set
+     */
+    public void setIdField(String idField) {
+        this.idField = idField;
+    }
+
+    /**
+     * @return the verticalField
+     */
+    public String getVerticalField() {
+        return verticalField;
+    }
+
+    /**
+     * @param verticalField
+     *            the verticalField to set
+     */
+    public void setVerticalField(String verticalField) {
+        this.verticalField = verticalField;
+    }
 
 }

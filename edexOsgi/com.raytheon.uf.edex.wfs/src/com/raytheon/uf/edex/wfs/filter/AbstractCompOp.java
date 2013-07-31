@@ -42,8 +42,8 @@ import net.opengis.filter.v_1_1_0.PropertyIsBetweenType;
 import net.opengis.filter.v_1_1_0.PropertyIsLikeType;
 import net.opengis.filter.v_1_1_0.PropertyIsNullType;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * 
@@ -52,150 +52,150 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class AbstractCompOp {
 
-	protected static final Map<String, AbstractCompOp> binaryMap;
+    protected static final Map<String, AbstractCompOp> binaryMap;
 
-	protected Log log = LogFactory.getLog(this.getClass());
+    protected IUFStatusHandler log = UFStatus.getHandler(this.getClass());
 
-	static {
-		binaryMap = new HashMap<String, AbstractCompOp>();
-		binaryMap.put("PropertyIsEqualTo", new Equal());
-		binaryMap.put("PropertyIsNotEqualTo", new NotEqual());
-		binaryMap.put("PropertyIsLessThan", new LessThan());
-		binaryMap.put("PropertyIsGreaterThan", new GreaterThan());
-		binaryMap.put("PropertyIsLessThanOrEqualTo", new LessThanEqual());
-		binaryMap.put("PropertyIsGreaterThanOrEqualTo", new GreaterThanEqual());
-	}
+    static {
+        binaryMap = new HashMap<String, AbstractCompOp>();
+        binaryMap.put("PropertyIsEqualTo", new Equal());
+        binaryMap.put("PropertyIsNotEqualTo", new NotEqual());
+        binaryMap.put("PropertyIsLessThan", new LessThan());
+        binaryMap.put("PropertyIsGreaterThan", new GreaterThan());
+        binaryMap.put("PropertyIsLessThanOrEqualTo", new LessThanEqual());
+        binaryMap.put("PropertyIsGreaterThanOrEqualTo", new GreaterThanEqual());
+    }
 
-	public abstract Object visit(JAXBElement<? extends ComparisonOpsType> op,
-			OgcFilterVisitor visitor, Object obj) throws Exception;
+    public abstract Object visit(JAXBElement<? extends ComparisonOpsType> op,
+            OgcFilterVisitor visitor, Object obj) throws Exception;
 
-	public static class Like extends AbstractCompOp {
-		@Override
-		public Object visit(JAXBElement<? extends ComparisonOpsType> op,
-				OgcFilterVisitor visitor, Object obj) throws Exception {
-			return visitor.isLike((PropertyIsLikeType) op.getValue(), obj);
-		}
-	}
+    public static class Like extends AbstractCompOp {
+        @Override
+        public Object visit(JAXBElement<? extends ComparisonOpsType> op,
+                OgcFilterVisitor visitor, Object obj) throws Exception {
+            return visitor.isLike((PropertyIsLikeType) op.getValue(), obj);
+        }
+    }
 
-	public static class Null extends AbstractCompOp {
-		@Override
-		public Object visit(JAXBElement<? extends ComparisonOpsType> op,
-				OgcFilterVisitor visitor, Object obj) throws Exception {
-			return visitor.isNull((PropertyIsNullType) op.getValue(), obj);
-		}
-	}
+    public static class Null extends AbstractCompOp {
+        @Override
+        public Object visit(JAXBElement<? extends ComparisonOpsType> op,
+                OgcFilterVisitor visitor, Object obj) throws Exception {
+            return visitor.isNull((PropertyIsNullType) op.getValue(), obj);
+        }
+    }
 
-	public static class Between extends AbstractCompOp {
-		@Override
-		public Object visit(JAXBElement<? extends ComparisonOpsType> op,
-				OgcFilterVisitor visitor, Object obj) throws Exception {
-			PropertyIsBetweenType between = (PropertyIsBetweenType) op
-					.getValue();
-			ExpressionProcessor exp = new ExpressionProcessor(
-					between.getExpression());
-			ExpressionProcessor lower = new ExpressionProcessor(between
-					.getLowerBoundary().getExpression());
-			ExpressionProcessor upper = new ExpressionProcessor(between
-					.getUpperBoundary().getExpression());
-			return visitor.between(lower, exp, upper, obj);
-		}
-	}
+    public static class Between extends AbstractCompOp {
+        @Override
+        public Object visit(JAXBElement<? extends ComparisonOpsType> op,
+                OgcFilterVisitor visitor, Object obj) throws Exception {
+            PropertyIsBetweenType between = (PropertyIsBetweenType) op
+                    .getValue();
+            ExpressionProcessor exp = new ExpressionProcessor(
+                    between.getExpression());
+            ExpressionProcessor lower = new ExpressionProcessor(between
+                    .getLowerBoundary().getExpression());
+            ExpressionProcessor upper = new ExpressionProcessor(between
+                    .getUpperBoundary().getExpression());
+            return visitor.between(lower, exp, upper, obj);
+        }
+    }
 
-	public static class BinaryOp extends AbstractCompOp {
-		@Override
-		public Object visit(JAXBElement<? extends ComparisonOpsType> op,
-				OgcFilterVisitor visitor, Object obj) throws Exception {
-			String name = op.getName().getLocalPart();
-			AbstractCompOp compOp = binaryMap.get(name);
-			if (compOp != null) {
-				return compOp.visit(op, visitor, obj);
-			} else {
-				throw new Exception("Unknown binary operator: " + name);
-			}
-		}
-	}
+    public static class BinaryOp extends AbstractCompOp {
+        @Override
+        public Object visit(JAXBElement<? extends ComparisonOpsType> op,
+                OgcFilterVisitor visitor, Object obj) throws Exception {
+            String name = op.getName().getLocalPart();
+            AbstractCompOp compOp = binaryMap.get(name);
+            if (compOp != null) {
+                return compOp.visit(op, visitor, obj);
+            } else {
+                throw new Exception("Unknown binary operator: " + name);
+            }
+        }
+    }
 
-	public static class Equal extends AbstractCompOp {
-		@Override
-		public Object visit(JAXBElement<? extends ComparisonOpsType> op,
-				OgcFilterVisitor visitor, Object obj) throws Exception {
-			BinaryComparisonOpType binary = (BinaryComparisonOpType) op
-					.getValue();
-			List<JAXBElement<?>> expressions = binary.getExpression();
-			return visitor.equal(new ExpressionProcessor(expressions.get(0)),
-					new ExpressionProcessor(expressions.get(1)),
-					binary.isMatchCase(), obj);
-		}
-	}
+    public static class Equal extends AbstractCompOp {
+        @Override
+        public Object visit(JAXBElement<? extends ComparisonOpsType> op,
+                OgcFilterVisitor visitor, Object obj) throws Exception {
+            BinaryComparisonOpType binary = (BinaryComparisonOpType) op
+                    .getValue();
+            List<JAXBElement<?>> expressions = binary.getExpression();
+            return visitor.equal(new ExpressionProcessor(expressions.get(0)),
+                    new ExpressionProcessor(expressions.get(1)),
+                    binary.isMatchCase(), obj);
+        }
+    }
 
-	public static class NotEqual extends AbstractCompOp {
-		@Override
-		public Object visit(JAXBElement<? extends ComparisonOpsType> op,
-				OgcFilterVisitor visitor, Object obj) throws Exception {
-			BinaryComparisonOpType binary = (BinaryComparisonOpType) op
-					.getValue();
-			List<JAXBElement<?>> expressions = binary.getExpression();
-			return visitor.notEqual(
-					new ExpressionProcessor(expressions.get(0)),
-					new ExpressionProcessor(expressions.get(1)),
-					binary.isMatchCase(), obj);
-		}
-	}
+    public static class NotEqual extends AbstractCompOp {
+        @Override
+        public Object visit(JAXBElement<? extends ComparisonOpsType> op,
+                OgcFilterVisitor visitor, Object obj) throws Exception {
+            BinaryComparisonOpType binary = (BinaryComparisonOpType) op
+                    .getValue();
+            List<JAXBElement<?>> expressions = binary.getExpression();
+            return visitor.notEqual(
+                    new ExpressionProcessor(expressions.get(0)),
+                    new ExpressionProcessor(expressions.get(1)),
+                    binary.isMatchCase(), obj);
+        }
+    }
 
-	public static class LessThan extends AbstractCompOp {
-		@Override
-		public Object visit(JAXBElement<? extends ComparisonOpsType> op,
-				OgcFilterVisitor visitor, Object obj) throws Exception {
-			BinaryComparisonOpType binary = (BinaryComparisonOpType) op
-					.getValue();
-			List<JAXBElement<?>> expressions = binary.getExpression();
-			return visitor.lessThan(
-					new ExpressionProcessor(expressions.get(0)),
-					new ExpressionProcessor(expressions.get(1)),
-					binary.isMatchCase(), obj);
-		}
-	}
+    public static class LessThan extends AbstractCompOp {
+        @Override
+        public Object visit(JAXBElement<? extends ComparisonOpsType> op,
+                OgcFilterVisitor visitor, Object obj) throws Exception {
+            BinaryComparisonOpType binary = (BinaryComparisonOpType) op
+                    .getValue();
+            List<JAXBElement<?>> expressions = binary.getExpression();
+            return visitor.lessThan(
+                    new ExpressionProcessor(expressions.get(0)),
+                    new ExpressionProcessor(expressions.get(1)),
+                    binary.isMatchCase(), obj);
+        }
+    }
 
-	public static class GreaterThan extends AbstractCompOp {
-		@Override
-		public Object visit(JAXBElement<? extends ComparisonOpsType> op,
-				OgcFilterVisitor visitor, Object obj) throws Exception {
-			BinaryComparisonOpType binary = (BinaryComparisonOpType) op
-					.getValue();
-			List<JAXBElement<?>> expressions = binary.getExpression();
-			return visitor.greaterThan(
-					new ExpressionProcessor(expressions.get(0)),
-					new ExpressionProcessor(expressions.get(1)),
-					binary.isMatchCase(), obj);
-		}
-	}
+    public static class GreaterThan extends AbstractCompOp {
+        @Override
+        public Object visit(JAXBElement<? extends ComparisonOpsType> op,
+                OgcFilterVisitor visitor, Object obj) throws Exception {
+            BinaryComparisonOpType binary = (BinaryComparisonOpType) op
+                    .getValue();
+            List<JAXBElement<?>> expressions = binary.getExpression();
+            return visitor.greaterThan(
+                    new ExpressionProcessor(expressions.get(0)),
+                    new ExpressionProcessor(expressions.get(1)),
+                    binary.isMatchCase(), obj);
+        }
+    }
 
-	public static class LessThanEqual extends AbstractCompOp {
-		@Override
-		public Object visit(JAXBElement<? extends ComparisonOpsType> op,
-				OgcFilterVisitor visitor, Object obj) throws Exception {
-			BinaryComparisonOpType binary = (BinaryComparisonOpType) op
-					.getValue();
-			List<JAXBElement<?>> expressions = binary.getExpression();
-			return visitor.lessThanEqual(
-					new ExpressionProcessor(expressions.get(0)),
-					new ExpressionProcessor(expressions.get(1)),
-					binary.isMatchCase(), obj);
-		}
-	}
+    public static class LessThanEqual extends AbstractCompOp {
+        @Override
+        public Object visit(JAXBElement<? extends ComparisonOpsType> op,
+                OgcFilterVisitor visitor, Object obj) throws Exception {
+            BinaryComparisonOpType binary = (BinaryComparisonOpType) op
+                    .getValue();
+            List<JAXBElement<?>> expressions = binary.getExpression();
+            return visitor.lessThanEqual(
+                    new ExpressionProcessor(expressions.get(0)),
+                    new ExpressionProcessor(expressions.get(1)),
+                    binary.isMatchCase(), obj);
+        }
+    }
 
-	public static class GreaterThanEqual extends AbstractCompOp {
-		@Override
-		public Object visit(JAXBElement<? extends ComparisonOpsType> op,
-				OgcFilterVisitor visitor, Object obj) throws Exception {
-			BinaryComparisonOpType binary = (BinaryComparisonOpType) op
-					.getValue();
-			List<JAXBElement<?>> expressions = binary.getExpression();
-			return visitor.greaterThanEqual(
-					new ExpressionProcessor(expressions.get(0)),
-					new ExpressionProcessor(expressions.get(1)),
-					binary.isMatchCase(), obj);
-		}
-	}
+    public static class GreaterThanEqual extends AbstractCompOp {
+        @Override
+        public Object visit(JAXBElement<? extends ComparisonOpsType> op,
+                OgcFilterVisitor visitor, Object obj) throws Exception {
+            BinaryComparisonOpType binary = (BinaryComparisonOpType) op
+                    .getValue();
+            List<JAXBElement<?>> expressions = binary.getExpression();
+            return visitor.greaterThanEqual(
+                    new ExpressionProcessor(expressions.get(0)),
+                    new ExpressionProcessor(expressions.get(1)),
+                    binary.isMatchCase(), obj);
+        }
+    }
 
 }
