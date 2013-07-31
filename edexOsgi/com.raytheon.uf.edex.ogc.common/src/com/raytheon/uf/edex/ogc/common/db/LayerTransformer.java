@@ -1,22 +1,26 @@
-/**
- * This software was developed and / or modified by Raytheon Company,
- * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
- * U.S. EXPORT CONTROLLED TECHNICAL DATA
- * This software product contains export-restricted data whose
- * export/transfer/disclosure is restricted by U.S. law. Dissemination
- * to non-U.S. persons whether in the United States or abroad requires
- * an export license or other authorization.
- * 
- * Contractor Name:        Raytheon Company
- * Contractor Address:     6825 Pine Street, Suite 340
- *                         Mail Stop B8
- *                         Omaha, NE 68106
- *                         402.291.0100
- * 
- * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
- * further licensing information.
- **/
+/*
+ * The following software products were developed by Raytheon:
+ *
+ * ADE (AWIPS Development Environment) software
+ * CAVE (Common AWIPS Visualization Environment) software
+ * EDEX (Environmental Data Exchange) software
+ * uFrame™ (Universal Framework) software
+ *
+ * Copyright (c) 2010 Raytheon Co.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/org/documents/epl-v10.php
+ *
+ *
+ * Contractor Name: Raytheon Company
+ * Contractor Address:
+ * 6825 Pine Street, Suite 340
+ * Mail Stop B8
+ * Omaha, NE 68106
+ * 402.291.0100
+ *
+ */
 package com.raytheon.uf.edex.ogc.common.db;
 
 import java.util.ArrayList;
@@ -40,16 +44,13 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.uf.common.dataquery.db.QueryParam;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.database.dao.CoreDao;
-import com.raytheon.uf.edex.database.dao.DaoConfig;
-import com.raytheon.uf.edex.database.query.DatabaseQuery;
 import com.raytheon.uf.edex.ogc.common.OgcBoundingBox;
 import com.raytheon.uf.edex.ogc.common.OgcDimension;
+import com.raytheon.uf.edex.ogc.common.OgcException;
 import com.raytheon.uf.edex.ogc.common.OgcGeoBoundingBox;
 import com.raytheon.uf.edex.ogc.common.OgcLayer;
 import com.raytheon.uf.edex.ogc.common.OgcStyle;
@@ -66,7 +67,6 @@ import com.vividsolutions.jts.geom.Polygon;
  * Jun 13, 2011            bclement     Initial creation
  *
  **/
-
 public class LayerTransformer<DIMENSION extends SimpleDimension, L extends SimpleLayer<DIMENSION>> {
 
     protected static IUFStatusHandler log = UFStatus
@@ -78,14 +78,15 @@ public class LayerTransformer<DIMENSION extends SimpleDimension, L extends Simpl
 
 	protected String key;
 
+    protected ILayerCache<DIMENSION, L> lcache;
+
 	protected static String timeUnit = "ISO8601";
 
-    protected Class<L> layerClass;
+    public static final Pattern frontDot = Pattern
+            .compile("^(-?[0-9]*\\.?[0-9]+)(.*)$");
 
-	public static final Pattern frontDot = Pattern
-			.compile("^(-?[0-9]*\\.?[0-9]+)(.*)$");
-	public static final Pattern backDot = Pattern
-			.compile("^(-?[0-9]+\\.?[0-9]*)(.*)$");
+    public static final Pattern backDot = Pattern
+            .compile("^(-?[0-9]+\\.?[0-9]*)(.*)$");
 
 	/**
 	 * Construct a LayerTransformer that uses a different layerClass and
@@ -97,9 +98,9 @@ public class LayerTransformer<DIMENSION extends SimpleDimension, L extends Simpl
 	 * @param layerClass
 	 * @param layerHolderClass
 	 */
-    public LayerTransformer(String key, Class<L> layerClass) {
+    public LayerTransformer(String key, ILayerCache<DIMENSION, L> lcache) {
 		this.key = key;
-		this.layerClass = layerClass;
+		this.lcache = lcache;
 	}
 
 	/**
@@ -107,18 +108,8 @@ public class LayerTransformer<DIMENSION extends SimpleDimension, L extends Simpl
 	 * @return null if layer not found
 	 * @throws DataAccessLayerException
 	 */
-    public L find(String name) throws DataAccessLayerException {
-		String field = "name";
-		List<QueryParam> params = Arrays.asList(new QueryParam(field, name));
-        List<L> res;
-		res = query(layerClass, params);
-		if (res == null || res.isEmpty()) {
-			return null;
-		}
-		if (res.size() > 1) {
-			log.warn("Multiple layers found with the same name, returning first");
-		}
-		return layerClass.cast(res.get(0));
+    public L find(String name) throws OgcException {
+		return lcache.getLayer(name);
 	}
 
 	/**
@@ -127,32 +118,36 @@ public class LayerTransformer<DIMENSION extends SimpleDimension, L extends Simpl
 	 * @return null if layer/dimension not found
 	 * @throws DataAccessLayerException
 	 */
-	public SimpleDimension getDimension(String layer, String dimension)
-			throws DataAccessLayerException {
-        SimpleLayer<?> l = find(layer);
-		return getDimension(l, dimension);
+    public DIMENSION getDimension(String layer, String dimension)
+            throws OgcException {
+        L l = find(layer);
+        if (l == null) {
+            return null;
+        }
+        return l.getDimension(dimension);
 	}
 
-	/**
-	 * @param layer
-	 * @param dimension
-	 * @return null if layer/dimension not found
-	 */
-    public static <DIMENSION extends SimpleDimension, L extends SimpleLayer<DIMENSION>> DIMENSION getDimension(
-            L layer,
-			String dimension) {
-		if (layer == null) {
-			return null;
-		}
-        DIMENSION rval = null;
+    /**
+     * Get all dimensions that start with prefix. Case insensitive.
+     * 
+     * @param layer
+     * @param prefix
+     * @return empty list if layer/dimension not found
+     */
+    public static <DIMENSION extends SimpleDimension, L extends SimpleLayer<DIMENSION>> List<DIMENSION> getDimsByPrefix(
+            L layer, String prefix) {
+        List<DIMENSION> rval = new ArrayList<DIMENSION>(2);
+        if (layer == null) {
+            return rval;
+        }
         for (DIMENSION d : layer.getDimensions()) {
-			if (d.getName().equalsIgnoreCase(dimension)) {
-				rval = d;
-				break;
-			}
-		}
-		return rval;
-	}
+            String lower = d.getName().toLowerCase();
+            if (lower.startsWith(prefix.toLowerCase())) {
+                rval.add(d);
+            }
+        }
+        return rval;
+    }
 
 	/**
 	 * @param dim
@@ -265,25 +260,26 @@ public class LayerTransformer<DIMENSION extends SimpleDimension, L extends Simpl
 		if (times == null || times.isEmpty()) {
 			return new ArrayList<String>(0);
 		}
-		Set<Date> set = new TreeSet<Date>();
-		set.addAll(times);
-		Iterator<Date> i = set.iterator();
-		StringBuilder sb = new StringBuilder();
-		List<String> rval = new ArrayList<String>();
-		Date curr = i.next();
-		while (curr != null) {
-			startRange(sb, curr);
-			curr = endRange(curr, i, sb);
-			if (curr != null) {
-				rval.add(sb.toString());
-				sb = new StringBuilder();
-			}
+		if ( times.size() % 2 != 0){
+			String msg = "Odd number of times for layer " + layer.getName()
+					+ ". Should be even to construct time ranges.";
+			log.warn(msg + " Dropping last time");
 		}
-		String last = sb.toString();
-		if (!last.isEmpty()) {
-			rval.add(last);
+
+		Iterator<Date> iter = times.iterator();
+		int ranges = times.size() / 2;
+		List<String> rval = new ArrayList<String>(ranges);
+		for (int i = 0; i < ranges; ++i) {
+			Date start = iter.next();
+			Date end = iter.next();
+			rval.add(formatRange(start, end));
 		}
+
 		return rval;
+	}
+
+	protected static String formatRange(Date start, Date end) {
+		return format(start) + '/' + format(end) + "/0";
 	}
 
 	/**
@@ -354,7 +350,7 @@ public class LayerTransformer<DIMENSION extends SimpleDimension, L extends Simpl
 		return rval;
 	}
 
-	public TreeSet<Date> getAllTimes() {
+	public TreeSet<Date> getAllTimes() throws OgcException {
 		TreeSet<Date> rval = new TreeSet<Date>();
         List<L> layers = getLayers();
         for (L l : layers) {
@@ -363,16 +359,17 @@ public class LayerTransformer<DIMENSION extends SimpleDimension, L extends Simpl
 		return rval;
 	}
 
-    public List<L> getLayers() {
-        List<L> rval = query(layerClass);
-		return rval;
+    public List<L> getLayers() throws OgcException {
+		return lcache.getLayers();
 	}
 
-	public List<OgcLayer> getLayersAsOgc(TimeFormat tformat, StyleLookup lookup) {
+	public List<OgcLayer> getLayersAsOgc(TimeFormat tformat, StyleLookup lookup)
+			throws OgcException {
 		return transform(getLayers(), tformat, lookup);
 	}
 
-	public List<OgcLayer> getLayersAsOgc(StyleLookup lookup) {
+	public List<OgcLayer> getLayersAsOgc(StyleLookup lookup)
+			throws OgcException {
 		return getLayersAsOgc(TimeFormat.LIST, lookup);
 	}
 
@@ -405,15 +402,9 @@ public class LayerTransformer<DIMENSION extends SimpleDimension, L extends Simpl
 		rval.setName(key, name);
 		rval.setTitle(name);
 		setStylesForLayer(rval.getName(), layer, rval, lookup);
-		OgcDimension timeDim = new OgcDimension("time", timeUnit, getTimes(layer,
-				tformat));
-		Date time = layer.getDefaultTime();
-		String defaultTime;
-		if (tformat.equals(TimeFormat.HOUR_RANGES)) {
-			defaultTime = getTimeRange(time);
-		} else {
-			defaultTime = format(time);
-		}
+		OgcDimension timeDim = new OgcDimension("time", timeUnit,
+				layer.getTimeEntries());
+		String defaultTime = layer.getDefaultTimeEntry();
 		timeDim.setDefaultVal(defaultTime);
 		rval.addDimension(timeDim);
 		for (OgcDimension dim : getDims(layer, layer.getDimensions())) {
@@ -425,7 +416,7 @@ public class LayerTransformer<DIMENSION extends SimpleDimension, L extends Simpl
 		return rval;
 	}
 
-	public String getTimeRange(Date d) {
+	public static String getTimeRange(Date d) {
 		Date start = DateUtils.truncate(d, Calendar.HOUR);
 		Date end = DateUtils.addHours(start, 1);
 		return format(start) + '/' + format(end);
@@ -434,16 +425,20 @@ public class LayerTransformer<DIMENSION extends SimpleDimension, L extends Simpl
     protected void setStylesForLayer(String layerName, L layer,
 			OgcLayer rval, StyleLookup lookup) {
 		if (lookup != null) {
-			String style = lookup.lookup(layerName);
+			String style = lookup.lookup(layer.getName());
 			if (style != null) {
 				OgcStyle ogcstyle = new OgcStyle(style);
-				String url = "&layer=" + layerName + "&style=" + style
-						+ "&format=image/png";
-				ogcstyle.setLegendUrl(url.replaceAll(" ", "%20"));
+				ogcstyle.setLegendUrl(createLegendUrl(layerName, style));
 				ogcstyle.setDefault(true);
 				rval.setStyles(Arrays.asList(ogcstyle));
 			}
 		}
+	}
+
+	public static String createLegendUrl(String layerName, String styleName) {
+		String url = "&layer=" + layerName + "&style=" + styleName
+				+ "&format=image/png";
+		return url.replaceAll(" ", "%20");
 	}
 
 	/**
@@ -487,44 +482,12 @@ public class LayerTransformer<DIMENSION extends SimpleDimension, L extends Simpl
 		return transform(layer, TimeFormat.LIST, lookup);
 	}
 
-    protected <T> List<T> query(Class<L> c) {
-		return query(c, null);
-	}
-
-    protected <T> List<T> query(Class<L> c, List<QueryParam> params) {
-		try {
-			DatabaseQuery query = new DatabaseQuery(c);
-			if (params != null && !params.isEmpty()) {
-				for (QueryParam p : params) {
-					query.addQueryParam(p);
-				}
-			}
-			DaoConfig config = DaoConfig.forClass(layerClass);
-			CoreDao dao = new CoreDao(config);
-            @SuppressWarnings("unchecked")
-            final List<T> retVal = (List<T>) dao.queryByCriteria(query);
-            return retVal;
-		} catch (Exception e) {
-			log.error("Unable to query entity: " + c, e);
-			return new ArrayList<T>(0);
-		}
-	}
-
-    protected <H extends LayerHolder<L>> List<L> unwrap(
-			List<H> holders) {
-        List<L> rval = new ArrayList<L>(holders.size());
-		for (H holder : holders) {
-			rval.add(holder.getValue());
-		}
-		return rval;
-	}
-
 	/**
 	 * @param layerName
 	 * @return null if layer name isn't found
 	 * @throws DataAccessLayerException
 	 */
-	public Date getLatestTime(String layerName) throws DataAccessLayerException {
+	public Date getLatestTime(String layerName) throws OgcException {
         L simpleLayer = find(layerName);
 		return getLatestTime(simpleLayer);
 	}
@@ -558,24 +521,10 @@ public class LayerTransformer<DIMENSION extends SimpleDimension, L extends Simpl
 	}
 
 	/**
-	 * @param layerClass
-	 *            the layerClass to set
-	 */
-    public void setLayerClass(Class<L> layerClass) {
-		this.layerClass = layerClass;
-	}
-
-	/**
-	 * @return the layerClass
-	 */
-    public Class<L> getLayerClass() {
-		return layerClass;
-	}
-
-	/**
 	 * @return
+	 * @throws OgcException
 	 */
-	public TreeSet<Date> getLatestTimes() {
+    public TreeSet<Date> getLatestTimes() throws OgcException {
         List<L> layers = getLayers();
 		TreeSet<Date> rval = new TreeSet<Date>();
         for (L l : layers) {
@@ -584,5 +533,12 @@ public class LayerTransformer<DIMENSION extends SimpleDimension, L extends Simpl
 		}
 		return rval;
 	}
+
+    /**
+     * @return the lcache
+     */
+    public ILayerCache<DIMENSION, L> getLcache() {
+        return lcache;
+    }
 
 }
