@@ -31,6 +31,7 @@
 package com.raytheon.uf.edex.wms;
 
 import com.raytheon.uf.edex.ogc.common.OgcResponse;
+import com.raytheon.uf.edex.ogc.common.http.MimeType;
 
 /**
  * 
@@ -39,89 +40,89 @@ import com.raytheon.uf.edex.ogc.common.OgcResponse;
  */
 public class GetFeatureInfoRequest extends GetMapRequest {
 
-	protected String[] reqLayers;
+    protected String[] reqLayers;
 
-	protected int featureCount = 1;
+    protected int featureCount = 1;
 
-	protected Integer i;
+    protected Integer i;
 
-	protected Integer j;
+    protected Integer j;
 
-	protected String infoFormat;
+    protected MimeType infoFormat;
 
-	public GetFeatureInfoRequest() {
-	}
+    public GetFeatureInfoRequest() {
+    }
 
-	public GetFeatureInfoRequest(GetMapRequest mapRequest, String[] reqLayers,
-			Integer i, Integer j, String infoFormat) {
-		super(mapRequest);
-		this.reqLayers = reqLayers;
-		this.i = i;
-		this.j = j;
-		this.infoFormat = infoFormat;
-	}
+    public GetFeatureInfoRequest(GetMapRequest mapRequest, String[] reqLayers,
+            Integer i, Integer j, MimeType infoFormat) {
+        super(mapRequest);
+        this.reqLayers = reqLayers;
+        this.i = i;
+        this.j = j;
+        this.infoFormat = infoFormat;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.raytheon.uf.edex.wms.BaseRequest#execute(com.raytheon.uf.edex.wms
-	 * .WmsProvider)
-	 */
-	@Override
-	public OgcResponse execute(WmsProvider provider) {
-		return provider.getFeatureInfo(this);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.wms.BaseRequest#execute(com.raytheon.uf.edex.wms
+     * .WmsProvider)
+     */
+    @Override
+    public OgcResponse execute(IWmsProvider provider) {
+        return provider.getFeatureInfo(this);
+    }
 
-	public GetMapRequest getMapRequest() {
-		return this;
-	}
+    public GetMapRequest getMapRequest() {
+        return this;
+    }
 
-	public int getFeatureCount() {
-		return featureCount;
-	}
+    public int getFeatureCount() {
+        return featureCount;
+    }
 
-	public void setFeatureCount(int featureCount) {
-		this.featureCount = featureCount;
-	}
+    public void setFeatureCount(int featureCount) {
+        this.featureCount = featureCount;
+    }
 
-	public Integer getI() {
-		return i;
-	}
+    public Integer getI() {
+        return i;
+    }
 
-	public void setI(Integer i) {
-		this.i = i;
-	}
+    public void setI(Integer i) {
+        this.i = i;
+    }
 
-	public Integer getJ() {
-		return j;
-	}
+    public Integer getJ() {
+        return j;
+    }
 
-	public void setJ(Integer j) {
-		this.j = j;
-	}
+    public void setJ(Integer j) {
+        this.j = j;
+    }
 
-	/**
-	 * @return the reqLayers
-	 */
-	public String[] getReqLayers() {
-		return reqLayers;
-	}
+    /**
+     * @return the reqLayers
+     */
+    public String[] getReqLayers() {
+        return reqLayers;
+    }
 
-	/**
-	 * @param reqLayers
-	 *            the reqLayers to set
-	 */
-	public void setReqLayers(String[] reqLayers) {
-		this.reqLayers = reqLayers;
-	}
+    /**
+     * @param reqLayers
+     *            the reqLayers to set
+     */
+    public void setReqLayers(String[] reqLayers) {
+        this.reqLayers = reqLayers;
+    }
 
-	public String getInfoFormat() {
-		return infoFormat;
-	}
+    public MimeType getInfoFormat() {
+        return infoFormat;
+    }
 
-	public void setInfoFormat(String infoFormat) {
-		this.infoFormat = infoFormat;
-	}
+    public void setInfoFormat(MimeType infoFormat) {
+        this.infoFormat = infoFormat;
+    }
 
 }

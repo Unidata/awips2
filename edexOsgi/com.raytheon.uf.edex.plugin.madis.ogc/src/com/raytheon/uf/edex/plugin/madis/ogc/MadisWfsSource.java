@@ -6,16 +6,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginProperties;
 import com.raytheon.uf.common.dataplugin.madis.MadisRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.ogc.common.feature.FeatureFactory;
+import com.raytheon.uf.edex.ogc.common.db.SimpleLayer;
+import com.raytheon.uf.edex.ogc.common.db.SingleLayerCollector;
 import com.raytheon.uf.edex.plugin.madis.ogc.feature.Madis;
 import com.raytheon.uf.edex.plugin.madis.ogc.feature.MadisObjectFactory;
 import com.raytheon.uf.edex.wfs.WfsFeatureType;
-import com.raytheon.uf.edex.wfs.reg.DefaultWfsSource;
-import com.raytheon.uf.edex.wfs.reg.WfsTranslator;
+import com.raytheon.uf.edex.wfs.reg.IPdoGmlTranslator;
+import com.raytheon.uf.edex.wfs.reg.PluginWfsSource;
 import com.raytheon.uf.edex.wfs.request.QualifiedName;
 
 /**
@@ -34,11 +36,10 @@ import com.raytheon.uf.edex.wfs.request.QualifiedName;
  * @version 1.0
  */
 
-public class MadisWfsSource extends DefaultWfsSource {
-    
+public class MadisWfsSource extends PluginWfsSource {
 
     private static final String schemaloc = "META-INF/schema/madis.xsd";
-    
+
     private WfsFeatureType feature;
 
     private static String schemaXml = null;
@@ -51,37 +52,34 @@ public class MadisWfsSource extends DefaultWfsSource {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(MadisWfsSource.class);
-    
-    private static final Map<String,String> fieldMap;
-    
+
+    private static final Map<String, String> fieldMap;
+
     static {
         Map<String, String> map = new HashMap<String, String>();
         map.put("obsLocation.location", spatialKey);
+        map.put("timeObs", "dataTime.refTime");
         map.put("obsLocation.stationId", "location.stationId");
         map.put("obsLocation.elevation", "location.elevation");
         fieldMap = Collections.unmodifiableMap(map);
     }
 
-    public MadisWfsSource(PluginProperties props) {
-        super(props, KEY_NAME, new MadisTranslator(), new MadisFeatureFactory());
+    public MadisWfsSource(PluginProperties props, IPdoGmlTranslator translator,
+            SingleLayerCollector<?, SimpleLayer<?>, PluginDataObject> collector) {
+        super(props, KEY_NAME, Arrays.asList(translator),
+                new MadisFeatureFactory(), collector);
         feature = new WfsFeatureType(new QualifiedName(MADIS_NS, key, key),
-                key, getCRS(KEY_NAME), getBoundingBox(KEY_NAME));
+                key, defaultCRS, fullBbox);
     }
 
     @Override
     public Map<String, String> getFieldMap() {
+
         return fieldMap;
     }
-    
-    public MadisWfsSource(PluginProperties props, String key,
-            WfsTranslator translator, FeatureFactory featFactory) {
-        super(props, key, translator, featFactory);
 
-    }
-
-    
     @Override
-    public List<WfsFeatureType> listFeatureTypes() {
+    public List<WfsFeatureType> getFeatureTypes() {
         return Arrays.asList(feature);
     }
 
@@ -97,7 +95,7 @@ public class MadisWfsSource extends DefaultWfsSource {
             rval = schemaXml;
         } catch (Exception e) {
             statusHandler.error("Problem reading madis schema", e);
-            rval = "Internal Error"; 
+            rval = "Internal Error";
         }
         return rval;
     }
@@ -115,6 +113,24 @@ public class MadisWfsSource extends DefaultWfsSource {
     @Override
     public Class<?>[] getJaxbClasses() {
         return new Class<?>[] { Madis.class, MadisObjectFactory.class };
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.wfs.reg.WfsSource#getFeatureVerticalField(com.raytheon
+     * .uf.edex.wfs.request.QualifiedName)
+     */
+    @Override
+    public String getFeatureVerticalField(QualifiedName feature) {
+        // surface obs don't have vertical fields
+        return null;
+    }
+
+    @Override
+    public String getFeatureIdField(QualifiedName feature) {
+        return "id";
     }
 
 }

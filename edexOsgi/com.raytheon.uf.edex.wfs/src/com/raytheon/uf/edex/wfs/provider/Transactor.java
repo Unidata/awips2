@@ -70,12 +70,12 @@ public class Transactor {
 		TransactionResultsType rval = new TransactionResultsType();
 		switch (request.getTransType()) {
 		case Native:
-			String[] parts = request.getParameter().replaceAll("\\w+:", "")
-					.split("/");
-			String param = (parts.length > 1 ? parts[1] : parts[0]);
-			for (int i = 2; i < parts.length; ++i) {
-				param += "." + parts[i];
-			}
+            // String[] parts = request.getParameter().replaceAll("\\w+:", "")
+            // .split("/");
+            // String param = (parts.length > 1 ? parts[1] : parts[0]);
+            // for (int i = 2; i < parts.length; ++i) {
+            // param += "." + parts[i];
+            // }
 			// String plugname = featureManager.getFeaturePlugName(parts[0]);
 			// MorphiaStrategy strat = new MorphiaStrategy();
 			// try {
@@ -88,6 +88,8 @@ public class Transactor {
 			// } catch (PluginException e) {
 			// log.error("Problem querying for plugin: " + plugname, e);
 			// }
+        default:
+            break;
 		}
 		return rval;
 	}

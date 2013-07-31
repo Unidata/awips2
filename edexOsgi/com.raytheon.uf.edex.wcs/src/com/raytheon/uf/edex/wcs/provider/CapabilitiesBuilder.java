@@ -130,6 +130,7 @@ public class CapabilitiesBuilder {
 		to.setLowerCorner(Arrays.asList(bbox.getMinx(), bbox.getMiny()));
 		to.setUpperCorner(Arrays.asList(bbox.getMaxx(), bbox.getMaxy()));
 		to.setDimensions(BigInteger.valueOf(2));
+        to.setCrs("urn:ogc:def:crs:OGC:2:84");
 		rval.add(owsFactory.createWGS84BoundingBox(to));
 
 		return rval;
