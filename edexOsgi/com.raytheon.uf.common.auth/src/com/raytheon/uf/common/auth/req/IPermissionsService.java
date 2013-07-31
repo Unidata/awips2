@@ -17,12 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.datadelivery.subscription;
+package com.raytheon.uf.common.auth.req;
 
+import com.raytheon.uf.common.auth.AuthException;
 import com.raytheon.uf.common.auth.user.IUser;
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
-import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
  * Interface that defines the service to work with permissions.
@@ -34,6 +32,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 04, 2013 1441       djohnson     Initial creation
+ * Jul 26, 2031 2232       mpduff       Moved to common.auth.req.
  * 
  * </pre>
  * 
@@ -60,25 +59,8 @@ public interface IPermissionsService {
          *            the permission
          * @return true if the user had the specific permission
          */
-        boolean hasPermission(DataDeliveryPermission permission);
+        boolean hasPermission(String permission);
     }
-
-    /**
-     * Check whether a user has the permissions to change a subscription.
-     * 
-     * @param user
-     *            the user requesting to change the subscription
-     * @param notAuthorizedMessage
-     *            the message that should be displayed if they are not
-     *            authorized
-     * @param subscription
-     *            the subscription they are attempting to change
-     * @return the response
-     * @throws VizException
-     */
-    public IAuthorizedPermissionResponse checkPermissionToChangeSubscription(
-            final IUser user, String notAuthorizedMessage,
-            final Subscription subscription) throws VizException;
 
     /**
      * Check whether a user has the specified permissions.
@@ -91,12 +73,12 @@ public interface IPermissionsService {
      * @param permission
      *            the permission to check
      * @return IAuthorizedPermissionResponse the response
-     * @throws VizException
+     * @throws AuthException
      *             on error checking permissions
      */
     public IAuthorizedPermissionResponse checkPermission(IUser user,
-            String notAuthorizedMessage, DataDeliveryPermission permission)
-            throws VizException;
+            String notAuthorizedMessage, String permission)
+            throws AuthException;
 
     /**
      * Check whether a user has one of the specified permissions.
@@ -109,10 +91,10 @@ public interface IPermissionsService {
      * @param permissions
      *            the permissions to check
      * @return IAuthorizedPermissionResponse the response
-     * @throws VizException
+     * @throws AuthException
      *             on error checking permissions
      */
     public IAuthorizedPermissionResponse checkPermissions(IUser user,
-            String notAuthorizedMessage, DataDeliveryPermission... permissions)
-            throws VizException;
+            String notAuthorizedMessage, String... permissions)
+            throws AuthException;
 }
