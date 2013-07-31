@@ -30,6 +30,7 @@ import java.io.IOException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 10/25/2007   #465       randerso    initial creation
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -38,14 +39,6 @@ import java.io.IOException;
  */
 
 public class RasterPacket extends SymbologyPacket {
-
-    public static final int RASTER_DATA_PACKET1 = 0xBA07;
-
-    public static final int RASTER_DATA_PACKET2 = 0xBA0F;
-    static {
-        PacketFactory.registerPacketType(RasterPacket.class,
-                RASTER_DATA_PACKET1, RASTER_DATA_PACKET2);
-    }
 
     protected int iCenter;
 
