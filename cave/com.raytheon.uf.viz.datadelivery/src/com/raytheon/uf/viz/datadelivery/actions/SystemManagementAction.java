@@ -25,13 +25,13 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.common.auth.AuthException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.auth.UserController;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.system.SystemManagementDlg;
 
@@ -46,6 +46,7 @@ import com.raytheon.uf.viz.datadelivery.system.SystemManagementDlg;
  * ------------ ---------- ----------- --------------------------
  * Aug 15, 2012   729      jpiatt       Initial creation.
  * Oct 03, 2012 1241       djohnson     Use {@link DataDeliveryPermission}.
+ * Jul 26, 2031   2232     mpduff       Refactored Data Delivery permissions.
  * 
  * </pre>
  * 
@@ -64,7 +65,8 @@ public class SystemManagementAction extends AbstractHandler {
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
 
-        final DataDeliveryPermission permission = DataDeliveryPermission.SYSTEM_MANAGEMENT_VIEW;
+        final String permission = DataDeliveryPermission.SYSTEM_MANAGEMENT_VIEW
+                .toString();
         IUser user = UserController.getUserObject();
         String msg = user.uniqueId()
                 + " is not authorized to view Data Delivery System Management\nPermission: "
@@ -84,7 +86,7 @@ public class SystemManagementAction extends AbstractHandler {
                 }
 
             }
-        } catch (VizException e) {
+        } catch (AuthException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
 

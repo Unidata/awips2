@@ -54,6 +54,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
+import com.raytheon.uf.common.auth.AuthException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.EnvelopeUtils;
@@ -66,7 +67,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.datadelivery.common.ui.IDataLoad;
 import com.raytheon.uf.viz.datadelivery.common.ui.LoadSaveConfigDlg;
 import com.raytheon.uf.viz.datadelivery.common.ui.LoadSaveConfigDlg.DialogType;
@@ -117,6 +117,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 05, 2013 1800       mpduff       Move the area filter below the data type selection.
  * Jun 06, 2013 2030       mpduff       Updates to help.
  * Jul 05, 2013 2137       mpduff       Changed data type to a single select list, changed layout.
+ * Jul 26, 2031   2232     mpduff       Refactored Data Delivery permissions.
  * 
  * </pre>
  * 
@@ -656,7 +657,8 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
      * Handle retrieving of subscription subset.
      */
     private void handleRetrieveSubscribeAction() {
-        final DataDeliveryPermission permission = DataDeliveryPermission.SUBSCRIPTION_CREATE;
+        final String permission = DataDeliveryPermission.SUBSCRIPTION_CREATE
+                .toString();
         IUser user = UserController.getUserObject();
         String msg = user.uniqueId()
                 + " is not authorized to Create Subscriptions/Queries\nPermission: "
@@ -681,7 +683,7 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
                         shell, data);
                 dlg.open();
             }
-        } catch (VizException e) {
+        } catch (AuthException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }
