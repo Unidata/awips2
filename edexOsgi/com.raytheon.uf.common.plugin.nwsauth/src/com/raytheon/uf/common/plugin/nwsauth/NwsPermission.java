@@ -30,7 +30,8 @@ import com.raytheon.uf.common.auth.user.IPermission;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 5, 2012  1302      djohnson     Initial creation
+ * Nov 05, 2012  1302      djohnson     Initial creation
+ * Jul 26, 2031  2232      mpduff       Renamed toString to getName.
  * 
  * </pre>
  * 
@@ -40,8 +41,10 @@ import com.raytheon.uf.common.auth.user.IPermission;
 
 public class NwsPermission implements IPermission {
 
+    /** Permission description */
     private final String description;
 
+    /** Permission name */
     private final String name;
 
     /**
@@ -61,9 +64,11 @@ public class NwsPermission implements IPermission {
         return description;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public String toString() {
+    public String getName() {
         return name;
     }
-
 }

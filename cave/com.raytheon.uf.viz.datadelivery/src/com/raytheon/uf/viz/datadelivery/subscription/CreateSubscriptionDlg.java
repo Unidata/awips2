@@ -43,6 +43,7 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.auth.AuthException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
@@ -55,7 +56,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.auth.UserController;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.datadelivery.common.ui.ActivePeriodComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.DurationComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.GroupSelectComp;
@@ -101,6 +101,7 @@ import com.raytheon.viz.ui.presenter.components.CheckBoxConf;
  * May 15, 2013 1040       mpduff      Add Shared sites.
  * Jun 04, 2013  223       mpduff      Modify for point data.
  * Jun 12, 2013 2038       djohnson    No longer modal.
+ * Jul 26, 2031   2232     mpduff      Refactored Data Delivery permissions.
  * 
  * </pre>
  * 
@@ -185,8 +186,8 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
      *            true for new subscription, false for edit
      */
     public CreateSubscriptionDlg(Shell parent, boolean create) {
-        super(parent, SWT.DIALOG_TRIM,
-                CAVE.INDEPENDENT_SHELL | CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM, CAVE.INDEPENDENT_SHELL
+                | CAVE.PERSPECTIVE_INDEPENDENT);
         this.create = create;
 
         if (create) {
@@ -338,7 +339,8 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
         btn.setToolTipText("Select sites for sharing");
         btn.setEnabled(false);
 
-        final DataDeliveryPermission permission = DataDeliveryPermission.SHARED_SUBSCRIPTION_CREATE;
+        final String permission = DataDeliveryPermission.SHARED_SUBSCRIPTION_CREATE
+                .toString();
         final IUser user = UserController.getUserObject();
         final String msg = user.uniqueId()
                 + " is not authorized to create shared subscriptions. "
@@ -366,7 +368,7 @@ public class CreateSubscriptionDlg extends CaveSWTDialog implements
                     }
                 });
             }
-        } catch (VizException e1) {
+        } catch (AuthException e1) {
             statusHandler
                     .handle(Priority.PROBLEM, e1.getLocalizedMessage(), e1);
         }
