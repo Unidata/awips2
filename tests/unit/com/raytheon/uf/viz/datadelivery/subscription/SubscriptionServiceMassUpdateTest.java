@@ -35,18 +35,18 @@ import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.raytheon.uf.common.auth.AuthException;
+import com.raytheon.uf.common.auth.req.IPermissionsService.IAuthorizedPermissionResponse;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.datadelivery.subscription.IPermissionsService.IAuthorizedPermissionResponse;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 
 /**
@@ -61,6 +61,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubsc
  * ------------ ---------- ----------- --------------------------
  * Nov 21, 2012 1286       djohnson     Initial creation
  * May 08, 2000 2013       djohnson     Allow checks for duplicate subscriptions.
+ * Jul 26, 2031  2232      mpduff       Refactored Data Delivery permissions.
  *
  * </pre>
  *
@@ -73,7 +74,7 @@ public class SubscriptionServiceMassUpdateTest extends
     private final IAuthorizedPermissionResponse authorizedPermissionsResponse = mock(IAuthorizedPermissionResponse.class);
 
     @Before
-    public void setUpPermissionsResponse() throws VizException {
+    public void setUpPermissionsResponse() throws VizException, AuthException {
         userHasAllPermissions();
     }
 
@@ -145,7 +146,7 @@ public class SubscriptionServiceMassUpdateTest extends
 
     @Test
     public void testUpdateWithPendingCheckNotifiesOfPendingSubscriptionsCreated()
-            throws RegistryHandlerException, VizException {
+            throws RegistryHandlerException, VizException, AuthException {
         RegistryObjectHandlersUtil.initMocks();
 
         returnZeroSubscriptionNamesWhenProposeScheduleCalled();
@@ -182,12 +183,13 @@ public class SubscriptionServiceMassUpdateTest extends
      * @param subscription
      *            the subscription
      * @throws VizException
+     * @throws AuthException
      */
     private void subscriptionCantBeChangedByUser(Subscription subscription)
-            throws VizException {
+            throws VizException, AuthException {
         IAuthorizedPermissionResponse noPermission = mock(IAuthorizedPermissionResponse.class);
         when(
-                permissionsService
+                ((RequestFromServerPermissionsService) permissionsService)
                         .checkPermissionToChangeSubscription(any(IUser.class),
                                 any(String.class), same(subscription)))
                 .thenReturn(noPermission);
@@ -313,18 +315,19 @@ public class SubscriptionServiceMassUpdateTest extends
         return null;
     }
 
-    private void userHasAllPermissions() throws VizException {
+    private void userHasAllPermissions() throws VizException, AuthException {
         when(
                 permissionsService.checkPermission(any(IUser.class),
-                        anyString(), any(DataDeliveryPermission.class)))
-                .thenReturn(authorizedPermissionsResponse);
+                        anyString(), any(String.class))).thenReturn(
+                authorizedPermissionsResponse);
         when(
                 permissionsService.checkPermissions(any(IUser.class),
-                        anyString(), any(DataDeliveryPermission.class)))
-                .thenReturn(authorizedPermissionsResponse);
+                        anyString(), any(String.class))).thenReturn(
+                authorizedPermissionsResponse);
         when(
-                permissionsService.checkPermissionToChangeSubscription(
-                        any(IUser.class), anyString(), any(Subscription.class)))
+                ((RequestFromServerPermissionsService) permissionsService)
+                        .checkPermissionToChangeSubscription(any(IUser.class),
+                                anyString(), any(Subscription.class)))
                 .thenReturn(authorizedPermissionsResponse);
         when(authorizedPermissionsResponse.isAuthorized()).thenReturn(true);
     }
@@ -352,8 +355,7 @@ public class SubscriptionServiceMassUpdateTest extends
                 getExpectedForceApplyMessage(),
                 IProposeScheduleResponse.VALUE_NOT_SET,
                 IProposeScheduleResponse.VALUE_NOT_SET,
-                IProposeScheduleResponse.VALUE_NOT_SET,
-                mockPromptDisplayText,
+                IProposeScheduleResponse.VALUE_NOT_SET, mockPromptDisplayText,
                 getExpectedDisplayForceApplyPromptSubscription(),
                 subNameResults);
     }
