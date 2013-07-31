@@ -1,0 +1,47 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="obsRegistryAddon" class="com.raytheon.uf.edex.plugin.obs.registry.ObsRegirstyCollectorAddon">
+		<constructor-arg value="metar"/>
+	</bean>
+	
+	<bean id="obsRegistryAddonProvider" class="com.raytheon.uf.edex.ogc.registry.RegistryCollectorAddonProvider">
+		<constructor-arg ref="obsRegistryAddon"/>
+	</bean>
+	
+	<bean class="com.raytheon.uf.edex.ogc.common.util.AddonPropsPostProcessor">
+		<constructor-arg>
+			<map>
+				<entry key="metarIngestFilter">
+					<map>
+						<entry key="filter" value-ref="obsRegistryAddon" />
+					</map>
+				</entry>
+				<entry key="metarLayerCollector">
+					<map>
+						<entry key="addonFactory" value-ref="obsRegistryAddonProvider" />
+					</map>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+
+    <bean id="obsRegCamelRegistered" factory-bean="contextManager"
+		factory-method="register" 
+		depends-on="persistCamelRegistered">
+		<constructor-arg ref="obs-reg-camel"/>
+  	</bean>
+
+	<camelContext id="obs-reg-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+		
+		<route id="metarRegistryRoute">
+			<from uri="quartz://metar/registry?cron=0+*+*+*+*+?" />
+			<bean ref="obsRegistryAddon" method="buildLayerUpdate" />
+		</route>
+	
+	</camelContext>
+</beans>

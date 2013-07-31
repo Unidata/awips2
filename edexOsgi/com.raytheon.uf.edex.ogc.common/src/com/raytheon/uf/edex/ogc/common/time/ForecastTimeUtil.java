@@ -43,9 +43,8 @@ import java.util.regex.Pattern;
 
 import javax.xml.bind.DatatypeConverter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.ogc.common.OgcException;
 import com.raytheon.uf.edex.ogc.common.OgcException.Code;
@@ -67,7 +66,23 @@ public class ForecastTimeUtil {
 	protected Pattern fcstPattern = Pattern
 			.compile("^([0-9]+)([sSmMhHdD]?).*$");
 
-	protected Log log = LogFactory.getLog(this.getClass());
+	protected IUFStatusHandler log = UFStatus.getHandler(this.getClass());
+
+	public static final byte NONE = 0x00;
+
+	public static final byte VALID = 0x01;
+
+	public static final byte FCST = 0x02;
+
+	public static final byte FCST_VALID = 0x03;
+
+	public static final byte REF = 0x04;
+
+	public static final byte REF_VALID = 0x05;
+
+	public static final byte REF_FCST = 0x06;
+
+	public static final byte REF_FCST_VALID = 0x07;
 
 	/**
 	 * Gets a list of datatimes for specified layer. If dimensions has values
@@ -79,10 +94,11 @@ public class ForecastTimeUtil {
 	 * @return
 	 * @throws WmsException
 	 */
-	public SortedSet<DataTime> getDataTimes(SimpleLayer layer,
-			Map<String, String> dimensions) throws OgcException {
-		return getDataTimes(layer, (String) null, dimensions);
-	}
+    public SortedSet<DataTime> getDataTimes(
+            SimpleLayer<? extends SimpleDimension> layer,
+            Map<String, String> dimensions) throws OgcException {
+        return getDataTimes(layer, (String) null, dimensions);
+    }
 
 	/**
 	 * Gets a list of datatimes for specified layer. If dimensions has values
@@ -96,38 +112,92 @@ public class ForecastTimeUtil {
 	 * @return
 	 * @throws WmsException
 	 */
-	public SortedSet<DataTime> getDataTimes(SimpleLayer layer, String time,
+    public SortedSet<DataTime> getDataTimes(
+            SimpleLayer<? extends SimpleDimension> layer, String time,
 			Map<String, String> dimensions) throws OgcException {
-		Calendar validTime = getValidTime(layer, time);
-		return getDataTimes(layer, validTime, dimensions);
-	}
-
-	public SortedSet<DataTime> getDataTimes(SimpleLayer layer, Date time,
-			Map<String, String> dimensions) throws OgcException {
-		Calendar validTime;
-		if (time == null) {
-			validTime = getValidTime(layer, null);
-		} else {
-			validTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-			validTime.setTime(time);
+		Calendar validTime = null;
+		if (time != null) {
+			validTime = getValidTime(layer, time);
 		}
 		return getDataTimes(layer, validTime, dimensions);
 	}
 
-	protected SortedSet<DataTime> getDataTimes(SimpleLayer layer,
-			Calendar time,
-			Map<String, String> dimensions) throws OgcException {
-		String refStr = dimensions.get(refKey);
-		String fcstStr = dimensions.get(fcstKey);
+    public SortedSet<DataTime> getDataTimes(
+            SimpleLayer<? extends SimpleDimension> layer, Date time,
+            Map<String, String> dimensions) throws OgcException {
+        Calendar validTime = null;
+        if (time != null) {
+            validTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+            validTime.setTime(time);
+        }
+        return getDataTimes(layer, validTime, dimensions);
+    }
+
+    protected SortedSet<DataTime> getDataTimes(
+            SimpleLayer<? extends SimpleDimension> layer, Calendar time,
+            Map<String, String> dimensions) throws OgcException {
+        String refStr = dimensions.get(refKey);
+        String fcstStr = dimensions.get(fcstKey);
 		SortedSet<DataTime> rval = new TreeSet<DataTime>();
-		if (fcstStr != null && refStr != null) {
-			rval.add(getDataTime(refStr, fcstStr, time));
-		} else if (fcstStr != null) {
-			rval.add(getDataTimeFcst(fcstStr, time));
-		} else if (refStr != null) {
-			rval.add(getDataTimeRef(refStr, time));
-		} else {
+		byte state = getState(time, refStr, fcstStr);
+		switch (state) {
+		case NONE:
+			time = getValidTime(layer, null);
+		case VALID:
 			rval = getCandidates(layer, time);
+			break;
+		case REF_FCST_VALID:
+			rval.add(getDataTime(refStr, fcstStr, time));
+			break;
+		case FCST_VALID:
+			rval.add(getDataTimeFcst(fcstStr, time));
+			break;
+		case REF_VALID:
+			rval.add(getDataTimeRef(refStr, time));
+			break;
+		case REF:
+			rval.add(getDataTimeRef(refStr, layer));
+			break;
+		case FCST:
+			rval.add(getDataTimeFcst(fcstStr, layer));
+			break;
+		case REF_FCST:
+			rval.add(getDataTime(refStr, fcstStr, null));
+			break;
+		}
+		return rval;
+	}
+
+	/**
+	 * @param fcstStr
+	 * @param layer
+	 * @return
+	 * @throws OgcException
+	 */
+    protected DataTime getDataTimeFcst(String fcstStr,
+            SimpleLayer<? extends SimpleDimension> layer)
+			throws OgcException {
+		int fcst = parseForcast(fcstStr);
+        SimpleDimension refDim = layer.getDimension(refKey);
+		Set<String> refTimes = refDim.getValues();
+		SortedSet<Long> refEpochTimes = new TreeSet<Long>();
+		for (String ref : refTimes) {
+			Date d = parseTimeString(ref).getTime();
+			refEpochTimes.add(d.getTime());
+		}
+		SortedSet<Date> validTimes = layer.getTimes();
+		DataTime rval = null;
+		for (Date valid : validTimes) {
+			long ref = valid.getTime() - (fcst * 1000);
+			Date refTime = new Date(ref);
+			if (refEpochTimes.contains(refTime.getTime())) {
+				rval = new DataTime(refTime, fcst);
+				break;
+			}
+		}
+		if (rval == null) {
+			throw new OgcException(Code.InvalidDimensionValue,
+					"No valid times match forecast offset: " + fcstStr);
 		}
 		return rval;
 	}
@@ -140,11 +210,12 @@ public class ForecastTimeUtil {
 	 * @return
 	 * @throws WmsException
 	 */
-	protected SimpleDimension getDimension(SimpleLayer layer, String dimension)
-			throws OgcException {
-		SimpleDimension dim;
+    protected SimpleDimension getDimension(
+            SimpleLayer<? extends SimpleDimension> layer, String dimension)
+            throws OgcException {
+        SimpleDimension dim;
 		try {
-			dim = LayerTransformer.getDimension(layer, dimension);
+            dim = layer.getDimension(dimension);
 			if (dim == null) {
 				// UNLIKELY: must have been the dimension
 				log.error("layer: " + layer + " missing dimension: "
@@ -172,8 +243,9 @@ public class ForecastTimeUtil {
 	 * @return
 	 * @throws WmsException
 	 */
-	protected SortedSet<DataTime> getCandidates(SimpleLayer layer,
-			Calendar validTime) throws OgcException {
+    protected SortedSet<DataTime> getCandidates(
+            SimpleLayer<? extends SimpleDimension> layer, Calendar validTime)
+            throws OgcException {
 		SimpleDimension refDim = getDimension(layer, refKey);
 		SimpleDimension fcstDim = getDimension(layer, fcstKey);
 		TreeSet<Double> fcsts = LayerTransformer.getDimValuesAsDouble(fcstDim);
@@ -243,6 +315,36 @@ public class ForecastTimeUtil {
 		Calendar ref = parseTimeStr(refStr, refKey);
 		long diff = validTime.getTimeInMillis() - ref.getTimeInMillis();
 		return new DataTime(ref, (int) (diff / 1000));
+	}
+
+	/**
+	 * Creates datatime using only refTime
+	 * 
+	 * @param refStr
+	 * @return valid datatime with lowest forecast offset
+	 * @throws WmsException
+	 */
+    protected DataTime getDataTimeRef(String refStr,
+            SimpleLayer<? extends SimpleDimension> layer) throws OgcException {
+		Calendar ref = parseTimeStr(refStr, refKey);
+        SimpleDimension fcstDim = layer.getDimension(fcstKey);
+		TreeSet<Double> offsets = LayerTransformer.getDimValuesAsDouble(fcstDim);
+		SortedSet<Date> validTimes = layer.getTimes();
+		DataTime rval = null;
+		for ( Double offset : offsets){
+			int fcstTime = ( offset.intValue() * 1000);
+			long refPlusOffset = ref.getTimeInMillis() + fcstTime ;
+			Date d = new Date(refPlusOffset);
+			if ( validTimes.contains(d)){
+				rval = new DataTime(ref, offset.intValue());
+				break;
+			}
+		}
+		if (rval == null) {
+			throw new OgcException(Code.InvalidDimensionValue,
+					"No valid times match refTime: " + ref);
+		}
+		return rval;
 	}
 
 	/**
@@ -329,11 +431,13 @@ public class ForecastTimeUtil {
 			Calendar validTime) throws OgcException {
 		Calendar ref = parseTimeStr(refStr, refKey);
 		int fcst = parseForcast(fcstStr);
-		long diff = validTime.getTimeInMillis() - ref.getTimeInMillis();
-		if (diff != (fcst * 1000)) {
-			String msg = String.format("%s and time must differ by %s", refKey,
-					fcstKey);
-			throw new OgcException(Code.InvalidDimensionValue, msg);
+		if (validTime != null) {
+			long diff = validTime.getTimeInMillis() - ref.getTimeInMillis();
+			if (diff != (fcst * 1000)) {
+				String msg = String.format("%s and time must differ by %s",
+						refKey, fcstKey);
+				throw new OgcException(Code.InvalidDimensionValue, msg);
+			}
 		}
 		return new DataTime(ref, fcst);
 	}
@@ -347,8 +451,9 @@ public class ForecastTimeUtil {
 	 * @return
 	 * @throws WmsException
 	 */
-	protected Calendar getValidTime(SimpleLayer layer, String time)
-			throws OgcException {
+    protected Calendar getValidTime(
+            SimpleLayer<? extends SimpleDimension> layer, String time)
+            throws OgcException {
 		Calendar rval;
 		if (time == null) {
 			try {
@@ -365,6 +470,21 @@ public class ForecastTimeUtil {
 			}
 		} else {
 			rval = parseTimeStr(time, "time");
+		}
+		return rval;
+	}
+
+	protected static byte getState(Calendar validTime, String refTime,
+			String fcstOffset) {
+		byte rval = 0;
+		if (refTime != null) {
+			rval |= 0x04;
+		}
+		if (fcstOffset != null) {
+			rval |= 0x02;
+		}
+		if (validTime != null) {
+			rval |= 0x01;
 		}
 		return rval;
 	}

@@ -30,6 +30,8 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * @author bclement
  * 
@@ -66,7 +68,7 @@ public class OgcLayer {
 
 	protected List<OgcDimension> dimensions;
 
-	protected static String keySeparator = "/";
+	public static String keySeparator = "/";
 
 	public void addCRS(String crs) {
 		this.crs = addToList(this.crs, crs);
@@ -118,16 +120,23 @@ public class OgcLayer {
 		return separateKey(layerName)[0];
 	}
 
+    public static String decodeLayerName(String layerName) {
+        if (layerName == null) {
+            return null;
+        }
+        try {
+            return URLDecoder.decode(layerName, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 	public static String[] separateKey(String layerName) {
-		if (layerName == null) {
-			return null;
-		}
-		String lname;
-		try {
-			lname = URLDecoder.decode(layerName, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
+        String lname = decodeLayerName(layerName);
+        if (lname == null) {
+            return null;
+        }
+        lname = StringUtils.strip(lname, OgcLayer.keySeparator);
 		return lname.split(OgcLayer.keySeparator, 2);
 	}
 
@@ -135,7 +144,7 @@ public class OgcLayer {
 		return getKey() + keySeparator + title;
 	}
 
-	protected String createName(String key, String name) {
+	public static String createName(String key, String name) {
 		try {
 			return URLEncoder.encode(key + keySeparator + name, "UTF-8");
 		} catch (UnsupportedEncodingException e) {

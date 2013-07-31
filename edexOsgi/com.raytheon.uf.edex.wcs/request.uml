@@ -1,0 +1,42 @@
+@startuml
+
+package "EDEX WCS Component" {
+  [WCS HTTP Endpoint] as wcshttp
+  [WCS SOAP Endpoint] as wcssoap
+  () "HTTP/REST/JETTY" -- wcshttp
+  () "HTTP/SOAP/CXF" -- wcssoap
+
+  [WCS 1.1.2 Provider] as wcs112
+  
+  () "WCS Source" as isrc
+}
+
+node "EDEX Data Plug-in Adapter" {
+  [Plug-in WCS Source] as psrc
+} 
+
+database "PostgreSQL" {
+  frame "MetaData" {
+    [Coverage Metadata] as layer
+  }
+}
+
+
+database "PyPies" {
+  frame "Data" {
+    [Data Record] as record
+  }
+}
+
+
+wcshttp -- wcs112
+wcssoap -- wcs112
+
+wcs112 -- isrc
+
+isrc -left- psrc
+
+psrc <-up- record
+psrc <-up- layer
+
+@enduml
