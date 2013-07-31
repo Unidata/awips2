@@ -1,31 +1,20 @@
+/**
+ * Copyright 09/24/12 Raytheon Company.
+ *
+ * Unlimited Rights
+ * This software was developed pursuant to Contract Number 
+ * DTFAWA-10-D-00028 with the US Government. The US Government’s rights 
+ * in and to this copyrighted software are as specified in DFARS
+ * 252.227-7014 which was made part of the above contract. 
+ */
+
 package com.raytheon.uf.edex.plugin.grib.ogc;
 
-/**
- * This software was developed and / or modified by Raytheon Company,
- * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
- * U.S. EXPORT CONTROLLED TECHNICAL DATA
- * This software product contains export-restricted data whose
- * export/transfer/disclosure is restricted by U.S. law. Dissemination
- * to non-U.S. persons whether in the United States or abroad requires
- * an export license or other authorization.
- * 
- * Contractor Name:        Raytheon Company
- * Contractor Address:     6825 Pine Street, Suite 340
- *                         Mail Stop B8
- *                         Omaha, NE 68106
- *                         402.291.0100
- * 
- * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
- * further licensing information.
- **/
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
+
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 
 import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -34,52 +23,35 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.grib.GribModel;
-import com.raytheon.uf.common.dataplugin.grib.GribRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridInfoRecord;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.dataplugin.level.MasterLevel;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.edex.ogc.common.OgcLayer;
+import com.raytheon.uf.edex.ogc.common.db.DefaultLayerCollector;
+import com.raytheon.uf.edex.ogc.common.db.ILayerStore;
 import com.raytheon.uf.edex.ogc.common.db.LayerTransformer;
 import com.raytheon.uf.edex.ogc.common.db.SimpleDimension;
-import com.raytheon.uf.edex.ogc.common.db.WCSLayerCollector;
+import com.raytheon.uf.edex.ogc.common.level.LevelDimUtil;
+import com.raytheon.uf.edex.ogc.common.spatial.AltUtil;
 import com.vividsolutions.jts.geom.Envelope;
 
-/**
- * 
- * Grib Layer Collector
- * 
- * <pre>
- * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 08/09/2012   754       dhladky      Modified from a class written by Brian Clements
- * </pre>
- * 
- * @author dhladky
- * @version 1.0
- */
-
-@SuppressWarnings({ "deprecation" })
 public class GribLayerCollector extends
-        WCSLayerCollector<GribDimension, GribLayer, GribRecord> {
+        DefaultLayerCollector<GribDimension, GridCompositeLayer, GridRecord> {
 
-    private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(GribLayerCollector.class);
-
-    public GribLayerCollector(
-            LayerTransformer<GribDimension, GribLayer> transformer) {
-        super(transformer, GribLayer.class, GribRecord.class);
+    public GribLayerCollector(ILayerStore store) {
+        super(GridCompositeLayer.class, GridRecord.class, store);
     }
 
     @Override
-    protected void addToDims(GribLayer layer, GribRecord rec) {
+    protected void addToDims(GridCompositeLayer layer, GridRecord rec) {
         DataTime dt = rec.getDataTime();
-        GribModel modelInfo = rec.getModelInfo();
-        Level level = modelInfo.getLevel();
+        GridInfoRecord info = rec.getInfo();
+        Level level = info.getLevel();
         Set<? extends SimpleDimension> dims = layer.getDimensions();
         for (SimpleDimension d : dims) {
             String name = d.getName();
@@ -88,67 +60,101 @@ public class GribLayerCollector extends
                 values.add(LayerTransformer.format(dt.getRefTime()));
             } else if (GribDimension.FORECAST_OFFSET_DIM.equals(name)) {
                 values.add(dt.getFcstTime() + "S");
-            } else if (GribDimension.LEVEL1_DIM.equals(name)) {
-                values.add(level.getLevelOneValueAsString());
-            } else if (GribDimension.LEVEL2_DIM.equals(name)) {
-                values.add(level.getLevelTwoValueAsString());
-            } else if (GribDimension.PERTURB_DIM.equals(name)) {
-                values.add(String.valueOf(modelInfo.getPerturbationNumber()));
-            } else if (GribDimension.ENSEMBLE_DIM.equals(name)) {
-                values.add(String.valueOf(modelInfo.getTypeEnsemble()));
-            } else if (GribDimension.VERSION_DIM.equals(name)) {
-                values.add(String.valueOf(rec.getGridVersion()));
+            } else if (name.startsWith(LevelDimUtil.LEVEL_DIM_PREFIX)) {
+                values.add(LevelDimUtil.formatLevelValue(level));
+            } else if (GribDimension.PARAM_DIM.equals(name)) {
+                values.add(getParameter(rec));
             } else {
-                statusHandler.warn("Unkown grib dimension: " + name);
+                log.warn("Unkown grib dimension: " + name);
             }
         }
     }
 
-    @Override
-    protected void addToTimes(GribLayer layer, GribRecord rec) {
-        Set<Date> times = layer.getTimes();
-        times.add(rec.getDataTime().getValidTime().getTime());
+    /**
+     * Get parameter string from record
+     * 
+     * @param rec
+     * @return
+     */
+    private String getParameter(GridRecord rec) {
+        String fieldName = rec.getInfo().getParameter().getAbbreviation();
+        return GribRecordFinder.dbToOgcParameter(fieldName);
     }
 
     @Override
-    protected boolean initializeLayer(GribLayer layer, GribRecord rec) {
-        GribModel model = rec.getModelInfo();
-        GridCoverage cov = model.getLocation();
-        if (cov == null) {
-            statusHandler.warn("Recieved record without coverage!");
+    protected void addToTimes(GridCompositeLayer layer, GridRecord rec) {
+        String parameter = getParameter(rec);
+        layer.addTime(parameter, rec.getDataTime().getValidTime().getTime());
+    }
+
+    @Override
+    protected boolean initializeLayer(GridCompositeLayer layer, GridRecord rec) {
+        GridInfoRecord info = rec.getInfo();
+        Level level = info.getLevel();
+        Parameter parameter = info.getParameter();
+        if (parameter.getAbbreviation().startsWith("static")) {
             return false;
         }
+        Unit<?> unit = level.getMasterLevel().getUnit();
+        if (unit == null) {
+            layer.setVertical(false);
+        }
+        try {
+            AltUtil.convert(SI.METER, unit, 1);
+        } catch (Exception e) {
+            layer.setVertical(false);
+        }
+        GridCoverage cov = info.getLocation();
+        if (cov == null) {
+            log.warn("Recieved record without coverage!");
+            return false;
+        }
+        layer.setCoverageName(cov.getName());
+        String crsWkt = cov.getCrsWKT();
+        if (crsWkt == null) {
+            crsWkt = cov.getCrs().toWKT();
+        }
+        layer.setCrsWkt(crsWkt);
         layer.setNx(cov.getNx());
         layer.setNy(cov.getNy());
         layer.setTargetCrsCode("CRS:84");
         try {
-            Envelope env = getProperBounds(cov);
+            Envelope env = getProperBounds(layer, cov, info);
             layer.setTargetMinx(env.getMinX());
             layer.setTargetMiny(env.getMinY());
             layer.setTargetMaxx(env.getMaxX());
             layer.setTargetMaxy(env.getMaxY());
             layer.setCrs84Bounds(JTS.toGeometry(env));
         } catch (Exception e) {
-            statusHandler.error("Unable to get crs84 bounds", e);
+            log.error("Unable to get crs84 bounds", e);
             return false;
         }
-        layer.setTimes(new TreeSet<Date>());
-        String levelUnit = rec.getModelInfo().getLevelUnit();
+        String levelUnit = level.getMasterLevel().getUnitString();
+        MasterLevel master = level.getMasterLevel();
         TreeSet<GribDimension> dims = new TreeSet<GribDimension>();
         dims.add(new GribDimension(GribDimension.REFTIME_DIM, "ISO8601"));
         dims.add(new GribDimension(GribDimension.FORECAST_OFFSET_DIM, "ISO8601"));
-        dims.add(new GribDimension(GribDimension.LEVEL1_DIM, levelUnit));
-        dims.add(new GribDimension(GribDimension.LEVEL2_DIM, levelUnit));
-        dims.add(new GribDimension(GribDimension.PERTURB_DIM, null));
-        dims.add(new GribDimension(GribDimension.ENSEMBLE_DIM, null));
-        dims.add(new GribDimension(GribDimension.VERSION_DIM, null));
-        layer.setDimensions(dims);
+        String levelName = LevelDimUtil.LEVEL_DIM_PREFIX + master.getName();
+        dims.add(new GribDimension(levelName, levelUnit));
+        dims.add(new GribDimension(GribDimension.PARAM_DIM, parameter.getUnit()
+                .toString()));
+        layer.addDimensions(getParameter(rec), dims);
         return true;
     }
 
-    protected ReferencedEnvelope getProperBounds(GridCoverage cov)
-            throws FactoryException, MismatchedDimensionException,
-            TransformException {
+    protected ReferencedEnvelope getProperBounds(GribLayer layer,
+            GridCoverage cov, GridInfoRecord info) throws FactoryException,
+            MismatchedDimensionException, TransformException {
+        String dataset = info.getDatasetId();
+        // the gemglobal and gfs global grids are already in a crs:84
+        // projection,
+        // so there is no transformation needed.
+        if (dataset.equals("GEMGlobal") || dataset.equals("GFS230")
+                || dataset.equals("GlobalWave")) {
+            return new ReferencedEnvelope(-180.0, 180.0, -90.0, 90.0,
+                    cov.getCrs());
+        }
+
         // the polygon is not projected properly, must get native bounds and
         // reproject into crs:84
         CoordinateReferenceSystem nativeCrs = cov.getCrs();
@@ -157,64 +163,59 @@ public class GribLayerCollector extends
                 .getEnvelopeInternal();
         ReferencedEnvelope nativeEnv = new ReferencedEnvelope(env.getMinX(),
                 env.getMaxX(), env.getMinY(), env.getMaxY(), nativeCrs);
-        return nativeEnv.transform(MapUtil.LATLON_PROJECTION, true);
+        layer.setNativeMinX(env.getMinX());
+        layer.setNativeMinY(env.getMinY());
+        layer.setNativeMaxX(env.getMaxX());
+        layer.setNativeMaxY(env.getMaxY());
+        ReferencedEnvelope crs84Env = nativeEnv.transform(
+                MapUtil.LATLON_PROJECTION, true);
+        // This is to fix when non-polar coverages cross poles or opposite
+        // meridian
+        // This will completely break polar coverages
+        double minx = crs84Env.getMinX();
+        double miny = crs84Env.getMinY();
+        double maxx = crs84Env.getMaxX();
+        double maxy = crs84Env.getMaxY();
+        if (maxx > 180 || minx < -180) {
+            // coverage crosses opposite meridian, advertise all the way around
+            minx = -180;
+            maxx = 180;
+        }
+        if (maxy > 90) {
+            // coverage crosses north pole, truncate
+            maxy = 90;
+        }
+        if (miny < -90) {
+            // coverage crosses south pole, truncate
+            miny = -90;
+        }
+        return new ReferencedEnvelope(minx, maxx, miny, maxy,
+                crs84Env.getCoordinateReferenceSystem());
     }
 
     @Override
-    protected String getLayerName(GribRecord rec) {
-        GribModel modelInfo = rec.getModelInfo();
-        String modelName = modelInfo.getModelName();
-        String parameter = modelInfo.getParameterAbbreviation();
-        String level = modelInfo.getLevel().getMasterLevel().getName();
-        return modelName + "/" + parameter + "/" + level;
+    public String getLayerName(GridRecord rec) {
+        return createLayerName(rec);
     }
 
-    @Override
-    public void sendMetaData(Map<String, GribLayer> layermap,
-            Collection<GribRecord> coll) {
-
-        for (Entry<String, GribLayer> entry : layermap.entrySet()) {
-            GribLayer layer = entry.getValue();
-
-            // for (GribDimension)
-
-            // GriddedDataSetMetaData gdsmd = new GriddedDataSetMetaData();
-            // GriddedCoverage griddedCoverage = new GriddedCoverage();
-            // GridCoverage gridCoverage =
-            layer.toString();
-
-        }
-
-        for (PluginDataObject pdo : coll) {
-            GribRecord gr = (GribRecord) pdo;
-            gr.toString();
-        }
-
+    public static String createLayerName(GridRecord rec) {
+        GridInfoRecord info = rec.getInfo();
+        GridCoverage cov = info.getLocation();
+        String levelName = info.getLevel().getMasterLevel().getName();
+        return info.getDatasetId() + OgcLayer.keySeparator + cov.getName()
+                + OgcLayer.keySeparator + levelName;
     }
-    /**
-     * Get's the correct gridCoverage
+
+    /*
+     * (non-Javadoc)
      * 
-     * @return
-     * 
-     *         protected GridCoverage getGridCoverage() {
-     * 
-     *         GridCoverage gridCoverage = null;
-     * 
-     *         if (getProvider().getProjection().getName()
-     *         .equals(LatLonGridCoverage.PROJECTION_TYPE)) { gridCoverage = new
-     *         LatLonGridCoverage(); } else if
-     *         (getProvider().getProjection().getName()
-     *         .equals(LambertConformalGridCoverage.PROJECTION_TYPE)) {
-     *         gridCoverage = new LambertConformalGridCoverage(); } else if
-     *         (getProvider().getProjection().getName()
-     *         .equals(MercatorGridCoverage.PROJECTION_TYPE)) { gridCoverage =
-     *         new MercatorGridCoverage(); } else if
-     *         (getProvider().getProjection().getName()
-     *         .equals(PolarStereoGridCoverage.PROJECTION_TYPE)) { gridCoverage
-     *         = new PolarStereoGridCoverage(); }
-     * 
-     *         return gridCoverage;
-     * 
-     *         }
+     * @see
+     * com.raytheon.uf.edex.ogc.common.db.LayerCollector#copy(com.raytheon.uf
+     * .edex.ogc.common.db.SimpleLayer)
      */
+    @Override
+    protected GridCompositeLayer copy(GridCompositeLayer orig) {
+        return new GridCompositeLayer(orig);
+    }
+
 }

@@ -33,8 +33,8 @@ package com.raytheon.uf.edex.wcs.reg;
 import java.util.List;
 
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.edex.ogc.common.OgcBoundingBox;
 import com.raytheon.uf.edex.ogc.common.OgcGeoBoundingBox;
+import com.raytheon.uf.edex.ogc.common.spatial.Composite3DBoundingBox;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
@@ -56,7 +56,7 @@ public class CoverageDescription {
 
 	protected List<DataTime> times;
 
-	protected List<OgcBoundingBox> bboxes;
+    protected List<Composite3DBoundingBox> bboxes;
 
 	protected List<RangeField> rangeFields;
 
@@ -178,11 +178,11 @@ public class CoverageDescription {
 		this.times = times;
 	}
 
-	public List<OgcBoundingBox> getBboxes() {
+    public List<Composite3DBoundingBox> getBboxes() {
 		return bboxes;
 	}
 
-	public void setBboxes(List<OgcBoundingBox> bboxes) {
+    public void setBboxes(List<Composite3DBoundingBox> bboxes) {
 		this.bboxes = bboxes;
 	}
 

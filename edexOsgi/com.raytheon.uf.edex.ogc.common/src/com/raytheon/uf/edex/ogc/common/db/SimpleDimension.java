@@ -1,33 +1,36 @@
-/**
- * This software was developed and / or modified by Raytheon Company,
- * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
- * U.S. EXPORT CONTROLLED TECHNICAL DATA
- * This software product contains export-restricted data whose
- * export/transfer/disclosure is restricted by U.S. law. Dissemination
- * to non-U.S. persons whether in the United States or abroad requires
- * an export license or other authorization.
- * 
- * Contractor Name:        Raytheon Company
- * Contractor Address:     6825 Pine Street, Suite 340
- *                         Mail Stop B8
- *                         Omaha, NE 68106
- *                         402.291.0100
- * 
- * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
- * further licensing information.
- **/
- /**
+/*
+ * The following software products were developed by Raytheon:
+ *
+ * ADE (AWIPS Development Environment) software
+ * CAVE (Common AWIPS Visualization Environment) software
+ * EDEX (Environmental Data Exchange) software
+ * uFrame™ (Universal Framework) software
+ *
+ * Copyright (c) 2010 Raytheon Co.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/org/documents/epl-v10.php
+ *
+ *
+ * Contractor Name: Raytheon Company
+ * Contractor Address:
+ * 6825 Pine Street, Suite 340
+ * Mail Stop B8
+ * Omaha, NE 68106
+ * 402.291.0100
+ *
+ *
  * SOFTWARE HISTORY
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 1, 2011            bclement     Initial creation
  *
- **/
-
+ */
 package com.raytheon.uf.edex.ogc.common.db;
 
+import java.io.Serializable;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -55,11 +58,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @author dhladky
  * @version 1.0
  */
-
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public abstract class SimpleDimension implements Comparable<SimpleDimension>,  ISerializableObject {
+public abstract class SimpleDimension implements Comparable<SimpleDimension>,
+        Serializable, ISerializableObject {
+
+    private static final long serialVersionUID = 4654482181227204619L;
 
 	@XmlElement
 	@DynamicSerializeElement
@@ -68,6 +73,14 @@ public abstract class SimpleDimension implements Comparable<SimpleDimension>,  I
 	@XmlElement
 	@DynamicSerializeElement
 	protected String units;
+
+	public SimpleDimension() {
+	}
+
+	public SimpleDimension(SimpleDimension other) {
+		this.name = other.name;
+		this.units = other.units;
+	}
 
 	/**
 	 * @return live reference to values set, should not return null
@@ -82,9 +95,6 @@ public abstract class SimpleDimension implements Comparable<SimpleDimension>,  I
 	 */
     public abstract String getDefaultValue(
             SimpleLayer<? extends SimpleDimension> layer);
-
-	public SimpleDimension() {
-	}
 
 	/**
 	 * @param lowest
@@ -122,6 +132,20 @@ public abstract class SimpleDimension implements Comparable<SimpleDimension>,  I
 		return val != null ? String.valueOf(val.intValue()) : null;
 	}
 
+    /**
+     * @param lowest
+     *            set true to return lowest value, otherwise highest is returned
+     * @return
+     */
+    protected String getString(boolean lowest) {
+        Set<String> values = this.getValues();
+        if (values.isEmpty()) {
+            return null;
+        }
+        TreeSet<String> sorted = new TreeSet<String>(values);
+        return lowest ? sorted.first() : sorted.last();
+    }
+
 	/**
 	 * @return the name
 	 */
@@ -152,7 +176,6 @@ public abstract class SimpleDimension implements Comparable<SimpleDimension>,  I
 		this.units = units;
 	}
 
-
     @Override
     public int compareTo(SimpleDimension o) {
         return this.name.compareTo(o.name);
@@ -181,5 +204,15 @@ public abstract class SimpleDimension implements Comparable<SimpleDimension>,  I
         } else if (!name.equals(other.name))
             return false;
         return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "[name=" + name + ", values=" + getValues() + "]";
     }
 }

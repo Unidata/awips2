@@ -32,14 +32,12 @@ package com.raytheon.uf.edex.wms.reg;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateUtils;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
@@ -65,6 +63,8 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.uf.edex.ogc.common.db.LayerTransformer;
 import com.raytheon.uf.edex.ogc.common.db.LayerTransformer.TimeFormat;
+import com.raytheon.uf.edex.ogc.common.db.SimpleDimension;
+import com.raytheon.uf.edex.ogc.common.db.SimpleLayer;
 import com.raytheon.uf.edex.ogc.common.feature.FeatureFactory;
 import com.raytheon.uf.edex.wms.WmsException;
 import com.raytheon.uf.edex.wms.WmsException.Code;
@@ -82,12 +82,15 @@ import com.vividsolutions.jts.geom.Polygon;
  * @author bclement
  * @version 1.0
  */
-public abstract class PointDataWmsSource extends FeatureWmsSource {
+public abstract class PointDataWmsSource<D extends SimpleDimension, L extends SimpleLayer<D>>
+        extends FeatureWmsSource<D, L> {
 
 	protected String timeField = "dataTime.refTime";
 
+	protected int fuzzFactor = 4;
+
 	public PointDataWmsSource(PluginProperties props, String key,
-			LayerTransformer transformer, FeatureFactory featureFactory) {
+            LayerTransformer<D, L> transformer, FeatureFactory featureFactory) {
 		super(props, key, transformer, featureFactory);
 		super.setTimeFormat(TimeFormat.HOUR_RANGES);
 	}
@@ -209,31 +212,36 @@ public abstract class PointDataWmsSource extends FeatureWmsSource {
 
 	protected Criterion getDefaultTimeCrit(String layer, Criterion spatial)
 			throws WmsException {
-		Date start = getDefaultDate(layer);
-		start = DateUtils.truncate(start, Calendar.HOUR);
-		Date end = DateUtils.addHours(start, 1);
-		return getRangeQuery(start, end, spatial);
+        L l;
+		try {
+            LayerTransformer<D, L> transformer = getTransformer();
+			l = transformer.find(layer);
+		} catch (Exception e) {
+			log.error("Problem getting default time for layer", e);
+			throw new WmsException(Code.InternalServerError);
+		}
+		if (l == null) {
+			throw new WmsException(Code.LayerNotDefined);
+		}
+		String timeEntry = l.getDefaultTimeEntry();
+		return getTimeCrit(timeEntry, spatial);
 	}
 
 	protected Criterion getTimeCrit(String time, Criterion spatial)
 			throws WmsException {
-		String[] parts = StringUtils.split(time, '/');
 		Conjunction con = Restrictions.conjunction();
 		if (spatial != null) {
 			con.add(spatial);
 		}
+		Date[] parts = parseTimeString(time);
 		if (parts.length == 1) {
 			// instance
-			Calendar c = parseTimeString(parts[0]);
-			Date date = c.getTime();
-			// rval = new QueryParam(timeField, date.getTime());
+			Date date = parts[0];
 			con.add(Restrictions.eq(timeField, date));
 		} else {
 			// range
-			Calendar c = parseTimeString(parts[0]);
-			Date start = c.getTime();
-			c = parseTimeString(parts[1]);
-			Date end = c.getTime();
+			Date start = parts[0];
+			Date end = parts[1];
 			con.add(Restrictions.ge(timeField, start));
 			con.add(Restrictions.lt(timeField, end));
 			// TODO check resolution
@@ -269,7 +277,7 @@ public abstract class PointDataWmsSource extends FeatureWmsSource {
 		Point p = new GeometryFactory().createPoint(res);
 
 		Envelope env = p.getEnvelopeInternal();
-		env.expandBy(scale * 2);
+		env.expandBy(scale * fuzzFactor);
 		return SpatialRestrictions.within(getGeometryField(layer),
 				JTS.toGeometry(env));
 	}
@@ -308,6 +316,21 @@ public abstract class PointDataWmsSource extends FeatureWmsSource {
 
 	public void setTimeField(String timeField) {
 		this.timeField = timeField;
+	}
+
+	/**
+	 * @return the fuzzFactor
+	 */
+	public int getFuzzFactor() {
+		return fuzzFactor;
+	}
+
+	/**
+	 * @param fuzzFactor
+	 *            the fuzzFactor to set
+	 */
+	public void setFuzzFactor(int fuzzFactor) {
+		this.fuzzFactor = fuzzFactor;
 	}
 
 }
