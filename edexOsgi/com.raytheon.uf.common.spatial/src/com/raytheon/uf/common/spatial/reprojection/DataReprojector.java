@@ -48,6 +48,7 @@ import org.geotools.coverage.grid.ViewType;
 import org.geotools.coverage.processing.Operations;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.referencing.CRS;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.metadata.spatial.PixelOrientation;
@@ -157,6 +158,10 @@ public class DataReprojector {
 			String reprojectedDataset, ISpatialObject spatial,
 			CoordinateReferenceSystem crs, Request req) throws Exception {
 		IDataRecord dataRecord;
+        if (CRS.equalsIgnoreMetadata(crs, spatial.getCrs())) {
+            // original dataset, no reproject
+            reprojectedDataset = dataSet;
+        }
 		// check if data has already been reprojected
 		if (!datasetExists(group, reprojectedDataset)) {
 			// it hasn't lock and reproject
@@ -452,7 +457,7 @@ public class DataReprojector {
 	 * @throws MismatchedDimensionException
 	 * @throws FactoryException
 	 */
-	protected RequestWrapper getRequest(ISpatialObject spatial,
+    public static RequestWrapper getRequest(ISpatialObject spatial,
 			ReferencedEnvelope nativeEnv, ReferencedEnvelope targetEnvelope)
 			throws MismatchedDimensionException,
 			TransformException, FactoryException {
@@ -492,7 +497,8 @@ public class DataReprojector {
 	 * @throws MismatchedDimensionException
 	 * @throws TransformException
 	 */
-	protected RequestWrapper getSubSlice(GridGeometry2D geom, Envelope env,
+    protected static RequestWrapper getSubSlice(GridGeometry2D geom,
+            Envelope env,
 			int[] dims) throws MismatchedDimensionException, TransformException {
 		RequestWrapper rval = new RequestWrapper();
 		MathTransform2D crsToGrid2D = geom
@@ -517,7 +523,8 @@ public class DataReprojector {
 	 * @throws MismatchedDimensionException
 	 * @throws TransformException
 	 */
-	protected ReferencedEnvelope transformGrid(MathTransform2D gridToCrs,
+    protected static ReferencedEnvelope transformGrid(
+            MathTransform2D gridToCrs,
 			int[][] minmax, CoordinateReferenceSystem crs)
 			throws MismatchedDimensionException, TransformException {
 		int[] min = minmax[0];
@@ -545,7 +552,8 @@ public class DataReprojector {
 	 * @throws MismatchedDimensionException
 	 * @throws TransformException
 	 */
-	protected int[][] transformEnv(MathTransform2D crsToGrid, Envelope env,
+    protected static int[][] transformEnv(MathTransform2D crsToGrid,
+            Envelope env,
 			int[] dims) throws MismatchedDimensionException, TransformException {
 		DirectPosition lower = new DirectPosition2D(env.getMinX(),
 				env.getMinY());

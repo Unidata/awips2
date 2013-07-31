@@ -47,6 +47,7 @@ import org.hibernate.criterion.Restrictions;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.database.dao.CoreDao;
+import com.raytheon.uf.edex.ogc.common.AbstractOgcSource;
 import com.raytheon.uf.edex.ogc.common.OgcGeoBoundingBox;
 import com.raytheon.uf.edex.ogc.common.OgcTimeRange;
 import com.raytheon.uf.edex.wfs.WfsException;
@@ -56,26 +57,34 @@ import com.raytheon.uf.edex.wfs.request.QualifiedName;
 import com.raytheon.uf.edex.wfs.request.SortBy;
 
 /**
+ * Abstract base class for WFS sources
  * 
  * @author bclement
  * @version 1.0
  */
-public abstract class AbstractWfsSource<T> implements WfsSource {
+public abstract class AbstractWfsSource<T> extends AbstractOgcSource implements
+        IWfsSource {
 
-    protected String key;
+    protected final String key;
 
-    protected static String defaultCRS = "crs:84";
+    public static final String defaultCRS = "crs:84";
 
-    protected static OgcGeoBoundingBox fullBbox = new OgcGeoBoundingBox(180,
+    public static final OgcGeoBoundingBox fullBbox = new OgcGeoBoundingBox(180,
             -180, 90, -90);
 
     protected abstract CoreDao getDao() throws Exception;
 
     protected static final String temporalKey = "dataTime.refTime";
-    
-    private static final IUFStatusHandler statusHandler = UFStatus
+
+    protected static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractWfsSource.class);
 
+    protected IFeatureTypeModifier typeModifier = null;
+
+    /**
+     * @param key
+     *            unique key for this source
+     */
     public AbstractWfsSource(String key) {
         this.key = key;
     }
@@ -86,7 +95,15 @@ public abstract class AbstractWfsSource<T> implements WfsSource {
      * @see com.raytheon.uf.edex.wfs.reg.WfsSource#listFeatureTypes()
      */
     @Override
-    public abstract List<WfsFeatureType> listFeatureTypes();
+    public List<WfsFeatureType> listFeatureTypes() {
+        List<WfsFeatureType> featureTypes = getFeatureTypes();
+        if (this.typeModifier == null) {
+            return featureTypes;
+        }
+        return this.typeModifier.modify(featureTypes);
+    }
+
+    protected abstract List<WfsFeatureType> getFeatureTypes();
 
     /*
      * (non-Javadoc)
@@ -96,7 +113,8 @@ public abstract class AbstractWfsSource<T> implements WfsSource {
      * .uf.edex.wfs.request.QualifiedName)
      */
     @Override
-    public abstract String describeFeatureType(QualifiedName feature);
+    public abstract String describeFeatureType(QualifiedName feature)
+            throws WfsException;
 
     /**
      * Utility method for reading text files from the classpath
@@ -123,11 +141,19 @@ public abstract class AbstractWfsSource<T> implements WfsSource {
         return rval;
     }
 
+    /**
+     * Interacts with database to get features
+     * 
+     * @param feature
+     * @param query
+     * @return
+     * @throws WfsException
+     */
     protected List<T> queryInternal(QualifiedName feature, WfsQuery query)
             throws WfsException {
         query = modQuery(query);
         List<T> rval;
-        //TODO get rid of core DAO calls
+        // TODO get rid of core DAO calls
         Session sess = null;
         try {
             CoreDao dao = getDao();
@@ -144,7 +170,7 @@ public abstract class AbstractWfsSource<T> implements WfsSource {
 
         } catch (Exception e) {
             statusHandler.error("Problem querying for feature", e);
-            throw new WfsException(Code.INTERNAL_SERVER_ERROR);
+            throw new WfsException(Code.OperationProcessingFailed);
         } finally {
             if (sess != null) {
                 sess.close();
@@ -200,12 +226,17 @@ public abstract class AbstractWfsSource<T> implements WfsSource {
         OgcTimeRange otr = query.timeRange;
 
         if (otr != null) {
-            crit.add(Restrictions.between(temporalKey, otr.getStartTime(), otr.getEndTime()));
+            crit.add(Restrictions.between(temporalKey, otr.getStartTime(),
+                    otr.getEndTime()));
         }
 
         return crit;
     }
 
+    /**
+     * @param criteria
+     * @param sortBys
+     */
     protected void addOrder(Criteria criteria, List<SortBy> sortBys) {
         if (sortBys == null || sortBys.isEmpty()) {
             return;
@@ -224,6 +255,10 @@ public abstract class AbstractWfsSource<T> implements WfsSource {
         }
     }
 
+    /**
+     * @param criteria
+     * @param query
+     */
     protected void populateCriteria(Criteria criteria, WfsQuery query) {
         query = modQuery(query);
         Criterion criterion = query.getCriterion();
@@ -293,7 +328,7 @@ public abstract class AbstractWfsSource<T> implements WfsSource {
             }
         } catch (Exception e) {
             statusHandler.error("Unable to get count!", e);
-            throw new WfsException(Code.INTERNAL_SERVER_ERROR);
+            throw new WfsException(Code.OperationProcessingFailed);
         } finally {
             if (sess != null) {
                 sess.close();
@@ -320,9 +355,29 @@ public abstract class AbstractWfsSource<T> implements WfsSource {
     @Override
     public abstract Class<?>[] getJaxbClasses();
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.edex.wfs.reg.WfsSource#getFieldMap()
+     */
     @Override
     public Map<String, String> getFieldMap() {
         return null;
+    }
+
+    /**
+     * @return the typeModifier
+     */
+    public IFeatureTypeModifier getTypeModifier() {
+        return typeModifier;
+    }
+
+    /**
+     * @param typeModifier
+     *            the typeModifier to set
+     */
+    public void setTypeModifier(IFeatureTypeModifier typeModifier) {
+        this.typeModifier = typeModifier;
     }
 
 }
