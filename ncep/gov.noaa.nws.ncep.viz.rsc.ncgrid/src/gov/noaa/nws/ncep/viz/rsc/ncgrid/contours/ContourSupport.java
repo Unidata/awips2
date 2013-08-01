@@ -41,8 +41,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.locks.*;
-
 
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridGeometry;
@@ -63,7 +61,7 @@ import com.raytheon.edex.meteoLib.Controller;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.geospatial.util.WorldWrapCorrector;
+import com.raytheon.uf.common.geospatial.util.WorldWrapChecker;
 import com.raytheon.uf.common.util.ArraysUtil;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -111,6 +109,8 @@ import com.vividsolutions.jts.linearref.LocationIndexedLine;
  *    Mar 27, 2012             X. Guo      Used contour lock instead of "synchronized" 
  *    May 23, 2012             X. Guo      Loaded ncgrib logger
  *    Apr 26, 2013			   B. Yin	   Fixed the world wrap problem for centeral line 0/180.
+ *    Jun 06, 2013			   B. Yin	   fixed the half-degree grid porblem.
+ *    Jul 19, 2013             B. Hebbard  Merge in RTS change of Util-->ArraysUtil
  * 
  * </pre>
  * 
@@ -145,10 +145,31 @@ public class ContourSupport {
     private List<Double> cvalues;
     private List<Double> fvalues;
     private Set<Double> svalues;
-    private boolean isWorld0;
+    private boolean globalData = false;
+    
+    //world map with central meridian at 180 degree
     private boolean isWorld180;
+    
+    //return value from raytheon's worlWrapChecker
+    private boolean worldWrapChecker;
+
+    //flag that indicates world wrap is needed
+    private boolean worldWrap;
+    
+    //central meridian
+    private double centralMeridian = 0;
+    
+    //screen width of the map
+    private double mapScreenWidth;
+    
+    //screen x of the zero longitude
+    private double zeroLonOnScreen;
+    
+    //maximum number of grid along x direction
+    private int maxGridX;
+    
     private boolean isCntrsCreated;
-    private static NcgribLogger ncgribLogger = NcgribLogger.getInstance();;
+    private static NcgribLogger ncgribLogger = NcgribLogger.getInstance();
     
     /**
      * Constructor
@@ -293,9 +314,13 @@ public class ContourSupport {
     	this.name = name;
     	this.zoom = zoom;
     	this.cntrData = new ContourGridData(records);
-    	this.isWorld0 = (getCentralMeridian(descriptor) == 0.0);
-    	this.isWorld180 = (Math.abs(getCentralMeridian(descriptor)) == 180.0);
-    	
+    	this.centralMeridian = getCentralMeridian(descriptor);
+    	if ( centralMeridian == -180 ) centralMeridian = 180;
+    	this.isWorld180 = (centralMeridian == 180.0);
+    	this.worldWrapChecker =  new WorldWrapChecker(descriptor.getGridGeometry().getEnvelope()).needsChecking();
+    	this.worldWrap = needWrap(imageGridGeometry, rastPosToLatLon);
+    	mapScreenWidth = this.getMapWidth();
+        maxGridX = this.getMaxGridX(imageGridGeometry);
     	initContourGroup ( target,contourGp );
     }
     /**
@@ -448,89 +473,6 @@ public class ContourSupport {
 	    }
     	
     }
-    /**
-     * Create labels for a linestring
-     * 
-     * @param contourGroup
-     * @param levelOffset
-     * @param contourValue
-     * @param labelPoints
-     * @param valsArr
-     */
-    private static void prepareLabel(ContourGroup contourGroup,
-            double screenToPixel, float contourValue,
-            List<double[]> labelPoints, double[][] valsArr) {
-    	
-        double[] lastPoint = new double[] { Double.POSITIVE_INFINITY,
-                Double.POSITIVE_INFINITY };
-
-        double d = 0.0;
-
-        final double threshold1 = (200.0 / screenToPixel);
-        final double threshold2 = (100.0 / screenToPixel);
-
-        long tAccum = 0;
-        double q1, q2, p1, p2;
-        DecimalFormat df = new DecimalFormat("0.#");
-        for (int n = 0; n < valsArr.length; n++) {
-
-            // Distance approximation between last label point
-            // and current point
-
-            // Absolute value logic inlined for performance
-            q1 = lastPoint[0] - valsArr[n][0];
-            q2 = lastPoint[1] - valsArr[n][1];
-            q1 = (q1 <= 0.0D) ? 0.0D - q1 : q1;
-            q2 = (q2 <= 0.0D) ? 0.0D - q2 : q2;
-
-            d = q1 + q2;
-
-            // If distance has been enough, add a label
-            if (d > (threshold1)
-            /* || (labeledAtLeastOnce == false && n == valsArr.length - 1) */) {
-                // Search for any labels that are too close
-                // to the current one
-                boolean tooClose = false;
-                p1 = valsArr[n][0];
-                p2 = valsArr[n][1];
-                
-                q1 = 0;
-                q2 = 0;
-                for (double[] test : labelPoints) {
-                    // Distance approximation between each label
-                    // point and current point
-                    // Absolute value logic inlined for performance
-                    q1 = test[0] - p1;
-                    q2 = test[1] - p2;
-                    q1 = (q1 <= 0.0D) ? -1.0D * q1 : q1;
-                    q2 = (q2 <= 0.0D) ? -1.0D * q2 : q2;
-                    d = q1 + q2;
-                    if (d < threshold2) {
-                        tooClose = true;
-                        break;
-                    }
-                }
-                if (!tooClose
-                /* || (labeledAtLeastOnce == false && n == valsArr.length - 1) */) {
-                    long t0 = System.currentTimeMillis();
-//                    if (contourValue >= 0) {
-//                        contourGroup.posValueShape.addLabel(df
-//                                .format(contourValue), valsArr[n]);
-//                    } else {
-                        contourGroup.negValueShape.addLabel(df
-                                .format(contourValue), valsArr[n]);
-//                    }
-
-                    labelPoints.add(valsArr[n]);
-                    lastPoint = valsArr[n];
-                    tAccum += (System.currentTimeMillis() - t0);
-                }
-            }
-        }
-
-    }
-
-    
     private double[][] toScreen(Coordinate[] coords, MathTransform xform, int minX, int minY) {
     	
     	int size = coords.length;
@@ -538,14 +480,15 @@ public class ContourSupport {
     	//remove points on longitude 360 degree. to avoid long cross lines
     	if ( isWorld180 ) {
     		for ( Coordinate pt : coords ){
-    			if ( pt.x == 360.0)	size--;
+    			if ( pt.x == maxGridX)	size--;
     		}
     	}
     	
         double[][] out = new double[size][3];
-        
+    	long nx =  records.getSizes()[0] - 1;
+      
         for ( int i=0, jj = 0; i< coords.length; i++, jj++ ) {
-        	if ( isWorld180 && coords[i].x == 360.0 ){ jj--; continue;}
+        	if ( isWorld180 && coords[i].x == maxGridX ){ jj--; continue;}
         	
                 double[] tmp = new double[2];
                 tmp[0]=coords[i].x + minX;
@@ -559,59 +502,173 @@ public class ContourSupport {
                       //  e.printStackTrace();
                 	return null;
                 }
+                
+                if ( worldWrapChecker ) {
+                	if ( tmp[0] > (nx-1) && out[jj][0] < 0){
+                		out[jj][0] = mapScreenWidth; 
+                	}
+                	else if (tmp[0] < 1 && out[jj][0] > mapScreenWidth*0.9  ){
+                		out[jj][0] = 0;
+                	}
+                }
+
         }
         
         if ( out.length >  0 ) {
         	return out;
-        } else {
+        }
+        else {
         	return null;
         }
     }
 
-    private static double[][] toScreenSubtract360(Coordinate[] coords, MathTransform xform,MathTransform xform1, int minX, int minY) {
-//        Coordinate[] out = new Coordinate[coords.length];
+    private double[][] toScreenRightOfZero(Coordinate[] coords, MathTransform xform, int minX, int minY) {
+    	//      Coordinate[] out = new Coordinate[coords.length];
     	double[][] out = new double[coords.length][3];
-        double[] tmpout = new double[3];
-        
-        for ( int i=0; i< coords.length; i++ ) {
-                double[] tmp = new double[2];
-                tmp[0]=coords[i].x + minX;
-                tmp[1]=coords[i].y + minY;
-//                if (tmp[0] > 180.0) tmp[0] -= 360.0;
-                
-                try {
-                        xform.transform(tmp, 0, tmpout, 0, 1);
-                } catch (TransformException e) {
-                        // TODO Auto-generated catch block
-                      //  e.printStackTrace();
-                	return null;
-                }
-                tmpout[0] -= 360.0;
-                try {
-                    xform1.transform(tmpout, 0, out[i], 0, 1);
-                } catch (TransformException e) {
-                    // TODO Auto-generated catch block
-                  //  e.printStackTrace();
-                	return null;
-                }
-        }
 
-        if ( out.length >  0 ) {
-        	return out;
-        } else {
-        	return null;
-        }
+    	for ( int i=0; i< coords.length; i++ ) {
+    		double[] tmp = new double[2];
+    		tmp[0]=coords[i].x + minX;
+    		tmp[1]=coords[i].y + minY;
+
+    		try {
+    			xform.transform(tmp, 0, out[i], 0, 1);
+    		} catch (TransformException e) {
+    			//  e.printStackTrace();
+    			return null;
+    		}
+    		
+    //		  System.out.println("WWWWWWW      " + tmp[0]+"   " + "   " + out[i][0]);
+
+    		if ( out[i][0] <  zeroLonOnScreen || (tmp[0] == maxGridX && out[i][0] == zeroLonOnScreen)){
+    			out[i][0] += mapScreenWidth;
+    //			 System.out.println("Shift     " + tmp[0]+"     " + out[i][0]);
+    		}
+   // 		else if ( delta < 0 && !(out[i][0] <  middle ) && (delta < 0 || Math.abs(out[i][0]) < Math.abs(delta)) ){
+
+    			//  	  System.out.println("SSSSSSSSSSSShift" + tmp[0]+"   " + tmpout[0] + "   " + out[i][0]);
+    //			out[i][0] += delta;
+    //		}
+
+    	}
+
+    	if ( out.length >  0 ) {
+    		return out;
+    	}
+    	else {
+    		return null;
+    	}
     }
     
+    private LineString toScreenLSRightOfZero(Coordinate[] coords, MathTransform xform, int minX, int minY) {
+        GeometryFactory gf = new GeometryFactory();
+        Coordinate[] out = new Coordinate[coords.length];
+        double[] tmpout = new double[3];
+
+    	for ( int i=0; i< coords.length; i++ ) {
+    		double[] tmp = new double[2];
+    		tmp[0]=coords[i].x + minX;
+    		tmp[1]=coords[i].y + minY;
+
+    		try {
+    			xform.transform(tmp, 0, tmpout, 0, 1);
+    		} catch (TransformException e) {
+    			//  e.printStackTrace();
+    			return null;
+    		}
+    		
+    		if ( tmpout[0] <  zeroLonOnScreen || (tmp[0] == maxGridX && tmpout[0] == zeroLonOnScreen)){
+    			tmpout[0] += mapScreenWidth;
+    		}
+    		
+            out[i] = new Coordinate( tmpout[0], tmpout[1] );
+
+    	}
+
+    	   if ( out.length >= 2 ) {
+           	return gf.createLineString(out);
+           }
+           else {
+           	return null;
+           }
+    }
+       
+    private double[][] toScreenLeftOfZero(Coordinate[] coords, MathTransform xform, int minX, int minY) {
+    	//      Coordinate[] out = new Coordinate[coords.length];
+    	double[][] out = new double[coords.length][3];
+
+    	for ( int i=0; i< coords.length; i++ ) {
+    		double[] tmp = new double[2];
+    		tmp[0]=coords[i].x + minX;
+    		tmp[1]=coords[i].y + minY;
+
+    		try {
+    			xform.transform(tmp, 0, out[i], 0, 1);
+    		} catch (TransformException e) {
+    			//  e.printStackTrace();
+    			return null;
+    		}
+    		
+    		//  System.out.println("WWWWWWW      " + tmp[0]+"   " + tmpout[0] + "   " + out[i][0]);
+
+    		if ( out[i][0] >  zeroLonOnScreen || ( tmp[0] == 0 && out[i][0] == zeroLonOnScreen )){
+    //			System.out.println("Shift   " + tmp[0]+"     " + out[i][0]);
+    			out[i][0] -= mapScreenWidth;
+    		}
+    		
+    	}
+
+    	if ( out.length >  0 ) {
+    		return out;
+    	}
+    	else {
+    		return null;
+    	}
+    }
+    
+    
+    private LineString toScreenLSLeftOfZero(Coordinate[] coords, MathTransform xform, int minX, int minY) {
+        GeometryFactory gf = new GeometryFactory();
+        Coordinate[] out = new Coordinate[coords.length];
+        double[] tmpout = new double[3];
+
+    	for ( int i=0; i< coords.length; i++ ) {
+    		double[] tmp = new double[2];
+    		tmp[0]=coords[i].x + minX;
+    		tmp[1]=coords[i].y + minY;
+
+    		try {
+    			xform.transform(tmp, 0, tmpout, 0, 1);
+    		} catch (TransformException e) {
+    			//  e.printStackTrace();
+    			return null;
+    		}
+    		
+    		if ( tmpout[0] >  zeroLonOnScreen || (tmp[0] == 0 && tmpout[0] == zeroLonOnScreen)){
+    			tmpout[0] -= mapScreenWidth;
+    		}
+    		
+            out[i] = new Coordinate( tmpout[0], tmpout[1] );
+
+    	}
+
+    	   if ( out.length >= 2 ) {
+           	return gf.createLineString(out);
+           }
+           else {
+           	return null;
+           }
+    }
     private LineString toScreenLS(Coordinate[] coords, MathTransform xform, int minX, int minY) {
 
         GeometryFactory gf = new GeometryFactory();
+    	long nx =  records.getSizes()[0] - 1;
 
         int size = coords.length;
     	//remove points on 360. to avoid long cross lines
     	if ( isWorld180 ) {
     		for ( Coordinate pt : coords ){
-    			if ( pt.x == 360.0)	size--;
+    			if ( pt.x == maxGridX)	size--;
     		}
     	}
         
@@ -619,7 +676,7 @@ public class ContourSupport {
         double[] tmpout = new double[3];
 
         for ( int i=0, jj = 0; i< coords.length; i++, jj++ ) {
-        	if ( isWorld180 && coords[i].x == 360.0 ){ jj--; continue;}
+        	if ( isWorld180 && coords[i].x == maxGridX ){ jj--; continue;}
 
         	double[] tmp = new double[2];
         	tmp[0]=coords[i].x + minX;
@@ -633,50 +690,27 @@ public class ContourSupport {
         		//                                e.printStackTrace();
         		return null;
         	}
+            if ( worldWrapChecker ) {
+            	if ( tmp[0] > (nx-1) && tmpout[0] < 0){
+            		tmpout[0] = extent.getMaxX(); 
+            	}
+            	else if (tmp[0] < 1 && tmpout[0] > extent.getMaxX()*0.9  ){
+            		tmpout[0] = 0;
+            	}
+            }
+
+        	
         	out[jj] = new Coordinate( tmpout[0], tmpout[1] );
         }
 
         if ( out.length >= 2 ) {
         	return gf.createLineString(out);
-        } else {
+        }
+        else {
         	return null;
         }
     }
 
-    private static LineString toScreenLSSubtract360(Coordinate[] coords, MathTransform xform, MathTransform xform1,int minX, int minY) {
-
-        GeometryFactory gf = new GeometryFactory();
-        Coordinate[] out = new Coordinate[coords.length];
-        double[] tmpout = new double[3];
-        double[] tmpout1 = new double[3];
-
-                for ( int i=0; i< coords.length; i++ ) {
-                        double[] tmp = new double[2];
-                        tmp[0]=coords[i].x + minX;
-                        tmp[1]=coords[i].y + minY;
-//                        if (tmp[0] > 180) tmp[0] -= 360;
-                        
-                        try {
-                                xform.transform(tmp, 0, tmpout, 0, 1);
-                        } catch (TransformException e) {
-                                // TODO Auto-generated catch block
-//                                e.printStackTrace();
-                        	return null;
-                        }
-                        tmpout[0] -= 360.0;
-                        try {
-                            xform1.transform(tmpout, 0, tmpout1, 0, 1);
-                        } catch (TransformException e) {
-                            // TODO Auto-generated catch block
-//                            e.printStackTrace();
-                        	return null;
-                        }
-                        out[i] = new Coordinate( tmpout1[0], tmpout1[1] );
-                }
-
-                return gf.createLineString(out);
-    }
-    
     private static Geometry polyToLine(Polygon poly) {
     	GeometryFactory gf = new GeometryFactory();
 
@@ -772,6 +806,7 @@ public class ContourSupport {
             double centralMeridian = group.parameter(
                     AbstractProvider.CENTRAL_MERIDIAN.getName().getCode())
                     .doubleValue();
+            if ( centralMeridian > 180 ) centralMeridian -= 360;
             return centralMeridian;
         }	 
     	return -999;
@@ -969,7 +1004,10 @@ public class ContourSupport {
     	
     	
     		int n = 0,minX=0,minY=0;
-
+    
+    		double[][] screen = null;
+    		double[][] screenx = null;
+    		
     		for ( Double cval : contourGroup.cvalues ) {
     			float fval = (float) (cval * 1.0f);
     			boolean toLabel = false;
@@ -991,66 +1029,41 @@ public class ContourSupport {
     			}
     		
     		
-//    			Geometry g = cgen.getContours(fval);
     			Geometry g = contourGroup.data.get(cval.toString());
     			if ( g == null ) continue;
-//    			contourMap.put( cval, g);
-    			
-   	/*		Geometry gclone = (Geometry)g.clone();
-    			
-    			for ( Coordinate pt : gclone.getCoordinates() ){
-    				if ( pt.x > 180 ) pt.x -=360;
-    				if ( pt.y > 90 ) pt.y = pt.y*-1 + 90; // ????????
-    			}
-    			
-    			WorldWrapCorrector corrector = new WorldWrapCorrector(
-						descriptor.getGridGeometry());
-
-				Geometry geo = null;
-				try {
-					geo = corrector.correct( gclone );
-				}
-				catch ( Exception e ){
-					System.out.println( "World wrap error: " + e.getMessage() );
-				}
-		*/	
-			//	if ( geo != null ) g =geo;
 				
-    			double[][] screen1 = null;
     			for ( int i=0; i < g.getNumGeometries(); i++ ) {
     				Geometry gn = g.getGeometryN(i);
-    				
-    		//		System.out.println( "First pt : " +  gn.getCoordinates()[0].x + "  " + gn.getCoordinates()[0].y);
-    		//		System.out.println( "Last pt : " +  gn.getCoordinates()[gn.getCoordinates().length-1].x + "  " + gn.getCoordinates()[gn.getCoordinates().length-1].y);
+    				if ( worldWrap ) {
+    		//			screen = toScreenRightPart( gn.getCoordinates(), 0, rastPosToLatLon,rastPosLatLonToWorldGrid, minX, minY );
+    		//			if ( screen != null )	contourGroup.negValueShape.addLineSegment(screen);
+    					
+    					screen = toScreenRightOfZero( gn.getCoordinates(), rastPosToWorldGrid, minX, minY );
+    					if ( screen != null )	contourGroup.negValueShape.addLineSegment(screen);
 
+    					screenx = toScreenLeftOfZero( gn.getCoordinates(), rastPosToWorldGrid, minX, minY );
+    					if ( screenx != null )	contourGroup.negValueShape.addLineSegment(screenx);
+    				}
+    				else {
+    					screen = toScreen( gn.getCoordinates(), rastPosToWorldGrid, minX, minY );
+    					if ( screen != null )	contourGroup.negValueShape.addLineSegment(screen);
+    				}
     				
-    				//toLabel = false;
-		//			double[][] pixels = PgenUtil.latlonToPixel( gn.getCoordinates(), descriptor);
-					//contourGroup.negValueShape.addLineSegment(pixels);
-
-			/*		for ( Coordinate pt : gn.getCoordinates() ){
-						if ( pt.x < 0 ) pt.x +=360;
-						if ( pt.y < 90 ) pt.y = pt.y*-1 + 90; // ????????
-						System.out.println( "PPPPPPPPPPPPPPPPP: " + pt.x + "    " + pt.y);
-					}
-*/
-    				double[][] screen = toScreen( gn.getCoordinates(), rastPosToWorldGrid, minX, minY );
- 
-    				if ( screen != null )
-    					contourGroup.negValueShape.addLineSegment(screen);
-                	if ( isWorld0 ) {
+               /* 	if ( isWorld0 ) {
                 		screen1 = toScreenSubtract360( gn.getCoordinates(), rastPosToLatLon,rastPosLatLonToWorldGrid, minX, minY );
                 		if ( screen1 != null )
                 			contourGroup.negValueShape.addLineSegment(screen1);
                 	}
+                	
+                	*/
     				if (toLabel)  {
     					long tl0 = System.currentTimeMillis();
 //    				prepareLabel(contourGroup, zoom, fval,
 //    						labelPoints, screen);
     					if ( screen != null )
     						createContourLabel(extent, contourGroup, fval, screen);
-    					if ( isWorld0 && screen1 != null) {
-    						createContourLabel(extent, contourGroup, fval, screen1);
+    					if ( screenx != null) {
+    						createContourLabel(extent, contourGroup, fval, screenx);
     					}
     					long tl1 = System.currentTimeMillis();
     					total_labeling_time += (tl1-tl0);
@@ -1132,14 +1145,27 @@ public class ContourSupport {
     					for (int j=0; j<fillPolys.getNumGeometries(); j++ ) {
     						Geometry g = fillPolys.getGeometryN(j);
     						if ( g instanceof Polygon ) g = polyToLine( (Polygon)g );
-    						LineString ls = toScreenLS( g.getCoordinates(), rastPosToWorldGrid, minX, minY);
-    						if ( ls != null )
-    							contourGroup.fillShapes.addPolygonPixelSpace(new LineString[]{ls}, color);
-    						if ( isWorld0 ) {
-    							ls = toScreenLSSubtract360( g.getCoordinates(), rastPosToLatLon,rastPosLatLonToWorldGrid, minX, minY);
+    						
+    						if ( worldWrap ){
+								LineString ls = toScreenLSRightOfZero( g.getCoordinates(),  rastPosToWorldGrid, minX, minY);
+	    						if ( ls != null )
+	    							contourGroup.fillShapes.addPolygonPixelSpace(new LineString[]{ls}, color);  						
+	    						ls = toScreenLSLeftOfZero( g.getCoordinates(), rastPosToWorldGrid, minX, minY);
+	    						if ( ls != null )
+	    							contourGroup.fillShapes.addPolygonPixelSpace(new LineString[]{ls}, color);  				
+    						}
+    						else {
+    							LineString ls = toScreenLS( g.getCoordinates(), rastPosToWorldGrid, minX, minY);
     							if ( ls != null )
     								contourGroup.fillShapes.addPolygonPixelSpace(new LineString[]{ls}, color);
     						}
+
+    		    						
+    			//			if ( isWorld0 ) {
+    			//				ls = toScreenLSSubtract360( g.getCoordinates(), rastPosToLatLon,rastPosLatLonToWorldGrid, minX, minY);
+    			//				if ( ls != null )
+    			//					contourGroup.fillShapes.addPolygonPixelSpace(new LineString[]{ls}, color);
+    			//			}
     					}
     				} catch (FillException e) {
 //						e.printStackTrace();
@@ -1167,36 +1193,61 @@ public class ContourSupport {
         float[] vW = null;
         long[] sz = records.getSizes();
        
-        uW = ((NcFloatDataRecord) records).getXdata();
-        vW = ((NcFloatDataRecord) records).getYdata();
-        
 //        Step 2: Determine the subgrid, if any
         int minX=0,minY=0;
         int maxX = (int)sz[0] - 1;
         int maxY = (int)sz[1] - 1;
         int szX = (maxX - minX) + 1;
         int szY = (maxY - minY) + 1;
+        int x = (int) sz[0];
+       
+        uW = ((NcFloatDataRecord) records).getXdata();
+        vW = ((NcFloatDataRecord) records).getYdata();
+      
+        if ( globalData  ){ // remove column 360
+        	x--;
+        	szX--;
+        	maxX--;
+        }
         
         int totalSz = szX * szY;
         if (totalSz <= 0) {
         	isCntrsCreated = false;
             return ;
         }
-        int x = (int) sz[0];
         
         float[] adjustedUw = new float[totalSz];
         float[] adjustedVw = new float[totalSz];
 
         int n = 0;
 
-        for (int j = 0; j < szY; j++) {
-            for (int i = 0; i < szX; i++) {
+        if ( globalData ){
+        	for (int j = 0; j < szY; j++) {
+        		for (int i = 0; i < szX+1; i++) {
+        			if (( i+minX )== 360 ) {
+        				continue;
+        			}
+        			adjustedUw[n] = uW[((x+1) * (j + minY)) + (i + minX)];
+        			adjustedVw[n] = vW[((x+1) * (j + minY)) + (i + minX)];
 
-                adjustedUw[n] = uW[(x * (j + minY)) + (i + minX)];
-                adjustedVw[n] = vW[(x * (j + minY)) + (i + minX)];
-                n++;
-            }
+        			n++;
+        		}
+        	}
         }
+        else {
+        	for (int j = 0; j < szY; j++) {
+        		for (int i = 0; i < szX; i++) {
+        			adjustedUw[n] = uW[(x * (j + minY)) + (i + minX)];
+        			adjustedVw[n] = vW[(x * (j + minY)) + (i + minX)];
+
+        			n++;
+        		}
+        	}
+        }
+
+   //     for ( int kk = 0; kk < 365; kk++ ){
+   //     	System.out.println( kk + "  " + adjustedUw[kk]+ "  " + uW[kk]);
+   //     }
 
         ArraysUtil.flipVert(adjustedUw, szY, szX);
         ArraysUtil.flipVert(adjustedVw, szY, szX);
@@ -1249,37 +1300,61 @@ public class ContourSupport {
 //        System.out.println("Streamline Contouring took: " + (t1 - t0));
 
         List<double[]> vals = new ArrayList<double[]>();
+        List<Coordinate> pts = new ArrayList<Coordinate>();
+        double[][] screen, screenx;;
 
         long tAccum = 0;
         try {
             for (int i = 0; i < numPoints[0] && i < xPoints.length; i++) {
                 if (xPoints[i] == -99999.0) {
-                    if (vals.size() > 0) {
-                        double[][] valsArr = vals.toArray(new double[vals
-                                .size()][2]);
-                        contourGroup.posValueShape.addLineSegment(valsArr);
-                        vals.clear();
+                	if (pts.size() > 0 ) {
+                			
+            				if ( worldWrap ) {
+            					screen = toScreenRightOfZero( pts.toArray(new Coordinate[pts.size()]), rastPosToWorldGrid, minX, minY );
+            					if ( screen != null )	contourGroup.posValueShape.addLineSegment(screen);
+
+            					screenx = toScreenLeftOfZero( pts.toArray(new Coordinate[pts.size()]),rastPosToWorldGrid, minX, minY );
+            					if ( screenx != null )	contourGroup.posValueShape.addLineSegment(screenx);
+            				}
+            				else {
+            					double[][] valsArr = vals.toArray(new double[vals.size()][2]);
+            					contourGroup.posValueShape.addLineSegment(valsArr);
+            				}
+
+            				vals.clear();
+            				pts.clear();
+                		
                     }
                 } else {
                     double[] out = new double[2];
                     try {
                         long tZ0 = System.currentTimeMillis();
                         
-                        float f = maxX - xPoints[i];
+                        float f;
+                        
+                        if ( xPoints[i] >= 360 ){
+                        	f = 0;
+                        }
+                        
+                        else {
+                        	f= maxX + 1 - xPoints[i];
+                        }
+                    
                         if (f > 180) f = f - 360;
+                        
                         rastPosToWorldGrid.transform(new double[] {
                                 f, yPoints[i] + minY }, 0,
                                 out, 0, 1);
                         
-//                        rastPosToWorldGrid.transform(new double[] {
-//                                maxX - xPoints[i], yPoints[i] + minY }, 0,
-//                                out, 0, 1);
+                        pts.add( new Coordinate(f, yPoints[i] + minY));
+                        
                         long tZ1 = System.currentTimeMillis();
                         tAccum += (tZ1 - tZ0);
-                    } catch (TransformException e) {
+                    } catch (Exception e) {
                         // TODO Auto-generated catch block
-//                        e.printStackTrace();
+                        e.printStackTrace();
                     }
+                  
                     vals.add(out);
                 }
             }
@@ -1291,6 +1366,14 @@ public class ContourSupport {
                 double[][] valsArr = vals
                         .toArray(new double[vals.size()][2]);
                 contourGroup.posValueShape.addLineSegment(valsArr);
+                
+            	if ( worldWrap ) {
+					screen = toScreenRightOfZero( pts.toArray(new Coordinate[pts.size()]), rastPosToWorldGrid, minX, minY );
+					if ( screen != null )	contourGroup.posValueShape.addLineSegment(screen);
+
+					screenx = toScreenLeftOfZero( pts.toArray(new Coordinate[pts.size()]),rastPosToWorldGrid, minX, minY );
+					if ( screenx != null )	contourGroup.posValueShape.addLineSegment(screenx);
+				}
                 vals.clear();
             }
         } catch (Throwable e) {
@@ -1316,7 +1399,7 @@ public class ContourSupport {
 
     		long t1c = System.currentTimeMillis();
     		logger.debug("ContourGenerator.setContourValues(allvalues) took: " + (t1c-t1b));
-//    		System.out.println("ContourGenerator init took:" + (t1c-t0));
+//    		System.out.println("ContourGenerator init took:" + (t1c-t0));    
     
     		try {
     			cgen.generateContours();
@@ -1362,5 +1445,97 @@ public class ContourSupport {
     public ContourGroup getContours() {
     	if ( ! isCntrsCreated ) return null;
     	return contourGroup;
+    }
+    
+    /**
+     * If the worldWrapChecker is true and the gird is split by the map border. 
+     * @param imageGridGeometry
+     * @param rastPosToLatLon
+     * @return
+     */
+    private boolean needWrap(GeneralGridGeometry imageGridGeometry, MathTransform rastPosToLatLon){
+    	boolean ret = worldWrapChecker;
+    	
+    	if ( ret ){
+    		//minimum, maximum X grid
+    		int minx = imageGridGeometry.getGridRange().getLow(0);
+    		int maxx = imageGridGeometry.getGridRange().getHigh(0);
+
+    		double [] out0 = new double[3];
+    		double [] out1 = new double[3];
+
+    		//minimum, maximum longitudes
+    		try {
+    			rastPosToLatLon.transform( new double[]{minx, 0}, 0, out0, 0, 1 );
+    			rastPosToLatLon.transform( new double[]{maxx, 0}, 0, out1, 0, 1 );
+    		} catch (TransformException e) {
+    			// TODO Auto-generated catch block
+    			//printStackTrace();
+    			ret = false;
+    		}
+    		
+    		
+    		double minLon = ( out0[0] >= 0 ) ? out0[0] : out0[0] +360;
+    		double maxLon = ( out1[0] >= 0 ) ? out1[0] : out1[0] +360;
+    		
+    		if ( minLon == 0 && maxLon == 360 ) globalData = true;
+    		
+    		if ( maxLon >= 360 ) maxLon = 359;
+
+    		double right = centralMeridian + 180;
+
+    		if ( maxLon > minLon ){
+        		ret = (right > minLon) && (right < maxLon );
+    		}
+    		else {
+        		ret = !(right > minLon) && (right < maxLon );
+    		}
+    	}
+    	
+    	return ret;
+    }
+    
+    /**
+     * Gets the maximum grid number in x direction
+     * @param imageGridGeometry
+     * @return int - maximum grid number in x direction
+     */
+    private int getMaxGridX(GeneralGridGeometry imageGridGeometry){
+        return imageGridGeometry.getGridRange().getHigh(0);
+    }
+  
+    /**
+     * Gets the map width in screen coordinate.
+     * @return
+     */
+    private double getMapWidth() {
+    	if ( worldWrapChecker ){
+    	//	double right[] = new double[]{centralMeridian + 180, 0};
+    	//	double left[] = new double[]{centralMeridian - 180, 0};
+    		double right[] = new double[]{-180, 0};
+    		double left[] = new double[]{0, 0};
+    		
+    		double screenLeft[] = new double[2];
+    		double screenRight[] = new double[2];
+
+    		try {
+        		double center[] = new double[]{0, 0};
+        		double out[] = new double[2];
+				rastPosLatLonToWorldGrid.transform(center, 0, out, 0, 1);
+				zeroLonOnScreen = out[0];
+    			
+				rastPosLatLonToWorldGrid.transform(left, 0, screenLeft, 0, 1);
+				rastPosLatLonToWorldGrid.transform(right, 0, screenRight, 0, 1);
+				
+				return Math.abs(screenRight[0] - screenLeft[0])*2;
+			} catch (TransformException e) {
+				// TODO Auto-generated catch block
+				return 0;
+			}
+    		
+    	}
+    	else {
+    		return 0;
+    	}
     }
 }   
