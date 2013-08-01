@@ -98,7 +98,7 @@ public class CaseNameDialog extends CaveSWTDialog {
     }
 
     /**
-     * The xomposite with case name text field.
+     * The composite with case name text field.
      */
     private void createFieldsComp() {
         Composite fieldComp = new Composite(shell, SWT.NONE);
