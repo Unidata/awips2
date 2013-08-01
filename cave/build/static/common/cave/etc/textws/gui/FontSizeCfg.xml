@@ -8,11 +8,11 @@
         Modify:
     	
     	06/14/2013	Xiaochuan		DR 15733 	Initial creation
-    	
-    -->
+    	07/25/2013  Greg Hull       DR 15733    Deleted. moved to TextEditorCfg.xml
+   -->
     
-<fontSizeCfg>
-   <SizeButtonCfg>
+<!--<fontSizeCfg>
+   <SizeButt 
       <LabelName>Small Font</LabelName>
       <SizeEnabled>true</SizeEnabled>
       <FontSize>9</FontSize>
@@ -22,12 +22,12 @@
       <LabelName>Medium Font</LabelName>
       <SizeEnabled>true</SizeEnabled>
       <FontSize>11</FontSize>
-      <Selected>false</Selected>
+      <Selected>true</Selected>
    </SizeButtonCfg>
    <SizeButtonCfg>
       <LabelName>Large Font</LabelName>
       <SizeEnabled>true</SizeEnabled>
       <FontSize>13</FontSize>
-      <Selected>true</Selected>
+      <Selected>false</Selected>
    </SizeButtonCfg>
-</fontSizeCfg>
+</fontSizeCfg>-->
