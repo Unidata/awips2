@@ -7,7 +7,7 @@ import org.eclipse.ui.AbstractSourceProvider;
 import org.eclipse.ui.ISources;
 
 // 
-// 12/12/2012     #630     ghull     moved from zoom/tools since now set from NcMapEditor refreshPanes()
+// 12/12/2012     #630     ghull     moved from zoom/tools since now set from NatlCntrsEditor refreshPanes()
 //
 //
 public class ZoomStateSourceProvider extends AbstractSourceProvider {

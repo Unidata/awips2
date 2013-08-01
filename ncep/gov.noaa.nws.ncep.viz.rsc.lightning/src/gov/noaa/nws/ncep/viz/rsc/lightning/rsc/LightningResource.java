@@ -63,7 +63,8 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  *                                      show strike count in legend
  *  02/16/2012    #555     S. Gurung    Added call to setAllFramesAsPopulated() in queryRecords()
  *  05/23/12      785      Q. Zhou      Added getName for legend.
- *  12/19/2012    #960     Greg Hull   override propertiesChanged() to update colorBar.
+ *  12/19/2012    #960     Greg Hull    override propertiesChanged() to update colorBar.
+ *  05/07/2013    #993     Greg Hull	change key for strikeMap from URI to the HDF5 group
  *  
  * </pre>
  * 
@@ -341,49 +342,47 @@ public class LightningResource extends AbstractNatlCntrsResource<LightningResour
     			
     			// loop thru the URIs and find the hdf5 lat,lon and intensity records for this
     			// URI and then fill in the strikeMap with all of the strikes for this URI.
-    			for( String uri : uris ) {
-        			for( IDataRecord hdf5Rec : hdf5Recs ) {
-        				if( hdf5Rec.getGroup().equals( uri ) ) {
-    						List<LtngStrikeDataObj> strikeList = strikeMap.get(uri);
+    			for( IDataRecord hdf5Rec : hdf5Recs ) {
+    				String grp = hdf5Rec.getGroup(); //.replaceAll("::", "/" );
+    				
+					List<LtngStrikeDataObj> strikeList = strikeMap.get(grp);
 
-        					if( strikeList == null ) {
-        						strikeList = new ArrayList<LtngStrikeDataObj>();
-        						strikeMap.put(uri, strikeList);
-        						
-        						// init with the number of strikes for this record.
-        						// NOTE: all of the records for this uri must(will) have the same 
-        						// number of strikes in them.
-        						for( int s=0 ; s<hdf5Rec.getSizes()[0] ; s++ ) {
-        							strikeList.add( new LtngStrikeDataObj() );
-        							
-        							strikeCount++;
-        						}
-        					}
-        					if( hdf5Rec.getSizes()[0] != strikeList.size() ) {
-        						System.out.println("HDF5 Warning: ");
-        					}
-        					
-        					for( int s=0 ; s<hdf5Rec.getSizes()[0] ; s++ ) {
-        						LtngStrikeDataObj strikeInfo = strikeList.get(s);
-        						if( hdf5Rec.getName().equals("intensity") ) {
-        						    strikeInfo.intensity = ((IntegerDataRecord) hdf5Rec).getIntData()[s];
-        						} else if( hdf5Rec.getName().equals("latitude") ) {
-        						    strikeInfo.lat = ((FloatDataRecord) hdf5Rec).getFloatData()[s];
-        						} else if( hdf5Rec.getName().equals("longitude") ) {
-        							strikeInfo.lon = ((FloatDataRecord) hdf5Rec).getFloatData()[s];
-        						} else if( hdf5Rec.getName().equals("obsTime") ) {
-        							strikeInfo.strikeTime = ((LongDataRecord) hdf5Rec).getLongData()[s];
+					if( strikeList == null ) {
+						strikeList = new ArrayList<LtngStrikeDataObj>();
+						strikeMap.put(grp, strikeList);
+						
+						// init with the number of strikes for this record.
+						// NOTE: all of the records for this uri must(will) have the same 
+						// number of strikes in them.
+						for( int s=0 ; s<hdf5Rec.getSizes()[0] ; s++ ) {
+							strikeList.add( new LtngStrikeDataObj() );
+							
+							strikeCount++;
+						}
+					}
+					if( hdf5Rec.getSizes()[0] != strikeList.size() ) {
+						System.out.println("HDF5 Warning: ");
+					}
+					
+					for( int s=0 ; s<hdf5Rec.getSizes()[0] ; s++ ) {
+						LtngStrikeDataObj strikeInfo = strikeList.get(s);
+						if( hdf5Rec.getName().equals("intensity") ) {
+						    strikeInfo.intensity = ((IntegerDataRecord) hdf5Rec).getIntData()[s];
+						} else if( hdf5Rec.getName().equals("latitude") ) {
+						    strikeInfo.lat = ((FloatDataRecord) hdf5Rec).getFloatData()[s];
+						} else if( hdf5Rec.getName().equals("longitude") ) {
+							strikeInfo.lon = ((FloatDataRecord) hdf5Rec).getFloatData()[s];
+						} else if( hdf5Rec.getName().equals("obsTime") ) {
+							strikeInfo.strikeTime = ((LongDataRecord) hdf5Rec).getLongData()[s];
 //        			                if( strikeInfo.obsTime > latestStrike ) {
 //        			                	latestStrike = strikeInfo.obsTime;
 //        			                }
 //        						} else if( hdf5Rec.getName().equals("strikeCount") ) {
 //        							strikeInfo.lon = ((FloatDataRecord) hdf5Rec).getFloatData()[s];      							
-        						} else if( hdf5Rec.getName().equals("msgType") ) {
-        							// ignore
-        						}
-    						}    				
-        				}
-        			}    				
+						} else if( hdf5Rec.getName().equals("msgType") ) {
+							// ignore
+						}
+					}    				
     			}
     			
     		} catch (StorageException e) {
@@ -404,8 +403,8 @@ public class LightningResource extends AbstractNatlCntrsResource<LightningResour
 		
 		// return a list of all the strikes for all the uris.
     	ArrayList<LtngStrikeDataObj> strikeList = new ArrayList<LtngStrikeDataObj>();
-		for( String uri : strikeMap.keySet() ) {
-			strikeList.addAll( strikeMap.get( uri ) );
+		for( String hdfgrp : strikeMap.keySet() ) {
+			strikeList.addAll( strikeMap.get( hdfgrp ) );
 		}
 		
 		return strikeList;
