@@ -27,6 +27,11 @@
             <mapping key="pluginName">
 				<constraint constraintValue="${pluginName}" constraintType="EQUALS" />
             </mapping>
+            <!-- Uncomment this when the baseline is updated for lightSource
+            <mapping key="lightSource">
+				<constraint constraintValue="${lightSource}" constraintType="IN" />
+            </mapping>
+			-->
          </metadataMap>
       </resourceData>
    </resource>

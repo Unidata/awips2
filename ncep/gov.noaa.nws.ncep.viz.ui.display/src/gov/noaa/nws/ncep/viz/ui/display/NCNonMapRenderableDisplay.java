@@ -109,6 +109,7 @@ public class NCNonMapRenderableDisplay extends AbstractRenderableDisplay impleme
         this.setPaneId( pid );
     }
 
+    @Override
     public double[] getMapCenter() {
         return getExtent().getCenter();
     }
