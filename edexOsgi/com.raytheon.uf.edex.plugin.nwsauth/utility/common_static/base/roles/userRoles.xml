@@ -92,6 +92,8 @@
    <permission id="com.raytheon.localization.site/common_static/datadelivery"/>
 
    <permission id="com.raytheon.localization.site/common_static/archiver/purger"/>
+   <permission id="com.raytheon.localization.site/common_static/archiver/purger/retention"/>
+   <permission id="com.raytheon.localization.site/common_static/archiver/purger/case"/>
 
    <user userId="ALL">
       <userPermission>com.raytheon.localization.site/common_static/purge</userPermission>
@@ -125,6 +127,8 @@
       <userPermission>com.raytheon.localization.site/common_static/roles</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/datadelivery</userPermission>
       <userPermission>com.raytheon.localization.site/common_static/archiver/purger</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/archiver/purger/retention</userPermission>
+      <userPermission>com.raytheon.localization.site/common_static/archiver/purger/case</userPermission>
    </user>
 </nwsRoleData>
 
