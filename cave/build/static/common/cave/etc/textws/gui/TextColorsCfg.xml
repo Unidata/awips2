@@ -10,14 +10,12 @@
     
         Modify:
     	
-    	06/14/2013	Xiaochuan				DR 15733 	Initial creation
-    	07/18/2013  B. Hebbard per G. Hull	DR 15733 	Update highlightBG & FG
-    	
-    -->
-    
-<textColorsCfg>
+    	06/14/2013	Xiaochuan		DR 15733 	Initial creation
+    	07/25/2013  Greg Hull       DR 15733    Deleted. moved to TextEditorCfg.xml
+    -->    
+<!--<textColorsCfg 
    <TextColorElement paramName="textBG" color="255, 255, 255"/> 	    
-   <TextColorElement paramName="textFG" color="0, 0,0"/>
+   <TextColorElement paramName="textFG" color="BLACK"/>
    <TextColorElement paramName="highlightBG" color="85, 152, 215"/>
-   <TextColorElement paramName="highlightFG" color="255, 255, 255"/>
-</textColorsCfg> 
+   <TextColorElement paramName="highlightFG" color="PINK"/>
+</textColorsCfg> -->
