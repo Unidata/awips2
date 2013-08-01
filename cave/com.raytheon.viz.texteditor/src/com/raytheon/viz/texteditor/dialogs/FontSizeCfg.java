@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.texteditor.dialogs;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -38,7 +39,8 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 07, 2013  DR 15733  Xiaochuan     Initial creation
+ * Jun 07, 2013  DR 15733  Xiaochuan    Initial creation
+ * Jul 25, 2013  DR 15733  Greg Hull    Now part of TextEditorCfg ; don't return null array
  * 
  * </pre>
  * 
@@ -52,7 +54,7 @@ public class FontSizeCfg implements ISerializableObject {
     private List<SizeButtonCfg> buttons;
 
     public List<SizeButtonCfg> getButtons() {
-        return buttons;
+        return ( buttons != null ? buttons : new ArrayList<SizeButtonCfg>() );
     }
 
     public void setButtons(List<SizeButtonCfg> buttons) {
