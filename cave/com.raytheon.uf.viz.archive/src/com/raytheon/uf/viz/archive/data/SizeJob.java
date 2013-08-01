@@ -16,7 +16,16 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
 import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
+import com.raytheon.uf.common.archive.config.ArchiveConstants;
+import com.raytheon.uf.common.archive.config.ArchiveConstants.Type;
 import com.raytheon.uf.common.archive.config.DisplayData;
+import com.raytheon.uf.common.archive.config.SelectConfig;
+import com.raytheon.uf.common.archive.config.select.ArchiveSelect;
+import com.raytheon.uf.common.archive.config.select.CategorySelect;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Job to determine the size for a directory and its contents on a non-UI
@@ -37,6 +46,8 @@ import com.raytheon.uf.common.archive.config.DisplayData;
  * @version 1.0
  */
 public class SizeJob extends Job {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SizeJob.class);
 
     /**
      * Mapping of display data by archive and category names.
@@ -220,6 +231,93 @@ public class SizeJob extends Job {
      */
     public Set<String> getArchiveNames() {
         return archiveInfoMap.keySet();
+    }
+
+    /**
+     * Check all displayData selection state so only the data in selections are
+     * set.
+     * 
+     * @param selections
+     */
+    public void loadSelect(String selectName, ArchiveConstants.Type type) {
+        ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
+        String fileName = ArchiveConstants.selectFileName(type, selectName);
+        SelectConfig selections = manager.loadSelection(fileName);
+        if (selections == null) {
+            selections = new SelectConfig();
+            selections.setName(ArchiveConstants.defaultSelectName);
+        }
+
+        for (String archiveName : getArchiveNames()) {
+            ArchiveInfo archiveInfo = get(archiveName);
+            for (String categoryName : archiveInfo.getCategoryNames()) {
+                CategoryInfo categoryInfo = archiveInfo.get(categoryName);
+                List<String> selectionsList = selections.getSelectedList(
+                        archiveName, categoryName);
+                for (DisplayData displayData : categoryInfo
+                        .getDisplayDataList()) {
+                    String displayLabel = displayData.getDisplayLabel();
+                    boolean selected = selectionsList.contains(displayLabel);
+                    if (selected != displayData.isSelected()) {
+                        setSelect(archiveName, categoryName, displayLabel,
+                                selected);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Save selections to the desired file.
+     * 
+     * @param selectName
+     * @param type
+     * @param startRetentionMS
+     * @return
+     */
+    public String saveSelect(String selectName, ArchiveConstants.Type type,
+            long startRetentionMS) {
+        String errorMsg = null;
+        SelectConfig selections = new SelectConfig();
+        selections.setName(selectName);
+        if (type == Type.Case) {
+            long startRetentionHours = startRetentionMS
+                    / TimeUtil.MILLIS_PER_HOUR;
+            selections.setStarRetentionHours(startRetentionHours);
+        }
+        for (String archiveName : getArchiveNames()) {
+            ArchiveInfo archiveInfo = get(archiveName);
+            ArchiveSelect archiveSelect = new ArchiveSelect();
+            archiveSelect.setName(archiveName);
+            for (String categoryName : archiveInfo.getCategoryNames()) {
+                CategoryInfo categoryInfo = archiveInfo.get(categoryName);
+                CategorySelect categorySelect = new CategorySelect();
+                categorySelect.setName(categoryName);
+                for (DisplayData displayData : categoryInfo
+                        .getDisplayDataList()) {
+                    if (displayData.isSelected()) {
+                        categorySelect.add(displayData.getDisplayLabel());
+                    }
+                }
+
+                if (!categorySelect.isEmpty()) {
+                    archiveSelect.add(categorySelect);
+                }
+            }
+            if (!archiveSelect.isEmpty()) {
+                selections.add(archiveSelect);
+            }
+        }
+        String fileName = ArchiveConstants.selectFileName(type, selectName);
+
+        try {
+            ArchiveConfigManager.getInstance().saveSelections(selections,
+                    fileName);
+        } catch (Exception e) {
+            errorMsg = "Unable to save file: " + fileName;
+            statusHandler.handle(Priority.ERROR, errorMsg, e);
+        }
+        return errorMsg;
     }
 
     /**
