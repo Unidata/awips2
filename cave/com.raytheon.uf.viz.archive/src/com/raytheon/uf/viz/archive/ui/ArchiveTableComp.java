@@ -42,6 +42,8 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
+import com.raytheon.uf.common.archive.config.ArchiveConstants;
+import com.raytheon.uf.common.archive.config.ArchiveConstants.Type;
 import com.raytheon.uf.common.archive.config.DisplayData;
 import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.viz.archive.data.IArchiveTotals;
@@ -57,6 +59,7 @@ import com.raytheon.uf.viz.archive.data.SizeJob;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 23, 2013 #1964      lvenable     Initial creation
+ * Jul 24, 2013 #2221      rferrel      Changes for select configuration.
  * 
  * </pre>
  * 
@@ -89,13 +92,8 @@ public class ArchiveTableComp extends Composite {
     /** Size label. */
     private Label sizeLbl;
 
-    /** Table type enumeration. */
-    public enum TableType {
-        Retention, Case
-    };
-
-    /** Current table type. */
-    private final TableType type;
+    /** The dialog's type. */
+    private final ArchiveConstants.Type type;
 
     /** Allows the parent dialog log to update other total displays. */
     private final IArchiveTotals iArchiveTotals;
@@ -126,7 +124,7 @@ public class ArchiveTableComp extends Composite {
      * @param type
      *            Table type.
      */
-    public ArchiveTableComp(Composite parent, TableType type,
+    public ArchiveTableComp(Composite parent, Type type,
             IArchiveTotals iTotalSelectedSize, SizeJob sizeJob) {
         super(parent, 0);
 
@@ -150,7 +148,7 @@ public class ArchiveTableComp extends Composite {
 
         createTable();
 
-        if (type != TableType.Retention) {
+        if (type != Type.Retention) {
             createTableLabels();
         }
     }
@@ -186,9 +184,9 @@ public class ArchiveTableComp extends Composite {
         pathColumn.setText("Label");
 
         TableColumn sizeColumn = new TableColumn(table, SWT.CENTER);
-        if (type == TableType.Retention) {
+        if (type == Type.Retention) {
             sizeColumn.setText("Current Size");
-        } else if (type == TableType.Case) {
+        } else if (type == Type.Case) {
             sizeColumn.setText("Size");
         }
 
@@ -460,6 +458,7 @@ public class ArchiveTableComp extends Composite {
         table.setSortColumn(table.getColumn(LABEL_COL_INDEX));
         table.setSortDirection(SWT.UP);
         table.clearAll();
+        updateSelectionLabels();
     }
 
     /**
