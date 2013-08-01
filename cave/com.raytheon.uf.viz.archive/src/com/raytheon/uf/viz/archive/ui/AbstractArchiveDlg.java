@@ -28,27 +28,34 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.archive.config.ArchiveConfig;
 import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
+import com.raytheon.uf.common.archive.config.ArchiveConstants;
 import com.raytheon.uf.common.archive.config.CategoryConfig;
 import com.raytheon.uf.common.archive.config.DisplayData;
+import com.raytheon.uf.common.archive.config.SelectConfig;
+import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.viz.archive.data.ArchiveInfo;
 import com.raytheon.uf.viz.archive.data.CategoryInfo;
 import com.raytheon.uf.viz.archive.data.IArchiveTotals;
 import com.raytheon.uf.viz.archive.data.IUpdateListener;
 import com.raytheon.uf.viz.archive.data.SizeJob;
-import com.raytheon.uf.viz.archive.ui.ArchiveTableComp.TableType;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -66,6 +73,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * May 30, 2013 1965       bgonzale     Initial creation
  * Jun 10, 2013 1966       rferrel      Change to allow Case Creation to extend.
  * Jul 24, 2013 2220       rferrel      Changes to queue size request for all data.
+ * Aug 01, 2013 2221       rferrel      Changes for select configuration.
  * </pre>
  * 
  * @author bgonzale
@@ -73,7 +81,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 
 public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
-        IArchiveTotals, IUpdateListener {
+        IArchiveTotals, IUpdateListener, IModifyListener {
 
     /** Table composite that holds the table controls. */
     private ArchiveTableComp tableComp;
@@ -84,16 +92,13 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
     /** Category combo box. */
     private Combo categoryCbo;
 
-    /**
-     * Boolean to indicate when DisplayData is created should its selection be
-     * set based on the information in the configuration files.
-     */
-    protected boolean setSelect = false;
+    /** Data manager. */
+    protected ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
 
     /**
-     * Must be set by sub-class prior to creating table.
+     * Must be set by sub-class prior to creating any components.
      */
-    protected TableType tableType;
+    protected ArchiveConstants.Type type;
 
     /**
      * Job that computes sizes of table row entries off the UI thread.
@@ -102,6 +107,15 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
 
     /** Keeps track of when it is safe to clear the busy cursor. */
     protected final AtomicInteger busyCnt = new AtomicInteger(0);
+
+    /** Performs save action button. */
+    protected Button saveBtn;
+
+    /** Flag set when user wants to close with unsaved modifications. */
+    protected boolean closeFlag = false;
+
+    /** Current select (case/retention) loaded into the dialog. */
+    protected String selectName = ArchiveConstants.defaultSelectName;
 
     /**
      * @param parentShell
@@ -197,6 +211,11 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      */
     protected abstract void setTotalSizeText(String sizeStringText);
 
+    /**
+     * This method is called by the AbstractArchiveDlg to set total Size.
+     * 
+     * @param totalSize
+     */
     protected abstract void setTotalSelectedItems(int totalSize);
 
     /**
@@ -294,12 +313,13 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
                         }
                     });
                 }
-                initDisplayData();
+                final String titleName = initDisplayData(null);
                 if (!shell.isDisposed()) {
                     VizApp.runAsync(new Runnable() {
 
                         @Override
                         public void run() {
+                            setSelectName(titleName);
                             updateTableComp();
                             setCursorBusy(false);
                         }
@@ -308,14 +328,51 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
                 return Status.OK_STATUS;
             }
         };
+
         job.schedule();
+        addModifiedListener(this);
+        shell.addShellListener(new ShellAdapter() {
+
+            @Override
+            public void shellClosed(ShellEvent e) {
+                if (closeFlag || !isModified()) {
+                    return;
+                }
+
+                e.doit = false;
+                VizApp.runAsync(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        if (verifyClose()) {
+                            close();
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * Change the select name and update the dialog's title. Assumes the
+     * sub-classes places a hyphen at the end of the string when setting the
+     * dialog's title.
+     * 
+     * @param selectName
+     */
+    protected void setSelectName(String selectName) {
+        this.selectName = selectName;
+        StringBuilder sb = new StringBuilder(getText());
+        sb.setLength(sb.indexOf("-") + 1);
+        sb.append(" ").append(selectName);
+        setText(sb.toString());
     }
 
     /**
      * Create the table control.
      */
     protected void createTable() {
-        tableComp = new ArchiveTableComp(shell, tableType, this, sizeJob);
+        tableComp = new ArchiveTableComp(shell, type, this, sizeJob);
         sizeJob.addUpdateListener(this);
     }
 
@@ -341,7 +398,6 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      * Initial population up of the combo boxes.
      */
     private void populateComboBoxes() {
-        ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
         boolean doSelect = false;
         for (String archiveName : manager.getArchiveDataNamesList()) {
             archCfgCbo.add(archiveName);
@@ -374,12 +430,12 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
 
     private void initCategoryCbo() {
         String archiveName = getSelectedArchiveName();
-        ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
         categoryCbo.removeAll();
         for (String categoryName : manager.getCategoryNames(archiveName)) {
             categoryCbo.add(categoryName);
         }
         categoryCbo.select(0);
+        categoryComboSelection();
     }
 
     /**
@@ -393,8 +449,14 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
      * Set up all display data and queue getting sizes for any that are
      * selected.
      */
-    private void initDisplayData() {
-        ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
+    protected String initDisplayData(String selectName) {
+        String fileName = ArchiveConstants.selectFileName(type, selectName);
+        SelectConfig selections = manager.loadSelection(fileName);
+        if (selections == null) {
+            selections = new SelectConfig();
+            selections.setName(ArchiveConstants.defaultSelectName);
+        }
+        setRetentionTimes(selections.getStarRetentionHours());
         String[] archiveNames = manager.getArchiveDataNamesList();
         for (String archiveName : archiveNames) {
             ArchiveInfo archiveInfo = new ArchiveInfo();
@@ -405,15 +467,46 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
                 // move getting displayDatas into SizeJob then get current
                 // display, displays with selections then other displays in the
                 // background.
+                List<String> selectedList = selections.getSelectedList(
+                        archiveName, categoryName);
                 List<DisplayData> displayDatas = manager.getDisplayData(
-                        archiveName, categoryName, setSelect);
+                        archiveName, categoryName, false);
                 CategoryInfo categoryInfo = new CategoryInfo(archiveName,
                         categoryName, displayDatas);
                 archiveInfo.add(categoryInfo);
+                for (DisplayData displayData : displayDatas) {
+                    displayData.setSelected(selectedList.contains(displayData
+                            .getDisplayLabel()));
+                }
             }
             sizeJob.put(archiveName, archiveInfo);
         }
         sizeJob.resetTime(getStart(), getEnd());
+        return selections.getName();
+    }
+
+    /**
+     * Delete a select configuration file.
+     * 
+     * @param selectName
+     */
+    protected void deleteSelect(String selectName) {
+        String fileName = ArchiveConstants.selectFileName(type, selectName);
+        try {
+            manager.deleteSelection(fileName);
+        } catch (LocalizationOpFailedException e) {
+            MessageDialog.openError(shell, "Case Error",
+                    "Unable to delete file: " + fileName);
+        }
+    }
+
+    /**
+     * Load a select configuration file.
+     * 
+     * @param selectName
+     */
+    protected void loadSelect(String selectName) {
+        sizeJob.loadSelect(selectName, type);
     }
 
     /**
@@ -529,6 +622,7 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
                 }
             }
         }
+
         VizApp.runAsync(new Runnable() {
 
             @Override
@@ -593,5 +687,64 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
     protected void resetSizes() {
         sizeJob.recomputeSize();
         populateTableComp();
+    }
+
+    /**
+     * Allows a sub-class to set the start and end times based on the off set.
+     * 
+     * @param startTimeOffset
+     */
+    protected void setRetentionTimes(long startTimeOffset) {
+        // do nothing override by sub-classes
+    }
+
+    /**
+     * Indicate unsaved user changes.
+     * 
+     * @return modified
+     */
+    protected boolean isModified() {
+        return (saveBtn != null) && !saveBtn.isDisposed()
+                && saveBtn.isEnabled();
+    }
+
+    /**
+     * Save current selections of the select configuration file.
+     * 
+     * @param selectName
+     * @return true when save is successful
+     */
+    protected boolean saveSelection(String selectName) {
+        Calendar start = getStart();
+        Calendar end = getEnd();
+        long startRetentionMS = 0L;
+        if (start != null && end != null) {
+            startRetentionMS = end.getTimeInMillis() - start.getTimeInMillis();
+        }
+        String errorMsg = sizeJob
+                .saveSelect(selectName, type, startRetentionMS);
+        if (errorMsg != null) {
+            MessageDialog.openError(shell, type + " Selection Error", errorMsg);
+        }
+
+        return errorMsg == null;
+    }
+
+    /**
+     * When unsaved modifications this asks the user to verify the close.
+     * 
+     * @return true when okay to close.
+     */
+    protected boolean verifyClose() {
+        boolean state = true;
+        if (isModified()) {
+            MessageBox box = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK
+                    | SWT.CANCEL);
+            box.setText("Close " + type);
+            box.setMessage("Unsave changes.\nSelect OK to discard changes.");
+            state = box.open() == SWT.OK;
+        }
+        closeFlag = state;
+        return state;
     }
 }
