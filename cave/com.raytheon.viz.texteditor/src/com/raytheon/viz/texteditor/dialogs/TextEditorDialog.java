@@ -144,7 +144,6 @@ import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 // import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.notification.INotificationObserver;
 import com.raytheon.uf.viz.core.notification.NotificationException;
@@ -323,11 +322,11 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 31JAN2013   1563         rferrel     Force location of airport tooltip.
  * 31JAN2013   1568         rferrel     Spell checker now tied to this dialog instead of parent.
  * 26Apr2013   16123        snaples     Removed setFocus to TextEditor in postExecute method.
- * 07Jun2013   1981         mpduff      Add user id to OUPRequest as it is now protected.
- * 20Jun2013   15733	    XHuang	Add functionalities that get Font size, Text colors from 
- * 					*.xml files in localization; 
- * 					add selection listener to catch the highlight words and 
- * 					set the highlight colors.	
+ * 20Jun2013   15733		XHuang		Add functionalities that get Font size, Text colors from 
+ * 										*.xml files in localization; 
+ * 										add selection listener to catch the highlight words and 
+ * 										set the highlight colors.	
+ * 25July2013  15733        GHull       Read font and color prefs from TextEditorCfg.
  * 
  * </pre>
  * 
@@ -378,9 +377,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     
     private final int HIGHLIGHT_BG = SWT.COLOR_RED;
     
-//    Color red = shell.getDisplay().getSystemColor(SWT.COLOR_RED);
-//	Color black = shell.getDisplay().getSystemColor(SWT.COLOR_BLACK);
-
     /**
      * The length of BEGIN_ELEMENT_TAG.
      */
@@ -1024,11 +1020,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private Font dftFont;
     
     /**
-     * default funt size.
-     */
-    private final int DEFAULT_FUNT_SIZE = 11;
-
-    /**
      * Composite containing the editor buttons.
      */
     private Composite editorBtnRowComp;
@@ -1389,8 +1380,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private Color highlightBackground;
 
 //	protected Color color;
-    
-
     /**
      * Constructor with additional cave style rules
      * 
@@ -1545,7 +1534,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         }
 
         commandHistory = new CommandHistory();
-
+        
         // Create the menus
         createMenus();
 
@@ -2960,18 +2949,20 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      *            The font size sub menu.
      */
     private void createFontSizeSubMenu(Menu fontSizeSubMenu) {
-    	int selectFontSize = DEFAULT_FUNT_SIZE;
     	
-    	FontSizeCfg fontSizeCfg = getFontSizeCfg();
+		FontSizeCfg fontSizeCfg = TextEditorCfg.getTextEditorCfg().getFontSizeCfg();
+		SizeButtonCfg seldFontBtn = TextEditorCfg.getTextEditorCfg().getSelectedFontButton();
+    	
     	for (SizeButtonCfg buttonCfg : fontSizeCfg.getButtons()) {
             MenuItem item = new MenuItem(fontSizeSubMenu, SWT.RADIO);
             item.setText(buttonCfg.getLabelName());
-            item.setSelection(buttonCfg.isSelected());
+            item.setSelection( false );
             item.setData(buttonCfg);
-            if (buttonCfg.isSizeEnabled() && buttonCfg.isSelected()) {
-            	selectFontSize = buttonCfg.getFontSize();
+            
+            // if this button is the initial selection.
+            if( seldFontBtn.getLabelName().equals( buttonCfg.getLabelName() ) ) {            	
             	item.setSelection(true);
-            	setDefaultFont(selectFontSize);
+            	setDefaultFont( seldFontBtn.getFontSize(), seldFontBtn.getFontName() );
             }
            
             item.addSelectionListener(new SelectionAdapter() {
@@ -2980,7 +2971,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 	 MenuItem item = (MenuItem) event.getSource();
                 	 if (item.getSelection()) {
                 		 int selectFontSize = ( (SizeButtonCfg) item.getData()).getFontSize();
-                		 setDefaultFont(selectFontSize);
+                		 String seldFontName = ((SizeButtonCfg) item.getData()).getFontName();
+                	
+                		 setDefaultFont( selectFontSize, seldFontName );
                 		 
                 		 textEditor.setFont(dftFont);
                 		 headerTF.setFont(dftFont);
@@ -2991,80 +2984,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
        
     }
 
-	private FontSizeCfg getFontSizeCfg() {
-		FontSizeCfg fontSizeCfg = null;
-		
-		try {
-			IPathManager pm = PathManagerFactory.getPathManager();
-			File path = pm.getStaticFile("textws/gui/FontSizeCfg.xml");
-			fontSizeCfg = JAXB.unmarshal(path, FontSizeCfg.class);
-
-		} catch (Exception e) {
-			IUFStatusHandler statusHandler = UFStatus
-					.getHandler(TextEditorDialog.class);
-			statusHandler.handle(Priority.ERROR,
-					"Unable to parse Autowrap menu configuration.", e);
-			fontSizeCfg = new FontSizeCfg();
-
-		}
-
-		// Perform Sanity Checks on configuration.
-		StringBuilder message = new StringBuilder();
-		
-		// Check buttonCfg values.
-		int selectionCnt = 0;
-		String selectionLabel = null;
-		if (fontSizeCfg.getButtons() != null) {
-			for (SizeButtonCfg buttonCfg : fontSizeCfg.getButtons()) {
-				if (buttonCfg.isSelected()) {
-					++selectionCnt;
-					if (selectionCnt == 1) {
-						selectionLabel = buttonCfg.getLabelName();
-					} else {
-						buttonCfg.setSelected(false);
-					}
-				}
-
-				if (buttonCfg.isSizeEnabled()) {
-					int fntSize = buttonCfg.getFontSize();
-					if (fntSize <= 0) {
-						message.append("Item \"")
-								.append(buttonCfg.getLabelName())
-								.append("\" bad fntSize value (")
-								.append(buttonCfg.getFontSize())
-								.append(") changing to ")
-								.append(DEFAULT_FUNT_SIZE).append("\n");
-						buttonCfg.setFontSize(DEFAULT_FUNT_SIZE);
-					}
-				}
-			}
-
-			if (selectionCnt == 0 && fontSizeCfg.getButtons().size() > 0) {
-				SizeButtonCfg buttonCfg = fontSizeCfg.getButtons().get(0);
-				message.append("No button selected. Selecting top item \"")
-						.append(buttonCfg.getLabelName()).append("\"\n");
-				buttonCfg.setSelected(true);
-			} else if (selectionCnt > 1) {
-				message.append(selectionCnt)
-						.append(" items selected; will select item \"")
-						.append(selectionLabel).append("\"\n");
-			}
-
-			if (message.length() > 0) {
-				message.insert(0, "FontSize problem(s): ");
-				IUFStatusHandler statusHandler = UFStatus
-						.getHandler(TextEditorDialog.class);
-				statusHandler.handle(Priority.PROBLEM, message.toString());
-			}
-		}
-
-		return fontSizeCfg;
-
-	}
-
-    public void setDefaultFont(int fontSize) {
-    	dftFont =  new Font(getDisplay(), "Courier", fontSize, SWT.NORMAL);
-    	    	
+    public void setDefaultFont( int fontSize, String fontName ) {
+    	dftFont =  new Font( getDisplay(), fontName, fontSize, SWT.NORMAL);    	    	
     }
     
     /**
@@ -3805,7 +3726,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         textEditorComp = new Composite(shell, SWT.NONE);
         GridLayout gridLayout = new GridLayout(1, false);
-        TextColorsCfg textColorCfg = null;
+//        TextColorsCfg textColorCfg = null;
         
         textEditorComp.setLayout(gridLayout);
         textEditorComp.setLayoutData(gd);
@@ -3825,10 +3746,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         textEditor.setWordWrap(false);
         textEditor.setEditable(false);
         airportToolTip = new DefaultToolTip(textEditor, SWT.DEFAULT, true);
-        textEditor.setKeyBinding(SWT.INSERT, SWT.NULL); // DR 7826
+        textEditor.setKeyBinding(SWT.INSERT, SWT.NULL); // DR 7826 
         
-        textColorCfg = getTextColorCfg();
-        setDefaultTextColor(textColorCfg);
+//        textColorCfg = getTextColorCfg();
+        setDefaultTextColor( TextEditorCfg.getTextEditorCfg() );
         textEditor.setForeground(textForeground);
         textEditor.setBackground(textBackground);
                                 
@@ -4029,83 +3950,41 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         });
     }
 
-    private TextColorsCfg getTextColorCfg() {
-        TextColorsCfg textColorsCfg = null;
-        
-        try {
-            IPathManager pm = PathManagerFactory.getPathManager();
-            File path = pm.getStaticFile("textws/gui/TextColorsCfg.xml");
-            textColorsCfg = JAXB.unmarshal(path, TextColorsCfg.class);
-            
-        } catch (Exception e) {
-            IUFStatusHandler statusHandler = UFStatus
-                    .getHandler(TextEditorDialog.class);
-            statusHandler.handle(Priority.ERROR,
-                    "Unable to parse TextColors configuration.", e);
-            textColorsCfg = new TextColorsCfg();
-            
-        }
-        
-        // Perform Sanity Checks on configuration.
-        StringBuilder message = new StringBuilder();
-        
-        for (TextColorElement textElm : textColorsCfg.getTextColorElements()) {
-    		String prmtName = textElm.getParamName();
-            if (prmtName == null) {
-            	message.append("Item \"paramName\" problem!\n");
-                    
-            }
-    		
-            if( textElm.getColor() == null ) {
-            	message.append("Item \"color\" data enter problem!\n");
-            }
-            
-            if (message.length() > 0) {
-                message.insert(0, "TextColorsCfg broblem(s): ");
-                IUFStatusHandler statusHandler = UFStatus
-                        .getHandler(TextEditorDialog.class);
-                statusHandler.handle(Priority.PROBLEM, message.toString());
-            }
-    		
-    	}
-    	
-    	return textColorsCfg;
-
-    }
+//    private TextColorsCfg getTextColorCfg() {
+//        TextColorsCfg textColorsCfg =  TextEditorCfg.getTextEditorCfg().getTextColorsCfg();
+//
+//        // Perform Sanity Checks on configuration.
+//        StringBuilder message = new StringBuilder();
+//        
+//        for (TextColorElement textElm : textColorsCfg.getTextColorElements()) {
+//    		String prmtName = textElm.getParamName();
+//            if (prmtName == null) {
+//            	message.append("Item \"paramName\" problem!\n");
+//                    
+//            }
+//    		
+//            if( textElm.getColor() == null ) {
+//            	message.append("Item \"color\" data enter problem!\n");
+//            }
+//            
+//            if (message.length() > 0) {
+//                message.insert(0, "TextColorsCfg broblem(s): ");
+//                IUFStatusHandler statusHandler = UFStatus
+//                        .getHandler(TextEditorDialog.class);
+//                statusHandler.handle(Priority.PROBLEM, message.toString());
+//            }
+//    		
+//    	}
+//    	
+//    	return textColorsCfg;
+//    }
     
-    private void setDefaultTextColor(TextColorsCfg clrCfg) {
-    	
-    	for (TextColorElement textElm : clrCfg.getTextColorElements()) {
-    	
-    		String paramName = textElm.getParamName().trim();
-    		if( paramName.equalsIgnoreCase("textBG")) {
-    			if ( textElm.getColor() != null)
-    				textBackground = new Color(shell.getDisplay(), textElm.getColor());
-    			else
-    				textBackground = shell.getDisplay().getSystemColor(UPDATE_BG);
-    				 
-    		}
-    		else if( paramName.equalsIgnoreCase("textFG")) {
-    			if ( textElm.getColor() != null)
-    				textForeground = new Color(shell.getDisplay(), textElm.getColor());
-    			else
-    				textForeground = shell.getDisplay().getSystemColor(UPDATE_FG);
-    		}
-    		else if( paramName.equalsIgnoreCase("highlightBG")) {
-    			if ( textElm.getColor() != null)
-    				highlightBackground = new Color(shell.getDisplay(), textElm.getColor());
-    			else
-    				highlightBackground = shell.getDisplay().getSystemColor(HIGHLIGHT_BG);
-    		}
-    		else if( paramName.equalsIgnoreCase("highlightFG")) {
-    			if ( textElm.getColor() != null)
-    				highlightForeground = new Color(shell.getDisplay(), textElm.getColor());
-    			else
-    				highlightForeground = shell.getDisplay().getSystemColor(UPDATE_FG);
-    		}
-    	
-    	}
-            	
+    private void setDefaultTextColor(TextEditorCfg  txtClrCfg ) {
+        	
+    	textBackground = new Color( shell.getDisplay(), txtClrCfg.getTextBackgroundColor() );    				 
+    	textForeground = new Color(shell.getDisplay(), txtClrCfg.getTextForegroundColor() );
+    	highlightBackground = new Color(shell.getDisplay(), txtClrCfg.getHighlightTextBackgroundColor() );
+    	highlightForeground = new Color(shell.getDisplay(), txtClrCfg.getHighlightTextForegroundColor() );   
     }
     
     /**
@@ -5123,7 +5002,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 }
                 req.setCheckBBB(true);
                 req.setProduct(oup);
-                req.setUser(UserController.getUserObject());
 
                 // Code in Run statement goes here!
                 new Thread(new ThriftClientRunnable(req)).start();
@@ -5712,25 +5590,27 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         int afosXxxLimit = 5; // second three characters is AFOS XXX
 
         /*
-         * DR15610 - Make sure that if the first line of the text product is not
-         * a WMO heading it is treated as part of the text body.
+         * DR15610 - Make sure that if the first line of the
+         * text product is not a WMO heading it is treated as
+         * part of the text body.
          */
         String[] pieces = textEditor.getText().split("\r*\n", 2);
         if (pieces.length > 1) {
             pieces[0] += "\n"; // WMOHeader expects this
         }
         WMOHeader header = new WMOHeader(pieces[0].getBytes(), null);
-        if (!header.isValid()) {
-            headerTF.setText("");
-            try {
-                textEditor.setText(originalText);
-                textEditor.setEditable(true);
-                textEditor.setEditable(false);
-            } catch (IllegalArgumentException e) {
-                // There is no text product body, so set it to the empty string.
-                textEditor.setText("");
-            }
-        } else {
+        if ( !header.isValid() ) {
+			headerTF.setText("");
+			try {
+				textEditor.setText(originalText);
+				textEditor.setEditable(true);
+				textEditor.setEditable(false);
+			} catch (IllegalArgumentException e) {
+				// There is no text product body, so set it to the empty string.
+				textEditor.setText("");
+			}
+        }
+        else {
         // TODO FIX PARSING
 
         // First, set the current header by assuming that it usually
@@ -5738,8 +5618,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // though there will be exceptions to that "rule" as handled below.
         // So, obtain the AFOS NNNxxx. If it's where it is supposed to be
         // in the new format, then the existing header is already an AWIPS
-            // text product identifier. Otherwise it is a legacy AFOS
-            // identifier.
+        // text product identifier. Otherwise it is a legacy AFOS identifier.
         if (TextDisplayModel.getInstance().hasStdTextProduct(token)) {
             StdTextProduct textProd = TextDisplayModel.getInstance()
                     .getStdTextProduct(token);
@@ -5749,16 +5628,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 start = textEditor.getOffsetAtLine(thisLine + 1);
                 if ((textEditor.getText(start, start + afosNnnLimit)
                         .equals(prodId.getNnnid()))
-                            && (textEditor.getText(start + afosNnnLimit + 1,
-                                    start + afosXxxLimit).equals(prodId
-                                    .getXxxid()))) {
+                        && (textEditor.getText(start + afosNnnLimit + 1, start
+                                + afosXxxLimit).equals(prodId.getXxxid()))) {
                     // Text matches the products nnnid and xxxid
                     numberOfLinesOfHeaderText = 2;
-                    } else if (textEditor.getText(start,
-                            start + afosNnnLimit + 2).equals(
-                            AFOSParser.DRAFT_PIL)
-                            || textEditor.getText(start,
-                                    start + afosNnnLimit + 2).equals("TTAA0")) {
+                } else if (textEditor.getText(start, start + afosNnnLimit + 2)
+                        .equals(AFOSParser.DRAFT_PIL)
+                        || textEditor.getText(start, start + afosNnnLimit + 2)
+                                .equals("TTAA0")) {
                     // Text matches temporary WRKWG#
                     numberOfLinesOfHeaderText = 2;
                 } else {
@@ -5798,8 +5675,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             String line = null;
             do {
                 numberOfBlankLines++;
-                    line = textEditor.getLine(thisLine
-                            + numberOfLinesOfHeaderText + numberOfBlankLines);
+                line = textEditor.getLine(thisLine + numberOfLinesOfHeaderText
+                        + numberOfBlankLines);
             } while (line.length() == 0 || line.equals(""));
             // Note: 'st' is a reference to 'textEditor'...
             // delelete the header from the text in 'textEditor'
@@ -6104,7 +5981,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     if ("MTR".equals(stdProdId.getNnnid())
                             && (commandText.startsWith("ALL:")
                                     || commandText.startsWith("A:") || commandText
-                                        .endsWith("000"))) {
+                                    .endsWith("000"))) {
                         stripWMOHeaders(prod);
                     }
 
@@ -7197,7 +7074,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             || line.endsWith("ADVISORY")
                             || line.endsWith("ADVISORY...TEST")
                             || line.endsWith("ADVISORY...CORRECTED") || line
-                                .endsWith("ADVISORY...CORRECTED...TEST"))) {
+                            .endsWith("ADVISORY...CORRECTED...TEST"))) {
                 line += "...RESENT";
                 updatedMND = true;
             }
