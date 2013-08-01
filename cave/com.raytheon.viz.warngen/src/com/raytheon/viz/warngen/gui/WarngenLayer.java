@@ -182,6 +182,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * 06/24/2013  DR 16317    D. Friedman Handle "motionless" track.
  * 06/25/2013  DR 16013    Qinglu Lin  Added setUniqueFip() and code for re-hatching polygon.
  * 07/09/2013  DR 16376    Qinglu Lin  Removed calling removeOverTriplylaidLinesegment() but called removeOverlaidLinesegment().
+ * 07/26/2013  DR 16376    Qinglu Lin  Moved adjustVertex() and computeSlope() to PolygonUtil; removed calculateDistance();
+ *                                     updated AreaHatcher's run().
  * </pre>
  * 
  * @author mschenke
@@ -404,7 +406,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 }
 
                 try {
-            		warningPolygon = PolygonUtil.removeDuplicateCoordinate(warningPolygon);
+                    warningPolygon = PolygonUtil.removeDuplicateCoordinate(warningPolygon);
                     Polygon hatched = polygonUtil.hatchWarningArea(
                             warningPolygon,
                             removeCounties(warningArea,
@@ -415,12 +417,50 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         Coordinate[] coords = hatched.getCoordinates();
                         PolygonUtil.round(coords, 2);
                         PolygonUtil.adjustPolygon(coords);
-                        PolygonUtil.removeOverlaidLinesegments(coords);
+                        PolygonUtil.round(coords, 2);
+                        coords = PolygonUtil.removeDuplicateCoordinate(coords);
+                        coords = PolygonUtil.removeOverlaidLinesegments(coords);
                         GeometryFactory gf = new GeometryFactory();
                         LinearRing lr = gf.createLinearRing(coords);
                         hatchedArea = gf.createPolygon(lr, null);
-                        if (!hatchedArea.isValid()) {
-                            hatchedArea = adjustVertex(hatchedArea);
+                        int adjustPolygon_counter = 0;
+                        while (!hatchedArea.isValid() && adjustPolygon_counter < 1) {
+                            System.out.println("Calling adjustPolygon #" + adjustPolygon_counter);
+                            PolygonUtil.adjustPolygon(coords);
+                            PolygonUtil.round(coords, 2);
+                            coords = PolygonUtil.removeDuplicateCoordinate(coords);
+                            coords = PolygonUtil.removeOverlaidLinesegments(coords);
+                            lr = gf.createLinearRing(coords);
+                            hatchedArea = gf.createPolygon(lr, null);
+                            adjustPolygon_counter += 1;
+                        }
+                        int counter = 0;
+                        if (!hatchedArea.isValid() && counter < 2) {
+                            System.out.println("calling adjustVertex & alterVertexes: loop #" + counter);
+                            int adjustVertex_counter = 0;
+                            lr = gf.createLinearRing(coords);
+                            hatchedArea = gf.createPolygon(lr, null);
+                            while (!hatchedArea.isValid() && adjustVertex_counter < 5) {
+                                System.out.println("    Calling adjustVertex #" + adjustVertex_counter);
+                                coords = PolygonUtil.adjustVertex(coords);
+                                coords = PolygonUtil.removeDuplicateCoordinate(coords);
+                                coords = PolygonUtil.removeOverlaidLinesegments(coords);
+                                lr = gf.createLinearRing(coords);
+                                hatchedArea = gf.createPolygon(lr, null);
+                                adjustVertex_counter += 1;
+                            }
+                            int inner_counter = 0;
+                            System.out.println("");
+                            while (!hatchedArea.isValid() && inner_counter < 5) {
+                                System.out.println("    Calling alterVertexes #" + inner_counter);
+                                coords = PolygonUtil.alterVertexes(coords);
+                                coords = PolygonUtil.removeDuplicateCoordinate(coords);
+                                coords = PolygonUtil.removeOverlaidLinesegments(coords);
+                                lr = gf.createLinearRing(coords);
+                                hatchedArea = gf.createPolygon(lr, null);
+                                inner_counter += 1;
+                            }
+                            counter += 1;
                         }
                         hatchedWarningArea = createWarnedArea(
                                 latLonToLocal(hatchedArea),
@@ -2991,126 +3031,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     public void setWarningAction(WarningAction warningAction) {
         this.warningAction = warningAction;
-    }
-
-    /**
-     * Adjust the location of vertexes that cause polygon self-crossing.
-     */
-    private Polygon adjustVertex(Polygon p) {
-        GeometryFactory gf = new GeometryFactory();
-        LinearRing lr;
-        Coordinate coord[] = p.getCoordinates();
-        int length = coord.length;
-        Coordinate intersectCoord = null;
-        int index[] = new int[6];
-        LineSegment ls1, ls2;
-        double d[] = new double[6];
-        int indexOfTheOtherEnd[] = new int[2];
-        boolean isPolygonValid = false;
-        outerLoop: for (int skippedSegment = 1; skippedSegment < length - 3; skippedSegment++) {
-            for (int i = 0; i < length - 1; i++) {
-                index[0] = i;
-                index[1] = index[0] + 1;
-                index[2] = index[1] + skippedSegment;
-                if (index[2] >= length)
-                    index[2] = index[2] - length + 1;
-                index[3] = index[2] + 1;
-                if (index[3] >= length)
-                    index[3] = index[3] - length + 1;
-                ls1 = new LineSegment(coord[index[0]], coord[index[1]]);
-                ls2 = new LineSegment(coord[index[2]], coord[index[3]]);
-                intersectCoord = ls1.intersection(ls2);
-                if (intersectCoord != null) {
-                    for (int j = 0; j < index.length - 2; j++) {
-                        d[j] = calculateDistance(intersectCoord,
-                                coord[index[j]]);
-                    }
-                    if (d[0] < d[1]) {
-                        index[4] = index[0];
-                        d[4] = d[0];
-                        indexOfTheOtherEnd[0] = index[1];
-                    } else {
-                        index[4] = index[1];
-                        d[4] = d[1];
-                        indexOfTheOtherEnd[0] = index[0];
-                    }
-                    if (d[2] < d[3]) {
-                        index[5] = index[2];
-                        d[5] = d[2];
-                        indexOfTheOtherEnd[1] = index[3];
-                    } else {
-                        index[5] = index[3];
-                        d[5] = d[3];
-                        indexOfTheOtherEnd[1] = index[2];
-                    }
-                    // index of the vertex on a line segment (line segment A),
-                    // which will be moved along line segment A.
-                    int replaceIndex;
-                    // index of the vertex at the other end of line segment A.
-                    int theOtherIndex;
-                    if (d[4] < d[5]) {
-                        replaceIndex = index[4];
-                        theOtherIndex = indexOfTheOtherEnd[0];
-                    } else {
-                        replaceIndex = index[5];
-                        theOtherIndex = indexOfTheOtherEnd[1];
-                    }
-                    // move the bad vertex, which is on line segment A and has
-                    // the shortest distance to intersectCoord,
-                    // along line segment A to the other side of line segment B
-                    // which intersects with line segment A.
-                    double delta;
-                    double min = 0.00001;
-                    if (Math.abs(intersectCoord.x - coord[replaceIndex].x) < min) {
-                        // move the bad vertex along a vertical line segment.
-                        delta = intersectCoord.y - coord[theOtherIndex].y;
-                        coord[replaceIndex].y += 0.01 * (delta / Math
-                                .abs(delta));
-                    } else if (Math.abs(intersectCoord.y
-                            - coord[replaceIndex].y) < min) {
-                        // move the bad vertex along a horizontal line segment.
-                        delta = intersectCoord.x - coord[theOtherIndex].x;
-                        coord[replaceIndex].x += 0.01 * (delta / Math
-                                .abs(delta));
-                    } else {
-                        // move the bad vertex along a line segment which is
-                        // neither vertical nor horizontal.
-                        double slope = computeSlope(coord, replaceIndex,
-                                theOtherIndex);
-                        delta = coord[theOtherIndex].y - intersectCoord.y;
-                        coord[replaceIndex].y = intersectCoord.y + 0.005
-                                * (delta / Math.abs(delta));
-                        coord[replaceIndex].x = (coord[replaceIndex].y - coord[theOtherIndex].y)
-                                / slope + coord[theOtherIndex].x;
-                    }
-                    PolygonUtil.round(coord, 2);
-                    if (replaceIndex == 0)
-                        coord[length - 1] = new Coordinate(coord[replaceIndex]);
-                    else if (replaceIndex == length - 1)
-                        coord[0] = new Coordinate(coord[replaceIndex]);
-                    lr = gf.createLinearRing(coord);
-                    p = gf.createPolygon(lr, null);
-                    isPolygonValid = p.isValid();
-                    if (isPolygonValid)
-                        break outerLoop;
-                }
-            }
-        }
-        return p;
-    }
-
-    private double calculateDistance(Coordinate c1, Coordinate c2) {
-        return Math.sqrt(Math.pow(c1.x - c2.x, 2) + Math.pow(c1.y - c2.y, 2));
-    }
-
-    public double computeSlope(Coordinate[] coords, int i, int j) {
-        double min = 1.0E-08;
-        double dx = coords[i].x - coords[j].x;
-        double slope = 0.0;
-        if (Math.abs(dx) > min) {
-            slope = (coords[i].y - coords[j].y) / dx;
-        }
-        return slope;
     }
 
     /**
