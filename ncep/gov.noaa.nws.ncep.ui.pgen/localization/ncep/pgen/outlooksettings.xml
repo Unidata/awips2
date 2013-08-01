@@ -931,7 +931,7 @@
                 <Outlook outlookType="FIREOUTL" name="Outlook" pgenCategory="Outlook" pgenType="FIREOUTL">
                     <DECollection collectionName="OutlookLine">
                         <DrawableElement>
-                            <Line pgenType="POINTED_ARROW" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                            <Line pgenType="POINTED_ARROW" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="SOLID" flipSide="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="53.27859852972902" Lon="-77.19176906414972"/>
@@ -947,7 +947,7 @@
                     </DECollection>
                     <DECollection collectionName="OutlookLine">
                         <DrawableElement>
-                            <Line pgenType="POINTED_ARROW" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                            <Line pgenType="POINTED_ARROW" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="SOLID" flipSide="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="52.0548811011688" Lon="-78.51595857033493"/>
@@ -963,7 +963,7 @@
                     </DECollection>
                     <DECollection collectionName="OutlookLine">
                         <DrawableElement>
-                            <Line pgenType="SCALLOPED" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                            <Line pgenType="SCALLOPED" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="SOLID" flipSide="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="51.09332708822423" Lon="-79.79310615023532"/>
@@ -979,7 +979,7 @@
                     </DECollection>
                     <DECollection collectionName="OutlookLine">
                         <DrawableElement>
-                            <Line pgenType="SCALLOPED" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                            <Line pgenType="SCALLOPED" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="SOLID" flipSide="false">
                                 <Color red="139" green="71" blue="38" alpha="255"/>
                                 <Color red="139" green="71" blue="38" alpha="255"/>
                                 <Point Lat="50.61429836902503" Lon="-80.45991316913586"/>
@@ -995,7 +995,7 @@
                     </DECollection>
                     <DECollection collectionName="OutlookLine">
                         <DrawableElement>
-                            <Line pgenType="SCALLOPED" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                            <Line pgenType="SCALLOPED" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="SOLID" flipSide="false">
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Color red="255" green="0" blue="0" alpha="255"/>
                                 <Point Lat="49.58615974295143" Lon="-81.22522929088485"/>
@@ -1011,7 +1011,7 @@
                     </DECollection>
                     <DECollection pgenCategory="MET" collectionName="OutlookLine">
                         <DrawableElement>
-                            <Line pgenType="POINTED_ARROW" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                            <Line pgenType="POINTED_ARROW" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="true" filled="false" fillPattern="SOLID" flipSide="false">
                                 <Color red="139" green="71" blue="38" alpha="255"/>
                                 <Color red="139" green="71" blue="38" alpha="255"/>
                                 <Point Lat="54.76159387097988" Lon="-76.00927434860081"/>
