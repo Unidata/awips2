@@ -3283,6 +3283,14 @@
                 <parameter  id="layerIndex" value="20" />
          </key> 
          <!-- Hot keys to cut, copy paste PGEN elements -->
+         <!-- DEL and Ctrl+X are same -->
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.tools.PgenCopypasteHotkeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="DEL">
+                <parameter  id="action" value="CUT" />
+         </key>         
          <key
                 commandId="gov.noaa.nws.ncep.ui.pgen.tools.PgenCopypasteHotkeyCommand"
                 contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"

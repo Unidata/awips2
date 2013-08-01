@@ -303,17 +303,24 @@ public class CNFNative {
         	//System.out.println("Coords:"+coords[0]+"  "+coords[coords.length-1]);
         	if ( coords[0].equals2D( coords[coords.length-1]) && (coords.length > 3) ) {
         		//System.out.println("CLOSED EDGE!!!!!!!!!!!!");       // For inner missing areas maybe?
-        		LinearRing lr = gf.createLinearRing(coords);
-        	//	Polygon poly = gf.createPolygon(lr, null);
-        		geoms.add(lr);
+        		CoordinateList cl = new CoordinateList(coords, false);
+        		
+        		if ( cl.size() >= 4 ){
+        			LinearRing lr = gf.createLinearRing(cl.toCoordinateArray());
+        			//	Polygon poly = gf.createPolygon(lr, null);
+        			geoms.add(lr);
+        		}
         	}
         	else {
         		//System.out.println("OPEN EDGE!!!!!!!!!!!!");     // For missing areas around edge of grid?
         		//LineString ls = gf.createLineString(coords);
         		CoordinateList cl = new CoordinateList(coords, false);
-        		LineString ls = gf.createLineString(cl.toCoordinateArray());
-        		//System.out.println("EDGE: "+ls.toString());
-        		geoms.add(ls);
+        		
+        		if ( cl.size() >= 2 ){
+        			LineString ls = gf.createLineString(cl.toCoordinateArray());
+        			//System.out.println("EDGE: "+ls.toString());
+        			geoms.add(ls);
+        		}
         	}
         }
 
@@ -332,10 +339,12 @@ public class CNFNative {
 			//System.out.println("GOT... "+ls.getClass().getCanonicalName()+((LineString)ls).getBoundary()+((LineString)ls).getNumPoints());
 			CoordinateList cl = new CoordinateList(ls.getCoordinates(), true);
 			cl.closeRing();
-			LinearRing lr = gf.createLinearRing(cl.toCoordinateArray());
-			lr.normalize();
-			//System.out.println("Merged: "+lr.toString());
-			geoms.add(lr);
+			if ( cl.size() >= 4 ){
+				LinearRing lr = gf.createLinearRing(cl.toCoordinateArray());
+				lr.normalize();
+				//System.out.println("Merged: "+lr.toString());
+				geoms.add(lr);
+			}
 		}
 			
         return  geoms.get(0);

@@ -141,6 +141,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  May 17, 2013 2012        jsanchez    Preserved the warned area if the hatched area source is the same when changing templates.
  *  Jun 24, 2013 DR 16317    D. Friedman Handle "motionless" track.
  *  Jul 16, 2013 DR 16387    Qinglu Lin  Reset totalSegments for each followup product.
+ *  Jul 29, 2013 DR 16352    D. Friedman Move 'result' to okPressed().
  * </pre>
  * 
  * @author chammack
@@ -167,8 +168,6 @@ public class WarngenDialog extends CaveSWTDialog implements
             }
         }.schedule();
     }
-
-    private String result;
 
     private static String UPDATELISTTEXT = "UPDATE LIST                                 ";
 
@@ -1012,7 +1011,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                 .getCurrent().getActiveShell());
         pmd.setCancelable(false);
 
-        result = null;
+        final String[] resultContainer = new String[1];
 
         try {
             pmd.run(false, false, new IRunnableWithProgress() {
@@ -1022,9 +1021,10 @@ public class WarngenDialog extends CaveSWTDialog implements
                     try {
                         monitor.beginTask("Generating product", 1);
                         long t0 = System.currentTimeMillis();
-                        result = TemplateRunner.runTemplate(warngenLayer,
+                        String result = TemplateRunner.runTemplate(warngenLayer,
                                 startTime.getTime(), endTime.getTime(),
                                 selectedBullets, followupData, backupData);
+                        resultContainer[0] = result;
                         Matcher m = FollowUpUtil.vtecPtrn.matcher(result);
                         totalSegments = 0;
                         while (m.find()) {
@@ -1056,6 +1056,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                     // Launch the text editor display as the warngen editor
                     // dialog using the result aka the warngen text product.
                     try {
+                        String result = resultContainer[0];
                         if (result != null) {
                             wed.setTextWarngenDisplay(result, true);
                             updateWarngenUIState(result);
