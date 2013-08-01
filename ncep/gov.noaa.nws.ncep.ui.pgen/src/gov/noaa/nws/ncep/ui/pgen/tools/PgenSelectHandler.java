@@ -8,7 +8,6 @@
 
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
-import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlgFactory;
@@ -57,7 +56,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.ui.PlatformUI;
 import org.geotools.referencing.GeodeticCalculator;
 
@@ -74,6 +72,7 @@ import com.vividsolutions.jts.geom.Point;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 04/13		#927		B. Yin   	Moved from the PgenSelectingTool class
+ * 05/13		#994		J. Wu 		Removed "DEL" - make it same as "Ctrl+X"
  * 
  * </pre>
  * 
@@ -875,7 +874,7 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
         
     }
     
-    @Override
+/*    @Override
     public boolean handleKeyDown(int keyCode) {
     	if ( !tool.isResourceEditable() ) return false;
 
@@ -888,7 +887,7 @@ public class PgenSelectHandler extends InputHandlerDefaultImpl {
     	else super.handleKeyDown(keyCode);
     	return false;
     }
-    
+*/    
     
     
     private void setGhostLineColorForTrack(MultiPointElement multiPointElement, int nearestPointIndex) {
