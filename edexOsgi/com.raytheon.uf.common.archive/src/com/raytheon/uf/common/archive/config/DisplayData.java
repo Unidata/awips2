@@ -243,7 +243,7 @@ public class DisplayData implements Comparable<DisplayData> {
     public String toString() {
         StringBuilder sb = new StringBuilder("DisplayData[");
         sb.append("displayLabel: ").append(displayLabel);
-        sb.append(", isSlected: ").append(selected);
+        sb.append(", isSlected: ").append(isSelected());
         sb.append(", size: ").append(size);
         sb.append(", category.name: ").append(categoryConfig.getName());
         sb.append(", archive.name: ").append(archiveConfig.getName())
