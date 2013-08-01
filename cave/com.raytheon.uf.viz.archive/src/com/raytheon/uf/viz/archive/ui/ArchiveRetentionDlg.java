@@ -25,8 +25,6 @@ import java.util.List;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -34,15 +32,11 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
-import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
+import com.raytheon.uf.common.archive.config.ArchiveConstants.Type;
 import com.raytheon.uf.common.archive.config.DisplayData;
-import com.raytheon.uf.viz.archive.data.IArchiveTotals;
-import com.raytheon.uf.viz.archive.ui.ArchiveTableComp.TableType;
-import com.raytheon.uf.viz.core.VizApp;
 
 /**
  * Archive retention dialog.
@@ -57,14 +51,14 @@ import com.raytheon.uf.viz.core.VizApp;
  * May 31, 2013 #1965      bgonzale     Initial work for updating retention configurations.
  * Jun 10, 2013 #1966      rferrel      Implemented hooks to get display and save to work.
  * Jul 24, 2013 #2220      rferrel      Add recompute size button.
+ * Jul 24, 2013 #2221      rferrel      Changes for select configuration.
  * 
  * </pre>
  * 
  * @author lvenable
  * @version 1.0
  */
-public class ArchiveRetentionDlg extends AbstractArchiveDlg implements
-        IArchiveTotals, IModifyListener {
+public class ArchiveRetentionDlg extends AbstractArchiveDlg {
 
     /** Current Archive/Category selection's minimum retention hours. */
     private RetentionHours minRetention;
@@ -78,12 +72,6 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg implements
     /** Displays the total size of selected items. */
     private Label totalSizeLbl;
 
-    /** Performs save action button. */
-    private Button saveBtn;
-
-    /** Flag set when user wants to close with unsaved modifications. */
-    boolean closeFlag = false;
-
     /**
      * Constructor.
      * 
@@ -93,8 +81,7 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg implements
     public ArchiveRetentionDlg(Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.MIN, CAVE.DO_NOT_BLOCK
                 | CAVE.MODE_INDEPENDENT | CAVE.INDEPENDENT_SHELL);
-        this.setSelect = true;
-        this.tableType = TableType.Retention;
+        this.type = Type.Retention;
     }
 
     /*
@@ -121,7 +108,7 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg implements
     @Override
     protected void initializeComponents(Shell shell) {
         super.initializeComponents(shell);
-        setText("Archive Retention");
+        setText("Archive Retention -");
         Composite mainComp = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(1, false);
         gl.marginHeight = 0;
@@ -236,9 +223,7 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg implements
         saveBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent selectionEvent) {
-                ArchiveConfigManager manager = ArchiveConfigManager
-                        .getInstance();
-                manager.save();
+                saveSelection(selectName);
                 saveBtn.setEnabled(false);
                 clearModified();
             }
@@ -269,24 +254,6 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg implements
                 }
             }
         });
-    }
-
-    /**
-     * When unsaved modifications this asks the user to verify the close.
-     * 
-     * @return true when okay to close.
-     */
-    private boolean verifyClose() {
-        boolean state = true;
-        if (isModified()) {
-            MessageBox box = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK
-                    | SWT.CANCEL);
-            box.setText("Close Retention");
-            box.setMessage("Unsave changes.\nSelect OK to continue.");
-            state = box.open() == SWT.OK;
-        }
-        closeFlag = state;
-        return state;
     }
 
     /*
@@ -406,37 +373,6 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg implements
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#preOpened()
-     */
-    @Override
-    protected void preOpened() {
-        super.preOpened();
-        addModifiedListener(this);
-        shell.addShellListener(new ShellAdapter() {
-
-            @Override
-            public void shellClosed(ShellEvent e) {
-                if (closeFlag || !isModified()) {
-                    return;
-                }
-
-                e.doit = false;
-                VizApp.runAsync(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        if (verifyClose()) {
-                            close();
-                        }
-                    }
-                });
-            }
-        });
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#disposed()
      */
     @Override
@@ -445,15 +381,5 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg implements
         extRetention.removeModifyListener(this);
         removeModifiedListener(this);
         super.disposed();
-    }
-
-    /**
-     * Indicate unsaved user changes.
-     * 
-     * @return modified
-     */
-    private boolean isModified() {
-        return (saveBtn != null) && !saveBtn.isDisposed()
-                && saveBtn.isEnabled();
     }
 }
