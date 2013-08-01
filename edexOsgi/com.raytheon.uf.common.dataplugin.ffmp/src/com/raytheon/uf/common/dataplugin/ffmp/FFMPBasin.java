@@ -28,6 +28,8 @@ import java.util.TreeMap;
 
 import javax.persistence.Transient;
 
+import com.raytheon.uf.common.dataplugin.ffmp.collections.ArrayBackedMap;
+import com.raytheon.uf.common.dataplugin.ffmp.collections.BasinMapFactory;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -48,6 +50,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                      TreeMap creation to the tertiary loader.
  * Apr 26, 2013 1954        bsteffen    Minor code cleanup throughout FFMP.
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
+ * Jul 31, 2013 2242        bsteffen    Optimize FFMP NavigableMap memory.
  * 
  * </pre>
  * 
@@ -71,6 +74,13 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
     @Transient
     protected NavigableMap<Date, Float> values;
     
+    /**
+     * Set to either the values map or the BasinMapFactory that was used to
+     * create it to enable correct synchronization.
+     */
+    @Transient
+    protected Object valuesSynchronization;
+
     /** object used for serialization **/
     @DynamicSerializeElement
     public float[] serializedValues;
@@ -172,9 +182,9 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
         Date prevDate = null;
       
         // map ordered newest first, so grab from newest date to oldest date
-        if (afterDate.before(beforeDate) && (values.size() > 0)) {
+        if (afterDate.before(beforeDate) && (!values.isEmpty())) {
 
-            synchronized (values) {
+            synchronized (valuesSynchronization) {
 
                 float factor = 0.0f;
 
@@ -226,7 +236,7 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
      */
     public Float getValue(Date afterDate, Date beforeDate) {
         Float val = 0.0f;
-        synchronized (values) {
+        synchronized (valuesSynchronization) {
             Date checkDate = values.ceilingKey(afterDate);
             if ((checkDate != null) && checkDate.before(beforeDate)) {
                 val = values.get(checkDate);
@@ -260,7 +270,7 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
 		Float val = 0.0f;
 		int i = 0;
 
-		synchronized (values) {
+        synchronized (valuesSynchronization) {
 
 			for (Date date : values.keySet()) {
 				if (date.before(beforeDate) && date.after(afterDate)) {
@@ -290,7 +300,7 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
 	public Float getMaxValue(Date afterDate, Date beforeDate) {
 		Float val = 0.0f;
 
-		synchronized (values) {
+        synchronized (valuesSynchronization) {
 
 			for (Date date : values.keySet()) {
 				if (date.before(beforeDate) && date.after(afterDate)) {
@@ -312,13 +322,7 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
      * @param value
      */
     public void setValue(Date date, Float dvalue) {
-        synchronized (values) {
-            if (!(values instanceof TreeMap) && !values.containsKey(dvalue)) {
-                // ArrayBackedMap may have been used if this basin was
-                // deserialized. It is much faster to do inserts on a TreeMap so
-                // convert now.
-                values = new TreeMap<Date, Float>(values);
-            }
+        synchronized (valuesSynchronization) {
             values.put(date, dvalue);
         }
     }
@@ -339,6 +343,7 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
      */
     public void setValues(TreeMap<Date, Float> values) {
         this.values = values;
+        this.valuesSynchronization = values;
     }
 
     /**
@@ -347,6 +352,7 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
     public FFMPBasin() {
 
         values = new TreeMap<Date, Float>(Collections.reverseOrder());
+        valuesSynchronization = values;
     }
 
     /**
@@ -358,23 +364,32 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
         setPfaf(pfaf);
         setAggregated(aggregated);
         values = new TreeMap<Date, Float>(Collections.reverseOrder());
+        valuesSynchronization = values;
     }
     
+    public FFMPBasin(Long pfaf, boolean aggregated,
+            BasinMapFactory<Date> mapFactory) {
+        setPfaf(pfaf);
+        setAggregated(aggregated);
+        values = mapFactory.getMap();
+        valuesSynchronization = mapFactory;
+    }
+
     /**
      * Populates the map from the serialized values
      * 
      * @param times
      */
-    public void deserialize(long[] times) {
+    public void deserialize(long[] times, BasinMapFactory<Date> mapFactory) {
         // safe to avoid Array Index Exceptions / shouldn't happen but.....
 
         if (serializedValues != null
                 && (times.length == serializedValues.length)) {
             NavigableMap<Date, Float> fastMap = new ArrayBackedMap(times,
                     serializedValues);
-            values = fastMap.descendingMap();
 
-            // values = new TreeMap<Date, Float>(fastMap.descendingMap());
+            values = mapFactory.getMap(fastMap.descendingMap());
+            valuesSynchronization = mapFactory;
         }
         serializedValues = null;
     }
@@ -401,7 +416,7 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
      */
     public void purgeData(Date date) {
         if (values != null) {
-            synchronized (values) {
+            synchronized (valuesSynchronization) {
                 ArrayList<Date> removes = new ArrayList<Date>();
                 for (Date mdate : values.keySet()) {
                 	if (mdate.before(date)) {
