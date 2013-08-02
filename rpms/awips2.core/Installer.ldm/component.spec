@@ -20,9 +20,9 @@ Vendor: Raytheon
 Packager: Bryan Kowal
 
 AutoReq: no
-Requires: awips2-notification
-Requires: qpid-cpp-client-devel
-Requires: zlib-devel
+requires: awips2-qpid-lib
+requires: zlib-devel
+requires: awips2-python
 provides: awips2-ldm
 provides: awips2-base-component
 
@@ -40,40 +40,34 @@ fi
 if [ -d %{_build_root} ]; then
    rm -rf %{_build_root}
 fi
-/bin/mkdir -p %{_build_root}
-if [ $? -ne 0 ]; then
-   exit 1
-fi
+
+%build
+
+%install
 
 # create the ldm directory
 /bin/mkdir -p %{_build_root}/usr/local/ldm/SOURCES
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
 /bin/mkdir -p %{_build_root}/etc/profile.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
 /bin/mkdir -p %{_build_root}/etc/ld.so.conf.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
 /bin/mkdir -p %{_build_root}/etc/logrotate.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
 /bin/mkdir -p %{_build_root}/etc/init.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
 
-%build
 
-%install
 _ldm_destination=%{_build_root}/usr/local/ldm
 _ldm_destination_source=${_ldm_destination}/SOURCES
 
@@ -319,10 +313,10 @@ export _current_dir=`pwd`
 su ldm -lc "cd ${_current_dir}; g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
    -I${_ldm_root_dir}/include \
    -I${_ldm_root_dir}/src \
-   -I/usr/include/qpid \
+   -I/awips2/qpid/include \
    -L${_ldm_root_dir}/lib \
-   -L%{_libdir} \
-   -l ldm -l xml2 -l qpidclient -l qpidcommon -o edexBridge" > \
+   -L/awips2/qpid/lib \
+   -l ldm -l xml2 -l qpidmessaging -l qpidcommon -o edexBridge" > \
    edexBridge.log 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: failed to build edexBridge!"
@@ -427,6 +421,6 @@ rm -rf ${RPM_BUILD_ROOT}
 /usr/local/ldm/SOURCES/*
 
 %attr(755,root,root) /etc/profile.d/awipsLDM.csh
-%attr(755,root,root) /etc/ld.so.conf.d/awips2-ldm-i386.conf
+%attr(755,root,root) /etc/ld.so.conf.d/awips2-ldm.conf
 %attr(755,root,root) /etc/logrotate.d/ldm.log
 %attr(755,root,root) /etc/init.d/ldmcp
