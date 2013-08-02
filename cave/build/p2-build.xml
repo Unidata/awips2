@@ -233,10 +233,6 @@
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
-				value="com.raytheon.uf.viz.d2d.skewt.feature" />
-		</antcall>
-		<antcall target="p2.build.repo">
-			<param name="feature"
 				value="com.raytheon.uf.viz.ncep.core.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
@@ -269,15 +265,7 @@
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
-				value="com.raytheon.viz.volumebrowser.feature" />
-		</antcall>
-		<antcall target="p2.build.repo">
-			<param name="feature"
 				value="com.raytheon.uf.viz.archive.feature" />
-		</antcall>
-		<antcall target="p2.build.repo">
-			<param name="feature"
-				value="com.raytheon.uf.viz.d2d.gfe.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
@@ -311,6 +299,18 @@
              <param name="feature"
                   value="com.raytheon.uf.viz.npp.feature" />
         </antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature"
+				value="com.raytheon.uf.viz.d2d.skewt.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature"
+				value="com.raytheon.viz.volumebrowser.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature"
+				value="com.raytheon.uf.viz.d2d.gfe.feature" />
+		</antcall>
         <antcall target="p2.build.repo">
              <param name="feature"
                   value="com.raytheon.uf.viz.collaboration.feature" />
