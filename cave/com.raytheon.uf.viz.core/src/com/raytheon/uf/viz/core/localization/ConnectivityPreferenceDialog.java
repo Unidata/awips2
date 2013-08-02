@@ -56,7 +56,8 @@ import com.raytheon.uf.viz.core.comm.IConnectivityCallback;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 5, 2009            mschenke     Initial creation
+ * Aug 05, 2009            mschenke    Initial creation
+ * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
  * 
  * </pre>
  * 
@@ -363,7 +364,7 @@ public class ConnectivityPreferenceDialog extends Dialog {
     }
 
     private void validateLocalization() {
-        ConnectivityManager.checkHttpServer(localization, localizationCallback);
+        ConnectivityManager.checkLocalizationServer(localization, localizationCallback);
     }
 
     private void validateAlertviz() {
