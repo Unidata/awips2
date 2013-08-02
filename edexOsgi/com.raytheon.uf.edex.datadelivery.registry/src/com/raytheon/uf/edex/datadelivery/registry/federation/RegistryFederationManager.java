@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.datadelivery.registry.federation;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.xml.bind.JAXBException;
 
@@ -50,7 +51,6 @@ import com.raytheon.uf.edex.datadelivery.registry.replication.RegistryReplicatio
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
-import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 
 /**
  * 
@@ -64,6 +64,7 @@ import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 5/22/2013    1707        bphillip    Initial implementation
+ * 7/29/2013    2191        bphillip    Implemented registry sync for registries that have been down for an extended period of time
  * </pre>
  * 
  * @author bphillip
@@ -71,12 +72,17 @@ import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
  */
 @Service
 @Transactional
-public abstract class RegistryFederationManager implements
-        RegistryInitializedListener {
+public abstract class RegistryFederationManager {
 
     /** The logger instance */
     protected static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RegistryFederationManager.class);
+
+    /**
+     * The scheduler service used for registering this registry with the
+     * federation
+     */
+    protected ScheduledExecutorService scheduler;
 
     /** The federation identifier */
     public static final String FEDERATION_ID = "Registry Federation";
@@ -174,6 +180,7 @@ public abstract class RegistryFederationManager implements
                 + " Federation Membership Association");
         association.setLid(association.getId());
         association.setObjectType(RegistryObjectTypes.ASSOCIATION);
+        association.setOwner(federationProperties.getSiteIdentifier());
         association.setType(AssociationTypes.HAS_FEDERATION_MEMBER);
         association.setStatus(StatusTypes.APPROVED);
         association.setName(RegistryUtil.getInternationalString(registry

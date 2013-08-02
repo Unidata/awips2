@@ -88,6 +88,7 @@
 	<!-- REST Service Definitions -->
 	<jaxrs:server id="registryRestServices" address="/">
 		<jaxrs:serviceBeans>
+			<ref bean="registryDataAccessService"/>
 			<ref bean="registryAvailabilityService" />
 			<ref bean="registryObjectsRestService" />
 			<ref bean="repositoryObjectsRestService" />
