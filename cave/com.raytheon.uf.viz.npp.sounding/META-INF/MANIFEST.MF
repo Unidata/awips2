@@ -25,4 +25,5 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Import-Package: gov.noaa.nws.ncep.edex.common.sounding
-Export-Package: com.raytheon.uf.viz.npp.sounding.rsc
+Export-Package: com.raytheon.uf.viz.npp.sounding.math,
+ com.raytheon.uf.viz.npp.sounding.rsc

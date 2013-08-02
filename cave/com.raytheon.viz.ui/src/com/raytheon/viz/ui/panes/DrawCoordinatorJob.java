@@ -21,8 +21,10 @@
 package com.raytheon.viz.ui.panes;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -31,7 +33,6 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.preferences.PreferenceConstants;
@@ -44,6 +45,7 @@ import com.raytheon.uf.viz.core.preferences.PreferenceConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 14, 2007            chammack    Initial Creation.
+ * Aug 2,  2013       2190 mschenke    Changed "panes" to Map to simplify code
  * 
  * </pre>
  * 
@@ -78,7 +80,7 @@ public class DrawCoordinatorJob extends Job {
      */
     private final long smallSleep = 5;
 
-    private List<DrawCoordinatedPane> panes;
+    private Map<IDisplayPaneContainer, DrawCoordinatedPane> panes = new IdentityHashMap<IDisplayPaneContainer, DrawCoordinatedPane>();
 
     private boolean shouldRun = true;
 
@@ -86,7 +88,6 @@ public class DrawCoordinatorJob extends Job {
 
     private DrawCoordinatorJob() {
         super("Draw Coordinator");
-        panes = new ArrayList<DrawCoordinatedPane>();
         setSystem(true);
         schedule();
     }
@@ -105,17 +106,12 @@ public class DrawCoordinatorJob extends Job {
      */
     public void unregisterPane(IDisplayPaneContainer container,
             VizDisplayPane displayPane) {
-        int index = Collections.binarySearch(panes, new DrawCoordinatedPane(
-                container, null));
-        if (index >= 0) {
-            DrawCoordinatedPane drawCoordinatedPane = panes.get(index);
-            drawCoordinatedPane.remove(displayPane);
-            if (drawCoordinatedPane.getPanes().isEmpty()) {
-                synchronized (this) {
-                    List<DrawCoordinatedPane> newPanes = new ArrayList<DrawCoordinatedPane>(
-                            panes);
-                    newPanes.remove(drawCoordinatedPane);
-                    panes = newPanes;
+        synchronized (panes) {
+            DrawCoordinatedPane pane = panes.get(container);
+            if (pane != null) {
+                pane.remove(displayPane);
+                if (pane.getPanes().isEmpty()) {
+                    panes.remove(container);
                 }
             }
         }
@@ -129,52 +125,17 @@ public class DrawCoordinatorJob extends Job {
      * @param displayPane
      *            the pane itself
      */
-    public IDisplayPane[] getDrawnPanes(IDisplayPaneContainer container) {
-        int index = Collections.binarySearch(panes, new DrawCoordinatedPane(
-                container, null));
-        if (index < 0) {
-            return new IDisplayPane[0];
-        } else {
-            DrawCoordinatedPane drawCoordinatedPane = panes.get(index);
-            return drawCoordinatedPane.getPanes().toArray(
-                    new IDisplayPane[drawCoordinatedPane.getPanes().size()]);
-        }
-    }
-
-    /**
-     * Register a pane for drawing
-     * 
-     * @param container
-     *            the container of the pane
-     * @param displayPane
-     *            the pane itself
-     */
     public void registerPane(IDisplayPaneContainer container,
             VizDisplayPane displayPane) {
-        int index = Collections.binarySearch(panes, new DrawCoordinatedPane(
-                container, null));
-        if (index < 0) {
-            synchronized (this) {
-                DrawCoordinatedPane drawCoordinatedPane = new DrawCoordinatedPane(
-                        container, displayPane);
-                List<DrawCoordinatedPane> newPanes = new ArrayList<DrawCoordinatedPane>(
-                        panes);
-                newPanes.add(-index - 1, drawCoordinatedPane);
-                panes = newPanes;
+        DrawCoordinatedPane pane;
+        synchronized (panes) {
+            pane = panes.get(container);
+            if (pane == null) {
+                pane = new DrawCoordinatedPane(container);
+                panes.put(container, pane);
             }
-        } else {
-            DrawCoordinatedPane drawCoordinatedPane = panes.get(index);
-            drawCoordinatedPane.add(displayPane);
         }
-    }
-
-    public void draw(VizDisplayPane displayPane, boolean actualDraw) {
-        int index = Collections.binarySearch(panes, new DrawCoordinatedPane(
-                displayPane.container, null));
-        if (index >= 0) {
-            DrawCoordinatedPane pane = panes.get(index);
-            pane.draw(true);
-        }
+        pane.add(displayPane);
     }
 
     /*
@@ -213,7 +174,11 @@ public class DrawCoordinatorJob extends Job {
                 }
 
                 listToDraw.clear();
-                for (DrawCoordinatedPane pane : panes) {
+                Set<DrawCoordinatedPane> managed;
+                synchronized (panes) {
+                    managed = new HashSet<DrawCoordinatedPane>(panes.values());
+                }
+                for (DrawCoordinatedPane pane : managed) {
                     if (pane.needsRefresh()) {
                         listToDraw.add(pane);
                     }
