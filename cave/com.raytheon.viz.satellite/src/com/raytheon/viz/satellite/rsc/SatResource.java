@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.measure.Measure;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 
@@ -91,6 +92,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  07/17/2012      798      jkorman     Use decimationLevels from SatelliteRecord. Removed hard-coded
  *                                       data set names.
  *  06/20/2013      2122     mschenke    Modified to use SatTileSetRenderable
+ *  07/31/2013      2190     mschenke    Switched to use Measure objects for interrogation
  * </pre>
  * 
  * @author chammack
@@ -103,6 +105,9 @@ public class SatResource extends
             .getHandler(SatResource.class);
 
     public static String RAW_VALUE = "rawValue";
+
+    /** String id to look for satellite-provided data values */
+    public static final String SATELLITE_DATA_INTERROGATE_ID = "satelliteDataValue";
 
     private static class InterrogationResult {
 
@@ -374,19 +379,15 @@ public class SatResource extends
         Map<String, Object> dataMap = new HashMap<String, Object>();
 
         SatRenderable renderable = (SatRenderable) getRenderable(displayedDate);
+        ColorMapParameters parameters = getCapability(ColorMapCapability.class)
+                .getColorMapParameters();
+        double dataValue = Double.NaN;
         if (renderable != null) {
             try {
                 InterrogationResult result = renderable.interrogate(coord
                         .asLatLon());
                 if (result != null) {
-                    double dataValue = result.getValue();
-                    UnitConverter dataToDisplay = getCapability(
-                            ColorMapCapability.class).getColorMapParameters()
-                            .getDataToDisplayConverter();
-                    if (dataToDisplay != null) {
-                        dataValue = dataToDisplay.convert(dataValue);
-                    }
-                    dataMap.put(RAW_VALUE, dataValue);
+                    dataValue = result.getValue();
                     dataMap.put(ISpatialObject.class.toString(), result
                             .getRecord().getSpatialObject());
                 }
@@ -394,6 +395,11 @@ public class SatResource extends
                 throw new VizException("Error interrogating raw data", e);
             }
         }
+
+        dataMap.put(RAW_VALUE, dataValue);
+        dataMap.put(SATELLITE_DATA_INTERROGATE_ID,
+                Measure.valueOf(dataValue, parameters.getDataUnit()));
+
         return dataMap;
     }
 
@@ -401,7 +407,7 @@ public class SatResource extends
     public String inspect(ReferencedCoordinate coord) throws VizException {
         Map<String, Object> dataMap = interrogate(coord);
         Double value = (Double) dataMap.get(RAW_VALUE);
-        if (value == null) {
+        if (value == null || value.isNaN()) {
             return "NO DATA";
         }
         ColorMapParameters cmp = getCapability(ColorMapCapability.class)
@@ -410,15 +416,17 @@ public class SatResource extends
         // check if data mapping preferences exist
         DataMappingPreferences dataMapping = cmp.getDataMapping();
         if (dataMapping != null) {
-            // convert to pixel value for checking labels
-            double pixelValue = cmp.getDisplayToDataConverter().convert(
-                    value.doubleValue());
             // if the pixel value matches the data mapping entry use that
             // label instead
-            String label = dataMapping.getLabelValueForDataValue(pixelValue);
+            String label = dataMapping.getLabelValueForDataValue(value);
             if (label != null) {
                 return label;
             }
+        }
+
+        UnitConverter dataToDisplay = cmp.getDataToDisplayConverter();
+        if (dataToDisplay != null) {
+            value = dataToDisplay.convert(value);
         }
 
         Unit<?> unit = cmp.getDisplayUnit();
