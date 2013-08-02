@@ -5,6 +5,10 @@ if [ -z ${WORKSPACE} ]; then
    echo "Error: the location of the baseline workspace must be specified using the WORKSPACE environment variable."
    exit 1
 fi
+if [ -z ${AWIPSII_BUILD_ROOT} ]; then
+   export AWIPSII_BUILD_ROOT="/tmp/${USER}/awips-component"
+   echo "INFO: using default build root - ${AWIPSII_BUILD_ROOT}."
+fi
 
 __SPECS=qpid-java.spec
 __SPECS_PATCH0=qpid-java.spec.patch0
@@ -54,6 +58,16 @@ rpmbuild -ba \
 if [ $? -ne 0 ]; then
    exit 1
 fi
+rpmbuild -ba \
+   --define "_topdir ${TOPDIR}" \
+   --define "_baseline_workspace ${WORKSPACE}" \
+   --define "_build_root ${AWIPSII_BUILD_ROOT}" \
+   --buildroot ${AWIPSII_BUILD_ROOT} \
+   SPECS/qpid-lib.spec
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 popd > /dev/null
 
 exit 0
