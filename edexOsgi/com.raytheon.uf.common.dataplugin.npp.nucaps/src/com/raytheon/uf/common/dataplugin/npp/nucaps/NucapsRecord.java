@@ -55,13 +55,15 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "nucapsseq")
-@Table(name = "nucaps", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = NucapsRecord.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 @DynamicSerialize
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 public class NucapsRecord extends NPPSoundingRecord {
 
     private static final long serialVersionUID = 1L;
+
+    public static final String PLUGIN_NAME = "nucaps";
 
     public static final String PDV_SURFACE_PRESSURE = "Surface_Pressure";
 
@@ -84,6 +86,10 @@ public class NucapsRecord extends NPPSoundingRecord {
     public static final String PDV_SULFER_DIOXIDE_MIXING_RATIO = "SO2_MR";
 
     public static final String PDV_QUALITY_FLAG = "Quality_Flag";
+
+    public NucapsRecord() {
+        setPluginName(PLUGIN_NAME);
+    }
 
     @Override
     @Column
