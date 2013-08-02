@@ -23,7 +23,6 @@ import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
-import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
 /**
@@ -38,6 +37,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * 3/13/2013    1082       bphillip    Initial creation
  * 4/9/2013     1802       bphillip    Removed exception catching
  * 6/4/2013     2022       bphillip    Added delete objects of type method
+ * 7/29/2013    2191       bphillip    Added new methods to support registry synchronization
  * 
  * </pre>
  * 
@@ -48,25 +48,31 @@ public class RegistryObjectDao extends
         RegistryObjectTypeDao<RegistryObjectType> {
 
     /** Delete object type parameterized statement */
-    private static final String DELETE_OBJECT_TYPE = "DELETE RegistryObjectType regObj where regObj.objectType=:objectType";
+    private static final String GET_IDS_BY_OBJECT_TYPE = "SELECT regObj.id FROM RegistryObjectType regObj WHERE regObj.objectType=:objectType";
 
     public RegistryObjectDao() {
     }
 
     /**
-     * Deletes objects of a specific type from the registry
+     * Gets the object ids of objects of the given object type
      * 
      * @param objectType
-     *            The object type to delete
-     * @throws DataAccessLayerException
-     *             If errors occur on the delete
+     *            The object type to get the ids for
+     * @return The list of object ids of objects of the given type
      */
-    public void deleteObjectsOfType(String objectType)
-            throws DataAccessLayerException {
-        int objectsDeleted = this.executeHQLStatement(DELETE_OBJECT_TYPE,
-                "objectType", objectType);
-        statusHandler.info(objectsDeleted + " objects of type " + objectType
-                + " deleted from registry");
+    public List<String> getRegistryObjectIdsOfType(String objectType) {
+        return this.executeHQLQuery(GET_IDS_BY_OBJECT_TYPE, "objectType",
+                objectType);
+    }
+
+    /**
+     * Deletes a persistent object
+     * 
+     * @param obj
+     *            The persistent object to delete
+     */
+    public void deleteWithoutMerge(RegistryObjectType obj) {
+        this.template.delete(obj);
     }
 
     /**
