@@ -69,6 +69,11 @@
 		<property name="partyDao" ref="partyDao" />
 		<property name="webUtil" ref="RegistryWebUtil" />
 	</bean>
+	
+	<bean id="registryDataAccessService" class="com.raytheon.uf.edex.registry.ebxml.services.rest.RegistryDataAccessService">
+		<property name="registryObjectDao" ref="registryObjectDao"/>
+		<property name="lcm" ref="lcmServiceImpl"/>
+	</bean>
 
 	<bean id="registryAvailabilityService"
 		class="com.raytheon.uf.edex.registry.ebxml.services.rest.RegistryAvailableRestService" />
