@@ -21,6 +21,7 @@
 
 <?eclipse version="3.2"?>
 <plugin>
+   <extension-point id="displayCustomizer" name="displayCustomizer" schema="schema/displayCustomizer.exsd"/>
    <extension-point id="contextualMenu" name="contextualMenu" schema="schema/contextualMenu.exsd"/>
    <extension-point id="perspectiveManager" name="perspectiveManager" schema="schema/perspectiveManager.exsd"/>
    <extension-point id="com.raytheon.uf.viz.ui.mouse.action" name="Mouse Preference" schema="schema/mousePreference.exsd"/>
