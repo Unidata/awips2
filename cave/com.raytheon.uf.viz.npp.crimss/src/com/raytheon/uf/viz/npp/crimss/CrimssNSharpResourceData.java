@@ -36,6 +36,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import com.raytheon.uf.common.dataplugin.npp.crimss.CrimssRecord;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.npp.sounding.math.NPPSoundingCalculations;
 import com.raytheon.uf.viz.npp.sounding.rsc.AbstractNPPNSharpResourceData;
 
 /**
@@ -197,7 +198,8 @@ public class CrimssNSharpResourceData extends AbstractNPPNSharpResourceData {
             float pressure = pressureArray[j].floatValue();
             pressure = (float) pressureConverter.convert(pressure);
             float h2o = h2oArray[j].floatValue();
-            float dpt = convertH2OtoDewpoint(h2o, pressure);
+            float dpt = NPPSoundingCalculations.convertH2OtoDewpoint(h2o,
+                    pressure);
             dpt = (float) dewpointConverter.convert(dpt);
             NcSoundingLayer layer = new NcSoundingLayer(pressure,
                     NcSoundingLayer.MISSING, NcSoundingLayer.MISSING,
