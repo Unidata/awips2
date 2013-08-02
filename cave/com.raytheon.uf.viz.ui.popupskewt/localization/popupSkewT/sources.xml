@@ -1,0 +1,69 @@
+<soundingSources>
+	<!-- Sounding Source Format:
+		<source type="<sounding source ext adapter>" 
+		        displayString="<User displayed String>" 
+		        validTimeInterval="<valid time interval in minutes>">
+			<constraints>
+				// Any custom metadata mappings for data retrieval
+			</constraints>
+		</source>
+	 -->
+	<source type="grid" displayString="NAM" validTimeInterval="540">
+		<constraints>
+			<mapping key="pluginName">
+				<constraint constraintValue="grid"/>
+			</mapping>
+			<mapping key="info.datasetId">
+                <constraint constraintValue="ETA"/>
+            </mapping>
+        </constraints>
+	</source>
+	
+	<source type="grid" displayString="GFS" validTimeInterval="540">
+		<constraints>
+			<mapping key="pluginName">
+				<constraint constraintValue="grid"/>
+			</mapping>
+			<mapping key="info.datasetId">
+                <constraint constraintValue="GFS212"/>
+            </mapping>
+        </constraints>
+	</source>
+	
+	<source type="grid" displayString="RAP" validTimeInterval="90">
+		<constraints>
+			<mapping key="pluginName">
+				<constraint constraintValue="grid"/>
+			</mapping>
+			<mapping key="info.datasetId">
+                <constraint constraintValue="RUC236"/>
+            </mapping>
+        </constraints>
+	</source>
+	
+	<source type="grid" displayString="Laps" validTimeInterval="90">
+		<constraints>
+			<mapping key="pluginName">
+				<constraint constraintValue="grid"/>
+			</mapping>
+			<mapping key="info.datasetId">
+                <constraint constraintValue="Laps"/>
+            </mapping>
+        </constraints>
+	</source>
+	
+	<source type="bufrua" displayString="From Raobs" validTimeInterval="1080">
+		<constraints>
+			<mapping key="pluginName">
+				<constraint constraintValue="bufrua"/>
+			</mapping>
+		</constraints>
+	</source>
+	<source type="nucaps" displayString="NUCAPS" validTimeInterval="90">
+		<constraints>
+			<mapping key="pluginName">
+				<constraint constraintValue="nucaps"/>
+			</mapping>
+		</constraints>
+	</source>
+</soundingSources>
