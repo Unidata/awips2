@@ -1,6 +1,6 @@
 diff -crB a/qpid/java/broker/bin/qpid-passwd b/qpid/java/broker/bin/qpid-passwd
-*** a/qpid/java/broker/bin/qpid-passwd	2013-01-23 14:34:46.000000000 -0600
---- b/qpid/java/broker/bin/qpid-passwd	2013-01-23 14:33:48.000000000 -0600
+*** a/qpid/java/broker/bin/qpid-passwd	2012-02-15 09:29:22.000000000 -0600
+--- b/qpid/java/broker/bin/qpid-passwd	2013-07-30 16:23:13.000000000 -0500
 ***************
 *** 24,30 ****
   fi
@@ -19,8 +19,8 @@ diff -crB a/qpid/java/broker/bin/qpid-passwd b/qpid/java/broker/bin/qpid-passwd
   # Set other variables used by the qpid-run script before calling
   export JAVA=java \
 diff -crB a/qpid/java/broker/bin/qpid-server b/qpid/java/broker/bin/qpid-server
-*** a/qpid/java/broker/bin/qpid-server	2013-01-23 14:34:46.000000000 -0600
---- b/qpid/java/broker/bin/qpid-server	2013-01-23 14:33:48.000000000 -0600
+*** a/qpid/java/broker/bin/qpid-server	2011-09-30 08:38:14.000000000 -0500
+--- b/qpid/java/broker/bin/qpid-server	2013-07-30 16:23:13.000000000 -0500
 ***************
 *** 23,30 ****
   fi
@@ -40,7 +40,7 @@ diff -crB a/qpid/java/broker/bin/qpid-server b/qpid/java/broker/bin/qpid-server
   
   # Set to help us get round the manifold problems of ps/pgrep on various
 ***************
-*** 34,41 ****
+*** 34,43 ****
   fi
   
   # Set classpath to include the qpid-all manifest jar, and any jars supplied in lib/opt
@@ -49,7 +49,9 @@ diff -crB a/qpid/java/broker/bin/qpid-server b/qpid/java/broker/bin/qpid-server
   # Set other variables used by the qpid-run script before calling
 ! export JAVA=java \
          JAVA_VM=-server \
---- 33,40 ----
+         JAVA_MEM=-Xmx1024m \
+         JAVA_GC="-XX:+UseConcMarkSweepGC -XX:+HeapDumpOnOutOfMemoryError" \
+--- 33,42 ----
   fi
   
   # Set classpath to include the qpid-all manifest jar, and any jars supplied in lib/opt
@@ -58,11 +60,16 @@ diff -crB a/qpid/java/broker/bin/qpid-server b/qpid/java/broker/bin/qpid-server
   # Set other variables used by the qpid-run script before calling
 ! export JAVA=/awips2/java/bin/java \
          JAVA_VM=-server \
+         JAVA_MEM=-Xmx1024m \
+         JAVA_GC="-XX:+UseConcMarkSweepGC -XX:+HeapDumpOnOutOfMemoryError" \
+Only in b/qpid/java/broker/bin: qpid-server.orig
 diff -crB a/qpid/java/build.deps b/qpid/java/build.deps
-*** a/qpid/java/build.deps	2013-01-23 13:54:15.000000000 -0600
---- b/qpid/java/build.deps	2013-01-23 13:52:28.000000000 -0600
+*** a/qpid/java/build.deps	2012-07-08 10:28:32.000000000 -0500
+--- b/qpid/java/build.deps	2013-07-30 16:23:13.000000000 -0500
 ***************
-*** 19,29 ****
+*** 17,29 ****
+  # under the License.
+  #
   
 ! commons-beanutils-core=lib/required/commons-beanutils-core-1.8.3.jar
   commons-cli=lib/required/commons-cli-1.2.jar
@@ -74,7 +81,9 @@ diff -crB a/qpid/java/build.deps b/qpid/java/build.deps
   commons-logging=lib/required/commons-logging-1.1.1.jar
   
   derby-db=lib/required/derby-10.8.2.2.jar
---- 19,29 ----
+--- 17,29 ----
+  # under the License.
+  #
   
 ! commons-beanutils-core=lib/required/commons-beanutils-1.8.3.jar
   commons-cli=lib/required/commons-cli-1.2.jar
@@ -87,16 +96,22 @@ diff -crB a/qpid/java/build.deps b/qpid/java/build.deps
   
   derby-db=lib/required/derby-10.8.2.2.jar
 ***************
-*** 35,38 ****
+*** 33,39 ****
+  geronimo-jta=lib/required/geronimo-jta_1.1_spec-1.1.1.jar
+  geronimo-kernel=lib/required/geronimo-kernel-2.2.1.jar
   geronimo-openejb=lib/required/geronimo-ejb_3.0_spec-1.0.1.jar
 ! geronimo-servlet=lib/required/geronimo-servlet_2.5_spec-1.2.jar
-
+  
   junit=lib/required/junit-3.8.1.jar
---- 35,38 ----
+  mockito-all=lib/required/mockito-all-1.9.0.jar
+--- 33,39 ----
+  geronimo-jta=lib/required/geronimo-jta_1.1_spec-1.1.1.jar
+  geronimo-kernel=lib/required/geronimo-kernel-2.2.1.jar
   geronimo-openejb=lib/required/geronimo-ejb_3.0_spec-1.0.1.jar
 ! geronimo-servlet=lib/required/geronimo-servlet_2.5_spec-1.1.2.jar
-
+  
   junit=lib/required/junit-3.8.1.jar
+  mockito-all=lib/required/mockito-all-1.9.0.jar
 ***************
 *** 45,51 ****
   slf4j-api=lib/required/slf4j-api-1.6.4.jar
@@ -104,16 +119,16 @@ diff -crB a/qpid/java/build.deps b/qpid/java/build.deps
   
 ! xalan=lib/required/xalan-2.7.0.jar
   
- jetty=lib/required/jetty-server-7.6.3.v20120416.jar
- jetty-continuation=lib/required/jetty-continuation-7.6.3.v20120416.jar
+  jetty=lib/required/jetty-server-7.6.3.v20120416.jar
+  jetty-continuation=lib/required/jetty-continuation-7.6.3.v20120416.jar
 --- 45,51 ----
   slf4j-api=lib/required/slf4j-api-1.6.4.jar
   slf4j-log4j=lib/required/slf4j-log4j12-1.6.4.jar
   
 ! xalan=lib/required/xalan-2.7.1.jar
   
- jetty=lib/required/jetty-server-7.6.3.v20120416.jar
- jetty-continuation=lib/required/jetty-continuation-7.6.3.v20120416.jar
+  jetty=lib/required/jetty-server-7.6.3.v20120416.jar
+  jetty-continuation=lib/required/jetty-continuation-7.6.3.v20120416.jar
 ***************
 *** 63,70 ****
   
@@ -133,9 +148,10 @@ diff -crB a/qpid/java/build.deps b/qpid/java/build.deps
   
   commons-configuration.libs = ${commons-beanutils-core} ${commons-digester} \
     ${commons-codec} ${commons-lang} ${commons-collections} ${commons-configuration}
+Only in b/qpid/java: build.deps.orig
 diff -crB a/qpid/java/common/bin/qpid-jaddr b/qpid/java/common/bin/qpid-jaddr
-*** a/qpid/java/common/bin/qpid-jaddr	2013-01-23 14:41:58.000000000 -0600
---- b/qpid/java/common/bin/qpid-jaddr	2013-01-23 14:40:35.000000000 -0600
+*** a/qpid/java/common/bin/qpid-jaddr	2010-06-07 15:13:47.000000000 -0500
+--- b/qpid/java/common/bin/qpid-jaddr	2013-07-30 16:23:13.000000000 -0500
 ***************
 *** 24,30 ****
   fi
@@ -154,8 +170,8 @@ diff -crB a/qpid/java/common/bin/qpid-jaddr b/qpid/java/common/bin/qpid-jaddr
   # Set other variables used by the qpid-run script before calling
   export JAVA=java \
 diff -crB a/qpid/java/common/bin/qpid-run b/qpid/java/common/bin/qpid-run
-*** a/qpid/java/common/bin/qpid-run	2013-01-23 14:41:58.000000000 -0600
---- b/qpid/java/common/bin/qpid-run	2013-01-23 14:40:35.000000000 -0600
+*** a/qpid/java/common/bin/qpid-run	2012-02-15 09:29:22.000000000 -0600
+--- b/qpid/java/common/bin/qpid-run	2013-07-30 16:23:13.000000000 -0500
 ***************
 *** 62,69 ****
   fi
