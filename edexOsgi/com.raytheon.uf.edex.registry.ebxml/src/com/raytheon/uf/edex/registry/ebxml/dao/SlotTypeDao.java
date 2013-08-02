@@ -23,9 +23,6 @@ import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.raytheon.uf.edex.database.dao.SessionManagedDao;
 
 /**
@@ -39,6 +36,7 @@ import com.raytheon.uf.edex.database.dao.SessionManagedDao;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 7/11/2013    1707        bphillip    Initial implementation
+ * 7/29/2013    2191        bphillip    Modified method to get orphaned slots
  * </pre>
  * 
  * @author bphillip
@@ -71,35 +69,34 @@ public class SlotTypeDao extends SessionManagedDao<Integer, SlotType> {
             + "select child_slot_key from ebxml.emailaddress_slot "
             + "UNION "
             + "select child_slot_key from ebxml.postaladdress_slot "
-            + ")";
-
-    /** Keys parameter for the query to get the orphaned slot objects */
-    private static final String GET_BY_ID_QUERY_KEYS_PARAMETER = "keys";
-
-    /** Result batch size for the query to get the orphaned slot objects */
-    private static final int GET_BY_ID_QUERY_BATCH_SIZE = 1000;
-
-    private static final String GET_BY_ID_QUERY = "FROM SlotType slot where slot.key in (:"
-            + GET_BY_ID_QUERY_KEYS_PARAMETER + ")";
+            + ") limit %s";
 
     @Override
     protected Class<SlotType> getEntityClass() {
         return SlotType.class;
     }
 
+    /**
+     * Gets orphaned slot ids
+     * 
+     * @param limit
+     *            The maximum number of results to return
+     * @return List of orphaned ids of size limit
+     */
     @SuppressWarnings("unchecked")
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteOrphanedSlots() {
-        List<Integer> orphanedSlotIds = this.getSessionFactory()
-                .getCurrentSession().createSQLQuery(ORPHANED_SLOT_QUERY).list();
-        if (!orphanedSlotIds.isEmpty()) {
+    public List<Integer> getOrphanedSlotIds(int limit) {
+        return this
+                .getSessionFactory()
+                .getCurrentSession()
+                .createSQLQuery(
+                        String.format(ORPHANED_SLOT_QUERY,
+                                String.valueOf(limit))).list();
+    }
 
-            List<SlotType> slots = this.executeHQLQuery(GET_BY_ID_QUERY,
-                    GET_BY_ID_QUERY_BATCH_SIZE, GET_BY_ID_QUERY_KEYS_PARAMETER,
-                    orphanedSlotIds);
-            statusHandler.info("Removing " + orphanedSlotIds.size()
-                    + " orphaned slots...");
-            this.deleteAll(slots);
+    public void deleteBySlotId(Integer id) {
+        SlotType slot = this.getById(id);
+        if (slot != null) {
+            this.template.delete(slot);
         }
     }
 }
