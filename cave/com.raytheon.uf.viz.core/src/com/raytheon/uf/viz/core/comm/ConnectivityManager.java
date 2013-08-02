@@ -20,6 +20,9 @@
 package com.raytheon.uf.viz.core.comm;
 
 import java.net.URI;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.jms.JMSException;
 
@@ -27,6 +30,10 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.http.client.methods.HttpGet;
 
 import com.raytheon.uf.common.comm.HttpClient;
+import com.raytheon.uf.common.localization.msgs.GetServersRequest;
+import com.raytheon.uf.common.localization.msgs.GetServersResponse;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 /**
  * Class for checking connectivity of http servers, currently only used for
@@ -42,8 +49,10 @@ import com.raytheon.uf.common.comm.HttpClient;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 12, 2009            mschenke     Initial creation
- * Mar 22, 2013   1786     mpduff       Changed to use HttpClient for connectivity.
+ * Aug 12, 2009            mschenke    Initial creation
+ * Mar 22, 2013 1786       mpduff      Changed to use HttpClient for
+ *                                     connectivity.
+ * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
  * 
  * </pre>
  * 
@@ -52,6 +61,13 @@ import com.raytheon.uf.common.comm.HttpClient;
  */
 
 public class ConnectivityManager {
+
+    /*
+     * Since a get servers request is used for checking localization server
+     * connectivity, this map will cache the result in case it is needed later.
+     */
+    private static final Map<String, GetServersResponse> getServersResponseCache = Collections
+            .synchronizedMap(new HashMap<String, GetServersResponse>(2));
 
     public static class ConnectivityResult {
         public boolean hasConnectivity;
@@ -84,6 +100,43 @@ public class ConnectivityManager {
             // ignore
         }
         callback.connectionChecked(new ConnectivityResult(good, server));
+    }
+
+    /**
+     * Checks the connectivity of the given localization server
+     * 
+     * @param server
+     *            server to check
+     */
+    public static void checkLocalizationServer(String server, IConnectivityCallback callback) {
+        boolean good = false;
+        try {
+            good = checkLocalizationServer(server, true) != null;
+        } catch (Exception e) {
+            // ignore
+        }
+        callback.connectionChecked(new ConnectivityResult(good, server));
+    }
+
+    /**
+     * Returns a GetServersResponse for the provided server. If force is false
+     * and this localization server has already been contacted then a cached
+     * result is returned, otherwise the localization server is contacted to get
+     * the response.
+     */
+    public static GetServersResponse checkLocalizationServer(String server, boolean force)
+            throws VizException {
+        if (!force) {
+            GetServersResponse resp = getServersResponseCache.get(server);
+            if (resp != null) {
+                return resp;
+            }
+        }
+        GetServersRequest req = new GetServersRequest();
+        GetServersResponse resp = (GetServersResponse) ThriftClient.sendRequest(req, server);
+        getServersResponseCache.put(server, resp);
+        return resp;
+
     }
 
     /**
