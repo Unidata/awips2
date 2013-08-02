@@ -25,14 +25,13 @@ import org.apache.commons.collections.map.DefaultedMap;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import com.raytheon.uf.common.comm.HttpClient;
-import com.raytheon.uf.common.localization.msgs.GetServersRequest;
 import com.raytheon.uf.common.localization.msgs.GetServersResponse;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.VizServers;
+import com.raytheon.uf.viz.core.comm.ConnectivityManager;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationInitializer;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 import com.raytheon.uf.viz.thinclient.ui.ThinClientConnectivityDialog;
@@ -47,9 +46,10 @@ import com.raytheon.uf.viz.thinclient.ui.ThinClientConnectivityDialog;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 23, 2011            bsteffen     Initial creation
- * Dec 06, 2012   1396  njensen     Added setting VizServers
- * Jan 14, 2013   1469     bkowal       Removed setting the hdf5 data directory
+ * Nov 23, 2011            bsteffen    Initial creation
+ * Dec 06, 2012 1396  njensen Added      setting VizServers
+ * Jan 14, 2013 1469       bkowal      Removed setting the hdf5 data directory
+ * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
  * 
  * </pre>
  * 
@@ -88,12 +88,9 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
                     .getString(ThinClientPreferenceConstants.P_SERVICES_PROXY);
             LocalizationManager.getInstance().setCurrentServer(servicesProxy);
             if (!disableJMS) {
-                GetServersRequest req = new GetServersRequest();
-                GetServersResponse resp = (GetServersResponse) ThriftClient
-                        .sendLocalizationRequest(req);
-                if (!disableJMS) {
-                    VizApp.setJmsServer(resp.getJmsServer());
-                }
+                GetServersResponse resp = ConnectivityManager.checkLocalizationServer(
+                        servicesProxy, false);
+                VizApp.setJmsServer(resp.getJmsServer());
             }
             VizApp.setHttpServer(servicesProxy);
             VizApp.setPypiesServer(store
