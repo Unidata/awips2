@@ -44,7 +44,6 @@ import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.registry.ebxml.dao.AuditableEventTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.NotificationTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
@@ -164,39 +163,32 @@ public class RegistryNotificationManager {
                 subscription, objectsOfInterest);
 
         if (!eventsOfInterest.isEmpty()) {
-            try {
-                for (NotificationListenerWrapper listener : listeners) {
-                    int subListCount = eventsOfInterest.size() / SIZE_LIMIT;
-                    int lastListSize = eventsOfInterest.size() % SIZE_LIMIT;
-                    for (int i = 0; i < subListCount; i++) {
-                        NotificationType notification = getNotification(
-                                subscription, listener.address,
-                                objectsOfInterest, eventsOfInterest.subList(
-                                        SIZE_LIMIT * i, SIZE_LIMIT * i
-                                                + SIZE_LIMIT));
-                        if (!notification.getEvent().isEmpty()) {
-                            sendNotification(listener, notification,
-                                    listener.address);
-                        }
+            for (NotificationListenerWrapper listener : listeners) {
+                int subListCount = eventsOfInterest.size() / SIZE_LIMIT;
+                int lastListSize = eventsOfInterest.size() % SIZE_LIMIT;
+                for (int i = 0; i < subListCount; i++) {
+                    NotificationType notification = getNotification(
+                            subscription,
+                            listener.address,
+                            objectsOfInterest,
+                            eventsOfInterest.subList(SIZE_LIMIT * i, SIZE_LIMIT
+                                    * i + SIZE_LIMIT));
+                    if (!notification.getEvent().isEmpty()) {
+                        sendNotification(listener, notification,
+                                listener.address);
                     }
-                    if (lastListSize > 0) {
-                        NotificationType notification = getNotification(
-                                subscription,
-                                listener.address,
-                                objectsOfInterest,
-                                eventsOfInterest.subList(SIZE_LIMIT
-                                        * subListCount, SIZE_LIMIT
-                                        * subListCount + lastListSize));
-                        if (!notification.getEvent().isEmpty()) {
-                            sendNotification(listener, notification,
-                                    listener.address);
-                        }
-                    }
-
                 }
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to determine notification destinations.", e);
+                if (lastListSize > 0) {
+                    NotificationType notification = getNotification(
+                            subscription, listener.address, objectsOfInterest,
+                            eventsOfInterest.subList(SIZE_LIMIT * subListCount,
+                                    SIZE_LIMIT * subListCount + lastListSize));
+                    if (!notification.getEvent().isEmpty()) {
+                        sendNotification(listener, notification,
+                                listener.address);
+                    }
+                }
+
             }
         }
     }
