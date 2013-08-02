@@ -3,21 +3,21 @@
  *
  *  Created on: Oct 8, 2009
  *      Author: brockwoo
+ *  Updated on: June 21, 2013 (Re-written to work with the qpid messaging api)
+ *      Author: bkowal    
  */
 
-// START SNIPPET: demo
-
-#include <qpid/client/Connection.h>
-#include <qpid/client/Session.h>
-#include <qpid/client/Message.h>
-#include <qpid/client/MessageListener.h>
-#include <qpid/client/SubscriptionManager.h>
+#include <qpid/messaging/Connection.h>
+#include <qpid/messaging/Session.h>
+#include <qpid/messaging/Message.h>
+#include <qpid/messaging/Sender.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
 #include <stdlib.h>
 #include <iostream>
+#include <sstream>
 #include <memory>
 #include <filel.h>
 #include <ulog.h>
@@ -26,8 +26,7 @@
 #include <sys/time.h>
 #include <list>
 
-using namespace qpid::client;
-using namespace qpid::framing;
+using namespace qpid::messaging;
 using namespace std;
 
 class LdmProducer {
@@ -35,23 +34,31 @@ private:
 
 	Connection connection;
 	Session session;
+        Sender sender;
 	bool useTopic;
 	bool sessionTransacted;
 	bool isConnected;
 	std::string brokerURI;
 	int portNumber;
+        std::string username;
+        std::string password;
 	list<string> filenameList;
 	list<string> headerList;
 
 public:
 
-	LdmProducer(const std::string& brokerURI, int port = 5672, bool useTopic =
-			false, bool sessionTransacted = false) {
+	LdmProducer(const std::string& brokerURI, int port = 5672,
+                    const std::string& username = "guest",
+                    const std::string& password = "guest",
+                    bool useTopic = false, bool sessionTransacted = false) 
+        {
 		this->useTopic = useTopic;
 		this->sessionTransacted = sessionTransacted;
 		this->brokerURI = brokerURI;
 		this->isConnected = false;
 		this->portNumber = port;
+                this->username = username;
+                this->password = password;
 	}
 
 	~LdmProducer() {
@@ -82,20 +89,19 @@ public:
 		try {
 			while (!this->filenameList.empty()) {
 				Message message;
-				message.getDeliveryProperties().setRoutingKey(
-						"external.dropbox");
+                                
 				fileLocation = this->filenameList.front();
 				fileHeader = this->headerList.front();
 				struct timeval tv;
 				gettimeofday(&tv, NULL);
-				long long current = (((long long) tv.tv_sec) * 1000000
+				uint64_t current = (((long long) tv.tv_sec) * 1000000
 						+ ((long long) tv.tv_usec)) / 1000;
-				message.getDeliveryProperties().setDeliveryMode(PERSISTENT);
-				message.setData(fileLocation);
-				message.getHeaders().setString("header", fileHeader);
-				message.getHeaders().setInt64("enqueueTime", current);
-				session.messageTransfer(arg::content = message,
-						arg::destination = "amq.direct");
+                                message.setDurable(true);
+				message.setContent(fileLocation);
+				message.getProperties()["header"] = fileHeader;
+				message.getProperties()["enqueueTime"] = current;
+                               
+                                this->sender.send(message);
 
 				this->filenameList.pop_front();
 				this->headerList.pop_front();
@@ -113,11 +119,11 @@ public:
 private:
 
 	void cleanup() {
-		cout << "Cleaning up\n";
+                unotice ("Cleaning up");
 
 		// Destroy resources.
 		try {
-			session.close();
+                        session.close();
 			connection.close();
 		} catch (const std::exception& error) {
 			this->isConnected = false;
@@ -130,13 +136,33 @@ private:
 			return this->isConnected;
 		}
 		try {
-			this->connection.open(brokerURI, portNumber);
-			this->session = this->connection.newSession();
-			session.queueDeclare(arg::queue = "external.dropbox", arg::durable=true);
-			session.exchangeBind(arg::exchange = "amq.direct", arg::queue
-					= "external.dropbox", arg::bindingKey = "external.dropbox");
+                        std::stringstream qpidURLBuilder;
+                        qpidURLBuilder << "amqp:tcp:";
+                        qpidURLBuilder << this->brokerURI;
+                        qpidURLBuilder << ":";
+                        qpidURLBuilder << this->portNumber;
+                        std::string qpidURL = qpidURLBuilder.str();
+
+                        std::stringstream connectionOptionsBuilder;
+                        connectionOptionsBuilder << "{sasl-mechanism:PLAIN,username:";
+                        connectionOptionsBuilder << this->username;
+                        connectionOptionsBuilder << ",password:";
+                        connectionOptionsBuilder << this->password;
+                        connectionOptionsBuilder << "}";
+                        std::string connectionOptions = connectionOptionsBuilder.str();
+
+                        this->connection = Connection(qpidURL, connectionOptions);
+			this->connection.open();
+
+                        std::string address = "external.dropbox; {node:{type:queue,durable:true,x-bindings:"
+                           "[{exchange:amq.direct,queue:external.dropbox,key:external.dropbox}]}}";
+
+                        this->session = this->connection.createSession();
+                        this->sender = this->session.createSender(address);
+                        
 			this->isConnected = true;
 		} catch (const std::exception& error) {
+                        uerror(error.what());
 			this->isConnected = false;
 		}
 		return this->isConnected;
@@ -231,6 +257,8 @@ int main(int argc, char* argv[]) {
 	int loggingToStdErr = 0;
 	std::string brokerURI = "127.0.0.1";
 	int port = 5672;
+        std::string username = "guest";
+        std::string password = "guest";
 
 	{
 		extern char *optarg;
@@ -281,7 +309,6 @@ int main(int argc, char* argv[]) {
 	// createQueue to be used in both consumer an producer.
 	//============================================================
 	bool useTopics = false;
-	//bool sessionTransacted = false;
 
 	int shmid;
 	int semid;
@@ -309,7 +336,7 @@ int main(int argc, char* argv[]) {
 
 	messageCursor = (edex_message *) shmat(shmid, (void *) 0, 0);
 
-	LdmProducer producer(brokerURI, port, useTopics);
+	LdmProducer producer(brokerURI, port, username, password, useTopics);
 
 	for (;;) {
 		if (hupped) {
@@ -330,7 +357,7 @@ int main(int argc, char* argv[]) {
 
 			// Need to copy in the end of the queue before moving to front
 			if (lastQueueSize > queueSize) {
-				udebug(
+				unotice(
 						"Coming over the top with lastQueueSize of %d on a size of %d",
 						lastQueueSize, sizeOfQueue);
 				endQueueDiff = sizeOfQueue - lastQueueSize;
@@ -362,7 +389,7 @@ int main(int argc, char* argv[]) {
 						messagesSent, queue_diff);
 
 			}
-			udebug(
+			unotice(
 					"Sent %d messages (%d at the end of the queue, %d normally).",
 					messagesSent, endQueueDiff, queue_diff);
 		}
