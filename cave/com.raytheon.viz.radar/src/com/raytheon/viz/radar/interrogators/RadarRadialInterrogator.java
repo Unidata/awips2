@@ -41,9 +41,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2010            mnash     Initial creation
+ * Aug 4, 2010             mnash       Initial creation
  * Feb 15, 2013 1638       mschenke    Got rid of viz/edex topo classes 
  *                                     and moved into common
+ * Jul 31, 2013 2190       mschenke    Made "msl" interrogate key return 
+ *                                     height unformatted height data value
  * 
  * </pre>
  * 
@@ -53,7 +55,13 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class RadarRadialInterrogator extends RadarDefaultInterrogator implements
         IRadarInterrogator {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(RadarRadialInterrogator.class);
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RadarRadialInterrogator.class);
+
+    public static final String MSL_HEIGHT_ID = "msl";
+
+    public static final String MSL_HEIGHT_STRING_ID = "MSL";
 
     protected RadarDataInterrogator interrogator = new RadarDataInterrogator(
             null);
@@ -100,9 +108,9 @@ public class RadarRadialInterrogator extends RadarDefaultInterrogator implements
                             "Topo Error: Radar AGL sampling has been disabled");
                 }
             }
-            dataMap.put("MSL",
+            dataMap.put(MSL_HEIGHT_STRING_ID,
                     String.format("%.0fft", metersToFeet.convert(msl)));
-            dataMap.put("msl", "" + msl);
+            dataMap.put(MSL_HEIGHT_ID, "" + msl);
 
             if (!Double.isNaN(topoHeight)) {
                 double agl = msl - topoHeight;
