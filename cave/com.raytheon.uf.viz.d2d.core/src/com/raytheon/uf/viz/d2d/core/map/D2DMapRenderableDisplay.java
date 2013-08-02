@@ -41,14 +41,12 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.maps.scales.MapScaleRenderableDisplay;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
-import com.raytheon.uf.viz.core.rsc.RenderingOrderFactory.ResourceOrder;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceList.AddListener;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.d2d.core.D2DProperties;
 import com.raytheon.uf.viz.d2d.core.ID2DRenderableDisplay;
-import com.raytheon.uf.viz.d2d.core.sampling.CloudHeightResourceData;
 import com.raytheon.uf.viz.d2d.core.time.D2DTimeMatcher;
 import com.raytheon.viz.core.imagery.ImageCombiner;
 
@@ -73,8 +71,6 @@ import com.raytheon.viz.core.imagery.ImageCombiner;
 @XmlRootElement
 public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
         implements ID2DRenderableDisplay {
-
-    private static final CloudHeightResourceData cloudHeightData = new CloudHeightResourceData();
 
     /** The magnification */
     @XmlAttribute
@@ -299,12 +295,6 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
         // Add scale listeners
         resourceList.addPostAddListener(getScaleListener());
         resourceList.addPostRemoveListener(getScaleListener());
-
-        // Add cloud height resource data
-        ResourcePair rp = ResourcePair
-                .constructSystemResourcePair(cloudHeightData);
-        rp.getProperties().setRenderingOrder(ResourceOrder.LOWEST);
-        resourceList.add(rp);
     }
 
     /**
