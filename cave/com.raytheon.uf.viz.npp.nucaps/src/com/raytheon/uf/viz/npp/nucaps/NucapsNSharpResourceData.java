@@ -34,6 +34,7 @@ import com.raytheon.edex.meteolibrary.Meteolibrary;
 import com.raytheon.uf.common.dataplugin.npp.nucaps.NucapsRecord;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.npp.sounding.math.NPPSoundingCalculations;
 import com.raytheon.uf.viz.npp.sounding.rsc.AbstractNPPNSharpResourceData;
 
 /**
@@ -112,10 +113,13 @@ public class NucapsNSharpResourceData extends AbstractNPPNSharpResourceData {
                 Number temperature = temperatures[idx];
                 float h20 = (float) wvMixingRatioConverter
                         .convert(wvMixingRatios[idx].doubleValue());
-                float dewpoint = convertH2OtoDewpoint(h20, pressure);
-                float rh = convertH20ToRelativeHumidity(h20,
-                        (float) temperatureCalcConverter.convert(temperature
-                                .doubleValue()), pressure);
+                float dewpoint = NPPSoundingCalculations.convertH2OtoDewpoint(
+                        h20, pressure);
+                float rh = NPPSoundingCalculations
+                        .convertH20ToRelativeHumidity(h20,
+                                (float) temperatureCalcConverter
+                                        .convert(temperature.doubleValue()),
+                                pressure);
                 soundingLayers.add(new NcSoundingLayer(pressure, gh,
                         (float) temperatureConverter.convert(temperature
                                 .doubleValue()), (float) dewPointConverter
