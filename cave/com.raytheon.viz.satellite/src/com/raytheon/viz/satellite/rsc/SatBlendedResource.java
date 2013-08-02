@@ -60,6 +60,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Feb 18, 2009     2032   jsanchez    Initial Creation.
  *                                      Updated inspect to display a single value.
  * Mar 17, 2009      800   jsanchez    Avoided displaying unnecessary 0.0.
+ * Jul 31, 2013     2190   mschenke    Removed arbitrary check for 0.0 and instead 
+ *                                     only check for NaN.  SatResource handles fill
+ *                                     values and returns NaN now
  * 
  * </pre>
  * 
@@ -275,22 +278,17 @@ public class SatBlendedResource extends
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         String inspectString = "NO DATA";
-        Double inspectValue = null;
         ResourceList list = getResourceList();
         for (int i = list.size() - 1; i >= 0; --i) {
             AbstractVizResource<?, ?> rsc = list.get(i).getResource();
             Map<String, Object> dataMap = rsc.interrogate(coord);
-            if (dataMap.get(SatResource.RAW_VALUE) instanceof Double) {
-                Double value = (Double) dataMap.get(SatResource.RAW_VALUE);
-                if (value.isNaN()) {
-                    // This one is no good, skip it.
-                    continue;
-                }
-                if (inspectValue == null || inspectValue == 0.0) {
-                    // Either there is no previous value or it was zero, so
-                    // try this one.
-                    inspectValue = value;
+            if (dataMap.get(SatResource.RAW_VALUE) instanceof Number) {
+                double value = ((Number) dataMap.get(SatResource.RAW_VALUE))
+                        .doubleValue();
+                if (Double.isNaN(value) == false) {
+                    // use this resource
                     inspectString = rsc.inspect(coord);
+                    break;
                 }
             }
         }
