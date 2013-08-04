@@ -192,7 +192,7 @@ public class RegistryReplicationManager {
     public void checkDownTime() throws MsgRegistryException,
             EbxmlRegistryException {
         long currentTime = TimeUtil.currentTimeMillis();
-        long lastKnownUp = federatedRegistryMonitor.getLasKnownUptime();
+        long lastKnownUp = federatedRegistryMonitor.getLastKnownUptime();
         long downTime = currentTime - lastKnownUp;
         statusHandler
                 .info("Registry has been down since: "
