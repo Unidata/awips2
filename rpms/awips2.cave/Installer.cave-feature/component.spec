@@ -41,6 +41,9 @@ if [ -d ${RPM_BUILD_ROOT} ]; then
    rm -rf ${RPM_BUILD_ROOT}
 fi
 
+%build
+
+%install
 mkdir -p ${RPM_BUILD_ROOT}/awips2/cave/.repository
 CAVE_DIST_DIR="%{_baseline_workspace}/rpms/awips2.cave/setup/dist"
 
@@ -51,10 +54,6 @@ fi
 
 cp ${CAVE_DIST_DIR}/%{_component_zip_file_name} \
    ${RPM_BUILD_ROOT}/awips2/cave/.repository
-
-%build
-
-%install
 
 %pre
 # Ensure that CAVE is available to backup and to use to
