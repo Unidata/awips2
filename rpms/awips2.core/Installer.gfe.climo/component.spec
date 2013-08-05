@@ -31,11 +31,14 @@ then
    exit 1
 fi
 
-mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data/hdf5/gfe/climo
-
 %build
 
 %install
+mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data/hdf5/gfe/climo
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 # Copies the standard Raytheon licenses into a license directory for the
 # current component.
 function copyLegal()

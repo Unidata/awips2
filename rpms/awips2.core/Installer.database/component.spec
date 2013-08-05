@@ -39,9 +39,13 @@ then
    exit 1
 fi
 
-mkdir -p ${RPM_BUILD_ROOT}/awips2/database
-
 %build
+
+%install
+mkdir -p ${RPM_BUILD_ROOT}/awips2/database
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 PATH_TO_DDL="build.edex/opt/db/ddl"
 
@@ -76,8 +80,6 @@ done
    
 # Create our installation log file.
 touch ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/sql_install.log   
-
-%install
 
 %pre
 # Verify that one of the official AWIPS II PostgreSQL configuration files exist.
