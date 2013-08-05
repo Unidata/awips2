@@ -22,6 +22,8 @@ package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -68,6 +70,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @Entity
 @Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Table(schema = "ebxml", name = "ObjectRef")
 public class ObjectRefType extends ExtensibleObjectType implements
         IPersistableDataObject<String> {
