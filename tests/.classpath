@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="com/raytheon/viz/gfe/ui/runtimeui/TestSmartScript.java|com/raytheon/viz/gfe/ui/runtimeui/TestHazardUtils.java|com/raytheon/viz/gfe/core/parm/TestParmManager.java|com/raytheon/viz/gfe/core/parm/TestParm.java|gov/noaa/nws/ncep/gempak/parameters/title/TITLETest.java|gov/noaa/nws/ncep/gempak/parameters/marker/MARKERTest.java|gov/noaa/nws/ncep/gempak/parameters/line/LineDataStringParserTest.java|gov/noaa/nws/ncep/gempak/parameters/hilo/HILOTest.java|gov/noaa/nws/ncep/gempak/parameters/colors/COLORSTest.java|gov/noaa/nws/ncep/gempak/parameters/colorbar/CLRBARTest.java" kind="src" path="unit"/>
+	<classpathentry excluding="*HILOTest.java*|com/raytheon/viz/gfe/core/parm/TestParm.java|com/raytheon/viz/gfe/core/parm/TestParmManager.java|com/raytheon/viz/gfe/ui/runtimeui/TestHazardUtils.java|com/raytheon/viz/gfe/ui/runtimeui/TestSmartScript.java|gov/noaa/nws/ncep/gempak/parameters/colorbar/CLRBARTest.java|gov/noaa/nws/ncep/gempak/parameters/line/LineDataStringParserTest.java" kind="src" path="unit"/>
 	<classpathentry kind="src" path="deploy"/>
 	<classpathentry kind="src" path="resources"/>
 	<classpathentry kind="src" path="integration"/>
@@ -58,8 +58,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/javax.measure"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/javax.vecmath"/>
 	<classpathentry exported="true" kind="lib" path="lib/h2-1.3.171.jar"/>
-	<classpathentry kind="lib" path="lib/swt_gtk_linux_x86_64.jar"/>
-	<classpathentry kind="lib" path="lib/swt_gtk_linux_x86.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.gridcoverage"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.datadelivery.service"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.viz.ui"/>
@@ -154,5 +152,7 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.hamcrest"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.mockito"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.swt.gtk.linux.x86_3.8.1.v3836b.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.swt.gtk.linux.x86_64_3.8.1.v3836b.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
