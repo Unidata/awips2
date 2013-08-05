@@ -56,9 +56,10 @@ import com.raytheon.uf.common.util.FileUtil;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * May 8, 2008	#878	    chammack	Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * May 08, 2008 878         chammack    Initial creation
+ * Aug 02, 2013 2202        bsteffen    Add edex specific connectivity checking.
  * 
  * </pre>
  * 
@@ -67,9 +68,6 @@ import com.raytheon.uf.common.util.FileUtil;
  */
 
 public class CAVELocalizationAdapter implements ILocalizationAdapter {
-
-    private static final LocalizationManager manager = LocalizationManager
-            .getInstance();
 
     private final Map<LocalizationType, LocalizationContext[]> contexts;
 
@@ -170,8 +168,9 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
                 context.length);
 
         if (serverContexts.size() > 0) {
-            List<ListResponseEntry[]> entriesList = manager
-                    .getListResponseEntry(context, fileName, true, false);
+            List<ListResponseEntry[]> entriesList = LocalizationManager
+                    .getInstance().getListResponseEntry(context, fileName,
+                            true, false);
 
             for (int i = 0; i < context.length; i++) {
                 ListResponseEntry[] entries = entriesList.get(i);
@@ -223,7 +222,7 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
             return;
         }
 
-        manager.retrieve(file);
+        LocalizationManager.getInstance().retrieve(file);
     }
 
     /*
@@ -241,8 +240,9 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
             InputStream in = null;
             try {
                 in = new LockingFileInputStream(localFile);
-                long serverModTime = manager.upload(file.getContext(),
-                        file.getFileName(), in, localFile.length());
+                long serverModTime = LocalizationManager.getInstance().upload(
+                        file.getContext(), file.getFileName(), in,
+                        localFile.length());
                 // Success! set potentially changed fields
                 file.setTimeStamp(new Date(serverModTime));
                 file.setIsAvailableOnServer(true);
@@ -374,6 +374,7 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
         List<ListResponse> responses = new ArrayList<ListResponse>(
                 contexts.length);
 
+        LocalizationManager manager = LocalizationManager.getInstance();
         if (serverContexts.size() > 0) {
             List<ListResponseEntry[]> entryList = manager.getListResponseEntry(
                     serverContexts
@@ -469,7 +470,8 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
     @Override
     public boolean delete(ModifiableLocalizationFile file)
             throws LocalizationOpFailedException {
-        long deleteTime = manager.delete(file.getContext(), file.getFileName());
+        long deleteTime = LocalizationManager.getInstance().delete(
+                file.getContext(), file.getFileName());
 
         // Made it here! file on server succesfully deleted! Delete local file
         // reference. If that fails, doesn't matter since file does not exist!
@@ -595,7 +597,8 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
     @Override
     public String[] getContextList(LocalizationLevel level)
             throws LocalizationOpFailedException {
-        List<ListResponseEntry[]> entriesList = manager.getContextList(level);
+        List<ListResponseEntry[]> entriesList = LocalizationManager
+                .getInstance().getContextList(level);
         Set<String> fileList = new HashSet<String>();
         for (ListResponseEntry[] entryArr : entriesList) {
             for (ListResponseEntry entry : entryArr) {
