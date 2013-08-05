@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.archive.data;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.raytheon.uf.common.archive.config.DisplayData;
@@ -50,7 +51,7 @@ public class CategoryInfo {
     private final String categoryName;
 
     /** List of display items for the category. */
-    private final List<DisplayData> displayDataList = new ArrayList<DisplayData>();
+    private List<DisplayData> displayDataList;
 
     /**
      * Constructor.
@@ -63,6 +64,8 @@ public class CategoryInfo {
             List<DisplayData> displayInfoList) {
         this.archiveName = archiveName;
         this.categoryName = categoryName;
+        this.displayDataList = new ArrayList<DisplayData>(
+                displayInfoList.size());
         this.displayDataList.addAll(displayInfoList);
     }
 
@@ -75,6 +78,6 @@ public class CategoryInfo {
     }
 
     public List<DisplayData> getDisplayDataList() {
-        return new ArrayList<DisplayData>(displayDataList);
+        return Collections.unmodifiableList(displayDataList);
     }
 }
