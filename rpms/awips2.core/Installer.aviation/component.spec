@@ -7,6 +7,7 @@ Version: %{_component_version}
 Release: %{_component_release}
 Group: AWIPSII
 BuildRoot: /tmp
+BuildArch: noarch
 URL: N/A
 License: N/A
 Distribution: N/A
@@ -29,44 +30,26 @@ then
    exit 1
 fi
 
-mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data/share/aviation
-# Create an empty 'tmp' directory.
-mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data/share/aviation/tmp
-
 %build
 
 %install
+mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data/share/aviation/tmp
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 AVIATION_SRC_DIR="build/static/common/cave/etc/aviation/thresholds"
 
 # Copy the aviation *ish files to their destination.
 cp %{_baseline_workspace}/${AVIATION_SRC_DIR}/*.txt \
    ${RPM_BUILD_ROOT}/awips2/edex/data/share/aviation
+if [ $? -ne 0 ]; then
+   exit 1
+fi
    
 %pre
-if [ "${1}" = "2" ]; then
-   exit 0
-fi
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| Installing the AWIPS II Aviation Distribution...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m   Installation Root = /awips2\e[m"
-echo -e "\e[1;34m         Destination = /awips2/edex/data/share/aviation\e[m"
-
 %post
-if [ "${1}" = "1" ]; then
-   exit 0
-fi
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;32m\| AWIPS II Aviation Distribution Installation - COMPLETE\e[m"
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-
 %postun
-if [ "${1}" = "1" ]; then
-   exit 0
-fi
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| The AWIPS II Aviation Distribution Has Been Successfully Removed\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}

@@ -48,6 +48,20 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
+%build
+# build the edex-environment utilities
+pushd . > /dev/null 2>&1
+# Run the pde build.
+cd %{_baseline_workspace}/build.wes2bridge.utility
+/awips2/ant/bin/ant -f build.xml \
+   -Declipse.dir=%{_uframe_eclipse}
+if [ $? -ne 0 ]; then
+   echo "ERROR: The pde build of the wes2bridge utilities has failed."
+   exit 1
+fi
+popd > /dev/null 2>&1
+
+%install
 mkdir -p %{_build_root}%{_installation_directory}/edex-environment/scripts
 if [ $? -ne 0 ]; then
    exit 1
@@ -68,21 +82,6 @@ fi
 # create the edex environment directory.
 mkdir -p %{_build_root}/usr/local/edex-environment
 
-%build
-
-# build the edex-environment utilities
-pushd . > /dev/null 2>&1
-# Run the pde build.
-cd %{_baseline_workspace}/build.wes2bridge.utility
-/awips2/ant/bin/ant -f build.xml \
-   -Declipse.dir=%{_uframe_eclipse}
-if [ $? -ne 0 ]; then
-   echo "ERROR: The pde build of the wes2bridge utilities has failed."
-   exit 1
-fi
-popd > /dev/null 2>&1
-
-%install
 # Run the deployment to the specified directory: 
 #	%{_build_root}%{_installation_directory}/edex
 

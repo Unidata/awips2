@@ -42,11 +42,14 @@ if [ -d ${RPM_BUILD_ROOT} ]; then
    rm -rf ${RPM_BUILD_ROOT}
 fi
 
-mkdir -p ${RPM_BUILD_ROOT}/awips2/cave/etc
-
 %build
 
 %install
+mkdir -p ${RPM_BUILD_ROOT}/awips2/cave/etc
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 BASELINE_ETC_DIR="build/static/common/cave/etc"
 ETC_DIR_LOC="%{_baseline_workspace}/${BASELINE_ETC_DIR}"
 
