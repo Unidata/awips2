@@ -120,6 +120,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 04/08/13     #1949      rjpeter     Updated to work with normalized database.
  * 05/02/13     #1969      randerso    Removed updateDbs from parent class
  * 06/13/13     #2044      randerso    Pass in GridDbConfig as construction parameter
+ * 07/30/13     #2057      randerso    Added a static deleteDatabase method
  * </pre>
  * 
  * @author bphillip
@@ -2462,6 +2463,16 @@ public class IFPGridDatabase extends GridDatabase {
     @Override
     public void deleteDb() {
         DatabaseID id = getDbId();
+        deleteDatabase(id);
+    }
+
+    /**
+     * Delete a database
+     * 
+     * @param id
+     *            the DatabaseID of the datbase to be deleted
+     */
+    public static void deleteDatabase(DatabaseID id) {
         try {
             GFEDao gfeDao = new GFEDao();
             gfeDao.purgeGFEGrids(id);
@@ -2470,7 +2481,7 @@ public class IFPGridDatabase extends GridDatabase {
                     "Unable to delete model database: " + id, e);
         }
 
-        this.deleteModelHDF5();
+        deleteModelHDF5(id);
     }
 
     /**
@@ -2537,7 +2548,7 @@ public class IFPGridDatabase extends GridDatabase {
         }
     }
 
-    private void deleteModelHDF5() {
+    private static void deleteModelHDF5(DatabaseID dbId) {
         File hdf5File = GfeUtil.getHdf5Dir(GridDatabase.gfeBaseDataDir, dbId);
         IDataStore ds = DataStoreFactory.getDataStore(hdf5File);
         try {

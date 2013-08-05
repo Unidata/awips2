@@ -44,6 +44,7 @@ import com.raytheon.edex.db.dao.DefaultPluginDao;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
+import com.raytheon.edex.plugin.gfe.server.database.IFPGridDatabase;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
@@ -59,6 +60,7 @@ import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.Pair;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -93,12 +95,16 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                                     GetLatestDbTimeRequest and GetLatestModelDbIdRequest.
  * 05/20/13     #2127      rjpeter     Set session's to read only and switched to stateless where possible.
  * 06/13/13     #2044      randerso    Refactored to use IFPServer, code cleanup
+ * 07/30/13     #2057      randerso    Added support marking and eventually purging obsolete databases
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
 public class GFEDao extends DefaultPluginDao {
+    /** Removed DB purge time in days */
+    public static final int REMOVED_DB_PURGE_TIME = 7;
+
     // Number of retries on insert of a new DatabaseID
     private static final int QUERY_RETRY = 2;
 
@@ -374,6 +380,7 @@ public class GFEDao extends DefaultPluginDao {
                         .purgeExpiredPending();
                 PurgeLogger.logInfo("Purged " + requestsPurged
                         + " expired pending isc send requests.", "gfe");
+                purgeRemovedDbs();
             } catch (DataAccessLayerException e) {
                 throw new PluginException(
                         "Error purging expired send ISC records!", e);
@@ -382,6 +389,39 @@ public class GFEDao extends DefaultPluginDao {
                 SendNotifications.send(lockNotifications);
             }
         }
+    }
+
+    private void purgeRemovedDbs() throws DataAccessLayerException {
+        List<DatabaseID> removed = null;
+        try {
+            removed = txTemplate
+                    .execute(new TransactionCallback<List<DatabaseID>>() {
+                        @Override
+                        public List<DatabaseID> doInTransaction(
+                                TransactionStatus status) {
+                            Date purgeDate = new Date(
+                                    System.currentTimeMillis()
+                                            - (REMOVED_DB_PURGE_TIME * TimeUtil.MILLIS_PER_DAY));
+                            @SuppressWarnings("unchecked")
+                            List<DatabaseID> removed = getHibernateTemplate()
+                                    .find("FROM DatabaseID where removedDate < ?",
+                                            purgeDate);
+
+                            return removed;
+                        }
+                    });
+        } catch (Exception e) {
+            throw new DataAccessLayerException(
+                    "Error purging removed databases", e);
+        }
+
+        if (removed != null) {
+            for (DatabaseID dbId : removed) {
+                IFPGridDatabase.deleteDatabase(dbId);
+                PurgeLogger.logInfo("Purging removed database: " + dbId, "gfe");
+            }
+        }
+
     }
 
     /**
@@ -559,8 +599,9 @@ public class GFEDao extends DefaultPluginDao {
                                 TransactionStatus status) {
                             @SuppressWarnings("unchecked")
                             List<DatabaseID> result = getHibernateTemplate()
-                                    .find("FROM DatabaseID WHERE siteId = ?",
+                                    .find("FROM DatabaseID WHERE siteId = ? AND removeddate is null",
                                             siteId);
+
                             return result;
                         }
                     });
@@ -1208,6 +1249,64 @@ public class GFEDao extends DefaultPluginDao {
             return results.get(0);
         } else {
             return null;
+        }
+    }
+
+    /**
+     * Set the database removed date
+     * 
+     * @param dbId
+     *            databaseID to be updated
+     * @param removedDate
+     *            date database was removed or null if not removed (restored)
+     * @throws DataAccessLayerException
+     */
+    public void setDatabaseRemovedDate(DatabaseID dbId, Date removedDate)
+            throws DataAccessLayerException {
+
+        dbId.setRemovedDate(removedDate);
+        Session sess = null;
+        try {
+            sess = getHibernateTemplate().getSessionFactory().openSession();
+            int tries = 0;
+            Transaction tx = null;
+            try {
+                tx = sess.beginTransaction();
+                sess.update(dbId);
+                tx.commit();
+
+            } catch (ConstraintViolationException e) {
+                if (tx != null) {
+                    try {
+                        tx.rollback();
+                    } catch (Exception e1) {
+                        logger.error("Error occurred rolling back transaction",
+                                e1);
+                    }
+                }
+
+                // database may have been inserted on another process, redo
+                // the look up
+                if (tries < 2) {
+                    logger.info("Constraint violation on save, attempting to look up database id again");
+                } else {
+                    throw new DataAccessLayerException(
+                            "Unable to look up DatabaseID: " + dbId.toString(),
+                            e);
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessLayerException("Unable to look up DatabaseID: "
+                    + dbId.toString(), e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
         }
     }
 }
