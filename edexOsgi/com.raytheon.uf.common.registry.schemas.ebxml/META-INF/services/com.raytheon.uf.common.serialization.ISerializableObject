@@ -61,3 +61,4 @@ oasis.names.tc.ebxml.regrep.xsd.rim.v4.VocabularyTermType
 oasis.names.tc.ebxml.regrep.xsd.rim.v4.VocabularyTermValueType
 oasis.names.tc.ebxml.regrep.xsd.rim.v4.WorkflowActionType
 oasis.names.tc.ebxml.regrep.xsd.rim.v4.XMLQueryExpressionType
+oasis.names.tc.ebxml.regrep.xsd.rim.v4.DynamicObjectRefType
