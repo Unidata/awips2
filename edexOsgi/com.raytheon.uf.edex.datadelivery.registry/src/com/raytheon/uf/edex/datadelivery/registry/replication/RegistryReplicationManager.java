@@ -43,9 +43,6 @@ import javax.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.Mode;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
-import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
-import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
-import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DeliveryInfoType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
@@ -68,7 +65,6 @@ import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.common.registry.constants.DeliveryMethodTypes;
 import com.raytheon.uf.common.registry.constants.Namespaces;
 import com.raytheon.uf.common.registry.constants.NotificationOptionTypes;
-import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
@@ -83,7 +79,6 @@ import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.datadelivery.registry.availability.FederatedRegistryMonitor;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
-import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
@@ -99,6 +94,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 4/24/2013    1675        bphillip    Initial implementation
  * 6/4/2013     1707        bphillip    Changed to use new NotificationServer objects
  * 7/29/2013    2191        bphillip    Implemented registry sync for registries that have been down for an extended period of time
+ * 8/1/2013     1693        bphillip    Switch to use rest service instead of query manager for federation synchronization
  * </pre>
  * 
  * @author bphillip
@@ -285,8 +281,11 @@ public class RegistryReplicationManager {
                 if (remoteIds.contains(localId)) {
                     RegistryObjectType objectToSubmit;
                     try {
-                        objectToSubmit = getRemoteObject(remoteRegistryUrl,
-                                localId);
+                        objectToSubmit = RegistryRESTServices
+                                .getRegistryObject(RegistryObjectType.class,
+                                        remoteRegistryUrl,
+                                        localId.replaceAll(":", "%3A")
+                                                .replaceAll("\\/", "%2F"));
                     } catch (Exception e) {
                         statusHandler.error("Error getting remote object: "
                                 + localId, e);
@@ -313,8 +312,11 @@ public class RegistryReplicationManager {
                 if (!localIds.contains(remoteId)) {
                     RegistryObjectType objectToSubmit;
                     try {
-                        objectToSubmit = getRemoteObject(remoteRegistryUrl,
-                                remoteId);
+                        objectToSubmit = RegistryRESTServices
+                                .getRegistryObject(RegistryObjectType.class,
+                                        remoteRegistryUrl,
+                                        remoteId.replaceAll(":", "%3A")
+                                                .replaceAll("\\/", "%2F"));
                     } catch (Exception e) {
                         statusHandler.error("Error getting remote object: "
                                 + remoteId, e);
@@ -344,34 +346,6 @@ public class RegistryReplicationManager {
 
         statusHandler.info("Registry synchronization using ["
                 + remoteRegistryUrl + "] completed successfully!");
-    }
-
-    private RegistryObjectType getRemoteObject(String remoteRegistryUrl,
-            String objectId) throws Exception {
-        final QueryType queryType = new QueryType();
-        queryType.setQueryDefinition(CanonicalQueryTypes.GET_OBJECT_BY_ID);
-        Set<SlotType> slots = new HashSet<SlotType>();
-        final SlotType slot = new SlotType();
-        slot.setName(QueryConstants.ID);
-        final StringValueType slotValue = new StringValueType();
-        slotValue.setStringValue(objectId);
-        slot.setSlotValue(slotValue);
-        slots.add(slot);
-        queryType.setSlot(slots);
-
-        QueryRequest queryRequest = new QueryRequest();
-        queryRequest.setResponseOption(new ResponseOptionType(
-                QueryReturnTypes.REGISTRY_OBJECT, true));
-        queryRequest.setFederated(false);
-        queryRequest.setQuery(queryType);
-        QueryResponse response = RegistrySOAPServices.getQueryServiceForHost(
-                remoteRegistryUrl).executeQuery(queryRequest);
-        if (!CollectionUtil.isNullOrEmpty(response.getRegistryObjects())) {
-            return response.getRegistryObjects().get(0);
-        } else {
-            throw new EbxmlRegistryException("Object " + objectId
-                    + " not found on remote server!");
-        }
     }
 
     /**
