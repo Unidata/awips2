@@ -20,11 +20,19 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
+import javax.persistence.Entity;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -60,11 +68,20 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DynamicObjectRefType", propOrder = { "query" })
 @DynamicSerialize
+@Entity
+@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = "ebxml", name = "DynamicObjectRef")
 public class DynamicObjectRefType extends ObjectRefType {
 
     @XmlElement(name = "Query", required = true)
     @DynamicSerializeElement
+    @OneToOne
+    @Cascade(value = { CascadeType.SAVE_UPDATE })
     protected QueryType query;
+
+    public DynamicObjectRefType() {
+
+    }
 
     /**
      * Gets the value of the query property.

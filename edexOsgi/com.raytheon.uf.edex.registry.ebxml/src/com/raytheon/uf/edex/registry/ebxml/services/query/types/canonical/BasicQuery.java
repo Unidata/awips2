@@ -94,6 +94,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * 2/13/2012    #184       bphillip    Initial creation
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
+ * 8/1/2013     1693       bphillip    Fixed minor typo
  * 
  * 
  * </pre>
@@ -188,7 +189,7 @@ public class BasicQuery extends CanonicalEbxmlQuery {
             query.append(conjunction);
         }
         if (name != null) {
-            query.append("names.value='").append(description).append("'");
+            query.append("names.value='").append(name).append("'");
             query.append(conjunction);
         }
         if (objectType != null) {

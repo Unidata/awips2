@@ -39,6 +39,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 
+import com.raytheon.uf.common.registry.schemas.ebxml.util.annotations.RegistryObjectReference;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -95,6 +96,7 @@ public class DeliveryInfoType extends ExtensibleObjectType {
 
     @XmlAttribute
     @DynamicSerializeElement
+    @RegistryObjectReference
     protected String notificationOption;
 
     public Integer getKey() {
