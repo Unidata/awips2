@@ -52,9 +52,6 @@ fi
 if [ -d ${RPM_BUILD_ROOT} ]; then
    rm -rf ${RPM_BUILD_ROOT}
 fi
-mkdir -p ${RPM_BUILD_ROOT}/awips2
-mkdir -p ${RPM_BUILD_ROOT}/etc/xdg/autostart
-mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
 CAVE_DIST_DIR="%{_baseline_workspace}/rpms/awips2.cave/setup/dist"
 
 if [ ! -f ${CAVE_DIST_DIR}/%{_component_zip_file_name} ]; then
@@ -62,12 +59,27 @@ if [ ! -f ${CAVE_DIST_DIR}/%{_component_zip_file_name} ]; then
    exit 1
 fi
 
-cp ${CAVE_DIST_DIR}/%{_component_zip_file_name} \
-   ${RPM_BUILD_ROOT}/awips2
-
 %build
 
 %install
+mkdir -p ${RPM_BUILD_ROOT}/awips2
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+mkdir -p ${RPM_BUILD_ROOT}/etc/xdg/autostart
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+CAVE_DIST_DIR="%{_baseline_workspace}/rpms/awips2.cave/setup/dist"
+
+cp ${CAVE_DIST_DIR}/%{_component_zip_file_name} \
+   ${RPM_BUILD_ROOT}/awips2
+
 cd ${RPM_BUILD_ROOT}/awips2
 unzip %{_component_zip_file_name}
 rm -f %{_component_zip_file_name}
@@ -75,14 +87,23 @@ rm -f %{_component_zip_file_name}
 # Our profile.d scripts
 PROFILE_D_DIR="%{_baseline_workspace}/rpms/common/environment/awips2-cave/profile.d"
 cp ${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 # The AWIPS II version script.
 VERSIONS_SCRIPT="rpms/utility/scripts/versions.sh"
 cp %{_baseline_workspace}/${VERSIONS_SCRIPT} ${RPM_BUILD_ROOT}/awips2/cave
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 # testWS script
 TEXTWS_SCRIPT="rpms/utility/scripts/textWS.sh"
 cp %{_baseline_workspace}/${TEXTWS_SCRIPT} ${RPM_BUILD_ROOT}/awips2/cave
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 # text-workstation autostart script.
 CAVE_SCRIPTS_DIR="%{_baseline_workspace}/rpms/awips2.cave/Installer.cave/scripts"
