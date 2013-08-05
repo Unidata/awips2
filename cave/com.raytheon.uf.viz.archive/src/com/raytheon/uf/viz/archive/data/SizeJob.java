@@ -141,10 +141,9 @@ public class SizeJob extends Job {
     /**
      * Force getting the sizes for all data in the archive Information map.
      */
-    public synchronized void recomputeSize() {
+    public void recomputeSize() {
         clearQueue();
-        for (String archiveName : archiveInfoMap.keySet()) {
-            ArchiveInfo archiveInfo = archiveInfoMap.get(archiveName);
+        for (ArchiveInfo archiveInfo : archiveInfoMap.values()) {
             for (String categoryName : archiveInfo.getCategoryNames()) {
                 CategoryInfo categoryInfo = archiveInfo.get(categoryName);
                 for (DisplayData displayData : categoryInfo
@@ -161,6 +160,8 @@ public class SizeJob extends Job {
                 }
             }
         }
+
+        // Forces update of current display.
         displaySizesComputed.set(false);
 
         if (getState() == Job.NONE) {
@@ -173,14 +174,14 @@ public class SizeJob extends Job {
      * 
      * @param fileInfo
      */
-    private synchronized void requeue(DisplayData displayData) {
+    private void requeue(DisplayData displayData) {
         if (!shutdown.get()) {
             requeueRequest.set(false);
             if (displayData.isSelected()) {
                 selectedQueue.add(displayData);
                 backgroundQueue.remove(displayData);
             } else {
-                selectedQueue.remove(backgroundQueue);
+                selectedQueue.remove(displayData);
                 backgroundQueue.add(displayData);
             }
 
@@ -217,12 +218,12 @@ public class SizeJob extends Job {
     /**
      * @return archiveNames
      */
-    public synchronized Set<String> getArchiveNames() {
+    public Set<String> getArchiveNames() {
         return archiveInfoMap.keySet();
     }
 
     /**
-     * Change the selection state and if requeue size request.
+     * Change the selection state and requeue size request.
      * 
      * @param archiveName
      * @param categoryName
@@ -251,17 +252,18 @@ public class SizeJob extends Job {
      * @param archiveName
      * @param categoryName
      */
-    public synchronized void changeDisplayQueue(String archiveName,
-            String categoryName) {
+    public void changeDisplayQueue(String archiveName, String categoryName) {
         if (!archiveName.equals(displayArchive)
                 || !categoryName.equals(displayCategory)) {
-            if (getState() != Job.NONE) {
-                requeueRequest.set(true);
-                stopComputeSize.set(true);
+            synchronized (this) {
+                if (getState() != Job.NONE) {
+                    requeueRequest.set(true);
+                    stopComputeSize.set(true);
+                }
+                displaySizesComputed.set(false);
+                displayArchive = archiveName;
+                displayCategory = categoryName;
             }
-            displaySizesComputed.set(false);
-            displayArchive = archiveName;
-            displayCategory = categoryName;
         }
     }
 
