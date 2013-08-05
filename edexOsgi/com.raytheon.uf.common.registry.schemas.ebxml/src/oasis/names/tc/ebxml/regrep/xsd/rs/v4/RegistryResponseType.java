@@ -105,6 +105,10 @@ public class RegistryResponseType extends ExtensibleObjectType {
     @DynamicSerializeElement
     protected String requestId;
 
+    public boolean isOk() {
+        return status.equals(RegistryResponseStatus.SUCCESS);
+    }
+
     public List<RegistryObjectType> getRegistryObjects() {
         if (registryObjectList == null) {
             return Collections.emptyList();
