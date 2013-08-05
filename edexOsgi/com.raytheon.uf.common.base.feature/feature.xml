@@ -30,6 +30,32 @@
          version="0.0.0"/>
 
    <plugin
+         id="ch.qos.logback"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.slf4j"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.raytheon.uf.common.status"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.message"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="com.raytheon.uf.common.alertmonitor"
          download-size="0"
          install-size="0"
@@ -131,13 +157,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="com.raytheon.uf.common.message"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.common.python"
          download-size="0"
          install-size="0"
@@ -167,13 +186,6 @@
 
    <plugin
          id="com.raytheon.uf.common.stats"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.status"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -337,12 +349,6 @@
 
    <plugin
          id="org.postgres"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.slf4j"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
