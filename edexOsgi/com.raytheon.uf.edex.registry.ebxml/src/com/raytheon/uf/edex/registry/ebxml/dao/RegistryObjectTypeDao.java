@@ -47,6 +47,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
  * ------------ ---------- ----------- --------------------------
  * Jan 19, 2012 184        bphillip     Initial creation
  * 4/9/2013     1802       bphillip    Removed exception catching.  Added merge method.
+ * 8/1/2013     1693       bphillip    Moved the merge method down to RegistryObjectDao
  * 
  * </pre>
  * 
@@ -61,20 +62,6 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      * Creates a new RegistryObjectDao
      */
     public RegistryObjectTypeDao() {
-    }
-
-    /**
-     * Merges the state of the new object onto the persistent object
-     * 
-     * @param newObject
-     *            The object to get the state from
-     * @param existingObject
-     *            The existing persistent object to copy the state on to
-     */
-    public void merge(RegistryObjectType newObject,
-            RegistryObjectType existingObject) {
-        newObject.setId(existingObject.getId());
-        template.merge(newObject);
     }
 
     /**

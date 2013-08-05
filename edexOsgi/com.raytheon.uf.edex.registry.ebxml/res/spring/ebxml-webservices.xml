@@ -30,6 +30,7 @@
 		<property name="registryObjectDao" ref="registryObjectDao" />
 		<property name="auditableEventService" ref="AuditableEventService" />
 		<property name="cataloger" ref="catalogerServiceImpl" />
+		<property name="referenceResolver" ref="objectReferenceResolver"/>
 	</bean>
 
 	<!-- VALIDATOR -->
