@@ -19,9 +19,12 @@
  **/
 package com.raytheon.uf.common.registry.services;
 
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
@@ -31,6 +34,7 @@ import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.io.Resources;
 import com.raytheon.uf.common.registry.constants.RegistryAvailability;
 import com.raytheon.uf.common.registry.services.rest.IRegistryAvailableRestService;
 import com.raytheon.uf.common.registry.services.rest.IRegistryDataAccessService;
@@ -52,6 +56,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * ------------ ----------  ----------- --------------------------
  * 5/21/2013    2022        bphillip    Initial implementation
  * 7/29/2013    2191        bphillip    Implemented registry data access service
+ * 8/1/2013     1693        bphillip    Modified getregistry objects method to correctly handle response
  * </pre>
  * 
  * @author bphillip
@@ -135,11 +140,19 @@ public class RegistryRESTServices {
      * @throws JAXBException
      *             If errors occur while serializing the object
      */
+    @SuppressWarnings("unchecked")
     public static <T extends RegistryObjectType> T getRegistryObject(
             Class<T> expectedType, String baseURL, String objectId)
             throws JAXBException, RegistryServiceException {
-        return SerializationUtil.unmarshalFromXml(expectedType,
-                getRegistryObjectService(baseURL).getRegistryObject(objectId));
+        String objStr = getRegistryObjectService(baseURL).getRegistryObject(
+                objectId);
+        try {
+            return SerializationUtil.unmarshalFromXml(expectedType, objStr);
+        } catch (ClassCastException e) {
+            JAXBElement<RegistryObjectType> obj = (JAXBElement<RegistryObjectType>) SerializationUtil
+                    .getJaxbManager().unmarshalFromXml(objStr);
+            return (T) obj.getValue();
+        }
     }
 
     /**
@@ -225,6 +238,33 @@ public class RegistryRESTServices {
         } catch (ExecutionException e) {
             throw new RegistryServiceException(
                     "Error getting Registry Availability Rest Service", e);
+        }
+    }
+
+    /**
+     * Accesses a rest service at the provided URL. This method is primarily
+     * used for resolving remote object references which use a REST service
+     * 
+     * @param url
+     *            The URL of the rest service
+     * @return
+     */
+    public static Object accessXMLRestService(String url) {
+        String response = null;
+        try {
+            response = Resources
+                    .toString(new URL(url), Charset.forName("UTF8"));
+        } catch (Exception e) {
+            throw new RegistryServiceException(
+                    "Error accessing REST service at URL: [" + url + "]", e);
+        }
+        try {
+            return SerializationUtil.getJaxbManager()
+                    .unmarshalFromXml(response);
+        } catch (JAXBException e) {
+            throw new RegistryServiceException(
+                    "Error unmarshalling xml response from REST Service at URL: ["
+                            + url + "]");
         }
     }
 }
