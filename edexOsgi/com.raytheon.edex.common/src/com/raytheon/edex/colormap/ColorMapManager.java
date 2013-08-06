@@ -54,6 +54,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Aug 20, 2008			   dglazesk	   Updated for the new ColorMap interface
  * Feb 15, 2013 1638       mschenke    Moved IndexColorModel creation to common.colormap utility
  * Mar 14, 2013 1794       djohnson    FileUtil.listFiles now returns List.
+ * Aug 06, 2013 2210       njensen     Moved colormaps to common_static
  * 
  * </pre>
  * 
@@ -74,12 +75,12 @@ public class ColorMapManager {
     private ColorMapManager() {
 
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext edexStaticBase = pathMgr.getContext(
-                LocalizationContext.LocalizationType.EDEX_STATIC,
+        LocalizationContext commonStaticBase = pathMgr.getContext(
+                LocalizationContext.LocalizationType.COMMON_STATIC,
                 LocalizationContext.LocalizationLevel.BASE);
 
         try {
-            baseColormapDir = pathMgr.getFile(edexStaticBase, "colormaps")
+            baseColormapDir = pathMgr.getFile(commonStaticBase, "colormaps")
                     .getCanonicalPath();
         } catch (IOException e) {
             statusHandler.handle(Priority.PROBLEM,
