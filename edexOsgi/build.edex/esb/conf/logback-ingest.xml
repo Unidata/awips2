@@ -303,11 +303,6 @@
       <appender-ref ref="FailedTriggerLog"/>
    </logger>
 
-   <logger name="GFEPerformanceLogger" additivity="false">
-      <level value="Debug"/>
-      <appender-ref ref="GFEPerformanceLogAsync" />
-   </logger>
-
    <!-- default logging --> 
    <root> 
       <level value="INFO"/> 
