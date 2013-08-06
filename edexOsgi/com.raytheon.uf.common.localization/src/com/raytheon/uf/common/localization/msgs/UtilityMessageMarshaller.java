@@ -20,16 +20,13 @@
 
 package com.raytheon.uf.common.localization.msgs;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
 import javax.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager;
+import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
 
 /**
  * Utility class for converting and constructing localization messages
@@ -39,7 +36,7 @@ import com.raytheon.uf.common.serialization.DynamicSerializationManager.Serializ
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 19, 2007            chammack    Initial Creation.
- * Aug 22, 2008 1448       chammack    Added Thrift Binary Support 	
+ * Aug 22, 2008 1448       chammack    Added Thrift Binary Support
  * 
  * </pre>
  * 
@@ -184,22 +181,12 @@ public class UtilityMessageMarshaller {
 
     private static Object deserializeBinary(byte[] message, Class<?> c)
             throws LocalizationException {
-        ByteArrayInputStream bais = null;
         try {
             DynamicSerializationManager mgr = DynamicSerializationManager
                     .getManager(SerializationType.Thrift);
-            bais = new ByteArrayInputStream(message);
-
-            return mgr.deserialize(bais);
+            return mgr.deserialize(message);
         } catch (SerializationException e) {
             throw new LocalizationException("Unable to deserialize: ", e);
-        } finally {
-            try {
-                if (bais != null)
-                    bais.close();
-            } catch (IOException e) {
-                // ignore
-            }
         }
     }
 
