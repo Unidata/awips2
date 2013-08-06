@@ -60,7 +60,7 @@
    </appender> 
    
    <appender name="AsyncPerfLogAppender" class="ch.qos.logback.classic.AsyncAppender">
-      <param name="BufferSize" value="500"/>
+      <queueSize>500</queueSize>
       <appender-ref ref="PerformanceLogAppender"/>
    </appender> 
 
