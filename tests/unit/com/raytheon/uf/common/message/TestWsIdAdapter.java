@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.common.message;
 
-import java.io.ByteArrayInputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Random;
@@ -89,8 +88,7 @@ public class TestWsIdAdapter {
         Test outTest = null;
 
         try {
-            ByteArrayInputStream bais = new ByteArrayInputStream(bdata);
-            outTest = (Test) dmgr.deserialize(bais);
+            outTest = (Test) dmgr.deserialize(bdata);
         } catch (Throwable e) {
             e.printStackTrace();
             Assert.fail(e.getMessage());
