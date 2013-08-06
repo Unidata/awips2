@@ -59,6 +59,7 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.TimeHeightDlg;
  * Jun 04, 2013 #1984      lvenable    Save images instead of disposing them when setting
  *                                     the table column images.  This is to fix the Windows
  *                                     issue on the images being blank and throwing errors.
+ * Jul 30, 2013 #2143      skorolev    Changes for non-blocking dialogs.                                    
  * </pre>
  * 
  * @author lvenable
@@ -278,6 +279,7 @@ public class SCANDmdTableComp extends SCANTableTrendGraphLayer implements
             timeHeightDlg.open();
         } else {
             timeHeightDlg.setGraphData(graphData, ident, attrName);
+            timeHeightDlg.bringToTop();
         }
     }
 
