@@ -26,10 +26,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.google.common.collect.Maps;
+import com.raytheon.uf.common.datadelivery.event.retrieval.AdhocDataRetrievalEvent;
 import com.raytheon.uf.common.datadelivery.event.retrieval.DataRetrievalEvent;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.common.datadelivery.retrieval.util.DataSizeUtils;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
+import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval.SubscriptionType;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.event.EventBus;
@@ -60,6 +62,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.RetrievalPersistUtil;
  * Feb 12, 2013 1543       djohnson     Now handles the retrieval responses directly.
  * Feb 15, 2013 1543       djohnson     Retrieve the retrieval attributes from the database.
  * Aug 09, 2013 1822       bgonzale     Added parameters to processRetrievedPluginDataObjects.
+ * Aug 06, 2013 1654       bgonzale     Added AdhocDataRetrievalEvent.
  * 
  * </pre>
  * 
@@ -162,7 +165,11 @@ public class StoreRetrievedData implements IRetrievalPluginDataObjectsProcessor 
 
                 statusHandler.info("Successfully processed: " + records.length
                         + " : " + serviceType + " Plugin : " + pluginName);
-                DataRetrievalEvent event = new DataRetrievalEvent();
+                boolean isAdhoc = retrieval.getSubscriptionType() != null
+                        && retrieval.getSubscriptionType().equals(
+                                SubscriptionType.AD_HOC);
+                DataRetrievalEvent event = isAdhoc ? new AdhocDataRetrievalEvent()
+                        : new DataRetrievalEvent();
                 event.setId(retrieval.getSubscriptionName());
                 event.setOwner(retrieval.getOwner());
                 event.setNetwork(retrieval.getNetwork().name());
