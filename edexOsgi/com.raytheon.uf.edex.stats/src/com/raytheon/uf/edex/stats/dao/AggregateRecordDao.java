@@ -41,6 +41,7 @@ import com.raytheon.uf.edex.database.dao.SessionManagedDao;
  * Aug 21, 2012            jsanchez    Initial creation
  * Mar 18, 2013 1082       bphillip    Modified to extend sessionmanagedDao and use spring injection
  * May 22, 2013 1917       rjpeter     Added query methods for retrieving data about aggregates.
+ * 8/1/2013     1693       bphillip    Fixed named parameters in queries
  * </pre>
  * 
  * @author jsanchez
@@ -143,11 +144,14 @@ public class AggregateRecordDao extends
     public List<AggregateRecord> getAggregates(final String eventType,
             final Date startDate, final Date endDate)
             throws DataAccessLayerException {
-        String hql = "FROM AggregateRecord WHERE eventType = :eventType AND startDate >= minStart AND startDate < maxStart ORDER BY startDate";
+        String hql = "FROM AggregateRecord WHERE eventType = :eventType AND startDate >= :minStart AND startDate < :maxStart ORDER BY startDate";
         try {
+            Calendar start = Calendar.getInstance();
+            start.setTime(startDate);
+            Calendar end = Calendar.getInstance();
+            end.setTime(endDate);
             List<AggregateRecord> results = this.executeHQLQuery(hql,
-                    "eventType", eventType, "minStart", startDate, "maxStart",
-                    endDate);
+                    "eventType", eventType, "minStart", start, "maxStart", end);
             return results;
         } catch (Exception e) {
             throw new DataAccessLayerException(
