@@ -139,7 +139,7 @@ public class RegistryGarbageCollector {
          * Determines how many more orphaned slots can be added to the queue
          * based on the existing queue size
          */
-        int limit = QUEUE_MAX_SIZE - orphanedSlotExecutor.getQueue().size();
+        int limit = orphanedSlotExecutor.getQueue().remainingCapacity();
         if (limit > QUEUE_MAX_SIZE * .25) {
             List<Integer> orphanedSlotIds = slotDao.getOrphanedSlotIds(limit);
             for (Integer slotId : orphanedSlotIds) {
@@ -160,7 +160,7 @@ public class RegistryGarbageCollector {
      *             If errors occur while enqueuing events to be deleted
      */
     private void purgeExpiredEvents() throws EbxmlRegistryException {
-        int limit = QUEUE_MAX_SIZE - expiredEventExecutor.getQueue().size();
+        int limit = orphanedSlotExecutor.getQueue().remainingCapacity();
         if (limit > QUEUE_MAX_SIZE * .25) {
             List<AuditableEventType> expiredEvents = eventDao
                     .getExpiredEvents(limit);
