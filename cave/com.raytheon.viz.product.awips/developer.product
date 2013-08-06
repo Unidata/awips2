@@ -18,7 +18,7 @@
       <vmArgs>-Xincgc -Xmx1024M -Dosgi.instance.area.readOnly=true
 -Declipse.log.enabled=false
 -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass 
--Dorg.eclipse.update.reconcile=false -XX:MaxPermSize=128m 
+-Dorg.eclipse.update.reconcile=false -XX:MaxPermSize=256m 
 -Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.awips.scheme 
 -Dqpid.dest_syntax=BURL 
 -Dcom.sun.management.jmxremote 
