@@ -13,6 +13,7 @@ Require-Bundle: javax.persistence;bundle-version="1.0.0",
  org.apache.commons.cxf;bundle-version="1.0.0",
  com.raytheon.uf.common.status;bundle-version="1.12.1174"
 Export-Package: com.raytheon.uf.common.registry.schemas.ebxml.util,
+ com.raytheon.uf.common.registry.schemas.ebxml.util.annotations,
  oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4,
  oasis.names.tc.ebxml.regrep.xsd.lcm.v4,
  oasis.names.tc.ebxml.regrep.xsd.query.v4,
