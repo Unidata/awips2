@@ -152,7 +152,7 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.hamcrest"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.mockito"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.swt.gtk.linux.x86_3.8.1.v3836b.jar"/>
-	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.swt.gtk.linux.x86_64_3.8.1.v3836b.jar"/>
+	<classpathentry kind="lib" path="lib/swt_gtk_linux_x86_64.jar"/>
+	<classpathentry kind="lib" path="lib/swt_gtk_linux_x86.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
