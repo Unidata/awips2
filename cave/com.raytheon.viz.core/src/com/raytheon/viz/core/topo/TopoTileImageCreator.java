@@ -23,6 +23,7 @@ import java.io.File;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
+import com.raytheon.uf.common.topo.TopoUtils;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.RasterMode;
@@ -47,7 +48,8 @@ import com.raytheon.uf.viz.core.tile.TileSetRenderable.TileImageCreator;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 31, 2013            mschenke     Initial creation
+ * Jan 31, 2013            mschenke    Initial creation
+ * Aug 06, 2013 2235       bsteffen    Added Caching version of TopoQuery.
  * 
  * </pre>
  * 
@@ -90,11 +92,7 @@ public class TopoTileImageCreator implements TileImageCreator {
 
     protected IColorMapDataRetrievalCallback createColormapImageCallback(
             Tile tile) {
-        int level = tile.tileLevel;
-        String dataset = "/full";
-        if (level > 0) {
-            dataset = "/interpolated/" + level;
-        }
+        String dataset = TopoUtils.getDatasetForLevel(tile.tileLevel);
         return new HDF5DataRetriever(dataFile, dataset, tile.getRectangle());
     }
 }

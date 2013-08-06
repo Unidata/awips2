@@ -30,7 +30,7 @@ import com.raytheon.uf.common.dataplugin.radar.util.RadarDataInterrogator;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.topo.TopoQuery;
+import com.raytheon.uf.common.topo.CachedTopoQuery;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -41,11 +41,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2010             mnash       Initial creation
- * Feb 15, 2013 1638       mschenke    Got rid of viz/edex topo classes 
- *                                     and moved into common
+ * Aug 04, 2010            mnash     Initial creation
+ * Feb 15, 2013 1638       mschenke    Got rid of viz/edex topo classes  and
+ *                                     moved into common
  * Jul 31, 2013 2190       mschenke    Made "msl" interrogate key return 
  *                                     height unformatted height data value
+ * Aug 06, 2013 2235       bsteffen    Added Caching version of TopoQuery.
  * 
  * </pre>
  * 
@@ -99,7 +100,7 @@ public class RadarRadialInterrogator extends RadarDefaultInterrogator implements
                     / 1.7e7;
             double topoHeight = Double.NaN;
             if (useTopo) {
-                TopoQuery topoQuery = TopoQuery.getInstance();
+                CachedTopoQuery topoQuery = CachedTopoQuery.getInstance();
                 if (topoQuery != null) {
                     topoHeight = topoQuery.getHeight(latLon);
                 } else {

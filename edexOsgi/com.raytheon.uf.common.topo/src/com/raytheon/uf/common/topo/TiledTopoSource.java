@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.grid.staticdata.topo;
+package com.raytheon.uf.common.topo;
 
 import java.awt.Point;
 import java.io.FileNotFoundException;
@@ -32,9 +32,12 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
+import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
 import com.raytheon.uf.common.geospatial.interpolation.data.AbstractTiledDataSource;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
+import com.raytheon.uf.common.geospatial.interpolation.data.ShortArrayWrapper;
 
 /**
  * Tiled data source for loading topo tiles and caching tiles as soft reference
@@ -46,7 +49,8 @@ import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 11, 2012            bsteffen     Initial creation
+ * Dec 11, 2012            bsteffen    Initial creation
+ * Aug 06, 2013 2235       bsteffen    Added Caching version of TopoQuery.
  * 
  * </pre>
  * 
@@ -110,12 +114,21 @@ public class TiledTopoSource extends AbstractTiledDataSource {
     protected DataSource requestTile(int startX, int startY, int width,
             int height) {
         try {
-            float[] array = ((FloatDataRecord) dataStore.retrieve(
+            IDataRecord record = dataStore.retrieve(
                     "/",
                     dataset,
                     Request.buildSlab(new int[] { startX, startY }, new int[] {
-                            startX + width, startY + height }))).getFloatData();
-            return new FloatArrayWrapper(array, width, height);
+                            startX + width, startY + height }));
+            if (record instanceof FloatDataRecord) {
+                return new FloatArrayWrapper((float[]) record.getDataObject(),
+                        width, height);
+            } else if (record instanceof ShortDataRecord) {
+                return new ShortArrayWrapper((short[]) record.getDataObject(),
+                        width, height);
+            } else {
+                throw new DataRetrievalException("Unrecognized record type: "
+                        + record.getClass().getSimpleName());
+            }
         } catch (FileNotFoundException e) {
             throw new DataRetrievalException(e);
         } catch (StorageException e) {
@@ -129,6 +142,10 @@ public class TiledTopoSource extends AbstractTiledDataSource {
 
         public DataRetrievalException(Throwable cause) {
             super(cause);
+        }
+
+        public DataRetrievalException(String message) {
+            super(message);
         }
 
     }
