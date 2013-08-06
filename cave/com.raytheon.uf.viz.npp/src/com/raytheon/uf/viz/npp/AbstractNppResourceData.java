@@ -54,7 +54,8 @@ import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 8, 2013            mschenke     Initial creation
+ * Jan 8, 2013             mschenke    Initial creation
+ * Aug 2, 2013        2190 mschenke    Moved time grouping functions to utility class
  * 
  * </pre>
  * 
@@ -198,7 +199,7 @@ public abstract class AbstractNppResourceData extends
                 prev = curr;
                 DataTimeIterator<T> iter = new DataTimeIterator<T>(
                         objects.iterator());
-                curr = match(iter, prev, groupTimeInMillis);
+                curr = NPPTimeUtility.match(iter, prev, groupTimeInMillis);
                 if (curr != null) {
                     group.add(iter.lastAccesed);
                 }
@@ -217,41 +218,8 @@ public abstract class AbstractNppResourceData extends
      * @return
      */
     public Collection<DataTime> groupTimes(Collection<DataTime> dataTimes) {
-        long groupTimeInMillis = groupTimeRangeMinutes * 60 * 1000;
-        List<DataTime> grouped = new ArrayList<DataTime>(dataTimes.size());
-        Queue<DataTime> objects = new ArrayDeque<DataTime>(dataTimes);
-        while (objects.size() > 0) {
-            DataTime current = objects.remove();
-            TimeRange prev, curr;
-            prev = curr = current.getValidPeriod();
-            while (curr != null) {
-                prev = curr;
-                curr = match(objects.iterator(), prev, groupTimeInMillis);
-            }
-
-            grouped.add(new DataTime(prev.getStart().getTime(), prev));
-        }
-        return grouped;
-    }
-
-    private TimeRange match(Iterator<DataTime> iter, TimeRange time,
-            long groupTimeInMillis) {
-        long startT = time.getStart().getTime();
-        long endT = time.getEnd().getTime();
-        while (iter.hasNext()) {
-            DataTime dt = iter.next();
-            TimeRange dtRange = dt.getValidPeriod();
-            long s = dtRange.getStart().getTime();
-            long e = dtRange.getEnd().getTime();
-            long startCheck = s - groupTimeInMillis;
-            long endCheck = e + groupTimeInMillis;
-            if ((startT <= startCheck && endT >= startCheck)
-                    || (startCheck <= startT && endCheck >= startT)) {
-                iter.remove();
-                return new TimeRange(Math.min(s, startT), Math.max(e, endT));
-            }
-        }
-        return null;
+        return NPPTimeUtility.groupTimes(dataTimes,
+                groupTimeRangeMinutes * 60 * 1000);
     }
 
     /*
