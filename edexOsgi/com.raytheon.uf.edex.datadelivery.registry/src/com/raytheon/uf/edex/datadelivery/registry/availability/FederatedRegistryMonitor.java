@@ -115,14 +115,15 @@ public class FederatedRegistryMonitor extends RunnableWithTransaction {
                 regObj.setVersionInfo(new VersionInfoType());
                 regObj.setStatus(StatusTypes.APPROVED);
                 regObj.getSlot().add(slot);
+                registryObjectDao.create(regObj);
             } else {
                 DateTimeValueType dateTime = (DateTimeValueType) regObj
                         .getSlotByName(REGISTRY_AVAILABLE_ID).getSlotValue();
                 dateTime.setDateTimeValue(EbxmlObjectUtil
                         .getCurrentTimeAsXMLGregorianCalendar());
+                registryObjectDao.update(regObj);
             }
 
-            registryObjectDao.createOrUpdate(regObj);
         } catch (EbxmlRegistryException e) {
             statusHandler.error("Error updating federated time!", e);
         }
