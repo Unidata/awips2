@@ -58,6 +58,8 @@ import org.apache.thrift.transport.TTransport;
  * Jun 12, 2013    2102     njensen     Added max read length to prevent out
  *                                       of memory errors due to bad stream
  * Jul 23, 2013    2215     njensen     Updated for thrift 0.9.0
+ * Aug 06, 2013    2228     njensen     Overrode readBinary() to ensure it
+ *                                       doesn't read too much
  * 
  * </pre>
  * 
@@ -97,6 +99,15 @@ public class SelfDescribingBinaryProtocol extends TBinaryProtocol {
             boolean strictWrite) {
         super(trans, strictRead, strictWrite);
         this.setReadLength(MAX_READ_LENGTH);
+    }
+
+    @Override
+    public ByteBuffer readBinary() throws TException {
+        int size = readI32();
+        checkReadLength(size);
+        byte[] buf = new byte[size];
+        trans_.readAll(buf, 0, size);
+        return ByteBuffer.wrap(buf);
     }
 
     /*
