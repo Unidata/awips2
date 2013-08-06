@@ -35,25 +35,61 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase.CAVE;
 
+/**
+ * SCAN Attributes Dialog.
+ * 
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ *
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 24 Jul 2013  #2143      skorolev    Changes for non-blocking dialogs.
+ *
+ * </pre>
+ *
+ * @author 
+ * @version 1.0	
+ */
 public class SCANAttributesDlg extends CaveSWTDialog implements
         ICommonDialogAction {
 
+    /**
+     * Attribute checkboxes.
+     */
     private ArrayList<Button> attributeChkBtns;
 
+    /**
+     * Attribute Update Checkboxes.
+     */
     private IAttributeUpdate attributeUpdateCb;
 
+    /**
+     * SCAN Tables.
+     */
     private ScanTables scanTable;
 
+    /**
+     * Constructor
+     * 
+     * @param parent
+     * @param scanTable
+     * @param attributeUpdateCb
+     */
     public SCANAttributesDlg(Shell parent, ScanTables scanTable,
             IAttributeUpdate attributeUpdateCb) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         setText("Attributes");
 
         this.scanTable = scanTable;
         this.attributeUpdateCb = attributeUpdateCb;
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -63,6 +99,9 @@ public class SCANAttributesDlg extends CaveSWTDialog implements
         return mainLayout;
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org.eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         attributeChkBtns = new ArrayList<Button>();
@@ -70,6 +109,9 @@ public class SCANAttributesDlg extends CaveSWTDialog implements
         createBottomButtons();
     }
 
+    /**
+     * Create Attribute Controls.
+     */
     private void createAttributeControls() {
         SCANConfig scanCfg = SCANConfig.getInstance();
 
@@ -87,6 +129,9 @@ public class SCANAttributesDlg extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * Create Bottom Buttons.
+     */
     private void createBottomButtons() {
         Composite buttonComp = new Composite(shell, SWT.NONE);
         buttonComp.setLayout(new GridLayout(2, false));
@@ -119,6 +164,9 @@ public class SCANAttributesDlg extends CaveSWTDialog implements
         });
     }
 
+    /**
+     * Update Action.
+     */
     private void updateAction() {
         boolean[] selectedCols = new boolean[attributeChkBtns.size()];
         Arrays.fill(selectedCols, true);
@@ -131,9 +179,12 @@ public class SCANAttributesDlg extends CaveSWTDialog implements
         attributeUpdateCb.attributeUpdates(selectedCols);
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.ICommonDialogAction#closeDialog()
+     */
     @Override
     public void closeDialog() {
-        shell.dispose();
+        close();
     }
 
 }

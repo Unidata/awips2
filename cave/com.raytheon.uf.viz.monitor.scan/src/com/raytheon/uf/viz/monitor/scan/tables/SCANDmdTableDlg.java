@@ -77,6 +77,7 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.SCANColorThreshDlg;
 import com.raytheon.uf.viz.monitor.scan.data.ScanDataGenerator;
 import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlarmType;
 import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Main dialog for the SCAN DMD table.
@@ -94,6 +95,7 @@ import com.raytheon.viz.ui.EditorUtil;
  * 06 Jun 2013  #2065      lvenable    Added code to alert the user to use the clear
  *                                     button if they want to close the dialog.
  * Jul 24, 2013  2218      mpduff      Change method signature.
+ * Jul 26, 2013 #2143      skorolev    Changes for non-blocking dialogs.
  * 
  * </pre>
  * 
@@ -517,15 +519,24 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
         alarmBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if ((alarmsDlg != null) && alarmsDlg.isOpen()) {
+                if(alarmsDlg==null || alarmsDlg.isDisposed()){
+                alarmsDlg = new SCANAlarmsDlg(shell, ScanTables.DMD, site);
+                alarmsDlg.setCloseCallback(new ICloseCallback(){
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        if (!alarmBtn.isDisposed()
+                                && mgr.getAlertedAlarms(site, scanTable).isEmpty()) {
+                            turnOffAlarm();
+                        }
+                    }
+                    
+                });
+                alarmsDlg.open();
+                } else {
                     alarmsDlg.close();
                 }
-                alarmsDlg = new SCANAlarmsDlg(shell, ScanTables.DMD, site);
-                alarmsDlg.open();
-                if (!alarmBtn.isDisposed()
-                        && mgr.getAlertedAlarms(site, scanTable).isEmpty()) {
-                    turnOffAlarm();
-                }
+
             }
         });
 
@@ -690,13 +701,21 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
      * Display the Create/Edit trend dialog.
      */
     private void displayCreateEditTrendDialog() {
-        if (editTrendDlg == null) {
+        if (editTrendDlg == null || editTrendDlg.isDisposed()) {
             editTrendDlg = new EditCreateTrendDlg(shell, scanTable);
+            editTrendDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    updateDefineActiveTrendMenu();
+                    unregisterDialog(editTrendDlg);
+                    editTrendDlg = null;
+                }
+            });
             registerDialog(editTrendDlg);
             editTrendDlg.open();
-            updateDefineActiveTrendMenu();
-            unregisterDialog(editTrendDlg);
-            editTrendDlg = null;
+        } else {
+            editTrendDlg.bringToTop();
         }
     }
 
@@ -707,10 +726,19 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
         if (alarmTimeLimitDlg == null) {
             alarmTimeLimitDlg = new SCANAlarmTimeLimitDlg(shell, scanTable,
                     this.site);
+            alarmTimeLimitDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(alarmTimeLimitDlg);
+                    alarmTimeLimitDlg = null;
+                }
+
+            });
             registerDialog(alarmTimeLimitDlg);
             alarmTimeLimitDlg.open();
-            unregisterDialog(alarmTimeLimitDlg);
-            alarmTimeLimitDlg = null;
+        } else {
+            alarmTimeLimitDlg.bringToTop();
         }
     }
 
@@ -720,10 +748,18 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
     private void displayAlarmThresholdDialog() {
         if (alarmThreshDlg == null) {
             alarmThreshDlg = new SCANAlarmThreshDlg(site, shell, scanTable);
+            alarmThreshDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(alarmThreshDlg);
+                    alarmThreshDlg = null;
+                }
+            });
             registerDialog(alarmThreshDlg);
             alarmThreshDlg.open();
-            unregisterDialog(alarmThreshDlg);
-            alarmThreshDlg = null;
+        } else {
+            alarmThreshDlg.bringToTop();
         }
     }
 
@@ -731,12 +767,20 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
      * Display the filter dialog.
      */
     private void displayFilterDialog() {
-        if (displayFilterDlg == null) {
+        if (displayFilterDlg == null || displayFilterDlg.isDisposed()) {
             displayFilterDlg = new DmdDisplayFilterDlg(shell, this);
+            displayFilterDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(displayFilterDlg);
+                    displayFilterDlg = null;
+                }
+            });
             registerDialog(displayFilterDlg);
             displayFilterDlg.open();
-            unregisterDialog(displayFilterDlg);
-            displayFilterDlg = null;
+        } else {
+            displayFilterDlg.bringToTop();
         }
     }
 
@@ -861,13 +905,22 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
      * Display the attributes dialog.
      */
     private void displayAttributesDialog() {
-        if ((attributeDlg == null)
+        if ((attributeDlg == null || attributeDlg.isDisposed())
                 || (attributeDlg.getParent().isDisposed() == true)) {
             attributeDlg = new SCANAttributesDlg(shell, scanTable, this);
+            attributeDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(attributeDlg);
+                    attributeDlg = null;
+                }
+
+            });
             registerDialog(attributeDlg);
             attributeDlg.open();
-            unregisterDialog(attributeDlg);
-            attributeDlg = null;
+        } else {
+            attributeDlg.bringToTop();
         }
     }
 
@@ -875,12 +928,21 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
      * Display the color threshold dialog.
      */
     private void displayColorThresholdDialog() {
-        if (colorThresholdDlg == null) {
+        if (colorThresholdDlg == null || colorThresholdDlg.isDisposed()) {
             colorThresholdDlg = new SCANColorThreshDlg(shell, scanTable, this);
+            colorThresholdDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(colorThresholdDlg);
+                    colorThresholdDlg = null;
+                }
+
+            });
             registerDialog(colorThresholdDlg);
             colorThresholdDlg.open();
-            unregisterDialog(colorThresholdDlg);
-            colorThresholdDlg = null;
+        } else {
+            colorThresholdDlg.bringToTop();
         }
     }
 
@@ -912,7 +974,7 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
     public void shellDisposeDialog() {
         killDialog = true;
 
-        shell.dispose();
+        close();
         elevationLabelColor.dispose();
     }
 
@@ -1040,6 +1102,13 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
         fireRecenter(ident, scanTable, site);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.ITableAction#centerByStormId(
+     * java.lang.String)
+     */
     @Override
     public void centerByStormId(String stormId) {
         // no op
@@ -1241,11 +1310,22 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
         return ScanMonitor.getInstance().getGraphData(type, site, field, ident);
     }
 
+    /**
+     * Alarm Selection
+     * 
+     * @param ident
+     */
     public void alarmSelection(String ident) {
         dmdTableComp.alarmSelection(ident);
 
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#turnOffAlarm()
+     */
     @Override
     public void turnOffAlarm() {
         if (alarmBtn != null && !alarmBtn.isDisposed()) {
@@ -1254,6 +1334,12 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
         mgr.setRing(false);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#turnOnAlarm()
+     */
     @Override
     public void turnOnAlarm() {
         if (alarmBtn != null && !alarmBtn.isDisposed()) {

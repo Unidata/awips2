@@ -113,6 +113,7 @@ import com.vividsolutions.jts.io.WKBReader;
  *                                                       to avoid !TimeStamp.equals(Date) issue
  * Apr 26, 2013     1926   njensen     Optimized getAvailableUris()
  * Jul 24, 2013     2218   mpduff      Improved error handling, optimizations
+ * Jul 30, 2013     2143   skorolev    Changes for non-blocking dialogs.
  * </pre>
  * 
  * @author dhladky
@@ -753,48 +754,54 @@ public class ScanMonitor extends ResourceMonitor implements IScanDialogListener 
             if (cellDialogs.isEmpty()) {
                 getScanConfig().reload(ScanTables.CELL);
             }
-            if (cellDialogs.get(icao) == null) {
+            if (cellDialogs.get(icao) == null||cellDialogs.get(icao).isDisposed()) {
                 SCANCellTableDlg cellDialog = new SCANCellTableDlg(shell, icao,
                         new SCANTableData(ScanTables.CELL));
                 cellDialogs.put(icao, cellDialog);
                 monitor.addMonitorListener(cellDialog);
                 cellDialog.addMonitorControlListener(monitor);
+            } else {
+                cellDialogs.get(icao).bringToTop();
             }
         } else if (table.equals(ScanTables.DMD)) {
             if (dmdDialogs.isEmpty()) {
                 getScanConfig().reload(ScanTables.DMD);
             }
-            if (dmdDialogs.get(icao) == null) {
+            if (dmdDialogs.get(icao) == null||dmdDialogs.get(icao).isDisposed()) {
                 SCANDmdTableDlg dmdDialog = new SCANDmdTableDlg(shell, icao,
                         new SCANTableData(ScanTables.DMD));
                 dmdDialogs.put(icao, dmdDialog);
                 monitor.addMonitorListener(dmdDialog);
                 dmdDialog.addMonitorControlListener(monitor);
+            }else{
+                dmdDialogs.get(icao).bringToTop();
             }
         } else if (table.equals(ScanTables.MESO)) {
             if (mesoDialogs.isEmpty()) {
                 getScanConfig().reload(ScanTables.MESO);
             }
-            if (mesoDialogs.get(icao) == null) {
+            if (mesoDialogs.get(icao) == null || mesoDialogs.get(icao).isDisposed()) {
                 SCANMesoTableDlg mesoDialog = new SCANMesoTableDlg(shell, icao,
                         new SCANTableData(ScanTables.MESO));
                 mesoDialogs.put(icao, mesoDialog);
                 monitor.addMonitorListener(mesoDialog);
                 mesoDialog.addMonitorControlListener(monitor);
             } else {
+                mesoDialogs.get(icao).bringToTop();
                 return;
             }
         } else if (table.equals(ScanTables.TVS)) {
             if (tvsDialogs.isEmpty()) {
                 getScanConfig().reload(ScanTables.TVS);
             }
-            if (tvsDialogs.get(icao) == null) {
+            if (tvsDialogs.get(icao) == null||tvsDialogs.get(icao).isDisposed()) {
                 SCANTvsTableDlg tvsDialog = new SCANTvsTableDlg(shell, icao,
                         new SCANTableData(ScanTables.TVS));
                 tvsDialogs.put(icao, tvsDialog);
                 monitor.addMonitorListener(tvsDialog);
                 tvsDialog.addMonitorControlListener(monitor);
             } else {
+                tvsDialogs.get(icao).bringToTop();
                 return;
             }
         }
