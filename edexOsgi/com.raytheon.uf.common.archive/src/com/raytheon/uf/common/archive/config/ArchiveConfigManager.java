@@ -21,6 +21,8 @@ package com.raytheon.uf.common.archive.config;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.FieldPosition;
 import java.text.MessageFormat;
@@ -46,6 +48,9 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 
+import com.raytheon.uf.common.archive.config.ArchiveConstants.Type;
+import com.raytheon.uf.common.archive.config.select.ArchiveSelect;
+import com.raytheon.uf.common.archive.config.select.CategorySelect;
 import com.raytheon.uf.common.archive.exception.ArchiveException;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -56,6 +61,7 @@ import com.raytheon.uf.common.localization.LocalizationFileInputStream;
 import com.raytheon.uf.common.localization.LocalizationFileOutputStream;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
+import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -78,6 +84,7 @@ import com.raytheon.uf.common.util.FileUtil;
  *                                     Added null check for topLevelDirs in purgeExpiredFromArchive.
  *                                     Changed to use File.delete() instead of Apache FileUtil.deleteQuietly().
  *                                     Added warn logging for failure to delete.
+ * Jul 24, 2013 2221       rferrel     Changes for select configuration.
  * 
  * </pre>
  * 
@@ -95,7 +102,7 @@ public class ArchiveConfigManager {
     public final String ARCHIVE_DIR = "archiver/purger";
 
     /** Localization manager. */
-    private IPathManager pathMgr;
+    protected IPathManager pathMgr;
 
     private final Map<String, LocalizationFile> archiveNameToLocalizationFileMap = new HashMap<String, LocalizationFile>();
 
@@ -171,9 +178,34 @@ public class ArchiveConfigManager {
     }
 
     /**
+     * Obtain the collection of Archives setting the Categories' selections
+     * based on the default retention selections.
+     * 
      * @return the Collection of Archives.
      */
     public Collection<ArchiveConfig> getArchives() {
+        String fileName = ArchiveConstants.selectFileName(Type.Retention, null);
+        SelectConfig selections = loadSelection(fileName);
+        if (selections != null && !selections.isEmpty()) {
+            try {
+                for (ArchiveSelect archiveSelect : selections.getArchiveList()) {
+                    ArchiveConfig archiveConfig = archiveMap.get(archiveSelect
+                            .getName());
+                    for (CategorySelect categorySelect : archiveSelect
+                            .getCategorySelectList()) {
+                        CategoryConfig categoryConfig = archiveConfig
+                                .getCategory(categorySelect.getName());
+                        categoryConfig.setSelectedDisplayNames(categorySelect
+                                .getSelectList());
+                    }
+                }
+            } catch (NullPointerException ex) {
+                statusHandler
+                        .handle(Priority.ERROR,
+                                "Retention selection and Archive configuration no longer in sync: ",
+                                ex);
+            }
+        }
         return archiveMap.values();
     }
 
@@ -637,20 +669,6 @@ public class ArchiveConfigManager {
      * 
      * @param archiveName
      * @param categoryName
-     * @return displayInfoList order by display label
-     */
-    public List<DisplayData> getDisplayData(String archiveName,
-            String categoryName) {
-        return getDisplayData(archiveName, categoryName, false);
-    }
-
-    /**
-     * Get the Display labels matching the pattern for the archive data's
-     * category. Assumes the archive data's root directory is the mount point to
-     * start the search.
-     * 
-     * @param archiveName
-     * @param categoryName
      * @param setSelect
      *            - when true set the displayData selection base on category's
      *            selection list
@@ -788,4 +806,176 @@ public class ArchiveConfigManager {
         return archiveConfig;
     }
 
+    /**
+     * Delete the selection localized site configuration file.
+     * 
+     * @param fileName
+     * @throws LocalizationOpFailedException
+     */
+    public void deleteSelection(String fileName)
+            throws LocalizationOpFailedException {
+        LocalizationContext siteContext = pathMgr.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+        LocalizationFile lFile = pathMgr.getLocalizationFile(siteContext,
+                ARCHIVE_DIR + "/" + fileName);
+        lFile.delete();
+    }
+
+    /**
+     * Load the localized site select configuration file.
+     * 
+     * @param fileName
+     * @return selectConfig
+     */
+    public SelectConfig loadSelection(String fileName) {
+        SelectConfig selections = null;
+        LocalizationContext siteContext = pathMgr.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+        LocalizationFile lFile = pathMgr.getLocalizationFile(siteContext,
+                ARCHIVE_DIR + "/" + fileName);
+        if (lFile.exists()) {
+            FileInputStream stream = null;
+            try {
+                stream = lFile.openInputStream();
+                selections = unmarshallSelectionStream(stream);
+            } catch (LocalizationException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            } catch (IOException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            } finally {
+                if (stream != null) {
+                    try {
+                        stream.close();
+                    } catch (IOException ex) {
+                        // Ignore
+                    }
+                }
+            }
+        }
+        return selections;
+    }
+
+    // TODO possible future methods for supporting importing and exporting
+    // select configurations.
+    //
+    // public SelectConfig importSelections(File selectFile) throws IOException
+    // {
+    // SelectConfig selections = null;
+    // FileInputStream stream = new FileInputStream(selectFile);
+    // selections = unmarshallSelectionStream(stream);
+    // return selections;
+    // }
+    //
+    // public boolean exportSelections(SelectConfig selections, File selectFile)
+    // throws IOException, LocalizationException {
+    // FileOutputStream stream = null;
+    // try {
+    // stream = new FileOutputStream(selectFile);
+    // marshalSelectStream(selections, stream);
+    // } finally {
+    // if (stream != null) {
+    // try {
+    // stream.close();
+    // } catch (IOException ex) {
+    // // Ignore
+    // }
+    // }
+    // }
+    // return false;
+    // }
+
+    /**
+     * Get a list of selection names based on the select configuration files in
+     * the type's directory.
+     * 
+     * @param type
+     * @return selectNames
+     */
+    public String[] getSelectionNames(ArchiveConstants.Type type) {
+        LocalizationFile[] files = pathMgr.listStaticFiles(ARCHIVE_DIR
+                + IPathManager.SEPARATOR + type.selectionDir,
+                new String[] { ArchiveConstants.configFileExt }, false, true);
+        String[] names = new String[files.length];
+        int extLen = ArchiveConstants.configFileExt.length();
+        int i = 0;
+        StringBuilder sb = new StringBuilder();
+        for (LocalizationFile lFile : files) {
+            sb.setLength(0);
+            sb.append(lFile.getName());
+            sb.setLength(sb.length() - extLen);
+            names[i] = sb.substring(sb.lastIndexOf(IPathManager.SEPARATOR) + 1);
+            ++i;
+        }
+        Arrays.sort(names, String.CASE_INSENSITIVE_ORDER);
+        return names;
+    }
+
+    /**
+     * Save the selections configuration in the desired file.
+     * 
+     * @param selections
+     * @param fileName
+     * @throws LocalizationException
+     * @throws IOException
+     */
+    public void saveSelections(SelectConfig selections, String fileName)
+            throws LocalizationException, IOException {
+        LocalizationFileOutputStream stream = null;
+        LocalizationContext siteContext = pathMgr.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+        LocalizationFile lFile = pathMgr.getLocalizationFile(siteContext,
+                ARCHIVE_DIR + IPathManager.SEPARATOR + fileName);
+
+        try {
+            stream = lFile.openOutputStream();
+            marshalSelectStream(selections, stream);
+        } finally {
+            if (stream != null) {
+                try {
+                    stream.closeAndSave();
+                } catch (Exception ex) {
+                    // Ignore
+                }
+            }
+        }
+    }
+
+    /**
+     * load select configuration from the stream.
+     * 
+     * @param stream
+     * @return selectConfig
+     * @throws IOException
+     */
+    private SelectConfig unmarshallSelectionStream(FileInputStream stream)
+            throws IOException {
+        SelectConfig selections = null;
+        try {
+            selections = JAXB.unmarshal(stream, SelectConfig.class);
+        } finally {
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (IOException ex) {
+                    // ignore
+                }
+            }
+        }
+        return selections;
+    }
+
+    /**
+     * Save select configuration to the desired stream.
+     * 
+     * @param selections
+     * @param stream
+     * @throws IOException
+     * @throws LocalizationException
+     */
+    private void marshalSelectStream(SelectConfig selections,
+            FileOutputStream stream) throws IOException, LocalizationException {
+        JAXB.marshal(selections, stream);
+    }
 }
