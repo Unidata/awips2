@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.measure.Measure;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
@@ -93,6 +94,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Nov 30, 2011            mschenke    Initial creation
  * Feb 21, 2012 #30        mschenke    Fixed sampling issue
+ * Aug 2,  2013 #2190      mschenke    Switched interrogate to use Measure objects
  * 
  * </pre>
  * 
@@ -107,9 +109,8 @@ public class VIIRSResource extends
     protected static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(VIIRSResource.class);
 
-    public static final String DATA_KEY = "dataValue";
-
-    public static final String UNIT_KEY = "unit";
+    /** String id to look for satellite-provided data values */
+    public static final String SATELLITE_DATA_INTERROGATE_ID = "satelliteDataValue";
 
     private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 
@@ -501,17 +502,19 @@ public class VIIRSResource extends
     public String inspect(ReferencedCoordinate coord) throws VizException {
         Map<String, Object> interMap = interrogate(coord);
         double value = Double.NaN;
-        Number dataVal = (Number) interMap.get(DATA_KEY);
+        Unit<?> unit = Unit.ONE;
+        Measure<?, ?> dataVal = (Measure<?, ?>) interMap
+                .get(SATELLITE_DATA_INTERROGATE_ID);
         if (dataVal != null) {
-            value = dataVal.doubleValue();
+            value = (Double) dataVal.getValue();
+            unit = dataVal.getUnit();
         }
         if (Double.isNaN(value)) {
             return "NO DATA";
         } else {
             String inspectStr = NUMBER_FORMAT.format(value);
-            Unit<?> unit = (Unit<?>) interMap.get(UNIT_KEY);
             if (unit != null && unit != Unit.ONE) {
-                inspectStr += " " + UnitFormat.getUCUMInstance().format(unit);
+                inspectStr += " " + unit.toString();
             }
             return inspectStr;
         }
@@ -530,7 +533,8 @@ public class VIIRSResource extends
         Map<String, Object> interMap = new HashMap<String, Object>();
         ColorMapParameters params = getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
-        interMap.put(UNIT_KEY, params.getDisplayUnit());
+        double dataValue = Double.NaN;
+        Unit<?> dataUnit = params.getDisplayUnit();
         double noDataValue = params.getNoDataValue();
         Coordinate latLon = null;
         try {
@@ -560,9 +564,15 @@ public class VIIRSResource extends
                     }
                 }
             }
-            interMap.put(DATA_KEY,
-                    params.getDataToDisplayConverter().convert(bestValue));
+
+            if (Double.isNaN(bestValue) == false) {
+                dataValue = params.getDataToDisplayConverter().convert(
+                        bestValue);
+            }
         }
+
+        interMap.put(SATELLITE_DATA_INTERROGATE_ID,
+                Measure.valueOf(dataValue, dataUnit));
         return interMap;
     }
 
