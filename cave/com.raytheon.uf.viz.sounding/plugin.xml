@@ -21,6 +21,8 @@
 <?eclipse version="3.2"?>
 <plugin>
    <extension-point id="com.raytheon.uf.viz.sounding.verticalSoundingAdapter" name="VerticalSoundingAdapter" schema="schema/verticalSoundingAdapter.exsd"/>
+   <extension-point id="com.raytheon.uf.viz.sounding.verticalSoundingProvider" name="VerticalSoundingProvider" schema="schema/verticalSoundingProvider.exsd"/>
+   
    <extension
          point="com.raytheon.uf.viz.sounding.verticalSoundingAdapter">
       <verticalSoundingAdapter
@@ -53,5 +55,17 @@
             class="com.raytheon.uf.common.dataplugin.radar.RadarRecord"
             name="VwpSoundingAdapter">
       </verticalSoundingAdapter>
+   </extension>
+   
+   <extension
+         point="com.raytheon.uf.viz.sounding.verticalSoundingProvider">
+      <verticalSoundingProvider
+            class="com.raytheon.uf.viz.sounding.providers.BufruaSoundingProvider"
+            type="bufrua">
+      </verticalSoundingProvider>
+      <verticalSoundingProvider
+      		class="com.raytheon.uf.viz.sounding.providers.GridSoundingProvider"
+            type="grid">
+      </verticalSoundingProvider>
    </extension>
 </plugin>
