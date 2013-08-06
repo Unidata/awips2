@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.common.dataplugin.cwat;
 
-import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 
 import javax.persistence.Access;
@@ -74,11 +73,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 06/03/09      2037       D. Hladky   Initial release
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 04, 2013  1846       bkowal      Added an index on refTime and forecastTime
  * 04/08/13      1293       bkowal      Removed references to hdffileid.
  * Apr 12, 2013  1857       bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013 1869        bsteffen    Remove dataURI column from
+ * May 07, 2013  1869       bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
+ * Aug 06, 2013  2228       njensen     Use deserialize(byte[])
  * 
  * </pre>
  * 
@@ -92,17 +92,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "cwat",
-		indexes = {
-				@Index(name = "cwat_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "cwat", indexes = { @Index(name = "cwat_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class CWATRecord extends PersistablePluginDataObject
-        implements IPersistable, ISpatialEnabled {
+public class CWATRecord extends PersistablePluginDataObject implements
+        IPersistable, ISpatialEnabled {
 
     private static final long serialVersionUID = 76774564365671L;
 
@@ -476,10 +472,9 @@ public class CWATRecord extends PersistablePluginDataObject
             if (getThreats().size() < 1) {
                 ByteDataRecord byteData = (ByteDataRecord) dataStore.retrieve(
                         getDataURI(), THREATS, Request.ALL);
-                ByteArrayInputStream bais = new ByteArrayInputStream(
-                        byteData.getByteData());
                 Object o = DynamicSerializationManager.getManager(
-                        SerializationType.Thrift).deserialize(bais);
+                        SerializationType.Thrift).deserialize(
+                        byteData.getByteData());
                 setThreats((HashMap<ThreatLocation, ThreatReport>) o);
             }
         } catch (Throwable e) {

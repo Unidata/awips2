@@ -19,9 +19,7 @@
  **/
 package com.raytheon.uf.common.serialization;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -47,6 +45,7 @@ import com.raytheon.uf.common.util.ServiceLoaderUtil;
  * Feb 07, 2013 1543       djohnson     Use ServiceLoader to find how to load jaxbable classes, defaulting to SerializableManager.
  * Mar 21, 2013 1794       djohnson     ServiceLoaderUtil now requires the requesting class.
  * May 01, 2013 1968       djohnson     Prevent deadlock due to SerializableManager threads needing to serialize things.
+ * Aug 06, 2013 2228       njensen      More efficient transformFromThrift(Class, byte[])
  * 
  * </pre>
  * 
@@ -351,20 +350,10 @@ public final class SerializationUtil {
             throws SerializationException {
         DynamicSerializationManager dsm = DynamicSerializationManager
                 .getManager(SerializationType.Thrift);
-        ByteArrayInputStream bais = null;
         try {
-            bais = new ByteArrayInputStream(bytes);
-            return clazz.cast(dsm.deserialize(bais));
+            return clazz.cast(dsm.deserialize(bytes));
         } catch (ClassCastException cce) {
             throw new SerializationException(cce);
-        } finally {
-            if (bais != null) {
-                try {
-                    bais.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
         }
     }
 
