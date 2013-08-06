@@ -39,5 +39,11 @@
 		<constructor-arg ref="AuditableEventTypeDao" />
 		<constructor-arg ref="metadataTxTemplate"/>
 	</bean>
+	
+	<bean id="objectReferenceResolver" class="com.raytheon.uf.edex.registry.ebxml.services.lifecycle.ObjectReferenceResolver">
+		<property name="registryObjectDao" ref="registryObjectDao"/>
+		<property name="dynamicRefDao" ref="dynamicObjectRefDao"/>
+		<property name="queryManager" ref="queryServiceImpl"/>
+	</bean>
 
 </beans>

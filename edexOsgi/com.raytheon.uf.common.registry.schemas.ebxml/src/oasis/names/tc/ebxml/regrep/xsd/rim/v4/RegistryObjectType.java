@@ -46,6 +46,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Index;
 
+import com.raytheon.uf.common.registry.schemas.ebxml.util.annotations.RegistryObjectReference;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -118,7 +119,7 @@ public class RegistryObjectType extends IdentifiableType {
     @XmlElement(name = "VersionInfo")
     @DynamicSerializeElement
     @Embedded
-    protected VersionInfoType versionInfo;
+    protected VersionInfoType versionInfo = new VersionInfoType();
 
     @XmlElement(name = "Classification")
     @DynamicSerializeElement
@@ -149,6 +150,7 @@ public class RegistryObjectType extends IdentifiableType {
     @XmlAttribute
     @DynamicSerializeElement
     @Index(name = "RegistryObjectType_objectType_idx")
+    @RegistryObjectReference
     protected String objectType;
 
     @XmlAttribute
@@ -157,6 +159,7 @@ public class RegistryObjectType extends IdentifiableType {
 
     @XmlAttribute
     @DynamicSerializeElement
+    @RegistryObjectReference
     protected String status;
 
     /**
