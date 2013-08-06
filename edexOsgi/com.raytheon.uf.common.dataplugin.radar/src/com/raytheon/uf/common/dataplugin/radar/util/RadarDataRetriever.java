@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.common.dataplugin.radar.util;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,9 +51,10 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 21, 2011            mschenke     Initial creation
+ * Feb 21, 2011            mschenke    Initial creation
  * Mar 18, 2013 1804       bsteffen    Remove AlphanumericValues from radar
  *                                     HDF5.
+ * Aug 06, 2013 2228       njensen     Use deserialize(byte[])
  * 
  * </pre>
  * 
@@ -97,66 +97,58 @@ public class RadarDataRetriever {
                 } else if (record.getName().equals(
                         RadarStoredData.GRAPHIC_BLOCK_ID)) {
                     ByteDataRecord byteData = (ByteDataRecord) record;
-                    ByteArrayInputStream bais = new ByteArrayInputStream(
-                            byteData.getByteData());
                     Object o = DynamicSerializationManager.getManager(
-                            SerializationType.Thrift).deserialize(bais);
+                            SerializationType.Thrift).deserialize(
+                            byteData.getByteData());
                     radarData.setGraphicBlock((GraphicBlock) o);
                 } else if (record.getName()
                         .equals(RadarStoredData.SYM_BLOCK_ID)) {
                     ByteDataRecord byteData = (ByteDataRecord) record;
-                    ByteArrayInputStream bais = new ByteArrayInputStream(
-                            byteData.getByteData());
                     Object o = DynamicSerializationManager.getManager(
-                            SerializationType.Thrift).deserialize(bais);
+                            SerializationType.Thrift).deserialize(
+                            byteData.getByteData());
                     radarData.setSymbologyBlock((SymbologyBlock) o);
                 } else if (record.getName().equals(RadarStoredData.SYM_DATA_ID)) {
                     ByteDataRecord byteData = (ByteDataRecord) record;
-                    ByteArrayInputStream bais = new ByteArrayInputStream(
-                            byteData.getByteData());
                     Object o = DynamicSerializationManager.getManager(
-                            SerializationType.Thrift).deserialize(bais);
+                            SerializationType.Thrift).deserialize(
+                            byteData.getByteData());
                     radarData
                             .setSymbologyData((HashMap<RadarDataKey, RadarDataPoint>) o);
                 } else if (record.getName().equals(
                         RadarStoredData.PRODUCT_VALS_ID)) {
                     ByteDataRecord byteData = (ByteDataRecord) record;
-                    ByteArrayInputStream bais = new ByteArrayInputStream(
-                            byteData.getByteData());
                     Object o = DynamicSerializationManager.getManager(
-                            SerializationType.Thrift).deserialize(bais);
+                            SerializationType.Thrift).deserialize(
+                            byteData.getByteData());
                     radarData
                             .setProductVals((HashMap<RadarConstants.MapValues, Map<String, Map<RadarConstants.MapValues, String>>>) o);
                 } else if (record.getName().equals(
                         RadarStoredData.RECORD_VALS_ID)) {
                     ByteDataRecord byteData = (ByteDataRecord) record;
-                    ByteArrayInputStream bais = new ByteArrayInputStream(
-                            byteData.getByteData());
                     Object o = DynamicSerializationManager.getManager(
-                            SerializationType.Thrift).deserialize(bais);
+                            SerializationType.Thrift).deserialize(
+                            byteData.getByteData());
                     radarData
                             .setMapRecordVals((HashMap<RadarConstants.MapValues, Map<RadarConstants.MapValues, String>>) o);
                 } else if (record.getName().equals(RadarStoredData.GSM_ID)) {
                     ByteDataRecord byteData = (ByteDataRecord) record;
-                    ByteArrayInputStream bais = new ByteArrayInputStream(
-                            byteData.getByteData());
                     Object o = DynamicSerializationManager.getManager(
-                            SerializationType.Thrift).deserialize(bais);
+                            SerializationType.Thrift).deserialize(
+                            byteData.getByteData());
                     radarData.setGsmMessage((GSMMessage) o);
                 } else if (record.getName()
                         .equals(RadarStoredData.STORM_IDS_ID)) {
                     ByteDataRecord byteData = (ByteDataRecord) record;
-                    ByteArrayInputStream bais = new ByteArrayInputStream(
-                            byteData.getByteData());
                     Object o = DynamicSerializationManager.getManager(
-                            SerializationType.Thrift).deserialize(bais);
+                            SerializationType.Thrift).deserialize(
+                            byteData.getByteData());
                     radarData.setStormIDs((Map<String, RadarDataKey>) o);
                 } else if (record.getName().equals(RadarStoredData.AAP_ID)) {
                     ByteDataRecord byteData = (ByteDataRecord) record;
-                    ByteArrayInputStream bais = new ByteArrayInputStream(
-                            byteData.getByteData());
                     Object o = DynamicSerializationManager.getManager(
-                            SerializationType.Thrift).deserialize(bais);
+                            SerializationType.Thrift).deserialize(
+                            byteData.getByteData());
                     radarData.setAapMessage((AlertAdaptationParameters) o);
                 } else if (record.getName().equals(
                         RadarStoredData.THRESHOLDS_ID)) {
@@ -170,10 +162,9 @@ public class RadarDataRetriever {
                 } else if (record.getName().equals(
                         RadarStoredData.ALERT_MESSAGE_ID)) {
                     ByteDataRecord byteData = (ByteDataRecord) record;
-                    ByteArrayInputStream bais = new ByteArrayInputStream(
-                            byteData.getByteData());
                     Object o = DynamicSerializationManager.getManager(
-                            SerializationType.Thrift).deserialize(bais);
+                            SerializationType.Thrift).deserialize(
+                            byteData.getByteData());
                     radarData.setAlertMessage((AlertMessage) o);
                 } else {
                     size -= record.getSizeInBytes();
