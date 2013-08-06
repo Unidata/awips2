@@ -41,6 +41,7 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.TrendSetConfigMgr;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase.CAVE;
 
 /**
  * 
@@ -52,6 +53,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 3, 2009  #3039      lvenable     Initial creation
+ * 24 Jul 2013  #2143      skorolev     Changes for non-blocking dialog.
  * 
  * </pre>
  * 
@@ -135,12 +137,15 @@ public class EditCreateTrendDlg extends CaveSWTDialog implements
      *            SCAN table identifier.
      */
     public EditCreateTrendDlg(Shell parentShell, ScanTables scanTable) {
-        super(parentShell);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         setText("Edit/Create Trend Sets");
 
         this.scanTable = scanTable;
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -150,6 +155,9 @@ public class EditCreateTrendDlg extends CaveSWTDialog implements
         return mainLayout;
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org.eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         /*
@@ -565,7 +573,7 @@ public class EditCreateTrendDlg extends CaveSWTDialog implements
         scanCfg.getTrendConfigMgr(scanTable).saveTrendSets();
 
         okSelected = true;
-        shell.dispose();
+        close();
     }
 
     /**
@@ -642,7 +650,7 @@ public class EditCreateTrendDlg extends CaveSWTDialog implements
     @Override
     public void closeDialog() {
         handleCancelAction();
-        shell.dispose();
+        close();
     }
 
 }
