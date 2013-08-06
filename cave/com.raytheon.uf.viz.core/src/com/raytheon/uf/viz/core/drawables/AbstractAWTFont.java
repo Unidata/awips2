@@ -45,9 +45,9 @@ public abstract class AbstractAWTFont implements IFont {
 
     protected Font font;
 
-    protected boolean scaleFont;
+    protected boolean scaleFont = true;
 
-    protected boolean smoothing;
+    protected boolean smoothing = true;
 
     protected AbstractAWTFont(String fontName, float fontSize, Style[] styles) {
         this(new Font(fontName, toAwtStyle(styles), (int) fontSize));
