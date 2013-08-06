@@ -139,6 +139,15 @@ public class RegistryReplicationManager {
     private static List<String> objectTypes = new ArrayList<String>();
 
     /**
+     * When a federation sync is necessary, this is the number of threads that
+     * will be used for synchronization. Configurable in the
+     * com.raytheon.uf.edex.registry.ebxml.properties file. Default is 25
+     */
+    private int registrySyncThreads = 25;
+
+    private int maxSyncRetries = 3;
+
+    /**
      * Creates a new RegistryReplicationManager
      * 
      * @param subscriptionProcessingEnabled
@@ -152,13 +161,14 @@ public class RegistryReplicationManager {
     public RegistryReplicationManager(boolean subscriptionProcessingEnabled,
             String notificationServerConfigFileName, RegistryObjectDao dao,
             FederatedRegistryMonitor availabilityMonitor,
-            TransactionTemplate txTemplate) throws JAXBException,
-            SerializationException {
+            TransactionTemplate txTemplate, int registrySyncThreads)
+            throws JAXBException, SerializationException {
         this.subscriptionProcessingEnabled = subscriptionProcessingEnabled;
         this.replicationConfigFileName = notificationServerConfigFileName;
         this.dao = dao;
         this.txTemplate = txTemplate;
         this.federatedRegistryMonitor = availabilityMonitor;
+        this.registrySyncThreads = registrySyncThreads;
         jaxbManager = new JAXBManager(NotificationServers.class,
                 SubscriptionType.class);
         File notificationServerConfigFile = PathManagerFactory.getPathManager()
@@ -180,13 +190,9 @@ public class RegistryReplicationManager {
      * for over 2 days, the registry is synchronized with one of the federation
      * members
      * 
-     * @throws MsgRegistryException
-     *             If errors occur during registry synchronization
-     * @throws EbxmlRegistryException
-     *             If errors occur during registry synchronization
+     * @throws Exception
      */
-    public void checkDownTime() throws MsgRegistryException,
-            EbxmlRegistryException {
+    public void checkDownTime() throws Exception {
         long currentTime = TimeUtil.currentTimeMillis();
         long lastKnownUp = federatedRegistryMonitor.getLastKnownUptime();
         long downTime = currentTime - lastKnownUp;
@@ -199,51 +205,77 @@ public class RegistryReplicationManager {
         // synchronization of the
         // data from the federation
         if (currentTime - lastKnownUp > MAX_DOWN_TIME_DURATION) {
-            statusHandler
-                    .warn("Registry has been down for ~2 days. Initiating federated data synchronization....");
-            List<NotificationHostConfiguration> notificationServers = servers
-                    .getRegistryReplicationServers();
-            if (servers == null
-                    || CollectionUtil.isNullOrEmpty(servers
-                            .getRegistryReplicationServers())) {
-                statusHandler
-                        .warn("No servers configured for replication. Unable to synchronize data with federation!");
-            } else {
-                NotificationHostConfiguration registryToSyncFrom = null;
-                for (NotificationHostConfiguration config : notificationServers) {
-                    statusHandler.info("Checking availability of registry at: "
-                            + config.getRegistryBaseURL());
-                    if (RegistryRESTServices.isRegistryAvailable(config
-                            .getRegistryBaseURL())) {
-                        registryToSyncFrom = config;
-                        break;
-                    }
-
-                    statusHandler.info("Registry at "
-                            + config.getRegistryBaseURL()
-                            + " is not available...");
-                }
-
-                // No available registry was found!
-                if (registryToSyncFrom == null) {
+            int syncAttempt = 1;
+            for (; syncAttempt <= maxSyncRetries; syncAttempt++) {
+                try {
                     statusHandler
-                            .warn("No available registries found! Registry data will not be synchronized with the federation!");
-                } else {
-                    synchronizeRegistryWithFederation(registryToSyncFrom
-                            .getRegistryBaseURL());
+                            .warn("Registry has been down for ~2 days. Initiating federated registry data synchronization attempt #"
+                                    + syncAttempt
+                                    + "/"
+                                    + maxSyncRetries
+                                    + "...");
+                    List<NotificationHostConfiguration> notificationServers = servers
+                            .getRegistryReplicationServers();
+                    if (servers == null
+                            || CollectionUtil.isNullOrEmpty(servers
+                                    .getRegistryReplicationServers())) {
+                        statusHandler
+                                .error("No servers configured for replication. Unable to synchronize registry data with federation!");
+                    } else {
+                        NotificationHostConfiguration registryToSyncFrom = null;
+                        for (NotificationHostConfiguration config : notificationServers) {
+                            statusHandler
+                                    .info("Checking availability of registry at: "
+                                            + config.getRegistryBaseURL());
+                            if (RegistryRESTServices.isRegistryAvailable(config
+                                    .getRegistryBaseURL())) {
+                                registryToSyncFrom = config;
+                                break;
+                            }
+
+                            statusHandler.info("Registry at "
+                                    + config.getRegistryBaseURL()
+                                    + " is not available...");
+                        }
+
+                        // No available registry was found!
+                        if (registryToSyncFrom == null) {
+                            throw new EbxmlRegistryException(
+                                    "No available registries found! Registry data will not be synchronized with the federation!");
+                        } else {
+                            synchronizeRegistryWithFederation(registryToSyncFrom
+                                    .getRegistryBaseURL());
+
+                            statusHandler
+                                    .info("Starting federated uptime monitor...");
+                            scheduler.scheduleAtFixedRate(
+                                    federatedRegistryMonitor, 0, 1,
+                                    TimeUnit.MINUTES);
+                            // Sync was successful, break out of retry loop
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                    if (syncAttempt < maxSyncRetries) {
+                        statusHandler.error(
+                                "Federation registry data synchronization attempt #"
+                                        + syncAttempt + "/" + maxSyncRetries
+                                        + " failed! Retrying...", e);
+                    } else {
+                        statusHandler
+                                .fatal("Federation registry data synchronization has failed",
+                                        e);
+                        throw e;
+                    }
                 }
             }
-
         }
-
-        statusHandler.info("Starting federated uptime monitor...");
-        scheduler.scheduleAtFixedRate(federatedRegistryMonitor, 0, 1,
-                TimeUnit.MINUTES);
     }
 
     private void synchronizeRegistryWithFederation(String remoteRegistryUrl)
             throws MsgRegistryException, EbxmlRegistryException {
-        ExecutorService executor = Executors.newFixedThreadPool(25);
+        ExecutorService executor = Executors
+                .newFixedThreadPool(this.registrySyncThreads);
         for (String objectType : objectTypes) {
             Set<String> localIds = new HashSet<String>();
             Set<String> remoteIds = new HashSet<String>();
@@ -279,23 +311,8 @@ public class RegistryReplicationManager {
              */
             for (String localId : localIds) {
                 if (remoteIds.contains(localId)) {
-                    RegistryObjectType objectToSubmit;
-                    try {
-                        objectToSubmit = RegistryRESTServices
-                                .getRegistryObject(RegistryObjectType.class,
-                                        remoteRegistryUrl,
-                                        localId.replaceAll(":", "%3A")
-                                                .replaceAll("\\/", "%2F"));
-                    } catch (Exception e) {
-                        statusHandler.error("Error getting remote object: "
-                                + localId, e);
-                        continue;
-                    }
-                    objectToSubmit.addSlot(EbxmlObjectUtil.HOME_SLOT_NAME,
-                            remoteRegistryUrl);
-                    RegistrySubmitTask submitTask = new RegistrySubmitTask(
-                            txTemplate, dao, objectToSubmit, remoteRegistryUrl);
-                    executor.submit(submitTask);
+                    executor.submit(new RegistrySubmitTask(txTemplate, dao,
+                            localId, remoteRegistryUrl));
                 } else {
                     RegistryRemoveTask removeTask = new RegistryRemoveTask(
                             txTemplate, dao, localId);
@@ -310,23 +327,8 @@ public class RegistryReplicationManager {
              */
             for (String remoteId : remoteIds) {
                 if (!localIds.contains(remoteId)) {
-                    RegistryObjectType objectToSubmit;
-                    try {
-                        objectToSubmit = RegistryRESTServices
-                                .getRegistryObject(RegistryObjectType.class,
-                                        remoteRegistryUrl,
-                                        remoteId.replaceAll(":", "%3A")
-                                                .replaceAll("\\/", "%2F"));
-                    } catch (Exception e) {
-                        statusHandler.error("Error getting remote object: "
-                                + remoteId, e);
-                        continue;
-                    }
-                    objectToSubmit.addSlot(EbxmlObjectUtil.HOME_SLOT_NAME,
-                            remoteRegistryUrl);
-                    RegistrySubmitTask submitTask = new RegistrySubmitTask(
-                            txTemplate, dao, objectToSubmit, remoteRegistryUrl);
-                    executor.submit(submitTask);
+                    executor.submit(new RegistrySubmitTask(txTemplate, dao,
+                            remoteId, remoteRegistryUrl));
                 }
             }
         }
@@ -605,10 +607,15 @@ public class RegistryReplicationManager {
                      */
                     Runtime.getRuntime().addShutdownHook(new Thread() {
                         public void run() {
+                            statusHandler
+                                    .info("Registry shutting down. Removing subscriptions from: ["
+                                            + remoteRegistryBaseURL + "]");
                             RegistryRESTServices.getRegistryDataAccessService(
                                     remoteRegistryBaseURL)
                                     .removeSubscriptionsForSite(
                                             registry.getOwner());
+                            statusHandler.info("Subscriptions removed from: ["
+                                    + remoteRegistryBaseURL + "]");
                         }
                     });
                     success = true;
