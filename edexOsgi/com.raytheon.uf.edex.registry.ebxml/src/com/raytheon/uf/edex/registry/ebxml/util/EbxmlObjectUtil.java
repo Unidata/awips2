@@ -46,7 +46,6 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ValueType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
 
 import org.apache.cxf.headers.Header;
 import org.apache.cxf.helpers.CastUtils;
@@ -67,6 +66,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Jan 18, 2012 184        bphillip     Initial creation
  * 3/18/2013    1082       bphillip     Removed utility methods for VersionInfoType
  * 4/9/2013     1802       bphillip     Removed unused methods and addded a few new ones
+ * 8/1/2013     1693       bphillip     Removed increment version method
  * 
  * </pre>
  * 
@@ -275,16 +275,6 @@ public class EbxmlObjectUtil {
             }
         }
         return classes;
-    }
-
-    public static VersionInfoType incrementVersion(
-            VersionInfoType existingVersion) {
-        String newVersion = String.valueOf(Integer.parseInt(existingVersion
-                .getVersionName()) + 1);
-        VersionInfoType versionObj = new VersionInfoType();
-        versionObj.setVersionName(newVersion);
-        versionObj.setUserVersionName(existingVersion.getUserVersionName());
-        return versionObj;
     }
 
     public static List<String> getIdsFromObjectRefListType(
