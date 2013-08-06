@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.common.dataplugin.preciprate;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.util.Map;
 
@@ -76,11 +75,12 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 01/25/10      3796       D. Hladky   Initial release
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 04, 2013  1846       bkowal      Added an index on refTime and forecastTime
  * 04/08/13      1293       bkowal      Removed references to hdffileid.
  * Apr 12, 2013  1857       bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013 1869        bsteffen    Remove dataURI column from
+ * May 07, 2013  1869       bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
+ * Aug 06, 2013  2228       njensen     Use deserialize(byte[])
  * 
  * </pre>
  * 
@@ -94,17 +94,13 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "preciprate",
-		indexes = {
-				@Index(name = "preciprate_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "preciprate", indexes = { @Index(name = "preciprate_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class PrecipRateRecord extends PersistablePluginDataObject
-        implements IMonitorProcessing {
+public class PrecipRateRecord extends PersistablePluginDataObject implements
+        IMonitorProcessing {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PrecipRateRecord.class);
 
@@ -342,10 +338,9 @@ public class PrecipRateRecord extends PersistablePluginDataObject
                 } else if (dataRec[i].getName().equals("DHRMap")) {
                     try {
                         ByteDataRecord byteData = (ByteDataRecord) dataRec[i];
-                        ByteArrayInputStream bais = new ByteArrayInputStream(
-                                byteData.getByteData());
                         Object o = DynamicSerializationManager.getManager(
-                                SerializationType.Thrift).deserialize(bais);
+                                SerializationType.Thrift).deserialize(
+                                byteData.getByteData());
                         setDhrMap((Map<DHRValues, Double>) o);
                     } catch (SerializationException e) {
                         e.printStackTrace();
