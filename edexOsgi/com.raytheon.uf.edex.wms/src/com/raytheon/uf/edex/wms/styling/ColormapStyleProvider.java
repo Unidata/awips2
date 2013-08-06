@@ -416,10 +416,10 @@ public class ColormapStyleProvider implements CoverageStyleProvider {
     protected static List<String> getCmapPaths(LocalizationLevel level,
             String folderName) {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext edexStaticBase = pathMgr.getContext(
-                LocalizationContext.LocalizationType.EDEX_STATIC, level);
+        LocalizationContext commonStaticBase = pathMgr.getContext(
+                LocalizationContext.LocalizationType.COMMON_STATIC, level);
 
-        File baseColormapDir = pathMgr.getFile(edexStaticBase, "colormaps");
+        File baseColormapDir = pathMgr.getFile(commonStaticBase, "colormaps");
 
         List<String> rval = new ArrayList<String>();
         File target = new File(baseColormapDir, folderName);
