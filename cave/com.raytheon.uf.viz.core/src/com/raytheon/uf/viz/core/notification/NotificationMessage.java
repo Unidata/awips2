@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.core.notification;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -44,6 +43,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Sep 2, 2008  1448       chammack     Initial creation
  * Oct 4, 2010  7193       cjeanbap     Added a new method, isNotExpired().
  * Feb 1, 2011  7193       cjeanbap     Added a new method, getPublishedTime().
+ * Aug 6, 2013  2228       njensen      Use deserialize(byte[])
  * </pre>
  * 
  * @author chammack
@@ -98,12 +98,10 @@ public class NotificationMessage {
                             throw new NotificationException(
                                     "Message payload terminated early.  Expected: "
                                             + length + ".  Got: " + readLength);
-                        ByteArrayInputStream bais = new ByteArrayInputStream(
-                                data);
 
                         this.unmarshalledObject = DynamicSerializationManager
                                 .getManager(SerializationType.Thrift)
-                                .deserialize(bais);
+                                .deserialize(data);
                     } else if (this.jmsMessage instanceof TextMessage) {
                         TextMessage textMessage = (TextMessage) this.jmsMessage;
                         this.unmarshalledObject = SerializationUtil
@@ -169,7 +167,7 @@ public class NotificationMessage {
                     "Error retrieving source information", e);
         }
     }
-    
+
     /**
      * Returns true, if the message has not expired set by the time-to-live
      * value on the Message object; otherwise false.
@@ -180,17 +178,18 @@ public class NotificationMessage {
     public boolean isNotExpired() throws NotificationException {
         try {
             long currentTime = System.currentTimeMillis();
-            return (currentTime < this.jmsMessage.getJMSExpiration() ? true : false);
+            return (currentTime < this.jmsMessage.getJMSExpiration() ? true
+                    : false);
         } catch (JMSException e) {
             throw new NotificationException(
                     "Error retrieving source information", e);
         }
     }
-    
+
     /**
-     * Returns the time as a long when the message was handled off to the provider to 
-     * be sent.
-     *  
+     * Returns the time as a long when the message was handled off to the
+     * provider to be sent.
+     * 
      * @return long, the time as in milliseconds.
      * @throws NotificationException
      */
