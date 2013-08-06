@@ -40,6 +40,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * ------------ ---------- ----------- --------------------------
  * Jun 13, 2013            rferrel     Initial creation
  * Jul 24, 2013 #2220      rferrel     Change to get all data sizes only one time.
+ * Aug 02, 2013 #2224      rferrel     Changes for new configuration files.
  * Aug 06, 2013 #2222      rferrel     Changes to display all selected data.
  * 
  * </pre>
