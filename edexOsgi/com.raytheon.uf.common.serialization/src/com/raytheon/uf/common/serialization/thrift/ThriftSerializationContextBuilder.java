@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.thrift.transport.TIOStreamTransport;
+import org.apache.thrift.transport.TMemoryInputTransport;
 import org.apache.thrift.transport.TTransport;
 
 import com.raytheon.uf.common.serialization.DynamicSerializationManager;
@@ -39,6 +40,7 @@ import com.raytheon.uf.common.serialization.ISerializationContextBuilder;
  * ------------	----------	-----------	--------------------------
  * Aug 12, 2008				chammack	Initial creation
  * Jul 23, 2013  2215       njensen     Updated for thrift 0.9.0
+ * Aug 06, 2013    2228     njensen     Added buildDeserializationContext(byte[], dsm)
  * 
  * </pre>
  * 
@@ -77,6 +79,17 @@ public class ThriftSerializationContextBuilder implements
             DynamicSerializationManager manager) {
 
         TTransport transport = new TIOStreamTransport(data);
+        SelfDescribingBinaryProtocol proto = new SelfDescribingBinaryProtocol(
+                transport);
+
+        return new ThriftSerializationContext(proto, manager);
+    }
+
+    @Override
+    public IDeserializationContext buildDeserializationContext(byte[] data,
+            DynamicSerializationManager manager) {
+        TTransport transport = new TMemoryInputTransport(data);
+
         SelfDescribingBinaryProtocol proto = new SelfDescribingBinaryProtocol(
                 transport);
 
