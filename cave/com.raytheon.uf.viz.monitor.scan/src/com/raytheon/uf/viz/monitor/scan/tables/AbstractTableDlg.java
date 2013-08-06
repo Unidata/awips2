@@ -29,8 +29,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseTrackAdapter;
@@ -40,8 +38,8 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
@@ -65,6 +63,8 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.ICommonDialogAction;
 import com.raytheon.uf.viz.monitor.scan.commondialogs.IRequestTrendGraphData;
 import com.raytheon.uf.viz.monitor.scan.commondialogs.LoadSaveConfigDlg;
 import com.raytheon.uf.viz.monitor.scan.commondialogs.LoadSaveConfigDlg.DialogType;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Abstract dialog class used for the CALL, DND, MESO, and TVS table dialogs.
@@ -79,23 +79,19 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.LoadSaveConfigDlg.DialogTy
  * 06 Jun 2013  #2065      lvenable    Added convenience method to alert the user to use the clear
  *                                     button if they want to close the dialog.
  * Jul 24, 2013 #2218      mpduff      Changed method signature.
+ * Jul 26, 2013 #2143      skorolev    Changes for non-blocking dialog.
  * </pre>
  * 
  * @author lvenable
  * @version 1.0
  */
-public abstract class AbstractTableDlg extends Dialog implements IMonitor,
-        IMonitorListener, IMonitorControlListener, ITableAction,
+public abstract class AbstractTableDlg extends CaveSWTDialog implements
+        IMonitor, IMonitorListener, IMonitorControlListener, ITableAction,
         IRequestTrendGraphData {
     /**
      * The display object.
      */
     protected Display display;
-
-    /**
-     * Shell object.
-     */
-    protected Shell shell;
 
     /**
      * Array listening monitors
@@ -144,6 +140,10 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
 
     protected SCANAlarmAlertManager mgr = null;
 
+    private LoadSaveConfigDlg loadDlg = null;
+
+    private LoadSaveConfigDlg saveDlg = null;
+
     /**
      * Abstract constructor.
      * 
@@ -151,36 +151,47 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
      *            Parent shell.
      */
     public AbstractTableDlg(Shell parentShell) {
-        super(parentShell);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
 
         scanCfg = SCANConfig.getInstance();
     }
 
-    /**
-     * Open the dialog.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
      */
-    protected void open() {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-
-        /*
-         * The shell is being created off of the display
-         */
-        shell = new Shell(display, SWT.DIALOG_TRIM | SWT.RESIZE);
-        parent.addDisposeListener(new DisposeListener() {
-            @Override
-            public void widgetDisposed(DisposeEvent e) {
-                shell.dispose();
-            }
-        });
+    @Override
+    protected Layout constructShellLayout() {
 
         GridLayout mainLayout = new GridLayout(1, false);
         mainLayout.marginHeight = 0;
         mainLayout.marginWidth = 2;
         mainLayout.verticalSpacing = 2;
-        shell.setLayout(mainLayout);
-        shell.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+        return (mainLayout);
+    }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayoutData()
+     */
+    @Override
+    protected Object constructShellLayoutData() {
+        return new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
+    @Override
+    protected void initializeComponents(Shell parentShell) {
+        display = shell.getDisplay();
         initData();
 
         setShellText();
@@ -188,9 +199,6 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
         setTableType();
         initComponents();
         shellDisposeAction();
-
-        shell.pack();
-        shell.setVisible(true);
     }
 
     /**
@@ -298,21 +306,26 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
             return;
         }
 
-        LoadSaveConfigDlg loadDlg = new LoadSaveConfigDlg(shell,
-                DialogType.OPEN, scanTable);
-        LocalizationFile fileName = (LocalizationFile) loadDlg.open();
-
-        if (fileName == null) {
-            System.out.println("FileName is null...");
-            return;
+        if (loadDlg == null || loadDlg.isDisposed()) {
+            loadDlg = new LoadSaveConfigDlg(shell, DialogType.OPEN, scanTable);
+            loadDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile fileName = (LocalizationFile) returnValue;
+                        scanCfg.loadNewConfigFileName(scanTable, fileName
+                                .getFile().getName());
+                        updateAfterConfigLoad();
+                        updateFileButton();
+                    } else {
+                        return;
+                    }
+                }
+            });
+            loadDlg.open();
+        } else {
+            loadDlg.bringToTop();
         }
-
-        scanCfg.loadNewConfigFileName(scanTable, fileName.getFile().getName());
-
-        System.out.println(fileName.getFile().getAbsolutePath());
-
-        updateAfterConfigLoad();
-        updateFileButton();
     }
 
     /**
@@ -359,34 +372,41 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
          * 
          * do not need to update the display...
          */
-        String defCfgName = scanCfg.getDefaultConfigName(scanTable);
+        if (saveDlg == null || saveDlg.isDisposed()) {
+            saveDlg = new LoadSaveConfigDlg(shell, DialogType.SAVE_AS,
+                    scanTable);
+            saveDlg.setCloseCallback(new ICloseCallback() {
 
-        LoadSaveConfigDlg loadDlg = new LoadSaveConfigDlg(shell,
-                DialogType.SAVE_AS, scanTable);
-        LocalizationFile fileName = (LocalizationFile) loadDlg.open();
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        String defCfgName = scanCfg
+                                .getDefaultConfigName(scanTable);
+                        LocalizationFile fileName = (LocalizationFile) returnValue;
+                        if (defCfgName.compareTo(fileName.getFile().getName()) == 0) {
+                            MessageBox mb = new MessageBox(shell,
+                                    SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
+                            mb.setText("Overwrite");
+                            mb.setMessage("The Save As name is the same as the default configuration name.  Saving "
+                                    + "will overwrite the default configuration.\n"
+                                    + "Do you wish to continue?");
+                            int result = mb.open();
 
-        if (fileName == null) {
-            System.out.println("FileName is null...");
-            return;
+                            // If the user selected Cancel then return.
+                            if (result == SWT.CANCEL) {
+                                return;
+                            }
+                        }
+                        scanCfg.saveConfigurationFileAs(scanTable, fileName
+                                .getFile().getName());
+                    }
+                    updateFileButton();
+                }
+            });
+            saveDlg.open();
+        } else {
+            saveDlg.bringToTop();
         }
-
-        if (defCfgName.compareTo(fileName.getFile().getName()) == 0) {
-            MessageBox mb = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK
-                    | SWT.CANCEL);
-            mb.setText("Overwrite");
-            mb.setMessage("The Save As name is the same as the default configuration name.  Saving "
-                    + "will overwrite the default configuration.\n"
-                    + "Do you wish to continue?");
-            int result = mb.open();
-
-            // If the user selected Cancel then return.
-            if (result == SWT.CANCEL) {
-                return;
-            }
-        }
-
-        scanCfg.saveConfigurationFileAs(scanTable, fileName.getFile().getName());
-        updateFileButton();
     }
 
     protected void resetButtonForegroundColor(Button btn) {
