@@ -54,6 +54,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Aug 20, 2008				dglazesk    JiBX to JaXB
  * Aug 20, 2008				dglazesk    Updated for new ColorMap interface
  * Jun 10, 2013 2075        njensen     Added listColorMapFiles(subdirectory)
+ * Aug 06, 2013 2210        njensen     Moved colormaps to common_static
  * 
  * </pre>
  * 
@@ -146,7 +147,7 @@ public class ColorMapLoader {
                     for (LocalizationLevel level : LocalizationLevel.values()) {
                         if (level.name().equals(split[0])) {
                             LocalizationContext context = new LocalizationContext(
-                                    LocalizationType.CAVE_STATIC, level,
+                                    LocalizationType.COMMON_STATIC, level,
                                     split[1]);
                             f = PathManagerFactory.getPathManager()
                                     .getLocalizationFile(
@@ -188,7 +189,7 @@ public class ColorMapLoader {
         Set<LocalizationContext> searchContexts = new HashSet<LocalizationContext>();
 
         searchContexts.addAll(Arrays.asList(pm
-                .getLocalSearchHierarchy(LocalizationType.CAVE_STATIC)));
+                .getLocalSearchHierarchy(LocalizationType.COMMON_STATIC)));
 
         // Use of LocalizationLevels.values() in this case should be okay since
         // we are requesting all possible context names for the level, doesn't
@@ -199,7 +200,7 @@ public class ColorMapLoader {
                 String[] available = pm.getContextList(level);
                 for (String s : available) {
                     LocalizationContext ctx = pm.getContext(
-                            LocalizationType.CAVE_STATIC, level);
+                            LocalizationType.COMMON_STATIC, level);
                     ctx.setContextName(s);
                     searchContexts.add(ctx);
                 }
