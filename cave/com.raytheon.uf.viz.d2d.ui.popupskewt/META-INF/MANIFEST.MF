@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: D2D Popup SkewT
+Bundle-SymbolicName: com.raytheon.uf.viz.d2d.ui.popupskewt;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: com.raytheon.uf.viz.d2d.ui.popupskewt.Activator
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.uf.viz.core;bundle-version="1.12.1174",
+ com.raytheon.viz.ui;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.cloudheight;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.ui.popupskewt;bundle-version="1.0.0",
+ com.raytheon.viz.satellite;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.npp.viirs;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Import-Package: com.raytheon.viz.core
