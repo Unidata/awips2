@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.common.dataplugin.scan;
 
-import java.io.ByteArrayInputStream;
 import java.util.Date;
 import java.util.Set;
 
@@ -68,14 +67,15 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 03/17/10     2521     D. Hladky   Initial release
- * 02/01/13     1649      D. Hladky  better logging,
+ * 03/17/10     2521        D. Hladky   Initial release
+ * 02/01/13     1649        D. Hladky   better logging,
  * Feb 28, 2013 1731        bsteffen    Optimize construction of scan resource.
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 8, 2013  1293        bkowal      Removed references to hdffileid.
+ * Apr 04, 2013 1846        bkowal      Added an index on refTime and forecastTime
+ * Apr 08, 2013 1293        bkowal      Removed references to hdffileid.
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
+ * Aug 06, 2013 2228        njensen     Use deserialize(byte[])
  * 
  * </pre>
  * 
@@ -90,12 +90,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "scan",
-		indexes = {
-				@Index(name = "scan_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "scan", indexes = { @Index(name = "scan_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -105,10 +101,10 @@ public class ScanRecord extends PersistablePluginDataObject {
      * 
      */
     private static final long serialVersionUID = 5983810116816447875L;
-    
+
     private static final IUFStatusHandler statusHandler = UFStatus
-    .getHandler(ScanRecord.class);
-   
+            .getHandler(ScanRecord.class);
+
     @Column(length = 7)
     @DataURI(position = 1)
     @DynamicSerializeElement
@@ -297,10 +293,8 @@ public class ScanRecord extends PersistablePluginDataObject {
      */
     public void setTableData(ByteDataRecord byteData)
             throws SerializationException {
-        ByteArrayInputStream bais = new ByteArrayInputStream(
-                byteData.getByteData());
         Object o = DynamicSerializationManager.getManager(
-                SerializationType.Thrift).deserialize(bais);
+                SerializationType.Thrift).deserialize(byteData.getByteData());
         setTableData((ScanTableData<?>) o);
     }
 
@@ -316,7 +310,8 @@ public class ScanRecord extends PersistablePluginDataObject {
                     getDataURI(), getType(), Request.ALL);
             setTableData(byteData);
         } catch (Throwable e) {
-            statusHandler.handle(Priority.ERROR, "Couldn't load Table data!" + getDataURI());
+            statusHandler.handle(Priority.ERROR, "Couldn't load Table data!"
+                    + getDataURI());
         }
     }
 
@@ -329,13 +324,13 @@ public class ScanRecord extends PersistablePluginDataObject {
         try {
             ByteDataRecord byteData = (ByteDataRecord) dataStore.retrieve(
                     getDataURI(), getType() + "/sounding", Request.ALL);
-            ByteArrayInputStream bais = new ByteArrayInputStream(
-                    byteData.getByteData());
             Object o = DynamicSerializationManager.getManager(
-                    SerializationType.Thrift).deserialize(bais);
+                    SerializationType.Thrift).deserialize(
+                    byteData.getByteData());
             setSoundingData((SoundingData) o);
         } catch (Throwable e) {
-            statusHandler.handle(Priority.ERROR, "Couldn't load Sounding data!" + getDataURI());
+            statusHandler.handle(Priority.ERROR, "Couldn't load Sounding data!"
+                    + getDataURI());
         }
     }
 
@@ -348,13 +343,13 @@ public class ScanRecord extends PersistablePluginDataObject {
         try {
             ByteDataRecord byteData = (ByteDataRecord) dataStore.retrieve(
                     getDataURI(), getType() + "/model", Request.ALL);
-            ByteArrayInputStream bais = new ByteArrayInputStream(
-                    byteData.getByteData());
             Object o = DynamicSerializationManager.getManager(
-                    SerializationType.Thrift).deserialize(bais);
+                    SerializationType.Thrift).deserialize(
+                    byteData.getByteData());
             setModelData((ModelData) o);
         } catch (Throwable e) {
-            statusHandler.handle(Priority.ERROR, "Couldn't load Model data!" + getDataURI());
+            statusHandler.handle(Priority.ERROR, "Couldn't load Model data!"
+                    + getDataURI());
         }
     }
 

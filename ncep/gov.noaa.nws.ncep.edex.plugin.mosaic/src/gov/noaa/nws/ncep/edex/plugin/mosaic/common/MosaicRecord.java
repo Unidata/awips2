@@ -1,4 +1,3 @@
-
 package gov.noaa.nws.ncep.edex.plugin.mosaic.common;
 
 import gov.noaa.nws.ncep.edex.plugin.mosaic.util.MosaicConstants;
@@ -8,7 +7,6 @@ import gov.noaa.nws.ncep.edex.plugin.mosaic.util.level3.SymbologyBlock;
 import gov.noaa.nws.ncep.edex.plugin.mosaic.util.level3.SymbologyPacket;
 import gov.noaa.nws.ncep.edex.plugin.mosaic.util.level3.SymbologyPoint;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -67,10 +65,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 										Extracted prod name from mosaicInfo.txt
  * 6/2012       825             G. Hull     rm prodName from URI. Use prodCode where needed.
  * 09/2012						B. Hebbard  Merge out RTS changes from OB12.9.1
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 4, 2013  1846            bkowal      Added an index on refTime and forecastTime
  * Apr 12, 2013 1857            bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869            bsteffen    Remove dataURI column from
  *                                          PluginDataObject.
+ * Aug 06, 2013 2228            njensen     Use deserialize(byte[])
  * 
  * </pre>
  * 
@@ -80,7 +79,6 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "mosaicseq")
 @Table(name = "mosaic", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
@@ -88,12 +86,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "mosaic",
-		indexes = {
-				@Index(name = "mosaic_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "mosaic", indexes = { @Index(name = "mosaic_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
@@ -110,7 +104,7 @@ public class MosaicRecord extends PersistablePluginDataObject implements
     private Integer productCode;
 
     @Column
-    @DataURI(position=2)
+    @DataURI(position = 2)
     @DynamicSerializeElement
     @XmlElement(nillable = false)
     private Integer resolution;
@@ -272,10 +266,9 @@ public class MosaicRecord extends PersistablePluginDataObject implements
                 // getDataURI(), "Symbology");
                 ByteDataRecord byteData = (ByteDataRecord) dataStore.retrieve(
                         getDataURI(), "Symbology", Request.ALL);
-                ByteArrayInputStream bais = new ByteArrayInputStream(
-                        byteData.getByteData());
                 Object o = DynamicSerializationManager.getManager(
-                        SerializationType.Thrift).deserialize(bais);
+                        SerializationType.Thrift).deserialize(
+                        byteData.getByteData());
                 setSymbologyBlock((SymbologyBlock) o);
             } catch (Throwable e) {
                 setSymbologyBlock(null);
@@ -284,10 +277,9 @@ public class MosaicRecord extends PersistablePluginDataObject implements
             try {
                 ByteDataRecord byteData = (ByteDataRecord) dataStore.retrieve(
                         getDataURI(), "ProductVals", Request.ALL);
-                ByteArrayInputStream bais = new ByteArrayInputStream(
-                        byteData.getByteData());
                 Object o = DynamicSerializationManager.getManager(
-                        SerializationType.Thrift).deserialize(bais);
+                        SerializationType.Thrift).deserialize(
+                        byteData.getByteData());
                 setProductVals((HashMap<MosaicConstants.MapValues, Map<String, Map<MosaicConstants.MapValues, String>>>) o);
             } catch (Throwable e) {
                 setProductVals(null);
