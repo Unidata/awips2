@@ -2,6 +2,10 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
+	<bean id="dynamicObjectRefDao" class="com.raytheon.uf.edex.registry.ebxml.dao.DynamicObjectRefDao">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+	</bean>
+
 	<bean id="slotTypeDao" class="com.raytheon.uf.edex.registry.ebxml.dao.SlotTypeDao">
 		<property name="sessionFactory" ref="metadataSessionFactory" />
 	</bean>
@@ -9,6 +13,7 @@
 	<bean id="registryObjectDao"
 		class="com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao">
 		<property name="sessionFactory" ref="metadataSessionFactory" />
+		<property name="slotDao" ref="slotTypeDao"/>
 	</bean>
 
 	<bean id="registryDao" class="com.raytheon.uf.edex.registry.ebxml.dao.RegistryDao">

@@ -24,26 +24,16 @@ import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ActionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AuditableEventType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefListType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
-import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.constants.ActionTypes;
-import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
-import com.raytheon.uf.common.registry.constants.StatusTypes;
-import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
@@ -62,6 +52,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Apr 17, 2013 1914       djohnson    Use strategy for subscription processing.
  * May 02, 2013 1910       djohnson    Broke out registry subscription notification to a service class.
  * 7/29/2013    2191       bphillip    Changed method to get expired events
+ * 8/1/2013     1693       bphillip    Moved creation of auditable events to the auditable event service class
  * 
  * </pre>
  * 
@@ -200,98 +191,6 @@ public class AuditableEventTypeDao extends
     public BigInteger getSendTime(AuditableEventType auditableEvent,
             String subscriptionId, String deliveryAddress) {
         return auditableEvent.getSlotValue(subscriptionId + deliveryAddress);
-    }
-
-    /**
-     * Creates an auditable event from a registry request and object references
-     * 
-     * @param request
-     *            The request that generated the events
-     * @param actionMap
-     *            The actions that occurred
-     * @param currentTime
-     *            The time the event occurred @ * If errors occur while creating
-     *            the event
-     * @throws EbxmlRegistryException
-     */
-    public void createAuditableEventsFromRefs(RegistryRequestType request,
-            Map<String, List<ObjectRefType>> actionMap, long currentTime)
-            throws EbxmlRegistryException {
-        for (String actionType : actionMap.keySet()) {
-            for (ObjectRefType obj : actionMap.get(actionType)) {
-                AuditableEventType event = createEvent(request, currentTime);
-                ActionType action = new ActionType();
-                action.setEventType(actionType);
-                ObjectRefListType refList = new ObjectRefListType();
-                refList.getObjectRef().add(obj);
-                action.setAffectedObjectRefs(refList);
-                event.getAction().add(action);
-                create(event);
-            }
-        }
-    }
-
-    /**
-     * Creates an auditable event from a registry request and registry objects
-     * 
-     * @param request
-     *            The request that generated the events
-     * @param actionMap
-     *            The actions that occurred
-     * @param currentTime
-     *            The time the event occurred @ * If errors occur while creating
-     *            the event
-     * @throws EbxmlRegistryException
-     */
-    public void createAuditableEventsFromObjects(RegistryRequestType request,
-            Map<String, List<RegistryObjectType>> actionMap, long currentTime)
-            throws EbxmlRegistryException {
-        for (String actionType : actionMap.keySet()) {
-            for (RegistryObjectType obj : actionMap.get(actionType)) {
-                AuditableEventType event = createEvent(request, currentTime);
-                ActionType action = new ActionType();
-                action.setEventType(actionType);
-                RegistryObjectListType regObjList = new RegistryObjectListType();
-                regObjList.getRegistryObject().add(obj);
-                action.setAffectedObjects(regObjList);
-                event.getAction().add(action);
-                create(event);
-            }
-        }
-    }
-
-    /**
-     * Creates and Auditable event from a request
-     * 
-     * @param request
-     *            The request that generated the event
-     * @param currentTime
-     *            The time of the event
-     * @return The AuditableEventType object
-     * @throws EbxmlRegistryException
-     *             @ * If errors occur while creating the event
-     */
-    private AuditableEventType createEvent(RegistryRequestType request,
-            long currentTime) throws EbxmlRegistryException {
-        AuditableEventType event = EbxmlObjectUtil.rimObjectFactory
-                .createAuditableEventType();
-        event.setId(EbxmlObjectUtil.getUUID());
-        event.setLid(EbxmlObjectUtil.getUUID());
-        event.setOwner(RegistryUtil.DEFAULT_OWNER);
-        event.setObjectType(RegistryObjectTypes.AUDITABLE_EVENT);
-        event.setRequestId(request.getId());
-        event.setTimestamp(EbxmlObjectUtil
-                .getTimeAsXMLGregorianCalendar(currentTime));
-        event.setUser("Client");
-        event.setStatus(StatusTypes.APPROVED);
-        event.setVersionInfo(new VersionInfoType());
-        String notificationFrom = request
-                .getSlotValue(EbxmlObjectUtil.HOME_SLOT_NAME);
-        if (notificationFrom != null) {
-            event.addSlot(EbxmlObjectUtil.HOME_SLOT_NAME, notificationFrom);
-        }
-        return event;
-
     }
 
     @Override

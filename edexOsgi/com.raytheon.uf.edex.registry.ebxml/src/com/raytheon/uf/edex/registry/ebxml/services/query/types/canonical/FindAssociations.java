@@ -75,6 +75,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.types.CanonicalEbxmlQu
  * 2/13/2012    #184       bphillip     Initial creation
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring dao injection
  * 4/9/2013     1802       bphillip     Changed abstract method signature, modified return processing, and changed static variables
+ * 8/1/2013     1693       bphilip     Fixed minor typo
  * 
  * </pre>
  * 
@@ -148,7 +149,7 @@ public class FindAssociations extends CanonicalEbxmlQuery {
         if (sourceObjectType != null) {
             List<String> ids = registryObjectDao
                     .executeHQLQuery("select id from RegistryObjectType obj where obj.objectType = '"
-                            + targetObjectType + "'");
+                            + sourceObjectType + "'");
             if (ids.isEmpty()) {
                 return;
             } else {

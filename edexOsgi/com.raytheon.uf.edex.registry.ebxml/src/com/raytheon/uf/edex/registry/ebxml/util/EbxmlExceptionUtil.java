@@ -26,6 +26,8 @@ import java.lang.reflect.InvocationTargetException;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.InvalidRequestExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.ObjectExistsExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnresolvedReferenceExceptionType;
 
@@ -46,6 +48,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * ------------ ---------- ----------- --------------------------
  * Jan 19, 2012 184        bphillip     Initial creation
  * Apr 23, 2013 1910       djohnson     Add createUnresolvedReferenceException().
+ * 8/1/2013     1693       bphillip     Added methods to create exceptions
  * 
  * </pre>
  * 
@@ -293,12 +296,25 @@ public class EbxmlExceptionUtil {
             Class<? extends RegistryObjectType> referencedObjectType,
             String id, IUFStatusHandler statusHandler) {
         final String ofType = (referencedObjectType == null) ? "" : "to type ["
-                                       + referencedObjectType.getCanonicalName()
-                                       + "] ";
+                + referencedObjectType.getCanonicalName() + "] ";
         final String message = "Registry object reference " + ofType
                 + "with id [" + id + "] was unresolved";
         return createRegistryException(UnresolvedReferenceExceptionType.class,
                 "", "Unresolved reference found", message, ErrorSeverity.ERROR,
                 statusHandler);
+    }
+
+    public static MsgRegistryException createInvalidRequestException(
+            String message) {
+        InvalidRequestExceptionType invalidRequestException = new InvalidRequestExceptionType();
+        invalidRequestException.setMessage(message);
+        return new MsgRegistryException(message, invalidRequestException);
+    }
+
+    public static MsgRegistryException createObjectExistsException(
+            String message) {
+        ObjectExistsExceptionType objectExistsException = new ObjectExistsExceptionType();
+        objectExistsException.setMessage(message);
+        return new MsgRegistryException(message, objectExistsException);
     }
 }
