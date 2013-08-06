@@ -8,7 +8,7 @@
 		<constructor-arg ref="ebxmlFederationEnabled"/>
 		<constructor-arg ref="lcmServiceImpl" />
 		<constructor-arg value="ebxml/federation/ncfFederationConfig.xml" />
-		<property name="replicationManager" ref="RegistryReplicationManager"/>
+		<constructor-arg ref="RegistryReplicationManager"/>
 		<property name="registryObjectDao" ref="registryObjectDao"/>
 		<property name="registryDao" ref="registryDao"/>
 	</bean>
