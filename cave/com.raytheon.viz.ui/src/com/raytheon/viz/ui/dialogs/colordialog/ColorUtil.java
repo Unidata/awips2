@@ -53,6 +53,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Jul 18, 2007            njensen     Initial creation	
  * Aug 20, 2008			   dglazesk    Updated for the new ColorMap interface
  * 									   and for the JiBX to JaXB transition
+ * Aug 06, 2013    2210    njensen     Moved colormaps to common_static
  * 
  * </pre>
  * 
@@ -258,10 +259,10 @@ public class ColorUtil {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext context = null;
         if (aSiteContext) {
-            context = pathMgr.getContext(LocalizationType.CAVE_STATIC,
+            context = pathMgr.getContext(LocalizationType.COMMON_STATIC,
                     LocalizationLevel.SITE);
         } else {
-            context = pathMgr.getContext(LocalizationType.CAVE_STATIC,
+            context = pathMgr.getContext(LocalizationType.COMMON_STATIC,
                     LocalizationLevel.USER);
         }
         // use / for standard localization of File.separator
@@ -293,7 +294,7 @@ public class ColorUtil {
         }
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationFile lfile = pm.getLocalizationFile(pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.USER),
+                LocalizationType.COMMON_STATIC, LocalizationLevel.USER),
                 COLORMAPS_DIR + File.separator + filename);
         File file = lfile.getFile();
 
