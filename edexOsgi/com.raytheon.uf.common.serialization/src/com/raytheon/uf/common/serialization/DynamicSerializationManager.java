@@ -91,6 +91,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                      serialization adapter is encoded
  *                                      in serialization stream.
  * Nov 02, 2012 1302        djohnson    Remove field level adapters, they break python serialization.
+ * Aug 06, 2013 2228        njensen     Added deserialize(byte[])
  * 
  * </pre>
  * 
@@ -256,7 +257,6 @@ public class DynamicSerializationManager {
         Object obj = deserialize(ctx);
         ctx.readMessageEnd();
         return obj;
-
     }
 
     /**
@@ -271,6 +271,22 @@ public class DynamicSerializationManager {
     public Object deserialize(IDeserializationContext ctx)
             throws SerializationException {
         return ((ThriftSerializationContext) ctx).deserializeMessage();
+    }
+
+    /**
+     * Deserialize an object from a byte[]
+     * 
+     * @param data
+     * @return
+     * @throws SerializationException
+     */
+    public Object deserialize(byte[] data) throws SerializationException {
+        IDeserializationContext ctx = this.builder.buildDeserializationContext(
+                data, this);
+        ctx.readMessageStart();
+        Object obj = deserialize(ctx);
+        ctx.readMessageEnd();
+        return obj;
     }
 
     public static <T> void registerAdapter(Class<? extends T> clazz,
