@@ -73,6 +73,14 @@ public class VersionInfoType implements Serializable,
     @DynamicSerializeElement
     protected String userVersionName;
 
+    public VersionInfoType() {
+
+    }
+
+    public VersionInfoType(String versionName) {
+        this.versionName = versionName;
+    }
+
     /**
      * Gets the value of the versionName property.
      * 

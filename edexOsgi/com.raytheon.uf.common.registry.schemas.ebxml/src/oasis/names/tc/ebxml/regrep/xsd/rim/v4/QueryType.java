@@ -37,6 +37,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.raytheon.uf.common.registry.schemas.ebxml.util.annotations.RegistryObjectReference;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -81,6 +82,7 @@ public class QueryType extends ExtensibleObjectType {
 
     @XmlAttribute(required = true)
     @DynamicSerializeElement
+    @RegistryObjectReference
     protected String queryDefinition;
 
     public QueryType() {
