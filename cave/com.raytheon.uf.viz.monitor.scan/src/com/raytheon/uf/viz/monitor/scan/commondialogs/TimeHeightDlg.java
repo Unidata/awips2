@@ -41,6 +41,8 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase.CAVE;
 
 /**
  * Time-Height Graph dialog.
@@ -53,7 +55,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Mar 10, 2010            lvenable     Initial creation
  * Dec 23, 2011	13608	   mgamazay		Updated populateIdentCombo so the drop down menu
  * 										shows the current feature ident instead of being blank.
- * 
+ * 24 Jul 2013  #2143      skorolev     Changes for non-blocking dialogs.
+ *  
  * </pre>
  * 
  * @author lvenable
@@ -158,7 +161,7 @@ public class TimeHeightDlg extends CaveSWTDialog implements ITimeHeightInfo {
      */
     public TimeHeightDlg(Shell parentShell, ScanTables scanTable, String ident, String attrName, String[] identArray,
             TreeMap<Long, DMDTableDataRow> graphData, IRequestTimeHeightData timeHeightCB) {
-        super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK | CAVE.INDEPENDENT_SHELL);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         setText("DMD Time-Height Trend");
 
         this.scanTable = scanTable;
@@ -169,11 +172,17 @@ public class TimeHeightDlg extends CaveSWTDialog implements ITimeHeightInfo {
         this.timeHeightCB = timeHeightCB;
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         return new GridLayout(1, false);
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org.eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         createTopControls();
@@ -278,7 +287,7 @@ public class TimeHeightDlg extends CaveSWTDialog implements ITimeHeightInfo {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -418,13 +427,26 @@ public class TimeHeightDlg extends CaveSWTDialog implements ITimeHeightInfo {
      * is no longer valid.
      */
     public void displayMessage() {
-        if (this.msgBox == null) {
+        if (this.msgBox == null || msgBox.isDisposed()) {
             msgBox = new TimeHeightMsgBox(getShell(), this.ident);
-            Object action = msgBox.open();
-            if (action.toString().equalsIgnoreCase("OK")) {
-                shell.dispose();
-            }
-            msgBox = null;
+            msgBox.setCloseCallback(new ICloseCallback(){
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        if (returnValue.equals("OK")) {
+                            close();
+                        }else{
+                            return;
+                        }
+                    }
+                    msgBox = null; 
+                }
+
+            });
+            msgBox.open();
+        }else{
+            msgBox.bringToTop();
         }
      }
 
