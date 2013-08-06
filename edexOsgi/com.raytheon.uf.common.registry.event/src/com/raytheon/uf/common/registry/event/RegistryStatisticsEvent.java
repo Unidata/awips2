@@ -40,6 +40,7 @@ import com.raytheon.uf.common.stats.StatisticsEvent;
  * ------------ ---------- ----------- --------------------------
  * Oct 25, 2012  #1340     dhladky     Initial creation
  * 
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -55,7 +56,6 @@ public class RegistryStatisticsEvent extends StatisticsEvent {
 
     public RegistryStatisticsEvent(String type, String status, String owner,
             long duration) {
-
         this.setDate(Calendar.getInstance(TimeZone.getTimeZone("GMT")));
         this.setType(getParsedString(type));
         this.setStatus(getParsedString(status));
