@@ -35,7 +35,6 @@ import javax.xml.bind.annotation.XmlElement;
 import com.raytheon.uf.common.colormap.AbstractColorMap;
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.IColorMap;
-import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 
@@ -54,7 +53,9 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  *    Feb 14, 2013 1616        bsteffen    Add option for interpolation of
  *                                         colormap parameters, disable colormap
  *                                         interpolation by default.
- *    Jun 14, 2013	DR 16070	jgerth		Utilize data mapping
+ *    Jun 14, 2013 DR 16070    jgerth      Utilize data mapping
+ *    Aug  2, 2013 2211        mschenke    Backed out 16070 changes, made 
+ *                                         dataUnit/imageUnit properly commutative.
  * 
  * </pre>
  * 
@@ -522,7 +523,7 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
     public void setDataUnit(Unit<?> dataUnit) {
         this.dataUnit = dataUnit;
 
-        if (imageUnit == null) {
+        if (dataUnit != null && imageUnit == null) {
             setImageUnit(dataUnit);
         }
 
@@ -618,6 +619,11 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
      */
     public void setImageUnit(Unit<?> imageUnit) {
         this.imageUnit = imageUnit;
+
+        if (imageUnit != null && dataUnit == null) {
+            setDataUnit(imageUnit);
+        }
+
         recomputeLabels = true;
 
         imageToDataConverter = null;
@@ -910,18 +916,7 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
 
             if (colorMapRange != 0.0) {
                 double pixelValue;
-                // START DR 16070 fix
-                if (this.dataMapping != null)
-                	if (this.dataMapping.getEntries() != null)
-                		if (this.dataMapping.getEntries().get(0) != null)
-                			if (this.dataMapping.getEntries().get(0).getOperator() != null)
-                				if (this.dataMapping.getEntries().get(0).getOperator().equals("i")) {
-                					Double dValue = this.dataMapping.getDataValueforNumericValue(dispValue);
-                						if (dValue != null)
-                							return (dValue.floatValue() - colorMapMin) / colorMapRange;
-                	}
-                // END fix
-            	if (displayToImage != null) {
+                if (displayToImage != null) {
                     pixelValue = displayToImage.convert(dispValue);
                 } else {
                     pixelValue = dispValue;
