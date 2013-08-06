@@ -15,6 +15,7 @@ Require-Bundle: javax.measure;bundle-version="1.0.0",
  com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174",
  com.raytheon.edex.common;bundle-version="1.12.1174",
  com.raytheon.edex.plugin.gfe;bundle-version="1.12.1174",
- com.raytheon.uf.common.comm;bundle-version="1.12.1174"
+ com.raytheon.uf.common.comm;bundle-version="1.12.1174",
+ com.raytheon.uf.common.topo;bundle-version="1.12.1174"
 Export-Package: com.raytheon.uf.edex.grid.staticdata,
  com.raytheon.uf.edex.grid.staticdata.topo
