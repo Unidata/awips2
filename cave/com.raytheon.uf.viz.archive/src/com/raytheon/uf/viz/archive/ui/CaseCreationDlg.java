@@ -47,12 +47,10 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
+import com.raytheon.uf.common.archive.config.ArchiveConstants.Type;
 import com.raytheon.uf.common.archive.config.DisplayData;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.SizeUtil;
-import com.raytheon.uf.viz.archive.data.IArchiveTotals;
-import com.raytheon.uf.viz.archive.data.IUpdateListener;
-import com.raytheon.uf.viz.archive.ui.ArchiveTableComp.TableType;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.ui.dialogs.AwipsCalendar;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
@@ -71,14 +69,14 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jun 10, 2013 #1966      rferrel     Implemented back in hooks for display
  *                                      and generation of cases.
  * Jul 24, 2013 #2220      rferrel     Add recompute size button.
+ * Jul 24, 2013 #2221      rferrel     Changes for select configuration.
  * 
  * </pre>
  * 
  * @author lvenable
  * @version 1.0
  */
-public class CaseCreationDlg extends AbstractArchiveDlg implements
-        IArchiveTotals, IUpdateListener {
+public class CaseCreationDlg extends AbstractArchiveDlg {
 
     /** Start time label. */
     private Label startTimeLbl;
@@ -103,6 +101,15 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
 
     /** Break files check box. */
     private Button breakFilesChk;
+
+    /** Button to save new select case configuration. */
+    private Button saveAsBtn;
+
+    /** Button to load select case configuration. */
+    private Button loadBtn;
+
+    /** Button to delete select case configuration. */
+    private Button deleteBtn;
 
     /** File size spinner control. */
     private Spinner fileSizeSpnr;
@@ -135,6 +142,15 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
     /** Number of selected items. */
     private int selectedItemsSize = 0;
 
+    /** Dialog to create new select case. */
+    private CaseLoadSaveDeleteDlg saveAsDlg;
+
+    /** Dialog to load a select case. */
+    private CaseLoadSaveDeleteDlg loadDlg;
+
+    /** Dialog to delete a select case. */
+    private CaseLoadSaveDeleteDlg deleteDlg;
+
     /**
      * Constructor.
      * 
@@ -144,8 +160,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
     public CaseCreationDlg(Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.MIN, CAVE.DO_NOT_BLOCK
                 | CAVE.MODE_INDEPENDENT | CAVE.INDEPENDENT_SHELL);
-        this.setSelect = false;
-        this.tableType = TableType.Case;
+        this.type = Type.Case;
     }
 
     /*
@@ -173,7 +188,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
     @Override
     protected void initializeComponents(Shell shell) {
         super.initializeComponents(shell);
-        setText("Archive Case Creation");
+        setText("Archive Case Creation -");
         Composite mainComp = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(1, false);
         gl.marginHeight = 0;
@@ -235,13 +250,29 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
         gd = new GridData(220, SWT.DEFAULT);
         endTimeLbl = new Label(timeComp, SWT.BORDER);
         endTimeLbl.setLayoutData(gd);
+    }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#setRetentionTimes(long)
+     */
+    @Override
+    protected void setRetentionTimes(long startRetentionHours) {
+        long startTimeOffset = startRetentionHours * TimeUtil.MILLIS_PER_HOUR;
         endDate = TimeUtil.newDate();
         long time = endDate.getTime();
-        time -= TimeUtil.MILLIS_PER_DAY;
+        time -= startTimeOffset;
         startDate = new Date(time);
-        startTimeLbl.setText(dateFmt.format(startDate));
-        endTimeLbl.setText(dateFmt.format(endDate));
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                startTimeLbl.setText(dateFmt.format(startDate));
+                endTimeLbl.setText(dateFmt.format(endDate));
+            }
+        });
     }
 
     /**
@@ -422,7 +453,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
     private void createBottomActionButtons() {
 
         Composite actionControlComp = new Composite(shell, SWT.NONE);
-        GridLayout gl = new GridLayout(3, false);
+        GridLayout gl = new GridLayout(7, false);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         actionControlComp.setLayout(gl);
         actionControlComp.setLayoutData(gd);
@@ -437,6 +468,44 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
         //
         // }
         // });
+
+        saveBtn = new Button(actionControlComp, SWT.PUSH);
+        saveBtn.setText(" Save ");
+        saveBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent selectionEvent) {
+                saveSelection(selectName);
+                clearModified();
+            }
+        });
+        saveBtn.setEnabled(false);
+
+        saveAsBtn = new Button(actionControlComp, SWT.PUSH);
+        saveAsBtn.setText(" Save As... ");
+        saveAsBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent selectionEvent) {
+                handleSaveAsCase();
+            }
+        });
+
+        loadBtn = new Button(actionControlComp, SWT.PUSH);
+        loadBtn.setText(" Load... ");
+        loadBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent selectionEvent) {
+                handleLoadCase();
+            }
+        });
+
+        deleteBtn = new Button(actionControlComp, SWT.PUSH);
+        deleteBtn.setText(" Delete... ");
+        deleteBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent selectionEvent) {
+                handleDeleteCase();
+            }
+        });
 
         generateBtn = new Button(actionControlComp, SWT.PUSH);
         generateBtn.setText(" Generate ");
@@ -465,9 +534,87 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                close();
+                if (verifyClose()) {
+                    close();
+                } else {
+                    e.doit = false;
+                }
             }
         });
+    }
+
+    private void handleSaveAsCase() {
+        if (saveAsDlg == null || saveAsDlg.isDisposed()) {
+            saveAsDlg = new CaseLoadSaveDeleteDlg(shell,
+                    CaseLoadSaveDeleteDlg.Type.SaveAs);
+            saveAsDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        String name = returnValue.toString();
+                        if (saveSelection(name)) {
+                            clearModified();
+                            loadSelect(name);
+                            setSelectName(name);
+                        }
+                    }
+                }
+            });
+            saveAsDlg.open();
+        } else {
+            saveAsDlg.bringToTop();
+        }
+    }
+
+    private void handleLoadCase() {
+        if (isModified()
+                && !MessageDialog.openConfirm(shell, "Case Confirmation",
+                        "Unsave changes will be lost.\nPress OK to continue.")) {
+            return;
+
+        }
+        if (loadDlg == null || loadDlg.isDisposed()) {
+            loadDlg = new CaseLoadSaveDeleteDlg(shell,
+                    CaseLoadSaveDeleteDlg.Type.Load);
+            loadDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        String name = returnValue.toString();
+                        loadSelect(name);
+                        populateTableComp();
+                        updateTotals(null);
+                        setSelectName(name);
+                        clearModified();
+                    }
+                }
+            });
+            loadDlg.open();
+        } else {
+            loadDlg.bringToTop();
+        }
+    }
+
+    private void handleDeleteCase() {
+        if (deleteDlg == null || deleteDlg.isDisposed()) {
+            deleteDlg = new CaseLoadSaveDeleteDlg(shell,
+                    CaseLoadSaveDeleteDlg.Type.Delete);
+            deleteDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        String selectName = returnValue.toString();
+                        deleteSelect(selectName);
+                    }
+                }
+            });
+            deleteDlg.open();
+        } else {
+            deleteDlg.bringToTop();
+        }
     }
 
     /**
@@ -781,5 +928,26 @@ public class CaseCreationDlg extends AbstractArchiveDlg implements
         Calendar endCal = TimeUtil.newCalendar();
         endCal.setTimeInMillis(endDate.getTime());
         return endCal;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.archive.ui.IModifyListener#modified()
+     */
+    @Override
+    public void modified() {
+        saveBtn.setEnabled(true);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#clearModified()
+     */
+    @Override
+    public void clearModified() {
+        super.clearModified();
+        saveBtn.setEnabled(false);
     }
 }
