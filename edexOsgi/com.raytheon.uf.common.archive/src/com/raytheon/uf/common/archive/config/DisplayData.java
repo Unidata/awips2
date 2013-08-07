@@ -18,6 +18,7 @@ import com.raytheon.uf.common.util.SizeUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 7, 2013  1966       rferrel     Initial creation
+ * Aug 06, 2013 2222       rferrel     Changes to display all selected data.
  * 
  * </pre>
  * 
@@ -45,7 +46,16 @@ public class DisplayData implements Comparable<DisplayData> {
     public static final Comparator<DisplayData> LABEL_ORDER = new Comparator<DisplayData>() {
         @Override
         public int compare(DisplayData o1, DisplayData o2) {
-            return o1.displayLabel.compareToIgnoreCase(o2.displayLabel);
+            int result = o1.getArchiveName().compareToIgnoreCase(
+                    o2.getArchiveName());
+            if (result == 0) {
+                result = o1.getCategoryName().compareToIgnoreCase(
+                        o2.getCategoryName());
+            }
+            if (result == 0) {
+                result = o1.displayLabel.compareToIgnoreCase(o2.displayLabel);
+            }
+            return result;
         }
     };
 
