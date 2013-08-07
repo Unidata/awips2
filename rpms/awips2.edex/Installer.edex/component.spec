@@ -38,7 +38,15 @@ fi
 if [ -d %{_build_root} ]; then
    rm -rf %{_build_root}
 fi
+
+%build
+
+%install
 mkdir -p %{_build_root}/awips2/edex
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+mkdir -p %{_build_root}/awips2/edex/logs
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -47,9 +55,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-%build
-
-%install
 DEPLOY_SCRIPT="build.edex/deploy-common/deploy-esb.xml"
 
 BUILD_ARCH="%{_build_arch}"
