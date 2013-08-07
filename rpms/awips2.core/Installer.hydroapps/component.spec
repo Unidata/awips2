@@ -33,11 +33,14 @@ then
    exit 1
 fi
 
-mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data
-
 %build
 
 %install
+mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 FILES_NATIVE="%{_baseline_workspace}/files.native"
 
 /bin/cp -rf ${FILES_NATIVE}/awipsShare \
