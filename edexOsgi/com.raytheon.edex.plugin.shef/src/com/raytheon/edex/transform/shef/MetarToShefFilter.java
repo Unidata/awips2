@@ -27,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
@@ -63,6 +64,7 @@ import com.raytheon.uf.edex.decodertools.core.filterimpl.PluginDataObjectFilter;
  * ---------- ------- -------- --------------------------
  * 1/10/2013  15497   wkwock   Initial creation
  * 2/13/2013   1584   mpduff   Fix creation of "dummy" config.
+ * 08/08/2013 16408   wkwock   Use different metar.cfg file and options
  * 
  * </pre>
  * 
@@ -167,16 +169,13 @@ public class MetarToShefFilter {
         }
     }
 
-    private PluginDataObject[] filterARun(PluginDataObject[] reports,
+    private PluginDataObject filterARun(PluginDataObject report,
             List<AbstractFilterElement> filterElements) {
-        int reportCount = 0;
-        if (reports != null) {
-
-            for (int i = 0; i < reports.length; i++) {
-                PluginDataObject r = null;
-                boolean keep = true;
-                for (AbstractFilterElement element : filterElements) {
-                    r = element.filter(reports[i]);
+        if (report != null) {
+            PluginDataObject r = null;
+            boolean keep = true;
+            for (AbstractFilterElement element : filterElements) {
+                r = element.filter(report);
 
                     // Only allow keep to be set to true. Once true it stays
                     // that way.
@@ -200,26 +199,12 @@ public class MetarToShefFilter {
                     }
                 }
                 if (keep) {
-                    reportCount++;
+                    report = r;
                 } else {
-                    reports[i] = null;
+                    report = null;
                 }
-            }
         }
-        if (reportCount == 0) {
-            reports = new PluginDataObject[0];
-        } else {
-            PluginDataObject[] newReports = new PluginDataObject[reportCount];
-            int i = 0;
-            // Copy in the reports that passed filtering.
-            for (PluginDataObject report : reports) {
-                if (report != null) {
-                    newReports[i++] = report;
-                }
-            }
-            reports = newReports;
-        }
-        return reports;
+        return report;
     }
 
     /**
@@ -228,19 +213,20 @@ public class MetarToShefFilter {
      */
     // @Override
     public PluginDataObject[] filter(PluginDataObject[] reports) {
-        PluginDataObject[] resultRpt = null;
-        for (MetarToShefRun mtsr : metarToShefRun) {
-            PluginDataObject[] tmpRprts = reports.clone();
-            resultRpt = filterARun(tmpRprts, mtsr.getFilterElements());
-            if (resultRpt != null && resultRpt.length >= 1) {
-                logger.info("Report matchs in filter " + mtsr.getFilterName());
-                MetarToShefTransformer.setCfgNOption(mtsr.getConfigFileName(),
-                        mtsr.getMetarToShefOptions());
-                break;
+        HashMap<String,MetarToShefRun> matchList = new HashMap<String,MetarToShefRun>();
+    	ArrayList<PluginDataObject> reportList = new ArrayList<PluginDataObject> ();
+        for (PluginDataObject report : reports) {
+            for (MetarToShefRun mtsr : metarToShefRun) {
+                PluginDataObject resultRpt = filterARun(report, mtsr.getFilterElements());
+                if (resultRpt != null ) {
+            	    reportList.add(resultRpt);
+            	    matchList.put(resultRpt.getDataURI(), mtsr);
+                    MetarToShefTransformer.setMatchList (matchList);
+                    break;
+                }
             }
         }
-
-        return resultRpt;
+        return (PluginDataObject[])reportList.toArray(new PluginDataObject[reportList.size()]);
     }
 
     private void createDummyFilter() {
