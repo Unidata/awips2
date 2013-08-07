@@ -22,6 +22,7 @@ package com.raytheon.edex.transform.shef;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -51,6 +52,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * AWIPS2 DR Work
  * 20120918           1185 jkorman     Added save to archive capability. 
  * Jan 30, 2010       15779  lbousaidi   added 4 letter to station id for ACR
+ * Aug 08, 2013      16408 wkwock      Use different metar.cfg file and options
  * </pre>
  * 
  * @author jkorman
@@ -81,10 +83,23 @@ public class MetarToShefTransformer extends
     private static final int P1_MIN  = 50;
     private static final int P2_MAX  =  5;
 
-    private static String cfgFileName="metar.cfg";
-    private static String cmdLnOptions="";
-    private static boolean refreshOptions=true;
+    /*
+     * Max list for optionsList and matchList to prevent memory leak. 
+     * (500 or any big number should be fine)
+     */
+    private static final int MAX_LIST = 500;
 
+    /*
+     * MetarToShefRun list which has metar.cfg file and options to used by conversion 
+     */
+    private static HashMap<String,MetarToShefRun> mtsrList = new HashMap<String,MetarToShefRun>();
+    
+    /*
+     * List of metar.cfg files + options. 
+     */
+    private HashMap<String,ObsToSHEFOptions> optionsList = new  HashMap<String,ObsToSHEFOptions>();
+    private ObsToSHEFOptions defaultOptions =null;
+    
     /**
      * Construct an instance of this transformer.
      * @param cmdLine Command line options that may be used if these
@@ -92,6 +107,7 @@ public class MetarToShefTransformer extends
      */
     public MetarToShefTransformer(String cmdLine) {
         super(cmdLine, WMO_HEADER_FMT);
+        defaultOptions = options;
     }
 
     /**
@@ -421,21 +437,38 @@ public class MetarToShefTransformer extends
 
     public final byte[] transformMetar(MetarRecord report, Headers headers)
     throws TransformerException {
-    	if (refreshOptions) {
-    		logger.info("Metar to SHEF now use config file: "+cfgFileName+" with options:"+cmdLnOptions);
-    		options.setCfgFileName(cfgFileName);
- 			options.updateCommandLine(cmdLnOptions);
-    		options.updateOptions();
-    		refreshOptions=false;
+    	ObsToSHEFOptions tmpOptions=null;
+    	MetarToShefRun mtsr = mtsrList.get(report.getDataURI());
+    	if (mtsr==null) {
+    		tmpOptions = defaultOptions;
+    	} else {
+    	    tmpOptions = optionsList.get(mtsr.getConfigFileName()+mtsr.getMetarToShefOptions());
+    	    if (tmpOptions==null) {
+    		    //just to prevent t memory leak
+    		    if (optionsList.size()>MAX_LIST) {
+    			    optionsList.clear();
+    		    }
+    		    tmpOptions = new ObsToSHEFOptions(mtsr.getConfigFileName(),mtsr.getMetarToShefOptions(),true);
+    		    optionsList.put(mtsr.getConfigFileName()+mtsr.getMetarToShefOptions(), tmpOptions);
+    	    }
+    	    mtsrList.remove(report.getDataURI());
     	}
+    	options=tmpOptions;
+		logger.info("Metar to SHEF for "+report.getStationId()+" use config file: "+options.getCfgFileName()+" with options:"+mtsr.getMetarToShefOptions());
     	configureArchiveDir();
 
     	return transformReport(report, headers);
     }
 
-    public static void setCfgNOption (String cfg, String options){
-    	cfgFileName=cfg;
-    	cmdLnOptions=options;
-    	refreshOptions=true;
+    /*
+     * set matchList
+     */
+    public static void setMatchList (HashMap<String,MetarToShefRun> matchLst) {
+    	//should add to the list and remove after use. clear if reach certain big number
+    	if (mtsrList.size()>MAX_LIST) {
+    		mtsrList.clear();
+    	}
+    	
+    	mtsrList.putAll(matchLst);
     }
 }
