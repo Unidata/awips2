@@ -70,6 +70,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                      and generation of cases.
  * Jul 24, 2013 #2220      rferrel     Add recompute size button.
  * Jul 24, 2013 #2221      rferrel     Changes for select configuration.
+ * Aug 06, 2013 #2222      rferrel     Changes to display all selected data.
  * 
  * </pre>
  * 
@@ -160,6 +161,8 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
     public CaseCreationDlg(Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.MIN, CAVE.DO_NOT_BLOCK
                 | CAVE.MODE_INDEPENDENT | CAVE.INDEPENDENT_SHELL);
+        this.type = Type.Case;
+        this.setSelect = false;
         this.type = Type.Case;
     }
 
@@ -453,7 +456,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
     private void createBottomActionButtons() {
 
         Composite actionControlComp = new Composite(shell, SWT.NONE);
-        GridLayout gl = new GridLayout(7, false);
+        GridLayout gl = new GridLayout(8, false);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         actionControlComp.setLayout(gl);
         actionControlComp.setLayoutData(gd);
@@ -516,6 +519,8 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
                 generateCase();
             }
         });
+
+        createShowingSelectedBtn(actionControlComp);
 
         Button sizeBtn = new Button(actionControlComp, SWT.PUSH);
         sizeBtn.setText(" Recompute Sizes ");
