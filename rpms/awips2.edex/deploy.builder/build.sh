@@ -161,11 +161,6 @@ export COMPONENT_NAME="edex-datadelivery"
 patchDDSpecification
 buildRPM "Installer.edex-datadelivery"
 unset COMPONENT_NAME
-# For, now edex-native is always a 32-bit rpm.
-export TARGET_BUILD_ARCH="i386"
-buildRPM "Installer.edex-native"
-# Reset the target architecture for the remaining rpms.
-setTargetArchitecture
 
 DIST="${WORKSPACE}/build.edex/edex/dist"
 for edex_zip in `cd ${DIST}; ls -1;`;
