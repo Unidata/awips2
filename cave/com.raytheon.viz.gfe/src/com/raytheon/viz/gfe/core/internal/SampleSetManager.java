@@ -67,6 +67,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Apr 14, 2008	879			rbell	    Initial creation
  * 11Jun2008    #1193       ebabin      Updates for toggling lat/lon for sample set.
  * Apr 9, 2009  1288        rjpeter     Added ISampleSetChangedListener handling.
+ * Aug 6, 2013  1561        njensen     Use pm.listFiles() instead of pm.listStaticFiles()
  * </pre>
  * 
  * @author rbell
@@ -115,8 +116,9 @@ public class SampleSetManager implements ISampleSetManager {
 
         IPathManager pm = PathManagerFactory.getPathManager();
 
-        LocalizationFile[] files = pm.listStaticFiles(SAMPLE_SETS_DIR,
-                new String[] { ".xml" }, true, true);
+        LocalizationFile[] files = pm.listFiles(
+                pm.getLocalSearchHierarchy(LocalizationType.COMMON_STATIC),
+                SAMPLE_SETS_DIR, new String[] { ".xml" }, true, true);
 
         for (LocalizationFile file : files) {
             String fn = LocalizationUtil.extractName(file.getName()).replace(
