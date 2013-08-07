@@ -45,6 +45,7 @@ import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridHistoryUpdateNoti
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.LockNotification;
 import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
@@ -105,6 +106,7 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
  *                                     modified parms.
  * 05/02/2013    #1969     randerso    Cleaned up and optimized processing of DBInvChangedNotification
  * 05/14/2013    #2004     randerso    Improved error handling
+ * 08/06/2013    #1561     njensen     Use pm.listFiles() instead of pm.listStaticFiles()
  * 
  * </pre>
  * 
@@ -2046,9 +2048,11 @@ public abstract class AbstractParmManager implements IParmManager {
     private List<VCModule> initVirtualCalcParmDefinitions() {
         // retrieve the inventory from the ifpServer
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationFile[] modules = pathMgr.listStaticFiles(
-                FileUtil.join("gfe", "vcmodule"), new String[] { "py" }, false,
-                true);
+        LocalizationFile[] modules = pathMgr
+                .listFiles(
+                        pathMgr.getLocalSearchHierarchy(LocalizationType.COMMON_STATIC),
+                        FileUtil.join("gfe", "vcmodule"),
+                        new String[] { "py" }, false, true);
 
         List<VCModule> definitions = new ArrayList<VCModule>(modules.length);
         for (LocalizationFile mod : modules) {
