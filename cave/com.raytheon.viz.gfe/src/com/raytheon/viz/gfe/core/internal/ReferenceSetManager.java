@@ -95,10 +95,10 @@ import com.vividsolutions.jts.geom.Envelope;
  * The ReferenceSetMgr keeps track of the activeRefSet and interfaces to the
  * server to save, delete, and load Reference sets. It keeps track of the
  * availableRefSets and sends notification of changes to the inventory.
- *
+ * 
  * Requests are made to the ReferenceSetMgr to change, clear, and toggle the
  * reference set.
- *
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date			Ticket#		Engineer	Description
@@ -108,9 +108,10 @@ import com.vividsolutions.jts.geom.Envelope;
  * 02/12/2013        #1597  randerso    Improved error message for exceptions evaluating queries
  * 02/26/2013        #1708  randerso    Removed no longer needed near duplicate methods
  * 06/21/2013       14983   ryu         Added method for synchronous evaluation of query.
- *
+ * 08/06/2013         1561  njensen     Use pm.listFiles() instead of pm.listStaticFiles()
+ * 
  * </pre>
- *
+ * 
  * @author randerso
  * @version 1.0
  */
@@ -189,7 +190,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /**
      * Set the wait cursor on or off
-     *
+     * 
      * @param state
      *            0 = wait cursor on, 1 = wait cursor off
      */
@@ -220,18 +221,20 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /**
      * Gets and updates the reference set inventory from the server.
-     *
+     * 
      * Uses net() to get a pointer to the reference network (referenceNet). Asks
      * the reference server for the inventory. Stores the inventory and sends a
      * RefSetInventoryChanged message if the inventory has changed.
-     *
+     * 
      */
     private void getInventory() {
         // load the complete list of edit areas
         List<ReferenceID> refIDs = new ArrayList<ReferenceID>();
-        LocalizationFile[] contents = PathManagerFactory.getPathManager()
-                .listStaticFiles(EDIT_AREAS_DIR, new String[] { ".xml" },
-                        false, true);
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext[] ctx = pm
+                .getLocalSearchHierarchy(LocalizationType.COMMON_STATIC);
+        LocalizationFile[] contents = pm.listFiles(ctx, EDIT_AREAS_DIR,
+                new String[] { ".xml" }, false, true);
         if (contents != null) {
             for (LocalizationFile lf : contents) {
                 String s = LocalizationUtil.extractName(lf.getName());
@@ -242,9 +245,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
         }
 
         // load the edit area group lists
-        LocalizationFile[] groupFiles = PathManagerFactory.getPathManager()
-                .listStaticFiles(EDIT_AREA_GROUPS_DIR, new String[] { ".txt" },
-                        false, true);
+        LocalizationFile[] groupFiles = pm.listFiles(ctx, EDIT_AREA_GROUPS_DIR,
+                new String[] { ".txt" }, false, true);
         if (groupFiles != null) {
             for (LocalizationFile lf : groupFiles) {
                 loadGroup(lf);
@@ -342,7 +344,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.IReferenceSetManager#getGroupInventory()
      */
     @Override
@@ -360,7 +362,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.IReferenceSetManager#getGroupData(java.lang
      * .String)
@@ -387,7 +389,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /**
      * Returns list of areas which are not in any group
-     *
+     * 
      * @return
      */
     private List<String> getMisc() {
@@ -539,7 +541,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
     /**
      * Command to update the reference data cache based on additions, deletions,
      * and changes.
-     *
+     * 
      * @param additions
      * @param deletions
      * @param changes
@@ -561,9 +563,9 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /**
      * Constructor for ReferenceSet taking a pointer to the Data Manager
-     *
+     * 
      * Stores the pointer in private data. Gets the inventory. *
-     *
+     * 
      * @param dataManager
      */
     @SuppressWarnings("unchecked")
@@ -669,7 +671,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#getActiveRefSet()
      */
@@ -680,7 +682,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#setActiveRefSet
      * (com.raytheon.edex.plugin.gfe.reference.ReferenceData)
@@ -721,7 +723,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#getAvailableSets
      * ()
@@ -733,7 +735,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#emptyRefSet()
      */
@@ -744,7 +746,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.internal.IReferenceSetManager#fullRefSet()
      */
     @Override
@@ -754,7 +756,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#loadRefSet(com
      * .raytheon.edex.plugin.gfe.reference.ReferenceID)
@@ -808,7 +810,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /**
      * Retrieves a list of ReferenceData corresponding to the referenceIDs
-     *
+     * 
      * @param need
      *            the referenceIDs
      * @return a List of ReferenceData
@@ -824,7 +826,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#saveActiveRefSet
      * (com.raytheon.edex.plugin.gfe.reference.ReferenceID)
@@ -853,7 +855,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#saveRefSet(com
      * .raytheon.edex.plugin.gfe.reference.ReferenceData)
@@ -903,7 +905,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#deleteRefSet(
      * com.raytheon.edex.plugin.gfe.reference.ReferenceID)
@@ -936,7 +938,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.internal.IReferenceSetManager#undoRefSet()
      */
     @Override
@@ -951,10 +953,10 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * set has changed. The bypassActiveCheck bypasses the checking for whether
      * a change has occurred in the active ref set. This is only set for saving
      * the active reference set to prevent extra work.
-     *
+     * 
      * Updates the reference data cache. Can update the active ref set. Sends
      * out inventory change notifications.
-     *
+     * 
      * @param inventory
      * @param additions
      * @param deletions
@@ -1044,7 +1046,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#taperGrid(com
      * .raytheon.edex.plugin.gfe.reference.ReferenceData, int)
@@ -1131,7 +1133,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#directionTaperGrid
      * (com.raytheon.edex.plugin.gfe.reference.ReferenceData, java.lang.String)
@@ -1215,7 +1217,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#siteGridpoints
      * (java.lang.String[], boolean)
@@ -1256,7 +1258,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#mySiteGridpoints
      * ()
@@ -1268,7 +1270,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /**
      * Returns the Discrepancy Area Id number
-     *
+     * 
      * @return the Discrepancy Area Id number
      */
     public int nextAreaIdNumber() {
@@ -1282,7 +1284,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.internal.IReferenceSetManager#toString()
      */
     @Override
@@ -1292,7 +1294,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.internal.IReferenceSetManager#getMode()
      */
     @Override
@@ -1302,7 +1304,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#setMode(com.raytheon
      * .viz.gfe.core.internal.ReferenceSetManager.RefSetMode)
@@ -1314,7 +1316,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.IReferenceSetManager#incomingRefSet(com.raytheon
      * .edex.plugin.gfe.reference.ReferenceData,
@@ -1404,7 +1406,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.IReferenceSetManager#clearRefSet()
      */
     @Override
@@ -1414,7 +1416,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.IReferenceSetManager#toggleRefSet()
      */
     @Override
@@ -1426,7 +1428,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @seecom.raytheon.viz.gfe.core.IReferenceSetManager#
      * addReferenceSetInvChangedListener
      * (com.raytheon.viz.gfe.core.msgs.IReferenceSetInvChangedListener)
@@ -1439,7 +1441,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @seecom.raytheon.viz.gfe.core.IReferenceSetManager#
      * removeReferenceSetInvChangedListener
      * (com.raytheon.viz.gfe.core.msgs.IReferenceSetInvChangedListener)
@@ -1452,7 +1454,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.IReferenceSetManager#addReferenceSetChangedListener
      * (com.raytheon.viz.gfe.core.msgs.IReferenceSetChangedListener)
@@ -1465,7 +1467,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @seecom.raytheon.viz.gfe.core.IReferenceSetManager#
      * removeReferenceSetChangedListener
      * (com.raytheon.viz.gfe.core.msgs.IReferenceSetChangedListener)
@@ -1478,7 +1480,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @seecom.raytheon.viz.gfe.core.IReferenceSetManager#
      * addReferenceSetIDChangedListener
      * (com.raytheon.viz.gfe.core.msgs.IReferenceSetIDChangedListener)
@@ -1491,7 +1493,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @seecom.raytheon.viz.gfe.core.IReferenceSetManager#
      * removeReferenceSetIDChangedListener
      * (com.raytheon.viz.gfe.core.msgs.IReferenceSetIDChangedListener)
@@ -1504,7 +1506,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @seecom.raytheon.viz.gfe.core.IReferenceSetManager#
      * addEditAreaGroupInvChangedListener
      * (com.raytheon.viz.gfe.core.msgs.IEditAreaGroupInvChangedListener)
@@ -1517,7 +1519,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @seecom.raytheon.viz.gfe.core.IReferenceSetManager#
      * removeEditAreaGroupInvChangedListener
      * (com.raytheon.viz.gfe.core.msgs.IEditAreaGroupInvChangedListener)
@@ -1530,7 +1532,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.IReferenceSetManager#handleQuickSet(int)
      */
     @Override
@@ -1595,7 +1597,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.IReferenceSetManager#toggleQuickSetMode()
      */
     @Override
@@ -1625,7 +1627,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.IReferenceSetManager#getQuickSetMode()
      */
     @Override
@@ -1740,7 +1742,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /**
      * Evaluate the query and return the usable edit area.
-     *
+     * 
      * @param query
      *            The query to be evaluated.
      * @return The resulting edit area.
@@ -1756,8 +1758,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
         try {
             ea = coordinator.submitSyncJob(executor);
         } catch (Exception e) {
-            statusHandler.handle(Priority.ERROR,
-                    "Failed to evaluate query: " + query, e);
+            statusHandler.handle(Priority.ERROR, "Failed to evaluate query: "
+                    + query, e);
         }
 
         return ea;
@@ -1795,7 +1797,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.gfe.core.msgs.Message.IMessageClient#receiveMessage(
      * com.raytheon.viz.gfe.core.msgs.Message)
@@ -1850,7 +1852,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.gfe.core.msgs.ISpatialEditorTimeChangedListener#
      * spatialEditorTimeChanged(java.util.Date)
      */
