@@ -57,7 +57,8 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
  * May 24, 2010            jkorman     Initial creation
  * ======================================
  * AWIPS2 DR Work
- * 20120918           1185 jkorman     Added save to archive capability.     
+ * 20120918           1185 jkorman     Added save to archive capability.  
+ * Aug 08, 2013      16408 wkwock      Added get configuration file name function
  * 
  * </pre>
  * 
@@ -66,9 +67,6 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
  */
 
 public class ObsToSHEFOptions {
-    // 1 minute update delta.
-    private static final long UPDATE_DELTA = 60L * 1000L;
-
     private static final String METAR_CFG = "metar.cfg";
 
     private static final String ERROR_1_FMT = "Could not create {%s} context for file \"%s\"";
@@ -399,8 +397,6 @@ public class ObsToSHEFOptions {
 
     private final boolean localized;
 
-    private long updateTime = 0;
-
     /**
      * 
      * @param cmdLine
@@ -414,7 +410,20 @@ public class ObsToSHEFOptions {
         	} else {
         		readConfig(cfgFileName, optConfigContext);
         	}
-            updateTime = System.currentTimeMillis();
+        }
+        localized = useLocalized;
+    }
+    
+    /**
+     * 
+     * @param cmdLine
+     */
+    public ObsToSHEFOptions(String configFileName, String cmdLine, boolean useLocalized) {
+    	cfgFileName = configFileName;
+        initOptions();
+        parseCommandLine(cmdLine);
+        if (useLocalized) {
+      	    readConfig(cfgFileName, optConfigContext);
         }
         localized = useLocalized;
     }
@@ -845,15 +854,11 @@ public class ObsToSHEFOptions {
      * Check if the metar.cfg needs to be reread.
      */
     public void updateOptions() {
-        long cTime = System.currentTimeMillis() - updateTime;
-        if (cTime > UPDATE_DELTA) {
-            if (loaded && localized) {
-            	if (cfgFileName==null) {
-            		readConfig(METAR_CFG, optConfigContext);
-            	} else {
-            		readConfig(cfgFileName, optConfigContext);
-            	}
-                updateTime = System.currentTimeMillis();
+        if (loaded && localized) {
+           	if (cfgFileName==null) {
+                readConfig(METAR_CFG, optConfigContext);
+            } else {
+               readConfig(cfgFileName, optConfigContext);
             }
         }
     }
@@ -888,6 +893,8 @@ public class ObsToSHEFOptions {
                                 }else{
                                 	readConfig(cfgFileName, optConfigContext);
                                 }
+                            } else {
+                            	logger.warn("Uanble to read file "+cfgFileName);
                             }
                         }
                     } else {
@@ -988,6 +995,10 @@ public class ObsToSHEFOptions {
 
     public void setCfgFileName(String fileName) {
     	cfgFileName=fileName;
+    }
+    
+    public String getCfgFileName () {
+    	return cfgFileName;
     }
     
     public String toString() {
