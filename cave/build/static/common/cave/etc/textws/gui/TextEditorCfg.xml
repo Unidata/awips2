@@ -5,7 +5,10 @@
     
         History:
     	
-    	07/25/2013	Greg Hull		DR 15733 	Created (and modified) from FontSizeCfg.xml and TextColorsCfg.xlm
+    	07/25/2013	Greg Hull		DR 15733 	Created (and modified) from FontSizeCfg.xml and TextColorsCfg.xml
+    	07/31/2013	B. Hebbard		DR 15733 	Changed highlightTextForegroundColor from "0, 0, 0" to "WHITE"
+                                                (per Joshua Huber and Greg Hull)
+
     	
     -->    
 <textEditorCfg> 
@@ -18,7 +21,7 @@
 	  -->
 	<textForegroundColor>BLACK</textForegroundColor>
 	<textBackgroundColor>WHITE</textBackgroundColor>
-	<highlightTextForegroundColor>0, 0, 0</highlightTextForegroundColor>
+	<highlightTextForegroundColor>WHITE</highlightTextForegroundColor>
 	<highlightTextBackgroundColor>85, 152, 215</highlightTextBackgroundColor>
 
 <!--  The fonts available under the Options menu. Only one should be selected -->
