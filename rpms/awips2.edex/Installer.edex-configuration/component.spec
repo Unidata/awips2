@@ -33,14 +33,15 @@ fi
 if [ -d %{_build_root} ]; then
    rm -rf %{_build_root}
 fi
+
+%build
+
+%install
 mkdir -p %{_build_root}/awips2/edex
 if [ $? -ne 0 ]; then
    exit 1
 fi
 
-%build
-
-%install
 DEPLOY_SCRIPT="build.edex/deploy-common/deploy-esb-configuration.xml"
 
 # use deploy-install to deploy edex-configuration.
