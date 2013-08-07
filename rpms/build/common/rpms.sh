@@ -209,6 +209,10 @@ function unpackHttpdPypies()
    if [ $? -ne 0 ]; then
       return 1
    fi
+   cp -vf ${httpd_pypies_directory}/SOURCES/* ${AWIPSII_TOP_DIR}/SOURCES
+   if [ $? -ne 0 ]; then
+      return 1
+   fi
 
    return 0
 }
