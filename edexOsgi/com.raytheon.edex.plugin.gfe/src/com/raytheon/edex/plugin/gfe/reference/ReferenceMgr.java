@@ -29,6 +29,7 @@ import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -46,7 +47,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 24, 2012            dgilling     Initial creation
+ * Jul 24, 2012            dgilling    Initial creation
+ * Aug 07, 2013       1561 njensen     Use pm.listFiles() instead of pm.listStaticFiles()
  * 
  * </pre>
  * 
@@ -78,9 +80,10 @@ public class ReferenceMgr {
      */
     public ServerResponse<List<ReferenceID>> getInventory() {
         List<ReferenceID> refIDs = new ArrayList<ReferenceID>();
-        LocalizationFile[] contents = PathManagerFactory.getPathManager()
-                .listStaticFiles(EDIT_AREAS_DIR, new String[] { ".xml" },
-                        false, true);
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationFile[] contents = pm.listFiles(
+                pm.getLocalSearchHierarchy(LocalizationType.COMMON_STATIC),
+                EDIT_AREAS_DIR, new String[] { ".xml" }, false, true);
         if (contents != null) {
             for (LocalizationFile lf : contents) {
                 String s = LocalizationUtil.extractName(lf.getName());

@@ -60,7 +60,9 @@ import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil.ComboData.Entry;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 25, 2008            mnash     Initial creation
+ * Jul 25, 2008            mnash       Initial creation
+ * Aug 07, 2013       1561 njensen     Use pm.listFiles() instead of pm.listStaticFiles()
+ * 
  * </pre>
  * 
  * @author mnash
@@ -121,8 +123,9 @@ public class CombinationsFileUtil {
 
     public static LocalizationFile[] getSavedCombos() {
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationFile[] combos = pm.listStaticFiles(SAVED_COMBO_DIR,
-                new String[] { ".xml" }, false, true);
+        LocalizationFile[] combos = pm.listFiles(
+                pm.getLocalSearchHierarchy(LocalizationType.CAVE_STATIC),
+                SAVED_COMBO_DIR, new String[] { ".xml" }, false, true);
 
         return combos;
     }
