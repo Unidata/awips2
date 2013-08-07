@@ -144,6 +144,7 @@ import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 // import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.notification.INotificationObserver;
 import com.raytheon.uf.viz.core.notification.NotificationException;
@@ -322,6 +323,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 31JAN2013   1563         rferrel     Force location of airport tooltip.
  * 31JAN2013   1568         rferrel     Spell checker now tied to this dialog instead of parent.
  * 26Apr2013   16123        snaples     Removed setFocus to TextEditor in postExecute method.
+ * 07Jun2013   1981         mpduff      Add user id to OUPRequest as it is now protected.
  * 20Jun2013   15733		XHuang		Add functionalities that get Font size, Text colors from 
  * 										*.xml files in localization; 
  * 										add selection listener to catch the highlight words and 
@@ -1380,6 +1382,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private Color highlightBackground;
 
 //	protected Color color;
+    
+
     /**
      * Constructor with additional cave style rules
      * 
@@ -1534,7 +1538,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         }
 
         commandHistory = new CommandHistory();
-        
+
         // Create the menus
         createMenus();
 
@@ -3746,7 +3750,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         textEditor.setWordWrap(false);
         textEditor.setEditable(false);
         airportToolTip = new DefaultToolTip(textEditor, SWT.DEFAULT, true);
-        textEditor.setKeyBinding(SWT.INSERT, SWT.NULL); // DR 7826 
+        textEditor.setKeyBinding(SWT.INSERT, SWT.NULL); // DR 7826
         
 //        textColorCfg = getTextColorCfg();
         setDefaultTextColor( TextEditorCfg.getTextEditorCfg() );
@@ -5002,6 +5006,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 }
                 req.setCheckBBB(true);
                 req.setProduct(oup);
+                req.setUser(UserController.getUserObject());
 
                 // Code in Run statement goes here!
                 new Thread(new ThriftClientRunnable(req)).start();
@@ -5590,27 +5595,25 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         int afosXxxLimit = 5; // second three characters is AFOS XXX
 
         /*
-         * DR15610 - Make sure that if the first line of the
-         * text product is not a WMO heading it is treated as
-         * part of the text body.
+         * DR15610 - Make sure that if the first line of the text product is not
+         * a WMO heading it is treated as part of the text body.
          */
         String[] pieces = textEditor.getText().split("\r*\n", 2);
         if (pieces.length > 1) {
             pieces[0] += "\n"; // WMOHeader expects this
         }
         WMOHeader header = new WMOHeader(pieces[0].getBytes(), null);
-        if ( !header.isValid() ) {
-			headerTF.setText("");
-			try {
-				textEditor.setText(originalText);
-				textEditor.setEditable(true);
-				textEditor.setEditable(false);
-			} catch (IllegalArgumentException e) {
-				// There is no text product body, so set it to the empty string.
-				textEditor.setText("");
-			}
-        }
-        else {
+        if (!header.isValid()) {
+            headerTF.setText("");
+            try {
+                textEditor.setText(originalText);
+                textEditor.setEditable(true);
+                textEditor.setEditable(false);
+            } catch (IllegalArgumentException e) {
+                // There is no text product body, so set it to the empty string.
+                textEditor.setText("");
+            }
+        } else {
         // TODO FIX PARSING
 
         // First, set the current header by assuming that it usually
@@ -5618,7 +5621,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // though there will be exceptions to that "rule" as handled below.
         // So, obtain the AFOS NNNxxx. If it's where it is supposed to be
         // in the new format, then the existing header is already an AWIPS
-        // text product identifier. Otherwise it is a legacy AFOS identifier.
+            // text product identifier. Otherwise it is a legacy AFOS
+            // identifier.
         if (TextDisplayModel.getInstance().hasStdTextProduct(token)) {
             StdTextProduct textProd = TextDisplayModel.getInstance()
                     .getStdTextProduct(token);
@@ -5628,14 +5632,16 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 start = textEditor.getOffsetAtLine(thisLine + 1);
                 if ((textEditor.getText(start, start + afosNnnLimit)
                         .equals(prodId.getNnnid()))
-                        && (textEditor.getText(start + afosNnnLimit + 1, start
-                                + afosXxxLimit).equals(prodId.getXxxid()))) {
+                            && (textEditor.getText(start + afosNnnLimit + 1,
+                                    start + afosXxxLimit).equals(prodId
+                                    .getXxxid()))) {
                     // Text matches the products nnnid and xxxid
                     numberOfLinesOfHeaderText = 2;
-                } else if (textEditor.getText(start, start + afosNnnLimit + 2)
-                        .equals(AFOSParser.DRAFT_PIL)
-                        || textEditor.getText(start, start + afosNnnLimit + 2)
-                                .equals("TTAA0")) {
+                    } else if (textEditor.getText(start,
+                            start + afosNnnLimit + 2).equals(
+                            AFOSParser.DRAFT_PIL)
+                            || textEditor.getText(start,
+                                    start + afosNnnLimit + 2).equals("TTAA0")) {
                     // Text matches temporary WRKWG#
                     numberOfLinesOfHeaderText = 2;
                 } else {
@@ -5675,8 +5681,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             String line = null;
             do {
                 numberOfBlankLines++;
-                line = textEditor.getLine(thisLine + numberOfLinesOfHeaderText
-                        + numberOfBlankLines);
+                    line = textEditor.getLine(thisLine
+                            + numberOfLinesOfHeaderText + numberOfBlankLines);
             } while (line.length() == 0 || line.equals(""));
             // Note: 'st' is a reference to 'textEditor'...
             // delelete the header from the text in 'textEditor'
@@ -5981,7 +5987,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     if ("MTR".equals(stdProdId.getNnnid())
                             && (commandText.startsWith("ALL:")
                                     || commandText.startsWith("A:") || commandText
-                                    .endsWith("000"))) {
+                                        .endsWith("000"))) {
                         stripWMOHeaders(prod);
                     }
 
@@ -7074,7 +7080,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             || line.endsWith("ADVISORY")
                             || line.endsWith("ADVISORY...TEST")
                             || line.endsWith("ADVISORY...CORRECTED") || line
-                            .endsWith("ADVISORY...CORRECTED...TEST"))) {
+                                .endsWith("ADVISORY...CORRECTED...TEST"))) {
                 line += "...RESENT";
                 updatedMND = true;
             }
