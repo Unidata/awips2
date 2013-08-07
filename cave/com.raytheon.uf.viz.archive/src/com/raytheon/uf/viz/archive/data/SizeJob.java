@@ -3,6 +3,7 @@ package com.raytheon.uf.viz.archive.data;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,7 +39,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 13, 2013            rferrel     Initial creation
- * Jul 24, 2012 #2220      rferrel     Change to get all data sizes only one time.
+ * Jul 24, 2013 #2220      rferrel     Change to get all data sizes only one time.
+ * Aug 06, 2013 #2222      rferrel     Changes to display all selected data.
  * 
  * </pre>
  * 
@@ -234,8 +236,8 @@ public class SizeJob extends Job {
     }
 
     /**
-     * Check all displayData selection state so only the data in selections are
-     * set.
+     * Set the display data's select state and check to see if it needs to be
+     * requeue.
      * 
      * @param selections
      */
@@ -259,12 +261,32 @@ public class SizeJob extends Job {
                     String displayLabel = displayData.getDisplayLabel();
                     boolean selected = selectionsList.contains(displayLabel);
                     if (selected != displayData.isSelected()) {
-                        setSelect(archiveName, categoryName, displayLabel,
-                                selected);
+                        setSelect(displayData, selected);
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Get list of all selected data.
+     * 
+     * @return selected
+     */
+    public List<DisplayData> getSelectAll() {
+        List<DisplayData> selected = new LinkedList<DisplayData>();
+        for (ArchiveInfo archiveInfo : archiveInfoMap.values()) {
+            for (String categoryName : archiveInfo.getCategoryNames()) {
+                CategoryInfo categoryInfo = archiveInfo.get(categoryName);
+                for (DisplayData displayData : categoryInfo
+                        .getDisplayDataList()) {
+                    if (displayData.isSelected()) {
+                        selected.add(displayData);
+                    }
+                }
+            }
+        }
+        return selected;
     }
 
     /**
@@ -321,25 +343,16 @@ public class SizeJob extends Job {
     }
 
     /**
-     * Change the selection state and requeue size request.
+     * Update the selection state and if needed requeue size request.
      * 
-     * @param archiveName
-     * @param categoryName
-     * @param displayName
-     * @param selected
+     * @param displayData
+     * @param state
      */
-    public void setSelect(String archiveName, String categoryName,
-            String displayName, boolean selected) {
-        for (DisplayData displayData : archiveInfoMap.get(archiveName)
-                .get(categoryName).getDisplayDataList()) {
-            if (displayName.equals(displayData.getDisplayLabel())) {
-                if (displayData.isSelected() != selected) {
-                    displayData.setSelected(selected);
-                    if (displayData.getSize() == DisplayData.UNKNOWN_SIZE) {
-                        requeue(displayData);
-                    }
-                }
-                break;
+    public void setSelect(DisplayData displayData, boolean state) {
+        if (displayData.isSelected() != state) {
+            displayData.setSelected(state);
+            if (displayData.getSize() == DisplayData.UNKNOWN_SIZE) {
+                requeue(displayData);
             }
         }
     }
@@ -351,6 +364,19 @@ public class SizeJob extends Job {
      * @param categoryName
      */
     public void changeDisplayQueue(String archiveName, String categoryName) {
+        if (archiveName == null) {
+            if (displayArchive != null) {
+                synchronized (this) {
+                    if (!displaySizesComputed.get() && !selectedQueue.isEmpty()) {
+                        requeueRequest.set(true);
+                        stopComputeSize.set(true);
+                        displayArchive = null;
+                        displaySizesComputed.set(true);
+                    }
+                }
+            }
+            return;
+        }
         if (!archiveName.equals(displayArchive)
                 || !categoryName.equals(displayCategory)) {
             synchronized (this) {
@@ -394,8 +420,8 @@ public class SizeJob extends Job {
 
         mainLoop: while (!shutdown.get()) {
             DisplayData displayData = null;
-            if (!displaySizesComputed.get()) {
-                synchronized (this) {
+            synchronized (this) {
+                if (!displaySizesComputed.get()) {
                     // Get sizes for the current display.
                     List<DisplayData> displayDatas = archiveInfoMap
                             .get(displayArchive).get(displayCategory)
