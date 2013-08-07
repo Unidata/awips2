@@ -60,6 +60,7 @@ import com.raytheon.uf.viz.archive.data.SizeJob;
  * ------------ ---------- ----------- --------------------------
  * May 23, 2013 #1964      lvenable     Initial creation
  * Jul 24, 2013 #2221      rferrel      Changes for select configuration.
+ * Aug 06, 2013 #2222      rferrel      Changes to display all selected data.
  * 
  * </pre>
  * 
@@ -73,6 +74,8 @@ public class ArchiveTableComp extends Composite {
 
     /** Column to display size information,. */
     private final int SIZE_COL_INDEX = 1;
+
+    private boolean showSelectAll = false;
 
     /** Name of table's archive. */
     String archiveName;
@@ -91,6 +94,9 @@ public class ArchiveTableComp extends Composite {
 
     /** Size label. */
     private Label sizeLbl;
+
+    /** Composite for holding the table */
+    Composite tblComp;
 
     /** The dialog's type. */
     private final ArchiveConstants.Type type;
@@ -159,11 +165,20 @@ public class ArchiveTableComp extends Composite {
     private void createTable() {
         GridData gd = null;
 
-        table = new Table(this, SWT.CHECK | SWT.BORDER | SWT.V_SCROLL
-                | SWT.H_SCROLL | SWT.MULTI | SWT.VIRTUAL);
+        tblComp = new Composite(this, SWT.NONE);
+        GridLayout gl = new GridLayout(1, false);
+        gl.marginHeight = 0;
+        gl.marginWidth = 0;
+        gl.horizontalSpacing = 0;
+        tblComp.setLayout(gl);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
         gd.widthHint = 730;
         gd.heightHint = 270;
+        tblComp.setLayoutData(gd);
+
+        table = new Table(tblComp, SWT.CHECK | SWT.BORDER | SWT.V_SCROLL
+                | SWT.H_SCROLL | SWT.MULTI | SWT.VIRTUAL);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         table.setLayoutData(gd);
         table.setHeaderVisible(true);
         table.setLinesVisible(true);
@@ -174,8 +189,15 @@ public class ArchiveTableComp extends Composite {
                 TableItem item = (TableItem) event.item;
                 int index = table.indexOf(item);
                 DisplayData displayData = tableData[index];
-                item.setText(new String[] { displayData.getDisplayLabel(),
-                        displayData.getSizeLabel() });
+                String label = null;
+                if (showSelectAll) {
+                    label = displayData.getArchiveName() + " | "
+                            + displayData.getCategoryName() + " | "
+                            + displayData.getDisplayLabel();
+                } else {
+                    label = displayData.getDisplayLabel();
+                }
+                item.setText(new String[] { label, displayData.getSizeLabel() });
                 item.setChecked(displayData.isSelected());
             }
         });
@@ -296,9 +318,7 @@ public class ArchiveTableComp extends Composite {
             TableItem item = table.getItem(index);
             if (item.getChecked()) {
                 ++count;
-                displayData.setSelected(true);
-                sizeJob.setSelect(archiveName, categoryName,
-                        displayData.getDisplayLabel(), true);
+                sizeJob.setSelect(displayData, true);
                 if (tableTotalSize >= 0) {
                     long diSize = displayData.getSize();
                     if (diSize < 0) {
@@ -308,9 +328,7 @@ public class ArchiveTableComp extends Composite {
                     }
                 }
             } else {
-                displayData.setSelected(false);
-                sizeJob.setSelect(archiveName, categoryName,
-                        displayData.getDisplayLabel(), false);
+                sizeJob.setSelect(displayData, false);
             }
         }
         List<DisplayData> displayDatas = Arrays.asList(tableData);
@@ -437,14 +455,29 @@ public class ArchiveTableComp extends Composite {
     }
 
     /**
-     * Set up table with values in the list.
+     * Update table display to show data for the desired category.
      * 
      * @param displayDatas
      */
     protected void populateTable(String archiveName, String categoryName,
             List<DisplayData> displayDatas) {
-        this.archiveName = archiveName;
-        this.categoryName = categoryName;
+        showSelectAll = false;
+        table.getColumn(0).setText("Label");
+        populateTable(displayDatas);
+    }
+
+    /**
+     * Flag table as showing all selected data and update display.
+     * 
+     * @param displayDatas
+     */
+    protected void populateSelectAll(List<DisplayData> displayDatas) {
+        showSelectAll = true;
+        table.getColumn(0).setText("Archive | Category | Label");
+        populateTable(displayDatas);
+    }
+
+    private void populateTable(List<DisplayData> displayDatas) {
         tableData = displayDatas.toArray(new DisplayData[0]);
         table.removeAll();
         table.setItemCount(tableData.length);
@@ -458,7 +491,6 @@ public class ArchiveTableComp extends Composite {
         table.setSortColumn(table.getColumn(LABEL_COL_INDEX));
         table.setSortDirection(SWT.UP);
         table.clearAll();
-        updateSelectionLabels();
     }
 
     /**
