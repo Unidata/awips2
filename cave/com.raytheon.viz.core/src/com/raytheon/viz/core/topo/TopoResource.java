@@ -23,7 +23,6 @@ package com.raytheon.viz.core.topo;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.Arrays;
-import java.util.Map;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
@@ -31,23 +30,15 @@ import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
-import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters.PersistedParameters;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
-import com.raytheon.uf.common.datastorage.Request;
-import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.topo.TopoUtils;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -77,8 +68,9 @@ import com.raytheon.viz.core.style.image.SamplePreferences;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * Feb 14, 2007             chammack    Initial Creation.
- * Apr 03, 2013     1562    mschenke    Fix for custom colormaps
- * Apr 24, 2013     1638    mschenke    Made topo configurable for source data
+ * Apr 03, 2013 1562        mschenke    Fix for custom colormaps
+ * Apr 24, 2013 1638        mschenke    Made topo configurable for source data
+ * Aug 06, 2013 2235        bsteffen    Added Caching version of TopoQuery.
  * 
  * </pre>
  * 
@@ -234,44 +226,9 @@ public class TopoResource extends
 
     private GridGeometry2D getTopoGeometry() throws VizException {
         IDataStore ds = DataStoreFactory.getDataStore(dataFile);
-
-        Request request = Request.buildSlab(new int[] { 0, 0 }, new int[] { 1,
-                1 });
-
         try {
-            IDataRecord record = ds.retrieve("/", "full", request);
-            Map<String, Object> attributes = record.getDataAttributes();
-            int width = (Integer) attributes.get("Width");
-            int height = (Integer) attributes.get("Height");
-            double ulLat = (Double) attributes.get("ulLat");
-            double ulLon = (Double) attributes.get("ulLon");
-            double lrLat = (Double) attributes.get("lrLat");
-            double lrLon = (Double) attributes.get("lrLon");
-            String crsString = (String) attributes.get("CRS");
-
-            // Construct CRS for topo data
-            CoordinateReferenceSystem crs = CRSCache.getInstance()
-                    .getCoordinateReferenceSystem(crsString);
-            // Grid range
-            GridEnvelope gridRange = new GeneralGridEnvelope(
-                    new int[] { 0, 0 }, new int[] { width, height });
-
-            // Convert ulLat/ulLon to crs space
-            MathTransform mt = CRS.findMathTransform(
-                    DefaultGeographicCRS.WGS84, crs);
-            double[] in = new double[] { ulLon, ulLat, lrLon, lrLat };
-            double[] out = new double[in.length];
-
-            mt.transform(in, 0, out, 0, 2);
-
-            GeneralEnvelope gridEnvelope = new GeneralEnvelope(2);
-            gridEnvelope.setCoordinateReferenceSystem(crs);
-            gridEnvelope.setRange(0, Math.min(out[0], out[2]),
-                    Math.max(out[0], out[2]));
-            gridEnvelope.setRange(1, Math.min(out[1], out[3]),
-                    Math.max(out[1], out[3]));
-
-            return new GridGeometry2D(gridRange, gridEnvelope);
+            return TopoUtils.getTopoGeometry(ds,
+                    TopoUtils.getDatasetForLevel(0));
         } catch (Exception e) {
             throw new VizException("Error getting grid geometry", e);
         }
