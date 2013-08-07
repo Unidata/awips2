@@ -154,4 +154,45 @@
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="com.raytheon.edex.meteolib"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+    
+      <plugin
+         id="meteolib.jni"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="meteolib.jni.linux32"
+         os="linux"
+         arch="x86"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
+
+   <plugin
+         id="meteolib.jni.linux64"
+         os="linux"
+         arch="x86_64"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
+
+   <plugin
+         id="meteolib.jni.win32"
+         os="win32"
+         arch="x86"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
+   
+
 </feature>
