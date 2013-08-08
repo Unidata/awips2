@@ -20,15 +20,12 @@
 package com.raytheon.edex.plugin.modelsounding;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.Map;
-import java.util.HashMap;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.Set;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
@@ -39,6 +36,9 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDocument;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRFile;
@@ -69,6 +69,11 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  *                                     by forecast hour and reftime when completing
  *                                     a decode operation. Overrode default
  *                                     Point Data Container size.
+ * 07/16/13          #2161 bkowal      Store the records in a container that will
+ *                                     be persisted every X (configurable) seconds
+ *                                     by a timer. The timer is started during spring
+ *                                     initialization and destroyed during spring
+ *                                     container destruction.
  * 
  * </pre>
  * 
@@ -86,7 +91,8 @@ public class ModelSoundingDecoder extends AbstractDecoder implements
     private static final int PDC_SIZE = 20;
 
     /** The logger */
-    private Log logger = LogFactory.getLog(getClass());
+    private final IUFStatusHandler logger = UFStatus
+            .getHandler(ModelSoundingDecoder.class);
 
     private PointDataDescription pdd;
 
@@ -95,6 +101,8 @@ public class ModelSoundingDecoder extends AbstractDecoder implements
     private boolean failSafe = false;
 
     private IDescriptorFactoryDelegate delegate;
+
+    private ModelSoundingPersistenceManager modelSoundingPersistenceManager;
 
     /**
      * Construct a ProfilerDecoder instance.
@@ -112,6 +120,14 @@ public class ModelSoundingDecoder extends AbstractDecoder implements
             logger.error("Plugin set to failSafe mode");
             failSafe = true;
         }
+    }
+
+    public void start() {
+        this.modelSoundingPersistenceManager.start();
+    }
+
+    public void shutdown() {
+        this.modelSoundingPersistenceManager.shutdown();
     }
 
     /**
@@ -132,10 +148,11 @@ public class ModelSoundingDecoder extends AbstractDecoder implements
             return new PluginDataObject[0];
         }
 
-        PluginDataObject[] decodedData = null;
+        if (logger.isPriorityEnabled(Priority.DEBUG)) {
+            logger.debug(traceId + "- Starting decode process");
+        }
 
-        logger.debug(traceId + "- Starting decode process");
-        if (data != null && data.length > 0) {
+        if ((data != null) && (data.length > 0)) {
 
             WMOHeader wmoHeader = new WMOHeader(data, headers);
 
@@ -157,9 +174,7 @@ public class ModelSoundingDecoder extends AbstractDecoder implements
                     messageData = null;
 
                     Iterator<BUFRDataDocument> iterator = document.iterator();
-                    List<SoundingSite> pdoList = new ArrayList<SoundingSite>();
-
-                    Map<SoundingTemporalData, PointDataContainer> pdcTemporalMap = new HashMap<SoundingTemporalData, PointDataContainer>();
+                    Map<String, ModelSoundingStorageContainer> containerMap = new HashMap<String, ModelSoundingStorageContainer>();
 
                     while (iterator.hasNext()) {
                         BUFRDataDocument dataDoc = iterator.next();
@@ -167,29 +182,41 @@ public class ModelSoundingDecoder extends AbstractDecoder implements
                             continue;
                         }
 
-                        SoundingTemporalData soundingTemporalData = ModelSoundingDataAdapter
-                                .getSoundingTemporalInformation(dataDoc);
+                        SoundingModelTemporalData soundingTemporalData = ModelSoundingDataAdapter
+                                .getSoundingTemporalInformation(dataDoc,
+                                        wmoHeader);
 
-                        PointDataContainer container = pdcTemporalMap
-                                .get(soundingTemporalData);
+                        String pdcKey = (soundingTemporalData == null) ? " NULL"
+                                : soundingTemporalData.toString();
+                        ModelSoundingStorageContainer container = containerMap
+                                .get(pdcKey);
                         if (container == null) {
-                            container = PointDataContainer.build(pdd, PDC_SIZE);
-                            pdcTemporalMap.put(soundingTemporalData, container);
-                            if (logger.isDebugEnabled()) {
-                                logger.debug("Added Point Data Container to Map with: "
-                                        + ((soundingTemporalData == null) ? " NULL"
-                                                : soundingTemporalData
-                                                        .toString()));
+                            // haven't yet decoded a sounding for the given
+                            // refTime/forecasthour, check the persistence
+                            // manager for one from a previous decode
+                            container = modelSoundingPersistenceManager
+                                    .checkOut(pdcKey);
+
+                            if (container == null) {
+                                if (logger.isPriorityEnabled(Priority.DEBUG)) {
+                                    logger.debug("Creating new Point Data Container: "
+                                            + pdcKey);
+                                }
+
+                                container = new ModelSoundingStorageContainer(
+                                        PointDataContainer.build(pdd, PDC_SIZE));
+                            } else if (logger.isPriorityEnabled(Priority.DEBUG)) {
+                                logger.debug("Reusing Point Data Container: "
+                                        + pdcKey);
                             }
-                        } else if (logger.isDebugEnabled()) {
-                            logger.debug("Retrieved Point Data Container from Map with: "
-                                    + ((soundingTemporalData == null) ? " NULL"
-                                            : soundingTemporalData.toString()));
+
+                            containerMap.put(pdcKey, container);
                         }
 
+                        PointDataContainer pdc = container.getPdc();
                         SoundingSite soundingData = ModelSoundingDataAdapter
-                                .createSoundingData(dataDoc, wmoHeader,
-                                        container, soundingTemporalData);
+                                .createSoundingData(dataDoc, wmoHeader, pdc,
+                                        soundingTemporalData);
                         if (soundingData != null) {
                             soundingData.setTraceId(traceId);
                             soundingData.setPluginName(PLUGIN_NAME);
@@ -201,30 +228,31 @@ public class ModelSoundingDecoder extends AbstractDecoder implements
                             }
                             String uri = soundingData.getDataURI();
                             if (dataSet.add(uri)) {
-                                pdoList.add(soundingData);
+                                container.addPdo(soundingData);
                             }
                         }
                     }
-                    decodedData = pdoList.toArray(new PluginDataObject[pdoList
-                            .size()]);
+
+                    for (Map.Entry<String, ModelSoundingStorageContainer> entry : containerMap
+                            .entrySet()) {
+                        modelSoundingPersistenceManager.checkIn(entry.getKey(),
+                                entry.getValue());
+                    }
                 } catch (Exception ee) {
                     logger.error(traceId + "- Decoder error", ee);
-                } finally {
-                    if (decodedData == null) {
-                        decodedData = new PluginDataObject[0];
-                    }
                 }
             } else {
                 logger.error(traceId + "- Missing or invalid WMOHeader");
-                decodedData = new PluginDataObject[0];
             }
         } else {
             logger.info(traceId + "- No data in file");
-            decodedData = new PluginDataObject[0];
         }
-        logger.debug(traceId + "- ModelSounding decode complete");
 
-        return decodedData;
+        if (logger.isPriorityEnabled(Priority.DEBUG)) {
+            logger.debug(traceId + "- ModelSounding decode complete");
+        }
+
+        return new PluginDataObject[0];
     }
 
     /**
@@ -270,6 +298,15 @@ public class ModelSoundingDecoder extends AbstractDecoder implements
     @Override
     public String getSelector() {
         return "DEFAULT";
+    }
+
+    public ModelSoundingPersistenceManager getModelSoundingPersistenceManager() {
+        return modelSoundingPersistenceManager;
+    }
+
+    public void setModelSoundingPersistenceManager(
+            ModelSoundingPersistenceManager modelSoundingPersistenceManager) {
+        this.modelSoundingPersistenceManager = modelSoundingPersistenceManager;
     }
 
 }

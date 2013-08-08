@@ -43,14 +43,12 @@ public class NsharpStationInfo {
 		
 	}
 	protected List<timeLineSpecific> timeLineSpList = new ArrayList<timeLineSpecific>(); 
-	//Chin PER protected float latitude;
-	//protected float longitude;
 	protected double latitude;
 	protected double longitude;
 	protected Timestamp reftime;  //uair (same as Synoptictime in uair)
 	protected Timestamp rangestarttime; //rangestart used by model sounding e.g. PFC sounding, or uair (same as Synoptictime in uair) 
 	protected String stnDisplayInfo;
-	protected String sndType;
+	protected String sndType="N/A";
 	protected String stnId;
 	
 	
