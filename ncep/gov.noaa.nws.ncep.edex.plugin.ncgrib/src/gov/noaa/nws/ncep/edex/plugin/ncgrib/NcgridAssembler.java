@@ -47,6 +47,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.common.util.file.FilenameFilters;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
@@ -80,7 +81,7 @@ public class NcgridAssembler {
      */
     public NcgridAssembler() {
         if (ncthinnedModels == null) {
-            //System.out.println(" load nc thin models commonPath:");
+            // System.out.println(" load nc thin models commonPath:");
 
             loadNcThinnedModels();
         }
@@ -95,23 +96,24 @@ public class NcgridAssembler {
         File commonPath = pm.getFile(pm.getContext(
                 LocalizationType.EDEX_STATIC, LocalizationLevel.BASE),
                 "/ncgrib/ncthinnedModels");
-        
-        //System.out.println(" load thin models commonPath=" + commonPath);
+
+        // System.out.println(" load thin models commonPath=" + commonPath);
 
         FilenameFilter filter = FilenameFilters.byFilters(
                 FilenameFilters.ACCEPT_FILES,
                 FilenameFilters.byFileExtension(".xml"));
 
-        List<File> thinnedModelFiles = FileUtil.listFiles(commonPath,
-                filter, false);
+        List<File> thinnedModelFiles = FileUtil.listFiles(commonPath, filter,
+                false);
 
         for (File file : thinnedModelFiles) {
-            //System.out.println(" load thin models file=" + file.getName());
+            // System.out.println(" load thin models file=" + file.getName());
 
             try {
                 NccompositeModel model = (NccompositeModel) SerializationUtil
                         .jaxbUnmarshalFromXmlFile(file.getPath());
-                //System.out.println(" load thin models model=" + model.getModelName());
+                // System.out.println(" load thin models model=" +
+                // model.getModelName());
 
                 ncthinnedModels.put(model.getModelName(), model);
             } catch (SerializationException e) {
@@ -199,15 +201,15 @@ public class NcgridAssembler {
      * @return The new grib record
      * @throws Exception
      */
-    private NcgribRecord processGrid(NcgribRecord record, NccompositeModel thinned)
-            throws Exception {
+    private NcgribRecord processGrid(NcgribRecord record,
+            NccompositeModel thinned) throws Exception {
 
-        NcgribDao dao = (NcgribDao) PluginFactory.getInstance()
-                .getPluginDao("ncgrib");
+        NcgribDao dao = (NcgribDao) PluginFactory.getInstance().getPluginDao(
+                "ncgrib");
         String modelName = record.getModelInfo().getModelName();
         String dataURI = record.getDataURI();
-        String assembledDataURI = dataURI.replace(modelName, thinned
-                .getModelName());
+        String assembledDataURI = dataURI.replace(modelName,
+                thinned.getModelName());
 
         List<?> result = dao.queryBySingleCriteria("dataURI", assembledDataURI);
         NcgribRecord assembledRecord = null;
@@ -240,8 +242,9 @@ public class NcgridAssembler {
      * @return The composite NcgribRecord
      * @throws Exception
      */
-    private NcgribRecord mergeData(NcgribRecord record, NcgribRecord assembledRecord,
-            NcgribDao dao, NccompositeModel thinned) throws Exception {
+    private NcgribRecord mergeData(NcgribRecord record,
+            NcgribRecord assembledRecord, NcgribDao dao,
+            NccompositeModel thinned) throws Exception {
 
         String modelName = record.getModelInfo().getModelName();
         NcgridCoverage coverage = record.getModelInfo().getLocation();
@@ -264,9 +267,11 @@ public class NcgridAssembler {
                     "Error assembling ncgrids.  Thinned ncgrid definition does not contain "
                             + modelName);
         }
-        Util.insertSubgrid(assembledData, Util.resizeDataTo2D((float[]) record
-                .getMessageData(), coverage.getNx(), coverage.getNy()), nx
-                * modIndex, 0, nx, ny);
+        Util.insertSubgrid(
+                assembledData,
+                Util.resizeDataTo2D((float[]) record.getMessageData(),
+                        coverage.getNx(), coverage.getNy()), nx * modIndex, 0,
+                nx, ny);
 
         assembledRecord.setMessageData(Util.resizeDataTo1D(assembledData,
                 (int) sizes[1], (int) sizes[0]));
@@ -279,8 +284,8 @@ public class NcgridAssembler {
      * Creates the composite grib record and stores it to the HDF5 repository
      * 
      * @param record
-     *            The recieved NcgribRecord used to initialize the composite grid
-     *            with
+     *            The recieved NcgribRecord used to initialize the composite
+     *            grid with
      * @param dao
      *            An instance of the grib data access object
      * @param thinned
@@ -296,8 +301,8 @@ public class NcgridAssembler {
         NcgridCoverage gridLoc = record.getModelInfo().getLocation();
 
         float[] data = new float[(gridLoc.getNx() * 4) * gridLoc.getNy()];
-        for(int i = 0; i < data.length;i++){
-            data[i] = Util.GRID_FILL_VALUE;
+        for (int i = 0; i < data.length; i++) {
+            data[i] = GridUtil.GRID_FILL_VALUE;
         }
         NcgribRecord newRecord = new NcgribRecord();
         NcgribModel newModel = new NcgribModel(record.getModelInfo());
@@ -310,8 +315,8 @@ public class NcgridAssembler {
         try {
             newModel = NcgribModelCache.getInstance().getModel(newModel);
         } catch (DataAccessLayerException e) {
-            throw new GribException("Unable to get ncep model info from the cache!",
-                    e);
+            throw new GribException(
+                    "Unable to get ncep model info from the cache!", e);
         }
         newRecord.setModelInfo(newModel);
         newRecord.setMessageData(data);
