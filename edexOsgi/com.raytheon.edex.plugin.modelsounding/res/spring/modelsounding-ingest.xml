@@ -3,13 +3,17 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
     
-	<bean id="modelsoundingDecoder"
-		class="com.raytheon.edex.plugin.modelsounding.ModelSoundingDecoder" />
-
-    <bean id="mdlsndgSeparator" class="com.raytheon.edex.plugin.modelsounding.ModelSoundingSeparator" >
-        <property name="chunkSize" value="500000" />
+    <bean id="modelsoundingPersistenceManager"
+    	class="com.raytheon.edex.plugin.modelsounding.ModelSoundingPersistenceManager">
     </bean>
     
+	<bean id="modelsoundingDecoder"
+		class="com.raytheon.edex.plugin.modelsounding.ModelSoundingDecoder"
+		init-method="start"
+		destroy-method="shutdown">
+		<property name="modelSoundingPersistenceManager" ref="modelsoundingPersistenceManager" />
+	</bean>
+
     <!-- Filter down sounding data -->
     <!-- bean id="mdlsndgFilter" class="com.raytheon.uf.edex.decodertools.core.filterimpl.PluginDataObjectFilter">
         <constructor-arg type="java.lang.String" value="modelSounding_filters.xml" />
@@ -30,6 +34,7 @@
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler"
 		autoStartup="false">
+		
 		<!--
 		<endpoint id="modelsndgFileEndpoint"
 		    uri="file:${edex.home}/data/sbn/mdlsndg?noop=true&amp;idempotent=false" />
@@ -53,19 +58,9 @@
             <doTry>
                 <pipeline>
 					<bean ref="stringToFile" />
-            		<split streaming="true">
-                		<method bean="mdlsndgSeparator" method="getSeparator"/>
-		                <doTry>
-		    	            <pipeline>
-        	    		        <bean ref="modelsoundingDecoder" method="decode"/>
-                        		<to uri="direct-vm:persistIndexAlert" />
-		                    </pipeline>
-         	                <doCatch>
-                  			    <exception>java.lang.Throwable</exception>
-			                    <to uri="log:modelsounding?level=ERROR"/>
-			                </doCatch>
-		                </doTry>
-		           </split>
+    		        <bean ref="modelsoundingDecoder" method="decode"/>
+                    <!-- model sounding decoder has dedicated store thread, only need to forward to log -->
+    		        <bean ref="processUtil" method="log"/>
                 </pipeline>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
@@ -73,5 +68,14 @@
                 </doCatch>
             </doTry>
 		</route>
+        
+        <!-- Copy of persist route without the log call -->
+        <route id="modelSoundingPersistIndexAlert">
+            <from uri="direct-vm:modelSoundingPersistIndexAlert"/>
+            <bean ref="persist" method="persist"/>
+            <bean ref="index" method="index"/>
+            <bean ref="toDataURI" method="toDataURI"/>
+            <to uri="vm:stageNotification"/> 
+        </route>
     </camelContext>
 </beans>
