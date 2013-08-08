@@ -1,7 +1,7 @@
 package gov.noaa.nws.ncep.ui.nsharp.view;
 /**
  * 
- * gov.noaa.nws.ncep.ui.nsharp.palette.NsharpStnConfigDialog
+ * gov.noaa.nws.ncep.ui.nsharp.palette.NsharpSndConfigDialog
  * 
  * 
  * This code has been developed by the NCEP-SIB for use in the AWIPS2 system.
@@ -39,22 +39,22 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
-public class NsharpStnConfigDialog extends Dialog {
-	private static NsharpStnConfigDialog INSTANCE = null;
-	private   org.eclipse.swt.widgets.List stnList;
-	private  List<String> selectedStnList = new ArrayList<String>(); 
+public class NsharpSndConfigDialog extends Dialog {
+	private static NsharpSndConfigDialog INSTANCE = null;
+	private   org.eclipse.swt.widgets.List sndList;
+	private  List<String> selectedsndList = new ArrayList<String>(); 
 	protected Composite top;
 	private MessageBox mb;
-	protected NsharpStnConfigDialog(Shell parentShell) {
+	protected NsharpSndConfigDialog(Shell parentShell) {
 		super(parentShell);
 		mb = new MessageBox(parentShell, SWT.ICON_WARNING
 				| SWT.OK );
-		mb.setMessage( "Current station can't be deactivated!");
+		mb.setMessage( "Current sounding type can't be deactivated!");
 	}
-	public static NsharpStnConfigDialog getInstance( Shell parShell){
+	public static NsharpSndConfigDialog getInstance( Shell parShell){
 		
 		if ( INSTANCE == null ){
-			INSTANCE = new NsharpStnConfigDialog( parShell );
+			INSTANCE = new NsharpSndConfigDialog( parShell );
 			
 		}
 		return INSTANCE;
@@ -68,14 +68,14 @@ public class NsharpStnConfigDialog extends Dialog {
 	@Override
 	public boolean close() {
 		
-		if(stnList!=null){
-			stnList.removeListener(SWT.Selection, stnList.getListeners(SWT.Selection)[0]);
-			stnList.dispose();
-			stnList = null;
+		if(sndList!=null){
+			sndList.removeListener(SWT.Selection, sndList.getListeners(SWT.Selection)[0]);
+			sndList.dispose();
+			sndList = null;
 		}
-		if(selectedStnList!= null){
-			selectedStnList.clear();
-			selectedStnList = null;
+		if(selectedsndList!= null){
+			selectedsndList.clear();
+			selectedsndList = null;
 		}
 		INSTANCE = null;
 		return super.close();
@@ -84,7 +84,7 @@ public class NsharpStnConfigDialog extends Dialog {
 	@Override   
     protected void configureShell( Shell shell ) {
         super.configureShell( shell );       
-        shell.setText( "Station Configuration" );
+        shell.setText( "Sounding Configuration" );
 	}
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
@@ -114,26 +114,26 @@ public class NsharpStnConfigDialog extends Dialog {
 
 	private void createDiaContents(Composite parent) {
 		//create file widget list 
-		Group stnListGp = new Group(parent,SWT.SHADOW_ETCHED_IN);
-		stnList = new org.eclipse.swt.widgets.List(stnListGp, SWT.BORDER | SWT.MULTI| SWT.V_SCROLL  );
-		stnList.setBounds(0,0, 2*NsharpConstants.listWidth, NsharpConstants.listHeight * 8);
-		createStnList();
+		Group sndListGp = new Group(parent,SWT.SHADOW_ETCHED_IN);
+		sndList = new org.eclipse.swt.widgets.List(sndListGp, SWT.BORDER | SWT.MULTI| SWT.V_SCROLL  );
+		sndList.setBounds(0,0, 2*NsharpConstants.listWidth, NsharpConstants.listHeight * 8);
+		createsndList();
         //create a selection listener to handle user's selection on list		
-		stnList.addListener ( SWT.Selection, new Listener () {
-        	private String selectedSndTime=null;	
+		sndList.addListener ( SWT.Selection, new Listener () {
+        	private String selectedSndType=null;	
     		public void handleEvent (Event e) {   			
-    			if (stnList.getSelectionCount() > 0 ) {  	
-    				selectedStnList.clear();
-    				for(int i=0; i < stnList.getSelectionCount(); i++) {
-    					selectedSndTime = stnList.getSelection()[i];
-    					if(selectedSndTime.contains("Active-Current") == true){
-    						stnList.deselect(stnList.indexOf(selectedSndTime));
+    			if (sndList.getSelectionCount() > 0 ) {  	
+    				selectedsndList.clear();
+    				for(int i=0; i < sndList.getSelectionCount(); i++) {
+    					selectedSndType = sndList.getSelection()[i];
+    					if(selectedSndType.contains("Active-Current") == true){
+    						sndList.deselect(sndList.indexOf(selectedSndType));
     						mb.open();
     						break;
     					}
     					//remove "--InActive" or "--Active" from string
-    					selectedSndTime= selectedSndTime.substring(0, selectedSndTime.indexOf('-'));
-    					selectedStnList.add(selectedSndTime);
+    					selectedSndType= selectedSndType.substring(0, selectedSndType.indexOf('-'));
+    					selectedsndList.add(selectedSndType);
     				}
     				
     			}
@@ -149,8 +149,8 @@ public class NsharpStnConfigDialog extends Dialog {
 		activateBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {   
 				NsharpResourceHandler rsc = NsharpEditor.getActiveNsharpEditor().getRscHandler();			
-				rsc.handleStationActConfig(selectedStnList, NsharpConstants.ActState.ACTIVE);
-				selectedStnList.clear();
+				rsc.handleSndTypeActConfig(selectedsndList, NsharpConstants.ActState.ACTIVE);
+				selectedsndList.clear();
 				close();
 			}
 
@@ -162,8 +162,8 @@ public class NsharpStnConfigDialog extends Dialog {
 			public void handleEvent(Event event) {  
 				//System.out.println("Unload Selected");
 				NsharpResourceHandler rsc = NsharpEditor.getActiveNsharpEditor().getRscHandler();				
-				rsc.handleStationActConfig(selectedStnList, NsharpConstants.ActState.INACTIVE);
-				selectedStnList.clear();
+				rsc.handleSndTypeActConfig(selectedsndList, NsharpConstants.ActState.INACTIVE);
+				selectedsndList.clear();
 				close();
 			}          		            	 	
 		} );
@@ -179,24 +179,24 @@ public class NsharpStnConfigDialog extends Dialog {
         }
         return true;
     }
-	private void createStnList(){
+	private void createsndList(){
 		if(checkLoadedRsc()== false)
 			return;
 		//after checking, rsc is not null guaranteed.
 		NsharpResourceHandler rsc = NsharpEditor.getActiveNsharpEditor().getRscHandler();
-		List<NsharpOperationElement>  stnStList = rsc.getStnElementList();
-		int curStnIndex = rsc.getCurrentStnElementListIndex();
-		for(NsharpOperationElement stn: stnStList){
+		List<NsharpOperationElement>  sndTypeList = rsc.getSndElementList();
+		int curStnIndex = rsc.getCurrentSndElementListIndex();
+		for(NsharpOperationElement snd: sndTypeList){
 			String s;
-			if(stn.getActionState() == NsharpConstants.ActState.INACTIVE)
+			if(snd.getActionState() == NsharpConstants.ActState.INACTIVE)
 				s = "--(InActive)";
 			else{
-				if(stnStList.indexOf(stn)== curStnIndex)
+				if(sndTypeList.indexOf(snd)== curStnIndex)
 					s="--(Active-Current)";
 				else
 					s="--(Active)";
 			}
-			stnList.add(stn.getElementDescription() +s);
+			sndList.add(snd.getElementDescription() +s);
 		}
 	}
 }
