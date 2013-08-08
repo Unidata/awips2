@@ -23,15 +23,16 @@
  package gov.noaa.nws.ncep.edex.plugin.ncuair.decoder;
 
  import java.util.ArrayList;
- import java.util.Iterator;
- import java.util.List;
- import java.util.NoSuchElementException;
- import java.util.regex.Matcher;
- import java.util.regex.Pattern;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.raytheon.edex.esb.Headers;
- import com.raytheon.edex.plugin.AbstractRecordSeparator;
- import com.raytheon.edex.util.Util;
+import com.raytheon.edex.plugin.AbstractRecordSeparator;
+import com.raytheon.uf.common.util.StringUtil;
+
 import org.apache.log4j.Logger;
  
  public class NcUairSeparator extends AbstractRecordSeparator {
@@ -108,7 +109,7 @@ import org.apache.log4j.Logger;
 	 public byte[] next() {
 		 try {
 			 String temp = iterator.next();
-			 if (Util.isEmptyString(temp)) {
+			 if (StringUtil.isEmptyString(temp)) {
 				 return (byte[])null;
 			 } else {
 				 return temp.getBytes();
