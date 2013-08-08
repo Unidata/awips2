@@ -174,7 +174,9 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
     sprintf ( message , "\t\tMPE Precip Processing -- %s\n", strTempTime) ;
     printMessage( message, logFile );
 
-    sprintf ( message , "\t\tVersion OB11.7 -- Jun 01, 2011 \n") ;
+    sprintf ( message , "\t\tLast Modification: August 1, 2013 \n") ;
+    printMessage( message, logFile );
+    sprintf ( message , "\t\t \n") ;
     printMessage( message, logFile );
 
     sprintf( message , "STATUS: Processing %d hour(s)\n",
