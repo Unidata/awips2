@@ -37,6 +37,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
  * May 7, 2013  1973       rferrel     Changes to properly display Issue Time.
+ * Aug 7, 2013  2243       jsanchez    Set all the attributes of an AbstractWarningRecord and added an expiration string.
  * 
  * </pre>
  * 
@@ -50,22 +51,25 @@ public class FollowupData extends WarningRecord {
     /**
      * String displayed in the drop down update list.
      */
-    public String displayString;
+    private String displayString;
 
     /**
      * String used to test if this object is equivalent to one of the updated
      * items in the drop down.
      */
-    public String equvialentString;
+    private String equvialentString;
+
+    /**
+     * Information string used when the follow up is no longer valid or allowed.
+     */
+    private String expirationString;
 
     public FollowupData(WarningAction action, AbstractWarningRecord record) {
+        super((WarningRecord) record);
         setAct(action.toString());
-        setOfficeid(record.getOfficeid());
-        setPhen(record.getPhen());
-        setSig(record.getSig());
-        setEtn(record.getEtn());
 
-        displayString = getDisplayString(action, record);
+        displayString = createDisplayString(action, record);
+        expirationString = createExpirationString(action);
     }
 
     /**
@@ -76,7 +80,7 @@ public class FollowupData extends WarningRecord {
      * @param record
      * @return
      */
-    private String getDisplayString(WarningAction status,
+    private String createDisplayString(WarningAction status,
             AbstractWarningRecord record) {
         StringBuilder rval = new StringBuilder();
         if (record.getProductClass().equals("T")) {
@@ -96,6 +100,29 @@ public class FollowupData extends WarningRecord {
                 record.getProductClass().equals("T") ? 20 : 18);
 
         return rval.toString();
+    }
+
+    /**
+     * Creates the expiration string based on the action. The expiration string
+     * provides an explanation of why the follow up data is no longer valid.
+     * 
+     * @param action
+     * @return
+     */
+    private String createExpirationString(WarningAction action) {
+        String message = null;
+        if (action == WarningAction.NEW) {
+            message = "Reissue no longer allowed; after 30 minutes of warning expiration.";
+        } else if (action == WarningAction.COR) {
+            message = "Correction no longer allowed; after 10 minutes of warning issuance.";
+        } else if (action == WarningAction.CAN) {
+            message = "Cancellation no longer allowed; within 10 minutes of warning expiration.";
+        } else if (action == WarningAction.CON) {
+            message = "Continuation no longer allowed; within 5 minutes of warning expiration.";
+        } else if (action == WarningAction.EXP) {
+            message = "Expiration no longer allowed; after 10 minutes of warning expiration.";
+        }
+        return message;
     }
 
     /**
@@ -141,6 +168,18 @@ public class FollowupData extends WarningRecord {
                 && this.getPhen().equals(obj.getPhen())
                 && this.getSig().equals(obj.getSig())
                 && this.getEtn().equals(obj.getEtn());
+    }
+
+    public String getDisplayString() {
+        return displayString;
+    }
+
+    public String getEquvialentString() {
+        return equvialentString;
+    }
+
+    public String getExpirationString() {
+        return expirationString;
     }
 
 }
