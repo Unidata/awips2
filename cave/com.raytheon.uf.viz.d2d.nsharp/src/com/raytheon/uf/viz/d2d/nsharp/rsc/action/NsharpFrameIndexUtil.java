@@ -46,7 +46,7 @@ import com.raytheon.uf.viz.core.drawables.IFrameCoordinator.FrameChangeOperation
  */
 
 public class NsharpFrameIndexUtil {
-
+/* Chin
     public static int getFrameCount(NsharpResourceHandler handler){
         int count = 0;
         for (List<NsharpSoundingElementStateProperty> list : handler.getStnTimeTable()) {
@@ -104,5 +104,5 @@ public class NsharpFrameIndexUtil {
             current = handler.getCurSndProfileProp();
         }
     }
-
+*/
 }

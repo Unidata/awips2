@@ -709,7 +709,6 @@ public class MPEDisplayManager {
                 || accumulationHrs != displayedAccumHrs
                 || arealDisplay != displayedArealDisplay) {
             DisplayFieldData oldField = displayedField;
-
             displayedField = fieldToDisplay;
             displayedAccumHrs = accumulationHrs;
             displayedArealDisplay = arealDisplay;
@@ -737,7 +736,7 @@ public class MPEDisplayManager {
                     listener.displayFieldChanged(oldField, fieldToDisplay);
                 }
             }
-        }
+            }
 
         displayedFieldResource.issueRefresh();
     }
@@ -1013,7 +1012,7 @@ public class MPEDisplayManager {
                         .convert((short) displayToData.convert(threshold)));
                 if (displayField != DisplayFieldData.Index) {
                     entry.setLabel(format.format(threshold));
-                }
+            }
             }
             entry.setPixelValue((double) i);
 
@@ -1049,7 +1048,7 @@ public class MPEDisplayManager {
                     entries[i].setLabel("");
                 }
             }
-         }
+        }
 
         return params;
     }
