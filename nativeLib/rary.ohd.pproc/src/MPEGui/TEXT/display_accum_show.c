@@ -436,8 +436,12 @@ static void accum_show_data ( Widget w , XtPointer clientdata ,
    for ( i = index ; ( i < ( index + interval_value ) ) && 
                      ( i < NUMHRS ) ; ++ i )
    {
+	  /*
+	   * Set to zeros; it is known that this code is unused in AWIPS II
+	   * due to the existence of the X functions in this source file.
+	   */
       display_field_data_RFCW ( display_Xmrg , rad_data[0].data_array ,
-                                dates [ i ] , 1 ) ;
+                                dates [ i ] , 1 , 0, 0) ;
    }
 
    /* If the type of this precipitation accumulation is anything other
