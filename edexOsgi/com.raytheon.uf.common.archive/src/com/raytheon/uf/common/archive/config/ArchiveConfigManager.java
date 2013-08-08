@@ -714,9 +714,10 @@ public class ArchiveConfigManager {
                             displayData = new DisplayData(archiveConfig,
                                     categoryConfig, dataSet, displayLabel);
                             displays.put(displayLabel, displayData);
-                        } else {
+                        } else if (!displayData.dataSets.contains(dataSet)) {
                             displayData.dataSets.add(dataSet);
                         }
+
                         displayData.dirsMap.put(dataSet, displayDirs);
                         break;
                     }
