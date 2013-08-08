@@ -793,7 +793,7 @@ static void apply_edit_polygon(const rubber_poly_data * pPolyNode,
 
         display_field_data_RFCW(
                 ( enum DisplayFieldData ) pPolyNode->draw_source, temp_array,
-                (date_struct ) * pDate, ( int ) add_flag );
+                (date_struct ) * pDate, ( int ) add_flag , num_rows, num_columns );
     }
 
     /*-----------------------------------------------------------*/
@@ -829,8 +829,13 @@ static void apply_edit_polygon(const rubber_poly_data * pPolyNode,
             case display_rfcbMosaic:
             case display_rfcmMosaic:
             case display_Xmrg:
+            case display_lqMosaic:
+            case display_qMosaic:
+            case display_mlqMosaic:
 
                 data_array[x_adj][y_adj] = temp_array[x_adj][y_adj];
+
+                break;
 
             case display_subValue:
 
