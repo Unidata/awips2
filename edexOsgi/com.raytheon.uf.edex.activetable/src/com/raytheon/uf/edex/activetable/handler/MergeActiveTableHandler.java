@@ -58,6 +58,8 @@ import com.vividsolutions.jts.io.WKTReader;
  *                                       ETN values.
  * Feb 26, 2013  #1447     dgilling      Rewrite based on MergeActiveTableRequest
  *                                       and use MergeVTEC.py to perform merge.
+ * Jul 23, 2013  #2212     dgilling      Fix ClassCastExceptions on flood
+ *                                       fields.
  * 
  * </pre>
  * 
@@ -181,31 +183,32 @@ public class MergeActiveTableHandler implements
                     atr.setProductClass(template.get("productClass").toString());
                     atr.setUgcZone(template.get("id").toString());
                     atr.setRawmessage(template.get("rawMessage").toString());
-
                     atr.setCountyheader((String) template.get("countyheader"));
-                    Integer floodBeginInt = (Integer) template
-                            .get("floodBegin");
-                    if (floodBeginInt != null) {
+
+                    Number floodBeginTime = (Number) template.get("floodBegin");
+                    if (floodBeginTime != null) {
                         Calendar floodBegin = GregorianCalendar.getInstance();
-                        floodBegin.setTimeInMillis(floodBeginInt * 1000L);
+                        floodBegin
+                                .setTimeInMillis(floodBeginTime.longValue() * 1000L);
                         atr.setFloodBegin(floodBegin);
                     }
-                    Integer floodCrestInt = (Integer) template
-                            .get("floodCrest");
-                    if (floodCrestInt != null) {
+                    Number floodCrestTime = (Number) template.get("floodCrest");
+                    if (floodCrestTime != null) {
                         Calendar floodCrest = GregorianCalendar.getInstance();
-                        floodCrest.setTimeInMillis(floodCrestInt * 1000L);
+                        floodCrest
+                                .setTimeInMillis(floodCrestTime.longValue() * 1000L);
                         atr.setFloodCrest(floodCrest);
                     }
-                    Integer floodEndInt = (Integer) template.get("floodEnd");
-                    if (floodEndInt != null) {
+                    Number floodEndTime = (Number) template.get("floodEnd");
+                    if (floodEndTime != null) {
                         Calendar floodEnd = GregorianCalendar.getInstance();
-                        floodEnd.setTimeInMillis(floodEndInt * 1000L);
+                        floodEnd.setTimeInMillis(floodEndTime.longValue() * 1000L);
                         atr.setFloodEnd(floodEnd);
                     }
                     atr.setFloodRecordStatus((String) template
                             .get("floodRecordStatus"));
                     atr.setFloodSeverity((String) template.get("floodseverity"));
+
                     atr.setImmediateCause((String) template
                             .get("immediateCause"));
                     atr.setLoc((String) template.get("loc"));
