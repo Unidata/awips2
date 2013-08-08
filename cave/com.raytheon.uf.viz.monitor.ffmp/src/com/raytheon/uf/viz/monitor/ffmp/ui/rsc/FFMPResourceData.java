@@ -81,6 +81,7 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPConfigBasinXML;
  * Apr 26, 2013 1954       bsteffen    Minor code cleanup throughout FFMP.
  * Jun 06, 2013 2075       njensen     Use new load jobs
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
+ * Jul 17, 2013 2197       njensen     Broke background loading into chunks
  * 
  * </pre>
  * 
@@ -215,6 +216,7 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                 final double configTimeFrame = cfgBasinXML.getTimeFrame();
                 final Date timeBack = new Date(
                         (long) (mostRecentTime.getTime() - (configTimeFrame * TimeUtil.MILLIS_PER_HOUR)));
+
                 final List<String> onlyAllHuc = new ArrayList<String>();
                 onlyAllHuc.add(FFMPRecord.ALL);
                 InitialLoadJob initialJob = new InitialLoadJob(this, timeBack,
@@ -232,6 +234,7 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                                 backgroundStartTime, timeBack, onlyAllHuc);
                         backgroundJob.setPreloadAvailableUris(true);
                         backgroundJob.schedule();
+
                     }
                 });
                 initialJob.schedule();
@@ -241,6 +244,7 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                 // will be faster
                 List<String> earlyLoadHucs = new ArrayList<String>();
                 earlyLoadHucs.addAll(onlyAllHuc);
+
                 for (String otherHuc : FFMPTemplateConfigurationManager
                         .getInstance().getHucLevels()) {
                     if (!earlyLoadHucs.contains(otherHuc)) {
@@ -291,12 +295,12 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                                     standAloneTime);
                     monitor.processUris(sourceURIs, siteKey, sourceName,
                             standAloneTime, SubMonitor.convert(null));
+
                 }
             }
         }
 
         return new FFMPResource(this, loadProperties);
-
     }
 
     /**
