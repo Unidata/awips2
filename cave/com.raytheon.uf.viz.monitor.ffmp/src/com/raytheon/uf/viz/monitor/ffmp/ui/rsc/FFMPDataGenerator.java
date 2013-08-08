@@ -79,6 +79,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  *                                     multi-threaded row creation.
  * July 1, 2013    2155   dhladky     Fixed bug that created more rows than were actually needed.
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
+ * Jul 16, 2013    2197   njensen     Use FFMPBasinData.hasAnyBasins() for efficiency
  * 
  * </pre>
  * 
@@ -163,7 +164,9 @@ public class FFMPDataGenerator {
      * @return FFMPTableData object
      * @throws Exception
      */
+
     public FFMPTableData generateFFMPData() throws Exception {
+
         // You should always have at least a QPE data source
         FFMPTableData tData = null;
         // update the FFFGDataManager
@@ -174,23 +177,27 @@ public class FFMPDataGenerator {
             FIELDS field = getBaseField();
 
             if (field == null || baseRec == null) {
+
                 return tData;
             }
 
             List<DomainXML> domains = resource.getDomains();
 
             if ((centeredAggregationKey == null) || huc.equals(FFMPRecord.ALL)) {
-                // System.out.println(fbd.getBasins().keySet().size()
-                // + " rows in the table");
+
                 if (huc.equals(FFMPRecord.ALL)) {
 
                     FFMPBasinData fbd = baseRec.getBasinData();
                     tData = new FFMPTableData(fbd.getBasins().size());
 
                     for (Long key : fbd.getBasins().keySet()) {
+
                         FFMPBasinMetaData fmdb = ft.getBasin(siteKey, key);
+
                         if (fmdb == null) {
+
                             continue;
+
                         }
 
                         for (DomainXML domain : domains) {
@@ -200,26 +207,36 @@ public class FFMPDataGenerator {
                             if ((cwa.equals(fmdb.getCwa()))
                                     || (domain.isPrimary() && fmdb
                                             .isPrimaryCwa())) {
+
                                 try {
                                     setFFMPRow(fbd.get(key), tData, false, cwa);
+
                                 } catch (Exception e) {
+
                                     statusHandler.handle(Priority.PROBLEM,
                                             "Couldn't create table row", e);
                                 }
+
                                 if (virtualBasin != null) {
+
                                     for (Long id : ft
                                             .getVirtualGageBasinLookupIds(
                                                     siteKey, key, huc,
                                                     resource.basinTableDlg
                                                             .getRowName())) {
+
                                         try {
+
                                             setFFMPRow(virtualBasin.get(id),
                                                     tData, true, cwa);
+
                                         } catch (Exception e) {
+
                                             statusHandler.handle(
                                                     Priority.PROBLEM,
                                                     "Couldn't create table row"
                                                             + e);
+
                                         }
                                     }
                                 }
@@ -237,9 +254,10 @@ public class FFMPDataGenerator {
 
                         List<Long> pfafs = ft.getAggregatePfafs(key, siteKey,
                                 huc);
-
                         boolean isVGB = false;
+
                         if (ft.checkVGBsInAggregate(key, siteKey, huc)) {
+
                             isVGB = true;
                         }
 
@@ -249,23 +267,28 @@ public class FFMPDataGenerator {
                                     siteKey, domains, pfafs);
 
                             if (fmdb != null) {
+
                                 try {
+
                                     FFMPBasin basin = new FFMPBasin(key, true);
                                     setFFMPRow(basin, tData, isVGB, null);
+
                                 } catch (Exception e) {
+
                                     statusHandler.handle(Priority.PROBLEM,
+
                                             "Couldn't create table row", e);
                                 }
                             }
                         }
-
                     }
                 }
-
             }
 
             // show pfafs in aggregation
+
             else {
+
                 FFMPBasinData fbd = baseRec.getBasinData();
                 List<Long> centerAggPfafs = resource
                         .getCenteredAggregatePfafs();
@@ -288,6 +311,7 @@ public class FFMPDataGenerator {
                                     // We *DO NOT* want all of the aggregate
                                     // VGB's,
                                     // just the one's for this individual basin.
+
                                     List<Long> virtuals = ft
                                             .getVirtualGageBasinLookupIds(
                                                     siteKey, key,
@@ -299,7 +323,9 @@ public class FFMPDataGenerator {
                                         try {
                                             setFFMPRow(virtualBasin.get(id),
                                                     tData, true, null);
+
                                         } catch (Exception e) {
+
                                             statusHandler
                                                     .handle(Priority.PROBLEM,
                                                             "Couldn't create table row",
@@ -312,17 +338,23 @@ public class FFMPDataGenerator {
                     }
                 }
             }
+
         } catch (Exception e) {
+
             statusHandler.handle(Priority.PROBLEM,
                     "Failed to load FFMP table data!", e);
+
         }
 
         // wait for all the rows to finish being created before continuing on
+
         long t0 = System.currentTimeMillis();
         jobPool.join();
         System.out.println("Waited on FFMP job pool for: "
                 + (System.currentTimeMillis() - t0));
+
         return tData;
+
     }
 
     private void setFFMPRow(FFMPBasin cBasin, FFMPTableData tData,
@@ -368,7 +400,6 @@ public class FFMPDataGenerator {
         }
 
         monitor.setQpeWindow(new FFMPTimeWindow(tableTime, qpeTime));
-
         FFMPRecord rateRecord = monitor.getRateRecord(product, siteKey,
                 dataKey, product.getRate(), paintRefTime, true);
         FFMPRecord qpeRecord = monitor.getQPERecord(product, siteKey, dataKey,
@@ -391,6 +422,7 @@ public class FFMPDataGenerator {
             if (qpeRecord != null) {
                 qpeBasin = qpeRecord.getBasinData();
                 if (!qpeBasin.getBasins().isEmpty()) {
+
                     field = FIELDS.QPE;
                     if (baseRec == null) {
                         baseRec = qpeRecord;
