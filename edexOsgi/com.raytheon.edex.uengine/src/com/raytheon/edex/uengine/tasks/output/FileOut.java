@@ -27,8 +27,8 @@ import java.util.UUID;
 
 import com.raytheon.edex.uengine.exception.MicroEngineException;
 import com.raytheon.edex.uengine.tasks.ScriptTask;
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.core.props.EnvProperties;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 
@@ -88,7 +88,7 @@ public class FileOut extends ScriptTask {
         /*
          * make sure there is an output directory defined
          */
-        if (Util.isEmptyString(destDir)) {
+        if (StringUtil.isEmptyString(destDir)) {
             // default to uengineOutDir
             destDir = uengineOutDir;
             logger.debug("Defaulting destDir to: " + destDir);
@@ -114,7 +114,7 @@ public class FileOut extends ScriptTask {
 
         // get the URI for the image out
         String suffix = "." + format;
-        if (uri != null && !Util.isEmptyString(uri.toString())) {
+        if (uri != null && !StringUtil.isEmptyString(uri.toString())) {
             destFile = new File(uri).getName();
             if (!destFile.endsWith(suffix)) {
                 destFile += suffix;

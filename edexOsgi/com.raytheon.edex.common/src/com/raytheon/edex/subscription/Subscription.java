@@ -24,8 +24,8 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
+import com.raytheon.uf.common.util.StringUtil;
 
 /**
  * Contains the information that describes a single product subscription.
@@ -243,7 +243,7 @@ public class Subscription extends PersistableDataObject {
      */
     public String toString() {
         return this.getClass().getName() + "[count=" + this.count +
-               ", URI=" + Util.printString((String)identifier);
+               ", URI=" + StringUtil.printString((String)identifier);
     }
 
 	public int getId() {
