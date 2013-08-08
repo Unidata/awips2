@@ -99,8 +99,8 @@ public class NsharpSkewTPaneDescriptor extends NsharpAbstractPaneDescriptor {
 					waitTime = loopProperties.getFwdFrameTime();
 				else
 					waitTime = loopProperties.getRevFrameTime();
-				int frameSize= rscHandler.getTimeLineStateListSize();
-				int curFrameIndex = rscHandler.getCurrentTimeLineStateListIndex();
+				int frameSize= rscHandler.getTimeElementListSize();
+				int curFrameIndex = rscHandler.getCurrentTimeElementListIndex();
 				if(curFrameIndex == 0)
 					waitTime = loopProperties.getFirstFrameDwell();
 				else if(curFrameIndex == frameSize-1)
@@ -135,7 +135,7 @@ public class NsharpSkewTPaneDescriptor extends NsharpAbstractPaneDescriptor {
         	//Chin Note: there are multiple (6) panes.
     		//However, we only need to step once. Therefore, only handle stepping by skewt pane.
         	//From stepping commands
-        	//System.out.println("NsharpAbstractPaneDescriptor changeFrame called pane= "+paneNumber);
+        	//System.out.println("NsharpAbstractPaneDescriptor changeFrame called ");
         	if( VizPerspectiveListener.getCurrentPerspectiveManager()!= null){
         		//System.out.println("changeFrame: current perspective ="+VizPerspectiveListener.getCurrentPerspectiveManager().getPerspectiveId());
     			if(!VizPerspectiveListener.getCurrentPerspectiveManager().getPerspectiveId().equals(NmapCommon.NatlCntrsPerspectiveID)){

@@ -47,6 +47,7 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  *                                     and moved reflective calls to the
  *                                     mapping population method.  Map now
  *                                     contains factory objects.
+ * Jul 19, 2013 DR 16401   D. Friedman Fix end-of-product block decoding.
  * 
  * </pre>
  * 
@@ -99,8 +100,11 @@ public class RedbookBlockBuilder {
         byte rawMode = dataBuffer.get();
         byte rawSubMode = dataBuffer.get();
 
-        // Must have at least MIN_REMAINING
-        if (dataBuffer.remaining() >= MIN_REMAINING) {
+        /* Must have at least MIN_REMAINING,
+         * but allow the the end-of-product block (mode=1,sub=2)
+         */
+        if (dataBuffer.remaining() >= MIN_REMAINING ||
+                (rawMode == 1 && rawSubMode == 2)) {
             header = new RedbookBlockHeader(rawHdr, rawMode, rawSubMode);
         } else {
             header = RedbookBlockHeader.DEFAULT;
