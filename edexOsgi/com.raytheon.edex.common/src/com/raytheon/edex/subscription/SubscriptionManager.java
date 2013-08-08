@@ -35,6 +35,7 @@ import com.raytheon.edex.db.dao.SubscribeDAO;
 import com.raytheon.edex.exception.SubscriptionException;
 import com.raytheon.edex.util.Util;
 import com.raytheon.edex.util.XMLUtils;
+import com.raytheon.uf.common.util.StringUtil;
 
 /**
  * This class manages the product subscription list. It is designed as a POJO
@@ -162,8 +163,8 @@ public final class SubscriptionManager implements ISubscriptionManager {
             }
         } catch (Exception e) {
             String msg = "Unable fulfill subscription request, dataURI="
-                    + Util.printString(dataURI) + ", scriptID="
-                    + Util.printString(scriptID);
+                    + StringUtil.printString(dataURI) + ", scriptID="
+                    + StringUtil.printString(scriptID);
             e.printStackTrace();
             throw new SubscriptionException(msg, e);
         }
@@ -222,7 +223,7 @@ public final class SubscriptionManager implements ISubscriptionManager {
      */
     public synchronized boolean isSubscribed(String dataURI) {
         logger.debug("isSubscribed() received subscription inquery, URI is "
-                + Util.printString(dataURI));
+                + StringUtil.printString(dataURI));
         /* check to see if the uri exactly matches a subscription */
         if (subscriptions.containsKey(dataURI)) {
             return true;
@@ -299,12 +300,12 @@ public final class SubscriptionManager implements ISubscriptionManager {
             // Object obj = dataLayer.getSubscription(dataURI);
             if (obj == null && obj instanceof Subscription) {
                 logger.error("No Subscription object available for "
-                        + Util.printString(dataURI));
+                        + StringUtil.printString(dataURI));
             }
 
         } catch (Exception e) {
             logger.error("Unable to get subscription information for "
-                    + Util.printString(dataURI), e);
+                    + StringUtil.printString(dataURI), e);
         }
         return subscription;
     }
@@ -344,15 +345,15 @@ public final class SubscriptionManager implements ISubscriptionManager {
                 } else {
                     // no matching script
                     String msg = "no matching script, dataURI="
-                            + Util.printString(dataURI) + ", scriptID= "
-                            + Util.printString(scriptID);
+                            + StringUtil.printString(dataURI) + ", scriptID= "
+                            + StringUtil.printString(scriptID);
                     logger.warn("unsubscribe() " + msg);
                     throw new SubscriptionException(msg);
                 }
             } else {
                 // no subscription for the data
                 String msg = "No subscription exists, dataURI="
-                        + Util.printString(dataURI);
+                        + StringUtil.printString(dataURI);
                 logger.warn("unsubscribe() " + msg);
                 throw new SubscriptionException(msg);
             }
@@ -360,8 +361,8 @@ public final class SubscriptionManager implements ISubscriptionManager {
             // error performing the unsubscribe
             if (!(e instanceof SubscriptionException)) {
                 String msg = "Unable to unsubscribe. dataURI="
-                        + Util.printString(dataURI) + ", scriptID="
-                        + Util.printString(scriptID);
+                        + StringUtil.printString(dataURI) + ", scriptID="
+                        + StringUtil.printString(scriptID);
                 throw new SubscriptionException(msg, e);
             } else {
                 throw (SubscriptionException) e;

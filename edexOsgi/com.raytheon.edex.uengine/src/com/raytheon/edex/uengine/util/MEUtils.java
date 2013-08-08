@@ -32,7 +32,7 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.command.ActiveMQQueue;
 
-import com.raytheon.edex.util.Util;
+import com.raytheon.uf.common.util.StringUtil;
 
 /**
  * Contains utility methods that are specific to the Micro Engine. All
@@ -160,7 +160,7 @@ public class MEUtils {
             
             /* sending the message */
             /* set the message correlation id */
-            if (Util.isEmptyString(correlationID)) {
+            if (StringUtil.isEmptyString(correlationID)) {
                 correlationID = String.format("%1$tY%1$tm%1$td%1$tH%1$tM%1$tS", 
                                               Calendar.getInstance());
             }
