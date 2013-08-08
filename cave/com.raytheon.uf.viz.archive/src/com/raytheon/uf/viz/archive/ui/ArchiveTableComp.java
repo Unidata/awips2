@@ -61,6 +61,7 @@ import com.raytheon.uf.viz.archive.data.SizeJob;
  * May 23, 2013 #1964      lvenable     Initial creation
  * Jul 24, 2013 #2221      rferrel      Changes for select configuration.
  * Aug 06, 2013 #2222      rferrel      Changes to display all selected data.
+ * Aug 14, 2013 #2220      rferrel      Add refresh method.
  * 
  * </pre>
  * 
@@ -479,6 +480,7 @@ public class ArchiveTableComp extends Composite {
 
     private void populateTable(List<DisplayData> displayDatas) {
         tableData = displayDatas.toArray(new DisplayData[0]);
+        Arrays.sort(tableData, DisplayData.LABEL_ORDER);
         table.removeAll();
         table.setItemCount(tableData.length);
 
@@ -490,6 +492,13 @@ public class ArchiveTableComp extends Composite {
         table.getColumn(0).setWidth(600);
         table.setSortColumn(table.getColumn(LABEL_COL_INDEX));
         table.setSortDirection(SWT.UP);
+        table.clearAll();
+    }
+
+    /**
+     * Update the current tables display.
+     */
+    public void refresh() {
         table.clearAll();
     }
 
