@@ -87,8 +87,8 @@ public class NSharpPrintScreenAction extends PrintScreenAction {
         if (frameMode == null || frameMode.equalsIgnoreCase("current")) {
             // selection doesn't seem to work.
             pd.setScope(PrinterData.PAGE_RANGE);
-            pd.setStartPage(NsharpFrameIndexUtil.getCurrentIndex(handler) + 1);
-            pd.setEndPage(NsharpFrameIndexUtil.getCurrentIndex(handler) + 1);
+            pd.setStartPage(handler.getCurrentIndex()+1);//Chin NsharpFrameIndexUtil.getCurrentIndex(handler) + 1);
+            pd.setEndPage(handler.getCurrentIndex()+1); // Chin NsharpFrameIndexUtil.getCurrentIndex(handler) + 1);
         } else if (frameMode.equalsIgnoreCase("all")) {
             pd.setScope(PrinterData.ALL_PAGES);
         } else {
@@ -138,24 +138,26 @@ public class NSharpPrintScreenAction extends PrintScreenAction {
 
     private void printAllFrames(NsharpPrintHandle printer, NsharpEditor editor)
             throws VizException {
-        printFrames(printer, editor, 0, NsharpFrameIndexUtil.getFrameCount(editor.getRscHandler()));
+        printFrames(printer, editor, 0, editor.getRscHandler().getFrameCount()); //Chin NsharpFrameIndexUtil.getFrameCount(editor.getRscHandler()));
     }
 
     private void printFrames(NsharpPrintHandle printer, NsharpEditor editor,
             int startIndex, int endIndex) throws VizException {
         NsharpResourceHandler handler = ((NsharpEditor) editor).getRscHandler();
         IDisplayPane pane = editor.getActiveDisplayPane();
-        int startingIndex = NsharpFrameIndexUtil.getCurrentIndex(handler);
+        int startingIndex = handler.getCurrentIndex();//Chin  NsharpFrameIndexUtil.getCurrentIndex(handler);
         LoopProperties loopProperties = ((AbstractEditor) editor)
                 .getLoopProperties();
         renderPane(pane, loopProperties);
         for (int i = startIndex; i < endIndex; i++) {
-            NsharpFrameIndexUtil.setCurrentIndex(handler, i);
+            //Chin NsharpFrameIndexUtil.setCurrentIndex(handler, i);
+        	if(handler.setCurrentIndex(i)== false)
+        		continue;
             pane.refresh();
             renderPane(pane, loopProperties);
             printImage(printer);
         }
-        NsharpFrameIndexUtil.setCurrentIndex(handler, startingIndex);
+        handler.setCurrentIndex(startingIndex); // Chin  NsharpFrameIndexUtil.setCurrentIndex(handler, startingIndex);
         pane.refresh();
         renderPane(pane, loopProperties);
     }
