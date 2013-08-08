@@ -7,13 +7,26 @@
             id="gov.noaa.nws.ncep.ui.nsharp.palette"
             name="Nsharp">
       </command>
+      <command
+          id="gov.noaa.nws.ncep.ui.nsharp.key"
+          name="Manage shift key">
+            <commandParameter
+               id="action"
+               name="action"
+               optional="false">
+         </commandParameter>    
+      </command>
     </extension>
    <extension 
          point="org.eclipse.ui.handlers">
         <handler
              class="gov.noaa.nws.ncep.ui.nsharp.NsharpViewAction"
              commandId="gov.noaa.nws.ncep.ui.nsharp.palette">
-       </handler>     
+       </handler>   
+       <handler                      
+            class="gov.noaa.nws.ncep.ui.nsharp.NsharpKeyHandler"
+            commandId="gov.noaa.nws.ncep.ui.nsharp.key">
+       </handler>  
  	</extension>
 
 	<extension 
@@ -66,4 +79,31 @@
 	         extensionFilter=".xml,.txt">
        </path>
     </extension>
+    <extension
+          point="org.eclipse.ui.contexts">
+           <context 
+                    description="The Natl Centers Nsharp Context"
+                    id="gov.noaa.nws.ncep.ui.nsharp.nsharpContext"
+                    name="Natl Centers Nsharp Context">
+           </context>
+   </extension>
+   <extension
+      point="org.eclipse.ui.bindings"
+      id="gov.noaa.nws.ncep.ui.nsharp.nsharpKeyBinding"
+      name="Nsharp Shift Key Binding">
+         <key
+                commandId="gov.noaa.nws.ncep.ui.nsharp.key"
+                contextId="gov.noaa.nws.ncep.ui.nsharp.nsharpContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="SHIFT+ARROW_DOWN"> 
+                <parameter  id="action" value="arrowdown" />           
+         </key> 
+         <key
+                commandId="gov.noaa.nws.ncep.ui.nsharp.key"
+                contextId="gov.noaa.nws.ncep.ui.nsharp.nsharpContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="SHIFT+ARROW_UP"> 
+                <parameter  id="action" value="arrowup" />           
+         </key>    
+   </extension>
 </plugin>
