@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.datadelivery.registry.Collection;
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType.LevelType;
@@ -58,6 +57,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.ImmutableDate;
 import com.raytheon.uf.common.util.CollectionUtil;
+import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.Link;
 import com.raytheon.uf.edex.datadelivery.retrieval.LinkStore;
 import com.raytheon.uf.edex.datadelivery.retrieval.MetaDataParser;
@@ -138,7 +138,9 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                 if (levelType.equals(LevelType.MB)
                         || levelType.equals(LevelType.SEAB)) {
 
-                    List<Double> levelList = OpenDAPParseUtility.getInstance().parseLevels(gdsmd.getUrl(), serviceConfig.getConstantValue("LEV"));
+                    List<Double> levelList = OpenDAPParseUtility.getInstance()
+                            .parseLevels(gdsmd.getUrl(),
+                                    serviceConfig.getConstantValue("LEV"));
                     LookupManager.getInstance().modifyLevelLookups(
                             collectionName, dz, levMin, levMax, levelList);
                 }
@@ -185,9 +187,8 @@ class OpenDAPMetaDataParser extends MetaDataParser {
      * @return
      */
     private Map<String, Parameter> getParameters(DAS das,
-            GriddedDataSet dataSet,
-            GriddedDataSetMetaData gdsmd, Link link, Collection collection,
-            String dataDateFormat) {
+            GriddedDataSet dataSet, GriddedDataSetMetaData gdsmd, Link link,
+            Collection collection, String dataDateFormat) {
 
         final String collectionName = dataSet.getCollectionName();
         final String url = gdsmd.getUrl();
@@ -229,7 +230,7 @@ class OpenDAPMetaDataParser extends MetaDataParser {
         final String missing_value = serviceConfig
                 .getConstantValue("MISSING_VALUE");
         final String fill_value = serviceConfig.getConstantValue("FILL_VALUE");
-        final String fill = new Float(Util.GRID_FILL_VALUE).toString();
+        final String fill = new Float(GridUtil.GRID_FILL_VALUE).toString();
 
         // process globals first
         // process time
@@ -238,19 +239,20 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                 AttributeTable at = das.getAttributeTable(timecon);
                 Time time = new Time();
                 // number of times
-                time.setNumTimes(new Integer(OpenDAPParseUtility.getInstance().trim(at
-                        .getAttribute(size).getValueAt(0))).intValue());
+                time.setNumTimes(new Integer(OpenDAPParseUtility.getInstance()
+                        .trim(at.getAttribute(size).getValueAt(0))).intValue());
                 // minimum time val
-                time.setStart(OpenDAPParseUtility.getInstance().parseDate(at.getAttribute(
-                        minimum).getValueAt(0)));
+                time.setStart(OpenDAPParseUtility.getInstance().parseDate(
+                        at.getAttribute(minimum).getValueAt(0)));
                 // maximum time val
-                time.setEnd(OpenDAPParseUtility.getInstance().parseDate(at.getAttribute(maximum)
-                        .getValueAt(0)));
+                time.setEnd(OpenDAPParseUtility.getInstance().parseDate(
+                        at.getAttribute(maximum).getValueAt(0)));
                 // format of time
                 time.setFormat(dataDateFormat);
                 // step
-                List<String> step = OpenDAPParseUtility.getInstance().parseTimeStep(at
-                        .getAttribute(time_step).getValueAt(0));
+                List<String> step = OpenDAPParseUtility
+                        .getInstance()
+                        .parseTimeStep(at.getAttribute(time_step).getValueAt(0));
                 time.setStep(new Double(step.get(0)).doubleValue());
                 time.setStepUnit(Time.findStepUnit(step.get(1))
                         .getDurationUnit());
@@ -264,20 +266,26 @@ class OpenDAPMetaDataParser extends MetaDataParser {
             try {
                 AttributeTable at = das.getAttributeTable(lat);
                 // ny
-                gridCoverage.setNy(new Integer(OpenDAPParseUtility.getInstance().trim(at
-                        .getAttribute(size).getValueAt(0))).intValue());
+                gridCoverage.setNy(new Integer(OpenDAPParseUtility
+                        .getInstance()
+                        .trim(at.getAttribute(size).getValueAt(0))).intValue());
                 // dy
-                gridCoverage.setDy(new Float(OpenDAPParseUtility.getInstance().trim(at
-                        .getAttribute(resolution).getValueAt(0))).floatValue());
+                gridCoverage.setDy(new Float(OpenDAPParseUtility.getInstance()
+                        .trim(at.getAttribute(resolution).getValueAt(0)))
+                        .floatValue());
                 // first latitude point
-                gridCoverage.setLa1(new Double(OpenDAPParseUtility.getInstance().trim(at
-                        .getAttribute(minimum).getValueAt(0))).doubleValue());
+                gridCoverage.setLa1(new Double(OpenDAPParseUtility
+                        .getInstance().trim(
+                                at.getAttribute(minimum).getValueAt(0)))
+                        .doubleValue());
 
-                upperLeft.y = new Double(OpenDAPParseUtility.getInstance().trim(at.getAttribute(
-                        maximum).getValueAt(0))).doubleValue();
+                upperLeft.y = new Double(OpenDAPParseUtility.getInstance()
+                        .trim(at.getAttribute(maximum).getValueAt(0)))
+                        .doubleValue();
 
-                lowerRight.y = new Double(OpenDAPParseUtility.getInstance().trim(at
-                        .getAttribute(minimum).getValueAt(0))).doubleValue();
+                lowerRight.y = new Double(OpenDAPParseUtility.getInstance()
+                        .trim(at.getAttribute(minimum).getValueAt(0)))
+                        .doubleValue();
 
             } catch (Exception le) {
                 logParsingException(lat, "Latitude", collectionName, url);
@@ -288,17 +296,21 @@ class OpenDAPMetaDataParser extends MetaDataParser {
             try {
                 AttributeTable at = das.getAttributeTable(lon);
                 // nx
-                gridCoverage.setNx(new Integer(OpenDAPParseUtility.getInstance().trim(at
-                        .getAttribute(size).getValueAt(0))).intValue());
+                gridCoverage.setNx(new Integer(OpenDAPParseUtility
+                        .getInstance()
+                        .trim(at.getAttribute(size).getValueAt(0))).intValue());
                 // dx
-                gridCoverage.setDx(new Float(OpenDAPParseUtility.getInstance().trim(at
-                        .getAttribute(resolution).getValueAt(0))).floatValue());
+                gridCoverage.setDx(new Float(OpenDAPParseUtility.getInstance()
+                        .trim(at.getAttribute(resolution).getValueAt(0)))
+                        .floatValue());
                 // min Lon
-                double minLon = new Double(OpenDAPParseUtility.getInstance().trim(at
-                        .getAttribute(minimum).getValueAt(0))).doubleValue();
+                double minLon = new Double(OpenDAPParseUtility.getInstance()
+                        .trim(at.getAttribute(minimum).getValueAt(0)))
+                        .doubleValue();
                 // max Lon
-                double maxLon = new Double(OpenDAPParseUtility.getInstance().trim(at
-                        .getAttribute(maximum).getValueAt(0))).doubleValue();
+                double maxLon = new Double(OpenDAPParseUtility.getInstance()
+                        .trim(at.getAttribute(maximum).getValueAt(0)))
+                        .doubleValue();
 
                 gridCoverage.setLo1(minLon);
                 upperLeft.x = minLon;
@@ -312,12 +324,13 @@ class OpenDAPMetaDataParser extends MetaDataParser {
         if (das.getAttributeTable(lev) != null) {
             try {
                 AttributeTable at = das.getAttributeTable(lev);
-                dz = new Double(OpenDAPParseUtility.getInstance().trim(at.getAttribute(
-                        resolution).getValueAt(0))).doubleValue();
-                levMin = new Float(OpenDAPParseUtility.getInstance().trim(at.getAttribute(
-                        minimum).getValueAt(0))).floatValue();
-                levMax = new Float(OpenDAPParseUtility.getInstance().trim(at.getAttribute(
-                        maximum).getValueAt(0))).floatValue();
+                dz = new Double(OpenDAPParseUtility.getInstance().trim(
+                        at.getAttribute(resolution).getValueAt(0)))
+                        .doubleValue();
+                levMin = new Float(OpenDAPParseUtility.getInstance().trim(
+                        at.getAttribute(minimum).getValueAt(0))).floatValue();
+                levMax = new Float(OpenDAPParseUtility.getInstance().trim(
+                        at.getAttribute(maximum).getValueAt(0))).floatValue();
                 hasLevels = true;
 
             } catch (Exception le) {
@@ -329,10 +342,11 @@ class OpenDAPMetaDataParser extends MetaDataParser {
             try {
                 AttributeTable at = das.getAttributeTable(nc_global);
                 dataSet.setDataSetType(DataType
-                        .valueOfIgnoreCase(OpenDAPParseUtility.getInstance().trim(at
-                                .getAttribute(data_type).getValueAt(0))));
+                        .valueOfIgnoreCase(OpenDAPParseUtility.getInstance()
+                                .trim(at.getAttribute(data_type).getValueAt(0))));
                 String description = at.getAttribute(title).getValueAt(0);
-                gdsmd.setDataSetDescription(OpenDAPParseUtility.getInstance().trim(description));
+                gdsmd.setDataSetDescription(OpenDAPParseUtility.getInstance()
+                        .trim(description));
             } catch (Exception ne) {
                 logParsingException(nc_global, "Global Dataset Info",
                         collectionName, url);
@@ -361,7 +375,7 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                 // regular parameter parsing
                 try {
 
-                	AttributeTable at = das.getAttributeTable(name);
+                    AttributeTable at = das.getAttributeTable(name);
                     Parameter parm = new Parameter();
                     parm.setDataType(dataSet.getDataSetType());
 
@@ -387,8 +401,8 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                     // descriptions, default fill, or missing vals.
                     String description = "unknown description";
                     try {
-                        description = OpenDAPParseUtility.getInstance().trim(at
-                                .getAttribute(long_name).getValueAt(0));
+                        description = OpenDAPParseUtility.getInstance().trim(
+                                at.getAttribute(long_name).getValueAt(0));
 
                     } catch (Exception iae) {
                         statusHandler.handle(Priority.PROBLEM,
@@ -396,11 +410,13 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                     }
 
                     parm.setDefinition(description);
-                    parm.setUnits(OpenDAPParseUtility.getInstance().parseUnits(description));
+                    parm.setUnits(OpenDAPParseUtility.getInstance().parseUnits(
+                            description));
 
                     try {
-                        parm.setMissingValue(OpenDAPParseUtility.getInstance().trim(at
-                                .getAttribute(missing_value).getValueAt(0)));
+                        parm.setMissingValue(OpenDAPParseUtility.getInstance()
+                                .trim(at.getAttribute(missing_value)
+                                        .getValueAt(0)));
                     } catch (Exception iae) {
                         statusHandler.handle(Priority.PROBLEM,
                                 "Invalid DAP missing value block! " + name);
@@ -408,8 +424,9 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                     }
 
                     try {
-                        parm.setFillValue(OpenDAPParseUtility.getInstance().trim(at
-                                .getAttribute(fill_value).getValueAt(0)));
+                        parm.setFillValue(OpenDAPParseUtility
+                                .getInstance()
+                                .trim(at.getAttribute(fill_value).getValueAt(0)));
                     } catch (Exception iae) {
                         statusHandler.handle(Priority.PROBLEM,
                                 "Invalid DAP fill value block! " + name);
@@ -610,7 +627,7 @@ class OpenDAPMetaDataParser extends MetaDataParser {
             }
 
             if (type == null) {
-            	type = new DataLevelType(LevelType.UNKNOWN);
+                type = new DataLevelType(LevelType.UNKNOWN);
             }
         }
 
@@ -640,8 +657,8 @@ class OpenDAPMetaDataParser extends MetaDataParser {
 
             List<String> vals = null;
             try {
-                vals = OpenDAPParseUtility.getInstance().getDataSetNameAndCycle(linkKey,
-                        collection.getName());
+                vals = OpenDAPParseUtility.getInstance()
+                        .getDataSetNameAndCycle(linkKey, collection.getName());
             } catch (Exception e1) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Failed to get cycle and dataset name set...", e1);

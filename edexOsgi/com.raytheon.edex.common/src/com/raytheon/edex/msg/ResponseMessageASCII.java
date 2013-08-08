@@ -23,9 +23,9 @@ package com.raytheon.edex.msg;
 import java.util.Calendar;
 import java.util.Date;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.message.response.AbstractResponseMessage;
 import com.raytheon.uf.common.util.ConvertUtil;
+import com.raytheon.uf.common.util.StringUtil;
 
 /**
  * Represents an ASCII product response from EDEX.
@@ -75,13 +75,13 @@ public class ResponseMessageASCII extends AbstractResponseMessage {
                                  String time, 
                                  String uri) {
         this.fileType = "ascii";
-        this.filename = Util.isEmptyString(filename)?"":filename;
+        this.filename = StringUtil.isEmptyString(filename)?"":filename;
         this.contents = contents;
-        this.type = Util.isEmptyString(type)?"":type;
-        this.station = Util.isEmptyString(station)?"":station;
-        this.time = Util.isEmptyString(time)?"":time;
+        this.type = StringUtil.isEmptyString(type)?"":type;
+        this.station = StringUtil.isEmptyString(station)?"":station;
+        this.time = StringUtil.isEmptyString(time)?"":time;
 
-        this.dataURI = Util.isEmptyString(uri)?"":uri;
+        this.dataURI = StringUtil.isEmptyString(uri)?"":uri;
         try {
             Calendar valid = (Calendar)ConvertUtil.convertObject(time, Calendar.class);
             this.validTime = valid.getTime();

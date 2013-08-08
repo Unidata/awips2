@@ -40,7 +40,6 @@ import org.eclipse.swt.graphics.RGB;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -52,6 +51,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
@@ -407,7 +407,7 @@ public class OAResource extends
                             .getConverterTo(prefs.getDisplayUnits());
 
                     for (int i = 0; i < grid.length; i++) {
-                        if (grid[i] != Util.GRID_FILL_VALUE) {
+                        if (grid[i] != GridUtil.GRID_FILL_VALUE) {
                             grid[i] = (float) converter.convert(grid[i]);
                         }
                     }
@@ -498,7 +498,7 @@ public class OAResource extends
                 GriddedImageDisplay image = (GriddedImageDisplay) renderable;
                 double value = ((FloatBuffer) image.getData()).get(index);
 
-                if (value == Util.GRID_FILL_VALUE) {
+                if (value == GridUtil.GRID_FILL_VALUE) {
                     return "NO DATA";
                 }
 
@@ -527,22 +527,22 @@ public class OAResource extends
                 double val22 = sliceData[y2 * transformer.getNx() + x2];
                 double val = 0.0;
                 boolean data = false;
-                if (val11 != Util.GRID_FILL_VALUE) {
+                if (val11 != GridUtil.GRID_FILL_VALUE) {
                     val += (x2 - x) * (y2 - y) * val11
                             / ((x2 - x1) * (y2 - y1));
                     data = true;
                 }
-                if (val21 != Util.GRID_FILL_VALUE) {
+                if (val21 != GridUtil.GRID_FILL_VALUE) {
                     val += (x - x1) * (y2 - y) * val21
                             / ((x2 - x1) * (y2 - y1));
                     data = true;
                 }
-                if (val12 != Util.GRID_FILL_VALUE) {
+                if (val12 != GridUtil.GRID_FILL_VALUE) {
                     val += (x2 - x) * (y - y1) * val12
                             / ((x2 - x1) * (y2 - y1));
                     data = true;
                 }
-                if (val22 != Util.GRID_FILL_VALUE) {
+                if (val22 != GridUtil.GRID_FILL_VALUE) {
                     val += (x - x1) * (y - y1) * val22
                             / ((x2 - x1) * (y2 - y1));
                     data = true;

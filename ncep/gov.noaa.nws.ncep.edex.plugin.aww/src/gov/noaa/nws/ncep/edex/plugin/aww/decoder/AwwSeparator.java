@@ -30,7 +30,7 @@ import org.apache.log4j.Logger;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
-import com.raytheon.edex.util.Util;
+import com.raytheon.uf.common.util.StringUtil;
 
 public class AwwSeparator extends AbstractRecordSeparator {
     private final Logger log = Logger.getLogger(getClass().getName());
@@ -98,7 +98,7 @@ public class AwwSeparator extends AbstractRecordSeparator {
     public byte[] next() {
         try {
             String temp = iterator.next();
-            if (Util.isEmptyString(temp)) {
+            if (StringUtil.isEmptyString(temp)) {
                 return (byte[]) null;
             } else {
                 return temp.getBytes();
