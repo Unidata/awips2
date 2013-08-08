@@ -47,6 +47,7 @@ import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.datadelivery.registry.replication.RegistryReplicationManager;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
@@ -141,10 +142,12 @@ public abstract class RegistryFederationManager {
      *             If errors occur when unmarshalling the federation properties
      */
     protected RegistryFederationManager(boolean federationEnabled,
-            LifecycleManager lcm, String federationPropertiesFileName)
+            LifecycleManager lcm, String federationPropertiesFileName,
+            RegistryReplicationManager replicationManager)
             throws JAXBException, SerializationException {
         this.federationEnabled = federationEnabled;
         this.lcm = lcm;
+        this.replicationManager = replicationManager;
         jaxbManager = new JAXBManager(SubmitObjectsRequest.class,
                 FederationProperties.class);
         File federationPropertiesFile = PathManagerFactory.getPathManager()
@@ -159,6 +162,14 @@ public abstract class RegistryFederationManager {
             } else {
                 federationProperties = (FederationProperties) jaxbManager
                         .jaxbUnmarshalFromXmlFile(federationPropertiesFile);
+            }
+            if (this.replicationManager.getServers() == null
+                    || CollectionUtil.isNullOrEmpty(replicationManager
+                            .getServers().getRegistryReplicationServers())) {
+                statusHandler
+                        .warn("No servers configured for replication.  Federation functionality is disabled");
+                this.federationEnabled = false;
+                this.replicationManager.setSubscriptionProcessingEnabled(false);
             }
         }
 
@@ -209,11 +220,6 @@ public abstract class RegistryFederationManager {
 
     public void setRegistryObjectDao(RegistryObjectDao registryObjectDao) {
         this.registryObjectDao = registryObjectDao;
-    }
-
-    public void setReplicationManager(
-            RegistryReplicationManager replicationManager) {
-        this.replicationManager = replicationManager;
     }
 
     public void setRegistryDao(RegistryDao registryDao) {
