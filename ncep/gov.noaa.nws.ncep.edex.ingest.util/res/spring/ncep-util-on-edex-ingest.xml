@@ -8,9 +8,8 @@
   <bean id="edexIngestUtilWebServer" class="org.eclipse.jetty.server.Server" init-method="start" destroy-method="stop">
   
     <property name="threadPool">  
-      <bean id="ThreadPool" class="org.eclipse.jetty.util.thread.OldQueuedThreadPool">
+      <bean id="ThreadPool" class="org.eclipse.jetty.util.thread.QueuedThreadPool">
         <property name="minThreads" value="25"/>
-        <property name="lowThreads" value="25"/>
         <property name="maxThreads" value="50"/>
       </bean>
     </property>

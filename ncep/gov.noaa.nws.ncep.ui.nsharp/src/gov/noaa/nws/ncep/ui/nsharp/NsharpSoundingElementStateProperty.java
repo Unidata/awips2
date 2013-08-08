@@ -1,5 +1,10 @@
 package gov.noaa.nws.ncep.ui.nsharp;
 
+import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
+
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * 
@@ -22,21 +27,36 @@ package gov.noaa.nws.ncep.ui.nsharp;
  */
 
 public class NsharpSoundingElementStateProperty {
-	public String elementDescription;
-	public NsharpConstants.State elementState; //  possible values are AVAIL,NOTAVAIL
+	private String elementDescription; //stnId_timeLine_sndType
+	//private NsharpConstants.LoadState elementState; //  possible values are AVAIL,NOTAVAIL
 						// NOTAVAIL is set when there is no sounding data loaded for this stn at this time line.
-	public String stnDescription;
-	public String timeDescription;
-	public NsharpStationInfo stnInfo;
+	private String stnDescription;
+	private String timeDescription;
+	private String sndType;
+	private NsharpStationInfo stnInfo;
+	private int compColorIndex;
+	private List<NcSoundingLayer> sndLyLst;
+	private List<NcSoundingLayer> sndLyLstBk;
 	public NsharpSoundingElementStateProperty(String elementDescription,
-			NsharpConstants.State elementState, String stnDescription, 
-			String timeDescription,  NsharpStationInfo stnInfo) {
+			String stnDescription, 
+			String timeDescription,  NsharpStationInfo stnInfo, List<NcSoundingLayer> sndLyLst) {
 		super();
 		this.elementDescription = elementDescription;
-		this.elementState = elementState;
+		//this.elementState = elementState;
 		this.stnDescription = stnDescription;
 		this.timeDescription = timeDescription;
 		this.stnInfo = stnInfo;
+		this.sndType =  stnInfo.getSndType();
+		this.compColorIndex = NsharpConstants.LINE_COMP1;;
+		this.sndLyLst = sndLyLst;
+		sndLyLstBk= new ArrayList<NcSoundingLayer>(sndLyLst.size());
+		for(NcSoundingLayer ly : sndLyLst){
+			try {
+				sndLyLstBk.add((NcSoundingLayer)ly.clone());
+			} catch (CloneNotSupportedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	public NsharpSoundingElementStateProperty() {
@@ -50,12 +70,7 @@ public class NsharpSoundingElementStateProperty {
 	public void setElementDescription(String elementDescription) {
 		this.elementDescription = elementDescription;
 	}
-	public NsharpConstants.State getElementState() {
-		return elementState;
-	}
-	public void setElementState(NsharpConstants.State elementState) {
-		this.elementState = elementState;
-	}
+	
 	public String getStnDescription() {
 		return stnDescription;
 	}
@@ -77,12 +92,47 @@ public class NsharpSoundingElementStateProperty {
 		this.stnInfo = stnInfo;
 	}
 
-	public void copy(NsharpSoundingElementStateProperty target){
-		elementDescription = target.getElementDescription();
-		elementState= target.getElementState();
-		stnDescription=target.getStnDescription();
-		stnInfo = target.getStnInfo();
-		timeDescription=target.getTimeDescription();
+	
+	public int getCompColorIndex() {
+		return compColorIndex;
+	}
+
+	public void setCompColorIndex(int compColorIndex) {
+		this.compColorIndex = compColorIndex;
+	}
+
+	public String getSndType() {
+		return sndType;
+	}
+
+	public void setSndType(String sndType) {
+		this.sndType = sndType;
+	}
+
+	public List<NcSoundingLayer> getSndLyLst() {
+		return sndLyLst;
+	}
+
+	public void setSndLyLst(List<NcSoundingLayer> sndLyLst) {
+		this.sndLyLst = sndLyLst;
+	}
+
+	public List<NcSoundingLayer> getSndLyLstBk() {
+		return sndLyLstBk;
+	}
+
+	public void setSndLyLstBk(List<NcSoundingLayer> sndLyLstBk) {
+		this.sndLyLstBk = sndLyLstBk;
+	}
+	public void restoreSndLyLstFromBackup(){
+		sndLyLst.clear();
+		for(NcSoundingLayer ly : sndLyLstBk){
+			try {
+				sndLyLst.add((NcSoundingLayer)ly.clone());
+			} catch (CloneNotSupportedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 }
