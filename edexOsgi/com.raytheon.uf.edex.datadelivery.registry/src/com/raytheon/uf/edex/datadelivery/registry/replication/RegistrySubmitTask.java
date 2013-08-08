@@ -23,6 +23,9 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
 import org.springframework.transaction.support.TransactionTemplate;
 
+import com.raytheon.uf.common.registry.services.RegistryRESTServices;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.database.RunnableWithTransaction;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
@@ -45,32 +48,54 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  */
 public class RegistrySubmitTask extends RunnableWithTransaction {
 
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RegistrySubmitTask.class);
+
     /** The Registry Object data access object */
     private RegistryObjectDao dao;
 
     /** The id of the registry object this task is submitting */
-    private RegistryObjectType objectToSubmit;
+    private String objectId;
+
+    /** The URL of the remote server to get the object from */
+    private String remoteURL;
 
     public RegistrySubmitTask(TransactionTemplate txTemplate,
-            RegistryObjectDao dao, RegistryObjectType objectToSubmit,
-            String retrievedFrom) {
+            RegistryObjectDao dao, String objectId, String remoteURL) {
         super(txTemplate);
         this.dao = dao;
-        this.objectToSubmit = objectToSubmit;
-        if (this.objectToSubmit.getSlotByName(EbxmlObjectUtil.HOME_SLOT_NAME) == null) {
-            this.objectToSubmit.addSlot(EbxmlObjectUtil.HOME_SLOT_NAME,
-                    retrievedFrom);
-        }
+        this.objectId = objectId;
+        this.remoteURL = remoteURL;
+
     }
 
     @Override
     public void runWithTransaction() {
-        RegistryObjectType existingObject = dao.getById(objectToSubmit.getId());
-        if (existingObject == null) {
-            dao.create(objectToSubmit);
-        } else {
-            dao.merge(objectToSubmit, existingObject);
+        try {
+            RegistryObjectType objectToSubmit = RegistryRESTServices
+                    .getRegistryObject(RegistryObjectType.class, remoteURL,
+                            escapeObjectId(objectId));
+
+            if (objectToSubmit.getSlotByName(EbxmlObjectUtil.HOME_SLOT_NAME) == null) {
+                objectToSubmit.addSlot(EbxmlObjectUtil.HOME_SLOT_NAME,
+                        remoteURL);
+            }
+
+            RegistryObjectType existingObject = dao.getById(objectId);
+            if (existingObject == null) {
+                dao.create(objectToSubmit);
+            } else {
+                dao.merge(objectToSubmit, existingObject);
+            }
+
+        } catch (Exception e) {
+            statusHandler.error("Error retrieving remote object: " + objectId,
+                    e);
+            return;
         }
     }
 
+    private String escapeObjectId(String objectId) {
+        return objectId.replaceAll(":", "%3A").replaceAll("\\/", "%2F");
+    }
 }
