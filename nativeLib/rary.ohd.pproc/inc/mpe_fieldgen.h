@@ -52,8 +52,8 @@
 
 /* Ordering of the elements in this list must be the same as the beginning
  * of the enum DisplayFieldData type in the mpe_field_names.h header file. */
-typedef enum {rmosaic = 0, avgrmosaic, maxrmosaic, gaugeonly, bmosaic, lmosaic,
-              mmosaic, mlmosaic, satpre, lsatpre, p3lmosaic, srmosaic, sgmosaic, srgmosaic,
+typedef enum {rmosaic = 0, avgrmosaic, maxrmosaic, bmosaic, lmosaic, gaugeonly,
+				satpre, lsatpre, mmosaic, mlmosaic, p3lmosaic, srmosaic, sgmosaic, srgmosaic,
               qmosaic, lqmosaic, mlqmosaic, rfcmosaic, rfcbmosaic, rfcmmosaic, num_mosaics
              }mosaicType ;
 
