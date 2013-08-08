@@ -33,13 +33,13 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.edex.meteoLib.Controller;
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.pointdata.ParameterDescription;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
+import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 
@@ -172,7 +172,7 @@ public class OAGridTransformer {
 
         for (int i = 0; i < grid.length; i++) {
             if (grid[i] > 1e36f) {
-                grid[i] = Util.GRID_FILL_VALUE;
+                grid[i] = GridUtil.GRID_FILL_VALUE;
             }
         }
         return grid;

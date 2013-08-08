@@ -33,7 +33,7 @@ import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.util.IndentPrinter;
 
-import com.raytheon.edex.util.Util;
+import com.raytheon.uf.common.util.StringUtil;
 
 /**
  * Taken from test.ToolSupport, should probably be cleaned up and moved to common?
@@ -120,7 +120,7 @@ public class JmsSupport {
     }
     public MessageConsumer createConsumer(Session session, MessageListener msgListener, String selector) throws JMSException {
         MessageConsumer consumer;
-        if(Util.isEmptyString(selector)) {
+        if(StringUtil.isEmptyString(selector)) {
             consumer = session.createConsumer(destination);
         } else {
             consumer = session.createConsumer(destination, selector);

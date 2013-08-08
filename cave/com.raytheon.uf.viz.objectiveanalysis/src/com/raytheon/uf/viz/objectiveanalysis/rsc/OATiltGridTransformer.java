@@ -29,11 +29,11 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.edex.meteoLib.Controller;
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
+import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
@@ -129,7 +129,7 @@ public class OATiltGridTransformer extends OAGridTransformer {
 
         for (int i = 0; i < grid.length; i++) {
             if (grid[i] > 1e36f) {
-                grid[i] = Util.GRID_FILL_VALUE;
+                grid[i] = GridUtil.GRID_FILL_VALUE;
             }
         }
         return grid;
@@ -193,8 +193,9 @@ public class OATiltGridTransformer extends OAGridTransformer {
             if (grid == null) {
                 continue;
             }
-            FloatDataRecord fdr = new FloatDataRecord(parmDescription
-                    .getParameterName(), "", grid, 2, new long[] { nx, ny });
+            FloatDataRecord fdr = new FloatDataRecord(
+                    parmDescription.getParameterName(), "", grid, 2,
+                    new long[] { nx, ny });
             cube.add(new CubeLevel<Object, Object>((float) i, fdr));
         }
         if (cube.size() < 3) {
