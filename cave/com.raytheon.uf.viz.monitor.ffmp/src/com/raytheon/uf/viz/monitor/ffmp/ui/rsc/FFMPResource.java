@@ -171,7 +171,7 @@ import com.vividsolutions.jts.geom.Point;
  *                                       refactored updates
  * Jun 27, 2013  2152       njensen     More thorough disposeInternal()
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
- *                                       
+ * Jul 17, 2013  2197       njensen     Improved speed of getName()
  * 
  * </pre>
  * 
@@ -866,23 +866,10 @@ public class FFMPResource extends
                 sfield = FFMPRecord.FIELDS.QPE;
             }
 
-            PluginDataObject pdo = null;
-
-            try {
-                pdo = getRecord(sfield, paintTime.getRefTime());
-            } catch (NullPointerException npe) {
-                return "No Data Available";
-            }
-
-            if (pdo == null) {
-                return "No Data Available";
-            }
-
-            FFMPRecord record = (FFMPRecord) pdo;
             prefix = new StringBuilder();
-            prefix.append(record.getPluginName());
+            prefix.append("ffmp");
             prefix.append(" ");
-            prefix.append(record.getSiteKey());
+            prefix.append(resourceData.siteKey);
             prefix.append(" ");
             if (getResourceData().tableLoad) {
                 prefix.append("Table Display ");

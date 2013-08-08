@@ -39,7 +39,6 @@ import org.eclipse.swt.widgets.Spinner;
 import com.raytheon.uf.common.dataplugin.shef.tables.Rwradarresult;
 import com.raytheon.viz.hydrocommon.whfslib.IHFSDbGenerated;
 import com.raytheon.viz.mpe.MPEDateFormatter;
-import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
