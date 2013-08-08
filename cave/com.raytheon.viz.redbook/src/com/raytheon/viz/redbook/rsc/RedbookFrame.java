@@ -92,6 +92,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                       menu choice
  * Apr 29, 2013 1958        bgonzale    New class RedbookBlockHeader.
  * May 21, 2013 2001        njensen     Fixed error handling
+ * Jul 19, 2013 DR 16401    D. Friedman Fix unknown block processing.
  * 
  * </pre>
  * 
@@ -283,7 +284,7 @@ public class RedbookFrame implements IRenderable {
                     } else {
 
                         DefaultBlock block = new DefaultBlock(header, dataBuf);
-                        if (!currBlock.equals("")) {
+                        if (!RedbookBlockHeader.DEFAULT.equals(currBlock)) {
                             status.unhandledPackets = true;
                             statusHandler
                                     .debug("Unhandled redbook packet: (mode="
