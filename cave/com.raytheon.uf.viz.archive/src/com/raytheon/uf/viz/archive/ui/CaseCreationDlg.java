@@ -262,7 +262,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
      * com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#setRetentionTimes(long)
      */
     @Override
-    protected void setRetentionTimes(long startRetentionHours) {
+    public void setRetentionTimes(long startRetentionHours) {
         long startTimeOffset = startRetentionHours * TimeUtil.MILLIS_PER_HOUR;
         endDate = TimeUtil.newDate();
         long time = endDate.getTime();
@@ -847,6 +847,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
             if (!startDate.equals(date)) {
                 startDate = date;
                 sizeJob.resetTime(getStart(), getEnd());
+                modified();
             }
         } else {
             if (date.before(startDate)) {
@@ -860,6 +861,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
             if (!endDate.equals(date)) {
                 endDate = date;
                 sizeJob.resetTime(getStart(), getEnd());
+                modified();
             }
         }
 
