@@ -23,6 +23,7 @@ import com.raytheon.uf.common.util.SizeUtil;
  * Jun 7, 2013  1966       rferrel     Initial creation
  * Aug 02, 2013 2224       rferrel     Changes to include DataSet in configuration.
  * Aug 06, 2013 2222       rferrel     Changes to display all selected data.
+ * Aug 14, 2013 2220       rferrel     Add priority comparator.
  * 
  * </pre>
  * 
@@ -63,6 +64,24 @@ public class DisplayData implements Comparable<DisplayData> {
         }
     };
 
+    /** Comparator for priority ordering for priority queue. */
+    public static final Comparator<DisplayData> PRIORITY_ORDER = new Comparator<DisplayData>() {
+
+        @Override
+        public int compare(DisplayData o1, DisplayData o2) {
+            if (o1.visible != o2.visible) {
+                return o1.visible ? -1 : +1;
+            } else if (o1.visible) {
+                return LABEL_ORDER.compare(o1, o2);
+            }
+
+            if (o1.selected != o2.selected) {
+                return o1.selected ? -1 : +1;
+            }
+            return LABEL_ORDER.compare(o1, o2);
+        }
+    };
+
     /** Label to use when size not yet known. */
     public static final String UNKNOWN_SIZE_LABEL = "????";
 
@@ -93,9 +112,11 @@ public class DisplayData implements Comparable<DisplayData> {
     private boolean selected = false;
 
     /**
-     * For use by GUI for indicating the size of the display label's row
-     * contents.
+     * Indicates data is visible in the display.
      */
+    private boolean visible = false;
+
+    /** For use by GUI for indicating the size of the directories' contents. */
     private long size = UNKNOWN_SIZE;
 
     /**
@@ -131,6 +152,14 @@ public class DisplayData implements Comparable<DisplayData> {
      */
     public void setSelected(boolean selected) {
         this.selected = selected;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
 
     /**
@@ -263,6 +292,7 @@ public class DisplayData implements Comparable<DisplayData> {
     public String toString() {
         StringBuilder sb = new StringBuilder("DisplayData[");
         sb.append("displayLabel: ").append(displayLabel);
+        sb.append(", isVisible: ").append(isVisible());
         sb.append(", isSlected: ").append(isSelected());
         sb.append(", size: ").append(size);
         sb.append(", category.name: ").append(categoryConfig.getName());
