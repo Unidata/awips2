@@ -523,18 +523,24 @@ public class NsharpConstants {
     
     public static final int DATA_TIMELINE_X_ORIG = 0;
     public static final int DATA_TIMELINE_Y_ORIG = 40;
-    public static final int DATA_TIMELINE_WIDTH = TIMESTN_PANE_REC_WIDTH/2;
-    public static final int COLOR_NOTATION_HEIGHT = 110;
+    public static final int DATA_TIMELINE_WIDTH = TIMESTN_PANE_REC_WIDTH * 40 /100;
+    public static final int COLOR_NOTATION_HEIGHT = 165;
     public static final int DATA_TIMELINE_HEIGHT = TIMESTN_PANE_REC_HEIGHT-DATA_TIMELINE_Y_ORIG-COLOR_NOTATION_HEIGHT;
     public static final int DATA_TIMELINE_X_END = DATA_TIMELINE_X_ORIG+DATA_TIMELINE_WIDTH;
     public static final int DATA_TIMELINE_Y_END = DATA_TIMELINE_Y_ORIG+DATA_TIMELINE_HEIGHT;
     public static final int DATA_TIMELINE_NEXT_PAGE_END_ = DATA_TIMELINE_Y_ORIG+ CHAR_HEIGHT_;
     public static final int STATION_ID_X_ORIG = DATA_TIMELINE_X_END;
     public static final int STATION_ID_Y_ORIG = DATA_TIMELINE_Y_ORIG;
-    public static final int STATION_ID_WIDTH = DATA_TIMELINE_WIDTH;
+    public static final int STATION_ID_WIDTH = (TIMESTN_PANE_REC_WIDTH - DATA_TIMELINE_WIDTH)/2;
     public static final int STATION_ID_HEIGHT = DATA_TIMELINE_HEIGHT;
     public static final int STATION_ID_X_END = STATION_ID_X_ORIG+STATION_ID_WIDTH;
     public static final int STATION_ID_Y_END = STATION_ID_Y_ORIG+STATION_ID_HEIGHT;
+    public static final int SND_TYPE_X_ORIG = STATION_ID_X_END;
+    public static final int SND_TYPE_Y_ORIG = DATA_TIMELINE_Y_ORIG;
+    public static final int SND_TYPE_WIDTH = STATION_ID_WIDTH;
+    public static final int SND_TYPE_HEIGHT = DATA_TIMELINE_HEIGHT;
+    public static final int SND_TYPE_X_END = SND_TYPE_X_ORIG+SND_TYPE_WIDTH;
+    public static final int SND_TYPE_Y_END = SND_TYPE_Y_ORIG+ SND_TYPE_HEIGHT;
     public static final int COLOR_NOTATION_X_ORIG = DATA_TIMELINE_X_ORIG;
     public static final int COLOR_NOTATION_Y_ORIG = DATA_TIMELINE_Y_END;
     public static final int COLOR_NOTATION_WIDTH = DATA_TIMELINE_WIDTH+STATION_ID_WIDTH;
@@ -799,8 +805,10 @@ public class NsharpConstants {
 		"Severe Potential Page"
 	};
 	public enum State {
-		CURRENT, ACTIVE, INACTIVE,NOTAVAIL ,OVERLAY, AVAIL//was , DISABLED
+		CURRENT, ACTIVE, INACTIVE,NOTAVAIL , AVAIL, ACTIVE_SRC_COMP, INACTIVE_SRC_COMP,ACTIVE_TM_COMP, INACTIVE_TM_COMP
 	}
+	//public enum LoadState { NOTAVAIL , AVAIL}
+	public enum ActState {CURRENT, ACTIVE, INACTIVE}//, ACTIVE_SRC_COMP, INACTIVE_SRC_COMP,ACTIVE_TM_COMP, INACTIVE_TM_COMP}
 	public enum SPCGraph {
 		EBS, STP, SHIP, WINTER, FIRE, HAIL, SARS
 	}

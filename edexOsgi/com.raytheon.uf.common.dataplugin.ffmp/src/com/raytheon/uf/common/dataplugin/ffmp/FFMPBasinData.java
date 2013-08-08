@@ -190,11 +190,11 @@ public class FFMPBasinData implements ISerializableObject {
      */
     public float getAverageValue(ArrayList<Long> pfaf_ids, Date beforeDate,
             Date afterDate) {
-
         float tvalue = 0.0f;
         int i = 0;
+        Map<Long, FFMPBasin> localBasins = getBasins();
         for (Long pfaf : pfaf_ids) {
-            FFMPBasin basin = getBasins().get(pfaf);
+            FFMPBasin basin = localBasins.get(pfaf);
             if (basin != null) {
                 tvalue += basin.getValue(beforeDate, afterDate);
                 i++;
@@ -267,8 +267,9 @@ public class FFMPBasinData implements ISerializableObject {
         float tvalue = 0.0f;
         float tarea = 0.0f;
         int i = 0;
+        Map<Long, FFMPBasin> localBasins = getBasins();
         for (Long pfaf : pfaf_ids) {
-            FFMPBasin basin = getBasins().get(pfaf);
+            FFMPBasin basin = localBasins.get(pfaf);
             if (basin != null) {
                 if (basin.getValue() != FFMPUtils.MISSING) {
                     tvalue += (basin.getValue() * areas.get(i));
@@ -297,8 +298,9 @@ public class FFMPBasinData implements ISerializableObject {
 
         float tvalue = 0.0f;
         int i = 0;
+        Map<Long, FFMPBasin> localBasins = getBasins();
         for (Long pfaf : pfaf_ids) {
-            FFMPBasin basin = getBasins().get(pfaf);
+            FFMPBasin basin = localBasins.get(pfaf);
             if (basin != null) {
                 tvalue += basin.getAccumValue(beforeDate, afterDate,
                         expirationTime, rate);
@@ -319,10 +321,11 @@ public class FFMPBasinData implements ISerializableObject {
      */
     public float getMaxValue(ArrayList<Long> pfaf_ids, Date beforeDate,
             Date afterDate) {
-
+        
         float tvalue = 0.0f;
+        Map<Long, FFMPBasin> localBasins = getBasins();
         for (Long pfaf : pfaf_ids) {
-            FFMPBasin basin = getBasins().get(pfaf);
+            FFMPBasin basin = localBasins.get(pfaf);
             if (basin != null) {
                 Float value = basin.getValue(beforeDate, afterDate);
                 if (value > tvalue) {
@@ -343,10 +346,10 @@ public class FFMPBasinData implements ISerializableObject {
      */
     public float getAverageMaxValue(List<Long> pfaf_ids, Date date,
             long expiration) {
-
         float tvalue = 0.0f;
+        Map<Long, FFMPBasin> localBasins = getBasins();
         for (Long pfaf : pfaf_ids) {
-            FFMPBasin basin = getBasins().get(pfaf);
+            FFMPBasin basin = localBasins.get(pfaf);
             if (basin != null) {
                 Float value = basin.getAverageValue(date, expiration);
                 if (value > tvalue) {
@@ -367,10 +370,10 @@ public class FFMPBasinData implements ISerializableObject {
      */
     public float getAverageMaxValue(ArrayList<Long> pfaf_ids, Date afterDate,
             Date beforeDate) {
-
         float tvalue = 0.0f;
+        Map<Long, FFMPBasin> localBasins = getBasins();
         for (Long pfaf : pfaf_ids) {
-            FFMPBasin basin = getBasins().get(pfaf);
+            FFMPBasin basin = localBasins.get(pfaf);
             if (basin != null) {
                 Float value = basin.getAverageValue(afterDate, beforeDate);
                 if (value > tvalue) {
@@ -389,10 +392,10 @@ public class FFMPBasinData implements ISerializableObject {
      * @return
      */
     public float getMaxValue(List<Long> pfaf_ids, Date date) {
-
         float tvalue = 0.0f;
+        Map<Long, FFMPBasin> localBasins = getBasins();
         for (Long pfaf : pfaf_ids) {
-            FFMPBasin basin = getBasins().get(pfaf);
+            FFMPBasin basin = localBasins.get(pfaf);
             if (basin != null) {
                 Float value = basin.getValue(date);
                 if (value > tvalue) {
@@ -413,12 +416,12 @@ public class FFMPBasinData implements ISerializableObject {
     public float getAverageGuidanceValue(List<Long> pfaf_ids,
             FFMPGuidanceInterpolation interpolation, float guidance,
             List<Long> forcedPfafs, long expiration) {
-
         float tvalue = 0.0f;
         float value;
         int i = 0;
+        Map<Long, FFMPBasin> localBasins = getBasins();
         for (Long pfaf : pfaf_ids) {
-            FFMPBasin basin = getBasins().get(pfaf);
+            FFMPBasin basin = localBasins.get(pfaf);
 
             if (basin == null) {
                 return guidance;
@@ -497,8 +500,9 @@ public class FFMPBasinData implements ISerializableObject {
             FFMPGuidanceInterpolation interpolation, long expiration,
             long parentPfaf) {
         float tvalue = Float.NaN;
+        Map<Long, FFMPBasin> localBasins = getBasins();
         for (Long pfaf : pfaf_ids) {
-            FFMPBasin basin = getBasins().get(pfaf);
+            FFMPBasin basin = localBasins.get(pfaf);
             if (basin != null) {
                 FFMPGuidanceBasin fgb = (FFMPGuidanceBasin) basin;
                 fgb.setCountyFips(parentPfaf);
@@ -549,11 +553,10 @@ public class FFMPBasinData implements ISerializableObject {
      */
     public float getAccumMaxValue(List<Long> pfaf_ids, Date beforeDate,
             Date afterDate, long expirationTime, boolean rate) {
-
         float tvalue = 0.0f;
+        Map<Long, FFMPBasin> localBasins = getBasins();
         for (Long pfaf : pfaf_ids) {
-
-            FFMPBasin basin = getBasins().get(pfaf);
+            FFMPBasin basin = localBasins.get(pfaf);
             if (basin != null) {
 
                 float val = basin.getAccumValue(afterDate, beforeDate,
@@ -578,8 +581,9 @@ public class FFMPBasinData implements ISerializableObject {
     public List<Float> getGuidanceValues(List<Long> pfaf_ids,
             FFMPGuidanceInterpolation interpolation, long expiration) {
         List<Float> values = new ArrayList<Float>();
+        Map<Long, FFMPBasin> localBasins = getBasins();
         for (Long pfaf : pfaf_ids) {
-            FFMPBasin basin = getBasins().get(pfaf);
+            FFMPBasin basin = localBasins.get(pfaf);
             if (basin != null) {
                 FFMPGuidanceBasin fgb = (FFMPGuidanceBasin) basin;
                 if (interpolation.isInterpolate()) {
@@ -637,8 +641,9 @@ public class FFMPBasinData implements ISerializableObject {
     public List<Float> getAccumValues(List<Long> pfaf_ids, Date beforeDate,
             Date afterDate, long expirationTime, boolean rate) {
         List<Float> values = new ArrayList<Float>();
+        Map<Long, FFMPBasin> localBasins = getBasins();
         for (Long pfaf : pfaf_ids) {
-            FFMPBasin basin = getBasins().get(pfaf);
+            FFMPBasin basin = localBasins.get(pfaf);
             if (basin != null) {
                 values.add(basin.getAccumValue(beforeDate, afterDate,
                         expirationTime, rate));
@@ -820,6 +825,16 @@ public class FFMPBasinData implements ISerializableObject {
             tasks.add(new LoadVirtualMapTask(datastoreFile, datasetGroupPath,
                     basins, date));
         }
+    }
+
+    /**
+     * Returns whether or not any basins have been put in the basins map. Faster
+     * than calling getBasins().size() or getBasins().isEmpty().
+     * 
+     * @return
+     */
+    public boolean hasAnyBasins() {
+        return !basins.isEmpty();
     }
 
     /**
