@@ -29,6 +29,7 @@ import com.raytheon.viz.warngen.text.ICommonPatterns;
  * Jul 22, 2008	#1284			bwoodle	Initial creation
  * Oct 18, 2012 15332           jsanchez Fixed refactor bugs.
  * Mar 13, 2013 DR 15892    D. Friedman  Handle SMW format in canceledAreasFromText
+ * Aug  6, 2013 2243        jsanchez     Updated the time ranges to be removed from the follow up list correctly.
  * 
  * </pre>
  * 
@@ -202,7 +203,8 @@ public class FollowUpUtil {
                 headline += line;
             }
         }
-        String[] ugcs = FipsUtil.getListCounties(ugcLine).toArray(new String[0]);
+        String[] ugcs = FipsUtil.getListCounties(ugcLine)
+                .toArray(new String[0]);
         String[] names;
         boolean smwAreas = false;
         if (namesLine.length() > 0)
@@ -233,7 +235,7 @@ public class FollowUpUtil {
                     areasNotation = "COUNTIES";
                 }
             }
-            
+
             if (ugc.length() < 3)
                 continue; // TODO: log?
 
@@ -242,7 +244,8 @@ public class FollowUpUtil {
             if (i < names.length) {
                 if (!smwAreas && names[i].length() >= 3) {
                     name = names[i].substring(0, names[i].length() - 3);
-                    stateAbbreviation = names[i].substring(names[i].length() - 2);
+                    stateAbbreviation = names[i]
+                            .substring(names[i].length() - 2);
                 } else {
                     name = names[i];
                 }
@@ -314,48 +317,54 @@ public class FollowUpUtil {
 
         TimeRange rval = null;
 
+        // The time ranges are offset by 1 minute so that after a refresh and on
+        // the final minute of the time range the follow up data will be
+        // removed. For example, if a CON is only a available until 5 minutes
+        // before a warnings expiration, when the time reaches 5 minutes the
+        // follow up data for a CON is correctly removed.
         if (action == WarningAction.NEW) {
             /* Calculate NEW Time Range */
             start.setTime(record.getEndTime().getTime());
-            start.add(Calendar.MINUTE, -20);
+            start.add(Calendar.MINUTE, -21);
             end.setTime(record.getEndTime().getTime());
-            end.add(Calendar.MINUTE, 30);
+            end.add(Calendar.MINUTE, 29);
             rval = new TimeRange(start, end);
         } else if (action == WarningAction.COR) {
             /* Calculate COR Time Range */
             end.setTime(record.getIssueTime().getTime());
-            end.add(Calendar.MINUTE, 10);
+            end.add(Calendar.MINUTE, 9);
             rval = new TimeRange(record.getStartTime(), end);
         } else if (action == WarningAction.CAN) {
             /* Calculate CAN Time Range */
             end.setTime(record.getEndTime().getTime());
-            end.add(Calendar.MINUTE, -10);
+            end.add(Calendar.MINUTE, -11);
             rval = new TimeRange(record.getStartTime(), end);
         } else if (action == WarningAction.CON) {
             /* Calculate CON Time Range */
             end.setTime(record.getEndTime().getTime());
-            end.add(Calendar.MINUTE, -5);
+            end.add(Calendar.MINUTE, -6);
             rval = new TimeRange(record.getStartTime(), end);
         } else if (action == WarningAction.EXP) {
             /* Calculate EXP Time Range */
             start.setTime(record.getEndTime().getTime());
-            start.add(Calendar.MINUTE, -10);
+            start.add(Calendar.MINUTE, -11);
             end.setTime(record.getEndTime().getTime());
-            end.add(Calendar.MINUTE, 10);
+            end.add(Calendar.MINUTE, 9);
             rval = new TimeRange(start, end);
         } else if (action == WarningAction.EXT) {
             /* Calculate EXT Time Range */
             start.setTime(record.getStartTime().getTime());
             end.setTime(record.getEndTime().getTime());
-            end.add(Calendar.MINUTE, -5);
+            end.add(Calendar.MINUTE, -6);
             rval = new TimeRange(start, end);
         }
 
         return rval;
     }
 
-    /** Parses the canceled areas of an SMW, which have a different format
-     * from other products.
+    /**
+     * Parses the canceled areas of an SMW, which have a different format from
+     * other products.
      */
     private static String[] parseSMWCanceledAreas(String[] splitLines) {
         StringBuilder text = new StringBuilder(64);
