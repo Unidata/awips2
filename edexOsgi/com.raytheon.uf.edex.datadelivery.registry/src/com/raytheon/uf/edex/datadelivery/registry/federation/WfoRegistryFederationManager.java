@@ -54,6 +54,7 @@ import com.raytheon.uf.common.registry.services.RegistryRESTServices;
 import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.database.RunnableWithTransaction;
+import com.raytheon.uf.edex.datadelivery.registry.replication.RegistryReplicationManager;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 
@@ -111,9 +112,10 @@ public class WfoRegistryFederationManager extends RegistryFederationManager
      */
     protected WfoRegistryFederationManager(boolean federationEnabled,
             LifecycleManager lcm, String federationPropertiesFileName,
-            String ncfAddress) throws JAXBException, IOException,
-            SerializationException {
-        super(federationEnabled, lcm, federationPropertiesFileName);
+            RegistryReplicationManager replicationManager, String ncfAddress)
+            throws JAXBException, IOException, SerializationException {
+        super(federationEnabled, lcm, federationPropertiesFileName,
+                replicationManager);
         this.ncfAddress = ncfAddress;
         scheduler = Executors.newSingleThreadScheduledExecutor();
     }
