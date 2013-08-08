@@ -184,6 +184,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 07/09/2013  DR 16376    Qinglu Lin  Removed calling removeOverTriplylaidLinesegment() but called removeOverlaidLinesegment().
  * 07/26/2013  DR 16376    Qinglu Lin  Moved adjustVertex() and computeSlope() to PolygonUtil; removed calculateDistance();
  *                                     updated AreaHatcher's run().
+ * 07/26/2013  DR 16450    D. Friedman Fix logic errors when frame count is one.
  * </pre>
  * 
  * @author mschenke
@@ -1936,12 +1937,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
         if (displayState.mode == Mode.DRAG_ME) {
             return;
         }
-        if ((configuration.isTrackEnabled() == false ||
-                configuration.getPathcastConfig() == null)
-                && !this.displayState.isNonstationary()
-                && this.displayState.displayType != DisplayType.POLY) {
-            createSquare();
-            return;
+        if (warningAction == null || warningAction == WarningAction.NEW) {
+            if ((configuration.isTrackEnabled() == false ||
+                    configuration.getPathcastConfig() == null)
+                    && !this.displayState.isNonstationary()
+                    && this.displayState.displayType != DisplayType.POLY) {
+                createSquare();
+                return;
+            }
         }
 
         DestinationGeodeticCalculator gc = new DestinationGeodeticCalculator();
@@ -2268,7 +2271,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
 
         Point point = displayState.dragMePoint;
-        if (motdir != null && motspd != null) {
+        if (motdir != null && motspd != null &&
+                (motspd != 0 || configuration.isTrackEnabled())) {
             displayState.setInitiallyMotionless(false);
             displayState.angle = adjustAngle(motdir);
             displayState.speed = knotToMeterPerSec.convert(motspd);
