@@ -69,7 +69,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
-import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -142,6 +141,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Jun 24, 2013 DR 16317    D. Friedman Handle "motionless" track.
  *  Jul 16, 2013 DR 16387    Qinglu Lin  Reset totalSegments for each followup product.
  *  Jul 29, 2013 DR 16352    D. Friedman Move 'result' to okPressed().
+ *  Aug  6, 2013 2243        jsanchez    Refreshed the follow up list every minute.
  * </pre>
  * 
  * @author chammack
@@ -274,9 +274,9 @@ public class WarngenDialog extends CaveSWTDialog implements
 
     private Group productType;
 
-    private IWarngenObserver wed = new WarningSender();
+    private boolean invalidFollowUpAction = false;
 
-    private TimeRange timeRange = null;
+    private IWarngenObserver wed = new WarningSender();
 
     public WarngenDialog(Shell parentShell, WarngenLayer layer) {
         super(parentShell, SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE,
@@ -823,6 +823,9 @@ public class WarngenDialog extends CaveSWTDialog implements
                 || warngenLayer.getPolygon().isEmpty()) {
             str += WarngenConstants.INSTRUCTION_NO_SHADED_AREA;
             createTextButtonEnabled = false;
+        } else if (invalidFollowUpAction) {
+            str += "Select a different follow up item";
+            createTextButtonEnabled = false;
         }
         if (okButton != null) {
             okButton.setEnabled(createTextButtonEnabled);
@@ -831,8 +834,8 @@ public class WarngenDialog extends CaveSWTDialog implements
             if (warngenLayer.getWarningArea() == null) {
                 str = "Area selected has no overlap with current area of responsibility";
             } else {
-                if (warngenLayer.getStormTrackState().isInitiallyMotionless() &&
-                        ! warngenLayer.getStormTrackState().isNonstationary()) {
+                if (warngenLayer.getStormTrackState().isInitiallyMotionless()
+                        && !warngenLayer.getStormTrackState().isNonstationary()) {
                     str += WarngenConstants.INSTRUCTION_DRAG_STORM + "\n";
                 } else if (warngenLayer.getStormTrackState().trackVisible) {
                     str += "Adjust Centroid in any Frame" + "\n";
@@ -880,7 +883,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                 if (FollowUpUtil.checkApplicable(site,
                         warngenLayer.getConfiguration(), warnings.get(i), act)) {
                     FollowupData data = new FollowupData(act, warnings.get(i));
-                    updateListCbo.setData(data.displayString, data);
+                    updateListCbo.setData(data.getDisplayString(), data);
                     if (act == WarningAction.NEW) {
                         newYes = true;
                     } else if (act == WarningAction.EXT) {
@@ -892,7 +895,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                     } else if (act == WarningAction.COR) {
                         corYes = true;
                     }
-                    dropDownItems.add(data.displayString);
+                    dropDownItems.add(data.getDisplayString());
                 }
             }
         }
@@ -930,17 +933,52 @@ public class WarngenDialog extends CaveSWTDialog implements
             updateListCbo.add(dropDownItems.get(i));
         }
         // Select the previously selected item.
+        invalidFollowUpAction = false;
         if (currentSelection != null) {
+            boolean isValid = false;
             for (int i = 0; i < updateListCbo.getItemCount(); i++) {
                 if (updateListCbo.getItem(i).startsWith(
-                        currentSelection.equvialentString)) {
+                        currentSelection.getEquvialentString())) {
                     updateListCbo.select(i);
+                    isValid = true;
                     break;
                 }
+            }
+
+            if (!isValid) {
+                invalidFollowUpAction = true;
+                preventFollowUpAction(currentSelection);
             }
         } else {
             updateListCbo.select(0);
         }
+    }
+
+    /**
+     * Prevents the user from creating text when the current selection is no
+     * longer valid or available in the update list. The polygon will also be
+     * locked from being modified and return to it's last issued state if the
+     * polygon was temporarily modified.
+     * 
+     * @param currentSelection
+     */
+    private void preventFollowUpAction(FollowupData currentSelection) {
+
+        try {
+            warngenLayer.createPolygonFromRecord(currentSelection);
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error resetting the polygon\n", e);
+        }
+
+        bulletList.setEnabled(false);
+        setPolygonLocked(true);
+        setTrackLocked(true);
+        refreshDisplay();
+
+        // Provide an info message when this situation occurs
+        statusHandler.handle(Priority.PROBLEM,
+                currentSelection.getExpirationString());
     }
 
     /**
@@ -995,11 +1033,11 @@ public class WarngenDialog extends CaveSWTDialog implements
             return;
         }
 
-        if (followupData != null && WarningAction.valueOf(followupData
-                .getAct()) == WarningAction.NEW) {
+        if (followupData != null
+                && WarningAction.valueOf(followupData.getAct()) == WarningAction.NEW) {
             redrawFromWarned();
         }
-        
+
         if ((followupData == null || (WarningAction.valueOf(followupData
                 .getAct()) == WarningAction.CON && warngenLayer
                 .conWarnAreaChanged(followupData)))
@@ -1021,9 +1059,10 @@ public class WarngenDialog extends CaveSWTDialog implements
                     try {
                         monitor.beginTask("Generating product", 1);
                         long t0 = System.currentTimeMillis();
-                        String result = TemplateRunner.runTemplate(warngenLayer,
-                                startTime.getTime(), endTime.getTime(),
-                                selectedBullets, followupData, backupData);
+                        String result = TemplateRunner.runTemplate(
+                                warngenLayer, startTime.getTime(),
+                                endTime.getTime(), selectedBullets,
+                                followupData, backupData);
                         resultContainer[0] = result;
                         Matcher m = FollowUpUtil.vtecPtrn.matcher(result);
                         totalSegments = 0;
@@ -1123,15 +1162,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         // again after a product was issued.AWIPS I does not auto update their
         // update list, this is their solution.
         if (followupData != null && totalSegments > 1) {
-            multiSegmentMessage(followupData.equvialentString);
-            return false;
-        }
-
-        if (timeRange != null
-                && timeRange.contains(SimulatedTime.getSystemTime().getTime()) == false) {
-            // The action is no longer available in the follow up/update list
-            statusHandler.handle(Priority.PROBLEM,
-                    "Follow up product has nothing to follow up.");
+            multiSegmentMessage(followupData.getEquvialentString());
             return false;
         }
 
@@ -1188,7 +1219,6 @@ public class WarngenDialog extends CaveSWTDialog implements
         bulletList.setEnabled(true);
         recreateUpdates();
         damBreakInstruct = null;
-        timeRange = null;
         extEndTime = null;
         totalSegments = 0;
         bulletListManager.recreateBullets(warngenLayer.getConfiguration()
@@ -1425,7 +1455,6 @@ public class WarngenDialog extends CaveSWTDialog implements
         warngenLayer.state.followupData = null;
         warngenLayer.getStormTrackState().endTime = null;
         damBreakInstruct = null;
-        timeRange = null;
         extEndTime = null;
         totalSegments = 0;
 
@@ -1448,6 +1477,8 @@ public class WarngenDialog extends CaveSWTDialog implements
         changeBtn.setEnabled(!enableDuration);
         recreateDurations(durationList);
 
+        // Current selection doesn't matter anymore
+        updateListCbo.select(0);
         // update list
         recreateUpdates();
 
@@ -1571,7 +1602,8 @@ public class WarngenDialog extends CaveSWTDialog implements
                                 .valueOf(warngenLayer.state.followupData
                                         .getAct()) == WarningAction.CON
                                 && totalSegments > 1) {
-                            sameProductMessage(warngenLayer.state.followupData.equvialentString);
+                            sameProductMessage(warngenLayer.state.followupData
+                                    .getEquvialentString());
                         }
                         return;
                     }
@@ -1581,7 +1613,8 @@ public class WarngenDialog extends CaveSWTDialog implements
                     // Sets the updatelist with the last selected vtec option
                     for (int i = 0; i < updateListCbo.getItemCount(); i++) {
                         String item = updateListCbo.getItem(i);
-                        if (item.equals(warngenLayer.state.followupData.displayString)) {
+                        if (item.equals(warngenLayer.state.followupData
+                                .getDisplayString())) {
                             updateListCbo.select(i);
                             updateListCbo.setText(item);
                             data = warngenLayer.state.followupData;
@@ -1823,6 +1856,32 @@ public class WarngenDialog extends CaveSWTDialog implements
         }
 
         timer.schedule(updateTimeTask, delay, delay);
+
+        TimerTask recreateUpdatesTask = new TimerTask() {
+            @Override
+            public void run() {
+
+                getDisplay().syncExec(new Runnable() {
+                    public void run() {
+                        try {
+                            recreateUpdates();
+                        } catch (Exception e) {
+                            statusHandler.handle(Priority.PROBLEM,
+                                    "WarnGen Error", e);
+                        }
+                    }
+                });
+            }
+        };
+
+        // Update the follow up list every minute
+        long currentTimeInSeconds = SimulatedTime.getSystemTime().getMillis() / 1000;
+        long secondsToNextMinute = 0;
+        if (currentTimeInSeconds % 60 != 0) {
+            secondsToNextMinute = 60 - (currentTimeInSeconds % 60);
+        }
+        timer.schedule(recreateUpdatesTask, secondsToNextMinute * 1000,
+                60 * 1000);
     }
 
     /**
@@ -1897,7 +1956,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             statusHandler.handle(Priority.PROBLEM,
                     "Error creating polygon from the record\n", e);
         }
-        timeRange = FollowUpUtil.getTimeRange(WarningAction.CON, newWarn);
+
         return newWarn;
     }
 
@@ -1943,7 +2002,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                         "Error creating polygon from the record\n", e);
             }
         }
-        timeRange = FollowUpUtil.getTimeRange(WarningAction.COR, newWarn);
+
         return newWarn;
     }
 
@@ -1981,7 +2040,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             statusHandler.handle(Priority.PROBLEM,
                     "Error creating polygon from the record\n", e);
         }
-        timeRange = FollowUpUtil.getTimeRange(WarningAction.EXP, newWarn);
+
         return newWarn;
     }
 
@@ -2019,7 +2078,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             statusHandler.handle(Priority.PROBLEM,
                     "Error creating polygon from the record\n", e);
         }
-        timeRange = FollowUpUtil.getTimeRange(WarningAction.CAN, newWarn);
+
         return newWarn;
     }
 
@@ -2044,7 +2103,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             statusHandler.handle(Priority.PROBLEM,
                     "Error creating polygon from the record\n", e);
         }
-        timeRange = null;
+
         return newWarn;
     }
 
@@ -2087,7 +2146,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             statusHandler.handle(Priority.PROBLEM,
                     "Error creating polygon from the record\n", e);
         }
-        timeRange = FollowUpUtil.getTimeRange(WarningAction.EXT, newWarn);
+
         return newWarn;
     }
 
