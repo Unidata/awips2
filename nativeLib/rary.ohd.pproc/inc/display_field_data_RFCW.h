@@ -28,10 +28,10 @@
 
 void display_field_data_RFCW ( enum DisplayFieldData, 
 			       int ** data_array_tmp , date_struct date ,
-			       int addition_flag ) ;
+			       int addition_flag , int rowSize, int colSize) ;
 
 void display_field_read_xmrg ( int ** data_array_tmp , char * fname ,
-			       int addition_flag ) ;
+			       int addition_flag , int rowSize, int colSize ) ;
 
 void display_field_read_spe ( int ** data_array_tmp , char * fname ,
                               int addition_flag ) ;
