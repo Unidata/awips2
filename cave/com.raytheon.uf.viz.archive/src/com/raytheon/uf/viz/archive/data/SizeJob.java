@@ -3,12 +3,18 @@ package com.raytheon.uf.viz.archive.data;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -53,6 +59,11 @@ public class SizeJob extends Job {
             .getHandler(SizeJob.class);
 
     /**
+     * The private variable from PriorityQueue.
+     */
+    private final int DEFAULT_INITIAL_CAPACITY = 11;
+
+    /**
      * Mapping of display data by archive and category names.
      */
     private final Map<String, ArchiveInfo> archiveInfoMap = new ConcurrentHashMap<String, ArchiveInfo>();
@@ -74,28 +85,23 @@ public class SizeJob extends Job {
     private final AtomicBoolean displaySizesComputed = new AtomicBoolean(false);
 
     /**
-     * Request queue for selected data not in current display
+     * Queue of display data needing sizes.
      */
-    private final ConcurrentLinkedQueue<DisplayData> selectedQueue = new ConcurrentLinkedQueue<DisplayData>();
+    private final PriorityBlockingQueue<DisplayData> sizeQueue = new PriorityBlockingQueue<DisplayData>(
+            DEFAULT_INITIAL_CAPACITY, DisplayData.PRIORITY_ORDER);
 
     /**
-     * Request queue for data not in current displayed or selected.
+     * Data to send to listeners.
      */
-    private final ConcurrentLinkedQueue<DisplayData> backgroundQueue = new ConcurrentLinkedQueue<DisplayData>();
+    private final LinkedBlockingQueue<DisplayData> displayQueue = new LinkedBlockingQueue<DisplayData>();
 
     /**
-     * Indicates the job should stop computing the size of the current
-     * non-selected entry.
+     * Current list of visible data.
      */
-    private final AtomicBoolean stopComputeSize = new AtomicBoolean(false);
+    private List<DisplayData> visibleList = new ArrayList<DisplayData>(0);
 
     /**
-     * What should happen to the processing request that is being stopped.
-     */
-    private final AtomicBoolean requeueRequest = new AtomicBoolean(false);
-
-    /**
-     * Set to true when running job should stop and never rescheduled.
+     * Set to true when running job should stop and never be rescheduled.
      */
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
@@ -105,14 +111,82 @@ public class SizeJob extends Job {
     private final List<IUpdateListener> listeners = new ArrayList<IUpdateListener>();
 
     /**
+     * The display data whose size is being computed.
+     */
+    private DisplayData currentDisplayData;
+
+    /**
+     * Method to call when loading a new selection for retention/case creation
+     * to update times.
+     */
+    private IRetentionHour iRetentionHour;
+
+    /**
      * Current start time.
      */
-    Calendar startCal;
+    private Calendar startCal;
 
     /**
      * Current end time.
      */
-    Calendar endCal;
+    private Calendar endCal;
+
+    /**
+     * Timer to periodically update the GUI display computed sizes.
+     */
+    private Timer displayTimer;
+
+    /**
+     * Flag to shutdown the display timer.
+     */
+    private final AtomicBoolean shutdownDisplayTimer = new AtomicBoolean(false);
+
+    /**
+     * Frequency for performing peek while computing sizes.
+     */
+    private final int peekFrequency = 50;
+
+    /**
+     * Counter to reduce the number of times a peek is performed while computing
+     * sizes.
+     */
+    private int peekCnt;
+
+    /**
+     * Flag to stop computing sizes; only accessed by a single thread.
+     */
+    private boolean stopComputeSize;
+
+    /**
+     * Priority queue for getting display data for an archive/category.
+     */
+    // Do not use a PriorityBlockingQueue since the load select and change
+    // display methods need to be notified when the display data is available.
+    private final PriorityQueue<MissingData> missingDataQueue = new PriorityQueue<SizeJob.MissingData>(
+            DEFAULT_INITIAL_CAPACITY, new Comparator<MissingData>() {
+
+                @Override
+                public int compare(MissingData o1, MissingData o2) {
+                    if (o1.visiable != o2.visiable) {
+                        return o1.visiable ? -1 : +1;
+                    }
+                    if (o1.isSelected() != o2.isSelected()) {
+                        return o1.isSelected() ? -1 : +1;
+                    }
+
+                    int result = o1.archive.compareToIgnoreCase(o2.archive);
+
+                    if (result == 0) {
+                        result = o1.category.compareToIgnoreCase(o2.category);
+                    }
+                    return result;
+                }
+            });
+
+    /**
+     * Job for processing the missing data queue.
+     */
+    private final MissingDataJob missingDataJob = new MissingDataJob();
 
     /**
      * Constructor.
@@ -163,11 +237,8 @@ public class SizeJob extends Job {
                 for (DisplayData displayData : categoryInfo
                         .getDisplayDataList()) {
                     displayData.setSize(DisplayData.UNKNOWN_SIZE);
-                    if (displayData.isSelected()) {
-                        selectedQueue.add(displayData);
-                    } else {
-                        backgroundQueue.add(displayData);
-                    }
+                    sizeQueue.add(displayData);
+
                     if (shutdown.get()) {
                         return;
                     }
@@ -184,38 +255,12 @@ public class SizeJob extends Job {
     }
 
     /**
-     * If request is for unknown size then add request to the appropriate queue.
-     * 
-     * @param fileInfo
-     */
-    private void requeue(DisplayData displayData) {
-        if (!shutdown.get()) {
-            requeueRequest.set(false);
-            if (displayData.isSelected()) {
-                selectedQueue.add(displayData);
-                backgroundQueue.remove(displayData);
-            } else {
-                selectedQueue.remove(displayData);
-                backgroundQueue.add(displayData);
-            }
-
-            if (getState() == Job.NONE) {
-                schedule();
-            }
-        }
-    }
-
-    /**
      * Add entry to the archive information map.
      * 
      * @param archiveName
      * @param archiveInfo
      */
     public void put(String archiveName, ArchiveInfo archiveInfo) {
-        if (archiveInfoMap.isEmpty()) {
-            displayArchive = archiveName;
-            displayCategory = archiveInfo.getCategoryNames().iterator().next();
-        }
         archiveInfoMap.put(archiveName, archiveInfo);
     }
 
@@ -237,8 +282,8 @@ public class SizeJob extends Job {
     }
 
     /**
-     * Set the display data's select state and check to see if it needs to be
-     * requeue.
+     * Check all displayData selection state so only the data in selections are
+     * set.
      * 
      * @param selections
      */
@@ -250,19 +295,28 @@ public class SizeJob extends Job {
             selections = new SelectConfig();
             selections.setName(ArchiveConstants.defaultSelectName);
         }
+        iRetentionHour.setRetentionTimes(selections.getStarRetentionHours());
 
         for (String archiveName : getArchiveNames()) {
             ArchiveInfo archiveInfo = get(archiveName);
             for (String categoryName : archiveInfo.getCategoryNames()) {
-                CategoryInfo categoryInfo = archiveInfo.get(categoryName);
                 List<String> selectionsList = selections.getSelectedList(
                         archiveName, categoryName);
-                for (DisplayData displayData : categoryInfo
-                        .getDisplayDataList()) {
-                    String displayLabel = displayData.getDisplayLabel();
-                    boolean selected = selectionsList.contains(displayLabel);
-                    if (selected != displayData.isSelected()) {
-                        setSelect(displayData, selected);
+                MissingData missingData = removeMissingData(archiveName,
+                        categoryName);
+                if (missingData != null) {
+                    missingData.setSelectedList(selectionsList);
+                    addMissingData(missingData);
+                } else {
+                    CategoryInfo categoryInfo = archiveInfo.get(categoryName);
+                    for (DisplayData displayData : categoryInfo
+                            .getDisplayDataList()) {
+                        String displayLabel = displayData.getDisplayLabel();
+                        boolean selected = selectionsList
+                                .contains(displayLabel);
+                        if (selected != displayData.isSelected()) {
+                            setSelect(displayData, selected);
+                        }
                     }
                 }
             }
@@ -275,6 +329,16 @@ public class SizeJob extends Job {
      * @return selected
      */
     public List<DisplayData> getSelectAll() {
+        synchronized (missingDataQueue) {
+            while (!missingDataQueue.isEmpty()) {
+                if (missingDataJob.currentMissingData == null
+                        || missingDataJob.currentMissingData.isSelected()) {
+                    missingDataQueueWait();
+                } else {
+                    break;
+                }
+            }
+        }
         List<DisplayData> selected = new LinkedList<DisplayData>();
         for (ArchiveInfo archiveInfo : archiveInfoMap.values()) {
             for (String categoryName : archiveInfo.getCategoryNames()) {
@@ -344,16 +408,35 @@ public class SizeJob extends Job {
     }
 
     /**
-     * Update the selection state and if needed requeue size request.
+     * Change the selection state and reset priority.
      * 
      * @param displayData
      * @param state
      */
     public void setSelect(DisplayData displayData, boolean state) {
         if (displayData.isSelected() != state) {
-            displayData.setSelected(state);
-            if (displayData.getSize() == DisplayData.UNKNOWN_SIZE) {
-                requeue(displayData);
+            if (sizeQueue.remove(displayData)) {
+                displayData.setSelected(state);
+                sizeQueue.add(displayData);
+            } else {
+                displayData.setSelected(state);
+            }
+        }
+    }
+
+    /**
+     * Change visibility state and reset priority.
+     * 
+     * @param displayData
+     * @param state
+     */
+    private void setVisible(DisplayData displayData, boolean state) {
+        if (displayData.isVisible() != state) {
+            if (sizeQueue.remove(displayData)) {
+                displayData.setVisible(state);
+                sizeQueue.add(displayData);
+            } else {
+                displayData.setVisible(state);
             }
         }
     }
@@ -363,32 +446,184 @@ public class SizeJob extends Job {
      * 
      * @param archiveName
      * @param categoryName
+     * @return displayData when display needs to change otherwise null
      */
-    public void changeDisplayQueue(String archiveName, String categoryName) {
-        if (archiveName == null) {
-            if (displayArchive != null) {
-                synchronized (this) {
-                    if (!displaySizesComputed.get() && !selectedQueue.isEmpty()) {
-                        requeueRequest.set(true);
-                        stopComputeSize.set(true);
-                        displayArchive = null;
-                        displaySizesComputed.set(true);
+    public List<DisplayData> changeDisplay(String archiveName,
+            String categoryName) {
+        List<DisplayData> displayDatas = null;
+        if (!archiveName.equals(displayArchive)
+                || !categoryName.equals(displayCategory)) {
+            MissingData missingData = removeMissingData(archiveName,
+                    categoryName);
+            if (missingData != null) {
+                missingData.setVisiable(true);
+                synchronized (missingDataQueue) {
+                    addMissingData(missingData);
+                    while (missingDataQueue.contains(missingData)) {
+                        missingDataQueueWait();
                     }
                 }
             }
-            return;
+            displayDatas = archiveInfoMap.get(archiveName).get(categoryName)
+                    .getDisplayDataList();
+            displayArchive = archiveName;
+            displayCategory = categoryName;
+            changeDisplay(displayDatas);
         }
-        if (!archiveName.equals(displayArchive)
-                || !categoryName.equals(displayCategory)) {
-            synchronized (this) {
-                if (getState() != Job.NONE) {
-                    requeueRequest.set(true);
-                    stopComputeSize.set(true);
+        return displayDatas;
+    }
+
+    /**
+     * Change to display all selected data..
+     * 
+     * @return displayhData when display needs to change otherwise null.
+     */
+    public List<DisplayData> changeDisplayAll() {
+        List<DisplayData> selectedData = null;
+        if (displayArchive != null) {
+            displayArchive = null;
+            displayCategory = null;
+            selectedData = getSelectAll();
+            changeDisplay(selectedData);
+        }
+        return selectedData;
+    }
+
+    public String initData(ArchiveConstants.Type type, String selectName,
+            String displayArchive, String displayCategory,
+            IRetentionHour iRetentionHour) {
+        this.iRetentionHour = iRetentionHour;
+        ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
+        String fileName = ArchiveConstants.selectFileName(type, selectName);
+        SelectConfig selections = manager.loadSelection(fileName);
+        if (selections == null) {
+            selections = new SelectConfig();
+            selections.setName(ArchiveConstants.defaultSelectName);
+        }
+        iRetentionHour.setRetentionTimes(selections.getStarRetentionHours());
+
+        missingDataQueue.clear();
+
+        visibleList = manager.getDisplayData(displayArchive, displayCategory,
+                false);
+        List<String> selectedList = selections.getSelectedList(displayArchive,
+                displayCategory);
+        for (DisplayData displayData : visibleList) {
+            displayData.setSelected(selectedList.contains(displayData
+                    .getDisplayLabel()));
+        }
+
+        for (String archiveName : manager.getArchiveDataNamesList()) {
+            ArchiveInfo archiveInfo = new ArchiveInfo();
+            String[] categoryNames = manager.getCategoryNames(manager
+                    .getArchive(archiveName));
+            for (String categoryName : categoryNames) {
+                CategoryInfo categoryInfo = new CategoryInfo(archiveName,
+                        categoryName, null);
+                archiveInfo.add(categoryInfo);
+                if (archiveName.equals(displayArchive)
+                        && categoryName.equals(displayCategory)) {
+                    categoryInfo.setDisplayDataList(visibleList);
+                    if (!visibleList.isEmpty()) {
+                        schedule();
+                    }
+                } else {
+                    selectedList = selections.getSelectedList(archiveName,
+                            categoryName);
+                    MissingData missingData = new MissingData(archiveName,
+                            categoryName, selectedList);
+                    missingDataQueue.add(missingData);
                 }
-                displaySizesComputed.set(false);
-                displayArchive = archiveName;
-                displayCategory = categoryName;
             }
+            put(archiveName, archiveInfo);
+        }
+
+        missingDataJob.schedule();
+
+        return selections.getName();
+    }
+
+    /**
+     * Find and remove the missing data from the missing data queue.
+     * 
+     * @param archiveName
+     * @param categoryName
+     * @return missingData or null if not on the missing data queue
+     */
+    private MissingData removeMissingData(String archiveName,
+            String categoryName) {
+        MissingData missingData = null;
+        synchronized (missingDataQueue) {
+            if (missingDataJob.currentMissingData != null
+                    && archiveName
+                            .equals(missingDataJob.currentMissingData.archive)
+                    && categoryName
+                            .equals(missingDataJob.currentMissingData.category)) {
+                // Finish the process of getting the data.
+                missingDataQueueWait();
+            } else if (!missingDataQueue.isEmpty()) {
+                Iterator<MissingData> iterator = missingDataQueue.iterator();
+                while (iterator.hasNext()) {
+                    MissingData md = iterator.next();
+                    if (md.archive.equals(archiveName)
+                            && md.category.equals(categoryName)) {
+                        iterator.remove();
+                        missingData = md;
+                        break;
+                    }
+                }
+            }
+        }
+        return missingData;
+    }
+
+    /**
+     * Wait for notification that current missing data is finished processing.
+     * 
+     * @return false when interrupted exception
+     */
+    private boolean missingDataQueueWait() {
+        boolean state = true;
+        try {
+            missingDataQueue.wait();
+        } catch (InterruptedException e) {
+            state = false;
+            statusHandler.handle(Priority.INFO, e.getLocalizedMessage(), e);
+        }
+        return state;
+    }
+
+    /**
+     * 
+     * @param missingData
+     */
+    private void addMissingData(MissingData missingData) {
+        synchronized (missingDataQueue) {
+            missingDataQueue.add(missingData);
+            if (missingDataJob.getState() == Job.NONE) {
+                missingDataJob.schedule();
+            }
+        }
+    }
+
+    /**
+     * Change update visible to the new list.
+     * 
+     * @param newDisplays
+     */
+    private void changeDisplay(List<DisplayData> newDisplays) {
+        List<DisplayData> oldDisplays = visibleList;
+        visibleList = newDisplays;
+        List<DisplayData> visibleList = new ArrayList<DisplayData>(newDisplays);
+
+        for (DisplayData displayData : oldDisplays) {
+            if (!visibleList.remove(displayData)) {
+                setVisible(displayData, false);
+            }
+        }
+
+        for (DisplayData displayData : visibleList) {
+            setVisible(displayData, true);
         }
     }
 
@@ -396,13 +631,8 @@ public class SizeJob extends Job {
      * Clear request queues and stop current request.
      */
     public void clearQueue() {
-        if (getState() != Job.NONE) {
-            displaySizesComputed.set(false);
-            selectedQueue.clear();
-            backgroundQueue.clear();
-            requeueRequest.set(false);
-            stopComputeSize.set(true);
-        }
+        sizeQueue.clear();
+        displayQueue.clear();
     }
 
     /*
@@ -419,52 +649,30 @@ public class SizeJob extends Job {
 
         ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
 
+        updateDisplayTimer();
+
         mainLoop: while (!shutdown.get()) {
-            DisplayData displayData = null;
-            synchronized (this) {
-                if (!displaySizesComputed.get()) {
-                    // Get sizes for the current display.
-                    List<DisplayData> displayDatas = archiveInfoMap
-                            .get(displayArchive).get(displayCategory)
-                            .getDisplayDataList();
-                    for (DisplayData dd : displayDatas) {
-                        if (dd.getSize() == DisplayData.UNKNOWN_SIZE) {
-                            displayData = dd;
-                            break;
-                        }
-                    }
-                    displaySizesComputed.set(displayData == null);
-                }
+
+            currentDisplayData = sizeQueue.peek();
+            if (currentDisplayData == null) {
+                break mainLoop;
             }
 
-            if (displayData == null) {
-                if (!selectedQueue.isEmpty()) {
-                    displayData = selectedQueue.remove();
-                } else if (!backgroundQueue.isEmpty()) {
-                    displayData = backgroundQueue.remove();
-                }
+            // System.out.println("+++SizeJob: " + currentDisplayData);
 
-                if (displayData == null) {
-                    break mainLoop;
-                } else if (displayData.getSize() >= 0) {
-                    continue mainLoop;
-                }
-            }
-
-            stopComputeSize.set(false);
-
-            List<File> files = manager.getDisplayFiles(displayData, startCal,
-                    endCal);
+            List<File> files = manager.getDisplayFiles(currentDisplayData,
+                    startCal, endCal);
 
             // Size no longer needed.
-            if (stopComputeSize.get()) {
-                if (requeueRequest.get()) {
-                    requeue(displayData);
-                }
+            if (currentDisplayData != sizeQueue.peek()) {
+                // System.out.println("---SizeJob: " + currentDisplayData);
                 continue mainLoop;
             }
 
             long size = 0L;
+            peekCnt = peekFrequency;
+            stopComputeSize = false;
+
             for (File file : files) {
                 if (file.isDirectory()) {
                     size += sizeOfDirectory(file);
@@ -473,23 +681,19 @@ public class SizeJob extends Job {
                 }
 
                 // Skip when size no longer needed.
-                if (stopComputeSize.get()) {
-                    if (requeueRequest.get()) {
-                        requeue(displayData);
-                    }
+                if (stopComputeSize) {
+                    // System.out.println("---SizeJob: " + currentDisplayData);
                     continue mainLoop;
                 }
             }
 
-            displayData.setSize(size);
-
-            List<DisplayData> list = new ArrayList<DisplayData>(1);
-            list.add(displayData);
-            for (IUpdateListener listener : listeners) {
-                listener.update(list);
-            }
+            sizeQueue.remove(currentDisplayData);
+            currentDisplayData.setSize(size);
+            displayQueue.add(currentDisplayData);
         }
 
+        // System.out.println("xxxSizeJob: OK_STATUS");
+        shutdownDisplayTimer.set(true);
         return Status.OK_STATUS;
     }
 
@@ -503,9 +707,18 @@ public class SizeJob extends Job {
     private long sizeOfDirectory(File directory) {
         long size = 0;
         for (File file : directory.listFiles()) {
-            if (stopComputeSize.get()) {
+            if (stopComputeSize) {
                 break;
             }
+            if (--peekCnt == 0) {
+                if (currentDisplayData != sizeQueue.peek()) {
+                    // Forces break out of recursion.
+                    stopComputeSize = true;
+                    break;
+                }
+                peekCnt = peekFrequency;
+            }
+
             if (file.isDirectory()) {
                 size += sizeOfDirectory(file);
             } else {
@@ -515,6 +728,44 @@ public class SizeJob extends Job {
         return size;
     }
 
+    /**
+     * Start timer to update GUI's display form data on the display Queue.
+     */
+    private void updateDisplayTimer() {
+        if (displayTimer != null) {
+            displayTimer.cancel();
+        }
+
+        shutdownDisplayTimer.set(false);
+
+        displayTimer = new Timer();
+
+        TimerTask updateDisplayTask = new TimerTask() {
+            @Override
+            public void run() {
+                if (!displayQueue.isEmpty()) {
+                    List<DisplayData> list = new ArrayList<DisplayData>(
+                            displayQueue.size());
+                    displayQueue.drainTo(list);
+
+                    // for (DisplayData displayData : list) {
+                    // System.out.println("== " + displayData);
+                    // }
+                    //
+                    for (IUpdateListener listener : listeners) {
+                        listener.update(list);
+                    }
+                } else if (shutdownDisplayTimer.get()) {
+                    // System.out.println("xxx updateDisplayTimer canceled");
+                    displayTimer.cancel();
+                    displayTimer = null;
+                }
+            }
+        };
+
+        displayTimer.schedule(updateDisplayTask, 1000, 2000);
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -522,9 +773,125 @@ public class SizeJob extends Job {
      */
     @Override
     protected void canceling() {
-        selectedQueue.clear();
-        backgroundQueue.clear();
+        // System.err.println("canceling SizeJob");
+        clearQueue();
+        missingDataQueue.clear();
+        missingDataJob.cancel();
         shutdown.set(true);
-        stopComputeSize.set(true);
     }
+
+    /**
+     * Class used by the missing data job to obtain display data for given
+     * archive/category off the UI thread.
+     */
+    private static class MissingData {
+        protected final String archive;
+
+        protected final String category;
+
+        protected final List<String> selectedList;
+
+        protected boolean visiable = false;
+
+        public MissingData(String archive, String category,
+                List<String> selectedList) {
+            this.archive = archive;
+            this.category = category;
+            this.selectedList = new ArrayList<String>(selectedList);
+        }
+
+        public boolean isSelected() {
+            return !selectedList.isEmpty();
+        }
+
+        public void setVisiable(boolean state) {
+            this.visiable = state;
+        }
+
+        public void setSelectedList(List<String> selectedList) {
+            this.selectedList.clear();
+            this.selectedList.addAll(selectedList);
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder("MissingData[");
+            sb.append("archive: ").append(archive);
+            sb.append(", category: ").append(category);
+            sb.append(", visible: ").append(visiable);
+            sb.append(", isSelected: ").append(isSelected());
+            sb.append("]");
+            return sb.toString();
+        }
+    }
+
+    /**
+     * This handles getting the display data in the missing data queue and
+     * queuing the results for the size job.
+     */
+    private class MissingDataJob extends Job {
+
+        private final AtomicBoolean shutdown = new AtomicBoolean(false);
+
+        protected MissingData currentMissingData = null;
+
+        public MissingDataJob() {
+            super("MissingData");
+        }
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            if (monitor.isCanceled()) {
+                return Status.OK_STATUS;
+            }
+
+            ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
+
+            while (!shutdown.get()) {
+                synchronized (missingDataQueue) {
+                    if (currentMissingData != null) {
+                        missingDataQueue.notifyAll();
+                    }
+                    currentMissingData = missingDataQueue.poll();
+                }
+
+                if (currentMissingData == null) {
+                    break;
+                }
+
+                String archiveName = currentMissingData.archive;
+                String categoryName = currentMissingData.category;
+                // System.out.println("== missingData: " + currentMissingData);
+                List<String> selectedList = currentMissingData.selectedList;
+                List<DisplayData> displayDatas = manager.getDisplayData(
+                        archiveName, categoryName, false);
+                if (shutdown.get()) {
+                    break;
+                }
+
+                for (DisplayData displayData : displayDatas) {
+                    displayData.setSelected(selectedList.contains(displayData
+                            .getDisplayLabel()));
+                    sizeQueue.add(displayData);
+                }
+
+                archiveInfoMap.get(archiveName).get(categoryName)
+                        .setDisplayDataList(displayDatas);
+
+                if (SizeJob.this.getState() == Job.NONE) {
+                    SizeJob.this.schedule();
+                }
+            }
+
+            // System.out.println("xxx missingData");
+            return Status.OK_STATUS;
+        }
+
+        @Override
+        protected void canceling() {
+            // System.err.println("canceling MissingDataJob");
+            shutdown.set(true);
+        }
+    }
+
 }
