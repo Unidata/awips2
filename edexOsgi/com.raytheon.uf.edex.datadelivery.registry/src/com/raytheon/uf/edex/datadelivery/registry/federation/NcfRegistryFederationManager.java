@@ -26,7 +26,6 @@ import java.util.List;
 import javax.xml.bind.JAXBException;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
-import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.FederationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.OrganizationType;
@@ -38,6 +37,7 @@ import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.edex.datadelivery.registry.replication.RegistryReplicationManager;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 
@@ -84,9 +84,11 @@ public class NcfRegistryFederationManager extends RegistryFederationManager
      *             If errors occur while deserializing the federation properties
      */
     protected NcfRegistryFederationManager(boolean federationEnabled,
-            LifecycleManager lcm, String federationPropertiesFileName)
+            LifecycleManager lcm, String federationPropertiesFileName,
+            RegistryReplicationManager replicationManager)
             throws JAXBException, IOException, SerializationException {
-        super(federationEnabled, lcm, federationPropertiesFileName);
+        super(federationEnabled, lcm, federationPropertiesFileName,
+                replicationManager);
     }
 
     @Override
@@ -110,8 +112,8 @@ public class NcfRegistryFederationManager extends RegistryFederationManager
             replicationManager.submitRemoteSubscriptions(registry);
             try {
                 replicationManager.checkDownTime();
-            } catch (MsgRegistryException e) {
-                throw new EbxmlRegistryException("Error checkint down time!", e);
+            } catch (Exception e) {
+                throw new EbxmlRegistryException("Error checking down time!", e);
             }
         } else {
             statusHandler.info("Federation is disabled for this registry.");
