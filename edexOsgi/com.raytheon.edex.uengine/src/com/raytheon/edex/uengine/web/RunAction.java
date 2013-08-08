@@ -51,6 +51,7 @@ import com.raytheon.edex.util.Util;
 import com.raytheon.edex.util.XMLUtils;
 import com.raytheon.uf.common.message.response.ResponseMessageError;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.core.EdexException;
 
 /**
@@ -93,7 +94,7 @@ public class RunAction extends javax.servlet.http.HttpServlet implements
         String receiveTime = request.getParameter("receiveTime");
         long receive = 5000;
         boolean jsEngine = false;
-        theLogger.info("request type is " + Util.printString(requestType));
+        theLogger.info("request type is " + StringUtil.printString(requestType));
         if (requestType != null) {
             if (requestType.equals("ascii")) {
                 actionXML = createActionASCII(request);
@@ -237,7 +238,7 @@ public class RunAction extends javax.servlet.http.HttpServlet implements
         Calendar cal = Calendar.getInstance();
         String now = String.format("%1$tY%1$tm%1$td%1$tH%1$tM%1$tS", cal);
         String name = request.getParameter("scriptname");
-        if (Util.isEmptyString(name)) {
+        if (StringUtil.isEmptyString(name)) {
             name = "";
         }
         String function = request.getParameter("function");
@@ -249,7 +250,7 @@ public class RunAction extends javax.servlet.http.HttpServlet implements
         String imageFormat = request.getParameter("imageformat");
         String reproject = request.getParameter("reproject");
         String count = request.getParameter("count");
-        if (Util.isEmptyString(count)) {
+        if (StringUtil.isEmptyString(count)) {
             count = "1";
         }
         boolean subscription = function.equalsIgnoreCase("subscribe");
@@ -267,15 +268,15 @@ public class RunAction extends javax.servlet.http.HttpServlet implements
         action.append("var dataRequest = new RadarRequest();" + eol);
         action.append("dataRequest.requestImage(true);" + eol);
         action.append("dataRequest.setCount(" + count + ");" + eol);
-        if (!Util.isEmptyString(productCode)) {
+        if (!StringUtil.isEmptyString(productCode)) {
             action.append("dataRequest.addList(\"productCode\",\""
                     + productCode + "\");");
         }
-        if (!Util.isEmptyString(location)) {
+        if (!StringUtil.isEmptyString(location)) {
             action.append("dataRequest.addParameter(\"icao\",\"" + location
                     + "\");");
         }
-        if (!Util.isEmptyString(elevation)) {
+        if (!StringUtil.isEmptyString(elevation)) {
             action.append("dataRequest.addParameter(\"primaryElevationAngle\",\""
                     + elevation + "\");");
         }
@@ -311,7 +312,7 @@ public class RunAction extends javax.servlet.http.HttpServlet implements
         String now = String.format("%1$tY%1$tm%1$td%1$tH%1$tM%1$tS", cal);
         StringBuffer action = new StringBuffer();
         String name = request.getParameter("scriptname");
-        if (Util.isEmptyString(name)) {
+        if (StringUtil.isEmptyString(name)) {
             name = "";
         }
         String function = request.getParameter("function");
@@ -324,7 +325,7 @@ public class RunAction extends javax.servlet.http.HttpServlet implements
         String reproject = request.getParameter("reproject");
         String count = request.getParameter("count");
 
-        if (Util.isEmptyString(count)) {
+        if (StringUtil.isEmptyString(count)) {
             count = "1";
         }
         boolean subscription = function.equalsIgnoreCase("subscribe");
@@ -381,7 +382,7 @@ public class RunAction extends javax.servlet.http.HttpServlet implements
         String now = String.format("%1$tY%1$tm%1$td%1$tH%1$tM%1$tS", cal);
         StringBuffer action = new StringBuffer();
         String name = request.getParameter("scriptname");
-        if (Util.isEmptyString(name)) {
+        if (StringUtil.isEmptyString(name)) {
             name = "GRIB Request";
         }
 
@@ -399,22 +400,22 @@ public class RunAction extends javax.servlet.http.HttpServlet implements
 
         /* create the value for the levelinfo query. */
         StringBuffer levelInfo = new StringBuffer();
-        if (!Util.isEmptyString(level2)) {
+        if (!StringUtil.isEmptyString(level2)) {
             levelInfo.append(level2);
         }
-        if (!Util.isEmptyString(level1)) {
-            if (!Util.isEmptyString(level2)) {
+        if (!StringUtil.isEmptyString(level1)) {
+            if (!StringUtil.isEmptyString(level2)) {
                 levelInfo.append("-");
             }
             levelInfo.append(level1);
         }
-        if (!Util.isEmptyString(units)) {
+        if (!StringUtil.isEmptyString(units)) {
             if (levelInfo.length() != 0) {
                 levelInfo.append("_").append(units);
             }
         }
 
-        if (Util.isEmptyString(count)) {
+        if (StringUtil.isEmptyString(count)) {
             count = "1";
         }
         // boolean subscription = function.equalsIgnoreCase("subscribe");
@@ -433,11 +434,11 @@ public class RunAction extends javax.servlet.http.HttpServlet implements
         action.append("dataRequest.setCount(" + count + ");");
         action.append("dataRequest.addParameter(\"paramid\",\"" + parameter
                 + "\");" + eol);
-        if (!Util.isEmptyString(levelInfo.toString())) {
+        if (!StringUtil.isEmptyString(levelInfo.toString())) {
             action.append("dataRequest.addParameter(\"levelinfo\",\""
                     + levelInfo.toString() + "\");" + eol);
         }
-        if (!Util.isEmptyString(forecast)) {
+        if (!StringUtil.isEmptyString(forecast)) {
             action.append("dataRequest.addParameter(\"forecasttime\",\""
                     + forecast + "\");" + eol);
         }
@@ -516,7 +517,7 @@ public class RunAction extends javax.servlet.http.HttpServlet implements
         String timeType = request.getParameter("refTime");
         String count = request.getParameter("count");
 
-        if (Util.isEmptyString(count)) {
+        if (StringUtil.isEmptyString(count)) {
             count = "1";
         }
         boolean subscription = function.equalsIgnoreCase("subscribe");
@@ -576,7 +577,7 @@ public class RunAction extends javax.servlet.http.HttpServlet implements
         String station = request.getParameter("station");
         String count = request.getParameter("count");
 
-        if (Util.isEmptyString(count)) {
+        if (StringUtil.isEmptyString(count)) {
             count = "1";
         }
         boolean subscription = function.equalsIgnoreCase("subscribe");
@@ -977,7 +978,7 @@ public class RunAction extends javax.servlet.http.HttpServlet implements
             out.println("<center><h2>No Data Available</h2></center><hr>");
             try {
                 String subresp = getSubscriptionMsg(responseStr);
-                if (!Util.isEmptyString(subresp)) {
+                if (!StringUtil.isEmptyString(subresp)) {
                     out.println("<table>\n");
                     out.println("<tr><th colspan=2>Subscription results:</th></tr>\n");
                     out.println(subresp);
@@ -1033,7 +1034,7 @@ public class RunAction extends javax.servlet.http.HttpServlet implements
         htmlStr.append("</tr></table></center>\n");
         try {
             String subresp = getSubscriptionMsg(responseStr);
-            if (!Util.isEmptyString(subresp)) {
+            if (!StringUtil.isEmptyString(subresp)) {
                 htmlStr.append("<table>\n");
                 htmlStr.append("<tr><th colspan=2>Subscription results:</th></tr>\n");
                 htmlStr.append(subresp);
@@ -1520,7 +1521,7 @@ public class RunAction extends javax.servlet.http.HttpServlet implements
                 (type.equalsIgnoreCase("taf") ? "taf" : "obs"));
         dataUri.append("/.+?");
         dataUri.append("/").append(type);
-        if (Util.isEmptyString(station)) {
+        if (StringUtil.isEmptyString(station)) {
             dataUri.append("/.+?");
         } else {
             dataUri.append("/").append(station);
@@ -1544,20 +1545,20 @@ public class RunAction extends javax.servlet.http.HttpServlet implements
         String level2 = request.getParameter("level2");
         String units = request.getParameter("unit");
         String forecast = request.getParameter("forecast");
-        if (Util.isEmptyString(forecast)) {
+        if (StringUtil.isEmptyString(forecast)) {
             forecast = ".+";
         }
         StringBuffer levelInfo = new StringBuffer();
-        if (!Util.isEmptyString(level2)) {
+        if (!StringUtil.isEmptyString(level2)) {
             levelInfo.append(level2);
         }
-        if (!Util.isEmptyString(level1)) {
-            if (!Util.isEmptyString(level2)) {
+        if (!StringUtil.isEmptyString(level1)) {
+            if (!StringUtil.isEmptyString(level2)) {
                 levelInfo.append("-");
             }
             levelInfo.append(level1);
         }
-        if (!Util.isEmptyString(units)) {
+        if (!StringUtil.isEmptyString(units)) {
             if (levelInfo.length() != 0) {
                 levelInfo.append("_").append(units);
             }
@@ -1585,15 +1586,15 @@ public class RunAction extends javax.servlet.http.HttpServlet implements
     private String makeRadarDataURI(HttpServletRequest request)
             throws Exception {
         String location = request.getParameter("station");
-        if (Util.isEmptyString(location)) {
+        if (StringUtil.isEmptyString(location)) {
             location = ".+?";
         }
         String productCode = request.getParameter("productcode");
-        if (Util.isEmptyString(productCode)) {
+        if (StringUtil.isEmptyString(productCode)) {
             productCode = ".+?";
         }
         String elevation = request.getParameter("elevation");
-        if (Util.isEmptyString(elevation)) {
+        if (StringUtil.isEmptyString(elevation)) {
             elevation = ".+?";
         }
         StringBuffer dataUri = new StringBuffer();

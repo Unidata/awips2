@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
@@ -32,6 +31,7 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.util.ResponseProcessingUtilities;
 
 /**
@@ -171,7 +171,7 @@ public class GridMetadataAdapter extends AbstractMetadataAdapter<Integer> {
             for (int x = 0; x < nx; x++) {
                 float value = origVals[(nx * y) + x];
                 if (value == missingValue) {
-                    value = Util.GRID_FILL_VALUE;
+                    value = GridUtil.GRID_FILL_VALUE;
                 }
                 returnVals[(nx * revy) + x] = value;
             }
@@ -196,7 +196,7 @@ public class GridMetadataAdapter extends AbstractMetadataAdapter<Integer> {
         float[] vals = new float[(nx * ny)];
         for (int y = 0; y < ny; y++) {
             for (int x = 0; x < nx; x++) {
-                vals[(nx * y) + x] = Util.GRID_FILL_VALUE;
+                vals[(nx * y) + x] = GridUtil.GRID_FILL_VALUE;
             }
         }
         // writes in the values of the sub cut array actually received from
@@ -228,7 +228,7 @@ public class GridMetadataAdapter extends AbstractMetadataAdapter<Integer> {
         // fill it up
         for (int y = 0; y < ny; y++) {
             for (int x = 0; x < nx; x++) {
-                vals[(nx * y) + x] = Util.GRID_FILL_VALUE;
+                vals[(nx * y) + x] = GridUtil.GRID_FILL_VALUE;
             }
         }
         // writes in the values of the sub cut array
@@ -238,7 +238,7 @@ public class GridMetadataAdapter extends AbstractMetadataAdapter<Integer> {
                 vals[bin] = subValues[bin];
                 if (x == (dnx - 1)) {
                     for (int i = 0; i < offset; i++) {
-                        vals[bin + i] = Util.GRID_FILL_VALUE;
+                        vals[bin + i] = GridUtil.GRID_FILL_VALUE;
                     }
                 }
             }
@@ -246,7 +246,7 @@ public class GridMetadataAdapter extends AbstractMetadataAdapter<Integer> {
 
         return vals;
     }
-  
+
     @Override
     public PluginDataObject getRecord(Integer index) {
         if (pdos != null && index < pdos.length) {
