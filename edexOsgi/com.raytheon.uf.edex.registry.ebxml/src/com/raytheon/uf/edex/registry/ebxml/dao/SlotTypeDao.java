@@ -23,6 +23,8 @@ import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 
+import org.hibernate.SQLQuery;
+
 import com.raytheon.uf.edex.database.dao.SessionManagedDao;
 
 /**
@@ -69,7 +71,7 @@ public class SlotTypeDao extends SessionManagedDao<Integer, SlotType> {
             + "select child_slot_key from ebxml.emailaddress_slot "
             + "UNION "
             + "select child_slot_key from ebxml.postaladdress_slot "
-            + ") limit %s";
+            + ")";
 
     @Override
     protected Class<SlotType> getEntityClass() {
@@ -85,12 +87,10 @@ public class SlotTypeDao extends SessionManagedDao<Integer, SlotType> {
      */
     @SuppressWarnings("unchecked")
     public List<Integer> getOrphanedSlotIds(int limit) {
-        return this
-                .getSessionFactory()
-                .getCurrentSession()
-                .createSQLQuery(
-                        String.format(ORPHANED_SLOT_QUERY,
-                                String.valueOf(limit))).list();
+        SQLQuery query = this.getSessionFactory().getCurrentSession()
+                .createSQLQuery(ORPHANED_SLOT_QUERY);
+        query.setMaxResults(limit);
+        return query.list();
     }
 
     public void deleteBySlotId(Integer id) {
