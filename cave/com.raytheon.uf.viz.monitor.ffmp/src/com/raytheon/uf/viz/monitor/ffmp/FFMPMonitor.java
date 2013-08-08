@@ -99,6 +99,7 @@ import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
  * Jun 07, 2013 2075        njensen     Extracted FFMPProcessUris to separate class
  * Jul 09, 2013 2152        njensen     Synchronize uri requests to avoid duplicating effort
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
+ * Jul 16, 2013 2197        njensen     Use FFMPBasinData.hasAnyBasins() for efficiency
  * 
  * </pre>
  * 
@@ -295,6 +296,7 @@ public class FFMPMonitor extends ResourceMonitor {
      * @param phuc
      * @return
      */
+
     protected List<String> getLoadedUris(String siteKey, String source) {
         FFMPSiteData siteData = siteDataMap.get(siteKey);
         FFMPSourceData sourceData = siteData.getSourceData(source);
@@ -333,6 +335,7 @@ public class FFMPMonitor extends ResourceMonitor {
                                 try {
                                     populateFFMPRecord(siteKey, new FFMPRecord(
                                             uri), source);
+
                                 } catch (Exception e) {
                                     statusHandler.handle(Priority.PROBLEM,
                                             "FFMP Can't retrieve FFMP URI, "
@@ -787,11 +790,13 @@ public class FFMPMonitor extends ResourceMonitor {
                         } else {
                             populateFFMPRecord(siteKey, dataKey, sourceName,
                                     ptime, retrieveNew);
+
                         }
                     }
                 } else {
                     populateFFMPRecord(siteKey, dataKey, sourceName, ptime,
                             retrieveNew);
+
                 }
             } else {
                 // special case where FFG is the primary source
@@ -1651,6 +1656,7 @@ public class FFMPMonitor extends ResourceMonitor {
     public void processUris(NavigableMap<Date, List<String>> uriMap,
             String siteKey, String sourceName, Date barrierTime,
             SubMonitor smonitor) {
+
         FFMPProcessUris processor = new FFMPProcessUris(this, uriMap, siteKey,
                 sourceName, barrierTime);
         processor.run(smonitor);
@@ -2191,6 +2197,7 @@ public class FFMPMonitor extends ResourceMonitor {
                         statusHandler.handle(Priority.PROBLEM,
                                 "FFMP Can't retrieve FFMP URI, " + dataUri, e);
                     }
+                    
                     sourceData.addLoadedUri(dataUri);
                 }
             }
