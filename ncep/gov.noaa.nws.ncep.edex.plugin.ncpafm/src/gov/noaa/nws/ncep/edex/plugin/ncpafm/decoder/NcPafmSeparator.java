@@ -31,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
-import com.raytheon.edex.util.Util;
+import com.raytheon.uf.common.util.StringUtil;
 
 public class NcPafmSeparator extends AbstractRecordSeparator {
 
@@ -97,7 +97,7 @@ public class NcPafmSeparator extends AbstractRecordSeparator {
     public byte[] next() {
         try {
             String temp = iterator.next();
-            if (Util.isEmptyString(temp)) {
+            if (StringUtil.isEmptyString(temp)) {
                 return (byte[]) null;
             } else {
                 return temp.getBytes();
