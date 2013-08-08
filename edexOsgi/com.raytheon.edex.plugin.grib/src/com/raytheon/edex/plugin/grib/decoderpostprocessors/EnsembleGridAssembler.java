@@ -49,6 +49,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.common.util.file.FilenameFilters;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
@@ -111,8 +112,8 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
                 FilenameFilters.ACCEPT_FILES,
                 FilenameFilters.byFileExtension(".xml"));
 
-        List<File> thinnedModelFiles = FileUtil.listFiles(commonPath,
-                filter, false);
+        List<File> thinnedModelFiles = FileUtil.listFiles(commonPath, filter,
+                false);
 
         for (File file : thinnedModelFiles) {
             try {
@@ -247,7 +248,7 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
             throws GribException {
         GridCoverage coverage = assembledRecord.getLocation();
         float[] data = new float[coverage.getNx() * coverage.getNy()];
-        Arrays.fill(data, Util.GRID_FILL_VALUE);
+        Arrays.fill(data, GridUtil.GRID_FILL_VALUE);
         assembledRecord.setMessageData(data);
         mergeData(record, assembledRecord, thinned);
         try {
