@@ -28,7 +28,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.plugin.modelsounding.SoundingTemporalData;
+import com.raytheon.edex.plugin.modelsounding.SoundingModelTemporalData;
 import com.raytheon.edex.plugin.modelsounding.common.SoundingModels;
 import com.raytheon.edex.plugin.modelsounding.common.SoundingSite;
 import com.raytheon.uf.common.geospatial.spi.SPIContainer;
@@ -119,8 +119,15 @@ public class ModelSoundingDataAdapter {
         }
     }
 
-    public static SoundingTemporalData getSoundingTemporalInformation(
-            BUFRDataDocument dataDoc) {
+    /**
+     * Get the temporal and model information.
+     * 
+     * @param dataDoc
+     * @param wmoHeader
+     * @return
+     */
+    public static SoundingModelTemporalData getSoundingTemporalInformation(
+            BUFRDataDocument dataDoc, WMOHeader wmoHeader) {
         Calendar obsTime = dataDoc.getEnclosingDocument().getSection1()
                 .getSectionDate();
         if (obsTime == null) {
@@ -138,7 +145,7 @@ public class ModelSoundingDataAdapter {
                     .longValue() : null;
         }
 
-        SoundingTemporalData soundingTemporalData = new SoundingTemporalData();
+        SoundingModelTemporalData soundingTemporalData = new SoundingModelTemporalData();
         soundingTemporalData.setObsTime(obsTime);
 
         DataTime dt = new DataTime(obsTime, forecastSeconds.intValue());
@@ -151,6 +158,9 @@ public class ModelSoundingDataAdapter {
         soundingTemporalData.setValidTime(validTime.getTimeInMillis() / 1000L);
 
         soundingTemporalData.setForecastHr((int) (forecastSeconds / 3600));
+
+        soundingTemporalData.setModel(SoundingModels.getModel(wmoHeader
+                .getCccc()));
 
         return soundingTemporalData;
     }
@@ -167,14 +177,13 @@ public class ModelSoundingDataAdapter {
      */
     public static SoundingSite createSoundingData(BUFRDataDocument dataDoc,
             WMOHeader wmoHeader, PointDataContainer container,
-            SoundingTemporalData soundingTemporalData) {
+            SoundingModelTemporalData soundingTemporalData) {
 
         SoundingSite obsData = null;
 
         synchronized (LOCK) {
             try {
-                SoundingModels model = SoundingModels.getModel(wmoHeader
-                        .getCccc());
+                SoundingModels model = soundingTemporalData.getModel();
                 // Get the primary data list.
                 List<IBUFRDataPacket> dataList = dataDoc.getList();
                 // Extract the header data.

@@ -20,15 +20,13 @@ package gov.noaa.nws.ncep.ui.nsharp.display.rsc;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpGraphProperty;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpOperationElement;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpShapeAndLineProperty;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpSoundingElementStateProperty;
-import gov.noaa.nws.ncep.ui.nsharp.NsharpStationStateProperty;
-import gov.noaa.nws.ncep.ui.nsharp.NsharpTimeLineStateProperty;
 import gov.noaa.nws.ncep.ui.nsharp.background.NsharpHodoPaneBackground;
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpHodoPaneDescriptor;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.swt.graphics.GC;
@@ -69,16 +67,9 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 	private IWireframeShape hodoWindMotionBoxShape = null;
 	private boolean cursorInHodo=false;
 	private Integer markerWidth = 1;
-	private List<NsharpTimeLineStateProperty> timeLineStateList;
-    private List<NsharpStationStateProperty> stnStateList;
 	private IFont fixedFont;
 	private int hodoWidth = NsharpConstants.HODO_WIDTH;
 	private int hodoHeight = NsharpConstants.HODO_HEIGHT;
-	//private int hodoXOrig = NsharpConstants.HODO_X_ORIG;
-	//private int hodoYOrig = NsharpConstants.HODO_Y_ORIG;
-	//private int hodoXEnd = NsharpConstants.HODO_X_END;
-	//private int hodoYEnd = NsharpConstants.HODO_Y_ORIG+  NsharpConstants.HODO_HEIGHT;
-	//private Coordinate hodoHouseC = new Coordinate(NsharpConstants.HODO_CENTER_X_, NsharpConstants.HODO_CENTER_Y_);
 	private float xRatio=1;
 	private float yRatio=1;
 	public NsharpHodoPaneResource(AbstractResourceData resourceData,
@@ -188,38 +179,46 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 		}
 		world = hodoBackground.computeWorld();
 		boolean compareStnIsOn = rscHandler.isCompareStnIsOn();
-		int currentTimeLineStateListIndex = rscHandler.getCurrentTimeLineStateListIndex();
+		int currentTimeListIndex = rscHandler.getCurrentTimeElementListIndex();
+		int currentStnListIndex = rscHandler.getCurrentStnElementListIndex();
+		int currentSndListIndex = rscHandler.getCurrentSndElementListIndex();
+		List<NsharpOperationElement> stnElemList = rscHandler.getStnElementList();
+		List<NsharpOperationElement> timeElemList = rscHandler.getTimeElementList();
+		List<NsharpOperationElement> sndElemList = rscHandler.getSndElementList();
+		List<List<List<NsharpSoundingElementStateProperty>>> stnTimeSndTable = rscHandler.getStnTimeSndTable();
 		boolean compareTmIsOn = rscHandler.isCompareTmIsOn();
+		boolean compareSndIsOn = rscHandler.isCompareSndIsOn();
 		boolean overlayIsOn = rscHandler.isOverlayIsOn();
-		int currentStnStateListIndex = rscHandler.getCurrentStnStateListIndex();
-		stnStateList = rscHandler.getStnStateList();
-		timeLineStateList = rscHandler.getTimeLineStateList();
-		List<List<NsharpSoundingElementStateProperty>> stnTimeTable = rscHandler.getStnTimeTable();
-		HashMap<String, List<NcSoundingLayer>> dataTimelineSndLysListMap = rscHandler.getDataTimelineSndLysListMap();
-		if(compareStnIsOn && currentTimeLineStateListIndex >=0){
-			int colorIndex =NsharpConstants.LINE_COMP1;
-			for(NsharpStationStateProperty elm: stnStateList) {
-				if(elm.stnState == NsharpConstants.State.ACTIVE && 
-						stnTimeTable.get(stnStateList.indexOf(elm)).get(currentTimeLineStateListIndex).elementState == NsharpConstants.State.AVAIL){
-					List<NcSoundingLayer> soundingLayeys = dataTimelineSndLysListMap.get(stnTimeTable.get(stnStateList.indexOf(elm)).get(currentTimeLineStateListIndex).elementDescription);
+		
+		if(compareStnIsOn && currentTimeListIndex >=0 && currentSndListIndex >=0){
+			for(NsharpOperationElement elm: stnElemList) {
+				if(elm.getActionState() == NsharpConstants.ActState.ACTIVE && 
+						stnTimeSndTable.get(stnElemList.indexOf(elm)).get(currentTimeListIndex).get(currentSndListIndex)!=null){
+					List<NcSoundingLayer> soundingLayeys = stnTimeSndTable.get(stnElemList.indexOf(elm)).get(currentTimeListIndex).get(currentSndListIndex).getSndLyLst();
+					int colorIndex = stnTimeSndTable.get(stnElemList.indexOf(elm)).get(currentTimeListIndex).get(currentSndListIndex).getCompColorIndex();
 					RGB color = linePropertyMap.get(NsharpConstants.lineNameArray[colorIndex]).getLineColor();
-					colorIndex++; 
-					if(colorIndex > NsharpConstants.LINE_COMP10)
-						colorIndex =NsharpConstants.LINE_COMP1;
 					createRscHodoWindShape(world, soundingLayeys, color);
 				}
 			}
 		}
-		else if(compareTmIsOn && currentStnStateListIndex >=0 ){
-			int colorIndex =NsharpConstants.LINE_COMP1;
-			for(NsharpTimeLineStateProperty elm: timeLineStateList) {
-				if(elm.timeState == NsharpConstants.State.ACTIVE && 
-						stnTimeTable.get(currentStnStateListIndex).get(timeLineStateList.indexOf(elm)).elementState == NsharpConstants.State.AVAIL){
-					List<NcSoundingLayer> soundingLayeys = dataTimelineSndLysListMap.get(stnTimeTable.get(currentStnStateListIndex).get(timeLineStateList.indexOf(elm)).elementDescription);
+		else if(compareTmIsOn && currentStnListIndex >=0 && currentSndListIndex >=0 ){
+			for(NsharpOperationElement elm: timeElemList) {
+				if(elm.getActionState() == NsharpConstants.ActState.ACTIVE && 
+						stnTimeSndTable.get(currentStnListIndex).get(timeElemList.indexOf(elm)).get(currentSndListIndex)!=null){
+					List<NcSoundingLayer> soundingLayeys = stnTimeSndTable.get(currentStnListIndex).get(timeElemList.indexOf(elm)).get(currentSndListIndex).getSndLyLst(); // dataTimelineSndLysListMap.get(stnTimeSndTable.get(currentStnListIndex).get(timeElemList.indexOf(elm)).get(currentSndListIndex).getElementDescription());
+					int colorIndex = stnTimeSndTable.get(currentStnListIndex).get(timeElemList.indexOf(elm)).get(currentSndListIndex).getCompColorIndex();
 					RGB color = linePropertyMap.get(NsharpConstants.lineNameArray[colorIndex]).getLineColor();
-					colorIndex++;
-					if(colorIndex > NsharpConstants.LINE_COMP10)
-						colorIndex =NsharpConstants.LINE_COMP1;
+					createRscHodoWindShape(world, soundingLayeys, color);
+				}
+			}
+		}
+		else if(compareSndIsOn && currentStnListIndex >=0 && currentTimeListIndex >=0){
+			for(NsharpOperationElement elm: sndElemList) {
+				if(elm.getActionState() == NsharpConstants.ActState.ACTIVE && 
+						stnTimeSndTable.get(currentStnListIndex).get(currentTimeListIndex).get(sndElemList.indexOf(elm))!=null){
+					List<NcSoundingLayer> soundingLayeys = stnTimeSndTable.get(currentStnListIndex).get(currentTimeListIndex).get(sndElemList.indexOf(elm)).getSndLyLst(); //dataTimelineSndLysListMap.get(stnTimeSndTable.get(currentStnListIndex).get(currentTimeListIndex).get(sndElemList.indexOf(elm)).getElementDescription());
+					int colorIndex = stnTimeSndTable.get(currentStnListIndex).get(currentTimeListIndex).get(sndElemList.indexOf(elm)).getCompColorIndex();
+					RGB color = linePropertyMap.get(NsharpConstants.lineNameArray[colorIndex]).getLineColor();
 					createRscHodoWindShape(world, soundingLayeys, color);
 				}
 			}
@@ -560,8 +559,6 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 		if(rscHandler==null)
 			return;
 		
-		timeLineStateList = rscHandler.getTimeLineStateList();	//System.out.println("NsharpHodoPaneResource "+ descriptor.getPaneNumber());
-		stnStateList = rscHandler.getStnStateList();
 		hodoBackground.paintInternal(target, paintProps);
 		if((soundingLys != null) && (soundingLys.size()>= 4))
 		{

@@ -29,8 +29,8 @@
 #    12/20/09                      njensen        Initial Creation.
 #    02/26/13         1447         dgilling       Implement __eq__() and 
 #                                                 __ne__().
-#    
-# 
+#    07/23/13         2212         dgilling       Fix typo in __eq__().
+#
 #
 
 
@@ -154,7 +154,7 @@ class ActiveTableRecord(object):
         return ActiveTableRecord(self.atr.clone(), self.state)
     
     def __eq__(self, other):
-        return self.javaRecord().equals(other.javeRecord())
+        return self.javaRecord().equals(other.javaRecord())
     
     def __ne__(self, other):
         return not self.__eq__(other)
