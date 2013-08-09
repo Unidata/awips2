@@ -30,6 +30,14 @@
 #
 # Author: lefebvre/mathewson
 # ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    08/09/13        1856          dgilling       Fix script so it runs correctly
+#                                                 in SimulatedTime.
+########################################################################
 
 # The MenuItems list defines the GFE menu item(s) under which the
 # Procedure is to appear.
@@ -63,7 +71,7 @@ class Procedure (SmartScript.SmartScript):
         skipPhenSig = [('FA','W'), ('FF','W'), ('FL','W'), ('FL','Y'), 
                        ('MA','W'), ('SV','W'), ('TO','W'), ('EW','W')]
 
-        currentTime = int(time.time() / 3600) * 3600  #truncated
+        currentTime = self._gmtime().unixTime()
         
         for v in vtecTable:
             # filter based on zones
