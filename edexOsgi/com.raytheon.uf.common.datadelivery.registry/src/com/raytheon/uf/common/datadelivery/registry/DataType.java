@@ -33,6 +33,7 @@ import javax.xml.bind.annotation.XmlEnum;
  * Aug 22, 2012 0743        djohnson     Initial creation
  * Nov 19, 2012 1166        djohnson     Clean up JAXB representation of registry objects.
  * Feb 21, 2013 754         dhladky      Added point data type
+ * Aug 07, 2013 1822        bgonzale     Added PDA type.
  * 
  * </pre>
  * 
@@ -41,10 +42,7 @@ import javax.xml.bind.annotation.XmlEnum;
  */
 @XmlEnum
 public enum DataType {
-    GRID(DataType.GRID_STRING_VALUE), POINT(DataType.POINT_STRING_VALUE);
-
-    private static final String GRID_STRING_VALUE = "Grid";
-    private static final String POINT_STRING_VALUE = "Point";
+    GRID("GRID"), POINT("POINT"), PDA("PDA");
     
     private final String displayString;
 
