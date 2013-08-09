@@ -22,7 +22,6 @@ package com.raytheon.viz.pointdata.util;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.HashMap;
@@ -38,6 +37,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
@@ -54,6 +54,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * ------------ ---------- ----------- --------------------------
  * Sep 25, 2009 3099       bsteffen     Initial creation
  * Oct 20, 2010 6853       bgonzale     Migrated common symbol loading code.
+ * Aug 09, 2013  2033      mschenke    Switched File.separator to IPathManager.SEPARATOR
  * 
  * </pre>
  * 
@@ -85,8 +86,8 @@ public class SymbolLoader {
             document = f.createDocument(PathManagerFactory
                     .getPathManager()
                     .getStaticFile(
-                            "plotModels" + File.separator + "WxSymbolText.svg")
-                    .toURI().toString());
+                            "plotModels" + IPathManager.SEPARATOR
+                                    + "WxSymbolText.svg").toURI().toString());
         } catch (MalformedURLException e) {
             throw new VizException(
                     "Error loading symbol file: WxSymbolText.svg", e);
