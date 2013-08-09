@@ -65,6 +65,7 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.triggerType;
  * Feb 16, 2011 7878       rferrel     Modifications to use ids.cfg file.
  * Apr 08, 2011 8856       rferrel     Can now make a new station's templates
  * May 24, 2011 9060       rferrel     Limit downloading of localization files.
+ * Aug 09, 2013  2033      mschenke   Switched File.separator to IPathManager.SEPARATOR
  * 
  * </pre>
  * 
@@ -80,23 +81,23 @@ public class TafSiteConfigIni implements ITafSiteConfig {
     /**
      * Relative path to the tafs directory with file separator at the end.
      */
-    private static final String TAFS_DIR = "aviation" + File.separator
-            + "config" + File.separator + "tafs";
+    private static final String TAFS_DIR = "aviation" + IPathManager.SEPARATOR
+            + "config" + IPathManager.SEPARATOR + "tafs";
 
     /**
      * The file name for site configuration with the file separator prepended to
      * it.
      */
-    private static final String INFO_FILE = File.separator + "info.cfg";
+    private static final String INFO_FILE = IPathManager.SEPARATOR + "info.cfg";
 
-    private static final String IDS_FILE = "aviation" + File.separator
-            + "config" + File.separator + "ids.cfg";
+    private static final String IDS_FILE = "aviation" + IPathManager.SEPARATOR
+            + "config" + IPathManager.SEPARATOR + "ids.cfg";
 
     /**
      * Relative location for the file that contains the default product name.
      */
     private static final String DEFAULT_PRODUCT_FILE = TAFS_DIR
-            + File.separator + "DEFAULT";
+            + IPathManager.SEPARATOR + "DEFAULT";
 
     /**
      * The suffix for a site's start hour template file name.
@@ -574,7 +575,8 @@ public class TafSiteConfigIni implements ITafSiteConfig {
     public TafSiteData getSite(String siteId) throws IOException,
             ConfigurationException {
         TafSiteData site = null;
-        String fileName = TAFS_DIR + File.separator + siteId + INFO_FILE;
+        String fileName = TAFS_DIR + IPathManager.SEPARATOR + siteId
+                + INFO_FILE;
 
         try {
             File file = AvnConfigFileUtil.getStaticSiteFile(fileName, siteId);

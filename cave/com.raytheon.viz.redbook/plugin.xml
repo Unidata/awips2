@@ -30,7 +30,7 @@
             resourceType="PLAN_VIEW">
       </resource>
       <resource
-            class="com.raytheon.viz.redbook.rsc.RedbookUpperAirResource"
+            class="com.raytheon.viz.redbookua.rsc.RedbookUpperAirResource"
             name="RedbookUpperAirResource"
             recordClass="com.raytheon.edex.plugin.redbook.common.RedbookRecord"
             renderingOrderId="PLOT"
