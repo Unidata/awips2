@@ -23,10 +23,8 @@ import java.util.List;
 
 import org.eclipse.swt.widgets.Composite;
 
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
-
 /**
- * System Management Priority tab.
+ * Priority Rules composite.
  * 
  * <pre>
  * 
@@ -34,39 +32,26 @@ import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 17, 2012   730       jpiatt     Initial creation.
- * Oct 03, 2012  1241       djohnson   Use {@link DataDeliveryPermission} and registry handlers.
- * Jan 04, 2013  1420       mpduff     Add delete function.
- * May 17, 2013  2000       djohnson   Consolidate duplicate code into {@link SystemRulesTab}.
+ * Aug 07, 2013    2180    mpduff      Initial creation
  * 
  * </pre>
  * 
- * @author jpiatt
+ * @author mpduff
  * @version 1.0
  */
-public class SystemPriorityTab extends SystemRulesTab {
 
-    /** Rule type constant */
-    private static final String PRIORITY_TYPE = "priority";
+public class SystemPriorityComposite extends SystemRulesComposite {
 
     /**
      * Constructor.
      * 
-     * @param parentComp
+     * @param parent
+     *            Parent composite
+     * @param style
+     *            style bits
      */
-    public SystemPriorityTab(Composite parentComp) {
-        super(parentComp, PRIORITY_TYPE);
-    }
-
-
-    /**
-     * Get the tab text.
-     * 
-     * @return the tab text
-     */
-    @Override
-    public String getTabText() {
-        return "Priority Rules";
+    public SystemPriorityComposite(Composite parent, int style) {
+        super(parent, style, "priority");
     }
 
     /**
