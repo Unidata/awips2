@@ -40,7 +40,7 @@ import com.raytheon.uf.viz.core.image.StatusImages;
 import com.raytheon.uf.viz.core.image.StatusImages.StatusImage;
 
 /**
- * Data Delivery Status Tab
+ * Data Delivery system status composite.
  * 
  * <pre>
  * 
@@ -48,17 +48,16 @@ import com.raytheon.uf.viz.core.image.StatusImages.StatusImage;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 17, 2013    1655    mpduff      Initial creation.
+ * Aug 07, 2013    2180    mpduff      Initial creation
  * 
  * </pre>
  * 
  * @author mpduff
  * @version 1.0
  */
-
-public class StatusTab extends SystemTab {
+public class StatusComposite extends Composite {
     private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(StatusTab.class);
+            .getHandler(StatusComposite.class);
 
     /** Provider Group */
     private Composite providerComp;
@@ -66,31 +65,38 @@ public class StatusTab extends SystemTab {
     /** Registry Group */
     private Composite registryComp;
 
+    /** Status images */
     private StatusImages images;
 
     /**
      * Constructor.
      * 
-     * @param parentComp
-     *            The Composite holding these
-     *            controlsDataDeliverySystemStatusDefinition
+     * @param parent
+     *            Parent Composite
+     * @param style
+     *            Style Bits
      */
-    public StatusTab(Composite parentComp) {
-        super(parentComp);
+    public StatusComposite(Composite parent, int style) {
+        super(parent, style);
+        init();
     }
 
     /**
-     * {@inheritDoc}
+     * Initialize class
      */
-    @Override
-    public void init() {
-        images = new StatusImages(getParentComp().getShell());
+    private void init() {
+        images = new StatusImages(this.getShell());
 
-        GridLayout gl = new GridLayout(2, true);
+        GridLayout gl = new GridLayout(1, true);
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        this.setLayout(gl);
+        this.setLayoutData(gd);
+
+        gl = new GridLayout(2, true);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gl.marginWidth = 0;
 
-        Composite sysComp = new Composite(parentComp, SWT.NONE);
+        Composite sysComp = new Composite(this, SWT.NONE);
         sysComp.setLayout(gl);
         sysComp.setLayoutData(gd);
 
@@ -102,7 +108,7 @@ public class StatusTab extends SystemTab {
         registryGrp.setLayoutData(gd);
 
         gl = new GridLayout(1, true);
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, false, false);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         registryComp = new Composite(registryGrp, SWT.NONE);
         registryComp.setLayout(gl);
         registryComp.setLayoutData(gd);
@@ -115,7 +121,7 @@ public class StatusTab extends SystemTab {
         providerGroup.setLayoutData(gd);
 
         gl = new GridLayout(1, true);
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, false, false);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         providerComp = new Composite(providerGroup, SWT.NONE);
         providerComp.setLayout(gl);
         providerComp.setLayoutData(gd);
@@ -123,7 +129,7 @@ public class StatusTab extends SystemTab {
         // Legend
         gl = new GridLayout(8, false);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        Group legendGrp = new Group(parentComp, SWT.NONE);
+        Group legendGrp = new Group(this, SWT.NONE);
         legendGrp.setText(" Legend ");
         legendGrp.setLayout(gl);
         legendGrp.setLayoutData(gd);
@@ -157,7 +163,7 @@ public class StatusTab extends SystemTab {
     }
 
     /**
-     * Populate this tab.
+     * Populate this composite.
      */
     private void populate() {
         try {
@@ -248,13 +254,5 @@ public class StatusTab extends SystemTab {
             Label nameLbl = new Label(entryComp, SWT.NONE);
             nameLbl.setText(status.getKey().getName());
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getTabText() {
-        return "System Status";
     }
 }
