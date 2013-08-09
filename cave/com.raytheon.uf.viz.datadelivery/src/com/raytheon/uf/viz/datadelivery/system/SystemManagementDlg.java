@@ -19,9 +19,12 @@
  **/
 package com.raytheon.uf.viz.datadelivery.system;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -30,8 +33,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TabFolder;
-import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.viz.core.VizApp;
@@ -58,6 +61,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  *                                     and check whether changes have already been applied when OK is pressed.
  * May 17, 2013 2000       djohnson    Move bandwidth configuration into its own tab, add subscription overlap rules.
  * Jul 16, 2013 1655       mpduff      Add system status tab.
+ * Aug 08, 2013 2180       mpduff      Redesigned UI.
  * 
  * </pre>
  * 
@@ -67,26 +71,62 @@ import com.raytheon.viz.ui.presenter.IDisplay;
 public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
         IForceApplyPromptDisplayText, IRulesUpdateListener {
 
-    /** TabFolder object */
-    private TabFolder tabFolder;
+    private enum SystemManagementSettings {
+        PRIORITY_RULES("Priority Rules"), LATENCY_RULES("Latency Rules"), SUBSCRIPTION_RULES(
+                "Subscription Rules"), BANDWIDTH("Bandwidth"), DATA_PROVIDER_PASSWORD(
+                "Data Provider Password"), REGISTRY_PROVIDER_STATUS(
+                "Registry/Provider Status");
 
-    /** OK button */
+        private final String name;
+
+        private SystemManagementSettings(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
+    /**
+     * The Stack Layout.
+     */
+    private final StackLayout stackLayout = new StackLayout();
+
+    /**
+     * Tree Composite
+     */
+    private Composite treeComp;
+
+    /** Tree */
+    private Tree tree;
+
+    /** Priority rules composite */
+    private SystemPriorityComposite systemPriorityComp;
+
+    /** System status composite */
+    private StatusComposite systemStatusComp;
+
+    /** Latency rules composite */
+    private SystemLatencyComposite systemLatencyComp;
+
+    /** Bandwith settings composite */
+    private BandwidthComposite bandwidthComp;
+
+    /** Composite map */
+    private final Map<String, Composite> compMap = new HashMap<String, Composite>();
+
+    /** Close button */
     private Button closeBtn;
 
-    /** The system latency tab */
-    private SystemLatencyTab lTab;
+    /** Stack Composite */
+    private Composite stackComp;
 
-    /** The system priority tab */
-    private SystemPriorityTab pTab;
+    /** Data Provider username password composite */
+    private DataProviderPasswordComposite passwdComp;
 
-    /** The subscription tab */
-    private SubscriptionTab sTab;
-
-    /** The bandwidth tab */
-    private BandwidthTab bTab;
-
-    /** The status tab */
-    private StatusTab statusTab;
+    /** Subscription rules composite */
+    private SubscriptionComposite subComp;
 
     /**
      * Constructor.
@@ -98,7 +138,6 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
         super(parent, SWT.DIALOG_TRIM, CAVE.NONE);
         setText("Data Delivery System Management");
         SystemRuleManager.getInstance().registerAsListener(this);
-
     }
 
     /*
@@ -108,12 +147,18 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
      */
     @Override
     protected Layout constructShellLayout() {
-        // Create the main layout for the shell.
-        GridLayout mainLayout = new GridLayout(1, false);
-        mainLayout.marginHeight = 3;
-        mainLayout.marginWidth = 3;
+        return new GridLayout(1, false);
+    }
 
-        return mainLayout;
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayoutData()
+     */
+    @Override
+    protected Object constructShellLayoutData() {
+        return new GridData(SWT.FILL, SWT.FILL, true, true);
     }
 
     /*
@@ -125,12 +170,158 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
      */
     @Override
     protected void initializeComponents(Shell shell) {
+        GridLayout gl = new GridLayout(2, false);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        Composite comp = new Composite(shell, SWT.NONE);
+        comp.setLayout(gl);
+        comp.setLayoutData(gd);
 
-        createTabFolder();
-        createSystemTabs(tabFolder);
+        gl = new GridLayout(1, false);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.minimumWidth = 220;
+        treeComp = new Composite(comp, SWT.BORDER);
+        treeComp.setLayout(gl);
+        treeComp.setLayoutData(gd);
 
+        gl = new GridLayout(1, false);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        tree = new Tree(treeComp, SWT.BORDER);
+        tree.setLayout(gl);
+        tree.setLayoutData(gd);
+        populateTree();
+
+        gl = new GridLayout(1, false);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        Composite c = new Composite(comp, SWT.BORDER);
+        c.setLayout(gl);
+        c.setLayoutData(gd);
+
+        stackComp = new Composite(c, SWT.NONE);
+        stackComp.setLayout(stackLayout);
+
+        createComposites();
         createBottomButtons();
+    }
 
+    /**
+     * Populate the tree.
+     */
+    private void populateTree() {
+        tree.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                handleSelection(event);
+            }
+        });
+
+        final TreeItem ruleNode = new TreeItem(tree, 0);
+        ruleNode.setText("Rules");
+
+        TreeItem priorityRule = new TreeItem(ruleNode, 0);
+        priorityRule.setText(SystemManagementSettings.PRIORITY_RULES.getName());
+
+        TreeItem latencyRule = new TreeItem(ruleNode, 1);
+        latencyRule.setText(SystemManagementSettings.LATENCY_RULES.getName());
+
+        TreeItem subscriptionRule = new TreeItem(ruleNode, 2);
+        subscriptionRule.setText(SystemManagementSettings.SUBSCRIPTION_RULES
+                .getName());
+
+        TreeItem settingsNode = new TreeItem(tree, 1);
+        settingsNode.setText("Settings");
+
+        TreeItem bandwidthSetting = new TreeItem(settingsNode, 0);
+        bandwidthSetting.setText(SystemManagementSettings.BANDWIDTH.getName());
+
+        TreeItem providerPassword = new TreeItem(settingsNode, 1);
+        providerPassword
+                .setText(SystemManagementSettings.DATA_PROVIDER_PASSWORD
+                        .getName());
+
+        TreeItem statusNode = new TreeItem(tree, 2);
+        statusNode.setText("Status");
+
+        TreeItem registryProviderStatus = new TreeItem(statusNode, 0);
+        registryProviderStatus
+                .setText(SystemManagementSettings.REGISTRY_PROVIDER_STATUS
+                        .getName());
+    }
+
+    /**
+     * Handle tree selection
+     * 
+     * @param event
+     *            The selection event
+     */
+    private void handleSelection(SelectionEvent event) {
+        TreeItem item = (TreeItem) event.item;
+
+        for (String key : compMap.keySet()) {
+            if (item.getText().equals(key)) {
+                stackLayout.topControl = compMap.get(key);
+                stackComp.layout();
+                return;
+            }
+        }
+
+        item.setExpanded(!item.getExpanded());
+    }
+
+    /**
+     * Create the composites that make up the stack
+     */
+    private void createComposites() {
+        GridLayout gl = new GridLayout(1, false);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+
+        systemStatusComp = new StatusComposite(stackComp, SWT.BORDER);
+        systemStatusComp.setLayout(gl);
+        systemStatusComp.setLayoutData(gd);
+        compMap.put(
+                SystemManagementSettings.REGISTRY_PROVIDER_STATUS.getName(),
+                systemStatusComp);
+
+        gl = new GridLayout(1, false);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        bandwidthComp = new BandwidthComposite(stackComp, SWT.BORDER);
+        bandwidthComp.setLayout(gl);
+        bandwidthComp.setLayoutData(gd);
+        compMap.put(SystemManagementSettings.BANDWIDTH.getName(), bandwidthComp);
+
+        gl = new GridLayout(1, false);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        systemLatencyComp = new SystemLatencyComposite(stackComp, SWT.BORDER);
+        systemLatencyComp.setLayout(gl);
+        systemLatencyComp.setLayoutData(gd);
+        compMap.put(SystemManagementSettings.LATENCY_RULES.getName(),
+                systemLatencyComp);
+
+        gl = new GridLayout(1, false);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        systemPriorityComp = new SystemPriorityComposite(stackComp, SWT.BORDER);
+        systemPriorityComp.setLayout(gl);
+        systemPriorityComp.setLayoutData(gd);
+        compMap.put(SystemManagementSettings.PRIORITY_RULES.getName(),
+                systemPriorityComp);
+
+        gl = new GridLayout(1, false);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        passwdComp = new DataProviderPasswordComposite(stackComp, SWT.BORDER);
+        passwdComp.setLayout(gl);
+        passwdComp.setLayoutData(gd);
+        compMap.put(SystemManagementSettings.DATA_PROVIDER_PASSWORD.getName(),
+                passwdComp);
+
+        gl = new GridLayout(1, false);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        subComp = new SubscriptionComposite(stackComp, SWT.BORDER);
+        subComp.setLayout(gl);
+        subComp.setLayoutData(gd);
+        compMap.put(SystemManagementSettings.SUBSCRIPTION_RULES.getName(),
+                subComp);
+
+        TreeItem ti = tree.getItem(0);
+        tree.select(ti);
     }
 
     /*
@@ -145,78 +336,11 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
     }
 
     /**
-     * Create tabs.
-     */
-    private void createSystemTabs(TabFolder tabFolder) {
-        // Priority Tab
-        pTab = new SystemPriorityTab(getTabComposite(tabFolder));
-        createTabItem(tabFolder, pTab);
-        pTab.init();
-
-        // Latency Tab
-        lTab = new SystemLatencyTab(getTabComposite(tabFolder));
-        createTabItem(tabFolder, lTab);
-        lTab.init();
-
-        // Subscription Tab
-        sTab = new SubscriptionTab(getTabComposite(tabFolder));
-        createTabItem(tabFolder, sTab);
-        sTab.init();
-
-        // Bandwidth Tab
-        bTab = new BandwidthTab(getTabComposite(tabFolder));
-        createTabItem(tabFolder, bTab);
-        bTab.init();
-
-        statusTab = new StatusTab(getTabComposite(tabFolder));
-        createTabItem(tabFolder, statusTab);
-        statusTab.init();
-
-        lTab.loadList();
-        pTab.loadList();
-    }
-
-    /**
-     * Create the tab composite.
-     * 
-     * @param tabFolder
-     *            the
-     * @return
-     */
-    private Composite getTabComposite(TabFolder tabFolder) {
-        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        GridLayout gl = new GridLayout(1, false);
-
-        Composite composite = new Composite(tabFolder, SWT.NONE);
-        composite.setLayout(gl);
-        composite.setLayoutData(gd);
-
-        return composite;
-    }
-
-    /**
-     * Create a {@link TabItem} for the given tab.
-     * 
-     * @param tabFolder
-     *            the tab folder
-     * @param tab
-     *            the tab
-     * @return the tab item
-     */
-    private TabItem createTabItem(TabFolder tabFolder, SystemTab tab) {
-        TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
-        tabItem.setControl(tab.getParentComp());
-        tabItem.setText(tab.getTabText());
-
-        return tabItem;
-    }
-
-    /**
      * Create the bottom buttons.
      */
     private void createBottomButtons() {
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        GridLayout gl = new GridLayout(3, false);
+        GridLayout gl = new GridLayout(1, false);
 
         Composite bottomComp = new Composite(shell, SWT.NONE);
         bottomComp.setLayout(gl);
@@ -234,19 +358,6 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
                 close();
             }
         });
-
-    }
-
-    /**
-     * Create tab folder.
-     */
-    private void createTabFolder() {
-        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-
-        tabFolder = new TabFolder(shell, SWT.NONE);
-        tabFolder.setLayoutData(gd);
-        tabFolder.pack();
-
     }
 
     /**
@@ -293,8 +404,8 @@ public class SystemManagementDlg extends CaveSWTDialog implements IDisplay,
             @Override
             public void run() {
                 if (!shell.isDisposed()) {
-                    lTab.loadList();
-                    pTab.loadList();
+                    systemLatencyComp.loadList();
+                    systemPriorityComp.loadList();
                 }
             }
         });
