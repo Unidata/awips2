@@ -16,6 +16,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.ProviderKeyDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.ProviderKeyRecord;
+
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -47,6 +48,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.ProviderKeyRecord;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 10, 2013 2180       dhladky     Initial
+ * Aug 08, 2013 2180       mpduff      Corrected the filename and blanked the key before saving
  * 
  * </pre>
  * 
@@ -55,18 +57,20 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.ProviderKeyRecord;
  */
 
 public class ProviderCredentialsUtil {
-    
+
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ProviderCredentialsUtil.class);
-    
+
     private static final String CONNECTION_FILE_PREFIX = "datadelivery"
             + IPathManager.SEPARATOR + "connection" + IPathManager.SEPARATOR;
-    
+
     private static final String CONNECTION_FILE_SUFFIX = "-connection.xml";
-        
+
     /**
-     * Saves the connection for the provider encrypted to Localization by providerKey
-     * This will be used by the SSMI to update userName and password stores
+     * Saves the connection for the provider encrypted to Localization by
+     * providerKey This will be used by the SSMI to update userName and password
+     * stores
+     * 
      * @param providerKey
      * @param conn
      */
@@ -87,7 +91,8 @@ public class ProviderCredentialsUtil {
         }
 
         try {
-            ProviderKeyRecord pkr = new ProviderKeyRecord(provider.getName(), providerKey);
+            ProviderKeyRecord pkr = new ProviderKeyRecord(provider.getName(),
+                    providerKey);
             ProviderKeyDao pkd = new ProviderKeyDao();
             pkd.addOrUpdateRecord(pkr);
         } catch (Exception e) {
@@ -98,7 +103,7 @@ public class ProviderCredentialsUtil {
 
         if (conn != null && providerKey != null) {
             try {
-                storeConnection(conn, providerKey);
+                storeConnection(conn, provider.getName());
             } catch (Exception e) {
                 statusHandler
                         .handle(Priority.ERROR,
@@ -107,10 +112,10 @@ public class ProviderCredentialsUtil {
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     /**
      * Gets the encrypted credentials connection object stored locally
      * 
@@ -142,7 +147,8 @@ public class ProviderCredentialsUtil {
      * @param providerName
      * @return
      */
-    private static Connection getConnection(String providerName) throws Exception {
+    private static Connection getConnection(String providerName)
+            throws Exception {
 
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
@@ -189,6 +195,11 @@ public class ProviderCredentialsUtil {
         LocalizationFile lf = pm.getLocalizationFile(lc, connectionFileName);
         File file = lf.getFile();
 
+        /*
+         * Nulling the providerKey for security reasons. You never want the
+         * providerKey and encrypted username and password stored together
+         */
+        conn.setProviderKey(null);
         SerializationUtil.jaxbMarshalToXmlFile(conn, file.getAbsolutePath());
     }
 
