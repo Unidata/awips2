@@ -224,6 +224,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/15/2012   1229        rferrel     Changes for non-blocking HelpUsageDlg.
  * 11/05/2012   15477       zhao        Trim blank lines in text in Editor when check Syntax
  * 01/09/2013   15528       zhao        Modified saveFile() and restoreFile()
+ * 08/09/2013   2033        mschenke    Switched File.separator to IPathManager.SEPARATOR
  * 
  * </pre>
  * 
@@ -2727,7 +2728,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
     private boolean checkSyntaxInEditor(boolean doLogMessage) {
         // Get the content of the Taf Editor.
         // Assume editorTafTabComp is for the active tab.
-    	// DR15477: trim blank lines before Syntax Checking
+        // DR15477: trim blank lines before Syntax Checking
         String in = (editorTafTabComp.getTextEditorControl().getText().trim());
         // Declare variables for processing the editor's contents.
         boolean errorInTaf = false;
@@ -3149,10 +3150,11 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
 
         LocalizationContext baseContext = pm.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
-        File baseFile = pm.getFile(baseContext, "aviation" + File.separator
-                + "python" + File.separator + "TafDecoder.py");
-        File baseDir = pm.getFile(baseContext, "aviation" + File.separator
-                + "python");
+        File baseFile = pm.getFile(baseContext, "aviation"
+                + IPathManager.SEPARATOR + "python" + IPathManager.SEPARATOR
+                + "TafDecoder.py");
+        File baseDir = pm.getFile(baseContext, "aviation"
+                + IPathManager.SEPARATOR + "python");
 
         HashMap<String, Object> resultMap = null;
 
@@ -3602,7 +3604,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
      */
     private ArrayList<ViewerTabConfig> getTafViewerEditorCfg() {
         TafViewerEditorConfig tvec = null;
-        String fs = String.valueOf(File.separatorChar);
+        String fs = IPathManager.SEPARATOR;
 
         try {
             IPathManager pm = PathManagerFactory.getPathManager();
@@ -3619,7 +3621,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
 
     private SyntaxMonitorCfg getSyntaxMonitorCfg() {
         SyntaxMonitorCfg syntaxMonCfg = null;
-        String fs = String.valueOf(File.separatorChar);
+        String fs = IPathManager.SEPARATOR;
 
         try {
             IPathManager pm = PathManagerFactory.getPathManager();
