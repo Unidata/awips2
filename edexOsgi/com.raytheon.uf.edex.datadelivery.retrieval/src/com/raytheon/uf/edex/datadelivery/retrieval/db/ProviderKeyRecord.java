@@ -40,7 +40,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 13, 2012 2180       dhladky      Provider Key storage
+ * Jul 13, 2012 2180       dhladky     Provider Key storage
+ * Aug 08, 2013 2180       mpduff      Added default constructor for serialization
  * 
  * </pre>
  * 
@@ -62,12 +63,16 @@ public class ProviderKeyRecord implements IPersistableDataObject<String>,
     @Column(nullable = false)
     @DynamicSerializeElement
     private String providerKey;
-    
+
+    public ProviderKeyRecord() {
+
+    }
+
     public ProviderKeyRecord(String providerName, String providerKey) {
         this.providerName = providerName;
         this.providerKey = providerKey;
     }
-   
+
     public String getProviderKey() {
         return providerKey;
     }
