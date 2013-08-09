@@ -28,6 +28,7 @@ import static org.mockito.Mockito.mock;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,7 @@ import com.raytheon.uf.common.util.file.FilenameFilters;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.datadelivery.retrieval.ServiceTypeFactory;
 import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
+import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter.TranslationException;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.State;
@@ -85,6 +87,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * Mar 05, 2013 1647       djohnson     Pass wmo header strategy to constructor.
  * Mar 19, 2013 1794       djohnson     RetrievalTasks integrate at a queue.
  * Apr 29, 2013 1910       djohnson     Unregister from EventBus after each test.
+ * Aug 09, 2013 1822       bgonzale     Added parameters to processRetrievedPluginDataObjects.
  * 
  * </pre>
  * 
@@ -107,9 +110,10 @@ public class RetrievalTaskTest {
          * {@inheritDoc}
          */
         @Override
-        public void processRetrievedPluginDataObjects(
+        public void processRetrievedPluginDataObjects(String dataProvider,
+                String dataFormat, String sourceType, Date date,
                 RetrievalResponseXml retrievalPluginDataObjects)
-                throws Exception {
+                throws SerializationException, TranslationException {
             final List<RetrievalResponseWrapper> retrievalAttributePluginDataObjects = retrievalPluginDataObjects
                     .getRetrievalAttributePluginDataObjects();
             final RetrievalRequestRecord requestRecord = dao
