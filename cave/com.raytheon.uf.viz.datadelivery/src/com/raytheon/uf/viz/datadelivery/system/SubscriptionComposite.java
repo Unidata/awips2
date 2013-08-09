@@ -39,9 +39,11 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
+import com.raytheon.viz.ui.widgets.ApplyCancelComposite;
+import com.raytheon.viz.ui.widgets.IApplyCancelAction;
 
 /**
- * Subscription overlap configuration.
+ * Subscription settings composite.
  * 
  * <pre>
  * 
@@ -49,15 +51,19 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 14, 2013 2000       djohnson     Initial creation
+ * Aug 07, 2013    2180    mpduff      Initial creation.
  * 
  * </pre>
  * 
- * @author djohnson
+ * @author mpduff
  * @version 1.0
  */
-public class SubscriptionTab extends SystemApplyCancelTab {
 
+public class SubscriptionComposite extends Composite implements
+        IApplyCancelAction {
+    /**
+     * Overlap Spinners enum.
+     */
     private static enum OverlapSpinners {
         PARAMETERS("Parameters:") {
             @Override
@@ -133,8 +139,9 @@ public class SubscriptionTab extends SystemApplyCancelTab {
 
     /** Status Handler */
     private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(SubscriptionTab.class);
+            .getHandler(SubscriptionComposite.class);
 
+    /** Subscription overlap service */
     private final ISubscriptionOverlapService overlapService = DataDeliveryServices
             .getSubscriptionOverlapService();
 
@@ -142,71 +149,48 @@ public class SubscriptionTab extends SystemApplyCancelTab {
     private Combo matchStrategyCombo;
 
     /** Associates the enum spinner configuration to its spinner */
-    private final EnumMap<OverlapSpinners, Spinner> spinnerMap = new EnumMap<SubscriptionTab.OverlapSpinners, Spinner>(
+    private final EnumMap<OverlapSpinners, Spinner> spinnerMap = new EnumMap<SubscriptionComposite.OverlapSpinners, Spinner>(
             OverlapSpinners.class);
+
+    /** The listener that should be used to signify changes were made **/
+    private final Runnable changesWereMade = new Runnable() {
+        @Override
+        public void run() {
+            buttonComp.enableButtons(true);
+        }
+    };
+
+    /** Button composite */
+    private ApplyCancelComposite buttonComp;
 
     /**
      * Constructor.
      * 
-     * @param parentComp
-     *            The Composite holding these controls
+     * @param parent
+     *            Parent Composite
+     * @param style
+     *            Style bits
      */
-    public SubscriptionTab(Composite parentComp) {
-        super(parentComp);
+    public SubscriptionComposite(Composite parent, int style) {
+        super(parent, style);
+        init();
     }
 
     /**
-     * {@inheritDoc}
+     * Initialize class.
      */
-    @Override
-    protected void loadConfiguration() {
-        SubscriptionOverlapConfig config;
-        try {
-            config = overlapService.readConfig();
-        } catch (LocalizationException e) {
-            statusHandler
-                    .handle(Priority.ERROR,
-                            "Unable to load the subscription overlap rules.  "
-                                    + "Defaulting to configuration that will never overlap.",
-                            e);
-            config = SubscriptionOverlapConfig.NEVER_OVERLAPS;
-        }
+    private void init() {
+        GridLayout gl = new GridLayout(1, true);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        this.setLayout(gl);
+        this.setLayoutData(gd);
 
-        for (Entry<OverlapSpinners, Spinner> entry : spinnerMap.entrySet()) {
-            final Spinner spinner = entry.getValue();
-            final int initialValue = entry.getKey().getValue(config);
-
-            DataDeliveryGUIUtils.removeListeners(spinner, SWT.Selection,
-                    SWT.DefaultSelection);
-
-            spinner.setSelection(initialValue);
-            spinner.addSelectionListener(DataDeliveryGUIUtils
-                    .addValueChangedSelectionListener(initialValue, spinner,
-                            changesWereMade));
-        }
-
-        DataDeliveryGUIUtils.removeListeners(matchStrategyCombo, SWT.Selection,
-                SWT.DefaultSelection);
-
-        final int indexOfConfigValue = matchStrategyCombo.indexOf(config
-                .getMatchStrategy().getDisplayString());
-        matchStrategyCombo.select(indexOfConfigValue);
-        matchStrategyCombo.addSelectionListener(DataDeliveryGUIUtils
-                .addValueChangedSelectionListener(indexOfConfigValue,
-                        matchStrategyCombo, changesWereMade));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void initializeTabComponents(Composite mainComp) {
-        GridLayout gl = new GridLayout(1, false);
-        Composite configurationComposite = new Composite(mainComp, SWT.NONE);
+        gl = new GridLayout(1, false);
+        Composite configurationComposite = new Composite(this, SWT.NONE);
         configurationComposite.setLayout(gl);
 
         // Label for directions
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, false, false);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, false, false);
         Label directionsLabel = new Label(configurationComposite, SWT.NONE);
         directionsLabel.setLayoutData(gd);
         directionsLabel
@@ -260,13 +244,60 @@ public class SubscriptionTab extends SystemApplyCancelTab {
                 .values()) {
             matchStrategyCombo.add(matchStrategy.getDisplayString());
         }
+
+        // Buttons
+        buttonComp = new ApplyCancelComposite(this, SWT.NONE, this);
+
+        loadConfiguration();
     }
 
     /**
-     * {@inheritDoc}
+     * Load configuration data
      */
-    @Override
-    protected boolean saveConfiguration() throws LocalizationException {
+    private void loadConfiguration() {
+        SubscriptionOverlapConfig config;
+        try {
+            config = overlapService.readConfig();
+        } catch (LocalizationException e) {
+            statusHandler
+                    .handle(Priority.ERROR,
+                            "Unable to load the subscription overlap rules.  "
+                                    + "Defaulting to configuration that will never overlap.",
+                            e);
+            config = SubscriptionOverlapConfig.NEVER_OVERLAPS;
+        }
+
+        for (Entry<OverlapSpinners, Spinner> entry : spinnerMap.entrySet()) {
+            final Spinner spinner = entry.getValue();
+            final int initialValue = entry.getKey().getValue(config);
+
+            DataDeliveryGUIUtils.removeListeners(spinner, SWT.Selection,
+                    SWT.DefaultSelection);
+
+            spinner.setSelection(initialValue);
+            spinner.addSelectionListener(DataDeliveryGUIUtils
+                    .addValueChangedSelectionListener(initialValue, spinner,
+                            changesWereMade));
+        }
+
+        DataDeliveryGUIUtils.removeListeners(matchStrategyCombo, SWT.Selection,
+                SWT.DefaultSelection);
+
+        final int indexOfConfigValue = matchStrategyCombo.indexOf(config
+                .getMatchStrategy().getDisplayString());
+        matchStrategyCombo.select(indexOfConfigValue);
+        matchStrategyCombo.addSelectionListener(DataDeliveryGUIUtils
+                .addValueChangedSelectionListener(indexOfConfigValue,
+                        matchStrategyCombo, changesWereMade));
+    }
+
+    /**
+     * Save configuration data
+     * 
+     * @return true if saved
+     * @throws LocalizationException
+     */
+    private boolean saveConfiguration() throws LocalizationException {
         SubscriptionOverlapConfig config = new SubscriptionOverlapConfig();
 
         for (Entry<OverlapSpinners, Spinner> entry : spinnerMap.entrySet()) {
@@ -283,12 +314,25 @@ public class SubscriptionTab extends SystemApplyCancelTab {
     }
 
     /**
-     * Get the tab text.
-     * 
-     * @return the tab text
+     * {@inheritDoc}
      */
     @Override
-    public String getTabText() {
-        return "Subscription Rules";
+    public boolean apply() {
+        try {
+            return saveConfiguration();
+        } catch (LocalizationException e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to save configuration changes.", e);
+        }
+
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void cancel() {
+        loadConfiguration();
     }
 }
