@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.avnconfig;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -70,6 +69,7 @@ import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
  *    10/04/2012   1229        rferrel     Added dispose check needed for 
  *                                          non-blocking dialogs.
  *    10/12/2012   1229        rferrel     Changes for non-blocking MessageViewerDlg.
+ *    08/09/2013   2033        mschenke    Switched File.separator to IPathManager.SEPARATOR
  * 
  * </pre>
  * 
@@ -326,8 +326,9 @@ public class MessageStatusComp extends Composite implements IStatusSettable {
         String path = pm.getFile(
                 pm.getContext(LocalizationType.CAVE_STATIC,
                         LocalizationLevel.BASE),
-                "aviation" + File.separatorChar + "avnwatch"
-                        + File.separatorChar + "msgLog2.png").getAbsolutePath();
+                "aviation" + IPathManager.SEPARATOR + "avnwatch"
+                        + IPathManager.SEPARATOR + "msgLog2.png")
+                .getAbsolutePath();
         return path;
     }
 
