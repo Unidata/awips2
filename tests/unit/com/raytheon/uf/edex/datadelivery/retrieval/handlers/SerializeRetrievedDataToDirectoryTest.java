@@ -23,6 +23,7 @@ import static com.raytheon.uf.common.util.Matchers.hasNumberOfFiles;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
+import java.util.Date;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -43,6 +44,7 @@ import com.raytheon.uf.common.util.TestUtil;
  * Feb 01, 2013 1543       djohnson     Initial creation
  * Feb 15, 2013 1543       djohnson     Class renames.
  * Mar 05, 2013 1647       djohnson     Pass wmo header strategy to constructor.
+ * Aug 09, 2013 1822       bgonzale     Added parameters to processRetrievedPluginDataObjects.
  * 
  * </pre>
  * 
@@ -69,7 +71,8 @@ public class SerializeRetrievedDataToDirectoryTest {
         RetrievalResponseXml retrievalPluginDataObjects = RetrievalPluginDataObjectsFixture.INSTANCE
                 .get();
 
-        service.processRetrievedPluginDataObjects(retrievalPluginDataObjects);
+        service.processRetrievedPluginDataObjects("NOMADS", "GRID", "Model",
+                new Date(), retrievalPluginDataObjects);
 
         assertThat(directory, hasNumberOfFiles(1));
     }
