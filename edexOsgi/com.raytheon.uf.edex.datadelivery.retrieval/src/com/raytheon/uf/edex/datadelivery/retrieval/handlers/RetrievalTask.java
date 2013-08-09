@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
+import java.util.Date;
+
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -42,6 +44,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
  * Jan 30, 2013 1543       djohnson     Constrain to the network retrievals are pulled for.
  * Feb 15, 2013 1543       djohnson     Using xml for retrievals now.
  * Mar 05, 2013 1647       djohnson     Change no retrievals found message to debug.
+ * Aug 09, 2013 1822       bgonzale     Added parameters to processRetrievedPluginDataObjects.
  * 
  * </pre>
  * 
@@ -100,8 +103,10 @@ public class RetrievalTask implements Runnable {
                     request = retrievalDao.getById(retrievalPluginDataObject
                             .getRequestRecord());
                     success = retrievalPluginDataObject.isSuccess();
-                    retrievedDataProcessor
-                            .processRetrievedPluginDataObjects(retrievalPluginDataObject);
+                    Date date = request.getInsertTime();
+                    retrievedDataProcessor.processRetrievedPluginDataObjects(
+                            request.getProvider(), request.getPlugin(), null,
+                            date, retrievalPluginDataObject);
                 } catch (Exception e) {
                     statusHandler.error(
                             network + " retrieval processing error", e);

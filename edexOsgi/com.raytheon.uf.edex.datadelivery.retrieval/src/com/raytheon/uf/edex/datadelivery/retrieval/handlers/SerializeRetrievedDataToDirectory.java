@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.UUID;
 
 import javax.xml.bind.JAXBException;
@@ -44,6 +45,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.opendap.OpenDapRetrievalRespo
  * Feb 15, 2013 1543       djohnson     Serialize data out as XML.
  * Mar 05, 2013 1647       djohnson     Apply WMO header.
  * Mar 07, 2013 1647       djohnson     Write out as hidden file, then rename.
+ * Aug 09, 2013 1822       bgonzale     Added parameters to IWmoHeaderApplier.applyWmoHeader().
  * 
  * </pre>
  * 
@@ -78,7 +80,8 @@ public class SerializeRetrievedDataToDirectory implements
      * {@inheritDoc}
      */
     @Override
-    public void processRetrievedPluginDataObjects(
+    public void processRetrievedPluginDataObjects(String dataType,
+            String dataFormat, String sourceType, Date date,
             RetrievalResponseXml retrievalPluginDataObjects)
             throws SerializationException {
         retrievalPluginDataObjects.prepareForSerialization();
@@ -91,7 +94,8 @@ public class SerializeRetrievedDataToDirectory implements
 
             final String xml = jaxbManager
                     .marshalToXml(retrievalPluginDataObjects);
-            final String textForFile = wmoHeaderWrapper.applyWmoHeader(xml);
+            final String textForFile = wmoHeaderWrapper.applyWmoHeader(
+                    dataType, dataFormat, sourceType, date, xml);
 
             // Write as hidden file, this is OS specific, but there is no
             // platform-neutral way to do this with Java
