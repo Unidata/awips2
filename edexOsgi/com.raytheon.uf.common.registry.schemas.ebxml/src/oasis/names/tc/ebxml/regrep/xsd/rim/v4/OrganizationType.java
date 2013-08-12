@@ -67,7 +67,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "Organization")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "OrganizationType", propOrder = { "organization" })
 @DynamicSerialize
