@@ -17,12 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.cwa.dao;
+package com.raytheon.uf.edex.plugin.tcg;
 
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.cwa.CWARecord;
+import com.raytheon.uf.common.dataplugin.tcg.TropicalCycloneGuidance;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
@@ -35,31 +35,32 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 1, 2010            jsanchez     Initial creation
+ * Oct 28, 2009            jsanchez     Initial creation
  *
  * </pre>
  *
  * @author jsanchez
  * @version 1.0 
  */
-public class CWARecordDao extends PointDataPluginDao<CWARecord> {
-    /**
-     * Creates a new CWARecordnDao
-     * @throws PluginException 
-     */
-    public CWARecordDao(String pluginName) throws PluginException {
-        super(pluginName);
-    }
+public class TropicalCycloneGuidanceDao extends PointDataPluginDao<TropicalCycloneGuidance> {
 
     /**
-     * Retrieves an sfcobs report using the datauri .
+     * Creates a new TropicalCycloneGuidanceDao
+     * @throws PluginException 
+     */
+    public TropicalCycloneGuidanceDao(String pluginName) throws PluginException {
+        super(pluginName);
+    }
+    
+    /**
+     * Retrieves an tcg report using the datauri .
      * 
      * @param dataURI
      *            The dataURI to match against.
      * @return The report record if it exists.
      */
-    public CWARecord queryByDataURI(String dataURI) {
-        CWARecord report = null;
+    public TropicalCycloneGuidance queryByDataURI(String dataURI) {
+        TropicalCycloneGuidance report = null;
         List<?> obs = null;
         try {
             obs = queryBySingleCriteria("dataURI", dataURI);
@@ -67,13 +68,12 @@ public class CWARecordDao extends PointDataPluginDao<CWARecord> {
             e.printStackTrace();
         }
         if ((obs != null) && (obs.size() > 0)) {
-            report = (CWARecord) obs.get(0);
+            report = (TropicalCycloneGuidance) obs.get(0);
         }
         return report;
     }
-
     /**
-     * Queries for to determine if a given data uri exists on the sfcobs table.
+     * Queries for to determine if a given data uri exists on the tcg table.
      * 
      * @param dataUri
      *            The DataURI to find.
@@ -82,7 +82,7 @@ public class CWARecordDao extends PointDataPluginDao<CWARecord> {
      */
     public Object[] queryDataUriColumn(final String dataUri) {
 
-        String sql = "select datauri from awips.cwa where datauri='"
+        String sql = "select datauri from awips.tcg where datauri='"
                 + dataUri + "';";
 
         Object[] results = executeSQLQuery(sql);
@@ -96,12 +96,14 @@ public class CWARecordDao extends PointDataPluginDao<CWARecord> {
     }
 
     @Override
-    public String getPointDataFileName(CWARecord p) {
-        return "cwa.h5";
+    public String getPointDataFileName(TropicalCycloneGuidance p) {
+        return "tcg.h5";
     }
 
     @Override
-    public CWARecord newObject() {
-        return new CWARecord();
+    public TropicalCycloneGuidance newObject() {
+        return new TropicalCycloneGuidance();
     }
+
 }
+

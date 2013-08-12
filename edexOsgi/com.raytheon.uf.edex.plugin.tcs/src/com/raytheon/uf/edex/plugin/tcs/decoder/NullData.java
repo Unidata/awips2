@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.tcs.TropicalCycloneSummary;
-import com.raytheon.uf.common.dataplugin.tcs.dao.TropicalCycloneSummaryDao;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.edex.plugin.tcs.TropicalCycloneSummaryDao;
 
 /**
  * TODO Add Description

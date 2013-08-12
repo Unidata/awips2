@@ -17,12 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.lsr.dao;
+package com.raytheon.uf.edex.plugin.cwa;
 
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.lsr.LocalStormReport;
+import com.raytheon.uf.common.dataplugin.cwa.CWARecord;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
@@ -35,20 +35,19 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 1, 2009            jkorman     Initial creation
+ * Feb 1, 2010            jsanchez     Initial creation
  *
  * </pre>
  *
- * @author jkorman
+ * @author jsanchez
  * @version 1.0 
  */
-public class LocalStormReportDao extends PointDataPluginDao<LocalStormReport> {
-
+public class CWARecordDao extends PointDataPluginDao<CWARecord> {
     /**
-     * Creates a new ObsStationDao
+     * Creates a new CWARecordnDao
      * @throws PluginException 
      */
-    public LocalStormReportDao(String pluginName) throws PluginException {
+    public CWARecordDao(String pluginName) throws PluginException {
         super(pluginName);
     }
 
@@ -59,8 +58,8 @@ public class LocalStormReportDao extends PointDataPluginDao<LocalStormReport> {
      *            The dataURI to match against.
      * @return The report record if it exists.
      */
-    public LocalStormReport queryByDataURI(String dataURI) {
-        LocalStormReport report = null;
+    public CWARecord queryByDataURI(String dataURI) {
+        CWARecord report = null;
         List<?> obs = null;
         try {
             obs = queryBySingleCriteria("dataURI", dataURI);
@@ -68,7 +67,7 @@ public class LocalStormReportDao extends PointDataPluginDao<LocalStormReport> {
             e.printStackTrace();
         }
         if ((obs != null) && (obs.size() > 0)) {
-            report = (LocalStormReport) obs.get(0);
+            report = (CWARecord) obs.get(0);
         }
         return report;
     }
@@ -83,7 +82,7 @@ public class LocalStormReportDao extends PointDataPluginDao<LocalStormReport> {
      */
     public Object[] queryDataUriColumn(final String dataUri) {
 
-        String sql = "select datauri from awips.lsr where datauri='"
+        String sql = "select datauri from awips.cwa where datauri='"
                 + dataUri + "';";
 
         Object[] results = executeSQLQuery(sql);
@@ -97,13 +96,12 @@ public class LocalStormReportDao extends PointDataPluginDao<LocalStormReport> {
     }
 
     @Override
-    public String getPointDataFileName(LocalStormReport p) {
-        return "lsr.h5";
+    public String getPointDataFileName(CWARecord p) {
+        return "cwa.h5";
     }
 
     @Override
-    public LocalStormReport newObject() {
-        return new LocalStormReport();
+    public CWARecord newObject() {
+        return new CWARecord();
     }
-
 }
