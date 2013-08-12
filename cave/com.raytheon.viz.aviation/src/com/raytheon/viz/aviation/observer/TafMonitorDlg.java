@@ -145,6 +145,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 11/28/2012   1363        rferrel     Dispose of PythonGuidanceJob when closing.
  * 01/02/2013   15606		gzhang		Remove GridData widthHint so button/label size change with GUI
  * 03/07/2013   1735        rferrel     Performance speed up for retrieving grid data.
+ * 08/09/2013   2033        mschenke    Switched File.separator to IPathManager.SEPARATOR
  * 
  * </pre>
  * 
@@ -978,7 +979,7 @@ public class TafMonitorDlg extends CaveSWTDialog implements
      * Read in the TAF monitor configuration from XML.
      */
     private void createTafMonitorCfg() {
-        String fs = File.separator;
+        String fs = IPathManager.SEPARATOR;
         try {
             IPathManager pm = PathManagerFactory.getPathManager();
             File path = pm.getStaticFile("aviation" + fs + "config" + fs
