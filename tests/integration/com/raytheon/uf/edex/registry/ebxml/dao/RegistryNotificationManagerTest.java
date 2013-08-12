@@ -46,6 +46,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -97,7 +98,7 @@ public class RegistryNotificationManagerTest extends AbstractRegistryTest {
 
     @Autowired
     private PluginSubscribedListener pluginSubscribedListener;
-    
+
     @BeforeClass
     public static void classSetUp() {
         EventBusTest
@@ -162,6 +163,7 @@ public class RegistryNotificationManagerTest extends AbstractRegistryTest {
         assertThat(pluginSubscribedListener.hasBeenNotified(), is(true));
     }
 
+    @Ignore
     @Test
     public void pluginDestinationIsNotNotifiedOnNonSubscribedObjectInsert()
             throws MsgRegistryException {
