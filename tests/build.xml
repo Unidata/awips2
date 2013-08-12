@@ -63,7 +63,8 @@
 			<fileset dir="${PROJECTS.DIR}/org.mockito" includes="**/*.jar" />
 			<fileset dir="${PROJECTS.DIR}/org.springframework" includes="**/*.jar" />
 			<fileset dir="${PROJECTS.DIR}/org.slf4j" includes="**/*.jar" />
-			<fileset dir="${basedir}/lib" includes="**/*.jar" />
+            <fileset dir="${basedir}/lib" includes="**/*.jar" />
+		    <fileset dir="${JUNIT}" includes="**/*.jar" />
 		</path>
 
 		<!-- Include resource files provided by projects -->
